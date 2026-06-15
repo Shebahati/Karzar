@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     """
     PROJECT_NAME: str = "Industrial Lathe Tools API"
     VERSION: str = "1.0.0"
+    DEBUG: bool = False
 
     # PostgreSQL Database Credentials
     POSTGRES_USER: str
@@ -19,6 +20,18 @@ class Settings(BaseSettings):
     # Redis Credentials
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+
+    # Security
+    SECRET_KEY: str = "your-secret-key-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    @field_validator("POSTGRES_PORT")
+    @classmethod
+    def validate_port(cls, v):
+        if not (1 <= v <= 65535):
+            raise ValueError("Port must be between 1 and 65535")
+        return v
 
     @computed_field
     @property
