@@ -1,15 +1,42 @@
 # محیط مجازی
 venv/
 .venv/
+env/
 
 # فایل‌های حساس
 .env
+.env.local
+.env.*.local
 
 # فایل‌های کش پایتون
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
 
-# فایل‌های داکر و دیتابیس
-db.sqlite3
-.pytest_cache/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+
+# تست‌ها و پوشش
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# فایل‌های داکر
+docker-compose.override.yml
+
+# لاگ‌ها
+logs/
+*.log
+
+# Build
+dist/
+build/
+*.egg-info/
