@@ -1,0 +1,17 @@
+lathe-tools-backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # نقطه ورود برنامه (اجرای FastAPI)
+│   ├── api/                 # روت‌ها و اندپوینت‌های کنترلر (فقط مسیریابی)
+│   ├── core/                # تنظیمات (Pydantic Settings)، توابع امنیتی (JWT)
+│   ├── crud/                # کوئری‌های دیتابیس (فقط کدهای Async SQLAlchemy)
+│   ├── db/                  # تنظیمات اتصال به دیتابیس (AsyncSession)
+│   │   └── models/          # مدل‌های دیتابیس (SQLAlchemy Declarative Models)
+│   ├── schemas/             # مدل‌های اعتبارسنجی (Pydantic V2 DTOs)
+│   └── services/            # منطق تجاری (محاسبات، تخفیف‌ها، ارتباط بین CRUDها)
+├── tests/                   # تست‌های واحد و یکپارچگی (Pytest)
+├── Dockerfile               # کانفیگ داکر برای اپلیکیشن پایتون
+├── docker-compose.yml       # اجرای همزمان اپلیکیشن، دیتابیس PostgreSQL و Redis
+├── requirements.txt         # لیست وابستگی‌ها
+├── alembic.ini              # تنظیمات مایگریشن‌های دیتابیس
+└── .env                     # متغیرهای محیطی

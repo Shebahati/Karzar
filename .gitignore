@@ -1,20 +1,15 @@
-# Environments
-.env
-.venv
-env/
+# محیط مجازی
 venv/
+.venv/
 
-# Python
+# فایل‌های حساس
+.env
+
+# فایل‌های کش پایتون
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 
-# Pytest
+# فایل‌های داکر و دیتابیس
+db.sqlite3
 .pytest_cache/
-htmlcov/
-.coverage
-
-# IDEs / OS
-.vscode/
-.idea/
 .DS_Store
