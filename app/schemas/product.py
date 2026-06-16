@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
-import uuid
+from uuid import UUID
 
 
 class CategorySlug(str, Enum):
@@ -56,6 +56,7 @@ class ProductCreate(BaseModel):
     stock_quantity: int
     is_active: bool = True
     specifications: Specifications
+    model_config = ConfigDict(use_enum_values=True)
 
     @field_validator("sku")
     @classmethod
@@ -107,6 +108,29 @@ class ProductUpdate(BaseModel):
     stock_quantity: Optional[int] = None
     is_active: Optional[bool] = None
     specifications: Optional[Specifications] = None
+    model_config = ConfigDict(use_enum_values=True)
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):
+        if v is not None:
+            if len(v.strip()) == 0:
+                raise ValueError("Name cannot be empty")
+            if len(v) > 255:
+                raise ValueError("Name must be 255 characters or less")
+            return v.strip()
+        return v
+
+    @field_validator("brand")
+    @classmethod
+    def validate_brand(cls, v):
+        if v is not None:
+            if len(v.strip()) == 0:
+                raise ValueError("Brand cannot be empty")
+            if len(v) > 100:
+                raise ValueError("Brand must be 100 characters or less")
+            return v.strip()
+        return v
 
     @field_validator("base_price")
     @classmethod
@@ -124,7 +148,7 @@ class ProductUpdate(BaseModel):
 
 
 class ProductResponse(BaseModel):
-    id: uuid.UUID
+    id: UUID
     sku: str
     name: str
     category_slug: CategorySlug

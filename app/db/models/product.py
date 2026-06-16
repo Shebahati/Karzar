@@ -2,8 +2,8 @@
 
 from datetime import datetime
 from typing import Optional
-from uuid import uuid4
-from sqlalchemy import String, Numeric, Integer, Boolean, DateTime, func
+from uuid import UUID as UUIDType, uuid4
+from sqlalchemy import String, Numeric, Integer, Boolean, DateTime, func, JSON, Uuid
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -17,8 +17,8 @@ class Product(Base):
     __tablename__ = "products"
 
     # Primary Key
-    id: Mapped[str] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-
+    id: Mapped[UUIDType] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
+    
     # Core Identifiers
     sku: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -32,7 +32,7 @@ class Product(Base):
 
     # Dynamic Attributes (JSONB)
     # This single field will store technical_specs, features, dimensions, and optional_accessories
-    specifications: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    specifications: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=False, default=dict)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

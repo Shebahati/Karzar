@@ -1,5 +1,5 @@
 # app/crud/product.py
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Tuple
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -124,7 +124,7 @@ async def update_product(
         update_data = product_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             if field == "specifications" and value is not None:
-                setattr(db_product, field, value.model_dump())
+                setattr(db_product, field, value)
             else:
                 setattr(db_product, field, value)
         
@@ -145,7 +145,7 @@ async def delete_product_soft(db: AsyncSession, product_id: UUID) -> bool:
         return False
     
     try:
-        db_product.deleted_at = datetime.utcnow()
+        db_product.deleted_at = datetime.now(timezone.utc)
         await db.commit()
         logger.info(f"Soft deleted product with ID: {product_id}")
         return True
@@ -231,3 +231,9 @@ async def update_stock(db: AsyncSession, product_id: UUID, quantity_delta: int) 
         await db.rollback()
         logger.error(f"Error updating stock: {str(e)}")
         raise
+
+async def check_sku_exists_absolutely(db: AsyncSession, sku: str) -> bool:
+    """Check if SKU exists AT ALL in database (including soft-deleted)."""
+    stmt = select(Product.id).where(Product.sku == sku)
+    result = await db.execute(stmt)
+    return result.first() is not None
