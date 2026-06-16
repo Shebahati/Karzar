@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
 
     # Security
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
@@ -31,6 +31,15 @@ class Settings(BaseSettings):
     def validate_port(cls, v):
         if not (1 <= v <= 65535):
             raise ValueError("Port must be between 1 and 65535")
+        return v
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v):
+        if not v or len(v) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters long and not empty")
+        if v == "your-secret-key-change-in-production":
+            raise ValueError("SECRET_KEY must be changed from default placeholder")
         return v
 
     @computed_field

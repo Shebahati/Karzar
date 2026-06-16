@@ -1,5 +1,5 @@
 # Use official Python 3.10 slim image
-FROM python:3.10-slim as builder
+FROM python:3.10-slim AS builder
 
 # Prevent Python from writing .pyc files and enable unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
