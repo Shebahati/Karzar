@@ -24,9 +24,9 @@ class ProductService:
         logger.info(f"Creating product: {product_data.sku}")
         
         # Check duplicate SKU
-        existing = await crud_product.get_product_by_sku(db, product_data.sku)
+        existing = await crud_product.check_sku_exists_absolutely(db, product_data.sku)
         if existing:
-            raise ValueError(f"Product with SKU {product_data.sku} already exists")
+            raise ValueError(f"Product with SKU {product_data.sku} already exists (might be deleted)")
         
         # Create product
         product = await crud_product.create_product(db, product_data)
@@ -57,37 +57,41 @@ class ProductService:
     @staticmethod
     async def search_products(
         db: AsyncSession,
-        query: str,
-        category: Optional[CategorySlug] = None,
+        search: Optional[str] = None,
+        category: Optional[str] = None,
+        brand: Optional[str] = None,
+        is_active: Optional[bool] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
         skip: int = 0,
         limit: int = 100,
     ) -> Tuple[List[Product], int]:
-        """
-        Search products with advanced filtering.
-        """
-        logger.info(f"Searching products: query={query}, category={category}")
+        """Search products with advanced filtering and business logic."""
+        logger.info(f"Searching products: search={search}, category={category}")
         
+        # ۱. انباردار (CRUD) را صدا می‌زنیم تا دیتای خام را از دیتابیس بگیرد
         products, total = await crud_product.get_products(
             db=db,
             skip=skip,
             limit=limit,
             category_slug=category,
-            search=query,
+            brand=brand,
+            is_active=is_active,
+            search=search,
         )
         
-        # Apply price filtering in memory
-        if min_price or max_price:
+        # ۲. سرآشپز (Service) فیلترهای تجاری مثل بازه قیمت را روی دیتا اعمال می‌کند
+        if min_price is not None or max_price is not None:
             filtered = []
             for p in products:
                 price = float(p.base_price)
-                if min_price and price < min_price:
+                if min_price is not None and price < min_price:
                     continue
-                if max_price and price > max_price:
+                if max_price is not None and price > max_price:
                     continue
                 filtered.append(p)
             products = filtered
+            total = len(products)
         
         return products, total
 
@@ -106,11 +110,13 @@ class ProductService:
         if not product:
             return None
         
-        # If SKU is being updated, check for duplicates
-        if update_data.sku and update_data.sku != product.sku:
-            existing = await crud_product.get_product_by_sku(db, update_data.sku)
+        # 👈 تغییر بسیار مهم (استفاده از getattr): 
+        # به این شکل اگر sku در اسکیما نباشد، ارور نمی‌دهد و مقدار None می‌گیرد
+        update_sku = getattr(update_data, "sku", None)
+        if update_sku and update_sku != product.sku:
+            existing = await crud_product.get_product_by_sku(db, update_sku)
             if existing:
-                raise ValueError(f"Product with SKU {update_data.sku} already exists")
+                raise ValueError(f"Product with SKU {update_sku} already exists")
         
         updated_product = await crud_product.update_product(
             db, product_id, update_data

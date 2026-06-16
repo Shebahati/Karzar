@@ -1,9 +1,9 @@
 # app/api/endpoints/product.py
 from uuid import UUID
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.services.product_service import ProductService
 from app.db.database import get_db
 from app.schemas.product import (
     ProductCreate,
@@ -29,38 +29,24 @@ router = APIRouter()
 async def create_new_product(
     product_in: ProductCreate, db: AsyncSession = Depends(get_db)
 ):
-    """
-    Create a new product.
-    
-    - **sku**: Unique product identifier (max 50 chars)
-    - **name**: Product name (max 255 chars)
-    - **category_slug**: Product category
-    - **brand**: Product brand (max 100 chars)
-    - **base_price**: Product price (must be >= 0)
-    - **stock_quantity**: Available stock (must be >= 0)
-    - **specifications**: Product specifications (technical, features, dimensions)
-    """
     try:
-        # Check if SKU already exists
-        existing = await crud_product.get_product_by_sku(db, product_in.sku)
-        if existing:
-            logger.warning(f"Attempted to create product with duplicate SKU: {product_in.sku}")
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product with SKU '{product_in.sku}' already exists",
-            )
-        
-        product = await crud_product.create_product(db=db, product_in=product_in)
+        # کار را مستقیما به سرویس می‌سپاریم
+        product = await ProductService.create_product_with_validation(db=db, product_data=product_in)
         return product
-    except HTTPException:
-        raise
+    
+    except ValueError as e:
+        # سرویس در صورت وجود خطای بیزینسی (مثل SKU تکراری) ValueError می‌دهد
+        logger.warning(f"Business validation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
     except Exception as e:
         logger.error(f"Error creating product: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error creating product",
         )
-
 
 @router.get(
     "/",
@@ -76,27 +62,21 @@ async def read_products(
     brand: Optional[str] = Query(None, description="Filter by brand"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(None, description="Search in name, SKU, and brand"),
+    min_price: Optional[float] = Query(None, description="Minimum price filter"),
+    max_price: Optional[float] = Query(None, description="Maximum price filter"),
 ):
-    """
-    List all products with optional filtering and pagination.
-    
-    Query Parameters:
-    - **skip**: Number of items to skip (default: 0)
-    - **limit**: Number of items to return (default: 100, max: 1000)
-    - **category_slug**: Filter by category
-    - **brand**: Filter by brand
-    - **is_active**: Filter by active status
-    - **search**: Search term for name, SKU, or brand
-    """
     try:
-        products, total = await crud_product.get_products(
+        # ارسال تمام درخواست‌ها به لایه Service
+        products, total = await ProductService.search_products(
             db=db,
             skip=skip,
             limit=limit,
-            category_slug=category_slug,
+            category=category_slug,
             brand=brand,
             is_active=is_active,
             search=search,
+            min_price=min_price,
+            max_price=max_price
         )
         return ProductListResponse(
             total=total, skip=skip, limit=limit, items=products
@@ -110,42 +90,14 @@ async def read_products(
 
 
 @router.get(
-    "/{product_id}",
-    response_model=ProductResponse,
-    summary="Get product by ID",
-    tags=["Products"],
-)
-async def read_product(
-    product_id: UUID, db: AsyncSession = Depends(get_db)
-):
-    """Get a specific product by ID."""
-    try:
-        product = await crud_product.get_product_by_id(db=db, product_id=product_id)
-        if not product:
-            logger.warning(f"Product not found: {product_id}")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Product with ID '{product_id}' not found",
-            )
-        return product
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error retrieving product: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error retrieving product",
-        )
-
-
-@router.get(
     "/sku/{sku}",
     response_model=ProductResponse,
     summary="Get product by SKU",
     tags=["Products"],
 )
 async def read_product_by_sku(
-    sku: str, db: AsyncSession = Depends(get_db)
+    sku: str = Path(..., min_length=1, max_length=50, description="Product SKU"),
+    db: AsyncSession = Depends(get_db)
 ):
     """Get a specific product by SKU."""
     try:
@@ -167,6 +119,41 @@ async def read_product_by_sku(
         )
 
 
+@router.get(
+    "/{product_id}",
+    response_model=ProductResponse,
+    summary="Get product by ID",
+    tags=["Products"],
+)
+async def read_product(
+    product_id: UUID, db: AsyncSession = Depends(get_db)
+):
+    """Get a specific product by ID."""
+    try:
+        # ارسال درخواست گرفتن محصول به لایه Service
+        details = await ProductService.get_product_details(db=db, product_id=product_id)
+        
+        # اگر سرویس دیتایی پیدا نکرد، ارور 404 بده
+        if not details:
+            logger.warning(f"Product not found: {product_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with ID '{product_id}' not found",
+            )
+            
+        # دیتای تایید شده را برگردان
+        return details["product"]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving product: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error retrieving product",
+        )
+
+
 @router.put(
     "/{product_id}",
     response_model=ProductResponse,
@@ -178,14 +165,9 @@ async def update_product(
     product_in: ProductUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Update a product completely.
-    
-    Only fields that are provided will be updated.
-    """
     try:
-        product = await crud_product.update_product(
-            db=db, product_id=product_id, product_in=product_in
+        product = await ProductService.update_product_with_validation(
+            db=db, product_id=product_id, update_data=product_in
         )
         if not product:
             logger.warning(f"Product not found for update: {product_id}")
@@ -195,14 +177,19 @@ async def update_product(
             )
         return product
     except HTTPException:
-        raise
+        raise  # <--- این همان خط مهمی است که جا افتاده بود!
+    except ValueError as e:
+        logger.warning(f"Validation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     except Exception as e:
         logger.error(f"Error updating product: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error updating product",
         )
-
 
 @router.delete(
     "/{product_id}",
@@ -213,12 +200,6 @@ async def update_product(
 async def delete_product(
     product_id: UUID, db: AsyncSession = Depends(get_db)
 ):
-    """
-    Delete a product using soft delete.
-    
-    The product is marked as deleted but not removed from database.
-    Use the restore endpoint to restore it.
-    """
     try:
         success = await crud_product.delete_product_soft(db=db, product_id=product_id)
         if not success:
@@ -235,7 +216,6 @@ async def delete_product(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error deleting product",
         )
-
 
 @router.post(
     "/{product_id}/restore",
@@ -297,22 +277,18 @@ async def get_stock(
 @router.post(
     "/{product_id}/stock/adjust",
     response_model=ProductResponse,
+    status_code=status.HTTP_200_OK,
     summary="Adjust product stock",
     tags=["Stock Management"],
 )
 async def adjust_stock(
     product_id: UUID,
-    quantity_delta: int = Query(..., description="Quantity to add (positive) or subtract (negative)"),
+    quantity_delta: int = Query(..., description="Quantity to add or subtract"),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Adjust product stock by adding or subtracting quantity.
-    
-    - **quantity_delta**: Positive number to add stock, negative to subtract
-    """
     try:
-        product = await crud_product.update_stock(
-            db=db, product_id=product_id, quantity_delta=quantity_delta
+        product = await ProductService.adjust_stock_with_validation(
+            db=db, product_id=product_id, quantity_delta=quantity_delta, reason="API Adjustment"
         )
         if not product:
             logger.warning(f"Product not found for stock adjustment: {product_id}")
@@ -322,7 +298,7 @@ async def adjust_stock(
             )
         return product
     except HTTPException:
-        raise
+        raise  # <--- اینجا هم اضافه شد
     except ValueError as e:
         logger.warning(f"Validation error in stock adjustment: {str(e)}")
         raise HTTPException(
