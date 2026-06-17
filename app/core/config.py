@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    #Notion API
+    NOTION_TOKEN: str
+    NOTION_DATABASE_ID: str
+
     @field_validator("POSTGRES_PORT")
     @classmethod
     def validate_port(cls, v):

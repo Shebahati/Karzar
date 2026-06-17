@@ -8,6 +8,8 @@ from app.schemas.product import ProductCreate, ProductUpdate, CategorySlug
 from app.crud import product as crud_product
 from app.core.logging import get_logger
 
+from app.services.notion_service import NotionService
+
 logger = get_logger(__name__)
 
 
@@ -32,7 +34,10 @@ class ProductService:
         product = await crud_product.create_product(db, product_data)
         logger.info(f"Product created successfully: {product.id}")
         return product
-
+        
+        notion = NotionService()
+        await notion.update_endpoint_status("Get Products List", "Done")
+        
     @staticmethod
     async def get_product_details(
         db: AsyncSession, product_id: UUID

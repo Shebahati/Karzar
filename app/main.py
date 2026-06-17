@@ -14,6 +14,10 @@ logger = get_logger(__name__)
 from app.api.endpoints.product import router as product_router
 from app.api.endpoints.auth import router as auth_router
 
+from sqladmin import Admin
+from app.db.database import engine  # انجین دیتابیس تو (که احتمالاً async است)
+from app.admin.views import ProductAdmin, CategoryAdmin, BrandAdmin, ProductImageAdmin
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Industrial Lathe Tools API - Complete product management system",
@@ -22,6 +26,12 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
 )
+
+admin = Admin(app, engine)
+admin.add_view(CategoryAdmin)       # تب دسته‌بندی‌ها
+admin.add_view(BrandAdmin)          # تب برندها
+admin.add_view(ProductAdmin)        # تب محصولات
+admin.add_view(ProductImageAdmin)   # تب تصاویر
 
 # Include routers
 app.include_router(product_router, prefix="/api/v1/products", tags=["Products"])
