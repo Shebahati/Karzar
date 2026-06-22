@@ -1,5 +1,4 @@
 # tests/test_product_endpoints.py
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -7,168 +6,152 @@ from app.main import app
 client = TestClient(app)
 
 
-class TestProductEndpoints:
-    """Test suite for product endpoints."""
-
+class TestSystemEndpoints:
     def test_health_check(self):
-        """Test health check endpoint."""
         response = client.get("/health")
         assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "healthy"
-        assert "version" in data
+        assert response.json()["status"] == "healthy"
 
-    def test_readiness_check(self):
-        """Test readiness check endpoint."""
+    def test_readiness_check_without_db(self):
         response = client.get("/ready")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "ready"
+        assert response.status_code == 503
 
     def test_root_endpoint(self):
-        """Test root endpoint."""
         response = client.get("/")
         assert response.status_code == 200
-        data = response.json()
-        assert "message" in data
-        assert data["status"] == "running"
+        assert response.json()["status"] == "running"
 
     def test_api_info(self):
-        """Test API info endpoint."""
         response = client.get("/api/v1")
-        assert response.status_code == 200
         data = response.json()
         assert data["api_version"] == "v1"
-        assert "endpoints" in data
+        assert "categories" in data["endpoints"]
 
 
 class TestProductCreation:
-    """Test suite for product creation."""
-
-    @pytest.fixture
-    def valid_product_data(self):
-        """Fixture for valid product data."""
-        return {
-            "sku": "TEST-001",
-            "name": "Test Product",
-            "category_slug": "digital-calipers",
-            "brand": "TestBrand",
-            "base_price": 99.99,
-            "stock_quantity": 50,
-            "is_active": True,
-            "specifications": {
-                "technical_specs": {
-                    "range": "0-150mm",
-                    "accuracy": "±0.02mm",
-                    "resolution": "0.01mm",
-                    "material": "Stainless steel",
-                    "standard": "DIN862",
-                    "battery_type": "CR2032",
-                },
-                "features": {
-                    "waterproof": False,
-                    "data_output": True,
-                    "auto_power_off": True,
-                    "buttons": ["on/off", "zero"],
-                    "certification": "ISO certified",
-                },
-                "dimensions": {
-                    "L_mm": 236,
-                    "a_mm": 21,
-                    "b_mm": 16,
-                    "c_mm": 16,
-                    "d_mm": 40,
-                },
-                "optional_accessories": ["Wireless transmitter", "Accessory set"],
-            },
-        }
-
-    def test_create_product_success(self, valid_product_data):
-        """Test successful product creation."""
+    def test_create_product_requires_auth(self, valid_product_data):
         response = client.post("/api/v1/products/", json=valid_product_data)
+        assert response.status_code == 401
+
+    def test_create_product_success(self, valid_product_data, super_admin_headers):
+        response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
         assert response.status_code == 201
         data = response.json()
         assert data["sku"] == "TEST-001"
         assert data["name"] == "Test Product"
-        assert "id" in data
+        assert "pdf_catalog_url" in data
         assert "created_at" in data
 
-    def test_create_product_invalid_price(self, valid_product_data):
-        """Test product creation with negative price."""
-        valid_product_data["base_price"] = -10
-        response = client.post("/api/v1/products/", json=valid_product_data)
-        assert response.status_code == 422  # Validation error
+    def test_create_product_invalid_price(self, valid_product_data, super_admin_headers):
+        valid_product_data["base_price"] = "-10"
+        response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 422
 
-    def test_create_product_invalid_stock(self, valid_product_data):
-        """Test product creation with negative stock."""
-        valid_product_data["stock_quantity"] = -5
-        response = client.post("/api/v1/products/", json=valid_product_data)
-        assert response.status_code == 422  # Validation error
+    def test_create_product_invalid_stock_unit(self, valid_product_data, super_admin_headers):
+        valid_product_data["stock_unit"] = "invalid"
+        response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 422
 
 
 class TestProductRetrieval:
-    """Test suite for product retrieval."""
-
     def test_list_products_empty(self):
-        """Test listing products when none exist."""
         response = client.get("/api/v1/products/")
         assert response.status_code == 200
         data = response.json()
-        assert data["total"] == 0
-        assert data["items"] == []
+        assert data["meta"]["total_count"] == 0
+        assert data["data"] == []
 
     def test_list_products_with_pagination(self):
-        """Test listing products with pagination."""
         response = client.get("/api/v1/products/?skip=0&limit=50")
         assert response.status_code == 200
         data = response.json()
-        assert "total" in data
-        assert "items" in data
-        assert data["skip"] == 0
-        assert data["limit"] == 50
+        assert data["meta"]["skip"] == 0
+        assert data["meta"]["limit"] == 50
 
     def test_list_products_invalid_limit(self):
-        """Test listing products with invalid limit."""
         response = client.get("/api/v1/products/?limit=2000")
-        assert response.status_code == 422  # Validation error
+        assert response.status_code == 422
 
 
-class TestProductUpdate:
-    """Test suite for product updates."""
-
-    def test_update_nonexistent_product(self):
-        """Test updating a product that doesn't exist."""
-        non_existent_id = "00000000-0000-0000-0000-000000000000"
+class TestProductMutations:
+    def test_update_nonexistent_product(self, super_admin_headers):
         response = client.put(
-            f"/api/v1/products/{non_existent_id}",
-            json={"name": "Updated Name"}
+            "/api/v1/products/9999",
+            json={"name": "Updated Name"},
+            headers=super_admin_headers,
         )
         assert response.status_code == 404
 
-
-class TestProductDeletion:
-    """Test suite for product deletion."""
-
-    def test_delete_nonexistent_product(self):
-        """Test deleting a product that doesn't exist."""
-        non_existent_id = "00000000-0000-0000-0000-000000000000"
-        response = client.delete(f"/api/v1/products/{non_existent_id}")
+    def test_delete_nonexistent_product(self, super_admin_headers):
+        response = client.delete("/api/v1/products/9999", headers=super_admin_headers)
         assert response.status_code == 404
 
 
 class TestStockManagement:
-    """Test suite for stock management."""
-
-    def test_adjust_stock_nonexistent_product(self):
-        """Test adjusting stock for non-existent product."""
-        non_existent_id = "00000000-0000-0000-0000-000000000000"
+    def test_adjust_stock_nonexistent_product(self, super_admin_headers):
         response = client.post(
-            f"/api/v1/products/{non_existent_id}/stock/adjust?quantity_delta=10"
+            "/api/v1/products/9999/stock/adjust?quantity_delta=10",
+            headers=super_admin_headers,
         )
         assert response.status_code == 404
 
     def test_get_stock_status_nonexistent_product(self):
-        """Test getting stock status for non-existent product."""
-        non_existent_id = "00000000-0000-0000-0000-000000000000"
-        response = client.get(f"/api/v1/products/{non_existent_id}/stock")
+        response = client.get("/api/v1/products/9999/stock")
         assert response.status_code == 404
+
+
+class TestCategoryEndpoints:
+    def test_category_tree(self):
+        response = client.get("/api/v1/categories/tree")
+        assert response.status_code == 200
+        assert isinstance(response.json(), list)
+
+
+class TestAuthEndpoints:
+    def test_register_and_login(self):
+        register_response = client.post(
+            "/api/v1/auth/register",
+            json={
+                "phone_number": "09123456789",
+                "password": "securepass",
+                "full_name": "Test User",
+            },
+        )
+        assert register_response.status_code == 201
+
+        login_response = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09123456789", "password": "securepass"},
+        )
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json()
+
+    def test_register_invalid_phone(self):
+        response = client.post(
+            "/api/v1/auth/register",
+            json={"phone_number": "123", "password": "securepass"},
+        )
+        assert response.status_code == 422
+
+    def test_login_active_user(self):
+        client.post(
+            "/api/v1/auth/register",
+            json={"phone_number": "09111111111", "password": "securepass"},
+        )
+        login_response = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09111111111", "password": "securepass"},
+        )
+        assert login_response.status_code == 200

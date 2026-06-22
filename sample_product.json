@@ -1,38 +1,39 @@
-  {
-    "sku": "1108-150",
-    "name": "Digital Caliper (Standard Type) 0-150mm",
-    "category_slug": "digital-calipers",
-    "brand": "Insize",
-    "base_price": 0.00,
-    "stock_quantity": 100,
-    "is_active": true,
-    "specifications": {
-      "technical_specs": {
-        "range": "0-150mm/0-6\"",
-        "accuracy": "±0.02mm",
-        "resolution": "0.01mm/0.0005\"",
-        "material": "Stainless steel",
-        "standard": "DIN862",
-        "battery_type": "CR2032"
-      },
-      "features": {
-        "waterproof": false,
-        "data_output": true,
-        "auto_power_off": true,
-        "buttons": ["on/off", "zero", "mm/inch"],
-        "certification": "Supplied with manufacturer inspection certificate"
-      },
-      "dimensions": {
-        "L_mm": 236,
-        "a_mm": 21,
-        "b_mm": 16,
-        "c_mm": 16,
-        "d_mm": 40
-      },
-      "optional_accessories": [
-        "wireless transmitter code 7315-25",
-        "accessory set for digital calipers (code 6144)",
-        "depth base attachment (code 6140)"
-      ]
-    }
+{
+  "sku": "1108-150",
+  "name": "Digital Caliper (Standard Type) 0-150mm",
+  "category_id": 1,
+  "brand_id": 1,
+  "base_price": 0.00,
+  "stock_quantity": 100.0,
+  "stock_unit": "piece",
+  "is_active": true,
+  "specifications": {
+    "technical_specs": {
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "material": "Stainless steel",
+      "standard": "DIN862",
+      "battery_type": "CR2032"
+    },
+    "features": {
+      "waterproof": false,
+      "data_output": true,
+      "auto_power_off": true,
+      "buttons": ["on/off", "zero", "mm/inch"],
+      "certification": "Supplied with manufacturer inspection certificate"
+    },
+    "dimensions": {
+      "L_mm": 236.0,
+      "a_mm": 21.0,
+      "b_mm": 16.0,
+      "c_mm": 16.0,
+      "d_mm": 40.0
+    },
+    "optional_accessories": [
+      "wireless transmitter code 7315-25",
+      "accessory set for digital calipers (code 6144)",
+      "depth base attachment (code 6140)"
+    ]
   }
+}

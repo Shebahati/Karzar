@@ -1,76 +1,95 @@
 # app/db/models/product.py
 import enum
 from typing import Any, List, Optional
-from sqlalchemy import String, Integer, Float, ForeignKey, Enum, Boolean
+from datetime import datetime
+from sqlalchemy import String, Integer, ForeignKey, Enum, Boolean, DateTime, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from app.db.models.base import Base
 
-# 1. تعریف Enum برای واحدهای اندازه‌گیری (جلوگیری از تایپ اشتباه در فرانت‌اند)
-class StockUnitEnum(str, enum.Enum):
-    PIECE = "piece"       # عدد / قطعه
-    KG = "kg"             # کیلوگرم
-    METER = "meter"       # متر
-    PACK = "pack"         # بسته
 
-# 2. جدول دسته‌بندی‌ها (با قابلیت Self-Referential برای ساختار درختی نامحدود)
+def _enum_values(enum_cls: type[enum.Enum]) -> list[str]:
+    return [member.value for member in enum_cls]
+
+
+class StockUnitEnum(str, enum.Enum):
+    PIECE = "piece"
+    KG = "kg"
+    METER = "meter"
+    PACK = "pack"
+
+
+def get_default_specifications():
+    return {
+        "technical_specs": {"range": "", "accuracy": "", "resolution": "", "material": "", "standard": "", "battery_type": ""},
+        "features": {"waterproof": False, "data_output": False, "auto_power_off": False, "buttons": [], "certification": ""},
+        "dimensions": {"L_mm": 0.0, "a_mm": 0.0, "b_mm": 0.0, "c_mm": 0.0, "d_mm": 0.0},
+        "optional_accessories": []
+    }
+
+
 class Category(Base):
     __tablename__ = "categories"
-    
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    # اگر parent_id خالی باشد، یعنی این دسته اصلی (سطح 1) است
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
-    
-    # روابط (Relationships)
+
     subcategories: Mapped[List["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship("Category", back_populates="subcategories", remote_side=[id])
     products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
 
-# 3. جدول برندها
+    def __str__(self):
+        return self.name
+
+
 class Brand(Base):
     __tablename__ = "brands"
-    
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     country: Mapped[Optional[str]] = mapped_column(String(50))
-    
     products: Mapped[List["Product"]] = relationship("Product", back_populates="brand")
 
-# 4. جدول اصلی محصولات (هسته مرکزی)
+    def __str__(self):
+        return self.name
+
+
 class Product(Base):
     __tablename__ = "products"
-    
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     sku: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
-    
-    # کلیدهای خارجی
+
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
-    
-    # اطلاعات مالی و موجودی
-    base_price: Mapped[Optional[float]] = mapped_column(Float) # می‌تواند برای B2B خالی باشد
-    stock_quantity: Mapped[float] = mapped_column(Float, default=0.0) # اعشاری برای متراژ و وزن
-    stock_unit: Mapped[StockUnitEnum] = mapped_column(Enum(StockUnitEnum), default=StockUnitEnum.PIECE)
-    
-    # کاتالوگ و مشخصات فنی (شاه‌کلید دیتابیس ما)
-    pdf_catalog_url: Mapped[Optional[str]] = mapped_column(String(500))
-    specifications: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
 
-    # روابط
+    base_price: Mapped[Optional[float]] = mapped_column(Numeric(15, 2))
+    stock_quantity: Mapped[float] = mapped_column(Numeric(12, 2), default=0.0, server_default="0")
+    stock_unit: Mapped[StockUnitEnum] = mapped_column(
+        Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),
+        default=StockUnitEnum.PIECE,
+        server_default="piece",
+    )
+
+    warranty_text: Mapped[Optional[str]] = mapped_column(String(255))
+    weight_grams: Mapped[Optional[float]] = mapped_column(Numeric(12, 2))
+    is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    tax_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0.0, server_default="0")
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    pdf_catalog_url: Mapped[Optional[str]] = mapped_column(String(500))
+    specifications: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=get_default_specifications)
+
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
-    # cascade="all, delete-orphan" یعنی اگر محصول پاک شد، عکس‌هایش هم از دیتابیس پاک شوند
     images: Mapped[List["ProductImage"]] = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
 
-# 5. جدول تصاویر محصولات
+
 class ProductImage(Base):
     __tablename__ = "product_images"
-    
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
-    is_primary: Mapped[bool] = mapped_column(Boolean, default=False) # عکس اصلی (کاور)
-
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
     product: Mapped["Product"] = relationship("Product", back_populates="images")

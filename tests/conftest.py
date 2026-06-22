@@ -1,14 +1,41 @@
 # tests/conftest.py
-import pytest
+import os
+
+os.environ.setdefault("POSTGRES_USER", "test")
+os.environ.setdefault("POSTGRES_PASSWORD", "test")
+os.environ.setdefault("POSTGRES_SERVER", "localhost")
+os.environ.setdefault("POSTGRES_PORT", "5432")
+os.environ.setdefault("POSTGRES_DB", "test")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-with-at-least-32-characters")
+os.environ.setdefault("REDIS_HOST", "")
+
 import asyncio
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Enum as SAEnum, select
 from sqlalchemy.pool import StaticPool
 
+from app.core.security import get_password_hash
 from app.db.database import get_db
 from app.db.models.base import Base
+from app.db.models.product import Category, Brand, StockUnitEnum
+from app.db.models.user import User, UserRole
+from app.api.deps import get_current_super_admin
 from app.main import app
 
-# ایجاد یک دیتابیس SQLite ایزوله در حافظه موقت (مخصوص تست)
+
+@compiles(JSONB, "sqlite")
+def compile_jsonb_sqlite(element, compiler, **kw):
+    return "JSON"
+
+
+@compiles(SAEnum, "sqlite")
+def compile_enum_sqlite(element, compiler, **kw):
+    return "VARCHAR(50)"
+
+
 test_engine = create_async_engine(
     "sqlite+aiosqlite:///:memory:",
     poolclass=StaticPool,
@@ -23,30 +50,91 @@ TestingSessionLocal = async_sessionmaker(
     autocommit=False,
 )
 
+
+async def _seed_reference_data(session: AsyncSession) -> None:
+    category = Category(name="Digital Calipers")
+    brand = Brand(name="TestBrand", country="IR")
+    session.add_all([category, brand])
+    await session.flush()
+
+
+async def _create_super_admin(session: AsyncSession) -> User:
+    admin = User(
+        phone_number="09120000001",
+        hashed_password=get_password_hash("adminpass123"),
+        full_name="Test Admin",
+        role=UserRole.SUPER_ADMIN,
+        is_active=True,
+    )
+    session.add(admin)
+    await session.flush()
+    return admin
+
+
+async def override_super_admin():
+    async with TestingSessionLocal() as session:
+        result = await session.execute(
+            select(User).where(User.phone_number == "09120000001")
+        )
+        return result.scalars().first()
+
+
 @pytest.fixture(autouse=True)
 def override_database():
-    """
-    این تابع جادویی، به طور خودکار قبل از هر تست اجرا می‌شود.
-    ارتباط FastAPI با دیتابیس واقعی را قطع کرده و آن را به SQLite متصل می‌کند.
-    """
-    # ۱. ساخت جداول در دیتابیس تستی
     async def init_db():
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+        async with TestingSessionLocal() as session:
+            await _seed_reference_data(session)
+            await _create_super_admin(session)
+            await session.commit()
+
     asyncio.run(init_db())
 
-    # ۲. تزریق دیتابیس تستی به جای دیتابیس واقعی
     async def override_get_db():
         async with TestingSessionLocal() as session:
             yield session
+
     app.dependency_overrides[get_db] = override_get_db
 
-    # ۳. اجازه اجرای تست
     yield
 
-    # ۴. پاکسازی دیتابیس تستی پس از پایان تست
     async def drop_db():
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
+
     asyncio.run(drop_db())
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def super_admin_headers():
+    from app.core.security import create_access_token
+
+    app.dependency_overrides[get_current_super_admin] = override_super_admin
+
+    token = create_access_token(subject="09120000001")
+    headers = {"Authorization": f"Bearer {token}"}
+    yield headers
+
+    app.dependency_overrides.pop(get_current_super_admin, None)
+
+
+@pytest.fixture
+def valid_product_data():
+    return {
+        "sku": "TEST-001",
+        "name": "Test Product",
+        "category_id": 1,
+        "brand_id": 1,
+        "base_price": "99.99",
+        "stock_quantity": "50",
+        "stock_unit": StockUnitEnum.PIECE.value,
+        "is_active": True,
+        "specifications": {
+            "technical_specs": {"range": "0-150mm"},
+            "features": {"waterproof": False},
+            "dimensions": {"L_mm": 236.0},
+            "optional_accessories": [],
+        },
+    }
