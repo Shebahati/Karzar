@@ -176,12 +176,33 @@ class TestStockManagement:
 
 
 class TestCategoryEndpoints:
-    def test_category_tree(self):
+    def test_category_tree_wrapper(self):
         response = client.get("/api/v1/categories/tree")
         assert response.status_code == 200
         body = response.json()
         assert "data" in body
         assert isinstance(body["data"], list)
+
+    def test_category_tree_returns_unlimited_depth(self):
+        response = client.get("/api/v1/categories/tree")
+        assert response.status_code == 200
+
+        tree = response.json()["data"]
+        assert len(tree) == 1
+        assert tree[0]["name"] == "Digital Calipers"
+
+        level_two = tree[0]["subcategories"]
+        assert len(level_two) == 1
+        assert level_two[0]["name"] == "Standard Type"
+
+        level_three = level_two[0]["subcategories"]
+        assert len(level_three) == 1
+        assert level_three[0]["name"] == "0-150mm Range"
+
+        level_four = level_three[0]["subcategories"]
+        assert len(level_four) == 1
+        assert level_four[0]["name"] == "IP67 Series"
+        assert level_four[0]["subcategories"] == []
 
 
 class TestAuthEndpoints:

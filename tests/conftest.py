@@ -54,9 +54,21 @@ TestingSessionLocal = async_sessionmaker(
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:
-    category = Category(name="Digital Calipers")
+    root = Category(name="Digital Calipers")
+    session.add(root)
+    await session.flush()
+
+    level_two = Category(name="Standard Type", parent_id=root.id)
+    session.add(level_two)
+    await session.flush()
+
+    level_three = Category(name="0-150mm Range", parent_id=level_two.id)
+    session.add(level_three)
+    await session.flush()
+
+    level_four = Category(name="IP67 Series", parent_id=level_three.id)
     brand = Brand(name="TestBrand", country="IR")
-    session.add_all([category, brand])
+    session.add_all([level_four, brand])
     await session.flush()
 
 

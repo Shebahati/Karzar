@@ -33,9 +33,11 @@ Response:
 Full product with `images[]`, `thumbnail`, `stock_status`, `low_stock`, `availability`, typed `specifications`, nested `category`/`brand`.
 
 ## Category tree — `GET /api/v1/categories/tree`
+Unlimited depth: all categories are loaded in one query and assembled in memory (3, 4, or more levels).
 ```json
-{ "data": [{ "id": 1, "name": "...", "parent_id": null, "subcategories": [] }] }
+{ "data": [{ "id": 1, "name": "...", "parent_id": null, "subcategories": [{ "...": "..." }] }] }
 ```
+Children are sorted alphabetically by `name`.
 
 ## Auth
 - Login: `POST /api/v1/auth/login` — `application/x-www-form-urlencoded` (`username` = phone, `password`)
