@@ -8,13 +8,11 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
-# اضافه کردن مسیر پروژه به پایتون
 sys.path.append(os.getcwd())
 
 from app.core.config import settings
 from app.db.models.base import Base
-# معرفی مستقیم مدل محصولات به Alembic
-from app.db.models.product import Product
+import app.db.models  # noqa: F401 — register all models with Base.metadata
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI)
@@ -22,8 +20,8 @@ config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# این خط بسیار مهم است و باید حتما بعد از ایمپورت مدل‌ها باشد
 target_metadata = Base.metadata
+
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
@@ -36,10 +34,12 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()
+
 
 async def run_async_migrations() -> None:
     connectable = async_engine_from_config(
@@ -51,8 +51,10 @@ async def run_async_migrations() -> None:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()
 
+
 def run_migrations_online() -> None:
     asyncio.run(run_async_migrations())
+
 
 if context.is_offline_mode():
     run_migrations_offline()

@@ -1,22 +1,33 @@
 # app/main.py
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqladmin import Admin
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.sessions import SessionMiddleware
 
-# Import security logging setup
-from app.core.logging import setup_logging, get_logger
+from app.admin.auth import admin_auth_backend
+from app.admin.views import ProductAdmin, CategoryAdmin, BrandAdmin, ProductImageAdmin, UserAdmin
+from app.api.v1 import api_router
 from app.core.config import settings
+from app.core.health import check_database_connection, ping_redis
+from app.core.logging import setup_logging, get_logger
+from app.core.startup import bootstrap_super_admin
+from app.db.database import engine
 
-# Setup logging
 setup_logging()
 logger = get_logger(__name__)
 
-# ایمپورت صحیح روتر محصولات
-from app.api.endpoints.product import router as product_router
-from app.api.endpoints.auth import router as auth_router
 
-from sqladmin import Admin
-from app.db.database import engine  # انجین دیتابیس تو (که احتمالاً async است)
-from app.admin.views import ProductAdmin, CategoryAdmin, BrandAdmin, ProductImageAdmin
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await bootstrap_super_admin()
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -25,36 +36,40 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
-admin = Admin(app, engine)
-admin.add_view(CategoryAdmin)       # تب دسته‌بندی‌ها
-admin.add_view(BrandAdmin)          # تب برندها
-admin.add_view(ProductAdmin)        # تب محصولات
-admin.add_view(ProductImageAdmin)   # تب تصاویر
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Include routers
-app.include_router(product_router, prefix="/api/v1/products", tags=["Products"])
-app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+admin = Admin(app, engine, authentication_backend=admin_auth_backend)
+admin.add_view(CategoryAdmin)
+admin.add_view(BrandAdmin)
+admin.add_view(ProductAdmin)
+admin.add_view(ProductImageAdmin)
+admin.add_view(UserAdmin)
+
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["System"])
 async def root():
-    """Root endpoint - API information."""
     return {
         "message": "Karzar Industrial Lathe Tools API",
         "version": settings.VERSION,
         "docs": "/api/docs",
-        "status": "running"
+        "status": "running",
     }
 
 
 @app.get("/health", tags=["System"], summary="Health check")
 async def health_check():
-    """
-    Health check endpoint for monitoring and orchestration.
-    Returns 200 if service is healthy.
-    """
     logger.info("Health check requested")
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -62,56 +77,70 @@ async def health_check():
             "status": "healthy",
             "service": settings.PROJECT_NAME,
             "version": settings.VERSION,
-        }
+        },
     )
 
 
 @app.get("/ready", tags=["System"], summary="Readiness check")
 async def readiness_check():
-    """
-    Readiness check endpoint for Kubernetes/Docker orchestration.
-    Returns 200 if service is ready to accept traffic.
-    """
-    try:
-        logger.debug("Readiness check requested")
+    db_ok = await check_database_connection()
+    redis_ok = await ping_redis()
+
+    if db_ok and redis_ok:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": "ready",
                 "service": settings.PROJECT_NAME,
-            }
+                "database": "ok",
+                "redis": "ok" if settings.redis_enabled else "disabled",
+            },
         )
-    except Exception as e:
-        logger.error(f"Readiness check failed: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "status": "not_ready",
-                "error": str(e),
-            }
-        )
+
+    logger.error("Readiness check failed: db_ok=%s redis_ok=%s", db_ok, redis_ok)
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={
+            "status": "not_ready",
+            "database": "ok" if db_ok else "unavailable",
+            "redis": "ok" if redis_ok else ("disabled" if not settings.redis_enabled else "unavailable"),
+        },
+    )
 
 
 @app.get("/api/v1", tags=["System"])
 async def api_info():
-    """API version information."""
     return {
         "api_version": "v1",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "endpoints": {
             "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
             "auth": "/api/v1/auth",
             "docs": "/api/docs",
-        }
+            "admin": "/admin",
+        },
     }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc: StarletteHTTPException):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": jsonable_encoder(exc.errors())},
+    )
 
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Global exception handler for unhandled errors."""
     logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal server error"}
+        content={"detail": "Internal server error"},
     )
