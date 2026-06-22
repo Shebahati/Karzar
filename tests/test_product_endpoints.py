@@ -32,6 +32,8 @@ class TestProductCreation:
     def test_create_product_requires_auth(self, valid_product_data):
         response = client.post("/api/v1/products/", json=valid_product_data)
         assert response.status_code == 401
+        body = response.json()
+        assert body["error_code"] == "UNAUTHORIZED"
 
     def test_create_product_success(self, valid_product_data, super_admin_headers):
         response = client.post(
@@ -43,8 +45,9 @@ class TestProductCreation:
         data = response.json()
         assert data["sku"] == "TEST-001"
         assert data["name"] == "Test Product"
-        assert "pdf_catalog_url" in data
-        assert "created_at" in data
+        assert data["stock_status"] == "in_stock"
+        assert "images" in data
+        assert "specifications" in data
 
     def test_create_product_invalid_price(self, valid_product_data, super_admin_headers):
         valid_product_data["base_price"] = "-10"
@@ -54,6 +57,9 @@ class TestProductCreation:
             headers=super_admin_headers,
         )
         assert response.status_code == 422
+        body = response.json()
+        assert body["error_code"] == "VALIDATION_FAILED"
+        assert isinstance(body["details"], list)
 
     def test_create_product_invalid_stock_unit(self, valid_product_data, super_admin_headers):
         valid_product_data["stock_unit"] = "invalid"
@@ -72,6 +78,7 @@ class TestProductRetrieval:
         data = response.json()
         assert data["meta"]["total_count"] == 0
         assert data["data"] == []
+        assert data["meta"]["has_prev"] is False
 
     def test_list_products_with_pagination(self):
         response = client.get("/api/v1/products/?skip=0&limit=50")
@@ -83,6 +90,56 @@ class TestProductRetrieval:
     def test_list_products_invalid_limit(self):
         response = client.get("/api/v1/products/?limit=2000")
         assert response.status_code == 422
+        body = response.json()
+        assert body["error_code"] == "VALIDATION_FAILED"
+
+    def test_list_products_invalid_filters_json(self):
+        response = client.get("/api/v1/products/?filters=not-json")
+        assert response.status_code == 400
+        body = response.json()
+        assert body["error_code"] == "VALIDATION_FAILED"
+        assert body["details"][0]["field"] == "filters"
+
+    def test_product_detail_shape(self, valid_product_data, super_admin_headers):
+        create_response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        product_id = create_response.json()["id"]
+
+        response = client.get(f"/api/v1/products/{product_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["stock_status"] == "in_stock"
+        assert data["availability"] is True
+        assert "images" in data
+        assert "specifications" in data
+        assert data["specifications"]["technical_specs"]["range"] == "0-150mm"
+
+    def test_spec_filters_json(self, valid_product_data, super_admin_headers):
+        client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        response = client.get(
+            '/api/v1/products/?filters={"technical_specs.range":"0-150mm"}'
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["meta"]["total_count"] == 1
+        assert data["data"][0]["sku"] == "TEST-001"
+
+    def test_spec_prefixed_filter(self, valid_product_data, super_admin_headers):
+        client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        response = client.get("/api/v1/products/?spec_technical_specs__range=0-150mm")
+        assert response.status_code == 200
+        assert response.json()["meta"]["total_count"] == 1
 
 
 class TestProductMutations:
@@ -93,9 +150,15 @@ class TestProductMutations:
             headers=super_admin_headers,
         )
         assert response.status_code == 404
+        assert response.json()["error_code"] == "NOT_FOUND"
 
-    def test_delete_nonexistent_product(self, super_admin_headers):
+    def test_delete_requires_step_up(self, super_admin_headers):
         response = client.delete("/api/v1/products/9999", headers=super_admin_headers)
+        assert response.status_code == 403
+        assert response.json()["error_code"] == "STEP_UP_REQUIRED"
+
+    def test_delete_nonexistent_product(self, step_up_headers):
+        response = client.delete("/api/v1/products/9999", headers=step_up_headers)
         assert response.status_code == 404
 
 
@@ -116,7 +179,9 @@ class TestCategoryEndpoints:
     def test_category_tree(self):
         response = client.get("/api/v1/categories/tree")
         assert response.status_code == 200
-        assert isinstance(response.json(), list)
+        body = response.json()
+        assert "data" in body
+        assert isinstance(body["data"], list)
 
 
 class TestAuthEndpoints:
@@ -136,7 +201,9 @@ class TestAuthEndpoints:
             data={"username": "09123456789", "password": "securepass"},
         )
         assert login_response.status_code == 200
-        assert "access_token" in login_response.json()
+        body = login_response.json()
+        assert "access_token" in body
+        assert "expires_in" in body
 
     def test_register_invalid_phone(self):
         response = client.post(
@@ -144,6 +211,7 @@ class TestAuthEndpoints:
             json={"phone_number": "123", "password": "securepass"},
         )
         assert response.status_code == 422
+        assert response.json()["error_code"] == "VALIDATION_FAILED"
 
     def test_login_active_user(self):
         client.post(
@@ -155,3 +223,24 @@ class TestAuthEndpoints:
             data={"username": "09111111111", "password": "securepass"},
         )
         assert login_response.status_code == 200
+
+    def test_verify_pin_success(self, super_admin_headers):
+        response = client.post(
+            "/api/v1/auth/verify-pin",
+            json={"pin": "84729101"},
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["token_type"] == "step_up"
+        assert "secure_token" in body
+        assert body["expires_in"] > 0
+
+    def test_verify_pin_invalid(self, super_admin_headers):
+        response = client.post(
+            "/api/v1/auth/verify-pin",
+            json={"pin": "000000"},
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 403
+        assert response.json()["error_code"] == "STEP_UP_INVALID"

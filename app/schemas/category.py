@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
+from app.schemas.common import PaginatedResponse
+
 
 class CategoryResponse(BaseModel):
     id: int
@@ -15,3 +17,7 @@ class CategoryTreeResponse(CategoryResponse):
 
 
 CategoryTreeResponse.model_rebuild()
+
+
+class CategoryTreeListResponse(BaseModel):
+    data: List[CategoryTreeResponse]

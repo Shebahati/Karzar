@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, Self
 
-from pydantic import computed_field, field_validator
+from pydantic import Field, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    STEP_UP_TOKEN_EXPIRE_MINUTES: int = 5
+    ADMIN_STEP_UP_PIN: str = Field(min_length=6, max_length=12)
 
     CORS_ORIGINS: str = "*"
 
@@ -48,6 +50,16 @@ class Settings(BaseSettings):
         if v == "your-secret-key-change-in-production":
             raise ValueError("SECRET_KEY must be changed from default placeholder")
         return v
+
+    @model_validator(mode="after")
+    def validate_production_security(self) -> Self:
+        if not self.DEBUG:
+            weak_pins = {"000000", "123456", "111111", "change-me-admin-pin"}
+            if self.ADMIN_STEP_UP_PIN in weak_pins:
+                raise ValueError(
+                    "ADMIN_STEP_UP_PIN must be changed from default/weak value when DEBUG=False"
+                )
+        return self
 
     @computed_field
     @property

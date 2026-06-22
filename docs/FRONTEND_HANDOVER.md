@@ -1,1 +1,47 @@
-مستندات فنی پروژه: Karzar API (Backend Overview)پروژه Karzar یک سیستم مدیریت محصولات (Inventory/Product Management) است که با هدفِ کارایی بالا، مقیاس‌پذیری و امنیت طراحی شده است. بک‌اند این پروژه بر اساس معماری لایه‌ای (Layered Architecture) بنا شده تا جداسازی وظایف (Separation of Concerns) به بهترین نحو رعایت شود.۱. مشخصات فنی (Tech Stack)زبان و فریم‌ورک: Python 3.10+ | FastAPIدیتابیس: PostgreSQL (Async)ORM: SQLAlchemy 2.0 (Async)اعتبارسنجی: Pydantic V2مدیریت مایگریشن: Alembicمستندات API: Swagger UI (OpenAPI)۲. معماری نرم‌افزاربک‌اند پروژه به سه لایه اصلی تفکیک شده است:لایه API (Endpoints): وظیفه‌ی دریافت درخواست‌ها، اعتبارسنجی اولیه فرمتِ ورودی و پاسخ‌دهی به کلاینت را دارد.لایه سرویس (Service Layer): مغز متفکر برنامه است. تمامی منطق‌های تجاری (Business Logic)، ولیدیشن‌های پیچیده، محاسبات موجودی و فیلترهای پیشرفته در این لایه انجام می‌شود تا لایه API سبک باقی بماند.لایه CRUD (Data Access): تنها وظیفه‌ی برقراری ارتباط با دیتابیس (SQLAlchemy) را دارد و از منطق بیزینسی کاملاً ایزوله است.۳. استراتژی ارتباط با فرانت‌اندمستندات زنده: برای دسترسی به تمامی اندپوینت‌ها، متدها، مدل‌های ورودی (Request Bodies) و خروجی (Response Models)، از آدرس /api/docs (Swagger UI) استفاده کنید. این داکیومنت همیشه به‌روز است و می‌توانید ریکوئست‌ها را مستقیماً از داخل آن تست کنید.استانداردِ داده‌ها: تمامی درخواست‌ها و پاسخ‌ها به صورت application/json هستند.فیلترینگ و صفحه‌بندی: اندپوینت‌های لیست محصولات از پارامترهای skip و limit برای صفحه‌بندی و پارامترهای مختلف (مانند category_slug, brand, is_active, search) برای فیلترینگ پشتیبانی می‌کنند.پیشنهاد معماری فرانت‌‌اند: Next.js + TypeScript + TanStack Queryبرای توسعه‌ی فرانت‌اندِ این پروژه، استفاده از Next.js به جای React خالص (Create React App/Vite) با دلایل فنی زیر پیشنهاد می‌شود:۱. ضرورت Next.js (Server-Side Rendering)سئو (SEO): از آنجا که این پروژه یک سیستم مدیریت محصولات (مانند کاتالوگ ابزارآلات) است، ایندکس شدنِ صحیحِ صفحات محصول در موتورهای جستجو (مثل گوگل) حیاتی است. React خالص به صورت کلاینت‌ساید (Client-Side) رندر می‌شود که برای سئو در پروژه‌های محصول‌محور ضعف بزرگی است. Next.js با قابلیت SSR (Server-Side Rendering)، محتوای محصولات را قبل از رسیدن به مرورگر کاربر آماده می‌کند.بهبود Performance: با استفاده از SSG (Static Site Generation)، می‌توان صفحاتِ محصولاتِ ثابت را به صورت استاتیک تولید کرد که سرعتِ بارگذاری را به شکل چشم‌گیری افزایش می‌دهد.۲. ضرورت TypeScriptType Safety: بک‌اندِ پروژه از Pydantic برای تایپ‌دهی استفاده می‌کند. اگر فرانت‌‌اند نیز از TypeScript استفاده کند، می‌توان مدل‌های بک‌اند را با ابزارهایی مثل openapi-typescript مستقیماً به تایپ‌های فرانت تبدیل کرد. این کار باعث می‌شود اگر فیلدی در بک‌اند تغییر کرد، فرانت‌اند بلافاصله در زمان کامپایل (نه در زمان اجرا) خطا بدهد.۳. ضرورت TanStack Query (React Query)مدیریت Server State: این کتابخانه بهترین ابزار برای مدیریتِ داده‌های دریافتی از API است.Caching و Revalidation: داده‌های محصولات (مثل لیست یا مشخصات) تغییراتِ ثانیه‌ای ندارند. React Query به صورت خودکار داده‌ها را کش (Cache) می‌کند و نیاز به ریکوئست‌های تکراریِ بیهوده به بک‌اند را از بین می‌برد.Pagination & Loading: سیستمِ skip/limit که در بک‌اند پیاده شده، در React Query به صورت بومی با ابزارهایی مثل useQuery و مدیریتِ وضعیت‌های Loading و Error بسیار بهینه پیاده‌سازی می‌شود.نتیجه‌گیری: استفاده از Next.js + TypeScript + TanStack Query این تضمین را می‌دهد که فرانت‌‌اند و بک‌اند با استانداردهای مشابهِ تایپ‌دهی و مدیریتِ داده با هم صحبت کنند و خروجیِ نهایی، محصولی با بالاترین رتبه در گوگل و سریع‌ترین سرعتِ پاسخ‌دهی به کاربر باشد.
+# Karzar API — Frontend Handover
+
+## Live docs
+- Swagger UI: `/api/docs`
+- OpenAPI JSON: `/api/openapi.json` (use with `openapi-typescript`)
+
+## Error envelope (all HTTP errors)
+```json
+{
+  "error_code": "VALIDATION_FAILED",
+  "message": "Request validation failed",
+  "details": [{ "field": "sku", "message": "already exists" }]
+}
+```
+
+## Product list (PLP) — `GET /api/v1/products/`
+Query: `skip`, `limit`, `category_id`, `brand_id`, `is_active`, `search`, `min_price`, `max_price`
+
+Spec filters (choose one or combine):
+- JSON: `?filters={"technical_specs.range":"0-150mm"}`
+- Prefixed: `?spec_technical_specs__range=0-150mm` (`__` = dot in path)
+- Substring: `?filters={"technical_specs.range__icontains":"150"}`
+
+Response:
+```json
+{
+  "data": [{ "id": 1, "sku": "...", "name": "...", "thumbnail": null, "base_price": "99.99", "stock_status": "in_stock", "category": { "id": 1, "name": "..." }, "brand": { "id": 1, "name": "..." } }],
+  "meta": { "total_count": 0, "skip": 0, "limit": 100, "has_next": false, "has_prev": false }
+}
+```
+
+## Product detail (PDP) — `GET /api/v1/products/{id}` or `/sku/{sku}`
+Full product with `images[]`, `thumbnail`, `stock_status`, `low_stock`, `availability`, typed `specifications`, nested `category`/`brand`.
+
+## Category tree — `GET /api/v1/categories/tree`
+```json
+{ "data": [{ "id": 1, "name": "...", "parent_id": null, "subcategories": [] }] }
+```
+
+## Auth
+- Login: `POST /api/v1/auth/login` — `application/x-www-form-urlencoded` (`username` = phone, `password`)
+- Register: `POST /api/v1/auth/register` — JSON body
+- Step-up (delete/restore): `POST /api/v1/auth/verify-pin` with `{ "pin": "..." }` → returns `secure_token`
+- Destructive requests need: `Authorization: Bearer <jwt>` + `X-Step-Up-Token: <secure_token>`
+
+## Recommended frontend stack
+Next.js + TypeScript + TanStack Query — SSR for SEO, type generation from OpenAPI, cached server state for PLP/PDP.

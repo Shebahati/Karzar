@@ -1,17 +1,27 @@
 # app/crud/product.py
 from datetime import datetime, timezone
-from typing import Optional, List, Tuple
+from typing import Any, Dict, Optional, List, Tuple
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import and_, or_, func, update
+from sqlalchemy.orm import selectinload
 
 from app.db.models.product import Product, Brand, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.core.logging import get_logger
+from app.utils.jsonb_filters import build_specification_filters
 
 logger = get_logger(__name__)
+
+
+def _product_load_options():
+    return (
+        selectinload(Product.images),
+        selectinload(Product.category),
+        selectinload(Product.brand),
+    )
 
 
 def _to_decimal(value) -> Decimal:
@@ -32,6 +42,7 @@ async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product
         )
         db.add(db_product)
         await db.flush()
+        await db.refresh(db_product)
 
         logger.info(f"Created product with SKU: {product_in.sku}")
         return db_product
@@ -43,11 +54,15 @@ async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product
 
 async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Product]:
     """Get a product by ID, excluding soft-deleted products."""
-    stmt = select(Product).where(
-        and_(
-            Product.id == product_id,
-            Product.deleted_at.is_(None),
+    stmt = (
+        select(Product)
+        .where(
+            and_(
+                Product.id == product_id,
+                Product.deleted_at.is_(None),
+            )
         )
+        .options(*_product_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -55,7 +70,7 @@ async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Produ
 
 async def get_product_by_sku(db: AsyncSession, sku: str, *, include_deleted: bool = False) -> Optional[Product]:
     """Get a product by SKU."""
-    stmt = select(Product).where(Product.sku == sku)
+    stmt = select(Product).where(Product.sku == sku).options(*_product_load_options())
     if not include_deleted:
         stmt = stmt.where(Product.deleted_at.is_(None))
     result = await db.execute(stmt)
@@ -73,6 +88,7 @@ async def get_products(
     min_price: Optional[Decimal] = None,
     max_price: Optional[Decimal] = None,
     max_stock: Optional[Decimal] = None,
+    spec_filters: Optional[Dict[str, Any]] = None,
 ) -> Tuple[List[Product], int]:
     """Get products with filtering and pagination."""
     query = select(Product).where(Product.deleted_at.is_(None))
@@ -99,6 +115,13 @@ async def get_products(
         )
         filters.append(search_filter)
 
+    if spec_filters:
+        dialect_name = db.get_bind().dialect.name
+        try:
+            filters.extend(build_specification_filters(spec_filters, dialect_name=dialect_name))
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+
     if filters:
         query = query.where(and_(*filters))
 
@@ -108,7 +131,12 @@ async def get_products(
     count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
-    query = query.order_by(Product.created_at.desc()).offset(skip).limit(limit)
+    query = (
+        query.options(*_product_load_options())
+        .order_by(Product.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
     result = await db.execute(query)
     products = result.scalars().all()
 
@@ -207,12 +235,11 @@ async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
         return None
 
     quantity = _to_decimal(product.stock_quantity)
-    status = "out_of_stock" if quantity <= Decimal("0.0") else "in_stock"
     return {
         "product_id": product.id,
         "sku": product.sku,
         "stock_quantity": quantity,
-        "status": status,
+        "stock_status": "out_of_stock" if quantity <= Decimal("0.0") else "in_stock",
     }
 
 

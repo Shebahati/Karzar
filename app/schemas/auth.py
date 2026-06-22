@@ -8,6 +8,17 @@ PHONE_PATTERN = re.compile(r"^09\d{9}$")
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expires_in: int
+
+
+class PinVerifyRequest(BaseModel):
+    pin: str = Field(..., min_length=4, max_length=12)
+
+
+class StepUpTokenResponse(BaseModel):
+    secure_token: str
+    token_type: str = "step_up"
+    expires_in: int
 
 
 class UserCreate(BaseModel):

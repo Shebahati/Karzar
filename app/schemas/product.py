@@ -4,9 +4,58 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.db.models.product import StockUnitEnum
+from app.schemas.common import PaginatedResponse
 
 StockUnitValue = Literal["piece", "kg", "meter", "pack"]
 VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
+
+
+class TechnicalSpecs(BaseModel):
+    range: str = ""
+    accuracy: str = ""
+    resolution: str = ""
+    material: str = ""
+    standard: str = ""
+    battery_type: str = ""
+
+
+class ProductFeatures(BaseModel):
+    waterproof: bool = False
+    data_output: bool = False
+    auto_power_off: bool = False
+    buttons: List[str] = Field(default_factory=list)
+    certification: str = ""
+
+
+class ProductDimensions(BaseModel):
+    L_mm: float = 0.0
+    a_mm: float = 0.0
+    b_mm: float = 0.0
+    c_mm: float = 0.0
+    d_mm: float = 0.0
+
+
+class ProductSpecifications(BaseModel):
+    technical_specs: TechnicalSpecs = Field(default_factory=TechnicalSpecs)
+    features: ProductFeatures = Field(default_factory=ProductFeatures)
+    dimensions: ProductDimensions = Field(default_factory=ProductDimensions)
+    optional_accessories: List[str] = Field(default_factory=list)
+
+
+class CategoryBrief(BaseModel):
+    id: int
+    name: str
+
+
+class BrandBrief(BaseModel):
+    id: int
+    name: str
+
+
+class ProductImageResponse(BaseModel):
+    id: int
+    url: str
+    is_primary: bool
 
 
 class ProductCreate(BaseModel):
@@ -79,6 +128,8 @@ class ProductUpdate(BaseModel):
 
 
 class ProductResponse(BaseModel):
+    """Admin create/update response — full product record."""
+
     id: int
     sku: str
     name: str
@@ -93,7 +144,7 @@ class ProductResponse(BaseModel):
     tax_percent: Decimal
     is_active: bool
     pdf_catalog_url: Optional[str]
-    specifications: Dict[str, Any]
+    specifications: ProductSpecifications
     created_at: datetime
     updated_at: datetime
 
@@ -104,19 +155,48 @@ class ProductSummaryResponse(BaseModel):
     id: int
     sku: str
     name: str
+    thumbnail: Optional[str] = None
     base_price: Optional[Decimal]
     stock_status: str
+    category: Optional[CategoryBrief] = None
+    brand: Optional[BrandBrief] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class PaginationMeta(BaseModel):
-    total_count: int
-    skip: int
-    limit: int
-    has_next: bool
+class ProductDetailResponse(BaseModel):
+    id: int
+    sku: str
+    name: str
+    category_id: int
+    brand_id: Optional[int]
+    category: Optional[CategoryBrief] = None
+    brand: Optional[BrandBrief] = None
+    base_price: Optional[Decimal]
+    stock_quantity: Decimal
+    stock_unit: str
+    stock_status: str
+    low_stock: bool
+    availability: bool
+    warranty_text: Optional[str]
+    weight_grams: Optional[Decimal]
+    is_original: bool
+    tax_percent: Decimal
+    is_active: bool
+    pdf_catalog_url: Optional[str]
+    thumbnail: Optional[str] = None
+    images: List[ProductImageResponse] = Field(default_factory=list)
+    specifications: ProductSpecifications
+    created_at: datetime
+    updated_at: datetime
 
 
-class ProductListResponse(BaseModel):
-    data: List[ProductSummaryResponse]
-    meta: PaginationMeta
+class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
+    pass
+
+
+class StockStatusResponse(BaseModel):
+    product_id: int
+    sku: str
+    stock_quantity: Decimal
+    stock_status: str

@@ -1,6 +1,6 @@
 # app/api/v1/__init__.py
 from fastapi import APIRouter
-from app.api.endpoints import auth, product, category  # 👈 category را اضافه کن
+from app.api.endpoints import auth, product, category
 
 api_router = APIRouter()
 

@@ -70,6 +70,7 @@ class ProductService:
         is_active: Optional[bool] = None,
         min_price: Optional[Decimal] = None,
         max_price: Optional[Decimal] = None,
+        spec_filters: Optional[dict] = None,
         skip: int = 0,
         limit: int = 100,
     ) -> Tuple[List[Product], int]:
@@ -84,6 +85,7 @@ class ProductService:
             search=search,
             min_price=min_price,
             max_price=max_price,
+            spec_filters=spec_filters,
         )
 
     @staticmethod

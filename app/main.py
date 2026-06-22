@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqladmin import Admin
@@ -14,6 +13,7 @@ from app.admin.auth import admin_auth_backend
 from app.admin.views import ProductAdmin, CategoryAdmin, BrandAdmin, ProductImageAdmin, UserAdmin
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import setup_logging, get_logger
 from app.core.startup import bootstrap_super_admin
@@ -126,15 +126,14 @@ async def api_info():
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request, exc: StarletteHTTPException):
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    content = normalize_http_exception_detail(exc.status_code, exc.detail)
+    return JSONResponse(status_code=exc.status_code, content=content, headers=getattr(exc, "headers", None))
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": jsonable_encoder(exc.errors())},
-    )
+    content = normalize_http_exception_detail(status.HTTP_422_UNPROCESSABLE_ENTITY, exc.errors())
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=content)
 
 
 @app.exception_handler(Exception)
@@ -142,5 +141,8 @@ async def global_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal server error"},
+        content=build_error_payload(
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Internal server error",
+        ),
     )
