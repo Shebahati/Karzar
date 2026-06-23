@@ -25,10 +25,12 @@ class ProductImageResponse(BaseModel):
     url: str
     is_primary: bool
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ProductCreate(BaseModel):
-    sku: str
-    name: str
+    sku: str = Field(..., min_length=1, max_length=50)
+    name: str = Field(..., min_length=1, max_length=255)
     category_id: int
     brand_id: Optional[int] = None
 
@@ -59,10 +61,25 @@ class ProductCreate(BaseModel):
             raise ValueError("tax_percent must be between 0 and 100")
         return v
 
-    @field_validator("sku")
+    @field_validator("sku", mode="before")
     @classmethod
     def clean_sku(cls, v: str) -> str:
-        return v.strip().upper()
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip().upper()
+        if not stripped:
+            raise ValueError("sku cannot be empty or whitespace")
+        return stripped
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def clean_name(cls, v: str) -> str:
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("name cannot be empty or whitespace")
+        return stripped
 
     @field_validator("stock_unit")
     @classmethod
@@ -88,12 +105,27 @@ class ProductUpdate(BaseModel):
     pdf_catalog_url: Optional[str] = None
     specifications: Optional[Dict[str, Any]] = None
 
-    @field_validator("sku")
+    @field_validator("sku", "name", mode="before")
     @classmethod
-    def clean_sku(cls, v: Optional[str]) -> Optional[str]:
+    def check_not_null_and_clean(cls, v: Any, info) -> Any:
+        """Prevent explicitly setting non-nullable fields to null."""
         if v is None:
-            return None
-        return v.strip().upper()
+            raise ValueError(f"{info.field_name} cannot be explicitly set to null")
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError(f"{info.field_name} cannot be empty or whitespace")
+        if info.field_name == "sku":
+            return stripped.upper()
+        return stripped
+
+    @field_validator("category_id", mode="before")
+    @classmethod
+    def check_category_not_null(cls, v: Any) -> Any:
+        if v is None:
+            raise ValueError("category_id cannot be explicitly set to null")
+        return v
 
     @field_validator("stock_unit")
     @classmethod
@@ -102,29 +134,6 @@ class ProductUpdate(BaseModel):
             raise ValueError(f"stock_unit must be one of: {', '.join(sorted(VALID_STOCK_UNITS))}")
         return v
 
-
-class ProductResponse(BaseModel):
-    """Admin create/update response — full product record."""
-
-    id: int
-    sku: str
-    name: str
-    category_id: int
-    brand_id: Optional[int]
-    base_price: Optional[Decimal]
-    stock_quantity: Decimal
-    stock_unit: str
-    warranty_text: Optional[str]
-    weight_grams: Optional[Decimal]
-    is_original: bool
-    tax_percent: Decimal
-    is_active: bool
-    pdf_catalog_url: Optional[str]
-    specifications: Dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime
-    updated_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class ProductSummaryResponse(BaseModel):
@@ -165,6 +174,8 @@ class ProductDetailResponse(BaseModel):
     specifications: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
 class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):

@@ -1,5 +1,6 @@
 # app/db/models/product.py
 import enum
+from decimal import Decimal
 from typing import Any, List, Optional
 from datetime import datetime
 from sqlalchemy import String, Integer, ForeignKey, Enum, Boolean, DateTime, Numeric
@@ -62,8 +63,8 @@ class Product(Base):
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
 
-    base_price: Mapped[Optional[float]] = mapped_column(Numeric(15, 2))
-    stock_quantity: Mapped[float] = mapped_column(Numeric(12, 2), default=0.0, server_default="0")
+    base_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
+    stock_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.0"), server_default="0")
     stock_unit: Mapped[StockUnitEnum] = mapped_column(
         Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),
         default=StockUnitEnum.PIECE,
@@ -71,9 +72,9 @@ class Product(Base):
     )
 
     warranty_text: Mapped[Optional[str]] = mapped_column(String(255))
-    weight_grams: Mapped[Optional[float]] = mapped_column(Numeric(12, 2))
+    weight_grams: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2))
     is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
-    tax_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0.0, server_default="0")
+    tax_percent: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), server_default="0")
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

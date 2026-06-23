@@ -9,12 +9,7 @@ from app.schemas.product import (
     ProductImageResponse,
     ProductSummaryResponse,
 )
-
-
-def _to_decimal(value) -> Decimal:
-    if isinstance(value, Decimal):
-        return value
-    return Decimal(str(value))
+from app.utils.decimal_utils import to_decimal as _to_decimal
 
 
 def stock_status_from_quantity(quantity) -> str:

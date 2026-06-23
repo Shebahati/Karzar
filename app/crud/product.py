@@ -12,6 +12,7 @@ from app.db.models.product import Product, Brand, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.core.logging import get_logger
 from app.utils.jsonb_filters import build_specification_filters
+from app.utils.decimal_utils import to_decimal as _to_decimal
 
 logger = get_logger(__name__)
 
@@ -22,12 +23,6 @@ def _product_load_options():
         selectinload(Product.category),
         selectinload(Product.brand),
     )
-
-
-def _to_decimal(value) -> Decimal:
-    if isinstance(value, Decimal):
-        return value
-    return Decimal(str(value))
 
 
 async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product:
