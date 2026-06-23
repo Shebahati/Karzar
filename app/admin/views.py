@@ -1,7 +1,8 @@
-# app/admin/views.py
+"""SQLAdmin model view registrations for the admin panel."""
+
 from sqladmin import ModelView
 
-from app.db.models.product import Product, Category, Brand, ProductImage
+from app.db.models.product import Brand, Category, Product, ProductImage
 from app.db.models.user import User
 
 

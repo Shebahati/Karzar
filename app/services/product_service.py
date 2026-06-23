@@ -1,25 +1,22 @@
-# app/services/product_service.py
-from typing import Optional, List, Tuple
+"""Product business logic: validation, orchestration, and side effects."""
+
 from decimal import Decimal
+from typing import List, Optional, Tuple
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import get_logger
+from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.crud import product as crud_product
-from app.core.logging import get_logger
 from app.services.notion_service import NotionService
+from app.utils.decimal_utils import to_decimal as _to_decimal
 
 logger = get_logger(__name__)
 
 
-def _to_decimal(value) -> Decimal:
-    if isinstance(value, Decimal):
-        return value
-    return Decimal(str(value))
-
-
 class ProductService:
-    """Business logic service for product operations."""
+    """Coordinates CRUD operations with domain validation and external integrations."""
 
     @staticmethod
     async def create_product_with_validation(
@@ -70,6 +67,7 @@ class ProductService:
         is_active: Optional[bool] = None,
         min_price: Optional[Decimal] = None,
         max_price: Optional[Decimal] = None,
+        spec_filters: Optional[dict] = None,
         skip: int = 0,
         limit: int = 100,
     ) -> Tuple[List[Product], int]:
@@ -84,6 +82,7 @@ class ProductService:
             search=search,
             min_price=min_price,
             max_price=max_price,
+            spec_filters=spec_filters,
         )
 
     @staticmethod
@@ -97,6 +96,14 @@ class ProductService:
         product = await crud_product.get_product_by_id(db, product_id)
         if not product:
             return None
+
+        if update_data.sku is not None and update_data.sku != product.sku:
+            if await crud_product.check_sku_exists_absolutely(
+                db, update_data.sku, exclude_product_id=product_id
+            ):
+                raise ValueError(
+                    f"Product with SKU {update_data.sku} already exists (including deleted products)"
+                )
 
         updated_product = await crud_product.update_product(db, product_id, update_data)
         await db.commit()

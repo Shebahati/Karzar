@@ -1,17 +1,40 @@
+"""Product request/response Pydantic schemas for the catalog API."""
+
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 from decimal import Decimal
 
 from app.db.models.product import StockUnitEnum
+from app.schemas.common import PaginatedResponse
 
 StockUnitValue = Literal["piece", "kg", "meter", "pack"]
 VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
 
 
-class ProductCreate(BaseModel):
-    sku: str
+class CategoryBrief(BaseModel):
+    id: int
     name: str
+
+
+class BrandBrief(BaseModel):
+    id: int
+    name: str
+
+
+class ProductImageResponse(BaseModel):
+    id: int
+    url: str
+    is_primary: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductCreate(BaseModel):
+    """Validated payload for creating a new product."""
+
+    sku: str = Field(..., min_length=1, max_length=50)
+    name: str = Field(..., min_length=1, max_length=255)
     category_id: int
     brand_id: Optional[int] = None
 
@@ -42,10 +65,25 @@ class ProductCreate(BaseModel):
             raise ValueError("tax_percent must be between 0 and 100")
         return v
 
-    @field_validator("sku")
+    @field_validator("sku", mode="before")
     @classmethod
     def clean_sku(cls, v: str) -> str:
-        return v.strip().upper()
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip().upper()
+        if not stripped:
+            raise ValueError("sku cannot be empty or whitespace")
+        return stripped
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def clean_name(cls, v: str) -> str:
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("name cannot be empty or whitespace")
+        return stripped
 
     @field_validator("stock_unit")
     @classmethod
@@ -56,6 +94,13 @@ class ProductCreate(BaseModel):
 
 
 class ProductUpdate(BaseModel):
+    """Partial update payload; omitted fields are left unchanged.
+
+    Explicit null on non-nullable columns (sku, name, category_id) is rejected
+    to prevent IntegrityError at the database layer.
+    """
+
+    sku: Optional[str] = None
     name: Optional[str] = None
     category_id: Optional[int] = None
     brand_id: Optional[int] = None
@@ -70,6 +115,28 @@ class ProductUpdate(BaseModel):
     pdf_catalog_url: Optional[str] = None
     specifications: Optional[Dict[str, Any]] = None
 
+    @field_validator("sku", "name", mode="before")
+    @classmethod
+    def check_not_null_and_clean(cls, v: Any, info) -> Any:
+        """Reject explicit null and whitespace-only values on required string fields."""
+        if v is None:
+            raise ValueError(f"{info.field_name} cannot be explicitly set to null")
+        if not isinstance(v, str):
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError(f"{info.field_name} cannot be empty or whitespace")
+        if info.field_name == "sku":
+            return stripped.upper()
+        return stripped
+
+    @field_validator("category_id", mode="before")
+    @classmethod
+    def check_category_not_null(cls, v: Any) -> Any:
+        if v is None:
+            raise ValueError("category_id cannot be explicitly set to null")
+        return v
+
     @field_validator("stock_unit")
     @classmethod
     def validate_stock_unit(cls, v: Optional[str]) -> Optional[str]:
@@ -78,45 +145,59 @@ class ProductUpdate(BaseModel):
         return v
 
 
-class ProductResponse(BaseModel):
+
+class ProductSummaryResponse(BaseModel):
+    """PLP card shape returned by GET /products."""
+
+    id: int
+    sku: str
+    name: str
+    thumbnail: Optional[str] = None
+    base_price: Optional[Decimal]
+    stock_status: str
+    category: Optional[CategoryBrief] = None
+    brand: Optional[BrandBrief] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductDetailResponse(BaseModel):
+    """Full PDP shape including images, specifications, and computed stock fields."""
+
     id: int
     sku: str
     name: str
     category_id: int
     brand_id: Optional[int]
+    category: Optional[CategoryBrief] = None
+    brand: Optional[BrandBrief] = None
     base_price: Optional[Decimal]
     stock_quantity: Decimal
     stock_unit: str
+    stock_status: str
+    low_stock: bool
+    availability: bool
     warranty_text: Optional[str]
     weight_grams: Optional[Decimal]
     is_original: bool
     tax_percent: Decimal
     is_active: bool
     pdf_catalog_url: Optional[str]
-    specifications: Dict[str, Any]
+    thumbnail: Optional[str] = None
+    images: List[ProductImageResponse] = Field(default_factory=list)
+    specifications: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-class ProductSummaryResponse(BaseModel):
-    id: int
+class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
+    pass
+
+
+class StockStatusResponse(BaseModel):
+    product_id: int
     sku: str
-    name: str
-    base_price: Optional[Decimal]
+    stock_quantity: Decimal
     stock_status: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class PaginationMeta(BaseModel):
-    total_count: int
-    skip: int
-    limit: int
-    has_next: bool
-
-
-class ProductListResponse(BaseModel):
-    data: List[ProductSummaryResponse]
-    meta: PaginationMeta

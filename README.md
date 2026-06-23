@@ -51,17 +51,23 @@ karzar/
 │   │   └── product.py        # Product schemas with validation
 │   └── services/             # Business logic layer
 │       └── product_service.py # Product business logic
-├── tests/                    # Test suite
-│   ├── conftest.py           # Pytest configuration and fixtures
-│   └── test_product_endpoints.py # Endpoint tests
-├── .env.example              # Environment template
+├── docs/                       # Handover and integration guides
+├── scripts/
+│   └── setup-dev.sh            # Local dev bootstrap (venv + deps)
+├── tests/                      # Test suite
+│   ├── conftest.py
+│   ├── test_product_endpoints.py
+│   ├── test_category_tree.py
+│   └── test_jsonb_filters.py
+├── .env.example
 ├── .dockerignore
 ├── .gitignore
-├── alembic.ini              # Alembic configuration
-├── docker-compose.yml       # Docker Compose orchestration
-├── Dockerfile               # Multi-stage Docker build
-├── requirements.txt         # Python dependencies
-└── README.md                # This file
+├── alembic.ini
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt            # Production dependencies (Docker)
+├── requirements-dev.txt        # Dev/test deps (includes requirements.txt)
+└── README.md
 ```
 
 ## Prerequisites
@@ -75,6 +81,19 @@ karzar/
 
 ### Local Development Setup
 
+**Quick start (recommended):**
+
+```bash
+git clone <repository-url>
+cd karzar
+./scripts/setup-dev.sh
+source .venv/bin/activate
+alembic upgrade head
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Manual setup:**
+
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
@@ -83,14 +102,16 @@ karzar/
 
 2. **Create virtual environment**:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python3 -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+   Use `requirements.txt` only when you do not need tests (e.g. minimal prod-like install).
+   Docker images install `requirements.txt` only.
 
 4. **Setup environment variables**:
    ```bash
@@ -129,59 +150,85 @@ karzar/
 
 ## API Endpoints
 
+Full interactive documentation: `/api/docs` (OpenAPI is always up to date).
+
+### Error envelope (all error responses)
+
+```json
+{
+  "error_code": "VALIDATION_FAILED",
+  "message": "Request validation failed",
+  "details": [{ "field": "sku", "message": "already exists" }]
+}
+```
+
 ### Product Management
 
 #### Create Product
 ```http
 POST /api/v1/products/
+Authorization: Bearer <access_token>
 Content-Type: application/json
 
 {
   "sku": "TOOL-001",
   "name": "Digital Caliper",
-  "category_slug": "digital-calipers",
-  "brand": "Insize",
+  "category_id": 1,
+  "brand_id": 1,
   "base_price": 99.99,
   "stock_quantity": 50,
-  "specifications": {...}
+  "specifications": { "technical_specs": { "range": "0-150mm" } }
 }
 ```
 
-#### List Products
+Returns full `ProductDetailResponse` (same shape as GET product).
+
+#### List Products (PLP)
 ```http
-GET /api/v1/products/?skip=0&limit=100&category_slug=digital-calipers&search=caliper
+GET /api/v1/products/?skip=0&limit=100&category_id=1&brand_id=1&search=caliper
+GET /api/v1/products/?filters={"technical_specs.range":"0-150mm"}
+GET /api/v1/products/?spec_technical_specs__range=0-150mm
 ```
 
-#### Get Product by ID
+Response:
+```json
+{
+  "data": [{ "id": 1, "sku": "...", "name": "...", "thumbnail": null, "base_price": "99.99", "stock_status": "in_stock", "category": { "id": 1, "name": "..." }, "brand": { "id": 1, "name": "..." } }],
+  "meta": { "total_count": 1, "skip": 0, "limit": 100, "has_next": false, "has_prev": false }
+}
+```
+
+#### Get Product by ID / SKU (PDP)
 ```http
 GET /api/v1/products/{product_id}
-```
-
-#### Get Product by SKU
-```http
 GET /api/v1/products/sku/{sku}
 ```
 
 #### Update Product
 ```http
 PUT /api/v1/products/{product_id}
-Content-Type: application/json
-
-{
-  "name": "Updated Name",
-  "base_price": 109.99
-}
 ```
 
-#### Delete Product (Soft Delete)
+#### Delete Product (Soft Delete) — requires step-up token
 ```http
 DELETE /api/v1/products/{product_id}
+Authorization: Bearer <access_token>
+X-Step-Up-Token: <secure_token>
 ```
 
-#### Restore Deleted Product
+#### Restore Deleted Product — requires step-up token
 ```http
 POST /api/v1/products/{product_id}/restore
 ```
+
+### Categories
+
+#### Category Tree (Mega Menu)
+```http
+GET /api/v1/categories/tree
+```
+
+Response: `{ "data": [ { "id": 1, "name": "...", "parent_id": null, "subcategories": [...] } ] }`
 
 ### Stock Management
 
@@ -190,6 +237,8 @@ POST /api/v1/products/{product_id}/restore
 GET /api/v1/products/{product_id}/stock
 ```
 
+Response: `{ "product_id": 1, "sku": "...", "stock_quantity": "50", "stock_status": "in_stock" }`
+
 #### Adjust Stock
 ```http
 POST /api/v1/products/{product_id}/stock/adjust?quantity_delta=10
@@ -197,15 +246,20 @@ POST /api/v1/products/{product_id}/stock/adjust?quantity_delta=10
 
 ### Authentication
 
-#### Login
+#### Register
 ```http
-POST /api/v1/auth/login
+POST /api/v1/auth/register
 Content-Type: application/json
 
-{
-  "username": "admin",
-  "password": "password123"
-}
+{ "phone_number": "09123456789", "password": "securepass", "full_name": "User" }
+```
+
+#### Login (OAuth2 form)
+```http
+POST /api/v1/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=09123456789&password=securepass
 ```
 
 Response:
@@ -213,7 +267,25 @@ Response:
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer",
-  "expires_in": 30
+  "expires_in": 1800
+}
+```
+
+#### Step-Up PIN (destructive admin actions)
+```http
+POST /api/v1/auth/verify-pin
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{ "pin": "your-admin-pin" }
+```
+
+Response:
+```json
+{
+  "secure_token": "eyJ...",
+  "token_type": "step_up",
+  "expires_in": 300
 }
 ```
 
@@ -236,10 +308,9 @@ GET /api/v1
 
 ## Testing
 
-Run the test suite:
+Requires dev dependencies (`pip install -r requirements-dev.txt`).
 
 ```bash
-# Install test dependencies (included in requirements.txt)
 pytest
 
 # With coverage report
@@ -288,7 +359,9 @@ alembic history
 | `REDIS_PORT` | 6379 | Redis port |
 | `SECRET_KEY` | - | JWT secret key (change in production!) |
 | `DEBUG` | False | Enable debug mode |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | 30 | JWT token expiration |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | 30 | JWT token expiration (seconds returned as `expires_in = minutes × 60`) |
+| `ADMIN_STEP_UP_PIN` | - | Admin PIN for destructive actions (min 6 chars; weak values rejected when `DEBUG=False`) |
+| `STEP_UP_TOKEN_EXPIRE_MINUTES` | 5 | Step-up token lifetime in minutes |
 
 ## Architecture
 
@@ -318,7 +391,8 @@ alembic history
 
 ## Security
 
-- ✅ JWT-based authentication
+- ✅ Step-up authentication for destructive admin actions (PIN + `X-Step-Up-Token`)
+- ✅ Standardized error envelope (`error_code`, `message`, `details`)
 - ✅ Password hashing with bcrypt
 - ✅ Non-root Docker user
 - ✅ Environment-based secrets (never committed)

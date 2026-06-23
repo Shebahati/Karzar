@@ -1,42 +1,42 @@
-# app/api/endpoints/category.py
-from typing import List
+"""Category tree endpoint for frontend mega-menu navigation."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
-from app.db.database import get_db
-from app.db.models.product import Category
-from app.schemas.category import CategoryTreeResponse
+
+from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.db.database import get_db
+from app.schemas.category import CategoryTreeListResponse
+from app.services.category_service import CategoryService
 
 logger = get_logger(__name__)
 router = APIRouter()
 
+
 @router.get(
     "/tree",
-    response_model=List[CategoryTreeResponse],
+    response_model=CategoryTreeListResponse,
     summary="Get Category Tree for Mega-Menu",
     tags=["Categories"],
 )
 async def get_category_tree(db: AsyncSession = Depends(get_db)):
+    """Return the full category hierarchy as a nested tree of arbitrary depth."""
     try:
-        # فقط دسته‌بندی‌های مادر (parent_id = null) را می‌گیریم
-        # و زیردسته‌ها را تا ۲ لایه (برای مگامنو) به صورت اتوماتیک لود می‌کنیم
-        stmt = (
-            select(Category)
-            .where(Category.parent_id.is_(None))
-            .options(
-                selectinload(Category.subcategories)
-                .selectinload(Category.subcategories)
-            )
-        )
-        result = await db.execute(stmt)
-        categories = result.scalars().all()
-        return categories
-        
-    except Exception as e:
-        logger.error(f"Error fetching category tree: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error retrieving categories",
-        )
+        tree = await CategoryService.get_category_tree(db)
+        return {"data": tree}
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        logger.error("Category tree build failed: %s", exc)
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Invalid category hierarchy",
+        ) from exc
+    except Exception as exc:
+        logger.error("Error fetching category tree: %s", exc)
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error retrieving categories",
+        ) from exc

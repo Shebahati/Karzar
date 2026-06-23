@@ -18,7 +18,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # --- stockunitenum: uppercase names -> lowercase values ---
     op.execute("ALTER TABLE products ALTER COLUMN stock_unit TYPE VARCHAR(20) USING stock_unit::text")
     op.execute(
         """
@@ -40,7 +39,6 @@ def upgrade() -> None:
     )
     op.execute("ALTER TABLE products ALTER COLUMN stock_unit SET DEFAULT 'piece'")
 
-    # --- userrole: uppercase names -> lowercase values ---
     op.execute("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(30) USING role::text")
     op.execute(
         """
@@ -61,7 +59,6 @@ def upgrade() -> None:
     op.execute("ALTER TABLE users ALTER COLUMN role SET DEFAULT 'b2c_customer'")
     op.execute("ALTER TABLE users ALTER COLUMN is_active SET DEFAULT true")
 
-    # --- Float -> Numeric for monetary / quantity fields ---
     op.alter_column(
         "products",
         "base_price",

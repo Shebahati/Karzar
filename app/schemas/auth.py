@@ -1,6 +1,9 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
+"""Authentication and user account Pydantic schemas."""
+
 import re
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 PHONE_PATTERN = re.compile(r"^09\d{9}$")
 
@@ -8,6 +11,17 @@ PHONE_PATTERN = re.compile(r"^09\d{9}$")
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expires_in: int
+
+
+class PinVerifyRequest(BaseModel):
+    pin: str = Field(..., min_length=4, max_length=12)
+
+
+class StepUpTokenResponse(BaseModel):
+    secure_token: str
+    token_type: str = "step_up"
+    expires_in: int
 
 
 class UserCreate(BaseModel):

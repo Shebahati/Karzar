@@ -1,38 +1,42 @@
-# app/crud/product.py
-from datetime import datetime, timezone
-from typing import Optional, List, Tuple
-from decimal import Decimal
+"""Product database access layer: CRUD, filtering, stock, and aggregations."""
 
+from datetime import datetime, timezone
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Tuple
+
+from sqlalchemy import and_, func, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import and_, or_, func, update
+from sqlalchemy.orm import selectinload
 
-from app.db.models.product import Product, Brand, StockUnitEnum
-from app.schemas.product import ProductCreate, ProductUpdate
 from app.core.logging import get_logger
+from app.db.models.product import Brand, Product, StockUnitEnum
+from app.schemas.product import ProductCreate, ProductUpdate
+from app.utils.decimal_utils import to_decimal as _to_decimal
+from app.utils.jsonb_filters import build_specification_filters
 
 logger = get_logger(__name__)
 
 
-def _to_decimal(value) -> Decimal:
-    if isinstance(value, Decimal):
-        return value
-    return Decimal(str(value))
+def _product_load_options():
+    """Eager-load relationships needed by API response presenters."""
+    return (
+        selectinload(Product.images),
+        selectinload(Product.category),
+        selectinload(Product.brand),
+    )
 
 
 async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product:
-    """Create a new product."""
+    db_product = Product(
+        **product_in.model_dump(exclude={"specifications", "stock_unit"}),
+        stock_unit=StockUnitEnum(product_in.stock_unit),
+        specifications=product_in.specifications,
+    )
     try:
-        product_data = product_in.model_dump(exclude={"specifications", "stock_unit"})
-        product_data["stock_unit"] = StockUnitEnum(product_in.stock_unit)
-
-        db_product = Product(
-            **product_data,
-            specifications=product_in.specifications,
-        )
         db.add(db_product)
         await db.flush()
-
+        await db.refresh(db_product)
         logger.info(f"Created product with SKU: {product_in.sku}")
         return db_product
     except Exception as e:
@@ -42,20 +46,24 @@ async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product
 
 
 async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Product]:
-    """Get a product by ID, excluding soft-deleted products."""
-    stmt = select(Product).where(
-        and_(
-            Product.id == product_id,
-            Product.deleted_at.is_(None),
+    stmt = (
+        select(Product)
+        .where(
+            and_(
+                Product.id == product_id,
+                Product.deleted_at.is_(None),
+            )
         )
+        .options(*_product_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_product_by_sku(db: AsyncSession, sku: str, *, include_deleted: bool = False) -> Optional[Product]:
-    """Get a product by SKU."""
-    stmt = select(Product).where(Product.sku == sku)
+async def get_product_by_sku(
+    db: AsyncSession, sku: str, *, include_deleted: bool = False
+) -> Optional[Product]:
+    stmt = select(Product).where(Product.sku == sku).options(*_product_load_options())
     if not include_deleted:
         stmt = stmt.where(Product.deleted_at.is_(None))
     result = await db.execute(stmt)
@@ -73,8 +81,8 @@ async def get_products(
     min_price: Optional[Decimal] = None,
     max_price: Optional[Decimal] = None,
     max_stock: Optional[Decimal] = None,
+    spec_filters: Optional[Dict[str, Any]] = None,
 ) -> Tuple[List[Product], int]:
-    """Get products with filtering and pagination."""
     query = select(Product).where(Product.deleted_at.is_(None))
     filters = []
 
@@ -99,6 +107,13 @@ async def get_products(
         )
         filters.append(search_filter)
 
+    if spec_filters:
+        dialect_name = db.get_bind().dialect.name
+        try:
+            filters.extend(build_specification_filters(spec_filters, dialect_name=dialect_name))
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+
     if filters:
         query = query.where(and_(*filters))
 
@@ -108,7 +123,12 @@ async def get_products(
     count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
-    query = query.order_by(Product.created_at.desc()).offset(skip).limit(limit)
+    query = (
+        query.options(*_product_load_options())
+        .order_by(Product.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
     result = await db.execute(query)
     products = result.scalars().all()
 
@@ -119,7 +139,6 @@ async def get_products(
 async def update_product(
     db: AsyncSession, product_id: int, product_in: ProductUpdate
 ) -> Optional[Product]:
-    """Update a product."""
     db_product = await get_product_by_id(db, product_id)
     if not db_product:
         return None
@@ -142,7 +161,6 @@ async def update_product(
 
 
 async def delete_product_soft(db: AsyncSession, product_id: int) -> bool:
-    """Soft delete a product."""
     db_product = await get_product_by_id(db, product_id)
     if not db_product:
         return False
@@ -160,7 +178,6 @@ async def delete_product_soft(db: AsyncSession, product_id: int) -> bool:
 
 
 async def delete_product_hard(db: AsyncSession, product_id: int) -> bool:
-    """Hard delete a product."""
     try:
         stmt = select(Product).where(Product.id == product_id)
         result = await db.execute(stmt)
@@ -180,7 +197,6 @@ async def delete_product_hard(db: AsyncSession, product_id: int) -> bool:
 
 
 async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product]:
-    """Restore a soft-deleted product."""
     stmt = select(Product).where(Product.id == product_id)
     result = await db.execute(stmt)
     db_product = result.scalar_one_or_none()
@@ -201,25 +217,23 @@ async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product
 
 
 async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
-    """Get stock status for a product."""
     product = await get_product_by_id(db, product_id)
     if not product:
         return None
 
     quantity = _to_decimal(product.stock_quantity)
-    status = "out_of_stock" if quantity <= Decimal("0.0") else "in_stock"
     return {
         "product_id": product.id,
         "sku": product.sku,
         "stock_quantity": quantity,
-        "status": status,
+        "stock_status": "out_of_stock" if quantity <= Decimal("0.0") else "in_stock",
     }
 
 
 async def update_stock(
     db: AsyncSession, product_id: int, quantity_delta: Decimal
 ) -> Optional[Product]:
-    """Atomic stock update to prevent race conditions."""
+    """Atomically adjust stock; rejects deltas that would drive quantity below zero."""
     try:
         stmt = (
             update(Product)
@@ -251,7 +265,7 @@ async def update_stock(
 
 
 async def get_product_statistics(db: AsyncSession) -> dict:
-    """High performance in-DB aggregation."""
+    """Aggregate product counts and stock value entirely in the database."""
     stmt = select(
         func.count(Product.id),
         func.sum(func.coalesce(Product.base_price, 0) * Product.stock_quantity),
@@ -280,8 +294,10 @@ async def get_product_statistics(db: AsyncSession) -> dict:
     return stats
 
 
-async def check_sku_exists_absolutely(db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None) -> bool:
-    """Check if SKU exists in database, optionally excluding one product ID."""
+async def check_sku_exists_absolutely(
+    db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None
+) -> bool:
+    """Check SKU uniqueness across active and soft-deleted products."""
     stmt = select(Product.id).where(Product.sku == sku)
     if exclude_product_id is not None:
         stmt = stmt.where(Product.id != exclude_product_id)

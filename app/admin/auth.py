@@ -1,3 +1,5 @@
+"""SQLAdmin session-based authentication restricted to super_admin users."""
+
 from sqladmin.authentication import AuthenticationBackend
 from sqlalchemy import select
 from starlette.requests import Request
@@ -9,8 +11,6 @@ from app.db.models.user import User, UserRole
 
 
 class AdminAuth(AuthenticationBackend):
-    """SQLAdmin authentication restricted to active super admins."""
-
     async def login(self, request: Request) -> bool:
         form = await request.form()
         phone_number = form.get("username")

@@ -1,3 +1,5 @@
+"""One-time application bootstrap tasks executed at startup."""
+
 from sqlalchemy import select
 
 from app.core.config import settings
@@ -10,7 +12,10 @@ logger = get_logger(__name__)
 
 
 async def bootstrap_super_admin() -> None:
-    """Create the initial super admin when env credentials are set and none exists."""
+    """Create or promote the initial super admin when env credentials are set.
+
+    Skips silently when credentials are absent or a super admin already exists.
+    """
     if not settings.INITIAL_SUPER_ADMIN_PHONE or not settings.INITIAL_SUPER_ADMIN_PASSWORD:
         return
 

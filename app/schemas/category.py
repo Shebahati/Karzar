@@ -1,5 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+"""Category response schemas for tree and flat representations."""
+
 from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict
 
 
 class CategoryResponse(BaseModel):
@@ -11,7 +14,13 @@ class CategoryResponse(BaseModel):
 
 
 class CategoryTreeResponse(CategoryResponse):
+    """Recursive tree node with nested subcategories."""
+
     subcategories: List["CategoryTreeResponse"] = []
 
 
 CategoryTreeResponse.model_rebuild()
+
+
+class CategoryTreeListResponse(BaseModel):
+    data: List[CategoryTreeResponse]

@@ -1,4 +1,5 @@
-# tests/conftest.py
+"""Pytest fixtures: in-memory SQLite database, seeded data, and auth overrides."""
+
 import os
 
 os.environ.setdefault("POSTGRES_USER", "test")
@@ -8,6 +9,8 @@ os.environ.setdefault("POSTGRES_PORT", "5432")
 os.environ.setdefault("POSTGRES_DB", "test")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-with-at-least-32-characters")
 os.environ.setdefault("REDIS_HOST", "")
+os.environ.setdefault("DEBUG", "true")
+os.environ.setdefault("ADMIN_STEP_UP_PIN", "84729101")
 
 import asyncio
 import pytest
@@ -20,7 +23,7 @@ from sqlalchemy.pool import StaticPool
 from app.core.security import get_password_hash
 from app.db.database import get_db
 from app.db.models.base import Base
-from app.db.models.product import Category, Brand, StockUnitEnum
+from app.db.models.product import Category, Brand, Product, ProductImage, StockUnitEnum
 from app.db.models.user import User, UserRole
 from app.api.deps import get_current_super_admin
 from app.main import app
@@ -28,11 +31,13 @@ from app.main import app
 
 @compiles(JSONB, "sqlite")
 def compile_jsonb_sqlite(element, compiler, **kw):
+    """Map PostgreSQL JSONB to SQLite JSON for in-memory test runs."""
     return "JSON"
 
 
 @compiles(SAEnum, "sqlite")
 def compile_enum_sqlite(element, compiler, **kw):
+    """Map PostgreSQL native enums to VARCHAR for SQLite compatibility."""
     return "VARCHAR(50)"
 
 
@@ -52,9 +57,22 @@ TestingSessionLocal = async_sessionmaker(
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:
-    category = Category(name="Digital Calipers")
+    """Create a four-level category tree and a test brand."""
+    root = Category(name="Digital Calipers")
+    session.add(root)
+    await session.flush()
+
+    level_two = Category(name="Standard Type", parent_id=root.id)
+    session.add(level_two)
+    await session.flush()
+
+    level_three = Category(name="0-150mm Range", parent_id=level_two.id)
+    session.add(level_three)
+    await session.flush()
+
+    level_four = Category(name="IP67 Series", parent_id=level_three.id)
     brand = Brand(name="TestBrand", country="IR")
-    session.add_all([category, brand])
+    session.add_all([level_four, brand])
     await session.flush()
 
 
@@ -81,6 +99,7 @@ async def override_super_admin():
 
 @pytest.fixture(autouse=True)
 def override_database():
+    """Replace the production DB dependency with an isolated in-memory SQLite DB."""
     async def init_db():
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -118,6 +137,23 @@ def super_admin_headers():
     yield headers
 
     app.dependency_overrides.pop(get_current_super_admin, None)
+
+
+@pytest.fixture
+def step_up_headers(super_admin_headers):
+    """Obtain a valid step-up token for destructive-action endpoint tests."""
+    from fastapi.testclient import TestClient
+    from app.main import app as fastapi_app
+
+    client = TestClient(fastapi_app)
+    response = client.post(
+        "/api/v1/auth/verify-pin",
+        json={"pin": "84729101"},
+        headers=super_admin_headers,
+    )
+    assert response.status_code == 200
+    secure_token = response.json()["secure_token"]
+    return {**super_admin_headers, "X-Step-Up-Token": secure_token}
 
 
 @pytest.fixture

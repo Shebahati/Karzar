@@ -1,3 +1,5 @@
+"""Optional Notion integration for tracking feature delivery status."""
+
 import logging
 
 from app.core.config import settings
@@ -6,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class NotionService:
+    """Placeholder for future Notion API integration; logs when not configured."""
+
     def __init__(self):
         self.token = settings.NOTION_TOKEN
         self.database_id = settings.NOTION_DATABASE_ID

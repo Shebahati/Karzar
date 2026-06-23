@@ -1,18 +1,20 @@
+"""Alembic migration environment with async engine and dynamic database URL."""
+
 import asyncio
 import os
 import sys
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-from alembic import context
 
 sys.path.append(os.getcwd())
 
 from app.core.config import settings
 from app.db.models.base import Base
-import app.db.models  # noqa: F401 — register all models with Base.metadata
+import app.db.models  # noqa: F401 — register all ORM models with Base.metadata
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI)
@@ -24,6 +26,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
+    """Run migrations without a live DBAPI connection (SQL script generation)."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
