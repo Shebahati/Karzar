@@ -29,12 +29,15 @@ pip install --upgrade pip
 echo "==> Installing dependencies (production + dev/test)"
 pip install -r requirements-dev.txt
 
-if [[ ! -f .env ]]; then
+if [[ -f .env ]]; then
+  if ! grep -q '^ADMIN_STEP_UP_PIN=' .env; then
+    echo "==> Adding ADMIN_STEP_UP_PIN to .env"
+    printf '\n# Step-up authentication for destructive admin actions\nADMIN_STEP_UP_PIN=84729101\nSTEP_UP_TOKEN_EXPIRE_MINUTES=5\n' >> .env
+  fi
+else
   echo "==> Creating .env from .env.example"
   cp .env.example .env
   echo "    Review .env before running the API (SECRET_KEY, ADMIN_STEP_UP_PIN, database)."
-else
-  echo "==> .env already exists — skipped"
 fi
 
 echo ""

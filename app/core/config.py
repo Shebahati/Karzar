@@ -24,7 +24,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     STEP_UP_TOKEN_EXPIRE_MINUTES: int = 5
-    ADMIN_STEP_UP_PIN: str = Field(min_length=6, max_length=12)
+    ADMIN_STEP_UP_PIN: str = Field(
+        default="84729101",
+        min_length=6,
+        max_length=12,
+        description="Admin PIN for destructive actions; override in .env for production",
+    )
 
     CORS_ORIGINS: str = "*"
 
