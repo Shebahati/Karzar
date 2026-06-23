@@ -1,3 +1,5 @@
+"""JSONB specification filter builders for product list queries."""
+
 import json
 from typing import Any, Dict, List, Optional
 
@@ -9,7 +11,7 @@ from app.db.models.product import Product
 
 
 def _json_path_accessor(path: str):
-    """Resolve a dot-separated path into a SQLAlchemy JSON accessor."""
+    """Resolve a dot-separated path into a chained SQLAlchemy JSON accessor."""
     parts = [part.strip() for part in path.split(".") if part.strip()]
     if not parts:
         raise ValueError("Filter path cannot be empty")
@@ -25,6 +27,7 @@ def _sqlite_json_path(path: str) -> str:
 
 
 def _coerce_filter_value(raw_value: Any) -> Any:
+    """Normalize string booleans from query parameters to Python bools."""
     if isinstance(raw_value, bool):
         return raw_value
     if isinstance(raw_value, str):
@@ -41,7 +44,11 @@ def build_specification_filters(
     *,
     dialect_name: str = "postgresql",
 ) -> List[ColumnElement[bool]]:
-    """Build SQLAlchemy conditions for JSONB/JSON specification filters."""
+    """Translate a spec filter dict into SQLAlchemy WHERE clauses.
+
+    Supports exact match and ``__icontains`` suffix for case-insensitive search.
+    PostgreSQL uses JSONB ``astext``; SQLite uses ``json_extract`` for tests.
+    """
     conditions: List[ColumnElement[bool]] = []
     use_sqlite = dialect_name == "sqlite"
 
@@ -82,6 +89,7 @@ def build_specification_filters(
 
 
 def parse_filters_query_param(filters: Optional[str]) -> Dict[str, Any]:
+    """Parse the ``filters`` JSON query parameter into a flat dict."""
     if not filters:
         return {}
     try:
@@ -105,11 +113,11 @@ def parse_filters_query_param(filters: Optional[str]) -> Dict[str, Any]:
 
 
 def parse_spec_prefixed_params(request: Request) -> Dict[str, Any]:
-    """Parse prefixed spec filters.
+    """Parse ``spec_``-prefixed query params into dot-notation filter paths.
 
     Examples:
-    - spec_brand=insize -> {"brand": "insize"}
-    - spec_technical_specs__range=0-150mm -> {"technical_specs.range": "0-150mm"}
+        spec_brand=insize  ->  {"brand": "insize"}
+        spec_technical_specs__range=0-150mm  ->  {"technical_specs.range": "0-150mm"}
     """
     spec_filters: Dict[str, Any] = {}
     for key, value in request.query_params.multi_items():
@@ -132,6 +140,7 @@ def merge_spec_filters(
     filters_json: Optional[str],
     request: Request,
 ) -> Dict[str, Any]:
+    """Combine JSON ``filters`` param with ``spec_``-prefixed query params."""
     merged: Dict[str, Any] = {}
     merged.update(parse_filters_query_param(filters_json))
     merged.update(parse_spec_prefixed_params(request))

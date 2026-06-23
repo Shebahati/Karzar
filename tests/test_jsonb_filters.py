@@ -1,3 +1,5 @@
+"""Unit tests for JSONB specification filter SQL generation."""
+
 from sqlalchemy.dialects import postgresql
 
 from app.db.models.product import Product

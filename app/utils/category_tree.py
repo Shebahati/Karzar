@@ -1,3 +1,5 @@
+"""Build nested category trees from a flat list of ORM rows."""
+
 from collections import defaultdict
 from typing import Dict, Iterable, List, Optional, Set
 
@@ -13,6 +15,7 @@ def _build_children_map(
     categories: List[Category],
     known_ids: Set[int],
 ) -> Dict[Optional[int], List[Category]]:
+    """Group categories by parent_id; orphan unknown parents become roots."""
     children_by_parent: Dict[Optional[int], List[Category]] = defaultdict(list)
 
     for category in categories:
@@ -32,6 +35,7 @@ def _detect_cycles(
     categories: List[Category],
     children_by_parent: Dict[Optional[int], List[Category]],
 ) -> None:
+    """DFS cycle detection using white/gray/black coloring."""
     white, gray, black = 0, 1, 2
     state: Dict[int, int] = {category.id: white for category in categories}
 
@@ -52,11 +56,7 @@ def _detect_cycles(
 
 
 def build_category_tree(categories: List[Category]) -> List[CategoryTreeResponse]:
-    """Build a nested category tree of arbitrary depth from a flat list.
-
-    Uses one DB round-trip worth of data and assembles the tree in memory so
-    depth is not limited by ORM eager-load chains.
-    """
+    """Assemble an arbitrarily deep tree from a single flat query result."""
     if not categories:
         return []
 

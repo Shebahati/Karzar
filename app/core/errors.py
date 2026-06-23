@@ -1,3 +1,5 @@
+"""Standardized API error codes, payloads, and HTTPException helpers."""
+
 from enum import Enum
 from typing import Any, List, Optional, Union
 
@@ -16,6 +18,8 @@ from app.schemas.errors import ErrorDetail
 
 
 class ErrorCode(str, Enum):
+    """Machine-readable error identifiers returned in every error response."""
+
     BAD_REQUEST = "BAD_REQUEST"
     UNAUTHORIZED = "UNAUTHORIZED"
     FORBIDDEN = "FORBIDDEN"
@@ -41,6 +45,7 @@ _STATUS_TO_DEFAULT_CODE = {
 
 
 def _normalize_details(details: Optional[Union[List[ErrorDetail], List[dict], List[Any]]]) -> List[dict]:
+    """Coerce mixed detail inputs into the canonical {field, message} shape."""
     if not details:
         return []
     normalized: List[dict] = []
@@ -65,6 +70,7 @@ def build_error_payload(
     message: str,
     details: Optional[Union[List[ErrorDetail], List[dict]]] = None,
 ) -> dict:
+    """Build the frontend contract error envelope: {error_code, message, details[]}."""
     return {
         "error_code": error_code.value if isinstance(error_code, ErrorCode) else error_code,
         "message": message,
@@ -80,6 +86,7 @@ def api_error(
     details: Optional[Union[List[ErrorDetail], List[dict]]] = None,
     headers: Optional[dict] = None,
 ) -> HTTPException:
+    """Raise-ready HTTPException whose detail is already in the standard envelope."""
     return HTTPException(
         status_code=status_code,
         detail=build_error_payload(error_code=error_code, message=message, details=details),
@@ -88,6 +95,7 @@ def api_error(
 
 
 def normalize_http_exception_detail(status_code: int, detail: Any) -> dict:
+    """Convert Starlette/FastAPI exception details into the standard error envelope."""
     if isinstance(detail, dict) and "error_code" in detail and "message" in detail:
         return {
             "error_code": detail["error_code"],

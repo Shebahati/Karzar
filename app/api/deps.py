@@ -1,4 +1,5 @@
-# app/api/deps.py
+"""FastAPI dependency injection for authentication and authorization."""
+
 from typing import Optional
 
 from fastapi import Depends, Header
@@ -18,6 +19,7 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> User:
+    """Resolve the authenticated user from a valid JWT bearer token."""
     payload = decode_token(token)
     if payload.get("type") not in (None, "access"):
         raise api_error(
@@ -49,6 +51,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+    """Reject deactivated accounts."""
     if not current_user.is_active:
         raise api_error(
             403,
@@ -59,6 +62,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 async def get_current_super_admin(current_user: User = Depends(get_current_active_user)) -> User:
+    """Restrict endpoint to users with the super_admin role."""
     if current_user.role != UserRole.SUPER_ADMIN:
         raise api_error(
             403,
@@ -71,6 +75,7 @@ async def get_current_super_admin(current_user: User = Depends(get_current_activ
 async def get_verified_step_up(
     x_step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
 ) -> dict:
+    """Validate the step-up JWT supplied in the X-Step-Up-Token header."""
     if not x_step_up_token:
         raise api_error(
             403,
@@ -85,6 +90,7 @@ async def get_current_super_admin_with_step_up(
     current_user: User = Depends(get_current_super_admin),
     step_up_payload: dict = Depends(get_verified_step_up),
 ) -> User:
+    """Require both super_admin role and a step-up token bound to the same user."""
     if step_up_payload.get("sub") != current_user.phone_number:
         raise api_error(
             403,

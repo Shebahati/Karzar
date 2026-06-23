@@ -1,3 +1,5 @@
+"""Standard API error response schemas."""
+
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -9,6 +11,8 @@ class ErrorDetail(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """Frontend error contract: {error_code, message, details[]}."""
+
     error_code: str
     message: str
     details: List[ErrorDetail] = Field(default_factory=list)

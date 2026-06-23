@@ -1,12 +1,13 @@
-# app/api/endpoints/category.py
+"""Category tree endpoint for frontend mega-menu navigation."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.errors import ErrorCode, api_error
+from app.core.logging import get_logger
 from app.db.database import get_db
 from app.schemas.category import CategoryTreeListResponse
 from app.services.category_service import CategoryService
-from app.core.errors import ErrorCode, api_error
-from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter()
@@ -19,6 +20,7 @@ router = APIRouter()
     tags=["Categories"],
 )
 async def get_category_tree(db: AsyncSession = Depends(get_db)):
+    """Return the full category hierarchy as a nested tree of arbitrary depth."""
     try:
         tree = await CategoryService.get_category_tree(db)
         return {"data": tree}

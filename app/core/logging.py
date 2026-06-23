@@ -1,10 +1,10 @@
-# app/core/logging.py
+"""Centralized logging configuration for the application."""
+
 import logging
 import logging.config
 import os
-from typing import Dict, Any
+from typing import Any, Dict
 
-# Logging configuration dictionary
 LOGGING_CONFIG: Dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -14,7 +14,10 @@ LOGGING_CONFIG: Dict[str, Any] = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "detailed": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d - %(funcName)s() - %(message)s",
+            "format": (
+                "%(asctime)s - %(name)s - %(levelname)s - "
+                "%(pathname)s:%(lineno)d - %(funcName)s() - %(message)s"
+            ),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
@@ -30,7 +33,7 @@ LOGGING_CONFIG: Dict[str, Any] = {
             "level": "DEBUG",
             "formatter": "detailed",
             "filename": "logs/app.log",
-            "maxBytes": 10485760,  # 10MB
+            "maxBytes": 10485760,
             "backupCount": 10,
         },
     },
@@ -58,16 +61,15 @@ LOGGING_CONFIG: Dict[str, Any] = {
 }
 
 
-def setup_logging():
-    """Configure logging for the application."""
-    # Create logs directory if it doesn't exist
+def setup_logging() -> None:
+    """Apply dictConfig and ensure the rotating log directory exists."""
     log_dir = "logs"
     if not os.path.exists(log_dir):
         os.makedirs(log_dir, exist_ok=True)
-    
+
     logging.config.dictConfig(LOGGING_CONFIG)
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance."""
+    """Return a namespaced logger under the 'app' hierarchy."""
     return logging.getLogger(name)

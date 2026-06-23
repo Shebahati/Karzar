@@ -1,28 +1,30 @@
-# app/api/endpoints/auth.py
+"""Authentication endpoints: registration, login, and step-up PIN verification."""
+
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_db
-from app.db.models.user import User
-from app.schemas.auth import UserCreate, UserResponse, Token, PinVerifyRequest, StepUpTokenResponse
+from app.api.deps import get_current_super_admin
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.security import (
-    get_password_hash,
-    verify_password,
     create_access_token,
     create_step_up_token,
+    get_password_hash,
     verify_admin_pin,
+    verify_password,
 )
-from app.api.deps import get_current_super_admin
+from app.db.database import get_db
+from app.db.models.user import User
+from app.schemas.auth import PinVerifyRequest, StepUpTokenResponse, Token, UserCreate, UserResponse
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+    """Register a new user account (open endpoint)."""
     result = await db.execute(select(User).where(User.phone_number == user_in.phone_number))
     if result.scalars().first():
         raise api_error(
@@ -45,6 +47,7 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    """Authenticate with phone number (username) and password; returns a JWT."""
     result = await db.execute(select(User).where(User.phone_number == form_data.username))
     user = result.scalars().first()
 
@@ -76,6 +79,7 @@ async def verify_pin(
     payload: PinVerifyRequest,
     current_user: User = Depends(get_current_super_admin),
 ):
+    """Exchange a valid admin PIN for a short-lived step-up token."""
     if not settings.ADMIN_STEP_UP_PIN:
         raise api_error(
             status.HTTP_503_SERVICE_UNAVAILABLE,

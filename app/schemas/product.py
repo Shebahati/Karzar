@@ -1,3 +1,5 @@
+"""Product request/response Pydantic schemas for the catalog API."""
+
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
@@ -29,6 +31,8 @@ class ProductImageResponse(BaseModel):
 
 
 class ProductCreate(BaseModel):
+    """Validated payload for creating a new product."""
+
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
     category_id: int
@@ -90,6 +94,12 @@ class ProductCreate(BaseModel):
 
 
 class ProductUpdate(BaseModel):
+    """Partial update payload; omitted fields are left unchanged.
+
+    Explicit null on non-nullable columns (sku, name, category_id) is rejected
+    to prevent IntegrityError at the database layer.
+    """
+
     sku: Optional[str] = None
     name: Optional[str] = None
     category_id: Optional[int] = None
@@ -108,7 +118,7 @@ class ProductUpdate(BaseModel):
     @field_validator("sku", "name", mode="before")
     @classmethod
     def check_not_null_and_clean(cls, v: Any, info) -> Any:
-        """Prevent explicitly setting non-nullable fields to null."""
+        """Reject explicit null and whitespace-only values on required string fields."""
         if v is None:
             raise ValueError(f"{info.field_name} cannot be explicitly set to null")
         if not isinstance(v, str):
@@ -137,6 +147,8 @@ class ProductUpdate(BaseModel):
 
 
 class ProductSummaryResponse(BaseModel):
+    """PLP card shape returned by GET /products."""
+
     id: int
     sku: str
     name: str
@@ -150,6 +162,8 @@ class ProductSummaryResponse(BaseModel):
 
 
 class ProductDetailResponse(BaseModel):
+    """Full PDP shape including images, specifications, and computed stock fields."""
+
     id: int
     sku: str
     name: str

@@ -1,3 +1,5 @@
+"""Application settings loaded from environment variables via Pydantic Settings."""
+
 from typing import Optional, Self
 
 from pydantic import Field, computed_field, field_validator, model_validator
@@ -5,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Application settings and environment variables validation using Pydantic V2."""
+    """Validated runtime configuration; fails fast on missing or weak secrets."""
 
     PROJECT_NAME: str = "Industrial Lathe Tools API"
     VERSION: str = "1.0.0"
@@ -58,6 +60,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:
+        """Reject trivial PINs when running outside debug mode."""
         if not self.DEBUG:
             weak_pins = {"000000", "123456", "111111", "change-me-admin-pin"}
             if self.ADMIN_STEP_UP_PIN in weak_pins:

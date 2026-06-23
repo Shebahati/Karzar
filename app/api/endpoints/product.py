@@ -1,4 +1,5 @@
-# app/api/endpoints/product.py
+"""Product CRUD, search, stock management, and statistics endpoints."""
+
 from decimal import Decimal
 from typing import Optional
 
@@ -28,6 +29,7 @@ router = APIRouter()
 
 
 async def _product_detail_after_write(db: AsyncSession, product_id: int) -> ProductDetailResponse:
+    """Re-fetch a product with relationships after a write operation."""
     details = await ProductService.get_product_details(db=db, product_id=product_id)
     if not details:
         raise api_error(

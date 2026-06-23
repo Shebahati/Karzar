@@ -1,4 +1,5 @@
-# tests/conftest.py
+"""Pytest fixtures: in-memory SQLite database, seeded data, and auth overrides."""
+
 import os
 
 os.environ.setdefault("POSTGRES_USER", "test")
@@ -30,11 +31,13 @@ from app.main import app
 
 @compiles(JSONB, "sqlite")
 def compile_jsonb_sqlite(element, compiler, **kw):
+    """Map PostgreSQL JSONB to SQLite JSON for in-memory test runs."""
     return "JSON"
 
 
 @compiles(SAEnum, "sqlite")
 def compile_enum_sqlite(element, compiler, **kw):
+    """Map PostgreSQL native enums to VARCHAR for SQLite compatibility."""
     return "VARCHAR(50)"
 
 
@@ -54,6 +57,7 @@ TestingSessionLocal = async_sessionmaker(
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:
+    """Create a four-level category tree and a test brand."""
     root = Category(name="Digital Calipers")
     session.add(root)
     await session.flush()
@@ -95,6 +99,7 @@ async def override_super_admin():
 
 @pytest.fixture(autouse=True)
 def override_database():
+    """Replace the production DB dependency with an isolated in-memory SQLite DB."""
     async def init_db():
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -136,6 +141,7 @@ def super_admin_headers():
 
 @pytest.fixture
 def step_up_headers(super_admin_headers):
+    """Obtain a valid step-up token for destructive-action endpoint tests."""
     from fastapi.testclient import TestClient
     from app.main import app as fastapi_app
 

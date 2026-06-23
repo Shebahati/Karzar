@@ -1,13 +1,11 @@
+"""Safe coercion of heterogeneous numeric values to Decimal."""
+
 from decimal import Decimal
 from typing import Union
 
 
 def to_decimal(value: Union[Decimal, float, int, str, None]) -> Decimal:
-    """Safely coerce any numeric value to Decimal.
-
-    Even though the ORM now maps Numeric columns to Decimal, this helper
-    guards against float leakage from raw SQL expressions or test fixtures.
-    """
+    """Coerce a value to Decimal, guarding against float leakage from raw SQL."""
     if isinstance(value, Decimal):
         return value
     if value is None:

@@ -1,3 +1,5 @@
+"""Shared pagination wrapper used by list endpoints."""
+
 from typing import Generic, List, TypeVar
 
 from pydantic import BaseModel, Field
@@ -14,6 +16,8 @@ class PaginationMeta(BaseModel):
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
+    """Standard list response envelope: {data: T[], meta: PaginationMeta}."""
+
     data: List[T]
     meta: PaginationMeta
 

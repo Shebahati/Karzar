@@ -1,3 +1,5 @@
+"""Map ORM Product instances to frontend-facing Pydantic response models."""
+
 from decimal import Decimal
 from typing import List, Optional
 
@@ -11,12 +13,16 @@ from app.schemas.product import (
 )
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
+LOW_STOCK_THRESHOLD = Decimal("10.0")
+
 
 def stock_status_from_quantity(quantity) -> str:
+    """Derive in_stock / out_of_stock from a numeric quantity."""
     return "in_stock" if _to_decimal(quantity) > Decimal("0.0") else "out_of_stock"
 
 
 def get_thumbnail_url(product: Product) -> Optional[str]:
+    """Return the primary image URL, falling back to the first image."""
     if not product.images:
         return None
     primary = next((image for image in product.images if image.is_primary), None)
@@ -36,6 +42,7 @@ def _brand_brief(product: Product) -> Optional[BrandBrief]:
 
 
 def _images(product: Product) -> List[ProductImageResponse]:
+    """Map ORM images to response DTOs; primary image sorts first."""
     return [
         ProductImageResponse(
             id=image.id,
@@ -47,6 +54,7 @@ def _images(product: Product) -> List[ProductImageResponse]:
 
 
 def to_product_summary(product: Product) -> ProductSummaryResponse:
+    """Build the PLP card shape from a loaded Product ORM instance."""
     return ProductSummaryResponse(
         id=product.id,
         sku=product.sku,
@@ -60,6 +68,7 @@ def to_product_summary(product: Product) -> ProductSummaryResponse:
 
 
 def to_product_detail(product: Product) -> ProductDetailResponse:
+    """Build the full PDP shape including computed stock fields."""
     quantity = _to_decimal(product.stock_quantity)
     return ProductDetailResponse(
         id=product.id,
@@ -73,7 +82,7 @@ def to_product_detail(product: Product) -> ProductDetailResponse:
         stock_quantity=quantity,
         stock_unit=product.stock_unit.value if hasattr(product.stock_unit, "value") else str(product.stock_unit),
         stock_status=stock_status_from_quantity(quantity),
-        low_stock=quantity < Decimal("10.0"),
+        low_stock=quantity < LOW_STOCK_THRESHOLD,
         availability=bool(product.is_active and quantity > Decimal("0.0")),
         warranty_text=product.warranty_text,
         weight_grams=product.weight_grams,
@@ -87,4 +96,3 @@ def to_product_detail(product: Product) -> ProductDetailResponse:
         created_at=product.created_at,
         updated_at=product.updated_at,
     )
-

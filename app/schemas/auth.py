@@ -1,6 +1,9 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
+"""Authentication and user account Pydantic schemas."""
+
 import re
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 PHONE_PATTERN = re.compile(r"^09\d{9}$")
 

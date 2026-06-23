@@ -1,3 +1,5 @@
+"""Unit tests for in-memory category tree assembly."""
+
 import pytest
 
 from app.db.models.product import Category

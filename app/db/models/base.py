@@ -1,25 +1,30 @@
-# app/db/models/base.py
+"""SQLAlchemy declarative base with shared audit timestamp columns."""
+
 from datetime import datetime
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
 from sqlalchemy import DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
+
 class Base(DeclarativeBase):
+    """Base model providing timezone-aware created_at / updated_at columns.
+
+    Timestamps are delegated to the database via server_default so inserts and
+    updates remain consistent regardless of application server clock skew.
     """
-    Base class for all SQLAlchemy 2.0 Declarative models.
-    """
-    
-    # استفاده از server_default برای واگذاری محاسبه زمان به خودِ دیتابیس
+
+    # Set once at insert time by the database.
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
     )
-    
-    # onupdate=func.now() باعث می‌شود هر بار ردیفی آپدیت شد، Postgres خودش زمان را رفرش کند
+
+    # Refreshed on every UPDATE via SQLAlchemy onupdate hook.
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
+        DateTime(timezone=True),
+        server_default=func.now(),
         onupdate=func.now(),
-        nullable=False
+        nullable=False,
     )

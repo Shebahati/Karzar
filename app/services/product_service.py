@@ -1,12 +1,14 @@
-# app/services/product_service.py
-from typing import Optional, List, Tuple
+"""Product business logic: validation, orchestration, and side effects."""
+
 from decimal import Decimal
+from typing import List, Optional, Tuple
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import get_logger
+from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.crud import product as crud_product
-from app.core.logging import get_logger
 from app.services.notion_service import NotionService
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
@@ -14,7 +16,7 @@ logger = get_logger(__name__)
 
 
 class ProductService:
-    """Business logic service for product operations."""
+    """Coordinates CRUD operations with domain validation and external integrations."""
 
     @staticmethod
     async def create_product_with_validation(

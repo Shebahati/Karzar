@@ -1,6 +1,8 @@
-# app/api/v1/__init__.py
+"""API v1 router aggregating all endpoint modules."""
+
 from fastapi import APIRouter
-from app.api.endpoints import auth, product, category
+
+from app.api.endpoints import auth, category, product
 
 api_router = APIRouter()
 

@@ -1,4 +1,5 @@
-# tests/test_product_endpoints.py
+"""Integration tests for product CRUD, listing, auth, and step-up flows."""
+
 from fastapi.testclient import TestClient
 
 from app.main import app

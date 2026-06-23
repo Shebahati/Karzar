@@ -1,11 +1,12 @@
+"""Readiness probes for external dependencies (PostgreSQL, Redis)."""
+
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import engine
 
 
 async def check_database_connection() -> bool:
-    """Return True when PostgreSQL accepts a simple query."""
+    """Return True when PostgreSQL accepts a simple SELECT 1 query."""
     try:
         async with engine.connect() as connection:
             await connection.execute(text("SELECT 1"))

@@ -1,15 +1,19 @@
-# app/db/models/product.py
+"""Catalog ORM models: categories, brands, products, and product images."""
+
 import enum
+from datetime import datetime
 from decimal import Decimal
 from typing import Any, List, Optional
-from datetime import datetime
-from sqlalchemy import String, Integer, ForeignKey, Enum, Boolean, DateTime, Numeric
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.models.base import Base
 
 
 def _enum_values(enum_cls: type[enum.Enum]) -> list[str]:
+    """Persist enum member values (lowercase strings) instead of Python names."""
     return [member.value for member in enum_cls]
 
 
@@ -20,26 +24,44 @@ class StockUnitEnum(str, enum.Enum):
     PACK = "pack"
 
 
-def get_default_specifications():
+def get_default_specifications() -> dict[str, Any]:
+    """Factory for the JSONB specifications column default structure."""
     return {
-        "technical_specs": {"range": "", "accuracy": "", "resolution": "", "material": "", "standard": "", "battery_type": ""},
-        "features": {"waterproof": False, "data_output": False, "auto_power_off": False, "buttons": [], "certification": ""},
+        "technical_specs": {
+            "range": "",
+            "accuracy": "",
+            "resolution": "",
+            "material": "",
+            "standard": "",
+            "battery_type": "",
+        },
+        "features": {
+            "waterproof": False,
+            "data_output": False,
+            "auto_power_off": False,
+            "buttons": [],
+            "certification": "",
+        },
         "dimensions": {"L_mm": 0.0, "a_mm": 0.0, "b_mm": 0.0, "c_mm": 0.0, "d_mm": 0.0},
-        "optional_accessories": []
+        "optional_accessories": [],
     }
 
 
 class Category(Base):
+    """Self-referential category tree node."""
+
     __tablename__ = "categories"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
 
     subcategories: Mapped[List["Category"]] = relationship("Category", back_populates="parent")
-    parent: Mapped[Optional["Category"]] = relationship("Category", back_populates="subcategories", remote_side=[id])
+    parent: Mapped[Optional["Category"]] = relationship(
+        "Category", back_populates="subcategories", remote_side=[id]
+    )
     products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -50,11 +72,13 @@ class Brand(Base):
     country: Mapped[Optional[str]] = mapped_column(String(50))
     products: Mapped[List["Product"]] = relationship("Product", back_populates="brand")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Product(Base):
+    """Core product entity with monetary fields stored as Numeric/Decimal."""
+
     __tablename__ = "products"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     sku: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
@@ -64,7 +88,9 @@ class Product(Base):
     brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
 
     base_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
-    stock_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.0"), server_default="0")
+    stock_quantity: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), default=Decimal("0.0"), server_default="0"
+    )
     stock_unit: Mapped[StockUnitEnum] = mapped_column(
         Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),
         default=StockUnitEnum.PIECE,
@@ -74,17 +100,23 @@ class Product(Base):
     warranty_text: Mapped[Optional[str]] = mapped_column(String(255))
     weight_grams: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2))
     is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
-    tax_percent: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), server_default="0")
+    tax_percent: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), default=Decimal("0.0"), server_default="0"
+    )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     pdf_catalog_url: Mapped[Optional[str]] = mapped_column(String(500))
-    specifications: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=get_default_specifications)
+    specifications: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=get_default_specifications
+    )
 
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
-    images: Mapped[List["ProductImage"]] = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+    images: Mapped[List["ProductImage"]] = relationship(
+        "ProductImage", back_populates="product", cascade="all, delete-orphan"
+    )
 
 
 class ProductImage(Base):

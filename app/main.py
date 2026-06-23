@@ -1,4 +1,5 @@
-# app/main.py
+"""FastAPI application entry point, middleware, admin panel, and global handlers."""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status
@@ -10,12 +11,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.admin.auth import admin_auth_backend
-from app.admin.views import ProductAdmin, CategoryAdmin, BrandAdmin, ProductImageAdmin, UserAdmin
+from app.admin.views import BrandAdmin, CategoryAdmin, ProductAdmin, ProductImageAdmin, UserAdmin
 from app.api.v1 import api_router
 from app.core.config import settings
 from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
-from app.core.logging import setup_logging, get_logger
+from app.core.logging import get_logger, setup_logging
 from app.core.startup import bootstrap_super_admin
 from app.db.database import engine
 
@@ -25,6 +26,7 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Run startup hooks before serving traffic."""
     await bootstrap_super_admin()
     yield
 
@@ -70,6 +72,7 @@ async def root():
 
 @app.get("/health", tags=["System"], summary="Health check")
 async def health_check():
+    """Liveness probe — returns 200 when the process is running."""
     logger.info("Health check requested")
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -83,6 +86,7 @@ async def health_check():
 
 @app.get("/ready", tags=["System"], summary="Readiness check")
 async def readiness_check():
+    """Readiness probe — verifies database (and Redis when configured)."""
     db_ok = await check_database_connection()
     redis_ok = await ping_redis()
 
@@ -126,18 +130,21 @@ async def api_info():
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request, exc: StarletteHTTPException):
+    """Normalize all HTTPException responses to the standard error envelope."""
     content = normalize_http_exception_detail(exc.status_code, exc.detail)
     return JSONResponse(status_code=exc.status_code, content=content, headers=getattr(exc, "headers", None))
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
+    """Map Pydantic validation errors to VALIDATION_FAILED with field details."""
     content = normalize_http_exception_detail(status.HTTP_422_UNPROCESSABLE_CONTENT, exc.errors())
     return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=content)
 
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
+    """Catch-all handler to prevent raw tracebacks leaking to clients."""
     logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

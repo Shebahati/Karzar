@@ -1,12 +1,13 @@
-# app/services/category_service.py
+"""Category business logic delegating to the CRUD and tree-builder layers."""
+
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import get_logger
 from app.crud import category as crud_category
 from app.schemas.category import CategoryTreeResponse
 from app.utils.category_tree import build_category_tree
-from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
