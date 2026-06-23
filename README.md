@@ -51,17 +51,23 @@ karzar/
 │   │   └── product.py        # Product schemas with validation
 │   └── services/             # Business logic layer
 │       └── product_service.py # Product business logic
-├── tests/                    # Test suite
-│   ├── conftest.py           # Pytest configuration and fixtures
-│   └── test_product_endpoints.py # Endpoint tests
-├── .env.example              # Environment template
+├── docs/                       # Handover and integration guides
+├── scripts/
+│   └── setup-dev.sh            # Local dev bootstrap (venv + deps)
+├── tests/                      # Test suite
+│   ├── conftest.py
+│   ├── test_product_endpoints.py
+│   ├── test_category_tree.py
+│   └── test_jsonb_filters.py
+├── .env.example
 ├── .dockerignore
 ├── .gitignore
-├── alembic.ini              # Alembic configuration
-├── docker-compose.yml       # Docker Compose orchestration
-├── Dockerfile               # Multi-stage Docker build
-├── requirements.txt         # Python dependencies
-└── README.md                # This file
+├── alembic.ini
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt            # Production dependencies (Docker)
+├── requirements-dev.txt        # Dev/test deps (includes requirements.txt)
+└── README.md
 ```
 
 ## Prerequisites
@@ -75,6 +81,19 @@ karzar/
 
 ### Local Development Setup
 
+**Quick start (recommended):**
+
+```bash
+git clone <repository-url>
+cd karzar
+./scripts/setup-dev.sh
+source .venv/bin/activate
+alembic upgrade head
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Manual setup:**
+
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
@@ -83,14 +102,16 @@ karzar/
 
 2. **Create virtual environment**:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python3 -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+   Use `requirements.txt` only when you do not need tests (e.g. minimal prod-like install).
+   Docker images install `requirements.txt` only.
 
 4. **Setup environment variables**:
    ```bash
@@ -287,10 +308,9 @@ GET /api/v1
 
 ## Testing
 
-Run the test suite:
+Requires dev dependencies (`pip install -r requirements-dev.txt`).
 
 ```bash
-# Install test dependencies (included in requirements.txt)
 pytest
 
 # With coverage report
