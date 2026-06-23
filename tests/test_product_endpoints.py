@@ -2,6 +2,8 @@
 
 from fastapi.testclient import TestClient
 
+from app.api.endpoints import auth as auth_endpoints
+from app.core.config import settings
 from app.main import app
 
 client = TestClient(app)
@@ -268,6 +270,9 @@ class TestCategoryEndpoints:
 
 
 class TestAuthEndpoints:
+    def setup_method(self):
+        auth_endpoints._reset_pin_rate_limiter_for_tests()
+
     def test_register_and_login(self):
         register_response = client.post(
             "/api/v1/auth/register",
@@ -327,3 +332,42 @@ class TestAuthEndpoints:
         )
         assert response.status_code == 403
         assert response.json()["error_code"] == "STEP_UP_INVALID"
+
+    def test_verify_pin_rate_limited_after_repeated_failures(self, super_admin_headers, monkeypatch):
+        monkeypatch.setattr(settings, "STEP_UP_MAX_ATTEMPTS", 2)
+        monkeypatch.setattr(settings, "STEP_UP_ATTEMPT_WINDOW_SECONDS", 300)
+
+        first = client.post(
+            "/api/v1/auth/verify-pin",
+            json={"pin": "000000"},
+            headers=super_admin_headers,
+        )
+        second = client.post(
+            "/api/v1/auth/verify-pin",
+            json={"pin": "111111"},
+            headers=super_admin_headers,
+        )
+        third = client.post(
+            "/api/v1/auth/verify-pin",
+            json={"pin": "84729101"},
+            headers=super_admin_headers,
+        )
+
+        assert first.status_code == 403
+        assert second.status_code == 403
+        assert third.status_code == 429
+        assert third.json()["error_code"] == "RATE_LIMITED"
+        assert "Retry-After" in third.headers
+
+    def test_register_disabled_by_config(self, monkeypatch):
+        monkeypatch.setattr(settings, "ALLOW_PUBLIC_REGISTER", False)
+        response = client.post(
+            "/api/v1/auth/register",
+            json={
+                "phone_number": "09125555555",
+                "password": "securepass",
+                "full_name": "Blocked User",
+            },
+        )
+        assert response.status_code == 403
+        assert response.json()["error_code"] == "FORBIDDEN"
