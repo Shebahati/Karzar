@@ -72,11 +72,11 @@ def build_specification_filters(
 
         accessor = _json_path_accessor(path)
         if icontains:
-            conditions.append(cast(accessor, String).ilike(f"%{value}%"))
+            conditions.append(accessor.astext.ilike(f"%{value}%"))
         elif isinstance(value, bool):
-            conditions.append(accessor == value)
+            conditions.append(accessor.astext == str(value).lower())
         else:
-            conditions.append(cast(accessor, String) == str(value))
+            conditions.append(accessor.astext == str(value))
 
     return conditions
 

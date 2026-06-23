@@ -7,7 +7,6 @@ from app.schemas.product import (
     CategoryBrief,
     ProductDetailResponse,
     ProductImageResponse,
-    ProductSpecifications,
     ProductSummaryResponse,
 )
 
@@ -52,10 +51,6 @@ def _images(product: Product) -> List[ProductImageResponse]:
     ]
 
 
-def _specifications(product: Product) -> ProductSpecifications:
-    return ProductSpecifications.model_validate(product.specifications or {})
-
-
 def to_product_summary(product: Product) -> ProductSummaryResponse:
     return ProductSummaryResponse(
         id=product.id,
@@ -93,7 +88,7 @@ def to_product_detail(product: Product) -> ProductDetailResponse:
         pdf_catalog_url=product.pdf_catalog_url,
         thumbnail=get_thumbnail_url(product),
         images=_images(product),
-        specifications=_specifications(product),
+        specifications=dict(product.specifications or {}),
         created_at=product.created_at,
         updated_at=product.updated_at,
     )

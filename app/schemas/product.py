@@ -10,38 +10,6 @@ StockUnitValue = Literal["piece", "kg", "meter", "pack"]
 VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
 
 
-class TechnicalSpecs(BaseModel):
-    range: str = ""
-    accuracy: str = ""
-    resolution: str = ""
-    material: str = ""
-    standard: str = ""
-    battery_type: str = ""
-
-
-class ProductFeatures(BaseModel):
-    waterproof: bool = False
-    data_output: bool = False
-    auto_power_off: bool = False
-    buttons: List[str] = Field(default_factory=list)
-    certification: str = ""
-
-
-class ProductDimensions(BaseModel):
-    L_mm: float = 0.0
-    a_mm: float = 0.0
-    b_mm: float = 0.0
-    c_mm: float = 0.0
-    d_mm: float = 0.0
-
-
-class ProductSpecifications(BaseModel):
-    technical_specs: TechnicalSpecs = Field(default_factory=TechnicalSpecs)
-    features: ProductFeatures = Field(default_factory=ProductFeatures)
-    dimensions: ProductDimensions = Field(default_factory=ProductDimensions)
-    optional_accessories: List[str] = Field(default_factory=list)
-
-
 class CategoryBrief(BaseModel):
     id: int
     name: str
@@ -105,6 +73,7 @@ class ProductCreate(BaseModel):
 
 
 class ProductUpdate(BaseModel):
+    sku: Optional[str] = None
     name: Optional[str] = None
     category_id: Optional[int] = None
     brand_id: Optional[int] = None
@@ -118,6 +87,13 @@ class ProductUpdate(BaseModel):
     is_active: Optional[bool] = None
     pdf_catalog_url: Optional[str] = None
     specifications: Optional[Dict[str, Any]] = None
+
+    @field_validator("sku")
+    @classmethod
+    def clean_sku(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        return v.strip().upper()
 
     @field_validator("stock_unit")
     @classmethod
@@ -144,7 +120,7 @@ class ProductResponse(BaseModel):
     tax_percent: Decimal
     is_active: bool
     pdf_catalog_url: Optional[str]
-    specifications: ProductSpecifications
+    specifications: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 
@@ -186,7 +162,7 @@ class ProductDetailResponse(BaseModel):
     pdf_catalog_url: Optional[str]
     thumbnail: Optional[str] = None
     images: List[ProductImageResponse] = Field(default_factory=list)
-    specifications: ProductSpecifications
+    specifications: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 

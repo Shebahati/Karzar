@@ -100,6 +100,14 @@ class ProductService:
         if not product:
             return None
 
+        if update_data.sku is not None and update_data.sku != product.sku:
+            if await crud_product.check_sku_exists_absolutely(
+                db, update_data.sku, exclude_product_id=product_id
+            ):
+                raise ValueError(
+                    f"Product with SKU {update_data.sku} already exists (including deleted products)"
+                )
+
         updated_product = await crud_product.update_product(db, product_id, update_data)
         await db.commit()
         logger.info(f"Product updated successfully: {product_id}")

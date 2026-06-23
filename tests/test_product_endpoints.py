@@ -117,6 +117,28 @@ class TestProductRetrieval:
         assert "specifications" in data
         assert data["specifications"]["technical_specs"]["range"] == "0-150mm"
 
+    def test_product_detail_preserves_dynamic_specifications(
+        self, valid_product_data, super_admin_headers
+    ):
+        valid_product_data["specifications"] = {
+            "technical_specs": {"range": "0-150mm"},
+            "custom_brand": "insize",
+            "extra_section": {"voltage": "24V"},
+        }
+        create_response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        product_id = create_response.json()["id"]
+
+        response = client.get(f"/api/v1/products/{product_id}")
+        assert response.status_code == 200
+        specs = response.json()["specifications"]
+        assert specs["custom_brand"] == "insize"
+        assert specs["extra_section"] == {"voltage": "24V"}
+        assert specs["technical_specs"]["range"] == "0-150mm"
+
     def test_spec_filters_json(self, valid_product_data, super_admin_headers):
         client.post(
             "/api/v1/products/",
@@ -143,6 +165,45 @@ class TestProductRetrieval:
 
 
 class TestProductMutations:
+    def test_update_sku_success(self, valid_product_data, super_admin_headers):
+        create_response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        product_id = create_response.json()["id"]
+
+        response = client.put(
+            f"/api/v1/products/{product_id}",
+            json={"sku": "test-002"},
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 200
+        assert response.json()["sku"] == "TEST-002"
+
+    def test_update_sku_conflict(self, valid_product_data, super_admin_headers):
+        client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        second_product = valid_product_data.copy()
+        second_product["sku"] = "TEST-002"
+        create_two = client.post(
+            "/api/v1/products/",
+            json=second_product,
+            headers=super_admin_headers,
+        )
+        product_two_id = create_two.json()["id"]
+
+        response = client.put(
+            f"/api/v1/products/{product_two_id}",
+            json={"sku": "TEST-001"},
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 409
+        assert response.json()["error_code"] == "CONFLICT"
+
     def test_update_nonexistent_product(self, super_admin_headers):
         response = client.put(
             "/api/v1/products/9999",

@@ -211,10 +211,18 @@ async def update_product(
     except HTTPException:
         raise
     except ValueError as e:
+        message = str(e)
+        if "SKU" in message and "already exists" in message:
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.CONFLICT,
+                message=message,
+                details=[{"field": "sku", "message": message}],
+            ) from e
         raise api_error(
             status.HTTP_400_BAD_REQUEST,
             error_code=ErrorCode.BAD_REQUEST,
-            message=str(e),
+            message=message,
         ) from e
     except Exception as e:
         logger.error(f"Error updating product: {str(e)}")
