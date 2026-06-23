@@ -1,17 +1,112 @@
-lathe-tools-backend/
+Karzar API Architecture (FastAPI + SQLAlchemy 2.0 + PostgreSQL)
+
+Root layout:
+
+karzar/
 ├── app/
-│   ├── __init__.py
-│   ├── main.py              # نقطه ورود برنامه (اجرای FastAPI)
-│   ├── api/                 # روت‌ها و اندپوینت‌های کنترلر (فقط مسیریابی)
-│   ├── core/                # تنظیمات (Pydantic Settings)، توابع امنیتی (JWT)
-│   ├── crud/                # کوئری‌های دیتابیس (فقط کدهای Async SQLAlchemy)
-│   ├── db/                  # تنظیمات اتصال به دیتابیس (AsyncSession)
-│   │   └── models/          # مدل‌های دیتابیس (SQLAlchemy Declarative Models)
-│   ├── schemas/             # مدل‌های اعتبارسنجی (Pydantic V2 DTOs)
-│   └── services/            # منطق تجاری (محاسبات، تخفیف‌ها، ارتباط بین CRUDها)
-├── tests/                   # تست‌های واحد و یکپارچگی (Pytest)
-├── Dockerfile               # کانفیگ داکر برای اپلیکیشن پایتون
-├── docker-compose.yml       # اجرای همزمان اپلیکیشن، دیتابیس PostgreSQL و Redis
-├── requirements.txt         # لیست وابستگی‌ها
-├── alembic.ini              # تنظیمات مایگریشن‌های دیتابیس
-└── .env                     # متغیرهای محیطی
+│   ├── main.py
+│   │   └── FastAPI application bootstrap:
+│   │       - middleware (CORS, sessions)
+│   │       - SQLAdmin registration
+│   │       - v1 router mounting
+│   │       - global exception normalization to error envelope
+│   │
+│   ├── api/
+│   │   ├── deps.py
+│   │   │   └── Dependency layer (authn/authz, step-up token verification)
+│   │   ├── v1/__init__.py
+│   │   │   └── Route composition for auth/products/categories
+│   │   └── endpoints/
+│   │       ├── auth.py
+│   │       │   └── Register/login/verify-pin (with in-memory PIN rate limiting)
+│   │       ├── product.py
+│   │       │   └── Product CRUD, list filters, stock operations, soft delete/restore
+│   │       └── category.py
+│   │           └── Category tree endpoint with wrapped response
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   │   └── Pydantic Settings:
+│   │   │       - JWT/step-up config
+│   │   │       - security toggles (e.g., ALLOW_PUBLIC_REGISTER)
+│   │   │       - DB/Redis config and computed DSN
+│   │   ├── security.py
+│   │   │   └── Password hashing, JWT creation/verification, PIN verification
+│   │   ├── errors.py
+│   │   │   └── Canonical error codes + standardized error envelope builders
+│   │   ├── logging.py
+│   │   │   └── Structured logging config
+│   │   ├── health.py
+│   │   │   └── Database/Redis health checks
+│   │   └── startup.py
+│   │       └── Bootstrap tasks (initial super admin provisioning)
+│   │
+│   ├── db/
+│   │   ├── database.py
+│   │   │   └── Async engine/session factory + request-scoped session dependency
+│   │   └── models/
+│   │       ├── base.py
+│   │       │   └── Declarative base + audit timestamps
+│   │       ├── product.py
+│   │       │   └── Category/Brand/Product/ProductImage models (+ JSONB specs)
+│   │       └── user.py
+│   │           └── User model + role enum
+│   │
+│   ├── schemas/
+│   │   └── Pydantic request/response contracts:
+│   │       - auth/category/product
+│   │       - paginated/common/error envelopes
+│   │
+│   ├── crud/
+│   │   └── Data access layer (DB-only logic, no HTTP concerns)
+│   │
+│   ├── services/
+│   │   └── Business orchestration layer (validation, side effects, workflows)
+│   │
+│   ├── utils/
+│   │   └── Pure helpers:
+│   │       - product presenter mappings
+│   │       - JSONB filter builders
+│   │       - category tree assembler
+│   │       - Decimal coercion helper
+│   │
+│   └── admin/
+│       └── SQLAdmin authentication and model views
+│
+├── alembic/
+│   ├── env.py
+│   │   └── Async migration runtime wired to app settings
+│   └── versions/
+│       └── Schema migration history
+│
+├── docs/
+│   └── Frontend integration and handover docs
+│
+├── tests/
+│   └── Pytest suite:
+│       - endpoint integration tests
+│       - category tree unit tests
+│       - JSONB filter query tests
+│
+├── scripts/
+│   └── setup-dev.sh (local environment bootstrap)
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── requirements-dev.txt
+└── alembic.ini
+
+Request flow (high level):
+1) HTTP request -> app/api/endpoints
+2) endpoint dependencies (auth/step-up) in app/api/deps.py
+3) service orchestration in app/services/*
+4) persistence via app/crud/* and app/db/models/*
+5) response shaping via app/schemas/* and app/utils/product_presenter.py
+6) centralized error envelope from app/core/errors.py
+
+Current security posture:
+- JWT access auth for protected endpoints
+- Step-up token required for destructive actions
+- PIN verification endpoint rate limited (429 + Retry-After)
+- Public registration can be disabled via ALLOW_PUBLIC_REGISTER

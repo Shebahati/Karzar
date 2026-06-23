@@ -204,6 +204,7 @@ This document answers every contract requirement you originally requested and de
 | 403 | `FORBIDDEN`, `STEP_UP_REQUIRED`, `STEP_UP_INVALID`, `STEP_UP_MISMATCH` |
 | 404 | `NOT_FOUND` |
 | 409 | `CONFLICT` |
+| 429 | `RATE_LIMITED` |
 | 422 | `VALIDATION_FAILED` |
 | 500 | `INTERNAL_ERROR` |
 
@@ -340,6 +341,15 @@ Content-Type: application/json
 { "pin": "your-admin-pin" }
 ```
 
+**Rate limit behavior (new):**
+
+- Repeated invalid PIN attempts are throttled per authenticated admin user.
+- On limit breach, API returns `429` with `error_code: "RATE_LIMITED"` and `Retry-After` header.
+- Frontend should:
+  - Disable retry button for `Retry-After` seconds
+  - Show a clear countdown message
+  - Avoid spamming retries in background
+
 **Response:**
 
 ```json
@@ -383,7 +393,7 @@ X-Step-Up-Token: <secure_token>
 | GET | `/api/v1/products/sku/{sku}` | `ProductDetailResponse` |
 | GET | `/api/v1/products/{id}/stock` | `StockStatusResponse` |
 | GET | `/api/v1/categories/tree` | `{ data: CategoryTreeResponse[] }` |
-| POST | `/api/v1/auth/register` | `UserResponse` |
+| POST | `/api/v1/auth/register` | `UserResponse` (can be disabled by backend config) |
 | POST | `/api/v1/auth/login` | `Token` |
 
 ### Admin (Bearer JWT + super_admin role)
@@ -452,7 +462,7 @@ URLs use numeric `id` / `sku` for now. Slug-based SEO URLs are not in the API ye
 | `slug` | Not in API | Use `/products/[id]` or `/products/sku/[sku]` |
 | Category filter | `category_id` (int), not slug | Read `id` from tree nodes |
 | Image upload API | Admin panel only | Not a storefront concern |
-| Open `/register` | Anyone can register | Storefront register OK |
+| `/register` availability | May be disabled via `ALLOW_PUBLIC_REGISTER=false` | Handle `403/FORBIDDEN` and hide signup if disabled |
 
 ---
 
