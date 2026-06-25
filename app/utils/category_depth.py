@@ -1,14 +1,12 @@
-"""Category depth, breadcrumb, and product-selection metadata helpers."""
+"""Compute depth, leaf status, and breadcrumbs for flat category lists."""
 
 from collections import defaultdict
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, TypedDict
 
 from app.db.models.product import Category
 
 
-@dataclass(frozen=True)
-class CategoryMeta:
+class CategoryMeta(TypedDict):
     depth: int
     is_leaf: bool
     breadcrumb: List[str]
@@ -16,57 +14,34 @@ class CategoryMeta:
 
 
 def build_category_metadata(categories: List[Category]) -> Dict[int, CategoryMeta]:
-    """Compute depth, leaf status, breadcrumb, and ancestor ids for every category."""
+    """Return per-category depth (1-based), leaf flag, breadcrumb names, and ancestor ids."""
     by_id = {category.id: category for category in categories}
-    children_by_parent: Dict[int, List[int]] = defaultdict(list)
+    child_count: dict[int, int] = defaultdict(int)
 
     for category in categories:
-        if category.parent_id is not None and category.parent_id in by_id:
-            children_by_parent[category.parent_id].append(category.id)
+        if category.parent_id is not None:
+            child_count[category.parent_id] += 1
 
-    is_leaf_map = {
-        category.id: len(children_by_parent.get(category.id, [])) == 0 for category in categories
-    }
-
-    cache: Dict[int, CategoryMeta] = {}
-
-    def resolve(category_id: int, visiting: Optional[Set[int]] = None) -> CategoryMeta:
-        if category_id in cache:
-            return cache[category_id]
-
-        visiting = visiting or set()
-        if category_id in visiting:
-            raise ValueError(f"Category cycle detected at id={category_id}")
-        visiting.add(category_id)
-
-        category = by_id[category_id]
-        is_leaf = is_leaf_map[category_id]
-
-        if category.parent_id is None or category.parent_id not in by_id:
-            meta = CategoryMeta(
-                depth=1,
-                is_leaf=is_leaf,
-                breadcrumb=[category.name],
-                ancestor_ids=[],
-            )
-        else:
-            parent_meta = resolve(category.parent_id, visiting)
-            meta = CategoryMeta(
-                depth=parent_meta.depth + 1,
-                is_leaf=is_leaf,
-                breadcrumb=[*parent_meta.breadcrumb, category.name],
-                ancestor_ids=[*parent_meta.ancestor_ids, category.parent_id],
-            )
-
-        cache[category_id] = meta
-        return meta
+    metadata: Dict[int, CategoryMeta] = {}
 
     for category in categories:
-        resolve(category.id)
+        chain: List[Category] = []
+        current: Optional[Category] = category
+        while current is not None:
+            chain.append(current)
+            current = by_id.get(current.parent_id) if current.parent_id is not None else None
 
-    return cache
+        ancestor_ids = [node.id for node in reversed(chain[:-1])]
+        metadata[category.id] = CategoryMeta(
+            depth=len(chain),
+            is_leaf=child_count[category.id] == 0,
+            breadcrumb=[node.name for node in reversed(chain)],
+            ancestor_ids=ancestor_ids,
+        )
+
+    return metadata
 
 
 def is_selectable_product_category(meta: CategoryMeta) -> bool:
-    """Layer-3 leaf categories are valid product assignment targets."""
-    return meta.depth == 3 and meta.is_leaf
+    """Layer-3 leaf nodes: depth 3 with no children (exactly two ancestors)."""
+    return meta["depth"] == 3 and meta["is_leaf"]

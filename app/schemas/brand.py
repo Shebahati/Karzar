@@ -1,8 +1,8 @@
-"""Brand response schemas for the catalog API."""
+"""Brand request/response schemas."""
 
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BrandResponse(BaseModel):
@@ -11,3 +11,13 @@ class BrandResponse(BaseModel):
     country: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class BrandCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    country: Optional[str] = Field(None, max_length=50)
+
+
+class BrandUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    country: Optional[str] = Field(None, max_length=50)

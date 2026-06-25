@@ -1,6 +1,6 @@
 """One-time application bootstrap tasks executed at startup."""
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -10,10 +10,6 @@ from app.db.models.product import Brand, Category
 from app.db.models.user import User, UserRole
 
 logger = get_logger(__name__)
-
-_BOOTSTRAP_ROOT_CATEGORY = "ابزار تراشکاری"
-_BOOTSTRAP_CHILD_CATEGORY = "الماس تراشکاری (اینسرت)"
-_BOOTSTRAP_BRANDS = ("سندویک کرومانت", "ایسکار", "میتوتویو")
 
 
 async def bootstrap_super_admin() -> None:
@@ -56,24 +52,25 @@ async def bootstrap_super_admin() -> None:
 
 
 async def bootstrap_catalog_seed() -> None:
-    """Seed a minimal category tree and brands when the catalog tables are empty."""
+    """Seed minimal categories and brands when the catalog is empty (local dev)."""
     async with async_session_maker() as session:
-        category_count = await session.scalar(select(func.count()).select_from(Category))
-        if category_count:
+        existing = await session.execute(select(Category).limit(1))
+        if existing.scalars().first():
             return
 
-        root = Category(name=_BOOTSTRAP_ROOT_CATEGORY)
+        root = Category(name="ابزار تراشکاری")
         session.add(root)
         await session.flush()
 
-        child = Category(name=_BOOTSTRAP_CHILD_CATEGORY, parent_id=root.id)
-        session.add(child)
+        inserts = Category(name="الماس تراشکاری (اینسرت)", parent_id=root.id)
+        session.add(inserts)
+        await session.flush()
 
-        for brand_name in _BOOTSTRAP_BRANDS:
-            session.add(Brand(name=brand_name))
-
+        brands = [
+            Brand(name="سندویک کرومانت", country="سوئد"),
+            Brand(name="ایسکار", country="اسرائیل"),
+            Brand(name="میتوتویو", country="ژاپن"),
+        ]
+        session.add_all(brands)
         await session.commit()
-        logger.info(
-            "Seeded bootstrap catalog: 1 root category, 1 child category, %s brands",
-            len(_BOOTSTRAP_BRANDS),
-        )
+        logger.info("Seeded bootstrap catalog: categories + brands")

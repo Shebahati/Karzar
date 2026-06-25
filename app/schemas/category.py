@@ -1,8 +1,8 @@
 """Category response schemas for tree and flat representations."""
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CategoryResponse(BaseModel):
@@ -14,11 +14,16 @@ class CategoryResponse(BaseModel):
 
 
 class CategoryFlatResponse(CategoryResponse):
-    depth: int
+    """Flat category row with hierarchy metadata for admin product forms."""
+
+    depth: int = Field(..., ge=1, description="1-based depth; roots are depth 1")
     is_leaf: bool
-    is_selectable: bool
-    breadcrumb: List[str]
-    ancestor_ids: List[int]
+    is_selectable: bool = Field(
+        ...,
+        description="True when depth=3 and leaf (assignable product category)",
+    )
+    breadcrumb: List[str] = Field(default_factory=list)
+    ancestor_ids: List[int] = Field(default_factory=list)
 
 
 class CategoryListResponse(BaseModel):
@@ -36,3 +41,56 @@ CategoryTreeResponse.model_rebuild()
 
 class CategoryTreeListResponse(BaseModel):
     data: List[CategoryTreeResponse]
+
+
+class FeatureDetailTemplate(BaseModel):
+    key: str
+    label: str
+    type: str
+    placeholder: Optional[str] = None
+
+
+class FeatureTemplate(BaseModel):
+    key: str
+    label: str
+    type: str = "boolean"
+    detail: Optional[FeatureDetailTemplate] = None
+
+
+class TechnicalSpecsTemplate(BaseModel):
+    suggested_keys: List[str] = Field(default_factory=list)
+    value_options: Dict[str, List[str]] = Field(default_factory=dict)
+
+
+class DimensionsTemplate(BaseModel):
+    suggested_keys: List[str] = Field(default_factory=list)
+
+
+class CategorySpecTemplateResponse(BaseModel):
+    category_id: int
+    category_name: str
+    breadcrumb: List[str]
+    technical_specs: TechnicalSpecsTemplate
+    features: List[FeatureTemplate]
+    dimensions: DimensionsTemplate
+    default_values: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Pre-filled specification object matching the admin form shape",
+    )
+
+
+class CategoryCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    parent_id: Optional[int] = None
+
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    parent_id: Optional[int] = None
+
+
+class CategoryDeleteResponse(BaseModel):
+    id: int
+    products_reassigned: int
+    new_category_id: Optional[int] = None
+    message: str
