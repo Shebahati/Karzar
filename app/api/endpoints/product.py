@@ -18,14 +18,21 @@ from app.schemas.product import (
     ProductDetailResponse,
     StockStatusResponse,
 )
+from app.crud import category as crud_category
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.utils.category_depth import build_category_metadata
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
 
 logger = get_logger(__name__)
 
 router = APIRouter()
+
+
+async def _category_metadata(db: AsyncSession):
+    categories = await crud_category.get_all_categories(db)
+    return build_category_metadata(categories)
 
 
 async def _product_detail_after_write(db: AsyncSession, product_id: int) -> ProductDetailResponse:
@@ -37,7 +44,8 @@ async def _product_detail_after_write(db: AsyncSession, product_id: int) -> Prod
             error_code=ErrorCode.NOT_FOUND,
             message=f"Product with ID '{product_id}' not found",
         )
-    return to_product_detail(details["product"])
+    metadata = await _category_metadata(db)
+    return to_product_detail(details["product"], metadata)
 
 
 @router.post(
@@ -109,8 +117,10 @@ async def read_products(
             spec_filters=spec_filters or None,
         )
 
+        metadata = await _category_metadata(db)
+
         return {
-            "data": [to_product_summary(product) for product in products],
+            "data": [to_product_summary(product, metadata) for product in products],
             "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
         }
     except HTTPException:
@@ -150,7 +160,7 @@ async def read_product_by_sku(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with SKU '{sku}' not found",
             )
-        return to_product_detail(product)
+        return to_product_detail(product, await _category_metadata(db))
     except HTTPException:
         raise
     except Exception as e:
@@ -176,7 +186,7 @@ async def read_product(product_id: int, db: AsyncSession = Depends(get_db)):
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
-        return to_product_detail(details["product"])
+        return to_product_detail(details["product"], await _category_metadata(db))
     except HTTPException:
         raise
     except Exception as e:

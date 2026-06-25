@@ -1,7 +1,7 @@
 """Map ORM Product instances to frontend-facing Pydantic response models."""
 
 from decimal import Decimal
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from app.db.models.product import Product
 from app.schemas.product import (
@@ -11,9 +11,11 @@ from app.schemas.product import (
     ProductImageResponse,
     ProductSummaryResponse,
 )
+from app.utils.category_depth import CategoryMeta
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
 LOW_STOCK_THRESHOLD = Decimal("10.0")
+HIERARCHY_SEPARATOR = " > "
 
 
 def stock_status_from_quantity(quantity) -> str:
@@ -29,10 +31,27 @@ def get_thumbnail_url(product: Product) -> Optional[str]:
     return (primary or product.images[0]).image_url
 
 
-def _category_brief(product: Product) -> Optional[CategoryBrief]:
+def _category_brief(
+    product: Product,
+    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+) -> Optional[CategoryBrief]:
     if product.category is None:
         return None
-    return CategoryBrief(id=product.category.id, name=product.category.name)
+
+    breadcrumb: List[str] = []
+    if category_metadata and product.category_id in category_metadata:
+        breadcrumb = list(category_metadata[product.category_id]["breadcrumb"])
+    else:
+        breadcrumb = [product.category.name]
+
+    hierarchy_label = HIERARCHY_SEPARATOR.join(breadcrumb) if breadcrumb else product.category.name
+
+    return CategoryBrief(
+        id=product.category.id,
+        name=product.category.name,
+        breadcrumb=breadcrumb,
+        hierarchy_label=hierarchy_label,
+    )
 
 
 def _brand_brief(product: Product) -> Optional[BrandBrief]:
@@ -53,7 +72,10 @@ def _images(product: Product) -> List[ProductImageResponse]:
     ]
 
 
-def to_product_summary(product: Product) -> ProductSummaryResponse:
+def to_product_summary(
+    product: Product,
+    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+) -> ProductSummaryResponse:
     """Build the PLP card shape from a loaded Product ORM instance."""
     return ProductSummaryResponse(
         id=product.id,
@@ -62,12 +84,15 @@ def to_product_summary(product: Product) -> ProductSummaryResponse:
         thumbnail=get_thumbnail_url(product),
         base_price=product.base_price,
         stock_status=stock_status_from_quantity(product.stock_quantity),
-        category=_category_brief(product),
+        category=_category_brief(product, category_metadata),
         brand=_brand_brief(product),
     )
 
 
-def to_product_detail(product: Product) -> ProductDetailResponse:
+def to_product_detail(
+    product: Product,
+    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+) -> ProductDetailResponse:
     """Build the full PDP shape including computed stock fields."""
     quantity = _to_decimal(product.stock_quantity)
     return ProductDetailResponse(
@@ -76,7 +101,7 @@ def to_product_detail(product: Product) -> ProductDetailResponse:
         name=product.name,
         category_id=product.category_id,
         brand_id=product.brand_id,
-        category=_category_brief(product),
+        category=_category_brief(product, category_metadata),
         brand=_brand_brief(product),
         base_price=product.base_price,
         stock_quantity=quantity,
