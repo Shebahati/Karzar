@@ -40,9 +40,6 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "*"
 
-    NOTION_TOKEN: Optional[str] = None
-    NOTION_DATABASE_ID: Optional[str] = None
-
     INITIAL_SUPER_ADMIN_PHONE: Optional[str] = None
     INITIAL_SUPER_ADMIN_PASSWORD: Optional[str] = None
     INITIAL_SUPER_ADMIN_NAME: Optional[str] = "Super Admin"

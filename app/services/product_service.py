@@ -9,14 +9,13 @@ from app.core.logging import get_logger
 from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.services.notion_service import NotionService
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
 logger = get_logger(__name__)
 
 
 class ProductService:
-    """Coordinates CRUD operations with domain validation and external integrations."""
+    """Coordinates CRUD operations with domain validation."""
 
     @staticmethod
     async def create_product_with_validation(
@@ -32,12 +31,6 @@ class ProductService:
         product = await crud_product.create_product(db, product_data)
         await db.commit()
         logger.info(f"Product created successfully: {product.id}")
-
-        try:
-            notion = NotionService()
-            await notion.update_endpoint_status("Get Products List", "Done")
-        except Exception as e:
-            logger.error(f"Notion integration failed: {str(e)}")
 
         return product
 
