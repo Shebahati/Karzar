@@ -1,6 +1,8 @@
 """Application settings loaded from environment variables via Pydantic Settings."""
 
-from typing import Optional, Self
+from typing import Optional
+
+from typing_extensions import Self
 
 from pydantic import Field, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
