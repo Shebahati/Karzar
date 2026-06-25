@@ -1,4 +1,4 @@
-"""FastAPI application entry point, middleware, admin panel, and global handlers."""
+"""FastAPI application entry point, middleware, and global handlers."""
 
 from contextlib import asynccontextmanager
 
@@ -6,19 +6,14 @@ from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqladmin import Admin
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.sessions import SessionMiddleware
 
-from app.admin.auth import admin_auth_backend
-from app.admin.views import BrandAdmin, CategoryAdmin, ProductAdmin, ProductImageAdmin, UserAdmin
 from app.api.v1 import api_router
 from app.core.config import settings
 from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, setup_logging
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
-from app.db.database import engine
 
 setup_logging()
 logger = get_logger(__name__)
@@ -42,7 +37,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -50,13 +44,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-admin = Admin(app, engine, authentication_backend=admin_auth_backend)
-admin.add_view(CategoryAdmin)
-admin.add_view(BrandAdmin)
-admin.add_view(ProductAdmin)
-admin.add_view(ProductImageAdmin)
-admin.add_view(UserAdmin)
 
 app.include_router(api_router, prefix="/api/v1")
 
@@ -124,7 +111,6 @@ async def api_info():
             "categories": "/api/v1/categories",
             "auth": "/api/v1/auth",
             "docs": "/api/docs",
-            "admin": "/admin",
         },
     }
 
