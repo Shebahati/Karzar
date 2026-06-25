@@ -17,7 +17,7 @@ from app.core.config import settings
 from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, setup_logging
-from app.core.startup import bootstrap_super_admin
+from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.db.database import engine
 
 setup_logging()
@@ -28,6 +28,7 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """Run startup hooks before serving traffic."""
     await bootstrap_super_admin()
+    await bootstrap_catalog_seed()
     yield
 
 

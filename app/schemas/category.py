@@ -13,6 +13,18 @@ class CategoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CategoryFlatResponse(CategoryResponse):
+    depth: int
+    is_leaf: bool
+    is_selectable: bool
+    breadcrumb: List[str]
+    ancestor_ids: List[int]
+
+
+class CategoryListResponse(BaseModel):
+    data: List[CategoryFlatResponse]
+
+
 class CategoryTreeResponse(CategoryResponse):
     """Recursive tree node with nested subcategories."""
 

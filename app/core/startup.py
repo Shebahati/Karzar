@@ -1,14 +1,19 @@
 """One-time application bootstrap tasks executed at startup."""
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.core.security import get_password_hash
 from app.db.database import async_session_maker
+from app.db.models.product import Brand, Category
 from app.db.models.user import User, UserRole
 
 logger = get_logger(__name__)
+
+_BOOTSTRAP_ROOT_CATEGORY = "ابزار تراشکاری"
+_BOOTSTRAP_CHILD_CATEGORY = "الماس تراشکاری (اینسرت)"
+_BOOTSTRAP_BRANDS = ("سندویک کرومانت", "ایسکار", "میتوتویو")
 
 
 async def bootstrap_super_admin() -> None:
@@ -48,3 +53,27 @@ async def bootstrap_super_admin() -> None:
             logger.info("Created bootstrap super admin: %s", user.phone_number)
 
         await session.commit()
+
+
+async def bootstrap_catalog_seed() -> None:
+    """Seed a minimal category tree and brands when the catalog tables are empty."""
+    async with async_session_maker() as session:
+        category_count = await session.scalar(select(func.count()).select_from(Category))
+        if category_count:
+            return
+
+        root = Category(name=_BOOTSTRAP_ROOT_CATEGORY)
+        session.add(root)
+        await session.flush()
+
+        child = Category(name=_BOOTSTRAP_CHILD_CATEGORY, parent_id=root.id)
+        session.add(child)
+
+        for brand_name in _BOOTSTRAP_BRANDS:
+            session.add(Brand(name=brand_name))
+
+        await session.commit()
+        logger.info(
+            "Seeded bootstrap catalog: 1 root category, 1 child category, %s brands",
+            len(_BOOTSTRAP_BRANDS),
+        )

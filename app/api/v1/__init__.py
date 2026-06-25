@@ -2,10 +2,11 @@
 
 from fastapi import APIRouter
 
-from app.api.endpoints import auth, category, product
+from app.api.endpoints import auth, brand, category, product
 
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(product.router, prefix="/products", tags=["Products"])
 api_router.include_router(category.router, prefix="/categories", tags=["Categories"])
+api_router.include_router(brand.router, prefix="/brands", tags=["Brands"])
