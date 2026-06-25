@@ -20,7 +20,7 @@ class CategoryFlatResponse(CategoryResponse):
     is_leaf: bool
     is_selectable: bool = Field(
         ...,
-        description="True when depth=3 and leaf (assignable product category)",
+        description="True when the category is a leaf below root level (depth >= 2)",
     )
     breadcrumb: List[str] = Field(default_factory=list)
     ancestor_ids: List[int] = Field(default_factory=list)

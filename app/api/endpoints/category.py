@@ -148,7 +148,7 @@ async def get_category_tree(db: AsyncSession = Depends(get_db)):
 @router.get(
     "/{category_id}/spec-templates",
     response_model=CategorySpecTemplateResponse,
-    summary="Get specification template for a layer-3 leaf category",
+    summary="Get specification template for an assignable leaf category",
     tags=["Categories"],
 )
 async def get_category_spec_template(category_id: int, db: AsyncSession = Depends(get_db)):

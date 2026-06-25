@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, List, Optional
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,9 +51,20 @@ class Category(Base):
     """Self-referential category tree node."""
 
     __tablename__ = "categories"
+    __table_args__ = (
+        UniqueConstraint(
+            "parent_id",
+            "name",
+            name="uq_categories_parent_name",
+            postgresql_nulls_not_distinct=True,
+        ),
+        Index("ix_categories_parent_id", "parent_id"),
+    )
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
+    spec_template_key: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
 
     subcategories: Mapped[List["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(
@@ -80,8 +91,25 @@ class Product(Base):
     """Core product entity with monetary fields stored as Numeric/Decimal."""
 
     __tablename__ = "products"
+    __table_args__ = (
+        Index("ix_products_category_id", "category_id"),
+        Index("ix_products_brand_id", "brand_id"),
+        Index("ix_products_active_list", "is_active", "deleted_at"),
+        Index(
+            "uq_products_sku_active",
+            "sku",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
+        Index(
+            "ix_products_specifications_gin",
+            "specifications",
+            postgresql_using="gin",
+        ),
+    )
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    sku: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    sku: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
 
     category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
@@ -121,6 +149,15 @@ class Product(Base):
 
 class ProductImage(Base):
     __tablename__ = "product_images"
+    __table_args__ = (
+        Index(
+            "uq_product_images_one_primary",
+            "product_id",
+            unique=True,
+            postgresql_where=text("is_primary IS TRUE"),
+        ),
+    )
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)

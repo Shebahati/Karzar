@@ -4,7 +4,7 @@ Seed the categories table with the Karzar catalog tree.
 Usage (Docker):
     docker compose exec app python scripts/seed_categories.py
 
-Clears existing products (and images) first because category_id is required.
+Clears existing products (and images) before reseeding categories when products exist.
 """
 
 import asyncio
@@ -22,6 +22,19 @@ from app.db.models.product import Category, Product, ProductImage
 
 setup_logging()
 logger = get_logger(__name__)
+
+# Root / branch template keys (decoupled from numeric ids in spec_template_service).
+SPEC_TEMPLATE_KEYS: dict[int, str] = {
+    2: "insert_holder",
+    3: "insert",
+    4: "end_mill",
+    5: "drill",
+    7: "measurement",
+    33: "insert",
+    34: "insert",
+    57: "measurement",
+    58: "measurement",
+}
 
 CATEGORIES: list[dict[str, object]] = [
     {"id": 1, "name": "ابزارگیر", "parent_id": None},
@@ -181,11 +194,13 @@ async def seed_categories() -> None:
             await session.execute(delete(Category))
 
         for row in CATEGORIES:
+            category_id = int(row["id"])  # type: ignore[arg-type]
             session.add(
                 Category(
-                    id=int(row["id"]),  # type: ignore[arg-type]
+                    id=category_id,
                     name=str(row["name"]),
                     parent_id=row["parent_id"],  # type: ignore[arg-type]
+                    spec_template_key=SPEC_TEMPLATE_KEYS.get(category_id),
                 )
             )
 

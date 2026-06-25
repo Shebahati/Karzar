@@ -75,11 +75,11 @@ class CategoryService:
             raise api_error(
                 400,
                 error_code=ErrorCode.BAD_REQUEST,
-                message="Spec templates are only available for layer-3 leaf categories",
+                message="Spec templates are only available for assignable leaf categories",
                 details=[
                     {
                         "field": "category_id",
-                        "message": "Category must be depth 3 and a leaf node",
+                        "message": "دسته باید یک زیردستهٔ برگ قابل انتخاب باشد.",
                     }
                 ],
             )
@@ -110,8 +110,15 @@ class CategoryService:
                 details=[{"field": "parent_id", "message": "دسته‌بندی والد یافت نشد."}],
             )
 
+        normalized_name = payload.name.strip()
+        await _ensure_unique_category_name(
+            db,
+            name=normalized_name,
+            parent_id=payload.parent_id,
+        )
+
         category = await crud_category.create_category(
-            db, name=payload.name.strip(), parent_id=payload.parent_id
+            db, name=normalized_name, parent_id=payload.parent_id
         )
         await db.commit()
 
@@ -164,10 +171,29 @@ class CategoryService:
                 )
 
         if payload.name is not None:
+            normalized_name = payload.name.strip()
+            target_parent_id = (
+                payload.parent_id
+                if "parent_id" in payload.model_fields_set
+                else category.parent_id
+            )
+            await _ensure_unique_category_name(
+                db,
+                name=normalized_name,
+                parent_id=target_parent_id,
+                exclude_id=category_id,
+            )
             category = await crud_category.update_category(
-                db, category, name=payload.name.strip()
+                db, category, name=normalized_name
             )
         if "parent_id" in payload.model_fields_set:
+            if payload.name is None:
+                await _ensure_unique_category_name(
+                    db,
+                    name=category.name,
+                    parent_id=payload.parent_id,
+                    exclude_id=category_id,
+                )
             category = await crud_category.update_category(
                 db,
                 category,
@@ -265,6 +291,25 @@ def _creates_cycle(
         parent = by_id.get(current_id)
         current_id = parent.parent_id if parent else None
     return False
+
+
+async def _ensure_unique_category_name(
+    db: AsyncSession,
+    *,
+    name: str,
+    parent_id: Optional[int],
+    exclude_id: Optional[int] = None,
+) -> None:
+    existing = await crud_category.get_category_by_parent_and_name(
+        db, name=name, parent_id=parent_id
+    )
+    if existing is not None and (exclude_id is None or existing.id != exclude_id):
+        raise api_error(
+            400,
+            error_code=ErrorCode.BAD_REQUEST,
+            message="Category name already exists under this parent",
+            details=[{"field": "name", "message": "نام دسته در این سطح تکراری است."}],
+        )
 
 
 def _build_default_values(template: dict) -> dict:

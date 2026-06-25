@@ -9,6 +9,7 @@ from app.core.logging import get_logger
 from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
+from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
 logger = get_logger(__name__)
@@ -23,10 +24,11 @@ class ProductService:
     ) -> Product:
         logger.info(f"Creating product: {product_data.sku}")
 
-        if await crud_product.check_sku_exists_absolutely(db, product_data.sku):
-            raise ValueError(
-                f"Product with SKU {product_data.sku} already exists (including deleted products)"
-            )
+        if await crud_product.check_sku_exists(db, product_data.sku):
+            raise ValueError(f"Product with SKU {product_data.sku} already exists")
+
+        await ensure_selectable_product_category(db, product_data.category_id)
+        await ensure_brand_exists(db, product_data.brand_id)
 
         product = await crud_product.create_product(db, product_data)
         await db.commit()
@@ -91,12 +93,15 @@ class ProductService:
             return None
 
         if update_data.sku is not None and update_data.sku != product.sku:
-            if await crud_product.check_sku_exists_absolutely(
+            if await crud_product.check_sku_exists(
                 db, update_data.sku, exclude_product_id=product_id
             ):
-                raise ValueError(
-                    f"Product with SKU {update_data.sku} already exists (including deleted products)"
-                )
+                raise ValueError(f"Product with SKU {update_data.sku} already exists")
+
+        if "category_id" in update_data.model_fields_set:
+            await ensure_selectable_product_category(db, update_data.category_id)
+        if "brand_id" in update_data.model_fields_set:
+            await ensure_brand_exists(db, update_data.brand_id)
 
         updated_product = await crud_product.update_product(db, product_id, update_data)
         await db.commit()

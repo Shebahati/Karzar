@@ -161,7 +161,7 @@ def valid_product_data():
     return {
         "sku": "TEST-001",
         "name": "Test Product",
-        "category_id": 1,
+        "category_id": 4,
         "brand_id": 1,
         "base_price": "99.99",
         "stock_quantity": "50",

@@ -37,7 +37,7 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
-    category_id: int
+    category_id: Optional[int] = None
     brand_id: Optional[int] = None
 
     base_price: Optional[Decimal] = Field(default=None, max_digits=15, decimal_places=2)
@@ -98,8 +98,9 @@ class ProductCreate(BaseModel):
 class ProductUpdate(BaseModel):
     """Partial update payload; omitted fields are left unchanged.
 
-    Explicit null on non-nullable columns (sku, name, category_id) is rejected
-    to prevent IntegrityError at the database layer.
+    Explicit null on required string columns (sku, name) is rejected
+    to prevent IntegrityError at the database layer. category_id may be
+    set to null to move a product to uncategorized.
     """
 
     sku: Optional[str] = None
@@ -131,13 +132,6 @@ class ProductUpdate(BaseModel):
         if info.field_name == "sku":
             return stripped.upper()
         return stripped
-
-    @field_validator("category_id", mode="before")
-    @classmethod
-    def check_category_not_null(cls, v: Any) -> Any:
-        if v is None:
-            raise ValueError("category_id cannot be explicitly set to null")
-        return v
 
     @field_validator("stock_unit")
     @classmethod

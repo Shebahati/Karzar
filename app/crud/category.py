@@ -1,5 +1,6 @@
 """Category database access for tree assembly and admin CRUD."""
 
+from collections import defaultdict
 from typing import List, Optional
 
 from sqlalchemy import delete, func, select, update
@@ -9,6 +10,30 @@ from app.core.logging import get_logger
 from app.db.models.product import Category, Product
 
 logger = get_logger(__name__)
+
+
+def collect_category_subtree_ids(
+    categories: List[Category],
+    category_id: int,
+) -> List[int]:
+    """Return category_id and all descendant ids for PLP subtree filtering."""
+    children_by_parent: dict[int, list[int]] = defaultdict(list)
+    known_ids = {category.id for category in categories}
+    if category_id not in known_ids:
+        return []
+
+    for category in categories:
+        if category.parent_id is not None:
+            children_by_parent[category.parent_id].append(category.id)
+
+    subtree_ids = [category_id]
+    stack = [category_id]
+    while stack:
+        current = stack.pop()
+        for child_id in children_by_parent.get(current, []):
+            subtree_ids.append(child_id)
+            stack.append(child_id)
+    return subtree_ids
 
 
 async def get_all_categories(db: AsyncSession) -> List[Category]:
@@ -25,6 +50,26 @@ async def get_category_by_id(db: AsyncSession, category_id: int) -> Optional[Cat
     return result.scalar_one_or_none()
 
 
+async def get_category_by_parent_and_name(
+    db: AsyncSession,
+    *,
+    name: str,
+    parent_id: Optional[int],
+) -> Optional[Category]:
+    stmt = select(Category).where(Category.name == name)
+    if parent_id is None:
+        stmt = stmt.where(Category.parent_id.is_(None))
+    else:
+        stmt = stmt.where(Category.parent_id == parent_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def get_category_subtree_ids(db: AsyncSession, category_id: int) -> List[int]:
+    categories = await get_all_categories(db)
+    return collect_category_subtree_ids(categories, category_id)
+
+
 async def count_subcategories(db: AsyncSession, category_id: int) -> int:
     result = await db.scalar(
         select(func.count()).select_from(Category).where(Category.parent_id == category_id)
@@ -32,8 +77,18 @@ async def count_subcategories(db: AsyncSession, category_id: int) -> int:
     return int(result or 0)
 
 
-async def create_category(db: AsyncSession, *, name: str, parent_id: Optional[int]) -> Category:
-    category = Category(name=name, parent_id=parent_id)
+async def create_category(
+    db: AsyncSession,
+    *,
+    name: str,
+    parent_id: Optional[int],
+    spec_template_key: Optional[str] = None,
+) -> Category:
+    category = Category(
+        name=name,
+        parent_id=parent_id,
+        spec_template_key=spec_template_key,
+    )
     db.add(category)
     await db.flush()
     await db.refresh(category)

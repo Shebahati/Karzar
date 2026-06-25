@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from app.crud import category as crud_category
 from app.core.logging import get_logger
 from app.db.models.product import Brand, Product, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
@@ -87,7 +88,11 @@ async def get_products(
     filters = []
 
     if category_id:
-        filters.append(Product.category_id == category_id)
+        subtree_ids = await crud_category.get_category_subtree_ids(db, category_id)
+        if subtree_ids:
+            filters.append(Product.category_id.in_(subtree_ids))
+        else:
+            filters.append(Product.category_id == category_id)
     if brand_id:
         filters.append(Product.brand_id == brand_id)
     if is_active is not None:
@@ -294,12 +299,22 @@ async def get_product_statistics(db: AsyncSession) -> dict:
     return stats
 
 
-async def check_sku_exists_absolutely(
+async def check_sku_exists(
     db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None
 ) -> bool:
-    """Check SKU uniqueness across active and soft-deleted products."""
-    stmt = select(Product.id).where(Product.sku == sku)
+    """Check SKU uniqueness among active (non-deleted) products."""
+    stmt = select(Product.id).where(
+        Product.sku == sku,
+        Product.deleted_at.is_(None),
+    )
     if exclude_product_id is not None:
         stmt = stmt.where(Product.id != exclude_product_id)
     result = await db.execute(stmt)
     return result.first() is not None
+
+
+async def check_sku_exists_absolutely(
+    db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None
+) -> bool:
+    """Backward-compatible alias for active SKU uniqueness checks."""
+    return await check_sku_exists(db, sku, exclude_product_id=exclude_product_id)

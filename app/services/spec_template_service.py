@@ -132,21 +132,13 @@ _DRILL_TEMPLATE: SpecTemplate = {
     "dimensions": {"suggested_keys": ["D", "L", "Lc"]},
 }
 
-# Explicit overrides for high-traffic leaf categories (optional fine-tuning).
-_CATEGORY_ID_OVERRIDES: Dict[int, SpecTemplate] = {
-    57: _MEASUREMENT_PRECISE_TEMPLATE,  # انواع کولیس
-    58: _MEASUREMENT_PRECISE_TEMPLATE,  # انواع میکرومتر
-    33: _INSERT_TEMPLATE,
-    34: _INSERT_TEMPLATE,
-}
-
-# Match when any ancestor id is in this set (root / branch level).
-_BRANCH_TEMPLATE_BY_ANCESTOR: Dict[int, SpecTemplate] = {
-    7: _MEASUREMENT_PRECISE_TEMPLATE,   # اندازه گیری
-    3: _INSERT_TEMPLATE,                # اینسرت
-    4: _END_MILL_TEMPLATE,              # ابزار انگشتی
-    5: _DRILL_TEMPLATE,                 # مته
-    2: _INSERT_TEMPLATE,                # ابزار اینسرتی (holders)
+_TEMPLATES_BY_KEY: Dict[str, SpecTemplate] = {
+    "default": _DEFAULT_TEMPLATE,
+    "measurement": _MEASUREMENT_PRECISE_TEMPLATE,
+    "insert": _INSERT_TEMPLATE,
+    "insert_holder": _INSERT_TEMPLATE,
+    "end_mill": _END_MILL_TEMPLATE,
+    "drill": _DRILL_TEMPLATE,
 }
 
 
@@ -154,25 +146,19 @@ def resolve_spec_template(
     category: Category,
     categories_by_id: Dict[int, Category],
 ) -> SpecTemplate:
-    """Pick the best template for a leaf category based on id override or ancestry."""
-    if category.id in _CATEGORY_ID_OVERRIDES:
-        return _deep_copy_template(_CATEGORY_ID_OVERRIDES[category.id])
-
-    ancestor_ids = _collect_ancestor_ids(category, categories_by_id)
-    for ancestor_id in reversed(ancestor_ids):
-        if ancestor_id in _BRANCH_TEMPLATE_BY_ANCESTOR:
-            return _deep_copy_template(_BRANCH_TEMPLATE_BY_ANCESTOR[ancestor_id])
-
-    return _deep_copy_template(_DEFAULT_TEMPLATE)
-
-
-def _collect_ancestor_ids(category: Category, by_id: Dict[int, Category]) -> List[int]:
-    chain: List[int] = []
+    """Pick the best template using category.spec_template_key and ancestor keys."""
     current: Optional[Category] = category
     while current is not None:
-        chain.append(current.id)
-        current = by_id.get(current.parent_id) if current.parent_id is not None else None
-    return list(reversed(chain))
+        key = current.spec_template_key
+        if key and key in _TEMPLATES_BY_KEY:
+            return _deep_copy_template(_TEMPLATES_BY_KEY[key])
+        current = (
+            categories_by_id.get(current.parent_id)
+            if current.parent_id is not None
+            else None
+        )
+
+    return _deep_copy_template(_DEFAULT_TEMPLATE)
 
 
 def _deep_copy_template(template: SpecTemplate) -> SpecTemplate:
