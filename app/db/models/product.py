@@ -84,7 +84,7 @@ class Product(Base):
     sku: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
 
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
     brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
 
     base_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
@@ -112,7 +112,7 @@ class Product(Base):
         JSONB, nullable=False, default=get_default_specifications
     )
 
-    category: Mapped["Category"] = relationship("Category", back_populates="products")
+    category: Mapped[Optional["Category"]] = relationship("Category", back_populates="products")
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
     images: Mapped[List["ProductImage"]] = relationship(
         "ProductImage", back_populates="product", cascade="all, delete-orphan"
