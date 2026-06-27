@@ -13,14 +13,21 @@ from app.schemas.product import (
 )
 from app.utils.category_depth import CategoryMeta
 from app.utils.decimal_utils import to_decimal as _to_decimal
+from app.utils.specifications import normalize_specifications_for_api
+from app.utils.storefront_catalog import (
+    Audience,
+    compute_discount_percent,
+    decimal_to_api_string,
+    hierarchy_separator,
+    stock_status_label,
+)
 
 LOW_STOCK_THRESHOLD = Decimal("10.0")
-HIERARCHY_SEPARATOR = " > "
 
 
-def stock_status_from_quantity(quantity) -> str:
-    """Derive in_stock / out_of_stock from a numeric quantity."""
-    return "in_stock" if _to_decimal(quantity) > Decimal("0.0") else "out_of_stock"
+def stock_status_from_quantity(quantity, *, audience: Audience = "admin") -> str:
+    """Derive stock status label for admin or storefront audience."""
+    return stock_status_label(quantity, audience=audience)
 
 
 def get_thumbnail_url(product: Product) -> Optional[str]:
@@ -34,6 +41,8 @@ def get_thumbnail_url(product: Product) -> Optional[str]:
 def _category_brief(
     product: Product,
     category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    *,
+    audience: Audience = "storefront",
 ) -> Optional[CategoryBrief]:
     if product.category is None:
         return None
@@ -44,7 +53,8 @@ def _category_brief(
     else:
         breadcrumb = [product.category.name]
 
-    hierarchy_label = HIERARCHY_SEPARATOR.join(breadcrumb) if breadcrumb else product.category.name
+    separator = hierarchy_separator(audience)
+    hierarchy_label = separator.join(breadcrumb) if breadcrumb else product.category.name
 
     return CategoryBrief(
         id=product.category.id,
@@ -57,7 +67,11 @@ def _category_brief(
 def _brand_brief(product: Product) -> Optional[BrandBrief]:
     if product.brand is None:
         return None
-    return BrandBrief(id=product.brand.id, name=product.brand.name)
+    return BrandBrief(
+        id=product.brand.id,
+        name=product.brand.name,
+        country=product.brand.country,
+    )
 
 
 def _images(product: Product) -> List[ProductImageResponse]:
@@ -75,16 +89,24 @@ def _images(product: Product) -> List[ProductImageResponse]:
 def to_product_summary(
     product: Product,
     category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    *,
+    audience: Audience = "storefront",
 ) -> ProductSummaryResponse:
     """Build the PLP card shape from a loaded Product ORM instance."""
+    quantity = _to_decimal(product.stock_quantity)
+    low_stock = quantity < LOW_STOCK_THRESHOLD
     return ProductSummaryResponse(
         id=product.id,
         sku=product.sku,
         name=product.name,
         thumbnail=get_thumbnail_url(product),
-        base_price=product.base_price,
-        stock_status=stock_status_from_quantity(product.stock_quantity),
-        category=_category_brief(product, category_metadata),
+        base_price=decimal_to_api_string(product.base_price),
+        original_price=decimal_to_api_string(product.original_price),
+        discount_percent=compute_discount_percent(product.base_price, product.original_price),
+        stock_status=stock_status_label(quantity, audience=audience, low_stock=low_stock),
+        availability=bool(product.is_active and quantity > Decimal("0.0")),
+        is_original=product.is_original,
+        category=_category_brief(product, category_metadata, audience=audience),
         brand=_brand_brief(product),
     )
 
@@ -92,32 +114,41 @@ def to_product_summary(
 def to_product_detail(
     product: Product,
     category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    *,
+    audience: Audience = "storefront",
 ) -> ProductDetailResponse:
     """Build the full PDP shape including computed stock fields."""
     quantity = _to_decimal(product.stock_quantity)
+    low_stock = quantity < LOW_STOCK_THRESHOLD
     return ProductDetailResponse(
         id=product.id,
         sku=product.sku,
         name=product.name,
         category_id=product.category_id,
         brand_id=product.brand_id,
-        category=_category_brief(product, category_metadata),
+        category=_category_brief(product, category_metadata, audience=audience),
         brand=_brand_brief(product),
-        base_price=product.base_price,
-        stock_quantity=quantity,
+        base_price=decimal_to_api_string(product.base_price),
+        original_price=decimal_to_api_string(product.original_price),
+        discount_percent=compute_discount_percent(product.base_price, product.original_price),
+        stock_quantity=decimal_to_api_string(quantity) or "0",
         stock_unit=product.stock_unit.value if hasattr(product.stock_unit, "value") else str(product.stock_unit),
-        stock_status=stock_status_from_quantity(quantity),
-        low_stock=quantity < LOW_STOCK_THRESHOLD,
+        stock_status=stock_status_label(quantity, audience=audience, low_stock=low_stock),
+        low_stock=low_stock,
         availability=bool(product.is_active and quantity > Decimal("0.0")),
         warranty_text=product.warranty_text,
-        weight_grams=product.weight_grams,
+        weight_grams=decimal_to_api_string(product.weight_grams),
         is_original=product.is_original,
-        tax_percent=product.tax_percent,
+        tax_percent=decimal_to_api_string(product.tax_percent) or "0",
         is_active=product.is_active,
         pdf_catalog_url=product.pdf_catalog_url,
+        description=product.description,
         thumbnail=get_thumbnail_url(product),
         images=_images(product),
-        specifications=dict(product.specifications or {}),
+        specifications=normalize_specifications_for_api(
+            dict(product.specifications or {}),
+            audience=audience,
+        ),
         created_at=product.created_at,
         updated_at=product.updated_at,
     )

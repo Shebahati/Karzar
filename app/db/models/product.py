@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, List, Optional
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint, text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -136,6 +136,8 @@ class Product(Base):
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     pdf_catalog_url: Mapped[Optional[str]] = mapped_column(String(500))
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    original_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2), nullable=True)
     specifications: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=get_default_specifications
     )
@@ -144,6 +146,9 @@ class Product(Base):
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
     images: Mapped[List["ProductImage"]] = relationship(
         "ProductImage", back_populates="product", cascade="all, delete-orphan"
+    )
+    comments: Mapped[List["ProductComment"]] = relationship(
+        "ProductComment", back_populates="product", cascade="all, delete-orphan"
     )
 
 

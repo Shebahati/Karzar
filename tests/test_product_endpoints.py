@@ -114,11 +114,12 @@ class TestProductRetrieval:
         response = client.get(f"/api/v1/products/{product_id}")
         assert response.status_code == 200
         data = response.json()
-        assert data["stock_status"] == "in_stock"
+        assert data["stock_status"] == "موجود"
         assert data["availability"] is True
         assert "images" in data
         assert "specifications" in data
-        assert data["specifications"]["technical_specs"]["range"] == "0-150mm"
+        tech_specs = data["specifications"]["technical_specs"]
+        assert any(row["key"] == "range" and row["value"] == "0-150mm" for row in tech_specs)
 
     def test_product_detail_preserves_dynamic_specifications(
         self, valid_product_data, super_admin_headers
@@ -135,7 +136,10 @@ class TestProductRetrieval:
         )
         product_id = create_response.json()["id"]
 
-        response = client.get(f"/api/v1/products/{product_id}")
+        response = client.get(
+            f"/api/v1/products/{product_id}",
+            headers=super_admin_headers,
+        )
         assert response.status_code == 200
         specs = response.json()["specifications"]
         assert specs["custom_brand"] == "insize"
@@ -244,14 +248,13 @@ class TestCategoryEndpoints:
         response = client.get("/api/v1/categories/tree")
         assert response.status_code == 200
         body = response.json()
-        assert "data" in body
-        assert isinstance(body["data"], list)
+        assert isinstance(body, list)
 
     def test_category_tree_returns_unlimited_depth(self):
         response = client.get("/api/v1/categories/tree")
         assert response.status_code == 200
 
-        tree = response.json()["data"]
+        tree = response.json()
         assert len(tree) == 1
         assert tree[0]["name"] == "Digital Calipers"
 

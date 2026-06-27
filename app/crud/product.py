@@ -11,10 +11,12 @@ from sqlalchemy.orm import selectinload
 
 from app.crud import category as crud_category
 from app.core.logging import get_logger
-from app.db.models.product import Brand, Product, StockUnitEnum
+from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.jsonb_filters import build_specification_filters
+from app.utils.specifications import specifications_for_storage
+from app.utils.storefront_catalog import product_sort_clause
 
 logger = get_logger(__name__)
 
@@ -29,10 +31,11 @@ def _product_load_options():
 
 
 async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product:
+    payload = product_in.model_dump(exclude={"specifications", "stock_unit"})
     db_product = Product(
-        **product_in.model_dump(exclude={"specifications", "stock_unit"}),
+        **payload,
         stock_unit=StockUnitEnum(product_in.stock_unit),
-        specifications=product_in.specifications,
+        specifications=specifications_for_storage(product_in.specifications),
     )
     try:
         db.add(db_product)
@@ -83,10 +86,16 @@ async def get_products(
     max_price: Optional[Decimal] = None,
     max_stock: Optional[Decimal] = None,
     spec_filters: Optional[Dict[str, Any]] = None,
+    country: Optional[str] = None,
+    in_stock: Optional[bool] = None,
+    sort: Optional[str] = None,
+    product_ids: Optional[List[int]] = None,
 ) -> Tuple[List[Product], int]:
     query = select(Product).where(Product.deleted_at.is_(None))
     filters = []
 
+    if product_ids:
+        filters.append(Product.id.in_(product_ids))
     if category_id:
         subtree_ids = await crud_category.get_category_subtree_ids(db, category_id)
         if subtree_ids:
@@ -95,6 +104,15 @@ async def get_products(
             filters.append(Product.category_id == category_id)
     if brand_id:
         filters.append(Product.brand_id == brand_id)
+    if country:
+        filters.append(Product.brand.has(Brand.country == country))
+    if in_stock:
+        filters.append(
+            and_(
+                Product.is_active.is_(True),
+                Product.stock_quantity > Decimal("0.0"),
+            )
+        )
     if is_active is not None:
         filters.append(Product.is_active == is_active)
     if min_price is not None:
@@ -130,15 +148,19 @@ async def get_products(
 
     query = (
         query.options(*_product_load_options())
-        .order_by(Product.created_at.desc())
+        .order_by(product_sort_clause(sort))
         .offset(skip)
         .limit(limit)
     )
     result = await db.execute(query)
-    products = result.scalars().all()
+    products = list(result.scalars().all())
+
+    if product_ids:
+        order_index = {product_id: index for index, product_id in enumerate(product_ids)}
+        products.sort(key=lambda product: order_index.get(product.id, len(order_index)))
 
     logger.info(f"Retrieved {len(products)} products with skip={skip}, limit={limit}")
-    return list(products), total
+    return products, total
 
 
 async def update_product(
@@ -152,6 +174,8 @@ async def update_product(
         update_data = product_in.model_dump(exclude_unset=True)
         if "stock_unit" in update_data and update_data["stock_unit"] is not None:
             update_data["stock_unit"] = StockUnitEnum(update_data["stock_unit"])
+        if "specifications" in update_data and update_data["specifications"] is not None:
+            update_data["specifications"] = specifications_for_storage(update_data["specifications"])
 
         for field, value in update_data.items():
             setattr(db_product, field, value)
@@ -318,3 +342,108 @@ async def check_sku_exists_absolutely(
 ) -> bool:
     """Backward-compatible alias for active SKU uniqueness checks."""
     return await check_sku_exists(db, sku, exclude_product_id=exclude_product_id)
+
+
+async def get_related_products(
+    db: AsyncSession,
+    product_id: int,
+    *,
+    limit: int = 6,
+) -> List[Product]:
+    product = await get_product_by_id(db, product_id)
+    if not product or not product.category_id:
+        return []
+
+    from app.crud import category as crud_category
+
+    categories = await crud_category.get_all_categories(db)
+    by_id = {category.id: category for category in categories}
+    current = by_id.get(product.category_id)
+    if not current:
+        return []
+
+    root_id = current.id
+    while current.parent_id is not None:
+        parent = by_id.get(current.parent_id)
+        if parent is None:
+            break
+        root_id = parent.id
+        current = parent
+
+    subtree_ids = await crud_category.get_category_subtree_ids(db, root_id)
+    if not subtree_ids:
+        return []
+
+    stmt = (
+        select(Product)
+        .where(
+            and_(
+                Product.deleted_at.is_(None),
+                Product.is_active.is_(True),
+                Product.id != product_id,
+                Product.category_id.in_(subtree_ids),
+            )
+        )
+        .options(*_product_load_options())
+        .order_by(Product.created_at.desc())
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
+async def add_product_image(
+    db: AsyncSession,
+    product_id: int,
+    image_url: str,
+    *,
+    is_primary: bool = False,
+) -> ProductImage:
+    if is_primary:
+        await db.execute(
+            update(ProductImage)
+            .where(ProductImage.product_id == product_id)
+            .values(is_primary=False)
+        )
+
+    image = ProductImage(product_id=product_id, image_url=image_url, is_primary=is_primary)
+    db.add(image)
+    await db.flush()
+    await db.refresh(image)
+    return image
+
+
+async def delete_product_image(db: AsyncSession, product_id: int, image_id: int) -> bool:
+    stmt = select(ProductImage).where(
+        ProductImage.id == image_id,
+        ProductImage.product_id == product_id,
+    )
+    result = await db.execute(stmt)
+    image = result.scalar_one_or_none()
+    if not image:
+        return False
+    await db.delete(image)
+    await db.flush()
+    return True
+
+
+async def set_primary_product_image(
+    db: AsyncSession, product_id: int, image_id: int
+) -> Optional[ProductImage]:
+    stmt = select(ProductImage).where(
+        ProductImage.id == image_id,
+        ProductImage.product_id == product_id,
+    )
+    result = await db.execute(stmt)
+    image = result.scalar_one_or_none()
+    if not image:
+        return None
+
+    await db.execute(
+        update(ProductImage)
+        .where(ProductImage.product_id == product_id)
+        .values(is_primary=False)
+    )
+    image.is_primary = True
+    await db.flush()
+    return image

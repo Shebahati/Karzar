@@ -20,7 +20,18 @@ from app.core.security import (
 )
 from app.db.database import get_db
 from app.db.models.user import User
-from app.schemas.auth import PinVerifyRequest, StepUpTokenResponse, Token, UserCreate, UserResponse
+from app.schemas.auth import (
+    OtpRequest,
+    OtpRequestResponse,
+    OtpVerifyRequest,
+    OtpVerifyResponse,
+    PinVerifyRequest,
+    StepUpTokenResponse,
+    Token,
+    UserCreate,
+    UserResponse,
+)
+from app.services.otp_service import request_otp, verify_otp
 
 router = APIRouter()
 _PIN_ATTEMPTS: dict[str, deque[float]] = defaultdict(deque)
@@ -164,3 +175,33 @@ async def verify_pin(
         "token_type": "step_up",
         "expires_in": expires_in,
     }
+
+
+@router.post("/otp/request", response_model=OtpRequestResponse, summary="Request storefront OTP")
+async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
+    try:
+        return await request_otp(db, payload.phone)
+    except Exception as exc:
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error sending OTP",
+        ) from exc
+
+
+@router.post("/otp/verify", response_model=OtpVerifyResponse, summary="Verify storefront OTP")
+async def otp_verify(payload: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
+    try:
+        return await verify_otp(db, payload.phone, payload.code)
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message=str(exc),
+        ) from exc
+    except Exception as exc:
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error verifying OTP",
+        ) from exc

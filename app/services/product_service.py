@@ -63,6 +63,10 @@ class ProductService:
         min_price: Optional[Decimal] = None,
         max_price: Optional[Decimal] = None,
         spec_filters: Optional[dict] = None,
+        country: Optional[str] = None,
+        in_stock: Optional[bool] = None,
+        sort: Optional[str] = None,
+        product_ids: Optional[List[int]] = None,
         skip: int = 0,
         limit: int = 100,
     ) -> Tuple[List[Product], int]:
@@ -78,6 +82,10 @@ class ProductService:
             min_price=min_price,
             max_price=max_price,
             spec_filters=spec_filters,
+            country=country,
+            in_stock=in_stock,
+            sort=sort,
+            product_ids=product_ids,
         )
 
     @staticmethod

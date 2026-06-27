@@ -22,7 +22,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.security import get_password_hash
 from app.db.database import get_db
-from app.db.models.base import Base
+from app.db.models import Base  # noqa: F401 — registers all ORM tables
 from app.db.models.product import Category, Brand, Product, ProductImage, StockUnitEnum
 from app.db.models.user import User, UserRole
 from app.api.deps import get_current_super_admin

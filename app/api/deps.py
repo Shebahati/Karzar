@@ -13,6 +13,10 @@ from app.db.database import get_db
 from app.db.models.user import User, UserRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/login",
+    auto_error=False,
+)
 
 
 async def get_current_user(
@@ -98,3 +102,30 @@ async def get_current_super_admin_with_step_up(
             message="Step-up token does not match the authenticated user",
         )
     return current_user
+
+
+async def get_optional_current_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: AsyncSession = Depends(get_db),
+) -> Optional[User]:
+    """Resolve an authenticated user when a bearer token is supplied."""
+    if not token:
+        return None
+
+    payload = decode_token(token)
+    if payload.get("type") not in (None, "access"):
+        return None
+
+    phone_number: Optional[str] = payload.get("sub")
+    if phone_number is None:
+        return None
+
+    result = await db.execute(select(User).where(User.phone_number == phone_number))
+    user = result.scalars().first()
+    if user is None or not user.is_active:
+        return None
+    return user
+
+
+def is_super_admin(user: Optional[User]) -> bool:
+    return user is not None and user.role == UserRole.SUPER_ADMIN

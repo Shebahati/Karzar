@@ -8,7 +8,7 @@ from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.db.database import get_db
 from app.db.models.user import User
-from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
+from app.schemas.brand import BrandCreate, BrandListResponse, BrandResponse, BrandUpdate
 from app.services.brand_service import BrandService
 
 logger = get_logger(__name__)
@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=list[BrandResponse],
+    response_model=BrandListResponse,
     summary="List all brands",
     tags=["Brands"],
 )
@@ -25,7 +25,7 @@ async def list_brands(db: AsyncSession = Depends(get_db)):
     """Return all brands ordered by name (used by admin product forms)."""
     try:
         brands = await BrandService.list_brands(db)
-        return brands
+        return {"data": brands}
     except Exception as exc:
         logger.error("Error listing brands: %s", exc)
         raise api_error(

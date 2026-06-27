@@ -22,6 +22,7 @@ class CategoryBrief(BaseModel):
 class BrandBrief(BaseModel):
     id: int
     name: str
+    country: Optional[str] = None
 
 
 class ProductImageResponse(BaseModel):
@@ -50,6 +51,8 @@ class ProductCreate(BaseModel):
     tax_percent: Decimal = Field(default=Decimal("0.0"), ge=0, le=100)
     is_active: bool = True
     pdf_catalog_url: Optional[str] = None
+    description: Optional[str] = None
+    original_price: Optional[Decimal] = Field(default=None, max_digits=15, decimal_places=2)
 
     specifications: Dict[str, Any] = Field(default_factory=dict)
 
@@ -116,6 +119,8 @@ class ProductUpdate(BaseModel):
     tax_percent: Optional[Decimal] = None
     is_active: Optional[bool] = None
     pdf_catalog_url: Optional[str] = None
+    description: Optional[str] = None
+    original_price: Optional[Decimal] = None
     specifications: Optional[Dict[str, Any]] = None
 
     @field_validator("sku", "name", mode="before")
@@ -149,8 +154,12 @@ class ProductSummaryResponse(BaseModel):
     sku: str
     name: str
     thumbnail: Optional[str] = None
-    base_price: Optional[Decimal]
+    base_price: Optional[str] = None
+    original_price: Optional[str] = None
+    discount_percent: Optional[int] = None
     stock_status: str
+    availability: bool = False
+    is_original: bool = True
     category: Optional[CategoryBrief] = None
     brand: Optional[BrandBrief] = None
 
@@ -167,18 +176,21 @@ class ProductDetailResponse(BaseModel):
     brand_id: Optional[int]
     category: Optional[CategoryBrief] = None
     brand: Optional[BrandBrief] = None
-    base_price: Optional[Decimal]
-    stock_quantity: Decimal
+    base_price: Optional[str] = None
+    original_price: Optional[str] = None
+    discount_percent: Optional[int] = None
+    stock_quantity: str
     stock_unit: str
     stock_status: str
     low_stock: bool
     availability: bool
     warranty_text: Optional[str]
-    weight_grams: Optional[Decimal]
+    weight_grams: Optional[str] = None
     is_original: bool
-    tax_percent: Decimal
+    tax_percent: str
     is_active: bool
     pdf_catalog_url: Optional[str]
+    description: Optional[str] = None
     thumbnail: Optional[str] = None
     images: List[ProductImageResponse] = Field(default_factory=list)
     specifications: Dict[str, Any] = Field(default_factory=dict)
@@ -186,6 +198,17 @@ class ProductDetailResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+
+class ProductImageCreate(BaseModel):
+    image_url: str = Field(..., min_length=1, max_length=500)
+    is_primary: bool = False
+
+
+class ProductImageSetPrimaryResponse(BaseModel):
+    product_id: int
+    image_id: int
+    is_primary: bool = True
 
 
 class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):

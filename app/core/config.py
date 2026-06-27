@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     STEP_UP_TOKEN_EXPIRE_MINUTES: int = 5
     STEP_UP_MAX_ATTEMPTS: int = Field(default=5, ge=1, le=20)
     STEP_UP_ATTEMPT_WINDOW_SECONDS: int = Field(default=300, ge=30, le=3600)
+    OTP_EXPIRE_SECONDS: int = Field(default=120, ge=60, le=600)
+    OTP_DEV_ECHO: bool = True
     ADMIN_STEP_UP_PIN: str = Field(
         default="84729101",
         min_length=6,

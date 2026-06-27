@@ -14,7 +14,7 @@ from app.schemas.category import (
     CategoryFlatResponse,
     CategoryListResponse,
     CategorySpecTemplateResponse,
-    CategoryTreeListResponse,
+    CategoryTreeResponse,
     CategoryUpdate,
 )
 from app.services.category_service import CategoryService
@@ -120,7 +120,7 @@ async def delete_category(
 
 @router.get(
     "/tree",
-    response_model=CategoryTreeListResponse,
+    response_model=list[CategoryTreeResponse],
     summary="Get Category Tree for Mega-Menu",
     tags=["Categories"],
 )
@@ -128,7 +128,7 @@ async def get_category_tree(db: AsyncSession = Depends(get_db)):
     """Return the full category hierarchy as a nested tree of arbitrary depth."""
     try:
         tree = await CategoryService.get_category_tree(db)
-        return {"data": tree}
+        return tree
     except ValueError as exc:
         logger.error("Category tree build failed: %s", exc)
         raise api_error(

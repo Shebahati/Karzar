@@ -1,14 +1,19 @@
 """Product CRUD, search, stock management, and statistics endpoints."""
 
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.product_service import ProductService
 from app.db.database import get_db
-from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
+from app.api.deps import (
+    get_current_super_admin,
+    get_current_super_admin_with_step_up,
+    get_optional_current_user,
+    is_super_admin,
+)
 from app.db.models.user import User
 from app.schemas.common import build_pagination_meta
 from app.schemas.product import (
@@ -17,8 +22,13 @@ from app.schemas.product import (
     ProductListResponse,
     ProductDetailResponse,
     StockStatusResponse,
+    ProductImageCreate,
+    ProductImageSetPrimaryResponse,
 )
+from app.schemas.storefront import ProductCommentListResponse, ProductCommentResponse, RelatedProductsResponse
 from app.crud import category as crud_category
+from app.crud import content as crud_content
+from app.crud import product as crud_product
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.utils.category_depth import build_category_metadata
@@ -28,6 +38,10 @@ from app.utils.product_presenter import to_product_detail, to_product_summary
 logger = get_logger(__name__)
 
 router = APIRouter()
+
+
+def _audience_for_user(user: Optional[User]) -> str:
+    return "admin" if is_super_admin(user) else "storefront"
 
 
 async def _category_metadata(db: AsyncSession):
@@ -45,7 +59,7 @@ async def _product_detail_after_write(db: AsyncSession, product_id: int) -> Prod
             message=f"Product with ID '{product_id}' not found",
         )
     metadata = await _category_metadata(db)
-    return to_product_detail(details["product"], metadata)
+    return to_product_detail(details["product"], metadata, audience="admin")
 
 
 @router.post(
@@ -89,6 +103,7 @@ async def create_new_product(
 async def read_products(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     skip: int = Query(0, ge=0, description="Number of items to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of items to return"),
     category_id: Optional[int] = Query(None, description="Filter by category ID"),
@@ -97,12 +112,26 @@ async def read_products(
     search: Optional[str] = Query(None, description="Search in name, SKU, and brand"),
     min_price: Optional[Decimal] = Query(None, description="Minimum price filter"),
     max_price: Optional[Decimal] = Query(None, description="Maximum price filter"),
+    country: Optional[str] = Query(None, description="Filter by brand country"),
+    in_stock: Optional[bool] = Query(None, description="Only in-stock active products"),
+    sort: Optional[str] = Query(
+        None,
+        description="Sort key: newest, price_asc, price_desc, name_asc, name_desc",
+    ),
+    ids: Optional[str] = Query(None, description="Comma-separated product IDs"),
     filters: Optional[str] = Query(
         None,
         description='JSON object for specification filters, e.g. {"technical_specs.range":"0-150mm"}',
     ),
 ):
     try:
+        if is_active is None and not is_super_admin(current_user):
+            is_active = True
+
+        product_ids: Optional[List[int]] = None
+        if ids:
+            product_ids = [int(value.strip()) for value in ids.split(",") if value.strip()]
+
         spec_filters = merge_spec_filters(filters_json=filters, request=request)
         products, total = await ProductService.search_products(
             db=db,
@@ -115,12 +144,19 @@ async def read_products(
             min_price=min_price,
             max_price=max_price,
             spec_filters=spec_filters or None,
+            country=country,
+            in_stock=in_stock,
+            sort=sort,
+            product_ids=product_ids,
         )
 
         metadata = await _category_metadata(db)
+        audience = _audience_for_user(current_user)
 
         return {
-            "data": [to_product_summary(product, metadata) for product in products],
+            "data": [
+                to_product_summary(product, metadata, audience=audience) for product in products
+            ],
             "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
         }
     except HTTPException:
@@ -149,6 +185,7 @@ async def read_products(
 async def read_product_by_sku(
     sku: str = Path(..., min_length=1, max_length=50, description="Product SKU"),
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
     from app.crud import product as crud_product
 
@@ -160,7 +197,8 @@ async def read_product_by_sku(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with SKU '{sku}' not found",
             )
-        return to_product_detail(product, await _category_metadata(db))
+        audience = _audience_for_user(current_user)
+        return to_product_detail(product, await _category_metadata(db), audience=audience)
     except HTTPException:
         raise
     except Exception as e:
@@ -177,7 +215,11 @@ async def read_product_by_sku(
     response_model=ProductDetailResponse,
     summary="Get product by ID",
 )
-async def read_product(product_id: int, db: AsyncSession = Depends(get_db)):
+async def read_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
     try:
         details = await ProductService.get_product_details(db=db, product_id=product_id)
         if not details:
@@ -186,7 +228,8 @@ async def read_product(product_id: int, db: AsyncSession = Depends(get_db)):
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
-        return to_product_detail(details["product"], await _category_metadata(db))
+        audience = _audience_for_user(current_user)
+        return to_product_detail(details["product"], await _category_metadata(db), audience=audience)
     except HTTPException:
         raise
     except Exception as e:
@@ -196,6 +239,113 @@ async def read_product(product_id: int, db: AsyncSession = Depends(get_db)):
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error retrieving product",
         ) from e
+
+
+@router.get(
+    "/{product_id}/related",
+    response_model=RelatedProductsResponse,
+    summary="Related products for PDP carousel",
+)
+async def read_related_products(product_id: int, db: AsyncSession = Depends(get_db)):
+    products = await crud_product.get_related_products(db, product_id)
+    metadata = await _category_metadata(db)
+    return {
+        "data": [to_product_summary(product, metadata, audience="storefront") for product in products]
+    }
+
+
+@router.get(
+    "/{product_id}/comments",
+    response_model=ProductCommentListResponse,
+    summary="Product reviews",
+)
+async def read_product_comments(product_id: int, db: AsyncSession = Depends(get_db)):
+    product = await crud_product.get_product_by_id(db, product_id)
+    if not product:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    comments = await crud_content.list_product_comments(db, product_id)
+    return {
+        "data": [
+            ProductCommentResponse.model_validate(comment, from_attributes=True)
+            for comment in comments
+        ]
+    }
+
+
+@router.post(
+    "/{product_id}/images",
+    response_model=ProductDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Add a product image by URL",
+)
+async def add_product_image(
+    product_id: int,
+    payload: ProductImageCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    product = await crud_product.get_product_by_id(db, product_id)
+    if not product:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    await crud_product.add_product_image(
+        db,
+        product_id,
+        payload.image_url,
+        is_primary=payload.is_primary or not product.images,
+    )
+    await db.commit()
+    return await _product_detail_after_write(db, product_id)
+
+
+@router.delete(
+    "/{product_id}/images/{image_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a product image",
+)
+async def remove_product_image(
+    product_id: int,
+    image_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    deleted = await crud_product.delete_product_image(db, product_id, image_id)
+    if not deleted:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Image '{image_id}' not found for product '{product_id}'",
+        )
+    await db.commit()
+
+
+@router.patch(
+    "/{product_id}/images/{image_id}/primary",
+    response_model=ProductDetailResponse,
+    summary="Set primary product image",
+)
+async def set_primary_product_image(
+    product_id: int,
+    image_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    image = await crud_product.set_primary_product_image(db, product_id, image_id)
+    if not image:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Image '{image_id}' not found for product '{product_id}'",
+        )
+    await db.commit()
+    return await _product_detail_after_write(db, product_id)
 
 
 @router.put(
