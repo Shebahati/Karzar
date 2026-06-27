@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      network: host
     container_name: lathe_api
     ports:
       - "8000:8000"
