@@ -10,7 +10,9 @@ os.environ.setdefault("POSTGRES_DB", "test")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-with-at-least-32-characters")
 os.environ.setdefault("REDIS_HOST", "")
 os.environ.setdefault("DEBUG", "true")
-os.environ.setdefault("ADMIN_STEP_UP_PIN", "84729101")
+os.environ.setdefault("ADMIN_STEP_UP_PIN", "93827461")
+os.environ["ALLOW_PUBLIC_REGISTER"] = "true"
+os.environ["OTP_DEV_ECHO"] = "true"
 
 import asyncio
 import pytest
@@ -145,10 +147,12 @@ def step_up_headers(super_admin_headers):
     from fastapi.testclient import TestClient
     from app.main import app as fastapi_app
 
+    from app.core.config import settings
+
     client = TestClient(fastapi_app)
     response = client.post(
         "/api/v1/auth/verify-pin",
-        json={"pin": "84729101"},
+        json={"pin": settings.ADMIN_STEP_UP_PIN},
         headers=super_admin_headers,
     )
     assert response.status_code == 200

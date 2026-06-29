@@ -318,7 +318,7 @@ class TestAuthEndpoints:
     def test_verify_pin_success(self, super_admin_headers):
         response = client.post(
             "/api/v1/auth/verify-pin",
-            json={"pin": "84729101"},
+            json={"pin": settings.ADMIN_STEP_UP_PIN},
             headers=super_admin_headers,
         )
         assert response.status_code == 200
@@ -352,7 +352,7 @@ class TestAuthEndpoints:
         )
         third = client.post(
             "/api/v1/auth/verify-pin",
-            json={"pin": "84729101"},
+            json={"pin": settings.ADMIN_STEP_UP_PIN},
             headers=super_admin_headers,
         )
 
