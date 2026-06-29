@@ -35,6 +35,7 @@ from app.services.otp_service import request_otp, verify_otp
 
 router = APIRouter()
 _PIN_ATTEMPTS: dict[str, deque[float]] = defaultdict(deque)
+_AUTH_ATTEMPTS: dict[str, deque[float]] = defaultdict(deque)
 
 
 def _pin_throttle_key(current_user: User) -> str:
@@ -68,6 +69,36 @@ def _check_pin_rate_limit(current_user: User) -> None:
         )
 
 
+def _check_auth_rate_limit(key: str, field: str, message: str) -> None:
+    now = time.monotonic()
+    attempts = _AUTH_ATTEMPTS[key]
+    window = settings.AUTH_ATTEMPT_WINDOW_SECONDS
+    while attempts and (now - attempts[0]) > window:
+        attempts.popleft()
+    if len(attempts) >= settings.AUTH_MAX_ATTEMPTS:
+        retry_after = max(1, int(window - (now - attempts[0])))
+        raise api_error(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            error_code=ErrorCode.RATE_LIMITED,
+            message=message,
+            details=[{"field": field, "message": f"Rate limited. Retry after {retry_after} seconds."}],
+            headers={"Retry-After": str(retry_after)},
+        )
+
+
+def _record_auth_failure(key: str) -> None:
+    now = time.monotonic()
+    attempts = _AUTH_ATTEMPTS[key]
+    window = settings.AUTH_ATTEMPT_WINDOW_SECONDS
+    while attempts and (now - attempts[0]) > window:
+        attempts.popleft()
+    attempts.append(now)
+
+
+def _clear_auth_failures(key: str) -> None:
+    _AUTH_ATTEMPTS.pop(key, None)
+
+
 def _record_pin_failure(current_user: User) -> None:
     now = time.monotonic()
     key = _pin_throttle_key(current_user)
@@ -83,6 +114,7 @@ def _clear_pin_failures(current_user: User) -> None:
 def _reset_pin_rate_limiter_for_tests() -> None:
     """Testing helper to avoid cross-test contamination of in-memory limiter."""
     _PIN_ATTEMPTS.clear()
+    _AUTH_ATTEMPTS.clear()
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -118,10 +150,18 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     """Authenticate with phone number (username) and password; returns a JWT."""
+    throttle_key = f"login:{form_data.username}"
+    _check_auth_rate_limit(
+        throttle_key,
+        "username",
+        "Too many login attempts. Please try again later.",
+    )
+
     result = await db.execute(select(User).where(User.phone_number == form_data.username))
     user = result.scalars().first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
+        _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
             error_code=ErrorCode.UNAUTHORIZED,
@@ -136,6 +176,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
             message="Inactive user account",
         )
 
+    _clear_auth_failures(throttle_key)
     access_token = create_access_token(subject=user.phone_number)
     return {
         "access_token": access_token,
@@ -179,9 +220,18 @@ async def verify_pin(
 
 @router.post("/otp/request", response_model=OtpRequestResponse, summary="Request storefront OTP")
 async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
+    throttle_key = f"otp_request:{payload.phone}"
+    _check_auth_rate_limit(
+        throttle_key,
+        "phone",
+        "Too many OTP requests. Please try again later.",
+    )
     try:
-        return await request_otp(db, payload.phone)
+        response = await request_otp(db, payload.phone)
+        _clear_auth_failures(throttle_key)
+        return response
     except Exception as exc:
+        _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,
@@ -191,15 +241,25 @@ async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/otp/verify", response_model=OtpVerifyResponse, summary="Verify storefront OTP")
 async def otp_verify(payload: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
+    throttle_key = f"otp_verify:{payload.phone}"
+    _check_auth_rate_limit(
+        throttle_key,
+        "phone",
+        "Too many OTP verification attempts. Please try again later.",
+    )
     try:
-        return await verify_otp(db, payload.phone, payload.code)
+        response = await verify_otp(db, payload.phone, payload.code)
+        _clear_auth_failures(throttle_key)
+        return response
     except ValueError as exc:
+        _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
             error_code=ErrorCode.UNAUTHORIZED,
             message=str(exc),
         ) from exc
     except Exception as exc:
+        _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,

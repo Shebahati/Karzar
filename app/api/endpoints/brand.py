@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_super_admin
+from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.db.database import get_db
@@ -94,7 +94,7 @@ async def update_brand(
 async def delete_brand(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
+    _: User = Depends(get_current_super_admin_with_step_up),
 ):
     try:
         return await BrandService.delete_brand(db, brand_id)

@@ -4,8 +4,7 @@ services:
       context: .
       network: host
     container_name: lathe_api
-    ports:
-      - "8000:8000"
+    network_mode: host
     volumes:
       - .:/app
     env_file:
@@ -15,61 +14,50 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    restart: on-failure
+    restart: unless-stopped
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-      - POSTGRES_SERVER=db
-      - POSTGRES_PORT=5432
-      - REDIS_HOST=redis
+      - POSTGRES_SERVER=127.0.0.1
+      - POSTGRES_PORT=5435
+      - REDIS_HOST=127.0.0.1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - karzar_network
 
   db:
     image: postgres:15-alpine
     container_name: lathe_postgres
+    network_mode: host
+    command: ["postgres", "-p", "5435"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5435"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - karzar_network
-    restart: on-failure
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     container_name: lathe_redis
-    ports:
-      - "6379:6379"
-    restart: on-failure
+    network_mode: host
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - karzar_network
 
 volumes:
   postgres_data:
     driver: local
-
-networks:
-  karzar_network:
-    driver: bridge

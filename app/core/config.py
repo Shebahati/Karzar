@@ -30,17 +30,19 @@ class Settings(BaseSettings):
     STEP_UP_TOKEN_EXPIRE_MINUTES: int = 5
     STEP_UP_MAX_ATTEMPTS: int = Field(default=5, ge=1, le=20)
     STEP_UP_ATTEMPT_WINDOW_SECONDS: int = Field(default=300, ge=30, le=3600)
+    AUTH_MAX_ATTEMPTS: int = Field(default=10, ge=1, le=100)
+    AUTH_ATTEMPT_WINDOW_SECONDS: int = Field(default=300, ge=30, le=3600)
     OTP_EXPIRE_SECONDS: int = Field(default=120, ge=60, le=600)
-    OTP_DEV_ECHO: bool = True
+    OTP_DEV_ECHO: bool = False
     ADMIN_STEP_UP_PIN: str = Field(
-        default="84729101",
+        ...,
         min_length=6,
         max_length=12,
-        description="Admin PIN for destructive actions; override in .env for production",
+        description="Admin PIN for destructive actions",
     )
     ALLOW_PUBLIC_REGISTER: bool = True
 
-    CORS_ORIGINS: str = "*"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
     INITIAL_SUPER_ADMIN_PHONE: Optional[str] = None
     INITIAL_SUPER_ADMIN_PASSWORD: Optional[str] = None
@@ -58,7 +60,11 @@ class Settings(BaseSettings):
     def validate_secret_key(cls, v: str) -> str:
         if not v or len(v) < 32:
             raise ValueError("SECRET_KEY must be at least 32 characters long and not empty")
-        if v == "your-secret-key-change-in-production":
+        weak_placeholders = {
+            "your-secret-key-change-in-production",
+            "change-me-to-a-random-secret-key-at-least-32-chars",
+        }
+        if v in weak_placeholders:
             raise ValueError("SECRET_KEY must be changed from default placeholder")
         return v
 
@@ -66,7 +72,15 @@ class Settings(BaseSettings):
     def validate_production_security(self) -> Self:
         """Reject trivial PINs when running outside debug mode."""
         if not self.DEBUG:
-            weak_pins = {"000000", "123456", "111111", "change-me-admin-pin"}
+            weak_pins = {
+                "000000",
+                "123456",
+                "111111",
+                "121212",
+                "654321",
+                "84729101",
+                "change-me-admin-pin",
+            }
             if self.ADMIN_STEP_UP_PIN in weak_pins:
                 raise ValueError(
                     "ADMIN_STEP_UP_PIN must be changed from default/weak value when DEBUG=False"

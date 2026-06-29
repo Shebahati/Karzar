@@ -39,6 +39,11 @@ async def submit_checkout(
         product = await crud_product.get_product_by_id(db, line.product_id)
         if not product or not product.is_active:
             raise ValueError(f"Product {line.product_id} is not available")
+        if product.stock_quantity < line.quantity:
+            raise ValueError(
+                f"Product {line.product_id} has insufficient stock "
+                f"(available: {product.stock_quantity}, requested: {line.quantity})"
+            )
 
         unit_price = product.base_price
         if unit_price is not None:
