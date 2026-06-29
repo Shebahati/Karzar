@@ -1,0 +1,46 @@
+Price list import review summary
+================================
+Dasqua unique SKUs: 909
+Insize unique SKUs: 342
+Total unique SKUs: 1251
+
+Non-price quality:
+  all categorized: 1251 / 1251
+  with specifications_json: 1251
+  with size_range: 953
+  weak_name flags: 7
+  category_fallback: 1
+
+Category mapping:
+  انواع میکرومتر: 310
+  ساعت اندیکاتور: 230
+  انواع کولیس: 180
+  انواع گیج: 114
+  عمق سنج: 86
+  زاویه سنج: 79
+  تراز صنعتی: 51
+  سختی سنج لاستیک: 42
+  متر: 27
+  پرگار صنعتی: 24
+  خط کش: 21
+  گیج داخل سیلندر: 20
+  ارتفاع سنج: 19
+  راپورتر(گیج بلوک-گیج بلاک): 18
+  شابلون: 9
+  شعاع سنج(R): 7
+  گپ سنج: 4
+  میکروسکوپ: 3
+  گونیا: 3
+  قطعات یدکی: 1
+  Z سنج عقربه ای: 1
+  ترازو: 1
+  ساعت شیطانکی: 1
+
+Non-price parse flags:
+  duplicate_sku_merged: 38
+  duplicate_sku_in_pdf: 38
+  size_corrected: 36
+  weak_name: 7
+  category_unmapped: 1
+  category_fallback: 1
+  multiple_sku_on_line: 1

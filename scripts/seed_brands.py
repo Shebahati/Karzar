@@ -25,8 +25,8 @@ logger = get_logger(__name__)
 BRANDS: list[dict[str, object]] = [
     {"id": 1, "name": "EUROLOY | یورولوی"},
     {"id": 2, "name": "Mitutoyo | میتوتویو"},
-    {"id": 3, "name": "INSIZE | اینسایز"},
-    {"id": 4, "name": "Dasqua | داسکوا"},
+    {"id": 3, "name": "INSIZE | اینسایز", "country": "چین"},
+    {"id": 4, "name": "Dasqua | داسکوا", "country": "چین"},
     {"id": 5, "name": "TERMA | ترما"},
     {"id": 6, "name": "ASIMETO | آسیمتو"},
     {"id": 7, "name": "GUANGLU | گوانگلو"},
@@ -78,7 +78,7 @@ async def seed_brands() -> None:
                 Brand(
                     id=int(row["id"]),  # type: ignore[arg-type]
                     name=str(row["name"]),
-                    country=None,
+                    country=str(row["country"]) if row.get("country") else None,
                 )
             )
 
