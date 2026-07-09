@@ -42,6 +42,14 @@ class Settings(BaseSettings):
     SMS_KAVENEGAR_SENDER: Optional[str] = None
     SMS_KAVENEGAR_OTP_TEMPLATE: Optional[str] = None
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
+
+    # Payment provider: "mock" (local dev) or "zarinpal" (production gateway).
+    PAYMENT_PROVIDER: str = "mock"
+    PAYMENT_CALLBACK_URL: Optional[str] = None
+    ZARINPAL_MERCHANT_ID: Optional[str] = None
+    ZARINPAL_REQUEST_URL: str = "https://payment.zarinpal.com/pg/v4/payment/request.json"
+    ZARINPAL_VERIFY_URL: str = "https://payment.zarinpal.com/pg/v4/payment/verify.json"
+    PAYMENT_TIMEOUT_SECONDS: float = Field(default=12.0, ge=1.0, le=60.0)
     ADMIN_STEP_UP_PIN: str = Field(
         ...,
         min_length=6,
@@ -82,6 +90,14 @@ class Settings(BaseSettings):
         normalized = v.strip().lower()
         if normalized not in {"console", "kavenegar"}:
             raise ValueError("SMS_PROVIDER must be either 'console' or 'kavenegar'")
+        return normalized
+
+    @field_validator("PAYMENT_PROVIDER")
+    @classmethod
+    def validate_payment_provider(cls, v: str) -> str:
+        normalized = v.strip().lower()
+        if normalized not in {"mock", "zarinpal"}:
+            raise ValueError("PAYMENT_PROVIDER must be either 'mock' or 'zarinpal'")
         return normalized
 
     @model_validator(mode="after")
