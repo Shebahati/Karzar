@@ -1,8 +1,5 @@
 """Authentication endpoints: registration, login, and step-up PIN verification."""
 
-import time
-from collections import defaultdict, deque
-
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
@@ -11,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_super_admin
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
 from app.core.security import (
     create_access_token,
     create_step_up_token,
@@ -34,49 +32,37 @@ from app.schemas.auth import (
 from app.services.otp_service import request_otp, verify_otp
 
 router = APIRouter()
-_PIN_ATTEMPTS: dict[str, deque[float]] = defaultdict(deque)
-_AUTH_ATTEMPTS: dict[str, deque[float]] = defaultdict(deque)
 
 
 def _pin_throttle_key(current_user: User) -> str:
-    return current_user.phone_number
+    return f"pin:{current_user.phone_number}"
 
 
-def _prune_old_attempts(attempts: deque[float], now: float) -> None:
-    window = settings.STEP_UP_ATTEMPT_WINDOW_SECONDS
-    while attempts and (now - attempts[0]) > window:
-        attempts.popleft()
-
-
-def _check_pin_rate_limit(current_user: User) -> None:
-    now = time.monotonic()
-    key = _pin_throttle_key(current_user)
-    attempts = _PIN_ATTEMPTS[key]
-    _prune_old_attempts(attempts, now)
-    if len(attempts) >= settings.STEP_UP_MAX_ATTEMPTS:
-        retry_after = max(1, int(settings.STEP_UP_ATTEMPT_WINDOW_SECONDS - (now - attempts[0])))
+async def _check_pin_rate_limit(current_user: User) -> None:
+    retry_after = await get_rate_limiter().retry_after_if_limited(
+        _pin_throttle_key(current_user),
+        settings.STEP_UP_MAX_ATTEMPTS,
+        settings.STEP_UP_ATTEMPT_WINDOW_SECONDS,
+    )
+    if retry_after is not None:
         raise api_error(
             status.HTTP_429_TOO_MANY_REQUESTS,
             error_code=ErrorCode.RATE_LIMITED,
             message="Too many invalid PIN attempts. Please try again later.",
             details=[
-                {
-                    "field": "pin",
-                    "message": f"Rate limited. Retry after {retry_after} seconds.",
-                }
+                {"field": "pin", "message": f"Rate limited. Retry after {retry_after} seconds."}
             ],
             headers={"Retry-After": str(retry_after)},
         )
 
 
-def _check_auth_rate_limit(key: str, field: str, message: str) -> None:
-    now = time.monotonic()
-    attempts = _AUTH_ATTEMPTS[key]
-    window = settings.AUTH_ATTEMPT_WINDOW_SECONDS
-    while attempts and (now - attempts[0]) > window:
-        attempts.popleft()
-    if len(attempts) >= settings.AUTH_MAX_ATTEMPTS:
-        retry_after = max(1, int(window - (now - attempts[0])))
+async def _check_auth_rate_limit(key: str, field: str, message: str) -> None:
+    retry_after = await get_rate_limiter().retry_after_if_limited(
+        key,
+        settings.AUTH_MAX_ATTEMPTS,
+        settings.AUTH_ATTEMPT_WINDOW_SECONDS,
+    )
+    if retry_after is not None:
         raise api_error(
             status.HTTP_429_TOO_MANY_REQUESTS,
             error_code=ErrorCode.RATE_LIMITED,
@@ -86,35 +72,27 @@ def _check_auth_rate_limit(key: str, field: str, message: str) -> None:
         )
 
 
-def _record_auth_failure(key: str) -> None:
-    now = time.monotonic()
-    attempts = _AUTH_ATTEMPTS[key]
-    window = settings.AUTH_ATTEMPT_WINDOW_SECONDS
-    while attempts and (now - attempts[0]) > window:
-        attempts.popleft()
-    attempts.append(now)
+async def _record_auth_failure(key: str) -> None:
+    await get_rate_limiter().record_failure(key, settings.AUTH_ATTEMPT_WINDOW_SECONDS)
 
 
-def _clear_auth_failures(key: str) -> None:
-    _AUTH_ATTEMPTS.pop(key, None)
+async def _clear_auth_failures(key: str) -> None:
+    await get_rate_limiter().clear(key)
 
 
-def _record_pin_failure(current_user: User) -> None:
-    now = time.monotonic()
-    key = _pin_throttle_key(current_user)
-    attempts = _PIN_ATTEMPTS[key]
-    _prune_old_attempts(attempts, now)
-    attempts.append(now)
+async def _record_pin_failure(current_user: User) -> None:
+    await get_rate_limiter().record_failure(
+        _pin_throttle_key(current_user), settings.STEP_UP_ATTEMPT_WINDOW_SECONDS
+    )
 
 
-def _clear_pin_failures(current_user: User) -> None:
-    _PIN_ATTEMPTS.pop(_pin_throttle_key(current_user), None)
+async def _clear_pin_failures(current_user: User) -> None:
+    await get_rate_limiter().clear(_pin_throttle_key(current_user))
 
 
 def _reset_pin_rate_limiter_for_tests() -> None:
     """Testing helper to avoid cross-test contamination of in-memory limiter."""
-    _PIN_ATTEMPTS.clear()
-    _AUTH_ATTEMPTS.clear()
+    reset_in_memory_limiter()
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -151,7 +129,7 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     """Authenticate with phone number (username) and password; returns a JWT."""
     throttle_key = f"login:{form_data.username}"
-    _check_auth_rate_limit(
+    await _check_auth_rate_limit(
         throttle_key,
         "username",
         "Too many login attempts. Please try again later.",
@@ -161,7 +139,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     user = result.scalars().first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
-        _record_auth_failure(throttle_key)
+        await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
             error_code=ErrorCode.UNAUTHORIZED,
@@ -176,7 +154,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
             message="Inactive user account",
         )
 
-    _clear_auth_failures(throttle_key)
+    await _clear_auth_failures(throttle_key)
     access_token = create_access_token(subject=user.phone_number)
     return {
         "access_token": access_token,
@@ -191,7 +169,7 @@ async def verify_pin(
     current_user: User = Depends(get_current_super_admin),
 ):
     """Exchange a valid admin PIN for a short-lived step-up token."""
-    _check_pin_rate_limit(current_user)
+    await _check_pin_rate_limit(current_user)
 
     if not settings.ADMIN_STEP_UP_PIN:
         raise api_error(
@@ -201,7 +179,7 @@ async def verify_pin(
         )
 
     if not verify_admin_pin(payload.pin):
-        _record_pin_failure(current_user)
+        await _record_pin_failure(current_user)
         raise api_error(
             status.HTTP_403_FORBIDDEN,
             error_code=ErrorCode.STEP_UP_INVALID,
@@ -209,7 +187,7 @@ async def verify_pin(
             details=[{"field": "pin", "message": "incorrect PIN"}],
         )
 
-    _clear_pin_failures(current_user)
+    await _clear_pin_failures(current_user)
     secure_token, expires_in = create_step_up_token(subject=current_user.phone_number)
     return {
         "secure_token": secure_token,
@@ -221,17 +199,17 @@ async def verify_pin(
 @router.post("/otp/request", response_model=OtpRequestResponse, summary="Request storefront OTP")
 async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
     throttle_key = f"otp_request:{payload.phone}"
-    _check_auth_rate_limit(
+    await _check_auth_rate_limit(
         throttle_key,
         "phone",
         "Too many OTP requests. Please try again later.",
     )
     try:
         response = await request_otp(db, payload.phone)
-        _clear_auth_failures(throttle_key)
+        await _clear_auth_failures(throttle_key)
         return response
     except Exception as exc:
-        _record_auth_failure(throttle_key)
+        await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,
@@ -242,24 +220,24 @@ async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
 @router.post("/otp/verify", response_model=OtpVerifyResponse, summary="Verify storefront OTP")
 async def otp_verify(payload: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
     throttle_key = f"otp_verify:{payload.phone}"
-    _check_auth_rate_limit(
+    await _check_auth_rate_limit(
         throttle_key,
         "phone",
         "Too many OTP verification attempts. Please try again later.",
     )
     try:
         response = await verify_otp(db, payload.phone, payload.code)
-        _clear_auth_failures(throttle_key)
+        await _clear_auth_failures(throttle_key)
         return response
     except ValueError as exc:
-        _record_auth_failure(throttle_key)
+        await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
             error_code=ErrorCode.UNAUTHORIZED,
             message=str(exc),
         ) from exc
     except Exception as exc:
-        _record_auth_failure(throttle_key)
+        await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,
