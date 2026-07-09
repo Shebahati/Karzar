@@ -8,15 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import commerce as crud_commerce
 from app.crud import content as crud_content
 from app.crud import product as crud_product
-from app.db.models.commerce import OrderMode
+from app.db.models.commerce import OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.storefront import CheckoutRequest, CheckoutResponse, ContactRequest, ContactResponse
+from app.services.order_service import status_label
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
-
-
-PURCHASE_STATUS = "در انتظار پرداخت"
-INQUIRY_STATUS = "در حال بررسی استعلام"
 
 
 def _merge_quantities(payload: CheckoutRequest) -> dict[int, int]:
@@ -83,11 +80,16 @@ async def submit_checkout(
     if current_user is not None:
         customer_is_guest = False
 
+    status_value = (
+        OrderStatus.PENDING_PAYMENT.value if is_purchase else OrderStatus.INQUIRY_REVIEW.value
+    )
+
     order = await crud_commerce.create_order(
         db,
         tracking_prefix="KZ-",
         mode=mode,
-        status=PURCHASE_STATUS if is_purchase else INQUIRY_STATUS,
+        status=status_value,
+        payment_status=PaymentStatus.UNPAID.value,
         estimated_total=estimated_total if has_priced_item and is_purchase else None,
         customer_full_name=payload.customer.full_name,
         customer_phone=payload.customer.phone,
@@ -105,7 +107,7 @@ async def submit_checkout(
         order_id=order.id,
         tracking_code=order.tracking_code,
         mode=payload.mode,
-        status=order.status,
+        status=status_label(order.status),
         estimated_total=decimal_to_api_string(order.estimated_total),
         created_at=order.created_at,
     )

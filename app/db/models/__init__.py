@@ -1,7 +1,7 @@
 """ORM model registry — import here to register all tables with Base.metadata."""
 
 from app.db.models.base import Base
-from app.db.models.commerce import Order, OrderItem, OrderMode
+from app.db.models.commerce import Order, OrderItem, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.content import (
     Article,
     ContactSubmission,
@@ -31,4 +31,6 @@ __all__ = [
     "Order",
     "OrderItem",
     "OrderMode",
+    "OrderStatus",
+    "PaymentStatus",
 ]

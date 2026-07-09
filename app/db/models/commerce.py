@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, List, Optional
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,8 +18,36 @@ class OrderMode(str, enum.Enum):
     INQUIRY = "inquiry"
 
 
+class OrderStatus(str, enum.Enum):
+    """Canonical order lifecycle states (stored as text; labelled in the API)."""
+
+    # Purchase flow
+    PENDING_PAYMENT = "pending_payment"
+    PAID = "paid"
+    PROCESSING = "processing"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+    # Inquiry (B2B quote) flow
+    INQUIRY_REVIEW = "inquiry_review"
+    INQUIRY_QUOTED = "inquiry_quoted"
+    INQUIRY_CLOSED = "inquiry_closed"
+
+
+class PaymentStatus(str, enum.Enum):
+    UNPAID = "unpaid"
+    PAID = "paid"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+
 class Order(Base):
     __tablename__ = "orders"
+    __table_args__ = (
+        Index("ix_orders_user_id", "user_id"),
+        Index("ix_orders_created_at", "created_at"),
+        Index("ix_orders_status", "status"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tracking_code: Mapped[str] = mapped_column(String(32), unique=True, index=True, nullable=False)
@@ -28,6 +56,9 @@ class Order(Base):
         nullable=False,
     )
     status: Mapped[str] = mapped_column(String(100), nullable=False)
+    payment_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=PaymentStatus.UNPAID.value, server_default="unpaid"
+    )
     estimated_total: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
     customer_full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     customer_phone: Mapped[str] = mapped_column(String(15), nullable=False)
