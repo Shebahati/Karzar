@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     AUTH_ATTEMPT_WINDOW_SECONDS: int = Field(default=300, ge=30, le=3600)
     OTP_EXPIRE_SECONDS: int = Field(default=120, ge=60, le=600)
     OTP_DEV_ECHO: bool = False
+    OTP_MESSAGE_TEMPLATE: str = "کد ورود شما به کارزار: {code}"
+
+    # SMS delivery: "console" (logs only) or "kavenegar" (real provider).
+    SMS_PROVIDER: str = "console"
+    SMS_KAVENEGAR_API_KEY: Optional[str] = None
+    SMS_KAVENEGAR_SENDER: Optional[str] = None
+    SMS_KAVENEGAR_OTP_TEMPLATE: Optional[str] = None
+    SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
     ADMIN_STEP_UP_PIN: str = Field(
         ...,
         min_length=6,
@@ -67,6 +75,14 @@ class Settings(BaseSettings):
         if v in weak_placeholders:
             raise ValueError("SECRET_KEY must be changed from default placeholder")
         return v
+
+    @field_validator("SMS_PROVIDER")
+    @classmethod
+    def validate_sms_provider(cls, v: str) -> str:
+        normalized = v.strip().lower()
+        if normalized not in {"console", "kavenegar"}:
+            raise ValueError("SMS_PROVIDER must be either 'console' or 'kavenegar'")
+        return normalized
 
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:

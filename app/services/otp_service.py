@@ -11,6 +11,7 @@ from app.core.security import create_access_token, get_password_hash
 from app.crud import content as crud_content
 from app.db.models.user import User, UserRole
 from app.schemas.auth import OtpRequestResponse, OtpVerifyResponse, CustomerBrief
+from app.services.sms_service import SmsMessage, get_sms_provider
 
 
 def _generate_otp_code() -> str:
@@ -22,6 +23,9 @@ async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
     expires_at = datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
     await crud_content.create_otp_code(db, phone=phone, code=code, expires_at=expires_at)
     await db.commit()
+
+    body = settings.OTP_MESSAGE_TEMPLATE.format(code=code)
+    await get_sms_provider().send(SmsMessage(receptor=phone, body=body, template_token=code))
 
     response = OtpRequestResponse(
         phone=phone,
