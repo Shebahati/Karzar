@@ -110,6 +110,8 @@ class TestProductRetrieval:
         assert body["details"][0]["field"] == "filters"
 
     def test_product_detail_shape(self, valid_product_data, super_admin_headers):
+        valid_product_data["description"] = "توضیحات محصول تست"
+        valid_product_data["original_price"] = "120.00"
         create_response = client.post(
             "/api/v1/products/",
             json=valid_product_data,
@@ -120,6 +122,8 @@ class TestProductRetrieval:
         response = client.get(f"/api/v1/products/{product_id}")
         assert response.status_code == 200
         data = response.json()
+        assert data["description"] == "توضیحات محصول تست"
+        assert data["original_price"] in {"120.00", "120"}
         assert data["stock_status"] == "موجود"
         assert data["availability"] is True
         assert "images" in data
@@ -433,7 +437,10 @@ class TestUserAdminEndpoints:
     def test_list_users_admin(self, super_admin_headers):
         response = client.get("/api/v1/users", headers=super_admin_headers)
         assert response.status_code == 200
-        assert isinstance(response.json(), list)
+        body = response.json()
+        assert "data" in body
+        assert "meta" in body
+        assert isinstance(body["data"], list)
 
     def test_update_user_requires_step_up(self, super_admin_headers):
         response = client.patch(
