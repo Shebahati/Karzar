@@ -13,6 +13,7 @@ from app.schemas.category import (
     CategoryDeleteResponse,
     CategoryFlatResponse,
     CategorySpecFilterOptionsResponse,
+    CategorySpecLabelsResponse,
     CategorySpecTemplateResponse,
     CategoryTreeResponse,
     CategoryUpdate,
@@ -21,6 +22,7 @@ from app.schemas.category import (
     TechnicalSpecsTemplate,
 )
 from app.services.spec_template_service import (
+    collect_storefront_spec_labels,
     extract_spec_filter_options,
     resolve_spec_template,
 )
@@ -122,6 +124,10 @@ class CategoryService:
             category_name=category.name,
             technical_specs=extract_spec_filter_options(raw),
         )
+
+    @staticmethod
+    def get_storefront_spec_labels() -> CategorySpecLabelsResponse:
+        return CategorySpecLabelsResponse(labels=collect_storefront_spec_labels())
 
     @staticmethod
     async def create_category(db: AsyncSession, payload: CategoryCreate) -> CategoryFlatResponse:

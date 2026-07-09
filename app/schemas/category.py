@@ -96,6 +96,13 @@ class CategoryDeleteResponse(BaseModel):
     message: str
 
 
+class CategorySpecLabelsResponse(BaseModel):
+    labels: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Feature key to Persian label mapping for storefront display",
+    )
+
+
 class CategorySpecFilterOptionsResponse(BaseModel):
     category_id: int
     category_name: str

@@ -14,6 +14,7 @@ from app.schemas.category import (
     CategoryFlatResponse,
     CategoryListResponse,
     CategorySpecFilterOptionsResponse,
+    CategorySpecLabelsResponse,
     CategorySpecTemplateResponse,
     CategoryTreeResponse,
     CategoryUpdate,
@@ -144,6 +145,17 @@ async def get_category_tree(db: AsyncSession = Depends(get_db)):
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error retrieving categories",
         ) from exc
+
+
+@router.get(
+    "/spec-labels",
+    response_model=CategorySpecLabelsResponse,
+    summary="Public feature key to Persian label map (storefront)",
+    tags=["Categories"],
+)
+async def get_storefront_spec_labels():
+    """Cacheable mapping for storefront specification labels."""
+    return CategoryService.get_storefront_spec_labels()
 
 
 @router.get(

@@ -168,6 +168,26 @@ def _deep_copy_template(template: SpecTemplate) -> SpecTemplate:
     return copy.deepcopy(template)
 
 
+def collect_storefront_spec_labels() -> Dict[str, str]:
+    """Build a compact key → Persian label map from all registered templates."""
+    labels: Dict[str, str] = {}
+    for template in _TEMPLATES_BY_KEY.values():
+        for feature in template.get("features", []):
+            if not isinstance(feature, dict):
+                continue
+            key = feature.get("key")
+            label = feature.get("label")
+            if key and label:
+                labels[str(key)] = str(label)
+            detail = feature.get("detail")
+            if isinstance(detail, dict):
+                detail_key = detail.get("key")
+                detail_label = detail.get("label")
+                if detail_key and detail_label:
+                    labels[str(detail_key)] = str(detail_label)
+    return labels
+
+
 def extract_spec_filter_options(template: SpecTemplate) -> Dict[str, List[str]]:
     """Return technical spec filter value options for storefront filter UI."""
     technical = template.get("technical_specs", {})
