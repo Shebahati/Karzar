@@ -47,6 +47,14 @@ class TestStorefrontCatalog:
         assert item["stock_status"] == "موجود"
         assert item["availability"] is True
 
+    def test_invalid_sort_key_rejected(self):
+        response = client.get("/api/v1/products/?sort=bogus")
+        assert response.status_code == 422
+
+    def test_invalid_ids_param_rejected(self):
+        response = client.get("/api/v1/products/?ids=1,abc")
+        assert response.status_code == 422
+
 
 class TestStorefrontOtp:
     def test_otp_request_and_verify(self, monkeypatch):
@@ -102,6 +110,90 @@ class TestStorefrontCheckout:
         assert body["mode"] == "purchase"
         assert body["tracking_code"].startswith("KZ-")
         assert body["estimated_total"] is not None
+
+        # Purchase must decrement stock (50 - 2 = 48).
+        stock = client.get(
+            f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
+        )
+        assert stock.status_code == 200
+        assert float(stock.json()["stock_quantity"]) == 48.0
+
+    def test_checkout_insufficient_stock_rejected(
+        self, valid_product_data, super_admin_headers
+    ):
+        valid_product_data["sku"] = "TEST-LOWSTOCK"
+        valid_product_data["stock_quantity"] = "1"
+        create = client.post(
+            "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
+        )
+        product_id = create.json()["id"]
+
+        response = client.post(
+            "/api/v1/checkout",
+            json={
+                "mode": "purchase",
+                "customer": {"full_name": "رضا محمدی", "phone": "09123333333"},
+                "items": [{"product_id": product_id, "quantity": 5}],
+                "shipping": {
+                    "province": "تهران",
+                    "city": "تهران",
+                    "postal_code": "1234567890",
+                    "address_line": "خیابان آزادی، پلاک ۱۰",
+                },
+            },
+        )
+        assert response.status_code == 400
+
+    def test_checkout_duplicate_lines_are_aggregated(
+        self, valid_product_data, super_admin_headers
+    ):
+        valid_product_data["sku"] = "TEST-DUP"
+        valid_product_data["stock_quantity"] = "10"
+        create = client.post(
+            "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
+        )
+        product_id = create.json()["id"]
+
+        # 8 + 8 = 16 exceeds stock of 10 → must be rejected, not double-counted as 8<10.
+        response = client.post(
+            "/api/v1/checkout",
+            json={
+                "mode": "purchase",
+                "customer": {"full_name": "رضا محمدی", "phone": "09123333333"},
+                "items": [
+                    {"product_id": product_id, "quantity": 8},
+                    {"product_id": product_id, "quantity": 8},
+                ],
+                "shipping": {
+                    "province": "تهران",
+                    "city": "تهران",
+                    "postal_code": "1234567890",
+                    "address_line": "خیابان آزادی، پلاک ۱۰",
+                },
+            },
+        )
+        assert response.status_code == 400
+
+    def test_checkout_inquiry_ignores_stock(
+        self, valid_product_data, super_admin_headers
+    ):
+        valid_product_data["sku"] = "TEST-INQUIRY"
+        valid_product_data["stock_quantity"] = "0"
+        create = client.post(
+            "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
+        )
+        product_id = create.json()["id"]
+
+        response = client.post(
+            "/api/v1/checkout",
+            json={
+                "mode": "inquiry",
+                "customer": {"full_name": "رضا محمدی", "phone": "09123333333"},
+                "items": [{"product_id": product_id, "quantity": 3}],
+            },
+        )
+        assert response.status_code == 201
+        assert response.json()["mode"] == "inquiry"
 
     def test_contact_form(self):
         response = client.post(

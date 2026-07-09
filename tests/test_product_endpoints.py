@@ -238,9 +238,13 @@ class TestStockManagement:
         )
         assert response.status_code == 404
 
-    def test_get_stock_status_nonexistent_product(self):
-        response = client.get("/api/v1/products/9999/stock")
+    def test_get_stock_status_nonexistent_product(self, super_admin_headers):
+        response = client.get("/api/v1/products/9999/stock", headers=super_admin_headers)
         assert response.status_code == 404
+
+    def test_get_stock_status_requires_admin(self):
+        response = client.get("/api/v1/products/9999/stock")
+        assert response.status_code in (401, 403)
 
 
 class TestCategoryEndpoints:
