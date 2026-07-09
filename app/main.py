@@ -2,7 +2,7 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,7 +12,8 @@ from app.api.v1 import api_router
 from app.core.config import settings
 from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
-from app.core.logging import get_logger, setup_logging
+from app.core.logging import get_logger, request_id_ctx_var, setup_logging
+from app.core.middleware import get_or_create_request_id
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 
 setup_logging()
@@ -31,9 +32,9 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Industrial Lathe Tools API - Complete product management system",
     version=settings.VERSION,
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json",
+    docs_url="/api/docs" if settings.ENABLE_API_DOCS else None,
+    redoc_url="/api/redoc" if settings.ENABLE_API_DOCS else None,
+    openapi_url="/api/openapi.json" if settings.ENABLE_API_DOCS else None,
     lifespan=lifespan,
 )
 
@@ -48,12 +49,30 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 
+@app.middleware("http")
+async def request_context_middleware(request: Request, call_next):
+    request_id = get_or_create_request_id(request)
+    token = request_id_ctx_var.set(request_id)
+    try:
+        response = await call_next(request)
+    finally:
+        request_id_ctx_var.reset(token)
+
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+    return response
+
+
 @app.get("/", tags=["System"])
 async def root():
     return {
         "message": "Karzar Industrial Lathe Tools API",
         "version": settings.VERSION,
-        "docs": "/api/docs",
+        "docs": "/api/docs" if settings.ENABLE_API_DOCS else None,
         "status": "running",
     }
 
@@ -110,7 +129,7 @@ async def api_info():
             "products": "/api/v1/products",
             "categories": "/api/v1/categories",
             "auth": "/api/v1/auth",
-            "docs": "/api/docs",
+            "docs": "/api/docs" if settings.ENABLE_API_DOCS else None,
         },
     }
 

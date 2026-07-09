@@ -23,12 +23,18 @@ class TestSystemEndpoints:
         response = client.get("/")
         assert response.status_code == 200
         assert response.json()["status"] == "running"
+        assert "X-Request-ID" in response.headers
+        assert response.headers["X-Frame-Options"] == "DENY"
 
     def test_api_info(self):
         response = client.get("/api/v1")
         data = response.json()
         assert data["api_version"] == "v1"
         assert "categories" in data["endpoints"]
+
+    def test_docs_disabled_by_default(self):
+        response = client.get("/api/docs")
+        assert response.status_code == 404
 
 
 class TestProductCreation:

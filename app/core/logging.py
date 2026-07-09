@@ -3,35 +3,53 @@
 import logging
 import logging.config
 import os
+from contextvars import ContextVar
 from typing import Any, Dict
+
+request_id_ctx_var: ContextVar[str] = ContextVar("request_id", default="-")
+
+
+class RequestIdFilter(logging.Filter):
+    """Inject per-request correlation id into every log record."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = request_id_ctx_var.get()
+        return True
 
 LOGGING_CONFIG: Dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "format": "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "detailed": {
             "format": (
-                "%(asctime)s - %(name)s - %(levelname)s - "
+                "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - "
                 "%(pathname)s:%(lineno)d - %(funcName)s() - %(message)s"
             ),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
+    },
+    "filters": {
+        "request_id": {
+            "()": "app.core.logging.RequestIdFilter",
+        }
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
             "formatter": "default",
+            "filters": ["request_id"],
             "stream": "ext://sys.stdout",
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
             "formatter": "detailed",
+            "filters": ["request_id"],
             "filename": "logs/app.log",
             "maxBytes": 10485760,
             "backupCount": 10,

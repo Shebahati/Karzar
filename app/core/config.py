@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Industrial Lathe Tools API"
     VERSION: str = "1.0.0"
     DEBUG: bool = False
+    ENABLE_API_DOCS: bool = False
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
