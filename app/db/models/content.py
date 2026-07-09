@@ -4,7 +4,7 @@ import enum
 from datetime import datetime
 from typing import Any, List, Optional
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,6 +14,9 @@ from app.db.models.product import Product, _enum_values
 
 class ProductComment(Base):
     __tablename__ = "product_comments"
+    __table_args__ = (
+        CheckConstraint("rating BETWEEN 1 AND 5", name="ck_product_comments_rating_range"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True)
