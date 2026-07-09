@@ -15,7 +15,14 @@ class Token(BaseModel):
 
 
 class PinVerifyRequest(BaseModel):
-    pin: str = Field(..., min_length=4, max_length=12)
+    pin: str = Field(..., min_length=6, max_length=12)
+
+    @field_validator("pin")
+    @classmethod
+    def validate_pin_digits(cls, value: str) -> str:
+        if not value.isdigit():
+            raise ValueError("PIN must contain only numeric characters")
+        return value
 
 
 class StepUpTokenResponse(BaseModel):
