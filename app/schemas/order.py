@@ -50,6 +50,12 @@ class OrderStatusUpdateRequest(BaseModel):
     note: Optional[str] = Field(None, max_length=500)
 
 
+class OrderTrackingItemResponse(BaseModel):
+    product_id: int
+    quantity: int
+    unit_price: Optional[str] = None
+
+
 class OrderTrackingResponse(BaseModel):
     """Minimal, non-sensitive projection for public order tracking."""
 
@@ -59,3 +65,4 @@ class OrderTrackingResponse(BaseModel):
     status_label: str
     estimated_total: Optional[str] = None
     created_at: datetime
+    items: List[OrderTrackingItemResponse] = Field(default_factory=list)

@@ -132,8 +132,11 @@ class TestOrderTracking:
         body = resp.json()
         assert body["tracking_code"] == tracking_code
         assert body["status_label"] == "در انتظار پرداخت"
-        # Public projection must not leak customer PII.
         assert "customer_phone" not in body
+        assert "shipping" not in body
+        assert "customer_full_name" not in body
+        assert "items" in body
+        assert body["items"][0]["product_id"] == product_id
 
     def test_tracking_not_found(self):
         assert client.get("/api/v1/orders/track/KZ-999999").status_code == 404
