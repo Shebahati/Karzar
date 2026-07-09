@@ -82,7 +82,7 @@ def _images(product: Product) -> List[ProductImageResponse]:
             url=image.image_url,
             is_primary=image.is_primary,
         )
-        for image in sorted(product.images, key=lambda img: (not img.is_primary, img.id))
+        for image in sorted(product.images, key=lambda img: (not img.is_primary, img.display_order, img.id))
     ]
 
 

@@ -23,6 +23,7 @@ from app.schemas.product import (
     ProductDetailResponse,
     StockStatusResponse,
     ProductImageCreate,
+    ProductImageReorderRequest,
     ProductImageSetPrimaryResponse,
 )
 from app.schemas.storefront import ProductCommentListResponse, ProductCommentResponse, RelatedProductsResponse
@@ -32,6 +33,7 @@ from app.crud import product as crud_product
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.utils.category_depth import build_category_metadata
+from app.utils.image_validation import ensure_image_count_within_limit, validate_product_image_url
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
 from app.utils.storefront_catalog import VALID_SORT_KEYS
@@ -326,10 +328,22 @@ async def add_product_image(
             error_code=ErrorCode.NOT_FOUND,
             message=f"Product with ID '{product_id}' not found",
         )
+    try:
+        validated_url = validate_product_image_url(payload.image_url)
+        image_count = await crud_product.count_product_images(db, product_id)
+        ensure_image_count_within_limit(image_count)
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=str(exc),
+            details=[{"field": "image_url", "message": str(exc)}],
+        ) from exc
+
     await crud_product.add_product_image(
         db,
         product_id,
-        payload.image_url,
+        validated_url,
         is_primary=payload.is_primary or not product.images,
     )
     await db.commit()
@@ -375,6 +389,37 @@ async def set_primary_product_image(
             error_code=ErrorCode.NOT_FOUND,
             message=f"Image '{image_id}' not found for product '{product_id}'",
         )
+    await db.commit()
+    return await _product_detail_after_write(db, product_id)
+
+
+@router.patch(
+    "/{product_id}/images/reorder",
+    response_model=ProductDetailResponse,
+    summary="Reorder product images",
+)
+async def reorder_product_images(
+    product_id: int,
+    payload: ProductImageReorderRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    product = await crud_product.get_product_by_id(db, product_id)
+    if not product:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    try:
+        await crud_product.reorder_product_images(db, product_id, payload.image_ids)
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=str(exc),
+            details=[{"field": "image_ids", "message": str(exc)}],
+        ) from exc
     await db.commit()
     return await _product_detail_after_write(db, product_id)
 

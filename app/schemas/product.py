@@ -205,6 +205,10 @@ class ProductImageCreate(BaseModel):
     is_primary: bool = False
 
 
+class ProductImageReorderRequest(BaseModel):
+    image_ids: List[int] = Field(..., min_length=1)
+
+
 class ProductImageSetPrimaryResponse(BaseModel):
     product_id: int
     image_id: int

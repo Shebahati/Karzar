@@ -411,6 +411,11 @@ async def get_related_products(
     return list(result.scalars().all())
 
 
+async def count_product_images(db: AsyncSession, product_id: int) -> int:
+    stmt = select(func.count()).select_from(ProductImage).where(ProductImage.product_id == product_id)
+    return (await db.execute(stmt)).scalar_one()
+
+
 async def add_product_image(
     db: AsyncSession,
     product_id: int,
@@ -425,11 +430,41 @@ async def add_product_image(
             .values(is_primary=False)
         )
 
-    image = ProductImage(product_id=product_id, image_url=image_url, is_primary=is_primary)
+    next_order_stmt = select(func.coalesce(func.max(ProductImage.display_order), -1)).where(
+        ProductImage.product_id == product_id
+    )
+    next_order = (await db.execute(next_order_stmt)).scalar_one() + 1
+
+    image = ProductImage(
+        product_id=product_id,
+        image_url=image_url,
+        is_primary=is_primary,
+        display_order=next_order,
+    )
     db.add(image)
     await db.flush()
     await db.refresh(image)
     return image
+
+
+async def reorder_product_images(
+    db: AsyncSession, product_id: int, image_ids: List[int]
+) -> List[ProductImage]:
+    stmt = select(ProductImage).where(ProductImage.product_id == product_id)
+    result = await db.execute(stmt)
+    images = list(result.scalars().all())
+    if not images:
+        return []
+
+    existing_ids = {image.id for image in images}
+    if set(image_ids) != existing_ids:
+        raise ValueError("image_ids must include every image for this product exactly once")
+
+    by_id = {image.id: image for image in images}
+    for index, image_id in enumerate(image_ids):
+        by_id[image_id].display_order = index
+    await db.flush()
+    return [by_id[image_id] for image_id in image_ids]
 
 
 async def delete_product_image(db: AsyncSession, product_id: int, image_id: int) -> bool:

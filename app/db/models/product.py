@@ -167,4 +167,5 @@ class ProductImage(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+    display_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     product: Mapped["Product"] = relationship("Product", back_populates="images")
