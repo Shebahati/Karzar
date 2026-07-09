@@ -141,5 +141,6 @@ class CheckoutResponse(BaseModel):
     tracking_code: str
     mode: Literal["purchase", "inquiry"]
     status: str
+    status_label: str
     estimated_total: Optional[str] = None
     created_at: datetime

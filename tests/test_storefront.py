@@ -109,6 +109,8 @@ class TestStorefrontCheckout:
         body = response.json()
         assert body["mode"] == "purchase"
         assert body["tracking_code"].startswith("KZ-")
+        assert body["status"] == "pending_payment"
+        assert body["status_label"] == "در انتظار پرداخت"
         assert body["estimated_total"] is not None
 
         # Purchase must decrement stock (50 - 2 = 48).

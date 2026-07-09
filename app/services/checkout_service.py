@@ -107,7 +107,8 @@ async def submit_checkout(
         order_id=order.id,
         tracking_code=order.tracking_code,
         mode=payload.mode,
-        status=status_label(order.status),
+        status=order.status,
+        status_label=status_label(order.status),
         estimated_total=decimal_to_api_string(order.estimated_total),
         created_at=order.created_at,
     )
