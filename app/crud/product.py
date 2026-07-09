@@ -64,6 +64,25 @@ async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Produ
     return result.scalar_one_or_none()
 
 
+async def get_products_for_update(
+    db: AsyncSession, product_ids: List[int]
+) -> Dict[int, Product]:
+    """Fetch active products locked FOR UPDATE, keyed by id (ordered to avoid deadlocks).
+
+    The row locks are a no-op on SQLite (test engine) and enforced on PostgreSQL.
+    """
+    if not product_ids:
+        return {}
+    stmt = (
+        select(Product)
+        .where(and_(Product.id.in_(product_ids), Product.deleted_at.is_(None)))
+        .order_by(Product.id)
+        .with_for_update()
+    )
+    result = await db.execute(stmt)
+    return {product.id: product for product in result.scalars().all()}
+
+
 async def get_product_by_sku(
     db: AsyncSession, sku: str, *, include_deleted: bool = False
 ) -> Optional[Product]:

@@ -19,6 +19,14 @@ PURCHASE_STATUS = "در انتظار پرداخت"
 INQUIRY_STATUS = "در حال بررسی استعلام"
 
 
+def _merge_quantities(payload: CheckoutRequest) -> dict[int, int]:
+    """Aggregate quantities per product so duplicate lines are validated together."""
+    merged: dict[int, int] = {}
+    for line in payload.items:
+        merged[line.product_id] = merged.get(line.product_id, 0) + line.quantity
+    return merged
+
+
 async def submit_checkout(
     db: AsyncSession,
     payload: CheckoutRequest,
@@ -28,32 +36,45 @@ async def submit_checkout(
         raise ValueError("At least one item is required")
 
     mode = OrderMode(payload.mode)
-    if mode == OrderMode.PURCHASE and payload.shipping is None:
+    is_purchase = mode == OrderMode.PURCHASE
+    if is_purchase and payload.shipping is None:
         raise ValueError("shipping is required for purchase mode")
+
+    quantities = _merge_quantities(payload)
+
+    # Lock the referenced product rows so concurrent purchases cannot oversell.
+    products = await crud_product.get_products_for_update(db, list(quantities.keys()))
 
     line_items = []
     estimated_total = Decimal("0.0")
     has_priced_item = False
 
-    for line in payload.items:
-        product = await crud_product.get_product_by_id(db, line.product_id)
+    for product_id, quantity in quantities.items():
+        product = products.get(product_id)
         if not product or not product.is_active:
-            raise ValueError(f"Product {line.product_id} is not available")
-        if product.stock_quantity < line.quantity:
+            raise ValueError(f"Product {product_id} is not available")
+
+        # Stock is only enforced for real purchases; inquiries may quote any item.
+        if is_purchase and product.stock_quantity < quantity:
             raise ValueError(
-                f"Product {line.product_id} has insufficient stock "
-                f"(available: {product.stock_quantity}, requested: {line.quantity})"
+                f"Product {product_id} has insufficient stock "
+                f"(available: {product.stock_quantity}, requested: {quantity})"
             )
 
         unit_price = product.base_price
         if unit_price is not None:
             has_priced_item = True
-            estimated_total += _to_decimal(unit_price) * line.quantity
+            line_total = _to_decimal(unit_price) * quantity
+            tax_rate = _to_decimal(product.tax_percent or 0) / Decimal("100")
+            estimated_total += line_total + (line_total * tax_rate)
+
+        if is_purchase:
+            product.stock_quantity = product.stock_quantity - quantity
 
         line_items.append(
             {
-                "product_id": line.product_id,
-                "quantity": line.quantity,
+                "product_id": product_id,
+                "quantity": quantity,
                 "unit_price": unit_price,
             }
         )
@@ -64,10 +85,10 @@ async def submit_checkout(
 
     order = await crud_commerce.create_order(
         db,
-        tracking_code="",
+        tracking_prefix="KZ-",
         mode=mode,
-        status=PURCHASE_STATUS if mode == OrderMode.PURCHASE else INQUIRY_STATUS,
-        estimated_total=estimated_total if has_priced_item and mode == OrderMode.PURCHASE else None,
+        status=PURCHASE_STATUS if is_purchase else INQUIRY_STATUS,
+        estimated_total=estimated_total if has_priced_item and is_purchase else None,
         customer_full_name=payload.customer.full_name,
         customer_phone=payload.customer.phone,
         customer_is_guest=customer_is_guest,
@@ -77,7 +98,6 @@ async def submit_checkout(
         user_id=current_user.id if current_user else None,
         items=line_items,
     )
-    order.tracking_code = f"KZ-{order.id}"
     await db.commit()
     await db.refresh(order)
 
@@ -94,12 +114,11 @@ async def submit_checkout(
 async def submit_contact(db: AsyncSession, payload: ContactRequest) -> ContactResponse:
     submission = await crud_content.create_contact_submission(
         db,
-        ticket_code="",
+        ticket_prefix="TK-",
         full_name=payload.full_name,
         phone=payload.phone,
         subject=payload.subject,
         message=payload.message,
     )
-    submission.ticket_code = f"TK-{submission.id:05d}"
     await db.commit()
     return ContactResponse(ok=True, ticket=submission.ticket_code)

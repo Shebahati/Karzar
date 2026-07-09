@@ -1,5 +1,6 @@
 """CRUD for storefront orders."""
 
+import uuid
 from decimal import Decimal
 from typing import Any, List, Optional
 
@@ -13,7 +14,7 @@ from app.db.models.commerce import Order, OrderItem, OrderMode
 async def create_order(
     db: AsyncSession,
     *,
-    tracking_code: str,
+    tracking_prefix: str,
     mode: OrderMode,
     status: str,
     estimated_total: Optional[Decimal],
@@ -26,8 +27,11 @@ async def create_order(
     user_id: Optional[int],
     items: List[dict[str, Any]],
 ) -> Order:
+    # Insert with a unique random placeholder so concurrent orders never collide
+    # on the unique tracking_code index, then derive the human-friendly code from
+    # the generated id within the same transaction.
     order = Order(
-        tracking_code=tracking_code,
+        tracking_code=f"pending-{uuid.uuid4().hex}",
         mode=mode,
         status=status,
         estimated_total=estimated_total,
@@ -41,6 +45,8 @@ async def create_order(
     )
     db.add(order)
     await db.flush()
+
+    order.tracking_code = f"{tracking_prefix}{order.id}"
 
     for item in items:
         db.add(

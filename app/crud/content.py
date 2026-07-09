@@ -1,5 +1,6 @@
 """CRUD for CMS tables: articles, hero slides, comments, contact."""
 
+import uuid
 from typing import List, Optional
 
 from sqlalchemy import select
@@ -47,20 +48,22 @@ async def list_product_comments(db: AsyncSession, product_id: int) -> List[Produ
 async def create_contact_submission(
     db: AsyncSession,
     *,
-    ticket_code: str,
+    ticket_prefix: str,
     full_name: str,
     phone: str,
     subject: str,
     message: str,
 ) -> ContactSubmission:
     submission = ContactSubmission(
-        ticket_code=ticket_code,
+        ticket_code=f"pending-{uuid.uuid4().hex}",
         full_name=full_name,
         phone=phone,
         subject=subject,
         message=message,
     )
     db.add(submission)
+    await db.flush()
+    submission.ticket_code = f"{ticket_prefix}{submission.id:05d}"
     await db.flush()
     await db.refresh(submission)
     return submission
