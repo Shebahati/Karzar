@@ -1,8 +1,10 @@
 """Admin user management schemas."""
 
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
+
+from app.schemas.common import PaginatedResponse
 
 
 class AdminUserResponse(BaseModel):
@@ -11,6 +13,10 @@ class AdminUserResponse(BaseModel):
     full_name: Optional[str] = None
     role: str
     is_active: bool
+
+
+class AdminUserListResponse(PaginatedResponse[AdminUserResponse]):
+    pass
 
 
 class AdminUserUpdateRequest(BaseModel):

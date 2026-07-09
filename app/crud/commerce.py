@@ -95,8 +95,9 @@ async def list_orders(
     payment_status: Optional[str] = None,
     phone: Optional[str] = None,
     user_id: Optional[int] = None,
+    sort: str = "newest",
 ) -> tuple[List[Order], int]:
-    """Return a page of orders (newest first) plus the total match count."""
+    """Return a page of orders plus the total match count."""
     filters = []
     if status is not None:
         filters.append(Order.status == status)
@@ -114,10 +115,18 @@ async def list_orders(
         count_stmt = count_stmt.where(*filters)
     total = (await db.execute(count_stmt)).scalar_one()
 
+    order_by = [Order.created_at.desc(), Order.id.desc()]
+    if sort == "oldest":
+        order_by = [Order.created_at.asc(), Order.id.asc()]
+    elif sort == "total_asc":
+        order_by = [Order.estimated_total.asc().nulls_last(), Order.id.desc()]
+    elif sort == "total_desc":
+        order_by = [Order.estimated_total.desc().nulls_last(), Order.id.desc()]
+
     stmt = (
         select(Order)
         .options(selectinload(Order.items))
-        .order_by(Order.created_at.desc(), Order.id.desc())
+        .order_by(*order_by)
         .offset(skip)
         .limit(limit)
     )

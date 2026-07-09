@@ -12,13 +12,14 @@ from app.crud import commerce as crud_commerce
 from app.db.database import get_db
 from app.db.models.commerce import Order, OrderMode, OrderStatus
 from app.db.models.user import User
-from app.schemas.common import build_pagination_meta
+from app.schemas.common import build_pagination_meta, resolve_pagination
 from app.schemas.order import (
     OrderDetailResponse,
     OrderItemResponse,
     OrderListResponse,
     OrderStatusUpdateRequest,
     OrderSummary,
+    OrderTrackingItemResponse,
     OrderTrackingResponse,
 )
 from app.services.order_service import (
@@ -30,6 +31,8 @@ from app.services.order_service import (
 from app.utils.storefront_catalog import decimal_to_api_string
 
 router = APIRouter()
+
+_VALID_ORDER_SORTS = frozenset({"newest", "oldest", "total_asc", "total_desc"})
 
 # Statuses that require a step-up token because they are irreversible/financial.
 _SENSITIVE_STATUSES = frozenset({OrderStatus.CANCELLED.value})
@@ -114,6 +117,14 @@ async def track_order(tracking_code: str, db: AsyncSession = Depends(get_db)):
         status_label=status_label(order.status),
         estimated_total=decimal_to_api_string(order.estimated_total),
         created_at=order.created_at,
+        items=[
+            OrderTrackingItemResponse(
+                product_id=item.product_id,
+                quantity=item.quantity,
+                unit_price=decimal_to_api_string(item.unit_price),
+            )
+            for item in order.items
+        ],
     )
 
 
@@ -127,11 +138,26 @@ async def list_orders(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
+    page: Optional[int] = Query(None, ge=1, description="1-based page number (alternative to skip)"),
+    page_size: Optional[int] = Query(None, ge=1, le=200, description="Page size (alternative to limit)"),
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by status code"),
     mode: Optional[str] = Query(None, description="Filter by mode: purchase or inquiry"),
     payment_status: Optional[str] = Query(None, description="Filter by payment status"),
     phone: Optional[str] = Query(None, description="Filter by customer phone"),
+    sort: str = Query("newest", description="Sort key: newest, oldest, total_asc, total_desc"),
 ):
+    if sort not in _VALID_ORDER_SORTS:
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="Invalid sort key",
+            details=[{"field": "sort", "message": f"must be one of: {', '.join(sorted(_VALID_ORDER_SORTS))}"}],
+        )
+
+    resolved_skip, resolved_limit = resolve_pagination(
+        page=page, page_size=page_size, skip=skip, limit=limit
+    )
+
     if status_filter is not None:
         try:
             status_filter = OrderStatus(status_filter).value
@@ -157,16 +183,17 @@ async def list_orders(
 
     orders, total = await crud_commerce.list_orders(
         db,
-        skip=skip,
-        limit=limit,
+        skip=resolved_skip,
+        limit=resolved_limit,
         status=status_filter,
         mode=mode_enum,
         payment_status=payment_status,
         phone=phone,
+        sort=sort,
     )
     return {
         "data": [_to_summary(order) for order in orders],
-        "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
+        "meta": build_pagination_meta(total_count=total, skip=resolved_skip, limit=resolved_limit),
     }
 
 

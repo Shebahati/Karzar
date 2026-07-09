@@ -30,3 +30,22 @@ def build_pagination_meta(*, total_count: int, skip: int, limit: int) -> Paginat
         has_next=(skip + limit) < total_count,
         has_prev=skip > 0,
     )
+
+
+def resolve_pagination(
+    *,
+    page: int | None,
+    page_size: int | None,
+    skip: int,
+    limit: int,
+) -> tuple[int, int]:
+    """Prefer page/page_size when provided; otherwise fall back to skip/limit."""
+    if page is not None or page_size is not None:
+        resolved_page = page if page is not None else 1
+        resolved_page_size = page_size if page_size is not None else limit
+        if resolved_page < 1:
+            resolved_page = 1
+        if resolved_page_size < 1:
+            resolved_page_size = 1
+        return (resolved_page - 1) * resolved_page_size, resolved_page_size
+    return skip, limit
