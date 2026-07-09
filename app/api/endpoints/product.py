@@ -34,6 +34,7 @@ from app.core.logging import get_logger
 from app.utils.category_depth import build_category_metadata
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
+from app.utils.storefront_catalog import VALID_SORT_KEYS
 
 logger = get_logger(__name__)
 
@@ -42,6 +43,16 @@ router = APIRouter()
 
 def _audience_for_user(user: Optional[User]) -> str:
     return "admin" if is_super_admin(user) else "storefront"
+
+
+def _guard_inactive_product(product, user: Optional[User], identifier: str) -> None:
+    """Hide inactive products from non-admin callers on direct read paths."""
+    if not product.is_active and not is_super_admin(user):
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product '{identifier}' not found",
+        )
 
 
 async def _category_metadata(db: AsyncSession):
@@ -128,9 +139,27 @@ async def read_products(
         if is_active is None and not is_super_admin(current_user):
             is_active = True
 
+        if sort is not None and sort not in VALID_SORT_KEYS:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="Invalid sort key",
+                details=[
+                    {"field": "sort", "message": f"must be one of: {', '.join(sorted(VALID_SORT_KEYS))}"}
+                ],
+            )
+
         product_ids: Optional[List[int]] = None
         if ids:
-            product_ids = [int(value.strip()) for value in ids.split(",") if value.strip()]
+            try:
+                product_ids = [int(value.strip()) for value in ids.split(",") if value.strip()]
+            except ValueError:
+                raise api_error(
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    error_code=ErrorCode.VALIDATION_FAILED,
+                    message="ids must be a comma-separated list of integers",
+                    details=[{"field": "ids", "message": "invalid integer in list"}],
+                )
 
         spec_filters = merge_spec_filters(filters_json=filters, request=request)
         products, total = await ProductService.search_products(
@@ -197,6 +226,7 @@ async def read_product_by_sku(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with SKU '{sku}' not found",
             )
+        _guard_inactive_product(product, current_user, sku)
         audience = _audience_for_user(current_user)
         return to_product_detail(product, await _category_metadata(db), audience=audience)
     except HTTPException:
@@ -228,6 +258,7 @@ async def read_product(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
+        _guard_inactive_product(details["product"], current_user, str(product_id))
         audience = _audience_for_user(current_user)
         return to_product_detail(details["product"], await _category_metadata(db), audience=audience)
     except HTTPException:
@@ -460,7 +491,11 @@ async def restore_product(
     summary="Get product stock status",
     tags=["Stock Management"],
 )
-async def get_stock(product_id: int, db: AsyncSession = Depends(get_db)):
+async def get_stock(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
     from app.crud import product as crud_product
 
     try:

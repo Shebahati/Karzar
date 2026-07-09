@@ -40,7 +40,7 @@ class Settings(BaseSettings):
         max_length=12,
         description="Admin PIN for destructive actions",
     )
-    ALLOW_PUBLIC_REGISTER: bool = True
+    ALLOW_PUBLIC_REGISTER: bool = False
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 

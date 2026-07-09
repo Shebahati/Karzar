@@ -61,6 +61,11 @@ def decimal_to_api_string(value: Optional[Decimal]) -> Optional[str]:
     return text
 
 
+VALID_SORT_KEYS = frozenset(
+    {"newest", "price_asc", "price_desc", "name_asc", "name_desc"}
+)
+
+
 def product_sort_clause(sort: Optional[str]):
     mapping = {
         "newest": Product.created_at.desc(),
