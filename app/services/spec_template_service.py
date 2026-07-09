@@ -166,3 +166,17 @@ def _deep_copy_template(template: SpecTemplate) -> SpecTemplate:
     import copy
 
     return copy.deepcopy(template)
+
+
+def extract_spec_filter_options(template: SpecTemplate) -> Dict[str, List[str]]:
+    """Return technical spec filter value options for storefront filter UI."""
+    technical = template.get("technical_specs", {})
+    if not isinstance(technical, dict):
+        return {}
+    value_options = technical.get("value_options", {})
+    if not isinstance(value_options, dict):
+        return {}
+    return {
+        str(key): list(values) if isinstance(values, list) else []
+        for key, values in value_options.items()
+    }

@@ -13,6 +13,7 @@ from app.schemas.category import (
     CategoryDeleteResponse,
     CategoryFlatResponse,
     CategoryListResponse,
+    CategorySpecFilterOptionsResponse,
     CategorySpecTemplateResponse,
     CategoryTreeResponse,
     CategoryUpdate,
@@ -142,6 +143,25 @@ async def get_category_tree(db: AsyncSession = Depends(get_db)):
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error retrieving categories",
+        ) from exc
+
+
+@router.get(
+    "/{category_id}/spec-filter-options",
+    response_model=CategorySpecFilterOptionsResponse,
+    summary="Available technical specification filter values for a category",
+    tags=["Categories"],
+)
+async def get_category_spec_filter_options(category_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        return await CategoryService.get_spec_filter_options(db, category_id)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error retrieving specification filter options",
         ) from exc
 
 

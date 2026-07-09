@@ -12,6 +12,7 @@ from app.schemas.category import (
     CategoryCreate,
     CategoryDeleteResponse,
     CategoryFlatResponse,
+    CategorySpecFilterOptionsResponse,
     CategorySpecTemplateResponse,
     CategoryTreeResponse,
     CategoryUpdate,
@@ -19,7 +20,10 @@ from app.schemas.category import (
     FeatureTemplate,
     TechnicalSpecsTemplate,
 )
-from app.services.spec_template_service import resolve_spec_template
+from app.services.spec_template_service import (
+    extract_spec_filter_options,
+    resolve_spec_template,
+)
 from app.utils.category_depth import build_category_metadata, is_selectable_product_category
 from app.utils.category_tree import build_category_tree
 
@@ -95,6 +99,28 @@ class CategoryService:
             features=[FeatureTemplate(**feature) for feature in raw["features"]],
             dimensions=DimensionsTemplate(**raw["dimensions"]),
             default_values=default_values,
+        )
+
+    @staticmethod
+    async def get_spec_filter_options(
+        db: AsyncSession, category_id: int
+    ) -> CategorySpecFilterOptionsResponse:
+        categories = await crud_category.get_all_categories(db)
+        by_id = {category.id: category for category in categories}
+        category = by_id.get(category_id)
+        if category is None:
+            raise api_error(
+                404,
+                error_code=ErrorCode.NOT_FOUND,
+                message=f"Category with ID '{category_id}' not found",
+            )
+
+        meta = build_category_metadata(categories)[category_id]
+        raw = resolve_spec_template(category, by_id)
+        return CategorySpecFilterOptionsResponse(
+            category_id=category.id,
+            category_name=category.name,
+            technical_specs=extract_spec_filter_options(raw),
         )
 
     @staticmethod

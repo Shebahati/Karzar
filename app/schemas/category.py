@@ -94,3 +94,12 @@ class CategoryDeleteResponse(BaseModel):
     products_reassigned: int
     new_category_id: Optional[int] = None
     message: str
+
+
+class CategorySpecFilterOptionsResponse(BaseModel):
+    category_id: int
+    category_name: str
+    technical_specs: Dict[str, List[str]] = Field(
+        default_factory=dict,
+        description="Available values per technical spec key for PLP filters",
+    )
