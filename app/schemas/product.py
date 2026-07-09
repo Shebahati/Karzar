@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 from decimal import Decimal
 
+from app.core.constants import DEFAULT_TAX_PERCENT
 from app.db.models.product import StockUnitEnum
 from app.schemas.common import PaginatedResponse
 
@@ -38,6 +39,7 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
+    # Intentionally Optional: admin UI requires category_id, but PATCH may omit it.
     category_id: Optional[int] = None
     brand_id: Optional[int] = None
 
@@ -48,7 +50,9 @@ class ProductCreate(BaseModel):
     warranty_text: Optional[str] = None
     weight_grams: Optional[Decimal] = None
     is_original: bool = True
-    tax_percent: Decimal = Field(default=Decimal("0.0"), ge=0, le=100)
+    tax_percent: Decimal = Field(
+        default=Decimal(str(DEFAULT_TAX_PERCENT)), ge=0, le=100
+    )
     is_active: bool = True
     pdf_catalog_url: Optional[str] = None
     description: Optional[str] = None
