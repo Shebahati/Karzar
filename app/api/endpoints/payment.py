@@ -92,6 +92,12 @@ def _raise_gateway_error(exc: Exception) -> None:
 
 
 def _assert_order_payable_by_user(order, current_user: User) -> None:
+    if order.user_id is None:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.GUEST_ORDER_NOT_PAYABLE,
+            message="برای پرداخت آنلاین باید وارد حساب کاربری شوید. لطفاً با شماره موبایل خود وارد شوید.",
+        )
     if order.user_id != current_user.id:
         raise api_error(status.HTTP_403_FORBIDDEN, error_code=ErrorCode.FORBIDDEN, message="Access denied")
 

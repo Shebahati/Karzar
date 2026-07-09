@@ -167,6 +167,37 @@ def test_payment_init_is_idempotent_for_pending_order(
     assert first.json()["authority"] == second.json()["authority"]
 
 
+def test_guest_order_returns_dedicated_error(valid_product_data, super_admin_headers, monkeypatch):
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+    reset_payment_provider_for_tests()
+
+    create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
+    product_id = create.json()["id"]
+
+    checkout = client.post(
+        "/api/v1/checkout",
+        json={
+            "mode": "purchase",
+            "customer": {"full_name": "Guest", "phone": "09125555555", "is_guest": True},
+            "items": [{"product_id": product_id, "quantity": 1}],
+            "shipping": {
+                "province": "تهران",
+                "city": "تهران",
+                "postal_code": "1234567890",
+                "address_line": "خیابان آزادی، پلاک ۱۰",
+            },
+        },
+    )
+    assert checkout.status_code == 201
+    order_id = checkout.json()["order_id"]
+
+    other_headers = _auth_headers_for_phone("09126666666")
+    init = client.post("/api/v1/payments/init", json={"order_id": order_id}, headers=other_headers)
+    assert init.status_code == 403
+    assert init.json()["error_code"] == "GUEST_ORDER_NOT_PAYABLE"
+
+
 def test_payment_gateway_timeout_returns_specific_error(
     valid_product_data, super_admin_headers, monkeypatch
 ):
