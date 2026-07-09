@@ -23,6 +23,22 @@ class PaymentVerifyResult:
     ref_id: str | None
 
 
+class PaymentGatewayError(Exception):
+    """Raised when the payment provider returns an unexpected or invalid response."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+
+
+class PaymentGatewayTimeoutError(PaymentGatewayError):
+    """Raised when the payment provider does not respond within the configured timeout."""
+
+
+class PaymentVerifyFailedError(PaymentGatewayError):
+    """Raised when gateway verification explicitly rejects the transaction."""
+
+
 class PaymentProvider(Protocol):
     async def init_payment(self, *, amount_rials: int, description: str, callback_url: str) -> PaymentInitResult:
         ...
@@ -40,27 +56,36 @@ class MockPaymentProvider:
         )
 
     async def verify_payment(self, *, authority: str, amount_rials: int) -> PaymentVerifyResult:
-        return PaymentVerifyResult(success=authority.startswith("MOCK-"), ref_id=f"MOCKREF-{authority[-8:]}")
+        if not authority.startswith("MOCK-"):
+            raise PaymentVerifyFailedError("Invalid mock payment authority")
+        return PaymentVerifyResult(success=True, ref_id=f"MOCKREF-{authority[-8:]}")
 
 
 class ZarinpalProvider:
     async def init_payment(self, *, amount_rials: int, description: str, callback_url: str) -> PaymentInitResult:
         if not settings.ZARINPAL_MERCHANT_ID:
-            raise ValueError("ZARINPAL_MERCHANT_ID is required when PAYMENT_PROVIDER=zarinpal")
+            raise PaymentGatewayError("ZARINPAL_MERCHANT_ID is required when PAYMENT_PROVIDER=zarinpal")
         payload = {
             "merchant_id": settings.ZARINPAL_MERCHANT_ID,
             "amount": amount_rials,
             "description": description,
             "callback_url": callback_url,
         }
-        async with httpx.AsyncClient(timeout=settings.PAYMENT_TIMEOUT_SECONDS) as client:
-            response = await client.post(settings.ZARINPAL_REQUEST_URL, json={"data": payload})
-            response.raise_for_status()
-            body = response.json()
+        try:
+            async with httpx.AsyncClient(timeout=settings.PAYMENT_TIMEOUT_SECONDS) as client:
+                response = await client.post(settings.ZARINPAL_REQUEST_URL, json={"data": payload})
+                response.raise_for_status()
+                body = response.json()
+        except httpx.TimeoutException as exc:
+            raise PaymentGatewayTimeoutError("Payment gateway request timed out") from exc
+        except httpx.HTTPError as exc:
+            raise PaymentGatewayError("Payment gateway request failed") from exc
+
         data = body.get("data", {})
         authority = data.get("authority")
         if not authority:
-            raise ValueError("Zarinpal did not return authority")
+            errors = body.get("errors") or body.get("data", {}).get("message")
+            raise PaymentGatewayError(f"Zarinpal did not return authority: {errors}")
         return PaymentInitResult(
             authority=authority,
             payment_url=f"https://www.zarinpal.com/pg/StartPay/{authority}",
@@ -68,19 +93,32 @@ class ZarinpalProvider:
 
     async def verify_payment(self, *, authority: str, amount_rials: int) -> PaymentVerifyResult:
         if not settings.ZARINPAL_MERCHANT_ID:
-            raise ValueError("ZARINPAL_MERCHANT_ID is required when PAYMENT_PROVIDER=zarinpal")
+            raise PaymentGatewayError("ZARINPAL_MERCHANT_ID is required when PAYMENT_PROVIDER=zarinpal")
+        if not authority or not authority.strip():
+            raise PaymentVerifyFailedError("Payment authority is missing or invalid")
         payload = {
             "merchant_id": settings.ZARINPAL_MERCHANT_ID,
             "amount": amount_rials,
             "authority": authority,
         }
-        async with httpx.AsyncClient(timeout=settings.PAYMENT_TIMEOUT_SECONDS) as client:
-            response = await client.post(settings.ZARINPAL_VERIFY_URL, json={"data": payload})
-            response.raise_for_status()
-            body = response.json()
+        try:
+            async with httpx.AsyncClient(timeout=settings.PAYMENT_TIMEOUT_SECONDS) as client:
+                response = await client.post(settings.ZARINPAL_VERIFY_URL, json={"data": payload})
+                response.raise_for_status()
+                body = response.json()
+        except httpx.TimeoutException as exc:
+            raise PaymentGatewayTimeoutError("Payment verification request timed out") from exc
+        except httpx.HTTPError as exc:
+            raise PaymentGatewayError("Payment verification request failed") from exc
+
         data = body.get("data", {})
         code = int(data.get("code", -1))
-        return PaymentVerifyResult(success=code in (100, 101), ref_id=str(data.get("ref_id")) if data.get("ref_id") else None)
+        if code in (100, 101):
+            return PaymentVerifyResult(
+                success=True,
+                ref_id=str(data.get("ref_id")) if data.get("ref_id") else None,
+            )
+        raise PaymentVerifyFailedError(f"Zarinpal verification rejected transaction (code={code})")
 
 
 _provider: PaymentProvider | None = None
@@ -96,3 +134,14 @@ def get_payment_provider() -> PaymentProvider:
 def reset_payment_provider_for_tests() -> None:
     global _provider
     _provider = None
+
+
+def extract_stored_authority(note: str | None) -> str | None:
+    """Parse the last authority= token stored on the order note field."""
+    if not note:
+        return None
+    for segment in reversed(note.split("|")):
+        segment = segment.strip()
+        if segment.startswith("authority="):
+            return segment.split("=", 1)[1].strip() or None
+    return None
