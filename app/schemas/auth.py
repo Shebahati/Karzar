@@ -89,3 +89,16 @@ class UserResponse(BaseModel):
     is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CurrentUserResponse(BaseModel):
+    id: int
+    phone_number: str
+    full_name: Optional[str]
+    role: str
+    is_active: bool
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=8, max_length=128)
+    new_password: str = Field(..., min_length=8, max_length=128)

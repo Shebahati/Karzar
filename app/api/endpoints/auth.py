@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_super_admin
+from app.api.deps import get_current_active_user, get_current_super_admin
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
@@ -26,6 +26,8 @@ from app.schemas.auth import (
     PinVerifyRequest,
     StepUpTokenResponse,
     Token,
+    ChangePasswordRequest,
+    CurrentUserResponse,
     UserCreate,
     UserResponse,
 )
@@ -161,6 +163,40 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         "token_type": "bearer",
         "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     }
+
+
+@router.get("/me", response_model=CurrentUserResponse, summary="Get current authenticated user")
+async def get_me(current_user: User = Depends(get_current_active_user)):
+    return CurrentUserResponse(
+        id=current_user.id,
+        phone_number=current_user.phone_number,
+        full_name=current_user.full_name,
+        role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
+        is_active=current_user.is_active,
+    )
+
+
+@router.post("/change-password", summary="Change current user password")
+async def change_password(
+    payload: ChangePasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Current password is incorrect",
+        )
+    if payload.current_password == payload.new_password:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message="New password must be different from current password",
+        )
+    current_user.hashed_password = get_password_hash(payload.new_password)
+    await db.commit()
+    return {"ok": True}
 
 
 @router.post("/verify-pin", response_model=StepUpTokenResponse, summary="Verify admin PIN for destructive actions")

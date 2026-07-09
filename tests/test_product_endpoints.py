@@ -378,3 +378,70 @@ class TestAuthEndpoints:
         )
         assert response.status_code == 403
         assert response.json()["error_code"] == "FORBIDDEN"
+
+    def test_me_endpoint(self):
+        client.post(
+            "/api/v1/auth/register",
+            json={"phone_number": "09119999999", "password": "securepass", "full_name": "Me User"},
+        )
+        login = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09119999999", "password": "securepass"},
+        )
+        token = login.json()["access_token"]
+        me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert me.status_code == 200
+        assert me.json()["phone_number"] == "09119999999"
+
+    def test_change_password(self):
+        client.post(
+            "/api/v1/auth/register",
+            json={"phone_number": "09118888888", "password": "oldpass123", "full_name": "Pw User"},
+        )
+        login = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09118888888", "password": "oldpass123"},
+        )
+        token = login.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        change = client.post(
+            "/api/v1/auth/change-password",
+            json={"current_password": "oldpass123", "new_password": "newpass123"},
+            headers=headers,
+        )
+        assert change.status_code == 200
+        relogin_old = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09118888888", "password": "oldpass123"},
+        )
+        relogin_new = client.post(
+            "/api/v1/auth/login",
+            data={"username": "09118888888", "password": "newpass123"},
+        )
+        assert relogin_old.status_code == 401
+        assert relogin_new.status_code == 200
+
+
+class TestUserAdminEndpoints:
+    def test_list_users_admin(self, super_admin_headers):
+        response = client.get("/api/v1/users", headers=super_admin_headers)
+        assert response.status_code == 200
+        assert isinstance(response.json(), list)
+
+    def test_update_user_requires_step_up(self, super_admin_headers):
+        response = client.patch(
+            "/api/v1/users/1",
+            json={"full_name": "Updated Name"},
+            headers=super_admin_headers,
+        )
+        assert response.status_code == 403
+
+    def test_update_user_with_step_up(self, step_up_headers):
+        response = client.patch(
+            "/api/v1/users/1",
+            json={"full_name": "Updated Name", "is_active": True},
+            headers=step_up_headers,
+        )
+        assert response.status_code == 200
+        assert response.json()["full_name"] == "Updated Name"
