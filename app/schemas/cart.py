@@ -1,6 +1,5 @@
 """Cart API schemas."""
 
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,13 +8,13 @@ class CartItemResponse(BaseModel):
     product_id: int
     quantity: int
     product_name: str
-    base_price: Optional[str] = None
-    stock_quantity: Optional[float] = None
+    base_price: str | None = None
+    stock_quantity: float | None = None
 
 
 class CartResponse(BaseModel):
     lane: str
-    items: List[CartItemResponse]
+    items: list[CartItemResponse]
     item_count: int = 0
 
 
@@ -27,4 +26,4 @@ class CartItemUpsertRequest(BaseModel):
 
 class CartMergeRequest(BaseModel):
     guest_token: str = Field(..., min_length=8, max_length=64)
-    lane: Optional[str] = Field(None, pattern="^(purchase|inquiry)$")
+    lane: str | None = Field(None, pattern="^(purchase|inquiry)$")

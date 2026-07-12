@@ -1,14 +1,12 @@
 """P2 platform feature tests: cart, auth refresh, audit, idempotency, soft delete."""
 
 import uuid
-from decimal import Decimal
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.db.models.product import StockUnitEnum
 from app.main import app
 from app.services import otp_service
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -309,7 +307,7 @@ def test_b2b_registration_and_me():
 
 def test_payment_refund_mock_flow(super_admin_headers):
     product_id = _create_product(super_admin_headers)
-    register = client.post(
+    client.post(
         "/api/v1/auth/register",
         json={
             "phone_number": "09129990011",
@@ -317,7 +315,6 @@ def test_payment_refund_mock_flow(super_admin_headers):
             "full_name": "Refund User",
         },
     )
-    user_id = register.json()["id"]
     login = client.post(
         "/api/v1/auth/login",
         data={"username": "09129990011", "password": "securepass123"},

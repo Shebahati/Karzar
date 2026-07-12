@@ -1,6 +1,5 @@
 """Unit tests for category depth and product-category validation rules."""
 
-import pytest
 
 from app.db.models.product import Category
 from app.utils.category_depth import build_category_metadata, is_selectable_product_category
@@ -48,8 +47,8 @@ class TestSelectableCategoryRules:
 
 class TestProductCategoryValidationEndpoint:
     def test_create_product_rejects_root_category(self, valid_product_data, super_admin_headers):
-        from fastapi.testclient import TestClient
         from app.main import app
+        from fastapi.testclient import TestClient
 
         client = TestClient(app)
         valid_product_data["category_id"] = 1
@@ -64,8 +63,8 @@ class TestProductCategoryValidationEndpoint:
         assert body["details"][0]["field"] == "category_id"
 
     def test_create_product_rejects_uncategorized(self, valid_product_data, super_admin_headers):
-        from fastapi.testclient import TestClient
         from app.main import app
+        from fastapi.testclient import TestClient
 
         client = TestClient(app)
         payload = {**valid_product_data, "sku": "NO-CAT-001"}
@@ -80,8 +79,8 @@ class TestProductCategoryValidationEndpoint:
     def test_list_products_filters_category_subtree(
         self, valid_product_data, super_admin_headers
     ):
-        from fastapi.testclient import TestClient
         from app.main import app
+        from fastapi.testclient import TestClient
 
         client = TestClient(app)
         valid_product_data["sku"] = "SUBTREE-001"

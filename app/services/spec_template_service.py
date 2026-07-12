@@ -1,12 +1,12 @@
 """Category spec-template registry and resolver for product entry forms."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.db.models.product import Category
 
-FeatureDetailTemplate = Dict[str, Any]
-FeatureTemplate = Dict[str, Any]
-SpecTemplate = Dict[str, Any]
+FeatureDetailTemplate = dict[str, Any]
+FeatureTemplate = dict[str, Any]
+SpecTemplate = dict[str, Any]
 
 # ---------------------------------------------------------------------------
 # Template definitions (returned to the admin panel as JSON)
@@ -132,7 +132,7 @@ _DRILL_TEMPLATE: SpecTemplate = {
     "dimensions": {"suggested_keys": ["D", "L", "Lc"]},
 }
 
-_TEMPLATES_BY_KEY: Dict[str, SpecTemplate] = {
+_TEMPLATES_BY_KEY: dict[str, SpecTemplate] = {
     "default": _DEFAULT_TEMPLATE,
     "measurement": _MEASUREMENT_PRECISE_TEMPLATE,
     "insert": _INSERT_TEMPLATE,
@@ -144,10 +144,10 @@ _TEMPLATES_BY_KEY: Dict[str, SpecTemplate] = {
 
 def resolve_spec_template(
     category: Category,
-    categories_by_id: Dict[int, Category],
+    categories_by_id: dict[int, Category],
 ) -> SpecTemplate:
     """Pick the best template using category.spec_template_key and ancestor keys."""
-    current: Optional[Category] = category
+    current: Category | None = category
     while current is not None:
         key = current.spec_template_key
         if key and key in _TEMPLATES_BY_KEY:
@@ -168,9 +168,9 @@ def _deep_copy_template(template: SpecTemplate) -> SpecTemplate:
     return copy.deepcopy(template)
 
 
-def collect_storefront_spec_labels() -> Dict[str, str]:
+def collect_storefront_spec_labels() -> dict[str, str]:
     """Build a compact key → Persian label map from all registered templates."""
-    labels: Dict[str, str] = {}
+    labels: dict[str, str] = {}
     for template in _TEMPLATES_BY_KEY.values():
         for feature in template.get("features", []):
             if not isinstance(feature, dict):
@@ -188,7 +188,7 @@ def collect_storefront_spec_labels() -> Dict[str, str]:
     return labels
 
 
-def extract_spec_filter_options(template: SpecTemplate) -> Dict[str, List[str]]:
+def extract_spec_filter_options(template: SpecTemplate) -> dict[str, list[str]]:
     """Return technical spec filter value options for storefront filter UI."""
     technical = template.get("technical_specs", {})
     if not isinstance(technical, dict):

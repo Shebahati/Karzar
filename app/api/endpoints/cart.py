@@ -1,6 +1,5 @@
 """Server-side cart endpoints for purchase and inquiry lanes."""
 
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,9 +34,9 @@ def _resolve_lane(value: str) -> CartLane:
 
 
 def _require_cart_identity(
-    current_user: Optional[User],
-    x_cart_token: Optional[str],
-) -> tuple[Optional[User], Optional[str]]:
+    current_user: User | None,
+    x_cart_token: str | None,
+) -> tuple[User | None, str | None]:
     if current_user is not None:
         return current_user, None
     if x_cart_token and x_cart_token.strip():
@@ -53,8 +52,8 @@ def _require_cart_identity(
 async def get_cart(
     lane: str = Query("purchase", pattern="^(purchase|inquiry)$"),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
-    x_cart_token: Optional[str] = Header(None, alias="X-Cart-Token"),
+    current_user: User | None = Depends(get_optional_current_user),
+    x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     return await get_cart_response(
@@ -69,8 +68,8 @@ async def get_cart(
 async def upsert_cart_item(
     payload: CartItemUpsertRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
-    x_cart_token: Optional[str] = Header(None, alias="X-Cart-Token"),
+    current_user: User | None = Depends(get_optional_current_user),
+    x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     try:
@@ -95,8 +94,8 @@ async def delete_cart_item(
     product_id: int,
     lane: str = Query("purchase", pattern="^(purchase|inquiry)$"),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
-    x_cart_token: Optional[str] = Header(None, alias="X-Cart-Token"),
+    current_user: User | None = Depends(get_optional_current_user),
+    x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     return await remove_item(
@@ -112,8 +111,8 @@ async def delete_cart_item(
 async def clear_cart(
     lane: str = Query("purchase", pattern="^(purchase|inquiry)$"),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
-    x_cart_token: Optional[str] = Header(None, alias="X-Cart-Token"),
+    current_user: User | None = Depends(get_optional_current_user),
+    x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     await clear_lane(db, lane=_resolve_lane(lane), user=user, guest_token=guest_token)

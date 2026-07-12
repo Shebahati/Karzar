@@ -2,7 +2,18 @@
 
 from fastapi import APIRouter
 
-from app.api.endpoints import auth, brand, cart, category, cms, order, payment, product, storefront, users
+from app.api.endpoints import (
+    auth,
+    brand,
+    cart,
+    category,
+    cms,
+    order,
+    payment,
+    product,
+    storefront,
+    users,
+)
 
 api_router = APIRouter()
 

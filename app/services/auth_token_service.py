@@ -1,6 +1,6 @@
 """Refresh token issuance, rotation, and revocation."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +11,7 @@ from app.db.models.user import User
 
 
 def _refresh_expires_at() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    return datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
 
 async def issue_auth_tokens(db: AsyncSession, user: User) -> dict[str, str | int]:

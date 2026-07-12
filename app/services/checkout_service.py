@@ -1,7 +1,6 @@
 """Checkout and contact submission business logic."""
 
 from decimal import Decimal
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,11 +9,16 @@ from app.crud import content as crud_content
 from app.crud import product as crud_product
 from app.db.models.commerce import OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
-from app.schemas.storefront import CheckoutRequest, CheckoutResponse, ContactRequest, ContactResponse
+from app.schemas.storefront import (
+    CheckoutRequest,
+    CheckoutResponse,
+    ContactRequest,
+    ContactResponse,
+)
 from app.services.cart_service import clear_cart_for_checkout, resolve_checkout_defaults
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
-from app.services.payment_flow_service import initialize_order_payment
 from app.services.order_service import record_initial_status_event, status_label
+from app.services.payment_flow_service import initialize_order_payment
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
@@ -34,9 +38,9 @@ def _merge_quantities(payload: CheckoutRequest) -> dict[int, int]:
 async def submit_checkout(
     db: AsyncSession,
     payload: CheckoutRequest,
-    current_user: Optional[User] = None,
+    current_user: User | None = None,
     *,
-    guest_cart_token: Optional[str] = None,
+    guest_cart_token: str | None = None,
 ) -> CheckoutResponse:
     if not payload.items:
         raise ValueError("At least one item is required")

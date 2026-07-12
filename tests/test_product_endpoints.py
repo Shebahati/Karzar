@@ -1,10 +1,9 @@
 """Integration tests for product CRUD, listing, auth, and step-up flows."""
 
-from fastapi.testclient import TestClient
-
 from app.api.endpoints import auth as auth_endpoints
 from app.core.config import settings
 from app.main import app
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

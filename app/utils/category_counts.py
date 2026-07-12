@@ -1,16 +1,14 @@
 """Aggregate active product counts per category subtree."""
 
 from collections import defaultdict
-from typing import Dict, List
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.category import collect_category_subtree_ids
 from app.db.models.product import Category, Product
 
 
-async def get_direct_product_counts(db: AsyncSession) -> Dict[int, int]:
+async def get_direct_product_counts(db: AsyncSession) -> dict[int, int]:
     stmt = (
         select(Product.category_id, func.count(Product.id))
         .where(Product.deleted_at.is_(None), Product.is_active.is_(True), Product.category_id.isnot(None))
@@ -21,9 +19,9 @@ async def get_direct_product_counts(db: AsyncSession) -> Dict[int, int]:
 
 
 def compute_subtree_product_counts(
-    categories: List[Category],
-    direct_counts: Dict[int, int],
-) -> Dict[int, int]:
+    categories: list[Category],
+    direct_counts: dict[int, int],
+) -> dict[int, int]:
     children_by_parent: dict[int, list[int]] = defaultdict(list)
     for category in categories:
         if category.parent_id is not None:
@@ -43,6 +41,6 @@ def compute_subtree_product_counts(
     return {category.id: subtree_total(category.id) for category in categories}
 
 
-async def get_category_product_counts(db: AsyncSession, categories: List[Category]) -> Dict[int, int]:
+async def get_category_product_counts(db: AsyncSession, categories: list[Category]) -> dict[int, int]:
     direct_counts = await get_direct_product_counts(db)
     return compute_subtree_product_counts(categories, direct_counts)

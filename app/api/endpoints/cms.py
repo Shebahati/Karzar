@@ -1,6 +1,5 @@
 """Admin CMS endpoints for articles, hero slides, comments, and contact tickets."""
 
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -196,7 +195,7 @@ async def list_product_comments_admin(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    product_id: Optional[int] = Query(None),
+    product_id: int | None = Query(None),
 ):
     comments, total = await crud_content.list_all_product_comments(
         db, skip=skip, limit=limit, product_id=product_id
@@ -228,8 +227,8 @@ async def list_contact_submissions_admin(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    search: Optional[str] = Query(None),
-    phone: Optional[str] = Query(None),
+    search: str | None = Query(None),
+    phone: str | None = Query(None),
 ):
     submissions, total = await crud_content.list_contact_submissions(
         db, skip=skip, limit=limit, search=search, phone=phone

@@ -1,6 +1,5 @@
 """Default react-iconly icon names for root category nodes in the mega menu."""
 
-from typing import Optional
 
 DEFAULT_ROOT_ICON = "Category"
 
@@ -18,7 +17,7 @@ _ROOT_ICON_KEYWORDS: tuple[tuple[str, str], ...] = (
 )
 
 
-def resolve_category_icon(category_name: str, stored_icon: Optional[str], *, is_root: bool) -> Optional[str]:
+def resolve_category_icon(category_name: str, stored_icon: str | None, *, is_root: bool) -> str | None:
     """Return icon for tree nodes; only roots expose an icon per storefront contract."""
     if not is_root:
         return None

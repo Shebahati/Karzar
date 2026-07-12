@@ -1,13 +1,11 @@
 """Brand business logic for admin CRUD."""
 
-from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.crud import brand as crud_brand
-from app.db.models.product import Brand
 from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
 
 logger = get_logger(__name__)
@@ -15,9 +13,9 @@ logger = get_logger(__name__)
 
 class BrandService:
     @staticmethod
-    async def list_brands(db: AsyncSession) -> List[BrandResponse]:
+    async def list_brands(db: AsyncSession) -> list[BrandResponse]:
         brands = await crud_brand.list_brands(db)
-        responses: List[BrandResponse] = []
+        responses: list[BrandResponse] = []
         for brand in brands:
             count = await crud_brand.count_products_for_brand(db, brand.id)
             responses.append(

@@ -2,9 +2,6 @@
 
 import asyncio
 
-from fastapi.testclient import TestClient
-from sqlalchemy import update
-
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.db.models.commerce import Order
@@ -14,6 +11,9 @@ from app.services.payment_service import (
     PaymentVerifyFailedError,
     reset_payment_provider_for_tests,
 )
+from fastapi.testclient import TestClient
+from sqlalchemy import update
+
 from tests.conftest import TestingSessionLocal, customer_auth_headers
 
 client = TestClient(app)

@@ -1,8 +1,7 @@
 """Application settings loaded from environment variables via Pydantic Settings."""
 
-from typing import Optional
 
-from typing_extensions import Self
+from typing import Self
 
 from pydantic import Field, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,7 +21,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str
 
-    REDIS_HOST: Optional[str] = None
+    REDIS_HOST: str | None = None
     REDIS_PORT: int = 6379
 
     SECRET_KEY: str
@@ -39,18 +38,18 @@ class Settings(BaseSettings):
 
     # SMS delivery: "console" (logs only) or "kavenegar" (real provider).
     SMS_PROVIDER: str = "console"
-    SMS_KAVENEGAR_API_KEY: Optional[str] = None
-    SMS_KAVENEGAR_SENDER: Optional[str] = None
-    SMS_KAVENEGAR_OTP_TEMPLATE: Optional[str] = None
+    SMS_KAVENEGAR_API_KEY: str | None = None
+    SMS_KAVENEGAR_SENDER: str | None = None
+    SMS_KAVENEGAR_OTP_TEMPLATE: str | None = None
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
 
     # Payment provider: "mock" (local dev) or "zarinpal" (production gateway).
     PAYMENT_PROVIDER: str = "mock"
     # Callback URL registered with the gateway (storefront or backend callback endpoint).
-    PAYMENT_CALLBACK_URL: Optional[str] = None
+    PAYMENT_CALLBACK_URL: str | None = None
     PAYMENT_SUCCESS_REDIRECT_URL: str = "http://localhost:3000/checkout/success"
     PAYMENT_FAILURE_REDIRECT_URL: str = "http://localhost:3000/checkout/payment/failed"
-    ZARINPAL_MERCHANT_ID: Optional[str] = None
+    ZARINPAL_MERCHANT_ID: str | None = None
     ZARINPAL_REQUEST_URL: str = "https://payment.zarinpal.com/pg/v4/payment/request.json"
     ZARINPAL_VERIFY_URL: str = "https://payment.zarinpal.com/pg/v4/payment/verify.json"
     PAYMENT_TIMEOUT_SECONDS: float = Field(default=12.0, ge=1.0, le=60.0)
@@ -88,9 +87,9 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
-    INITIAL_SUPER_ADMIN_PHONE: Optional[str] = None
-    INITIAL_SUPER_ADMIN_PASSWORD: Optional[str] = None
-    INITIAL_SUPER_ADMIN_NAME: Optional[str] = "Super Admin"
+    INITIAL_SUPER_ADMIN_PHONE: str | None = None
+    INITIAL_SUPER_ADMIN_PASSWORD: str | None = None
+    INITIAL_SUPER_ADMIN_NAME: str | None = "Super Admin"
 
     @field_validator("POSTGRES_PORT")
     @classmethod

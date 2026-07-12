@@ -1,6 +1,6 @@
 """Automatic cancellation of abandoned unpaid purchase orders."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 def pending_payment_cutoff(*, now: datetime | None = None) -> datetime:
     """Orders created before this instant are eligible for expiry."""
-    reference = now or datetime.now(timezone.utc)
+    reference = now or datetime.now(UTC)
     return reference - timedelta(minutes=settings.PENDING_PAYMENT_EXPIRE_MINUTES)
 
 

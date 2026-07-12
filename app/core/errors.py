@@ -1,7 +1,7 @@
 """Standardized API error codes, payloads, and HTTPException helpers."""
 
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from fastapi import HTTPException
 from starlette.status import (
@@ -10,8 +10,8 @@ from starlette.status import (
     HTTP_403_FORBIDDEN,
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
-    HTTP_429_TOO_MANY_REQUESTS,
     HTTP_422_UNPROCESSABLE_CONTENT,
+    HTTP_429_TOO_MANY_REQUESTS,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
@@ -52,11 +52,11 @@ _STATUS_TO_DEFAULT_CODE = {
 }
 
 
-def _normalize_details(details: Optional[Union[List[ErrorDetail], List[dict], List[Any]]]) -> List[dict]:
+def _normalize_details(details: list[ErrorDetail] | list[dict] | list[Any] | None) -> list[dict]:
     """Coerce mixed detail inputs into the canonical {field, message} shape."""
     if not details:
         return []
-    normalized: List[dict] = []
+    normalized: list[dict] = []
     for item in details:
         if isinstance(item, ErrorDetail):
             normalized.append(item.model_dump())
@@ -74,9 +74,9 @@ def _normalize_details(details: Optional[Union[List[ErrorDetail], List[dict], Li
 
 def build_error_payload(
     *,
-    error_code: Union[ErrorCode, str],
+    error_code: ErrorCode | str,
     message: str,
-    details: Optional[Union[List[ErrorDetail], List[dict]]] = None,
+    details: list[ErrorDetail] | list[dict] | None = None,
 ) -> dict:
     """Build the frontend contract error envelope: {error_code, message, details[]}."""
     return {
@@ -89,10 +89,10 @@ def build_error_payload(
 def api_error(
     status_code: int,
     *,
-    error_code: Union[ErrorCode, str],
+    error_code: ErrorCode | str,
     message: str,
-    details: Optional[Union[List[ErrorDetail], List[dict]]] = None,
-    headers: Optional[dict] = None,
+    details: list[ErrorDetail] | list[dict] | None = None,
+    headers: dict | None = None,
 ) -> HTTPException:
     """Raise-ready HTTPException whose detail is already in the standard envelope."""
     return HTTPException(

@@ -1,9 +1,8 @@
 """Category database access for tree assembly and admin CRUD."""
 
 from collections import defaultdict
-from typing import List, Optional
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -13,9 +12,9 @@ logger = get_logger(__name__)
 
 
 def collect_category_subtree_ids(
-    categories: List[Category],
+    categories: list[Category],
     category_id: int,
-) -> List[int]:
+) -> list[int]:
     """Return category_id and all descendant ids for PLP subtree filtering."""
     children_by_parent: dict[int, list[int]] = defaultdict(list)
     known_ids = {category.id for category in categories}
@@ -36,7 +35,7 @@ def collect_category_subtree_ids(
     return subtree_ids
 
 
-async def get_all_categories(db: AsyncSession) -> List[Category]:
+async def get_all_categories(db: AsyncSession) -> list[Category]:
     """Load every category row in one query for in-memory tree building."""
     stmt = select(Category).order_by(Category.name.asc(), Category.id.asc())
     result = await db.execute(stmt)
@@ -45,7 +44,7 @@ async def get_all_categories(db: AsyncSession) -> List[Category]:
     return categories
 
 
-async def get_category_by_id(db: AsyncSession, category_id: int) -> Optional[Category]:
+async def get_category_by_id(db: AsyncSession, category_id: int) -> Category | None:
     result = await db.execute(select(Category).where(Category.id == category_id))
     return result.scalar_one_or_none()
 
@@ -54,8 +53,8 @@ async def get_category_by_parent_and_name(
     db: AsyncSession,
     *,
     name: str,
-    parent_id: Optional[int],
-) -> Optional[Category]:
+    parent_id: int | None,
+) -> Category | None:
     stmt = select(Category).where(Category.name == name)
     if parent_id is None:
         stmt = stmt.where(Category.parent_id.is_(None))
@@ -65,7 +64,7 @@ async def get_category_by_parent_and_name(
     return result.scalar_one_or_none()
 
 
-async def get_category_subtree_ids(db: AsyncSession, category_id: int) -> List[int]:
+async def get_category_subtree_ids(db: AsyncSession, category_id: int) -> list[int]:
     categories = await get_all_categories(db)
     return collect_category_subtree_ids(categories, category_id)
 
@@ -81,8 +80,8 @@ async def create_category(
     db: AsyncSession,
     *,
     name: str,
-    parent_id: Optional[int],
-    spec_template_key: Optional[str] = None,
+    parent_id: int | None,
+    spec_template_key: str | None = None,
 ) -> Category:
     category = Category(
         name=name,
@@ -99,8 +98,8 @@ async def update_category(
     db: AsyncSession,
     category: Category,
     *,
-    name: Optional[str] = None,
-    parent_id: Optional[int] = None,
+    name: str | None = None,
+    parent_id: int | None = None,
     unset_parent: bool = False,
 ) -> Category:
     if name is not None:
@@ -117,7 +116,7 @@ async def update_category(
 async def reassign_products_category(
     db: AsyncSession,
     from_category_id: int,
-    to_category_id: Optional[int],
+    to_category_id: int | None,
 ) -> int:
     """Move products from one category to another (or uncategorized). Returns affected row count."""
     stmt = (

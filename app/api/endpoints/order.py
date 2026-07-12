@@ -1,11 +1,16 @@
 """Order endpoints: admin management, customer history, and public tracking."""
 
-from typing import Optional
+
+from datetime import UTC
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_active_user, get_current_super_admin, get_current_super_admin_with_step_up
+from app.api.deps import (
+    get_current_active_user,
+    get_current_super_admin,
+    get_current_super_admin_with_step_up,
+)
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.request_throttle import enforce_public_throttle
@@ -166,14 +171,14 @@ async def list_orders(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    page: Optional[int] = Query(None, ge=1),
-    page_size: Optional[int] = Query(None, ge=1, le=200),
-    status_filter: Optional[str] = Query(None, alias="status"),
-    mode: Optional[str] = Query(None),
-    payment_status: Optional[str] = Query(None),
-    phone: Optional[str] = Query(None),
-    customer_phone: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    page: int | None = Query(None, ge=1),
+    page_size: int | None = Query(None, ge=1, le=200),
+    status_filter: str | None = Query(None, alias="status"),
+    mode: str | None = Query(None),
+    payment_status: str | None = Query(None),
+    phone: str | None = Query(None),
+    customer_phone: str | None = Query(None),
+    search: str | None = Query(None),
     sort: str = Query("newest"),
 ):
     if sort not in _VALID_ORDER_SORTS:
@@ -197,9 +202,9 @@ async def list_orders(
                 error_code=ErrorCode.VALIDATION_FAILED,
                 message="Invalid status filter",
                 details=[{"field": "status", "message": "unknown status code"}],
-            )
+            ) from None
 
-    mode_enum: Optional[OrderMode] = None
+    mode_enum: OrderMode | None = None
     if mode is not None:
         try:
             mode_enum = OrderMode(mode)
@@ -209,7 +214,7 @@ async def list_orders(
                 error_code=ErrorCode.VALIDATION_FAILED,
                 message="Invalid mode filter",
                 details=[{"field": "mode", "message": "must be 'purchase' or 'inquiry'"}],
-            )
+            ) from None
 
     orders, total = await crud_commerce.list_orders(
         db,
@@ -251,7 +256,7 @@ async def update_order_status(
     payload: OrderStatusUpdateRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
-    x_step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
 ):
     order = await crud_commerce.get_order_by_id(db, order_id)
     if not order:
@@ -334,7 +339,7 @@ async def archive_order(
     db: AsyncSession = Depends(get_db),
     admin_user: User = Depends(get_current_super_admin_with_step_up),
 ):
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     order = await crud_commerce.get_order_by_id(db, order_id)
     if not order:
@@ -343,7 +348,7 @@ async def archive_order(
             error_code=ErrorCode.NOT_FOUND,
             message=f"Order '{order_id}' not found",
         )
-    order.deleted_at = datetime.now(timezone.utc)
+    order.deleted_at = datetime.now(UTC)
     await record_audit(
         db,
         actor_user_id=admin_user.id,

@@ -1,17 +1,17 @@
 """Storefront content and commerce response schemas."""
 
 from datetime import datetime
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.auth import PHONE_PATTERN
 
-BlogBlock = Union[
-    dict[Literal["type"], Literal["paragraph"]],
-    dict[Literal["type"], Literal["heading"]],
-    dict[Literal["type"], Literal["list"]],
-]
+BlogBlock = (
+    dict[Literal["type"], Literal["paragraph"]]
+    | dict[Literal["type"], Literal["heading"]]
+    | dict[Literal["type"], Literal["list"]]
+)
 
 
 class ArticleTeaser(BaseModel):
@@ -28,13 +28,13 @@ class ArticleTeaser(BaseModel):
 
 class BlogPostResponse(ArticleTeaser):
     author: str
-    tags: List[str] = Field(default_factory=list)
-    related_product_ids: List[int] = Field(default_factory=list)
-    blocks: List[dict[str, Any]] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    related_product_ids: list[int] = Field(default_factory=list)
+    blocks: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class ArticleListResponse(BaseModel):
-    data: List[ArticleTeaser]
+    data: list[ArticleTeaser]
 
 
 class HeroSlideResponse(BaseModel):
@@ -50,7 +50,7 @@ class HeroSlideResponse(BaseModel):
 
 
 class HeroSlideListResponse(BaseModel):
-    data: List[HeroSlideResponse]
+    data: list[HeroSlideResponse]
 
 
 class ProductCommentResponse(BaseModel):
@@ -66,7 +66,7 @@ class ProductCommentResponse(BaseModel):
 
 
 class ProductCommentListResponse(BaseModel):
-    data: List[ProductCommentResponse]
+    data: list[ProductCommentResponse]
 
 
 class ProductCommentCreateRequest(BaseModel):
@@ -77,7 +77,7 @@ class ProductCommentCreateRequest(BaseModel):
 
 
 class RelatedProductsResponse(BaseModel):
-    data: List[Any]
+    data: list[Any]
 
 
 class ContactRequest(BaseModel):
@@ -137,10 +137,10 @@ class ShippingAddress(BaseModel):
 class CheckoutRequest(BaseModel):
     mode: Literal["purchase", "inquiry"]
     customer: CheckoutCustomer
-    items: List[CheckoutLineInput] = Field(..., min_length=1)
-    note: Optional[str] = Field(None, max_length=500)
-    shipping: Optional[ShippingAddress] = None
-    company_name: Optional[str] = Field(None, max_length=120)
+    items: list[CheckoutLineInput] = Field(..., min_length=1)
+    note: str | None = Field(None, max_length=500)
+    shipping: ShippingAddress | None = None
+    company_name: str | None = Field(None, max_length=120)
 
 
 class CheckoutResponse(BaseModel):
@@ -149,7 +149,7 @@ class CheckoutResponse(BaseModel):
     mode: Literal["purchase", "inquiry"]
     status: str
     status_label: str
-    estimated_total: Optional[str] = None
+    estimated_total: str | None = None
     created_at: datetime
-    payment_url: Optional[str] = None
-    authority: Optional[str] = None
+    payment_url: str | None = None
+    authority: str | None = None

@@ -1,12 +1,11 @@
 """Storefront API integration tests."""
 
 import re
-from datetime import datetime, timezone
-
-from fastapi.testclient import TestClient
 
 from app.core.config import settings
 from app.main import app
+from fastapi.testclient import TestClient
+
 from tests.conftest import customer_auth_headers
 
 client = TestClient(app)

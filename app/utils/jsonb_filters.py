@@ -1,7 +1,7 @@
 """JSONB specification filter builders for product list queries."""
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import Request
 from sqlalchemy import ColumnElement, String, cast, func
@@ -40,16 +40,16 @@ def _coerce_filter_value(raw_value: Any) -> Any:
 
 
 def build_specification_filters(
-    spec_filters: Dict[str, Any],
+    spec_filters: dict[str, Any],
     *,
     dialect_name: str = "postgresql",
-) -> List[ColumnElement[bool]]:
+) -> list[ColumnElement[bool]]:
     """Translate a spec filter dict into SQLAlchemy WHERE clauses.
 
     Supports exact match and ``__icontains`` suffix for case-insensitive search.
     PostgreSQL uses JSONB ``astext``; SQLite uses ``json_extract`` for tests.
     """
-    conditions: List[ColumnElement[bool]] = []
+    conditions: list[ColumnElement[bool]] = []
     use_sqlite = dialect_name == "sqlite"
 
     for raw_path, raw_value in spec_filters.items():
@@ -88,7 +88,7 @@ def build_specification_filters(
     return conditions
 
 
-def parse_filters_query_param(filters: Optional[str]) -> Dict[str, Any]:
+def parse_filters_query_param(filters: str | None) -> dict[str, Any]:
     """Parse the ``filters`` JSON query parameter into a flat dict."""
     if not filters:
         return {}
@@ -112,14 +112,14 @@ def parse_filters_query_param(filters: Optional[str]) -> Dict[str, Any]:
     return parsed
 
 
-def parse_spec_prefixed_params(request: Request) -> Dict[str, Any]:
+def parse_spec_prefixed_params(request: Request) -> dict[str, Any]:
     """Parse ``spec_``-prefixed query params into dot-notation filter paths.
 
     Examples:
         spec_brand=insize  ->  {"brand": "insize"}
         spec_technical_specs__range=0-150mm  ->  {"technical_specs.range": "0-150mm"}
     """
-    spec_filters: Dict[str, Any] = {}
+    spec_filters: dict[str, Any] = {}
     for key, value in request.query_params.multi_items():
         if not key.startswith("spec_"):
             continue
@@ -137,11 +137,11 @@ def parse_spec_prefixed_params(request: Request) -> Dict[str, Any]:
 
 def merge_spec_filters(
     *,
-    filters_json: Optional[str],
+    filters_json: str | None,
     request: Request,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Combine JSON ``filters`` param with ``spec_``-prefixed query params."""
-    merged: Dict[str, Any] = {}
+    merged: dict[str, Any] = {}
     merged.update(parse_filters_query_param(filters_json))
     merged.update(parse_spec_prefixed_params(request))
     return merged

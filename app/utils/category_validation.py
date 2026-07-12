@@ -1,6 +1,5 @@
 """Validate product category assignments against catalog rules."""
 
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +11,7 @@ from app.utils.category_depth import build_category_metadata, is_selectable_prod
 
 async def ensure_selectable_product_category(
     db: AsyncSession,
-    category_id: Optional[int],
+    category_id: int | None,
     *,
     required: bool = False,
 ) -> None:
@@ -52,7 +51,7 @@ async def ensure_selectable_product_category(
         )
 
 
-async def ensure_brand_exists(db: AsyncSession, brand_id: Optional[int]) -> None:
+async def ensure_brand_exists(db: AsyncSession, brand_id: int | None) -> None:
     """Reject unknown brand references on product writes."""
     if brand_id is None:
         return

@@ -1,7 +1,7 @@
 """Storefront OTP authentication and password reset service."""
 
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ def _generate_otp_code() -> str:
 
 async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
     code = _generate_otp_code()
-    expires_at = datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
+    expires_at = datetime.now(UTC) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
     await crud_content.create_otp_code(
         db, phone=phone, code=code, expires_at=expires_at, purpose=OtpPurpose.LOGIN
     )
@@ -88,7 +88,7 @@ async def request_password_reset(db: AsyncSession, phone: str) -> OtpRequestResp
         raise ValueError("No account found for this phone number")
 
     code = _generate_otp_code()
-    expires_at = datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
+    expires_at = datetime.now(UTC) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
     await crud_content.create_otp_code(
         db,
         phone=phone,

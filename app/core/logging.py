@@ -5,7 +5,7 @@ import logging.config
 import os
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 request_id_ctx_var: ContextVar[str] = ContextVar("request_id", default="-")
 
@@ -18,7 +18,7 @@ class RequestIdFilter(logging.Filter):
         return True
 
 
-def _build_logging_config(*, log_to_file: bool, log_file: str) -> Dict[str, Any]:
+def _build_logging_config(*, log_to_file: bool, log_file: str) -> dict[str, Any]:
     handlers: dict[str, Any] = {
         "console": {
             "class": "logging.StreamHandler",

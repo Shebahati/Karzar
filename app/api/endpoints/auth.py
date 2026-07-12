@@ -10,7 +10,6 @@ from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
 from app.core.security import (
-    create_access_token,
     create_step_up_token,
     get_password_hash,
     hash_token,
@@ -20,23 +19,28 @@ from app.core.security import (
 from app.db.database import get_db
 from app.db.models.user import User, UserRole
 from app.schemas.auth import (
+    ChangePasswordRequest,
+    CurrentUserResponse,
     OtpRequest,
     OtpRequestResponse,
     OtpVerifyRequest,
     OtpVerifyResponse,
+    PasswordResetConfirmRequest,
+    PasswordResetRequest,
     PinVerifyRequest,
+    RefreshTokenRequest,
     StepUpTokenResponse,
     Token,
-    ChangePasswordRequest,
-    CurrentUserResponse,
     UserCreate,
     UserResponse,
-    RefreshTokenRequest,
-    PasswordResetRequest,
-    PasswordResetConfirmRequest,
 )
 from app.services.auth_token_service import issue_auth_tokens, logout_user, rotate_refresh_token
-from app.services.otp_service import request_otp, verify_otp, request_password_reset, confirm_password_reset
+from app.services.otp_service import (
+    confirm_password_reset,
+    request_otp,
+    request_password_reset,
+    verify_otp,
+)
 
 router = APIRouter()
 

@@ -17,24 +17,27 @@ os.environ["OTP_DEV_ECHO"] = "true"
 
 USE_POSTGRES_TESTS = os.environ.get("USE_POSTGRES_TESTS", "").lower() in ("1", "true", "yes")
 
+# ruff: noqa: E402 — env vars must be set before importing app modules
 import asyncio
-import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy import Enum as SAEnum, select
-from sqlalchemy.pool import StaticPool
 
+import pytest
+from app.api.deps import get_current_super_admin
+from app.core.config import settings
 from app.core.rate_limit import reset_in_memory_limiter
 from app.core.request_throttle import reset_in_memory_request_throttle
 from app.core.security import get_password_hash
-from app.core.config import settings
 from app.db.database import get_db
 from app.db.models import Base  # noqa: F401 — registers all ORM tables
-from app.db.models.product import Category, Brand, Product, ProductImage, StockUnitEnum
+from app.db.models.product import Brand, Category, StockUnitEnum
 from app.db.models.user import User, UserRole
-from app.api.deps import get_current_super_admin
 from app.main import app
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.pool import StaticPool
+from sqlalchemy.schema import CreateIndex
 
 
 def customer_auth_headers(phone: str = "09123333333") -> dict[str, str]:
@@ -68,6 +71,15 @@ def compile_jsonb_sqlite(element, compiler, **kw):
 def compile_enum_sqlite(element, compiler, **kw):
     """Map PostgreSQL native enums to VARCHAR for SQLite compatibility."""
     return "VARCHAR(50)"
+
+
+@compiles(CreateIndex, "sqlite")
+def compile_partial_unique_index_sqlite(element, compiler, **kw):
+    """SQLite tests ignore PostgreSQL partial unique indexes (not representable 1:1)."""
+    index = element.element
+    if index.dialect_options.get("postgresql", {}).get("where") is not None:
+        index.unique = False
+    return compiler.visit_create_index(element, **kw)
 
 
 test_engine = (
@@ -188,10 +200,9 @@ def super_admin_headers():
 @pytest.fixture
 def step_up_headers(super_admin_headers):
     """Obtain a valid step-up token for destructive-action endpoint tests."""
-    from fastapi.testclient import TestClient
-    from app.main import app as fastapi_app
-
     from app.core.config import settings
+    from app.main import app as fastapi_app
+    from fastapi.testclient import TestClient
 
     client = TestClient(fastapi_app)
     response = client.post(

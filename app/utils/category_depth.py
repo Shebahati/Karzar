@@ -1,7 +1,7 @@
 """Compute depth, leaf status, and breadcrumbs for flat category lists."""
 
 from collections import defaultdict
-from typing import Dict, List, Optional, TypedDict
+from typing import TypedDict
 
 from app.db.models.product import Category
 
@@ -12,11 +12,11 @@ MAX_CATEGORY_DEPTH = 3
 class CategoryMeta(TypedDict):
     depth: int
     is_leaf: bool
-    breadcrumb: List[str]
-    ancestor_ids: List[int]
+    breadcrumb: list[str]
+    ancestor_ids: list[int]
 
 
-def build_category_metadata(categories: List[Category]) -> Dict[int, CategoryMeta]:
+def build_category_metadata(categories: list[Category]) -> dict[int, CategoryMeta]:
     """Return per-category depth (1-based), leaf flag, breadcrumb names, and ancestor ids."""
     by_id = {category.id: category for category in categories}
     child_count: dict[int, int] = defaultdict(int)
@@ -25,11 +25,11 @@ def build_category_metadata(categories: List[Category]) -> Dict[int, CategoryMet
         if category.parent_id is not None:
             child_count[category.parent_id] += 1
 
-    metadata: Dict[int, CategoryMeta] = {}
+    metadata: dict[int, CategoryMeta] = {}
 
     for category in categories:
-        chain: List[Category] = []
-        current: Optional[Category] = category
+        chain: list[Category] = []
+        current: Category | None = category
         while current is not None:
             chain.append(current)
             current = by_id.get(current.parent_id) if current.parent_id is not None else None

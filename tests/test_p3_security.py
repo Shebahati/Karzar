@@ -1,13 +1,12 @@
 """P3 security hardening tests: throttles, SSRF guards, production config."""
 
 import pytest
-from fastapi.testclient import TestClient
-from pydantic import ValidationError
-
 from app.core.config import Settings
-from app.core.request_throttle import InMemoryRequestThrottle, reset_in_memory_request_throttle
+from app.core.request_throttle import InMemoryRequestThrottle
 from app.main import app
 from app.utils.image_validation import validate_product_image_url
+from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 client = TestClient(app)
 

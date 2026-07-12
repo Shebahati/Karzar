@@ -1,8 +1,6 @@
 """Admin-only user management endpoints."""
 
-from typing import Optional
-
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import func, or_, select
@@ -58,9 +56,9 @@ async def list_users(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    page: Optional[int] = Query(None, ge=1),
-    page_size: Optional[int] = Query(None, ge=1, le=200),
-    search: Optional[str] = Query(None),
+    page: int | None = Query(None, ge=1),
+    page_size: int | None = Query(None, ge=1, le=200),
+    search: str | None = Query(None),
     sort: str = Query("id_desc"),
 ):
     if sort not in _VALID_USER_SORTS:
@@ -111,8 +109,8 @@ async def list_audit_logs(
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    entity_type: Optional[str] = Query(None),
-    entity_id: Optional[str] = Query(None),
+    entity_type: str | None = Query(None),
+    entity_id: str | None = Query(None),
 ):
     from app.crud import platform as crud_platform
 
@@ -225,7 +223,7 @@ async def delete_user(
             message="Super admin accounts cannot be deleted",
         )
 
-    user.deleted_at = datetime.now(timezone.utc)
+    user.deleted_at = datetime.now(UTC)
     user.is_active = False
     user.token_version += 1
     await record_audit(

@@ -1,6 +1,5 @@
 """FastAPI dependency injection for authentication and authorization."""
 
-from typing import Optional
 
 from fastapi import Depends, Header
 from fastapi.security import OAuth2PasswordBearer
@@ -33,7 +32,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    phone_number: Optional[str] = payload.get("sub")
+    phone_number: str | None = payload.get("sub")
     if phone_number is None:
         raise api_error(
             401,
@@ -91,7 +90,7 @@ async def get_current_super_admin(current_user: User = Depends(get_current_activ
 
 
 async def get_verified_step_up(
-    x_step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
 ) -> dict:
     """Validate the step-up JWT supplied in the X-Step-Up-Token header."""
     if not x_step_up_token:
@@ -119,9 +118,9 @@ async def get_current_super_admin_with_step_up(
 
 
 async def get_optional_current_user(
-    token: Optional[str] = Depends(oauth2_scheme_optional),
+    token: str | None = Depends(oauth2_scheme_optional),
     db: AsyncSession = Depends(get_db),
-) -> Optional[User]:
+) -> User | None:
     """Resolve an authenticated user when a bearer token is supplied."""
     if not token:
         return None
@@ -130,7 +129,7 @@ async def get_optional_current_user(
     if payload.get("type") not in (None, "access"):
         return None
 
-    phone_number: Optional[str] = payload.get("sub")
+    phone_number: str | None = payload.get("sub")
     if phone_number is None:
         return None
 
@@ -150,5 +149,5 @@ async def get_optional_current_user(
     return user
 
 
-def is_super_admin(user: Optional[User]) -> bool:
+def is_super_admin(user: User | None) -> bool:
     return user is not None and user.role == UserRole.SUPER_ADMIN

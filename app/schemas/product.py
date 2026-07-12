@@ -1,9 +1,10 @@
 """Product request/response Pydantic schemas for the catalog API."""
 
-from pydantic import BaseModel, ConfigDict, field_validator, Field
-from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 from decimal import Decimal
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.constants import DEFAULT_TAX_PERCENT
 from app.db.models.product import StockUnitEnum
@@ -16,14 +17,14 @@ VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
 class CategoryBrief(BaseModel):
     id: int
     name: str
-    breadcrumb: List[str] = Field(default_factory=list)
-    hierarchy_label: Optional[str] = None
+    breadcrumb: list[str] = Field(default_factory=list)
+    hierarchy_label: str | None = None
 
 
 class BrandBrief(BaseModel):
     id: int
     name: str
-    country: Optional[str] = None
+    country: str | None = None
 
 
 class ProductImageResponse(BaseModel):
@@ -40,28 +41,28 @@ class ProductCreate(BaseModel):
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
     category_id: int = Field(..., ge=1, description="Required selectable (depth-3 leaf) category")
-    brand_id: Optional[int] = None
+    brand_id: int | None = None
 
-    base_price: Optional[Decimal] = Field(default=None, max_digits=15, decimal_places=2)
+    base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
     stock_quantity: Decimal = Field(default=Decimal("0.0"), max_digits=12, decimal_places=2)
     stock_unit: StockUnitValue = "piece"
 
-    warranty_text: Optional[str] = None
-    weight_grams: Optional[Decimal] = None
+    warranty_text: str | None = None
+    weight_grams: Decimal | None = None
     is_original: bool = True
     tax_percent: Decimal = Field(
         default=Decimal(str(DEFAULT_TAX_PERCENT)), ge=0, le=100
     )
     is_active: bool = True
-    pdf_catalog_url: Optional[str] = None
-    description: Optional[str] = None
-    original_price: Optional[Decimal] = Field(default=None, max_digits=15, decimal_places=2)
+    pdf_catalog_url: str | None = None
+    description: str | None = None
+    original_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
 
-    specifications: Dict[str, Any] = Field(default_factory=dict)
+    specifications: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("base_price", "weight_grams", "stock_quantity")
     @classmethod
-    def check_non_negative(cls, v: Optional[Decimal], info) -> Optional[Decimal]:
+    def check_non_negative(cls, v: Decimal | None, info) -> Decimal | None:
         if v is not None and v < Decimal("0.0"):
             raise ValueError(f"{info.field_name} cannot be negative")
         return v
@@ -109,22 +110,22 @@ class ProductUpdate(BaseModel):
     omitted on PATCH (leave unchanged) but cannot be cleared to null.
     """
 
-    sku: Optional[str] = None
-    name: Optional[str] = None
-    category_id: Optional[int] = Field(None, ge=1)
-    brand_id: Optional[int] = None
-    base_price: Optional[Decimal] = None
-    stock_quantity: Optional[Decimal] = None
-    stock_unit: Optional[StockUnitValue] = None
-    warranty_text: Optional[str] = None
-    weight_grams: Optional[Decimal] = None
-    is_original: Optional[bool] = None
-    tax_percent: Optional[Decimal] = None
-    is_active: Optional[bool] = None
-    pdf_catalog_url: Optional[str] = None
-    description: Optional[str] = None
-    original_price: Optional[Decimal] = None
-    specifications: Optional[Dict[str, Any]] = None
+    sku: str | None = None
+    name: str | None = None
+    category_id: int | None = Field(None, ge=1)
+    brand_id: int | None = None
+    base_price: Decimal | None = None
+    stock_quantity: Decimal | None = None
+    stock_unit: StockUnitValue | None = None
+    warranty_text: str | None = None
+    weight_grams: Decimal | None = None
+    is_original: bool | None = None
+    tax_percent: Decimal | None = None
+    is_active: bool | None = None
+    pdf_catalog_url: str | None = None
+    description: str | None = None
+    original_price: Decimal | None = None
+    specifications: dict[str, Any] | None = None
 
     @field_validator("sku", "name", mode="before")
     @classmethod
@@ -143,7 +144,7 @@ class ProductUpdate(BaseModel):
 
     @field_validator("stock_unit")
     @classmethod
-    def validate_stock_unit(cls, v: Optional[str]) -> Optional[str]:
+    def validate_stock_unit(cls, v: str | None) -> str | None:
         if v is not None and v not in VALID_STOCK_UNITS:
             raise ValueError(f"stock_unit must be one of: {', '.join(sorted(VALID_STOCK_UNITS))}")
         return v
@@ -156,15 +157,15 @@ class ProductSummaryResponse(BaseModel):
     id: int
     sku: str
     name: str
-    thumbnail: Optional[str] = None
-    base_price: Optional[str] = None
-    original_price: Optional[str] = None
-    discount_percent: Optional[int] = None
+    thumbnail: str | None = None
+    base_price: str | None = None
+    original_price: str | None = None
+    discount_percent: int | None = None
     stock_status: str
     availability: bool = False
     is_original: bool = True
-    category: Optional[CategoryBrief] = None
-    brand: Optional[BrandBrief] = None
+    category: CategoryBrief | None = None
+    brand: BrandBrief | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -175,28 +176,28 @@ class ProductDetailResponse(BaseModel):
     id: int
     sku: str
     name: str
-    category_id: Optional[int] = None
-    brand_id: Optional[int]
-    category: Optional[CategoryBrief] = None
-    brand: Optional[BrandBrief] = None
-    base_price: Optional[str] = None
-    original_price: Optional[str] = None
-    discount_percent: Optional[int] = None
+    category_id: int | None = None
+    brand_id: int | None
+    category: CategoryBrief | None = None
+    brand: BrandBrief | None = None
+    base_price: str | None = None
+    original_price: str | None = None
+    discount_percent: int | None = None
     stock_quantity: str
     stock_unit: str
     stock_status: str
     low_stock: bool
     availability: bool
-    warranty_text: Optional[str]
-    weight_grams: Optional[str] = None
+    warranty_text: str | None
+    weight_grams: str | None = None
     is_original: bool
     tax_percent: str
     is_active: bool
-    pdf_catalog_url: Optional[str]
-    description: Optional[str] = None
-    thumbnail: Optional[str] = None
-    images: List[ProductImageResponse] = Field(default_factory=list)
-    specifications: Dict[str, Any] = Field(default_factory=dict)
+    pdf_catalog_url: str | None
+    description: str | None = None
+    thumbnail: str | None = None
+    images: list[ProductImageResponse] = Field(default_factory=list)
+    specifications: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 
@@ -209,7 +210,7 @@ class ProductImageCreate(BaseModel):
 
 
 class ProductImageReorderRequest(BaseModel):
-    image_ids: List[int] = Field(..., min_length=1)
+    image_ids: list[int] = Field(..., min_length=1)
 
 
 class ProductImageSetPrimaryResponse(BaseModel):
@@ -249,29 +250,29 @@ class StockStatusResponse(BaseModel):
 class BulkStockAdjustItem(BaseModel):
     product_id: int = Field(..., ge=1)
     quantity_delta: Decimal
-    reason: Optional[str] = Field(None, max_length=255)
+    reason: str | None = Field(None, max_length=255)
 
 
 class BulkStockAdjustRequest(BaseModel):
-    items: List[BulkStockAdjustItem] = Field(..., min_length=1, max_length=100)
+    items: list[BulkStockAdjustItem] = Field(..., min_length=1, max_length=100)
 
 
 class BulkStockAdjustResponse(BaseModel):
-    updated_product_ids: List[int]
+    updated_product_ids: list[int]
 
 
 class ProductChangeLogEntry(BaseModel):
     id: int
     product_id: int
     field_name: str
-    old_value: Optional[str] = None
-    new_value: Optional[str] = None
-    reason: Optional[str] = None
+    old_value: str | None = None
+    new_value: str | None = None
+    reason: str | None = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ProductChangeLogListResponse(BaseModel):
-    data: List[ProductChangeLogEntry]
+    data: list[ProductChangeLogEntry]
     meta: PaginationMeta

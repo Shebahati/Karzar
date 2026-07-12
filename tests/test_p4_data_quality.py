@@ -1,10 +1,10 @@
 """P4 data-quality and ops regression tests."""
 
-from fastapi.testclient import TestClient
-
 from app.core.config import settings
 from app.main import app
 from app.utils.storefront_catalog import stock_status_label
+from fastapi.testclient import TestClient
+
 from tests.conftest import customer_auth_headers
 
 client = TestClient(app)

@@ -2,7 +2,6 @@
 
 import asyncio
 from contextlib import asynccontextmanager, suppress
-
 from pathlib import Path
 
 from fastapi import FastAPI, Request, status
@@ -15,6 +14,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.core.distributed_lock import try_acquire_lock
 from app.core.errors import ErrorCode, build_error_payload, normalize_http_exception_detail
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, request_id_ctx_var, setup_logging
@@ -22,7 +22,6 @@ from app.core.middleware import get_or_create_request_id
 from app.core.security_middleware import HttpsRedirectMiddleware, RequestBodySizeLimitMiddleware
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.db.database import async_session_maker
-from app.core.distributed_lock import try_acquire_lock
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 
 setup_logging()
@@ -46,7 +45,7 @@ async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
                 stop_event.wait(),
                 timeout=settings.ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             continue
 
 

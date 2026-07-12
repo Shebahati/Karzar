@@ -2,8 +2,7 @@
 
 import enum
 from datetime import datetime
-from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 
 from sqlalchemy import (
     DateTime,
@@ -11,7 +10,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -38,14 +36,14 @@ class Cart(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    guest_token: Mapped[Optional[str]] = mapped_column(String(64))
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    guest_token: Mapped[str | None] = mapped_column(String(64))
     lane: Mapped[CartLane] = mapped_column(
         Enum(CartLane, values_callable=_enum_values, name="cartlane", native_enum=True),
         nullable=False,
     )
 
-    items: Mapped[List["CartItem"]] = relationship(
+    items: Mapped[list["CartItem"]] = relationship(
         "CartItem", back_populates="cart", cascade="all, delete-orphan"
     )
 
@@ -70,7 +68,7 @@ class RefreshToken(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    revoked_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class AdminAuditLog(Base):
@@ -81,11 +79,11 @@ class AdminAuditLog(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    actor_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    actor_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     action: Mapped[str] = mapped_column(String(64), nullable=False)
     entity_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    entity_id: Mapped[Optional[str]] = mapped_column(String(64))
-    details: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    entity_id: Mapped[str | None] = mapped_column(String(64))
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
 
 class ProductChangeLog(Base):
@@ -95,10 +93,10 @@ class ProductChangeLog(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     field_name: Mapped[str] = mapped_column(String(32), nullable=False)
-    old_value: Mapped[Optional[str]] = mapped_column(Text)
-    new_value: Mapped[Optional[str]] = mapped_column(Text)
-    reason: Mapped[Optional[str]] = mapped_column(String(255))
-    actor_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    old_value: Mapped[str | None] = mapped_column(Text)
+    new_value: Mapped[str | None] = mapped_column(Text)
+    reason: Mapped[str | None] = mapped_column(String(255))
+    actor_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
 
 class IdempotencyKey(Base):

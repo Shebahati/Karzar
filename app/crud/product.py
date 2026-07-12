@@ -1,16 +1,16 @@
 """Product database access layer: CRUD, filtering, stock, and aggregations."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from sqlalchemy import and_, func, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from app.crud import category as crud_category
 from app.core.logging import get_logger
+from app.crud import category as crud_category
 from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.decimal_utils import to_decimal as _to_decimal
@@ -49,7 +49,7 @@ async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product
         raise
 
 
-async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Product]:
+async def get_product_by_id(db: AsyncSession, product_id: int) -> Product | None:
     stmt = (
         select(Product)
         .where(
@@ -65,8 +65,8 @@ async def get_product_by_id(db: AsyncSession, product_id: int) -> Optional[Produ
 
 
 async def get_products_for_update(
-    db: AsyncSession, product_ids: List[int]
-) -> Dict[int, Product]:
+    db: AsyncSession, product_ids: list[int]
+) -> dict[int, Product]:
     """Fetch active products locked FOR UPDATE, keyed by id (ordered to avoid deadlocks).
 
     The row locks are a no-op on SQLite (test engine) and enforced on PostgreSQL.
@@ -83,7 +83,7 @@ async def get_products_for_update(
     return {product.id: product for product in result.scalars().all()}
 
 
-async def get_products_by_ids(db: AsyncSession, product_ids: List[int]) -> Dict[int, Product]:
+async def get_products_by_ids(db: AsyncSession, product_ids: list[int]) -> dict[int, Product]:
     if not product_ids:
         return {}
     stmt = select(Product).where(
@@ -95,7 +95,7 @@ async def get_products_by_ids(db: AsyncSession, product_ids: List[int]) -> Dict[
 
 async def get_product_by_sku(
     db: AsyncSession, sku: str, *, include_deleted: bool = False
-) -> Optional[Product]:
+) -> Product | None:
     stmt = select(Product).where(Product.sku == sku).options(*_product_load_options())
     if not include_deleted:
         stmt = stmt.where(Product.deleted_at.is_(None))
@@ -107,20 +107,20 @@ async def get_products(
     db: AsyncSession,
     skip: int = 0,
     limit: int = 100,
-    category_id: Optional[int] = None,
-    brand_id: Optional[int] = None,
-    is_active: Optional[bool] = None,
-    search: Optional[str] = None,
-    min_price: Optional[Decimal] = None,
-    max_price: Optional[Decimal] = None,
-    max_stock: Optional[Decimal] = None,
-    spec_filters: Optional[Dict[str, Any]] = None,
-    country: Optional[str] = None,
-    in_stock: Optional[bool] = None,
-    sort: Optional[str] = None,
-    product_ids: Optional[List[int]] = None,
-    is_deleted: Optional[bool] = None,
-) -> Tuple[List[Product], int]:
+    category_id: int | None = None,
+    brand_id: int | None = None,
+    is_active: bool | None = None,
+    search: str | None = None,
+    min_price: Decimal | None = None,
+    max_price: Decimal | None = None,
+    max_stock: Decimal | None = None,
+    spec_filters: dict[str, Any] | None = None,
+    country: str | None = None,
+    in_stock: bool | None = None,
+    sort: str | None = None,
+    product_ids: list[int] | None = None,
+    is_deleted: bool | None = None,
+) -> tuple[list[Product], int]:
     if is_deleted:
         query = select(Product).where(Product.deleted_at.isnot(None))
     else:
@@ -201,7 +201,7 @@ async def get_products(
 
 async def update_product(
     db: AsyncSession, product_id: int, product_in: ProductUpdate
-) -> Optional[Product]:
+) -> Product | None:
     db_product = await get_product_by_id(db, product_id)
     if not db_product:
         return None
@@ -231,7 +231,7 @@ async def delete_product_soft(db: AsyncSession, product_id: int) -> bool:
         return False
 
     try:
-        db_product.deleted_at = datetime.now(timezone.utc)
+        db_product.deleted_at = datetime.now(UTC)
         db_product.is_active = False
         await db.flush()
         logger.info(f"Soft deleted product with ID: {product_id}")
@@ -261,7 +261,7 @@ async def delete_product_hard(db: AsyncSession, product_id: int) -> bool:
         raise
 
 
-async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product]:
+async def restore_product(db: AsyncSession, product_id: int) -> Product | None:
     stmt = select(Product).where(Product.id == product_id)
     result = await db.execute(stmt)
     db_product = result.scalar_one_or_none()
@@ -281,7 +281,7 @@ async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product
         raise
 
 
-async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
+async def get_stock_status(db: AsyncSession, product_id: int) -> dict | None:
     from app.utils.storefront_catalog import stock_status_label
 
     product = await get_product_by_id(db, product_id)
@@ -299,7 +299,7 @@ async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
 
 async def update_stock(
     db: AsyncSession, product_id: int, quantity_delta: Decimal
-) -> Optional[Product]:
+) -> Product | None:
     """Atomically adjust stock; rejects deltas that would drive quantity below zero."""
     try:
         stmt = (
@@ -345,7 +345,7 @@ async def get_product_statistics(db: AsyncSession) -> dict:
     row = result.first()
 
     active_stmt = select(func.count(Product.id)).where(
-        and_(Product.is_active == True, Product.deleted_at.is_(None))
+        and_(Product.is_active.is_(True), Product.deleted_at.is_(None))
     )
     active_count = (await db.execute(active_stmt)).scalar() or 0
 
@@ -362,7 +362,7 @@ async def get_product_statistics(db: AsyncSession) -> dict:
 
 
 async def check_sku_exists(
-    db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None
+    db: AsyncSession, sku: str, exclude_product_id: int | None = None
 ) -> bool:
     """Check SKU uniqueness among active (non-deleted) products."""
     stmt = select(Product.id).where(
@@ -376,7 +376,7 @@ async def check_sku_exists(
 
 
 async def check_sku_exists_absolutely(
-    db: AsyncSession, sku: str, exclude_product_id: Optional[int] = None
+    db: AsyncSession, sku: str, exclude_product_id: int | None = None
 ) -> bool:
     """Backward-compatible alias for active SKU uniqueness checks."""
     return await check_sku_exists(db, sku, exclude_product_id=exclude_product_id)
@@ -387,7 +387,7 @@ async def get_related_products(
     product_id: int,
     *,
     limit: int = 6,
-) -> List[Product]:
+) -> list[Product]:
     product = await get_product_by_id(db, product_id)
     if not product or not product.category_id:
         return []
@@ -467,8 +467,8 @@ async def add_product_image(
 
 
 async def reorder_product_images(
-    db: AsyncSession, product_id: int, image_ids: List[int]
-) -> List[ProductImage]:
+    db: AsyncSession, product_id: int, image_ids: list[int]
+) -> list[ProductImage]:
     stmt = select(ProductImage).where(ProductImage.product_id == product_id)
     result = await db.execute(stmt)
     images = list(result.scalars().all())
@@ -502,7 +502,7 @@ async def delete_product_image(db: AsyncSession, product_id: int, image_id: int)
 
 async def set_primary_product_image(
     db: AsyncSession, product_id: int, image_id: int
-) -> Optional[ProductImage]:
+) -> ProductImage | None:
     stmt = select(ProductImage).where(
         ProductImage.id == image_id,
         ProductImage.product_id == product_id,

@@ -1,7 +1,6 @@
 """Map ORM Product instances to frontend-facing Pydantic response models."""
 
 from decimal import Decimal
-from typing import Dict, List, Optional
 
 from app.db.models.product import Product
 from app.schemas.product import (
@@ -30,7 +29,7 @@ def stock_status_from_quantity(quantity, *, audience: Audience = "admin") -> str
     return stock_status_label(quantity, audience=audience)
 
 
-def get_thumbnail_url(product: Product) -> Optional[str]:
+def get_thumbnail_url(product: Product) -> str | None:
     """Return the primary image URL, falling back to the first image."""
     if not product.images:
         return None
@@ -40,14 +39,14 @@ def get_thumbnail_url(product: Product) -> Optional[str]:
 
 def _category_brief(
     product: Product,
-    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    category_metadata: dict[int, CategoryMeta] | None = None,
     *,
     audience: Audience = "storefront",
-) -> Optional[CategoryBrief]:
+) -> CategoryBrief | None:
     if product.category is None:
         return None
 
-    breadcrumb: List[str] = []
+    breadcrumb: list[str] = []
     if category_metadata and product.category_id in category_metadata:
         breadcrumb = list(category_metadata[product.category_id]["breadcrumb"])
     else:
@@ -64,7 +63,7 @@ def _category_brief(
     )
 
 
-def _brand_brief(product: Product) -> Optional[BrandBrief]:
+def _brand_brief(product: Product) -> BrandBrief | None:
     if product.brand is None:
         return None
     return BrandBrief(
@@ -74,7 +73,7 @@ def _brand_brief(product: Product) -> Optional[BrandBrief]:
     )
 
 
-def _images(product: Product) -> List[ProductImageResponse]:
+def _images(product: Product) -> list[ProductImageResponse]:
     """Map ORM images to response DTOs; primary image sorts first."""
     return [
         ProductImageResponse(
@@ -88,7 +87,7 @@ def _images(product: Product) -> List[ProductImageResponse]:
 
 def to_product_summary(
     product: Product,
-    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    category_metadata: dict[int, CategoryMeta] | None = None,
     *,
     audience: Audience = "storefront",
 ) -> ProductSummaryResponse:
@@ -113,7 +112,7 @@ def to_product_summary(
 
 def to_product_detail(
     product: Product,
-    category_metadata: Optional[Dict[int, CategoryMeta]] = None,
+    category_metadata: dict[int, CategoryMeta] | None = None,
     *,
     audience: Audience = "storefront",
 ) -> ProductDetailResponse:

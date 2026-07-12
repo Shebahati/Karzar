@@ -1,5 +1,6 @@
 """Payment endpoints for order payment initialization and verification."""
 
+from datetime import UTC
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Header, Query, status
@@ -174,7 +175,7 @@ async def payment_init(
     response = PaymentInitResponse(authority=result.authority, payment_url=result.payment_url)
 
     if idempotency_key and idempotency_key.strip():
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
         await crud_platform.store_idempotency_record(
             db,
@@ -182,7 +183,7 @@ async def payment_init(
             key=idempotency_key.strip(),
             status_code=status.HTTP_200_OK,
             response_body=response.model_dump(mode="json"),
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
+            expires_at=datetime.now(UTC) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
         )
         await db.commit()
 

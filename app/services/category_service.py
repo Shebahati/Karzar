@@ -1,6 +1,5 @@
 """Category business logic delegating to the CRUD and tree-builder layers."""
 
-from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,7 +34,7 @@ logger = get_logger(__name__)
 
 class CategoryService:
     @staticmethod
-    async def get_category_tree(db: AsyncSession) -> List[CategoryTreeResponse]:
+    async def get_category_tree(db: AsyncSession) -> list[CategoryTreeResponse]:
         categories = await crud_category.get_all_categories(db)
         product_counts = await get_category_product_counts(db, categories)
         try:
@@ -45,7 +44,7 @@ class CategoryService:
             raise
 
     @staticmethod
-    async def get_flat_categories(db: AsyncSession) -> List[CategoryFlatResponse]:
+    async def get_flat_categories(db: AsyncSession) -> list[CategoryFlatResponse]:
         categories = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(categories)
         product_counts = await get_category_product_counts(db, categories)
@@ -121,7 +120,6 @@ class CategoryService:
                 message=f"Category with ID '{category_id}' not found",
             )
 
-        meta = build_category_metadata(categories)[category_id]
         raw = resolve_spec_template(category, by_id)
         return CategorySpecFilterOptionsResponse(
             category_id=category.id,
@@ -333,12 +331,27 @@ class CategoryService:
             )
 
         categories = await crud_category.get_all_categories(db)
-        metadata = build_category_metadata(categories)[category_id]
-        depth = metadata["depth"]
+        all_meta = build_category_metadata(categories)
+        meta = all_meta[category_id]
+        depth = meta["depth"]
 
         if depth == 1:
-            new_category_id: Optional[int] = None
-            message = "Root category deleted; products are now uncategorized."
+            fallback = next(
+                (
+                    cid
+                    for cid, item in all_meta.items()
+                    if cid != category_id and is_selectable_product_category(item)
+                ),
+                None,
+            )
+            if fallback is None:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Cannot delete the last root category without a fallback leaf",
+                )
+            new_category_id = fallback
+            message = "Root category deleted; products reassigned to fallback leaf category."
         else:
             new_category_id = category.parent_id
             message = "Category deleted; products reassigned to parent category."
@@ -371,7 +384,7 @@ def _creates_cycle(
     by_id: dict[int, Category],
 ) -> bool:
     """Return True if assigning new_parent_id under category_id would create a cycle."""
-    current_id: Optional[int] = new_parent_id
+    current_id: int | None = new_parent_id
     visited: set[int] = set()
     while current_id is not None:
         if current_id == category_id:
@@ -388,8 +401,8 @@ async def _ensure_unique_category_name(
     db: AsyncSession,
     *,
     name: str,
-    parent_id: Optional[int],
-    exclude_id: Optional[int] = None,
+    parent_id: int | None,
+    exclude_id: int | None = None,
 ) -> None:
     existing = await crud_category.get_category_by_parent_and_name(
         db, name=name, parent_id=parent_id

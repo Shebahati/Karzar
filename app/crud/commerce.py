@@ -1,8 +1,8 @@
 """CRUD for storefront orders and status history."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,15 +19,15 @@ async def create_order(
     mode: OrderMode,
     status: str,
     payment_status: str,
-    estimated_total: Optional[Decimal],
+    estimated_total: Decimal | None,
     customer_full_name: str,
     customer_phone: str,
     customer_is_guest: bool,
-    company_name: Optional[str],
-    note: Optional[str],
-    shipping: Optional[dict[str, Any]],
-    user_id: Optional[int],
-    items: List[dict[str, Any]],
+    company_name: str | None,
+    note: str | None,
+    shipping: dict[str, Any] | None,
+    user_id: int | None,
+    items: list[dict[str, Any]],
 ) -> Order:
     tracking_code = await generate_unique_tracking_code(db, tracking_prefix)
     order = Order(
@@ -67,7 +67,7 @@ async def record_status_event(
     *,
     order_id: int,
     status: str,
-    description: Optional[str] = None,
+    description: str | None = None,
     actor: str = "system",
 ) -> OrderStatusEvent:
     event = OrderStatusEvent(
@@ -81,7 +81,7 @@ async def record_status_event(
     return event
 
 
-async def list_status_events(db: AsyncSession, order_id: int) -> List[OrderStatusEvent]:
+async def list_status_events(db: AsyncSession, order_id: int) -> list[OrderStatusEvent]:
     stmt = (
         select(OrderStatusEvent)
         .where(OrderStatusEvent.order_id == order_id)
@@ -91,7 +91,7 @@ async def list_status_events(db: AsyncSession, order_id: int) -> List[OrderStatu
     return list(result.scalars().all())
 
 
-async def get_order_by_id(db: AsyncSession, order_id: int) -> Optional[Order]:
+async def get_order_by_id(db: AsyncSession, order_id: int) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.id == order_id, Order.deleted_at.is_(None))
@@ -101,7 +101,7 @@ async def get_order_by_id(db: AsyncSession, order_id: int) -> Optional[Order]:
     return result.scalar_one_or_none()
 
 
-async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Optional[Order]:
+async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.payment_authority == authority, Order.deleted_at.is_(None))
@@ -111,7 +111,7 @@ async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Op
     return result.scalar_one_or_none()
 
 
-async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Optional[Order]:
+async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.tracking_code == tracking_code, Order.deleted_at.is_(None))
@@ -126,15 +126,15 @@ async def list_orders(
     *,
     skip: int = 0,
     limit: int = 50,
-    status: Optional[str] = None,
-    mode: Optional[OrderMode] = None,
-    payment_status: Optional[str] = None,
-    phone: Optional[str] = None,
-    customer_phone: Optional[str] = None,
-    search: Optional[str] = None,
-    user_id: Optional[int] = None,
+    status: str | None = None,
+    mode: OrderMode | None = None,
+    payment_status: str | None = None,
+    phone: str | None = None,
+    customer_phone: str | None = None,
+    search: str | None = None,
+    user_id: int | None = None,
     sort: str = "newest",
-) -> tuple[List[Order], int]:
+) -> tuple[list[Order], int]:
     """Return a page of orders plus the total match count."""
     filters = [Order.deleted_at.is_(None)]
     if status is not None:
@@ -192,6 +192,6 @@ async def soft_delete_order(db: AsyncSession, order_id: int) -> bool:
     ).scalar_one_or_none()
     if order is None:
         return False
-    order.deleted_at = datetime.now(timezone.utc)
+    order.deleted_at = datetime.now(UTC)
     await db.flush()
     return True

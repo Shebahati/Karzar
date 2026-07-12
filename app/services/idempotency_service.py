@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Callable, Coroutine, Optional
+from collections.abc import Callable, Coroutine
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import Response
 from fastapi.responses import JSONResponse
@@ -17,7 +18,7 @@ async def run_idempotent(
     db: AsyncSession,
     *,
     scope: str,
-    key: Optional[str],
+    key: str | None,
     handler: Callable[[], Coroutine[Any, Any, tuple[int, dict[str, Any]]]],
 ) -> Response:
     """Return a cached response when the same idempotency key is replayed."""
@@ -36,7 +37,7 @@ async def run_idempotent(
         )
 
     status_code, body = await handler()
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS)
+    expires_at = datetime.now(UTC) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS)
     await crud_platform.store_idempotency_record(
         db,
         scope=scope,

@@ -3,7 +3,7 @@
 import enum
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -59,29 +59,29 @@ class Order(Base):
     payment_status: Mapped[str] = mapped_column(
         String(20), nullable=False, default=PaymentStatus.UNPAID.value, server_default="unpaid"
     )
-    estimated_total: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
+    estimated_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     customer_full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     customer_phone: Mapped[str] = mapped_column(String(15), nullable=False)
     customer_is_guest: Mapped[bool] = mapped_column(default=True, server_default="true")
-    company_name: Mapped[Optional[str]] = mapped_column(String(120))
-    note: Mapped[Optional[str]] = mapped_column(Text)
-    admin_note: Mapped[Optional[str]] = mapped_column(Text)
-    shipping: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
-    postal_tracking_code: Mapped[Optional[str]] = mapped_column(String(64))
-    delivery_eta: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    invoice: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
-    invoice_number: Mapped[Optional[str]] = mapped_column(String(32))
-    invoice_valid_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
-    payment_authority: Mapped[Optional[str]] = mapped_column(String(64), index=True)
-    payment_ref_id: Mapped[Optional[str]] = mapped_column(String(64))
-    payment_refund_id: Mapped[Optional[str]] = mapped_column(String(64))
+    company_name: Mapped[str | None] = mapped_column(String(120))
+    note: Mapped[str | None] = mapped_column(Text)
+    admin_note: Mapped[str | None] = mapped_column(Text)
+    shipping: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    postal_tracking_code: Mapped[str | None] = mapped_column(String(64))
+    delivery_eta: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    invoice: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    invoice_number: Mapped[str | None] = mapped_column(String(32))
+    invoice_valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    payment_authority: Mapped[str | None] = mapped_column(String(64), index=True)
+    payment_ref_id: Mapped[str | None] = mapped_column(String(64))
+    payment_refund_id: Mapped[str | None] = mapped_column(String(64))
 
-    items: Mapped[List["OrderItem"]] = relationship(
+    items: Mapped[list["OrderItem"]] = relationship(
         "OrderItem", back_populates="order", cascade="all, delete-orphan"
     )
-    status_events: Mapped[List["OrderStatusEvent"]] = relationship(
+    status_events: Mapped[list["OrderStatusEvent"]] = relationship(
         "OrderStatusEvent",
         back_populates="order",
         cascade="all, delete-orphan",
@@ -96,7 +96,7 @@ class OrderItem(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), index=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
-    unit_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
+    unit_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
 
     order: Mapped["Order"] = relationship("Order", back_populates="items")
 
@@ -108,7 +108,7 @@ class OrderStatusEvent(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     status: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text)
+    description: Mapped[str | None] = mapped_column(Text)
     actor: Mapped[str] = mapped_column(String(20), nullable=False, default="system", server_default="system")
 
     order: Mapped["Order"] = relationship("Order", back_populates="status_events")

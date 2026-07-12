@@ -10,14 +10,14 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict, deque
-from typing import Optional, Protocol
+from typing import Protocol
 
 from fastapi import Request
+from starlette import status
 
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
-from starlette import status
 
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 class RequestThrottle(Protocol):
     async def check_and_increment(
         self, key: str, max_requests: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         """Return seconds-to-wait when over limit; otherwise record and return None."""
         ...
 
@@ -42,7 +42,7 @@ class InMemoryRequestThrottle:
 
     async def check_and_increment(
         self, key: str, max_requests: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         now = time.monotonic()
         hits = self._hits[key]
         self._prune(hits, now, window_seconds)
@@ -79,7 +79,7 @@ class RedisRequestThrottle:
 
     async def check_and_increment(
         self, key: str, max_requests: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         try:
             client = self._get_client()
             redis_key = self._k(key)
@@ -96,7 +96,7 @@ class RedisRequestThrottle:
 
 
 _in_memory = InMemoryRequestThrottle()
-_redis: Optional[RedisRequestThrottle] = None
+_redis: RedisRequestThrottle | None = None
 
 
 def get_request_throttle() -> RequestThrottle:

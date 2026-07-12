@@ -1,7 +1,7 @@
 """Storefront-specific catalog helpers: Persian labels, pricing, and sorting."""
 
 from decimal import Decimal
-from typing import Literal, Optional
+from typing import Literal
 
 from sqlalchemy import asc, desc, nulls_last
 
@@ -39,9 +39,9 @@ def stock_status_label(quantity, *, audience: Audience = "storefront", low_stock
 
 
 def compute_discount_percent(
-    base_price: Optional[Decimal],
-    original_price: Optional[Decimal],
-) -> Optional[int]:
+    base_price: Decimal | None,
+    original_price: Decimal | None,
+) -> int | None:
     if base_price is None or original_price is None:
         return None
     base = _to_decimal(base_price)
@@ -51,7 +51,7 @@ def compute_discount_percent(
     return int(round((1 - base / original) * 100))
 
 
-def decimal_to_api_string(value: Optional[Decimal]) -> Optional[str]:
+def decimal_to_api_string(value: Decimal | None) -> str | None:
     if value is None:
         return None
     normalized = _to_decimal(value)
@@ -66,7 +66,7 @@ VALID_SORT_KEYS = frozenset(
 )
 
 
-def product_sort_clause(sort: Optional[str], *, dialect_name: str = "postgresql"):
+def product_sort_clause(sort: str | None, *, dialect_name: str = "postgresql"):
     if sort in {"name_asc", "name_desc"} and dialect_name == "postgresql":
         from sqlalchemy import collate
 
@@ -83,7 +83,7 @@ def product_sort_clause(sort: Optional[str], *, dialect_name: str = "postgresql"
     return mapping.get(sort or "newest", Product.created_at.desc())
 
 
-def parse_in_stock_filter(value: Optional[str]) -> Optional[bool]:
+def parse_in_stock_filter(value: str | None) -> bool | None:
     """Accept storefront contract values: true/false/1/0."""
     if value is None:
         return None

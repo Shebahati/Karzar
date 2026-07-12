@@ -2,7 +2,7 @@
 
 import enum
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any
 
 from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -35,13 +35,13 @@ class Article(Base):
     slug: Mapped[str] = mapped_column(String(200), unique=True, index=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     excerpt: Mapped[str] = mapped_column(Text, nullable=False)
-    cover_image: Mapped[Optional[str]] = mapped_column(String(500))
+    cover_image: Mapped[str | None] = mapped_column(String(500))
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     reading_minutes: Mapped[int] = mapped_column(Integer, default=5, server_default="5")
     author: Mapped[str] = mapped_column(String(100), default="تیم فنی کارزار", server_default="تیم فنی کارزار")
-    tags: Mapped[List[str]] = mapped_column(JSONB, nullable=False, default=list)
-    related_product_ids: Mapped[List[int]] = mapped_column(JSONB, nullable=False, default=list)
-    blocks: Mapped[List[dict[str, Any]]] = mapped_column(JSONB, nullable=False, default=list)
+    tags: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    related_product_ids: Mapped[list[int]] = mapped_column(JSONB, nullable=False, default=list)
+    blocks: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False, default=list)
     is_published: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
@@ -50,9 +50,9 @@ class HeroSlide(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    subtitle: Mapped[Optional[str]] = mapped_column(String(500))
-    cta_label: Mapped[Optional[str]] = mapped_column(String(100))
-    cta_href: Mapped[Optional[str]] = mapped_column(String(500))
+    subtitle: Mapped[str | None] = mapped_column(String(500))
+    cta_label: Mapped[str | None] = mapped_column(String(100))
+    cta_href: Mapped[str | None] = mapped_column(String(500))
     image: Mapped[str] = mapped_column(String(500), nullable=False)
     accent: Mapped[str] = mapped_column(String(20), default="#C22026", server_default="#C22026")
     sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

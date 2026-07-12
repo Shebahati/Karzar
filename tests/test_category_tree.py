@@ -1,7 +1,6 @@
 """Unit tests for in-memory category tree assembly."""
 
 import pytest
-
 from app.db.models.product import Category
 from app.utils.category_tree import build_category_tree
 

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict, deque
-from typing import Optional, Protocol
+from typing import Protocol
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 class RateLimiter(Protocol):
     async def retry_after_if_limited(
         self, key: str, max_attempts: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         """Return seconds-to-wait if ``key`` is over the limit, else ``None``."""
         ...
 
@@ -48,7 +48,7 @@ class InMemoryRateLimiter:
 
     async def retry_after_if_limited(
         self, key: str, max_attempts: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         now = time.monotonic()
         attempts = self._attempts[key]
         self._prune(attempts, now, window_seconds)
@@ -97,7 +97,7 @@ class RedisRateLimiter:
 
     async def retry_after_if_limited(
         self, key: str, max_attempts: int, window_seconds: int
-    ) -> Optional[int]:
+    ) -> int | None:
         try:
             client = self._get_client()
             redis_key = self._k(key)
@@ -129,7 +129,7 @@ class RedisRateLimiter:
 
 
 _in_memory = InMemoryRateLimiter()
-_redis: Optional[RedisRateLimiter] = None
+_redis: RedisRateLimiter | None = None
 
 
 def get_rate_limiter() -> RateLimiter:

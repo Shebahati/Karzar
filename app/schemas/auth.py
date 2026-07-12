@@ -1,7 +1,6 @@
 """Authentication and user account Pydantic schemas."""
 
 import re
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -47,7 +46,7 @@ class OtpRequest(BaseModel):
 class OtpRequestResponse(BaseModel):
     phone: str
     expires_in: int
-    dev_code: Optional[str] = None
+    dev_code: str | None = None
 
 
 class OtpVerifyRequest(BaseModel):
@@ -66,7 +65,7 @@ class OtpVerifyRequest(BaseModel):
 class CustomerBrief(BaseModel):
     id: int
     phone: str
-    full_name: Optional[str] = None
+    full_name: str | None = None
 
 
 class OtpVerifyResponse(BaseModel):
@@ -80,8 +79,8 @@ class OtpVerifyResponse(BaseModel):
 class UserCreate(BaseModel):
     phone_number: str = Field(..., description="Iranian mobile number, e.g. 09123456789")
     password: str = Field(..., min_length=8, max_length=128)
-    full_name: Optional[str] = None
-    company_name: Optional[str] = Field(None, max_length=120)
+    full_name: str | None = None
+    company_name: str | None = Field(None, max_length=120)
 
     @field_validator("phone_number")
     @classmethod
@@ -95,7 +94,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     phone_number: str
-    full_name: Optional[str]
+    full_name: str | None
     role: str
     is_active: bool
 
@@ -105,10 +104,10 @@ class UserResponse(BaseModel):
 class CurrentUserResponse(BaseModel):
     id: int
     phone_number: str
-    full_name: Optional[str]
+    full_name: str | None
     role: str
     is_active: bool
-    company_name: Optional[str] = None
+    company_name: str | None = None
     is_b2b: bool = False
 
 

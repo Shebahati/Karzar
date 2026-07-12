@@ -1,8 +1,7 @@
 """Order lifecycle business logic: status transitions and Persian labels."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -91,7 +90,7 @@ def allowed_next_statuses(current: str) -> list[str]:
     return list(ALLOWED_TRANSITIONS.get(current, ()))
 
 
-def build_invoice_response(invoice: Optional[dict]) -> Optional[OrderInvoiceResponse]:
+def build_invoice_response(invoice: dict | None) -> OrderInvoiceResponse | None:
     if not invoice:
         return None
     issued_at = invoice.get("issued_at")
@@ -113,7 +112,7 @@ async def record_initial_status_event(
     db: AsyncSession,
     order: Order,
     *,
-    description: Optional[str] = None,
+    description: str | None = None,
 ) -> None:
     await crud_commerce.record_status_event(
         db,
@@ -129,11 +128,11 @@ async def transition_order_status(
     order: Order,
     target_status: str,
     *,
-    note: Optional[str] = None,
-    postal_tracking_code: Optional[str] = None,
-    delivery_eta: Optional[datetime] = None,
+    note: str | None = None,
+    postal_tracking_code: str | None = None,
+    delivery_eta: datetime | None = None,
     actor: str = "admin",
-    event_description: Optional[str] = None,
+    event_description: str | None = None,
 ) -> Order:
     try:
         target = OrderStatus(target_status).value
@@ -214,7 +213,7 @@ async def issue_order_quote(
         item.unit_price = unit
         total += unit * item.quantity
 
-    issued_at = datetime.now(timezone.utc)
+    issued_at = datetime.now(UTC)
     invoice_number = f"INV-{order.id}"
     order.estimated_total = total
     order.invoice_number = invoice_number

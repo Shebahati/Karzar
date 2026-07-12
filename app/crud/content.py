@@ -1,16 +1,23 @@
 """CRUD for CMS tables: articles, hero slides, comments, contact."""
 
 import uuid
-from typing import List, Optional
+from datetime import UTC
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models.content import Article, ContactSubmission, HeroSlide, OtpCode, OtpPurpose, ProductComment
+from app.db.models.content import (
+    Article,
+    ContactSubmission,
+    HeroSlide,
+    OtpCode,
+    OtpPurpose,
+    ProductComment,
+)
 from app.utils.otp_hash import hash_otp_code
 
 
-async def list_published_articles(db: AsyncSession) -> List[Article]:
+async def list_published_articles(db: AsyncSession) -> list[Article]:
     stmt = (
         select(Article)
         .where(Article.is_published.is_(True))
@@ -20,13 +27,13 @@ async def list_published_articles(db: AsyncSession) -> List[Article]:
     return list(result.scalars().all())
 
 
-async def get_article_by_slug(db: AsyncSession, slug: str) -> Optional[Article]:
+async def get_article_by_slug(db: AsyncSession, slug: str) -> Article | None:
     stmt = select(Article).where(Article.slug == slug, Article.is_published.is_(True))
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def list_active_hero_slides(db: AsyncSession) -> List[HeroSlide]:
+async def list_active_hero_slides(db: AsyncSession) -> list[HeroSlide]:
     stmt = (
         select(HeroSlide)
         .where(HeroSlide.is_active.is_(True))
@@ -36,7 +43,7 @@ async def list_active_hero_slides(db: AsyncSession) -> List[HeroSlide]:
     return list(result.scalars().all())
 
 
-async def list_product_comments(db: AsyncSession, product_id: int) -> List[ProductComment]:
+async def list_product_comments(db: AsyncSession, product_id: int) -> list[ProductComment]:
     stmt = (
         select(ProductComment)
         .where(ProductComment.product_id == product_id)
@@ -96,14 +103,14 @@ async def get_valid_otp(
     code: str,
     *,
     purpose: OtpPurpose = OtpPurpose.LOGIN,
-) -> Optional[OtpCode]:
-    from datetime import datetime, timezone
+) -> OtpCode | None:
+    from datetime import datetime
 
     stmt = select(OtpCode).where(
         OtpCode.phone == phone,
         OtpCode.code == hash_otp_code(code),
         OtpCode.purpose == purpose,
-        OtpCode.expires_at > datetime.now(timezone.utc),
+        OtpCode.expires_at > datetime.now(UTC),
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -114,19 +121,19 @@ async def delete_otp(db: AsyncSession, otp: OtpCode) -> None:
     await db.flush()
 
 
-async def list_all_articles(db: AsyncSession, *, skip: int = 0, limit: int = 50) -> tuple[List[Article], int]:
+async def list_all_articles(db: AsyncSession, *, skip: int = 0, limit: int = 50) -> tuple[list[Article], int]:
     total = (await db.execute(select(func.count()).select_from(Article))).scalar_one()
     stmt = select(Article).order_by(Article.published_at.desc()).offset(skip).limit(limit)
     result = await db.execute(stmt)
     return list(result.scalars().all()), total
 
 
-async def get_article_by_id(db: AsyncSession, article_id: int) -> Optional[Article]:
+async def get_article_by_id(db: AsyncSession, article_id: int) -> Article | None:
     result = await db.execute(select(Article).where(Article.id == article_id))
     return result.scalar_one_or_none()
 
 
-async def get_article_by_slug_admin(db: AsyncSession, slug: str) -> Optional[Article]:
+async def get_article_by_slug_admin(db: AsyncSession, slug: str) -> Article | None:
     result = await db.execute(select(Article).where(Article.slug == slug))
     return result.scalar_one_or_none()
 
@@ -144,13 +151,13 @@ async def delete_article_row(db: AsyncSession, article: Article) -> None:
     await db.flush()
 
 
-async def list_all_hero_slides(db: AsyncSession) -> List[HeroSlide]:
+async def list_all_hero_slides(db: AsyncSession) -> list[HeroSlide]:
     stmt = select(HeroSlide).order_by(HeroSlide.sort_order.asc(), HeroSlide.id.asc())
     result = await db.execute(stmt)
     return list(result.scalars().all())
 
 
-async def get_hero_slide_by_id(db: AsyncSession, slide_id: int) -> Optional[HeroSlide]:
+async def get_hero_slide_by_id(db: AsyncSession, slide_id: int) -> HeroSlide | None:
     result = await db.execute(select(HeroSlide).where(HeroSlide.id == slide_id))
     return result.scalar_one_or_none()
 
@@ -190,7 +197,7 @@ async def create_product_comment(
     return comment
 
 
-async def get_product_comment_by_id(db: AsyncSession, comment_id: int) -> Optional[ProductComment]:
+async def get_product_comment_by_id(db: AsyncSession, comment_id: int) -> ProductComment | None:
     result = await db.execute(select(ProductComment).where(ProductComment.id == comment_id))
     return result.scalar_one_or_none()
 
@@ -200,8 +207,8 @@ async def list_all_product_comments(
     *,
     skip: int = 0,
     limit: int = 50,
-    product_id: Optional[int] = None,
-) -> tuple[List[ProductComment], int]:
+    product_id: int | None = None,
+) -> tuple[list[ProductComment], int]:
     filters = []
     if product_id is not None:
         filters.append(ProductComment.product_id == product_id)
@@ -226,9 +233,9 @@ async def list_contact_submissions(
     *,
     skip: int = 0,
     limit: int = 50,
-    search: Optional[str] = None,
-    phone: Optional[str] = None,
-) -> tuple[List[ContactSubmission], int]:
+    search: str | None = None,
+    phone: str | None = None,
+) -> tuple[list[ContactSubmission], int]:
     filters = []
     if phone:
         filters.append(ContactSubmission.phone == phone.strip())

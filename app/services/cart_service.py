@@ -1,12 +1,11 @@
 """Server-side cart persistence for purchase and inquiry lanes."""
 
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import platform as crud_platform
 from app.crud import product as crud_product
-from app.db.models.platform import Cart, CartLane
+from app.db.models.platform import CartLane
 from app.db.models.user import User, UserRole
 from app.schemas.cart import CartItemResponse, CartResponse
 
@@ -19,8 +18,8 @@ async def get_cart_response(
     db: AsyncSession,
     *,
     lane: CartLane,
-    user: Optional[User] = None,
-    guest_token: Optional[str] = None,
+    user: User | None = None,
+    guest_token: str | None = None,
 ) -> CartResponse:
     cart = await crud_platform.get_cart_with_items(
         db, lane=lane, user_id=user.id if user else None, guest_token=guest_token
@@ -57,8 +56,8 @@ async def upsert_item(
     lane: CartLane,
     product_id: int,
     quantity: int,
-    user: Optional[User] = None,
-    guest_token: Optional[str] = None,
+    user: User | None = None,
+    guest_token: str | None = None,
 ) -> CartResponse:
     product = await crud_product.get_product_by_id(db, product_id)
     if not product or not product.is_active:
@@ -83,8 +82,8 @@ async def remove_item(
     *,
     lane: CartLane,
     product_id: int,
-    user: Optional[User] = None,
-    guest_token: Optional[str] = None,
+    user: User | None = None,
+    guest_token: str | None = None,
 ) -> CartResponse:
     cart = await crud_platform.get_cart_with_items(
         db, lane=lane, user_id=user.id if user else None, guest_token=guest_token
@@ -100,8 +99,8 @@ async def clear_lane(
     db: AsyncSession,
     *,
     lane: CartLane,
-    user: Optional[User] = None,
-    guest_token: Optional[str] = None,
+    user: User | None = None,
+    guest_token: str | None = None,
 ) -> None:
     cart = await crud_platform.get_cart_with_items(
         db, lane=lane, user_id=user.id if user else None, guest_token=guest_token
@@ -117,7 +116,7 @@ async def merge_guest_into_user(
     *,
     guest_token: str,
     user: User,
-    lane: Optional[CartLane] = None,
+    lane: CartLane | None = None,
 ) -> list[CartResponse]:
     lanes = [lane] if lane is not None else [CartLane.PURCHASE, CartLane.INQUIRY]
     responses: list[CartResponse] = []
@@ -134,10 +133,10 @@ async def merge_guest_into_user(
 
 
 def resolve_checkout_defaults(
-    user: Optional[User],
+    user: User | None,
     payload_mode: str,
-    company_name: Optional[str],
-) -> tuple[str, Optional[str]]:
+    company_name: str | None,
+) -> tuple[str, str | None]:
     """Prefill B2B company name from the customer profile when omitted."""
     resolved_company = company_name
     if user is not None and user.role == UserRole.B2B_CUSTOMER:
@@ -150,8 +149,8 @@ async def clear_cart_for_checkout(
     db: AsyncSession,
     *,
     mode: str,
-    user: Optional[User] = None,
-    guest_token: Optional[str] = None,
+    user: User | None = None,
+    guest_token: str | None = None,
 ) -> None:
     lane = _lane_from_mode(mode)
     await clear_lane(db, lane=lane, user=user, guest_token=guest_token)

@@ -2,12 +2,12 @@
 
 import asyncio
 import re
-from datetime import datetime, timedelta, timezone
-
-from fastapi.testclient import TestClient
+from datetime import UTC, datetime, timedelta
 
 from app.main import app
 from app.services import order_expiry_service
+from fastapi.testclient import TestClient
+
 from tests.conftest import TestingSessionLocal, customer_auth_headers
 
 client = TestClient(app)
@@ -176,7 +176,7 @@ class TestOrderExpiry:
         monkeypatch.setattr(
             order_expiry_service,
             "pending_payment_cutoff",
-            lambda now=None: datetime.now(timezone.utc) + timedelta(days=1),
+            lambda now=None: datetime.now(UTC) + timedelta(days=1),
         )
 
         async def sweep():

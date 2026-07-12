@@ -1,9 +1,9 @@
 """CRUD for platform tables: carts, refresh tokens, audit, idempotency."""
 
-from datetime import datetime, timezone
-from typing import Any, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
-from sqlalchemy import and_, delete, func, or_, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -22,8 +22,8 @@ async def get_or_create_cart(
     db: AsyncSession,
     *,
     lane: CartLane,
-    user_id: Optional[int] = None,
-    guest_token: Optional[str] = None,
+    user_id: int | None = None,
+    guest_token: str | None = None,
 ) -> Cart:
     if user_id is not None:
         stmt = select(Cart).where(Cart.user_id == user_id, Cart.lane == lane)
@@ -48,9 +48,9 @@ async def get_cart_with_items(
     db: AsyncSession,
     *,
     lane: CartLane,
-    user_id: Optional[int] = None,
-    guest_token: Optional[str] = None,
-) -> Optional[Cart]:
+    user_id: int | None = None,
+    guest_token: str | None = None,
+) -> Cart | None:
     if user_id is not None:
         stmt = select(Cart).where(Cart.user_id == user_id, Cart.lane == lane)
     elif guest_token:
@@ -159,8 +159,8 @@ async def store_refresh_token(
     return row
 
 
-async def get_valid_refresh_token(db: AsyncSession, token_hash: str) -> Optional[RefreshToken]:
-    now = datetime.now(timezone.utc)
+async def get_valid_refresh_token(db: AsyncSession, token_hash: str) -> RefreshToken | None:
+    now = datetime.now(UTC)
     stmt = select(RefreshToken).where(
         RefreshToken.token_hash == token_hash,
         RefreshToken.revoked_at.is_(None),
@@ -171,12 +171,12 @@ async def get_valid_refresh_token(db: AsyncSession, token_hash: str) -> Optional
 
 
 async def revoke_refresh_token(db: AsyncSession, row: RefreshToken) -> None:
-    row.revoked_at = datetime.now(timezone.utc)
+    row.revoked_at = datetime.now(UTC)
     await db.flush()
 
 
 async def revoke_all_refresh_tokens_for_user(db: AsyncSession, user_id: int) -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     stmt = select(RefreshToken).where(
         RefreshToken.user_id == user_id,
         RefreshToken.revoked_at.is_(None),
@@ -190,11 +190,11 @@ async def revoke_all_refresh_tokens_for_user(db: AsyncSession, user_id: int) -> 
 async def record_audit_log(
     db: AsyncSession,
     *,
-    actor_user_id: Optional[int],
+    actor_user_id: int | None,
     action: str,
     entity_type: str,
-    entity_id: Optional[str] = None,
-    details: Optional[dict[str, Any]] = None,
+    entity_id: str | None = None,
+    details: dict[str, Any] | None = None,
 ) -> AdminAuditLog:
     row = AdminAuditLog(
         actor_user_id=actor_user_id,
@@ -213,9 +213,9 @@ async def list_audit_logs(
     *,
     skip: int = 0,
     limit: int = 50,
-    entity_type: Optional[str] = None,
-    entity_id: Optional[str] = None,
-) -> tuple[List[AdminAuditLog], int]:
+    entity_type: str | None = None,
+    entity_id: str | None = None,
+) -> tuple[list[AdminAuditLog], int]:
     filters = []
     if entity_type:
         filters.append(AdminAuditLog.entity_type == entity_type)
@@ -244,10 +244,10 @@ async def record_product_change(
     *,
     product_id: int,
     field_name: str,
-    old_value: Optional[str],
-    new_value: Optional[str],
-    reason: Optional[str] = None,
-    actor_user_id: Optional[int] = None,
+    old_value: str | None,
+    new_value: str | None,
+    reason: str | None = None,
+    actor_user_id: int | None = None,
 ) -> ProductChangeLog:
     row = ProductChangeLog(
         product_id=product_id,
@@ -268,7 +268,7 @@ async def list_product_change_logs(
     *,
     skip: int = 0,
     limit: int = 50,
-) -> tuple[List[ProductChangeLog], int]:
+) -> tuple[list[ProductChangeLog], int]:
     count_stmt = (
         select(func.count())
         .select_from(ProductChangeLog)
@@ -291,8 +291,8 @@ async def get_idempotency_record(
     *,
     scope: str,
     key: str,
-) -> Optional[IdempotencyKey]:
-    now = datetime.now(timezone.utc)
+) -> IdempotencyKey | None:
+    now = datetime.now(UTC)
     stmt = select(IdempotencyKey).where(
         IdempotencyKey.scope == scope,
         IdempotencyKey.key == key,

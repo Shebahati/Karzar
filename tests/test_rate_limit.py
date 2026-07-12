@@ -2,12 +2,11 @@
 
 import asyncio
 
-from fastapi.testclient import TestClient
-
 from app.api.endpoints import auth as auth_endpoints
 from app.core.config import settings
 from app.core.rate_limit import InMemoryRateLimiter
 from app.main import app
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

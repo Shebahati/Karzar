@@ -6,13 +6,13 @@ Contract (intentional dual shape):
 - Storefront API responses: arrays of {key, value} items for filters/UI
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 
-def _dict_to_spec_items(data: Any) -> List[Dict[str, str]]:
+def _dict_to_spec_items(data: Any) -> list[dict[str, str]]:
     if not isinstance(data, dict):
         return []
-    items: List[Dict[str, str]] = []
+    items: list[dict[str, str]] = []
     for key, value in data.items():
         if value is None:
             continue
@@ -21,10 +21,10 @@ def _dict_to_spec_items(data: Any) -> List[Dict[str, str]]:
 
 
 def normalize_specifications_for_api(
-    specs: Dict[str, Any] | None,
+    specs: dict[str, Any] | None,
     *,
     audience: str = "storefront",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Return API shape for specifications; arrays for storefront, dicts for admin."""
     if not specs:
         empty = {"technical_specs": [] if audience == "storefront" else {}, "dimensions": [] if audience == "storefront" else {}, "features": {}}
@@ -80,7 +80,7 @@ def normalize_specifications_for_api(
         features = {
             str(key): value
             for key, value in features_raw.items()
-            if isinstance(value, (bool, str, int, float))
+            if isinstance(value, bool | str | int | float)
         }
     else:
         features = {}
@@ -97,7 +97,7 @@ def normalize_specifications_for_api(
     return result
 
 
-def specifications_for_storage(specs: Dict[str, Any] | None) -> Dict[str, Any]:
+def specifications_for_storage(specs: dict[str, Any] | None) -> dict[str, Any]:
     """Accept either nested dict or array form from admin; persist nested dict."""
     specs = dict(specs or {})
     normalized = normalize_specifications_for_api(specs, audience="admin")

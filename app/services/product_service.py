@@ -1,7 +1,6 @@
 """Product business logic: validation, orchestration, and side effects."""
 
 from decimal import Decimal
-from typing import List, Optional, Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,7 +38,7 @@ class ProductService:
         return product
 
     @staticmethod
-    async def get_product_details(db: AsyncSession, product_id: int) -> Optional[dict]:
+    async def get_product_details(db: AsyncSession, product_id: int) -> dict | None:
         product = await crud_product.get_product_by_id(db, product_id)
         if not product:
             return None
@@ -55,21 +54,21 @@ class ProductService:
     @staticmethod
     async def search_products(
         db: AsyncSession,
-        search: Optional[str] = None,
-        category_id: Optional[int] = None,
-        brand_id: Optional[int] = None,
-        is_active: Optional[bool] = None,
-        min_price: Optional[Decimal] = None,
-        max_price: Optional[Decimal] = None,
-        spec_filters: Optional[dict] = None,
-        country: Optional[str] = None,
-        in_stock: Optional[bool] = None,
-        sort: Optional[str] = None,
-        product_ids: Optional[List[int]] = None,
+        search: str | None = None,
+        category_id: int | None = None,
+        brand_id: int | None = None,
+        is_active: bool | None = None,
+        min_price: Decimal | None = None,
+        max_price: Decimal | None = None,
+        spec_filters: dict | None = None,
+        country: str | None = None,
+        in_stock: bool | None = None,
+        sort: str | None = None,
+        product_ids: list[int] | None = None,
         skip: int = 0,
         limit: int = 100,
-        is_deleted: Optional[bool] = None,
-    ) -> Tuple[List[Product], int]:
+        is_deleted: bool | None = None,
+    ) -> tuple[list[Product], int]:
         logger.info(f"Searching products: search={search}, category_id={category_id}")
         return await crud_product.get_products(
             db=db,
@@ -94,7 +93,7 @@ class ProductService:
         db: AsyncSession,
         product_id: int,
         update_data: ProductUpdate,
-    ) -> Optional[Product]:
+    ) -> Product | None:
         logger.info(f"Updating product: {product_id}")
 
         product = await crud_product.get_product_by_id(db, product_id)
@@ -141,10 +140,10 @@ class ProductService:
         db: AsyncSession,
         product_id: int,
         quantity_delta: Decimal,
-        reason: Optional[str] = None,
+        reason: str | None = None,
         *,
-        actor_user_id: Optional[int] = None,
-    ) -> Optional[Product]:
+        actor_user_id: int | None = None,
+    ) -> Product | None:
         logger.info(
             f"Adjusting stock for product {product_id}: delta={quantity_delta}, reason={reason}"
         )
@@ -171,7 +170,7 @@ class ProductService:
     @staticmethod
     async def get_low_stock_products(
         db: AsyncSession, threshold: Decimal = Decimal("10.0"), limit: int = 100
-    ) -> List[Product]:
+    ) -> list[Product]:
         logger.info(f"Retrieving low stock products (threshold: {threshold})")
         products, _ = await crud_product.get_products(
             db=db,
@@ -185,7 +184,7 @@ class ProductService:
     @staticmethod
     async def get_products_by_brand(
         db: AsyncSession, brand_id: int, skip: int = 0, limit: int = 100
-    ) -> Tuple[List[Product], int]:
+    ) -> tuple[list[Product], int]:
         logger.info(f"Retrieving products for brand ID: {brand_id}")
         return await crud_product.get_products(
             db=db,
@@ -204,7 +203,7 @@ class ProductService:
         db: AsyncSession,
         product_id: int,
         *,
-        actor_user_id: Optional[int] = None,
+        actor_user_id: int | None = None,
     ) -> bool:
         deleted = await crud_product.delete_product_soft(db, product_id)
         if deleted:
@@ -223,7 +222,7 @@ class ProductService:
         db: AsyncSession,
         items: list[dict],
         *,
-        actor_user_id: Optional[int] = None,
+        actor_user_id: int | None = None,
     ) -> list[int]:
         updated_ids: list[int] = []
         for item in items:
@@ -239,7 +238,7 @@ class ProductService:
         return updated_ids
 
     @staticmethod
-    async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product]:
+    async def restore_product(db: AsyncSession, product_id: int) -> Product | None:
         product = await crud_product.restore_product(db, product_id)
         if product:
             await db.commit()

@@ -1,5 +1,7 @@
 """Storefront content endpoints: blog, hero slides, contact, checkout."""
 
+from datetime import UTC
+
 from fastapi import APIRouter, Depends, Header, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +25,7 @@ from app.schemas.storefront import (
     HeroSlideListResponse,
     HeroSlideResponse,
 )
-from app.services.checkout_service import submit_checkout, submit_contact, PurchaseAuthRequiredError
+from app.services.checkout_service import PurchaseAuthRequiredError, submit_checkout, submit_contact
 
 router = APIRouter()
 
@@ -177,7 +179,7 @@ async def checkout(
         ) from exc
 
     if idempotency_key and idempotency_key.strip():
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
         await crud_platform.store_idempotency_record(
             db,
@@ -185,7 +187,7 @@ async def checkout(
             key=idempotency_key.strip(),
             status_code=status.HTTP_201_CREATED,
             response_body=result.model_dump(mode="json"),
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
+            expires_at=datetime.now(UTC) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
         )
         await db.commit()
 

@@ -1,62 +1,73 @@
 """Product CRUD, search, stock management, and statistics endpoints."""
 
 from decimal import Decimal
-from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Path, Request, UploadFile, File, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+    Request,
+    status,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.product_service import ProductService
-from app.db.database import get_db
 from app.api.deps import (
     get_current_super_admin,
     get_current_super_admin_with_step_up,
     get_optional_current_user,
     is_super_admin,
 )
-from app.db.models.user import User
-from app.schemas.common import build_pagination_meta
-from app.schemas.product import (
-    ProductCreate,
-    ProductUpdate,
-    ProductListResponse,
-    ProductDetailResponse,
-    StockStatusResponse,
-    ProductImageCreate,
-    ProductImageReorderRequest,
-    ProductImageSetPrimaryResponse,
-    ProductImageUploadResponse,
-    ProductStatisticsResponse,
-    BulkStockAdjustRequest,
-    BulkStockAdjustResponse,
-    ProductChangeLogListResponse,
-    ProductChangeLogEntry,
-)
-from app.schemas.storefront import ProductCommentCreateRequest, ProductCommentListResponse, ProductCommentResponse, RelatedProductsResponse
-from app.crud import category as crud_category
-from app.crud import content as crud_content
-from app.crud import product as crud_product
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.core.request_throttle import enforce_public_throttle
+from app.crud import category as crud_category
+from app.crud import content as crud_content
+from app.crud import product as crud_product
+from app.db.database import get_db
+from app.db.models.user import User
+from app.schemas.common import build_pagination_meta
+from app.schemas.product import (
+    BulkStockAdjustRequest,
+    BulkStockAdjustResponse,
+    ProductChangeLogEntry,
+    ProductChangeLogListResponse,
+    ProductCreate,
+    ProductDetailResponse,
+    ProductImageCreate,
+    ProductImageReorderRequest,
+    ProductImageUploadResponse,
+    ProductListResponse,
+    ProductStatisticsResponse,
+    ProductUpdate,
+    StockStatusResponse,
+)
+from app.schemas.storefront import (
+    ProductCommentCreateRequest,
+    ProductCommentListResponse,
+    ProductCommentResponse,
+    RelatedProductsResponse,
+)
+from app.services.product_service import ProductService
 from app.utils.category_depth import build_category_metadata
+from app.utils.file_storage import save_product_image_upload
 from app.utils.image_validation import ensure_image_count_within_limit, validate_product_image_url
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
 from app.utils.storefront_catalog import VALID_SORT_KEYS, parse_in_stock_filter
-from app.utils.file_storage import save_product_image_upload
 
 logger = get_logger(__name__)
 
 router = APIRouter()
 
 
-def _audience_for_user(user: Optional[User]) -> str:
+def _audience_for_user(user: User | None) -> str:
     return "admin" if is_super_admin(user) else "storefront"
 
 
-def _guard_inactive_product(product, user: Optional[User], identifier: str) -> None:
+def _guard_inactive_product(product, user: User | None, identifier: str) -> None:
     """Hide inactive products from non-admin callers on direct read paths."""
     if not product.is_active and not is_super_admin(user):
         raise api_error(
@@ -125,27 +136,27 @@ async def create_new_product(
 async def read_products(
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
     skip: int = Query(0, ge=0, description="Number of items to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of items to return"),
-    category_id: Optional[int] = Query(None, description="Filter by category ID"),
-    brand_id: Optional[int] = Query(None, description="Filter by brand ID"),
-    is_active: Optional[bool] = Query(None, description="Filter by active status"),
-    is_deleted: Optional[bool] = Query(
+    category_id: int | None = Query(None, description="Filter by category ID"),
+    brand_id: int | None = Query(None, description="Filter by brand ID"),
+    is_active: bool | None = Query(None, description="Filter by active status"),
+    is_deleted: bool | None = Query(
         None,
         description="Filter soft-deleted products (admin only when true)",
     ),
-    search: Optional[str] = Query(None, description="Search in name, SKU, and brand"),
-    min_price: Optional[Decimal] = Query(None, description="Minimum price filter"),
-    max_price: Optional[Decimal] = Query(None, description="Maximum price filter"),
-    country: Optional[str] = Query(None, description="Filter by brand country"),
-    in_stock: Optional[str] = Query(None, description="Only in-stock active products (true/false/1/0)"),
-    sort: Optional[str] = Query(
+    search: str | None = Query(None, description="Search in name, SKU, and brand"),
+    min_price: Decimal | None = Query(None, description="Minimum price filter"),
+    max_price: Decimal | None = Query(None, description="Maximum price filter"),
+    country: str | None = Query(None, description="Filter by brand country"),
+    in_stock: str | None = Query(None, description="Only in-stock active products (true/false/1/0)"),
+    sort: str | None = Query(
         None,
         description="Sort key: newest, price_asc, price_desc, name_asc, name_desc",
     ),
-    ids: Optional[str] = Query(None, description="Comma-separated product IDs"),
-    filters: Optional[str] = Query(
+    ids: str | None = Query(None, description="Comma-separated product IDs"),
+    filters: str | None = Query(
         None,
         description='JSON object for specification filters, e.g. {"technical_specs.range":"0-150mm"}',
     ),
@@ -188,7 +199,7 @@ async def read_products(
                 ],
             )
 
-        product_ids: Optional[List[int]] = None
+        product_ids: list[int] | None = None
         if ids:
             try:
                 product_ids = [int(value.strip()) for value in ids.split(",") if value.strip()]
@@ -198,7 +209,7 @@ async def read_products(
                     error_code=ErrorCode.VALIDATION_FAILED,
                     message="ids must be a comma-separated list of integers",
                     details=[{"field": "ids", "message": "invalid integer in list"}],
-                )
+                ) from None
 
         spec_filters = merge_spec_filters(filters_json=filters, request=request)
         parsed_in_stock = parse_in_stock_filter(in_stock)
@@ -276,7 +287,7 @@ async def read_product_statistics(
 async def read_product_by_sku(
     sku: str = Path(..., min_length=1, max_length=50, description="Product SKU"),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
     from app.crud import product as crud_product
 
@@ -310,7 +321,7 @@ async def read_product_by_sku(
 async def read_product(
     product_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
     try:
         details = await ProductService.get_product_details(db=db, product_id=product_id)

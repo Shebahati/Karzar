@@ -1,23 +1,23 @@
 """Build nested category trees from a flat list of ORM rows."""
 
 from collections import defaultdict
-from typing import Dict, Iterable, List, Optional, Set
+from collections.abc import Iterable
 
 from app.db.models.product import Category
 from app.schemas.category import CategoryTreeResponse
 from app.utils.category_icons import resolve_category_icon
 
 
-def _sort_categories(categories: Iterable[Category]) -> List[Category]:
+def _sort_categories(categories: Iterable[Category]) -> list[Category]:
     return sorted(categories, key=lambda category: (category.name.casefold(), category.id))
 
 
 def _build_children_map(
-    categories: List[Category],
-    known_ids: Set[int],
-) -> Dict[Optional[int], List[Category]]:
+    categories: list[Category],
+    known_ids: set[int],
+) -> dict[int | None, list[Category]]:
     """Group categories by parent_id; orphan unknown parents become roots."""
-    children_by_parent: Dict[Optional[int], List[Category]] = defaultdict(list)
+    children_by_parent: dict[int | None, list[Category]] = defaultdict(list)
 
     for category in categories:
         parent_id = category.parent_id
@@ -33,12 +33,12 @@ def _build_children_map(
 
 
 def _detect_cycles(
-    categories: List[Category],
-    children_by_parent: Dict[Optional[int], List[Category]],
+    categories: list[Category],
+    children_by_parent: dict[int | None, list[Category]],
 ) -> None:
     """DFS cycle detection using white/gray/black coloring."""
     white, gray, black = 0, 1, 2
-    state: Dict[int, int] = {category.id: white for category in categories}
+    state: dict[int, int] = {category.id: white for category in categories}
 
     def visit(category_id: int) -> None:
         if state[category_id] == gray:
@@ -57,10 +57,10 @@ def _detect_cycles(
 
 
 def build_category_tree(
-    categories: List[Category],
+    categories: list[Category],
     *,
-    product_counts: Optional[Dict[int, int]] = None,
-) -> List[CategoryTreeResponse]:
+    product_counts: dict[int, int] | None = None,
+) -> list[CategoryTreeResponse]:
     """Assemble a nested tree from a single flat query result."""
     if not categories:
         return []

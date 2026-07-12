@@ -1,8 +1,7 @@
 """Brand database access for admin CRUD."""
 
-from typing import List, Optional
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -11,22 +10,22 @@ from app.db.models.product import Brand, Product
 logger = get_logger(__name__)
 
 
-async def list_brands(db: AsyncSession) -> List[Brand]:
+async def list_brands(db: AsyncSession) -> list[Brand]:
     result = await db.execute(select(Brand).order_by(Brand.name.asc()))
     return list(result.scalars().all())
 
 
-async def get_brand_by_id(db: AsyncSession, brand_id: int) -> Optional[Brand]:
+async def get_brand_by_id(db: AsyncSession, brand_id: int) -> Brand | None:
     result = await db.execute(select(Brand).where(Brand.id == brand_id))
     return result.scalar_one_or_none()
 
 
-async def get_brand_by_name(db: AsyncSession, name: str) -> Optional[Brand]:
+async def get_brand_by_name(db: AsyncSession, name: str) -> Brand | None:
     result = await db.execute(select(Brand).where(Brand.name == name))
     return result.scalar_one_or_none()
 
 
-async def create_brand(db: AsyncSession, *, name: str, country: Optional[str]) -> Brand:
+async def create_brand(db: AsyncSession, *, name: str, country: str | None) -> Brand:
     brand = Brand(name=name, country=country)
     db.add(brand)
     await db.flush()
@@ -38,8 +37,8 @@ async def update_brand(
     db: AsyncSession,
     brand: Brand,
     *,
-    name: Optional[str] = None,
-    country: Optional[str] = None,
+    name: str | None = None,
+    country: str | None = None,
     unset_country: bool = False,
 ) -> Brand:
     if name is not None:

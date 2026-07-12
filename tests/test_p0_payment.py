@@ -1,11 +1,9 @@
 """P0 critical payment flow tests."""
 
-import pytest
-from fastapi.testclient import TestClient
-
 from app.core.config import settings
 from app.main import app
 from app.services.payment_service import reset_payment_provider_for_tests
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

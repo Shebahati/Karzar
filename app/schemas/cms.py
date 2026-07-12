@@ -1,7 +1,7 @@
 """CMS admin request/response schemas."""
 
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -11,9 +11,9 @@ from app.schemas.storefront import ArticleTeaser, HeroSlideResponse, ProductComm
 
 class ArticleAdminResponse(ArticleTeaser):
     author: str
-    tags: List[str] = Field(default_factory=list)
-    related_product_ids: List[int] = Field(default_factory=list)
-    blocks: List[dict[str, Any]] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    related_product_ids: list[int] = Field(default_factory=list)
+    blocks: list[dict[str, Any]] = Field(default_factory=list)
     is_published: bool = True
 
 
@@ -21,28 +21,28 @@ class ArticleCreateRequest(BaseModel):
     slug: str = Field(..., min_length=1, max_length=200)
     title: str = Field(..., min_length=1, max_length=255)
     excerpt: str = Field(..., min_length=1)
-    cover_image: Optional[str] = Field(None, max_length=500)
+    cover_image: str | None = Field(None, max_length=500)
     published_at: datetime
     reading_minutes: int = Field(default=5, ge=1)
     author: str = Field(default="تیم فنی کارزار", max_length=100)
-    tags: List[str] = Field(default_factory=list)
-    related_product_ids: List[int] = Field(default_factory=list)
-    blocks: List[dict[str, Any]] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    related_product_ids: list[int] = Field(default_factory=list)
+    blocks: list[dict[str, Any]] = Field(default_factory=list)
     is_published: bool = True
 
 
 class ArticleUpdateRequest(BaseModel):
-    slug: Optional[str] = Field(None, min_length=1, max_length=200)
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
-    excerpt: Optional[str] = Field(None, min_length=1)
-    cover_image: Optional[str] = Field(None, max_length=500)
-    published_at: Optional[datetime] = None
-    reading_minutes: Optional[int] = Field(None, ge=1)
-    author: Optional[str] = Field(None, max_length=100)
-    tags: Optional[List[str]] = None
-    related_product_ids: Optional[List[int]] = None
-    blocks: Optional[List[dict[str, Any]]] = None
-    is_published: Optional[bool] = None
+    slug: str | None = Field(None, min_length=1, max_length=200)
+    title: str | None = Field(None, min_length=1, max_length=255)
+    excerpt: str | None = Field(None, min_length=1)
+    cover_image: str | None = Field(None, max_length=500)
+    published_at: datetime | None = None
+    reading_minutes: int | None = Field(None, ge=1)
+    author: str | None = Field(None, max_length=100)
+    tags: list[str] | None = None
+    related_product_ids: list[int] | None = None
+    blocks: list[dict[str, Any]] | None = None
+    is_published: bool | None = None
 
 
 class ArticleAdminListResponse(PaginatedResponse[ArticleAdminResponse]):
@@ -51,9 +51,9 @@ class ArticleAdminListResponse(PaginatedResponse[ArticleAdminResponse]):
 
 class HeroSlideCreateRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
-    subtitle: Optional[str] = Field(None, max_length=500)
-    cta_label: Optional[str] = Field(None, max_length=100)
-    cta_href: Optional[str] = Field(None, max_length=500)
+    subtitle: str | None = Field(None, max_length=500)
+    cta_label: str | None = Field(None, max_length=100)
+    cta_href: str | None = Field(None, max_length=500)
     image: str = Field(..., min_length=1, max_length=500)
     accent: str = Field(default="#C22026", max_length=20)
     sort_order: int = 0
@@ -61,18 +61,18 @@ class HeroSlideCreateRequest(BaseModel):
 
 
 class HeroSlideUpdateRequest(BaseModel):
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
-    subtitle: Optional[str] = Field(None, max_length=500)
-    cta_label: Optional[str] = Field(None, max_length=100)
-    cta_href: Optional[str] = Field(None, max_length=500)
-    image: Optional[str] = Field(None, min_length=1, max_length=500)
-    accent: Optional[str] = Field(None, max_length=20)
-    sort_order: Optional[int] = None
-    is_active: Optional[bool] = None
+    title: str | None = Field(None, min_length=1, max_length=255)
+    subtitle: str | None = Field(None, max_length=500)
+    cta_label: str | None = Field(None, max_length=100)
+    cta_href: str | None = Field(None, max_length=500)
+    image: str | None = Field(None, min_length=1, max_length=500)
+    accent: str | None = Field(None, max_length=20)
+    sort_order: int | None = None
+    is_active: bool | None = None
 
 
 class HeroSlideAdminListResponse(BaseModel):
-    data: List[HeroSlideResponse]
+    data: list[HeroSlideResponse]
 
 
 class ProductCommentCreateRequest(BaseModel):

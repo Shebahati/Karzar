@@ -1,11 +1,14 @@
 """SMS provider and OTP delivery integration tests."""
 
-from fastapi.testclient import TestClient
-
 from app.core.config import settings
 from app.main import app
 from app.services import otp_service
-from app.services.sms_service import ConsoleSmsProvider, get_sms_provider, reset_sms_provider_for_tests
+from app.services.sms_service import (
+    ConsoleSmsProvider,
+    get_sms_provider,
+    reset_sms_provider_for_tests,
+)
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

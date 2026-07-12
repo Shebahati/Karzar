@@ -3,9 +3,24 @@
 import enum
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, text
+if TYPE_CHECKING:
+    from app.db.models.content import ProductComment
+
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,15 +78,15 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
-    spec_template_key: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    icon: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"))
+    spec_template_key: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
-    subcategories: Mapped[List["Category"]] = relationship("Category", back_populates="parent")
+    subcategories: Mapped[list["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(
         "Category", back_populates="subcategories", remote_side=[id]
     )
-    products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
+    products: Mapped[list["Product"]] = relationship("Product", back_populates="category")
 
     def __str__(self) -> str:
         return self.name
@@ -81,8 +96,8 @@ class Brand(Base):
     __tablename__ = "brands"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
-    country: Mapped[Optional[str]] = mapped_column(String(50))
-    products: Mapped[List["Product"]] = relationship("Product", back_populates="brand")
+    country: Mapped[str | None] = mapped_column(String(50))
+    products: Mapped[list["Product"]] = relationship("Product", back_populates="brand")
 
     def __str__(self) -> str:
         return self.name
@@ -114,9 +129,9 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
-    brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
+    brand_id: Mapped[int | None] = mapped_column(ForeignKey("brands.id"))
 
-    base_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
+    base_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     stock_quantity: Mapped[Decimal] = mapped_column(
         Numeric(12, 2), default=Decimal("0.0"), server_default="0"
     )
@@ -126,29 +141,29 @@ class Product(Base):
         server_default="piece",
     )
 
-    warranty_text: Mapped[Optional[str]] = mapped_column(String(255))
-    weight_grams: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2))
+    warranty_text: Mapped[str | None] = mapped_column(String(255))
+    weight_grams: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     tax_percent: Mapped[Decimal] = mapped_column(
         Numeric(5, 2), default=Decimal("0.0"), server_default="0"
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    pdf_catalog_url: Mapped[Optional[str]] = mapped_column(String(500))
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    original_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2), nullable=True)
+    pdf_catalog_url: Mapped[str | None] = mapped_column(String(500))
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    original_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
     specifications: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=get_default_specifications
     )
 
     category: Mapped[Optional["Category"]] = relationship("Category", back_populates="products")
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
-    images: Mapped[List["ProductImage"]] = relationship(
+    images: Mapped[list["ProductImage"]] = relationship(
         "ProductImage", back_populates="product", cascade="all, delete-orphan"
     )
-    comments: Mapped[List["ProductComment"]] = relationship(
+    comments: Mapped[list["ProductComment"]] = relationship(
         "ProductComment", back_populates="product", cascade="all, delete-orphan"
     )
 
