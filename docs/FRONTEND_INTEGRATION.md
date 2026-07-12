@@ -21,7 +21,7 @@ This document answers every contract requirement you originally requested and de
    - Parses the **error envelope** on non-2xx responses
    - Never assumes list endpoints return a raw array
 4. Treat `thumbnail: null` as “no image yet” and show a placeholder.
-5. Render category menus **recursively** via `subcategories` (unlimited depth).
+5. Render category menus **recursively** via `subcategories` (max **3** levels; deeper nodes are rejected on create).
 
 ---
 

@@ -32,9 +32,17 @@ karzar/
 │   ├── main.py               # FastAPI application entry point
 │   ├── api/                  # API routes and endpoints
 │   │   ├── endpoints/
-│   │   │   ├── auth.py       # Authentication endpoints
-│   │   │   └── product.py    # Product management endpoints
-│   │   └── v1/               # API version 1
+│   │   │   ├── auth.py       # OTP, login, refresh, step-up PIN
+│   │   │   ├── product.py    # Products, stock, images
+│   │   │   ├── category.py   # Category tree & spec templates
+│   │   │   ├── brand.py      # Brand CRUD
+│   │   │   ├── cart.py       # Session cart
+│   │   │   ├── order.py      # Orders, tracking, admin workflow
+│   │   │   ├── payment.py    # Payment init/verify/callback/refund
+│   │   │   ├── storefront.py # Checkout, blog, contact, hero
+│   │   │   ├── users.py      # Admin user management
+│   │   │   └── cms.py        # CMS admin (blog, comments)
+│   │   └── v1/               # API version 1 router
 │   ├── core/                 # Core configurations
 │   │   ├── config.py         # Environment configuration
 │   │   ├── logging.py        # Logging setup
@@ -51,7 +59,13 @@ karzar/
 │   │   └── product.py        # Product schemas with validation
 │   └── services/             # Business logic layer
 │       └── product_service.py # Product business logic
-├── docs/                       # Handover and integration guides
+├── docs/                       # Contract, ops, testing, seed guides
+│   ├── API_CONTRACT.md
+│   ├── API_CHANGELOG.md
+│   ├── FRONTEND_INTEGRATION.md
+│   ├── OPERATIONS.md
+│   ├── SEED_IMPORT.md
+│   └── TESTING.md
 ├── scripts/
 │   └── setup-dev.sh            # Local dev bootstrap (venv + deps)
 ├── tests/                      # Test suite
@@ -72,7 +86,7 @@ karzar/
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.12+
 - PostgreSQL 15+
 - Redis 7+ (optional, for caching)
 - Docker & Docker Compose (for containerized deployment)
@@ -230,6 +244,69 @@ GET /api/v1/categories/tree
 
 Response: `{ "data": [ { "id": 1, "name": "...", "parent_id": null, "subcategories": [...] } ] }`
 
+### Brands
+
+```http
+GET    /api/v1/brands/
+POST   /api/v1/brands/              # super admin
+PUT    /api/v1/brands/{id}          # super admin
+DELETE /api/v1/brands/{id}          # super admin + X-Step-Up-Token
+```
+
+### Cart
+
+```http
+GET    /api/v1/cart/
+POST   /api/v1/cart/items
+PATCH  /api/v1/cart/items/{product_id}
+DELETE /api/v1/cart/items/{product_id}
+```
+
+Cart merges into the authenticated user on login.
+
+### Orders & tracking
+
+```http
+POST   /api/v1/checkout             # storefront — purchase (auth) or inquiry
+GET    /api/v1/orders/me            # customer order history (auth)
+GET    /api/v1/orders/track/{code}  # public tracking (no PII; includes items)
+GET    /api/v1/orders               # admin list (page/page_size, filters)
+GET    /api/v1/orders/{id}          # admin detail
+PATCH  /api/v1/orders/{id}/status   # admin status update
+POST   /api/v1/orders/{id}/quote    # inquiry quote (admin)
+DELETE /api/v1/orders/{id}           # soft delete (admin + step-up)
+```
+
+### Payments
+
+```http
+POST /api/v1/payments/init          # start gateway session (auth)
+GET  /api/v1/payments/callback      # public gateway redirect
+POST /api/v1/payments/verify        # verify authority (callback-friendly)
+POST /api/v1/payments/refund        # admin refund (mock/Zarinpal)
+```
+
+Purchase checkout returns `payment_url`; payment metadata is stored in `payment_authority` / `payment_ref_id` (not `order.note`).
+
+### Storefront & CMS
+
+```http
+GET  /api/v1/blog/                  # article list
+GET  /api/v1/blog/{slug}
+GET  /api/v1/hero-slides/
+POST /api/v1/contact
+POST /api/v1/checkout
+```
+
+Admin CMS routes under `/api/v1/cms/` (blog, hero slides, product comments).
+
+### Users (admin)
+
+```http
+GET   /api/v1/users?page=1&page_size=20&search=0912&sort=created_desc
+PATCH /api/v1/users/{id}
+```
+
 ### Stock Management
 
 #### Get Stock Status
@@ -308,20 +385,23 @@ GET /api/v1
 
 ## Testing
 
-Requires dev dependencies (`pip install -r requirements-dev.txt`).
+Requires dev dependencies (`pip install -r requirements-dev.txt`). See [docs/TESTING.md](docs/TESTING.md) for CI, markers, and Postgres/Redis integration.
 
 ```bash
 pytest
 
-# With coverage report
-pytest --cov=app --cov-report=html
+# Coverage gate (matches CI, minimum 62%)
+pytest --cov=app --cov-fail-under=62
 
-# Run specific test file
-pytest tests/test_product_endpoints.py
+# Lint (also run in CI)
+ruff check app tests
+mypy app
 
-# Run with verbose output
-pytest -v
+# Pre-commit (optional local hook)
+pre-commit install && pre-commit run --all-files
 ```
+
+GitHub Actions (`backend-ci.yml`) runs lint + tests with Postgres and Redis on every push to `main`.
 
 ## Database Migrations
 
@@ -345,6 +425,20 @@ alembic downgrade -1
 alembic current
 alembic history
 ```
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | Contract index when Swagger is disabled in prod |
+| [docs/API_CHANGELOG.md](docs/API_CHANGELOG.md) | API v1 versioning and release notes |
+| [docs/FRONTEND_INTEGRATION.md](docs/FRONTEND_INTEGRATION.md) | Storefront integration guide |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, backup, rollback, incidents |
+| [docs/SEED_IMPORT.md](docs/SEED_IMPORT.md) | Catalog seed/import pipeline |
+| [BACKEND_CHANGES.md](BACKEND_CHANGES.md) | Recent backend deltas for frontend |
+| [architecture.txt](architecture.txt) | Codebase map (no SQLAdmin; Next.js admin panel) |
+
+Interactive OpenAPI: `/api/docs` when `ENABLE_API_DOCS=true`.
 
 ## Environment Variables
 
@@ -433,5 +527,5 @@ For issues and questions, please create an issue in the repository.
 
 ---
 
-**Last Updated**: 2026-06-16  
-**Version**: 1.0.0
+**Last Updated**: 2026-07-12  
+**Version**: 1.0.0 (API v1)

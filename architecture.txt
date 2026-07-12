@@ -58,6 +58,12 @@ karzar/
 │
 ├── alembic/versions/
 ├── docs/
+│   ├── API_CONTRACT.md      # Contract index when Swagger disabled
+│   ├── API_CHANGELOG.md     # v1 breaking/non-breaking changes
+│   ├── FRONTEND_INTEGRATION.md
+│   ├── OPERATIONS.md        # Deploy, backup, incident runbook
+│   ├── SEED_IMPORT.md       # Catalog import pipeline
+│   └── TESTING.md
 ├── tests/
 ├── Dockerfile / docker-compose.yml
 

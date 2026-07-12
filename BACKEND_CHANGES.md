@@ -93,8 +93,14 @@ curl -s -X POST http://localhost:8000/api/v1/checkout -H "Content-Type: applicat
 ## Test Results
 
 ```
-92 passed (pytest)
+160 passed, 2 skipped (pytest; coverage ≥ 62%)
 ```
+
+See [docs/TESTING.md](docs/TESTING.md) for markers, CI, and Postgres/Redis integration setup.
+
+## Tracking response (clarification)
+
+Public `GET /orders/track/{tracking_code}` returns `items` (product_id, quantity, unit_price) **without PII** (no phone, address, or customer name). Status history is exposed as `timeline` (current implementation). This matches IMPORTANT-9 above and `tests/test_orders.py`.
 
 ## Acceptance Checklist
 
