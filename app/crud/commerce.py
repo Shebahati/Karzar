@@ -108,24 +108,7 @@ async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Op
         .options(selectinload(Order.items), selectinload(Order.status_events))
     )
     result = await db.execute(stmt)
-    order = result.scalar_one_or_none()
-    if order is not None:
-        return order
-
-    from app.services.payment_service import extract_stored_authority
-
-    legacy_stmt = (
-        select(Order)
-        .where(Order.deleted_at.is_(None), Order.note.isnot(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
-        .order_by(Order.id.desc())
-        .limit(200)
-    )
-    rows = (await db.execute(legacy_stmt)).scalars().all()
-    for row in rows:
-        if extract_stored_authority(row.note) == authority:
-            return row
-    return None
+    return result.scalar_one_or_none()
 
 
 async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Optional[Order]:

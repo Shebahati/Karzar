@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
@@ -18,6 +19,7 @@ from app.core.errors import ErrorCode, build_error_payload, normalize_http_excep
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, request_id_ctx_var, setup_logging
 from app.core.middleware import get_or_create_request_id
+from app.core.security_middleware import HttpsRedirectMiddleware, RequestBodySizeLimitMiddleware
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.db.database import async_session_maker
 from app.core.distributed_lock import try_acquire_lock
@@ -74,6 +76,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+if settings.trusted_hosts_list:
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts_list)
+
+app.add_middleware(HttpsRedirectMiddleware)
+app.add_middleware(RequestBodySizeLimitMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -82,8 +90,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_router, prefix="/api/v1")
+if settings.ENABLE_METRICS:
+    from prometheus_fastapi_instrumentator import Instrumentator
 
+    Instrumentator(
+        should_group_status_codes=True,
+        excluded_handlers=["/metrics", "/health", "/ready"],
+    ).instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+
+app.include_router(api_router, prefix="/api/v1")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _uploads_root = PROJECT_ROOT / "data" / "uploads"
 _uploads_root.mkdir(parents=True, exist_ok=True)

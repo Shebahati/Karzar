@@ -42,6 +42,7 @@ class OrderSummary(BaseModel):
 class OrderDetailResponse(OrderSummary):
     customer_is_guest: bool
     note: Optional[str] = None
+    admin_note: Optional[str] = None
     shipping: Optional[dict[str, Any]] = None
     user_id: Optional[int] = None
     postal_tracking_code: Optional[str] = None
@@ -59,7 +60,11 @@ class OrderListResponse(BaseModel):
 
 class OrderStatusUpdateRequest(BaseModel):
     status: str = Field(..., description="Target canonical order status code")
-    note: Optional[str] = Field(None, max_length=500)
+    note: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Admin annotation stored in admin_note (does not overwrite customer note)",
+    )
     postal_tracking_code: Optional[str] = Field(None, max_length=64)
     delivery_eta: Optional[datetime] = None
 

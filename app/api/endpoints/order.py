@@ -2,11 +2,13 @@
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, Query, status
+from fastapi import APIRouter, Depends, Header, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_active_user, get_current_super_admin, get_current_super_admin_with_step_up
+from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.request_throttle import enforce_public_throttle
 from app.core.security import verify_step_up_token
 from app.crud import commerce as crud_commerce
 from app.db.database import get_db
@@ -89,6 +91,7 @@ def _to_detail(order: Order) -> OrderDetailResponse:
         **summary.model_dump(),
         customer_is_guest=order.customer_is_guest,
         note=order.note,
+        admin_note=order.admin_note,
         shipping=order.shipping,
         user_id=order.user_id,
         postal_tracking_code=order.postal_tracking_code,
@@ -125,7 +128,13 @@ async def list_my_orders(
 
 
 @router.get("/track/{tracking_code}", response_model=OrderTrackingResponse, summary="Public order tracking by code")
-async def track_order(tracking_code: str, db: AsyncSession = Depends(get_db)):
+async def track_order(tracking_code: str, request: Request, db: AsyncSession = Depends(get_db)):
+    await enforce_public_throttle(
+        request,
+        scope="tracking",
+        max_requests=settings.PUBLIC_THROTTLE_TRACKING_MAX,
+        window_seconds=settings.PUBLIC_THROTTLE_TRACKING_WINDOW,
+    )
     order = await crud_commerce.get_order_by_tracking_code(db, tracking_code.strip())
     if not order:
         raise api_error(

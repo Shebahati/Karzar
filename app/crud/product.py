@@ -282,6 +282,8 @@ async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product
 
 
 async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
+    from app.utils.storefront_catalog import stock_status_label
+
     product = await get_product_by_id(db, product_id)
     if not product:
         return None
@@ -291,7 +293,7 @@ async def get_stock_status(db: AsyncSession, product_id: int) -> Optional[dict]:
         "product_id": product.id,
         "sku": product.sku,
         "stock_quantity": quantity,
-        "stock_status": "out_of_stock" if quantity <= Decimal("0.0") else "in_stock",
+        "stock_status": stock_status_label(quantity, audience="admin"),
     }
 
 

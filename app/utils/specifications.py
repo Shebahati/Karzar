@@ -1,4 +1,10 @@
-"""Normalize product specifications between DB storage and API response shapes."""
+"""Normalize product specifications between DB storage and API response shapes.
+
+Contract (intentional dual shape):
+- DB / admin write path: nested dicts via ``specifications_for_storage``
+- Admin API responses: dict maps for technical_specs / dimensions
+- Storefront API responses: arrays of {key, value} items for filters/UI
+"""
 
 from typing import Any, Dict, List
 

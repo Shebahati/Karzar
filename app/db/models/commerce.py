@@ -65,6 +65,7 @@ class Order(Base):
     customer_is_guest: Mapped[bool] = mapped_column(default=True, server_default="true")
     company_name: Mapped[Optional[str]] = mapped_column(String(120))
     note: Mapped[Optional[str]] = mapped_column(Text)
+    admin_note: Mapped[Optional[str]] = mapped_column(Text)
     shipping: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
     postal_tracking_code: Mapped[Optional[str]] = mapped_column(String(64))
     delivery_eta: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))

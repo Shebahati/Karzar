@@ -63,19 +63,19 @@ class TestProductCategoryValidationEndpoint:
         assert body["error_code"] == "BAD_REQUEST"
         assert body["details"][0]["field"] == "category_id"
 
-    def test_create_product_allows_uncategorized(self, valid_product_data, super_admin_headers):
+    def test_create_product_rejects_uncategorized(self, valid_product_data, super_admin_headers):
         from fastapi.testclient import TestClient
         from app.main import app
 
         client = TestClient(app)
-        payload = {**valid_product_data, "category_id": None}
+        payload = {**valid_product_data, "sku": "NO-CAT-001"}
+        payload["category_id"] = None
         response = client.post(
             "/api/v1/products/",
             json=payload,
             headers=super_admin_headers,
         )
-        assert response.status_code == 201
-        assert response.json()["category_id"] is None
+        assert response.status_code == 422
 
     def test_list_products_filters_category_subtree(
         self, valid_product_data, super_admin_headers

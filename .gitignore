@@ -37,6 +37,9 @@ docker-compose.override.yml
 logs/
 *.log
 
+# Database backups
+backups/
+
 # Build
 dist/
 build/

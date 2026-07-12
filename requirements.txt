@@ -1,3 +1,4 @@
+prometheus-fastapi-instrumentator==8.0.2
 alembic==1.13.1
 asyncpg==0.29.0
 bcrypt==5.0.0

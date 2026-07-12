@@ -66,6 +66,26 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1, le=90)
     IDEMPOTENCY_TTL_HOURS: int = Field(default=24, ge=1, le=168)
 
+    APP_ENV: str = "development"
+    LOG_TO_FILE: bool = True
+    LOG_FILE: str = "logs/app.log"
+    ENABLE_METRICS: bool = False
+
+    # Public endpoint throttles (per client IP)
+    PUBLIC_THROTTLE_CONTACT_MAX: int = Field(default=5, ge=1, le=1000)
+    PUBLIC_THROTTLE_CONTACT_WINDOW: int = Field(default=300, ge=30, le=3600)
+    PUBLIC_THROTTLE_CHECKOUT_MAX: int = Field(default=10, ge=1, le=1000)
+    PUBLIC_THROTTLE_CHECKOUT_WINDOW: int = Field(default=300, ge=30, le=3600)
+    PUBLIC_THROTTLE_TRACKING_MAX: int = Field(default=30, ge=1, le=1000)
+    PUBLIC_THROTTLE_TRACKING_WINDOW: int = Field(default=60, ge=10, le=3600)
+    PUBLIC_THROTTLE_PLP_MAX: int = Field(default=120, ge=1, le=5000)
+    PUBLIC_THROTTLE_PLP_WINDOW: int = Field(default=60, ge=10, le=3600)
+
+    # Security middleware
+    MAX_REQUEST_BODY_BYTES: int = Field(default=1_048_576, ge=1024, le=10_485_760)
+    TRUSTED_HOSTS: str = ""
+    ENFORCE_HTTPS: bool = False
+
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
     INITIAL_SUPER_ADMIN_PHONE: Optional[str] = None
@@ -109,9 +129,18 @@ class Settings(BaseSettings):
             raise ValueError("PAYMENT_PROVIDER must be either 'mock' or 'zarinpal'")
         return normalized
 
+    @field_validator("APP_ENV")
+    @classmethod
+    def validate_app_env(cls, v: str) -> str:
+        normalized = v.strip().lower()
+        allowed = {"development", "staging", "production"}
+        if normalized not in allowed:
+            raise ValueError(f"APP_ENV must be one of: {', '.join(sorted(allowed))}")
+        return normalized
+
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:
-        """Reject trivial PINs when running outside debug mode."""
+        """Reject weak security settings when running outside debug mode."""
         if not self.DEBUG:
             weak_pins = {
                 "000000",
@@ -126,6 +155,16 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "ADMIN_STEP_UP_PIN must be changed from default/weak value when DEBUG=False"
                 )
+            if self.OTP_DEV_ECHO:
+                raise ValueError("OTP_DEV_ECHO must be False when DEBUG=False")
+            if self.CORS_ORIGINS.strip() == "*":
+                raise ValueError("CORS_ORIGINS cannot be '*' when DEBUG=False")
+            if not self.REDIS_HOST:
+                raise ValueError(
+                    "REDIS_HOST is required when DEBUG=False so rate limits are shared across workers"
+                )
+            if self.APP_ENV == "production" and self.PAYMENT_PROVIDER == "mock":
+                raise ValueError("PAYMENT_PROVIDER=mock is not allowed when APP_ENV=production")
         return self
 
     @computed_field
@@ -135,6 +174,13 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+
+    @computed_field
+    @property
+    def trusted_hosts_list(self) -> list[str]:
+        if not self.TRUSTED_HOSTS.strip():
+            return []
+        return [host.strip() for host in self.TRUSTED_HOSTS.split(",") if host.strip()]
 
     @computed_field
     @property

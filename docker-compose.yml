@@ -2,37 +2,41 @@ services:
   app:
     build:
       context: .
-      network: host
     container_name: lathe_api
-    network_mode: host
-    volumes:
-      - .:/app
+    ports:
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     environment:
-      - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
-      - POSTGRES_SERVER=127.0.0.1
-      - POSTGRES_PORT=5435
-      - REDIS_HOST=127.0.0.1
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    volumes:
+      - karzar_uploads:/app/data/uploads
+      - karzar_logs:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - karzar
 
   db:
     image: postgres:15-alpine
     container_name: lathe_postgres
-    network_mode: host
-    command: ["postgres", "-p", "5435"]
+    ports:
+      - "5435:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -40,24 +44,37 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5435"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    networks:
+      - karzar
 
   redis:
     image: redis:7-alpine
     container_name: lathe_redis
-    network_mode: host
+    ports:
+      - "6379:6379"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - karzar
+
+networks:
+  karzar:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
+  karzar_uploads:
+    driver: local
+  karzar_logs:
     driver: local

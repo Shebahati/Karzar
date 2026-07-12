@@ -25,6 +25,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import Enum as SAEnum, select
 from sqlalchemy.pool import StaticPool
 
+from app.core.rate_limit import reset_in_memory_limiter
+from app.core.request_throttle import reset_in_memory_request_throttle
 from app.core.security import get_password_hash
 from app.core.config import settings
 from app.db.database import get_db
@@ -92,6 +94,16 @@ TestingSessionLocal = async_sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limiters():
+    """Isolate throttle state between tests."""
+    reset_in_memory_limiter()
+    reset_in_memory_request_throttle()
+    yield
+    reset_in_memory_limiter()
+    reset_in_memory_request_throttle()
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:

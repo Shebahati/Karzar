@@ -1,0 +1,15 @@
+# Staging-oriented overrides (no source bind mount).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+services:
+  app:
+    environment:
+      APP_ENV: staging
+      DEBUG: "false"
+      ENABLE_API_DOCS: "false"
+      OTP_DEV_ECHO: "false"
+      APP_SERVER: gunicorn
+      ENABLE_METRICS: "true"
+      ENFORCE_HTTPS: "true"
+    volumes:
+      - karzar_uploads:/app/data/uploads
+      - karzar_logs:/app/logs

@@ -127,7 +127,7 @@ async def delete_category(
     tags=["Categories"],
 )
 async def get_category_tree(db: AsyncSession = Depends(get_db)):
-    """Return the full category hierarchy as a nested tree of arbitrary depth."""
+    """Return the category hierarchy as a nested tree (max 3 product-assignable layers)."""
     try:
         tree = await CategoryService.get_category_tree(db)
         return tree

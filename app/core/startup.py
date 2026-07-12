@@ -39,8 +39,6 @@ async def bootstrap_super_admin() -> None:
         if user:
             user.role = UserRole.SUPER_ADMIN
             user.is_active = True
-            if settings.INITIAL_SUPER_ADMIN_PASSWORD:
-                user.hashed_password = get_password_hash(settings.INITIAL_SUPER_ADMIN_PASSWORD)
             logger.info("Promoted existing user to super admin: %s", user.phone_number)
         else:
             user = User(

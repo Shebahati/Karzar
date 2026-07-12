@@ -16,7 +16,6 @@ from app.services.payment_service import (
     PaymentInitResult,
     PaymentVerifyFailedError,
     PaymentVerifyResult,
-    extract_stored_authority,
     get_payment_provider,
 )
 
@@ -30,20 +29,11 @@ def resolve_payment_callback_url() -> str:
 
 
 def get_order_payment_authority(order: Order) -> str | None:
-    if order.payment_authority:
-        return order.payment_authority
-    return extract_stored_authority(order.note)
+    return order.payment_authority
 
 
 def get_order_payment_ref_id(order: Order) -> str | None:
-    if order.payment_ref_id:
-        return order.payment_ref_id
-    if not order.note:
-        return None
-    import re
-
-    match = re.search(r"ref_id=([^\s|]+)", order.note)
-    return match.group(1) if match else None
+    return order.payment_ref_id
 
 
 def build_mock_payment_url(authority: str) -> str:

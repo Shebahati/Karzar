@@ -175,7 +175,7 @@ This document answers every contract requirement you originally requested and de
 **Contract rules:**
 
 - Nested key is **`subcategories`** (not `children`)
-- **Unlimited depth** — render recursively; do not hard-code 2 or 3 levels
+- **Max 3 layers** — only depth-3 leaf categories are product-assignable (`is_selectable=true`); creating deeper nodes is rejected
 - Siblings sorted alphabetically by `name`
 - Filter products by `category_id` on PLP (no `category_slug` yet)
 

@@ -5,6 +5,9 @@ from typing import Dict, List, Optional, TypedDict
 
 from app.db.models.product import Category
 
+# Business rule: products may only attach to depth-3 leaf categories.
+MAX_CATEGORY_DEPTH = 3
+
 
 class CategoryMeta(TypedDict):
     depth: int

@@ -39,8 +39,7 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
-    # Intentionally Optional: admin UI requires category_id, but PATCH may omit it.
-    category_id: Optional[int] = None
+    category_id: int = Field(..., ge=1, description="Required selectable (depth-3 leaf) category")
     brand_id: Optional[int] = None
 
     base_price: Optional[Decimal] = Field(default=None, max_digits=15, decimal_places=2)
@@ -107,12 +106,12 @@ class ProductUpdate(BaseModel):
 
     Explicit null on required string columns (sku, name) is rejected
     to prevent IntegrityError at the database layer. category_id may be
-    set to null to move a product to uncategorized.
+    omitted on PATCH (leave unchanged) but cannot be cleared to null.
     """
 
     sku: Optional[str] = None
     name: Optional[str] = None
-    category_id: Optional[int] = None
+    category_id: Optional[int] = Field(None, ge=1)
     brand_id: Optional[int] = None
     base_price: Optional[Decimal] = None
     stock_quantity: Optional[Decimal] = None
@@ -239,6 +238,8 @@ class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
 
 
 class StockStatusResponse(BaseModel):
+    """Admin stock snapshot. stock_status uses English codes: in_stock | low_stock | out_of_stock."""
+
     product_id: int
     sku: str
     stock_quantity: Decimal

@@ -13,9 +13,18 @@ from app.utils.category_depth import build_category_metadata, is_selectable_prod
 async def ensure_selectable_product_category(
     db: AsyncSession,
     category_id: Optional[int],
+    *,
+    required: bool = False,
 ) -> None:
     """Reject missing, unknown, or non-assignable categories for products."""
     if category_id is None:
+        if required:
+            raise api_error(
+                400,
+                error_code=ErrorCode.BAD_REQUEST,
+                message="Category is required",
+                details=[{"field": "category_id", "message": "انتخاب دسته‌بندی الزامی است."}],
+            )
         return
 
     category = await crud_category.get_category_by_id(db, category_id)
@@ -33,11 +42,11 @@ async def ensure_selectable_product_category(
         raise api_error(
             400,
             error_code=ErrorCode.BAD_REQUEST,
-            message="Category must be a leaf node below the root level",
+            message="Category must be a depth-3 leaf",
             details=[
                 {
                     "field": "category_id",
-                    "message": "محصول فقط می‌تواند به یک زیردستهٔ برگ (عمق ۲ یا بیشتر) اختصاص یابد.",
+                    "message": "محصول فقط می‌تواند به یک زیردستهٔ برگ با عمق ۳ اختصاص یابد.",
                 }
             ],
         )

@@ -36,8 +36,10 @@ from app.schemas.storefront import ProductCommentCreateRequest, ProductCommentLi
 from app.crud import category as crud_category
 from app.crud import content as crud_content
 from app.crud import product as crud_product
+from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.core.request_throttle import enforce_public_throttle
 from app.utils.category_depth import build_category_metadata
 from app.utils.image_validation import ensure_image_count_within_limit, validate_product_image_url
 from app.utils.jsonb_filters import merge_spec_filters
@@ -149,6 +151,23 @@ async def read_products(
     ),
 ):
     try:
+        if not is_super_admin(current_user):
+            has_plp_search = bool(
+                search
+                or filters
+                or any(
+                    key.startswith("spec_")
+                    for key in request.query_params.keys()
+                )
+            )
+            if has_plp_search:
+                await enforce_public_throttle(
+                    request,
+                    scope="plp_search",
+                    max_requests=settings.PUBLIC_THROTTLE_PLP_MAX,
+                    window_seconds=settings.PUBLIC_THROTTLE_PLP_WINDOW,
+                )
+
         if is_deleted is True and not is_super_admin(current_user):
             raise api_error(
                 status.HTTP_403_FORBIDDEN,

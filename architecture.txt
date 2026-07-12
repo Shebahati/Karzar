@@ -6,107 +6,77 @@ karzar/
 ├── app/
 │   ├── main.py
 │   │   └── FastAPI application bootstrap:
-│   │       - middleware (CORS, sessions)
-│   │       - SQLAdmin registration
+│   │       - security middleware (body size, HTTPS redirect, trusted hosts)
+│   │       - CORS, request-id + security headers
 │   │       - v1 router mounting
 │   │       - global exception normalization to error envelope
 │   │
 │   ├── api/
 │   │   ├── deps.py
-│   │   │   └── Dependency layer (authn/authz, step-up token verification)
+│   │   │   └── Dependency layer (authn/authz, token_version revocation check)
 │   │   ├── v1/__init__.py
-│   │   │   └── Route composition for auth/products/categories
+│   │   │   └── Route composition for auth/products/orders/payments/cart/cms
 │   │   └── endpoints/
 │   │       ├── auth.py
-│   │       │   └── Register/login/verify-pin (with in-memory PIN rate limiting)
+│   │       │   └── OTP/login/refresh/logout/password-reset + PIN step-up
 │   │       ├── product.py
-│   │       │   └── Product CRUD, list filters, stock operations, soft delete/restore
-│   │       └── category.py
-│   │           └── Category tree endpoint with wrapped response
+│   │       │   └── Product CRUD, PLP filters, stock, images, soft delete/restore
+│   │       ├── order.py
+│   │       │   └── Admin workflow, customer history, public tracking
+│   │       ├── payment.py
+│   │       │   └── Payment init/verify/callback/refund
+│   │       ├── storefront.py
+│   │       │   └── Checkout, contact, blog, hero slides
+│   │       ├── cart.py / cms.py / users.py / brand.py / category.py
 │   │
 │   ├── core/
 │   │   ├── config.py
-│   │   │   └── Pydantic Settings:
-│   │   │       - JWT/step-up config
-│   │   │       - security toggles (e.g., ALLOW_PUBLIC_REGISTER)
-│   │   │       - DB/Redis config and computed DSN
+│   │   │   └── Pydantic Settings with production security validators
 │   │   ├── security.py
 │   │   │   └── Password hashing, JWT creation/verification, PIN verification
 │   │   ├── errors.py
 │   │   │   └── Canonical error codes + standardized error envelope builders
-│   │   ├── logging.py
-│   │   │   └── Structured logging config
-│   │   ├── health.py
-│   │   │   └── Database/Redis health checks
-│   │   └── startup.py
-│   │       └── Bootstrap tasks (initial super admin provisioning)
+│   │   ├── rate_limit.py
+│   │   │   └── Redis/in-memory failure counters (auth, payment)
+│   │   ├── request_throttle.py
+│   │   │   └── Redis/in-memory request counters (contact, checkout, PLP, tracking)
+│   │   ├── security_middleware.py
+│   │   │   └── Body size limit + optional HTTPS redirect
+│   │   ├── distributed_lock.py
+│   │   │   └── Redis lock for background workers
+│   │   ├── logging.py / health.py / startup.py
 │   │
 │   ├── db/
 │   │   ├── database.py
-│   │   │   └── Async engine/session factory + request-scoped session dependency
 │   │   └── models/
-│   │       ├── base.py
-│   │       │   └── Declarative base + audit timestamps
-│   │       ├── product.py
-│   │       │   └── Category/Brand/Product/ProductImage models (+ JSONB specs)
-│   │       └── user.py
-│   │           └── User model + role enum
+│   │       ├── product.py, user.py, commerce.py, content.py, platform.py
 │   │
-│   ├── schemas/
-│   │   └── Pydantic request/response contracts:
-│   │       - auth/category/product
-│   │       - paginated/common/error envelopes
+│   ├── schemas/ / crud/ / services/ / utils/
+│   │   └── Business contracts, persistence, orchestration, helpers
 │   │
-│   ├── crud/
-│   │   └── Data access layer (DB-only logic, no HTTP concerns)
-│   │
-│   ├── services/
-│   │   └── Business orchestration layer (validation, side effects, workflows)
-│   │
-│   ├── utils/
-│   │   └── Pure helpers:
-│   │       - product presenter mappings
-│   │       - JSONB filter builders
-│   │       - category tree assembler
-│   │       - Decimal coercion helper
-│   │
-│   └── admin/
-│       └── SQLAdmin authentication and model views
+│   └── (no SQLAdmin — admin UI is the separate Next.js admin panel)
 │
-├── alembic/
-│   ├── env.py
-│   │   └── Async migration runtime wired to app settings
-│   └── versions/
-│       └── Schema migration history
-│
+├── alembic/versions/
 ├── docs/
-│   └── Frontend integration and handover docs
-│
 ├── tests/
-│   └── Pytest suite:
-│       - endpoint integration tests
-│       - category tree unit tests
-│       - JSONB filter query tests
-│
-├── scripts/
-│   └── setup-dev.sh (local environment bootstrap)
-│
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── requirements-dev.txt
-└── alembic.ini
+├── Dockerfile / docker-compose.yml
 
 Request flow (high level):
-1) HTTP request -> app/api/endpoints
-2) endpoint dependencies (auth/step-up) in app/api/deps.py
+1) HTTP request -> security middleware -> app/api/endpoints
+2) endpoint dependencies (auth/step-up/throttle) in app/api/deps.py
 3) service orchestration in app/services/*
 4) persistence via app/crud/* and app/db/models/*
-5) response shaping via app/schemas/* and app/utils/product_presenter.py
+5) response shaping via app/schemas/* and app/utils/*
 6) centralized error envelope from app/core/errors.py
 
 Current security posture:
-- JWT access auth for protected endpoints
-- Step-up token required for destructive actions
-- PIN verification endpoint rate limited (429 + Retry-After)
-- Public registration can be disabled via ALLOW_PUBLIC_REGISTER
+- JWT access auth with token_version revocation on logout/password reset
+- Refresh token rotation stored hashed in DB
+- Step-up PIN for destructive admin actions (shared env PIN; per-user MFA is future work)
+- Auth/payment failure rate limits via Redis when REDIS_HOST is set
+- Public endpoint request throttles (contact, checkout, PLP, tracking)
+- OTP dev echo only when DEBUG=True and OTP_DEV_ECHO=True
+- Production config rejects weak PIN, wildcard CORS, missing Redis, OTP echo
+- Image URL validation blocks private/internal hosts (SSRF guard)
+- Optional TRUSTED_HOSTS and ENFORCE_HTTPS middleware
+- MAX_REQUEST_BODY_BYTES rejects oversized payloads early

@@ -1,0 +1,15 @@
+# Local development overrides: bind-mount source for hot reload.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  app:
+    volumes:
+      - .:/app
+      - karzar_uploads:/app/data/uploads
+      - karzar_logs:/app/logs
+    environment:
+      APP_ENV: development
+      DEBUG: "true"
+      ENABLE_API_DOCS: "true"
+      OTP_DEV_ECHO: "true"
+      LOG_TO_FILE: "true"
+      ENABLE_METRICS: "true"

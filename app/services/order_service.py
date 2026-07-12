@@ -171,7 +171,8 @@ async def transition_order_status(
         order.payment_status = PaymentStatus.REFUNDED.value
 
     if note is not None:
-        order.note = note
+        # Admin annotations go to admin_note; never overwrite the customer checkout note.
+        order.admin_note = note
 
     await crud_commerce.record_status_event(
         db,
@@ -225,8 +226,6 @@ async def issue_order_quote(
         "total": decimal_to_api_string(total),
         "note": payload.note,
     }
-    if payload.note is not None:
-        order.note = payload.note
 
     await transition_order_status(
         db,

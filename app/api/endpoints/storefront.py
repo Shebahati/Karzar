@@ -1,12 +1,13 @@
 """Storefront content endpoints: blog, hero slides, contact, checkout."""
 
-from fastapi import APIRouter, Depends, Header, status
+from fastapi import APIRouter, Depends, Header, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_optional_current_user
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.request_throttle import enforce_public_throttle
 from app.crud import content as crud_content
 from app.crud import platform as crud_platform
 from app.db.database import get_db
@@ -101,7 +102,17 @@ async def list_hero_slides(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/contact", response_model=ContactResponse, tags=["Storefront"])
-async def contact_us(payload: ContactRequest, db: AsyncSession = Depends(get_db)):
+async def contact_us(
+    payload: ContactRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    await enforce_public_throttle(
+        request,
+        scope="contact",
+        max_requests=settings.PUBLIC_THROTTLE_CONTACT_MAX,
+        window_seconds=settings.PUBLIC_THROTTLE_CONTACT_WINDOW,
+    )
     try:
         return await submit_contact(db, payload)
     except Exception as exc:
@@ -120,11 +131,18 @@ async def contact_us(payload: ContactRequest, db: AsyncSession = Depends(get_db)
 )
 async def checkout(
     payload: CheckoutRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
     x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
+    await enforce_public_throttle(
+        request,
+        scope="checkout",
+        max_requests=settings.PUBLIC_THROTTLE_CHECKOUT_MAX,
+        window_seconds=settings.PUBLIC_THROTTLE_CHECKOUT_WINDOW,
+    )
     if idempotency_key and idempotency_key.strip():
         cached = await crud_platform.get_idempotency_record(
             db, scope="checkout", key=idempotency_key.strip()

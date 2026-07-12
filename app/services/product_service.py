@@ -12,6 +12,7 @@ from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
 from app.utils.decimal_utils import to_decimal as _to_decimal
+from app.utils.storefront_catalog import stock_status_label
 
 logger = get_logger(__name__)
 
@@ -28,7 +29,7 @@ class ProductService:
         if await crud_product.check_sku_exists(db, product_data.sku):
             raise ValueError(f"Product with SKU {product_data.sku} already exists")
 
-        await ensure_selectable_product_category(db, product_data.category_id)
+        await ensure_selectable_product_category(db, product_data.category_id, required=True)
         await ensure_brand_exists(db, product_data.brand_id)
 
         product = await crud_product.create_product(db, product_data)
@@ -44,13 +45,10 @@ class ProductService:
             return None
 
         quantity = _to_decimal(product.stock_quantity)
-        stock_status = "in_stock" if quantity > Decimal("0.0") else "out_of_stock"
-        low_stock = quantity < Decimal("10.0")
-
         return {
             "product": product,
-            "stock_status": stock_status,
-            "low_stock": low_stock,
+            "stock_status": stock_status_label(quantity, audience="admin"),
+            "low_stock": quantity > Decimal("0.0") and quantity < Decimal("10.0"),
             "availability": product.is_active and quantity > Decimal("0.0"),
         }
 
@@ -110,7 +108,9 @@ class ProductService:
                 raise ValueError(f"Product with SKU {update_data.sku} already exists")
 
         if "category_id" in update_data.model_fields_set:
-            await ensure_selectable_product_category(db, update_data.category_id)
+            await ensure_selectable_product_category(
+                db, update_data.category_id, required=True
+            )
         if "brand_id" in update_data.model_fields_set:
             await ensure_brand_exists(db, update_data.brand_id)
 

@@ -4,6 +4,7 @@ import logging
 import logging.config
 import os
 from contextvars import ContextVar
+from pathlib import Path
 from typing import Any, Dict
 
 request_id_ctx_var: ContextVar[str] = ContextVar("request_id", default="-")
@@ -16,28 +17,9 @@ class RequestIdFilter(logging.Filter):
         record.request_id = request_id_ctx_var.get()
         return True
 
-LOGGING_CONFIG: Dict[str, Any] = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-        "detailed": {
-            "format": (
-                "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - "
-                "%(pathname)s:%(lineno)d - %(funcName)s() - %(message)s"
-            ),
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-    },
-    "filters": {
-        "request_id": {
-            "()": "app.core.logging.RequestIdFilter",
-        }
-    },
-    "handlers": {
+
+def _build_logging_config(*, log_to_file: bool, log_file: str) -> Dict[str, Any]:
+    handlers: dict[str, Any] = {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
@@ -45,47 +27,77 @@ LOGGING_CONFIG: Dict[str, Any] = {
             "filters": ["request_id"],
             "stream": "ext://sys.stdout",
         },
-        "file": {
+    }
+    app_handlers = ["console"]
+    if log_to_file:
+        handlers["file"] = {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
             "formatter": "detailed",
             "filters": ["request_id"],
-            "filename": "logs/app.log",
+            "filename": log_file,
             "maxBytes": 10485760,
             "backupCount": 10,
+        }
+        app_handlers.append("file")
+
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "detailed": {
+                "format": (
+                    "%(asctime)s - %(name)s - %(levelname)s - [req=%(request_id)s] - "
+                    "%(pathname)s:%(lineno)d - %(funcName)s() - %(message)s"
+                ),
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
         },
-    },
-    "loggers": {
-        "app": {
-            "level": "DEBUG",
-            "handlers": ["console", "file"],
-            "propagate": False,
+        "filters": {
+            "request_id": {
+                "()": "app.core.logging.RequestIdFilter",
+            }
         },
-        "sqlalchemy": {
-            "level": "WARNING",
-            "handlers": ["console"],
-            "propagate": False,
+        "handlers": handlers,
+        "loggers": {
+            "app": {
+                "level": "DEBUG",
+                "handlers": app_handlers,
+                "propagate": False,
+            },
+            "sqlalchemy": {
+                "level": "WARNING",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+            "uvicorn": {
+                "level": "INFO",
+                "handlers": ["console"],
+                "propagate": False,
+            },
         },
-        "uvicorn": {
+        "root": {
             "level": "INFO",
             "handlers": ["console"],
-            "propagate": False,
         },
-    },
-    "root": {
-        "level": "INFO",
-        "handlers": ["console"],
-    },
-}
+    }
 
 
 def setup_logging() -> None:
-    """Apply dictConfig and ensure the rotating log directory exists."""
-    log_dir = "logs"
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
+    """Apply dictConfig and optionally create the rotating log directory."""
+    log_to_file = os.environ.get("LOG_TO_FILE", "true").lower() in {"1", "true", "yes"}
+    log_file = os.environ.get("LOG_FILE", "logs/app.log")
 
-    logging.config.dictConfig(LOGGING_CONFIG)
+    if log_to_file:
+        Path(log_file).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
+
+    logging.config.dictConfig(
+        _build_logging_config(log_to_file=log_to_file, log_file=log_file)
+    )
 
 
 def get_logger(name: str) -> logging.Logger:

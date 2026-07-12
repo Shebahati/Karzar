@@ -16,7 +16,7 @@ class AdminUserResponse(BaseModel):
     is_active: bool
     email: Optional[str] = None
     order_count: int = 0
-    created_at: Optional[datetime] = None
+    created_at: datetime
     note: Optional[str] = None
     category: Optional[str] = None
     tags: List[str] = Field(default_factory=list)

@@ -33,7 +33,7 @@ Response:
 Full product with `images[]`, `thumbnail`, `stock_status`, `low_stock`, `availability`, typed `specifications`, nested `category`/`brand`.
 
 ## Category tree — `GET /api/v1/categories/tree`
-Unlimited depth: all categories are loaded in one query and assembled in memory (3, 4, or more levels).
+Unlimited product-assignable depth is **not** supported: only depth-3 leaf categories are selectable (`is_selectable=true`). The tree endpoint may render up to 3 layers; creating a 4th layer is rejected.
 ```json
 { "data": [{ "id": 1, "name": "...", "parent_id": null, "subcategories": [{ "...": "..." }] }] }
 ```

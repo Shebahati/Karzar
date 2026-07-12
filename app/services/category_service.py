@@ -146,6 +146,21 @@ class CategoryService:
                 details=[{"field": "parent_id", "message": "دسته‌بندی والد یافت نشد."}],
             )
 
+        if payload.parent_id is not None:
+            parent_meta = build_category_metadata(categories)[payload.parent_id]
+            if parent_meta["depth"] >= 3:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Category tree is limited to 3 layers",
+                    details=[
+                        {
+                            "field": "parent_id",
+                            "message": "حداکثر عمق دسته‌بندی ۳ لایه است؛ نمی‌توان زیر یک دستهٔ عمق ۳ فرزند افزود.",
+                        }
+                    ],
+                )
+
         normalized_name = payload.name.strip()
         await _ensure_unique_category_name(
             db,
@@ -205,6 +220,44 @@ class CategoryService:
                     400,
                     error_code=ErrorCode.BAD_REQUEST,
                     message="Invalid parent assignment (cycle detected)",
+                )
+            parent_meta = build_category_metadata(categories)[payload.parent_id]
+            # Moving under a depth-3 parent would create depth 4.
+            if parent_meta["depth"] >= 3:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Category tree is limited to 3 layers",
+                    details=[
+                        {
+                            "field": "parent_id",
+                            "message": "حداکثر عمق دسته‌بندی ۳ لایه است.",
+                        }
+                    ],
+                )
+            # Moving a subtree: ensure deepest descendant stays within depth 3.
+            subtree_meta = build_category_metadata(categories)
+            current_depth = subtree_meta[category_id]["depth"]
+            deepest_relative = max(
+                (
+                    meta["depth"] - current_depth
+                    for cid, meta in subtree_meta.items()
+                    if cid == category_id or category_id in meta["ancestor_ids"]
+                ),
+                default=0,
+            )
+            new_depth = parent_meta["depth"] + 1 + deepest_relative
+            if new_depth > 3:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Category tree is limited to 3 layers",
+                    details=[
+                        {
+                            "field": "parent_id",
+                            "message": "انتقال این دسته باعث عبور از عمق ۳ می‌شود.",
+                        }
+                    ],
                 )
 
         if payload.name is not None:

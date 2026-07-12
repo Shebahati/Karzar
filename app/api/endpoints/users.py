@@ -19,7 +19,9 @@ from app.services.audit_service import record_audit
 
 router = APIRouter()
 
-_VALID_USER_SORTS = frozenset({"id_desc", "id_asc", "phone_asc", "name_asc"})
+_VALID_USER_SORTS = frozenset(
+    {"id_desc", "id_asc", "phone_asc", "name_asc", "created_at_desc", "created_at_asc"}
+)
 
 
 async def _order_counts_by_user(db: AsyncSession, user_ids: list[int]) -> dict[int, int]:
@@ -88,6 +90,10 @@ async def list_users(
         order_by = [User.phone_number.asc(), User.id.asc()]
     elif sort == "name_asc":
         order_by = [User.full_name.asc().nulls_last(), User.id.asc()]
+    elif sort == "created_at_desc":
+        order_by = [User.created_at.desc(), User.id.desc()]
+    elif sort == "created_at_asc":
+        order_by = [User.created_at.asc(), User.id.asc()]
 
     stmt = select(User).where(*filters).order_by(*order_by).offset(resolved_skip).limit(resolved_limit)
     users = (await db.execute(stmt)).scalars().all()

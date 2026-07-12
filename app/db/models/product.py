@@ -113,7 +113,7 @@ class Product(Base):
     sku: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
 
-    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     brand_id: Mapped[Optional[int]] = mapped_column(ForeignKey("brands.id"))
 
     base_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
