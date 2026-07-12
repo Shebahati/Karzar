@@ -26,6 +26,7 @@ from app.services.spec_template_service import (
     extract_spec_filter_options,
     resolve_spec_template,
 )
+from app.utils.category_counts import get_category_product_counts
 from app.utils.category_depth import build_category_metadata, is_selectable_product_category
 from app.utils.category_tree import build_category_tree
 
@@ -36,8 +37,9 @@ class CategoryService:
     @staticmethod
     async def get_category_tree(db: AsyncSession) -> List[CategoryTreeResponse]:
         categories = await crud_category.get_all_categories(db)
+        product_counts = await get_category_product_counts(db, categories)
         try:
-            return build_category_tree(categories)
+            return build_category_tree(categories, product_counts=product_counts)
         except ValueError as exc:
             logger.error("Invalid category hierarchy: %s", exc)
             raise
@@ -46,6 +48,7 @@ class CategoryService:
     async def get_flat_categories(db: AsyncSession) -> List[CategoryFlatResponse]:
         categories = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(categories)
+        product_counts = await get_category_product_counts(db, categories)
 
         return [
             CategoryFlatResponse(
@@ -57,6 +60,7 @@ class CategoryService:
                 is_selectable=is_selectable_product_category(metadata[category.id]),
                 breadcrumb=metadata[category.id]["breadcrumb"],
                 ancestor_ids=metadata[category.id]["ancestor_ids"],
+                product_count=product_counts.get(category.id),
             )
             for category in categories
         ]
@@ -165,6 +169,7 @@ class CategoryService:
             is_selectable=is_selectable_product_category(metadata),
             breadcrumb=metadata["breadcrumb"],
             ancestor_ids=metadata["ancestor_ids"],
+            product_count=(await get_category_product_counts(db, refreshed)).get(category.id),
         )
 
     @staticmethod
@@ -245,6 +250,7 @@ class CategoryService:
             is_selectable=is_selectable_product_category(metadata),
             breadcrumb=metadata["breadcrumb"],
             ancestor_ids=metadata["ancestor_ids"],
+            product_count=(await get_category_product_counts(db, refreshed)).get(category.id),
         )
 
     @staticmethod

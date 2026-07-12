@@ -7,7 +7,7 @@ from decimal import Decimal
 
 from app.core.constants import DEFAULT_TAX_PERCENT
 from app.db.models.product import StockUnitEnum
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, PaginationMeta
 
 StockUnitValue = Literal["piece", "kg", "meter", "pack"]
 VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
@@ -219,6 +219,21 @@ class ProductImageSetPrimaryResponse(BaseModel):
     is_primary: bool = True
 
 
+class ProductImageUploadResponse(BaseModel):
+    id: int
+    url: str
+    is_primary: bool
+
+
+class ProductStatisticsResponse(BaseModel):
+    total_products: int
+    active_products: int
+    total_stock_value: str
+    total_stock_quantity: str
+    categories: int
+    brands: int
+
+
 class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
     pass
 
@@ -228,3 +243,34 @@ class StockStatusResponse(BaseModel):
     sku: str
     stock_quantity: Decimal
     stock_status: str
+
+
+class BulkStockAdjustItem(BaseModel):
+    product_id: int = Field(..., ge=1)
+    quantity_delta: Decimal
+    reason: Optional[str] = Field(None, max_length=255)
+
+
+class BulkStockAdjustRequest(BaseModel):
+    items: List[BulkStockAdjustItem] = Field(..., min_length=1, max_length=100)
+
+
+class BulkStockAdjustResponse(BaseModel):
+    updated_product_ids: List[int]
+
+
+class ProductChangeLogEntry(BaseModel):
+    id: int
+    product_id: int
+    field_name: str
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+    reason: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductChangeLogListResponse(BaseModel):
+    data: List[ProductChangeLogEntry]
+    meta: PaginationMeta

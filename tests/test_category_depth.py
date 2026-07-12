@@ -17,14 +17,14 @@ class TestSelectableCategoryRules:
         assert meta["is_leaf"] is True
         assert is_selectable_product_category(meta) is False
 
-    def test_depth_two_leaf_is_selectable(self):
+    def test_depth_two_leaf_is_not_selectable(self):
         categories = [
             _category(1, "Root"),
             _category(2, "Leaf", 1),
         ]
         meta = build_category_metadata(categories)[2]
         assert meta["depth"] == 2
-        assert is_selectable_product_category(meta) is True
+        assert is_selectable_product_category(meta) is False
 
     def test_depth_three_leaf_is_selectable(self):
         categories = [
@@ -85,7 +85,7 @@ class TestProductCategoryValidationEndpoint:
 
         client = TestClient(app)
         valid_product_data["sku"] = "SUBTREE-001"
-        valid_product_data["category_id"] = 4
+        valid_product_data["category_id"] = 3
         create = client.post(
             "/api/v1/products/",
             json=valid_product_data,
@@ -93,7 +93,7 @@ class TestProductCategoryValidationEndpoint:
         )
         assert create.status_code == 201
 
-        by_leaf = client.get("/api/v1/products/?category_id=4")
+        by_leaf = client.get("/api/v1/products/?category_id=3")
         assert by_leaf.status_code == 200
         assert by_leaf.json()["meta"]["total_count"] == 1
 

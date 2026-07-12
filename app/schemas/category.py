@@ -20,10 +20,11 @@ class CategoryFlatResponse(CategoryResponse):
     is_leaf: bool
     is_selectable: bool = Field(
         ...,
-        description="True when the category is a leaf below root level (depth >= 2)",
+        description="True only when depth==3 and the category is a leaf node",
     )
     breadcrumb: List[str] = Field(default_factory=list)
     ancestor_ids: List[int] = Field(default_factory=list)
+    product_count: Optional[int] = Field(None, ge=0)
 
 
 class CategoryListResponse(BaseModel):
@@ -33,6 +34,8 @@ class CategoryListResponse(BaseModel):
 class CategoryTreeResponse(CategoryResponse):
     """Recursive tree node with nested subcategories."""
 
+    icon: Optional[str] = Field(None, description="react-iconly icon name (roots only)")
+    product_count: Optional[int] = Field(None, ge=0)
     subcategories: List["CategoryTreeResponse"] = []
 
 

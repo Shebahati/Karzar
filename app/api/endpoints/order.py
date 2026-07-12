@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Header, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_active_user, get_current_super_admin
+from app.api.deps import get_current_active_user, get_current_super_admin, get_current_super_admin_with_step_up
 from app.core.errors import ErrorCode, api_error
 from app.core.security import verify_step_up_token
 from app.crud import commerce as crud_commerce
@@ -14,16 +14,21 @@ from app.db.models.commerce import Order, OrderMode, OrderStatus
 from app.db.models.user import User
 from app.schemas.common import build_pagination_meta, resolve_pagination
 from app.schemas.order import (
+    IssueQuoteRequest,
     OrderDetailResponse,
     OrderItemResponse,
     OrderListResponse,
     OrderStatusUpdateRequest,
     OrderSummary,
+    OrderTrackingEvent,
     OrderTrackingItemResponse,
     OrderTrackingResponse,
 )
+from app.services.audit_service import record_audit
 from app.services.order_service import (
     allowed_next_statuses,
+    build_invoice_response,
+    issue_order_quote,
     payment_status_label,
     status_label,
     transition_order_status,
@@ -33,9 +38,31 @@ from app.utils.storefront_catalog import decimal_to_api_string
 router = APIRouter()
 
 _VALID_ORDER_SORTS = frozenset({"newest", "oldest", "total_asc", "total_desc"})
-
-# Statuses that require a step-up token because they are irreversible/financial.
 _SENSITIVE_STATUSES = frozenset({OrderStatus.CANCELLED.value})
+
+
+def _build_timeline(order: Order) -> list[OrderTrackingEvent]:
+    events = list(order.status_events or [])
+    if not events:
+        return [
+            OrderTrackingEvent(
+                status=order.status,
+                status_label=status_label(order.status),
+                occurred_at=order.updated_at or order.created_at,
+                description=None,
+                actor="system",
+            )
+        ]
+    return [
+        OrderTrackingEvent(
+            status=event.status,
+            status_label=status_label(event.status),
+            occurred_at=event.created_at,
+            description=event.description,
+            actor=event.actor,
+        )
+        for event in events
+    ]
 
 
 def _to_summary(order: Order) -> OrderSummary:
@@ -64,6 +91,9 @@ def _to_detail(order: Order) -> OrderDetailResponse:
         note=order.note,
         shipping=order.shipping,
         user_id=order.user_id,
+        postal_tracking_code=order.postal_tracking_code,
+        delivery_eta=order.delivery_eta,
+        invoice=build_invoice_response(order.invoice),
         items=[
             OrderItemResponse(
                 id=item.id,
@@ -74,14 +104,11 @@ def _to_detail(order: Order) -> OrderDetailResponse:
             for item in order.items
         ],
         allowed_next_statuses=allowed_next_statuses(order.status),
+        timeline=_build_timeline(order),
     )
 
 
-@router.get(
-    "/me",
-    response_model=OrderListResponse,
-    summary="List the authenticated customer's orders",
-)
+@router.get("/me", response_model=OrderListResponse, summary="List the authenticated customer's orders")
 async def list_my_orders(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -97,11 +124,7 @@ async def list_my_orders(
     }
 
 
-@router.get(
-    "/track/{tracking_code}",
-    response_model=OrderTrackingResponse,
-    summary="Public order tracking by code",
-)
+@router.get("/track/{tracking_code}", response_model=OrderTrackingResponse, summary="Public order tracking by code")
 async def track_order(tracking_code: str, db: AsyncSession = Depends(get_db)):
     order = await crud_commerce.get_order_by_tracking_code(db, tracking_code.strip())
     if not order:
@@ -115,7 +138,6 @@ async def track_order(tracking_code: str, db: AsyncSession = Depends(get_db)):
         mode=order.mode.value if isinstance(order.mode, OrderMode) else str(order.mode),
         status=order.status,
         status_label=status_label(order.status),
-        estimated_total=decimal_to_api_string(order.estimated_total),
         created_at=order.created_at,
         items=[
             OrderTrackingItemResponse(
@@ -125,26 +147,25 @@ async def track_order(tracking_code: str, db: AsyncSession = Depends(get_db)):
             )
             for item in order.items
         ],
+        timeline=_build_timeline(order),
     )
 
 
-@router.get(
-    "",
-    response_model=OrderListResponse,
-    summary="List orders (admin)",
-)
+@router.get("", response_model=OrderListResponse, summary="List orders (admin)")
 async def list_orders(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
-    page: Optional[int] = Query(None, ge=1, description="1-based page number (alternative to skip)"),
-    page_size: Optional[int] = Query(None, ge=1, le=200, description="Page size (alternative to limit)"),
-    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status code"),
-    mode: Optional[str] = Query(None, description="Filter by mode: purchase or inquiry"),
-    payment_status: Optional[str] = Query(None, description="Filter by payment status"),
-    phone: Optional[str] = Query(None, description="Filter by customer phone"),
-    sort: str = Query("newest", description="Sort key: newest, oldest, total_asc, total_desc"),
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=200),
+    status_filter: Optional[str] = Query(None, alias="status"),
+    mode: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    phone: Optional[str] = Query(None),
+    customer_phone: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    sort: str = Query("newest"),
 ):
     if sort not in _VALID_ORDER_SORTS:
         raise api_error(
@@ -189,6 +210,8 @@ async def list_orders(
         mode=mode_enum,
         payment_status=payment_status,
         phone=phone,
+        customer_phone=customer_phone,
+        search=search,
         sort=sort,
     )
     return {
@@ -197,11 +220,7 @@ async def list_orders(
     }
 
 
-@router.get(
-    "/{order_id}",
-    response_model=OrderDetailResponse,
-    summary="Get order detail (admin)",
-)
+@router.get("/{order_id}", response_model=OrderDetailResponse, summary="Get order detail (admin)")
 async def get_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),
@@ -217,11 +236,7 @@ async def get_order(
     return _to_detail(order)
 
 
-@router.patch(
-    "/{order_id}/status",
-    response_model=OrderDetailResponse,
-    summary="Update order status (admin)",
-)
+@router.patch("/{order_id}/status", response_model=OrderDetailResponse, summary="Update order status (admin)")
 async def update_order_status(
     order_id: int,
     payload: OrderStatusUpdateRequest,
@@ -237,14 +252,12 @@ async def update_order_status(
             message=f"Order '{order_id}' not found",
         )
 
-    # Cancellation is irreversible and may trigger refunds/restock — require step-up.
     if payload.status in _SENSITIVE_STATUSES:
         if not x_step_up_token:
             raise api_error(
                 status.HTTP_403_FORBIDDEN,
                 error_code=ErrorCode.STEP_UP_REQUIRED,
                 message="Step-up authentication required to cancel an order",
-                details=[{"field": "X-Step-Up-Token", "message": "Missing step-up token"}],
             )
         step_up_payload = verify_step_up_token(x_step_up_token)
         if step_up_payload.get("sub") != current_user.phone_number:
@@ -255,7 +268,15 @@ async def update_order_status(
             )
 
     try:
-        await transition_order_status(db, order, payload.status, note=payload.note)
+        await transition_order_status(
+            db,
+            order,
+            payload.status,
+            note=payload.note,
+            postal_tracking_code=payload.postal_tracking_code,
+            delivery_eta=payload.delivery_eta,
+            actor="admin",
+        )
     except ValueError as exc:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -267,3 +288,59 @@ async def update_order_status(
     await db.commit()
     refreshed = await crud_commerce.get_order_by_id(db, order_id)
     return _to_detail(refreshed)
+
+
+@router.post("/{order_id}/quote", response_model=OrderDetailResponse, summary="Issue inquiry quote (admin)")
+async def issue_quote(
+    order_id: int,
+    payload: IssueQuoteRequest,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if not order:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Order '{order_id}' not found",
+        )
+    try:
+        await issue_order_quote(db, order, payload)
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=str(exc),
+            details=[{"field": "items", "message": str(exc)}],
+        ) from exc
+
+    await db.commit()
+    refreshed = await crud_commerce.get_order_by_id(db, order_id)
+    return _to_detail(refreshed)
+
+
+@router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Archive order (soft delete, admin)")
+async def archive_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin_user: User = Depends(get_current_super_admin_with_step_up),
+):
+    from datetime import datetime, timezone
+
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if not order:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Order '{order_id}' not found",
+        )
+    order.deleted_at = datetime.now(timezone.utc)
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="soft_delete",
+        entity_type="order",
+        entity_id=order.id,
+        details={"tracking_code": order.tracking_code},
+    )
+    await db.commit()

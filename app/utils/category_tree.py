@@ -5,6 +5,7 @@ from typing import Dict, Iterable, List, Optional, Set
 
 from app.db.models.product import Category
 from app.schemas.category import CategoryTreeResponse
+from app.utils.category_icons import resolve_category_icon
 
 
 def _sort_categories(categories: Iterable[Category]) -> List[Category]:
@@ -55,21 +56,29 @@ def _detect_cycles(
             visit(category.id)
 
 
-def build_category_tree(categories: List[Category]) -> List[CategoryTreeResponse]:
-    """Assemble an arbitrarily deep tree from a single flat query result."""
+def build_category_tree(
+    categories: List[Category],
+    *,
+    product_counts: Optional[Dict[int, int]] = None,
+) -> List[CategoryTreeResponse]:
+    """Assemble a nested tree from a single flat query result."""
     if not categories:
         return []
 
+    counts = product_counts or {}
     known_ids = {category.id for category in categories}
     children_by_parent = _build_children_map(categories, known_ids)
     _detect_cycles(categories, children_by_parent)
 
     def to_node(category: Category) -> CategoryTreeResponse:
         children = children_by_parent.get(category.id, [])
+        is_root = category.parent_id is None
         return CategoryTreeResponse(
             id=category.id,
             name=category.name,
             parent_id=category.parent_id,
+            icon=resolve_category_icon(category.name, category.icon, is_root=is_root),
+            product_count=counts.get(category.id),
             subcategories=[to_node(child) for child in children],
         )
 

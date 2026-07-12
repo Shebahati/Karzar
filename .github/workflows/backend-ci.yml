@@ -59,6 +59,7 @@ jobs:
           ADMIN_STEP_UP_PIN: 93827461
           DEBUG: "true"
           ENABLE_API_DOCS: "false"
+          USE_POSTGRES_TESTS: "1"
           ALLOW_PUBLIC_REGISTER: "true"
           OTP_DEV_ECHO: "true"
         run: |

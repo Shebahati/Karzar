@@ -1,25 +1,37 @@
 """Payment endpoint integration tests with mock provider."""
 
+import asyncio
+
 from fastapi.testclient import TestClient
+from sqlalchemy import update
 
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
+from app.db.models.commerce import Order
 from app.main import app
 from app.services.payment_service import (
     PaymentGatewayTimeoutError,
     PaymentVerifyFailedError,
     reset_payment_provider_for_tests,
 )
+from tests.conftest import TestingSessionLocal, customer_auth_headers
 
 client = TestClient(app)
 
 
 def _auth_headers_for_phone(phone: str):
-    req = client.post("/api/v1/auth/otp/request", json={"phone": phone})
-    code = req.json()["dev_code"]
-    verify = client.post("/api/v1/auth/otp/verify", json={"phone": phone, "code": code})
-    token = verify.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
+    return customer_auth_headers(phone)
+
+
+def _clear_order_payment_authority(order_id: int) -> None:
+    async def _clear() -> None:
+        async with TestingSessionLocal() as session:
+            await session.execute(
+                update(Order).where(Order.id == order_id).values(payment_authority=None)
+            )
+            await session.commit()
+
+    asyncio.run(_clear())
 
 
 def _checkout_order(product_id: int, headers: dict) -> int:
@@ -79,7 +91,6 @@ def test_payment_amount_uses_toman_to_rial_conversion(
     create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
     product_id = create.json()["id"]
     customer_headers = _auth_headers_for_phone("09129999999")
-    order_id = _checkout_order(product_id, customer_headers)
 
     captured: dict[str, int] = {}
 
@@ -103,11 +114,18 @@ def test_payment_amount_uses_toman_to_rial_conversion(
                 amount_rials=amount_rials,
             )
 
-    monkeypatch.setattr("app.api.endpoints.payment.get_payment_provider", lambda: SpyProvider())
+        async def refund_payment(self, *, ref_id: str, amount_rials: int):
+            from app.services.payment_service import MockPaymentProvider
+
+            return await MockPaymentProvider().refund_payment(ref_id=ref_id, amount_rials=amount_rials)
+
+    monkeypatch.setattr("app.services.payment_flow_service.get_payment_provider", lambda: SpyProvider())
+
+    order_id = _checkout_order(product_id, customer_headers)
+    assert captured["amount_rials"] == 100 * TOMAN_TO_RIAL
 
     init = client.post("/api/v1/payments/init", json={"order_id": order_id}, headers=customer_headers)
     assert init.status_code == 200
-    assert captured["amount_rials"] == 100 * TOMAN_TO_RIAL
 
     verify = client.post(
         "/api/v1/payments/verify",
@@ -167,7 +185,7 @@ def test_payment_init_is_idempotent_for_pending_order(
     assert first.json()["authority"] == second.json()["authority"]
 
 
-def test_guest_order_returns_dedicated_error(valid_product_data, super_admin_headers, monkeypatch):
+def test_guest_purchase_checkout_rejected(valid_product_data, super_admin_headers, monkeypatch):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     reset_payment_provider_for_tests()
@@ -189,13 +207,8 @@ def test_guest_order_returns_dedicated_error(valid_product_data, super_admin_hea
             },
         },
     )
-    assert checkout.status_code == 201
-    order_id = checkout.json()["order_id"]
-
-    other_headers = _auth_headers_for_phone("09126666666")
-    init = client.post("/api/v1/payments/init", json={"order_id": order_id}, headers=other_headers)
-    assert init.status_code == 403
-    assert init.json()["error_code"] == "GUEST_ORDER_NOT_PAYABLE"
+    assert checkout.status_code == 403
+    assert checkout.json()["error_code"] == "PURCHASE_AUTH_REQUIRED"
 
 
 def test_payment_gateway_timeout_returns_specific_error(
@@ -211,12 +224,13 @@ def test_payment_gateway_timeout_returns_specific_error(
         async def verify_payment(self, *, authority: str, amount_rials: int):
             raise PaymentGatewayTimeoutError("Payment verification request timed out")
 
-    monkeypatch.setattr("app.api.endpoints.payment.get_payment_provider", lambda: TimeoutProvider())
-
     create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
     product_id = create.json()["id"]
     customer_headers = _auth_headers_for_phone("09127777771")
     order_id = _checkout_order(product_id, customer_headers)
+    _clear_order_payment_authority(order_id)
+
+    monkeypatch.setattr("app.services.payment_flow_service.get_payment_provider", lambda: TimeoutProvider())
 
     init = client.post("/api/v1/payments/init", json={"order_id": order_id}, headers=customer_headers)
     assert init.status_code == 504
@@ -242,7 +256,12 @@ def test_payment_verify_failed_returns_specific_error(
         async def verify_payment(self, *, authority: str, amount_rials: int):
             raise PaymentVerifyFailedError("Invalid mock payment authority")
 
-    monkeypatch.setattr("app.api.endpoints.payment.get_payment_provider", lambda: FailingVerifyProvider())
+        async def refund_payment(self, *, ref_id: str, amount_rials: int):
+            from app.services.payment_service import MockPaymentProvider
+
+            return await MockPaymentProvider().refund_payment(ref_id=ref_id, amount_rials=amount_rials)
+
+    monkeypatch.setattr("app.services.payment_flow_service.get_payment_provider", lambda: FailingVerifyProvider())
 
     create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
     product_id = create.json()["id"]

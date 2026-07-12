@@ -1,11 +1,14 @@
 """Storefront content endpoints: blog, hero slides, contact, checkout."""
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Header, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_optional_current_user
+from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.crud import content as crud_content
+from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.storefront import (
@@ -19,7 +22,7 @@ from app.schemas.storefront import (
     HeroSlideListResponse,
     HeroSlideResponse,
 )
-from app.services.checkout_service import submit_checkout, submit_contact
+from app.services.checkout_service import submit_checkout, submit_contact, PurchaseAuthRequiredError
 
 router = APIRouter()
 
@@ -67,6 +70,17 @@ async def get_article(slug: str, db: AsyncSession = Depends(get_db)):
     )
 
 
+# Backward-compatible alias for storefront contract (/articles/).
+@router.get("/articles/", response_model=ArticleListResponse, tags=["Storefront"], include_in_schema=True)
+async def list_articles_alias(db: AsyncSession = Depends(get_db)):
+    return await list_articles(db)
+
+
+@router.get("/articles/{slug}", response_model=BlogPostResponse, tags=["Storefront"], include_in_schema=True)
+async def get_article_alias(slug: str, db: AsyncSession = Depends(get_db)):
+    return await get_article(slug, db)
+
+
 @router.get("/hero-slides/", response_model=HeroSlideListResponse, tags=["Storefront"])
 async def list_hero_slides(db: AsyncSession = Depends(get_db)):
     slides = await crud_content.list_active_hero_slides(db)
@@ -108,9 +122,29 @@ async def checkout(
     payload: CheckoutRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
+    if idempotency_key and idempotency_key.strip():
+        cached = await crud_platform.get_idempotency_record(
+            db, scope="checkout", key=idempotency_key.strip()
+        )
+        if cached is not None:
+            return JSONResponse(status_code=cached.status_code, content=cached.response_body)
+
     try:
-        return await submit_checkout(db, payload, current_user=current_user)
+        result = await submit_checkout(
+            db,
+            payload,
+            current_user=current_user,
+            guest_cart_token=x_cart_token,
+        )
+    except PurchaseAuthRequiredError as exc:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.PURCHASE_AUTH_REQUIRED,
+            message="برای ثبت سفارش خرید باید وارد حساب کاربری شوید.",
+        ) from exc
     except ValueError as exc:
         raise api_error(
             status.HTTP_400_BAD_REQUEST,
@@ -123,3 +157,18 @@ async def checkout(
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error processing checkout",
         ) from exc
+
+    if idempotency_key and idempotency_key.strip():
+        from datetime import datetime, timedelta, timezone
+
+        await crud_platform.store_idempotency_record(
+            db,
+            scope="checkout",
+            key=idempotency_key.strip(),
+            status_code=status.HTTP_201_CREATED,
+            response_body=result.model_dump(mode="json"),
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
+        )
+        await db.commit()
+
+    return result

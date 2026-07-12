@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.crud import platform as crud_platform
 from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
@@ -69,6 +70,7 @@ class ProductService:
         product_ids: Optional[List[int]] = None,
         skip: int = 0,
         limit: int = 100,
+        is_deleted: Optional[bool] = None,
     ) -> Tuple[List[Product], int]:
         logger.info(f"Searching products: search={search}, category_id={category_id}")
         return await crud_product.get_products(
@@ -86,6 +88,7 @@ class ProductService:
             in_stock=in_stock,
             sort=sort,
             product_ids=product_ids,
+            is_deleted=is_deleted,
         )
 
     @staticmethod
@@ -111,7 +114,24 @@ class ProductService:
         if "brand_id" in update_data.model_fields_set:
             await ensure_brand_exists(db, update_data.brand_id)
 
+        tracked_fields = ("base_price", "original_price", "stock_quantity")
+        previous = {field: getattr(product, field, None) for field in tracked_fields}
+
         updated_product = await crud_product.update_product(db, product_id, update_data)
+        for field in tracked_fields:
+            if field not in update_data.model_fields_set:
+                continue
+            old_value = previous[field]
+            new_value = getattr(updated_product, field)
+            if old_value != new_value:
+                await crud_platform.record_product_change(
+                    db,
+                    product_id=product_id,
+                    field_name=field,
+                    old_value=str(old_value) if old_value is not None else None,
+                    new_value=str(new_value) if new_value is not None else None,
+                    reason="product_update",
+                )
         await db.commit()
         logger.info(f"Product updated successfully: {product_id}")
         return updated_product
@@ -122,6 +142,8 @@ class ProductService:
         product_id: int,
         quantity_delta: Decimal,
         reason: Optional[str] = None,
+        *,
+        actor_user_id: Optional[int] = None,
     ) -> Optional[Product]:
         logger.info(
             f"Adjusting stock for product {product_id}: delta={quantity_delta}, reason={reason}"
@@ -131,8 +153,18 @@ class ProductService:
         if not product:
             return None
 
+        old_stock = product.stock_quantity
         updated_product = await crud_product.update_stock(db, product_id, quantity_delta)
         if updated_product:
+            await crud_platform.record_product_change(
+                db,
+                product_id=product_id,
+                field_name="stock_quantity",
+                old_value=str(old_stock),
+                new_value=str(updated_product.stock_quantity),
+                reason=reason,
+                actor_user_id=actor_user_id,
+            )
             await db.commit()
         return updated_product
 
@@ -168,11 +200,43 @@ class ProductService:
         return await crud_product.get_product_statistics(db)
 
     @staticmethod
-    async def delete_product(db: AsyncSession, product_id: int) -> bool:
+    async def delete_product(
+        db: AsyncSession,
+        product_id: int,
+        *,
+        actor_user_id: Optional[int] = None,
+    ) -> bool:
         deleted = await crud_product.delete_product_soft(db, product_id)
         if deleted:
+            await crud_platform.record_audit_log(
+                db,
+                actor_user_id=actor_user_id,
+                action="soft_delete",
+                entity_type="product",
+                entity_id=str(product_id),
+            )
             await db.commit()
         return deleted
+
+    @staticmethod
+    async def bulk_adjust_stock(
+        db: AsyncSession,
+        items: list[dict],
+        *,
+        actor_user_id: Optional[int] = None,
+    ) -> list[int]:
+        updated_ids: list[int] = []
+        for item in items:
+            product = await ProductService.adjust_stock_with_validation(
+                db,
+                product_id=item["product_id"],
+                quantity_delta=item["quantity_delta"],
+                reason=item.get("reason") or "bulk_adjust",
+                actor_user_id=actor_user_id,
+            )
+            if product is not None:
+                updated_ids.append(product.id)
+        return updated_ids
 
     @staticmethod
     async def restore_product(db: AsyncSession, product_id: int) -> Optional[Product]:

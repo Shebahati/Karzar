@@ -46,11 +46,16 @@ class Settings(BaseSettings):
 
     # Payment provider: "mock" (local dev) or "zarinpal" (production gateway).
     PAYMENT_PROVIDER: str = "mock"
+    # Callback URL registered with the gateway (storefront or backend callback endpoint).
     PAYMENT_CALLBACK_URL: Optional[str] = None
+    PAYMENT_SUCCESS_REDIRECT_URL: str = "http://localhost:3000/checkout/success"
+    PAYMENT_FAILURE_REDIRECT_URL: str = "http://localhost:3000/checkout/payment/failed"
     ZARINPAL_MERCHANT_ID: Optional[str] = None
     ZARINPAL_REQUEST_URL: str = "https://payment.zarinpal.com/pg/v4/payment/request.json"
     ZARINPAL_VERIFY_URL: str = "https://payment.zarinpal.com/pg/v4/payment/verify.json"
     PAYMENT_TIMEOUT_SECONDS: float = Field(default=12.0, ge=1.0, le=60.0)
+    PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
+    ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
     ADMIN_STEP_UP_PIN: str = Field(
         ...,
         min_length=6,
@@ -58,6 +63,8 @@ class Settings(BaseSettings):
         description="Admin PIN for destructive actions",
     )
     ALLOW_PUBLIC_REGISTER: bool = False
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1, le=90)
+    IDEMPOTENCY_TTL_HOURS: int = Field(default=24, ge=1, le=168)
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
@@ -80,6 +87,7 @@ class Settings(BaseSettings):
         weak_placeholders = {
             "your-secret-key-change-in-production",
             "change-me-to-a-random-secret-key-at-least-32-chars",
+            "replace-with-a-random-secret-key-at-least-32-chars",
         }
         if v in weak_placeholders:
             raise ValueError("SECRET_KEY must be changed from default placeholder")

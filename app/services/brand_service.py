@@ -8,18 +8,30 @@ from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.crud import brand as crud_brand
 from app.db.models.product import Brand
-from app.schemas.brand import BrandCreate, BrandUpdate
+from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
 
 logger = get_logger(__name__)
 
 
 class BrandService:
     @staticmethod
-    async def list_brands(db: AsyncSession) -> List[Brand]:
-        return await crud_brand.list_brands(db)
+    async def list_brands(db: AsyncSession) -> List[BrandResponse]:
+        brands = await crud_brand.list_brands(db)
+        responses: List[BrandResponse] = []
+        for brand in brands:
+            count = await crud_brand.count_products_for_brand(db, brand.id)
+            responses.append(
+                BrandResponse(
+                    id=brand.id,
+                    name=brand.name,
+                    country=brand.country,
+                    product_count=count,
+                )
+            )
+        return responses
 
     @staticmethod
-    async def create_brand(db: AsyncSession, payload: BrandCreate) -> Brand:
+    async def create_brand(db: AsyncSession, payload: BrandCreate) -> BrandResponse:
         existing = await crud_brand.get_brand_by_name(db, payload.name.strip())
         if existing:
             raise api_error(
@@ -33,10 +45,15 @@ class BrandService:
         )
         await db.commit()
         await db.refresh(brand)
-        return brand
+        return BrandResponse(
+            id=brand.id,
+            name=brand.name,
+            country=brand.country,
+            product_count=0,
+        )
 
     @staticmethod
-    async def update_brand(db: AsyncSession, brand_id: int, payload: BrandUpdate) -> Brand:
+    async def update_brand(db: AsyncSession, brand_id: int, payload: BrandUpdate) -> BrandResponse:
         brand = await crud_brand.get_brand_by_id(db, brand_id)
         if brand is None:
             raise api_error(
@@ -67,7 +84,13 @@ class BrandService:
 
         await db.commit()
         await db.refresh(brand)
-        return brand
+        count = await crud_brand.count_products_for_brand(db, brand.id)
+        return BrandResponse(
+            id=brand.id,
+            name=brand.name,
+            country=brand.country,
+            product_count=count,
+        )
 
     @staticmethod
     async def delete_brand(db: AsyncSession, brand_id: int) -> dict:

@@ -1,14 +1,15 @@
-"""CRUD for storefront orders."""
+"""CRUD for storefront orders and status history."""
 
-import uuid
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, List, Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.models.commerce import Order, OrderItem, OrderMode
+from app.db.models.commerce import Order, OrderItem, OrderMode, OrderStatusEvent
+from app.utils.tracking_code import generate_unique_tracking_code
 
 
 async def create_order(
@@ -28,11 +29,9 @@ async def create_order(
     user_id: Optional[int],
     items: List[dict[str, Any]],
 ) -> Order:
-    # Insert with a unique random placeholder so concurrent orders never collide
-    # on the unique tracking_code index, then derive the human-friendly code from
-    # the generated id within the same transaction.
+    tracking_code = await generate_unique_tracking_code(db, tracking_prefix)
     order = Order(
-        tracking_code=f"pending-{uuid.uuid4().hex}",
+        tracking_code=tracking_code,
         mode=mode,
         status=status,
         payment_status=payment_status,
@@ -47,8 +46,6 @@ async def create_order(
     )
     db.add(order)
     await db.flush()
-
-    order.tracking_code = f"{tracking_prefix}{order.id}"
 
     for item in items:
         db.add(
@@ -65,21 +62,77 @@ async def create_order(
     return order
 
 
+async def record_status_event(
+    db: AsyncSession,
+    *,
+    order_id: int,
+    status: str,
+    description: Optional[str] = None,
+    actor: str = "system",
+) -> OrderStatusEvent:
+    event = OrderStatusEvent(
+        order_id=order_id,
+        status=status,
+        description=description,
+        actor=actor,
+    )
+    db.add(event)
+    await db.flush()
+    return event
+
+
+async def list_status_events(db: AsyncSession, order_id: int) -> List[OrderStatusEvent]:
+    stmt = (
+        select(OrderStatusEvent)
+        .where(OrderStatusEvent.order_id == order_id)
+        .order_by(OrderStatusEvent.created_at.asc(), OrderStatusEvent.id.asc())
+    )
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
 async def get_order_by_id(db: AsyncSession, order_id: int) -> Optional[Order]:
     stmt = (
         select(Order)
-        .where(Order.id == order_id)
-        .options(selectinload(Order.items))
+        .where(Order.id == order_id, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
+async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Optional[Order]:
+    stmt = (
+        select(Order)
+        .where(Order.payment_authority == authority, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+    )
+    result = await db.execute(stmt)
+    order = result.scalar_one_or_none()
+    if order is not None:
+        return order
+
+    from app.services.payment_service import extract_stored_authority
+
+    legacy_stmt = (
+        select(Order)
+        .where(Order.deleted_at.is_(None), Order.note.isnot(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .order_by(Order.id.desc())
+        .limit(200)
+    )
+    rows = (await db.execute(legacy_stmt)).scalars().all()
+    for row in rows:
+        if extract_stored_authority(row.note) == authority:
+            return row
+    return None
+
+
 async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Optional[Order]:
     stmt = (
         select(Order)
-        .where(Order.tracking_code == tracking_code)
-        .options(selectinload(Order.items))
+        .where(Order.tracking_code == tracking_code, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -94,19 +147,33 @@ async def list_orders(
     mode: Optional[OrderMode] = None,
     payment_status: Optional[str] = None,
     phone: Optional[str] = None,
+    customer_phone: Optional[str] = None,
+    search: Optional[str] = None,
     user_id: Optional[int] = None,
     sort: str = "newest",
 ) -> tuple[List[Order], int]:
     """Return a page of orders plus the total match count."""
-    filters = []
+    filters = [Order.deleted_at.is_(None)]
     if status is not None:
         filters.append(Order.status == status)
     if mode is not None:
         filters.append(Order.mode == mode)
     if payment_status is not None:
         filters.append(Order.payment_status == payment_status)
-    if phone:
-        filters.append(Order.customer_phone == phone)
+
+    resolved_phone = customer_phone or phone
+    if resolved_phone:
+        filters.append(Order.customer_phone == resolved_phone)
+
+    if search:
+        pattern = f"%{search.strip()}%"
+        filters.append(
+            or_(
+                Order.tracking_code.ilike(pattern),
+                Order.customer_full_name.ilike(pattern),
+                Order.customer_phone.ilike(pattern),
+            )
+        )
     if user_id is not None:
         filters.append(Order.user_id == user_id)
 
@@ -125,7 +192,7 @@ async def list_orders(
 
     stmt = (
         select(Order)
-        .options(selectinload(Order.items))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
         .order_by(*order_by)
         .offset(skip)
         .limit(limit)
@@ -134,3 +201,14 @@ async def list_orders(
         stmt = stmt.where(*filters)
     result = await db.execute(stmt)
     return list(result.scalars().all()), total
+
+
+async def soft_delete_order(db: AsyncSession, order_id: int) -> bool:
+    order = (
+        await db.execute(select(Order).where(Order.id == order_id, Order.deleted_at.is_(None)))
+    ).scalar_one_or_none()
+    if order is None:
+        return False
+    order.deleted_at = datetime.now(timezone.utc)
+    await db.flush()
+    return True

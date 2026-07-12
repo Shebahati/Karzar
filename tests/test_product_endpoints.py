@@ -239,6 +239,35 @@ class TestProductMutations:
         response = client.delete("/api/v1/products/9999", headers=step_up_headers)
         assert response.status_code == 404
 
+    def test_list_deleted_products_admin_only(
+        self, valid_product_data, super_admin_headers, step_up_headers
+    ):
+        create = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        assert create.status_code == 201
+        product_id = create.json()["id"]
+
+        deleted = client.delete(
+            f"/api/v1/products/{product_id}", headers=step_up_headers
+        )
+        assert deleted.status_code == 204
+
+        public = client.get("/api/v1/products/?is_deleted=true")
+        assert public.status_code == 403
+
+        admin = client.get(
+            "/api/v1/products/?is_deleted=true", headers=super_admin_headers
+        )
+        assert admin.status_code == 200
+        assert admin.json()["meta"]["total_count"] == 1
+        assert admin.json()["data"][0]["id"] == product_id
+
+        active = client.get("/api/v1/products/", headers=super_admin_headers)
+        assert active.json()["meta"]["total_count"] == 0
+
 
 class TestStockManagement:
     def test_adjust_stock_nonexistent_product(self, super_admin_headers):
@@ -264,13 +293,14 @@ class TestCategoryEndpoints:
         body = response.json()
         assert isinstance(body, list)
 
-    def test_category_tree_returns_unlimited_depth(self):
+    def test_category_tree_returns_three_layer_depth(self):
         response = client.get("/api/v1/categories/tree")
         assert response.status_code == 200
 
         tree = response.json()
         assert len(tree) == 1
         assert tree[0]["name"] == "Digital Calipers"
+        assert tree[0]["icon"] is not None
 
         level_two = tree[0]["subcategories"]
         assert len(level_two) == 1
@@ -279,11 +309,7 @@ class TestCategoryEndpoints:
         level_three = level_two[0]["subcategories"]
         assert len(level_three) == 1
         assert level_three[0]["name"] == "0-150mm Range"
-
-        level_four = level_three[0]["subcategories"]
-        assert len(level_four) == 1
-        assert level_four[0]["name"] == "IP67 Series"
-        assert level_four[0]["subcategories"] == []
+        assert level_three[0]["subcategories"] == []
 
 
 class TestAuthEndpoints:

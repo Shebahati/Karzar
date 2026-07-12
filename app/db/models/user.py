@@ -1,8 +1,11 @@
 """User account ORM model and role enumeration."""
 
 import enum
+from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import Boolean, Enum, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models.base import Base
@@ -29,3 +32,10 @@ class User(Base):
         server_default="b2c_customer",
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    category: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    tags: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    token_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    company_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

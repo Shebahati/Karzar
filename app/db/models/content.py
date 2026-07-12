@@ -72,6 +72,7 @@ class ContactSubmission(Base):
 
 class OtpPurpose(str, enum.Enum):
     LOGIN = "login"
+    PASSWORD_RESET = "password_reset"
 
 
 class OtpCode(Base):

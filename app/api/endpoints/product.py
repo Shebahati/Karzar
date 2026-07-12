@@ -3,7 +3,7 @@
 from decimal import Decimal
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Path, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, Request, UploadFile, File, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.product_service import ProductService
@@ -25,8 +25,14 @@ from app.schemas.product import (
     ProductImageCreate,
     ProductImageReorderRequest,
     ProductImageSetPrimaryResponse,
+    ProductImageUploadResponse,
+    ProductStatisticsResponse,
+    BulkStockAdjustRequest,
+    BulkStockAdjustResponse,
+    ProductChangeLogListResponse,
+    ProductChangeLogEntry,
 )
-from app.schemas.storefront import ProductCommentListResponse, ProductCommentResponse, RelatedProductsResponse
+from app.schemas.storefront import ProductCommentCreateRequest, ProductCommentListResponse, ProductCommentResponse, RelatedProductsResponse
 from app.crud import category as crud_category
 from app.crud import content as crud_content
 from app.crud import product as crud_product
@@ -36,7 +42,8 @@ from app.utils.category_depth import build_category_metadata
 from app.utils.image_validation import ensure_image_count_within_limit, validate_product_image_url
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
-from app.utils.storefront_catalog import VALID_SORT_KEYS
+from app.utils.storefront_catalog import VALID_SORT_KEYS, parse_in_stock_filter
+from app.utils.file_storage import save_product_image_upload
 
 logger = get_logger(__name__)
 
@@ -122,11 +129,15 @@ async def read_products(
     category_id: Optional[int] = Query(None, description="Filter by category ID"),
     brand_id: Optional[int] = Query(None, description="Filter by brand ID"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    is_deleted: Optional[bool] = Query(
+        None,
+        description="Filter soft-deleted products (admin only when true)",
+    ),
     search: Optional[str] = Query(None, description="Search in name, SKU, and brand"),
     min_price: Optional[Decimal] = Query(None, description="Minimum price filter"),
     max_price: Optional[Decimal] = Query(None, description="Maximum price filter"),
     country: Optional[str] = Query(None, description="Filter by brand country"),
-    in_stock: Optional[bool] = Query(None, description="Only in-stock active products"),
+    in_stock: Optional[str] = Query(None, description="Only in-stock active products (true/false/1/0)"),
     sort: Optional[str] = Query(
         None,
         description="Sort key: newest, price_asc, price_desc, name_asc, name_desc",
@@ -138,6 +149,13 @@ async def read_products(
     ),
 ):
     try:
+        if is_deleted is True and not is_super_admin(current_user):
+            raise api_error(
+                status.HTTP_403_FORBIDDEN,
+                error_code=ErrorCode.FORBIDDEN,
+                message="Only administrators can list deleted products",
+            )
+
         if is_active is None and not is_super_admin(current_user):
             is_active = True
 
@@ -164,6 +182,7 @@ async def read_products(
                 )
 
         spec_filters = merge_spec_filters(filters_json=filters, request=request)
+        parsed_in_stock = parse_in_stock_filter(in_stock)
         products, total = await ProductService.search_products(
             db=db,
             skip=skip,
@@ -176,9 +195,10 @@ async def read_products(
             max_price=max_price,
             spec_filters=spec_filters or None,
             country=country,
-            in_stock=in_stock,
+            in_stock=parsed_in_stock,
             sort=sort,
             product_ids=product_ids,
+            is_deleted=is_deleted,
         )
 
         metadata = await _category_metadata(db)
@@ -206,6 +226,27 @@ async def read_products(
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error retrieving products",
         ) from e
+
+
+@router.get(
+    "/statistics",
+    response_model=ProductStatisticsResponse,
+    summary="Aggregate product statistics (admin)",
+    tags=["Products"],
+)
+async def read_product_statistics(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    stats = await ProductService.get_product_statistics(db)
+    return ProductStatisticsResponse(
+        total_products=stats["total_products"],
+        active_products=stats["active_products"],
+        total_stock_value=str(stats["total_stock_value"]),
+        total_stock_quantity=str(stats["total_stock_quantity"]),
+        categories=stats["categories"],
+        brands=stats["brands"],
+    )
 
 
 @router.get(
@@ -310,14 +351,44 @@ async def read_product_comments(product_id: int, db: AsyncSession = Depends(get_
 
 
 @router.post(
-    "/{product_id}/images",
-    response_model=ProductDetailResponse,
+    "/{product_id}/comments",
+    response_model=ProductCommentResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Add a product image by URL",
+    summary="Create a product review",
+)
+async def create_product_comment(
+    product_id: int,
+    payload: ProductCommentCreateRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    product = await crud_product.get_product_by_id(db, product_id)
+    if not product:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    comment = await crud_content.create_product_comment(
+        db,
+        product_id=product_id,
+        author_name=payload.author_name,
+        rating=payload.rating,
+        body=payload.body,
+        is_verified_buyer=payload.is_verified_buyer,
+    )
+    await db.commit()
+    return ProductCommentResponse.model_validate(comment, from_attributes=True)
+
+
+@router.post(
+    "/{product_id}/images",
+    status_code=status.HTTP_201_CREATED,
+    summary="Add a product image by URL or multipart upload",
+    response_model=None,
 )
 async def add_product_image(
     product_id: int,
-    payload: ProductImageCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
 ):
@@ -328,10 +399,51 @@ async def add_product_image(
             error_code=ErrorCode.NOT_FOUND,
             message=f"Product with ID '{product_id}' not found",
         )
+
+    content_type = request.headers.get("content-type", "")
     try:
-        validated_url = validate_product_image_url(payload.image_url)
         image_count = await crud_product.count_product_images(db, product_id)
         ensure_image_count_within_limit(image_count)
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=str(exc),
+        ) from exc
+
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        upload = form.get("file")
+        if upload is None:
+            raise api_error(
+                status.HTTP_400_BAD_REQUEST,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="file is required for multipart upload",
+            )
+        try:
+            image_url = await save_product_image_upload(product_id, upload)  # type: ignore[arg-type]
+        except ValueError as exc:
+            raise api_error(
+                status.HTTP_400_BAD_REQUEST,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message=str(exc),
+            ) from exc
+        image = await crud_product.add_product_image(
+            db,
+            product_id,
+            image_url,
+            is_primary=not product.images,
+        )
+        await db.commit()
+        return ProductImageUploadResponse(
+            id=image.id,
+            url=image.image_url,
+            is_primary=image.is_primary,
+        )
+
+    payload = ProductImageCreate(**(await request.json()))
+    try:
+        validated_url = validate_product_image_url(payload.image_url)
     except ValueError as exc:
         raise api_error(
             status.HTTP_400_BAD_REQUEST,
@@ -482,7 +594,11 @@ async def delete_product(
     current_user: User = Depends(get_current_super_admin_with_step_up),
 ):
     try:
-        deleted = await ProductService.delete_product(db=db, product_id=product_id)
+        deleted = await ProductService.delete_product(
+            db=db,
+            product_id=product_id,
+            actor_user_id=current_user.id,
+        )
         if not deleted:
             raise api_error(
                 status.HTTP_404_NOT_FOUND,
@@ -582,6 +698,7 @@ async def adjust_stock(
             product_id=product_id,
             quantity_delta=quantity_delta,
             reason="API Adjustment",
+            actor_user_id=current_user.id,
         )
         if not product:
             raise api_error(
@@ -605,3 +722,58 @@ async def adjust_stock(
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error adjusting stock",
         ) from e
+
+
+@router.post(
+    "/bulk/stock-adjust",
+    response_model=BulkStockAdjustResponse,
+    summary="Bulk stock adjustment (admin)",
+    tags=["Stock Management"],
+)
+async def bulk_adjust_stock(
+    payload: BulkStockAdjustRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    items = [
+        {
+            "product_id": item.product_id,
+            "quantity_delta": item.quantity_delta,
+            "reason": item.reason,
+        }
+        for item in payload.items
+    ]
+    updated_ids = await ProductService.bulk_adjust_stock(
+        db, items, actor_user_id=current_user.id
+    )
+    return BulkStockAdjustResponse(updated_product_ids=updated_ids)
+
+
+@router.get(
+    "/{product_id}/change-log",
+    response_model=ProductChangeLogListResponse,
+    summary="Product price/stock change history (admin)",
+)
+async def list_product_change_log(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+):
+    from app.crud import platform as crud_platform
+
+    product = await crud_product.get_product_by_id(db, product_id)
+    if not product:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    rows, total = await crud_platform.list_product_change_logs(
+        db, product_id, skip=skip, limit=limit
+    )
+    return {
+        "data": [ProductChangeLogEntry.model_validate(row, from_attributes=True) for row in rows],
+        "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
+    }

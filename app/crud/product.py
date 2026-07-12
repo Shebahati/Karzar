@@ -83,6 +83,16 @@ async def get_products_for_update(
     return {product.id: product for product in result.scalars().all()}
 
 
+async def get_products_by_ids(db: AsyncSession, product_ids: List[int]) -> Dict[int, Product]:
+    if not product_ids:
+        return {}
+    stmt = select(Product).where(
+        and_(Product.id.in_(product_ids), Product.deleted_at.is_(None))
+    )
+    result = await db.execute(stmt)
+    return {product.id: product for product in result.scalars().all()}
+
+
 async def get_product_by_sku(
     db: AsyncSession, sku: str, *, include_deleted: bool = False
 ) -> Optional[Product]:
@@ -109,8 +119,12 @@ async def get_products(
     in_stock: Optional[bool] = None,
     sort: Optional[str] = None,
     product_ids: Optional[List[int]] = None,
+    is_deleted: Optional[bool] = None,
 ) -> Tuple[List[Product], int]:
-    query = select(Product).where(Product.deleted_at.is_(None))
+    if is_deleted:
+        query = select(Product).where(Product.deleted_at.isnot(None))
+    else:
+        query = select(Product).where(Product.deleted_at.is_(None))
     filters = []
 
     if product_ids:
@@ -159,7 +173,10 @@ async def get_products(
     if filters:
         query = query.where(and_(*filters))
 
-    count_query = select(func.count(Product.id)).where(Product.deleted_at.is_(None))
+    if is_deleted:
+        count_query = select(func.count(Product.id)).where(Product.deleted_at.isnot(None))
+    else:
+        count_query = select(func.count(Product.id)).where(Product.deleted_at.is_(None))
     if filters:
         count_query = count_query.where(and_(*filters))
     count_result = await db.execute(count_query)
@@ -167,7 +184,7 @@ async def get_products(
 
     query = (
         query.options(*_product_load_options())
-        .order_by(product_sort_clause(sort))
+        .order_by(product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
         .offset(skip)
         .limit(limit)
     )

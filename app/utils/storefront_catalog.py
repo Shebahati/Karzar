@@ -66,7 +66,13 @@ VALID_SORT_KEYS = frozenset(
 )
 
 
-def product_sort_clause(sort: Optional[str]):
+def product_sort_clause(sort: Optional[str], *, dialect_name: str = "postgresql"):
+    if sort in {"name_asc", "name_desc"} and dialect_name == "postgresql":
+        from sqlalchemy import collate
+
+        collated = collate(Product.name, "fa_IR")
+        return collated.asc() if sort == "name_asc" else collated.desc()
+
     mapping = {
         "newest": Product.created_at.desc(),
         "price_asc": nulls_last(asc(Product.base_price)),
@@ -75,3 +81,15 @@ def product_sort_clause(sort: Optional[str]):
         "name_desc": Product.name.desc(),
     }
     return mapping.get(sort or "newest", Product.created_at.desc())
+
+
+def parse_in_stock_filter(value: Optional[str]) -> Optional[bool]:
+    """Accept storefront contract values: true/false/1/0."""
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "yes"}:
+        return True
+    if normalized in {"0", "false", "no"}:
+        return False
+    return None

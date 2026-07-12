@@ -1,4 +1,4 @@
-"""Storefront commerce models: orders and line items."""
+"""Storefront commerce models: orders, line items, and status history."""
 
 import enum
 from datetime import datetime
@@ -66,10 +66,25 @@ class Order(Base):
     company_name: Mapped[Optional[str]] = mapped_column(String(120))
     note: Mapped[Optional[str]] = mapped_column(Text)
     shipping: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    postal_tracking_code: Mapped[Optional[str]] = mapped_column(String(64))
+    delivery_eta: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    invoice: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    invoice_number: Mapped[Optional[str]] = mapped_column(String(32))
+    invoice_valid_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+    payment_authority: Mapped[Optional[str]] = mapped_column(String(64), index=True)
+    payment_ref_id: Mapped[Optional[str]] = mapped_column(String(64))
+    payment_refund_id: Mapped[Optional[str]] = mapped_column(String(64))
 
     items: Mapped[List["OrderItem"]] = relationship(
         "OrderItem", back_populates="order", cascade="all, delete-orphan"
+    )
+    status_events: Mapped[List["OrderStatusEvent"]] = relationship(
+        "OrderStatusEvent",
+        back_populates="order",
+        cascade="all, delete-orphan",
+        order_by="OrderStatusEvent.created_at",
     )
 
 
@@ -83,3 +98,16 @@ class OrderItem(Base):
     unit_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2))
 
     order: Mapped["Order"] = relationship("Order", back_populates="items")
+
+
+class OrderStatusEvent(Base):
+    __tablename__ = "order_status_events"
+    __table_args__ = (Index("ix_order_status_events_order_id", "order_id"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    status: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    actor: Mapped[str] = mapped_column(String(20), nullable=False, default="system", server_default="system")
+
+    order: Mapped["Order"] = relationship("Order", back_populates="status_events")

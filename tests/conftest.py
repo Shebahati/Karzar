@@ -11,8 +11,11 @@ os.environ.setdefault("SECRET_KEY", "test-secret-key-with-at-least-32-characters
 os.environ.setdefault("REDIS_HOST", "")
 os.environ.setdefault("DEBUG", "true")
 os.environ.setdefault("ADMIN_STEP_UP_PIN", "93827461")
+os.environ["ENABLE_API_DOCS"] = "false"
 os.environ["ALLOW_PUBLIC_REGISTER"] = "true"
 os.environ["OTP_DEV_ECHO"] = "true"
+
+USE_POSTGRES_TESTS = os.environ.get("USE_POSTGRES_TESTS", "").lower() in ("1", "true", "yes")
 
 import asyncio
 import pytest
@@ -23,12 +26,34 @@ from sqlalchemy import Enum as SAEnum, select
 from sqlalchemy.pool import StaticPool
 
 from app.core.security import get_password_hash
+from app.core.config import settings
 from app.db.database import get_db
 from app.db.models import Base  # noqa: F401 — registers all ORM tables
 from app.db.models.product import Category, Brand, Product, ProductImage, StockUnitEnum
 from app.db.models.user import User, UserRole
 from app.api.deps import get_current_super_admin
 from app.main import app
+
+
+def customer_auth_headers(phone: str = "09123333333") -> dict[str, str]:
+    """OTP-login helper for authenticated purchase checkout tests."""
+    from fastapi.testclient import TestClient
+
+    test_client = TestClient(app)
+    request = test_client.post("/api/v1/auth/otp/request", json={"phone": phone})
+    code = request.json()["dev_code"]
+    verify = test_client.post(
+        "/api/v1/auth/otp/verify",
+        json={"phone": phone, "code": code},
+    )
+    token = verify.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def purchase_customer_headers(monkeypatch):
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    return customer_auth_headers("09123333333")
 
 
 @compiles(JSONB, "sqlite")
@@ -43,10 +68,21 @@ def compile_enum_sqlite(element, compiler, **kw):
     return "VARCHAR(50)"
 
 
-test_engine = create_async_engine(
-    "sqlite+aiosqlite:///:memory:",
-    poolclass=StaticPool,
-    echo=False,
+test_engine = (
+    create_async_engine(
+        (
+            f"postgresql+asyncpg://{os.environ['POSTGRES_USER']}:"
+            f"{os.environ['POSTGRES_PASSWORD']}@{os.environ['POSTGRES_SERVER']}:"
+            f"{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DB']}"
+        ),
+        echo=False,
+    )
+    if USE_POSTGRES_TESTS
+    else create_async_engine(
+        "sqlite+aiosqlite:///:memory:",
+        poolclass=StaticPool,
+        echo=False,
+    )
 )
 
 TestingSessionLocal = async_sessionmaker(
@@ -59,7 +95,7 @@ TestingSessionLocal = async_sessionmaker(
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:
-    """Create a four-level category tree and a test brand."""
+    """Create a strict 3-layer category tree and a test brand."""
     root = Category(name="Digital Calipers")
     session.add(root)
     await session.flush()
@@ -69,12 +105,8 @@ async def _seed_reference_data(session: AsyncSession) -> None:
     await session.flush()
 
     level_three = Category(name="0-150mm Range", parent_id=level_two.id)
-    session.add(level_three)
-    await session.flush()
-
-    level_four = Category(name="IP67 Series", parent_id=level_three.id)
     brand = Brand(name="TestBrand", country="IR")
-    session.add_all([level_four, brand])
+    session.add_all([level_three, brand])
     await session.flush()
 
 
@@ -165,7 +197,7 @@ def valid_product_data():
     return {
         "sku": "TEST-001",
         "name": "Test Product",
-        "category_id": 4,
+        "category_id": 3,
         "brand_id": 1,
         "base_price": "99.99",
         "stock_quantity": "50",

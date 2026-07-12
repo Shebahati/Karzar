@@ -3,10 +3,11 @@
 import uuid
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models.content import Article, ContactSubmission, HeroSlide, OtpCode, ProductComment
+from app.db.models.content import Article, ContactSubmission, HeroSlide, OtpCode, OtpPurpose, ProductComment
+from app.utils.otp_hash import hash_otp_code
 
 
 async def list_published_articles(db: AsyncSession) -> List[Article]:
@@ -75,23 +76,33 @@ async def create_otp_code(
     phone: str,
     code: str,
     expires_at,
+    purpose: OtpPurpose = OtpPurpose.LOGIN,
 ) -> OtpCode:
-    existing = await db.execute(select(OtpCode).where(OtpCode.phone == phone))
+    existing = await db.execute(
+        select(OtpCode).where(OtpCode.phone == phone, OtpCode.purpose == purpose)
+    )
     for row in existing.scalars().all():
         await db.delete(row)
 
-    otp = OtpCode(phone=phone, code=code, expires_at=expires_at)
+    otp = OtpCode(phone=phone, code=hash_otp_code(code), expires_at=expires_at, purpose=purpose)
     db.add(otp)
     await db.flush()
     return otp
 
 
-async def get_valid_otp(db: AsyncSession, phone: str, code: str) -> Optional[OtpCode]:
+async def get_valid_otp(
+    db: AsyncSession,
+    phone: str,
+    code: str,
+    *,
+    purpose: OtpPurpose = OtpPurpose.LOGIN,
+) -> Optional[OtpCode]:
     from datetime import datetime, timezone
 
     stmt = select(OtpCode).where(
         OtpCode.phone == phone,
-        OtpCode.code == code,
+        OtpCode.code == hash_otp_code(code),
+        OtpCode.purpose == purpose,
         OtpCode.expires_at > datetime.now(timezone.utc),
     )
     result = await db.execute(stmt)
@@ -101,3 +112,149 @@ async def get_valid_otp(db: AsyncSession, phone: str, code: str) -> Optional[Otp
 async def delete_otp(db: AsyncSession, otp: OtpCode) -> None:
     await db.delete(otp)
     await db.flush()
+
+
+async def list_all_articles(db: AsyncSession, *, skip: int = 0, limit: int = 50) -> tuple[List[Article], int]:
+    total = (await db.execute(select(func.count()).select_from(Article))).scalar_one()
+    stmt = select(Article).order_by(Article.published_at.desc()).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    return list(result.scalars().all()), total
+
+
+async def get_article_by_id(db: AsyncSession, article_id: int) -> Optional[Article]:
+    result = await db.execute(select(Article).where(Article.id == article_id))
+    return result.scalar_one_or_none()
+
+
+async def get_article_by_slug_admin(db: AsyncSession, slug: str) -> Optional[Article]:
+    result = await db.execute(select(Article).where(Article.slug == slug))
+    return result.scalar_one_or_none()
+
+
+async def create_article(db: AsyncSession, **fields) -> Article:
+    article = Article(**fields)
+    db.add(article)
+    await db.flush()
+    await db.refresh(article)
+    return article
+
+
+async def delete_article_row(db: AsyncSession, article: Article) -> None:
+    await db.delete(article)
+    await db.flush()
+
+
+async def list_all_hero_slides(db: AsyncSession) -> List[HeroSlide]:
+    stmt = select(HeroSlide).order_by(HeroSlide.sort_order.asc(), HeroSlide.id.asc())
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
+async def get_hero_slide_by_id(db: AsyncSession, slide_id: int) -> Optional[HeroSlide]:
+    result = await db.execute(select(HeroSlide).where(HeroSlide.id == slide_id))
+    return result.scalar_one_or_none()
+
+
+async def create_hero_slide(db: AsyncSession, **fields) -> HeroSlide:
+    slide = HeroSlide(**fields)
+    db.add(slide)
+    await db.flush()
+    await db.refresh(slide)
+    return slide
+
+
+async def delete_hero_slide_row(db: AsyncSession, slide: HeroSlide) -> None:
+    await db.delete(slide)
+    await db.flush()
+
+
+async def create_product_comment(
+    db: AsyncSession,
+    *,
+    product_id: int,
+    author_name: str,
+    rating: int,
+    body: str,
+    is_verified_buyer: bool,
+) -> ProductComment:
+    comment = ProductComment(
+        product_id=product_id,
+        author_name=author_name,
+        rating=rating,
+        body=body,
+        is_verified_buyer=is_verified_buyer,
+    )
+    db.add(comment)
+    await db.flush()
+    await db.refresh(comment)
+    return comment
+
+
+async def get_product_comment_by_id(db: AsyncSession, comment_id: int) -> Optional[ProductComment]:
+    result = await db.execute(select(ProductComment).where(ProductComment.id == comment_id))
+    return result.scalar_one_or_none()
+
+
+async def list_all_product_comments(
+    db: AsyncSession,
+    *,
+    skip: int = 0,
+    limit: int = 50,
+    product_id: Optional[int] = None,
+) -> tuple[List[ProductComment], int]:
+    filters = []
+    if product_id is not None:
+        filters.append(ProductComment.product_id == product_id)
+    count_stmt = select(func.count()).select_from(ProductComment)
+    if filters:
+        count_stmt = count_stmt.where(*filters)
+    total = (await db.execute(count_stmt)).scalar_one()
+    stmt = select(ProductComment).order_by(ProductComment.created_at.desc()).offset(skip).limit(limit)
+    if filters:
+        stmt = stmt.where(*filters)
+    result = await db.execute(stmt)
+    return list(result.scalars().all()), total
+
+
+async def delete_product_comment_row(db: AsyncSession, comment: ProductComment) -> None:
+    await db.delete(comment)
+    await db.flush()
+
+
+async def list_contact_submissions(
+    db: AsyncSession,
+    *,
+    skip: int = 0,
+    limit: int = 50,
+    search: Optional[str] = None,
+    phone: Optional[str] = None,
+) -> tuple[List[ContactSubmission], int]:
+    filters = []
+    if phone:
+        filters.append(ContactSubmission.phone == phone.strip())
+    if search:
+        pattern = f"%{search.strip()}%"
+        filters.append(
+            or_(
+                ContactSubmission.full_name.ilike(pattern),
+                ContactSubmission.phone.ilike(pattern),
+                ContactSubmission.subject.ilike(pattern),
+                ContactSubmission.ticket_code.ilike(pattern),
+            )
+        )
+
+    count_stmt = select(func.count()).select_from(ContactSubmission)
+    if filters:
+        count_stmt = count_stmt.where(*filters)
+    total = (await db.execute(count_stmt)).scalar_one()
+
+    stmt = (
+        select(ContactSubmission)
+        .order_by(ContactSubmission.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    if filters:
+        stmt = stmt.where(*filters)
+    result = await db.execute(stmt)
+    return list(result.scalars().all()), total

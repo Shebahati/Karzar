@@ -10,7 +10,6 @@ from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.brand import BrandCreate, BrandListResponse, BrandResponse, BrandUpdate
 from app.services.brand_service import BrandService
-
 logger = get_logger(__name__)
 router = APIRouter()
 

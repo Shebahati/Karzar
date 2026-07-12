@@ -43,9 +43,5 @@ def build_category_metadata(categories: List[Category]) -> Dict[int, CategoryMet
 
 
 def is_selectable_product_category(meta: CategoryMeta) -> bool:
-    """Leaf categories below the root (depth >= 2).
-
-    Supports both three-level mega-menu branches and shorter two-level branches
-    where product types sit directly under a root category.
-    """
-    return meta["is_leaf"] and meta["depth"] >= 2
+    """Only strict 3rd-layer leaf categories may carry products (storefront contract)."""
+    return meta["is_leaf"] and meta["depth"] == 3

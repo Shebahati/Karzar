@@ -1,8 +1,14 @@
 """Order lifecycle API tests: admin management, tracking, and customer history."""
 
+import asyncio
+import re
+from datetime import datetime, timedelta, timezone
+
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.services import order_expiry_service
+from tests.conftest import TestingSessionLocal, customer_auth_headers
 
 client = TestClient(app)
 
@@ -16,12 +22,13 @@ def _create_product(super_admin_headers, valid_product_data, *, sku, stock="20")
     return resp.json()["id"]
 
 
-def _checkout_purchase(product_id, quantity=2, headers=None):
+def _checkout_purchase(product_id, quantity=2, phone="09123333333", headers=None):
+    auth_headers = headers or customer_auth_headers(phone)
     return client.post(
         "/api/v1/checkout",
         json={
             "mode": "purchase",
-            "customer": {"full_name": "رضا محمدی", "phone": "09123333333"},
+            "customer": {"full_name": "رضا محمدی", "phone": phone},
             "items": [{"product_id": product_id, "quantity": quantity}],
             "shipping": {
                 "province": "تهران",
@@ -30,7 +37,7 @@ def _checkout_purchase(product_id, quantity=2, headers=None):
                 "address_line": "خیابان آزادی، پلاک ۱۰",
             },
         },
-        headers=headers or {},
+        headers=auth_headers,
     )
 
 
@@ -125,7 +132,13 @@ class TestOrderTracking:
     def test_public_tracking(self, valid_product_data, super_admin_headers):
         product_id = _create_product(super_admin_headers, valid_product_data, sku="ORD-6")
         checkout = _checkout_purchase(product_id)
-        tracking_code = checkout.json()["tracking_code"]
+        body = checkout.json()
+        tracking_code = body["tracking_code"]
+        order_id = body["order_id"]
+
+        assert tracking_code.startswith("KZ-")
+        assert re.fullmatch(r"KZ-[0-9A-F]{12}", tracking_code)
+        assert tracking_code != f"KZ-{order_id}"
 
         resp = client.get(f"/api/v1/orders/track/{tracking_code}")
         assert resp.status_code == 200
@@ -135,11 +148,48 @@ class TestOrderTracking:
         assert "customer_phone" not in body
         assert "shipping" not in body
         assert "customer_full_name" not in body
+        assert "estimated_total" not in body
         assert "items" in body
         assert body["items"][0]["product_id"] == product_id
+        assert len(body["timeline"]) >= 1
+        assert body["timeline"][0]["status"] == "pending_payment"
 
     def test_tracking_not_found(self):
-        assert client.get("/api/v1/orders/track/KZ-999999").status_code == 404
+        assert client.get("/api/v1/orders/track/KZ-DEADBEEFCAFE").status_code == 404
+
+
+class TestOrderExpiry:
+    def test_expired_pending_payment_restocked(
+        self, valid_product_data, super_admin_headers, monkeypatch
+    ):
+        product_id = _create_product(
+            super_admin_headers, valid_product_data, sku="ORD-EXP", stock="20"
+        )
+        checkout = _checkout_purchase(product_id, quantity=5)
+        assert checkout.status_code == 201
+
+        stock = client.get(
+            f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
+        )
+        assert float(stock.json()["stock_quantity"]) == 15.0
+
+        monkeypatch.setattr(
+            order_expiry_service,
+            "pending_payment_cutoff",
+            lambda now=None: datetime.now(timezone.utc) + timedelta(days=1),
+        )
+
+        async def sweep():
+            async with TestingSessionLocal() as db:
+                return await order_expiry_service.cancel_expired_pending_payment_orders(db)
+
+        cancelled = asyncio.run(sweep())
+        assert cancelled == 1
+
+        restored = client.get(
+            f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
+        )
+        assert float(restored.json()["stock_quantity"]) == 20.0
 
 
 class TestCustomerOrders:

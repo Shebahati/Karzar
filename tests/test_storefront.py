@@ -1,11 +1,13 @@
 """Storefront API integration tests."""
 
+import re
 from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
 
 from app.core.config import settings
 from app.main import app
+from tests.conftest import customer_auth_headers
 
 client = TestClient(app)
 
@@ -79,7 +81,57 @@ class TestStorefrontOtp:
 
 
 class TestStorefrontCheckout:
-    def test_checkout_purchase(self, valid_product_data, super_admin_headers):
+    def test_checkout_purchase(self, valid_product_data, super_admin_headers, monkeypatch):
+        monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+        create = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        product_id = create.json()["id"]
+        auth_headers = customer_auth_headers("09123333333")
+
+        response = client.post(
+            "/api/v1/checkout",
+            json={
+                "mode": "purchase",
+                "customer": {
+                    "full_name": "رضا محمدی",
+                    "phone": "09123333333",
+                },
+                "items": [{"product_id": product_id, "quantity": 2}],
+                "shipping": {
+                    "province": "تهران",
+                    "city": "تهران",
+                    "postal_code": "1234567890",
+                    "address_line": "خیابان آزادی، پلاک ۱۰",
+                },
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 201
+        body = response.json()
+        assert body["mode"] == "purchase"
+        assert body["tracking_code"].startswith("KZ-")
+        assert re.fullmatch(r"KZ-[0-9A-F]{12}", body["tracking_code"])
+        assert body["tracking_code"] != f"KZ-{body['order_id']}"
+        assert body["status"] == "pending_payment"
+        assert body["status_label"] == "در انتظار پرداخت"
+        assert body["estimated_total"] is not None
+        assert body["payment_url"] is not None
+        assert body["authority"] is not None
+
+        # Purchase must decrement stock (50 - 2 = 48).
+        stock = client.get(
+            f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
+        )
+        assert stock.status_code == 200
+        assert float(stock.json()["stock_quantity"]) == 48.0
+
+    def test_guest_purchase_checkout_rejected(
+        self, valid_product_data, super_admin_headers, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
         create = client.post(
             "/api/v1/products/",
             json=valid_product_data,
@@ -92,11 +144,11 @@ class TestStorefrontCheckout:
             json={
                 "mode": "purchase",
                 "customer": {
-                    "full_name": "رضا محمدی",
-                    "phone": "09123333333",
+                    "full_name": "مهمان",
+                    "phone": "09126666666",
                     "is_guest": True,
                 },
-                "items": [{"product_id": product_id, "quantity": 2}],
+                "items": [{"product_id": product_id, "quantity": 1}],
                 "shipping": {
                     "province": "تهران",
                     "city": "تهران",
@@ -105,30 +157,20 @@ class TestStorefrontCheckout:
                 },
             },
         )
-        assert response.status_code == 201
-        body = response.json()
-        assert body["mode"] == "purchase"
-        assert body["tracking_code"].startswith("KZ-")
-        assert body["status"] == "pending_payment"
-        assert body["status_label"] == "در انتظار پرداخت"
-        assert body["estimated_total"] is not None
-
-        # Purchase must decrement stock (50 - 2 = 48).
-        stock = client.get(
-            f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
-        )
-        assert stock.status_code == 200
-        assert float(stock.json()["stock_quantity"]) == 48.0
+        assert response.status_code == 403
+        assert response.json()["error_code"] == "PURCHASE_AUTH_REQUIRED"
 
     def test_checkout_insufficient_stock_rejected(
-        self, valid_product_data, super_admin_headers
+        self, valid_product_data, super_admin_headers, monkeypatch
     ):
+        monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
         valid_product_data["sku"] = "TEST-LOWSTOCK"
         valid_product_data["stock_quantity"] = "1"
         create = client.post(
             "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
         )
         product_id = create.json()["id"]
+        auth_headers = customer_auth_headers("09123333333")
 
         response = client.post(
             "/api/v1/checkout",
@@ -143,18 +185,21 @@ class TestStorefrontCheckout:
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
             },
+            headers=auth_headers,
         )
         assert response.status_code == 400
 
     def test_checkout_duplicate_lines_are_aggregated(
-        self, valid_product_data, super_admin_headers
+        self, valid_product_data, super_admin_headers, monkeypatch
     ):
+        monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
         valid_product_data["sku"] = "TEST-DUP"
         valid_product_data["stock_quantity"] = "10"
         create = client.post(
             "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
         )
         product_id = create.json()["id"]
+        auth_headers = customer_auth_headers("09123333333")
 
         # 8 + 8 = 16 exceeds stock of 10 → must be rejected, not double-counted as 8<10.
         response = client.post(
@@ -173,6 +218,7 @@ class TestStorefrontCheckout:
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
             },
+            headers=auth_headers,
         )
         assert response.status_code == 400
 

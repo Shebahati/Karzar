@@ -1,11 +1,15 @@
 """FastAPI application entry point, middleware, and global handlers."""
 
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
+
+from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1 import api_router
@@ -15,9 +19,33 @@ from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, request_id_ctx_var, setup_logging
 from app.core.middleware import get_or_create_request_id
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
+from app.db.database import async_session_maker
+from app.core.distributed_lock import try_acquire_lock
+from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 
 setup_logging()
 logger = get_logger(__name__)
+
+
+async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
+    """Periodically cancel abandoned unpaid purchase orders."""
+    while not stop_event.is_set():
+        try:
+            if await try_acquire_lock(
+                "order_expiry_sweep",
+                settings.ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS,
+            ):
+                async with async_session_maker() as session:
+                    await cancel_expired_pending_payment_orders(session)
+        except Exception:
+            logger.exception("Order expiry sweep failed")
+        try:
+            await asyncio.wait_for(
+                stop_event.wait(),
+                timeout=settings.ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            continue
 
 
 @asynccontextmanager
@@ -25,7 +53,15 @@ async def lifespan(app: FastAPI):
     """Run startup hooks before serving traffic."""
     await bootstrap_super_admin()
     await bootstrap_catalog_seed()
-    yield
+    stop_event = asyncio.Event()
+    expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
+    try:
+        yield
+    finally:
+        stop_event.set()
+        expiry_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await expiry_task
 
 
 app = FastAPI(
@@ -47,6 +83,11 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1")
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_uploads_root = PROJECT_ROOT / "data" / "uploads"
+_uploads_root.mkdir(parents=True, exist_ok=True)
+app.mount("/static/uploads", StaticFiles(directory=_uploads_root), name="uploads")
 
 
 @app.middleware("http")

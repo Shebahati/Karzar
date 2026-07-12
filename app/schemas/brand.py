@@ -9,6 +9,8 @@ class BrandResponse(BaseModel):
     id: int
     name: str
     country: Optional[str] = None
+    logo_url: Optional[str] = None
+    product_count: Optional[int] = Field(None, ge=0)
 
     model_config = ConfigDict(from_attributes=True)
 

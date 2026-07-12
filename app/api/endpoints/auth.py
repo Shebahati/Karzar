@@ -13,11 +13,12 @@ from app.core.security import (
     create_access_token,
     create_step_up_token,
     get_password_hash,
+    hash_token,
     verify_admin_pin,
     verify_password,
 )
 from app.db.database import get_db
-from app.db.models.user import User
+from app.db.models.user import User, UserRole
 from app.schemas.auth import (
     OtpRequest,
     OtpRequestResponse,
@@ -30,8 +31,12 @@ from app.schemas.auth import (
     CurrentUserResponse,
     UserCreate,
     UserResponse,
+    RefreshTokenRequest,
+    PasswordResetRequest,
+    PasswordResetConfirmRequest,
 )
-from app.services.otp_service import request_otp, verify_otp
+from app.services.auth_token_service import issue_auth_tokens, logout_user, rotate_refresh_token
+from app.services.otp_service import request_otp, verify_otp, request_password_reset, confirm_password_reset
 
 router = APIRouter()
 
@@ -107,7 +112,12 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
             message="Public registration is disabled",
         )
 
-    result = await db.execute(select(User).where(User.phone_number == user_in.phone_number))
+    result = await db.execute(
+        select(User).where(
+            User.phone_number == user_in.phone_number,
+            User.deleted_at.is_(None),
+        )
+    )
     if result.scalars().first():
         raise api_error(
             status.HTTP_400_BAD_REQUEST,
@@ -116,10 +126,13 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
             details=[{"field": "phone_number", "message": "already registered"}],
         )
 
+    role = UserRole.B2B_CUSTOMER if user_in.company_name else UserRole.B2C_CUSTOMER
     new_user = User(
         phone_number=user_in.phone_number,
         hashed_password=get_password_hash(user_in.password),
         full_name=user_in.full_name,
+        company_name=user_in.company_name,
+        role=role,
     )
     db.add(new_user)
     await db.commit()
@@ -137,7 +150,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         "Too many login attempts. Please try again later.",
     )
 
-    result = await db.execute(select(User).where(User.phone_number == form_data.username))
+    result = await db.execute(
+        select(User).where(
+            User.phone_number == form_data.username,
+            User.deleted_at.is_(None),
+        )
+    )
     user = result.scalars().first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -157,12 +175,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         )
 
     await _clear_auth_failures(throttle_key)
-    access_token = create_access_token(subject=user.phone_number)
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    }
+    tokens = await issue_auth_tokens(db, user)
+    await db.commit()
+    return tokens
 
 
 @router.get("/me", response_model=CurrentUserResponse, summary="Get current authenticated user")
@@ -173,6 +188,8 @@ async def get_me(current_user: User = Depends(get_current_active_user)):
         full_name=current_user.full_name,
         role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
         is_active=current_user.is_active,
+        company_name=current_user.company_name,
+        is_b2b=current_user.role == UserRole.B2B_CUSTOMER,
     )
 
 
@@ -195,8 +212,105 @@ async def change_password(
             message="New password must be different from current password",
         )
     current_user.hashed_password = get_password_hash(payload.new_password)
+    await logout_user(db, current_user)
     await db.commit()
     return {"ok": True}
+
+
+@router.post("/refresh", response_model=Token, summary="Rotate refresh token")
+async def refresh_token(payload: RefreshTokenRequest, db: AsyncSession = Depends(get_db)):
+    from app.crud import platform as crud_platform
+
+    row = await crud_platform.get_valid_refresh_token(db, hash_token(payload.refresh_token))
+    if row is None:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Invalid or expired refresh token",
+        )
+
+    user = (
+        await db.execute(
+            select(User).where(User.id == row.user_id, User.deleted_at.is_(None))
+        )
+    ).scalars().first()
+    if user is None or not user.is_active:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Invalid refresh token subject",
+        )
+
+    try:
+        tokens = await rotate_refresh_token(db, user, payload.refresh_token)
+        await db.commit()
+        return tokens
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message=str(exc),
+        ) from exc
+
+
+@router.post("/logout", summary="Revoke refresh tokens and invalidate access tokens")
+async def logout(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    await logout_user(db, current_user)
+    await db.commit()
+    return {"ok": True}
+
+
+@router.post("/password-reset/request", response_model=OtpRequestResponse, summary="Request password reset OTP")
+async def password_reset_request(payload: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
+    throttle_key = f"pwd_reset:{payload.phone}"
+    await _check_auth_rate_limit(
+        throttle_key,
+        "phone",
+        "Too many password reset requests. Please try again later.",
+    )
+    try:
+        response = await request_password_reset(db, payload.phone)
+        await _clear_auth_failures(throttle_key)
+        return response
+    except ValueError as exc:
+        await _record_auth_failure(throttle_key)
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=str(exc),
+        ) from exc
+
+
+@router.post("/password-reset/confirm", summary="Confirm password reset with OTP")
+async def password_reset_confirm(
+    payload: PasswordResetConfirmRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    throttle_key = f"pwd_reset_confirm:{payload.phone}"
+    await _check_auth_rate_limit(
+        throttle_key,
+        "phone",
+        "Too many password reset attempts. Please try again later.",
+    )
+    try:
+        await confirm_password_reset(
+            db,
+            phone=payload.phone,
+            code=payload.code,
+            new_password=payload.new_password,
+        )
+        await _clear_auth_failures(throttle_key)
+        return {"ok": True}
+    except ValueError as exc:
+        await _record_auth_failure(throttle_key)
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message=str(exc),
+        ) from exc
 
 
 @router.post("/verify-pin", response_model=StepUpTokenResponse, summary="Verify admin PIN for destructive actions")

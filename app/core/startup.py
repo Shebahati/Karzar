@@ -28,7 +28,8 @@ async def bootstrap_super_admin() -> None:
         result = await session.execute(
             select(User).where(User.role == UserRole.SUPER_ADMIN)
         )
-        if result.scalars().first():
+        existing_admin = result.scalars().first()
+        if existing_admin:
             return
 
         existing = await session.execute(

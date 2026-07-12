@@ -42,13 +42,27 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    result = await db.execute(select(User).where(User.phone_number == phone_number))
+    result = await db.execute(
+        select(User).where(
+            User.phone_number == phone_number,
+            User.deleted_at.is_(None),
+        )
+    )
     user = result.scalars().first()
     if user is None:
         raise api_error(
             401,
             error_code=ErrorCode.UNAUTHORIZED,
             message="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token_version = payload.get("ver", 0)
+    if user.token_version != token_version:
+        raise api_error(
+            401,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
@@ -120,9 +134,18 @@ async def get_optional_current_user(
     if phone_number is None:
         return None
 
-    result = await db.execute(select(User).where(User.phone_number == phone_number))
+    result = await db.execute(
+        select(User).where(
+            User.phone_number == phone_number,
+            User.deleted_at.is_(None),
+        )
+    )
     user = result.scalars().first()
     if user is None or not user.is_active:
+        return None
+
+    token_version = payload.get("ver", 0)
+    if user.token_version != token_version:
         return None
     return user
 

@@ -10,6 +10,7 @@ PHONE_PATTERN = re.compile(r"^09\d{9}$")
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
     expires_in: int
 
@@ -70,7 +71,9 @@ class CustomerBrief(BaseModel):
 
 class OtpVerifyResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
+    expires_in: int
     customer: CustomerBrief
 
 
@@ -78,6 +81,7 @@ class UserCreate(BaseModel):
     phone_number: str = Field(..., description="Iranian mobile number, e.g. 09123456789")
     password: str = Field(..., min_length=8, max_length=128)
     full_name: Optional[str] = None
+    company_name: Optional[str] = Field(None, max_length=120)
 
     @field_validator("phone_number")
     @classmethod
@@ -104,6 +108,38 @@ class CurrentUserResponse(BaseModel):
     full_name: Optional[str]
     role: str
     is_active: bool
+    company_name: Optional[str] = None
+    is_b2b: bool = False
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(..., min_length=16, max_length=256)
+
+
+class PasswordResetRequest(BaseModel):
+    phone: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        normalized = value.strip()
+        if not PHONE_PATTERN.match(normalized):
+            raise ValueError("Phone number must be a valid Iranian mobile number (09XXXXXXXXX)")
+        return normalized
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    phone: str
+    code: str = Field(..., min_length=4, max_length=12)
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        normalized = value.strip()
+        if not PHONE_PATTERN.match(normalized):
+            raise ValueError("Phone number must be a valid Iranian mobile number (09XXXXXXXXX)")
+        return normalized
 
 
 class ChangePasswordRequest(BaseModel):

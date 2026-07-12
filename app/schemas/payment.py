@@ -23,3 +23,14 @@ class PaymentVerifyResponse(BaseModel):
     payment_status: str
     status: str
     ref_id: str | None = None
+
+
+class PaymentRefundRequest(BaseModel):
+    order_id: int = Field(..., ge=1)
+
+
+class PaymentRefundResponse(BaseModel):
+    order_id: int
+    payment_status: str
+    status: str
+    refund_id: str | None = None

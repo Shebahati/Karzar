@@ -72,8 +72,8 @@ class InMemoryRateLimiter:
 class RedisRateLimiter:
     """Fixed-window failure counter backed by Redis (shared across workers).
 
-    Fails open on Redis errors: if the store is unreachable the request is not
-    throttled (the readiness probe removes such an instance from rotation).
+    Fails closed on Redis errors: if the store is unreachable the request is
+    throttled for the full window to avoid bypassing limits during outages.
     """
 
     _KEY_PREFIX = "ratelimit:"
@@ -107,8 +107,8 @@ class RedisRateLimiter:
                 return max(1, ttl) if ttl and ttl > 0 else window_seconds
             return None
         except Exception as exc:  # pragma: no cover - depends on live Redis
-            logger.warning("Rate limiter (check) degraded, failing open: %s", exc)
-            return None
+            logger.warning("Rate limiter (check) degraded, failing closed: %s", exc)
+            return window_seconds
 
     async def record_failure(self, key: str, window_seconds: int) -> None:
         try:

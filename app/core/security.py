@@ -1,10 +1,11 @@
 """Password hashing, JWT access tokens, and step-up authentication tokens."""
 
+import hashlib
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
 import bcrypt
-import secrets
 from jose import JWTError, jwt
 
 from app.core.config import settings
@@ -28,15 +29,36 @@ def get_password_hash(password: str) -> str:
     return hashed.decode("utf-8")
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    subject: Union[str, Any],
+    *,
+    token_version: int = 0,
+    expires_delta: timedelta | None = None,
+) -> str:
     """Issue a short-lived bearer token for API authentication."""
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    to_encode = {"exp": expire, "sub": str(subject), "type": "access"}
+    to_encode = {
+        "exp": expire,
+        "sub": str(subject),
+        "type": "access",
+        "ver": token_version,
+        "iat": datetime.now(timezone.utc).timestamp(),
+    }
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def create_refresh_token() -> str:
+    """Issue an opaque refresh token stored hashed server-side."""
+    return secrets.token_urlsafe(48)
+
+
+def hash_token(token: str) -> str:
+    """One-way hash for refresh token persistence."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def create_step_up_token(subject: Union[str, Any]) -> tuple[str, int]:
