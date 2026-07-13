@@ -373,6 +373,7 @@ async def read_product_comments(product_id: int, db: AsyncSession = Depends(get_
             error_code=ErrorCode.NOT_FOUND,
             message=f"Product with ID '{product_id}' not found",
         )
+    _guard_inactive_product(product, None, str(product_id))
     comments = await crud_content.list_product_comments(db, product_id)
     return {
         "data": [
@@ -401,6 +402,7 @@ async def create_product_comment(
             error_code=ErrorCode.NOT_FOUND,
             message=f"Product with ID '{product_id}' not found",
         )
+    _guard_inactive_product(product, current_user, str(product_id))
     comment = await crud_content.create_product_comment(
         db,
         product_id=product_id,

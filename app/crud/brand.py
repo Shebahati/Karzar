@@ -25,6 +25,11 @@ async def get_brand_by_name(db: AsyncSession, name: str) -> Brand | None:
     return result.scalar_one_or_none()
 
 
+async def get_brand_by_slug(db: AsyncSession, slug: str) -> Brand | None:
+    result = await db.execute(select(Brand).where(Brand.slug == slug))
+    return result.scalar_one_or_none()
+
+
 async def create_brand(db: AsyncSession, *, name: str, country: str | None) -> Brand:
     from app.utils.slugify import ensure_unique_slug
 

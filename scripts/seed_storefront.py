@@ -15,7 +15,7 @@ async def seed() -> None:
     async with async_session_maker() as session:
         brand = (await session.execute(select(Brand).limit(1))).scalar_one_or_none()
         if brand is None:
-            brand = Brand(name="بوش", country="آلمان")
+            brand = Brand(name="بوش", country="آلمان", slug="bosch")
             session.add(brand)
             await session.flush()
 
@@ -34,6 +34,7 @@ async def seed() -> None:
         if existing is None:
             product = Product(
                 sku="DEMO-DRILL-01",
+                slug="demo-drill-01",
                 name="دریل چکشی بوش مدل GSB 13 RE",
                 category_id=category.id,
                 brand_id=brand.id,

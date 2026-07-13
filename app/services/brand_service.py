@@ -22,6 +22,7 @@ class BrandService:
                 BrandResponse(
                     id=brand.id,
                     name=brand.name,
+                    slug=brand.slug,
                     country=brand.country,
                     product_count=count,
                 )
@@ -46,6 +47,7 @@ class BrandService:
         return BrandResponse(
             id=brand.id,
             name=brand.name,
+            slug=brand.slug,
             country=brand.country,
             product_count=0,
         )
@@ -86,6 +88,7 @@ class BrandService:
         return BrandResponse(
             id=brand.id,
             name=brand.name,
+            slug=brand.slug,
             country=brand.country,
             product_count=count,
         )

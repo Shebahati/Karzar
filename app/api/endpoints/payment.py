@@ -1,6 +1,6 @@
 """Payment endpoints for order payment initialization and verification."""
 
-from datetime import UTC
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
@@ -163,11 +163,30 @@ async def payment_init(
     if current_user is not None:
         idempotency_scope = f"payment_init:user:{current_user.id}"
     if idempotency_key and idempotency_key.strip():
+        normalized_key = idempotency_key.strip()
         cached = await crud_platform.get_idempotency_record(
-            db, scope=idempotency_scope, key=idempotency_key.strip()
+            db, scope=idempotency_scope, key=normalized_key
         )
-        if cached is not None:
+        if cached is not None and cached.status_code > 0:
             return JSONResponse(status_code=cached.status_code, content=cached.response_body)
+        reserved = await crud_platform.reserve_idempotency_record(
+            db,
+            scope=idempotency_scope,
+            key=normalized_key,
+            expires_at=datetime.now(UTC) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
+        )
+        if not reserved:
+            existing = await crud_platform.get_idempotency_record(
+                db, scope=idempotency_scope, key=normalized_key
+            )
+            if existing is not None and existing.status_code > 0:
+                return JSONResponse(status_code=existing.status_code, content=existing.response_body)
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.CONFLICT,
+                message="Another request with this Idempotency-Key is currently in progress",
+            )
+        await db.commit()
 
     await cancel_expired_pending_payment_orders(db)
 
@@ -193,19 +212,23 @@ async def payment_init(
     try:
         result = await initialize_order_payment(db, order, ip_address=_client_ip(request))
     except (PaymentGatewayError, PaymentGatewayTimeoutError, ValueError) as exc:
+        if idempotency_key and idempotency_key.strip():
+            await crud_platform.delete_idempotency_record(
+                db,
+                scope=idempotency_scope,
+                key=idempotency_key.strip(),
+            )
+            await db.commit()
         await get_rate_limiter().record_failure(
             f"payment_init:{current_user.id}", _PAYMENT_INIT_WINDOW_SECONDS
         )
         _raise_gateway_error(exc)
 
     await get_rate_limiter().clear(f"payment_init:{current_user.id}")
-    await db.commit()
     response = PaymentInitResponse(authority=result.authority, payment_url=result.payment_url)
 
     if idempotency_key and idempotency_key.strip():
-        from datetime import datetime, timedelta
-
-        await crud_platform.store_idempotency_record(
+        await crud_platform.finalize_idempotency_record(
             db,
             scope=idempotency_scope,
             key=idempotency_key.strip(),
@@ -213,8 +236,7 @@ async def payment_init(
             response_body=response.model_dump(mode="json"),
             expires_at=datetime.now(UTC) + timedelta(hours=settings.IDEMPOTENCY_TTL_HOURS),
         )
-        await db.commit()
-
+    await db.commit()
     return response
 
 
@@ -335,17 +357,17 @@ async def payment_refund(
         _raise_gateway_error(exc)
 
     if result.success:
+        order.payment_status = PaymentStatus.REFUNDED.value
+        if result.refund_id:
+            order.payment_refund_id = result.refund_id
         if order.status != OrderStatus.CANCELLED.value:
             await transition_order_status(
                 db,
                 order,
                 OrderStatus.CANCELLED.value,
-                actor="customer",
-                event_description="بازپرداخت توسط مشتری ثبت شد",
+                actor="admin",
+                event_description="سفارش پس از بازپرداخت لغو شد",
             )
-        order.payment_status = PaymentStatus.REFUNDED.value
-        if result.refund_id:
-            order.payment_refund_id = result.refund_id
         await record_payment_refunded(
             db,
             order,

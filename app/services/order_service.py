@@ -158,6 +158,13 @@ async def transition_order_status(
     ):
         raise ValueError("Paid payment status is required before processing")
 
+    if (
+        order.mode == OrderMode.PURCHASE
+        and target == OrderStatus.CANCELLED.value
+        and order.payment_status == PaymentStatus.PAID.value
+    ):
+        raise ValueError("Paid orders must be refunded before cancellation")
+
     if delivery_eta is not None:
         order.delivery_eta = delivery_eta
 

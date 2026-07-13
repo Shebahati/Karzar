@@ -53,6 +53,7 @@ class CategoryService:
             CategoryFlatResponse(
                 id=category.id,
                 name=category.name,
+                slug=category.slug,
                 parent_id=category.parent_id,
                 depth=metadata[category.id]["depth"],
                 is_leaf=metadata[category.id]["is_leaf"],
@@ -176,6 +177,7 @@ class CategoryService:
         return CategoryFlatResponse(
             id=category.id,
             name=category.name,
+            slug=category.slug,
             parent_id=category.parent_id,
             depth=metadata["depth"],
             is_leaf=metadata["is_leaf"],
@@ -295,6 +297,7 @@ class CategoryService:
         return CategoryFlatResponse(
             id=category.id,
             name=category.name,
+            slug=category.slug,
             parent_id=category.parent_id,
             depth=metadata["depth"],
             is_leaf=metadata["is_leaf"],

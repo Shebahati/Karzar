@@ -49,6 +49,11 @@ async def get_category_by_id(db: AsyncSession, category_id: int) -> Category | N
     return result.scalar_one_or_none()
 
 
+async def get_category_by_slug(db: AsyncSession, slug: str) -> Category | None:
+    result = await db.execute(select(Category).where(Category.slug == slug))
+    return result.scalar_one_or_none()
+
+
 async def get_category_by_parent_and_name(
     db: AsyncSession,
     *,

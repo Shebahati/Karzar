@@ -177,7 +177,7 @@ This document answers every contract requirement you originally requested and de
 - Nested key is **`subcategories`** (not `children`)
 - **Max 3 layers** — only depth-3 leaf categories are product-assignable (`is_selectable=true`); creating deeper nodes is rejected
 - Siblings sorted alphabetically by `name`
-- Filter products by `category_id` on PLP (no `category_slug` yet)
+- Filter products by `category_id` on PLP, or resolve IDs via `GET /categories/slug/{slug}`
 
 **Frontend usage:** Implement a recursive `CategoryMenu` component that maps `subcategories` and links to `/products?category_id={id}`.
 
@@ -393,6 +393,8 @@ X-Step-Up-Token: <secure_token>
 | GET | `/api/v1/products/sku/{sku}` | `ProductDetailResponse` |
 | GET | `/api/v1/products/{id}/stock` | `StockStatusResponse` |
 | GET | `/api/v1/categories/tree` | `{ data: CategoryTreeResponse[] }` |
+| GET | `/api/v1/categories/slug/{slug}` | `CategoryFlatResponse` |
+| GET | `/api/v1/brands/slug/{slug}` | `BrandResponse` |
 | POST | `/api/v1/auth/register` | `UserResponse` (can be disabled by backend config) |
 | POST | `/api/v1/auth/login` | `Token` |
 
@@ -442,7 +444,7 @@ src/
     layout/MegaMenu.tsx
 ```
 
-### Route suggestions (no slug yet)
+### Route suggestions
 
 | Page | Route | Data source |
 |------|-------|-------------|
@@ -450,7 +452,7 @@ src/
 | PDP | `/products/[id]` or `/products/sku/[sku]` | `GET /products/{id}` or `/sku/{sku}` |
 | Mega-menu | layout | `GET /categories/tree` → `data` |
 
-URLs use numeric `id` / `sku` for now. Slug-based SEO URLs are not in the API yet.
+Slug-based lookups are available for categories and brands (`/categories/slug/{slug}`, `/brands/slug/{slug}`).
 
 ---
 
@@ -459,7 +461,7 @@ URLs use numeric `id` / `sku` for now. Slug-based SEO URLs are not in the API ye
 | Topic | Status | Frontend action |
 |-------|--------|-----------------|
 | `thumbnail` | `null` until images uploaded in admin | Placeholder image |
-| `slug` | Not in API | Use `/products/[id]` or `/products/sku/[sku]` |
+| `slug` | Available for categories/brands; products still use id/sku routes | Build category/brand SEO URLs via slug endpoints |
 | Category filter | `category_id` (int), not slug | Read `id` from tree nodes |
 | Image upload API | Admin panel only | Not a storefront concern |
 | `/register` availability | May be disabled via `ALLOW_PUBLIC_REGISTER=false` | Handle `403/FORBIDDEN` and hide signup if disabled |

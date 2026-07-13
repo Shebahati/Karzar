@@ -68,6 +68,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Run database migrations
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_SERVER: 127.0.0.1
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: karzar_ci
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          SECRET_KEY: ci-secret-key-with-at-least-32-characters
+          ADMIN_STEP_UP_PIN: 93827461
+          DEBUG: "true"
+          ENABLE_API_DOCS: "false"
+          USE_POSTGRES_TESTS: "1"
+          ALLOW_PUBLIC_REGISTER: "true"
+          OTP_DEV_ECHO: "true"
+        run: alembic upgrade head
+
       - name: Run tests with coverage gate
         env:
           POSTGRES_USER: postgres

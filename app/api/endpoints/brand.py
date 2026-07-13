@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.crud import brand as crud_brand
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.brand import BrandCreate, BrandListResponse, BrandResponse, BrandUpdate
@@ -33,6 +34,29 @@ async def list_brands(db: AsyncSession = Depends(get_db)):
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error retrieving brands",
         ) from exc
+
+
+@router.get(
+    "/slug/{slug}",
+    response_model=BrandResponse,
+    summary="Get brand by slug",
+    tags=["Brands"],
+)
+async def get_brand_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
+    brand = await crud_brand.get_brand_by_slug(db, slug.strip())
+    if brand is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Brand '{slug}' not found",
+        )
+    return BrandResponse(
+        id=brand.id,
+        name=brand.name,
+        slug=brand.slug,
+        country=brand.country,
+        product_count=await crud_brand.count_products_for_brand(db, brand.id),
+    )
 
 
 @router.post(

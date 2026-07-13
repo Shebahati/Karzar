@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class BrandResponse(BaseModel):
     id: int
     name: str
+    slug: str
     country: str | None = None
     logo_url: str | None = None
     product_count: int | None = Field(None, ge=0)

@@ -1,7 +1,7 @@
 """Order endpoints: admin management, customer history, and public tracking."""
 
 
-from datetime import UTC
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +16,7 @@ from app.core.errors import ErrorCode, api_error
 from app.core.request_throttle import enforce_public_throttle
 from app.core.security import verify_step_up_token
 from app.crud import commerce as crud_commerce
+from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.commerce import Order, OrderMode, OrderStatus
 from app.db.models.user import User
@@ -279,6 +280,17 @@ async def update_order_status(
                 status.HTTP_403_FORBIDDEN,
                 error_code=ErrorCode.STEP_UP_MISMATCH,
                 message="Step-up token does not match the authenticated user",
+            )
+        consumed = await crud_platform.consume_step_up_jti(
+            db,
+            jti=step_up_payload["jti"],
+            expires_at=datetime.fromtimestamp(step_up_payload["exp"], tz=UTC),
+        )
+        if not consumed:
+            raise api_error(
+                status.HTTP_403_FORBIDDEN,
+                error_code=ErrorCode.STEP_UP_INVALID,
+                message="Step-up token has already been used",
             )
 
     try:

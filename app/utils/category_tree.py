@@ -76,6 +76,7 @@ def build_category_tree(
         return CategoryTreeResponse(
             id=category.id,
             name=category.name,
+            slug=category.slug,
             parent_id=category.parent_id,
             icon=resolve_category_icon(category.name, category.icon, is_root=is_root),
             product_count=counts.get(category.id),

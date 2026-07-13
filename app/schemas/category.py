@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class CategoryResponse(BaseModel):
     id: int
     name: str
+    slug: str
     parent_id: int | None = None
 
     model_config = ConfigDict(from_attributes=True)

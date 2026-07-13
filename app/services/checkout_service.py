@@ -149,8 +149,7 @@ async def submit_checkout(
         user=current_user,
         guest_token=guest_cart_token,
     )
-    await db.commit()
-    await db.refresh(order)
+    await db.flush()
 
     return CheckoutResponse(
         order_id=order.id,

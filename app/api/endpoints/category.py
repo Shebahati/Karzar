@@ -45,6 +45,25 @@ async def list_categories(db: AsyncSession = Depends(get_db)):
         ) from exc
 
 
+@router.get(
+    "/slug/{slug}",
+    response_model=CategoryFlatResponse,
+    summary="Get category by slug",
+    tags=["Categories"],
+)
+async def get_category_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
+    categories = await CategoryService.get_flat_categories(db)
+    normalized = slug.strip()
+    for category in categories:
+        if category.slug == normalized:
+            return category
+    raise api_error(
+        status.HTTP_404_NOT_FOUND,
+        error_code=ErrorCode.NOT_FOUND,
+        message=f"Category '{slug}' not found",
+    )
+
+
 @router.post(
     "/",
     response_model=CategoryFlatResponse,
