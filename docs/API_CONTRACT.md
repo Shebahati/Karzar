@@ -6,6 +6,7 @@ Production may set `ENABLE_API_DOCS=false`, so interactive Swagger is not always
 
 | Document | Audience | Contents |
 |----------|----------|----------|
+| [FRONTEND_IMPLEMENTATION_GUIDE.md](FRONTEND_IMPLEMENTATION_GUIDE.md) | Storefront + Admin | **Primary** — parity checklist, gaps, phased work, E2E flows |
 | [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md) | Storefront Next.js | PLP/PDP, checkout, cart, auth, error envelope, examples |
 | [BACKEND_CHANGES.md](../BACKEND_CHANGES.md) | Frontend sessions | Recent deltas, new endpoints, error codes, manual curl tests |
 | [API_CHANGELOG.md](API_CHANGELOG.md) | All clients | Versioning policy, breaking vs non-breaking changes |
