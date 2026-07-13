@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from decimal import Decimal, ROUND_HALF_UP
 from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,11 @@ from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.services.order_service import transition_order_status
+from app.services.payment_ledger_service import (
+    record_payment_failed,
+    record_payment_initiated,
+    record_payment_verified,
+)
 from app.services.payment_service import (
     PaymentGatewayError,
     PaymentGatewayTimeoutError,
@@ -21,7 +27,12 @@ from app.services.payment_service import (
 
 
 def order_amount_rials(order: Order) -> int:
-    return int(order.estimated_total) * TOMAN_TO_RIAL
+    amount_toman = Decimal(str(order.estimated_total or 0))
+    amount_rials = (amount_toman * Decimal(TOMAN_TO_RIAL)).quantize(
+        Decimal("1"),
+        rounding=ROUND_HALF_UP,
+    )
+    return int(amount_rials)
 
 
 def resolve_payment_callback_url() -> str:
@@ -49,7 +60,12 @@ def build_gateway_payment_url(authority: str) -> str:
     return f"https://www.zarinpal.com/pg/StartPay/{authority}"
 
 
-async def initialize_order_payment(db: AsyncSession, order: Order) -> PaymentInitResult:
+async def initialize_order_payment(
+    db: AsyncSession,
+    order: Order,
+    *,
+    ip_address: str | None = None,
+) -> PaymentInitResult:
     if order.mode != OrderMode.PURCHASE:
         raise ValueError("Payment is only available for purchase orders")
     if order.payment_status == PaymentStatus.PAID.value or order.status == OrderStatus.PAID.value:
@@ -75,6 +91,12 @@ async def initialize_order_payment(db: AsyncSession, order: Order) -> PaymentIni
     )
     order.payment_authority = result.authority
     await db.flush()
+    await record_payment_initiated(
+        db,
+        order,
+        authority=result.authority,
+        ip_address=ip_address,
+    )
     return PaymentInitResult(
         authority=result.authority,
         payment_url=build_gateway_payment_url(result.authority),
@@ -87,6 +109,7 @@ async def verify_order_payment(
     *,
     authority: str,
     gateway_status: str | None = None,
+    ip_address: str | None = None,
 ) -> PaymentVerifyResult:
     if order.mode != OrderMode.PURCHASE:
         raise ValueError("Invalid order mode")
@@ -99,9 +122,12 @@ async def verify_order_payment(
     stored = get_order_payment_authority(order)
     if not stored or stored != authority:
         raise PaymentVerifyFailedError("Payment authority does not match this order")
+    if order.status != OrderStatus.PENDING_PAYMENT.value:
+        raise PaymentVerifyFailedError("Order is not in payable state")
 
     if gateway_status is not None and gateway_status.strip().upper() not in {"OK", "100"}:
         order.payment_status = PaymentStatus.FAILED.value
+        await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
         await db.flush()
         raise PaymentVerifyFailedError("Gateway returned a failed payment status")
 
@@ -113,6 +139,7 @@ async def verify_order_payment(
         )
     except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError) as exc:
         order.payment_status = PaymentStatus.FAILED.value
+        await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
         await db.flush()
         raise exc
 
@@ -122,8 +149,16 @@ async def verify_order_payment(
         order.payment_status = PaymentStatus.PAID.value
         if result.ref_id:
             order.payment_ref_id = result.ref_id
+        await record_payment_verified(
+            db,
+            order,
+            authority=authority,
+            ref_id=result.ref_id,
+            ip_address=ip_address,
+        )
     else:
         order.payment_status = PaymentStatus.FAILED.value
+        await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
 
     await db.flush()
     return result

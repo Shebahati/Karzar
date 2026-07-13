@@ -96,6 +96,8 @@ class TestP1AdminContract:
         assert body["timeline"]
 
     def test_create_product_comment(self, valid_product_data, super_admin_headers):
+        from tests.conftest import customer_auth_headers
+
         product_resp = client.post(
             "/api/v1/products/",
             json={**valid_product_data, "sku": "P1-COMMENT"},
@@ -108,13 +110,15 @@ class TestP1AdminContract:
                 "author_name": "کاربر تست",
                 "rating": 5,
                 "body": "محصول عالی بود",
-                "is_verified_buyer": True,
             },
+            headers=customer_auth_headers("09127776655"),
         )
         assert response.status_code == 201
-        assert response.json()["rating"] == 5
+        body = response.json()
+        assert body["rating"] == 5
+        assert body["is_verified_buyer"] is False
 
-    def test_cms_article_crud(self, super_admin_headers):
+    def test_cms_article_crud(self, super_admin_headers, step_up_headers):
         create = client.post(
             "/api/v1/cms/articles",
             headers=super_admin_headers,
@@ -133,7 +137,7 @@ class TestP1AdminContract:
         assert listing.status_code == 200
         assert listing.json()["meta"]["total_count"] >= 1
 
-        delete = client.delete(f"/api/v1/cms/articles/{article_id}", headers=super_admin_headers)
+        delete = client.delete(f"/api/v1/cms/articles/{article_id}", headers=step_up_headers)
         assert delete.status_code == 204
 
     def test_order_search_param(self, valid_product_data, super_admin_headers, monkeypatch):

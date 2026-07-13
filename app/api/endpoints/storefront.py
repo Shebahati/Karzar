@@ -139,6 +139,12 @@ async def checkout(
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
     x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
+    idempotency_scope = "checkout"
+    if current_user is not None:
+        idempotency_scope = f"checkout:user:{current_user.id}"
+    elif x_cart_token and x_cart_token.strip():
+        idempotency_scope = f"checkout:guest:{x_cart_token.strip()}"
+
     await enforce_public_throttle(
         request,
         scope="checkout",
@@ -147,7 +153,7 @@ async def checkout(
     )
     if idempotency_key and idempotency_key.strip():
         cached = await crud_platform.get_idempotency_record(
-            db, scope="checkout", key=idempotency_key.strip()
+            db, scope=idempotency_scope, key=idempotency_key.strip()
         )
         if cached is not None:
             return JSONResponse(status_code=cached.status_code, content=cached.response_body)
@@ -183,7 +189,7 @@ async def checkout(
 
         await crud_platform.store_idempotency_record(
             db,
-            scope="checkout",
+            scope=idempotency_scope,
             key=idempotency_key.strip(),
             status_code=status.HTTP_201_CREATED,
             response_body=result.model_dump(mode="json"),

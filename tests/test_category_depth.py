@@ -6,7 +6,8 @@ from app.utils.category_depth import build_category_metadata, is_selectable_prod
 
 
 def _category(category_id: int, name: str, parent_id: int | None = None) -> Category:
-    return Category(id=category_id, name=name, parent_id=parent_id)
+    slug = name.lower().replace(" ", "-")
+    return Category(id=category_id, name=name, parent_id=parent_id, slug=slug)
 
 
 class TestSelectableCategoryRules:

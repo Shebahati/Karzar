@@ -1,9 +1,14 @@
 """P0 critical payment flow tests."""
 
+import asyncio
+
 from app.core.config import settings
+from app.crud.payment_transaction import list_payment_transactions_for_order
 from app.main import app
 from app.services.payment_service import reset_payment_provider_for_tests
 from fastapi.testclient import TestClient
+
+from tests.conftest import TestingSessionLocal
 
 client = TestClient(app)
 
@@ -61,7 +66,9 @@ def test_guest_purchase_checkout_rejected(valid_product_data, super_admin_header
     assert checkout.json()["error_code"] == "PURCHASE_AUTH_REQUIRED"
 
 
-def test_public_payment_verify_without_jwt(valid_product_data, super_admin_headers, monkeypatch):
+def test_payment_verify_requires_authentication(
+    valid_product_data, super_admin_headers, monkeypatch
+):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     reset_payment_provider_for_tests()
@@ -74,9 +81,16 @@ def test_public_payment_verify_without_jwt(valid_product_data, super_admin_heade
     order_id = checkout.json()["order_id"]
     authority = checkout.json()["authority"]
 
+    anonymous = client.post(
+        "/api/v1/payments/verify",
+        json={"order_id": order_id, "authority": authority, "status": "OK"},
+    )
+    assert anonymous.status_code == 401
+
     verify = client.post(
         "/api/v1/payments/verify",
         json={"order_id": order_id, "authority": authority, "status": "OK"},
+        headers=headers,
     )
     assert verify.status_code == 200
     assert verify.json()["payment_status"] == "paid"
@@ -114,3 +128,42 @@ def test_otp_codes_are_hashed_in_db(valid_product_data, super_admin_headers, mon
 
     bad = client.post("/api/v1/auth/otp/verify", json={"phone": "09124445555", "code": "00000"})
     assert bad.status_code == 401
+
+
+def test_payment_transaction_ledger_on_init_and_verify(
+    valid_product_data, super_admin_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+    reset_payment_provider_for_tests()
+
+    create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
+    product_id = create.json()["id"]
+    headers = _auth_headers_for_phone("09126667788")
+
+    checkout = client.post("/api/v1/checkout", json=_checkout_payload(product_id), headers=headers)
+    assert checkout.status_code == 201
+    order_id = checkout.json()["order_id"]
+    authority = checkout.json()["authority"]
+
+    async def fetch_ledger():
+        async with TestingSessionLocal() as db:
+            return await list_payment_transactions_for_order(db, order_id)
+
+    after_checkout = asyncio.run(fetch_ledger())
+    assert len(after_checkout) == 1
+    assert after_checkout[0].status == "initiated"
+    assert after_checkout[0].authority == authority
+    assert after_checkout[0].gateway == "mock"
+
+    verify = client.post(
+        "/api/v1/payments/verify",
+        json={"order_id": order_id, "authority": authority, "status": "OK"},
+        headers=headers,
+    )
+    assert verify.status_code == 200
+
+    after_verify = asyncio.run(fetch_ledger())
+    assert len(after_verify) == 2
+    assert after_verify[1].status == "verified"
+    assert after_verify[1].ref_id is not None

@@ -40,7 +40,15 @@ def _require_cart_identity(
     if current_user is not None:
         return current_user, None
     if x_cart_token and x_cart_token.strip():
-        return None, x_cart_token.strip()
+        token = x_cart_token.strip()
+        if len(token) < 32:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="Invalid X-Cart-Token header",
+                details=[{"field": "X-Cart-Token", "message": "must be at least 32 characters"}],
+            )
+        return None, token
     raise api_error(
         status.HTTP_401_UNAUTHORIZED,
         error_code=ErrorCode.UNAUTHORIZED,

@@ -29,6 +29,7 @@ from sqlalchemy import select
 from app.core.logging import get_logger, setup_logging
 from app.db.database import async_session_maker
 from app.db.models.product import Brand, Category, Product, StockUnitEnum
+from app.utils.slugify import slugify
 from app.utils.specifications import specifications_for_storage
 
 setup_logging()
@@ -343,6 +344,7 @@ async def import_products(
 
             product = Product(
                 sku=row["sku"],
+                slug=slugify(f"{row['name']}-{row['sku']}") or row["sku"].lower(),
                 name=row["name"][:255],
                 description=(row.get("description") or row["name"])[:5000] or None,
                 category_id=int(row["category_id"]),

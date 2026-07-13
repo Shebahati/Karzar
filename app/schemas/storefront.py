@@ -73,7 +73,6 @@ class ProductCommentCreateRequest(BaseModel):
     author_name: str = Field(..., min_length=2, max_length=100)
     rating: int = Field(..., ge=1, le=5)
     body: str = Field(..., min_length=3)
-    is_verified_buyer: bool = False
 
 
 class RelatedProductsResponse(BaseModel):

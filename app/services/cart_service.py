@@ -101,6 +101,7 @@ async def clear_lane(
     lane: CartLane,
     user: User | None = None,
     guest_token: str | None = None,
+    commit: bool = True,
 ) -> None:
     cart = await crud_platform.get_cart_with_items(
         db, lane=lane, user_id=user.id if user else None, guest_token=guest_token
@@ -108,7 +109,8 @@ async def clear_lane(
     if cart is None:
         return
     await crud_platform.clear_cart_items(db, cart)
-    await db.commit()
+    if commit:
+        await db.commit()
 
 
 async def merge_guest_into_user(
@@ -153,4 +155,10 @@ async def clear_cart_for_checkout(
     guest_token: str | None = None,
 ) -> None:
     lane = _lane_from_mode(mode)
-    await clear_lane(db, lane=lane, user=user, guest_token=guest_token)
+    await clear_lane(
+        db,
+        lane=lane,
+        user=user,
+        guest_token=guest_token,
+        commit=False,
+    )

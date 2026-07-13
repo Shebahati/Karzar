@@ -18,6 +18,7 @@ from sqlalchemy import delete, func, select, text, update
 from app.core.logging import get_logger, setup_logging
 from app.db.database import async_session_maker
 from app.db.models.product import Brand, Product
+from app.utils.slugify import slugify
 
 setup_logging()
 logger = get_logger(__name__)
@@ -78,6 +79,7 @@ async def seed_brands() -> None:
                 Brand(
                     id=int(row["id"]),  # type: ignore[arg-type]
                     name=str(row["name"]),
+                    slug=slugify(f"{row['name']}-{row['id']}") or f"brand-{int(row['id'])}",
                     country=str(row["country"]) if row.get("country") else None,
                 )
             )

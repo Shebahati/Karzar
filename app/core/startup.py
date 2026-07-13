@@ -61,28 +61,39 @@ async def bootstrap_catalog_seed() -> None:
         if existing.scalars().first():
             return
 
-        root = Category(name="ابزار تراشکاری")
+        root = Category(name="ابزار تراشکاری", slug="abzar-tarashkari")
         session.add(root)
         await session.flush()
 
-        inserts = Category(name="الماس تراشکاری (اینسرت)", parent_id=root.id, spec_template_key="insert")
+        inserts = Category(
+            name="الماس تراشکاری (اینسرت)",
+            slug="almas-tarashkari-insert",
+            parent_id=root.id,
+            spec_template_key="insert",
+        )
         session.add(inserts)
         await session.flush()
 
-        leaf = Category(name="اینسرت CNGG", parent_id=inserts.id, spec_template_key="insert")
+        leaf = Category(
+            name="اینسرت CNGG",
+            slug="insert-cngg",
+            parent_id=inserts.id,
+            spec_template_key="insert",
+        )
         session.add(leaf)
         await session.flush()
 
         brands = [
-            Brand(name="سندویک کرومانت", country="سوئد"),
-            Brand(name="ایسکار", country="اسرائیل"),
-            Brand(name="میتوتویو", country="ژاپن"),
+            Brand(name="سندویک کرومانت", slug="sandvik-coromant", country="سوئد"),
+            Brand(name="ایسکار", slug="iscar", country="اسرائیل"),
+            Brand(name="میتوتویو", slug="mitutoyo", country="ژاپن"),
         ]
         session.add_all(brands)
         await session.flush()
 
         sample_product = Product(
             sku=_DEV_SAMPLE_SKU,
+            slug="dev-checkout-001",
             name="اینسرت نمونه توسعه (DEV)",
             category_id=leaf.id,
             brand_id=brands[0].id,

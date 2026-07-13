@@ -120,16 +120,16 @@ def _reset_rate_limiters():
 
 async def _seed_reference_data(session: AsyncSession) -> None:
     """Create a strict 3-layer category tree and a test brand."""
-    root = Category(name="Digital Calipers")
+    root = Category(name="Digital Calipers", slug="digital-calipers")
     session.add(root)
     await session.flush()
 
-    level_two = Category(name="Standard Type", parent_id=root.id)
+    level_two = Category(name="Standard Type", parent_id=root.id, slug="standard-type")
     session.add(level_two)
     await session.flush()
 
-    level_three = Category(name="0-150mm Range", parent_id=level_two.id)
-    brand = Brand(name="TestBrand", country="IR")
+    level_three = Category(name="0-150mm Range", parent_id=level_two.id, slug="0-150mm-range")
+    brand = Brand(name="TestBrand", country="IR", slug="testbrand")
     session.add_all([level_three, brand])
     await session.flush()
 

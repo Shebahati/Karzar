@@ -37,7 +37,9 @@ async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
                 settings.ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS,
             ):
                 async with async_session_maker() as session:
-                    await cancel_expired_pending_payment_orders(session)
+                    cancelled = await cancel_expired_pending_payment_orders(session)
+                    if cancelled:
+                        await session.commit()
         except Exception:
             logger.exception("Order expiry sweep failed")
         try:

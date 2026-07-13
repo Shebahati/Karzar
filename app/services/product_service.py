@@ -9,6 +9,7 @@ from app.crud import platform as crud_platform
 from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
+from app.services.stock_ledger_service import record_adjustment_movement
 from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import stock_status_label
@@ -113,7 +114,12 @@ class ProductService:
         if "brand_id" in update_data.model_fields_set:
             await ensure_brand_exists(db, update_data.brand_id)
 
-        tracked_fields = ("base_price", "original_price", "stock_quantity")
+        if "stock_quantity" in update_data.model_fields_set:
+            raise ValueError(
+                "stock_quantity cannot be set via product update; use stock adjust endpoint"
+            )
+
+        tracked_fields = ("base_price", "original_price")
         previous = {field: getattr(product, field, None) for field in tracked_fields}
 
         updated_product = await crud_product.update_product(db, product_id, update_data)
@@ -163,6 +169,13 @@ class ProductService:
                 new_value=str(updated_product.stock_quantity),
                 reason=reason,
                 actor_user_id=actor_user_id,
+            )
+            await record_adjustment_movement(
+                db,
+                product_id=product_id,
+                quantity_delta=quantity_delta,
+                reference_id=reason or "stock_adjust",
+                user_id=actor_user_id,
             )
             await db.commit()
         return updated_product

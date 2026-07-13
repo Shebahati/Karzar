@@ -8,6 +8,8 @@ from app.db.models.commerce import (
     OrderStatus,
     OrderStatusEvent,
     PaymentStatus,
+    PaymentTransaction,
+    PaymentTransactionStatus,
 )
 from app.db.models.content import (
     Article,
@@ -25,8 +27,17 @@ from app.db.models.platform import (
     IdempotencyKey,
     ProductChangeLog,
     RefreshToken,
+    StepUpTokenUse,
 )
-from app.db.models.product import Brand, Category, Product, ProductImage, StockUnitEnum
+from app.db.models.product import (
+    Brand,
+    Category,
+    Product,
+    ProductImage,
+    StockMovement,
+    StockMovementType,
+    StockUnitEnum,
+)
 from app.db.models.user import User, UserRole
 
 __all__ = [
@@ -37,6 +48,8 @@ __all__ = [
     "ProductImage",
     "ProductComment",
     "StockUnitEnum",
+    "StockMovement",
+    "StockMovementType",
     "User",
     "UserRole",
     "Article",
@@ -50,6 +63,8 @@ __all__ = [
     "OrderMode",
     "OrderStatus",
     "PaymentStatus",
+    "PaymentTransaction",
+    "PaymentTransactionStatus",
     "Cart",
     "CartItem",
     "CartLane",
@@ -57,4 +72,5 @@ __all__ = [
     "AdminAuditLog",
     "ProductChangeLog",
     "IdempotencyKey",
+    "StepUpTokenUse",
 ]

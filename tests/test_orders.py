@@ -4,6 +4,7 @@ import asyncio
 import re
 from datetime import UTC, datetime, timedelta
 
+from app.crud.stock_movement import list_stock_movements_for_reference
 from app.main import app
 from app.services import order_expiry_service
 from fastapi.testclient import TestClient
@@ -58,7 +59,7 @@ class TestAdminOrders:
         detail = client.get(f"/api/v1/orders/{order_id}", headers=super_admin_headers)
         assert detail.status_code == 200
         assert detail.json()["items"][0]["product_id"] == product_id
-        assert "processing" in detail.json()["allowed_next_statuses"]
+        assert "paid" in detail.json()["allowed_next_statuses"]
 
     def test_list_requires_admin(self):
         assert client.get("/api/v1/orders").status_code == 401
@@ -67,9 +68,25 @@ class TestAdminOrders:
         resp = client.get("/api/v1/orders?status=bogus", headers=super_admin_headers)
         assert resp.status_code == 422
 
-    def test_valid_transition(self, valid_product_data, super_admin_headers):
+    def test_valid_transition(self, valid_product_data, super_admin_headers, monkeypatch):
+        from app.core.config import settings
+        from app.services.payment_service import reset_payment_provider_for_tests
+
+        monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+        monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+        reset_payment_provider_for_tests()
+
         product_id = _create_product(super_admin_headers, valid_product_data, sku="ORD-2")
-        order_id = _checkout_purchase(product_id).json()["order_id"]
+        checkout = _checkout_purchase(product_id)
+        order_id = checkout.json()["order_id"]
+        authority = checkout.json()["authority"]
+        headers = customer_auth_headers("09123333333")
+        verify = client.post(
+            "/api/v1/payments/verify",
+            json={"order_id": order_id, "authority": authority, "status": "OK"},
+            headers=headers,
+        )
+        assert verify.status_code == 200, verify.text
 
         resp = client.patch(
             f"/api/v1/orders/{order_id}/status",
@@ -127,6 +144,17 @@ class TestAdminOrders:
         )
         assert float(restored.json()["stock_quantity"]) == 20.0
 
+        async def fetch_movements():
+            async with TestingSessionLocal() as db:
+                return await list_stock_movements_for_reference(db, f"order:{order_id}")
+
+        movements = asyncio.run(fetch_movements())
+        assert len(movements) == 2
+        assert movements[0].movement_type == "sale"
+        assert float(movements[0].quantity_change) == -5.0
+        assert movements[1].movement_type == "return"
+        assert float(movements[1].quantity_change) == 5.0
+
 
 class TestOrderTracking:
     def test_public_tracking(self, valid_product_data, super_admin_headers):
@@ -181,7 +209,10 @@ class TestOrderExpiry:
 
         async def sweep():
             async with TestingSessionLocal() as db:
-                return await order_expiry_service.cancel_expired_pending_payment_orders(db)
+                cancelled = await order_expiry_service.cancel_expired_pending_payment_orders(db)
+                if cancelled:
+                    await db.commit()
+                return cancelled
 
         cancelled = asyncio.run(sweep())
         assert cancelled == 1

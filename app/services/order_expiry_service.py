@@ -62,6 +62,4 @@ async def cancel_expired_pending_payment_orders(db: AsyncSession) -> int:
                 exc,
             )
 
-    if cancelled:
-        await db.commit()
     return cancelled

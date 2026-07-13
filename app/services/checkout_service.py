@@ -19,6 +19,7 @@ from app.services.cart_service import clear_cart_for_checkout, resolve_checkout_
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import record_initial_status_event, status_label
 from app.services.payment_flow_service import initialize_order_payment
+from app.services.stock_ledger_service import record_sale_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
@@ -66,6 +67,7 @@ async def submit_checkout(
     line_items = []
     estimated_total = Decimal("0.0")
     has_priced_item = False
+    stock_reservations: list[tuple[int, int]] = []
 
     for product_id, quantity in quantities.items():
         product = products.get(product_id)
@@ -88,6 +90,7 @@ async def submit_checkout(
 
         if is_purchase:
             product.stock_quantity = product.stock_quantity - quantity
+            stock_reservations.append((product_id, quantity))
 
         line_items.append(
             {
@@ -122,6 +125,24 @@ async def submit_checkout(
         items=line_items,
     )
     await record_initial_status_event(db, order, description="سفارش ثبت شد")
+
+    if is_purchase:
+        for product_id, quantity in stock_reservations:
+            await record_sale_movement(
+                db,
+                product_id=product_id,
+                quantity=quantity,
+                order_id=order.id,
+                user_id=current_user.id if current_user else None,
+            )
+
+    payment_url: str | None = None
+    authority: str | None = None
+    if is_purchase and current_user is not None:
+        payment = await initialize_order_payment(db, order, ip_address=None)
+        payment_url = payment.payment_url
+        authority = payment.authority
+
     await clear_cart_for_checkout(
         db,
         mode=mode_str,
@@ -130,15 +151,6 @@ async def submit_checkout(
     )
     await db.commit()
     await db.refresh(order)
-
-    payment_url: str | None = None
-    authority: str | None = None
-    if is_purchase and current_user is not None:
-        payment = await initialize_order_payment(db, order)
-        await db.commit()
-        await db.refresh(order)
-        payment_url = payment.payment_url
-        authority = payment.authority
 
     return CheckoutResponse(
         order_id=order.id,

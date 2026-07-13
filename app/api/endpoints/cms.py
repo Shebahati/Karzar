@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_super_admin
+from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
 from app.core.errors import ErrorCode, api_error
 from app.crud import content as crud_content
 from app.db.database import get_db
@@ -23,6 +23,7 @@ from app.schemas.cms import (
 )
 from app.schemas.common import build_pagination_meta
 from app.schemas.storefront import HeroSlideResponse, ProductCommentResponse
+from app.services.audit_service import record_audit
 
 router = APIRouter()
 
@@ -101,12 +102,20 @@ async def update_article_admin(
 async def delete_article_admin(
     article_id: int,
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
+    admin_user: User = Depends(get_current_super_admin_with_step_up),
 ):
     article = await crud_content.get_article_by_id(db, article_id)
     if not article:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Article not found")
     await crud_content.delete_article_row(db, article)
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="delete",
+        entity_type="cms_article",
+        entity_id=article_id,
+        details={"slug": article.slug},
+    )
     await db.commit()
 
 
@@ -180,12 +189,20 @@ async def update_hero_slide_admin(
 async def delete_hero_slide_admin(
     slide_id: int,
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
+    admin_user: User = Depends(get_current_super_admin_with_step_up),
 ):
     slide = await crud_content.get_hero_slide_by_id(db, slide_id)
     if not slide:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Hero slide not found")
     await crud_content.delete_hero_slide_row(db, slide)
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="delete",
+        entity_type="hero_slide",
+        entity_id=slide_id,
+        details={"title": slide.title},
+    )
     await db.commit()
 
 
@@ -212,12 +229,20 @@ async def list_product_comments_admin(
 async def delete_product_comment_admin(
     comment_id: int,
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
+    admin_user: User = Depends(get_current_super_admin_with_step_up),
 ):
     comment = await crud_content.get_product_comment_by_id(db, comment_id)
     if not comment:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Comment not found")
     await crud_content.delete_product_comment_row(db, comment)
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="delete",
+        entity_type="product_comment",
+        entity_id=comment_id,
+        details={"product_id": comment.product_id},
+    )
     await db.commit()
 
 

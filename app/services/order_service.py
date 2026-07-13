@@ -9,6 +9,7 @@ from app.crud import commerce as crud_commerce
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.schemas.order import IssueQuoteRequest, OrderInvoiceResponse
 from app.services.notification_service import notify_order_status_change
+from app.services.stock_ledger_service import record_return_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
@@ -34,7 +35,6 @@ PAYMENT_STATUS_LABELS_FA: dict[str, str] = {
 ALLOWED_TRANSITIONS: dict[str, tuple[str, ...]] = {
     OrderStatus.PENDING_PAYMENT.value: (
         OrderStatus.PAID.value,
-        OrderStatus.PROCESSING.value,
         OrderStatus.CANCELLED.value,
     ),
     OrderStatus.PAID.value: (
@@ -57,7 +57,6 @@ ALLOWED_TRANSITIONS: dict[str, tuple[str, ...]] = {
     ),
     OrderStatus.INQUIRY_QUOTED.value: (
         OrderStatus.INQUIRY_CLOSED.value,
-        OrderStatus.PENDING_PAYMENT.value,
         OrderStatus.CANCELLED.value,
     ),
     OrderStatus.INQUIRY_CLOSED.value: (),
@@ -152,6 +151,13 @@ async def transition_order_status(
             raise ValueError("برای ثبت ارسال، کد رهگیری پست الزامی است.")
         order.postal_tracking_code = tracking
 
+    if (
+        order.mode == OrderMode.PURCHASE
+        and target == OrderStatus.PROCESSING.value
+        and order.payment_status != PaymentStatus.PAID.value
+    ):
+        raise ValueError("Paid payment status is required before processing")
+
     if delivery_eta is not None:
         order.delivery_eta = delivery_eta
 
@@ -166,8 +172,6 @@ async def transition_order_status(
 
     if target == OrderStatus.PAID.value:
         order.payment_status = PaymentStatus.PAID.value
-    elif target == OrderStatus.CANCELLED.value and order.payment_status == PaymentStatus.PAID.value:
-        order.payment_status = PaymentStatus.REFUNDED.value
 
     if note is not None:
         # Admin annotations go to admin_note; never overwrite the customer checkout note.
@@ -247,3 +251,10 @@ async def _restore_stock(db: AsyncSession, order: Order) -> None:
         product = products.get(item.product_id)
         if product is not None:
             product.stock_quantity = product.stock_quantity + item.quantity
+            await record_return_movement(
+                db,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                order_id=order.id,
+                user_id=order.user_id,
+            )

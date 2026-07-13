@@ -46,7 +46,7 @@ def _create_product(super_admin_headers):
 
 def test_cart_guest_flow(super_admin_headers):
     product_id = _create_product(super_admin_headers)
-    guest_token = "guest-cart-token-001"
+    guest_token = "guest-cart-token-001-secure-enough-32"
 
     empty = client.get(
         "/api/v1/cart?lane=purchase",
@@ -234,6 +234,17 @@ def test_soft_delete_user_and_order(super_admin_headers, step_up_headers):
         headers=step_up_headers,
     )
     assert delete_user.status_code == 204
+    # Step-up tokens are single-use; request a fresh one for the next destructive action.
+    refresh_step_up = client.post(
+        "/api/v1/auth/verify-pin",
+        json={"pin": "93827461"},
+        headers=super_admin_headers,
+    )
+    assert refresh_step_up.status_code == 200
+    fresh_step_up_headers = {
+        **super_admin_headers,
+        "X-Step-Up-Token": refresh_step_up.json()["secure_token"],
+    }
 
     product_id = _create_product(super_admin_headers)
     order = client.post(
@@ -251,7 +262,7 @@ def test_soft_delete_user_and_order(super_admin_headers, step_up_headers):
 
     archive = client.delete(
         f"/api/v1/orders/{order['order_id']}",
-        headers=step_up_headers,
+        headers=fresh_step_up_headers,
     )
     assert archive.status_code == 204
 
@@ -305,7 +316,7 @@ def test_b2b_registration_and_me():
     assert body["company_name"] == "کارگاه نمونه"
 
 
-def test_payment_refund_mock_flow(super_admin_headers):
+def test_payment_refund_mock_flow(super_admin_headers, step_up_headers):
     product_id = _create_product(super_admin_headers)
     client.post(
         "/api/v1/auth/register",
@@ -358,10 +369,17 @@ def test_payment_refund_mock_flow(super_admin_headers):
     assert verify.status_code == 200
     assert verify.json()["payment_status"] == "paid"
 
-    refund = client.post(
+    customer_refund = client.post(
         "/api/v1/payments/refund",
         json={"order_id": order_id},
         headers=headers,
+    )
+    assert customer_refund.status_code == 403
+
+    refund = client.post(
+        "/api/v1/payments/refund",
+        json={"order_id": order_id},
+        headers=step_up_headers,
     )
     assert refund.status_code == 200
     assert refund.json()["payment_status"] == "refunded"

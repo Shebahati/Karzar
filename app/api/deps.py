@@ -1,6 +1,8 @@
 """FastAPI dependency injection for authentication and authorization."""
 
 
+from datetime import UTC, datetime
+
 from fastapi import Depends, Header
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
@@ -8,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ErrorCode, api_error
 from app.core.security import decode_token, verify_step_up_token
+from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User, UserRole
 
@@ -91,6 +94,7 @@ async def get_current_super_admin(current_user: User = Depends(get_current_activ
 
 async def get_verified_step_up(
     x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
+    db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Validate the step-up JWT supplied in the X-Step-Up-Token header."""
     if not x_step_up_token:
@@ -100,7 +104,20 @@ async def get_verified_step_up(
             message="Step-up authentication required for this action",
             details=[{"field": "X-Step-Up-Token", "message": "Missing step-up token"}],
         )
-    return verify_step_up_token(x_step_up_token)
+    payload = verify_step_up_token(x_step_up_token)
+    expires_at = datetime.fromtimestamp(payload["exp"], tz=UTC)
+    consumed = await crud_platform.consume_step_up_jti(
+        db,
+        jti=payload["jti"],
+        expires_at=expires_at,
+    )
+    if not consumed:
+        raise api_error(
+            403,
+            error_code=ErrorCode.STEP_UP_INVALID,
+            message="Step-up token has already been used",
+        )
+    return payload
 
 
 async def get_current_super_admin_with_step_up(

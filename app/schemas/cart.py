@@ -25,5 +25,5 @@ class CartItemUpsertRequest(BaseModel):
 
 
 class CartMergeRequest(BaseModel):
-    guest_token: str = Field(..., min_length=8, max_length=64)
+    guest_token: str = Field(..., min_length=32, max_length=128)
     lane: str | None = Field(None, pattern="^(purchase|inquiry)$")

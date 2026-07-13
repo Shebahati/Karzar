@@ -19,6 +19,7 @@ from sqlalchemy import delete, func, select, text
 from app.core.logging import get_logger, setup_logging
 from app.db.database import async_session_maker
 from app.db.models.product import Category, Product, ProductImage
+from app.utils.slugify import slugify
 
 setup_logging()
 logger = get_logger(__name__)
@@ -199,6 +200,7 @@ async def seed_categories() -> None:
                 Category(
                     id=category_id,
                     name=str(row["name"]),
+                    slug=slugify(f"{row['name']}-{category_id}") or f"category-{category_id}",
                     parent_id=row["parent_id"],  # type: ignore[arg-type]
                     spec_template_key=SPEC_TEMPLATE_KEYS.get(category_id),
                 )

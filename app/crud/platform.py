@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import delete, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -15,6 +16,7 @@ from app.db.models.platform import (
     IdempotencyKey,
     ProductChangeLog,
     RefreshToken,
+    StepUpTokenUse,
 )
 
 
@@ -321,3 +323,19 @@ async def store_idempotency_record(
     db.add(row)
     await db.flush()
     return row
+
+
+async def consume_step_up_jti(
+    db: AsyncSession,
+    *,
+    jti: str,
+    expires_at: datetime,
+) -> bool:
+    try:
+        async with db.begin_nested():
+            row = StepUpTokenUse(jti=jti, expires_at=expires_at)
+            db.add(row)
+            await db.flush()
+            return True
+    except IntegrityError:
+        return False

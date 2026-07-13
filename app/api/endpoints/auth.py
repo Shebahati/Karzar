@@ -275,17 +275,16 @@ async def password_reset_request(payload: PasswordResetRequest, db: AsyncSession
         "phone",
         "Too many password reset requests. Please try again later.",
     )
+    await _record_auth_failure(throttle_key)
     try:
         response = await request_password_reset(db, payload.phone)
-        await _clear_auth_failures(throttle_key)
         return response
-    except ValueError as exc:
-        await _record_auth_failure(throttle_key)
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message=str(exc),
-        ) from exc
+    except ValueError:
+        # Prevent phone-number enumeration: always return a generic success payload.
+        return OtpRequestResponse(
+            phone=payload.phone,
+            expires_in=settings.OTP_EXPIRE_SECONDS,
+        )
 
 
 @router.post("/password-reset/confirm", summary="Confirm password reset with OTP")
@@ -358,12 +357,12 @@ async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
         "phone",
         "Too many OTP requests. Please try again later.",
     )
+    # Count successful sends as well so SMS bombing cannot reset the budget.
+    await _record_auth_failure(throttle_key)
     try:
         response = await request_otp(db, payload.phone)
-        await _clear_auth_failures(throttle_key)
         return response
     except Exception as exc:
-        await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,

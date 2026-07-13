@@ -3,11 +3,15 @@
 from datetime import UTC
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, Header, Query, status
+from fastapi import APIRouter, Depends, Header, Query, Request, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_active_user, get_optional_current_user
+from app.api.deps import (
+    get_current_active_user,
+    get_current_super_admin_with_step_up,
+    get_optional_current_user,
+)
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.rate_limit import get_rate_limiter
@@ -34,6 +38,7 @@ from app.services.payment_flow_service import (
     order_amount_rials,
     verify_order_payment,
 )
+from app.services.payment_ledger_service import record_payment_refunded
 from app.services.payment_service import (
     PaymentGatewayError,
     PaymentGatewayTimeoutError,
@@ -140,30 +145,53 @@ def _build_redirect_url(base_url: str, *, tracking_code: str, paid: bool) -> str
     return f"{base_url}{separator}{query}"
 
 
+def _client_ip(request: Request | None) -> str | None:
+    if request is None or request.client is None:
+        return None
+    return request.client.host
+
+
 @router.post("/init", response_model=PaymentInitResponse, summary="Initialize payment for an order")
 async def payment_init(
     payload: PaymentInitRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User | None = Depends(get_optional_current_user),
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
 ):
+    idempotency_scope = "payment_init:anonymous"
+    if current_user is not None:
+        idempotency_scope = f"payment_init:user:{current_user.id}"
     if idempotency_key and idempotency_key.strip():
         cached = await crud_platform.get_idempotency_record(
-            db, scope="payment_init", key=idempotency_key.strip()
+            db, scope=idempotency_scope, key=idempotency_key.strip()
         )
         if cached is not None:
             return JSONResponse(status_code=cached.status_code, content=cached.response_body)
 
-    await _check_payment_init_rate_limit(current_user.id)
     await cancel_expired_pending_payment_orders(db)
 
-    order = await crud_commerce.get_order_by_id(db, payload.order_id)
+    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
     if not order:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
+    if order.user_id is None:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.GUEST_ORDER_NOT_PAYABLE,
+            message="برای پرداخت آنلاین باید وارد حساب کاربری شوید. لطفاً با شماره موبایل خود وارد شوید.",
+        )
+    if current_user is None:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    await _check_payment_init_rate_limit(current_user.id)
     _assert_order_payable_by_user(order, current_user)
 
     try:
-        result = await initialize_order_payment(db, order)
+        result = await initialize_order_payment(db, order, ip_address=_client_ip(request))
     except (PaymentGatewayError, PaymentGatewayTimeoutError, ValueError) as exc:
         await get_rate_limiter().record_failure(
             f"payment_init:{current_user.id}", _PAYMENT_INIT_WINDOW_SECONDS
@@ -179,7 +207,7 @@ async def payment_init(
 
         await crud_platform.store_idempotency_record(
             db,
-            scope="payment_init",
+            scope=idempotency_scope,
             key=idempotency_key.strip(),
             status_code=status.HTTP_200_OK,
             response_body=response.model_dump(mode="json"),
@@ -192,6 +220,7 @@ async def payment_init(
 
 @router.get("/callback", summary="Public payment gateway callback (redirect)")
 async def payment_callback(
+    request: Request,
     Authority: str | None = Query(None),
     Status: str | None = Query(None),
     authority: str | None = Query(None),
@@ -216,6 +245,7 @@ async def payment_callback(
             order,
             authority=resolved_authority,
             gateway_status=resolved_status,
+            ip_address=_client_ip(request),
         )
         await db.commit()
         return RedirectResponse(
@@ -233,23 +263,15 @@ async def payment_callback(
 @router.post("/verify", response_model=PaymentVerifyResponse, summary="Verify payment callback")
 async def payment_verify(
     payload: PaymentVerifyRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User | None = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_active_user),
 ):
-    order = await crud_commerce.get_order_by_id(db, payload.order_id)
+    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
     if not order:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
 
-    if current_user is not None:
-        _assert_order_payable_by_user(order, current_user)
-    else:
-        await _check_public_verify_rate_limit(order.id)
-        if get_order_payment_authority(order) != payload.authority:
-            raise api_error(
-                status.HTTP_400_BAD_REQUEST,
-                error_code=ErrorCode.PAYMENT_VERIFY_FAILED,
-                message="Payment authority does not match this order",
-            )
+    _assert_order_payable_by_user(order, current_user)
 
     if order.payment_status == PaymentStatus.PAID.value:
         return PaymentVerifyResponse(
@@ -265,6 +287,7 @@ async def payment_verify(
             order,
             authority=payload.authority,
             gateway_status=payload.status,
+            ip_address=_client_ip(request),
         )
         await db.commit()
     except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError, ValueError) as exc:
@@ -283,13 +306,13 @@ async def payment_verify(
 @router.post("/refund", response_model=PaymentRefundResponse, summary="Refund a paid order via gateway")
 async def payment_refund(
     payload: PaymentRefundRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_super_admin_with_step_up),
 ):
-    order = await crud_commerce.get_order_by_id(db, payload.order_id)
+    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
     if not order:
         raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
-    _assert_order_payable_by_user(order, current_user)
     if order.payment_status != PaymentStatus.PAID.value:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -323,6 +346,14 @@ async def payment_refund(
         order.payment_status = PaymentStatus.REFUNDED.value
         if result.refund_id:
             order.payment_refund_id = result.refund_id
+        await record_payment_refunded(
+            db,
+            order,
+            authority=get_order_payment_authority(order),
+            ref_id=ref_id,
+            refund_id=result.refund_id,
+            ip_address=_client_ip(request),
+        )
         await record_audit(
             db,
             actor_user_id=current_user.id,

@@ -109,3 +109,12 @@ class IdempotencyKey(Base):
     status_code: Mapped[int] = mapped_column(Integer, nullable=False)
     response_body: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class StepUpTokenUse(Base):
+    __tablename__ = "step_up_token_uses"
+    __table_args__ = (Index("ix_step_up_token_uses_expires_at", "expires_at"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    jti: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

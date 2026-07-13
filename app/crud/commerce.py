@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.models.commerce import Order, OrderItem, OrderMode, OrderStatusEvent
+from app.db.models.commerce import Order, OrderItem, OrderMode, OrderStatus, OrderStatusEvent
 from app.utils.tracking_code import generate_unique_tracking_code
 
 
@@ -96,6 +96,17 @@ async def get_order_by_id(db: AsyncSession, order_id: int) -> Order | None:
         select(Order)
         .where(Order.id == order_id, Order.deleted_at.is_(None))
         .options(selectinload(Order.items), selectinload(Order.status_events))
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def get_order_by_id_for_update(db: AsyncSession, order_id: int) -> Order | None:
+    stmt = (
+        select(Order)
+        .where(Order.id == order_id, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .with_for_update()
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -195,3 +206,30 @@ async def soft_delete_order(db: AsyncSession, order_id: int) -> bool:
     order.deleted_at = datetime.now(UTC)
     await db.flush()
     return True
+
+
+async def has_user_purchased_product(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    product_id: int,
+) -> bool:
+    paid_like_states = (
+        OrderStatus.PAID.value,
+        OrderStatus.PROCESSING.value,
+        OrderStatus.SHIPPED.value,
+        OrderStatus.DELIVERED.value,
+    )
+    stmt = (
+        select(OrderItem.id)
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(
+            Order.user_id == user_id,
+            Order.mode == OrderMode.PURCHASE,
+            Order.status.in_(paid_like_states),
+            Order.deleted_at.is_(None),
+            OrderItem.product_id == product_id,
+        )
+        .limit(1)
+    )
+    return (await db.execute(stmt)).scalar_one_or_none() is not None

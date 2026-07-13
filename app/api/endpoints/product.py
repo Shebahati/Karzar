@@ -14,6 +14,7 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import (
+    get_current_active_user,
     get_current_super_admin,
     get_current_super_admin_with_step_up,
     get_optional_current_user,
@@ -24,6 +25,7 @@ from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.core.request_throttle import enforce_public_throttle
 from app.crud import category as crud_category
+from app.crud import commerce as crud_commerce
 from app.crud import content as crud_content
 from app.crud import product as crud_product
 from app.db.database import get_db
@@ -186,7 +188,7 @@ async def read_products(
                 message="Only administrators can list deleted products",
             )
 
-        if is_active is None and not is_super_admin(current_user):
+        if not is_super_admin(current_user):
             is_active = True
 
         if sort is not None and sort not in VALID_SORT_KEYS:
@@ -390,6 +392,7 @@ async def create_product_comment(
     product_id: int,
     payload: ProductCommentCreateRequest,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
     product = await crud_product.get_product_by_id(db, product_id)
     if not product:
@@ -404,7 +407,11 @@ async def create_product_comment(
         author_name=payload.author_name,
         rating=payload.rating,
         body=payload.body,
-        is_verified_buyer=payload.is_verified_buyer,
+        is_verified_buyer=await crud_commerce.has_user_purchased_product(
+            db,
+            user_id=current_user.id,
+            product_id=product_id,
+        ),
     )
     await db.commit()
     return ProductCommentResponse.model_validate(comment, from_attributes=True)

@@ -26,7 +26,20 @@ async def get_brand_by_name(db: AsyncSession, name: str) -> Brand | None:
 
 
 async def create_brand(db: AsyncSession, *, name: str, country: str | None) -> Brand:
-    brand = Brand(name=name, country=country)
+    from app.utils.slugify import ensure_unique_slug
+
+    async def _exists(candidate: str) -> bool:
+        return (
+            await db.execute(select(Brand.id).where(Brand.slug == candidate))
+        ).first() is not None
+
+    slug = await ensure_unique_slug(
+        name,
+        exists=_exists,
+        fallback_prefix="brand",
+        max_length=200,
+    )
+    brand = Brand(name=name, country=country, slug=slug)
     db.add(brand)
     await db.flush()
     await db.refresh(brand)

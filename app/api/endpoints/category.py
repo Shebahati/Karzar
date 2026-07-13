@@ -61,6 +61,12 @@ async def create_category(
         return await CategoryService.create_category(db, payload)
     except HTTPException:
         raise
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message=str(exc),
+        ) from exc
     except Exception as exc:
         logger.error("Error creating category: %s", exc)
         raise api_error(
@@ -86,6 +92,12 @@ async def update_category(
         return await CategoryService.update_category(db, category_id, payload)
     except HTTPException:
         raise
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message=str(exc),
+        ) from exc
     except Exception as exc:
         logger.error("Error updating category %s: %s", category_id, exc)
         raise api_error(

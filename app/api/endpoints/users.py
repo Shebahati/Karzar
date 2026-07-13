@@ -181,6 +181,13 @@ async def update_user(
     if payload.role is not None:
         old_role = user.role.value if hasattr(user.role, "value") else str(user.role)
         if old_role != payload.role:
+            if payload.role == UserRole.SUPER_ADMIN.value:
+                raise api_error(
+                    status.HTTP_403_FORBIDDEN,
+                    error_code=ErrorCode.FORBIDDEN,
+                    message="Cannot promote users to super_admin via API",
+                    details=[{"field": "role", "message": "super_admin promotion is blocked"}],
+                )
             try:
                 user.role = UserRole(payload.role)
             except ValueError as exc:

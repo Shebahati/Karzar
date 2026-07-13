@@ -114,15 +114,19 @@ def reset_in_memory_request_throttle() -> None:
 
 
 def client_ip(request: Request) -> str:
-    """Best-effort client IP for throttling (direct connection or first XFF hop)."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        first = forwarded.split(",")[0].strip()
-        if first:
-            return first[:64]
-    if request.client and request.client.host:
-        return request.client.host[:64]
-    return "unknown"
+    """Best-effort client IP for throttling.
+
+    X-Forwarded-For is only trusted when the direct peer is in TRUSTED_PROXIES.
+    """
+    direct = request.client.host[:64] if request.client and request.client.host else "unknown"
+    trusted_proxies = set(settings.trusted_proxies_list)
+    if trusted_proxies and direct in trusted_proxies:
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            first = forwarded.split(",")[0].strip()
+            if first:
+                return first[:64]
+    return direct
 
 
 async def enforce_public_throttle(

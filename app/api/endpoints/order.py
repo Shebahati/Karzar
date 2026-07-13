@@ -300,6 +300,16 @@ async def update_order_status(
         ) from exc
 
     await db.commit()
+    if payload.status in _SENSITIVE_STATUSES:
+        await record_audit(
+            db,
+            actor_user_id=current_user.id,
+            action="status_change",
+            entity_type="order",
+            entity_id=order.id,
+            details={"to": payload.status},
+        )
+        await db.commit()
     refreshed = await crud_commerce.get_order_by_id(db, order_id)
     return _to_detail(refreshed)
 
@@ -309,7 +319,7 @@ async def issue_quote(
     order_id: int,
     payload: IssueQuoteRequest,
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
+    admin_user: User = Depends(get_current_super_admin),
 ):
     order = await crud_commerce.get_order_by_id(db, order_id)
     if not order:
@@ -328,6 +338,15 @@ async def issue_quote(
             details=[{"field": "items", "message": str(exc)}],
         ) from exc
 
+    await db.commit()
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="issue_quote",
+        entity_type="order",
+        entity_id=order.id,
+        details={"mode": "line_items"},
+    )
     await db.commit()
     refreshed = await crud_commerce.get_order_by_id(db, order_id)
     return _to_detail(refreshed)

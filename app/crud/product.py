@@ -21,6 +21,10 @@ from app.utils.storefront_catalog import product_sort_clause
 logger = get_logger(__name__)
 
 
+async def _product_slug_exists(db: AsyncSession, slug: str) -> bool:
+    return (await db.execute(select(Product.id).where(Product.slug == slug))).first() is not None
+
+
 def _product_load_options():
     """Eager-load relationships needed by API response presenters."""
     return (
@@ -31,9 +35,18 @@ def _product_load_options():
 
 
 async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product:
+    from app.utils.slugify import ensure_unique_slug
+
     payload = product_in.model_dump(exclude={"specifications", "stock_unit"})
+    slug = await ensure_unique_slug(
+        product_in.name or product_in.sku,
+        exists=lambda candidate: _product_slug_exists(db, candidate),
+        fallback_prefix=product_in.sku.lower(),
+        max_length=255,
+    )
     db_product = Product(
         **payload,
+        slug=slug,
         stock_unit=StockUnitEnum(product_in.stock_unit),
         specifications=specifications_for_storage(product_in.specifications),
     )

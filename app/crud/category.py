@@ -83,10 +83,24 @@ async def create_category(
     parent_id: int | None,
     spec_template_key: str | None = None,
 ) -> Category:
+    from app.utils.slugify import ensure_unique_slug
+
+    async def _exists(candidate: str) -> bool:
+        return (
+            await db.execute(select(Category.id).where(Category.slug == candidate))
+        ).first() is not None
+
+    slug = await ensure_unique_slug(
+        name,
+        exists=_exists,
+        fallback_prefix="category",
+        max_length=200,
+    )
     category = Category(
         name=name,
         parent_id=parent_id,
         spec_template_key=spec_template_key,
+        slug=slug,
     )
     db.add(category)
     await db.flush()

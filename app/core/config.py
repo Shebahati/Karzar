@@ -83,6 +83,7 @@ class Settings(BaseSettings):
     # Security middleware
     MAX_REQUEST_BODY_BYTES: int = Field(default=1_048_576, ge=1024, le=10_485_760)
     TRUSTED_HOSTS: str = ""
+    TRUSTED_PROXIES: str = ""
     ENFORCE_HTTPS: bool = False
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
@@ -180,6 +181,13 @@ class Settings(BaseSettings):
         if not self.TRUSTED_HOSTS.strip():
             return []
         return [host.strip() for host in self.TRUSTED_HOSTS.split(",") if host.strip()]
+
+    @computed_field
+    @property
+    def trusted_proxies_list(self) -> list[str]:
+        if not self.TRUSTED_PROXIES.strip():
+            return []
+        return [proxy.strip() for proxy in self.TRUSTED_PROXIES.split(",") if proxy.strip()]
 
     @computed_field
     @property

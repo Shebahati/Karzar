@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     Enum,
     ForeignKey,
@@ -37,6 +38,12 @@ class StockUnitEnum(str, enum.Enum):
     KG = "kg"
     METER = "meter"
     PACK = "pack"
+
+
+class StockMovementType(str, enum.Enum):
+    SALE = "sale"
+    RETURN = "return"
+    ADJUSTMENT = "adjustment"
 
 
 def get_default_specifications() -> dict[str, Any]:
@@ -78,6 +85,9 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    slug: Mapped[str] = mapped_column(String(200), unique=True, index=True, nullable=False)
+    meta_title: Mapped[str | None] = mapped_column(String(255))
+    meta_description: Mapped[str | None] = mapped_column(String(500))
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"))
     spec_template_key: Mapped[str | None] = mapped_column(String(50), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
@@ -96,6 +106,9 @@ class Brand(Base):
     __tablename__ = "brands"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String(200), unique=True, index=True, nullable=False)
+    meta_title: Mapped[str | None] = mapped_column(String(255))
+    meta_description: Mapped[str | None] = mapped_column(String(500))
     country: Mapped[str | None] = mapped_column(String(50))
     products: Mapped[list["Product"]] = relationship("Product", back_populates="brand")
 
@@ -111,6 +124,7 @@ class Product(Base):
         Index("ix_products_category_id", "category_id"),
         Index("ix_products_brand_id", "brand_id"),
         Index("ix_products_active_list", "is_active", "deleted_at"),
+        CheckConstraint("stock_quantity >= 0", name="ck_products_stock_non_negative"),
         Index(
             "uq_products_sku_active",
             "sku",
@@ -126,6 +140,9 @@ class Product(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     sku: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    meta_title: Mapped[str | None] = mapped_column(String(255))
+    meta_description: Mapped[str | None] = mapped_column(String(500))
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
@@ -166,6 +183,31 @@ class Product(Base):
     comments: Mapped[list["ProductComment"]] = relationship(
         "ProductComment", back_populates="product", cascade="all, delete-orphan"
     )
+    stock_movements: Mapped[list["StockMovement"]] = relationship(
+        "StockMovement", back_populates="product", cascade="all, delete-orphan"
+    )
+
+
+class StockMovement(Base):
+    """Append-only inventory movement audit ledger."""
+
+    __tablename__ = "stock_movements"
+    __table_args__ = (
+        Index("ix_stock_movements_product_id", "product_id"),
+        Index("ix_stock_movements_reference_id", "reference_id"),
+        Index("ix_stock_movements_created_at", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_id: Mapped[int] = mapped_column(
+        ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+    )
+    quantity_change: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    movement_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    reference_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+
+    product: Mapped["Product"] = relationship("Product", back_populates="stock_movements")
 
 
 class ProductImage(Base):

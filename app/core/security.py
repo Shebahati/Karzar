@@ -65,10 +65,12 @@ def create_step_up_token(subject: str | Any) -> tuple[str, int]:
     """Issue a scoped token authorizing destructive admin operations."""
     expires_in = settings.STEP_UP_TOKEN_EXPIRE_MINUTES * 60
     expire = datetime.now(UTC) + timedelta(minutes=settings.STEP_UP_TOKEN_EXPIRE_MINUTES)
+    jti = secrets.token_urlsafe(18)
     to_encode = {
         "exp": expire,
         "sub": str(subject),
         "type": STEP_UP_TOKEN_TYPE,
+        "jti": jti,
     }
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return token, expires_in
@@ -102,6 +104,13 @@ def verify_step_up_token(token: str) -> dict:
             403,
             error_code=ErrorCode.STEP_UP_INVALID,
             message="Invalid step-up token subject",
+        )
+    jti = payload.get("jti")
+    if not isinstance(jti, str) or not jti:
+        raise api_error(
+            403,
+            error_code=ErrorCode.STEP_UP_INVALID,
+            message="Invalid step-up token nonce",
         )
     return payload
 
