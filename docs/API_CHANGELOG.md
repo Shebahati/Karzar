@@ -79,6 +79,10 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - Added `tests/test_e_commerce_audit.py` (cart lane isolation, short cart token, merge-on-login, inquiry_review status, purchase shipping required, paid-cancel blocked until refund).
 
+### 2026-07 — payment audit F
+
+- Added `tests/test_f_payment_audit.py` (payment init ownership, callback failure redirect, refund ledger + cancelled status, toman→rial ROUND_HALF_UP).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |

@@ -1,7 +1,7 @@
 # نقشه عملیات بررسی جامع Backend — Karzar
 
-**نسخه:** 1.5 — 2026-07-18  
-**وضعیت:** A `PASS`؛ B `PARTIAL`؛ C `PASS`؛ D `PASS` (SEO debt)؛ E `PASS`  
+**نسخه:** 1.6 — 2026-07-18  
+**وضعیت:** A–E `PASS` (B `PARTIAL`)؛ F `PASS`  
 **هدف:** بررسی سیستماتیک کل بک‌اند، المان‌به‌المان و دامنه به‌دامنه، در گام‌های کوچک و قابل‌اجرا  
 **قانون اجرا:** در هر نشست فقط **یک شماره گام** (یا حداکثر یک خوشهٔ هم‌خانواده) انجام می‌شود؛ نتیجه با وضعیت Pass / Fail / Partial ثبت می‌شود.
 
@@ -690,3 +690,50 @@
 | خارج | فرانت Idempotency-Key / cart سرور | بدهی FE |
 
 **حکم E:** دامنه commerce برای فاز پرداخت (F) آماده است.
+
+---
+
+# نتایج اجرا — فاز F (2026-07-18)
+
+**وضعیت فاز:** `PASS`  
+**Critical:** هیچ  
+**شواهد:** ۱۷ تست پرداخت قبلی + `tests/test_f_payment_audit.py` (۴ تست جدید) سبز.
+
+### F1 — Payment init — `PASS`
+- auth الزامی؛ ownership فقط owner؛ guest order → `GUEST_ORDER_NOT_PAYABLE` در مسیرهای مرتبط؛ فقط `pending_payment`.
+
+### F2 — Idempotency init — `PASS`
+- replay همان authority؛ Idempotency-Key روی endpoint پشتیبانی می‌شود.
+
+### F3 — Callback — `PASS`
+- OK → success redirect؛ NOK → failure redirect.
+
+### F4 — Verify — `PASS`
+- فقط owner (+ auth)؛ وضعیت paid پایدار؛ anonymous → 401.
+
+### F5 — تومان→ریال — `PASS`
+- `TOMAN_TO_RIAL=10`؛ `ROUND_HALF_UP` (۱۰.۱۵×۱۰ → ۱۰۲).
+
+### F6 — Ledger — `PASS`
+- initiated / verified / failed / refunded در `payment_transactions`.
+
+### F7 — Refund — `PASS`
+- فقط admin + step-up؛ فقط paid؛ پس از موفقیت `refunded` + `cancelled`.
+
+### F8 — Provider abstraction — `PASS`
+- mock/zarinpal پشت interface یکسان؛ تست‌های zarinpal unit سبز.
+
+### F9 — Gateway errors — `PASS`
+- `PAYMENT_GATEWAY_TIMEOUT` (504)، `PAYMENT_VERIFY_FAILED` (400).
+
+### F10 — Double verify / race — `PASS`
+- verify تکراری idempotent؛ init تکراری همان authority؛ order lock در init.
+
+### F11 — جمع‌بندی فاز F
+| اولویت | مورد | وضعیت |
+|--------|------|--------|
+| — | جریان پرداخت mock | سالم |
+| خارج | Zarinpal واقعی در production | ops/go-live |
+| خارج | Idempotency-Key سمت فرانت | بدهی FE |
+
+**حکم F:** لایه پرداخت برای ادامهٔ فاز محتوا/یکپارچه‌سازی (G) آماده است؛ قبل از go-live واقعی provider و callback URL را در env ست کنید.
