@@ -1,7 +1,7 @@
 # نقشه عملیات بررسی جامع Backend — Karzar
 
-**نسخه:** 1.3 — 2026-07-18  
-**وضعیت:** فاز A remediated (`PASS`)؛ فاز B (`PARTIAL`)؛ فاز C اجرا+harden (`PASS` با note SSRF DNS)  
+**نسخه:** 1.4 — 2026-07-18  
+**وضعیت:** A `PASS`؛ B `PARTIAL`؛ C `PASS`؛ D `PASS` (بدهی SEO فیلدها)  
 **هدف:** بررسی سیستماتیک کل بک‌اند، المان‌به‌المان و دامنه به‌دامنه، در گام‌های کوچک و قابل‌اجرا  
 **قانون اجرا:** در هر نشست فقط **یک شماره گام** (یا حداکثر یک خوشهٔ هم‌خانواده) انجام می‌شود؛ نتیجه با وضعیت Pass / Fail / Partial ثبت می‌شود.
 
@@ -589,3 +589,52 @@
 | خارج | OTP `phone` در فرانت | فرانت |
 
 **حکم C:** بک‌اند از نظر هویت/مجوز/سخت‌سازی برای ادامهٔ فازهای دامنه آماده است؛ قبل از go-live واقعی env production را با چک‌لیست C13 تنظیم کنید.
+
+---
+
+# نتایج اجرا — فاز D (2026-07-18)
+
+**وضعیت فاز:** `PASS` با بدهی شناخته‌شدهٔ SEO (فیلدها در DB هستند، در API محصول/دسته/برند کامل expose نشده‌اند).  
+**Critical:** هیچ  
+**شواهد تست:** ۸۳ تست کاتالوگ قبلی سبز + `tests/test_d_catalog_audit.py` (۵ تست جدید) سبز.
+
+### D1 — مدل محصول — `PASS`
+- soft-delete (`deleted_at`)، `is_active`، SKU unique روی active؛ storefront فقط active؛ admin می‌تواند inactive/`is_deleted` ببیند.
+
+### D2 — PLP — `PASS`
+- فیلتر/جستجو/sort/pagination؛ `in_stock`؛ رد sort نامعتبر؛ تست‌های storefront + product endpoints.
+
+### D3 — Spec filters — `PASS`
+- `filters` / `spec_*`؛ labels، filter-options، templates؛ template فقط برای leaf قابل‌انتخاب.
+
+### D4 — PDP / related — `PASS`
+- inactive برای غیر‌ادمین → 404؛ related فقط `is_active` و هم‌درخت؛ تست جدید PDP inactive.
+
+### D5 — دسته سه‌لایه — `PASS`
+- عمق >3 رد؛ `is_selectable` فقط depth-3 leaf؛ unit + admin tests.
+
+### D6 — slug lookup — `PASS`
+- `/categories/slug/{slug}` و `/brands/slug/{slug}`؛ تست جدید.
+
+### D7 — تصاویر — `PASS`
+- URL + multipart؛ سقف تعداد؛ primary/reorder؛ SSRF روی URL؛ `test_p5_product_images`.
+
+### D8 — موجودی — `PASS`
+- PUT مستقیم `stock_quantity` → 400؛ مسیر رسمی `stock/adjust` + ledger/change-log.
+
+### D9 — SEO fields — `PARTIAL` (بدهی محصول، نه باگ امنیتی)
+- DB: `products.slug/meta_*`، `categories.meta_*`، `brands.meta_*`.
+- API: category/brand **slug** در پاسخ هست؛ **meta_*** هیچ‌کجا expose نشده؛ **product.slug** در PLP/PDP نیست.
+- اقدام: وقتی فرانت SEO بخواهد، فیلدها را غیرشکست‌زا به response اضافه کنید (`API_CHANGELOG`).
+
+### D10 — آمار / change-log — `PASS`
+- فقط admin؛ تست با clear کردن dependency override fixture.
+
+### D11 — جمع‌بندی فاز D
+| اولویت | مورد | وضعیت |
+|--------|------|--------|
+| — | رفتار کاتالوگ runtime | سالم |
+| P2 | expose `product.slug` + `meta_*` برای SEO | بدهی محصول |
+| P2 | expose `meta_*` روی category/brand | بدهی محصول |
+
+**حکم D:** دامنه کاتالوگ برای commerce (فاز E) آماده است؛ SEO URL مبتنی بر product slug هنوز نیاز به کار API+FE دارد.

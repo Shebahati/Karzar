@@ -70,6 +70,11 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Production config: `APP_ENV=production` cannot be bypassed with `DEBUG=True`; requires `TRUSTED_HOSTS`, `ENFORCE_HTTPS`, non-mock payment, non-console SMS, docs off.
 - Added regression tests: refresh-token reuse, step-up single-use, customer authz matrix (`tests/test_c_security_authz.py`).
 
+### 2026-07 — catalog audit D
+
+- Added `tests/test_d_catalog_audit.py` (inactive PDP, slug lookups, stock PUT guard, admin stats/change-log, SEO field exposure debt assertion).
+- Confirmed: product/category/brand `meta_*` and product `slug` exist in DB but are not yet in API responses (non-breaking future addition).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |
