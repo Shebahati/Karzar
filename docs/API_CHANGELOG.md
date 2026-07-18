@@ -58,6 +58,18 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Fix: `otp_codes.code` widened to `VARCHAR(64)` so SHA-256 hashed OTPs persist (restores `POST /auth/otp/request`).
 - Docs moved: `BACKEND_CHANGES.md`, `ARCHITECTURE.md` under `docs/`.
 
+### 2026-07 — contract drift fixes (post audit A)
+
+- Docs: `GET /categories/tree` documented as **raw array** (was incorrectly `{data:[]}` in INTEGRATION/HANDOVER).
+- OpenAPI: optional-auth routes use `HTTPBearer` with anonymous alternative `{}` in `security`.
+- Snapshot: committed `openapi/v1.json` for offline typegen.
+- Cart `base_price` serialized via `decimal_to_api_string` (aligned with PLP/order money strings).
+
+### 2026-07 — security audit C hardening
+
+- Production config: `APP_ENV=production` cannot be bypassed with `DEBUG=True`; requires `TRUSTED_HOSTS`, `ENFORCE_HTTPS`, non-mock payment, non-console SMS, docs off.
+- Added regression tests: refresh-token reuse, step-up single-use, customer authz matrix (`tests/test_c_security_authz.py`).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |

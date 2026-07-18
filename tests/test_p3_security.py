@@ -111,6 +111,39 @@ class TestProductionConfigGuards:
         with pytest.raises(ValidationError, match="REDIS_HOST"):
             Settings(**kwargs)
 
+    def test_rejects_debug_true_when_app_env_production(self):
+        kwargs = self._base_kwargs()
+        kwargs.update(
+            {
+                "APP_ENV": "production",
+                "DEBUG": True,
+                "TRUSTED_HOSTS": "api.example.com",
+                "ENFORCE_HTTPS": True,
+                "PAYMENT_PROVIDER": "zarinpal",
+                "SMS_PROVIDER": "kavenegar",
+                "SMS_KAVENEGAR_API_KEY": "test-key",
+                "ENABLE_API_DOCS": False,
+            }
+        )
+        with pytest.raises(ValidationError, match="DEBUG"):
+            Settings(**kwargs)
+
+    def test_production_requires_trusted_hosts_and_https(self):
+        kwargs = self._base_kwargs()
+        kwargs.update(
+            {
+                "APP_ENV": "production",
+                "PAYMENT_PROVIDER": "zarinpal",
+                "SMS_PROVIDER": "kavenegar",
+                "SMS_KAVENEGAR_API_KEY": "test-key",
+                "ENABLE_API_DOCS": False,
+                "ENFORCE_HTTPS": True,
+                "TRUSTED_HOSTS": "",
+            }
+        )
+        with pytest.raises(ValidationError, match="TRUSTED_HOSTS"):
+            Settings(**kwargs)
+
 
 class TestLogoutRevokesAccessToken:
     def test_logout_invalidates_existing_access_token(self, monkeypatch):

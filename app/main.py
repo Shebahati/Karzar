@@ -106,6 +106,37 @@ _uploads_root.mkdir(parents=True, exist_ok=True)
 app.mount("/static/uploads", StaticFiles(directory=_uploads_root), name="uploads")
 
 
+def custom_openapi():
+    """Build OpenAPI and mark optional-Bearer routes as anonymous-capable."""
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    from fastapi.openapi.utils import get_openapi
+
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+
+    # Required auth uses OAuth2PasswordBearer; optional auth uses HTTPBearer(auto_error=False).
+    # OpenAPI treats a lone security requirement as mandatory — add {} so anonymous is allowed.
+    for _path, methods in schema.get("paths", {}).items():
+        for method, operation in methods.items():
+            if method.startswith("x-") or not isinstance(operation, dict):
+                continue
+            security = operation.get("security")
+            if security == [{"HTTPBearer": []}]:
+                operation["security"] = [{}, {"HTTPBearer": []}]
+
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
+
+
 @app.middleware("http")
 async def request_context_middleware(request: Request, call_next):
     request_id = get_or_create_request_id(request)

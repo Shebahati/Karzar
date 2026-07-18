@@ -89,3 +89,15 @@ class TestApiContractShapes:
         meta = body["meta"]
         for key in ("total_count", "skip", "limit", "has_next", "has_prev"):
             assert key in meta
+
+    def test_optional_auth_openapi_allows_anonymous(self):
+        """Optional-Bearer routes must allow unauthenticated access in OpenAPI."""
+        from app.main import app
+
+        app.openapi_schema = None
+        schema = app.openapi()
+        checkout_security = schema["paths"]["/api/v1/checkout"]["post"]["security"]
+        assert {} in checkout_security
+        assert {"HTTPBearer": []} in checkout_security
+        me_security = schema["paths"]["/api/v1/auth/me"]["get"]["security"]
+        assert me_security == [{"OAuth2PasswordBearer": []}]

@@ -8,6 +8,7 @@ from app.crud import product as crud_product
 from app.db.models.platform import CartLane
 from app.db.models.user import User, UserRole
 from app.schemas.cart import CartItemResponse, CartResponse
+from app.utils.storefront_catalog import decimal_to_api_string
 
 
 def _lane_from_mode(mode: str) -> CartLane:
@@ -39,7 +40,7 @@ async def get_cart_response(
                 product_id=item.product_id,
                 quantity=item.quantity,
                 product_name=product.name,
-                base_price=str(product.base_price) if product.base_price is not None else None,
+                base_price=decimal_to_api_string(product.base_price),
                 stock_quantity=product.stock_quantity,
             )
         )

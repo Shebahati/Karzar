@@ -143,33 +143,38 @@ This document answers every contract requirement you originally requested and de
 
 **Endpoint:** `GET /api/v1/categories/tree`
 
-**Important:** Response is **not** a raw array. It is wrapped:
+**Important:** Response is a **raw JSON array** (not wrapped in `{ "data": [...] }`). This is an intentional exception to the usual list envelope.
 
 ```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Digital Calipers",
-      "parent_id": null,
-      "subcategories": [
-        {
-          "id": 2,
-          "name": "Standard Type",
-          "parent_id": 1,
-          "subcategories": [
-            {
-              "id": 3,
-              "name": "0-150mm Range",
-              "parent_id": 2,
-              "subcategories": []
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "name": "Digital Calipers",
+    "slug": "digital-calipers",
+    "parent_id": null,
+    "icon": "Category",
+    "product_count": 12,
+    "subcategories": [
+      {
+        "id": 2,
+        "name": "Standard Type",
+        "slug": "standard-type",
+        "parent_id": 1,
+        "product_count": 5,
+        "subcategories": [
+          {
+            "id": 3,
+            "name": "0-150mm Range",
+            "slug": "0-150mm",
+            "parent_id": 2,
+            "product_count": 3,
+            "subcategories": []
+          }
+        ]
+      }
+    ]
+  }
+]
 ```
 
 **Contract rules:**
@@ -392,7 +397,7 @@ X-Step-Up-Token: <secure_token>
 | GET | `/api/v1/products/{id}` | `ProductDetailResponse` |
 | GET | `/api/v1/products/sku/{sku}` | `ProductDetailResponse` |
 | GET | `/api/v1/products/{id}/stock` | `StockStatusResponse` |
-| GET | `/api/v1/categories/tree` | `{ data: CategoryTreeResponse[] }` |
+| GET | `/api/v1/categories/tree` | `CategoryTreeResponse[]` (raw array) |
 | GET | `/api/v1/categories/slug/{slug}` | `CategoryFlatResponse` |
 | GET | `/api/v1/brands/slug/{slug}` | `BrandResponse` |
 | POST | `/api/v1/auth/register` | `UserResponse` (can be disabled by backend config) |
@@ -450,7 +455,7 @@ src/
 |------|-------|-------------|
 | PLP | `/products?category_id=1&skip=0&limit=24` | `GET /products/` |
 | PDP | `/products/[id]` or `/products/sku/[sku]` | `GET /products/{id}` or `/sku/{sku}` |
-| Mega-menu | layout | `GET /categories/tree` → `data` |
+| Mega-menu | layout | `GET /categories/tree` → raw array |
 
 Slug-based lookups are available for categories and brands (`/categories/slug/{slug}`, `/brands/slug/{slug}`).
 
@@ -474,10 +479,10 @@ Slug-based lookups are available for categories and brands (`/categories/slug/{s
 |---|-------------|--------|------------|
 | 1 | PLP minimal fields | Done | `GET /products/` → `data[]` |
 | 1 | PDP + specifications | Done | `GET /products/{id}` → `specifications` |
-| 1 | Category tree | Done | `GET /categories/tree` → `data[]`, recursive `subcategories` |
+| 1 | Category tree | Done | `GET /categories/tree` → raw array, recursive `subcategories` |
 | 2 | Error envelope | Done | Parse `error_code`, `message`, `details[]` |
 | 3 | Spec filtering | Done | `filters` JSON and/or `spec_*` params |
-| 4 | Pagination wrapper | Done | `data` + `meta`; never expect raw array |
+| 4 | Pagination wrapper | Done | Prefer `data` + `meta`; exceptions: `/categories/tree` and `POST /cart/merge` return raw arrays |
 | 5 | Step-up PIN | Done | `verify-pin` → `X-Step-Up-Token` header |
 
 ---

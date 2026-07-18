@@ -4,7 +4,7 @@
 from datetime import UTC, datetime
 
 from fastapi import Depends, Header
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,10 +15,9 @@ from app.db.database import get_db
 from app.db.models.user import User, UserRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-oauth2_scheme_optional = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/login",
-    auto_error=False,
-)
+# HTTPBearer(auto_error=False) documents optional Bearer in OpenAPI; OAuth2PasswordBearer
+# with auto_error=False still marks security as required in the schema.
+optional_http_bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
@@ -135,13 +134,14 @@ async def get_current_super_admin_with_step_up(
 
 
 async def get_optional_current_user(
-    token: str | None = Depends(oauth2_scheme_optional),
+    credentials: HTTPAuthorizationCredentials | None = Depends(optional_http_bearer),
     db: AsyncSession = Depends(get_db),
 ) -> User | None:
     """Resolve an authenticated user when a bearer token is supplied."""
-    if not token:
+    if credentials is None or not credentials.credentials:
         return None
 
+    token = credentials.credentials
     payload = decode_token(token)
     if payload.get("type") not in (None, "access"):
         return None

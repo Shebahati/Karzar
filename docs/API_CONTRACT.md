@@ -42,6 +42,24 @@ Base path: `/api/v1`
 
 System (outside v1): `GET /health`, `GET /ready`, `GET /metrics` (when enabled).
 
+Committed snapshot (for offline/typegen): [`openapi/v1.json`](../openapi/v1.json). Regenerate with:
+
+```bash
+python -c "import json; from app.main import app; json.dump(app.openapi(), open('openapi/v1.json','w'), indent=2, ensure_ascii=False)"
+```
+
+## List response shapes
+
+| Pattern | Endpoints |
+|---------|-----------|
+| `{ data, meta }` | products list, orders list/`/me`, users, CMS articles/comments/contact |
+| `{ data }` only | brands list, categories flat, blog/articles, hero-slides, related products |
+| Raw JSON array | `GET /categories/tree`, `POST /cart/merge` |
+
+## Optional auth (Bearer not required)
+
+These accept an optional JWT (and cart also accepts `X-Cart-Token`): `GET/PUT/DELETE /cart*`, `POST /checkout`, `POST /payments/init`, `GET /products/`, `GET /products/{id}`, `GET /products/sku/{sku}`.
+
 ## Error envelope (all modules)
 
 ```json
@@ -56,5 +74,5 @@ System (outside v1): `GET /health`, `GET /ready`, `GET /metrics` (when enabled).
 
 1. Backend change → update [API_CHANGELOG.md](API_CHANGELOG.md) and [BACKEND_CHANGES.md](BACKEND_CHANGES.md).
 2. Run `pytest` and contract tests (`tests/test_p5_contract.py`, `tests/test_p1_contract.py`).
-3. Export `openapi.json` from dev and diff in frontend CI.
+3. Regenerate and commit `openapi/v1.json`; diff it in frontend CI.
 4. For mock API drift, prefer generated types from OpenAPI over hand-written mocks.

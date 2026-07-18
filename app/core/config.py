@@ -140,31 +140,52 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:
-        """Reject weak security settings when running outside debug mode."""
-        if not self.DEBUG:
-            weak_pins = {
-                "000000",
-                "123456",
-                "111111",
-                "121212",
-                "654321",
-                "84729101",
-                "change-me-admin-pin",
-            }
+        """Reject weak security settings for non-debug and production runtimes."""
+        weak_pins = {
+            "000000",
+            "123456",
+            "111111",
+            "121212",
+            "654321",
+            "84729101",
+            "change-me-admin-pin",
+        }
+        is_production = self.APP_ENV == "production"
+        harden = (not self.DEBUG) or is_production
+
+        if is_production:
+            if self.DEBUG:
+                raise ValueError("DEBUG must be False when APP_ENV=production")
+            if not self.TRUSTED_HOSTS.strip():
+                raise ValueError("TRUSTED_HOSTS is required when APP_ENV=production")
+            if not self.ENFORCE_HTTPS:
+                raise ValueError("ENFORCE_HTTPS must be True when APP_ENV=production")
+            if self.PAYMENT_PROVIDER == "mock":
+                raise ValueError("PAYMENT_PROVIDER=mock is not allowed when APP_ENV=production")
+            if self.SMS_PROVIDER == "console":
+                raise ValueError("SMS_PROVIDER=console is not allowed when APP_ENV=production")
+            if self.ENABLE_API_DOCS:
+                raise ValueError("ENABLE_API_DOCS must be False when APP_ENV=production")
+
+        if harden:
             if self.ADMIN_STEP_UP_PIN in weak_pins:
                 raise ValueError(
-                    "ADMIN_STEP_UP_PIN must be changed from default/weak value when DEBUG=False"
+                    "ADMIN_STEP_UP_PIN must be changed from default/weak value "
+                    "when DEBUG=False or APP_ENV=production"
                 )
             if self.OTP_DEV_ECHO:
-                raise ValueError("OTP_DEV_ECHO must be False when DEBUG=False")
+                raise ValueError(
+                    "OTP_DEV_ECHO must be False when DEBUG=False or APP_ENV=production"
+                )
             if self.CORS_ORIGINS.strip() == "*":
-                raise ValueError("CORS_ORIGINS cannot be '*' when DEBUG=False")
+                raise ValueError(
+                    "CORS_ORIGINS cannot be '*' when DEBUG=False or APP_ENV=production"
+                )
             if not self.REDIS_HOST:
                 raise ValueError(
-                    "REDIS_HOST is required when DEBUG=False so rate limits are shared across workers"
+                    "REDIS_HOST is required when DEBUG=False or APP_ENV=production "
+                    "so rate limits are shared across workers"
                 )
-            if self.APP_ENV == "production" and self.PAYMENT_PROVIDER == "mock":
-                raise ValueError("PAYMENT_PROVIDER=mock is not allowed when APP_ENV=production")
         return self
 
     @computed_field
