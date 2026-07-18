@@ -435,8 +435,10 @@ alembic history
 | [docs/FRONTEND_INTEGRATION.md](docs/FRONTEND_INTEGRATION.md) | Storefront integration guide |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, backup, rollback, incidents |
 | [docs/SEED_IMPORT.md](docs/SEED_IMPORT.md) | Catalog seed/import pipeline |
-| [BACKEND_CHANGES.md](BACKEND_CHANGES.md) | Recent backend deltas for frontend |
-| [architecture.txt](architecture.txt) | Codebase map (no SQLAdmin; Next.js admin panel) |
+| [docs/BACKEND_CHANGES.md](docs/BACKEND_CHANGES.md) | Recent backend deltas for frontend |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Codebase map (no SQLAdmin; Next.js admin panel) |
+| [docs/FRONTEND_IMPLEMENTATION_GUIDE.md](docs/FRONTEND_IMPLEMENTATION_GUIDE.md) | FE/BE parity guide |
+| [docs/GO_LIVE_EXECUTION_PLAN.md](docs/GO_LIVE_EXECUTION_PLAN.md) | Launch checklist |
 
 Interactive OpenAPI: `/api/docs` when `ENABLE_API_DOCS=true`.
 

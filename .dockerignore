@@ -21,4 +21,4 @@ build
 tests
 docs
 README.md
-architecture.txt
+docs/ARCHITECTURE.md

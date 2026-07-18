@@ -15,7 +15,7 @@
 |------|---------------|--------|
 | **Backend API (قرارداد)** | **~88%** | جریان‌های اصلی خرید، پرداخت mock، OTP، سفارش، ادمین کاتالوگ، CMS API، cart سرور، idempotency، step-up |
 | **Storefront UI** | **~75%** | صفحات اصلی ساخته شده؛ سرویس‌لایه dual mock/live دارد |
-| **Storefront ↔ API واقعی** | **~55%** | چند باگ قراردادی بحرانی + سبد فقط local + بدون idempotency |
+| **Storefront ↔ API واقعی** | **~55%** | باگ OTP سمت بک‌اند (hash column) رفع شد؛ فرانت هنوز ممکن است `phone_number` بفرستد + سبد local + بدون idempotency |
 | **Admin Panel UI** | **~80%** | سفارش، کاتالوگ، مشتری، استعلام |
 | **Admin ↔ API واقعی** | **~65%** | اکثر سرویس‌ها وصل‌اند؛ CMS/گزارش aggregate/PDF ندارد |
 | **Production / Ops** | **~40%** | Docker image قدیمی، SMS/Zarinpal واقعی، داده کاتالوگ، SSL، مانیتورینگ |

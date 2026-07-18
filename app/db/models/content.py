@@ -80,7 +80,8 @@ class OtpCode(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     phone: Mapped[str] = mapped_column(String(15), index=True, nullable=False)
-    code: Mapped[str] = mapped_column(String(12), nullable=False)
+    # SHA-256 hex digest (64 chars); plain OTP is never stored.
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
     purpose: Mapped[OtpPurpose] = mapped_column(
         Enum(OtpPurpose, values_callable=_enum_values, name="otppurpose", native_enum=True),
         default=OtpPurpose.LOGIN,

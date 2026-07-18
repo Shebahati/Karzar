@@ -6,9 +6,12 @@ Production may set `ENABLE_API_DOCS=false`, so interactive Swagger is not always
 
 | Document | Audience | Contents |
 |----------|----------|----------|
+| [GO_LIVE_EXECUTION_PLAN.md](GO_LIVE_EXECUTION_PLAN.md) | All teams | **Launch program** — backend, frontend, data, ops, integrations, gates |
+| [BACKEND_STRUCTURE_REFACTOR_MAP.md](BACKEND_STRUCTURE_REFACTOR_MAP.md) | Backend | File-by-file structure cleanup plan (no API change) |
 | [FRONTEND_IMPLEMENTATION_GUIDE.md](FRONTEND_IMPLEMENTATION_GUIDE.md) | Storefront + Admin | **Primary** — parity checklist, gaps, phased work, E2E flows |
 | [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md) | Storefront Next.js | PLP/PDP, checkout, cart, auth, error envelope, examples |
-| [BACKEND_CHANGES.md](../BACKEND_CHANGES.md) | Frontend sessions | Recent deltas, new endpoints, error codes, manual curl tests |
+| [BACKEND_CHANGES.md](BACKEND_CHANGES.md) | Frontend sessions | Recent deltas, new endpoints, error codes, manual curl tests |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Backend | Codebase map after structure refactor |
 | [API_CHANGELOG.md](API_CHANGELOG.md) | All clients | Versioning policy, breaking vs non-breaking changes |
 | [TESTING.md](TESTING.md) | Backend devs | pytest markers, CI, Postgres/Redis integration tests |
 
@@ -51,7 +54,7 @@ System (outside v1): `GET /health`, `GET /ready`, `GET /metrics` (when enabled).
 
 ## Keeping contract in sync
 
-1. Backend change → update [API_CHANGELOG.md](API_CHANGELOG.md) and [BACKEND_CHANGES.md](../BACKEND_CHANGES.md).
+1. Backend change → update [API_CHANGELOG.md](API_CHANGELOG.md) and [BACKEND_CHANGES.md](BACKEND_CHANGES.md).
 2. Run `pytest` and contract tests (`tests/test_p5_contract.py`, `tests/test_p1_contract.py`).
 3. Export `openapi.json` from dev and diff in frontend CI.
 4. For mock API drift, prefer generated types from OpenAPI over hand-written mocks.

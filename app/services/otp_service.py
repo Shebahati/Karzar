@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.crud import content as crud_content
+from app.crud import otp as crud_otp
 from app.db.models.content import OtpPurpose
 from app.db.models.user import User, UserRole
 from app.schemas.auth import CustomerBrief, OtpRequestResponse, OtpVerifyResponse
@@ -23,7 +23,7 @@ def _generate_otp_code() -> str:
 async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
     code = _generate_otp_code()
     expires_at = datetime.now(UTC) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
-    await crud_content.create_otp_code(
+    await crud_otp.create_otp_code(
         db, phone=phone, code=code, expires_at=expires_at, purpose=OtpPurpose.LOGIN
     )
     await db.commit()
@@ -41,7 +41,7 @@ async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
 
 
 async def verify_otp(db: AsyncSession, phone: str, code: str) -> OtpVerifyResponse:
-    otp = await crud_content.get_valid_otp(db, phone, code, purpose=OtpPurpose.LOGIN)
+    otp = await crud_otp.get_valid_otp(db, phone, code, purpose=OtpPurpose.LOGIN)
     if not otp:
         raise ValueError("Invalid or expired OTP code")
 
@@ -63,7 +63,7 @@ async def verify_otp(db: AsyncSession, phone: str, code: str) -> OtpVerifyRespon
     elif not user.is_active:
         raise ValueError("Inactive user account")
 
-    await crud_content.delete_otp(db, otp)
+    await crud_otp.delete_otp(db, otp)
     tokens = await issue_auth_tokens(db, user)
     await db.commit()
 
@@ -89,7 +89,7 @@ async def request_password_reset(db: AsyncSession, phone: str) -> OtpRequestResp
 
     code = _generate_otp_code()
     expires_at = datetime.now(UTC) + timedelta(seconds=settings.OTP_EXPIRE_SECONDS)
-    await crud_content.create_otp_code(
+    await crud_otp.create_otp_code(
         db,
         phone=phone,
         code=code,
@@ -114,7 +114,7 @@ async def confirm_password_reset(
     code: str,
     new_password: str,
 ) -> None:
-    otp = await crud_content.get_valid_otp(
+    otp = await crud_otp.get_valid_otp(
         db, phone, code, purpose=OtpPurpose.PASSWORD_RESET
     )
     if not otp:
@@ -128,6 +128,6 @@ async def confirm_password_reset(
         raise ValueError("No active account found for this phone number")
 
     user.hashed_password = get_password_hash(new_password)
-    await crud_content.delete_otp(db, otp)
+    await crud_otp.delete_otp(db, otp)
     await logout_user(db, user)
     await db.commit()

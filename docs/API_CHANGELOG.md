@@ -15,7 +15,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 | New `error_code` | Minor | `GUEST_ORDER_NOT_PAYABLE` |
 | Stricter validation | Minor* | `category_id` required on create |
 
-\* Document in this file and in [BACKEND_CHANGES.md](../BACKEND_CHANGES.md); frontend should handle new validation errors.
+\* Document in this file and in [BACKEND_CHANGES.md](BACKEND_CHANGES.md); frontend should handle new validation errors.
 
 ## Current baseline: API v1.0
 
@@ -51,6 +51,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 ### 2026-07 — P5 testing & CI
 
 - No API shape changes; coverage gate 62%, ruff/mypy in CI, expanded test suite (160+ tests).
+
+### 2026-07 — structure refactor + OTP hash column fix
+
+- Internal only: split product/storefront endpoints and kitchen-sink CRUD modules; **no URL or payload changes**.
+- Fix: `otp_codes.code` widened to `VARCHAR(64)` so SHA-256 hashed OTPs persist (restores `POST /auth/otp/request`).
+- Docs moved: `BACKEND_CHANGES.md`, `ARCHITECTURE.md` under `docs/`.
 
 ## Deprecations
 
