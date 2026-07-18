@@ -93,6 +93,8 @@ jobs:
           POSTGRES_SERVER: 127.0.0.1
           POSTGRES_PORT: 5432
           POSTGRES_DB: karzar_ci
+          # Keep Redis reachable for opt-in integration tests, but do not bind
+          # REDIS_HOST into the default suite (async client / TestClient loop clash).
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           SECRET_KEY: ci-secret-key-with-at-least-32-characters

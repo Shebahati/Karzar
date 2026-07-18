@@ -14,9 +14,15 @@ class TestSystemEndpoints:
         assert response.status_code == 200
         assert response.json()["status"] == "healthy"
 
-    def test_readiness_check_without_db(self):
+    def test_readiness_check_without_db(self, monkeypatch):
+        async def db_unavailable() -> bool:
+            return False
+
+        monkeypatch.setattr("app.main.check_database_connection", db_unavailable)
         response = client.get("/ready")
         assert response.status_code == 503
+        assert response.json()["status"] == "not_ready"
+        assert response.json()["database"] == "unavailable"
 
     def test_root_endpoint(self):
         response = client.get("/")

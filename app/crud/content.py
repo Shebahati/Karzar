@@ -60,7 +60,8 @@ async def create_contact_submission(
     message: str,
 ) -> ContactSubmission:
     submission = ContactSubmission(
-        ticket_code=f"pending-{uuid.uuid4().hex}",
+        # Temporary unique code must fit ticket_code String(32) on Postgres.
+        ticket_code=uuid.uuid4().hex,
         full_name=full_name,
         phone=phone,
         subject=subject,

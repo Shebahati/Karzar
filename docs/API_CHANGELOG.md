@@ -94,6 +94,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Dependencies: bump `python-dotenv` to `1.2.2` (pip-audit); note accepted `ecdsa` transitive advisory via `python-jose`.
 - Confirmed ops surface: `/health`, `/ready`, `/metrics`, `X-Request-ID`, backup/restore scripts, env templates, performance smoke.
 
+### 2026-07 — CI Postgres suite stabilization
+
+- Test harness: `NullPool` + engine dispose across event loops; Postgres isolation via `TRUNCATE … CASCADE` (Alembic owns schema).
+- Default suite clears `REDIS_HOST` (preserves `KARZAR_TEST_REDIS_HOST` for opt-in Redis tests) to avoid fail-closed 429s.
+- Contact ticket placeholder shortened to fit `ticket_code` `String(32)` on Postgres.
+- Readiness test mocks DB down instead of assuming unreachable production DSN.
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |

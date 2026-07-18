@@ -17,6 +17,13 @@ os.environ["OTP_DEV_ECHO"] = "true"
 
 USE_POSTGRES_TESTS = os.environ.get("USE_POSTGRES_TESTS", "").lower() in ("1", "true", "yes")
 
+# Preserve CI Redis for opt-in integration tests, then disable for the default
+# suite. Redis async clients are loop-bound; TestClient + asyncio.run fixtures
+# use different loops and Redis rate-limit checks fail closed (429).
+os.environ.setdefault("KARZAR_TEST_REDIS_HOST", os.environ.get("REDIS_HOST", ""))
+if os.environ.get("USE_REDIS_IN_TESTS", "").lower() not in ("1", "true", "yes"):
+    os.environ["REDIS_HOST"] = ""
+
 # ruff: noqa: E402 — env vars must be set before importing app modules
 import asyncio
 
@@ -32,11 +39,11 @@ from app.db.models.product import Brand, Category, StockUnitEnum
 from app.db.models.user import User, UserRole
 from app.main import app
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool, StaticPool
 from sqlalchemy.schema import CreateIndex
 
 
@@ -82,6 +89,8 @@ def compile_partial_unique_index_sqlite(element, compiler, **kw):
     return compiler.visit_create_index(element, **kw)
 
 
+# Postgres + TestClient: each asyncio.run() / Starlette request may use a
+# different event loop. NullPool avoids reusing asyncpg connections across loops.
 test_engine = (
     create_async_engine(
         (
@@ -90,6 +99,7 @@ test_engine = (
             f"{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DB']}"
         ),
         echo=False,
+        poolclass=NullPool,
     )
     if USE_POSTGRES_TESTS
     else create_async_engine(
@@ -106,6 +116,15 @@ TestingSessionLocal = async_sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+
+async def _reset_postgres_tables() -> None:
+    """Wipe rows between tests; schema is owned by Alembic in CI."""
+    tables = ", ".join(f'"{table.name}"' for table in Base.metadata.sorted_tables)
+    if not tables:
+        return
+    async with test_engine.begin() as conn:
+        await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
 
 
 @pytest.fixture(autouse=True)
@@ -157,14 +176,22 @@ async def override_super_admin():
 
 @pytest.fixture(autouse=True)
 def override_database():
-    """Replace the production DB dependency with an isolated in-memory SQLite DB."""
+    """Replace the production DB dependency with an isolated test database."""
+
     async def init_db():
-        async with test_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+        if USE_POSTGRES_TESTS:
+            # CI runs alembic first; recreate/drop would fight Postgres enums.
+            await _reset_postgres_tables()
+        else:
+            async with test_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
         async with TestingSessionLocal() as session:
             await _seed_reference_data(session)
             await _create_super_admin(session)
             await session.commit()
+        if USE_POSTGRES_TESTS:
+            # Drop loop-bound asyncpg connections before TestClient starts its loop.
+            await test_engine.dispose()
 
     asyncio.run(init_db())
 
@@ -177,8 +204,12 @@ def override_database():
     yield
 
     async def drop_db():
-        async with test_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+        if USE_POSTGRES_TESTS:
+            await _reset_postgres_tables()
+            await test_engine.dispose()
+        else:
+            async with test_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.drop_all)
 
     asyncio.run(drop_db())
     app.dependency_overrides.clear()
