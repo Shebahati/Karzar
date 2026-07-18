@@ -1,7 +1,7 @@
 # نقشه عملیات بررسی جامع Backend — Karzar
 
-**نسخه:** 1.4 — 2026-07-18  
-**وضعیت:** A `PASS`؛ B `PARTIAL`؛ C `PASS`؛ D `PASS` (بدهی SEO فیلدها)  
+**نسخه:** 1.5 — 2026-07-18  
+**وضعیت:** A `PASS`؛ B `PARTIAL`؛ C `PASS`؛ D `PASS` (SEO debt)؛ E `PASS`  
 **هدف:** بررسی سیستماتیک کل بک‌اند، المان‌به‌المان و دامنه به‌دامنه، در گام‌های کوچک و قابل‌اجرا  
 **قانون اجرا:** در هر نشست فقط **یک شماره گام** (یا حداکثر یک خوشهٔ هم‌خانواده) انجام می‌شود؛ نتیجه با وضعیت Pass / Fail / Partial ثبت می‌شود.
 
@@ -638,3 +638,55 @@
 | P2 | expose `meta_*` روی category/brand | بدهی محصول |
 
 **حکم D:** دامنه کاتالوگ برای commerce (فاز E) آماده است؛ SEO URL مبتنی بر product slug هنوز نیاز به کار API+FE دارد.
+
+---
+
+# نتایج اجرا — فاز E (2026-07-18)
+
+**وضعیت فاز:** `PASS`  
+**Critical:** هیچ  
+**شواهد:** ۴۹ تست commerce قبلی سبز + `tests/test_e_commerce_audit.py` (۶ تست جدید) سبز.
+
+### E1 — Cart دو خطی — `PASS`
+- laneهای `purchase` / `inquiry` جدا؛ تست isolation.
+
+### E2 — Guest cart / merge — `PASS`
+- `X-Cart-Token` ≥32؛ توکن کوتاه → 422؛ merge روی login.
+
+### E3 — Checkout purchase — `PASS`
+- auth الزامی (`PURCHASE_AUTH_REQUIRED`)؛ shipping الزامی → 400؛ تست‌های موجود + جدید.
+
+### E4 — Inquiry / RFQ — `PASS`
+- وضعیت اولیه `inquiry_review`؛ بدون نیاز به stock.
+
+### E5 — Idempotency checkout — `PASS`
+- `test_checkout_idempotency` replay همان `order_id`.
+
+### E6 — رزرو موجودی — `PASS`
+- oversell / duplicate lines / insufficient stock رد می‌شوند؛ lock در checkout.
+
+### E7 — Status machine — `PASS`
+- انتقال غیرمجاز → 409؛ مسیر paid→processing معتبر.
+
+### E8 — Tracking عمومی — `PASS`
+- بدون PII؛ timeline موجود.
+
+### E9 — `/orders/me` — `PASS`
+- auth الزامی؛ فقط سفارش‌های خود کاربر.
+
+### E10 — ادمین orders — `PASS`
+- list/detail/quote/archive؛ ship نیازمند postal tracking.
+
+### E11 — Cancel + paid-before-refund — `PASS`
+- cancel نیازمند step-up؛ cancel روی `paid` بدون refund → 409؛ refund خودش به cancelled می‌برد.
+
+### E12 — Expiry worker — `PASS`
+- `pending_payment` منقضی → cancel + restock.
+
+### E13 — جمع‌بندی فاز E
+| اولویت | مورد | وضعیت |
+|--------|------|--------|
+| — | جریان تجارت runtime | سالم |
+| خارج | فرانت Idempotency-Key / cart سرور | بدهی FE |
+
+**حکم E:** دامنه commerce برای فاز پرداخت (F) آماده است.

@@ -75,6 +75,10 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Added `tests/test_d_catalog_audit.py` (inactive PDP, slug lookups, stock PUT guard, admin stats/change-log, SEO field exposure debt assertion).
 - Confirmed: product/category/brand `meta_*` and product `slug` exist in DB but are not yet in API responses (non-breaking future addition).
 
+### 2026-07 — commerce audit E
+
+- Added `tests/test_e_commerce_audit.py` (cart lane isolation, short cart token, merge-on-login, inquiry_review status, purchase shipping required, paid-cancel blocked until refund).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |
