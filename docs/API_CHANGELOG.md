@@ -87,6 +87,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - Added `tests/test_g_content_audit.py` (published-only blog, active/sorted heroes, unique contact tickets, comment auth/inactive guards, CMS auth, soft-fail order SMS, upload extension guards).
 
+### 2026-07 — quality/ops audit H
+
+- CI hygiene: ruff import fix (`test_g_content_audit.py`); mypy-safe Redis ping in `app/core/health.py`.
+- Docker: create `appuser` before `chown` in `Dockerfile`.
+- Dependencies: bump `python-dotenv` to `1.2.2` (pip-audit); note accepted `ecdsa` transitive advisory via `python-jose`.
+- Confirmed ops surface: `/health`, `/ready`, `/metrics`, `X-Request-ID`, backup/restore scripts, env templates, performance smoke.
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |

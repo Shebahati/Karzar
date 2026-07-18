@@ -1,7 +1,7 @@
 # نقشه عملیات بررسی جامع Backend — Karzar
 
-**نسخه:** 1.7 — 2026-07-18  
-**وضعیت:** A–F `PASS` (B `PARTIAL`)؛ G `PASS`  
+**نسخه:** 1.8 — 2026-07-18  
+**وضعیت:** A–H `PASS` (B `PARTIAL`)؛ آمادهٔ فاز I  
 **هدف:** بررسی سیستماتیک کل بک‌اند، المان‌به‌المان و دامنه به‌دامنه، در گام‌های کوچک و قابل‌اجرا  
 **قانون اجرا:** در هر نشست فقط **یک شماره گام** (یا حداکثر یک خوشهٔ هم‌خانواده) انجام می‌شود؛ نتیجه با وضعیت Pass / Fail / Partial ثبت می‌شود.
 
@@ -778,3 +778,74 @@
 | خارج | Kavenegar واقعی در production | ops |
 
 **حکم G:** محتوا و یکپارچه‌سازی‌ها برای فاز کیفیت/ops (H) آماده‌اند.
+
+---
+
+# نتایج اجرا — فاز H (2026-07-18)
+
+**وضعیت فاز:** `PASS`  
+**Critical:** هیچ  
+**شواهد:** CI workflow + ~۱۹۰ تابع تست؛ contract/perf سبز؛ remediations زیر برای سبز ماندن lint/mypy و Docker build.
+
+### H1 — پوشش تست دامنه‌ها — `PASS`
+| دامنه | تقریبی تست‌ها | نمونه |
+|--------|----------------|--------|
+| auth/security | ~۲۲ | `test_c_*`, `test_p3_*` |
+| catalog | ~۷۵ | `test_product_*`, `test_d_*` |
+| commerce | ~۳۱ | `test_orders`, `test_e_*`, `test_storefront` |
+| payment | ~۲۰ | `test_f_*`, `test_p0_*`, `test_payments` |
+| cms/content | ~۹ | `test_g_*`, `test_sms_*` |
+| contract/platform | ~۳۲ | `test_p1_*`, `test_p5_contract`, `test_p2_*` |
+| perf | ۱ | `test_p5_performance_smoke` |
+
+هیچ دامنه Critical بدون پوشش نیست.
+
+### H2 — Contract tests — `PASS`
+- `test_p1_contract` (۱۰) + `test_p5_contract` (۵) سبز.
+
+### H3 — CI pipeline — `PASS` (پس از remediation)
+- `.github/workflows/backend-ci.yml`: ruff + mypy + `alembic upgrade head` + pytest با `--cov-fail-under=62`.
+- **رفع‌شده در همین فاز:** import sort در `test_g_content_audit.py` (ruff I001)؛ typing Redis در `app/core/health.py` (mypy) — قبلاً CI را می‌شکستند.
+
+### H4 — Migration chain — `PASS`
+- تک‌head: `t5u6v7w8x9y0`؛ همه ۱۸ migration دارای `downgrade`؛ runbook rollback در `OPERATIONS.md`.
+
+### H5 — Health / ready / metrics — `PASS`
+- `GET /health` liveness ۲۰۰؛ `GET /ready` DB+Redis (۵۰۳ وقتی وابستگی قطع است)؛ `GET /metrics` با `ENABLE_METRICS=true`.
+- Docker `HEALTHCHECK` روی `/ready`.
+
+### H6 — Logging و request-id — `PASS`
+- middleware `X-Request-ID` (تولید یا echo)؛ لاگ با `[req=...]`.
+
+### H7 — Backup/restore — `PASS`
+- `scripts/backup_db.sh` / `restore_db.sh` + بخش backup در `OPERATIONS.md` (RPO/RTO پیشنهادی).
+- نکته Low: restore تعاملی (`y/N`) — برای اتوماسیون CI نیاز به flag جدا دارد (بدهی ops، نه blocker).
+
+### H8 — Env templates — `PASS`
+- `.env.example` (dev کامل) و `.env.staging.example` (سخت‌گیرانه‌تر: `DEBUG=false`, metrics on, gunicorn).
+- تفاوت‌ها عمدی؛ production checklist در config validators + OPERATIONS.
+
+### H9 — Docker/runtime — `PASS` (پس از remediation)
+- Python 3.12؛ entrypoint: migrate سپس uvicorn/gunicorn؛ compose dev/staging.
+- **رفع‌شده:** ترتیب `adduser` قبل از `chown` در `Dockerfile` (قبلاً build می‌توانست بشکند).
+
+### H10 — Performance smoke — `PASS`
+- `test_p5_performance_smoke`: PLP `limit=50` < ۲s (TestClient؛ نه load test).
+- گلوگاه آشکار در smoke دیده نشد؛ load واقعی خارج از محدوده H.
+
+### H11 — وابستگی‌ها (سبک) — `PASS` با بدهی پذیرفته
+- `pip-audit`: `python-dotenv` → bump به `1.2.2`.
+- `ecdsa` (وابستهٔ `python-jose`) CVE-2024-23342 timing — بدون fix بالادست؛ پروژه `python-jose[cryptography]` است؛ مهاجرت به PyJWT/cryptography-only بدهی Medium برای go-live سخت‌گیرانه.
+
+### H12 — آمادگی اجرا — `PASS`
+- لینک ops: [OPERATIONS.md](OPERATIONS.md) و برنامهٔ go-live: [GO_LIVE_EXECUTION_PLAN.md](GO_LIVE_EXECUTION_PLAN.md).
+- بک‌اند از نظر کیفیت/ops برای **جمع‌بندی نهایی (فاز I)** و سپس staging آماده است؛ production واقعی هنوز به provider/SMS/HTTPS/backup off-host وابسته است (در GO_LIVE).
+
+| اولویت | مورد | وضعیت |
+|--------|------|--------|
+| — | CI lint/test/migrate | سالم پس از fix |
+| Medium | جایگزینی مسیر crypto jose/ecdsa | بدهی امنیتی بلندمدت |
+| Low | restore غیرتعاملی / load test واقعی | بدهی ops |
+| خارج | Zarinpal/SMS زنده، TLS، backup S3 | GO_LIVE L2/L3 |
+
+**حکم H:** کیفیت، observability و مسیر deploy برای فاز جمع‌بندی نهایی (I) آماده‌اند.

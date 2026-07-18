@@ -37,11 +37,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# Create app directories
-RUN mkdir -p /app/logs /app/data/uploads && chown -R appuser:appuser /app/logs /app/data/uploads
-
-# Create a non-root user for security
+# Create a non-root user before chown (user must exist first)
 RUN addgroup --system appuser && adduser --system --group appuser
+
+# Create app directories owned by the runtime user
+RUN mkdir -p /app/logs /app/data/uploads && chown -R appuser:appuser /app/logs /app/data/uploads
 
 # Copy application code
 COPY --chown=appuser:appuser . .

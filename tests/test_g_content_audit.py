@@ -1,11 +1,11 @@
 """Phase G content/integrations audit: CMS visibility, comments, notify soft-fail."""
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from app.services import notification_service
 from app.utils.file_storage import UPLOAD_ROOT, _safe_extension
 from fastapi.testclient import TestClient
-import pytest
 
 from tests.conftest import customer_auth_headers
 
