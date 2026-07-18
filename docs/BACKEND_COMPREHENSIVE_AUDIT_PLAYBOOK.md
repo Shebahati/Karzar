@@ -1,7 +1,7 @@
 # نقشه عملیات بررسی جامع Backend — Karzar
 
-**نسخه:** 1.6 — 2026-07-18  
-**وضعیت:** A–E `PASS` (B `PARTIAL`)؛ F `PASS`  
+**نسخه:** 1.7 — 2026-07-18  
+**وضعیت:** A–F `PASS` (B `PARTIAL`)؛ G `PASS`  
 **هدف:** بررسی سیستماتیک کل بک‌اند، المان‌به‌المان و دامنه به‌دامنه، در گام‌های کوچک و قابل‌اجرا  
 **قانون اجرا:** در هر نشست فقط **یک شماره گام** (یا حداکثر یک خوشهٔ هم‌خانواده) انجام می‌شود؛ نتیجه با وضعیت Pass / Fail / Partial ثبت می‌شود.
 
@@ -737,3 +737,44 @@
 | خارج | Idempotency-Key سمت فرانت | بدهی FE |
 
 **حکم F:** لایه پرداخت برای ادامهٔ فاز محتوا/یکپارچه‌سازی (G) آماده است؛ قبل از go-live واقعی provider و callback URL را در env ست کنید.
+
+---
+
+# نتایج اجرا — فاز G (2026-07-18)
+
+**وضعیت فاز:** `PASS`  
+**Critical:** هیچ  
+**شواهد:** ۲۷ تست محتوا/SMS قبلی + `tests/test_g_content_audit.py` (۷ تست جدید) سبز.
+
+### G1 — Blog عمومی — `PASS`
+- فقط `is_published=True`؛ draft → 404 روی slug.
+
+### G2 — Hero slides — `PASS`
+- فقط `is_active`؛ ترتیب `sort_order` صعودی.
+
+### G3 — Contact — `PASS`
+- ticket یکتا (`TK-...`)؛ throttle جداگانه در P3.
+
+### G4 — Product comments — `PASS`
+- create نیازمند auth؛ inactive → 404 برای read/create؛ verified buyer از purchase history.
+
+### G5 — CMS admin — `PASS`
+- `/cms/*` بدون admin → 401؛ CRUD مقاله/اسلاید/نظر/تماس موجود (UI فرانت ادمین جداگانه بدهی است).
+
+### G6 — SMS provider — `PASS`
+- console/kavenegar؛ API key فقط از env؛ تست OTP send.
+
+### G7 — Order notifications — `PASS`
+- soft-fail: خطای SMS لاگ می‌شود و transition را نمی‌شکند.
+
+### G8 — Uploads — `PASS`
+- مسیر `/static/uploads`؛ محدودیت پسوند و ۵MB؛ نام فایل تصادفی.
+
+### G9 — جمع‌بندی فاز G
+| اولویت | مورد | وضعیت |
+|--------|------|--------|
+| — | محتوا/اعلان runtime | سالم |
+| خارج | CMS admin UI در فرانت | بدهی FE |
+| خارج | Kavenegar واقعی در production | ops |
+
+**حکم G:** محتوا و یکپارچه‌سازی‌ها برای فاز کیفیت/ops (H) آماده‌اند.

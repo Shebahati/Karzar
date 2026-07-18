@@ -83,6 +83,10 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - Added `tests/test_f_payment_audit.py` (payment init ownership, callback failure redirect, refund ledger + cancelled status, toman→rial ROUND_HALF_UP).
 
+### 2026-07 — content audit G
+
+- Added `tests/test_g_content_audit.py` (published-only blog, active/sorted heroes, unique contact tickets, comment auth/inactive guards, CMS auth, soft-fail order SMS, upload extension guards).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |
