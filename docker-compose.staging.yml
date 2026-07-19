@@ -1,7 +1,13 @@
 # Staging-oriented overrides (no source bind mount).
-# Usage: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+#
+# On a VPS behind Nginx/Caddy: API/DB/Redis bind to loopback only.
+# Compose v2 `!override` replaces base `ports` (do not append public 0.0.0.0 binds).
 services:
   app:
+    ports: !override
+      - "127.0.0.1:8000:8000"
     environment:
       APP_ENV: staging
       DEBUG: "false"
@@ -10,6 +16,15 @@ services:
       APP_SERVER: gunicorn
       ENABLE_METRICS: "true"
       ENFORCE_HTTPS: "true"
+      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-2}"
     volumes:
       - karzar_uploads:/app/data/uploads
       - karzar_logs:/app/logs
+
+  db:
+    ports: !override
+      - "127.0.0.1:5435:5432"
+
+  redis:
+    ports: !override
+      - "127.0.0.1:6379:6379"

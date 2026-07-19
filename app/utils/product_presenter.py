@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+from app.core.config import settings
 from app.db.models.product import Product
 from app.schemas.product import (
     BrandBrief,
@@ -29,12 +30,27 @@ def stock_status_from_quantity(quantity, *, audience: Audience = "admin") -> str
     return stock_status_label(quantity, audience=audience)
 
 
+def absolutize_asset_url(url: str | None) -> str | None:
+    """Make relative /static paths absolute using PUBLIC_ASSET_BASE when set."""
+    if not url:
+        return None
+    stripped = url.strip()
+    if not stripped:
+        return None
+    if stripped.startswith(("http://", "https://")):
+        return stripped
+    base = (settings.PUBLIC_ASSET_BASE or "").rstrip("/")
+    if base and stripped.startswith("/"):
+        return f"{base}{stripped}"
+    return stripped
+
+
 def get_thumbnail_url(product: Product) -> str | None:
     """Return the primary image URL, falling back to the first image."""
     if not product.images:
         return None
     primary = next((image for image in product.images if image.is_primary), None)
-    return (primary or product.images[0]).image_url
+    return absolutize_asset_url((primary or product.images[0]).image_url)
 
 
 def _category_brief(
@@ -78,7 +94,7 @@ def _images(product: Product) -> list[ProductImageResponse]:
     return [
         ProductImageResponse(
             id=image.id,
-            url=image.image_url,
+            url=absolutize_asset_url(image.image_url) or image.image_url,
             is_primary=image.is_primary,
         )
         for image in sorted(product.images, key=lambda img: (not img.is_primary, img.display_order, img.id))

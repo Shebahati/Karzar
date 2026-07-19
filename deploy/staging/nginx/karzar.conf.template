@@ -1,0 +1,126 @@
+# Install on VPS as /etc/nginx/sites-available/karzar
+# Then: sudo ln -s /etc/nginx/sites-available/karzar /etc/nginx/sites-enabled/
+# Replace api.example.com / shop.example.com / admin.example.com
+# TLS: certbot --nginx -d api.example.com -d shop.example.com -d admin.example.com
+
+upstream karzar_api {
+    server 127.0.0.1:8000;
+    keepalive 16;
+}
+
+upstream karzar_shop {
+    server 127.0.0.1:3000;
+}
+
+upstream karzar_admin {
+    server 127.0.0.1:3001;
+}
+
+# --- API ---
+server {
+    listen 80;
+    listen [::]:80;
+    server_name api.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name api.example.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/api.example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/api.example.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    client_max_body_size 12m;
+
+    location / {
+        proxy_pass http://karzar_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        proxy_read_timeout 60s;
+    }
+}
+
+# --- Storefront ---
+server {
+    listen 80;
+    listen [::]:80;
+    server_name shop.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name shop.example.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/shop.example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/shop.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://karzar_shop;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+# --- Admin ---
+server {
+    listen 80;
+    listen [::]:80;
+    server_name admin.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name admin.example.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/admin.example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/admin.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://karzar_admin;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}

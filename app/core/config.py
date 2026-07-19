@@ -85,6 +85,8 @@ class Settings(BaseSettings):
     TRUSTED_HOSTS: str = ""
     TRUSTED_PROXIES: str = ""
     ENFORCE_HTTPS: bool = False
+    # Absolute origin for /static upload URLs in API responses (e.g. https://api.example.com)
+    PUBLIC_ASSET_BASE: str = ""
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 

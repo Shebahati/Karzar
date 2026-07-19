@@ -44,3 +44,5 @@ backups/
 dist/
 build/
 *.egg-info/
+.deploy-secrets
+.env.staging.generated

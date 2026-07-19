@@ -75,7 +75,16 @@ app = FastAPI(
     redoc_url="/api/redoc" if settings.ENABLE_API_DOCS else None,
     openapi_url="/api/openapi.json" if settings.ENABLE_API_DOCS else None,
     lifespan=lifespan,
+    # Avoid Starlette slash-redirects that rebuild absolute URLs with the wrong
+    # scheme (http) when sitting behind TLS-terminating Nginx.
+    redirect_slashes=False,
 )
+
+# Honor X-Forwarded-Proto / X-Forwarded-For from the local reverse proxy.
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+
+_proxy_trusted = settings.trusted_proxies_list or ["127.0.0.1"]
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=_proxy_trusted)
 
 if settings.trusted_hosts_list:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts_list)

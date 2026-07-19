@@ -101,6 +101,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Contact ticket placeholder shortened to fit `ticket_code` `String(32)` on Postgres.
 - Readiness test mocks DB down instead of assuming unreachable production DSN.
 
+### 2026-07 — staging VPS deploy kit
+
+- Added `deploy/staging/` runbook + scripts (bootstrap, backend/frontend deploy, backup cron, restore, smoke).
+- Staging compose binds API/DB/Redis to `127.0.0.1` (`!override` ports) for Nginx TLS termination.
+- Provider swap later documented in `deploy/staging/PROVIDERS_LATER.md` (mock/console → Zarinpal/Kavenegar).
+
 ## Deprecations
 
 | Item | Deprecated | Removal | Migration |

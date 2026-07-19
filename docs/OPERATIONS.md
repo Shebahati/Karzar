@@ -97,10 +97,13 @@ Never downgrade production past a migration that dropped columns without a backu
 
 1. Merge to `main`; CI must pass (lint + pytest + coverage ≥ 62%).
 2. Tag release in [API_CHANGELOG.md](API_CHANGELOG.md) if contract changed.
-3. Staging: `docker compose -f docker-compose.yml -f docker-compose.staging.yml pull && up -d`
-4. Run `alembic upgrade head` on staging.
-5. Smoke: `GET /ready`, checkout mock payment, admin login.
-6. Production: same compose profile with secrets from vault (not `.env` in repo).
+3. **Staging on VPS:** follow [deploy/staging/STAGING_DEPLOY.md](../deploy/staging/STAGING_DEPLOY.md)
+   (`docker compose -f docker-compose.yml -f docker-compose.staging.yml`).
+4. Run `alembic upgrade head` on staging (entrypoint does this on boot).
+5. Smoke: `GET /ready`, checkout mock payment, admin login
+   (`deploy/staging/scripts/smoke-staging.sh`).
+6. Production: same compose profile with secrets from vault (not `.env` in repo);
+   see [deploy/staging/PROVIDERS_LATER.md](../deploy/staging/PROVIDERS_LATER.md) before enabling live payment/SMS.
 7. Post-deploy: watch error rate and `/metrics` for 15 minutes.
 
 ## Incident response (suggested)

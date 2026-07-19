@@ -1,0 +1,5 @@
+# Use a prebuilt image (avoids Hub/PyPI builds from Iran when Dockerfile.staging
+# already produced karzar-app:staging on the VPS).
+services:
+  app:
+    image: karzar-app:staging
