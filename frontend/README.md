@@ -1,23 +1,27 @@
 # Karzar Frontend
 
-Frontend monorepo for **کارزار (Karzar)** — B2B/B2C industrial tools commerce.
+Frontend apps for **کارزار (Karzar)** — B2B/B2C industrial tools commerce.
 
-Two independent Next.js App Router apps share one repo for synchronized releases:
+These apps live in the **same GitHub monorepo** as the FastAPI backend: [`Shebahati/Karzar`](https://github.com/Shebahati/Karzar) under `frontend/`.
 
 ```text
-karzar-frontend/
-├── Storefront/          # Customer shop (default local :3000)
-├── admin-panel/         # Super-admin ops dashboard (default local :3001)
-├── docs/
-│   ├── audits/          # API & UI/UX audit reports (FA + EN)
-│   ├── gaps/            # BE↔FE non-compliance (FE-ahead & unused BE APIs)
-│   └── deploy/          # Production deployment guides (FA + EN)
-├── INTEGRATION_RUNTIME_NOTES.md
-├── LOCAL_STACK_ACCESS.md
-└── FRONTEND_CHANGES.md
+Karzar/
+├── app/ …                  # Backend (FastAPI) — repo root
+└── frontend/
+    ├── Storefront/         # Customer shop (default local :3000)
+    ├── admin-panel/        # Super-admin ops dashboard (default local :3001)
+    ├── docs/
+    │   ├── audits/
+    │   ├── gaps/
+    │   └── deploy/
+    ├── INTEGRATION_RUNTIME_NOTES.md
+    ├── LOCAL_STACK_ACCESS.md
+    └── FRONTEND_CHANGES.md
 ```
 
-Backend lives in a separate codebase (`backend`, FastAPI). This repository does **not** contain or publish the API.
+**API base URL:** set `NEXT_PUBLIC_API_BASE_URL` (staging: `https://api.karzartools.com/api/v1`).
+
+**Deploy / collaborator workflow:** see [`docs/COLLABORATOR_DEPLOY.md`](../docs/COLLABORATOR_DEPLOY.md) (push → GitHub Actions → VPS).
 
 ---
 

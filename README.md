@@ -1,4 +1,23 @@
-# Karzar - Industrial Lathe Tools API
+# Karzar — Industrial tools platform (monorepo)
+
+**کارزار** is a B2B/B2C industrial tools commerce platform. This repository is a **monorepo**:
+
+| Path | Role |
+|------|------|
+| `app/`, `alembic/`, `deploy/`, … | Backend API (FastAPI) |
+| `frontend/Storefront/` | Customer shop (Next.js, `:3000`) |
+| `frontend/admin-panel/` | Admin dashboard (Next.js, `:3001`) |
+| `.github/workflows/` | CI + Deploy Staging / Production |
+
+- **Repo:** [Shebahati/Karzar](https://github.com/Shebahati/Karzar)
+- **Frontend collaborator deploy guide (FA):** [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md)
+- **Frontend app README:** [frontend/README.md](frontend/README.md)
+
+Push/merge to `main` that touches `frontend/**` (or backend deploy paths) triggers **Deploy Staging** on the self-hosted VPS runner. Production is gated via the `production` GitHub Environment (see collaborator guide).
+
+---
+
+# Backend — Industrial Lathe Tools API
 
 A modern, production-ready FastAPI application for managing industrial lathe tools inventory with comprehensive product management, stock control, and authentication.
 
@@ -22,7 +41,14 @@ A modern, production-ready FastAPI application for managing industrial lathe too
 ## Project Structure
 
 ```
-karzar/
+Karzar/
+├── frontend/                   # Next.js apps (see frontend/README.md)
+│   ├── Storefront/             # Public shop
+│   ├── admin-panel/            # Admin panel
+│   └── README.md
+├── .github/workflows/          # backend-ci, deploy-staging, deploy-production
+├── docs/
+│   └── COLLABORATOR_DEPLOY.md  # How FE collaborators push & deploy
 ├── alembic/                    # Database migrations
 │   ├── env.py
 │   ├── script.py.mako
