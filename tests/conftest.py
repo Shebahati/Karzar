@@ -38,6 +38,7 @@ from app.db.models import Base  # noqa: F401 — registers all ORM tables
 from app.db.models.product import Brand, Category, StockUnitEnum
 from app.db.models.user import User, UserRole
 from app.main import app
+from app.services.sms_service import reset_sms_provider_for_tests
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -129,12 +130,14 @@ async def _reset_postgres_tables() -> None:
 
 @pytest.fixture(autouse=True)
 def _reset_rate_limiters():
-    """Isolate throttle state between tests."""
+    """Isolate throttle / SMS provider state between tests."""
     reset_in_memory_limiter()
     reset_in_memory_request_throttle()
+    reset_sms_provider_for_tests()
     yield
     reset_in_memory_limiter()
     reset_in_memory_request_throttle()
+    reset_sms_provider_for_tests()
 
 
 async def _seed_reference_data(session: AsyncSession) -> None:

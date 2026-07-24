@@ -60,6 +60,7 @@ class TestStorefrontCatalog:
 class TestStorefrontOtp:
     def test_otp_request_and_verify(self, monkeypatch):
         monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+        monkeypatch.setattr(settings, "SMS_PROVIDER", "console")
         request = client.post(
             "/api/v1/auth/otp/request",
             json={"phone": "09122222222"},
