@@ -65,7 +65,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.repository == 'Shebahati/Karzar'
     steps:
       - name: Download deploy artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: staging-src-${{ github.sha }}
           path: ${{ runner.temp }}/staging-src
