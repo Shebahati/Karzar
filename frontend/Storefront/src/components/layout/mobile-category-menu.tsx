@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Category, CloseSquare, Search } from "react-iconly";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, Category, CloseSquare } from "react-iconly";
+import * as Icons from "react-iconly";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategoryTree } from "@/features/catalog/queries";
-import { buildNavGroups, categoryHref, filterNonEmptyTree } from "@/config/nav-groups";
+import { categoryHref } from "@/config/nav-groups";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import { cn, formatNumber } from "@/lib/utils";
@@ -18,46 +18,44 @@ interface MobileCategoryMenuProps {
   onClose: () => void;
 }
 
+function CatIcon({ name }: { name?: string }) {
+  const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
+  const Icon = Cmp as typeof Icons.Category;
+  return <Icon set="bold" primaryColor="#5E5F5E" />;
+}
+
+/**
+ * Mobile category sheet: root cards first → layer 2/3 drill-down.
+ * Leaves bottom nav visible (padding-bottom).
+ */
 export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
   const { data: tree = [], isLoading } = useCategoryTree();
-  const groups = useMemo(() => buildNavGroups(tree), [tree]);
   const motionSafe = useMotionSafe();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
+  const [stack, setStack] = useState<CategoryTreeNode[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
   const handleEscape = useCallback(() => onClose(), [onClose]);
 
   useFocusTrap(panelRef, open, handleEscape);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setStack([]);
+      return;
+    }
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  useEffect(() => {
-    if (open && groups.length && expandedId == null) {
-      setExpandedId(groups[0]?.id ?? null);
-    }
-    if (!open) {
-      setQuery("");
-    }
-  }, [open, groups, expandedId]);
+  const current = stack[stack.length - 1] ?? null;
+  const children = useMemo(
+    () => (current ? current.subcategories ?? [] : tree),
+    [current, tree],
+  );
 
-  const visibleGroups = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return groups;
-    return groups
-      .map((g) => ({
-        ...g,
-        roots: g.roots
-          .map((r) => filterByQuery(r, q))
-          .filter((r): r is CategoryTreeNode => Boolean(r)),
-      }))
-      .filter((g) => g.roots.length > 0);
-  }, [groups, query]);
+  const title = current?.name ?? "دسته‌بندی محصولات";
+  const browseHref = current ? categoryHref(current) : "/catalog";
 
   const panel = (
     <div
@@ -65,18 +63,29 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
       role="dialog"
       aria-modal="true"
       aria-label="دسته‌بندی محصولات"
-      className="flex h-full flex-col bg-background"
+      className="flex h-full flex-col bg-background/95 backdrop-blur-xl"
     >
-      <div className="sticky top-0 z-10 border-b border-border/60 bg-background/95 px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-md">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary">
+      <div className="sticky top-0 z-10 border-b border-border/50 bg-white/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          {stack.length > 0 ? (
+            <button
+              type="button"
+              aria-label="بازگشت"
+              onClick={() => setStack((s) => s.slice(0, -1))}
+              className="touch-target rounded-xl bg-secondary text-steel"
+            >
+              <ArrowRight set="bold" size="small" />
+            </button>
+          ) : (
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-steel">
               <Category set="bold" size="small" />
             </span>
-            <div>
-              <p className="text-base font-bold text-foreground">دسته‌بندی محصولات</p>
-              <p className="text-xs text-muted-foreground">گروه‌بندی فروشگاهی</p>
-            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-base font-bold text-foreground">{title}</p>
+            <p className="text-xs text-steel">
+              {stack.length === 0 ? "انتخاب دستهٔ اصلی" : "زیرمجموعه‌ها"}
+            </p>
           </div>
           <button
             type="button"
@@ -88,86 +97,122 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
           </button>
         </div>
 
-        <div className="relative mb-3">
-          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-            <Search size="small" set="light" />
-          </span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="جستجوی دسته…"
-            aria-label="جستجوی دسته‌بندی"
-            className="h-11 w-full rounded-xl bg-input ps-9 pe-3 text-base outline-none focus:ring-2 focus:ring-ring/40"
-          />
-        </div>
-
-        <Link href="/catalog" onClick={onClose} className="block">
-          <Button size="lg" className="w-full gap-2 shadow-primary-glow">
-            مشاهده همه محصولات
-            <ArrowLeft set="bold" size="small" />
-          </Button>
+        <Link
+          href={browseHref}
+          onClick={onClose}
+          className="mt-3 flex h-11 items-center justify-center rounded-xl bg-steel text-sm font-bold text-white"
+        >
+          نمایش همه محصولات{current ? ` «${current.name}»` : ""}
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
         {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full rounded-2xl" />
+          <div className="grid grid-cols-2 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-2xl" />
             ))}
           </div>
-        ) : visibleGroups.length === 0 ? (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">دسته‌ای یافت نشد.</p>
+        ) : children.length === 0 ? (
+          <div className="rounded-2xl bg-secondary p-6 text-center text-sm text-steel">
+            زیرمجموعه‌ای نیست.
+            <Link
+              href={browseHref}
+              onClick={onClose}
+              className="mt-3 block font-bold text-primary"
+            >
+              مشاهده محصولات
+            </Link>
+          </div>
         ) : (
-          <ul className="space-y-2">
-            {visibleGroups.map((group) => (
-              <li
-                key={group.id}
-                className={cn(
-                  "overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft",
-                  group.highlight && "ring-1 ring-primary/15",
-                )}
-              >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedId((id) => (id === group.id ? null : group.id))
-                  }
-                  className="flex w-full items-center justify-between px-4 py-4 text-start"
-                >
-                  <span className="flex flex-col gap-0.5">
-                    <span
-                      className={cn(
-                        "text-sm font-bold",
-                        group.highlight ? "text-primary" : "text-foreground",
-                      )}
-                    >
-                      {group.label}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">
-                      {formatNumber(group.product_count)} محصول
-                    </span>
-                  </span>
-                  <span
-                    className={cn(
-                      "text-muted-foreground transition-transform",
-                      expandedId === group.id && "rotate-180",
-                    )}
+          <div className={cn("grid gap-3", stack.length === 0 ? "grid-cols-2" : "grid-cols-1")}>
+            {children.map((node) => {
+              const hasKids = (node.subcategories?.length ?? 0) > 0;
+              if (stack.length === 0) {
+                return (
+                  <button
+                    key={node.id}
+                    type="button"
+                    onClick={() => {
+                      if (hasKids) setStack([node]);
+                    }}
+                    className="flex h-[124px] flex-col justify-between rounded-2xl border border-border/50 bg-card p-4 text-start shadow-soft active:scale-[0.98]"
                   >
-                    ▾
-                  </span>
-                </button>
+                    {hasKids ? (
+                      <>
+                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-secondary">
+                          <CatIcon name={node.icon} />
+                        </span>
+                        <span>
+                          <span className="line-clamp-2 text-sm font-bold text-foreground">
+                            {node.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-steel">
+                            {formatNumber(node.product_count ?? 0)} محصول
+                          </span>
+                        </span>
+                      </>
+                    ) : (
+                      <Link href={categoryHref(node)} onClick={onClose} className="flex h-full flex-col justify-between">
+                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-secondary">
+                          <CatIcon name={node.icon} />
+                        </span>
+                        <span>
+                          <span className="line-clamp-2 text-sm font-bold text-foreground">
+                            {node.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-steel">
+                            {formatNumber(node.product_count ?? 0)} محصول
+                          </span>
+                        </span>
+                      </Link>
+                    )}
+                  </button>
+                );
+              }
 
-                {expandedId === group.id && (
-                  <div className="border-t border-border/60 px-3 pb-3 pt-1">
-                    {group.roots.map((root) => (
-                      <MobileRoot key={root.id} root={root} onNavigate={onClose} />
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+              return (
+                <div
+                  key={node.id}
+                  className="flex items-center gap-2 rounded-2xl border border-border/40 bg-card p-3 shadow-soft"
+                >
+                  {hasKids ? (
+                    <button
+                      type="button"
+                      className="min-w-0 flex-1 text-start"
+                      onClick={() => setStack((s) => [...s, node])}
+                    >
+                      <span className="block text-sm font-bold text-foreground">{node.name}</span>
+                      <span className="text-[11px] text-steel">
+                        {formatNumber(node.subcategories.length)} زیرمجموعه
+                      </span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={categoryHref(node)}
+                      onClick={onClose}
+                      className="min-w-0 flex-1"
+                    >
+                      <span className="block text-sm font-bold text-foreground">{node.name}</span>
+                      <span className="text-[11px] text-steel">
+                        {formatNumber(node.product_count ?? 0)} محصول
+                      </span>
+                    </Link>
+                  )}
+                  {hasKids && (
+                    <button
+                      type="button"
+                      onClick={() => setStack((s) => [...s, node])}
+                      className="touch-target rounded-xl bg-secondary text-steel"
+                      aria-label="باز کردن"
+                    >
+                      <Icons.ArrowLeft set="light" size="small" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
@@ -176,88 +221,29 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
   return (
     <AnimatePresence>
       {open && (
-        <>
-          <motion.button
+        <motion.div
+          className="fixed inset-0 z-[60] lg:hidden"
+          initial={motionSafe ? { opacity: 0 } : false}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <button
             type="button"
-            aria-label="بستن منو"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: motionSafe ? 0.2 : 0.12 }}
-            className="fixed inset-0 z-[60] bg-black/45 lg:hidden"
+            aria-label="بستن پس‌زمینه"
+            className="absolute inset-0 bg-steel/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={motionSafe ? { y: "100%" } : { opacity: 0 }}
-            animate={motionSafe ? { y: 0 } : { opacity: 1 }}
-            exit={motionSafe ? { y: "100%" } : { opacity: 0 }}
-            transition={
-              motionSafe
-                ? { type: "spring", damping: 28, stiffness: 320 }
-                : { duration: 0.15 }
-            }
-            className="fixed inset-x-0 bottom-0 top-0 z-[61] lg:hidden"
+            className="absolute inset-x-0 bottom-0 top-0 overflow-hidden bg-background"
+            initial={motionSafe ? { y: "8%" } : false}
+            animate={{ y: 0 }}
+            exit={{ y: "8%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
           >
             {panel}
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
-}
-
-function MobileRoot({
-  root,
-  onNavigate,
-}: {
-  root: CategoryTreeNode;
-  onNavigate: () => void;
-}) {
-  const mids = filterNonEmptyTree(root.subcategories ?? []);
-  return (
-    <div className="mt-2 rounded-xl bg-secondary/60 p-2">
-      <Link
-        href={categoryHref(root)}
-        onClick={onNavigate}
-        className="flex min-h-11 items-center px-1 text-sm font-bold text-foreground"
-      >
-        {root.name}
-      </Link>
-      {mids.map((mid) => (
-        <div key={mid.id} className="mt-1">
-          <Link
-            href={categoryHref(mid)}
-            onClick={onNavigate}
-            className="flex min-h-11 items-center px-1 text-sm font-semibold text-foreground/90"
-          >
-            {mid.name}
-          </Link>
-          {(mid.subcategories?.length ?? 0) > 0 && (
-            <ul className="space-y-0.5 ps-1">
-              {mid.subcategories.map((leaf) => (
-                <li key={leaf.id}>
-                  <Link
-                    href={categoryHref(leaf)}
-                    onClick={onNavigate}
-                    className="flex min-h-11 items-center px-1 text-sm text-muted-foreground hover:text-primary"
-                  >
-                    {leaf.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function filterByQuery(node: CategoryTreeNode, q: string): CategoryTreeNode | null {
-  const self = node.name.toLowerCase().includes(q);
-  const kids = (node.subcategories ?? [])
-    .map((c) => filterByQuery(c, q))
-    .filter((c): c is CategoryTreeNode => Boolean(c));
-  if (!self && kids.length === 0) return null;
-  return { ...node, subcategories: kids.length ? kids : filterNonEmptyTree(node.subcategories ?? []) };
 }
