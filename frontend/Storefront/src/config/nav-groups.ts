@@ -1,5 +1,13 @@
 /**
- * Merchandising display groups over taxonomy roots (FE-only; taxonomy stays 10 roots).
+ * Merchandising display groups over taxonomy roots (FE-only; taxonomy stays ~10 roots).
+ *
+ * Locked IA (docs/constitution + category plan):
+ * - Commerce SoR = product-type tree, depth ≤ 3, products on L3 leaves
+ * - Brand / country = facets (not categories)
+ * - Top nav megamenu = these 5 merchandising groups
+ * - Browse surfaces (home, catalog carousel, mobile sheet) = ordered L1 type roots
+ * - PLP filter = same product tree (drill-down), not a third taxonomy
+ *
  * Order is intentional: Metrology first.
  */
 
@@ -105,9 +113,9 @@ export function buildNavGroups<T extends CategoryLike>(
   const resolved: ResolvedNavGroup<T>[] = [];
 
   for (const group of groups) {
-    const matched = visible.filter((root) =>
-      group.rootMatchers.some((m) => matchesRoot(root, m)),
-    );
+    const matched = visible
+      .filter((root) => group.rootMatchers.some((m) => matchesRoot(root, m)))
+      .sort((a, b) => matcherRank(a, group.rootMatchers) - matcherRank(b, group.rootMatchers));
     matched.forEach((r) => assigned.add(r.id));
     if (matched.length === 0) continue;
     resolved.push({
@@ -134,12 +142,48 @@ export function buildNavGroups<T extends CategoryLike>(
   return resolved;
 }
 
+/** Earliest matcher index wins — keeps L1 order stable across tree vs flat APIs. */
+function matcherRank(root: CategoryLike, matchers: string[]): number {
+  const idx = matchers.findIndex((m) => matchesRoot(root, m));
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
 /**
  * Flat L1 roots in merchandising order (Metrology first), empty nodes removed.
- * Shared by home carousel, catalog root multi-select, and mobile category sheet.
+ * Shared by home carousel, catalog root multi-select, mobile category sheet,
+ * and catalog filter L1 when no carousel root is selected.
  */
 export function orderedVisibleRoots<T extends CategoryLike>(roots: T[]): T[] {
   return buildNavGroups(roots).flatMap((group) => group.roots);
+}
+
+/**
+ * Taxonomy roots are parent_id == null. API depth is 1-based (roots = depth 1).
+ * Never treat depth === 0 as the root signal — that was a storefront bug.
+ */
+export function isTaxonomyRoot(node: {
+  parent_id?: number | null;
+  depth?: number | null;
+}): boolean {
+  if (node.parent_id != null) return false;
+  if (node.parent_id === null) return true;
+  return node.depth === 1;
+}
+
+/**
+ * Stable merchandising order for a flat list of L1 roots (same as home/carousel).
+ * Non-roots are left in input order after the ordered roots.
+ */
+export function sortByNavOrder<T extends CategoryLike>(items: T[]): T[] {
+  const rootItems = items.filter((item) =>
+    isTaxonomyRoot(item as T & { parent_id?: number | null; depth?: number | null }),
+  );
+  if (rootItems.length === 0) return items;
+
+  const orderedRoots = orderedVisibleRoots(rootItems);
+  const orderedIds = new Set(orderedRoots.map((r) => r.id));
+  const rest = items.filter((item) => !orderedIds.has(item.id));
+  return [...orderedRoots, ...rest];
 }
 
 /** Whether a root belongs to the highlighted Metrology merchandising group. */

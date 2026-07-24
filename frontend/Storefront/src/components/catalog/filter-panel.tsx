@@ -15,6 +15,7 @@ import {
   parseIdList,
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
+import { isTaxonomyRoot, sortByNavOrder } from "@/config/nav-groups";
 import type { CategoryFlat } from "@/types/category";
 
 /** Shared filter UI rendered inside the desktop sidebar and the mobile drawer. */
@@ -118,11 +119,11 @@ export function FilterPanel({
       </div>
 
       <AccordionFilter
-        title="زیر‌دسته‌ها"
+        title={selectedRoots.length > 0 ? "زیر‌دسته‌ها" : "دسته‌بندی"}
         hint={
           selectedRoots.length > 0
-            ? "زیرمجموعه‌های دسته‌های انتخاب‌شده"
-            : "ریشه‌ها از کاروسل بالا انتخاب می‌شوند"
+            ? "زیرمجموعه‌های ریشه‌های انتخاب‌شده در کاروسل"
+            : "همان ریشه‌های صفحهٔ اصلی؛ برای محدود کردن از کاروسل بالا استفاده کنید"
         }
         defaultOpen={false}
       >
@@ -146,7 +147,7 @@ export function FilterPanel({
               notify();
             }}
           >
-            همه زیره‌ها
+            همه کالاها
           </ChipButton>
           {categoriesLoading ? (
             <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری…</p>
@@ -155,7 +156,8 @@ export function FilterPanel({
               categories={scopedCategories}
               activeId={params.category_id}
               searchQuery={categoryQuery}
-              excludeRootDepth={selectedRoots.length === 0}
+              /* Carousel already picked L1 → drill from L2. Else show L1 in home order. */
+              excludeRootDepth={selectedRoots.length > 0}
               onSelect={(id) => {
                 setParams({ category: id });
                 notify();
@@ -568,13 +570,13 @@ function CategoryAccordion({
   activeId?: number;
   searchQuery: string;
   onSelect: (id: number) => void;
-  /** When true, skip depth-0 roots (selected via top carousel). */
+  /** When true, skip L1 taxonomy roots (already selected via catalog carousel). */
   excludeRootDepth?: boolean;
 }) {
   const childrenByParent = useMemo(() => {
     const map = new Map<number | null, CategoryFlat[]>();
     for (const c of categories) {
-      if (excludeRootDepth && c.depth === 0) continue;
+      if (excludeRootDepth && isTaxonomyRoot(c)) continue;
       // Hide empty categories in storefront filter nav (keep active path visible).
       if ((c.product_count ?? 0) === 0 && c.id !== activeId) continue;
       const parent = c.parent_id ?? null;
@@ -586,7 +588,7 @@ function CategoryAccordion({
     if (activeId != null) {
       let current = categories.find((c) => c.id === activeId);
       while (current) {
-        if (!(excludeRootDepth && current.depth === 0)) {
+        if (!(excludeRootDepth && isTaxonomyRoot(current))) {
           const parent = current.parent_id ?? null;
           const list = map.get(parent) ?? [];
           if (!list.some((c) => c.id === current!.id)) {
@@ -621,7 +623,7 @@ function CategoryAccordion({
     if (!q) return null as Set<number> | null;
     const matched = new Set<number>();
     for (const c of categories) {
-      if (excludeRootDepth && c.depth === 0) continue;
+      if (excludeRootDepth && isTaxonomyRoot(c)) continue;
       if (c.name.toLowerCase().includes(q)) matched.add(c.id);
     }
     const visible = new Set<number>(matched);
@@ -629,7 +631,7 @@ function CategoryAccordion({
       let current = byId.get(id);
       while (current?.parent_id != null) {
         const parent = byId.get(current.parent_id);
-        if (parent && !(excludeRootDepth && parent.depth === 0)) {
+        if (parent && !(excludeRootDepth && isTaxonomyRoot(parent))) {
           visible.add(current.parent_id);
         }
         current = parent;
@@ -673,22 +675,21 @@ function CategoryAccordion({
     });
   }, [searchQuery, searchExpandIds]);
 
-  // When excluding depth-0, top of tree is children of roots (parent is a depth-0 id),
-  // or nodes whose parent was filtered out — collect entries whose parent is missing from map.
+  // L1 in merchandising order (same as home/carousel). When roots excluded, start at L2.
   const roots = useMemo(() => {
     if (!excludeRootDepth) {
-      return (childrenByParent.get(null) ?? []).filter(
+      const top = childrenByParent.get(null) ?? [];
+      return sortByNavOrder(top).filter(
         (n) => !searchVisible || searchVisible.has(n.id),
       );
     }
-    // Depth-0 skipped: start from nodes whose parent is a root (depth 0) or null-parent non-roots.
     const out: CategoryFlat[] = [];
     const seen = new Set<number>();
     for (const [, list] of childrenByParent) {
       for (const node of list) {
         const parent = node.parent_id != null ? byId.get(node.parent_id) : undefined;
-        const parentIsExcludedRoot = parent != null && parent.depth === 0;
-        const isOrphanNonRoot = node.parent_id == null && node.depth !== 0;
+        const parentIsExcludedRoot = parent != null && isTaxonomyRoot(parent);
+        const isOrphanNonRoot = node.parent_id == null && !isTaxonomyRoot(node);
         if (parentIsExcludedRoot || isOrphanNonRoot) {
           if (seen.has(node.id)) continue;
           if (searchVisible && !searchVisible.has(node.id)) continue;
@@ -697,7 +698,6 @@ function CategoryAccordion({
         }
       }
     }
-    // Also include direct children of null that aren't depth 0 (already skipped in build).
     for (const n of childrenByParent.get(null) ?? []) {
       if (seen.has(n.id)) continue;
       if (searchVisible && !searchVisible.has(n.id)) continue;
@@ -712,7 +712,11 @@ function CategoryAccordion({
   }
 
   if (roots.length === 0) {
-    return <p className="px-2 py-3 text-xs text-steel">زیر‌دسته‌ای موجود نیست.</p>;
+    return (
+      <p className="px-2 py-3 text-xs text-steel">
+        {excludeRootDepth ? "زیر‌دسته‌ای موجود نیست." : "دسته‌ای موجود نیست."}
+      </p>
+    );
   }
 
   const renderNode = (node: CategoryFlat, depth: number) => {
