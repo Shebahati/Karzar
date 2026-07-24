@@ -4,8 +4,10 @@ import {
   categoryHref,
   filterNonEmptyTree,
   isMetrologyRoot,
+  isTaxonomyRoot,
   NAV_GROUPS,
   orderedVisibleRoots,
+  sortByNavOrder,
 } from "@/config/nav-groups";
 
 describe("nav-groups", () => {
@@ -59,5 +61,23 @@ describe("nav-groups", () => {
     expect(ordered[0]?.name).toBe("اندازه گیری");
     expect(isMetrologyRoot(ordered[0]!)).toBe(true);
     expect(isMetrologyRoot(ordered[1]!)).toBe(false);
+  });
+
+  it("detects taxonomy roots via parent_id null / depth 1 (not depth 0)", () => {
+    expect(isTaxonomyRoot({ parent_id: null, depth: 1 })).toBe(true);
+    expect(isTaxonomyRoot({ parent_id: null, depth: 0 })).toBe(true);
+    expect(isTaxonomyRoot({ parent_id: 7, depth: 2 })).toBe(false);
+    expect(isTaxonomyRoot({ depth: 1 })).toBe(true);
+    expect(isTaxonomyRoot({ depth: 0 })).toBe(false);
+    expect(isTaxonomyRoot({ depth: 2 })).toBe(false);
+  });
+
+  it("sortByNavOrder matches orderedVisibleRoots for flat L1", () => {
+    const flat = [
+      { id: 5, name: "مته", product_count: 2, parent_id: null as number | null, depth: 1 },
+      { id: 7, name: "اندازه گیری", product_count: 10, parent_id: null as number | null, depth: 1 },
+      { id: 3, name: "اینسرت", product_count: 5, parent_id: null as number | null, depth: 1 },
+    ];
+    expect(sortByNavOrder(flat).map((r) => r.id)).toEqual([7, 3, 5]);
   });
 });
