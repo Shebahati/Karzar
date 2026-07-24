@@ -47,16 +47,17 @@ export function Hero() {
               alt={slide.title}
               fill
               priority
+              quality={90}
               sizes="100vw"
               className="object-cover object-[20%_45%]"
             />
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent sm:bg-gradient-to-l sm:from-black/80 sm:via-black/30 sm:to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/28 to-transparent sm:bg-gradient-to-l sm:from-black/70 sm:via-black/22 sm:to-transparent"
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-black/70 via-black/25 to-transparent sm:inset-y-0 sm:start-0 sm:end-auto sm:h-full sm:w-[55%] sm:bg-gradient-to-l sm:from-black/65 sm:via-black/20 sm:to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-[68%] bg-gradient-to-t from-black/60 via-black/18 to-transparent sm:inset-y-0 sm:start-0 sm:end-auto sm:h-full sm:w-[52%] sm:bg-gradient-to-l sm:from-black/55 sm:via-black/14 sm:to-transparent"
             />
           </motion.div>
         </AnimatePresence>
