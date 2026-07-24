@@ -133,3 +133,18 @@ export function buildNavGroups<T extends CategoryLike>(
 
   return resolved;
 }
+
+/**
+ * Flat L1 roots in merchandising order (Metrology first), empty nodes removed.
+ * Shared by home carousel, catalog root multi-select, and mobile category sheet.
+ */
+export function orderedVisibleRoots<T extends CategoryLike>(roots: T[]): T[] {
+  return buildNavGroups(roots).flatMap((group) => group.roots);
+}
+
+/** Whether a root belongs to the highlighted Metrology merchandising group. */
+export function isMetrologyRoot(root: CategoryLike): boolean {
+  const group = NAV_GROUPS.find((g) => g.highlight);
+  if (!group) return false;
+  return group.rootMatchers.some((m) => matchesRoot(root, m));
+}

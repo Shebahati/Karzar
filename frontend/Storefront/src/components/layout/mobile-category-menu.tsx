@@ -7,7 +7,11 @@ import { ArrowRight, Category, CloseSquare } from "react-iconly";
 import * as Icons from "react-iconly";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategoryTree } from "@/features/catalog/queries";
-import { categoryHref } from "@/config/nav-groups";
+import {
+  categoryHref,
+  filterNonEmptyTree,
+  orderedVisibleRoots,
+} from "@/config/nav-groups";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import { cn, formatNumber } from "@/lib/utils";
@@ -49,10 +53,10 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
   }, [open]);
 
   const current = stack[stack.length - 1] ?? null;
-  const children = useMemo(
-    () => (current ? current.subcategories ?? [] : tree),
-    [current, tree],
-  );
+  const children = useMemo(() => {
+    if (!current) return orderedVisibleRoots(tree);
+    return filterNonEmptyTree(current.subcategories ?? []);
+  }, [current, tree]);
 
   const title = current?.name ?? "دسته‌بندی محصولات";
   const browseHref = current ? categoryHref(current) : "/catalog";

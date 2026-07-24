@@ -3,7 +3,9 @@ import {
   buildNavGroups,
   categoryHref,
   filterNonEmptyTree,
+  isMetrologyRoot,
   NAV_GROUPS,
+  orderedVisibleRoots,
 } from "@/config/nav-groups";
 
 describe("nav-groups", () => {
@@ -49,5 +51,13 @@ describe("nav-groups", () => {
   it("defines five merchandising groups", () => {
     expect(NAV_GROUPS).toHaveLength(5);
     expect(NAV_GROUPS[0].id).toBe("metrology");
+  });
+
+  it("flattens groups into ordered visible roots", () => {
+    const ordered = orderedVisibleRoots(roots);
+    expect(ordered.map((r) => r.id)).toEqual([7, 3, 5, 1, 9]);
+    expect(ordered[0]?.name).toBe("اندازه گیری");
+    expect(isMetrologyRoot(ordered[0]!)).toBe(true);
+    expect(isMetrologyRoot(ordered[1]!)).toBe(false);
   });
 });

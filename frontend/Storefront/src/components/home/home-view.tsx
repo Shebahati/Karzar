@@ -71,7 +71,7 @@ export function HomeView() {
         <section>
           <SectionHeading
             title="دسته‌بندی محصولات"
-            subtitle="از ریشهٔ درخت دسته‌ها شروع کنید"
+            subtitle="همان دسته‌های اصلی فروشگاه — اندازه‌گیری در ابتدا"
             href="/catalog"
           />
           <CategoryGrid />
