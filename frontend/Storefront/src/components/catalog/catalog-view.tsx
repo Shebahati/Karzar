@@ -8,20 +8,43 @@ import { ProductCard, ProductCardSkeleton } from "@/components/product/product-c
 import { FilterPanel } from "@/components/catalog/filter-panel";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { MobileFilterDrawer } from "@/components/catalog/mobile-filter-drawer";
-import { useCatalogParams } from "@/components/catalog/use-catalog-params";
+import { RootCategoryCarousel } from "@/components/catalog/root-category-carousel";
+import { parseIdList, useCatalogParams } from "@/components/catalog/use-catalog-params";
 import { useBrands, useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { formatNumber, toPersianDigits } from "@/lib/utils";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import type { ProductListParams, ProductSummary } from "@/types/product";
+import type { CategoryFlat } from "@/types/category";
 
 const PAGE_SIZE = 24;
 const FILTERS_PANEL_ID = "catalog-filters-panel";
 
+function productMatchesRoots(
+  product: ProductSummary,
+  rootIds: number[],
+  categories: CategoryFlat[] | undefined,
+): boolean {
+  if (rootIds.length === 0) return true;
+  const rootSet = new Set(rootIds);
+  const cat = product.category;
+  if (!cat) return false;
+  if (rootSet.has(cat.id)) return true;
+  const ancestors = cat.ancestor_ids;
+  if (ancestors?.some((id) => rootSet.has(id))) return true;
+  // Fallback: look up flat category when product payload lacks ancestor_ids.
+  const flat = categories?.find((c) => c.id === cat.id);
+  if (!flat) return false;
+  if (rootSet.has(flat.id)) return true;
+  if (flat.parent_id != null && rootSet.has(flat.parent_id)) return true;
+  return (flat.ancestor_ids ?? []).some((id) => rootSet.has(id));
+}
+
 export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } = {}) {
-  const { params, activeCount, categorySlug, brandSlug, setParams, setSpecFilter, clearAll } =
+  const { params, activeCount, categorySlug, brandSlug, setParams, setSpecFilter, clearAll, raw } =
     useCatalogParams();
+  const selectedRoots = useMemo(() => parseIdList(raw.get("roots")), [raw]);
   const [resolvedParams, setResolvedParams] = useState<ProductListParams>(params);
   const [slugError, setSlugError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -29,10 +52,16 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
   const filterDrawerOpen = useUiStore((s) => s.filterDrawerOpen);
   const setDrawer = useUiStore((s) => s.setFilterDrawerOpen);
 
+  /** Multi-root OR filter with no leaf category → client-side product filter. */
+  const multiRootClientFilter =
+    lockedCategoryId == null &&
+    selectedRoots.length > 1 &&
+    params.category_id == null;
+
   useEffect(() => {
     setPage(1);
     setAccumulated([]);
-  }, [resolvedParams]);
+  }, [resolvedParams, multiRootClientFilter, selectedRoots]);
 
   useEffect(() => {
     if (lockedCategoryId == null) return;
@@ -68,6 +97,23 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
             errors.push(`برند «${brandSlug}» یافت نشد`);
           }
         }
+
+        // Roots without a leaf category: single root → category_id; multiple → leave unset.
+        if (
+          lockedCategoryId == null &&
+          !next.category_id &&
+          !categorySlug &&
+          selectedRoots.length === 1
+        ) {
+          next.category_id = selectedRoots[0];
+        }
+        if (
+          lockedCategoryId == null &&
+          selectedRoots.length > 1 &&
+          params.category_id == null
+        ) {
+          next.category_id = undefined;
+        }
       } finally {
         if (!cancelled) {
           setSlugError(errors.length ? errors.join(" — ") : null);
@@ -79,7 +125,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
     return () => {
       cancelled = true;
     };
-  }, [params, categorySlug, brandSlug, setParams, lockedCategoryId]);
+  }, [params, categorySlug, brandSlug, setParams, lockedCategoryId, selectedRoots]);
 
   const queryParams = useMemo(
     () => ({
@@ -99,9 +145,20 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
     setAccumulated((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
   }, [data, page]);
 
-  const total = data?.meta.total_count ?? 0;
-  const shown = accumulated.length;
-  const hasMore = shown < total;
+  const displayProducts = useMemo(() => {
+    if (!multiRootClientFilter) return accumulated;
+    return accumulated.filter((p) =>
+      productMatchesRoots(p, selectedRoots, categories),
+    );
+  }, [accumulated, multiRootClientFilter, selectedRoots, categories]);
+
+  const total = multiRootClientFilter
+    ? displayProducts.length
+    : (data?.meta.total_count ?? 0);
+  const shown = displayProducts.length;
+  const hasMore = multiRootClientFilter
+    ? (data?.meta.total_count ?? 0) > accumulated.length
+    : shown < (data?.meta.total_count ?? 0);
   const activeCategory = resolvedParams.category_id
     ? categories?.find((c) => c.id === resolvedParams.category_id)
     : undefined;
@@ -246,6 +303,12 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
         </div>
       )}
 
+      {lockedCategoryId == null && (
+        <div className="mb-6">
+          <RootCategoryCarousel />
+        </div>
+      )}
+
       <div className="flex gap-6">
         <aside className="hidden w-72 shrink-0 lg:block" id={FILTERS_PANEL_ID}>
           <div className="sticky top-32">
@@ -298,7 +361,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
                   isFetching && page > 1 ? "opacity-80" : "opacity-100"
                 }`}
               >
-                {accumulated.map((p) => (
+                {displayProducts.map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
               </div>

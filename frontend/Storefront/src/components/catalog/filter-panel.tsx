@@ -2,15 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CloseSquare, Search } from "react-iconly";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn, formatNumber, toEnglishDigits, toPersianDigits } from "@/lib/utils";
+import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import { useBrands, useFlatCategories, useSpecFilterOptions } from "@/features/catalog/queries";
 import { useFeatureLabel } from "@/lib/feature-labels";
+import { AccordionFilter } from "@/components/catalog/accordion-filter";
+import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
 import {
   DEFAULT_MAX_PRICE,
   DEFAULT_MIN_PRICE,
   encodeCountryList,
+  parseIdList,
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
 import type { CategoryFlat } from "@/types/category";
@@ -32,30 +34,14 @@ export function FilterPanel({
     toggleCountry,
     clearAll,
     activeCount,
+    raw,
   } = useCatalogParams();
   const { data: categories, isLoading: categoriesLoading } = useFlatCategories();
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: specOptions } = useSpecFilterOptions(params.category_id ?? 0);
 
-  const [minPrice, setMinPrice] = useState(
-    params.min_price != null ? String(params.min_price) : String(DEFAULT_MIN_PRICE),
-  );
-  const [maxPrice, setMaxPrice] = useState(
-    params.max_price != null ? String(params.max_price) : String(DEFAULT_MAX_PRICE),
-  );
-  const [priceError, setPriceError] = useState<string | null>(null);
   const [brandQuery, setBrandQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
-
-  useEffect(() => {
-    setMinPrice(
-      params.min_price != null ? String(params.min_price) : String(DEFAULT_MIN_PRICE),
-    );
-    setMaxPrice(
-      params.max_price != null ? String(params.max_price) : String(DEFAULT_MAX_PRICE),
-    );
-    setPriceError(null);
-  }, [params.min_price, params.max_price]);
 
   const notify = () => {
     if (notifyOnChange) onApplied?.();
@@ -63,6 +49,7 @@ export function FilterPanel({
 
   const selectedBrandIds = params.brand_ids ?? [];
   const selectedCountries = params.countries ?? [];
+  const selectedRoots = parseIdList(raw.get("roots"));
 
   const countries = useMemo(
     () =>
@@ -95,40 +82,22 @@ export function FilterPanel({
     );
   }, [brands, brandQuery]);
 
-  const applyPrice = () => {
-    const minRaw = minPrice.trim()
-      ? Number(toEnglishDigits(minPrice))
-      : DEFAULT_MIN_PRICE;
-    const maxRaw = maxPrice.trim()
-      ? Number(toEnglishDigits(maxPrice))
-      : DEFAULT_MAX_PRICE;
-    if (Number.isNaN(minRaw) || minRaw < 0) {
-      setPriceError("حداقل قیمت نامعتبر است.");
-      return;
-    }
-    if (Number.isNaN(maxRaw) || maxRaw < 0) {
-      setPriceError("حداکثر قیمت نامعتبر است.");
-      return;
-    }
-    if (minRaw > maxRaw) {
-      setPriceError("حداقل قیمت نباید از حداکثر بیشتر باشد.");
-      return;
-    }
-    setPriceError(null);
-    setParams({ min_price: minRaw, max_price: maxRaw });
-    notify();
-  };
+  const scopedCategories = useMemo(() => {
+    const list = categories ?? [];
+    if (selectedRoots.length === 0) return list;
+    const rootSet = new Set(selectedRoots);
+    return list.filter((c) => {
+      if (rootSet.has(c.id)) return true;
+      if (c.parent_id != null && rootSet.has(c.parent_id)) return true;
+      return (c.ancestor_ids ?? []).some((id) => rootSet.has(id));
+    });
+  }, [categories, selectedRoots]);
 
-  const clearPrice = () => {
-    setMinPrice(String(DEFAULT_MIN_PRICE));
-    setMaxPrice(String(DEFAULT_MAX_PRICE));
-    setPriceError(null);
-    setParams({ min_price: null, max_price: null });
-    notify();
-  };
+  const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
+  const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2 px-0.5">
         <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
         {activeCount > 0 && (
@@ -138,8 +107,6 @@ export function FilterPanel({
               clearAll();
               setBrandQuery("");
               setCategoryQuery("");
-              setMinPrice(String(DEFAULT_MIN_PRICE));
-              setMaxPrice(String(DEFAULT_MAX_PRICE));
               notify();
             }}
             className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
@@ -150,7 +117,15 @@ export function FilterPanel({
         )}
       </div>
 
-      <FilterGroup title="دسته‌بندی">
+      <AccordionFilter
+        title="زیر‌دسته‌ها"
+        hint={
+          selectedRoots.length > 0
+            ? "زیرمجموعه‌های دسته‌های انتخاب‌شده"
+            : "ریشه‌ها از کاروسل بالا انتخاب می‌شوند"
+        }
+        defaultOpen={false}
+      >
         <div className="relative mb-3">
           <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             <Search size="small" set="light" />
@@ -171,15 +146,16 @@ export function FilterPanel({
               notify();
             }}
           >
-            همه دسته‌ها
+            همه زیره‌ها
           </ChipButton>
           {categoriesLoading ? (
-            <p className="px-2 py-3 text-xs text-muted-foreground">در حال بارگذاری…</p>
+            <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری…</p>
           ) : (
             <CategoryAccordion
-              categories={categories ?? []}
+              categories={scopedCategories}
               activeId={params.category_id}
               searchQuery={categoryQuery}
+              excludeRootDepth={selectedRoots.length === 0}
               onSelect={(id) => {
                 setParams({ category: id });
                 notify();
@@ -187,15 +163,17 @@ export function FilterPanel({
             />
           )}
         </div>
-      </FilterGroup>
+      </AccordionFilter>
 
-      <FilterGroup
+      <AccordionFilter
         title="برند"
         hint={
           selectedBrandIds.length > 0
             ? `${toPersianDigits(selectedBrandIds.length)} برند انتخاب شده`
             : "می‌توانید چند برند را همزمان انتخاب کنید"
         }
+        badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
+        defaultOpen={false}
       >
         {(brands?.length ?? 0) > 6 && (
           <div className="relative mb-3">
@@ -237,7 +215,7 @@ export function FilterPanel({
                 setParams({ brand: null });
                 notify();
               }}
-              className="inline-flex min-h-9 items-center px-2 text-[11px] font-bold text-muted-foreground hover:text-primary"
+              className="inline-flex min-h-9 items-center px-2 text-[11px] font-bold text-steel hover:text-primary"
             >
               پاک کردن برندها
             </button>
@@ -245,7 +223,7 @@ export function FilterPanel({
         )}
         <div className="max-h-56 space-y-0.5 overflow-y-auto pe-1" role="group" aria-label="برندها">
           {brandsLoading ? (
-            <p className="px-2 py-3 text-xs text-muted-foreground">در حال بارگذاری برندها…</p>
+            <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری برندها…</p>
           ) : (
             <>
               {filteredBrands.map((b) => {
@@ -264,21 +242,27 @@ export function FilterPanel({
                 );
               })}
               {filteredBrands.length === 0 && (
-                <p className="px-2 py-3 text-xs text-muted-foreground">برندی یافت نشد.</p>
+                <p className="px-2 py-3 text-xs text-steel">برندی یافت نشد.</p>
               )}
             </>
           )}
         </div>
-      </FilterGroup>
+      </AccordionFilter>
 
       {countries.length > 0 && (
-        <FilterGroup
+        <AccordionFilter
           title="کشور سازنده"
           hint={
             selectedCountries.length > 0
               ? `${toPersianDigits(selectedCountries.length)} کشور انتخاب شده`
               : "انتخاب چندتایی"
           }
+          badge={
+            selectedCountries.length
+              ? toPersianDigits(selectedCountries.length)
+              : undefined
+          }
+          defaultOpen={false}
         >
           {selectedCountries.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -303,7 +287,7 @@ export function FilterPanel({
                   setParams({ country: null });
                   notify();
                 }}
-                className="inline-flex min-h-9 items-center px-2 text-[11px] font-bold text-muted-foreground hover:text-primary"
+                className="inline-flex min-h-9 items-center px-2 text-[11px] font-bold text-steel hover:text-primary"
               >
                 پاک کردن کشورها
               </button>
@@ -333,63 +317,26 @@ export function FilterPanel({
               );
             })}
           </div>
-        </FilterGroup>
+        </AccordionFilter>
       )}
 
-      <FilterGroup title="محدوده قیمت (تومان)">
-        <div className="flex items-center gap-2">
-          <label className="sr-only" htmlFor="filter-min-price">
-            حداقل قیمت
-          </label>
-          <input
-            id="filter-min-price"
-            inputMode="numeric"
-            value={minPrice === "" ? "" : toPersianDigits(minPrice)}
-            onChange={(e) => setMinPrice(toEnglishDigits(e.target.value).replace(/[^\d]/g, ""))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") applyPrice();
-            }}
-            placeholder={toPersianDigits(String(DEFAULT_MIN_PRICE))}
-            aria-label="حداقل قیمت"
-            className="h-11 w-full rounded-xl bg-input px-3 text-base outline-none focus:ring-2 focus:ring-ring/40 tnum md:text-sm"
-          />
-          <span className="shrink-0 text-sm text-muted-foreground">تا</span>
-          <label className="sr-only" htmlFor="filter-max-price">
-            حداکثر قیمت
-          </label>
-          <input
-            id="filter-max-price"
-            inputMode="numeric"
-            value={maxPrice === "" ? "" : toPersianDigits(maxPrice)}
-            onChange={(e) => setMaxPrice(toEnglishDigits(e.target.value).replace(/[^\d]/g, ""))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") applyPrice();
-            }}
-            placeholder={toPersianDigits(String(DEFAULT_MAX_PRICE))}
-            aria-label="حداکثر قیمت"
-            className="h-11 w-full rounded-xl bg-input px-3 text-base outline-none focus:ring-2 focus:ring-ring/40 tnum md:text-sm"
-          />
-        </div>
-        {priceError && (
-          <p className="mt-2 text-xs text-destructive">{priceError}</p>
-        )}
-        <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-          پیش‌فرض: {formatNumber(DEFAULT_MIN_PRICE)} تا {formatNumber(DEFAULT_MAX_PRICE)} تومان.
-          فقط محصولاتی که قیمت پایه دارند در این فیلتر لحاظ می‌شوند.
-        </p>
-        <div className="mt-3 flex gap-2">
-          <Button variant="soft" size="sm" className="min-h-11 flex-1" onClick={applyPrice}>
-            اعمال قیمت
-          </Button>
-          {(params.min_price != null || params.max_price != null) && (
-            <Button variant="outline" size="sm" className="min-h-11" onClick={clearPrice}>
-              بازنشانی
-            </Button>
-          )}
-        </div>
-      </FilterGroup>
+      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={false}>
+        <PriceRangeSlider
+          minValue={priceMin}
+          maxValue={priceMax}
+          onCommit={(min, max) => {
+            const isDefault =
+              min <= DEFAULT_MIN_PRICE && max >= DEFAULT_MAX_PRICE;
+            setParams({
+              min_price: isDefault ? null : min,
+              max_price: isDefault ? null : max,
+            });
+            notify();
+          }}
+        />
+      </AccordionFilter>
 
-      <FilterGroup title="موجودی">
+      <AccordionFilter title="موجودی" defaultOpen={false}>
         <Checkbox
           id="in-stock-only"
           checked={params.in_stock ?? false}
@@ -400,13 +347,14 @@ export function FilterPanel({
           label="فقط کالاهای موجود"
           className="min-h-11"
         />
-      </FilterGroup>
+      </AccordionFilter>
 
       {specOptions && Object.keys(specOptions.technical_specs).length > 0 && (
-        <FilterGroup title="مشخصات فنی">
-          <p className="mb-3 text-[11px] leading-5 text-muted-foreground">
-            بر اساس دستهٔ انتخاب‌شده — با تغییر دسته، این فیلترها به‌روز می‌شوند.
-          </p>
+        <AccordionFilter
+          title="مشخصات فنی"
+          hint="بر اساس دستهٔ انتخاب‌شده"
+          defaultOpen={false}
+        >
           {Object.entries(specOptions.technical_specs).map(([key, values]) => (
             <SpecFilterRow
               key={key}
@@ -425,10 +373,33 @@ export function FilterPanel({
               }}
             />
           ))}
-        </FilterGroup>
+        </AccordionFilter>
       )}
     </div>
   );
+}
+
+function isBooleanLike(values: string[]): boolean {
+  if (values.length === 0 || values.length > 4) return false;
+  const normalized = values.map((v) => v.trim().toLowerCase());
+  const boolish = new Set([
+    "true",
+    "false",
+    "yes",
+    "no",
+    "1",
+    "0",
+    "بله",
+    "خیر",
+    "دارد",
+    "ندارد",
+  ]);
+  return normalized.every((v) => boolish.has(v));
+}
+
+function isNumericLooking(values: string[]): boolean {
+  if (values.length === 0) return false;
+  return values.every((v) => /^-?\d+([.,]\d+)?$/.test(v.trim()));
 }
 
 function SpecFilterRow({
@@ -445,9 +416,107 @@ function SpecFilterRow({
   onSelect: (value: string) => void;
 }) {
   const label = useFeatureLabel(specKey);
+  const [query, setQuery] = useState("");
+  const booleanLike = isBooleanLike(values);
+  const numericLike = !booleanLike && isNumericLooking(values) && values.length <= 8;
+  const longList = !booleanLike && !numericLike && values.length > 6;
+
+  const visible = useMemo(() => {
+    if (!longList) return values;
+    const q = query.trim().toLowerCase();
+    if (!q) return values;
+    return values.filter((v) => v.toLowerCase().includes(q));
+  }, [values, query, longList]);
+
+  if (booleanLike) {
+    return (
+      <div className="mb-4 last:mb-0">
+        <p className="mb-2 text-xs font-bold text-steel">{label}</p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
+          {values.map((value) => {
+            const on = active === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={on}
+                onClick={() => (on ? onClear() : onSelect(value))}
+                className={cn(
+                  "inline-flex min-h-10 items-center rounded-full px-4 text-xs font-bold transition-colors",
+                  on
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-muted",
+                )}
+              >
+                {value}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (numericLike) {
+    return (
+      <div className="mb-4 last:mb-0">
+        <p className="mb-2 text-xs font-bold text-steel">{label}</p>
+        <div
+          className="flex flex-wrap gap-1 rounded-xl bg-secondary p-1"
+          role="radiogroup"
+          aria-label={label}
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={!active}
+            onClick={onClear}
+            className={cn(
+              "min-h-10 flex-1 rounded-lg px-2 text-xs font-bold transition-colors",
+              !active ? "bg-card text-foreground shadow-soft" : "text-steel hover:text-foreground",
+            )}
+          >
+            همه
+          </button>
+          {values.map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={active === value}
+              onClick={() => onSelect(value)}
+              className={cn(
+                "min-h-10 flex-1 rounded-lg px-2 text-xs font-bold transition-colors tnum",
+                active === value
+                  ? "bg-card text-primary shadow-soft"
+                  : "text-steel hover:text-foreground",
+              )}
+            >
+              {toPersianDigits(value)}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-4 last:mb-0">
-      <p className="mb-2 text-xs font-bold text-muted-foreground">{label}</p>
+      <p className="mb-2 text-xs font-bold text-steel">{label}</p>
+      {longList && (
+        <div className="relative mb-2">
+          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <Search size="small" set="light" />
+          </span>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`جستجو در ${label}…`}
+            aria-label={`جستجو در ${label}`}
+            className="h-10 w-full rounded-xl bg-input ps-9 pe-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+          />
+        </div>
+      )}
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={label}>
         <button
           type="button"
@@ -455,7 +524,7 @@ function SpecFilterRow({
           aria-checked={!active}
           onClick={onClear}
           className={cn(
-            "inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-xs font-bold transition-colors",
+            "inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-xs font-bold transition-colors",
             !active
               ? "bg-primary text-primary-foreground"
               : "bg-secondary text-secondary-foreground hover:bg-muted",
@@ -463,7 +532,7 @@ function SpecFilterRow({
         >
           همه
         </button>
-        {values.map((value) => (
+        {visible.map((value) => (
           <button
             key={value}
             type="button"
@@ -471,7 +540,7 @@ function SpecFilterRow({
             aria-checked={active === value}
             onClick={() => onSelect(value)}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-xs font-bold transition-colors",
+              "inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-xs font-bold transition-colors",
               active === value
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-muted",
@@ -480,6 +549,9 @@ function SpecFilterRow({
             {value}
           </button>
         ))}
+        {longList && visible.length === 0 && (
+          <p className="w-full px-1 py-2 text-xs text-steel">موردی یافت نشد.</p>
+        )}
       </div>
     </div>
   );
@@ -490,15 +562,19 @@ function CategoryAccordion({
   activeId,
   searchQuery,
   onSelect,
+  excludeRootDepth = false,
 }: {
   categories: CategoryFlat[];
   activeId?: number;
   searchQuery: string;
   onSelect: (id: number) => void;
+  /** When true, skip depth-0 roots (selected via top carousel). */
+  excludeRootDepth?: boolean;
 }) {
   const childrenByParent = useMemo(() => {
     const map = new Map<number | null, CategoryFlat[]>();
     for (const c of categories) {
+      if (excludeRootDepth && c.depth === 0) continue;
       // Hide empty categories in storefront filter nav (keep active path visible).
       if ((c.product_count ?? 0) === 0 && c.id !== activeId) continue;
       const parent = c.parent_id ?? null;
@@ -510,11 +586,13 @@ function CategoryAccordion({
     if (activeId != null) {
       let current = categories.find((c) => c.id === activeId);
       while (current) {
-        const parent = current.parent_id ?? null;
-        const list = map.get(parent) ?? [];
-        if (!list.some((c) => c.id === current!.id)) {
-          list.push(current);
-          map.set(parent, list);
+        if (!(excludeRootDepth && current.depth === 0)) {
+          const parent = current.parent_id ?? null;
+          const list = map.get(parent) ?? [];
+          if (!list.some((c) => c.id === current!.id)) {
+            list.push(current);
+            map.set(parent, list);
+          }
         }
         current =
           current.parent_id != null
@@ -523,7 +601,7 @@ function CategoryAccordion({
       }
     }
     return map;
-  }, [categories, activeId]);
+  }, [categories, activeId, excludeRootDepth]);
 
   const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -543,16 +621,19 @@ function CategoryAccordion({
     if (!q) return null as Set<number> | null;
     const matched = new Set<number>();
     for (const c of categories) {
+      if (excludeRootDepth && c.depth === 0) continue;
       if (c.name.toLowerCase().includes(q)) matched.add(c.id);
     }
     const visible = new Set<number>(matched);
     for (const id of matched) {
       let current = byId.get(id);
       while (current?.parent_id != null) {
-        visible.add(current.parent_id);
-        current = byId.get(current.parent_id);
+        const parent = byId.get(current.parent_id);
+        if (parent && !(excludeRootDepth && parent.depth === 0)) {
+          visible.add(current.parent_id);
+        }
+        current = parent;
       }
-      // Also show descendants of matched nodes so hierarchy stays usable.
       const stack = [id];
       while (stack.length) {
         const nodeId = stack.pop()!;
@@ -565,11 +646,10 @@ function CategoryAccordion({
       }
     }
     return visible;
-  }, [categories, searchQuery, byId, childrenByParent]);
+  }, [categories, searchQuery, byId, childrenByParent, excludeRootDepth]);
 
   const searchExpandIds = useMemo(() => {
     if (!searchVisible) return new Set<number>();
-    // Expand every visible ancestor so matches are revealed.
     return new Set(searchVisible);
   }, [searchVisible]);
 
@@ -593,12 +673,46 @@ function CategoryAccordion({
     });
   }, [searchQuery, searchExpandIds]);
 
-  const roots = (childrenByParent.get(null) ?? []).filter(
-    (n) => !searchVisible || searchVisible.has(n.id),
-  );
+  // When excluding depth-0, top of tree is children of roots (parent is a depth-0 id),
+  // or nodes whose parent was filtered out — collect entries whose parent is missing from map.
+  const roots = useMemo(() => {
+    if (!excludeRootDepth) {
+      return (childrenByParent.get(null) ?? []).filter(
+        (n) => !searchVisible || searchVisible.has(n.id),
+      );
+    }
+    // Depth-0 skipped: start from nodes whose parent is a root (depth 0) or null-parent non-roots.
+    const out: CategoryFlat[] = [];
+    const seen = new Set<number>();
+    for (const [, list] of childrenByParent) {
+      for (const node of list) {
+        const parent = node.parent_id != null ? byId.get(node.parent_id) : undefined;
+        const parentIsExcludedRoot = parent != null && parent.depth === 0;
+        const isOrphanNonRoot = node.parent_id == null && node.depth !== 0;
+        if (parentIsExcludedRoot || isOrphanNonRoot) {
+          if (seen.has(node.id)) continue;
+          if (searchVisible && !searchVisible.has(node.id)) continue;
+          seen.add(node.id);
+          out.push(node);
+        }
+      }
+    }
+    // Also include direct children of null that aren't depth 0 (already skipped in build).
+    for (const n of childrenByParent.get(null) ?? []) {
+      if (seen.has(n.id)) continue;
+      if (searchVisible && !searchVisible.has(n.id)) continue;
+      seen.add(n.id);
+      out.push(n);
+    }
+    return out;
+  }, [childrenByParent, excludeRootDepth, searchVisible, byId]);
 
   if (searchVisible && roots.length === 0) {
-    return <p className="px-2 py-3 text-xs text-muted-foreground">دسته‌ای یافت نشد.</p>;
+    return <p className="px-2 py-3 text-xs text-steel">دسته‌ای یافت نشد.</p>;
+  }
+
+  if (roots.length === 0) {
+    return <p className="px-2 py-3 text-xs text-steel">زیر‌دسته‌ای موجود نیست.</p>;
   }
 
   const renderNode = (node: CategoryFlat, depth: number) => {
@@ -613,10 +727,7 @@ function CategoryAccordion({
 
     return (
       <div key={node.id}>
-        <div
-          className="flex items-stretch gap-0.5"
-          style={{ paddingInlineStart: depth > 0 ? undefined : undefined }}
-        >
+        <div className="flex items-stretch gap-0.5">
           {hasKids ? (
             <button
               type="button"
@@ -662,10 +773,7 @@ function CategoryAccordion({
           </button>
         </div>
         {hasKids && isOpen && (
-          <div
-            id={panelId}
-            className="ms-4 border-s border-border/60 ps-1"
-          >
+          <div id={panelId} className="ms-4 border-s border-border/60 ps-1">
             {kids.map((child) => renderNode(child, depth + 1))}
           </div>
         )}
@@ -674,28 +782,6 @@ function CategoryAccordion({
   };
 
   return <div className="space-y-0.5">{roots.map((r) => renderNode(r, 0))}</div>;
-}
-
-function FilterGroup({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl bg-card p-4 shadow-soft">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold text-foreground">{title}</h3>
-        {hint ? (
-          <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">{hint}</p>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
 }
 
 function MultiSelectRow({
@@ -734,7 +820,7 @@ function MultiSelectRow({
       </span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {meta ? (
-        <span className="shrink-0 text-[11px] font-normal text-muted-foreground">{meta}</span>
+        <span className="shrink-0 text-[11px] font-normal text-steel">{meta}</span>
       ) : null}
     </button>
   );

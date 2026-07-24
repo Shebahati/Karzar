@@ -66,6 +66,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        steel: {
+          DEFAULT: "hsl(var(--steel))",
+          foreground: "hsl(var(--steel-foreground))",
+        },
         karzar: {
           DEFAULT: "#C22026",
           50: "#FCEAEB",
@@ -100,7 +104,8 @@ const config: Config = {
         card: "0 2px 8px rgba(16, 24, 40, 0.05), 0 8px 24px rgba(16, 24, 40, 0.04)",
         elevated: "0 8px 24px rgba(16, 24, 40, 0.08), 0 16px 48px rgba(16, 24, 40, 0.06)",
         floating: "0 16px 48px rgba(16, 24, 40, 0.16)",
-        "primary-glow": "0 8px 24px rgba(194, 32, 38, 0.24)",
+        "primary-glow": "0 8px 24px rgba(194, 32, 38, 0.16)",
+        glass: "0 8px 32px rgba(94, 95, 94, 0.12)",
       },
       keyframes: {
         "accordion-down": {
