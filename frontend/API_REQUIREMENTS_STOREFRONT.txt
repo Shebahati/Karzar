@@ -1,0 +1,457 @@
+================================================================================
+ KARZAR STOREFRONT — BACKEND API CONTRACT
+================================================================================
+Audience : Backend (FastAPI) developer
+Source   : Derived 1:1 from the storefront mock layer
+           (Storefront/src/lib/mock-api.ts + Storefront/src/data/mock-data.ts)
+Switch   : The frontend calls these endpoints when NEXT_PUBLIC_USE_MOCK=false.
+           Base URL = NEXT_PUBLIC_API_BASE_URL (default http://localhost:8000/api/v1)
+
+CONVENTIONS
+- All responses are JSON, UTF-8, Content-Type: application/json.
+- Money fields (base_price, original_price, ...) are STRINGS (decimal as text)
+  or null. The frontend parses them with Number().
+- List endpoints that paginate return: { "data": [...], "meta": {...} }.
+- Simple list endpoints (categories tree, brands, comments, articles, hero)
+  return either a bare array OR { "data": [...] }. The frontend service layer
+  accepts the shapes documented per-endpoint below — match them exactly.
+- Bearer auth: protected endpoints expect `Authorization: Bearer <token>`.
+- Error contract (HTTP 4xx/5xx):
+    { "error_code": "NOT_FOUND", "message": "…", "details": [ { "field": null, "message": "…" } ] }
+
+CATEGORY MODEL (IMPORTANT)
+- Categories form a STRICT 3-layer tree: depth 1 (root) -> 2 -> 3 (leaf).
+- Only depth-3 leaf nodes carry products (same rule as the admin entry form).
+- "category" query param on /products accepts ANY depth; the backend must
+  resolve it to the category AND all of its descendants (subtree match).
+
+================================================================================
+ 1) GET /categories/tree
+================================================================================
+Purpose : Mega menu + homepage category grid (nested tree).
+Auth    : none
+Response: 200 — bare JSON array of nested nodes.
+
+[
+  {
+    "id": 1,
+    "name": "ابزار برقی",
+    "parent_id": null,
+    "icon": "Activity",            // optional: react-iconly icon name for roots
+    "product_count": 12,           // optional
+    "subcategories": [
+      {
+        "id": 10,
+        "name": "دریل و دریل شارژی",
+        "parent_id": 1,
+        "subcategories": [
+          { "id": 100, "name": "دریل چکشی", "parent_id": 10, "subcategories": [] }
+        ]
+      }
+    ]
+  }
+]
+
+NOTE on icons (roots only): the frontend maps any react-iconly name, e.g.
+  Activity, Setting, Filter2, Work, Category. If omitted, a default is used.
+
+================================================================================
+ 2) GET /categories/   (flat list, enriched)
+================================================================================
+Purpose : PLP filter sidebar (category chips with depth-based indentation).
+Auth    : none
+Response: 200 — { "data": [ CategoryFlat, ... ] }
+
+CategoryFlat = {
+  "id": 100,
+  "name": "دریل چکشی",
+  "parent_id": 10,
+  "depth": 3,                      // 1=root, 2=mid, 3=leaf
+  "is_leaf": true,
+  "is_selectable": true,           // true only when depth==3 && is_leaf
+  "breadcrumb": ["ابزار برقی", "دریل و دریل شارژی", "دریل چکشی"],
+  "ancestor_ids": [1, 10],
+  "product_count": 3               // optional
+}
+
+================================================================================
+ 3) GET /brands/
+================================================================================
+Purpose : PLP brand filter, country filter, homepage brand strip.
+Auth    : none
+Response: 200 — { "data": [ Brand, ... ] }
+
+Brand = {
+  "id": 1,
+  "name": "بوش",
+  "country": "آلمان",              // string | null
+  "logo_url": null,                // optional
+  "product_count": 4               // optional
+}
+
+The "country" filter on /products uses the DISTINCT set of brand.country values.
+
+================================================================================
+ 4) GET /products/   (paginated list — PLP, home carousels)
+================================================================================
+Purpose : Product listing with filtering, sorting, pagination.
+Auth    : none
+
+QUERY PARAMETERS (all optional):
+  skip        integer   default 0
+  limit       integer   default 12 (PLP uses 24)
+  category    integer   category id; MUST match the whole subtree (see note)
+              (frontend sends ?category=<id>; backend param name may be
+               category_id — align with the frontend service if you rename)
+  brand       integer   brand id        (frontend sends ?brand=<id>)
+  search      string    matches product name OR sku (case-insensitive)
+  country     string    brand country exact match
+  min_price   number    base_price >= min_price
+  max_price   number    base_price <= max_price
+  in_stock    "1"       only availability==true AND stock_quantity>0
+  sort        enum      one of:
+                          newest      (default; newest first)
+                          price_asc   (cheapest first)
+                          price_desc  (most expensive first)
+                          name_asc    (A→Z, fa collation)
+                          name_desc   (Z→A, fa collation)
+
+IMPORTANT — query param names:
+  The frontend currently maps URL params to the service as:
+    category  -> category_id
+    brand     -> brand_id
+  i.e. the HTTP request issued by the storefront uses the SAME object keys as
+  ProductListParams: { skip, limit, category_id, brand_id, search, min_price,
+  max_price, country, in_stock, sort }. Implement the backend to accept these
+  exact query keys: category_id, brand_id, search, min_price, max_price,
+  country, in_stock, sort, skip, limit.
+
+Response: 200 — paginated envelope:
+{
+  "data": [ ProductSummary, ... ],
+  "meta": {
+    "total_count": 12,
+    "skip": 0,
+    "limit": 24,
+    "has_next": false,
+    "has_prev": false
+  }
+}
+
+ProductSummary = {
+  "id": 1,
+  "sku": "BSH-GSB-13RE",
+  "name": "دریل چکشی بوش مدل GSB 13 RE",
+  "thumbnail": "https://…/img.jpg",   // string | null
+  "base_price": "4850000",            // string | null  (null => "استعلام قیمت")
+  "original_price": "5400000",        // string | null  (pre-discount price)
+  "discount_percent": 10,             // number | null
+  "stock_status": "موجود",            // "موجود" | "موجودی محدود" | "ناموجود"
+  "availability": true,
+  "is_original": true,
+  "category": {                       // CategoryBrief | null
+    "id": 100,
+    "name": "دریل چکشی",
+    "breadcrumb": ["ابزار برقی","دریل و دریل شارژی","دریل چکشی"],
+    "hierarchy_label": "ابزار برقی › دریل و دریل شارژی › دریل چکشی"
+  },
+  "brand": {                          // BrandBrief | null
+    "id": 1, "name": "بوش", "country": "آلمان"
+  }
+}
+
+================================================================================
+ 5) GET /products/{id}   (product detail — PDP)
+================================================================================
+Purpose : Product Detail Page.
+Auth    : none
+Path    : id (integer)
+Response: 200 — ProductDetail ; 404 if not found.
+
+ProductDetail = {
+  "id": 1,
+  "sku": "BSH-GSB-13RE",
+  "name": "دریل چکشی بوش مدل GSB 13 RE",
+  "category_id": 100,                 // integer | null
+  "brand_id": 1,                      // integer | null
+  "category": CategoryBrief | null,   // same shape as in ProductSummary
+  "brand":    BrandBrief   | null,
+  "base_price": "4850000",            // string | null
+  "original_price": "5400000",        // string | null
+  "discount_percent": 10,             // number | null
+  "stock_quantity": "18",             // string (decimal as text)
+  "stock_unit": "piece",              // "piece" | "kg" | "meter" | "pack"
+  "stock_status": "موجود",
+  "low_stock": false,
+  "availability": true,
+  "warranty_text": "۱۸ ماه گارانتی شرکتی",   // string | null
+  "weight_grams": "1800",             // string | null
+  "is_original": true,
+  "tax_percent": "9",                 // string
+  "is_active": true,
+  "pdf_catalog_url": null,            // string | null
+  "thumbnail": "https://…/img.jpg",   // string | null
+  "images": [
+    { "id": 1, "url": "https://…/1.jpg", "is_primary": true },
+    { "id": 2, "url": "https://…/2.jpg", "is_primary": false }
+  ],
+  "description": "متن توضیحات محصول…", // string | null
+  "specifications": {                 // structured JSONB (see below)
+    "technical_specs": [ { "key": "توان موتور", "value": "۶۰۰ وات" } ],
+    "dimensions":      [ { "key": "طول", "value": "۲۸۰" } ],   // unit "mm" added by UI
+    "features": {
+      "چپ‌گرد و راست‌گرد": true,        // boolean
+      "تنظیم دور": true,
+      "نوع گیربکس": "فلزی"             // OR string (dynamic detail value)
+    }
+  },
+  "created_at": "2026-01-10T09:00:00Z",
+  "updated_at": "2026-06-01T09:00:00Z"
+}
+
+SPECIFICATIONS CONTRACT (matches admin "Ultimate Product Entry Form" output):
+- technical_specs : ORDERED array of { key, value } (both strings).
+- dimensions      : ORDERED array of { key, value }; the storefront appends the
+                    "mm" unit in the UI, so values are plain numbers/text.
+- features        : FLAT object. Values are boolean flags; a value may instead
+                    be a non-empty string when a feature carries a detail.
+
+TWO-LANE PURCHASE RULE (frontend behavior, drives data needs):
+- base_price != null  -> "افزودن به سبد خرید" (add to cart).
+- base_price == null   -> "افزودن به سبد استعلام / پیش‌فاکتور" + a secondary
+                          "استعلام سریع پیامکی" (quick SMS inquiry) button.
+
+================================================================================
+ 6) GET /products/{id}/related
+================================================================================
+Purpose : "محصولات مرتبط" carousel on the PDP.
+Auth    : none
+Logic   : products sharing the same layer-1 ancestor, excluding {id}, max ~6.
+Response: 200 — { "data": [ ProductSummary, ... ] }
+
+================================================================================
+ 7) GET /products/{id}/comments
+================================================================================
+Purpose : User reviews on the PDP.
+Auth    : none
+Response: 200 — { "data": [ ProductComment, ... ] }
+
+ProductComment = {
+  "id": 1,
+  "product_id": 1,
+  "author_name": "رضا محمدی",
+  "rating": 5,                        // integer 1..5
+  "body": "متن دیدگاه…",
+  "created_at": "2026-05-12T10:00:00Z",
+  "is_verified_buyer": true
+}
+
+(Optional future) POST /products/{id}/comments
+  Body: { "rating": 1..5, "body": "string" }  — requires auth.
+
+================================================================================
+ 8) GET /blog/            (article teasers — homepage + /blog list page)
+================================================================================
+Purpose : Homepage "مجله کارزار", PDP "مقالات مرتبط", and the /blog list page.
+Auth    : none
+Response: 200 — { "data": [ Article, ... ] }
+NOTE    : The frontend previously called /articles/; it now calls /blog/.
+          Expose this list at /blog/. (Keep /articles/ as an alias if desired.)
+
+Article (teaser) = {
+  "id": 1,
+  "slug": "how-to-choose-drill",
+  "title": "راهنمای کامل انتخاب دریل مناسب",
+  "excerpt": "خلاصه کوتاه…",
+  "cover_image": "https://…/cover.jpg",
+  "published_at": "2026-05-01T10:00:00Z",   // ISO 8601
+  "reading_minutes": 6
+}
+
+================================================================================
+ 9) GET /hero-slides/
+================================================================================
+Purpose : Homepage dynamic hero banner (auto-rotating slides).
+Auth    : none
+Response: 200 — { "data": [ HeroSlide, ... ] }
+
+HeroSlide = {
+  "id": 1,
+  "title": "ابزار حرفه‌ای، کیفیت بی‌رقیب",
+  "subtitle": "زیرعنوان…",
+  "cta_label": "مشاهده محصولات",
+  "cta_href": "/catalog",             // internal route or "/catalog?category=3"
+  "image": "https://…/banner.jpg",
+  "accent": "#C22026"                 // hex color used for the badge/CTA accent
+}
+
+================================================================================
+ 10) AUTH — OTP LOGIN
+================================================================================
+POST /auth/otp/request
+  Purpose : Send a one-time code to a phone number.
+  Auth    : none
+  Body    : { "phone": "09123456789" }
+  Response: 200 — {
+              "phone": "09123456789",
+              "expires_in": 120,      // seconds until code expires
+              "dev_code": "11111"     // DEV ONLY; never return in production
+            }
+
+POST /auth/otp/verify
+  Purpose : Verify the code and issue an access token.
+  Auth    : none
+  Body    : { "phone": "09123456789", "code": "11111" }
+  Response: 200 — {
+              "access_token": "…jwt…",
+              "token_type": "bearer",
+              "customer": { "id": 1, "phone": "09123456789", "full_name": null }
+            }
+  Errors  : 400/401 with the standard error contract when the code is invalid
+            or expired (frontend shows "کد وارد شده صحیح نیست.").
+
+  The frontend stores access_token in localStorage key:
+    "karzar.storefront.token"
+  and attaches it as `Authorization: Bearer <token>` on every request.
+
+================================================================================
+ 11) GET /blog/{slug}     (full article detail — /blog/[slug] page)
+================================================================================
+Purpose : Blog detail page. Clean prose body + related products carousel.
+Auth    : none
+Path    : slug (string)
+Response: 200 — BlogPost ; 404 if not found.
+
+BlogPost = {                          // extends the Article teaser fields
+  "id": 1,
+  "slug": "how-to-choose-drill",
+  "title": "راهنمای کامل انتخاب دریل مناسب",
+  "excerpt": "خلاصه کوتاه…",
+  "cover_image": "https://…/cover.jpg",
+  "published_at": "2026-05-01T10:00:00Z",
+  "reading_minutes": 6,
+  "author": "تیم فنی کارزار",
+  "tags": ["دریل", "ابزار برقی"],
+  "related_product_ids": [1, 2],      // resolved by the frontend via /products
+  "blocks": [                          // ORDERED content blocks (typed union)
+    { "type": "paragraph", "text": "…متن پاراگراف…" },
+    { "type": "heading",   "text": "…عنوان میانی…" },
+    { "type": "list",      "items": ["مورد ۱", "مورد ۲", "مورد ۳"] }
+  ]
+}
+
+BlogBlock types (discriminated by "type"):
+  - { "type": "paragraph", "text": string }
+  - { "type": "heading",   "text": string }
+  - { "type": "list",      "items": string[] }
+
+Related products: the frontend fetches related_product_ids via
+  GET /products/?ids=1,2   (see note on the products list below) and renders a
+  horizontal carousel of ProductSummary cards.
+
+PRODUCTS BY IDS (used by blog related + anywhere a set of ids is resolved):
+  GET /products/?ids=1,2,3
+  Response: { "data": [ ProductSummary, ... ] }   (same envelope as /products/)
+
+================================================================================
+ 12) POST /checkout       (place order OR submit price inquiry)
+================================================================================
+Purpose : Single endpoint handling BOTH the standard purchase flow and the
+          B2B/price-less inquiry (RFQ / pre-invoice) flow. The frontend picks
+          the branch via the "mode" field.
+Auth    : OPTIONAL.
+          - Logged-in: send `Authorization: Bearer <token>`; customer.is_guest=false.
+          - Guest    : no token; customer carries name + phone, is_guest=true.
+
+REQUEST BODY (CheckoutPayload):
+{
+  "mode": "purchase",                 // "purchase" | "inquiry"
+  "customer": {
+    "full_name": "رضا محمدی",
+    "phone": "09123456789",
+    "is_guest": true                  // false when authenticated by token
+  },
+  "items": [
+    { "product_id": 1, "quantity": 2 },
+    { "product_id": 5, "quantity": 1 }
+  ],
+  "note": "توضیحات اختیاری" | null,
+
+  // ── PURCHASE MODE ONLY (mode == "purchase") ──────────────────────────────
+  "shipping": {
+    "province": "تهران",
+    "city": "تهران",
+    "postal_code": "1234567890",      // exactly 10 digits
+    "address_line": "خیابان …، پلاک …، واحد …"
+  },
+
+  // ── INQUIRY MODE ONLY (mode == "inquiry") ────────────────────────────────
+  "company_name": "نام شرکت" | null   // optional B2B company
+}
+
+VALIDATION (mirrors the frontend zod schemas):
+  - customer.full_name : min length 2
+  - customer.phone     : matches ^09\d{9}$
+  - items              : non-empty; quantity >= 1
+  - purchase.postal_code : exactly 10 digits
+  - purchase.address_line: min length 10
+  - inquiry.company_name : optional (<=120 chars)
+  - note               : optional (<=500 chars)
+  The backend MUST re-validate; the frontend validation is convenience only.
+
+RESPONSE: 201/200 — CheckoutResponse:
+{
+  "order_id": 482913,
+  "tracking_code": "KZ-482913",       // shown on the success screen
+  "mode": "purchase",                 // echo of the request mode
+  "status": "در انتظار پرداخت",       // purchase => awaiting payment
+                                      // inquiry  => "در حال بررسی استعلام"
+  "estimated_total": "10550000" | null,  // string total for purchase; null for inquiry
+  "created_at": "2026-06-26T11:00:00Z"
+}
+
+PURCHASE follow-up (out of scope for mock): a real backend would also return a
+payment gateway redirect URL for mode=="purchase". Add a `payment_url` field
+when the gateway is integrated; the frontend will redirect to it if present.
+
+================================================================================
+ 13) POST /contact        (Contact Us form)
+================================================================================
+Purpose : Contact page form submission.
+Auth    : none
+REQUEST BODY (ContactValues):
+{
+  "full_name": "رضا محمدی",
+  "phone": "09123456789",             // ^09\d{9}$
+  "subject": "موضوع پیام",            // min length 3
+  "message": "متن پیام…"              // min length 10
+}
+RESPONSE: 200 — { "ok": true, "ticket": "TK-48213" }
+
+================================================================================
+ ENUMS / REFERENCE
+================================================================================
+stock_unit   : "piece" | "kg" | "meter" | "pack"
+stock_status : "موجود" | "موجودی محدود" | "ناموجود"
+sort         : "newest" | "price_asc" | "price_desc" | "name_asc" | "name_desc"
+
+================================================================================
+ ENDPOINT SUMMARY
+================================================================================
+  GET  /categories/tree
+  GET  /categories/
+  GET  /brands/
+  GET  /products/                     (skip,limit,category_id,brand_id,search,
+                                        min_price,max_price,country,in_stock,sort)
+  GET  /products/{id}
+  GET  /products/{id}/related
+  GET  /products/{id}/comments
+  GET  /products/?ids=1,2,3           (resolve a set of products by id)
+  GET  /blog/                         (article teasers; formerly /articles/)
+  GET  /blog/{slug}                   (full article + related_product_ids)
+  GET  /hero-slides/
+  POST /auth/otp/request
+  POST /auth/otp/verify
+  POST /checkout                      (purchase OR inquiry; guest or logged-in)
+  POST /contact                       (Contact Us form)
+================================================================================

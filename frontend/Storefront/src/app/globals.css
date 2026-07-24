@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------- */
+/*  IRANYekanX font family (Persian).                                         */
+/*  Font files live under `public/fonts/`.                                    */
+/* -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Surfaces — industrial B2B */
+    --background: 0 0% 97%; /* #F7F7F7 */
+    --foreground: 0 0% 14%; /* ink for body/titles */
+    --ink: 0 0% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 14%;
+
+    /* Karzar Red — brand / go only */
+    --primary: 358 72% 44%; /* #C22026 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 22%;
+
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Cool steel accent (not pink) */
+    --accent: 210 12% 94%;
+    --accent-foreground: 210 14% 28%;
+
+    /* Oxide destructive — distinct from brand red */
+    --destructive: 8 65% 38%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 58% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 20%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 96%;
+    --ring: 358 72% 44%;
+
+    --radius: 0.625rem; /* 10px industrial */
+
+    --font-iranyekan: "IRANYekanX";
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    font-feature-settings: "ss01", "ss02";
+    /* Keep in-page anchors / focus clear of sticky header + bottom nav on phones. */
+    scroll-padding-top: 5.5rem;
+    scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  /* Persian digits for numeric UI; never force Latin tabular figures. */
+  .tnum,
+  .pnum {
+    font-feature-settings: "ss01", "ss02";
+    font-variant-numeric: normal;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(0 0% 80%);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(0 0% 70%);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /** Fixed bar sitting just above the mobile bottom nav. */
+  .mobile-dock {
+    @apply fixed inset-x-0 z-40 border-t border-border/50 bg-card/95 shadow-elevated backdrop-blur-md lg:hidden;
+    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /** Minimum comfortable touch target (Apple HIG ~44px). */
+  .touch-target {
+    @apply grid min-h-11 min-w-11 place-items-center;
+  }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .glass-strong {
+    @apply bg-white/85 backdrop-blur-2xl backdrop-saturate-150;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+  [dir="rtl"] .shimmer::after {
+    transform: translateX(100%);
+    background: linear-gradient(
+      270deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    );
+  }
+}
+
+@layer utilities {
+  .bg-hero-glow {
+    background:
+      radial-gradient(55% 50% at 100% 0%, rgba(40, 48, 56, 0.06), transparent 70%),
+      radial-gradient(45% 45% at 0% 100%, rgba(194, 32, 38, 0.04), transparent 70%);
+  }
+  .text-ink {
+    color: hsl(var(--ink));
+  }
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    position: fixed;
+    inset-inline-start: 1rem;
+    top: 1rem;
+    z-index: 100;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    border-radius: 0.75rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+}

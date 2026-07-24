@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+.next/
+**/out/
+**/build/
+**/.turbo/
+
+# Env / secrets
+.env
+.env*.local
+**/.env
+**/.env*.local
+
+# Test / coverage
+coverage/
+**/coverage/
+*.tsbuildinfo
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

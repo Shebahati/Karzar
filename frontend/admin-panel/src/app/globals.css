@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------- */
+/*  IRANYekanX font family (Persian).                                         */
+/* -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/IRANYekanX-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 97%;
+    --foreground: 0 0% 31%;
+    /** Darker "ink" tone for titles/headings — foreground alone is too light for emphasis. */
+    --ink: 0 0% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 31%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 31%;
+
+    --primary: 358 72% 44%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 28%;
+
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 51%;
+
+    /* Cool steel wash — used for neutral highlighted surfaces (was a pink tint tied to primary). */
+    --accent: 210 12% 94%;
+    --accent-foreground: 210 16% 30%;
+
+    /* Oxide/rust — distinct from the brand primary so destructive actions read as their own hue. */
+    --destructive: 8 65% 38%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 58% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 20%;
+
+    --border: 0 0% 91%;
+    --input: 0 0% 96%;
+    --ring: 358 72% 44%;
+
+    --radius: 0.75rem;
+
+    --font-iranyekan: "IRANYekanX";
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  .tnum,
+  .pnum {
+    font-feature-settings: "ss01", "ss02";
+    font-variant-numeric: normal;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(0 0% 80%);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(0 0% 70%);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+}
