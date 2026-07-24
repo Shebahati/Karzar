@@ -1,0 +1,126 @@
+name: Deploy Staging
+
+# Staging today = the live VPS serving karzartools.com (single env until prod is split).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "alembic/**"
+      - "deploy/**"
+      - "frontend/**"
+      - "scripts/**"
+      - "docker-compose*.yml"
+      - "Dockerfile*"
+      - "requirements*.txt"
+      - "gunicorn_conf.py"
+      - "docker-entrypoint.sh"
+      - ".github/workflows/deploy-staging.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Sync + rebuild staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          test -n "${SSH_PRIVATE_KEY:-}" || { echo "Missing secret SSH_PRIVATE_KEY" >&2; exit 1; }
+          test -n "${SSH_HOST:-}" || { echo "Missing secret SSH_HOST" >&2; exit 1; }
+          test -n "${SSH_USER:-}" || { echo "Missing secret SSH_USER" >&2; exit 1; }
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          PORT="${SSH_PORT:-22}"
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          {
+            echo "Host karzar-vps"
+            echo "  HostName $SSH_HOST"
+            echo "  User $SSH_USER"
+            echo "  Port $PORT"
+            echo "  IdentityFile ~/.ssh/id_deploy"
+            echo "  StrictHostKeyChecking accept-new"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Rsync backend → /opt/karzar/Karzar
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'frontend/' \
+            --exclude '.venv/' \
+            --exclude 'venv/' \
+            --exclude '__pycache__/' \
+            --exclude '.pytest_cache/' \
+            --exclude '.env' \
+            --exclude '.deploy-secrets' \
+            --exclude '.env.staging.generated' \
+            --exclude 'backups/' \
+            --exclude 'data/uploads/' \
+            --exclude 'logs/' \
+            --exclude '*.pyc' \
+            --exclude '.mypy_cache/' \
+            --exclude '.ruff_cache/' \
+            --exclude '.coverage' \
+            ./ karzar-vps:/opt/karzar/Karzar/
+
+      - name: Rsync frontend → /opt/karzar/frontend
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            --exclude 'node_modules/' \
+            --exclude '.next/' \
+            --exclude 'out/' \
+            --exclude '.git/' \
+            --exclude '.env' \
+            --exclude '.env*.local' \
+            frontend/ karzar-vps:/opt/karzar/frontend/
+
+      - name: Remote rebuild (backend + frontend)
+        run: |
+          set -euo pipefail
+          ssh karzar-vps bash -s <<'REMOTE'
+          set -euo pipefail
+          cd /opt/karzar/Karzar
+          chmod +x deploy/staging/scripts/*.sh || true
+          bash deploy/staging/scripts/deploy-backend.sh
+
+          export FRONTEND_ROOT=/opt/karzar/frontend
+          export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-https://api.karzartools.com/api/v1}"
+          if [[ -z "${ADMIN_SESSION_SECRET:-}" ]]; then
+            for f in /opt/karzar/.deploy-secrets /opt/karzar/Karzar/.env; do
+              if [[ -f "$f" ]] && grep -q '^ADMIN_SESSION_SECRET=' "$f"; then
+                ADMIN_SESSION_SECRET="$(grep '^ADMIN_SESSION_SECRET=' "$f" | tail -1 | cut -d= -f2-)"
+                break
+              fi
+            done
+          fi
+          if [[ -z "${ADMIN_SESSION_SECRET:-}" || "${#ADMIN_SESSION_SECRET}" -lt 32 ]]; then
+            echo "ADMIN_SESSION_SECRET missing on server (.deploy-secrets / .env)" >&2
+            exit 1
+          fi
+          export ADMIN_SESSION_SECRET
+          bash deploy/staging/scripts/deploy-frontend.sh
+
+          curl -sf http://127.0.0.1:8000/ready
+          echo
+          curl -sf -o /dev/null -w 'shop:%{http_code}\n' http://127.0.0.1:3000/
+          curl -sf -o /dev/null -w 'admin:%{http_code}\n' http://127.0.0.1:3001/ || true
+          REMOTE
