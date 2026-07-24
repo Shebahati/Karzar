@@ -48,9 +48,16 @@ export function Hero() {
               fill
               priority
               sizes="100vw"
-              className="object-cover"
+              className="object-cover object-[20%_45%]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20 sm:bg-gradient-to-l sm:from-black/75 sm:via-black/45 sm:to-black/10" />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent sm:bg-gradient-to-l sm:from-black/80 sm:via-black/30 sm:to-transparent"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-black/70 via-black/25 to-transparent sm:inset-y-0 sm:start-0 sm:end-auto sm:h-full sm:w-[55%] sm:bg-gradient-to-l sm:from-black/65 sm:via-black/20 sm:to-transparent"
+            />
           </motion.div>
         </AnimatePresence>
 
@@ -77,16 +84,16 @@ export function Hero() {
             </div>
           )}
 
-          <div>
+          <div className="sm:max-w-[min(100%,36rem)]">
             <h1 className="max-w-xl text-[1.35rem] font-bold leading-snug text-white sm:text-4xl lg:text-[2.65rem] lg:leading-tight">
               {slide.title}
             </h1>
-            <p className="mt-2 max-w-lg text-sm leading-6 text-white/85 sm:mt-3 sm:text-base sm:leading-7">
+            <p className="mt-2 max-w-lg text-sm leading-6 text-white/90 sm:mt-3 sm:text-base sm:leading-7">
               {slide.subtitle}
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+          <div className="flex flex-col gap-2.5 sm:mt-8 sm:max-w-[min(100%,36rem)] sm:flex-row sm:flex-wrap sm:gap-3">
             <Link href={slide.cta_href} className="w-full sm:w-auto">
               <Button size="lg" className="w-full gap-2 sm:w-auto">
                 {slide.cta_label}
