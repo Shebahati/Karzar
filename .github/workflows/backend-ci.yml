@@ -1,27 +1,12 @@
 name: Backend CI
 
+# Always run on PRs so required checks `lint` / `test` report a status even for
+# frontend-only changes (branch protection requires those exact job names).
+# Heavy Python work runs only when backend paths change.
 on:
   push:
     branches: [main]
-    paths:
-      - "app/**"
-      - "alembic/**"
-      - "tests/**"
-      - "requirements*.txt"
-      - "pyproject.toml"
-      - "ruff.toml"
-      - "mypy.ini"
-      - ".github/workflows/backend-ci.yml"
   pull_request:
-    paths:
-      - "app/**"
-      - "alembic/**"
-      - "tests/**"
-      - "requirements*.txt"
-      - "pyproject.toml"
-      - "ruff.toml"
-      - "mypy.ini"
-      - ".github/workflows/backend-ci.yml"
 
 concurrency:
   group: backend-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -29,31 +14,75 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  changes:
+    name: Detect paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Path filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'app/**'
+              - 'alembic/**'
+              - 'tests/**'
+              - 'scripts/**'
+              - 'requirements*.txt'
+              - 'pyproject.toml'
+              - 'ruff.toml'
+              - 'mypy.ini'
+              - 'alembic.ini'
+              - 'gunicorn_conf.py'
+              - 'docker-entrypoint.sh'
+              - 'Dockerfile'
+              - 'docker-compose*.yml'
+              - '.github/workflows/backend-ci.yml'
+
   lint:
+    name: lint
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Skip Python lint (no backend changes)
+        if: needs.changes.outputs.backend != 'true'
+        run: |
+          echo "No backend paths changed — required check \`lint\` satisfied."
+
       - name: Setup Python
+        if: needs.changes.outputs.backend == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dev dependencies
+        if: needs.changes.outputs.backend == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
       - name: Ruff
+        if: needs.changes.outputs.backend == 'true'
         run: ruff check app tests
 
       - name: Mypy
+        if: needs.changes.outputs.backend == 'true'
         run: mypy app
 
   test:
+    name: test
+    needs: changes
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -83,17 +112,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Skip Python tests (no backend changes)
+        if: needs.changes.outputs.backend != 'true'
+        run: |
+          echo "No backend paths changed — required check \`test\` satisfied."
+
       - name: Setup Python
+        if: needs.changes.outputs.backend == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
+        if: needs.changes.outputs.backend == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
       - name: Run database migrations
+        if: needs.changes.outputs.backend == 'true'
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -112,14 +149,13 @@ jobs:
         run: alembic upgrade head
 
       - name: Run tests with coverage gate
+        if: needs.changes.outputs.backend == 'true'
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_SERVER: 127.0.0.1
           POSTGRES_PORT: 5432
           POSTGRES_DB: karzar_ci
-          # Keep Redis reachable for opt-in integration tests, but do not bind
-          # REDIS_HOST into the default suite (async client / TestClient loop clash).
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           SECRET_KEY: ci-secret-key-with-at-least-32-characters
