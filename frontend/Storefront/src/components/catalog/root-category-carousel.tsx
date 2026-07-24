@@ -5,6 +5,7 @@ import * as Icons from "react-iconly";
 import { useCategoryTree } from "@/features/catalog/queries";
 import { useCatalogParams, parseIdList, encodeIdList } from "@/components/catalog/use-catalog-params";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isMetrologyRoot, orderedVisibleRoots } from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -18,12 +19,14 @@ function CatIcon({ name, active }: { name?: string; active?: boolean }) {
 
 /**
  * Top-of-catalog grandfather category carousel.
+ * Same ordered non-empty roots as home (Metrology first via nav-groups).
  * Multi-select up to 3 roots (OR). Clears leaf category when roots change.
  */
 export function RootCategoryCarousel() {
   const { data: tree = [], isLoading } = useCategoryTree();
   const { raw, setParams } = useCatalogParams();
   const selected = useMemo(() => parseIdList(raw.get("roots")), [raw]);
+  const roots = useMemo(() => orderedVisibleRoots(tree), [tree]);
 
   const toggle = (node: CategoryTreeNode) => {
     const exists = selected.includes(node.id);
@@ -93,8 +96,9 @@ export function RootCategoryCarousel() {
           <span className="text-xs font-bold leading-5">همه دسته‌ها</span>
         </button>
 
-        {tree.map((node) => {
+        {roots.map((node) => {
           const active = selected.includes(node.id);
+          const highlight = isMetrologyRoot(node);
           return (
             <button
               key={node.id}
@@ -105,7 +109,9 @@ export function RootCategoryCarousel() {
                 "flex h-[108px] w-[128px] shrink-0 flex-col justify-between rounded-2xl border p-3 text-start transition-all",
                 active
                   ? "border-primary bg-primary text-primary-foreground shadow-primary-glow"
-                  : "border-border/50 bg-card shadow-soft hover:-translate-y-0.5 hover:border-steel/30 hover:shadow-glass",
+                  : highlight
+                    ? "border-primary/25 bg-card shadow-soft hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glass"
+                    : "border-border/50 bg-card shadow-soft hover:-translate-y-0.5 hover:border-steel/30 hover:shadow-glass",
               )}
             >
               <span

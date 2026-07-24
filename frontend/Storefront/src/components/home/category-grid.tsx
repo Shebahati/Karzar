@@ -6,7 +6,11 @@ import * as Icons from "react-iconly";
 import { useCategoryTree } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AutoCarousel } from "@/components/ui/auto-carousel";
-import { categoryHref } from "@/config/nav-groups";
+import {
+  categoryHref,
+  isMetrologyRoot,
+  orderedVisibleRoots,
+} from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -17,12 +21,15 @@ function CategoryIcon({ name }: { name?: string }) {
 }
 
 function CategoryCard({ node }: { node: CategoryTreeNode }) {
+  const highlight = isMetrologyRoot(node);
   return (
     <Link
       href={categoryHref(node)}
       className={cn(
-        "group relative flex h-[168px] w-[148px] flex-col justify-between overflow-hidden rounded-2xl border border-border/50 bg-card p-4 shadow-soft transition-all duration-300 sm:h-[180px] sm:w-[168px]",
-        "hover:-translate-y-1 hover:border-steel/30 hover:shadow-glass",
+        "group relative flex h-[168px] w-[148px] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-4 shadow-soft transition-all duration-300 sm:h-[180px] sm:w-[168px]",
+        highlight
+          ? "border-primary/25 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glass"
+          : "border-border/50 hover:-translate-y-1 hover:border-steel/30 hover:shadow-glass",
       )}
     >
       <div
@@ -47,10 +54,10 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
   );
 }
 
-/** Root (grandfather) category carousel for the home page. */
+/** Root (grandfather) category carousel for the home page — same order as catalog. */
 export function CategoryGrid() {
   const { data, isLoading } = useCategoryTree();
-  const roots = useMemo(() => data ?? [], [data]);
+  const roots = useMemo(() => orderedVisibleRoots(data ?? []), [data]);
 
   if (isLoading) {
     return (
