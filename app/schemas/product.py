@@ -17,7 +17,9 @@ VALID_STOCK_UNITS = {unit.value for unit in StockUnitEnum}
 class CategoryBrief(BaseModel):
     id: int
     name: str
+    slug: str | None = None
     breadcrumb: list[str] = Field(default_factory=list)
+    ancestor_ids: list[int] = Field(default_factory=list)
     hierarchy_label: str | None = None
 
 
@@ -25,7 +27,6 @@ class BrandBrief(BaseModel):
     id: int
     name: str
     country: str | None = None
-
 
 class ProductImageResponse(BaseModel):
     id: int

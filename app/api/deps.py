@@ -3,29 +3,52 @@
 
 from datetime import UTC, datetime
 
-from fastapi import Depends, Header
+from fastapi import Cookie, Depends, Header, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth_cookies import ACCESS_COOKIE_NAME
 from app.core.errors import ErrorCode, api_error
 from app.core.security import decode_token, verify_step_up_token
 from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User, UserRole
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 # HTTPBearer(auto_error=False) documents optional Bearer in OpenAPI; OAuth2PasswordBearer
 # with auto_error=False still marks security as required in the schema.
 optional_http_bearer = HTTPBearer(auto_error=False)
 
 
+def _extract_bearer_or_cookie(
+    bearer: str | None,
+    access_cookie: str | None,
+) -> str | None:
+    if bearer and bearer.strip():
+        return bearer.strip()
+    if access_cookie and access_cookie.strip():
+        return access_cookie.strip()
+    return None
+
+
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
+    token: str | None = Depends(oauth2_scheme),
+    access_cookie: str | None = Cookie(None, alias=ACCESS_COOKIE_NAME),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """Resolve the authenticated user from a valid JWT bearer token."""
-    payload = decode_token(token)
+    """Resolve the authenticated user from Bearer JWT or HttpOnly access cookie."""
+    resolved = _extract_bearer_or_cookie(token, access_cookie)
+    if not resolved:
+        raise api_error(
+            401,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    payload = decode_token(resolved)
     if payload.get("type") not in (None, "access"):
         raise api_error(
             401,
@@ -66,6 +89,8 @@ async def get_current_user(
             message="Token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Stash for logout / auditing without re-parsing.
+    request.state.access_token = resolved
     return user
 
 
@@ -135,14 +160,19 @@ async def get_current_super_admin_with_step_up(
 
 async def get_optional_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(optional_http_bearer),
+    access_cookie: str | None = Cookie(None, alias=ACCESS_COOKIE_NAME),
     db: AsyncSession = Depends(get_db),
 ) -> User | None:
-    """Resolve an authenticated user when a bearer token is supplied."""
-    if credentials is None or not credentials.credentials:
+    """Resolve an authenticated user when a bearer token or access cookie is supplied."""
+    bearer = credentials.credentials if credentials and credentials.credentials else None
+    resolved = _extract_bearer_or_cookie(bearer, access_cookie)
+    if not resolved:
         return None
 
-    token = credentials.credentials
-    payload = decode_token(token)
+    try:
+        payload = decode_token(resolved)
+    except Exception:
+        return None
     if payload.get("type") not in (None, "access"):
         return None
 

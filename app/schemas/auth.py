@@ -112,7 +112,18 @@ class CurrentUserResponse(BaseModel):
 
 
 class RefreshTokenRequest(BaseModel):
-    refresh_token: str = Field(..., min_length=16, max_length=256)
+    """Body refresh is optional when the HttpOnly refresh cookie is present."""
+
+    refresh_token: str | None = Field(default=None, max_length=256)
+
+    @field_validator("refresh_token")
+    @classmethod
+    def validate_refresh_token(cls, value: str | None) -> str | None:
+        if value is None or value == "":
+            return None
+        if len(value) < 16:
+            raise ValueError("refresh_token must be at least 16 characters")
+        return value
 
 
 class PasswordResetRequest(BaseModel):

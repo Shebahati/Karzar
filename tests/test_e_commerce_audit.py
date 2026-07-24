@@ -1,5 +1,6 @@
 """Phase E commerce audit: cart lanes/merge, paid-cancel rule, inquiry status."""
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from app.services.payment_service import reset_payment_provider_for_tests
@@ -111,6 +112,61 @@ def test_purchase_requires_shipping(super_admin_headers, valid_product_data, mon
     )
     assert response.status_code == 400
     assert response.json()["error_code"] == "VALIDATION_FAILED"
+
+
+def test_purchase_checkout_rejects_null_price(monkeypatch):
+    """WP-0.5: purchase lane must not accept unpriced SKUs via direct checkout."""
+    import asyncio
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    from app.db.models.user import UserRole
+    from app.schemas.storefront import CheckoutRequest
+    from app.services import checkout_service
+
+    product = SimpleNamespace(
+        id=42,
+        is_active=True,
+        stock_quantity=5,
+        base_price=None,
+        tax_percent=0,
+    )
+
+    async def fake_get_products_for_update(_db, ids):
+        return {42: product}
+
+    monkeypatch.setattr(
+        "app.services.checkout_service.crud_product.get_products_for_update",
+        fake_get_products_for_update,
+    )
+    monkeypatch.setattr(
+        "app.services.checkout_service.cancel_expired_pending_payment_orders",
+        AsyncMock(),
+    )
+
+    payload = CheckoutRequest.model_validate(
+        {
+            "mode": "purchase",
+            "customer": {"full_name": "خریدار", "phone": "09125550404"},
+            "items": [{"product_id": 42, "quantity": 1}],
+            "shipping": {
+                "province": "تهران",
+                "city": "تهران",
+                "postal_code": "1234567890",
+                "address_line": "خیابان تست پلاک ۱۰ واحد ۱",
+            },
+        }
+    )
+    user = SimpleNamespace(id=1, role=UserRole.B2C_CUSTOMER, company_name=None)
+
+    with pytest.raises(ValueError, match="no price|inquiry"):
+        asyncio.run(
+            checkout_service.submit_checkout(
+                db=AsyncMock(),
+                payload=payload,
+                current_user=user,
+            )
+        )
 
 
 def test_paid_cancel_blocked_until_refund(

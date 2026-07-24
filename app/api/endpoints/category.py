@@ -1,6 +1,6 @@
 """Category endpoints for tree navigation, admin CRUD, and product entry templates."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
@@ -134,12 +134,18 @@ async def update_category(
 )
 async def delete_category(
     category_id: int,
+    target_category_id: int | None = Query(
+        None,
+        description="Selectable depth-3 leaf to receive products when the category is non-empty",
+    ),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin_with_step_up),
 ):
-    """Delete a leaf category and reassign its products per depth rules (requires step-up PIN)."""
+    """Delete a leaf category; products must move to another selectable leaf (requires step-up PIN)."""
     try:
-        return await CategoryService.delete_category_with_reassignment(db, category_id)
+        return await CategoryService.delete_category_with_reassignment(
+            db, category_id, target_category_id=target_category_id
+        )
     except HTTPException:
         raise
     except Exception as exc:

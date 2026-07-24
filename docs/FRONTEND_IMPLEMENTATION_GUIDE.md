@@ -5,7 +5,7 @@
 **وضعیت Backend:** `main` @ `0657db9` — 160 تست پاس، CI فعال  
 **مرجع زنده:** `GET /api/openapi.json` (وقتی `ENABLE_API_DOCS=true`)
 
-این سند **منبع اصلی کار فرانت** است. اگر با `docs/FRONTEND_INTEGRATION.md` یا `karzar-frontend-main/BACKEND_NON_COMPLIANCE.md` تناقض دیدید، **این فایل + OpenAPI** اولویت دارند (بسیاری از موارد قدیمی در P7/P8 بسته شده‌اند).
+این سند **منبع اصلی کار فرانت** است. اگر با `docs/FRONTEND_INTEGRATION.md` یا `frontend/BACKEND_NON_COMPLIANCE.md` تناقض دیدید، **این فایل + OpenAPI** اولویت دارند (بسیاری از موارد قدیمی در P7/P8 بسته شده‌اند).
 
 ---
 
@@ -44,14 +44,14 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ### 2.2 Storefront (`:3000`)
 
 ```env
-# karzar-frontend-main/Storefront/.env.local
+# frontend/Storefront/.env.local
 NEXT_PUBLIC_USE_MOCK=false
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
 NEXT_PUBLIC_MOCK_LATENCY_MS=500
 ```
 
 ```bash
-cd karzar-frontend-main/Storefront
+cd frontend/Storefront
 npm install
 npm run dev -- --port 3000
 ```
@@ -65,7 +65,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 ```bash
-cd karzar-frontend-main/admin-panel
+cd frontend/admin-panel
 npm install
 npm run dev -- --port 3001
 ```
@@ -534,8 +534,8 @@ CRUD استاندارد؛ حذف category/brand نیازمند step-up.
 | راهنمای کوتاه integration | `Karzar/docs/FRONTEND_INTEGRATION.md` |
 | dev setup | `Karzar/docs/LOCAL_DEV_FRONTEND.md` |
 | changelog API | `Karzar/docs/API_CHANGELOG.md` |
-| قرارداد mock فرانت | `karzar-frontend-main/API_REQUIREMENTS_STOREFRONT.txt` |
-| سند قدیمی عدم انطباق | `karzar-frontend-main/BACKEND_NON_COMPLIANCE.md` (بخش‌های زیادی منسوخ) |
+| قرارداد mock فرانت | `frontend/API_REQUIREMENTS_STOREFRONT.txt` |
+| سند قدیمی عدم انطباق | `frontend/BACKEND_NON_COMPLIANCE.md` (بخش‌های زیادی منسوخ) |
 | OpenAPI | `http://localhost:8000/api/openapi.json` |
 
 ---

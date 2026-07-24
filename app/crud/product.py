@@ -16,7 +16,7 @@ from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.jsonb_filters import build_specification_filters
 from app.utils.specifications import specifications_for_storage
-from app.utils.storefront_catalog import product_sort_clause
+from app.utils.storefront_catalog import escape_ilike_pattern, product_sort_clause
 
 logger = get_logger(__name__)
 
@@ -121,14 +121,14 @@ async def get_products(
     skip: int = 0,
     limit: int = 100,
     category_id: int | None = None,
-    brand_id: int | None = None,
+    brand_id: int | list[int] | None = None,
     is_active: bool | None = None,
     search: str | None = None,
     min_price: Decimal | None = None,
     max_price: Decimal | None = None,
     max_stock: Decimal | None = None,
     spec_filters: dict[str, Any] | None = None,
-    country: str | None = None,
+    country: str | list[str] | None = None,
     in_stock: bool | None = None,
     sort: str | None = None,
     product_ids: list[int] | None = None,
@@ -148,15 +148,42 @@ async def get_products(
             filters.append(Product.category_id.in_(subtree_ids))
         else:
             filters.append(Product.category_id == category_id)
-    if brand_id:
-        filters.append(Product.brand_id == brand_id)
-    if country:
-        filters.append(Product.brand.has(Brand.country == country))
-    if in_stock:
+    # brand_id / country accept a single value or a list (IN (...)).
+    brand_ids = (
+        [brand_id]
+        if isinstance(brand_id, int)
+        else list(brand_id)
+        if brand_id
+        else []
+    )
+    if len(brand_ids) == 1:
+        filters.append(Product.brand_id == brand_ids[0])
+    elif brand_ids:
+        filters.append(Product.brand_id.in_(brand_ids))
+    countries = (
+        [country]
+        if isinstance(country, str)
+        else list(country)
+        if country
+        else []
+    )
+    if len(countries) == 1:
+        filters.append(Product.brand.has(Brand.country == countries[0]))
+    elif countries:
+        filters.append(Product.brand.has(Brand.country.in_(countries)))
+    if in_stock is True:
         filters.append(
             and_(
                 Product.is_active.is_(True),
                 Product.stock_quantity > Decimal("0.0"),
+            )
+        )
+    elif in_stock is False:
+        # Out of stock: inactive OR zero/negative quantity (mirrors in-stock rules).
+        filters.append(
+            or_(
+                Product.is_active.is_(False),
+                Product.stock_quantity <= Decimal("0.0"),
             )
         )
     if is_active is not None:
@@ -168,11 +195,12 @@ async def get_products(
     if max_stock is not None:
         filters.append(Product.stock_quantity < max_stock)
 
-    if search:
+    if search and search.strip():
+        pattern = f"%{escape_ilike_pattern(search.strip())}%"
         search_filter = or_(
-            Product.name.ilike(f"%{search}%"),
-            Product.sku.ilike(f"%{search}%"),
-            Product.brand.has(Brand.name.ilike(f"%{search}%")),
+            Product.name.ilike(pattern, escape="\\"),
+            Product.sku.ilike(pattern, escape="\\"),
+            Product.brand.has(Brand.name.ilike(pattern, escape="\\")),
         )
         filters.append(search_filter)
 
@@ -197,7 +225,7 @@ async def get_products(
 
     query = (
         query.options(*_product_load_options())
-        .order_by(product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
+        .order_by(*product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
         .offset(skip)
         .limit(limit)
     )

@@ -122,4 +122,34 @@ Never downgrade production past a migration that dropped columns without a backu
 
 ## Uploads
 
-Product image uploads persist in volume `karzar_uploads` (`/app/data/uploads`). Include this volume in backup policy if uploads are not on CDN.
+Product image uploads persist in volume `karzar_uploads` (`/app/data/uploads`).
+
+### Backup
+
+```bash
+./scripts/backup_uploads.sh
+```
+
+Artifacts land in `./backups/` as `karzar_uploads_YYYYMMDD_HHMMSS.tar.gz`.
+
+Daily cron (with DB): `sudo bash deploy/staging/scripts/install-backup-cron.sh`
+
+### Restore
+
+```bash
+./scripts/restore_uploads.sh backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
+```
+
+### Off-host requirement (Phase 0)
+
+On-host `./backups/` is **not** disaster recovery. After each dump/archive (or via sync job), copy both DB and uploads artifacts to off-host object storage. Retention suggestion: 7 daily + 4 weekly.
+
+### Restore drill checklist
+
+Document results under `docs/roadmap/phase-0-execution-log.md` after running once on a scratch/staging target:
+
+1. Take fresh `backup_db.sh` + `backup_uploads.sh`
+2. Restore DB into scratch DB (or staging scratch)
+3. Restore uploads into scratch volume/path
+4. Hit `GET /ready` and spot-check one product image URL
+5. Record wall-clock time, gaps, owner (`shebahati`)

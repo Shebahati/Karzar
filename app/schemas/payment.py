@@ -13,8 +13,10 @@ class PaymentInitResponse(BaseModel):
 
 
 class PaymentVerifyRequest(BaseModel):
-    order_id: int = Field(..., ge=1)
-    authority: str
+    """Verify by authority (preferred). ``order_id`` is optional when authority is known."""
+
+    authority: str = Field(..., min_length=1, max_length=128)
+    order_id: int | None = Field(None, ge=1)
     status: str | None = None
 
 
@@ -23,6 +25,7 @@ class PaymentVerifyResponse(BaseModel):
     payment_status: str
     status: str
     ref_id: str | None = None
+    tracking_code: str | None = None
 
 
 class PaymentRefundRequest(BaseModel):

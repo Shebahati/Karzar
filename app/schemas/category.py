@@ -26,6 +26,10 @@ class CategoryFlatResponse(CategoryResponse):
     breadcrumb: list[str] = Field(default_factory=list)
     ancestor_ids: list[int] = Field(default_factory=list)
     product_count: int | None = Field(None, ge=0)
+    icon: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    spec_template_key: str | None = None
 
 
 class CategoryListResponse(BaseModel):
@@ -86,11 +90,20 @@ class CategorySpecTemplateResponse(BaseModel):
 class CategoryCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     parent_id: int | None = None
+    icon: str | None = Field(None, max_length=50)
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
+    spec_template_key: str | None = Field(None, max_length=50)
 
 
 class CategoryUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100)
     parent_id: int | None = None
+    slug: str | None = Field(None, min_length=1, max_length=200)
+    icon: str | None = Field(None, max_length=50)
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
+    spec_template_key: str | None = Field(None, max_length=50)
 
 
 class CategoryDeleteResponse(BaseModel):

@@ -36,11 +36,17 @@ class Settings(BaseSettings):
     OTP_DEV_ECHO: bool = False
     OTP_MESSAGE_TEMPLATE: str = "کد ورود شما به کارزار: {code}"
 
-    # SMS delivery: "console" (logs only) or "kavenegar" (real provider).
+    # SMS delivery: "console" | "kavenegar" | "faraz" (IranPayamak / FarazSMS).
     SMS_PROVIDER: str = "console"
     SMS_KAVENEGAR_API_KEY: str | None = None
     SMS_KAVENEGAR_SENDER: str | None = None
     SMS_KAVENEGAR_OTP_TEMPLATE: str | None = None
+    # FarazSMS / IranPayamak — docs: https://docs.iranpayamak.com / https://docs.farazsms.com
+    SMS_FARAZ_API_KEY: str | None = None
+    SMS_FARAZ_LINE_NUMBER: str | None = None
+    SMS_FARAZ_OTP_PATTERN_CODE: str | None = None
+    SMS_FARAZ_OTP_ATTR: str = "code"
+    SMS_FARAZ_BASE_URL: str = "https://api.iranpayamak.com"
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
 
     # Payment provider: "mock" (local dev) or "zarinpal" (production gateway).
@@ -90,6 +96,11 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
+    # Browser auth cookies (HttpOnly). None for SECURE → derive from ENFORCE_HTTPS / APP_ENV.
+    AUTH_COOKIE_SECURE: bool | None = None
+    AUTH_COOKIE_SAMESITE: str = "lax"
+    AUTH_COOKIE_DOMAIN: str | None = None
+
     INITIAL_SUPER_ADMIN_PHONE: str | None = None
     INITIAL_SUPER_ADMIN_PASSWORD: str | None = None
     INITIAL_SUPER_ADMIN_NAME: str | None = "Super Admin"
@@ -119,8 +130,8 @@ class Settings(BaseSettings):
     @classmethod
     def validate_sms_provider(cls, v: str) -> str:
         normalized = v.strip().lower()
-        if normalized not in {"console", "kavenegar"}:
-            raise ValueError("SMS_PROVIDER must be either 'console' or 'kavenegar'")
+        if normalized not in {"console", "kavenegar", "faraz"}:
+            raise ValueError("SMS_PROVIDER must be one of: console, kavenegar, faraz")
         return normalized
 
     @field_validator("PAYMENT_PROVIDER")

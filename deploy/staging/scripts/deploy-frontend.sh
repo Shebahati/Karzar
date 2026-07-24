@@ -4,16 +4,23 @@
 # Required env:
 #   FRONTEND_ROOT  — path containing Storefront/ and admin-panel/
 #   NEXT_PUBLIC_API_BASE_URL — e.g. https://api.example.com/api/v1
+#   ADMIN_SESSION_SECRET — min 32 chars; HMAC for admin edge session cookie
 #
 # Example:
 #   export FRONTEND_ROOT=/opt/karzar/frontend
 #   export NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1
+#   export ADMIN_SESSION_SECRET="$(openssl rand -hex 32)"
 #   bash deploy/staging/scripts/deploy-frontend.sh
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 : "${FRONTEND_ROOT:?Set FRONTEND_ROOT to the frontend repo root}"
 : "${NEXT_PUBLIC_API_BASE_URL:?Set NEXT_PUBLIC_API_BASE_URL}"
+: "${ADMIN_SESSION_SECRET:?Set ADMIN_SESSION_SECRET (min 32 chars)}"
+if [[ "${#ADMIN_SESSION_SECRET}" -lt 32 ]]; then
+  echo "ADMIN_SESSION_SECRET must be at least 32 characters" >&2
+  exit 1
+fi
 
 SHOP_DIR="$FRONTEND_ROOT/Storefront"
 ADMIN_DIR="$FRONTEND_ROOT/admin-panel"
@@ -82,6 +89,8 @@ docker run -d --name karzar_shop --restart unless-stopped \
 docker rm -f karzar_admin 2>/dev/null || true
 docker run -d --name karzar_admin --restart unless-stopped \
   -p 127.0.0.1:3001:3001 \
-  -e PORT=3001 karzar-admin:staging
+  -e PORT=3001 \
+  -e "ADMIN_SESSION_SECRET=$ADMIN_SESSION_SECRET" \
+  karzar-admin:staging
 
 echo "Frontends up on 127.0.0.1:3000 (shop) and :3001 (admin)"

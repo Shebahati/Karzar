@@ -81,6 +81,16 @@ async def count_subcategories(db: AsyncSession, category_id: int) -> int:
     return int(result or 0)
 
 
+async def count_products_in_category(db: AsyncSession, category_id: int) -> int:
+    """Count non-deleted products directly assigned to this category."""
+    result = await db.scalar(
+        select(func.count())
+        .select_from(Product)
+        .where(Product.category_id == category_id, Product.deleted_at.is_(None))
+    )
+    return int(result or 0)
+
+
 async def create_category(
     db: AsyncSession,
     *,
@@ -120,6 +130,15 @@ async def update_category(
     name: str | None = None,
     parent_id: int | None = None,
     unset_parent: bool = False,
+    slug: str | None = None,
+    icon: str | None = None,
+    unset_icon: bool = False,
+    meta_title: str | None = None,
+    unset_meta_title: bool = False,
+    meta_description: str | None = None,
+    unset_meta_description: bool = False,
+    spec_template_key: str | None = None,
+    unset_spec_template_key: bool = False,
 ) -> Category:
     if name is not None:
         category.name = name
@@ -127,6 +146,24 @@ async def update_category(
         category.parent_id = None
     elif parent_id is not None:
         category.parent_id = parent_id
+    if slug is not None:
+        category.slug = slug
+    if unset_icon:
+        category.icon = None
+    elif icon is not None:
+        category.icon = icon
+    if unset_meta_title:
+        category.meta_title = None
+    elif meta_title is not None:
+        category.meta_title = meta_title
+    if unset_meta_description:
+        category.meta_description = None
+    elif meta_description is not None:
+        category.meta_description = meta_description
+    if unset_spec_template_key:
+        category.spec_template_key = None
+    elif spec_template_key is not None:
+        category.spec_template_key = spec_template_key
     await db.flush()
     await db.refresh(category)
     return category
@@ -135,9 +172,9 @@ async def update_category(
 async def reassign_products_category(
     db: AsyncSession,
     from_category_id: int,
-    to_category_id: int | None,
+    to_category_id: int,
 ) -> int:
-    """Move products from one category to another (or uncategorized). Returns affected row count."""
+    """Move products from one category to another selectable leaf. Returns affected row count."""
     stmt = (
         update(Product)
         .where(Product.category_id == from_category_id, Product.deleted_at.is_(None))

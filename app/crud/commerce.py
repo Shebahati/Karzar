@@ -122,6 +122,17 @@ async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Or
     return result.scalar_one_or_none()
 
 
+async def get_order_by_payment_authority_for_update(db: AsyncSession, authority: str) -> Order | None:
+    stmt = (
+        select(Order)
+        .where(Order.payment_authority == authority, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .with_for_update()
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
 async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Order | None:
     stmt = (
         select(Order)

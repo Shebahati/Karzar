@@ -136,13 +136,20 @@ def is_insize_detail_page(html: str) -> bool:
 
 
 def sku_confirmed_on_detail(html: str, sku: str) -> bool:
+    """Confirm catalog SKU appears as its own token on the product detail page."""
+    escaped = re.escape(sku)
     patterns = [
-        rf">\s*{re.escape(sku)}\s*-",
-        rf"(?:^|[\s\-])\s*{re.escape(sku)}\s*-",
-        rf"SKU:\s*{re.escape(sku)}\b",
-        rf"data-sku-\d+=\"{re.escape(sku)}\"",
+        rf">\s*{escaped}\s*-",
+        rf"(?:^|[\s\-/>])\s*{escaped}\s*-",
+        rf"SKU:\s*{escaped}\b",
+        rf"data-sku-\d+=\"{escaped}\"",
+        rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])",
     ]
-    return any(re.search(pattern, html, re.IGNORECASE) for pattern in patterns)
+    if any(re.search(pattern, html, re.IGNORECASE) for pattern in patterns):
+        return True
+    # Plain-text fallback after tag strip (variation tables sometimes odd-markup).
+    text = clean_html_text(html)
+    return bool(re.search(rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])", text, re.IGNORECASE))
 
 
 def extract_primary_image(html: str) -> str | None:
@@ -171,6 +178,24 @@ async def fetch_text(client: httpx.AsyncClient, url: str) -> str | None:
         return None
 
 
+def sku_search_variants(sku: str) -> list[str]:
+    """Build high-precision search variants without loosening confirmation rules.
+
+    Confirmation on the detail page still requires the catalog SKU exactly.
+    Variants only help discovery when distributors index reversed code/range order.
+    """
+    variants: list[str] = []
+    for candidate in (sku, sku.upper(), sku.lower()):
+        if candidate and candidate not in variants:
+            variants.append(candidate)
+    parts = sku.split("-")
+    if len(parts) == 2 and all(parts):
+        reversed_sku = f"{parts[1]}-{parts[0]}"
+        if reversed_sku not in variants:
+            variants.append(reversed_sku)
+    return variants
+
+
 async def resolve_image_for_sku(
     client: httpx.AsyncClient,
     sku: str,
@@ -179,16 +204,28 @@ async def resolve_image_for_sku(
 ) -> MatchResult:
     result = MatchResult(sku=sku, product_id=0, product_name="", confidence="rejected")
 
-    search_url = f"{TOSAG_BASE}/?suche={sku}&lang=eng"
-    search_html = await fetch_text(client, search_url)
-    await asyncio.sleep(delay_s)
-    if not search_html:
-        result.issues.append("fetch_search_failed")
-        return result
+    candidates: list[str] = []
+    seen_links: set[str] = set()
+    search_failed = 0
+    for query in sku_search_variants(sku):
+        search_url = f"{TOSAG_BASE}/?suche={query}&lang=eng"
+        search_html = await fetch_text(client, search_url)
+        await asyncio.sleep(delay_s)
+        if not search_html:
+            search_failed += 1
+            continue
+        for link in extract_search_product_links(search_html):
+            if link not in seen_links:
+                seen_links.add(link)
+                candidates.append(link)
+        # Prefer first successful discovery query to reduce load.
+        if candidates:
+            break
 
-    candidates = extract_search_product_links(search_html)
     if not candidates:
-        result.issues.append("no_product_candidates")
+        result.issues.append(
+            "fetch_search_failed" if search_failed else "no_product_candidates"
+        )
         return result
 
     for detail_url in candidates:
@@ -200,6 +237,7 @@ async def resolve_image_for_sku(
         if not is_insize_detail_page(detail_html):
             result.issues.append("not_insize_manufacturer")
             continue
+        # Always confirm the catalog SKU itself (never only a reversed variant).
         if not sku_confirmed_on_detail(detail_html, sku):
             result.issues.append("sku_not_on_detail_page")
             continue
@@ -282,6 +320,7 @@ async def run_import(
     limit: int | None,
     delay_s: float,
     force: bool,
+    concurrency: int,
 ) -> tuple[int, int, list[dict[str, str]], list[dict[str, str]]]:
     imported_rows: list[dict[str, str]] = []
     rejected_rows: list[dict[str, str]] = []
@@ -295,109 +334,142 @@ async def run_import(
         )
         if limit:
             stmt = stmt.limit(limit)
-        products = (await session.execute(stmt)).all()
+        products = list((await session.execute(stmt)).all())
 
-        existing_primary: set[int] = set()
+        existing_primary: set[int] = set(
+            (
+                await session.execute(
+                    select(ProductImage.product_id).where(ProductImage.is_primary.is_(True))
+                )
+            ).scalars()
+        )
+
         if not force:
-            existing_primary = set(
-                (
-                    await session.execute(
-                        select(ProductImage.product_id).where(ProductImage.is_primary.is_(True))
-                    )
-                ).scalars()
-            )
-
-        timeout = httpx.Timeout(60.0, connect=20.0)
-        async with httpx.AsyncClient(
-            headers={"User-Agent": USER_AGENT},
-            timeout=timeout,
-        ) as client:
-            for index, (product_id, sku, name) in enumerate(products):
-                if product_id in existing_primary:
-                    rejected_rows.append(
-                        {
-                            "sku": sku,
-                            "product_name": name,
-                            "issue_codes": "already_has_primary_image",
-                            "issue_fa": REASON_FA["already_has_primary_image"],
-                            "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
-                            "detail_url": "",
-                            "image_url": "",
-                        }
-                    )
-                    continue
-
-                if index:
-                    await asyncio.sleep(delay_s)
-
-                match = await resolve_image_for_sku(client, sku, delay_s=delay_s)
-                match.product_id = product_id
-                match.product_name = name
-
-                if not match.eligible:
-                    rejected_rows.append(
-                        {
-                            "sku": sku,
-                            "product_name": name,
-                            "issue_codes": "|".join(match.issues),
-                            "issue_fa": match.issues_fa(),
-                            "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
-                            "detail_url": match.detail_url or "",
-                            "image_url": match.image_url or "",
-                        }
-                    )
-                    logger.info("Rejected %s: %s", sku, match.issues_fa())
-                    continue
-
-                if len(match.image_url or "") > 500:
-                    rejected_rows.append(
-                        {
-                            "sku": sku,
-                            "product_name": name,
-                            "issue_codes": "image_url_too_long",
-                            "issue_fa": REASON_FA["image_url_too_long"],
-                            "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
-                            "detail_url": match.detail_url or "",
-                            "image_url": match.image_url or "",
-                        }
-                    )
-                    continue
-
-                imported_rows.append(
+            skipped_existing = [
+                (product_id, sku, name)
+                for product_id, sku, name in products
+                if product_id in existing_primary
+            ]
+            for product_id, sku, name in skipped_existing:
+                rejected_rows.append(
                     {
                         "sku": sku,
                         "product_name": name,
-                        "image_url": match.image_url or "",
-                        "detail_url": match.detail_url or "",
-                        "confidence": match.confidence,
+                        "issue_codes": "already_has_primary_image",
+                        "issue_fa": REASON_FA["already_has_primary_image"],
+                        "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
+                        "detail_url": "",
+                        "image_url": "",
                     }
                 )
+            products = [row for row in products if row[0] not in existing_primary]
+            logger.info(
+                "INSIZE candidates without primary image: %s (skipped existing: %s)",
+                len(products),
+                len(skipped_existing),
+            )
 
-                if dry_run:
-                    inserted += 1
-                    continue
+    # Resolve HTTP matches outside the DB session (concurrent).
+    sem = asyncio.Semaphore(max(1, concurrency))
+    matches: list[MatchResult] = []
 
-                try:
-                    await crud_product.add_product_image(
-                        session,
-                        product_id,
-                        match.image_url or "",
-                        is_primary=True,
-                    )
-                    inserted += 1
-                except Exception as exc:
-                    logger.exception("DB error for %s", sku)
-                    rejected_rows.append(
-                        {
-                            "sku": sku,
-                            "product_name": name,
-                            "issue_codes": "db_error",
-                            "issue_fa": f"{REASON_FA['db_error']}: {exc}",
-                            "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
-                            "detail_url": match.detail_url or "",
-                            "image_url": match.image_url or "",
-                        }
-                    )
+    async def _resolve_one(
+        client: httpx.AsyncClient, product_id: int, sku: str, name: str
+    ) -> MatchResult:
+        async with sem:
+            await asyncio.sleep(delay_s)
+            match = await resolve_image_for_sku(client, sku, delay_s=delay_s)
+            match.product_id = product_id
+            match.product_name = name
+            if match.eligible:
+                logger.info("Matched %s -> %s", sku, match.image_url)
+            else:
+                logger.info("Rejected %s: %s", sku, match.issues_fa())
+            return match
+
+    timeout = httpx.Timeout(60.0, connect=20.0)
+    limits = httpx.Limits(max_connections=concurrency + 2, max_keepalive_connections=concurrency)
+    async with httpx.AsyncClient(
+        headers={"User-Agent": USER_AGENT},
+        timeout=timeout,
+        limits=limits,
+    ) as client:
+        tasks = [
+            _resolve_one(client, product_id, sku, name)
+            for product_id, sku, name in products
+        ]
+        if tasks:
+            matches = list(await asyncio.gather(*tasks))
+
+    async with async_session_maker() as session:
+        for match in matches:
+            sku = match.sku
+            name = match.product_name
+            product_id = match.product_id
+
+            if not match.eligible:
+                rejected_rows.append(
+                    {
+                        "sku": sku,
+                        "product_name": name,
+                        "issue_codes": "|".join(match.issues),
+                        "issue_fa": match.issues_fa(),
+                        "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
+                        "detail_url": match.detail_url or "",
+                        "image_url": match.image_url or "",
+                    }
+                )
+                continue
+
+            if len(match.image_url or "") > 500:
+                rejected_rows.append(
+                    {
+                        "sku": sku,
+                        "product_name": name,
+                        "issue_codes": "image_url_too_long",
+                        "issue_fa": REASON_FA["image_url_too_long"],
+                        "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
+                        "detail_url": match.detail_url or "",
+                        "image_url": match.image_url or "",
+                    }
+                )
+                continue
+
+            imported_rows.append(
+                {
+                    "sku": sku,
+                    "product_name": name,
+                    "image_url": match.image_url or "",
+                    "detail_url": match.detail_url or "",
+                    "confidence": match.confidence,
+                }
+            )
+
+            if dry_run:
+                inserted += 1
+                continue
+
+            try:
+                await crud_product.add_product_image(
+                    session,
+                    product_id,
+                    match.image_url or "",
+                    is_primary=True,
+                )
+                inserted += 1
+            except Exception as exc:
+                logger.exception("DB error for %s", sku)
+                rejected_rows.append(
+                    {
+                        "sku": sku,
+                        "product_name": name,
+                        "issue_codes": "db_error",
+                        "issue_fa": f"{REASON_FA['db_error']}: {exc}",
+                        "search_url": f"{TOSAG_BASE}/?suche={sku}&lang=eng",
+                        "detail_url": match.detail_url or "",
+                        "image_url": match.image_url or "",
+                    }
+                )
 
         if not dry_run:
             await session.commit()
@@ -409,7 +481,8 @@ async def main() -> None:
     parser = argparse.ArgumentParser(description="Import INSIZE images from tosag.ch")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--delay", type=float, default=1.0, help="Seconds between requests")
+    parser.add_argument("--delay", type=float, default=0.15, help="Seconds pacing per worker")
+    parser.add_argument("--concurrency", type=int, default=8, help="Parallel HTTP workers")
     parser.add_argument("--force", action="store_true", help="Replace even if primary image exists")
     parser.add_argument("--rejected-xlsx", type=Path, default=DEFAULT_REJECTED_XLSX)
     parser.add_argument("--rejected-csv", type=Path, default=DEFAULT_REJECTED_CSV)
@@ -422,6 +495,7 @@ async def main() -> None:
         limit=args.limit,
         delay_s=args.delay,
         force=args.force,
+        concurrency=args.concurrency,
     )
 
     write_csv(
@@ -447,6 +521,7 @@ async def main() -> None:
     elapsed = int(time.time() - started)
     print("=== INSIZE image import summary ===")
     print(f"Mode: {'dry-run' if args.dry_run else 'live'}")
+    print(f"Concurrency: {args.concurrency}")
     print(f"Very-high imported: {inserted}")
     print(f"Rejected / skipped: {rejected_count}")
     print(f"Elapsed: {elapsed}s")

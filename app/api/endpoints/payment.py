@@ -14,6 +14,7 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.payment_url import assert_allowed_payment_url
 from app.core.rate_limit import get_rate_limiter
 from app.crud import commerce as crud_commerce
 from app.crud import platform as crud_platform
@@ -225,7 +226,11 @@ async def payment_init(
         _raise_gateway_error(exc)
 
     await get_rate_limiter().clear(f"payment_init:{current_user.id}")
-    response = PaymentInitResponse(authority=result.authority, payment_url=result.payment_url)
+    try:
+        safe_url = assert_allowed_payment_url(result.payment_url)
+    except ValueError as exc:
+        _raise_gateway_error(exc)
+    response = PaymentInitResponse(authority=result.authority, payment_url=safe_url)
 
     if idempotency_key and idempotency_key.strip():
         await crud_platform.finalize_idempotency_record(
@@ -287,13 +292,41 @@ async def payment_verify(
     payload: PaymentVerifyRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
-    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
-    if not order:
-        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
+    """
+    Verify a gateway return by authority (order resolved server-side).
+    Optional order_id must match the bound order when supplied.
+    Auth is optional — authority is a capability token (same model as GET /callback).
+    Authenticated owners are still ownership-checked when the order has a user_id.
+    """
+    authority = payload.authority.strip()
+    if not authority:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message="Payment authority is required",
+        )
 
-    _assert_order_payable_by_user(order, current_user)
+    order = await crud_commerce.get_order_by_payment_authority_for_update(db, authority)
+    if not order:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="Order not found for this payment authority",
+        )
+
+    if payload.order_id is not None and payload.order_id != order.id:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message="Payment authority does not match this order",
+        )
+
+    await _check_public_verify_rate_limit(order.id)
+
+    if current_user is not None and order.user_id is not None:
+        _assert_order_payable_by_user(order, current_user)
 
     if order.payment_status == PaymentStatus.PAID.value:
         return PaymentVerifyResponse(
@@ -301,13 +334,14 @@ async def payment_verify(
             payment_status=order.payment_status,
             status=order.status,
             ref_id=get_order_payment_ref_id(order),
+            tracking_code=order.tracking_code,
         )
 
     try:
         result = await verify_order_payment(
             db,
             order,
-            authority=payload.authority,
+            authority=authority,
             gateway_status=payload.status,
             ip_address=_client_ip(request),
         )
@@ -316,12 +350,13 @@ async def payment_verify(
         await db.commit()
         _raise_gateway_error(exc)
 
-    refreshed = await crud_commerce.get_order_by_id(db, payload.order_id)
+    refreshed = await crud_commerce.get_order_by_id(db, order.id)
     return PaymentVerifyResponse(
         order_id=refreshed.id,
         payment_status=refreshed.payment_status,
         status=refreshed.status,
         ref_id=result.ref_id,
+        tracking_code=refreshed.tracking_code,
     )
 
 

@@ -66,9 +66,10 @@ def test_guest_purchase_checkout_rejected(valid_product_data, super_admin_header
     assert checkout.json()["error_code"] == "PURCHASE_AUTH_REQUIRED"
 
 
-def test_payment_verify_requires_authentication(
+def test_payment_verify_by_authority_without_auth(
     valid_product_data, super_admin_headers, monkeypatch
 ):
+    """Authority acts as a capability token (same trust model as GET /callback)."""
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     reset_payment_provider_for_tests()
@@ -83,10 +84,15 @@ def test_payment_verify_requires_authentication(
 
     anonymous = client.post(
         "/api/v1/payments/verify",
-        json={"order_id": order_id, "authority": authority, "status": "OK"},
+        json={"authority": authority, "status": "OK"},
     )
-    assert anonymous.status_code == 401
+    assert anonymous.status_code == 200
+    body = anonymous.json()
+    assert body["payment_status"] == "paid"
+    assert body["order_id"] == order_id
+    assert body.get("tracking_code")
 
+    # Idempotent re-verify with optional order_id + auth still works
     verify = client.post(
         "/api/v1/payments/verify",
         json={"order_id": order_id, "authority": authority, "status": "OK"},
@@ -94,6 +100,27 @@ def test_payment_verify_requires_authentication(
     )
     assert verify.status_code == 200
     assert verify.json()["payment_status"] == "paid"
+
+
+def test_payment_verify_rejects_mismatched_order_id(
+    valid_product_data, super_admin_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+    reset_payment_provider_for_tests()
+
+    create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
+    product_id = create.json()["id"]
+    headers = _auth_headers_for_phone("09121113333")
+
+    checkout = client.post("/api/v1/checkout", json=_checkout_payload(product_id), headers=headers)
+    authority = checkout.json()["authority"]
+
+    bad = client.post(
+        "/api/v1/payments/verify",
+        json={"order_id": 999999, "authority": authority, "status": "OK"},
+    )
+    assert bad.status_code == 400
 
 
 def test_payment_callback_redirect(valid_product_data, super_admin_headers, monkeypatch):

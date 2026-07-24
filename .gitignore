@@ -46,3 +46,18 @@ build/
 *.egg-info/
 .deploy-secrets
 .env.staging.generated
+data/
+
+# Frontend artifacts (monorepo)
+frontend/**/node_modules/
+frontend/**/.next/
+frontend/**/out/
+frontend/**/coverage/
+frontend/**/.turbo/
+frontend/**/.env
+frontend/**/.env*.local
+frontend/**/*.tsbuildinfo
+
+# Ops secrets (never commit)
+.deploy-secrets
+.env.staging.generated

@@ -4,7 +4,14 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-FE_ROOT="${FE_ROOT:-/home/moahmmad/Projects/kar/karzar-frontend-main (1)/karzar-frontend-main}"
+FE_ROOT="${FE_ROOT:-}"
+if [[ -z "$FE_ROOT" ]]; then
+  if [[ -d "$ROOT/frontend/Storefront" ]]; then
+    FE_ROOT="$ROOT/frontend"
+  else
+    FE_ROOT="/home/moahmmad/Projects/Karzar/Website/frontend"
+  fi
+fi
 VPS="${VPS_HOST:-195.177.255.198}"
 REMOTE_BE="${REMOTE_BE:-/opt/karzar/Karzar}"
 REMOTE_FE="${REMOTE_FE:-/opt/karzar/frontend}"
@@ -60,6 +67,27 @@ docker compose -f docker-compose.yml -f docker-compose.staging.yml -f docker-com
 
 export FRONTEND_ROOT=/opt/karzar/frontend
 export NEXT_PUBLIC_API_BASE_URL=https://api.karzartools.com/api/v1
+# Prefer existing admin session secret so redeploys do not invalidate cookies / drop required env
+if [[ -z "${ADMIN_SESSION_SECRET:-}" ]]; then
+  for f in /opt/karzar/.deploy-secrets /opt/karzar/Karzar/.env; do
+    if [[ -f "$f" ]] && grep -q '^ADMIN_SESSION_SECRET=' "$f"; then
+      # shellcheck disable=SC1090
+      ADMIN_SESSION_SECRET="$(grep '^ADMIN_SESSION_SECRET=' "$f" | tail -1 | cut -d= -f2-)"
+      break
+    fi
+  done
+fi
+if [[ -z "${ADMIN_SESSION_SECRET:-}" || "${#ADMIN_SESSION_SECRET}" -lt 32 ]]; then
+  ADMIN_SESSION_SECRET="$(openssl rand -hex 32)"
+  umask 077
+  mkdir -p /opt/karzar
+  if grep -q '^ADMIN_SESSION_SECRET=' /opt/karzar/.deploy-secrets 2>/dev/null; then
+    sed -i "s/^ADMIN_SESSION_SECRET=.*/ADMIN_SESSION_SECRET=${ADMIN_SESSION_SECRET}/" /opt/karzar/.deploy-secrets
+  else
+    printf 'ADMIN_SESSION_SECRET=%s\n' "$ADMIN_SESSION_SECRET" >> /opt/karzar/.deploy-secrets
+  fi
+fi
+export ADMIN_SESSION_SECRET
 bash deploy/staging/scripts/deploy-frontend.sh
 
 echo "Smoke:"

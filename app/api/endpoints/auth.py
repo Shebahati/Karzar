@@ -1,11 +1,12 @@
 """Authentication endpoints: registration, login, and step-up PIN verification."""
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Cookie, Depends, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_active_user, get_current_super_admin
+from app.core.auth_cookies import REFRESH_COOKIE_NAME, clear_auth_cookies, set_auth_cookies
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
@@ -145,7 +146,11 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
     """Authenticate with phone number (username) and password; returns a JWT."""
     throttle_key = f"login:{form_data.username}"
     await _check_auth_rate_limit(
@@ -181,6 +186,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     await _clear_auth_failures(throttle_key)
     tokens = await issue_auth_tokens(db, user)
     await db.commit()
+    set_auth_cookies(response, tokens)
     return tokens
 
 
@@ -222,10 +228,23 @@ async def change_password(
 
 
 @router.post("/refresh", response_model=Token, summary="Rotate refresh token")
-async def refresh_token(payload: RefreshTokenRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_token(
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+    refresh_cookie: str | None = Cookie(None, alias=REFRESH_COOKIE_NAME),
+    payload: RefreshTokenRequest | None = Body(default=None),
+):
     from app.crud import platform as crud_platform
 
-    row = await crud_platform.get_valid_refresh_token(db, hash_token(payload.refresh_token))
+    plain = (payload.refresh_token if payload else None) or refresh_cookie
+    if not plain or len(plain) < 16:
+        raise api_error(
+            status.HTTP_401_UNAUTHORIZED,
+            error_code=ErrorCode.UNAUTHORIZED,
+            message="Invalid or expired refresh token",
+        )
+
+    row = await crud_platform.get_valid_refresh_token(db, hash_token(plain))
     if row is None:
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
@@ -246,8 +265,9 @@ async def refresh_token(payload: RefreshTokenRequest, db: AsyncSession = Depends
         )
 
     try:
-        tokens = await rotate_refresh_token(db, user, payload.refresh_token)
+        tokens = await rotate_refresh_token(db, user, plain)
         await db.commit()
+        set_auth_cookies(response, tokens)
         return tokens
     except ValueError as exc:
         raise api_error(
@@ -259,11 +279,13 @@ async def refresh_token(payload: RefreshTokenRequest, db: AsyncSession = Depends
 
 @router.post("/logout", summary="Revoke refresh tokens and invalidate access tokens")
 async def logout(
+    response: Response,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
     await logout_user(db, current_user)
     await db.commit()
+    clear_auth_cookies(response)
     return {"ok": True}
 
 
@@ -371,7 +393,11 @@ async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/otp/verify", response_model=OtpVerifyResponse, summary="Verify storefront OTP")
-async def otp_verify(payload: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
+async def otp_verify(
+    payload: OtpVerifyRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+):
     throttle_key = f"otp_verify:{payload.phone}"
     await _check_auth_rate_limit(
         throttle_key,
@@ -379,9 +405,17 @@ async def otp_verify(payload: OtpVerifyRequest, db: AsyncSession = Depends(get_d
         "Too many OTP verification attempts. Please try again later.",
     )
     try:
-        response = await verify_otp(db, payload.phone, payload.code)
+        result = await verify_otp(db, payload.phone, payload.code)
         await _clear_auth_failures(throttle_key)
-        return response
+        set_auth_cookies(
+            response,
+            {
+                "access_token": result.access_token,
+                "refresh_token": result.refresh_token,
+                "expires_in": result.expires_in,
+            },
+        )
+        return result
     except ValueError as exc:
         await _record_auth_failure(throttle_key)
         raise api_error(

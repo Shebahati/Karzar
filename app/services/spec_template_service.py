@@ -168,9 +168,31 @@ def _deep_copy_template(template: SpecTemplate) -> SpecTemplate:
     return copy.deepcopy(template)
 
 
+# Persian labels for technical_specs keys (templates store English keys only).
+_TECH_SPEC_KEY_LABELS_FA: dict[str, str] = {
+    "material": "جنس",
+    "standard": "استاندارد",
+    "grade": "گرید",
+    "coating": "پوشش",
+    "range": "بازه اندازه‌گیری",
+    "accuracy": "دقت",
+    "resolution": "رزولوشن",
+    "battery_type": "نوع باتری",
+    "geometry": "ژئومتری",
+    "insert_shape": "شکل اینسرت",
+    "corner_radius_mm": "شعاع گوشه (mm)",
+    "diameter_mm": "قطر (mm)",
+    "flutes": "تعداد تیغه",
+    "helix_angle": "زاویه مارپیچ",
+    "length_of_cut_mm": "طول برش (mm)",
+    "point_angle": "زاویه نوک",
+    "flute_length_mm": "طول شیار (mm)",
+}
+
+
 def collect_storefront_spec_labels() -> dict[str, str]:
     """Build a compact key → Persian label map from all registered templates."""
-    labels: dict[str, str] = {}
+    labels: dict[str, str] = dict(_TECH_SPEC_KEY_LABELS_FA)
     for template in _TEMPLATES_BY_KEY.values():
         for feature in template.get("features", []):
             if not isinstance(feature, dict):

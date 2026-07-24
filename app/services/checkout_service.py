@@ -82,6 +82,14 @@ async def submit_checkout(
             )
 
         unit_price = product.base_price
+        # Dual-lane integrity: purchase checkout must never accept unpriced SKUs
+        # (cart upsert already blocks this; harden the direct checkout API path).
+        if is_purchase and unit_price is None:
+            raise ValueError(
+                f"Product {product_id} has no price and cannot be purchased; "
+                "use inquiry mode instead"
+            )
+
         if unit_price is not None:
             has_priced_item = True
             line_total = _to_decimal(unit_price) * quantity

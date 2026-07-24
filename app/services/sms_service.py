@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 import httpx
 
@@ -74,6 +74,75 @@ class KavenegarSmsProvider:
             response.raise_for_status()
 
 
+class FarazSmsProvider:
+    """FarazSMS / IranPayamak REST API (Api-Key header).
+
+    Prefer pattern send for OTP (instant). Falls back to simple SMS when no
+    pattern code is configured. Docs: https://docs.farazsms.com
+    """
+
+    async def send(self, message: SmsMessage) -> None:
+        if not settings.SMS_FARAZ_API_KEY:
+            raise ValueError("SMS_FARAZ_API_KEY is required for faraz provider")
+        line = (settings.SMS_FARAZ_LINE_NUMBER or "").strip()
+        if not line:
+            raise ValueError("SMS_FARAZ_LINE_NUMBER is required for faraz provider")
+
+        if (settings.SMS_FARAZ_OTP_PATTERN_CODE or "").strip():
+            await self._send_pattern(message, line)
+            return
+        await self._send_simple(message, line)
+
+    def _headers(self) -> dict[str, str]:
+        return {
+            "Api-Key": settings.SMS_FARAZ_API_KEY or "",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+    def _base(self) -> str:
+        return (settings.SMS_FARAZ_BASE_URL or "https://api.iranpayamak.com").rstrip("/")
+
+    @staticmethod
+    def _ensure_success(payload: Any, *, context: str) -> None:
+        if not isinstance(payload, dict):
+            raise RuntimeError(f"Faraz SMS {context}: unexpected response type")
+        status = str(payload.get("status", "")).lower()
+        if status and status != "success":
+            raise RuntimeError(
+                f"Faraz SMS {context} failed: {payload.get('message') or payload}"
+            )
+
+    async def _send_pattern(self, message: SmsMessage, line: str) -> None:
+        attr_name = (settings.SMS_FARAZ_OTP_ATTR or "code").strip() or "code"
+        token = message.template_token or ""
+        payload = {
+            "code": settings.SMS_FARAZ_OTP_PATTERN_CODE,
+            "recipient": message.receptor,
+            "attributes": {attr_name: token},
+            "line_number": line,
+            "number_format": "english",
+        }
+        url = f"{self._base()}/ws/v1/sms/pattern"
+        async with httpx.AsyncClient(timeout=settings.SMS_TIMEOUT_SECONDS) as client:
+            response = await client.post(url, headers=self._headers(), json=payload)
+            response.raise_for_status()
+            self._ensure_success(response.json(), context="pattern")
+
+    async def _send_simple(self, message: SmsMessage, line: str) -> None:
+        payload = {
+            "text": message.body,
+            "recipients": [message.receptor],
+            "line_number": line,
+            "number_format": "english",
+        }
+        url = f"{self._base()}/ws/v1/sms/simple"
+        async with httpx.AsyncClient(timeout=settings.SMS_TIMEOUT_SECONDS) as client:
+            response = await client.post(url, headers=self._headers(), json=payload)
+            response.raise_for_status()
+            self._ensure_success(response.json(), context="simple")
+
+
 _provider: SmsProvider | None = None
 
 
@@ -82,6 +151,8 @@ def get_sms_provider() -> SmsProvider:
     if _provider is None:
         if settings.SMS_PROVIDER == "kavenegar":
             _provider = KavenegarSmsProvider()
+        elif settings.SMS_PROVIDER == "faraz":
+            _provider = FarazSmsProvider()
         else:
             _provider = ConsoleSmsProvider()
     return _provider

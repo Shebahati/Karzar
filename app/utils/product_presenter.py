@@ -63,8 +63,11 @@ def _category_brief(
         return None
 
     breadcrumb: list[str] = []
+    ancestor_ids: list[int] = []
     if category_metadata and product.category_id in category_metadata:
-        breadcrumb = list(category_metadata[product.category_id]["breadcrumb"])
+        meta = category_metadata[product.category_id]
+        breadcrumb = list(meta["breadcrumb"])
+        ancestor_ids = list(meta["ancestor_ids"])
     else:
         breadcrumb = [product.category.name]
 
@@ -74,7 +77,9 @@ def _category_brief(
     return CategoryBrief(
         id=product.category.id,
         name=product.category.name,
+        slug=getattr(product.category, "slug", None),
         breadcrumb=breadcrumb,
+        ancestor_ids=ancestor_ids,
         hierarchy_label=hierarchy_label,
     )
 

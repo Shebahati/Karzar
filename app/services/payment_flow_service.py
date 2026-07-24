@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
+from app.core.payment_url import assert_allowed_payment_url
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.services.order_service import transition_order_status
 from app.services.payment_ledger_service import (
@@ -56,8 +57,8 @@ def build_mock_payment_url(authority: str) -> str:
 
 def build_gateway_payment_url(authority: str) -> str:
     if settings.PAYMENT_PROVIDER == "mock":
-        return build_mock_payment_url(authority)
-    return f"https://www.zarinpal.com/pg/StartPay/{authority}"
+        return assert_allowed_payment_url(build_mock_payment_url(authority))
+    return assert_allowed_payment_url(f"https://www.zarinpal.com/pg/StartPay/{authority}")
 
 
 async def initialize_order_payment(

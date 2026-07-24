@@ -40,7 +40,12 @@ from app.schemas.storefront import RelatedProductsResponse
 from app.services.product_service import ProductService
 from app.utils.jsonb_filters import merge_spec_filters
 from app.utils.product_presenter import to_product_detail, to_product_summary
-from app.utils.storefront_catalog import VALID_SORT_KEYS, parse_in_stock_filter
+from app.utils.storefront_catalog import (
+    VALID_SORT_KEYS,
+    parse_in_stock_filter,
+    parse_int_id_list,
+    parse_string_list,
+)
 
 logger = get_logger(__name__)
 
@@ -59,20 +64,38 @@ async def read_products(
     skip: int = Query(0, ge=0, description="Number of items to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of items to return"),
     category_id: int | None = Query(None, description="Filter by category ID"),
-    brand_id: int | None = Query(None, description="Filter by brand ID"),
+    brand_id: list[str] | None = Query(
+        None,
+        description=(
+            "Filter by brand ID(s). Repeat param (brand_id=1&brand_id=2) "
+            "or comma-separated (brand_id=1,2). Single value still works."
+        ),
+    ),
     is_active: bool | None = Query(None, description="Filter by active status"),
     is_deleted: bool | None = Query(
         None,
         description="Filter soft-deleted products (admin only when true)",
     ),
     search: str | None = Query(None, description="Search in name, SKU, and brand"),
-    min_price: Decimal | None = Query(None, description="Minimum price filter"),
-    max_price: Decimal | None = Query(None, description="Maximum price filter"),
-    country: str | None = Query(None, description="Filter by brand country"),
-    in_stock: str | None = Query(None, description="Only in-stock active products (true/false/1/0)"),
+    min_price: Decimal | None = Query(None, ge=0, description="Minimum price filter"),
+    max_price: Decimal | None = Query(None, ge=0, description="Maximum price filter"),
+    country: list[str] | None = Query(
+        None,
+        description=(
+            "Filter by brand country/countries. Repeat param or comma-separated. "
+            "Single value still works."
+        ),
+    ),
+    in_stock: str | None = Query(
+        None,
+        description="In-stock filter: true/1 = available active; false/0 = out of stock",
+    ),
     sort: str | None = Query(
         None,
-        description="Sort key: newest, price_asc, price_desc, name_asc, name_desc",
+        description=(
+            "Sort key: newest, price_asc, price_desc, discount_desc, stock_first "
+            "(legacy: name_asc, name_desc)"
+        ),
     ),
     ids: str | None = Query(None, description="Comma-separated product IDs"),
     filters: str | None = Query(
@@ -131,19 +154,37 @@ async def read_products(
                 ) from None
 
         spec_filters = merge_spec_filters(filters_json=filters, request=request)
-        parsed_in_stock = parse_in_stock_filter(in_stock)
+        try:
+            parsed_in_stock = parse_in_stock_filter(in_stock)
+        except ValueError as exc:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message=str(exc),
+                details=[{"field": "in_stock", "message": str(exc)}],
+            ) from exc
+        try:
+            parsed_brand_ids = parse_int_id_list(brand_id)
+        except ValueError as exc:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message=str(exc),
+                details=[{"field": "brand_id", "message": str(exc)}],
+            ) from exc
+        parsed_countries = parse_string_list(country)
         products, total = await ProductService.search_products(
             db=db,
             skip=skip,
             limit=limit,
             category_id=category_id,
-            brand_id=brand_id,
+            brand_id=parsed_brand_ids,
             is_active=is_active,
             search=search,
             min_price=min_price,
             max_price=max_price,
             spec_filters=spec_filters or None,
-            country=country,
+            country=parsed_countries,
             in_stock=parsed_in_stock,
             sort=sort,
             product_ids=product_ids,

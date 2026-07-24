@@ -500,11 +500,11 @@ alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
 # Terminal 2 — Storefront
-cd karzar-frontend-main/Storefront
+cd frontend/Storefront
 NEXT_PUBLIC_USE_MOCK=false npm run dev -- --port 3000
 
 # Terminal 3 — Admin
-cd karzar-frontend-main/admin-panel
+cd frontend/admin-panel
 NEXT_PUBLIC_USE_MOCK=false npm run dev -- --port 3001
 ```
 

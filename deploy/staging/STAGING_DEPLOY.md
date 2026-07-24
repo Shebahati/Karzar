@@ -112,6 +112,7 @@ sudo certbot --nginx -d api.YOUR_DOMAIN -d shop.YOUR_DOMAIN -d admin.YOUR_DOMAIN
 
 export FRONTEND_ROOT=/opt/karzar/frontend
 export NEXT_PUBLIC_API_BASE_URL=https://api.YOUR_DOMAIN/api/v1
+export ADMIN_SESSION_SECRET="$(openssl rand -hex 32)"   # required: HMAC for admin edge cookie
 cd /opt/karzar/Karzar
 bash deploy/staging/scripts/deploy-frontend.sh
 ```

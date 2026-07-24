@@ -32,6 +32,30 @@ from app.utils.category_tree import build_category_tree
 logger = get_logger(__name__)
 
 
+def _to_flat_response(
+    category: Category,
+    metadata: dict,
+    product_count: int | None,
+) -> CategoryFlatResponse:
+    meta = metadata[category.id]
+    return CategoryFlatResponse(
+        id=category.id,
+        name=category.name,
+        slug=category.slug,
+        parent_id=category.parent_id,
+        depth=meta["depth"],
+        is_leaf=meta["is_leaf"],
+        is_selectable=is_selectable_product_category(meta),
+        breadcrumb=meta["breadcrumb"],
+        ancestor_ids=meta["ancestor_ids"],
+        product_count=product_count,
+        icon=category.icon,
+        meta_title=category.meta_title,
+        meta_description=category.meta_description,
+        spec_template_key=category.spec_template_key,
+    )
+
+
 class CategoryService:
     @staticmethod
     async def get_category_tree(db: AsyncSession) -> list[CategoryTreeResponse]:
@@ -50,17 +74,10 @@ class CategoryService:
         product_counts = await get_category_product_counts(db, categories)
 
         return [
-            CategoryFlatResponse(
-                id=category.id,
-                name=category.name,
-                slug=category.slug,
-                parent_id=category.parent_id,
-                depth=metadata[category.id]["depth"],
-                is_leaf=metadata[category.id]["is_leaf"],
-                is_selectable=is_selectable_product_category(metadata[category.id]),
-                breadcrumb=metadata[category.id]["breadcrumb"],
-                ancestor_ids=metadata[category.id]["ancestor_ids"],
-                product_count=product_counts.get(category.id),
+            _to_flat_response(
+                category,
+                metadata,
+                product_counts.get(category.id),
             )
             for category in categories
         ]
@@ -168,23 +185,27 @@ class CategoryService:
         )
 
         category = await crud_category.create_category(
-            db, name=normalized_name, parent_id=payload.parent_id
+            db,
+            name=normalized_name,
+            parent_id=payload.parent_id,
+            spec_template_key=payload.spec_template_key,
         )
+        if payload.icon is not None or payload.meta_title is not None or payload.meta_description is not None:
+            category = await crud_category.update_category(
+                db,
+                category,
+                icon=payload.icon,
+                meta_title=payload.meta_title,
+                meta_description=payload.meta_description,
+            )
         await db.commit()
 
         refreshed = await crud_category.get_all_categories(db)
-        metadata = build_category_metadata(refreshed)[category.id]
-        return CategoryFlatResponse(
-            id=category.id,
-            name=category.name,
-            slug=category.slug,
-            parent_id=category.parent_id,
-            depth=metadata["depth"],
-            is_leaf=metadata["is_leaf"],
-            is_selectable=is_selectable_product_category(metadata),
-            breadcrumb=metadata["breadcrumb"],
-            ancestor_ids=metadata["ancestor_ids"],
-            product_count=(await get_category_product_counts(db, refreshed)).get(category.id),
+        metadata = build_category_metadata(refreshed)
+        return _to_flat_response(
+            next(c for c in refreshed if c.id == category.id),
+            metadata,
+            (await get_category_product_counts(db, refreshed)).get(category.id),
         )
 
     @staticmethod
@@ -291,26 +312,62 @@ class CategoryService:
                 unset_parent=payload.parent_id is None,
             )
 
+        fields_set = payload.model_fields_set
+        if "slug" in fields_set and payload.slug is not None:
+            normalized_slug = payload.slug.strip()
+            existing_slug = await crud_category.get_category_by_slug(db, normalized_slug)
+            if existing_slug is not None and existing_slug.id != category_id:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Category slug already exists",
+                    details=[{"field": "slug", "message": "این اسلاگ قبلاً استفاده شده است."}],
+                )
+            category = await crud_category.update_category(db, category, slug=normalized_slug)
+
+        category = await crud_category.update_category(
+            db,
+            category,
+            icon=payload.icon if "icon" in fields_set else None,
+            unset_icon="icon" in fields_set and payload.icon is None,
+            meta_title=payload.meta_title if "meta_title" in fields_set else None,
+            unset_meta_title="meta_title" in fields_set and payload.meta_title is None,
+            meta_description=(
+                payload.meta_description if "meta_description" in fields_set else None
+            ),
+            unset_meta_description=(
+                "meta_description" in fields_set and payload.meta_description is None
+            ),
+            spec_template_key=(
+                payload.spec_template_key if "spec_template_key" in fields_set else None
+            ),
+            unset_spec_template_key=(
+                "spec_template_key" in fields_set and payload.spec_template_key is None
+            ),
+        )
+
         await db.commit()
         refreshed = await crud_category.get_all_categories(db)
-        metadata = build_category_metadata(refreshed)[category.id]
-        return CategoryFlatResponse(
-            id=category.id,
-            name=category.name,
-            slug=category.slug,
-            parent_id=category.parent_id,
-            depth=metadata["depth"],
-            is_leaf=metadata["is_leaf"],
-            is_selectable=is_selectable_product_category(metadata),
-            breadcrumb=metadata["breadcrumb"],
-            ancestor_ids=metadata["ancestor_ids"],
-            product_count=(await get_category_product_counts(db, refreshed)).get(category.id),
+        metadata = build_category_metadata(refreshed)
+        return _to_flat_response(
+            next(c for c in refreshed if c.id == category.id),
+            metadata,
+            (await get_category_product_counts(db, refreshed)).get(category.id),
         )
 
     @staticmethod
     async def delete_category_with_reassignment(
-        db: AsyncSession, category_id: int
+        db: AsyncSession,
+        category_id: int,
+        *,
+        target_category_id: int | None = None,
     ) -> CategoryDeleteResponse:
+        """Delete a leaf category.
+
+        Products may only move to another selectable depth-3 leaf. Never reassign
+        to a parent (often depth-2 and illegal for products). Empty categories can
+        be deleted without a target.
+        """
         category = await crud_category.get_category_by_id(db, category_id)
         if category is None:
             raise api_error(
@@ -337,31 +394,77 @@ class CategoryService:
         all_meta = build_category_metadata(categories)
         meta = all_meta[category_id]
         depth = meta["depth"]
+        product_count = await crud_category.count_products_in_category(db, category_id)
 
-        if depth == 1:
-            fallback = next(
-                (
-                    cid
-                    for cid, item in all_meta.items()
-                    if cid != category_id and is_selectable_product_category(item)
-                ),
-                None,
-            )
-            if fallback is None:
+        new_category_id: int | None = None
+        reassigned = 0
+
+        if product_count > 0:
+            if target_category_id is None:
                 raise api_error(
                     400,
                     error_code=ErrorCode.BAD_REQUEST,
-                    message="Cannot delete the last root category without a fallback leaf",
+                    message="Target leaf category required when products exist",
+                    details=[
+                        {
+                            "field": "target_category_id",
+                            "message": (
+                                "این دسته دارای محصول است؛ یک دستهٔ برگ قابل‌انتخاب "
+                                "(عمق ۳) برای انتقال محصولات مشخص کنید."
+                            ),
+                        }
+                    ],
                 )
-            new_category_id = fallback
-            message = "Root category deleted; products reassigned to fallback leaf category."
+            if target_category_id == category_id:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Cannot reassign products to the category being deleted",
+                    details=[
+                        {
+                            "field": "target_category_id",
+                            "message": "دستهٔ مقصد نمی‌تواند همان دستهٔ در حال حذف باشد.",
+                        }
+                    ],
+                )
+            target_meta = all_meta.get(target_category_id)
+            if target_meta is None:
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Target category not found",
+                    details=[
+                        {
+                            "field": "target_category_id",
+                            "message": "دستهٔ مقصد یافت نشد.",
+                        }
+                    ],
+                )
+            if not is_selectable_product_category(target_meta):
+                raise api_error(
+                    400,
+                    error_code=ErrorCode.BAD_REQUEST,
+                    message="Target must be a selectable depth-3 leaf",
+                    details=[
+                        {
+                            "field": "target_category_id",
+                            "message": (
+                                "محصولات فقط به دستهٔ برگ عمق ۳ قابل انتقال هستند؛ "
+                                "انتقال به والد یا دستهٔ غیرقابل‌انتخاب مجاز نیست."
+                            ),
+                        }
+                    ],
+                )
+            new_category_id = target_category_id
+            reassigned = await crud_category.reassign_products_category(
+                db, category_id, new_category_id
+            )
+            message = (
+                "Category deleted; products reassigned to selectable leaf category."
+            )
         else:
-            new_category_id = category.parent_id
-            message = "Category deleted; products reassigned to parent category."
+            message = "Empty category deleted; no product reassignment needed."
 
-        reassigned = await crud_category.reassign_products_category(
-            db, category_id, new_category_id
-        )
         await crud_category.delete_category_row(db, category)
         await db.commit()
 
