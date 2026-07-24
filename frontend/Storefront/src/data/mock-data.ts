@@ -724,7 +724,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — موجودی و استعلام برای خط تولید شما",
     cta_label: "مشاهده محصولات",
     cta_href: "/catalog",
-    image: "/images/hero/hero-micrometer-rtl.png",
+    image: "/images/hero/karzar-metrology-lab.jpg",
     accent: "#C22026",
   },
 ];
