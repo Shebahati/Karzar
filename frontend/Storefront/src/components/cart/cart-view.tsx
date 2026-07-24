@@ -1,29 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Buy, Delete, Document } from "react-iconly";
+import { Buy, Delete, Document, Danger } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { cn, formatToman } from "@/lib/utils";
+import { cn, formatToman, toPersianDigits } from "@/lib/utils";
+import { isLoggedIn } from "@/lib/api-client";
 import { useCartStore, type CartLine } from "@/store/cart-store";
 import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
 
 type Mode = "cart" | "quote";
 
+function stockIssue(line: CartLine): string | null {
+  if (!line.product.availability || line.product.stock_status === "out_of_stock") {
+    return "این کالا در حال حاضر ناموجود است.";
+  }
+  if (line.product.stock_status === "low_stock") {
+    return "موجودی این کالا محدود است؛ قبل از پرداخت همگام‌سازی کنید.";
+  }
+  return null;
+}
+
 /** Shared view for both the priced cart and the price-less quote/RFQ basket. */
 export function CartView({ mode }: { mode: Mode }) {
   const [mounted, setMounted] = useState(false);
   const [showRestored, setShowRestored] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    if (mode === "quote" && sessionStorage.getItem("karzar.inquiry.restored") === "1") {
-      setShowRestored(true);
-      sessionStorage.removeItem("karzar.inquiry.restored");
-    }
-  }, [mode]);
+  const [reconciling, setReconciling] = useState(false);
 
   const lines = useCartStore((s) => (mode === "cart" ? s.cart : s.quote));
   const setQty = useCartStore((s) =>
@@ -34,15 +38,48 @@ export function CartView({ mode }: { mode: Mode }) {
   );
   const clear = useCartStore((s) => (mode === "cart" ? s.clearCart : s.clearQuote));
   const otherCount = useCartStore((s) =>
-    mode === "cart" ? s.quote.reduce((n, l) => n + l.quantity, 0) : s.cart.reduce((n, l) => n + l.quantity, 0),
+    mode === "cart"
+      ? s.quote.reduce((n, l) => n + l.quantity, 0)
+      : s.cart.reduce((n, l) => n + l.quantity, 0),
   );
   const lastSyncError = useCartStore((s) => s.lastSyncError);
   const clearSyncError = useCartStore((s) => s.clearSyncError);
+  const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
+
+  useEffect(() => {
+    setMounted(true);
+    if (mode === "quote" && sessionStorage.getItem("karzar.inquiry.restored") === "1") {
+      setShowRestored(true);
+      sessionStorage.removeItem("karzar.inquiry.restored");
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (!mounted || !isLoggedIn()) return;
+    let cancelled = false;
+    setReconciling(true);
+    void reconcileFromServer().finally(() => {
+      if (!cancelled) setReconciling(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, reconcileFromServer]);
 
   const title = mode === "cart" ? "سبد خرید" : "استعلام قیمت";
   const total = lines.reduce(
     (sum, l) => sum + Number(l.product.base_price ?? 0) * l.quantity,
     0,
+  );
+
+  const stockWarnings = useMemo(
+    () =>
+      mode === "cart"
+        ? lines
+            .map((line) => ({ line, issue: stockIssue(line) }))
+            .filter((x): x is { line: CartLine; issue: string } => Boolean(x.issue))
+        : [],
+    [lines, mode],
   );
 
   if (!mounted) {
@@ -67,17 +104,37 @@ export function CartView({ mode }: { mode: Mode }) {
 
   return (
     <Container className="pt-8 pb-24 lg:py-12">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm("همه اقلام این سبد حذف شوند؟")) clear();
-          }}
-          className="text-sm font-medium text-muted-foreground hover:text-destructive"
-        >
-          خالی کردن
-        </button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          {reconciling && (
+            <p className="mt-1 text-xs text-muted-foreground">در حال همگام‌سازی با سرور…</p>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          {isLoggedIn() && (
+            <button
+              type="button"
+              disabled={reconciling}
+              onClick={() => {
+                setReconciling(true);
+                void reconcileFromServer().finally(() => setReconciling(false));
+              }}
+              className="text-sm font-medium text-primary hover:underline disabled:opacity-50"
+            >
+              همگام‌سازی سبد
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("همه اقلام این سبد حذف شوند؟")) clear();
+            }}
+            className="text-sm font-medium text-muted-foreground hover:text-destructive"
+          >
+            خالی کردن
+          </button>
+        </div>
       </div>
 
       {lastSyncError && (
@@ -96,11 +153,32 @@ export function CartView({ mode }: { mode: Mode }) {
         </div>
       )}
 
+      {stockWarnings.length > 0 && (
+        <div
+          role="status"
+          className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-foreground"
+        >
+          <div className="mb-2 flex items-center gap-2 font-bold text-destructive">
+            <Danger set="bold" size={18} primaryColor="currentColor" />
+            اختلاف موجودی با سرور
+          </div>
+          <ul className="space-y-1 text-muted-foreground">
+            {stockWarnings.map(({ line, issue }) => (
+              <li key={line.product.id}>
+                <span className="font-medium text-foreground">{line.product.name}</span>
+                {" — "}
+                {issue}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {otherCount > 0 && (
         <div className="mb-4 rounded-lg bg-secondary px-4 py-3 text-sm text-foreground">
           {mode === "cart" ? (
             <>
-              {otherCount} قلم در{" "}
+              {toPersianDigits(otherCount)} قلم در{" "}
               <Link href="/quote" className="font-medium text-primary">
                 سبد استعلام
               </Link>{" "}
@@ -108,7 +186,7 @@ export function CartView({ mode }: { mode: Mode }) {
             </>
           ) : (
             <>
-              {otherCount} قلم در{" "}
+              {toPersianDigits(otherCount)} قلم در{" "}
               <Link href="/cart" className="font-medium text-primary">
                 سبد خرید
               </Link>{" "}
@@ -130,7 +208,13 @@ export function CartView({ mode }: { mode: Mode }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {lines.map((line) => (
-            <CartRow key={line.product.id} line={line} onQty={setQty} onRemove={remove} />
+            <CartRow
+              key={line.product.id}
+              line={line}
+              issue={mode === "cart" ? stockIssue(line) : null}
+              onQty={setQty}
+              onRemove={remove}
+            />
           ))}
         </div>
 
@@ -141,12 +225,10 @@ export function CartView({ mode }: { mode: Mode }) {
               <>
                 <div className="mt-4 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">مجموع</span>
-                  <span className="font-bold text-foreground tnum">
-                    {formatToman(total)}
-                  </span>
+                  <span className="font-bold text-foreground tnum">{formatToman(total)}</span>
                 </div>
                 <Link href="/checkout" className="mt-6 block">
-                  <Button size="lg" className="w-full">
+                  <Button size="lg" className="w-full" disabled={stockWarnings.some((w) => w.line.product.stock_status === "out_of_stock")}>
                     تکمیل خرید و پرداخت
                   </Button>
                 </Link>
@@ -154,8 +236,8 @@ export function CartView({ mode }: { mode: Mode }) {
             ) : (
               <>
                 <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                  این اقلام برای دریافت پیش‌فاکتور و استعلام قیمت ثبت می‌شوند.
-                  کارشناسان ما در اسرع وقت با شما تماس می‌گیرند.
+                  این اقلام برای دریافت پیش‌فاکتور و استعلام قیمت ثبت می‌شوند. کارشناسان ما در اسرع
+                  وقت با شما تماس می‌گیرند.
                 </p>
                 <Link href="/checkout?mode=quote" className="mt-6 block">
                   <Button size="lg" className="w-full gap-2">
@@ -176,10 +258,12 @@ export function CartView({ mode }: { mode: Mode }) {
 
 function CartRow({
   line,
+  issue,
   onQty,
   onRemove,
 }: {
   line: CartLine;
+  issue: string | null;
   onQty: (id: number, qty: number) => void;
   onRemove: (id: number) => void;
 }) {
@@ -187,7 +271,12 @@ function CartRow({
   const hasPrice = product.base_price != null;
 
   return (
-    <div className="flex gap-4 rounded-2xl bg-card p-4 shadow-soft">
+    <div
+      className={cn(
+        "flex gap-4 rounded-2xl bg-card p-4 shadow-soft",
+        issue && "ring-1 ring-destructive/25",
+      )}
+    >
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-accent">
         {product.thumbnail ? (
           <Image
@@ -214,6 +303,7 @@ function CartRow({
         {product.brand && (
           <span className="mt-1 text-xs text-muted-foreground">{product.brand.name}</span>
         )}
+        {issue && <p className="mt-1 text-xs font-medium text-destructive">{issue}</p>}
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <div className="flex items-center gap-1 rounded-xl bg-secondary p-1">

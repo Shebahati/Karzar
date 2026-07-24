@@ -128,9 +128,16 @@ export default function CustomerDetailPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl bg-muted/60 px-4 py-3 text-center text-sm">
-          <p className="font-bold tnum">{formatNumber(customer.order_count)}</p>
-          <p className="text-xs text-muted-foreground">سفارش</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/audit-logs?entity_type=user&entity_id=${customer.id}`}>
+              گزارش ممیزی این مشتری
+            </Link>
+          </Button>
+          <div className="rounded-xl bg-muted/60 px-4 py-3 text-center text-sm">
+            <p className="font-bold tnum">{formatNumber(customer.order_count)}</p>
+            <p className="text-xs text-muted-foreground">سفارش</p>
+          </div>
         </div>
       </div>
 

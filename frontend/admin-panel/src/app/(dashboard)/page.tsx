@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SystemStatusStrip } from "@/components/system-status-strip";
 import { useCategories, useProducts, useProductStatistics } from "@/features/catalog/queries";
 import { useOrders } from "@/features/orders/queries";
 import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
@@ -169,6 +170,8 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </div>
+
+      <SystemStatusStrip />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

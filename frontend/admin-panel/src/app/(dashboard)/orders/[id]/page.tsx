@@ -37,7 +37,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-5 px-1 sm:gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <Button asChild variant="ghost" size="icon" className="mt-0.5 shrink-0">
             <Link href={backHref} aria-label="بازگشت">
@@ -54,6 +54,11 @@ export default function OrderDetailPage() {
             <p className="mt-1 text-sm text-muted-foreground">{order.status_label}</p>
           </div>
         </div>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/audit-logs?entity_type=order&entity_id=${order.id}`}>
+            گزارش ممیزی این سفارش
+          </Link>
+        </Button>
       </div>
 
       <OrderStatusStepper order={order} />

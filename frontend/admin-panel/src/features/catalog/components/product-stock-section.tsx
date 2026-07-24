@@ -24,8 +24,13 @@ export function ProductStockSection({ productId }: { productId: number }) {
       toast.error("مقدار تعدیل را وارد کنید");
       return;
     }
+    const reasonText = reason.trim();
+    if (reasonText.length < 3) {
+      toast.error("دلیل تعدیل موجودی الزامی است (حداقل ۳ کاراکتر)");
+      return;
+    }
     try {
-      await adjust.mutateAsync({ delta: sign * amount, reason: reason.trim() || null });
+      await adjust.mutateAsync({ delta: sign * amount, reason: reasonText });
       toast.success("موجودی به‌روزرسانی شد");
       setDelta("");
       setReason("");
@@ -67,11 +72,12 @@ export function ProductStockSection({ productId }: { productId: number }) {
                   onChange={(e) => setDelta(e.target.value)}
                 />
               </Field>
-              <Field label="دلیل (اختیاری)" htmlFor="stock-reason">
+              <Field label="دلیل (الزامی)" htmlFor="stock-reason">
                 <Input
                   id="stock-reason"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
+                  placeholder="مثلاً ورود محموله / اصلاح انبار"
                 />
               </Field>
             </div>

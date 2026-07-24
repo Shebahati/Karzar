@@ -5,8 +5,34 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth";
-import { isLoggedIn } from "@/lib/api-client";
+import { ApiError, isLoggedIn } from "@/lib/api-client";
 import { toEnglishDigits } from "@/lib/utils";
+
+function authErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof ApiError) {
+    if (err.status === 429) {
+      return err.retryAfterSeconds
+        ? `تعداد درخواست‌ها زیاد است. حدود ${err.retryAfterSeconds} ثانیه صبر کنید.`
+        : "تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.";
+    }
+    if (err.status === 401 || err.status === 403) {
+      return err.message || "احراز هویت ناموفق بود. دوباره وارد شوید.";
+    }
+    if (err.status === 400 || err.status === 422) {
+      const detailMsg =
+        Array.isArray(err.details) && err.details.length > 0
+          ? String(
+              (err.details[0] as { msg?: string; message?: string }).msg ??
+                (err.details[0] as { message?: string }).message ??
+                "",
+            )
+          : "";
+      return detailMsg || err.message || fallback;
+    }
+    if (err.message) return err.message;
+  }
+  return fallback;
+}
 
 /**
  * Account security page. Reachable while logged OUT too (forgot-password OTP
@@ -54,7 +80,14 @@ export function AccountSecurityView() {
                 setCurrent("");
                 setNext("");
               })
-              .catch(() => setErr("تغییر رمز ناموفق بود. رمز فعلی را بررسی کنید."))
+              .catch((error) =>
+                setErr(
+                  authErrorMessage(
+                    error,
+                    "تغییر رمز ناموفق بود. رمز فعلی را بررسی کنید یا بعداً دوباره تلاش کنید.",
+                  ),
+                ),
+              )
               .finally(() => setPending(false));
           }}
         >
@@ -108,6 +141,7 @@ function PasswordResetBlock() {
   const [sent, setSent] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   return (
     <div className="mt-6 rounded-xl bg-card p-6 shadow-soft">
@@ -127,18 +161,28 @@ function PasswordResetBlock() {
           <Button
             type="button"
             variant="outline"
+            disabled={pending || !/^09\d{9}$/.test(toEnglishDigits(phone))}
             onClick={() => {
               setErr(null);
+              setPending(true);
               void authService
                 .requestPasswordReset(toEnglishDigits(phone))
                 .then(() => {
                   setSent(true);
-                  setMsg("اگر شماره معتبر باشد، کد ارسال می‌شود.");
+                  setMsg("اگر شماره معتبر باشد، کد ارسال می‌شود. صندوق پیامک را بررسی کنید.");
                 })
-                .catch(() => setErr("درخواست ناموفق بود."));
+                .catch((error) =>
+                  setErr(
+                    authErrorMessage(
+                      error,
+                      "درخواست بازیابی ناموفق بود. شماره را بررسی کنید یا کمی بعد دوباره تلاش کنید.",
+                    ),
+                  ),
+                )
+                .finally(() => setPending(false));
             }}
           >
-            دریافت کد
+            {pending ? "در حال ارسال…" : "دریافت کد"}
           </Button>
         ) : (
           <>
@@ -153,14 +197,16 @@ function PasswordResetBlock() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="رمز جدید"
+              placeholder="رمز جدید (حداقل ۸ کاراکتر)"
               className="h-11 w-full rounded-lg bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
             <Button
               type="button"
+              disabled={pending || password.length < 8 || toEnglishDigits(code).length < 4}
               onClick={() => {
                 setErr(null);
+                setPending(true);
                 void authService
                   .confirmPasswordReset({
                     phone: toEnglishDigits(phone),
@@ -168,11 +214,31 @@ function PasswordResetBlock() {
                     new_password: password,
                   })
                   .then(() => setMsg("رمز جدید ثبت شد. اکنون می‌توانید وارد شوید."))
-                  .catch(() => setErr("تأیید ناموفق بود."));
+                  .catch((error) =>
+                    setErr(
+                      authErrorMessage(
+                        error,
+                        "تأیید ناموفق بود. کد پیامک یا رمز جدید را بررسی کنید.",
+                      ),
+                    ),
+                  )
+                  .finally(() => setPending(false));
               }}
             >
-              ثبت رمز جدید
+              {pending ? "در حال ثبت…" : "ثبت رمز جدید"}
             </Button>
+            <button
+              type="button"
+              className="text-xs font-medium text-muted-foreground hover:text-primary"
+              onClick={() => {
+                setSent(false);
+                setCode("");
+                setPassword("");
+                setErr(null);
+              }}
+            >
+              ارسال مجدد به شماره دیگر
+            </button>
           </>
         )}
         {msg && (

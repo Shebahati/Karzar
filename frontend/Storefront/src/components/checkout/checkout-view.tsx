@@ -31,6 +31,7 @@ export function CheckoutView() {
   const quote = useCartStore((s) => s.quote);
   const clearCart = useCartStore((s) => s.clearCart);
   const clearQuote = useCartStore((s) => s.clearQuote);
+  const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
 
   const lines = isInquiry ? quote : cart;
 
@@ -70,7 +71,7 @@ export function CheckoutView() {
 
   const canPay = isInquiry || userLoggedIn;
 
-  const handleDetails = (result: DetailsResult) => {
+  const handleDetails = async (result: DetailsResult) => {
     if (!isInquiry && !isLoggedIn()) {
       setCheckoutError("برای پرداخت آنلاین باید وارد حساب کاربری شوید.");
       setStep("auth");
@@ -79,6 +80,33 @@ export function CheckoutView() {
 
     setCheckoutError(null);
 
+    // Prefer server cart as source of truth before purchase checkout.
+    if (!isInquiry && isLoggedIn()) {
+      const sync = await reconcileFromServer();
+      if (!sync.ok) {
+        setCheckoutError(
+          sync.error ??
+            "همگام‌سازی سبد با سرور ناموفق بود. دوباره تلاش کنید یا اقلام را بررسی کنید.",
+        );
+        return;
+      }
+      const blocked = useCartStore
+        .getState()
+        .cart.filter(
+          (l) => !l.product.availability || l.product.stock_status === "out_of_stock",
+        );
+      if (blocked.length > 0) {
+        setCheckoutError(
+          `برخی اقلام ناموجودند: ${blocked.map((l) => l.product.name).join("، ")}. سبد را اصلاح کنید.`,
+        );
+        return;
+      }
+    }
+
+    const currentLines = isInquiry
+      ? useCartStore.getState().quote
+      : useCartStore.getState().cart;
+
     const payload: CheckoutPayload = {
       mode: isInquiry ? "inquiry" : "purchase",
       customer: {
@@ -86,7 +114,7 @@ export function CheckoutView() {
         phone: result.phone,
         is_guest: customer?.is_guest ?? false,
       },
-      items: lines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
+      items: currentLines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
       note: result.note ?? null,
       shipping: result.shipping,
       company_name: result.company_name ?? null,
@@ -99,7 +127,7 @@ export function CheckoutView() {
             full_name: result.full_name,
             tracking_code: res.tracking_code,
             created_at: res.created_at,
-            lines: lines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
+            lines: currentLines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
           });
           clearQuote();
           router.push(`/checkout/success?ref=${res.tracking_code}&mode=inquiry`);
@@ -132,7 +160,11 @@ export function CheckoutView() {
           setStep("auth");
           return;
         }
-        setCheckoutError("ثبت با خطا مواجه شد. لطفاً دوباره تلاش کنید.");
+        const message =
+          err instanceof ApiError && err.message
+            ? err.message
+            : "ثبت با خطا مواجه شد. لطفاً دوباره تلاش کنید.";
+        setCheckoutError(message);
       },
     });
   };

@@ -60,6 +60,9 @@ export default function ProductsListPage() {
   const [brandId, setBrandId] = useState("");
   const [skip, setSkip] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectedMeta, setSelectedMeta] = useState<
+    Record<number, { name: string; sku: string }>
+  >({});
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkDeltas, setBulkDeltas] = useState<Record<number, string>>({});
   const [bulkReason, setBulkReason] = useState("");
@@ -136,6 +139,7 @@ export default function ProductsListPage() {
           setPendingBulkItems([]);
           setBulkOpen(false);
           setSelectedIds(new Set());
+          setSelectedMeta({});
         },
         onError: (err) => {
           toast.error(err instanceof ApiError ? err.message : "به‌روزرسانی انبوه ناموفق بود.");
@@ -145,27 +149,55 @@ export default function ProductsListPage() {
     );
   }
 
-  function toggleSelected(id: number) {
+  function toggleSelected(product: ProductSummary) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(product.id)) next.delete(product.id);
+      else next.add(product.id);
       return next;
+    });
+    setSelectedMeta((prev) => {
+      if (prev[product.id]) {
+        const next = { ...prev };
+        delete next[product.id];
+        return next;
+      }
+      return { ...prev, [product.id]: { name: product.name, sku: product.sku } };
     });
   }
 
   function toggleSelectAllOnPage() {
-    setSelectedIds((prev) => {
-      const allSelected = products.every((p) => prev.has(p.id));
-      if (allSelected) {
+    const allSelected = products.length > 0 && products.every((p) => selectedIds.has(p.id));
+    if (allSelected) {
+      setSelectedIds((prev) => {
         const next = new Set(prev);
         products.forEach((p) => next.delete(p.id));
         return next;
-      }
+      });
+      setSelectedMeta((prev) => {
+        const next = { ...prev };
+        products.forEach((p) => delete next[p.id]);
+        return next;
+      });
+      return;
+    }
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       products.forEach((p) => next.add(p.id));
       return next;
     });
+    setSelectedMeta((prev) => {
+      const next = { ...prev };
+      products.forEach((p) => {
+        next[p.id] = { name: p.name, sku: p.sku };
+      });
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setSelectedMeta({});
   }
 
   function openBulkDialog() {
@@ -188,14 +220,22 @@ export default function ProductsListPage() {
       return;
     }
 
-    setPendingBulkItems(
-      items.map((item) => ({ ...item, reason: bulkReason.trim() || undefined })),
-    );
+    const reason = bulkReason.trim();
+    if (reason.length < 3) {
+      toast.error("دلیل تغییر موجودی الزامی است (حداقل ۳ کاراکتر).");
+      return;
+    }
+
+    setPendingBulkItems(items.map((item) => ({ ...item, reason })));
     setBulkStepUpOpen(true);
   }
 
   const hasFilters = Boolean(search.trim() || categoryId || brandId);
-  const selectedProducts = products.filter((p) => selectedIds.has(p.id));
+  const selectedProducts = Array.from(selectedIds).map((id) => ({
+    id,
+    name: selectedMeta[id]?.name ?? products.find((p) => p.id === id)?.name ?? `#${id}`,
+    sku: selectedMeta[id]?.sku ?? products.find((p) => p.id === id)?.sku ?? "",
+  }));
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -277,7 +317,7 @@ export default function ProductsListPage() {
             {formatNumber(selectedIds.size)} محصول انتخاب شده
           </span>
           <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setSelectedIds(new Set())}>
+            <Button type="button" variant="outline" size="sm" onClick={clearSelection}>
               لغو انتخاب
             </Button>
             <Button type="button" size="sm" onClick={openBulkDialog}>
@@ -341,7 +381,7 @@ export default function ProductsListPage() {
                       type="checkbox"
                       className="h-4 w-4 cursor-pointer accent-primary"
                       checked={selectedIds.has(product.id)}
-                      onChange={() => toggleSelected(product.id)}
+                      onChange={() => toggleSelected(product)}
                       aria-label={`انتخاب ${product.name}`}
                     />
                     <div className="flex items-center gap-3">
@@ -458,7 +498,8 @@ export default function ProductsListPage() {
           <DialogHeader>
             <DialogTitle>بروزرسانی انبوه موجودی</DialogTitle>
             <DialogDescription>
-              برای هر محصول مقدار تغییر موجودی را وارد کنید (مثبت برای افزایش، منفی برای کاهش).
+              انتخاب‌ها در چند صفحه حفظ می‌شوند. برای هر محصول مقدار تغییر موجودی را وارد کنید
+              (مثبت افزایش، منفی کاهش). ذکر دلیل الزامی است.
             </DialogDescription>
           </DialogHeader>
 
@@ -485,12 +526,15 @@ export default function ProductsListPage() {
           </div>
 
           <Textarea
-            placeholder="دلیل تغییر موجودی (اختیاری)"
+            placeholder="دلیل تغییر موجودی (الزامی)"
             value={bulkReason}
             onChange={(e) => setBulkReason(e.target.value)}
             rows={2}
+            required
           />
-
+          {bulkReason.trim().length > 0 && bulkReason.trim().length < 3 && (
+            <p className="text-xs text-destructive">دلیل باید حداقل ۳ کاراکتر باشد.</p>
+          )}
           <DialogFooter>
             <Button
               type="button"
