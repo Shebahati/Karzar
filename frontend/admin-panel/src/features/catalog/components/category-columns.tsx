@@ -67,11 +67,16 @@ function CategoryColumn({
                       <span>
                         {(item.product_count ?? 0).toLocaleString("fa-IR")} محصول
                       </span>
-                      {(item.product_count ?? 0) === 0 && item.is_leaf ? (
-                        <span className="rounded bg-amber-50 px-1 text-amber-700">خالی</span>
+                      {(item.product_count ?? 0) === 0 ? (
+                        <span className="rounded bg-amber-50 px-1 text-amber-800">
+                          {item.is_leaf ? "خالی" : "بدون محصول (مرده)"}
+                        </span>
                       ) : null}
-                      {item.name.trim().startsWith("استاندارد") ? (
-                        <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
+                      {item.name.trim().startsWith("استاندارد") ||
+                      /(?:—|-|–)\s*عمومی\s*$/.test(item.name.trim()) ? (
+                        <span className="rounded bg-orange-50 px-1 text-orange-700">
+                          {item.name.trim().startsWith("استاندارد") ? "استاندارد" : "عمومی/پدینگ"}
+                        </span>
                       ) : null}
                     </span>
                   </button>
