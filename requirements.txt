@@ -12,4 +12,4 @@ python-multipart==0.0.32
 redis==5.0.1
 SQLAlchemy==2.0.27
 gunicorn==23.0.0
-uvicorn[standard]==0.27.1
+uvicorn[standard]==0.51.0
