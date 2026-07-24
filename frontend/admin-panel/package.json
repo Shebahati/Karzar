@@ -41,7 +41,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.4",
-    "autoprefixer": "^10.5.1",
+    "autoprefixer": "^10.5.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "happy-dom": "^20.11.1",
