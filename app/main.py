@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
@@ -81,8 +82,6 @@ app = FastAPI(
 )
 
 # Honor X-Forwarded-Proto / X-Forwarded-For from the local reverse proxy.
-from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-
 _proxy_trusted = settings.trusted_proxies_list or ["127.0.0.1"]
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=_proxy_trusted)
 

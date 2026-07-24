@@ -151,7 +151,7 @@ def parse_int_id_list(
     if values is None:
         return None
     raw_items: list[str] = []
-    if isinstance(values, (int, str)):
+    if isinstance(values, int | str):
         raw_items = [str(values)]
     else:
         for item in values:

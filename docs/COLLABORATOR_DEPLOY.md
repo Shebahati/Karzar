@@ -12,34 +12,43 @@ Karzar/
   .github/workflows/
     deploy-staging.yml
     deploy-production.yml
+    backend-ci.yml
 ```
 
-روی سرور فعلاً یک محیط است (`karzartools.com`). مسیرها:
+## محیط‌ها (مهم)
+
+| محیط | شاخه / تریگر | سرور | تأیید |
+|------|---------------|------|--------|
+| **Staging** | push به `main` (با path filter) یا Run workflow | همان VPS زنده (`karzartools.com`) | Environment `staging` (فقط شاخه `main`) |
+| **Production** | **فقط** `workflow_dispatch` با تأیید متنی `deploy-production` | فعلاً **همان VPS** (جدا نشده) | Environment `production` + reviewer `Shebahati` + wait timer |
+
+تا وقتی host جدا برای production نداریم، **Deploy Production را به‌صورت دستی و با تأیید owner بزنید** — push به `main` فقط Staging را جلو می‌اندازد.
+
+مسیرها روی سرور:
 - بک‌اند: `/opt/karzar/Karzar`
 - فرانت: `/opt/karzar/frontend`
-- Runner خودمیزبان: لیبل `karzar-vps` (چون از اینترنت به SSH سرور از GitHub-hosted timeout می‌شود)
+- Runner خودمیزبان: لیبل `karzar-vps`
 
-## استقرار Staging (خودکار)
+> چرا self-hosted؟ از GitHub-hosted به SSH این VPS timeout می‌شود. چرا artifact؟ از خود VPS به `github.com` گاهی 504 می‌دهد؛ بنابراین checkout روی `ubuntu-latest` است و فقط artifact روی runner سرور پیاده می‌شود.
 
-1. روی `main` کار کنید (یا PR بزنید و بعد از merge).
-2. تغییر در `frontend/**` یا بک‌اند را push کنید.
-3. Actions → **Deploy Staging** باید روی runner سرور اجرا و سبز شود.
-4. دستی: Actions → Deploy Staging → **Run workflow**.
+## استقرار Staging (خودکار برای همکار فرانت)
+
+1. روی شاخه فیچر کار کنید → PR به `main` بزنید (نیاز به review).
+2. بعد از merge به `main`، اگر تغییر در `frontend/**` یا مسیرهای بک‌اند دیپلوی باشد، **Deploy Staging** اجرا می‌شود.
+3. دستی: Actions → Deploy Staging → **Run workflow** (از شاخه `main`).
 
 چک سریع بعد از دیپلوی:
 - https://www.karzartools.com/
 - https://admin.karzartools.com/
 - https://api.karzartools.com/ready
 
-## استقرار Production
+## استقرار Production (خطرناک تا جداسازی host)
 
-تا وقتی سرور جدا برای production نداریم، workflow **Deploy Production** همان VPS را هدف می‌گیرد ولی پشت GitHub Environment `production` است (باید `Shebahati` تأیید کند).
+1. Actions → **Deploy Production** → Run workflow
+2. در ورودی `confirm` بنویسید: `deploy-production`
+3. منتظر Approve از `Shebahati` (+ تایمر انتظار) بمانید
 
-راه‌اندازی دستی:
-1. Actions → **Deploy Production** → Run workflow → Approve
-2. یا push به شاخه `production` / تگ `v*`
-
-**توصیه:** تا جداسازی واقعی host، production را فقط با workflow_dispatch + approval بزنید.
+**push به شاخه یا تگ دیگر دیگر Production را خودکار تریگر نمی‌کند.**
 
 ## کار روزمره طراح فرانت
 
@@ -57,8 +66,8 @@ git push -u origin HEAD
 
 ## Secrets / Infrastructure
 
-برای workflowهای فعلی (self-hosted) معمولاً نیازی به `SSH_*` نیست؛ runner روی خود VPS است.
-اگر بعداً به GitHub-hosted + SSH برگشتید:
+برای workflowهای فعلی (self-hosted + artifact) معمولاً نیازی به `SSH_*` در runtime نیست؛ runner روی خود VPS است.
+نام‌های secret موجود در ریپو برای مسیر جایگزین GitHub-hosted+SSH نگه داشته شده‌اند:
 
 | Secret | توضیح |
 |--------|--------|
@@ -67,4 +76,4 @@ git push -u origin HEAD
 | `SSH_PRIVATE_KEY` | کلید خصوصی با دسترسی SSH |
 | `SSH_PORT` | اختیاری؛ پیش‌فرض 22 |
 
-`ADMIN_SESSION_SECRET` روی سرور در `/opt/karzar/.deploy-secrets` نگه داشته می‌شود.
+`ADMIN_SESSION_SECRET` روی سرور در `/opt/karzar/.deploy-secrets` (یا `.env` بک‌اند) نگه داشته می‌شود.

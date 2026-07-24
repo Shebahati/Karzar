@@ -46,7 +46,11 @@ build/
 *.egg-info/
 .deploy-secrets
 .env.staging.generated
-data/
+
+# Backend runtime uploads/backups only (do NOT use bare `data/` — it hides
+# frontend/Storefront/src/data which must be committed)
+/data/
+/data/uploads/
 
 # Frontend artifacts (monorepo)
 frontend/**/node_modules/
@@ -55,8 +59,10 @@ frontend/**/out/
 frontend/**/coverage/
 frontend/**/.turbo/
 frontend/**/.env
+frontend/**/.env.local
 frontend/**/.env*.local
 frontend/**/*.tsbuildinfo
+frontend/**/*.pem
 
 # Ops secrets (never commit)
 .deploy-secrets

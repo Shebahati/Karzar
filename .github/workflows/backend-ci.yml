@@ -3,7 +3,32 @@ name: Backend CI
 on:
   push:
     branches: [main]
+    paths:
+      - "app/**"
+      - "alembic/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - "ruff.toml"
+      - "mypy.ini"
+      - ".github/workflows/backend-ci.yml"
   pull_request:
+    paths:
+      - "app/**"
+      - "alembic/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - "ruff.toml"
+      - "mypy.ini"
+      - ".github/workflows/backend-ci.yml"
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   lint:

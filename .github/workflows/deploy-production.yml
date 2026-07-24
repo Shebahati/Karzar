@@ -1,30 +1,70 @@
 name: Deploy Production
 
 # NOTE (2026-07): Production host is NOT split yet — same VPS as staging (karzartools.com).
-# Gated by GitHub Environment `production` (required reviewer: Shebahati).
-# Uses self-hosted runner on the VPS (GitHub-hosted SSH to this host times out).
+# Dangerous to auto-deploy: ONLY workflow_dispatch + GitHub Environment `production`
+# (required reviewer: Shebahati, wait timer). Do not trigger on push to main.
+# Pattern: package on ubuntu-latest, deploy on self-hosted (avoids VPS→github.com 504).
 on:
-  push:
-    branches: [production]
-    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type deploy-production to confirm (same VPS as staging)'
+        required: true
+        type: string
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
-  deploy:
-    name: Sync + rebuild production
-    runs-on: [self-hosted, karzar-vps]
-    environment: production
+  package:
+    name: Package sources
+    runs-on: ubuntu-latest
+    if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Upload deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-src-${{ github.sha }}
+          path: |
+            .
+            !.git
+            !.github
+            !**/.venv
+            !**/venv
+            !**/node_modules
+            !**/.next
+            !**/__pycache__
+            !**/.pytest_cache
+            !**/.mypy_cache
+            !**/.ruff_cache
+          retention-days: 1
+          include-hidden-files: true
+
+  deploy:
+    name: Sync + rebuild production
+    needs: package
+    runs-on: [self-hosted, karzar-vps]
+    environment: production
+    if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
+    steps:
+      - name: Download deploy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-src-${{ github.sha }}
+          path: ${{ runner.temp }}/production-src
+
       - name: Sync backend → /opt/karzar/Karzar
         run: |
           set -euo pipefail
+          SRC="${{ runner.temp }}/production-src"
           rsync -a --delete \
             --exclude '.git/' \
             --exclude '.github/' \
@@ -44,11 +84,12 @@ jobs:
             --exclude '.ruff_cache/' \
             --exclude '.coverage' \
             --exclude 'actions-runner/' \
-            ./ /opt/karzar/Karzar/
+            "$SRC"/ /opt/karzar/Karzar/
 
       - name: Sync frontend → /opt/karzar/frontend
         run: |
           set -euo pipefail
+          SRC="${{ runner.temp }}/production-src"
           rsync -a --delete \
             --exclude 'node_modules/' \
             --exclude '.next/' \
@@ -56,7 +97,7 @@ jobs:
             --exclude '.git/' \
             --exclude '.env' \
             --exclude '.env*.local' \
-            frontend/ /opt/karzar/frontend/
+            "$SRC"/frontend/ /opt/karzar/frontend/
 
       - name: Rebuild backend + frontend
         run: |

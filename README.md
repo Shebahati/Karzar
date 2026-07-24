@@ -13,7 +13,7 @@
 - **Frontend collaborator deploy guide (FA):** [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md)
 - **Frontend app README:** [frontend/README.md](frontend/README.md)
 
-Push/merge to `main` that touches `frontend/**` (or backend deploy paths) triggers **Deploy Staging** on the self-hosted VPS runner. Production is gated via the `production` GitHub Environment (see collaborator guide).
+Push/merge to `main` that touches `frontend/**` (or backend deploy paths) triggers **Deploy Staging** on the self-hosted VPS runner (sources are packaged on `ubuntu-latest` first). **Deploy Production** is manual-only (`workflow_dispatch` + typed confirm + Environment approval) because production is not on a separate host yet — see [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md).
 
 ---
 

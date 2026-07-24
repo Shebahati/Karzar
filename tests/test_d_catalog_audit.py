@@ -90,8 +90,8 @@ def test_statistics_and_change_log_require_admin(valid_product_data, super_admin
     assert "data" in log.json()
 
 
-def test_product_api_does_not_expose_seo_fields_yet(valid_product_data, super_admin_headers):
-    """DB has slug/meta_* but API contract currently omits them (known SEO debt)."""
+def test_category_slug_endpoint_exposes_seo_fields(valid_product_data, super_admin_headers):
+    """Category public slug endpoint exposes SEO fields; product create omits them."""
     create = client.post(
         "/api/v1/products/",
         json={**valid_product_data, "sku": "D-SEO-DEBT"},
@@ -107,5 +107,6 @@ def test_product_api_does_not_expose_seo_fields_yet(valid_product_data, super_ad
     )
     category = client.get(f"/api/v1/categories/slug/{leaf['slug']}").json()
     assert "slug" in category
-    assert "meta_title" not in category
-    assert "meta_description" not in category
+    # Category SEO fields are part of the live contract (may be null).
+    assert "meta_title" in category
+    assert "meta_description" in category

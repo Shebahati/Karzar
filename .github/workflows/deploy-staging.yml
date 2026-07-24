@@ -1,7 +1,8 @@
 name: Deploy Staging
 
-# Staging today = the live VPS serving karzartools.com (single env until prod is split).
-# Uses self-hosted runner on the VPS because GitHub-hosted runners cannot reach SSH on this host.
+# Staging = live VPS serving karzartools.com (single host until prod is split).
+# Pattern: checkout on GitHub-hosted (VPS often gets 504 from github.com), then
+# artifact → self-hosted runner for local rsync/rebuild. Never runs on fork PRs.
 on:
   push:
     branches: [main]
@@ -23,18 +24,56 @@ concurrency:
   group: deploy-staging
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
-  deploy:
-    name: Sync + rebuild staging
-    runs-on: [self-hosted, karzar-vps]
-    environment: staging
+  package:
+    name: Package sources
+    runs-on: ubuntu-latest
+    # Same-repo only (never trust fork workflows on self-hosted)
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'Shebahati/Karzar'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Upload deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-src-${{ github.sha }}
+          path: |
+            .
+            !.git
+            !.github
+            !**/.venv
+            !**/venv
+            !**/node_modules
+            !**/.next
+            !**/__pycache__
+            !**/.pytest_cache
+            !**/.mypy_cache
+            !**/.ruff_cache
+          retention-days: 1
+          include-hidden-files: true
+
+  deploy:
+    name: Sync + rebuild staging
+    needs: package
+    runs-on: [self-hosted, karzar-vps]
+    environment: staging
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Download deploy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: staging-src-${{ github.sha }}
+          path: ${{ runner.temp }}/staging-src
+
       - name: Sync backend → /opt/karzar/Karzar
         run: |
           set -euo pipefail
+          SRC="${{ runner.temp }}/staging-src"
           rsync -a --delete \
             --exclude '.git/' \
             --exclude '.github/' \
@@ -54,11 +93,12 @@ jobs:
             --exclude '.ruff_cache/' \
             --exclude '.coverage' \
             --exclude 'actions-runner/' \
-            ./ /opt/karzar/Karzar/
+            "$SRC"/ /opt/karzar/Karzar/
 
       - name: Sync frontend → /opt/karzar/frontend
         run: |
           set -euo pipefail
+          SRC="${{ runner.temp }}/staging-src"
           rsync -a --delete \
             --exclude 'node_modules/' \
             --exclude '.next/' \
@@ -66,7 +106,7 @@ jobs:
             --exclude '.git/' \
             --exclude '.env' \
             --exclude '.env*.local' \
-            frontend/ /opt/karzar/frontend/
+            "$SRC"/frontend/ /opt/karzar/frontend/
 
       - name: Rebuild backend + frontend
         run: |

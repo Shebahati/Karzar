@@ -1,0 +1,10 @@
+# Default owners — required reviews for protected branches.
+* @Shebahati
+
+# Frontend (collaborator may propose; owner remains required reviewer via CODEOWNERS)
+/frontend/ @Shebahati @mhrbzandi-Designer
+/docs/COLLABORATOR_DEPLOY.md @Shebahati @mhrbzandi-Designer
+
+# Deploy / CI / secrets surface — owner only
+/.github/ @Shebahati
+/deploy/ @Shebahati
