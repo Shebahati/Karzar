@@ -17,12 +17,13 @@ Karzar/
 روی سرور فعلاً یک محیط است (`karzartools.com`). مسیرها:
 - بک‌اند: `/opt/karzar/Karzar`
 - فرانت: `/opt/karzar/frontend`
+- Runner خودمیزبان: لیبل `karzar-vps` (چون از اینترنت به SSH سرور از GitHub-hosted timeout می‌شود)
 
 ## استقرار Staging (خودکار)
 
 1. روی `main` کار کنید (یا PR بزنید و بعد از merge).
 2. تغییر در `frontend/**` یا بک‌اند را push کنید.
-3. Actions → **Deploy Staging** باید سبز شود.
+3. Actions → **Deploy Staging** باید روی runner سرور اجرا و سبز شود.
 4. دستی: Actions → Deploy Staging → **Run workflow**.
 
 چک سریع بعد از دیپلوی:
@@ -32,10 +33,10 @@ Karzar/
 
 ## استقرار Production
 
-تا وقتی سرور جدا برای production نداریم، workflow **Deploy Production** همان VPS را هدف می‌گیرد ولی پشت GitHub Environment `production` است (باید reviewer تأیید کند).
+تا وقتی سرور جدا برای production نداریم، workflow **Deploy Production** همان VPS را هدف می‌گیرد ولی پشت GitHub Environment `production` است (باید `Shebahati` تأیید کند).
 
 راه‌اندازی دستی:
-1. Actions → **Deploy Production** → Run workflow
+1. Actions → **Deploy Production** → Run workflow → Approve
 2. یا push به شاخه `production` / تگ `v*`
 
 **توصیه:** تا جداسازی واقعی host، production را فقط با workflow_dispatch + approval بزنید.
@@ -54,13 +55,16 @@ git push -u origin HEAD
 
 هرگز این‌ها را commit نکنید: `.env`، `.env.local`، `.deploy-secrets`، کلید SSH.
 
-## Secrets لازم (Repo / Environment)
+## Secrets / Infrastructure
+
+برای workflowهای فعلی (self-hosted) معمولاً نیازی به `SSH_*` نیست؛ runner روی خود VPS است.
+اگر بعداً به GitHub-hosted + SSH برگشتید:
 
 | Secret | توضیح |
 |--------|--------|
 | `SSH_HOST` | IP یا hostname VPS |
 | `SSH_USER` | معمولاً `root` |
-| `SSH_PRIVATE_KEY` | کلید خصوصی Ed25519 با دسترسی SSH |
+| `SSH_PRIVATE_KEY` | کلید خصوصی با دسترسی SSH |
 | `SSH_PORT` | اختیاری؛ پیش‌فرض 22 |
 
-`ADMIN_SESSION_SECRET` روی خود سرور در `/opt/karzar/.deploy-secrets` نگه داشته می‌شود و در workflow چاپ نمی‌شود.
+`ADMIN_SESSION_SECRET` روی سرور در `/opt/karzar/.deploy-secrets` نگه داشته می‌شود.

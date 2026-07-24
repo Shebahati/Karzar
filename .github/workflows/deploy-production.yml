@@ -1,9 +1,8 @@
 name: Deploy Production
 
-# NOTE (2026-07): Production host is NOT split yet — the same VPS currently serves
-# karzartools.com as staging. This workflow is gated behind the GitHub Environment
-# `production` (require reviewers in Settings → Environments). When a dedicated
-# production host exists, point SSH_* secrets on the production environment at it.
+# NOTE (2026-07): Production host is NOT split yet — same VPS as staging (karzartools.com).
+# Gated by GitHub Environment `production` (required reviewer: Shebahati).
+# Uses self-hosted runner on the VPS (GitHub-hosted SSH to this host times out).
 on:
   push:
     branches: [production]
@@ -17,43 +16,16 @@ concurrency:
 jobs:
   deploy:
     name: Sync + rebuild production
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, karzar-vps]
     environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+      - name: Sync backend → /opt/karzar/Karzar
         run: |
           set -euo pipefail
-          test -n "${SSH_PRIVATE_KEY:-}" || { echo "Missing secret SSH_PRIVATE_KEY" >&2; exit 1; }
-          test -n "${SSH_HOST:-}" || { echo "Missing secret SSH_HOST" >&2; exit 1; }
-          test -n "${SSH_USER:-}" || { echo "Missing secret SSH_USER" >&2; exit 1; }
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          PORT="${SSH_PORT:-22}"
-          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-          {
-            echo "Host karzar-vps"
-            echo "  HostName $SSH_HOST"
-            echo "  User $SSH_USER"
-            echo "  Port $PORT"
-            echo "  IdentityFile ~/.ssh/id_deploy"
-            echo "  StrictHostKeyChecking accept-new"
-          } > ~/.ssh/config
-          chmod 600 ~/.ssh/config
-
-      - name: Rsync backend → /opt/karzar/Karzar
-        run: |
-          set -euo pipefail
-          rsync -az --delete \
+          rsync -a --delete \
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude 'frontend/' \
@@ -71,24 +43,23 @@ jobs:
             --exclude '.mypy_cache/' \
             --exclude '.ruff_cache/' \
             --exclude '.coverage' \
-            ./ karzar-vps:/opt/karzar/Karzar/
+            --exclude 'actions-runner/' \
+            ./ /opt/karzar/Karzar/
 
-      - name: Rsync frontend → /opt/karzar/frontend
+      - name: Sync frontend → /opt/karzar/frontend
         run: |
           set -euo pipefail
-          rsync -az --delete \
+          rsync -a --delete \
             --exclude 'node_modules/' \
             --exclude '.next/' \
             --exclude 'out/' \
             --exclude '.git/' \
             --exclude '.env' \
             --exclude '.env*.local' \
-            frontend/ karzar-vps:/opt/karzar/frontend/
+            frontend/ /opt/karzar/frontend/
 
-      - name: Remote rebuild (backend + frontend)
+      - name: Rebuild backend + frontend
         run: |
-          set -euo pipefail
-          ssh karzar-vps bash -s <<'REMOTE'
           set -euo pipefail
           cd /opt/karzar/Karzar
           chmod +x deploy/staging/scripts/*.sh || true
@@ -115,4 +86,3 @@ jobs:
           echo
           curl -sf -o /dev/null -w 'shop:%{http_code}\n' http://127.0.0.1:3000/
           curl -sf -o /dev/null -w 'admin:%{http_code}\n' http://127.0.0.1:3001/ || true
-          REMOTE
