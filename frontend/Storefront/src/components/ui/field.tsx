@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /** Labeled form control wrapper with inline error text. Borderless inputs. */
@@ -8,21 +9,44 @@ export function Field({
   hint,
   className,
   children,
+  htmlFor,
 }: {
   label: string;
   error?: string;
   hint?: string;
   className?: string;
   children: React.ReactNode;
+  htmlFor?: string;
 }) {
+  const autoId = useId();
+  const controlId = htmlFor ?? autoId;
+  const errorId = error ? `${controlId}-error` : undefined;
+  const hintId = !error && hint ? `${controlId}-hint` : undefined;
+  const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
+
+  const control = React.isValidElement(children)
+    ? React.cloneElement(
+        children as React.ReactElement<Record<string, unknown>>,
+        {
+          id: (children.props as { id?: string }).id ?? controlId,
+          "aria-invalid": error ? true : undefined,
+          "aria-describedby": describedBy,
+        },
+      )
+    : children;
+
   return (
-    <label className={cn("block", className)}>
+    <label className={cn("block", className)} htmlFor={controlId}>
       <span className="mb-1.5 block text-sm font-bold text-foreground">{label}</span>
-      {children}
+      {control}
       {error ? (
-        <span className="mt-1 block text-xs text-primary">{error}</span>
+        <span id={errorId} className="mt-1 block text-xs text-primary" role="alert">
+          {error}
+        </span>
       ) : hint ? (
-        <span className="mt-1 block text-xs text-muted-foreground">{hint}</span>
+        <span id={hintId} className="mt-1 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       ) : null}
     </label>
   );

@@ -18,7 +18,7 @@ source = ["app"]
 omit = ["app/main.py"]
 
 [tool.coverage.report]
-fail_under = 62
+fail_under = 67
 show_missing = true
 skip_covered = false
 

@@ -63,19 +63,110 @@ class TestPublicEndpointThrottles:
 class TestImageUrlSsrfGuard:
     def test_blocks_localhost_urls(self):
         with pytest.raises(ValueError, match="internal or private"):
-            validate_product_image_url("http://localhost/image.jpg")
+            validate_product_image_url("http://localhost/image.jpg", resolve_dns=False)
 
     def test_blocks_private_ipv4_urls(self):
         with pytest.raises(ValueError, match="internal or private"):
-            validate_product_image_url("https://192.168.1.10/photo.png")
+            validate_product_image_url("https://192.168.1.10/photo.png", resolve_dns=False)
 
     def test_blocks_metadata_host(self):
         with pytest.raises(ValueError, match="internal or private"):
-            validate_product_image_url("https://metadata.google.internal/logo.webp")
+            validate_product_image_url(
+                "https://metadata.google.internal/logo.webp", resolve_dns=False
+            )
 
-    def test_allows_public_https_image(self):
+    def test_allows_public_https_image(self, monkeypatch):
+        monkeypatch.setattr(
+            "app.utils.image_validation.socket.getaddrinfo",
+            lambda *args, **kwargs: [
+                (0, 0, 0, "", ("203.0.113.10", 0)),
+            ],
+        )
+        # 203.0.113.0/24 is TEST-NET and blocked — use a public-looking address.
+        monkeypatch.setattr(
+            "app.utils.image_validation.socket.getaddrinfo",
+            lambda *args, **kwargs: [
+                (0, 0, 0, "", ("8.8.8.8", 0)),
+            ],
+        )
         url = validate_product_image_url("https://cdn.example.com/products/a.jpg")
         assert url.startswith("https://")
+
+    def test_blocks_dns_rebinding_to_private(self, monkeypatch):
+        monkeypatch.setattr(
+            "app.utils.image_validation.socket.getaddrinfo",
+            lambda *args, **kwargs: [
+                (0, 0, 0, "", ("10.0.0.5", 0)),
+            ],
+        )
+        with pytest.raises(ValueError, match="internal or private"):
+            validate_product_image_url("https://evil.example.com/photo.png")
+
+    def test_rejects_svg_extension(self):
+        with pytest.raises(ValueError, match="image file"):
+            validate_product_image_url(
+                "https://cdn.example.com/logo.svg", resolve_dns=False
+            )
+
+
+class TestCookieCsrfOrigin:
+    def test_cookie_post_without_origin_rejected(self, monkeypatch):
+        monkeypatch.setattr("app.core.security_middleware.settings.DEBUG", False)
+        client.cookies.set("karzar_access", "dummy-token")
+        try:
+            resp = client.post(
+                "/api/v1/contact",
+                json={
+                    "full_name": "کاربر",
+                    "phone": "09125555555",
+                    "subject": "سوال",
+                    "message": "پیام تست برای فرم تماس با ما",
+                },
+            )
+            assert resp.status_code == 403
+            assert resp.json()["error_code"] == "FORBIDDEN"
+        finally:
+            client.cookies.clear()
+
+    def test_cookie_post_with_disallowed_origin_rejected(self, monkeypatch):
+        monkeypatch.setattr("app.core.security_middleware.settings.DEBUG", False)
+        monkeypatch.setattr(
+            "app.core.security_middleware._origin_allowed",
+            lambda origin: False,
+        )
+        client.cookies.set("karzar_access", "dummy-token")
+        try:
+            resp = client.post(
+                "/api/v1/contact",
+                json={
+                    "full_name": "کاربر",
+                    "phone": "09125555556",
+                    "subject": "سوال",
+                    "message": "پیام تست برای فرم تماس با ما",
+                },
+                headers={"Origin": "https://evil.example"},
+            )
+            assert resp.status_code == 403
+        finally:
+            client.cookies.clear()
+
+    def test_cookie_post_same_origin_passes_csrf(self, monkeypatch):
+        monkeypatch.setattr("app.core.security_middleware.settings.DEBUG", False)
+        client.cookies.set("karzar_access", "dummy-token")
+        try:
+            resp = client.post(
+                "/api/v1/contact",
+                json={
+                    "full_name": "کاربر",
+                    "phone": "09125555557",
+                    "subject": "سوال",
+                    "message": "پیام تست برای فرم تماس با ما",
+                },
+                headers={"Origin": "http://testserver"},
+            )
+            assert resp.status_code != 403
+        finally:
+            client.cookies.clear()
 
 
 class TestProductionConfigGuards:

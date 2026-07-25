@@ -25,7 +25,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
   const groups = useMemo(() => buildNavGroups(tree, navDefs), [tree, navDefs]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const panelId = useId();
+  const searchId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,12 +39,40 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
       setQuery("");
       return;
     }
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel
+        ? Array.from(
+            panel.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        document.getElementById("karzar-mega-menu-trigger")?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
+    // Focus search when panel opens for keyboard users.
+    const search = document.getElementById(searchId);
+    search?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, searchId]);
 
   const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0] ?? null;
 
@@ -61,10 +89,11 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          id={panelId}
+          id="karzar-mega-menu"
           ref={panelRef}
-          role="region"
-          aria-label="منوی دسته‌بندی محصولات"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="karzar-mega-menu-trigger"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -138,6 +167,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                             <Search size="small" set="light" />
                           </span>
                           <input
+                            id={searchId}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="جستجو در این گروه…"

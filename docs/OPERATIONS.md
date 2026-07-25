@@ -39,6 +39,8 @@ When `ENABLE_METRICS=true`, scrape:
 GET /metrics
 ```
 
+Nginx staging template restricts `/metrics` to loopback (`allow 127.0.0.1; deny all`). Scrape from the host or a private agent only — never expose publicly.
+
 Health probes:
 
 ```
