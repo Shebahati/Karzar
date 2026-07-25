@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 import * as Icons from "react-iconly";
 import { useCategoryTree } from "@/features/catalog/queries";
 import { useCatalogParams, parseIdList, encodeIdList } from "@/components/catalog/use-catalog-params";
@@ -10,6 +11,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
 const MAX_ROOTS = 3;
+const IMAGE_SIZE = 48;
 
 function CatIcon({ name, active }: { name?: string; active?: boolean }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
@@ -99,6 +101,8 @@ export function RootCategoryCarousel() {
         {roots.map((node) => {
           const active = selected.includes(node.id);
           const highlight = isMetrologyRoot(node);
+          const imageUrl = node.image_url;
+          const isSvg = Boolean(imageUrl?.toLowerCase().includes(".svg"));
           return (
             <button
               key={node.id}
@@ -116,11 +120,22 @@ export function RootCategoryCarousel() {
             >
               <span
                 className={cn(
-                  "grid h-10 w-10 place-items-center rounded-xl",
-                  active ? "bg-white/15" : "bg-secondary",
+                  "grid h-12 w-12 place-items-center overflow-hidden rounded-xl",
+                  active ? "bg-white/15" : "bg-white ring-1 ring-border/40",
                 )}
               >
-                <CatIcon name={node.icon} active={active} />
+                {imageUrl && !active ? (
+                  <Image
+                    src={imageUrl}
+                    alt=""
+                    width={IMAGE_SIZE}
+                    height={IMAGE_SIZE}
+                    className="object-contain p-1"
+                    unoptimized={isSvg}
+                  />
+                ) : (
+                  <CatIcon name={node.icon} active={active} />
+                )}
               </span>
               <span>
                 <span className="line-clamp-2 text-xs font-bold leading-5">{node.name}</span>

@@ -27,6 +27,7 @@ class CategoryFlatResponse(CategoryResponse):
     ancestor_ids: list[int] = Field(default_factory=list)
     product_count: int | None = Field(None, ge=0)
     icon: str | None = None
+    image_url: str | None = None
     meta_title: str | None = None
     meta_description: str | None = None
     spec_template_key: str | None = None
@@ -40,6 +41,7 @@ class CategoryTreeResponse(CategoryResponse):
     """Recursive tree node with nested subcategories."""
 
     icon: str | None = Field(None, description="react-iconly icon name (roots only)")
+    image_url: str | None = Field(None, description="Category card image URL")
     product_count: int | None = Field(None, ge=0)
     subcategories: list["CategoryTreeResponse"] = []
 
@@ -91,6 +93,7 @@ class CategoryCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     parent_id: int | None = None
     icon: str | None = Field(None, max_length=50)
+    image_url: str | None = Field(None, max_length=500)
     meta_title: str | None = Field(None, max_length=255)
     meta_description: str | None = Field(None, max_length=500)
     spec_template_key: str | None = Field(None, max_length=50)
@@ -101,9 +104,15 @@ class CategoryUpdate(BaseModel):
     parent_id: int | None = None
     slug: str | None = Field(None, min_length=1, max_length=200)
     icon: str | None = Field(None, max_length=50)
+    image_url: str | None = Field(None, max_length=500)
     meta_title: str | None = Field(None, max_length=255)
     meta_description: str | None = Field(None, max_length=500)
     spec_template_key: str | None = Field(None, max_length=50)
+
+
+class CategoryImageUploadResponse(BaseModel):
+    id: int
+    image_url: str
 
 
 class CategoryDeleteResponse(BaseModel):

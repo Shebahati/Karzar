@@ -19,6 +19,7 @@ class TestBuildCategoryTree:
         assert len(tree) == 1
         assert tree[0].id == 1
         assert tree[0].subcategories == []
+        assert tree[0].image_url is None
 
     def test_builds_four_levels_deep(self):
         categories = [

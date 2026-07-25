@@ -1,4 +1,4 @@
-"""Local filesystem storage for admin product/brand image uploads."""
+"""Local filesystem storage for admin product/brand/category image uploads."""
 
 from __future__ import annotations
 
@@ -70,3 +70,30 @@ def save_brand_logo_bytes(brand_id: int, content: bytes, extension: str) -> str:
     filename = f"logo-{secrets.token_hex(8)}{suffix}"
     (target_dir / filename).write_bytes(content)
     return f"/static/uploads/brands/{brand_id}/{filename}"
+
+
+async def save_category_image_upload(category_id: int, upload: UploadFile) -> str:
+    """Persist a category card image and return its public URL path."""
+    extension, content = await _read_upload(upload)
+    target_dir = UPLOAD_ROOT / "categories" / str(category_id)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"image-{secrets.token_hex(8)}{extension}"
+    target_path = target_dir / filename
+    target_path.write_bytes(content)
+    return f"/static/uploads/categories/{category_id}/{filename}"
+
+
+def save_category_image_bytes(category_id: int, content: bytes, extension: str) -> str:
+    """Persist raw category image bytes (for seed scripts) and return public URL path."""
+    suffix = extension.lower() if extension.startswith(".") else f".{extension.lower()}"
+    if suffix not in ALLOWED_IMAGE_URL_EXTENSIONS:
+        raise ValueError(f"Unsupported image type: {suffix}")
+    if not content:
+        raise ValueError("Image content is empty")
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise ValueError("Image exceeds the 5 MB size limit")
+    target_dir = UPLOAD_ROOT / "categories" / str(category_id)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"image-{secrets.token_hex(8)}{suffix}"
+    (target_dir / filename).write_bytes(content)
+    return f"/static/uploads/categories/{category_id}/{filename}"
