@@ -4,8 +4,9 @@
 Curated Wikimedia Commons photos of machining tools — matched by root id / Persian
 name. Prefer accurate category-themed imagery (never random Wikipedia page thumbs).
 
-After download, each image is placed on a **square** canvas with ~16% subject margin
-so storefront `object-cover` fills the rounded tile edge-to-edge without clipping
+After download, each image is placed on a **square** canvas with adaptive subject
+margin (tighter for near-square catalog shots, wider for long thin tools) so
+storefront `object-cover` fills the rounded tile edge-to-edge without clipping
 tool tips/corners. PNG preferred when under the upload cap; otherwise JPEG q=95
 with no chroma subsampling (no subject downscale).
 
@@ -44,7 +45,12 @@ USER_AGENT = (
 MIN_BYTES = 800
 MAX_BYTES = MAX_UPLOAD_BYTES
 # Extra canvas margin so object-cover + rounded overflow never clips tips/corners.
+# Near-square sources use a tighter default so the subject fills the tile.
 PAD_RATIO = 0.16
+PAD_RATIO_NEAR_SQUARE = 0.08
+PAD_RATIO_MODERATE = 0.12
+NEAR_SQUARE_AR = 1.2
+MODERATE_AR = 1.6
 MIN_PAD_PX = 48
 JPEG_QUALITY = 95
 
@@ -71,16 +77,17 @@ CURATED_BY_ID: dict[int, list[str]] = {
         "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/MillingCutterSlotEndMillBallnose.jpg/960px-MillingCutterSlotEndMillBallnose.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/End_Mills_and_Drill_Bit.jpg/960px-End_Mills_and_Drill_Bit.jpg",
     ],
-    # مته — drill bits (1920px thumb: full original is >5MB seed cap)
+    # مته — near-square fan of twist/wood bits (fills rounded tile); long strip fallbacks last
     5: [
+        "https://upload.wikimedia.org/wikipedia/commons/7/72/A_variety_of_drill_bits.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Broca8mm.jpg/1280px-Broca8mm.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Drill_bits_2017_G1.jpg/1920px-Drill_bits_2017_G1.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/b/ba/End_Mills_and_Drill_Bit.jpg",
     ],
-    # قلاویز — tap photos (seeded onto square canvas for object-cover tiles)
+    # قلاویز — catalog tap+die kit fills square; single machine tap as fallback
     6: [
-        "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/f/fe/Tarauds_-_Mobilier_national.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/0/01/Threading_dies_and_screw_taps.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/9/96/Machine-screw-tap-1.JPG",
+        "https://upload.wikimedia.org/wikipedia/commons/d/df/ThreadingTaps.jpg",
     ],
     # اندازه گیری — full-res caliper originals (no 960px downscale)
     7: [
@@ -195,16 +202,28 @@ def _edge_rgb(im: Image.Image) -> tuple[int, int, int]:
     return (r, g, b)
 
 
+def _adaptive_pad_ratio(width: int, height: int) -> float:
+    """Tighter margin for near-square catalog shots; wider for long thin tools."""
+    long_side = max(width, height)
+    short_side = min(width, height) or 1
+    aspect = long_side / short_side
+    if aspect <= NEAR_SQUARE_AR:
+        return PAD_RATIO_NEAR_SQUARE
+    if aspect <= MODERATE_AR:
+        return PAD_RATIO_MODERATE
+    return PAD_RATIO
+
+
 def pad_for_card_frame(
     content: bytes,
     *,
-    pad_ratio: float = PAD_RATIO,
+    pad_ratio: float | None = None,
 ) -> tuple[bytes, str]:
     """Place the photo on a square canvas with margin for rounded object-cover tiles.
 
-    Side length is max(w, h) + 2·pad so wide tools (calipers, drills, taps) keep
-    breathing room inside the bitmap; the storefront then fills the rounded square
-    edge-to-edge with no sharp rectangular inset.
+    Side length is max(w, h) + 2·pad so wide tools keep breathing room inside the
+    bitmap; near-square sources use a smaller pad so the subject fills the tile.
+    The storefront then fills the rounded square edge-to-edge.
 
     Prefers lossless PNG for smaller / alpha images when under the upload cap;
     otherwise high-quality JPEG (q=95, no chroma subsampling) — never downscales.
@@ -214,6 +233,7 @@ def pad_for_card_frame(
     has_alpha = im.mode in {"RGBA", "LA"} or (
         im.mode == "P" and "transparency" in im.info
     )
+    ratio = pad_ratio if pad_ratio is not None else _adaptive_pad_ratio(*im.size)
 
     def _encode_jpeg(rgb: Image.Image) -> bytes:
         out = BytesIO()
@@ -238,7 +258,7 @@ def pad_for_card_frame(
         fill: tuple[int, ...] | int,
     ) -> Image.Image:
         w, h = src.size
-        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
+        pad = max(int(max(w, h) * ratio), MIN_PAD_PX)
         side = max(w, h) + 2 * pad
         canvas = Image.new(mode, (side, side), fill)
         ox = (side - w) // 2
