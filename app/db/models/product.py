@@ -175,6 +175,7 @@ class Product(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     pdf_catalog_url: Mapped[str | None] = mapped_column(String(500))
+    short_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     original_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
     specifications: Mapped[dict[str, Any]] = mapped_column(

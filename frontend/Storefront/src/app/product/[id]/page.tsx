@@ -3,6 +3,11 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { catalogKeys } from "@/features/catalog/keys";
 import { getQueryClient } from "@/lib/get-query-client";
+import {
+  resolveJsonLdDescription,
+  resolveMetaDescription,
+  resolveMetaTitle,
+} from "@/lib/product-seo";
 import { catalogService } from "@/services/catalog";
 
 const SITE = "https://www.karzartools.com";
@@ -17,10 +22,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   try {
     const product = await catalogService.getProduct(productId);
-    const title = product.name;
-    const description =
-      product.description?.slice(0, 160) ||
-      `خرید ${product.name} از فروشگاه کارزار با ضمانت اصالت.`;
+    const title = resolveMetaTitle(product.meta_title, product.name);
+    const description = resolveMetaDescription({
+      metaDescription: product.meta_description,
+      shortDescription: product.short_description,
+      description: product.description,
+      name: product.name,
+    });
     const images = product.thumbnail ? [{ url: product.thumbnail }] : undefined;
     return {
       title,
@@ -87,9 +95,11 @@ export default async function ProductPage({ params }: Props) {
             "@id": `${url}#product`,
             name: product.name,
             sku: product.sku,
-            description:
-              product.description?.slice(0, 500) ||
-              `خرید ${product.name} از فروشگاه کارزار`,
+            description: resolveJsonLdDescription({
+              shortDescription: product.short_description,
+              description: product.description,
+              name: product.name,
+            }),
             image: product.thumbnail ? [product.thumbnail] : undefined,
             brand: product.brand?.name
               ? { "@type": "Brand", name: product.brand.name }

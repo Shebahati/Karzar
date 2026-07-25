@@ -110,6 +110,10 @@ export function ProductDetailView({ id }: { id: number }) {
             {product.name}
           </h1>
 
+          {product.short_description ? (
+            <p className="mt-3 text-sm leading-8 text-foreground/90">{product.short_description}</p>
+          ) : null}
+
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
             <span className="text-muted-foreground" dir="ltr">
               کد کالا: {product.sku}

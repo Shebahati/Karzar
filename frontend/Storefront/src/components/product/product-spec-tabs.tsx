@@ -31,7 +31,10 @@ export function ProductSpecTabs({
   return (
     <div className="rounded-2xl bg-card p-5 shadow-soft sm:p-7">
       {description && (
-        <p className="mb-6 text-sm leading-8 text-foreground/90">{description}</p>
+        <div className="mb-6">
+          <h3 className="mb-2 text-sm font-bold text-foreground">توضیحات کامل</h3>
+          <p className="text-sm leading-8 text-foreground/90 whitespace-pre-line">{description}</p>
+        </div>
       )}
 
       {available.length > 0 && (
