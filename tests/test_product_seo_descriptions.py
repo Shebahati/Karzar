@@ -2,11 +2,15 @@
 
 from app.main import app
 from app.utils.seo_descriptions import (
+    display_brand_name,
+    display_category_name,
     is_stub_description,
+    product_lead_from_name,
     render_short_description_template,
     resolve_jsonld_description,
     resolve_meta_description,
     resolve_meta_title,
+    template_apply_ready,
 )
 from fastapi.testclient import TestClient
 
@@ -64,19 +68,75 @@ class TestSeoHelpers:
         )
         assert text.startswith("توضیح کوتاه")
 
+    def test_bilingual_brand_and_category_display(self):
+        assert display_brand_name("INSIZE | اینسایز") == "اینسایز"
+        assert display_category_name("انواع کولیس") == "کولیس"
+
     def test_template_uses_only_sot(self):
         assert render_short_description_template(name="X") is None
         out = render_short_description_template(
             name="کولیس دیجیتال",
-            brand_name="INSIZE",
-            category_name="کولیس دیجیتال",
+            brand_name="INSIZE | اینسایز",
+            category_name="انواع کولیس",
             sku="1108-150",
             technical_specs={"range": "0-150mm"},
         )
         assert out is not None
-        assert "INSIZE" in out
+        assert "اینسایز" in out
+        assert "INSIZE |" not in out
+        assert "انواع " not in out
         assert "0-150mm" in out
         assert "1108-150" in out
+
+    def test_template_reads_nested_persian_specs(self):
+        out = render_short_description_template(
+            name="کولیس دیجیتال اینسایز",
+            brand_name="INSIZE | اینسایز",
+            category_name="کولیس",
+            sku="1108-300",
+            technical_specs={
+                "technical_specs": [
+                    {"key": "دقت", "value": "0/01"},
+                    {"key": "بازه اندازه‌گیری", "value": "0-300mm"},
+                ]
+            },
+        )
+        assert out is not None
+        assert "0-300mm" in out
+        assert "0/01" in out
+
+    def test_template_prefers_name_lead_over_wrong_category(self):
+        lead = product_lead_from_name(
+            "ست کولیس و میکرومتر اینسایز(insize) مدل 5022",
+            brand_name="INSIZE | اینسایز",
+        )
+        assert lead is not None
+        assert "ست کولیس" in lead
+        out = render_short_description_template(
+            name="ست کولیس و میکرومتر اینسایز(insize) مدل 5022",
+            brand_name="INSIZE | اینسایز",
+            category_name="متر",
+            sku="5022",
+        )
+        assert out is not None
+        assert out.startswith("ست کولیس")
+        assert "ست کولیس" in out
+        assert not out.startswith("متر برند")
+
+    def test_apply_ready_requires_safe_specs(self):
+        assert not template_apply_ready(
+            name="کولیس دیجیتال",
+            brand_name="INSIZE | اینسایز",
+            category_name="کولیس",
+            sku="1108-150",
+        )
+        assert template_apply_ready(
+            name="کولیس دیجیتال",
+            brand_name="INSIZE | اینسایز",
+            category_name="کولیس",
+            sku="1108-150",
+            technical_specs={"range": "0-150mm"},
+        )
 
 
 class TestProductSeoApi:
