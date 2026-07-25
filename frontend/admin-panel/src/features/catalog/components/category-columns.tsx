@@ -75,6 +75,15 @@ function CategoryColumn({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">{item.name}</span>
+                      {item.slug ? (
+                        <span className="mt-0.5 block truncate font-mono text-[10px] font-normal text-muted-foreground/80 dir-ltr" dir="ltr">
+                          /{item.slug}
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 block text-[10px] font-medium text-amber-700">
+                          بدون اسلاگ
+                        </span>
+                      )}
                       <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
                         <span>عمق {item.depth}</span>
                         {item.is_selectable ? (
@@ -90,6 +99,11 @@ function CategoryColumn({
                         ) : null}
                         {item.name.trim().startsWith("استاندارد") ? (
                           <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
+                        ) : null}
+                        {item.icon ? (
+                          <span className="rounded bg-sky-50 px-1 text-sky-700" title={item.icon}>
+                            آیکن
+                          </span>
                         ) : null}
                       </span>
                     </span>
