@@ -57,18 +57,20 @@ function CategoryColumn({
                     className="flex min-w-0 flex-1 items-center gap-2 truncate text-start text-sm font-bold"
                     onClick={() => onSelect(item.id)}
                   >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#F7F7F7] text-[10px] text-muted-foreground ring-1 ring-border/30">
+                    <span className="relative block h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-[#F7F7F7] text-[10px] text-muted-foreground ring-1 ring-border/30">
                       {item.image_url ? (
                         <Image
                           src={item.image_url}
                           alt=""
                           width={36}
                           height={36}
-                          className="object-contain p-1.5"
+                          className="h-full w-full object-cover"
                           unoptimized={item.image_url.toLowerCase().includes(".svg")}
                         />
                       ) : (
-                        (item.name || "؟").slice(0, 1)
+                        <span className="grid h-full w-full place-items-center">
+                          {(item.name || "؟").slice(0, 1)}
+                        </span>
                       )}
                     </span>
                     <span className="min-w-0 flex-1">

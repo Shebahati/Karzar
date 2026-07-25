@@ -4,9 +4,10 @@
 Curated Wikimedia Commons photos of machining tools — matched by root id / Persian
 name. Prefer accurate category-themed imagery (never random Wikipedia page thumbs).
 
-After download, each image is padded (~16% margin) so object-contain inside a
-rounded square never clips tool tips/corners. PNG preferred when under the upload
-cap; otherwise JPEG q=95 with no chroma subsampling (no subject downscale).
+After download, each image is placed on a **square** canvas with ~16% subject margin
+so storefront `object-cover` fills the rounded tile edge-to-edge without clipping
+tool tips/corners. PNG preferred when under the upload cap; otherwise JPEG q=95
+with no chroma subsampling (no subject downscale).
 
 Run on the API host / inside the API container (needs DB + writable uploads):
 
@@ -42,7 +43,7 @@ USER_AGENT = (
 )
 MIN_BYTES = 800
 MAX_BYTES = MAX_UPLOAD_BYTES
-# Extra canvas margin so object-contain + rounded overflow never clips tips/corners.
+# Extra canvas margin so object-cover + rounded overflow never clips tips/corners.
 PAD_RATIO = 0.16
 MIN_PAD_PX = 48
 JPEG_QUALITY = 95
@@ -75,7 +76,7 @@ CURATED_BY_ID: dict[int, list[str]] = {
         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Drill_bits_2017_G1.jpg/1920px-Drill_bits_2017_G1.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/b/ba/End_Mills_and_Drill_Bit.jpg",
     ],
-    # قلاویز — near-square tap photos so object-contain fills the card
+    # قلاویز — tap photos (seeded onto square canvas for object-cover tiles)
     6: [
         "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/f/fe/Tarauds_-_Mobilier_national.jpg",
@@ -199,7 +200,11 @@ def pad_for_card_frame(
     *,
     pad_ratio: float = PAD_RATIO,
 ) -> tuple[bytes, str]:
-    """Expand canvas with margin so rounded card clips never cut the tool.
+    """Place the photo on a square canvas with margin for rounded object-cover tiles.
+
+    Side length is max(w, h) + 2·pad so wide tools (calipers, drills, taps) keep
+    breathing room inside the bitmap; the storefront then fills the rounded square
+    edge-to-edge with no sharp rectangular inset.
 
     Prefers lossless PNG for smaller / alpha images when under the upload cap;
     otherwise high-quality JPEG (q=95, no chroma subsampling) — never downscales.
@@ -226,12 +231,27 @@ def pad_for_card_frame(
         img.save(out, format="PNG", optimize=True)
         return out.getvalue()
 
+    def _square_canvas(
+        src: Image.Image,
+        *,
+        mode: str,
+        fill: tuple[int, ...] | int,
+    ) -> Image.Image:
+        w, h = src.size
+        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
+        side = max(w, h) + 2 * pad
+        canvas = Image.new(mode, (side, side), fill)
+        ox = (side - w) // 2
+        oy = (side - h) // 2
+        if mode == "RGBA" and src.mode == "RGBA":
+            canvas.paste(src, (ox, oy), src)
+        else:
+            canvas.paste(src, (ox, oy))
+        return canvas
+
     if has_alpha:
         im = im.convert("RGBA")
-        w, h = im.size
-        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
-        canvas = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0))
-        canvas.paste(im, (pad, pad), im)
+        canvas = _square_canvas(im, mode="RGBA", fill=(0, 0, 0, 0))
         data = _encode_png(canvas)
         if len(data) <= MAX_BYTES:
             return data, ".png"
@@ -241,11 +261,8 @@ def pad_for_card_frame(
         data = _encode_jpeg(flat)
     else:
         im = im.convert("RGB")
-        w, h = im.size
-        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
         bg = _edge_rgb(im)
-        canvas = Image.new("RGB", (w + 2 * pad, h + 2 * pad), bg)
-        canvas.paste(im, (pad, pad))
+        canvas = _square_canvas(im, mode="RGB", fill=bg)
         # Large photos: JPEG only (PNG encode of multi‑MP canvases is slow / oversized).
         if canvas.width * canvas.height <= 2_500_000:
             data = _encode_png(canvas)

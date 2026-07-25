@@ -138,18 +138,18 @@ export function CategoryFormDialog({
           {mode === "edit" && category && (
             <Field label="تصویر کارت (فروشگاه)" htmlFor="category-image">
               <div className="flex items-center gap-3">
-                <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#F7F7F7] ring-1 ring-border/40">
+                <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#F7F7F7] ring-1 ring-border/40">
                   {previewUrl ? (
                     <Image
                       src={previewUrl}
                       alt=""
                       width={64}
                       height={64}
-                      className="object-contain p-2"
+                      className="h-full w-full object-cover"
                       unoptimized={previewUrl.toLowerCase().includes(".svg")}
                     />
                   ) : (
-                    <span className="text-xs text-muted-foreground">بدون تصویر</span>
+                    <span className="grid h-full w-full place-items-center text-xs text-muted-foreground">بدون تصویر</span>
                   )}
                 </span>
                 <div className="flex flex-col gap-2">
