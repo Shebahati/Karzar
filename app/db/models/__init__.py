@@ -11,6 +11,11 @@ from app.db.models.commerce import (
     PaymentTransaction,
     PaymentTransactionStatus,
 )
+from app.db.models.hesabfa import (
+    HesabfaContactMapping,
+    HesabfaInvoiceRecord,
+    HesabfaItemMapping,
+)
 from app.db.models.content import (
     Article,
     ContactSubmission,
@@ -65,6 +70,9 @@ __all__ = [
     "PaymentStatus",
     "PaymentTransaction",
     "PaymentTransactionStatus",
+    "HesabfaItemMapping",
+    "HesabfaContactMapping",
+    "HesabfaInvoiceRecord",
     "Cart",
     "CartItem",
     "CartLane",
