@@ -6,6 +6,7 @@ import {
   isMetrologyRoot,
   isTaxonomyRoot,
   NAV_GROUPS,
+  navGroupsFromApi,
   orderedVisibleRoots,
   sortByNavOrder,
 } from "@/config/nav-groups";
@@ -79,5 +80,33 @@ describe("nav-groups", () => {
       { id: 3, name: "اینسرت", product_count: 5, parent_id: null as number | null, depth: 1 },
     ];
     expect(sortByNavOrder(flat).map((r) => r.id)).toEqual([7, 3, 5]);
+  });
+
+  it("prefers rootCategoryIds over matchers when present", () => {
+    const groups = buildNavGroups(roots, [
+      {
+        id: "custom",
+        label: "سفارشی",
+        rootCategoryIds: [5, 7],
+        rootMatchers: ["اینسرت"],
+      },
+    ]);
+    expect(groups[0]?.roots.map((r) => r.id)).toEqual([5, 7]);
+  });
+
+  it("maps API rows and hides empty when no ids match", () => {
+    const defs = navGroupsFromApi([
+      {
+        id: 1,
+        slug: "metrology",
+        label: "اندازه‌گیری",
+        sort_order: 0,
+        highlight: true,
+        root_category_ids: [7],
+      },
+    ]);
+    expect(defs[0]?.rootCategoryIds).toEqual([7]);
+    const resolved = buildNavGroups(roots, defs);
+    expect(resolved[0]?.id).toBe("metrology");
   });
 });

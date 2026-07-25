@@ -7,6 +7,11 @@ import {
 } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalog";
 import { catalogKeys } from "@/features/catalog/keys";
+import {
+  NAV_GROUPS,
+  navGroupsFromApi,
+  type NavGroupDef,
+} from "@/config/nav-groups";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import type {
@@ -113,6 +118,18 @@ export function useHeroSlides(): UseQueryResult<HeroSlide[]> {
   return useQuery({
     queryKey: catalogKeys.hero(),
     queryFn: () => catalogService.listHeroSlides(),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useNavGroupDefs(): UseQueryResult<NavGroupDef[]> {
+  return useQuery({
+    queryKey: catalogKeys.navGroups(),
+    queryFn: async () => {
+      const rows = await catalogService.listNavGroups();
+      const fromApi = navGroupsFromApi(rows);
+      return fromApi.length > 0 ? fromApi : NAV_GROUPS;
+    },
     staleTime: 10 * 60 * 1000,
   });
 }

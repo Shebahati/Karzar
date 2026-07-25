@@ -147,6 +147,31 @@ export interface ContactSubmissionListParams {
 
 export type ContactSubmissionListResponse = PaginatedResponse<ContactSubmission>;
 
+export interface NavGroup {
+  id: number;
+  slug: string;
+  label: string;
+  sort_order: number;
+  is_enabled: boolean;
+  highlight: boolean;
+  root_category_ids: number[];
+}
+
+export interface NavGroupReplaceItem {
+  slug: string;
+  label: string;
+  sort_order: number;
+  is_enabled: boolean;
+  highlight: boolean;
+  root_category_ids: number[];
+}
+
+export interface NavGroupReplacePayload {
+  groups: NavGroupReplaceItem[];
+}
+
+export type NavGroupListResponse = { data: NavGroup[] };
+
 /** Aliases used by earlier integration pages */
 export type CmsArticle = Article;
 export type CmsArticleCreatePayload = ArticleCreatePayload;

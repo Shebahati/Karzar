@@ -16,6 +16,9 @@ import type {
   HeroSlideUpdatePayload,
   ProductCommentListParams,
   ProductCommentListResponse,
+  NavGroup,
+  NavGroupListResponse,
+  NavGroupReplacePayload,
 } from "@/types/cms";
 
 export const cmsService = {
@@ -106,5 +109,36 @@ export const cmsService = {
       { params },
     );
     return data;
+  },
+
+  async listNavGroups(): Promise<NavGroupListResponse> {
+    if (env.USE_MOCK) {
+      return {
+        data: [
+          {
+            id: 1,
+            slug: "metrology",
+            label: "اندازه‌گیری",
+            sort_order: 0,
+            is_enabled: true,
+            highlight: true,
+            root_category_ids: [],
+          },
+        ],
+      };
+    }
+    const { data } = await apiClient.get<NavGroupListResponse>("/cms/nav-groups");
+    return data;
+  },
+
+  async replaceNavGroups(payload: NavGroupReplacePayload): Promise<NavGroup[]> {
+    if (env.USE_MOCK) {
+      return payload.groups.map((g, idx) => ({
+        id: idx + 1,
+        ...g,
+      }));
+    }
+    const { data } = await apiClient.put<NavGroupListResponse>("/cms/nav-groups", payload);
+    return data.data;
   },
 };

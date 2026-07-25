@@ -19,10 +19,14 @@ from app.schemas.cms import (
     HeroSlideAdminListResponse,
     HeroSlideCreateRequest,
     HeroSlideUpdateRequest,
+    NavGroupListResponse,
+    NavGroupReplaceRequest,
+    NavGroupResponse,
     ProductCommentAdminListResponse,
 )
 from app.schemas.common import build_pagination_meta
 from app.schemas.storefront import HeroSlideResponse, ProductCommentResponse
+from app.services import nav_groups_service
 from app.services.audit_service import record_audit
 
 router = APIRouter()
@@ -244,6 +248,49 @@ async def delete_product_comment_admin(
         details={"product_id": comment.product_id},
     )
     await db.commit()
+
+
+def _nav_group_to_response(row) -> NavGroupResponse:
+    return NavGroupResponse(
+        id=row.id,
+        slug=row.slug,
+        label=row.label,
+        sort_order=row.sort_order,
+        is_enabled=row.is_enabled,
+        highlight=row.highlight,
+        root_category_ids=list(row.root_category_ids or []),
+    )
+
+
+@router.get("/nav-groups", response_model=NavGroupListResponse, tags=["CMS"])
+async def list_nav_groups_admin(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    rows = await nav_groups_service.list_nav_groups(db, enabled_only=False)
+    return {"data": [_nav_group_to_response(row) for row in rows]}
+
+
+@router.put("/nav-groups", response_model=NavGroupListResponse, tags=["CMS"])
+async def replace_nav_groups_admin(
+    payload: NavGroupReplaceRequest,
+    db: AsyncSession = Depends(get_db),
+    admin_user: User = Depends(get_current_super_admin),
+):
+    rows = await nav_groups_service.replace_nav_groups(db, payload)
+    await record_audit(
+        db,
+        actor_user_id=admin_user.id,
+        action="replace",
+        entity_type="megamenu_nav_groups",
+        entity_id=None,
+        details={
+            "count": len(rows),
+            "slugs": [row.slug for row in rows],
+        },
+    )
+    await db.commit()
+    return {"data": [_nav_group_to_response(row) for row in rows]}
 
 
 @router.get("/contact-submissions", response_model=ContactSubmissionListResponse, tags=["CMS"])

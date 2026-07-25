@@ -4,12 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo } from "react";
 import * as Icons from "react-iconly";
-import { useCategoryTree } from "@/features/catalog/queries";
+import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AutoCarousel } from "@/components/ui/auto-carousel";
 import {
   categoryHref,
   isMetrologyRoot,
+  NAV_GROUPS,
   orderedVisibleRoots,
 } from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
@@ -24,8 +25,14 @@ function CategoryIcon({ name }: { name?: string }) {
   return <Icon size="large" set="bold" primaryColor="#5E5F5E" />;
 }
 
-function CategoryCard({ node }: { node: CategoryTreeNode }) {
-  const highlight = isMetrologyRoot(node);
+function CategoryCard({
+  node,
+  navDefs,
+}: {
+  node: CategoryTreeNode;
+  navDefs: typeof NAV_GROUPS;
+}) {
+  const highlight = isMetrologyRoot(node, navDefs);
   const imageUrl = node.image_url;
 
   return (
@@ -77,7 +84,8 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
 /** Root (grandfather) category carousel for the home page — same order as catalog. */
 export function CategoryGrid() {
   const { data, isLoading } = useCategoryTree();
-  const roots = useMemo(() => orderedVisibleRoots(data ?? []), [data]);
+  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
+  const roots = useMemo(() => orderedVisibleRoots(data ?? [], navDefs), [data, navDefs]);
 
   if (isLoading) {
     return (
@@ -94,7 +102,7 @@ export function CategoryGrid() {
   return (
     <AutoCarousel autoPlay intervalMs={2800} itemClassName="w-auto">
       {[...roots, ...roots].map((node, i) => (
-        <CategoryCard key={`${node.id}-${i}`} node={node} />
+        <CategoryCard key={`${node.id}-${i}`} node={node} navDefs={navDefs} />
       ))}
     </AutoCarousel>
   );
