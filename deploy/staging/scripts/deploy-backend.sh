@@ -48,11 +48,14 @@ fi
 
 "${COMPOSE[@]}" up -d
 
-echo "Waiting for /ready ..."
+# TrustedHostMiddleware rejects Host: 127.0.0.1 — probe with a configured host.
+API_PROBE_HOST="${API_PROBE_HOST:-${TRUSTED_HOSTS%%,*}}"
+API_PROBE_HOST="${API_PROBE_HOST// /}"
+echo "Waiting for /ready (Host: ${API_PROBE_HOST}) ..."
 for i in $(seq 1 60); do
-  if curl -sf "http://127.0.0.1:8000/ready" >/dev/null; then
+  if curl -sf -H "Host: ${API_PROBE_HOST}" "http://127.0.0.1:8000/ready" >/dev/null; then
     echo "API ready."
-    curl -sS "http://127.0.0.1:8000/ready"
+    curl -sS -H "Host: ${API_PROBE_HOST}" "http://127.0.0.1:8000/ready"
     echo
     exit 0
   fi

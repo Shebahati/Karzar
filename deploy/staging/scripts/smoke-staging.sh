@@ -9,6 +9,17 @@ API_BASE="${API_BASE:-http://127.0.0.1:8000}"
 SHOP_BASE="${SHOP_BASE:-http://127.0.0.1:3000}"
 ADMIN_BASE="${ADMIN_BASE:-http://127.0.0.1:3001}"
 
+# When probing loopback under TrustedHostMiddleware, send a configured Host.
+if [[ -z "${API_PROBE_HOST:-}" && -f .env ]]; then
+  # shellcheck disable=SC1091
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+API_PROBE_HOST="${API_PROBE_HOST:-${TRUSTED_HOSTS%%,*}}"
+API_PROBE_HOST="${API_PROBE_HOST// /}"
+
 fail=0
 
 check() {
@@ -18,9 +29,12 @@ check() {
   if [[ ${#expect_codes[@]} -eq 0 ]]; then
     expect_codes=(200)
   fi
-  local body
+  local body curl_args=()
   body="$(mktemp)"
-  code="$(curl -sS -o "$body" -w '%{http_code}' "$url" || true)"
+  if [[ "$url" == "$API_BASE"* && -n "${API_PROBE_HOST:-}" ]]; then
+    curl_args+=(-H "Host: ${API_PROBE_HOST}")
+  fi
+  code="$(curl -sS "${curl_args[@]}" -o "$body" -w '%{http_code}' "$url" || true)"
   local ok=0
   for expect in "${expect_codes[@]}"; do
     if [[ "$code" == "$expect" ]]; then
