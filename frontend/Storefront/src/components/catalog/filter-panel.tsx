@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CloseSquare, Search } from "react-iconly";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
-import { useBrands, useFlatCategories, useSpecFilterOptions } from "@/features/catalog/queries";
+import { useBrands, useFlatCategories, useNavGroupDefs, useSpecFilterOptions } from "@/features/catalog/queries";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import { AccordionFilter } from "@/components/catalog/accordion-filter";
 import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
@@ -15,7 +15,7 @@ import {
   parseIdList,
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
-import { isTaxonomyRoot, sortByNavOrder } from "@/config/nav-groups";
+import { isTaxonomyRoot, NAV_GROUPS, sortByNavOrder, type NavGroupDef } from "@/config/nav-groups";
 import type { CategoryFlat } from "@/types/category";
 
 /** Shared filter UI rendered inside the desktop sidebar and the mobile drawer. */
@@ -40,6 +40,7 @@ export function FilterPanel({
   const { data: categories, isLoading: categoriesLoading } = useFlatCategories();
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: specOptions } = useSpecFilterOptions(params.category_id ?? 0);
+  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
 
   const [brandQuery, setBrandQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
@@ -156,6 +157,7 @@ export function FilterPanel({
               categories={scopedCategories}
               activeId={params.category_id}
               searchQuery={categoryQuery}
+              navDefs={navDefs}
               /* Carousel already picked L1 → drill from L2. Else show L1 in home order. */
               excludeRootDepth={selectedRoots.length > 0}
               onSelect={(id) => {
@@ -565,6 +567,7 @@ function CategoryAccordion({
   searchQuery,
   onSelect,
   excludeRootDepth = false,
+  navDefs = NAV_GROUPS,
 }: {
   categories: CategoryFlat[];
   activeId?: number;
@@ -572,6 +575,7 @@ function CategoryAccordion({
   onSelect: (id: number) => void;
   /** When true, skip L1 taxonomy roots (already selected via catalog carousel). */
   excludeRootDepth?: boolean;
+  navDefs?: NavGroupDef[];
 }) {
   const childrenByParent = useMemo(() => {
     const map = new Map<number | null, CategoryFlat[]>();
@@ -679,7 +683,7 @@ function CategoryAccordion({
   const roots = useMemo(() => {
     if (!excludeRootDepth) {
       const top = childrenByParent.get(null) ?? [];
-      return sortByNavOrder(top).filter(
+      return sortByNavOrder(top, navDefs).filter(
         (n) => !searchVisible || searchVisible.has(n.id),
       );
     }
@@ -705,7 +709,7 @@ function CategoryAccordion({
       out.push(n);
     }
     return out;
-  }, [childrenByParent, excludeRootDepth, searchVisible, byId]);
+  }, [childrenByParent, excludeRootDepth, searchVisible, byId, navDefs]);
 
   if (searchVisible && roots.length === 0) {
     return <p className="px-2 py-3 text-xs text-steel">دسته‌ای یافت نشد.</p>;

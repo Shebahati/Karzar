@@ -13,6 +13,7 @@ import { env } from "@/config/env";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import type { SpecFilterOptions } from "@/types/spec-filter";
+import type { NavGroupApiRow } from "@/config/nav-groups";
 import type {
   ProductDetail,
   ProductListParams,
@@ -114,6 +115,17 @@ export const catalogService = {
     if (env.USE_MOCK) return (await getMockApi()).listHeroSlides();
     const { data } = await apiClient.get<{ data: HeroSlide[] }>("/hero-slides/");
     return data.data;
+  },
+
+  async listNavGroups(): Promise<NavGroupApiRow[]> {
+    if (env.USE_MOCK) return [];
+    try {
+      const { data } = await apiClient.get<{ data: NavGroupApiRow[] }>("/nav-groups/");
+      return data.data ?? [];
+    } catch {
+      // Hardcoded NAV_GROUPS fallback when API unavailable.
+      return [];
+    }
   },
 
   async getSpecLabels(): Promise<Record<string, string>> {

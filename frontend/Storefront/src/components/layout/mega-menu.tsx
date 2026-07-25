@@ -4,9 +4,9 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Search } from "react-iconly";
-import { useCategoryTree } from "@/features/catalog/queries";
+import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { buildNavGroups, categoryHref, filterNonEmptyTree } from "@/config/nav-groups";
+import { buildNavGroups, categoryHref, filterNonEmptyTree, NAV_GROUPS } from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -17,11 +17,12 @@ interface MegaMenuProps {
 }
 
 /**
- * Desktop mega menu: 5 merchandising groups, search, hide empty categories.
+ * Desktop mega menu: merchandising groups from API (hardcoded fallback), search, hide empty.
  */
 export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
   const { data: tree = [], isLoading } = useCategoryTree();
-  const groups = useMemo(() => buildNavGroups(tree), [tree]);
+  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
+  const groups = useMemo(() => buildNavGroups(tree, navDefs), [tree, navDefs]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const panelId = useId();

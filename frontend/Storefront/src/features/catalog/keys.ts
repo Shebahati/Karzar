@@ -16,6 +16,7 @@ export const catalogKeys = {
   article: (slug: string) => [...catalogKeys.all, "article", slug] as const,
   productsByIds: (ids: number[]) => [...catalogKeys.all, "productsByIds", ids] as const,
   hero: () => [...catalogKeys.all, "hero"] as const,
+  navGroups: () => [...catalogKeys.all, "nav-groups"] as const,
   specLabels: () => [...catalogKeys.all, "spec-labels"] as const,
   specFilterOptions: (categoryId: number) =>
     [...catalogKeys.all, "spec-filter-options", categoryId] as const,

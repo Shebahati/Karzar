@@ -98,3 +98,32 @@ class ContactSubmissionResponse(BaseModel):
 
 class ContactSubmissionListResponse(PaginatedResponse[ContactSubmissionResponse]):
     pass
+
+
+class NavGroupResponse(BaseModel):
+    id: int
+    slug: str
+    label: str
+    sort_order: int
+    is_enabled: bool
+    highlight: bool
+    root_category_ids: list[int] = Field(default_factory=list)
+
+    model_config = {"from_attributes": True}
+
+
+class NavGroupListResponse(BaseModel):
+    data: list[NavGroupResponse]
+
+
+class NavGroupReplaceItem(BaseModel):
+    slug: str = Field(..., min_length=1, max_length=64)
+    label: str = Field(..., min_length=1, max_length=100)
+    sort_order: int = 0
+    is_enabled: bool = True
+    highlight: bool = False
+    root_category_ids: list[int] = Field(default_factory=list)
+
+
+class NavGroupReplaceRequest(BaseModel):
+    groups: list[NavGroupReplaceItem] = Field(..., min_length=1)
