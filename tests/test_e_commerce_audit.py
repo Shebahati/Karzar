@@ -14,7 +14,7 @@ client = TestClient(app)
 def _create_product(super_admin_headers, valid_product_data, *, sku: str, stock: str = "20"):
     response = client.post(
         "/api/v1/products/",
-        json={**valid_product_data, "sku": sku, "stock_quantity": stock},
+        json={**valid_product_data, "sku": sku, "is_available": float(stock) > 0},
         headers=super_admin_headers,
     )
     assert response.status_code == 201, response.text
@@ -127,6 +127,7 @@ def test_purchase_checkout_rejects_null_price(monkeypatch):
     product = SimpleNamespace(
         id=42,
         is_active=True,
+        is_available=True,
         stock_quantity=5,
         base_price=None,
         tax_percent=0,

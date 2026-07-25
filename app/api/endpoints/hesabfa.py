@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_super_admin
@@ -11,6 +11,7 @@ from app.core.errors import ErrorCode, api_error
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.hesabfa import (
+    HesabfaItemPushResponse,
     HesabfaMappingSyncResponse,
     HesabfaSalesSummaryResponse,
     HesabfaStatusResponse,
@@ -18,9 +19,9 @@ from app.schemas.hesabfa import (
 )
 from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
 from app.services.hesabfa.exceptions import HesabfaError, HesabfaNotConfiguredError
+from app.services.hesabfa.item_push import push_all_site_products_to_hesabfa
 from app.services.hesabfa.mapping import sync_item_mappings_by_sku
 from app.services.hesabfa.sales import get_sales_summary, hesabfa_amount_to_toman
-from app.services.hesabfa.stock_sync import pull_stock_from_hesabfa
 
 router = APIRouter()
 
@@ -53,6 +54,8 @@ async def hesabfa_status(
         warehouse_code=settings.HESABFA_WAREHOUSE_CODE,
         currency_unit=settings.HESABFA_CURRENCY_UNIT,
         stock_sync_interval_seconds=settings.HESABFA_STOCK_SYNC_INTERVAL_SECONDS,
+        stock_pull_enabled=False,
+        item_push_enabled=True,
     )
 
 
@@ -83,27 +86,47 @@ async def sync_mappings(
 
 
 @router.post(
-    "/stock/sync",
-    response_model=HesabfaStockSyncResponse,
-    summary="Pull Hesabfa stock into site for matched SKUs",
+    "/items/push",
+    response_model=HesabfaItemPushResponse,
+    summary="Push site products into Hesabfa as item shells (qty 0)",
 )
-async def sync_stock(
+async def push_items(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
-) -> HesabfaStockSyncResponse:
+    limit: int | None = Query(default=None, ge=1, le=5000),
+) -> HesabfaItemPushResponse:
     _require_hesabfa_ready()
     try:
-        result = await pull_stock_from_hesabfa(db)
-        await db.commit()
+        result = await push_all_site_products_to_hesabfa(db, limit=limit)
     except HesabfaNotConfiguredError as exc:
         raise api_error(503, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
     except HesabfaError as exc:
         raise api_error(502, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
-    return HesabfaStockSyncResponse(
-        checked=result.checked,
+    return HesabfaItemPushResponse(
+        created=result.created,
         updated=result.updated,
-        unchanged=result.unchanged,
-        missing_in_hesabfa=result.missing_in_hesabfa,
+        skipped=result.skipped,
+        errors=result.errors,
+        error_samples=list(result.error_samples),
+    )
+
+
+@router.post(
+    "/stock/sync",
+    response_model=HesabfaStockSyncResponse,
+    summary="Deprecated: Hesabfa→site quantity pull is disabled",
+    deprecated=True,
+)
+async def sync_stock(
+    _: User = Depends(get_current_super_admin),
+) -> HesabfaStockSyncResponse:
+    return HesabfaStockSyncResponse(
+        checked=0,
+        updated=0,
+        unchanged=0,
+        missing_in_hesabfa=0,
+        disabled=True,
+        message="Hesabfa→site quantity sync is disabled; manage stock only in Hesabfa",
     )
 
 

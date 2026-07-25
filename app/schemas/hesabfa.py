@@ -11,6 +11,8 @@ class HesabfaStatusResponse(BaseModel):
     warehouse_code: int | None = None
     currency_unit: str
     stock_sync_interval_seconds: int
+    stock_pull_enabled: bool = False
+    item_push_enabled: bool = True
 
 
 class HesabfaMappingSyncResponse(BaseModel):
@@ -26,6 +28,16 @@ class HesabfaStockSyncResponse(BaseModel):
     updated: int
     unchanged: int
     missing_in_hesabfa: int
+    disabled: bool = True
+    message: str | None = None
+
+
+class HesabfaItemPushResponse(BaseModel):
+    created: int
+    updated: int
+    skipped: int
+    errors: int
+    error_samples: list[str] = Field(default_factory=list)
 
 
 class HesabfaSalesSummaryResponse(BaseModel):

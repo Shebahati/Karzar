@@ -134,6 +134,11 @@ class HesabfaClient:
             return result
         return []
 
+    async def save_item(self, item: dict[str, Any]) -> dict[str, Any]:
+        """Create or update a Hesabfa item (کالا). Stock/qty is not set here (defaults to 0)."""
+        result = await self._post("item/save", {"item": item})
+        return result if isinstance(result, dict) else {}
+
     async def get_contacts(
         self,
         *,

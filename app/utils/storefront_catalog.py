@@ -10,12 +10,10 @@ from app.utils.decimal_utils import to_decimal as _to_decimal
 
 Audience = Literal["admin", "storefront"]
 
-LOW_STOCK_THRESHOLD = Decimal("10.0")
 HIERARCHY_SEPARATOR_ADMIN = " > "
 HIERARCHY_SEPARATOR_STOREFRONT = " › "
 
 STOCK_STATUS_FA_IN = "موجود"
-STOCK_STATUS_FA_LOW = "موجودی محدود"
 STOCK_STATUS_FA_OUT = "ناموجود"
 
 
@@ -23,19 +21,21 @@ def hierarchy_separator(audience: Audience) -> str:
     return HIERARCHY_SEPARATOR_STOREFRONT if audience == "storefront" else HIERARCHY_SEPARATOR_ADMIN
 
 
-def stock_status_label(quantity, *, audience: Audience = "storefront", low_stock: bool = False) -> str:
-    qty = _to_decimal(quantity)
+def stock_status_label(
+    available: bool,
+    *,
+    audience: Audience = "storefront",
+    low_stock: bool = False,
+) -> str:
+    """Return availability label. Site never shows numeric warehouse counts."""
+    del low_stock
     if audience == "storefront":
-        if qty <= Decimal("0.0"):
-            return STOCK_STATUS_FA_OUT
-        if qty < LOW_STOCK_THRESHOLD:
-            return STOCK_STATUS_FA_LOW
-        return STOCK_STATUS_FA_IN
-    if qty <= Decimal("0.0"):
-        return "out_of_stock"
-    if low_stock or qty < LOW_STOCK_THRESHOLD:
-        return "low_stock"
-    return "in_stock"
+        return STOCK_STATUS_FA_IN if available else STOCK_STATUS_FA_OUT
+    return "in_stock" if available else "out_of_stock"
+
+
+def product_is_available(product: Product) -> bool:
+    return bool(product.is_active and getattr(product, "is_available", True))
 
 
 def compute_discount_percent(
@@ -98,9 +98,8 @@ def product_sort_clause(sort: str | None, *, dialect_name: str = "postgresql"):
         return (desc(discount_ratio), Product.created_at.desc(), Product.id.desc())
 
     if key == "stock_first":
-        # In-stock first, then higher quantity, then newest.
-        out_of_stock = case((Product.stock_quantity > 0, 0), else_=1)
-        return (asc(out_of_stock), desc(Product.stock_quantity), Product.created_at.desc())
+        unavailable = case((Product.is_available.is_(True), 0), else_=1)
+        return (asc(unavailable), Product.created_at.desc())
 
     mapping = {
         "newest": (Product.created_at.desc(), Product.id.desc()),

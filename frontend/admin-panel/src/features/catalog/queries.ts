@@ -472,6 +472,30 @@ export function useProductStock(id: number, enabled = true) {
 
 
 
+export function useSetProductAvailability(id: number) {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: (payload: import("@/types/product").ProductAvailabilityPayload) =>
+
+      catalogService.setProductAvailability(id, payload),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.product(id) });
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.products() });
+
+    },
+
+  });
+
+}
+
+
+
 export function useAdjustProductStock(id: number) {
 
   const queryClient = useQueryClient();

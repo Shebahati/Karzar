@@ -257,7 +257,7 @@ def valid_product_data():
         "category_id": 3,
         "brand_id": 1,
         "base_price": "99.99",
-        "stock_quantity": "50",
+        "is_available": True,
         "stock_unit": StockUnitEnum.PIECE.value,
         "is_active": True,
         "specifications": {

@@ -163,7 +163,7 @@ export function createProductFormSchema(template?: CategorySpecTemplate | null) 
       brand_id: z.string(),
       base_price: optionalNumberString({ min: 0 }),
       original_price: optionalNumberString({ min: 0 }),
-      stock_quantity: requiredNumberString({ min: 0 }),
+      is_available: z.boolean(),
       stock_unit: z.enum(STOCK_UNITS),
       weight_grams: optionalNumberString({ min: 0 }),
       tax_percent: requiredNumberString({ min: 0, max: 100 }),
@@ -223,7 +223,7 @@ export const productFormDefaults: ProductFormValues = {
   brand_id: "",
   base_price: "",
   original_price: "",
-  stock_quantity: "0",
+  is_available: true,
   stock_unit: "piece",
   weight_grams: "",
   tax_percent: String(DEFAULT_TAX_PERCENT),
@@ -306,7 +306,7 @@ export function toProductCreatePayload(
     brand_id: values.brand_id ? Number(values.brand_id) : null,
     base_price: parseNullableNumber(values.base_price),
     original_price: parseNullableNumber(values.original_price),
-    stock_quantity: Number(values.stock_quantity),
+    is_available: values.is_available,
     stock_unit: values.stock_unit,
     weight_grams: parseNullableNumber(values.weight_grams),
     tax_percent: Number(values.tax_percent),
@@ -322,10 +322,7 @@ export function toProductUpdatePayload(
   values: ProductFormValues,
   template?: CategorySpecTemplate | null,
 ): ProductUpdatePayload {
-  // Backend blocks stock_quantity on PUT — inventory only via /stock/adjust.
-  const created = toProductCreatePayload(values, template);
-  const { stock_quantity: _ignored, ...updatePayload } = created;
-  return updatePayload;
+  return toProductCreatePayload(values, template);
 }
 
 export function productDetailToFormValues(detail: ProductDetail): ProductFormValues {
@@ -377,7 +374,7 @@ export function productDetailToFormValues(detail: ProductDetail): ProductFormVal
     brand_id: detail.brand_id ? String(detail.brand_id) : "",
     base_price: detail.base_price ?? "",
     original_price: detail.original_price ?? "",
-    stock_quantity: detail.stock_quantity,
+    is_available: detail.is_available ?? detail.availability,
     stock_unit: detail.stock_unit,
     weight_grams: detail.weight_grams ?? "",
     tax_percent: detail.tax_percent,

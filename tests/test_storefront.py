@@ -126,7 +126,8 @@ class TestStorefrontCheckout:
             f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
         )
         assert stock.status_code == 200
-        assert float(stock.json()["stock_quantity"]) == 48.0
+        assert stock.json()["is_available"] is True
+        assert stock.json()["stock_status"] == "in_stock"
 
     def test_guest_purchase_checkout_rejected(
         self, valid_product_data, super_admin_headers, monkeypatch
@@ -160,12 +161,12 @@ class TestStorefrontCheckout:
         assert response.status_code == 403
         assert response.json()["error_code"] == "PURCHASE_AUTH_REQUIRED"
 
-    def test_checkout_insufficient_stock_rejected(
+    def test_checkout_unavailable_rejected(
         self, valid_product_data, super_admin_headers, monkeypatch
     ):
         monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
-        valid_product_data["sku"] = "TEST-LOWSTOCK"
-        valid_product_data["stock_quantity"] = "1"
+        valid_product_data["sku"] = "TEST-UNAVAILABLE"
+        valid_product_data["is_available"] = False
         create = client.post(
             "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
         )
@@ -177,7 +178,7 @@ class TestStorefrontCheckout:
             json={
                 "mode": "purchase",
                 "customer": {"full_name": "رضا محمدی", "phone": "09123333333"},
-                "items": [{"product_id": product_id, "quantity": 5}],
+                "items": [{"product_id": product_id, "quantity": 1}],
                 "shipping": {
                     "province": "تهران",
                     "city": "تهران",
@@ -194,14 +195,13 @@ class TestStorefrontCheckout:
     ):
         monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
         valid_product_data["sku"] = "TEST-DUP"
-        valid_product_data["stock_quantity"] = "10"
         create = client.post(
             "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
         )
         product_id = create.json()["id"]
         auth_headers = customer_auth_headers("09123333333")
 
-        # 8 + 8 = 16 exceeds stock of 10 → must be rejected, not double-counted as 8<10.
+        # Duplicate lines aggregate; availability is boolean (no qty cap on site).
         response = client.post(
             "/api/v1/checkout",
             json={
@@ -220,13 +220,13 @@ class TestStorefrontCheckout:
             },
             headers=auth_headers,
         )
-        assert response.status_code == 400
+        assert response.status_code == 201
 
-    def test_checkout_inquiry_ignores_stock(
+    def test_checkout_inquiry_ignores_availability(
         self, valid_product_data, super_admin_headers
     ):
         valid_product_data["sku"] = "TEST-INQUIRY"
-        valid_product_data["stock_quantity"] = "0"
+        valid_product_data["is_available"] = False
         create = client.post(
             "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
         )

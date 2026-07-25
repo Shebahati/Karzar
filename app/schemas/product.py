@@ -45,6 +45,7 @@ class ProductCreate(BaseModel):
     brand_id: int | None = None
 
     base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
+    is_available: bool = True
     stock_quantity: Decimal = Field(default=Decimal("0.0"), max_digits=12, decimal_places=2)
     stock_unit: StockUnitValue = "piece"
 
@@ -116,6 +117,7 @@ class ProductUpdate(BaseModel):
     category_id: int | None = Field(None, ge=1)
     brand_id: int | None = None
     base_price: Decimal | None = None
+    is_available: bool | None = None
     stock_quantity: Decimal | None = None
     stock_unit: StockUnitValue | None = None
     warranty_text: str | None = None
@@ -184,11 +186,12 @@ class ProductDetailResponse(BaseModel):
     base_price: str | None = None
     original_price: str | None = None
     discount_percent: int | None = None
-    stock_quantity: str
+    stock_quantity: str = "0"
     stock_unit: str
     stock_status: str
-    low_stock: bool
+    low_stock: bool = False
     availability: bool
+    is_available: bool = True
     warranty_text: str | None
     weight_grams: str | None = None
     is_original: bool
@@ -240,12 +243,15 @@ class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
 
 
 class StockStatusResponse(BaseModel):
-    """Admin stock snapshot. stock_status uses English codes: in_stock | low_stock | out_of_stock."""
+    """Admin availability snapshot (no warehouse counts on site)."""
 
     product_id: int
     sku: str
-    stock_quantity: Decimal
+    is_available: bool
+    availability: bool
     stock_status: str
+    stock_quantity: Decimal = Decimal("0")
+    low_stock: bool = False
 
 
 class BulkStockAdjustItem(BaseModel):

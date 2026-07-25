@@ -127,7 +127,7 @@ def test_sync_item_mappings_by_sku(super_admin_headers, valid_product_data):
     asyncio.run(run())
 
 
-def test_pull_stock_updates_matched_only(super_admin_headers, valid_product_data):
+def test_pull_stock_is_disabled_noop(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     product_id = product["id"]
     sku = product["sku"]
@@ -153,11 +153,42 @@ def test_pull_stock_updates_matched_only(super_admin_headers, valid_product_data
             row = (
                 await session.execute(select(Product).where(Product.id == product_id))
             ).scalars().one()
-            return result, Decimal(str(row.stock_quantity))
+            return result, bool(row.is_available), Decimal(str(row.stock_quantity))
 
-    result, new_qty = asyncio.run(setup_and_pull())
-    assert result.updated == 1
-    assert new_qty == Decimal("42")
+    result, available, qty = asyncio.run(setup_and_pull())
+    assert result.disabled is True
+    assert result.updated == 0
+    assert available is True
+    assert qty == Decimal("0")
+
+
+def test_ensure_product_in_hesabfa_creates_mapping(super_admin_headers, valid_product_data):
+    product = _create_product(super_admin_headers, valid_product_data)
+    product_id = product["id"]
+
+    async def run():
+        async with TestingSessionLocal() as session:
+            prod = (
+                await session.execute(select(Product).where(Product.id == product_id))
+            ).scalars().one()
+            mock_client = MagicMock()
+            mock_client.get_items = AsyncMock(return_value={"List": [], "TotalCount": 0})
+            mock_client.save_item = AsyncMock(
+                return_value={"Code": "HF-9", "ProductCode": prod.sku, "Stock": 0}
+            )
+            from app.services.hesabfa.item_push import ensure_product_in_hesabfa
+
+            mapping = await ensure_product_in_hesabfa(session, prod, client=mock_client)
+            await session.commit()
+            return mapping, mock_client
+
+    mapping, mock_client = asyncio.run(run())
+    assert mapping is not None
+    assert mapping.hesabfa_code == "HF-9"
+    mock_client.save_item.assert_awaited_once()
+    payload = mock_client.save_item.await_args.args[0]
+    assert payload["productCode"] == product["sku"]
+    assert "Stock" not in payload
 
 
 def test_invoice_hook_skips_when_unpaid():

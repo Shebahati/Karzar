@@ -52,33 +52,6 @@ async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
             continue
 
 
-async def _hesabfa_stock_sync_worker(stop_event: asyncio.Event) -> None:
-    """Periodically pull Hesabfa stock for SKU-matched products."""
-    from app.services.hesabfa.client import hesabfa_integration_active
-    from app.services.hesabfa.stock_sync import pull_stock_from_hesabfa
-
-    while not stop_event.is_set():
-        interval = settings.HESABFA_STOCK_SYNC_INTERVAL_SECONDS
-        try:
-            if settings.HESABFA_ENABLED and hesabfa_integration_active():
-                if await try_acquire_lock("hesabfa_stock_sync", interval):
-                    async with async_session_maker() as session:
-                        result = await pull_stock_from_hesabfa(session)
-                        await session.commit()
-                        if result.updated:
-                            logger.info(
-                                "Hesabfa stock sync updated=%s checked=%s",
-                                result.updated,
-                                result.checked,
-                            )
-        except Exception:
-            logger.exception("Hesabfa stock sync failed")
-        try:
-            await asyncio.wait_for(stop_event.wait(), timeout=interval)
-        except TimeoutError:
-            continue
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Run startup hooks before serving traffic."""
@@ -86,17 +59,13 @@ async def lifespan(app: FastAPI):
     await bootstrap_catalog_seed()
     stop_event = asyncio.Event()
     expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
-    hesabfa_task = asyncio.create_task(_hesabfa_stock_sync_worker(stop_event))
     try:
         yield
     finally:
         stop_event.set()
         expiry_task.cancel()
-        hesabfa_task.cancel()
         with suppress(asyncio.CancelledError):
             await expiry_task
-        with suppress(asyncio.CancelledError):
-            await hesabfa_task
 
 
 app = FastAPI(

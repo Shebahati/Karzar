@@ -66,6 +66,7 @@ export interface ProductDetail {
   stock_status: string;
   low_stock: boolean;
   availability: boolean;
+  is_available?: boolean;
   warranty_text: string | null;
   weight_grams: string | null;
   is_original: boolean;
@@ -88,7 +89,7 @@ export interface ProductCreatePayload {
   brand_id?: number | null;
   base_price?: number | null;
   original_price?: number | null;
-  stock_quantity: number;
+  is_available: boolean;
   stock_unit: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
@@ -108,6 +109,7 @@ export interface ProductUpdatePayload {
   brand_id?: number | null;
   base_price?: number | null;
   original_price?: number | null;
+  is_available?: boolean;
   stock_unit?: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
@@ -135,18 +137,22 @@ export interface ProductListParams {
 export interface ProductStockInfo {
   product_id: number;
   sku?: string;
-  /** Backend StockStatusResponse field. */
   stock_quantity: string;
   stock_status: string;
-  /** Convenience aliases used by older UI. */
   quantity?: string;
   unit?: StockUnit;
   low_stock?: boolean;
   availability?: boolean;
+  is_available?: boolean;
 }
 
 export interface ProductStockAdjustPayload {
   delta: number;
+  reason?: string | null;
+}
+
+export interface ProductAvailabilityPayload {
+  is_available: boolean;
   reason?: string | null;
 }
 

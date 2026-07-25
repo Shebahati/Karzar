@@ -69,10 +69,11 @@ class Settings(BaseSettings):
     HESABFA_USER_ID: str | None = None
     HESABFA_PASSWORD: str | None = None
     HESABFA_BASE_URL: str = "https://api.hesabfa.com/v1"
-    # When true, stock pull runs but invoice creation is skipped (safe sandbox).
+    # When true, invoice creation is skipped (safe sandbox). Item push still runs.
     HESABFA_TEST_MODE: bool = True
     HESABFA_TIMEOUT_SECONDS: float = Field(default=15.0, ge=1.0, le=120.0)
     HESABFA_WAREHOUSE_CODE: int | None = None
+    # Legacy / unused — Hesabfa→site quantity pull is disabled.
     HESABFA_STOCK_SYNC_INTERVAL_SECONDS: int = Field(default=3600, ge=60, le=86400)
     # Hesabfa monetary unit for invoice unitPrice. Site stores Tomans.
     # "rial" multiplies site Tomans by TOMAN_TO_RIAL; "toman" sends as-is.
