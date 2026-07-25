@@ -110,6 +110,7 @@ class Brand(Base):
     meta_title: Mapped[str | None] = mapped_column(String(255))
     meta_description: Mapped[str | None] = mapped_column(String(500))
     country: Mapped[str | None] = mapped_column(String(50))
+    logo_url: Mapped[str | None] = mapped_column(String(500))
     products: Mapped[list["Product"]] = relationship("Product", back_populates="brand")
 
     def __str__(self) -> str:

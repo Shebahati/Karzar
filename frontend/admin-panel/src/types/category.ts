@@ -38,11 +38,18 @@ export interface Brand {
 export interface BrandCreatePayload {
   name: string;
   country?: string | null;
+  logo_url?: string | null;
 }
 
 export interface BrandUpdatePayload {
   name?: string;
   country?: string | null;
+  logo_url?: string | null;
+}
+
+export interface BrandLogoUploadResponse {
+  id: number;
+  logo_url: string;
 }
 
 export interface CategoryCreatePayload {

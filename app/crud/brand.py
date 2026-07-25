@@ -30,7 +30,13 @@ async def get_brand_by_slug(db: AsyncSession, slug: str) -> Brand | None:
     return result.scalar_one_or_none()
 
 
-async def create_brand(db: AsyncSession, *, name: str, country: str | None) -> Brand:
+async def create_brand(
+    db: AsyncSession,
+    *,
+    name: str,
+    country: str | None,
+    logo_url: str | None = None,
+) -> Brand:
     from app.utils.slugify import ensure_unique_slug
 
     async def _exists(candidate: str) -> bool:
@@ -44,7 +50,7 @@ async def create_brand(db: AsyncSession, *, name: str, country: str | None) -> B
         fallback_prefix="brand",
         max_length=200,
     )
-    brand = Brand(name=name, country=country, slug=slug)
+    brand = Brand(name=name, country=country, slug=slug, logo_url=logo_url)
     db.add(brand)
     await db.flush()
     await db.refresh(brand)
@@ -58,6 +64,8 @@ async def update_brand(
     name: str | None = None,
     country: str | None = None,
     unset_country: bool = False,
+    logo_url: str | None = None,
+    unset_logo: bool = False,
 ) -> Brand:
     if name is not None:
         brand.name = name
@@ -65,6 +73,10 @@ async def update_brand(
         brand.country = None
     elif country is not None:
         brand.country = country
+    if unset_logo:
+        brand.logo_url = None
+    elif logo_url is not None:
+        brand.logo_url = logo_url
     await db.flush()
     await db.refresh(brand)
     return brand

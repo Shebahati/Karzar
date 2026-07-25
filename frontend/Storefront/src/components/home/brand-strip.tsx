@@ -19,6 +19,7 @@ function BrandCard({
   logoUrl?: string | null;
 }) {
   const initial = (name || "B").slice(0, 1);
+  const isSvg = Boolean(logoUrl?.toLowerCase().includes(".svg"));
 
   return (
     <Link
@@ -30,9 +31,16 @@ function BrandCard({
     >
       <div className="pointer-events-none absolute -end-6 -top-6 h-24 w-24 rounded-full bg-steel/5 transition-transform duration-500 group-hover:scale-125" />
       <div className="relative flex items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary text-base font-bold text-steel">
+        <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-base font-bold text-steel">
           {logoUrl ? (
-            <Image src={logoUrl} alt="" width={48} height={48} className="object-contain p-1" />
+            <Image
+              src={logoUrl}
+              alt=""
+              width={56}
+              height={56}
+              className="object-contain p-1.5"
+              unoptimized={isSvg}
+            />
           ) : (
             initial
           )}
