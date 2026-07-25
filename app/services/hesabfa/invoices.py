@@ -15,7 +15,6 @@ from app.core.constants import TOMAN_TO_RIAL
 from app.core.logging import get_logger
 from app.db.models.commerce import Order, OrderMode, PaymentStatus
 from app.db.models.hesabfa import HesabfaInvoiceRecord, HesabfaItemMapping
-from app.db.models.product import Product
 from app.services.hesabfa.client import (
     INVOICE_TYPE_SALE,
     HesabfaClient,
@@ -136,10 +135,6 @@ async def create_invoice_for_paid_order(
             )
         ).scalars().all()
         mapping_by_product = {m.product_id: m for m in mappings}
-        products = (
-            await db.execute(select(Product).where(Product.id.in_(product_ids)))
-        ).scalars().all()
-        products_by_id = {p.id: p for p in products}
 
         missing = [
             item.product_id
@@ -154,19 +149,23 @@ async def create_invoice_for_paid_order(
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
         invoice_items = []
         for idx, item in enumerate(order.items, start=1):
-            product = products_by_id[item.product_id]
             mapping = mapping_by_product[item.product_id]
-            unit_toman = Decimal(str(item.unit_price or product.base_price or 0))
+            # Prefer immutable order-line snapshot; never re-read live catalog price/name/tax.
+            unit_toman = Decimal(str(item.unit_price or 0))
             if unit_toman <= 0:
                 raise ValueError(
-                    f"Product {product.id} has no sellable price for Hesabfa invoice"
+                    f"Order item product_id={item.product_id} has no snapshotted unit_price"
                 )
             unit_price = _to_hesabfa_money(unit_toman)
-            tax = _line_tax(unit_price, item.quantity, Decimal(str(product.tax_percent or 0)))
+            tax = _line_tax(
+                unit_price,
+                item.quantity,
+                Decimal(str(item.tax_percent or 0)),
+            )
             invoice_items.append(
                 {
                     "rowNumber": idx,
-                    "description": product.name,
+                    "description": item.product_name,
                     "itemCode": mapping.hesabfa_code,
                     "unit": "عدد",
                     "quantity": item.quantity,

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash_async
 from app.crud import otp as crud_otp
 from app.db.models.content import OtpPurpose
 from app.db.models.user import User, UserRole
@@ -17,7 +17,8 @@ from app.services.sms_service import SmsMessage, get_sms_provider
 
 
 def _generate_otp_code() -> str:
-    return f"{secrets.randbelow(100000):05d}"
+    # SEC-20: 6-digit OTP (~10^6) instead of 5-digit (~10^5).
+    return f"{secrets.randbelow(1_000_000):06d}"
 
 
 async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
@@ -52,7 +53,7 @@ async def verify_otp(db: AsyncSession, phone: str, code: str) -> OtpVerifyRespon
     if user is None:
         user = User(
             phone_number=phone,
-            hashed_password=get_password_hash(secrets.token_urlsafe(32)),
+            hashed_password=await get_password_hash_async(secrets.token_urlsafe(32)),
             full_name=None,
             role=UserRole.B2C_CUSTOMER,
             is_active=True,
@@ -127,7 +128,7 @@ async def confirm_password_reset(
     if user is None or not user.is_active:
         raise ValueError("No active account found for this phone number")
 
-    user.hashed_password = get_password_hash(new_password)
+    user.hashed_password = await get_password_hash_async(new_password)
     await crud_otp.delete_otp(db, otp)
     await logout_user(db, user)
     await db.commit()

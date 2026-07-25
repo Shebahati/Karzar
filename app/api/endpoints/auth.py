@@ -12,10 +12,10 @@ from app.core.errors import ErrorCode, api_error
 from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
 from app.core.security import (
     create_step_up_token,
-    get_password_hash,
+    get_password_hash_async,
     hash_token,
     verify_admin_pin,
-    verify_password,
+    verify_password_async,
 )
 from app.db.database import get_db
 from app.db.models.user import User, UserRole
@@ -134,7 +134,7 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     role = UserRole.B2B_CUSTOMER if user_in.company_name else UserRole.B2C_CUSTOMER
     new_user = User(
         phone_number=user_in.phone_number,
-        hashed_password=get_password_hash(user_in.password),
+        hashed_password=await get_password_hash_async(user_in.password),
         full_name=user_in.full_name,
         company_name=user_in.company_name,
         role=role,
@@ -167,7 +167,7 @@ async def login(
     )
     user = result.scalars().first()
 
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not await verify_password_async(form_data.password, user.hashed_password):
         await _record_auth_failure(throttle_key)
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
@@ -209,7 +209,7 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    if not verify_password(payload.current_password, current_user.hashed_password):
+    if not await verify_password_async(payload.current_password, current_user.hashed_password):
         raise api_error(
             status.HTTP_401_UNAUTHORIZED,
             error_code=ErrorCode.UNAUTHORIZED,
@@ -221,7 +221,7 @@ async def change_password(
             error_code=ErrorCode.BAD_REQUEST,
             message="New password must be different from current password",
         )
-    current_user.hashed_password = get_password_hash(payload.new_password)
+    current_user.hashed_password = await get_password_hash_async(payload.new_password)
     await logout_user(db, current_user)
     await db.commit()
     return {"ok": True}

@@ -28,12 +28,15 @@ export interface OrderSummary {
   created_at: string;
 }
 
-/** Raw line item from backend (no product name/sku). */
+/** Raw line item from backend (includes order-time catalog snapshot). */
 export interface OrderLineItemRaw {
   id?: number;
   product_id: number;
   quantity: number;
   unit_price: string | null;
+  product_name?: string;
+  product_sku?: string;
+  tax_percent?: string;
 }
 
 export interface OrderLineItem extends OrderLineItemRaw {

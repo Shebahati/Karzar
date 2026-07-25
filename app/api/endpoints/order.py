@@ -109,6 +109,9 @@ def _to_detail(order: Order) -> OrderDetailResponse:
                 product_id=item.product_id,
                 quantity=item.quantity,
                 unit_price=decimal_to_api_string(item.unit_price),
+                product_name=item.product_name,
+                product_sku=item.product_sku,
+                tax_percent=decimal_to_api_string(item.tax_percent) or "0",
             )
             for item in order.items
         ],
@@ -159,6 +162,8 @@ async def track_order(tracking_code: str, request: Request, db: AsyncSession = D
                 product_id=item.product_id,
                 quantity=item.quantity,
                 unit_price=decimal_to_api_string(item.unit_price),
+                product_name=item.product_name,
+                product_sku=item.product_sku,
             )
             for item in order.items
         ],
