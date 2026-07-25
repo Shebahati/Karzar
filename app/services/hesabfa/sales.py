@@ -1,4 +1,9 @@
-"""Admin sales totals: Hesabfa (all) vs website-only paid orders."""
+"""Website paid-sales for admin; Hesabfa reads gated off by default.
+
+Hesabfa-sourced sales/stock metrics must not reach the admin panel unless
+``HESABFA_ADMIN_READS_ENABLED`` is explicitly true (ops only). Invoice write
+and site→Hesabfa item push stay under ``HESABFA_ENABLED``.
+"""
 
 from __future__ import annotations
 
@@ -55,11 +60,7 @@ async def hesabfa_sales_total(
     page_size: int = 100,
     max_pages: int = 50,
 ) -> tuple[Decimal, int]:
-    """Sum sale invoice `Sum` fields from Hesabfa (all channels).
-
-    Amounts are returned in Hesabfa's stored currency (typically Rials when
-    HESABFA_CURRENCY_UNIT=rial).
-    """
+    """Sum sale invoice amounts from Hesabfa (ops tooling only)."""
     api = client or get_hesabfa_client()
     total = Decimal("0")
     count = 0
@@ -74,10 +75,11 @@ async def hesabfa_sales_total(
         if not items:
             break
         for inv in items:
-            # Skip returned invoices when flagged
             if inv.get("Returned") is True:
                 continue
-            amount = Decimal(str(inv.get("Sum") if inv.get("Sum") is not None else inv.get("Payable") or 0))
+            amount = Decimal(
+                str(inv.get("Sum") if inv.get("Sum") is not None else inv.get("Payable") or 0)
+            )
             total += amount
             count += 1
         total_count = int(page.get("TotalCount") or 0)
@@ -98,7 +100,19 @@ async def get_sales_summary(
     *,
     client: HesabfaClient | None = None,
 ) -> SalesSummary:
+    """Website paid totals. Hesabfa figures only if admin reads are explicitly enabled."""
     website_total, website_count = await website_paid_sales(db)
+
+    if not settings.HESABFA_ADMIN_READS_ENABLED:
+        return SalesSummary(
+            website_paid_total_toman=website_total,
+            website_paid_order_count=website_count,
+            hesabfa_sales_total=None,
+            hesabfa_invoice_count=None,
+            hesabfa_currency_unit=settings.HESABFA_CURRENCY_UNIT,
+            hesabfa_available=False,
+            hesabfa_error="hesabfa_admin_reads_disabled",
+        )
 
     if not hesabfa_integration_active():
         return SalesSummary(

@@ -323,12 +323,25 @@ def test_hesabfa_status_endpoint(super_admin_headers):
     assert "test_mode" in body
 
 
-def test_sales_summary_website_only_when_hesabfa_mocked(
+def test_sales_summary_website_only_never_returns_hesabfa(
     super_admin_headers, monkeypatch
 ):
-    monkeypatch.setattr(settings, "HESABFA_ENABLED", False)
+    monkeypatch.setattr(settings, "HESABFA_ENABLED", True)
+    monkeypatch.setattr(settings, "HESABFA_ADMIN_READS_ENABLED", False)
     response = client.get("/api/v1/hesabfa/sales-summary", headers=super_admin_headers)
     assert response.status_code == 200
     body = response.json()
     assert "website_paid_total_toman" in body
     assert body["hesabfa_available"] is False
+    assert body["hesabfa_sales_total"] is None
+    assert body["hesabfa_sales_total_toman"] is None
+    assert body["hesabfa_invoice_count"] is None
+    assert body["hesabfa_error"] == "hesabfa_admin_reads_disabled"
+
+
+def test_hesabfa_status_reports_admin_reads_disabled(super_admin_headers):
+    response = client.get("/api/v1/hesabfa/status", headers=super_admin_headers)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["stock_pull_enabled"] is False
+    assert body["admin_reads_enabled"] is False

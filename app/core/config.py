@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     HESABFA_WAREHOUSE_CODE: int | None = None
     # Legacy / unused — Hesabfa→site quantity pull is disabled.
     HESABFA_STOCK_SYNC_INTERVAL_SECONDS: int = Field(default=3600, ge=60, le=86400)
+    # Admin must never display Hesabfa-sourced metrics (sales totals, stock, etc.).
+    # Invoice-after-payment + site→Hesabfa item push remain gated by HESABFA_ENABLED.
+    HESABFA_ADMIN_READS_ENABLED: bool = False
     # Hesabfa monetary unit for invoice unitPrice. Site stores Tomans.
     # "rial" multiplies site Tomans by TOMAN_TO_RIAL; "toman" sends as-is.
     HESABFA_CURRENCY_UNIT: str = "rial"

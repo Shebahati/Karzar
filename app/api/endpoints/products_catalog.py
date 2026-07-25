@@ -234,6 +234,7 @@ async def read_product_statistics(
         active_products=stats["active_products"],
         total_stock_value=str(stats["total_stock_value"]),
         total_stock_quantity=str(stats["total_stock_quantity"]),
+        available_products=int(stats.get("available_products") or stats["total_stock_quantity"]),
         categories=stats["categories"],
         brands=stats["brands"],
     )

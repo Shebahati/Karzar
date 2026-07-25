@@ -6,7 +6,7 @@ import { hesabfaService } from "@/services/hesabfa";
 export const hesabfaKeys = {
   all: ["hesabfa"] as const,
   status: () => [...hesabfaKeys.all, "status"] as const,
-  salesSummary: () => [...hesabfaKeys.all, "sales-summary"] as const,
+  websiteSales: () => [...hesabfaKeys.all, "website-sales"] as const,
 };
 
 export function useHesabfaStatus() {
@@ -17,10 +17,11 @@ export function useHesabfaStatus() {
   });
 }
 
-export function useHesabfaSalesSummary() {
+/** Website paid-sales only — never displays Hesabfa-sourced metrics. */
+export function useWebsitePaidSales() {
   return useQuery({
-    queryKey: hesabfaKeys.salesSummary(),
-    queryFn: () => hesabfaService.getSalesSummary(),
+    queryKey: hesabfaKeys.websiteSales(),
+    queryFn: () => hesabfaService.getWebsitePaidSales(),
     staleTime: 60_000,
   });
 }

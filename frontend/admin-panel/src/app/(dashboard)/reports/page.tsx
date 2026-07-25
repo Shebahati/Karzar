@@ -102,14 +102,14 @@ export default function ReportsPage() {
             hint={stats ? `${formatNumber(stats.active_products)} فعال` : undefined}
           />
           <ReportStat
-            label="ارزش موجودی"
-            value={statsError ? "—" : formatToman(stats?.total_stock_value ?? 0)}
-            icon={Wallet as IconlyIcon}
-            loading={catalogLoading}
-          />
-          <ReportStat
-            label="جمع موجودی عددی"
-            value={statsError ? "—" : formatNumber(Number(stats?.total_stock_quantity ?? 0))}
+            label="محصولات موجود"
+            value={
+              statsError
+                ? "—"
+                : formatNumber(
+                    stats?.available_products ?? Number(stats?.total_stock_quantity ?? 0),
+                  )
+            }
             icon={Chart as IconlyIcon}
             loading={catalogLoading}
           />
@@ -122,6 +122,12 @@ export default function ReportsPage() {
             }
             icon={Activity as IconlyIcon}
             loading={catalogLoading}
+          />
+          <ReportStat
+            label="کالاهای ناموجود (نمونه)"
+            value={formatNumber(outOfStock.length)}
+            icon={Danger as IconlyIcon}
+            loading={productsPending}
           />
         </div>
       </div>

@@ -1,14 +1,9 @@
 import { apiClient } from "@/lib/api-client";
 
-export interface HesabfaSalesSummary {
+/** Website paid totals only — Hesabfa fields are always null/disabled. */
+export interface WebsitePaidSales {
   website_paid_total_toman: string;
   website_paid_order_count: number;
-  hesabfa_sales_total: string | null;
-  hesabfa_sales_total_toman: string | null;
-  hesabfa_invoice_count: number | null;
-  hesabfa_currency_unit: string;
-  hesabfa_available: boolean;
-  hesabfa_error: string | null;
 }
 
 export interface HesabfaStatus {
@@ -19,6 +14,9 @@ export interface HesabfaStatus {
   warehouse_code: number | null;
   currency_unit: string;
   stock_sync_interval_seconds: number;
+  stock_pull_enabled?: boolean;
+  item_push_enabled?: boolean;
+  admin_reads_enabled?: boolean;
 }
 
 export const hesabfaService = {
@@ -27,8 +25,14 @@ export const hesabfaService = {
     return data;
   },
 
-  async getSalesSummary(): Promise<HesabfaSalesSummary> {
-    const { data } = await apiClient.get<HesabfaSalesSummary>("/hesabfa/sales-summary");
-    return data;
+  async getWebsitePaidSales(): Promise<WebsitePaidSales> {
+    const { data } = await apiClient.get<{
+      website_paid_total_toman: string;
+      website_paid_order_count: number;
+    }>("/hesabfa/sales-summary");
+    return {
+      website_paid_total_toman: data.website_paid_total_toman,
+      website_paid_order_count: data.website_paid_order_count,
+    };
   },
 };
