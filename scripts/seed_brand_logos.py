@@ -2,10 +2,14 @@
 """Download high-quality brand logos and attach them to Brand.logo_url.
 
 Priority (never attach unrelated Wikipedia page thumbnails):
-  1. Curated official / shopmill / Commons logo URLs
-  2. Brandfetch / Clearbit / DDG icon for known tooling domains only
-  3. Wikimedia Commons search only when the File: title contains brand + "logo"
+  1. Local assets in scripts/brand_logo_assets/ (verified official SVGs/PNGs)
+  2. Curated official / shopmill / Commons logo URLs
+  3. Brandfetch / Clearbit / DDG icon for known tooling domains only
+  4. Wikimedia Commons search only when the File: title contains brand + "logo"
      and the hit is an image (not PDF/photo dump)
+
+Ambiguous short names (Acrobat≠Adobe, Jaguar≠car, Winstar≠LCD, …) never use
+loose CDN/Commons matching — curated/local only, otherwise leave logo_url null.
 
 Run on the API host / inside the API container (needs DB + writable uploads):
 
@@ -24,7 +28,7 @@ import mimetypes
 import re
 import sys
 from pathlib import Path
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
 
 import httpx
 from sqlalchemy import select
@@ -40,13 +44,14 @@ USER_AGENT = (
 )
 MIN_BYTES = 800
 MAX_BYTES = 5 * 1024 * 1024
+ASSETS_DIR = Path(__file__).resolve().parent / "brand_logo_assets"
 
 # Ambiguous short names: never auto-match Wikipedia / random CDNs.
-# Only curated URLs (or explicit leave-null) are allowed.
+# Only curated URLs / local assets (or explicit leave-null) are allowed.
 AMBIGUOUS: frozenset[str] = frozenset(
     {
-        "Acrobat",
-        "Jaguar",
+        "Acrobat",  # Turkish tap machine ≠ Adobe Acrobat
+        "Jaguar",  # glass/ceramic drills ≠ Jaguar Cars
         "MAP",
         "Deniz",
         "Emkay",
@@ -59,18 +64,39 @@ AMBIGUOUS: frozenset[str] = frozenset(
         "OMG",
         "Vertex",
         "UTEX",
-        "Winstar",
+        "Winstar",  # cutting tools ≠ Winstar Display (LCD)
         "LI-HSUN",
         "3Keego",
-        "Chumpower",
-        "TIGER TEC",
+        "Chumpower",  # chucks ≠ PET blow-molding chumpower.com
+        "TIGER TEC",  # Chinese HRC mills ≠ Walter Tiger·tec / tigertec.de
         "Groz",
-        "ZPS",
+        "ZPS",  # ZPS-FN tools ≠ TAJMAC-ZPS machines / zps.cz
         "Vogel",  # many unrelated Vogel entities on Commons/Wikipedia
+        "SHAMS",
+        "YOWAX",
+        "Mighty Seven",
     }
 )
 
-# English key → candidate direct URLs (prefer shopmill / Commons logo files).
+# English key → filenames under scripts/brand_logo_assets/ (preferred first).
+LOCAL_ASSETS: dict[str, list[str]] = {
+    "3Keego": ["3keego.svg"],
+    "Chumpower": ["chumpower.svg", "chumpower.png"],
+    "Groz": ["groz.svg"],
+    "Mighty Seven": [
+        "mighty_seven.webp",
+        "mighty_seven.png",
+        "mighty_seven_text.svg",
+    ],
+    "MPA": ["mpa.gif"],
+    "OMG": ["omg.jpg"],
+    "Vertex": ["vertex.gif"],
+    "Vogel": ["vogel.jpg"],
+    "Winstar": ["winstar.png"],
+    "ZPS": ["zps.svg"],
+}
+
+# English key → candidate direct URLs (prefer official SVG/PNG, then shopmill).
 CURATED: dict[str, list[str]] = {
     "Mitutoyo": [
         "https://shopmilltools.com/wp-content/uploads/2025/11/mitutoyo.webp",
@@ -120,6 +146,41 @@ CURATED: dict[str, list[str]] = {
     "RÖHM": [
         "https://upload.wikimedia.org/wikipedia/commons/6/62/R%C3%B6hm_GmbH_logo.svg",
     ],
+    # Newly curated official tooling logos (no Commons auto-guess).
+    "Groz": [
+        "https://groz-tools.com/static/frontend/Groz/Desktop/en_US/images/logo.svg",
+        "https://groz-tools.com/media/logo/stores/1/logo.png",
+    ],
+    "Vogel": [
+        "https://shop.vogel-germany.de/images/logos/logo-vogel-germany_pdf.jpg",
+    ],
+    "Winstar": [
+        "https://www.winstarcutting.com/wp-content/uploads/Logo.png",
+        "https://www.winstarcutting.com.tw/wp-content/uploads/Logo.png",
+    ],
+    "Mighty Seven": [
+        "https://tools.mighty-seven.com/wp-content/uploads/2023/08/m7-logo.webp",
+        "https://www.mighty-seven.com/images/header/logo.png",
+        "https://www.mighty-seven.com/images/header/logo_text.svg",
+    ],
+    "Chumpower": [
+        "https://www.chumpowerchuck.com/images/main_logo.png",
+    ],
+    "3Keego": [
+        "https://asset-3keego.sharkcdn.io/build/3keego/images/3keego-logo.svg",
+    ],
+    "OMG": [
+        "https://www.omgnet.it/upld/risorse/OMG-logo-def_350x3502.jpg",
+    ],
+    "MPA": [
+        "https://www.m-p-a.it/images/logo.gif",
+    ],
+    "Vertex": [
+        "https://www.vertex.co.com/admin/images/vertex-logo.gif",
+    ],
+    "ZPS": [
+        "https://www.zps-fn.cz/public/images/img-sprite.svg",
+    ],
 }
 
 # Domains for Brandfetch/Clearbit/DDG — only unambiguous tooling brands.
@@ -131,20 +192,13 @@ DOMAINS: dict[str, str] = {
     "Dasqua": "dasqua.com",
     "KORLOY": "korloy.com",
     "ZCC.CT": "zccct.com",
-    "Vogel": "vogel-germany.de",
     "Narex": "narex.cz",
     "RÖHM": "roehm.biz",
-    "Groz": "groz-tools.com",
     "GUANGLU": "guanglumeasuring.com",
-    "Chumpower": "chumpower.com",
     "TERMA": "terma.com.pl",
     "DOHRE": "dohre.com",
     "SAN OU": "sanou.com.cn",
-    "TIGER TEC": "tigertec.de",
     "ASTPOWER": "astpower.com",
-    "3Keego": "3keego.com",
-    "ZPS": "zps.cz",
-    "Winstar": "winstar.com.tw",
 }
 
 # Commons File: title must include one of these tokens (normalized) plus "logo".
@@ -155,14 +209,14 @@ COMMONS_ALLOWED: frozenset[str] = frozenset(CURATED) | frozenset(
         "RÖHM",
         "Roehm",
         "Rohm",
-        "MAPAL",  # only if we ever map MAP→MAPAL curated; search still gated
     }
 )
 
 COMMONS_REJECT_TITLE = re.compile(
     r"(pdf|portrait|photo|building|headquarters|newspaper|journal|newsletter|"
     r"agreement|decision|horse|earth|astronaut|crater|mountain|ubuntu|"
-    r"university|music|saarland|verlag|publisher|plexiglas|kochi)",
+    r"university|music|saarland|verlag|publisher|plexiglas|kochi|"
+    r"adobe|acrobat|jaguar.?cars|land.?rover|groz.?beckert|winstar.?display)",
     re.I,
 )
 
@@ -201,6 +255,45 @@ def _sniff_ext(content: bytes, url: str, content_type: str | None) -> str | None
     return None
 
 
+def _load_local(name: str) -> tuple[bytes, str, str] | None:
+    for filename in LOCAL_ASSETS.get(name, []):
+        path = ASSETS_DIR / filename
+        if not path.is_file():
+            continue
+        content = path.read_bytes()
+        if len(content) < MIN_BYTES or len(content) > MAX_BYTES:
+            continue
+        ext = _sniff_ext(content, str(path), None) or path.suffix.lower()
+        if ext not in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}:
+            continue
+        if ext == ".jpeg":
+            ext = ".jpg"
+        return content, ext, f"local:{filename}"
+    return None
+
+
+def _extract_zps_logo_from_sprite(content: bytes) -> tuple[bytes, str] | None:
+    """ZPS-FN ships the mark inside an SVG sprite (#logo)."""
+    text = content.decode("utf-8", "ignore")
+    m = re.search(
+        r'<symbol[^>]+id=["\']logo["\'][^>]*>(.*?)</symbol>',
+        text,
+        re.I | re.S,
+    )
+    if not m:
+        return None
+    vb = re.search(r'viewBox=["\']([^"\']+)["\']', m.group(0))
+    view = vb.group(1) if vb else "0 0 137.6 29.4"
+    inner = re.sub(r"^<symbol[^>]*>|</symbol>$", "", m.group(0), flags=re.I | re.S)
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view}">'
+        f"{inner}</svg>"
+    ).encode()
+    if len(svg) < MIN_BYTES:
+        return None
+    return svg, ".svg"
+
+
 async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[bytes, str] | None:
     try:
         resp = await client.get(url, follow_redirects=True, timeout=25.0)
@@ -214,6 +307,13 @@ async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[bytes, str] | Non
     ct = resp.headers.get("content-type", "")
     if "html" in ct.lower() and b"<svg" not in content[:500].lower():
         return None
+    # ZPS-FN sprite: extract #logo symbol instead of storing the whole sprite.
+    if "img-sprite.svg" in url and (
+        b'id="logo"' in content or b"id='logo'" in content
+    ):
+        extracted = _extract_zps_logo_from_sprite(content)
+        if extracted:
+            return extracted
     ext = _sniff_ext(content, url, ct)
     if not ext:
         return None
@@ -242,6 +342,11 @@ async def commons_logo_search(
     name: str,
 ) -> tuple[bytes, str] | None:
     """Commons File: search — only titles containing brand + logo."""
+    if name not in COMMONS_ALLOWED and _norm_token(name) not in {
+        _norm_token(x) for x in COMMONS_ALLOWED
+    }:
+        return None
+
     queries = [f"{name} logo", f'"{name}" logo']
     if name == "RÖHM":
         queries = ["Röhm GmbH logo", "Roehm GmbH logo", "Röhm logo chuck"]
@@ -330,12 +435,16 @@ async def resolve_logo(
     client: httpx.AsyncClient,
     name: str,
 ) -> tuple[bytes, str, str] | None:
+    local = _load_local(name)
+    if local:
+        return local
+
     for url in CURATED.get(name, []):
         got = await _fetch(client, url)
         if got:
             return got[0], got[1], f"curated:{url}"
 
-    # Ambiguous brands: curated only — never Wikipedia pageimages / loose search.
+    # Ambiguous brands: curated/local only — never Wikipedia pageimages / loose search.
     if name in AMBIGUOUS:
         return None
 
