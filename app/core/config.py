@@ -192,7 +192,11 @@ class Settings(BaseSettings):
             "121212",
             "654321",
             "84729101",
+            "8472916350",  # former .env.example footgun (SEC-28)
             "change-me-admin-pin",
+            "replace-with-strong-pin",
+            "replace-with-strong-pin-min-8-digits",
+            "replace-me-with-unique-strong-pin",
         }
         is_production = self.APP_ENV == "production"
         harden = (not self.DEBUG) or is_production

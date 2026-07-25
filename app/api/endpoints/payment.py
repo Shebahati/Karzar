@@ -45,8 +45,10 @@ from app.services.payment_service import (
     PaymentVerifyFailedError,
     get_payment_provider,
 )
+from app.core.logging import get_logger
 
 router = APIRouter()
+logger = get_logger(__name__)
 
 _PAYMENT_INIT_MAX_ATTEMPTS = 20
 _PAYMENT_INIT_WINDOW_SECONDS = 300
@@ -259,11 +261,24 @@ async def payment_callback(
     if not resolved_authority:
         return RedirectResponse(settings.PAYMENT_FAILURE_REDIRECT_URL, status_code=status.HTTP_302_FOUND)
 
-    order = await crud_commerce.get_order_by_payment_authority(db, resolved_authority)
+    # BE-22: lock the order row the same way POST /verify does.
+    order = await crud_commerce.get_order_by_payment_authority_for_update(db, resolved_authority)
     if order is None:
         return RedirectResponse(settings.PAYMENT_FAILURE_REDIRECT_URL, status_code=status.HTTP_302_FOUND)
 
-    await _check_public_verify_rate_limit(order.id)
+    try:
+        await _check_public_verify_rate_limit(order.id)
+    except Exception:
+        # Browser mid-redirect: never return JSON 429 — send to failure URL.
+        await db.rollback()
+        return RedirectResponse(
+            _build_redirect_url(
+                settings.PAYMENT_FAILURE_REDIRECT_URL,
+                tracking_code=order.tracking_code,
+                paid=False,
+            ),
+            status_code=status.HTTP_302_FOUND,
+        )
 
     try:
         await verify_order_payment(
@@ -278,8 +293,17 @@ async def payment_callback(
             _build_redirect_url(settings.PAYMENT_SUCCESS_REDIRECT_URL, tracking_code=order.tracking_code, paid=True),
             status_code=status.HTTP_302_FOUND,
         )
-    except Exception:
+    except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError, ValueError):
+        # BE-02: expected failures — commit failure bookkeeping, then redirect.
         await db.commit()
+        return RedirectResponse(
+            _build_redirect_url(settings.PAYMENT_FAILURE_REDIRECT_URL, tracking_code=order.tracking_code, paid=False),
+            status_code=status.HTTP_302_FOUND,
+        )
+    except Exception:
+        # Unexpected errors must not commit partial money-path state.
+        logger.exception("Unexpected error in payment callback for order_id=%s", order.id)
+        await db.rollback()
         return RedirectResponse(
             _build_redirect_url(settings.PAYMENT_FAILURE_REDIRECT_URL, tracking_code=order.tracking_code, paid=False),
             status_code=status.HTTP_302_FOUND,
@@ -390,11 +414,40 @@ async def payment_refund(
     except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError) as exc:
         _raise_gateway_error(exc)
 
-    if result.success:
-        order.payment_status = PaymentStatus.REFUNDED.value
-        if result.refund_id:
-            order.payment_refund_id = result.refund_id
-        if order.status != OrderStatus.CANCELLED.value:
+    if not result.success:
+        # BE-20: declined refunds must not look like success (was HTTP 200).
+        raise api_error(
+            status.HTTP_502_BAD_GATEWAY,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Payment gateway declined the refund",
+            details=[{"field": "refund", "message": "gateway declined refund"}],
+        )
+
+    # Persist payment refund state independently of order-status transition so a
+    # later ValueError cannot roll back money-path bookkeeping after gateway success.
+    order.payment_status = PaymentStatus.REFUNDED.value
+    if result.refund_id:
+        order.payment_refund_id = result.refund_id
+    await record_payment_refunded(
+        db,
+        order,
+        authority=get_order_payment_authority(order),
+        ref_id=ref_id,
+        refund_id=result.refund_id,
+        ip_address=_client_ip(request),
+    )
+    await record_audit(
+        db,
+        actor_user_id=current_user.id,
+        action="payment_refund",
+        entity_type="order",
+        entity_id=order.id,
+        details={"refund_id": result.refund_id, "ref_id": ref_id},
+    )
+    await db.flush()
+
+    if order.status != OrderStatus.CANCELLED.value:
+        try:
             await transition_order_status(
                 db,
                 order,
@@ -402,23 +455,15 @@ async def payment_refund(
                 actor="admin",
                 event_description="سفارش پس از بازپرداخت لغو شد",
             )
-        await record_payment_refunded(
-            db,
-            order,
-            authority=get_order_payment_authority(order),
-            ref_id=ref_id,
-            refund_id=result.refund_id,
-            ip_address=_client_ip(request),
-        )
-        await record_audit(
-            db,
-            actor_user_id=current_user.id,
-            action="payment_refund",
-            entity_type="order",
-            entity_id=order.id,
-            details={"refund_id": result.refund_id, "ref_id": ref_id},
-        )
-        await db.commit()
+        except ValueError as exc:
+            # Payment is already REFUNDED; keep that even if status machine rejects.
+            logger.warning(
+                "Refund recorded but order status transition failed order_id=%s: %s",
+                order.id,
+                exc,
+            )
+
+    await db.commit()
 
     refreshed = await crud_commerce.get_order_by_id(db, payload.order_id)
     return PaymentRefundResponse(

@@ -14,6 +14,8 @@ os.environ.setdefault("ADMIN_STEP_UP_PIN", "93827461")
 os.environ["ENABLE_API_DOCS"] = "false"
 os.environ["ALLOW_PUBLIC_REGISTER"] = "true"
 os.environ["OTP_DEV_ECHO"] = "true"
+os.environ["SMS_PROVIDER"] = "console"
+os.environ["PAYMENT_PROVIDER"] = "mock"
 
 USE_POSTGRES_TESTS = os.environ.get("USE_POSTGRES_TESTS", "").lower() in ("1", "true", "yes")
 

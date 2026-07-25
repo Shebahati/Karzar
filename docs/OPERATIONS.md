@@ -150,9 +150,18 @@ Daily cron (with DB): `sudo bash deploy/staging/scripts/install-backup-cron.sh`
 ./scripts/restore_uploads.sh backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
 ```
 
-### Off-host requirement (Phase 0)
+### Off-host requirement (OPS-02 / Phase 0)
 
-On-host `./backups/` is **not** disaster recovery. After each dump/archive (or via sync job), copy both DB and uploads artifacts to off-host object storage. Retention suggestion: 7 daily + 4 weekly.
+On-host `./backups/` is **not** disaster recovery. After each dump/archive, sync to off-host storage:
+
+```bash
+# Set in server secrets (never commit):
+#   BACKUP_OFFSITE_URI=s3://your-bucket/karzar/
+#   BACKUP_LOCAL_DIR=/opt/karzar/backups
+sudo bash scripts/backup_offsite_sync.sh
+```
+
+Wire into cron after `install-backup-cron.sh` (append the sync job). Retention suggestion: 7 daily + 4 weekly off-host.
 
 ### Restore drill checklist
 

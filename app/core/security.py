@@ -1,5 +1,6 @@
 """Password hashing, JWT access tokens, and step-up authentication tokens."""
 
+import asyncio
 import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
@@ -15,7 +16,7 @@ STEP_UP_TOKEN_TYPE = "step_up"
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Constant-time bcrypt password comparison."""
+    """Constant-time bcrypt password comparison (sync; prefer verify_password_async)."""
     return bcrypt.checkpw(
         plain_password.encode("utf-8"),
         hashed_password.encode("utf-8"),
@@ -23,11 +24,20 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a plaintext password with a freshly generated bcrypt salt."""
+    """Hash a plaintext password with a freshly generated bcrypt salt (sync)."""
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
     return hashed.decode("utf-8")
 
+
+async def verify_password_async(plain_password: str, hashed_password: str) -> bool:
+    """BE-23: run bcrypt off the event loop."""
+    return await asyncio.to_thread(verify_password, plain_password, hashed_password)
+
+
+async def get_password_hash_async(password: str) -> str:
+    """BE-23: run bcrypt off the event loop."""
+    return await asyncio.to_thread(get_password_hash, password)
 
 def create_access_token(
     subject: str | Any,

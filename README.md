@@ -19,7 +19,10 @@ Push/merge to `main` that touches `frontend/**` (or backend deploy paths) trigge
 
 # Backend — Industrial Lathe Tools API
 
-A modern, production-ready FastAPI application for managing industrial lathe tools inventory with comprehensive product management, stock control, and authentication.
+A FastAPI application for Karzar industrial-tools commerce: catalog, availability,
+authentication, checkout, and payments. **Inventory on the site is binary
+(available / unavailable)** — warehouse counts live only in Hesabfa, not as
+sellable quantities on the storefront.
 
 ## Features
 
@@ -31,7 +34,7 @@ A modern, production-ready FastAPI application for managing industrial lathe too
 - ✅ **Error Handling**: Global exception handlers with proper HTTP status codes
 - ✅ **Logging**: Structured logging for debugging and monitoring
 - ✅ **Health Checks**: Kubernetes and Docker orchestration ready
-- ✅ **Stock Management**: Real-time inventory tracking
+- ✅ **Availability**: Binary `is_available` flag (not quantity tracking on site)
 - ✅ **Soft Deletes**: Non-destructive product removal
 - ✅ **Advanced Filtering**: Search, categorization, and price range filtering
 - ✅ **Pagination**: Efficient data retrieval with skip/limit
@@ -216,7 +219,7 @@ Content-Type: application/json
   "category_id": 1,
   "brand_id": 1,
   "base_price": 99.99,
-  "stock_quantity": 50,
+  "is_available": true,
   "specifications": { "technical_specs": { "range": "0-150mm" } }
 }
 ```
@@ -233,7 +236,7 @@ GET /api/v1/products/?spec_technical_specs__range=0-150mm
 Response:
 ```json
 {
-  "data": [{ "id": 1, "sku": "...", "name": "...", "thumbnail": null, "base_price": "99.99", "stock_status": "in_stock", "category": { "id": 1, "name": "..." }, "brand": { "id": 1, "name": "..." } }],
+  "data": [{ "id": 1, "sku": "...", "name": "...", "thumbnail": null, "base_price": "99.99", "availability": "in_stock", "category": { "id": 1, "name": "..." }, "brand": { "id": 1, "name": "..." } }],
   "meta": { "total_count": 1, "skip": 0, "limit": 100, "has_next": false, "has_prev": false }
 }
 ```
@@ -268,7 +271,8 @@ POST /api/v1/products/{product_id}/restore
 GET /api/v1/categories/tree
 ```
 
-Response: `{ "data": [ { "id": 1, "name": "...", "parent_id": null, "subcategories": [...] } ] }`
+Response: a **raw JSON array** of root nodes (not wrapped in `{ "data": [...] }`):
+`[ { "id": 1, "name": "...", "parent_id": null, "subcategories": [...] } ]`
 
 ### Brands
 
@@ -283,9 +287,10 @@ DELETE /api/v1/brands/{id}          # super admin + X-Step-Up-Token
 
 ```http
 GET    /api/v1/cart/
-POST   /api/v1/cart/items
-PATCH  /api/v1/cart/items/{product_id}
+PUT    /api/v1/cart/items              # upsert item (product_id + quantity)
 DELETE /api/v1/cart/items/{product_id}
+DELETE /api/v1/cart/                    # clear cart
+POST   /api/v1/cart/merge               # merge guest cart after login
 ```
 
 Cart merges into the authenticated user on login.
@@ -333,19 +338,21 @@ GET   /api/v1/users?page=1&page_size=20&search=0912&sort=created_desc
 PATCH /api/v1/users/{id}
 ```
 
-### Stock Management
+### Availability (legacy stock routes)
 
-#### Get Stock Status
+Site inventory is **binary**. Prefer product create/update `is_available`.
+
 ```http
 GET /api/v1/products/{product_id}/stock
 ```
 
-Response: `{ "product_id": 1, "sku": "...", "stock_quantity": "50", "stock_status": "in_stock" }`
+Response shape (legacy field names retained): `{ "product_id": 1, "sku": "...", "stock_quantity": "0", "stock_status": "in_stock"|"out_of_stock", "low_stock": false }` — `stock_quantity` is not a real count.
 
-#### Adjust Stock
 ```http
 POST /api/v1/products/{product_id}/stock/adjust?quantity_delta=10
 ```
+
+**Deprecated:** maps positive/negative delta to availability toggle. Do not use for quantity accounting.
 
 ### Authentication
 
@@ -555,5 +562,6 @@ For issues and questions, please create an issue in the repository.
 
 ---
 
-**Last Updated**: 2026-07-12  
-**Version**: 1.0.0 (API v1)
+**Last Updated**: 2026-07-25  
+**Version**: 1.0.0 (API v1)  
+**Engineering SoT for quality bar:** [`docs/audits/v2/master-engineering-report-v2.md`](docs/audits/v2/master-engineering-report-v2.md) · remediation plan [`docs/audits/v2/REMEDIATION-TO-9.md`](docs/audits/v2/REMEDIATION-TO-9.md)

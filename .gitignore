@@ -8,6 +8,13 @@ env/
 .env
 .env.local
 .env.*.local
+.env.staging
+.env.production
+.env*.backup
+*.pem
+*.key
+credentials.json
+secrets/
 
 # فایل‌های کش پایتون
 __pycache__/
