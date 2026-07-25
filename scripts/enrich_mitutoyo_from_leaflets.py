@@ -282,12 +282,14 @@ def index_pdfs(pdf_dir: Path) -> dict[str, dict[str, Any]]:
             start = max(0, m.start() - 220)
             end = min(len(scrubbed), m.end() + 320)
             ctx = scrubbed[start:end]
-            specs = extract_specs_from_context(ctx, leaflet=leaflet)
-            if not specs:
+            specs = extract_specs_from_context(ctx, leaflet=leaflet, sku=sku)
+            if not specs or set(specs.keys()) <= {"source_leaflet"}:
                 # try raw (still scrubbed prices) wider window
                 start = max(0, m.start() - 400)
                 end = min(len(scrubbed), m.end() + 500)
-                specs = extract_specs_from_context(scrubbed[start:end], leaflet=leaflet)
+                specs = extract_specs_from_context(
+                    scrubbed[start:end], leaflet=leaflet, sku=sku
+                )
             hits[sku] = {
                 "sku": sku,
                 "pdf": pdf.name,
@@ -298,7 +300,7 @@ def index_pdfs(pdf_dir: Path) -> dict[str, dict[str, Any]]:
     return hits
 
 
-def extract_specs_from_context(ctx: str, *, leaflet: str) -> dict[str, str]:
+def extract_specs_from_context(ctx: str, *, leaflet: str, sku: str | None = None) -> dict[str, str]:
     """Pull only factual metrology fields; never prices."""
     if PRICE_TOKEN_RE.search(ctx) and "€" in ctx:
         ctx = scrub_price_noise(ctx)
@@ -339,6 +341,16 @@ def extract_specs_from_context(ctx: str, *, leaflet: str) -> dict[str, str]:
         m = RESOLUTION_RE.search(ctx)
         if m:
             specs["resolution"] = re.sub(r"\s+", " ", m.group(1)).strip()
+
+    # Reject order-number false positives mistaken for ranges (e.g. "293-251 mm")
+    rng = specs.get("range")
+    if rng:
+        core = re.sub(r"(?i)\s*(mm|in|µm|um|μm)\s*$", "", rng).strip()
+        if sku and core.upper() == sku.upper():
+            specs.pop("range", None)
+        elif re.fullmatch(r"\d{2,4}-\d{2,4}(?:-\d{1,2})?[A-Z]?", core, re.I):
+            # Mitutoyo order-No. shape without a clear measuring span → drop
+            specs.pop("range", None)
 
     ip = IP_RE.search(ctx)
     if ip:
