@@ -64,7 +64,7 @@ function CategoryColumn({
                           alt=""
                           width={36}
                           height={36}
-                          className="object-contain p-0.5"
+                          className="object-contain p-1.5"
                           unoptimized={item.image_url.toLowerCase().includes(".svg")}
                         />
                       ) : (
