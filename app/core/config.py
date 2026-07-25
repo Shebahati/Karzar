@@ -99,6 +99,12 @@ class Settings(BaseSettings):
     LOG_FILE: str = "logs/app.log"
     ENABLE_METRICS: bool = False
 
+    # Optional error tracking (OPS-07). Leave empty until Sentry project exists.
+    SENTRY_DSN: str | None = None
+    SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.0, ge=0.0, le=1.0)
+    # Optional external uptime check URL documented for operators (not called by app).
+    UPTIME_CHECK_URL: str | None = None
+
     # Public endpoint throttles (per client IP)
     PUBLIC_THROTTLE_CONTACT_MAX: int = Field(default=5, ge=1, le=1000)
     PUBLIC_THROTTLE_CONTACT_WINDOW: int = Field(default=300, ge=30, le=3600)

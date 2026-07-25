@@ -322,7 +322,9 @@ export function toProductUpdatePayload(
   values: ProductFormValues,
   template?: CategorySpecTemplate | null,
 ): ProductUpdatePayload {
-  return toProductCreatePayload(values, template);
+  // FE-A-21: availability is owned by ProductStockSection (PUT /availability), not form save.
+  const { is_available: _availability, ...rest } = toProductCreatePayload(values, template);
+  return rest;
 }
 
 export function productDetailToFormValues(detail: ProductDetail): ProductFormValues {

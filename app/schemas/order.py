@@ -13,6 +13,9 @@ class OrderItemResponse(BaseModel):
     product_id: int
     quantity: int
     unit_price: str | None = None
+    product_name: str
+    product_sku: str
+    tax_percent: str = "0"
 
 
 class OrderInvoiceResponse(BaseModel):
@@ -93,6 +96,8 @@ class OrderTrackingItemResponse(BaseModel):
     product_id: int
     quantity: int
     unit_price: str | None = None
+    product_name: str
+    product_sku: str
 
 
 class OrderTrackingResponse(BaseModel):

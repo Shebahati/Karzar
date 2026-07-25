@@ -28,6 +28,28 @@ from app.services.order_expiry_service import cancel_expired_pending_payment_ord
 setup_logging()
 logger = get_logger(__name__)
 
+if settings.SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.APP_ENV,
+            traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+            integrations=[
+                FastApiIntegration(),
+                SqlalchemyIntegration(),
+            ],
+            send_default_pii=False,
+        )
+        logger.info("Sentry initialized (environment=%s)", settings.APP_ENV)
+    except ImportError:
+        logger.warning(
+            "SENTRY_DSN is set but sentry-sdk is not installed; skipping Sentry init"
+        )
+
 
 async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
     """Periodically cancel abandoned unpaid purchase orders."""

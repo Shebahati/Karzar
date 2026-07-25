@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -329,44 +328,29 @@ export default function EditProductPage() {
                 />
               </Field>
 
-                            <div className="grid grid-cols-2 gap-4">
-                <Field label="وضعیت موجودی در سایت">
-                  <Controller
-                    control={control}
-                    name="is_available"
-                    render={({ field }) => (
-                      <label className="flex items-center gap-3 text-sm">
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        <span>{field.value ? "موجود" : "ناموجود"}</span>
-                      </label>
-                    )}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    تعداد انبار فقط در حسابفا است؛ اینجا فقط موجود/ناموجود.
-                  </p>
-                </Field>
-
-                <Field label="واحد" error={errors.stock_unit?.message}>
-                  <Controller
-                    control={control}
-                    name="stock_unit"
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {STOCK_UNITS.map((unit) => (
-                            <SelectItem key={unit} value={unit}>
-                              {STOCK_UNIT_LABELS[unit]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </Field>
-              </div>
+              <Field label="واحد" error={errors.stock_unit?.message}>
+                <Controller
+                  control={control}
+                  name="stock_unit"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STOCK_UNITS.map((unit) => (
+                          <SelectItem key={unit} value={unit}>
+                            {STOCK_UNIT_LABELS[unit]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
+              <p className="text-xs text-muted-foreground">
+                وضعیت موجود/ناموجود فقط از کارت «وضعیت موجودی (سایت)» تغییر می‌کند.
+              </p>
 
 
               <div className="grid grid-cols-2 gap-4">
