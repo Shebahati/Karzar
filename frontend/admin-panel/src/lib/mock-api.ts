@@ -971,11 +971,12 @@ export const mockApi = {
       base_price: payload.base_price != null ? payload.base_price.toFixed(2) : null,
       original_price: payload.original_price != null ? payload.original_price.toFixed(2) : null,
       discount_percent: null,
-      stock_quantity: payload.stock_quantity.toFixed(2),
+      stock_quantity: payload.is_available ? "1.00" : "0.00",
       stock_unit: payload.stock_unit as StockUnit,
-      stock_status: payload.stock_quantity > 0 ? "in_stock" : "out_of_stock",
-      low_stock: payload.stock_quantity < 5,
-      availability: payload.stock_quantity > 0,
+      stock_status: payload.is_available ? "in_stock" : "out_of_stock",
+      low_stock: false,
+      availability: payload.is_available,
+      is_available: payload.is_available,
       warranty_text: payload.warranty_text ?? null,
       weight_grams: payload.weight_grams != null ? payload.weight_grams.toFixed(2) : null,
       is_original: payload.is_original,
@@ -1004,6 +1005,13 @@ export const mockApi = {
     if (payload.category_id) current.category_id = payload.category_id;
     if (payload.brand_id !== undefined) current.brand_id = payload.brand_id;
     if (payload.specifications) current.specifications = payload.specifications;
+    if (payload.is_available !== undefined) {
+      current.is_available = payload.is_available;
+      current.availability = payload.is_available;
+      current.stock_status = payload.is_available ? "in_stock" : "out_of_stock";
+      current.stock_quantity = payload.is_available ? "1.00" : "0.00";
+      current.low_stock = false;
+    }
     current.updated_at = nowIso();
     return delay(toDetail(current));
   },
