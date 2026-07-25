@@ -50,8 +50,9 @@ export function AutoCarousel({
       const el = trackRef.current;
       if (!el) return;
       const amount = Math.min(320, el.clientWidth * 0.7);
-      const isRtl = getComputedStyle(el).direction === "rtl";
-      el.scrollBy({ left: isRtl ? -dir * amount : dir * amount, behavior: "smooth" });
+      // Do not negate for RTL: Chromium already inverts scrollLeft under direction:rtl.
+      // Left control (dir=-1) must move content right; right control (dir=1) left.
+      el.scrollBy({ left: dir * amount, behavior: "smooth" });
       pauseTemporarily();
     },
     [pauseTemporarily],
