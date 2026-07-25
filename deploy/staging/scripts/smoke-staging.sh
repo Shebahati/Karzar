@@ -32,7 +32,8 @@ check() {
   local body curl_args=()
   body="$(mktemp)"
   if [[ "$url" == "$API_BASE"* && -n "${API_PROBE_HOST:-}" ]]; then
-    curl_args+=(-H "Host: ${API_PROBE_HOST}")
+    # Mimic TLS-terminating proxy so TrustedHost + ENFORCE_HTTPS both pass.
+    curl_args+=(-H "Host: ${API_PROBE_HOST}" -H "X-Forwarded-Proto: https")
   fi
   code="$(curl -sS "${curl_args[@]}" -o "$body" -w '%{http_code}' "$url" || true)"
   local ok=0
