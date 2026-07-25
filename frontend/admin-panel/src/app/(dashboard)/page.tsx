@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bag2, Buy, Category, Danger, Plus, Ticket, Wallet } from "react-iconly";
+import { Bag2, Buy, Category, Chart, Danger, Plus, Ticket, Wallet } from "react-iconly";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SystemStatusStrip } from "@/components/system-status-strip";
 import { useCategories, useProducts, useProductStatistics } from "@/features/catalog/queries";
+import { useHesabfaSalesSummary } from "@/features/hesabfa/queries";
 import { useOrders } from "@/features/orders/queries";
 import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
 import type { IconlyIcon } from "@/components/layout/nav.config";
@@ -103,6 +104,7 @@ export default function DashboardPage() {
     status: "inquiry_review",
     limit: 6,
   });
+  const { data: salesSummary, isPending: salesPending } = useHesabfaSalesSummary();
 
   const products = productsData?.data ?? [];
   const totalProducts = stats?.total_products ?? productsData?.meta.total_count ?? 0;
@@ -113,6 +115,12 @@ export default function DashboardPage() {
     (categories ?? []).reduce((sum, c) => sum + 1 + c.subcategories.length, 0);
 
   const inventoryValue = stats?.total_stock_value ?? null;
+  const websiteSales = salesSummary?.website_paid_total_toman
+    ? Number(salesSummary.website_paid_total_toman)
+    : null;
+  const hesabfaSalesToman = salesSummary?.hesabfa_sales_total_toman
+    ? Number(salesSummary.hesabfa_sales_total_toman)
+    : null;
 
   const paidQueue: QueueItem[] = (paidOrders?.data ?? []).map((order) => ({
     key: `order-${order.id}`,
@@ -175,6 +183,26 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
+          label="فروش وبسایت (پرداخت‌شده)"
+          value={websiteSales !== null ? formatToman(websiteSales) : "—"}
+          icon={Buy as IconlyIcon}
+          tone="success"
+          loading={salesPending}
+        />
+        <StatCard
+          label="فروش کل حسابفا"
+          value={
+            hesabfaSalesToman !== null
+              ? formatToman(hesabfaSalesToman)
+              : salesSummary?.hesabfa_error
+                ? "غیرفعال"
+                : "—"
+          }
+          icon={Chart as IconlyIcon}
+          tone="primary"
+          loading={salesPending}
+        />
+        <StatCard
           label="کل محصولات"
           value={formatNumber(totalProducts)}
           icon={Bag2 as IconlyIcon}
@@ -188,6 +216,9 @@ export default function DashboardPage() {
           tone="success"
           loading={statsPending}
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
         <StatCard
           label="کالاهای نیازمند توجه"
           value={formatNumber(outOfStock.length + lowStock.length)}

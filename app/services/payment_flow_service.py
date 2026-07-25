@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.core.payment_url import assert_allowed_payment_url
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
+from app.services.hesabfa.invoices import maybe_create_invoice_after_payment
 from app.services.order_service import transition_order_status
 from app.services.payment_ledger_service import (
     record_payment_failed,
@@ -157,6 +158,8 @@ async def verify_order_payment(
             ref_id=result.ref_id,
             ip_address=ip_address,
         )
+        # Best-effort Hesabfa sale invoice; never fails payment verification.
+        await maybe_create_invoice_after_payment(db, order)
     else:
         order.payment_status = PaymentStatus.FAILED.value
         await record_payment_failed(db, order, authority=authority, ip_address=ip_address)

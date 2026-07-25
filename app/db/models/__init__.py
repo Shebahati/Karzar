@@ -19,6 +19,11 @@ from app.db.models.content import (
     OtpPurpose,
     ProductComment,
 )
+from app.db.models.hesabfa import (
+    HesabfaContactMapping,
+    HesabfaInvoiceRecord,
+    HesabfaItemMapping,
+)
 from app.db.models.platform import (
     AdminAuditLog,
     Cart,
@@ -65,6 +70,9 @@ __all__ = [
     "PaymentStatus",
     "PaymentTransaction",
     "PaymentTransactionStatus",
+    "HesabfaItemMapping",
+    "HesabfaContactMapping",
+    "HesabfaInvoiceRecord",
     "Cart",
     "CartItem",
     "CartLane",

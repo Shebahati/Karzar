@@ -72,6 +72,11 @@ Always restore onto staging first and run `pytest` / smoke checkout before produ
 - RPO: ≤ 24h (daily dump)
 - RTO: ≤ 2h (restore + migrate + smoke)
 
+## Hesabfa (حسابفا)
+
+See [HESABFA.md](./HESABFA.md) for env vars, SKU matching, stock pull, and invoice-after-payment hook.
+On VPS, put `HESABFA_API_KEY` / `HESABFA_LOGIN_TOKEN` only in the API container secrets — never in git.
+
 ## Migrations
 
 ```bash

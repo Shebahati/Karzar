@@ -1,0 +1,134 @@
+"""Admin endpoints for Hesabfa (حسابفا) integration."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_current_super_admin
+from app.core.config import settings
+from app.core.errors import ErrorCode, api_error
+from app.db.database import get_db
+from app.db.models.user import User
+from app.schemas.hesabfa import (
+    HesabfaMappingSyncResponse,
+    HesabfaSalesSummaryResponse,
+    HesabfaStatusResponse,
+    HesabfaStockSyncResponse,
+)
+from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
+from app.services.hesabfa.exceptions import HesabfaError, HesabfaNotConfiguredError
+from app.services.hesabfa.mapping import sync_item_mappings_by_sku
+from app.services.hesabfa.sales import get_sales_summary, hesabfa_amount_to_toman
+from app.services.hesabfa.stock_sync import pull_stock_from_hesabfa
+
+router = APIRouter()
+
+
+def _require_hesabfa_ready() -> None:
+    if not settings.HESABFA_ENABLED:
+        raise api_error(
+            503,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Hesabfa integration is disabled (set HESABFA_ENABLED=true)",
+        )
+    if not get_hesabfa_client().is_configured():
+        raise api_error(
+            503,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Hesabfa credentials are not configured on this server",
+        )
+
+
+@router.get("/status", response_model=HesabfaStatusResponse, summary="Hesabfa integration status")
+async def hesabfa_status(
+    _: User = Depends(get_current_super_admin),
+) -> HesabfaStatusResponse:
+    client = get_hesabfa_client()
+    return HesabfaStatusResponse(
+        enabled=settings.HESABFA_ENABLED,
+        configured=client.is_configured(),
+        test_mode=settings.HESABFA_TEST_MODE,
+        base_url=settings.HESABFA_BASE_URL,
+        warehouse_code=settings.HESABFA_WAREHOUSE_CODE,
+        currency_unit=settings.HESABFA_CURRENCY_UNIT,
+        stock_sync_interval_seconds=settings.HESABFA_STOCK_SYNC_INTERVAL_SECONDS,
+    )
+
+
+@router.post(
+    "/mappings/sync",
+    response_model=HesabfaMappingSyncResponse,
+    summary="Match site products to Hesabfa items by SKU",
+)
+async def sync_mappings(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+) -> HesabfaMappingSyncResponse:
+    _require_hesabfa_ready()
+    try:
+        result = await sync_item_mappings_by_sku(db)
+        await db.commit()
+    except HesabfaNotConfiguredError as exc:
+        raise api_error(503, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
+    except HesabfaError as exc:
+        raise api_error(502, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
+    return HesabfaMappingSyncResponse(
+        matched=result.matched,
+        created=result.created,
+        updated=result.updated,
+        scanned_hesabfa=result.scanned_hesabfa,
+        unmatched_site_skus=result.unmatched_site_skus,
+    )
+
+
+@router.post(
+    "/stock/sync",
+    response_model=HesabfaStockSyncResponse,
+    summary="Pull Hesabfa stock into site for matched SKUs",
+)
+async def sync_stock(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+) -> HesabfaStockSyncResponse:
+    _require_hesabfa_ready()
+    try:
+        result = await pull_stock_from_hesabfa(db)
+        await db.commit()
+    except HesabfaNotConfiguredError as exc:
+        raise api_error(503, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
+    except HesabfaError as exc:
+        raise api_error(502, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
+    return HesabfaStockSyncResponse(
+        checked=result.checked,
+        updated=result.updated,
+        unchanged=result.unchanged,
+        missing_in_hesabfa=result.missing_in_hesabfa,
+    )
+
+
+@router.get(
+    "/sales-summary",
+    response_model=HesabfaSalesSummaryResponse,
+    summary="Hesabfa total sales vs website-only paid sales",
+)
+async def sales_summary(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+) -> HesabfaSalesSummaryResponse:
+    summary = await get_sales_summary(db)
+    hesabfa_toman = None
+    if summary.hesabfa_sales_total is not None:
+        hesabfa_toman = str(hesabfa_amount_to_toman(summary.hesabfa_sales_total))
+    return HesabfaSalesSummaryResponse(
+        website_paid_total_toman=str(summary.website_paid_total_toman),
+        website_paid_order_count=summary.website_paid_order_count,
+        hesabfa_sales_total=(
+            str(summary.hesabfa_sales_total) if summary.hesabfa_sales_total is not None else None
+        ),
+        hesabfa_sales_total_toman=hesabfa_toman,
+        hesabfa_invoice_count=summary.hesabfa_invoice_count,
+        hesabfa_currency_unit=summary.hesabfa_currency_unit,
+        hesabfa_available=summary.hesabfa_available or hesabfa_integration_active(),
+        hesabfa_error=summary.hesabfa_error,
+    )
