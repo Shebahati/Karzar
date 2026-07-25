@@ -55,6 +55,10 @@ class HttpsRedirectMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next) -> Response:
         if settings.ENFORCE_HTTPS:
+            host = (request.url.hostname or "").lower()
+            # Local smoke / docker health probes hit loopback over plain HTTP.
+            if host in {"127.0.0.1", "localhost", "::1"}:
+                return await call_next(request)
             forwarded_proto = request.headers.get("X-Forwarded-Proto", request.url.scheme)
             if forwarded_proto and forwarded_proto.lower() != "https":
                 target = request.url.replace(scheme="https")
