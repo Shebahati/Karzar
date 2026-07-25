@@ -17,7 +17,11 @@ from sqlalchemy.orm import selectinload
 from app.core.logging import get_logger
 from app.db.models.hesabfa import HesabfaItemMapping
 from app.db.models.product import Product
-from app.services.hesabfa.client import HesabfaClient, get_hesabfa_client, hesabfa_integration_active
+from app.services.hesabfa.client import (
+    HesabfaClient,
+    get_hesabfa_client,
+    hesabfa_integration_active,
+)
 from app.services.hesabfa.exceptions import HesabfaError
 from app.services.hesabfa.mapping import _normalize_sku
 

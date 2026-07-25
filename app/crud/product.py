@@ -13,7 +13,6 @@ from app.core.logging import get_logger
 from app.crud import category as crud_category
 from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.jsonb_filters import build_specification_filters
 from app.utils.specifications import specifications_for_storage
 from app.utils.storefront_catalog import escape_ilike_pattern, product_sort_clause
