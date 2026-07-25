@@ -12,6 +12,7 @@ Operational and maintenance scripts under `scripts/` and `deploy/staging/scripts
 | `deploy/staging/scripts/smoke-staging.sh` | Post-deploy hard smoke (API/admin/shop) |
 | `deploy/staging/scripts/install-backup-cron.sh` | Install daily backup cron |
 | `scripts/dry_run_product_seo_descriptions.py` | Read-only SEO short/long stub coverage report (P1; no `--apply`) |
+| `scripts/enrich_insize_from_catalog_108A.py` | **Content-only** INSIZE enrich from official 108A PDF (no price/stock writes) |
 
 See [OPERATIONS.md](./OPERATIONS.md) for RPO/RTO, restore drills, and alerting hooks.
 

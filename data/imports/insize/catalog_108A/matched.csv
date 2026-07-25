@@ -1,0 +1,168 @@
+id,sku,catalog_code,confidence,match_rule,name,range,accuracy,resolution,series,pdf_page
+4125,1156-1000,1156-1000,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 100 سانتی متر پایه دار مدل 1000-1156,"0-1000mm/0-40""",±0.07mm,"0.01mm/0.0005""",DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,115
+4081,7110-1200,7110-1200,very_high,exact_code,خط کش استن استیل اینسایز (Insize) 1.2 متر مدل 1200-7110,"1200mm/48""",±0.80mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+4047,4844-1,4844-1,very_high,exact_code,گیج زاویه پخ اینسایز (Insize) مدل 1-4844,0.5mm,±0.25mm,"0.01mm/0.0005""",CHAMFER GAUGE,280
+4026,4621-35,4621-35,very_high,exact_code,فیلر نواری 5 متری 0.35mm اینسایز (Insize) مدل 35-4621,0.35mm,±11µm,,FEELER GAUGE STOCKS,509
+3952,3203-9A,3203-9A,very_high,exact_code,میکرومتر اینسایز (Insize) 8–9 اینچ خارج سنج مدل 3203-9A,"8-9""","±0.0002""",metric 0.01mm,OUTSIDE MICROMETERS,157
+3950,3203-8A,3203-8A,very_high,exact_code,میکرومتر اینسایز (Insize) 7–8 اینچ خارج سنج مدل 3203-8A,"7-8""","±0.0002""",metric 0.01mm,OUTSIDE MICROMETERS,157
+3949,3203-7A,3203-7A,very_high,exact_code,میکرومتر اینسایز (Insize) 6–7 اینچ خارج سنج مدل 3203-7A,"6-7""","±0.0002""",metric 0.01mm,OUTSIDE MICROMETERS,157
+3947,3203-10A,3203-10A,very_high,exact_code,میکرومتر اینسایز (Insize) 9–10 اینچ خارج سنج مدل 3203-10A,"9-10""","±0.00025""",metric 0.01mm,OUTSIDE MICROMETERS,157
+3925,2827-60,2827-60A,very_high,unique_letter_suffix,گیج داخل سیلندر اینسایز (Insize) 60-35 مدل 60-2827,35-60mm,±0.018mm,"0.002mm/0.0001""",ATTENTION: NOT SUITABLE BUILT-IN WIRELESS DIGITAL BORE GAUGES (WITH DIAL INDICATOR),253
+3924,2825-35,2825-35,very_high,exact_code,گیج داخل سیلندر ساعتی اینسایز (Insize) 18-35 میلیمتر مدل 35-2825,18-35mm,±0.007mm,"0.001mm/0.00005""",BUILT-IN WIRELESS DIGITAL PRECISION BORE GAUGES (WITH DIAL INDICATOR),247
+3923,2825-60,2825-60,very_high,exact_code,گیج داخل سیلندر ساعتی اینسایز (Insize) 35-60 میلیمتر مدل 60-2825,35-60mm,±0.007mm,"0.001mm/0.00005""",BUILT-IN WIRELESS DIGITAL PRECISION BORE GAUGES (WITH DIAL INDICATOR),247
+3905,1205-200S,1205-200S,very_high,exact_code,کولیس استنلس استیل معمولی اینسایز (Insize) 20 سانت مدل 200S-1205,"0-200mm/0-8""",±0.05mm,"0.05mm/1/128""",VERNIER CALIPERS,43
+3904,1205-150S,1205-150S,very_high,exact_code,کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205,"0-150mm/0-6""",±0.05mm,"0.05mm/1/128""",VERNIER CALIPERS,43
+3902,1180-6,1180-6,very_high,exact_code,گیج پخ دیجیتال اینسایز (Insize) 0-10 میلیمتر 45 درجه مدل 6-1180,"0-10mm/0-0.39""",±0.06mm,"0.01mm/0.0005""",CHAMFER GAUGES,279
+3900,1110-300A,1110-300A,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانت با فک الماس مدل 1110-300A,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS WITH CARBIDE TIPPED JAWS,40
+3899,1110-150A,1110-150A,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 15 سانت با فک الماس مدل 1110-150A,"0-150mm/0-6""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS WITH CARBIDE TIPPED JAWS,40
+3898,1106-2002,1106-2002,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,"0-2000mm/0-80""",±0.14mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3897,1106-1503,1106-1503,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,"0-1500mm/0-60""",±0.12mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3896,1106-1005,1106-1005,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,"0-1000mm/0-40""",±0.10mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3784,4802-31,4802-31,very_high,exact_code,شابلون شعاع سنج اینسایز (Insize) دیجیتال کد 31-4802,25,-40mm,,RADIUS GAUGES,513
+3774,3203-12A,3203-12A,very_high,exact_code,میکرومتر اینسایز (Insize) 11–12 اینچ خارج سنج مدل 3203-12A,"11-12""","±0.00025""",metric 0.01mm,OUTSIDE MICROMETERS,157
+3744,1244-30,1244-30,very_high,exact_code,عمق سنج ورنیه اینسایز (Insize) 30 میلی متر مدل 30-1244,0-30mm,±0.10mm,,,
+3691,7110-1000,7110-1000,very_high,exact_code,خط کش فلزی 1 متری اینسایز (Insize) مدل 1000-7110,"1000mm/40""",±0.50mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+3660,4621-60,4621-60,very_high,exact_code,فیلر نواری 5 متری 0.60mm اینسایز (Insize) مدل 60-4621,0.60mm,±14µm,,FEELER GAUGE STOCKS,509
+3658,4621-12,4621-12,very_high,exact_code,فیلر نواری 5 متری 0.12mm اینسایز (Insize) مدل 12-4621,0.12mm,±5µm,,FEELER GAUGE STOCKS,509
+3648,3594-50,3594-50A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر دیسکی مدل 50-3594,"25-50mm/1-2""",±4μm,"0.001mm/0.00005""",NON-ROTATING SPINDLE DISK MICROMETERS,204
+3644,3108-75,3108-75A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3108,"50-75mm/2-3""",±3µm,"0.001mm/0.00005""",WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT),152
+3641,3109-75,3109-75A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3109,"50-75mm/2-3""",±3µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+3636,1140-25,1140-25,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 2.5 سانتی متر عمق سنج مدل 25-1140,"0-25mm/0-1""",±0.02mm,"0.01mm/0.0005""",DATA MINI DIGITAL DEPTH GAUGES,101
+3634,1214-2000,1214-2000,very_high,exact_code,کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214,"0-2000mm/0-80""",±0.14mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+3630,2322-60,2322-60A,very_high,unique_letter_suffix,بورگیج داخل سیلندر اینسایز (Insize) 60-35 میلی متری مدل 60-2322,35-60mm,±0.018mm,"0.002mm/0.0001"" ±0.018mm",BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE,248
+3629,2322-35,2322-35A,very_high,unique_letter_suffix,بورگیج داخل سیلندر اینسایز (Insize) 35-18 میلی متری مدل 35-2322,18-35mm,±0.015mm,"0.002mm/0.0001"" ±0.018mm",BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE,248
+3607,7114-3460,7114-3460,very_high,exact_code,سیرکومتر 1100-700 میلی متر اینسایز (Insize) مدل 3460-7114,2190-3460mm / Ø700-1100mm,circumference ±3mm; diameter ±1mm,0.1mm,CAN BE CUSTOM-MADE,265
+3606,7114-2200,7114-2200,very_high,exact_code,سیرکومتر 700-300 میلی متر اینسایز (Insize) مدل 2200-7114,940-2200mm / Ø300-700mm,circumference ±3mm; diameter ±1mm,0.1mm,CAN BE CUSTOM-MADE,265
+3595,1140-50,1140-50,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 5 سانتی متر عمق سنج مدل 50-1140,"0-50mm/0-2""",±0.02mm,"0.01mm/0.0005""",DATA MINI DIGITAL DEPTH GAUGES,101
+3583,1240-5001,1240-5001,very_high,exact_code,کولیس معمولی اینسایز (Insize) 50 سانتی متر عمق سنج استن استیل مدل 5001-1240,0-500mm,±0.05mm,0.05mm,VERNIER DEPTH GAUGES (STANDARD TYPE),98
+3581,1240-3001,1240-3001,very_high,exact_code,کولیس عمق سنج 30 سانتی متر اینسایز (Insize) مدل 3001-1240,0-300mm,±0.04mm,0.05mm,VERNIER DEPTH GAUGES (STANDARD TYPE),98
+3580,1240-2001,1240-2001,very_high,exact_code,کولیس معمولی اینسایز (Insize) 20 سانتی متر عمق سنج استن استیل مدل 2001-1240,0-200mm,±0.03mm,0.05mm,VERNIER DEPTH GAUGES (STANDARD TYPE),98
+3578,1240-1501,1240-1501,very_high,exact_code,کولیس معمولی اینسایز (Insize) 15 سانتی متر عمق سنج استن استیل مدل 1501-1240,0-150mm,±0.03mm,0.05mm,VERNIER DEPTH GAUGES (STANDARD TYPE),98
+3577,7110-2000,7110-2000,very_high,exact_code,خط کش فلزی 2 متری اینسایز (Insize) مدل 2000-7110,"2000mm/80""",±1.00mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+3576,7110-1500,7110-1500,very_high,exact_code,خط کش فلزی 1.5 متری اینسایز (Insize) مدل 1500-7110,"1500mm/60""",±1.00mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+3571,4621-90,4621-90,very_high,exact_code,فیلر نواری 5 متری 0.90mm اینسایز (Insize) مدل 90-4621,0.90mm,±22µm,,FEELER GAUGE STOCKS,509
+3570,4621-80,4621-80,very_high,exact_code,فیلر نواری 5 متری 0.80mm اینسایز (Insize) مدل 80-4621,0.80mm,±19µm,,FEELER GAUGE STOCKS,509
+3569,4621-70,4621-70,very_high,exact_code,فیلر نواری 5 متری 0.70mm اینسایز (Insize) مدل 70-4621,0.70mm,±17µm,,FEELER GAUGE STOCKS,509
+3568,4621-50,4621-50,very_high,exact_code,فیلر نواری 5 متری 0.50mm اینسایز (Insize) مدل 50-4621,0.50mm,±14µm,,FEELER GAUGE STOCKS,509
+3567,4621-40,4621-40,very_high,exact_code,فیلر نواری 5 متری 0.40mm اینسایز (Insize) مدل 40-4621,0.40mm,±12µm,,FEELER GAUGE STOCKS,509
+3566,4621-30,4621-30,very_high,exact_code,فیلر نواری 5 متری 0.30mm اینسایز (Insize) مدل 30-4621,0.30mm,±9µm,,FEELER GAUGE STOCKS,509
+3565,4621-25,4621-25,very_high,exact_code,فیلر نواری 5 متری 0.25mm اینسایز (Insize) مدل 25-4621,0.25mm,±9µm,,FEELER GAUGE STOCKS,509
+3564,4621-20,4621-20,very_high,exact_code,فیلر نواری 5 متری 0.20mm اینسایز (Insize) مدل 20-4621,0.20mm,±8µm,,FEELER GAUGE STOCKS,509
+3563,4621-15,4621-15,very_high,exact_code,فیلر نواری 5 متری 0.15mm اینسایز (Insize) مدل 15-4621,0.15mm,±6µm,,FEELER GAUGE STOCKS,509
+3562,4621-10,4621-10,very_high,exact_code,فیلر نواری 5 متری 0.10mm اینسایز (Insize) مدل 10-4621,0.10mm,±5µm,,FEELER GAUGE STOCKS,509
+3561,4621-09,4621-09,very_high,exact_code,فیلر نواری 5 متری 0.09mm اینسایز (Insize) مدل 09-4621,0.09mm,±5µm,,FEELER GAUGE STOCKS,509
+3560,3203-75,3203-75A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3203,50-75mm,±2μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+3559,3203-50,3203-50A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3203,25-50mm,±2μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+3558,4621-08,4621-08,very_high,exact_code,فیلر نواری 5 متری 0.08mm اینسایز (Insize) مدل 08-4621,0.08mm,±5µm,,FEELER GAUGE STOCKS,509
+3557,4621-07,4621-07,very_high,exact_code,فیلر نواری 5 متری 0.07mm اینسایز (Insize) مدل 07-4621,0.07mm,±5µm,,FEELER GAUGE STOCKS,509
+3556,3203-25,3203-25A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 25-0 میلی متر خارج سنج 0.01 مدل 25-3203,0-25mm,±2μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+3555,4621-06,4621-06,very_high,exact_code,فیلر نواری 5 متری 0.06mm اینسایز (Insize) مدل 06-4621,0.06mm,±4µm,,FEELER GAUGE STOCKS,509
+3554,4621-05,4621-05,very_high,exact_code,فیلر نواری 5 متری 0.05mm اینسایز (Insize) مدل 05-4621,0.05mm,±4µm,,FEELER GAUGE STOCKS,509
+3553,4621-04,4621-04,very_high,exact_code,فیلر نواری 5 متری 0.04mm اینسایز (insize) مدل 04-4621,0.04mm,±4µm,,FEELER GAUGE STOCKS,509
+3552,4621-03,4621-03,very_high,exact_code,فیلر نواری 5 متری با ضخامت 0.03 میلی‌متر اینسایز (Insize) مدل 03-4621,0.03mm,±4µm,,FEELER GAUGE STOCKS,509
+3551,3109-50,3109-50A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3109,"25-50mm/1-2""",±2µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+3550,3109-25,3109-25A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 25-0 میلی متر خارج سنج مدل 25-3109,"0-25mm/0-1""",±2µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+3549,3108-50,3108-50A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3108,"25-50mm/1-2""",±2µm,"0.001mm/0.00005""",WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT),152
+3546,4621-02,4621-02,very_high,exact_code,فیلر نواری 5 متری 0.02mm اینسایز (Insize) مدل 02-4621,0.02mm,±4µm,,FEELER GAUGE STOCKS,509
+3511,3594-25,3594-25A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 25-0 میلی متر دیسکی مدل 25-3594,"0-25mm/0-1""",±4μm,"0.001mm/0.00005""",NON-ROTATING SPINDLE DISK MICROMETERS,204
+3487,2121-25,2121-25,very_high,exact_code,پرگار دیجیتالی داخل سنج 25-5 میلی متری اینسایز (Insize) مدل 25-2121,"5-25mm/0.2-1.0""",±0.03mm,,,
+3479,1106-1502,1106-1502,very_high,exact_code,کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106,"0-1500mm/0-60""",±0.11mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3478,1106-2003,1106-2003,very_high,exact_code,کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106,"0-2000mm/0-80""",±0.14mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3476,1214-1500,1214-1500,very_high,exact_code,کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214,"0-1500mm/0-60""",±0.12mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+3475,1214-1000,1214-1000,very_high,exact_code,کولیس اینسایز (Insize) 1 متری مدل 1000-1214,"0-1000mm/0-40""",±0.08mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+3474,1106-1002,1106-1002,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106,"0-1000mm/0-40""",±0.08mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+3473,1205-3002,1205-3002S,very_high,unique_letter_suffix,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,"0-300mm/0-12""",±0.03mm,"0.05mm/1/128""",VERNIER CALIPERS,43
+3472,1205-2002,1205-2002S,very_high,unique_letter_suffix,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,"0-200mm/0-8""",±0.03mm,"0.05mm/1/128""",VERNIER CALIPERS,43
+3471,1111-75,1111-75A,very_high,unique_letter_suffix,کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111,"0-75mm/0-3""",±0.02mm,"0.01mm/0.0005""",MINI DIGITAL CALIPERS,42
+3470,1205-1502,1205-1502S,very_high,unique_letter_suffix,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,"0-150mm/0-6""",±0.03mm,"0.05mm/1/128""",VERNIER CALIPERS,43
+2084,7114-950,7114-950,very_high,exact_code,سیرکومتر قطر لوله 20 - 300 — 0-950mm,150-950mm / Ø50-300mm,circumference ±3mm; diameter ±1mm,0.1mm,CAN BE CUSTOM-MADE,265
+2081,7110-600,7110-600,very_high,exact_code,خط کش فلزی 60 سانتی اینسایز (Insize) مدل 600-7110,"600mm/24""",±0.50mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+2080,7110-500,7110-500,very_high,exact_code,خط کش فلزی 50 سانتی اینسایز (Insize) مدل 500-7110,"500mm/20""",±0.40mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+2079,7110-300,7110-300,very_high,exact_code,خط کش فلزی 30 سانتی اینسایز (Insize) مدل 300-7110,"300mm/12""",±0.27mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+2078,7110-200,7110-200,very_high,exact_code,خط کش فلزی 20 سانتی اینسایز (Insize) مدل 200-7110,"200mm/8""",±0.18mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+2077,7110-150,7110-150,very_high,exact_code,خط کش فلزی 15 سانتی اینسایز (Insize) مدل 150-7110,"150mm/6""",±0.18mm,"0.5mm, 1mm",FLEXIBLE RULERS,537
+2016,4621-100,4621-100,very_high,exact_code,فیلر نواری 5 متری 1mm اینسایز (Insize) مدل 100-4621,1.00mm,±24µm,,FEELER GAUGE STOCKS,509
+1950,3203-300,3203-300A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 300-275 میلی متر خارج سنج مدل 300-3203,275-300mm,±5μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1949,3203-275,3203-275A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 275-250 میلی متر خارج سنج مدل 275-3203,250-275mm,±5μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1948,3203-250,3203-250A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 250-225 میلی متر خارج سنج مدل 250-3203,225-250mm,±5μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1947,3203-225,3203-225A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 225-200 میلی متر خارج سنج مدل 225-3203,200-225mm,±4μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1946,3203-200,3203-200A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 200-175 میلی متر خارج سنج مدل 200-3203,175-200mm,±4μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1945,3203-175,3203-175A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 175-150 میلی متر خارج سنج مدل 175-3203,150-175mm,±4μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1943,3203-150,3203-150A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 150-125 میلی متر خارج سنج مدل 150-3203,125-150mm,±3μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1942,3203-125,3203-125A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 125-100 میلی متر خارج سنج مدل 125-3203,100-125mm,±3μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1941,3203-100,3203-100A,very_high,unique_letter_suffix,میکرومتر اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3203,75-100mm,±3μm,metric 0.01mm,OUTSIDE MICROMETERS,157
+1928,3109-300,3109-300A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 275-300 میلی متر خارج سنج مدل 300-3109,"275-300mm/11-12""",±5μm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1927,3109-275,3109-275A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 250-275 میلی متر خارج سنج مدل 275-3109,"250-275mm/10-11""",±5μm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1926,3109-250,3109-250A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 225-250 میلی متر خارج سنج مدل 250-3109,"225-250mm/9-10""",±4μm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1925,3109-225,3109-225A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 200-225 میلی متر خارج سنج مدل 225-3109,"200-225mm/8-9""",±4μm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1924,3109-200,3109-200A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 200-175 میلی متر خارج سنج مدل 200-3109,"175-200mm/7-8""",±4µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1923,3109-175,3109-175A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 175-150 میلی متر خارج سنج مدل 175-3109,"150-175mm/6-7""",±4µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1922,3109-150,3109-150A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 150-125 میلی متر خارج سنج مدل 150-3109,"125-150mm/5-6""",±3µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1921,3109-125,3109-125A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 125-100 میلی متر خارج سنج مدل 125-3109,"100-125mm/4-5""",±3µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1920,3109-100,3109-100A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3109,"75-100mm/3-4""",±3µm,"0.001mm/0.00005""","DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",154
+1919,3108-100,3108-100A,very_high,unique_letter_suffix,میکرومتر دیجیتال اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3108,"75-100mm/3-4""",±3µm,"0.001mm/0.00005""",WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT),152
+1909,2827-160,2827-160A,very_high,unique_letter_suffix,گیج داخل سیلندر اینسایز (Insize) 160-50 مدل 160-2827,50-160mm,±0.018mm,"0.002mm/0.0001""",ATTENTION: NOT SUITABLE BUILT-IN WIRELESS DIGITAL BORE GAUGES (WITH DIAL INDICATOR),253
+1896,2322-450,2322-450A,very_high,unique_letter_suffix,بورگیج داخل سیلندر اینسایز (Insize) 450-250 میلی متری مدل 450-2322,250-450mm,±0.018mm,"0.002mm/0.0001"" ±0.018mm",BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE,248
+1895,2322-250,2322-250A,very_high,unique_letter_suffix,بورگیج داخل سیلندر اینسایز (Insize) 250-160 میلی متری مدل 250-2322,160-250mm,±0.018mm,"0.002mm/0.0001"" ±0.018mm",BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE,248
+1872,1530-500,1530-500,very_high,exact_code,کولیس داخل / خارج دیجیتال اینسایز (Insize) 50 سانت مدل 500-1530,"0-500mm/0-20""",±0.08mm,"0.01mm/0.0005""",DATA VARIOUS POINTS ARE DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS,61
+1871,1530-300,1530-300,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر داخل و خارج سنج مدل 300-1530,"0-300mm/0-12""",±0.06mm,"0.01mm/0.0005""",DATA VARIOUS POINTS ARE DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS,61
+1866,1316-500,1316-500,very_high,exact_code,کولیس استنلس استیل ساعتی اینسایز (Insize) 60 سانت مدل 500-1316,0-500mm,±0.05mm,0.02mm,DIAL CALIPERS SHOCK,46
+1865,1312-300,1312-300A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز (Insize) 30 سانتی متر مدل 300-1312,0-300mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1864,1312-200,1312-200A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز (Insize) 20 سانتی متر مدل 200-1312,0-200mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1863,1312-150,1312-150A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز (Insize) 15 سانتی متر مدل 150-1312,0-150mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1862,1311-300,1311-300A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز (Insize) 30 سانتی متر مدل 300-1311,0-300mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1861,1311-200,1311-200A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز(Insize) 20 سانتی متر مدل 200-1311,0-200mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1860,1311-150,1311-150A,very_high,unique_letter_suffix,کولیس ساعتی اینسایز (Insize) 15 سانتی متر مدل 150-1311,0-150mm,±0.03mm,0.02mm,DIAL CALIPERS SHOCK,46
+1859,1250-600,1250-600,very_high,exact_code,کولیس معمولی اینسایز (Insize) 60 سانتی متر پایه دار مدل 600-1250,"0-600mm/0-24""",±0.05mm,"0.02mm/0.001""",,118
+1858,1250-300,1250-300,very_high,exact_code,کولیس پایه دار ساده اینسایز (Insize) 30 سانتی متر مدل 300-1250,"0-300mm/0-12""",±0.04mm,"0.02mm/0.001""",,118
+1857,1236-524,1236-524,very_high,exact_code,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,"0-500mm/0-20""",±0.08mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,49
+1856,1236-394,1236-394,very_high,exact_code,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,"0-300mm/0-12""",±0.07mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,49
+1854,1215-822,1215-822,very_high,exact_code,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,"0-800mm/0-32""",±0.07mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1853,1215-622,1215-622,very_high,exact_code,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,"0-600mm/0-24""",±0.06mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1852,1215-532,1215-532,very_high,exact_code,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,"0-500mm/0-20""",±0.06mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1851,1215-522,1215-522,very_high,exact_code,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,"0-500mm/0-20""",±0.06mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1850,1215-392,1215-392,very_high,exact_code,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,"0-300mm/0-12""",±0.05mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1849,1215-322,1215-322,very_high,exact_code,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,"0-300mm/0-12""",±0.05mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1848,1215-1052,1215-1052,very_high,exact_code,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,"0-1000mm/0-40""",±0.11mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1847,1215-1032,1215-1032,very_high,exact_code,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,"0-1000mm/0-40""",±0.08mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1846,1214-600,1214-600,very_high,exact_code,کولیس اینسایز (Insize) 60 سانتی متر مدل 600-1214,"0-600mm/0-24""",±0.05mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1845,1214-500,1214-500,very_high,exact_code,کولیس اینسایز (Insize) 50 سانتی متر مدل 500-1214,"0-500mm/0-20""",±0.05mm,"0.02mm/0.001""",VERNIER CALIPERS (SEPARATE TYPE),51
+1844,1208-824,1208-824,very_high,exact_code,کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208,"0-800mm/0-32""",±0.09mm,,,
+1843,1208-524,1208-524,very_high,exact_code,کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208,"0-500mm/0-20""",±0.08mm,,,
+1842,1208-511,1208-511,very_high,exact_code,کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208,0-500mm,±0.05mm,,,
+1841,1196-300,1196-300,very_high,exact_code,کولیس دیجیتال اینسایز (insize) 30 سانتی متر مدل 300-1196,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS (FRACTION READING),37
+1830,1172-200,1172-200,very_high,exact_code,کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172,"0-200mm/0-8""",±0.07mm,"0.01mm/0.0005""",RELATIVE PRODUCT: CRIMP HEIGHT DATA DIGITAL CRIMP HEIGHT CALIPERS,85
+1829,1170-300,1170-300,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,"0-300mm/0-12""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,41
+1828,1169-150,1169-150,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فک باریک مدل 150-1169,"0-150mm/0-6""",±0.03mm,"0.01mm/0.0005""",DIGITAL OUTSIDE GROOVE CALIPERS,71
+1826,1156-600,1156-600,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر پایه دار مدل 600-1156,"0-600mm/0-24""",±0.05mm,"0.01mm/0.0005""",DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,115
+1825,1156-300,1156-300,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر پایه دار مدل 300-1156,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,115
+1824,1151-600,1151-600A,very_high,unique_letter_suffix,کولیس پایه دار دو میله دیجیتال اینسایز (Insize) 60 سانت مدل 600-1151,"0-600mm/0-24""",±0.05mm,"0.01mm/0.0005""",DIGITAL HEIGHT GAUGES,116
+1823,1151-300,1151-300A,very_high,unique_letter_suffix,کولیس پایه دار دو میله دیجیتال اینسایز (Insize) 30 سانت مدل 300-1151,"0-300mm/0-12""",±0.04mm,"0.01mm/0.0005""",DIGITAL HEIGHT GAUGES,116
+1809,1140-150,1140-150,very_high,exact_code,عمق سنج دیجیتال اینسایز (Insize) 15 سانت با میله گرد مدل 150-1140,"0-150mm/0-6""",±0.03mm,"0.01mm/0.0005""",DATA MINI DIGITAL DEPTH GAUGES,101
+1808,1140-100,1140-100,very_high,exact_code,عمق سنج دیجیتال اینسایز (Insize) 10 سانت با میله گرد مدل 100-1140,"0-100mm/0-4""",±0.02mm,"0.01mm/0.0005""",DATA MINI DIGITAL DEPTH GAUGES,101
+1807,1136-601,1136-601,very_high,exact_code,کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136,"0-600mm/0-24""",±0.05mm,"0.01mm/0.0005""",DIGITAL CALIPERS,48
+1806,1136-503,1136-503,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136,"0-500mm/0-20""",±0.06mm,"0.01mm/0.0005""",DIGITAL CALIPERS,48
+1805,1136-502,1136-502,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136,"0-500mm/0-20""",±0.06mm,"0.01mm/0.0005""",DIGITAL CALIPERS,48
+1804,1136-501,1136-501,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136,"0-500mm/0-20""",±0.05mm,"0.01mm/0.0005""",DIGITAL CALIPERS,48
+1803,1135-601,1135-601,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135,"0-600mm/0-24""",±0.05mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,49
+1802,1123-300,1123-300A,very_high,unique_letter_suffix,کولیس داخل دیجیتال اینسایز (Insize) 30 سانت مدل 300-1123,"24-300mm/0.9-12""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL INSIDE KNIFE-EDGE CALIPERS,73
+1800,1122-300,1122-300,very_high,exact_code,کولیس دیجیتال شیار اینسایز( Insize) 30 سانتی متر مدل 300-1122,"4-300mm/0.16-12""",±0.04mm,"0.01mm/0.0005""",DATA DIGITAL HOOK CALIPERS,79
+1791,1114-300,1114-300A,very_high,unique_letter_suffix,کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36
+1790,1114-200,1114-200A,very_high,unique_letter_suffix,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114,"0-200mm/0-8""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36
+1789,1114-150,1114-150A,very_high,unique_letter_suffix,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114,"0-150mm/0-6""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36
+1788,1111-100,1111-100A,very_high,unique_letter_suffix,کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111,"0-100mm/0-4""",±0.02mm,"0.01mm/0.0005""",MINI DIGITAL CALIPERS,42
+1787,1108-300,1108-300,very_high,exact_code,کولیس دیجیتال اینسایز (insize) 30 سانتی متر مدل 300-1108,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",ATTENTION: THE WORKING LIFE OF WIRELESS DIGITAL CALIPERS (ZIGBEE),35
+1786,1108-200,1108-200,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر مدل 200-1108,"0-200mm/0-8""",±0.03mm,"0.01mm/0.0005""",ATTENTION: THE WORKING LIFE OF WIRELESS DIGITAL CALIPERS (ZIGBEE),35
+1784,1106-802,1106-802,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,"0-800mm/0-32""",±0.07mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1783,1106-603,1106-603,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,"0-600mm/0-24""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1782,1106-602,1106-602,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,"0-600mm/0-24""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1781,1106-601,1106-601,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106,"0-600mm/0-24""",±0.05mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1780,1106-505,1106-505,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,"0-500mm/0-20""",±0.08mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1779,1106-503,1106-503,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,"0-500mm/0-20""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1778,1106-502,1106-502,very_high,exact_code,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,"0-500mm/0-20""",±0.06mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1777,1106-501,1106-501,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر مدل 501-1106,"0-500mm/0-20""",±0.05mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1776,1106-302,1106-302,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,"0-300mm/0-12""",±0.05mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1775,1106-301,1106-301,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,"0-300mm/0-12""",±0.05mm,"0.01mm/0.0005""",DATA DIGITAL CALIPERS,47
+1774,1103-300,1103-300,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر مدل 300-1103,"0-300mm/0-12""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36
+1773,1103-200,1103-200,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر مدل 200-1103,"0-200mm/0-8""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36
+1772,1103-150,1103-150,very_high,exact_code,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر مدل 150-1103,"0-150mm/0-6""",±0.03mm,"0.01mm/0.0005""",DIGITAL CALIPERS (ABSOLUTE SYSTEM),36

@@ -1,0 +1,4548 @@
+[
+  {
+    "id": 4125,
+    "sku": "1156-1000",
+    "catalog_code": "1156-1000",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1156-1000",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.07mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel (except the base)",
+      "series": "DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, preset +, preset -, ABS/INC",
+        "Automatic power off, move the digital unit to turn on power",
+        "Carbide tipped scriber",
+        "Data output"
+      ],
+      "pdf_page": 115,
+      "raw_row": "1156-1000 * 0-1000mm/0-40\" ±0.07mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 100 سانتی متر پایه دار مدل 1000-1156",
+    "category_name": null
+  },
+  {
+    "id": 4081,
+    "sku": "7110-1200",
+    "catalog_code": "7110-1200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-1200",
+      "range": "1200mm/48\"",
+      "accuracy": "±0.80mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-1200 1200mm/48\" ±0.80mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش استن استیل اینسایز (Insize) 1.2 متر مدل 1200-7110",
+    "category_name": null
+  },
+  {
+    "id": 4047,
+    "sku": "4844-1",
+    "catalog_code": "4844-1",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4844-1",
+      "range": "0.5mm",
+      "accuracy": "±0.25mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "CHAMFER GAUGE",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Data output"
+      ],
+      "pdf_page": 280,
+      "raw_row": "4844-1 0.5mm ±0.25mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج زاویه پخ اینسایز (Insize) مدل 1-4844",
+    "category_name": null
+  },
+  {
+    "id": 4026,
+    "sku": "4621-35",
+    "catalog_code": "4621-35",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-35",
+      "range": "0.35mm",
+      "accuracy": "±11µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-35 0.35mm ±11µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.35mm اینسایز (Insize) مدل 35-4621",
+    "category_name": null
+  },
+  {
+    "id": 3952,
+    "sku": "3203-9A",
+    "catalog_code": "3203-9A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "3203-9A",
+      "range": "8-9\"",
+      "accuracy": "±0.0002\"",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-9A 8-9\" ±0.0002\"",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 8–9 اینچ خارج سنج مدل 3203-9A",
+    "category_name": null
+  },
+  {
+    "id": 3950,
+    "sku": "3203-8A",
+    "catalog_code": "3203-8A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "3203-8A",
+      "range": "7-8\"",
+      "accuracy": "±0.0002\"",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-8A 7-8\" ±0.0002\"",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 7–8 اینچ خارج سنج مدل 3203-8A",
+    "category_name": null
+  },
+  {
+    "id": 3949,
+    "sku": "3203-7A",
+    "catalog_code": "3203-7A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "3203-7A",
+      "range": "6-7\"",
+      "accuracy": "±0.0002\"",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-7A 6-7\" ±0.0002\"",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 6–7 اینچ خارج سنج مدل 3203-7A",
+    "category_name": null
+  },
+  {
+    "id": 3947,
+    "sku": "3203-10A",
+    "catalog_code": "3203-10A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "3203-10A",
+      "range": "9-10\"",
+      "accuracy": "±0.00025\"",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-10A 9-10\" ±0.00025\"",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 9–10 اینچ خارج سنج مدل 3203-10A",
+    "category_name": null
+  },
+  {
+    "id": 3925,
+    "sku": "2827-60",
+    "catalog_code": "2827-60A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2827-60A",
+      "range": "35-60mm",
+      "accuracy": "±0.018mm",
+      "resolution": "0.002mm/0.0001\"",
+      "graduation": "0.01mm ±0.018mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "ATTENTION: NOT SUITABLE BUILT-IN WIRELESS DIGITAL BORE GAUGES (WITH DIAL INDICATOR)",
+      "features": [],
+      "pdf_page": 253,
+      "raw_row": "2827-60A 35-60mm ±0.018mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج داخل سیلندر اینسایز (Insize) 60-35 مدل 60-2827",
+    "category_name": null
+  },
+  {
+    "id": 3924,
+    "sku": "2825-35",
+    "catalog_code": "2825-35",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "2825-35",
+      "range": "18-35mm",
+      "accuracy": "±0.007mm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "0.001mm ±0.007mm 0.0015mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BUILT-IN WIRELESS DIGITAL PRECISION BORE GAUGES (WITH DIAL INDICATOR)",
+      "features": [
+        "waterproof digital indicator"
+      ],
+      "pdf_page": 247,
+      "raw_row": "2825-35 18-35mm ±0.007mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج داخل سیلندر ساعتی اینسایز (Insize) 18-35 میلیمتر مدل 35-2825",
+    "category_name": null
+  },
+  {
+    "id": 3923,
+    "sku": "2825-60",
+    "catalog_code": "2825-60",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "2825-60",
+      "range": "35-60mm",
+      "accuracy": "±0.007mm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "0.001mm ±0.007mm 0.0015mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BUILT-IN WIRELESS DIGITAL PRECISION BORE GAUGES (WITH DIAL INDICATOR)",
+      "features": [
+        "waterproof digital indicator"
+      ],
+      "pdf_page": 247,
+      "raw_row": "2825-60 35-60mm ±0.007mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج داخل سیلندر ساعتی اینسایز (Insize) 35-60 میلیمتر مدل 60-2825",
+    "category_name": null
+  },
+  {
+    "id": 3905,
+    "sku": "1205-200S",
+    "catalog_code": "1205-200S",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1205-200S",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.05mm/1/128\"",
+      "graduation": "0.05mm/1/128\" 1202-",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 43,
+      "raw_row": "1205-200S 0-200mm/0-8\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس استنلس استیل معمولی اینسایز (Insize) 20 سانت مدل 200S-1205",
+    "category_name": null
+  },
+  {
+    "id": 3904,
+    "sku": "1205-150S",
+    "catalog_code": "1205-150S",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1205-150S",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.05mm/1/128\"",
+      "graduation": "0.05mm/1/128\" 1202-",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 43,
+      "raw_row": "1205-150S 0-150mm/0-6\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205",
+    "category_name": null
+  },
+  {
+    "id": 3902,
+    "sku": "1180-6",
+    "catalog_code": "1180-6",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1180-6",
+      "range": "0-10mm/0-0.39\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.02mm 22",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "CHAMFER GAUGES",
+      "features": [
+        "Satin chrome plated",
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Data output"
+      ],
+      "pdf_page": 279,
+      "raw_row": "1180-6 0-10mm/0-0.39\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج پخ دیجیتال اینسایز (Insize) 0-10 میلیمتر 45 درجه مدل 6-1180",
+    "category_name": null
+  },
+  {
+    "id": 3900,
+    "sku": "1110-300A",
+    "catalog_code": "1110-300A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1110-300A",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS WITH CARBIDE TIPPED JAWS",
+      "features": [
+        "carbide measuring faces",
+        "carbide",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the",
+        "Non waterproof, with data interface (optional wireless transmitter code 7315-25, receiver is needed page 7)",
+        "Non waterproof, built-in wireless (receiver code 7315-2/3/6/7/8/9 is needed)",
+        "IP67 dust/waterproof, without data interface"
+      ],
+      "pdf_page": 40,
+      "raw_row": "1110-300A * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانت با فک الماس مدل 1110-300A",
+    "category_name": null
+  },
+  {
+    "id": 3899,
+    "sku": "1110-150A",
+    "catalog_code": "1110-150A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1110-150A",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS WITH CARBIDE TIPPED JAWS",
+      "features": [
+        "carbide measuring faces",
+        "carbide",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the",
+        "Non waterproof, with data interface (optional wireless transmitter code 7315-25, receiver is needed page 7)",
+        "Non waterproof, built-in wireless (receiver code 7315-2/3/6/7/8/9 is needed)",
+        "IP67 dust/waterproof, without data interface"
+      ],
+      "pdf_page": 40,
+      "raw_row": "1110-150A * 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 15 سانت با فک الماس مدل 1110-150A",
+    "category_name": null
+  },
+  {
+    "id": 3898,
+    "sku": "1106-2002",
+    "catalog_code": "1106-2002",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-2002",
+      "range": "0-2000mm/0-80\"",
+      "accuracy": "±0.14mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-2002 0-2000mm/0-80\" ±0.14mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106",
+    "category_name": null
+  },
+  {
+    "id": 3897,
+    "sku": "1106-1503",
+    "catalog_code": "1106-1503",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-1503",
+      "range": "0-1500mm/0-60\"",
+      "accuracy": "±0.12mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-1503 0-1500mm/0-60\" ±0.12mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106",
+    "category_name": null
+  },
+  {
+    "id": 3896,
+    "sku": "1106-1005",
+    "catalog_code": "1106-1005",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-1005",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.10mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-1005 0-1000mm/0-40\" ±0.10mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106",
+    "category_name": null
+  },
+  {
+    "id": 3784,
+    "sku": "4802-31",
+    "catalog_code": "4802-31",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4802-31",
+      "range": "25",
+      "accuracy": "-40mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "RADIUS GAUGES",
+      "features": [],
+      "pdf_page": 513,
+      "raw_row": "4802-31 25 -40mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "شابلون شعاع سنج اینسایز (Insize) دیجیتال کد 31-4802",
+    "category_name": null
+  },
+  {
+    "id": 3774,
+    "sku": "3203-12A",
+    "catalog_code": "3203-12A",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "3203-12A",
+      "range": "11-12\"",
+      "accuracy": "±0.00025\"",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-12A 11-12\" ±0.00025\"",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 11–12 اینچ خارج سنج مدل 3203-12A",
+    "category_name": null
+  },
+  {
+    "id": 3744,
+    "sku": "1244-30",
+    "catalog_code": "1244-30",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1244-30",
+      "range": "0-30mm",
+      "accuracy": "±0.10mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "",
+      "features": [],
+      "pdf_page": null,
+      "raw_row": "1244-30 0-30mm ±0.10mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "عمق سنج ورنیه اینسایز (Insize) 30 میلی متر مدل 30-1244",
+    "category_name": null
+  },
+  {
+    "id": 3691,
+    "sku": "7110-1000",
+    "catalog_code": "7110-1000",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-1000",
+      "range": "1000mm/40\"",
+      "accuracy": "±0.50mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-1000 1000mm/40\" ±0.50mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 1 متری اینسایز (Insize) مدل 1000-7110",
+    "category_name": null
+  },
+  {
+    "id": 3660,
+    "sku": "4621-60",
+    "catalog_code": "4621-60",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-60",
+      "range": "0.60mm",
+      "accuracy": "±14µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-60 0.60mm ±14µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.60mm اینسایز (Insize) مدل 60-4621",
+    "category_name": null
+  },
+  {
+    "id": 3658,
+    "sku": "4621-12",
+    "catalog_code": "4621-12",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-12",
+      "range": "0.12mm",
+      "accuracy": "±5µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-12 0.12mm ±5µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.12mm اینسایز (Insize) مدل 12-4621",
+    "category_name": null
+  },
+  {
+    "id": 3648,
+    "sku": "3594-50",
+    "catalog_code": "3594-50A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3594-50A",
+      "range": "25-50mm/1-2\"",
+      "accuracy": "±4μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "NON-ROTATING SPINDLE DISK MICROMETERS",
+      "features": [
+        "Ratchet stop",
+        "Data output",
+        "Automatic power off"
+      ],
+      "pdf_page": 204,
+      "raw_row": "3594-50A 25-50mm/1-2\" ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر دیسکی مدل 50-3594",
+    "category_name": null
+  },
+  {
+    "id": 3644,
+    "sku": "3108-75",
+    "catalog_code": "3108-75A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3108-75A",
+      "range": "50-75mm/2-3\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+      "features": [
+        "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+        "IP65",
+        "WATERPROOF",
+        "DATA OUTPUT",
+        "IP65 dust/waterproof",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Ratchet stop type",
+        "ratchet stop",
+        "Friction thimble type"
+      ],
+      "pdf_page": 152,
+      "raw_row": "3108-75A * 50-75mm/2-3\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3108",
+    "category_name": null
+  },
+  {
+    "id": 3641,
+    "sku": "3109-75",
+    "catalog_code": "3109-75A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-75A",
+      "range": "50-75mm/2-3\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-75A * 50-75mm/2-3\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3109",
+    "category_name": null
+  },
+  {
+    "id": 3636,
+    "sku": "1140-25",
+    "catalog_code": "1140-25",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1140-25",
+      "range": "0-25mm/0-1\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA MINI DIGITAL DEPTH GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, set, mm/inch, preset (+,-)"
+      ],
+      "pdf_page": 101,
+      "raw_row": "1140-25 0-25mm/0-1\" ±0.02mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 2.5 سانتی متر عمق سنج مدل 25-1140",
+    "category_name": null
+  },
+  {
+    "id": 3634,
+    "sku": "1214-2000",
+    "catalog_code": "1214-2000",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1214-2000",
+      "range": "0-2000mm/0-80\"",
+      "accuracy": "±0.14mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1214-2000 0-2000mm/0-80\" ±0.14mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214",
+    "category_name": null
+  },
+  {
+    "id": 3630,
+    "sku": "2322-60",
+    "catalog_code": "2322-60A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2322-60A",
+      "range": "35-60mm",
+      "accuracy": "±0.018mm",
+      "resolution": "0.002mm/0.0001\" ±0.018mm",
+      "graduation": "0.01mm ±0.018mm 0.003mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE",
+      "features": [],
+      "pdf_page": 248,
+      "raw_row": "2322-60A 35-60mm ±0.018mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "بورگیج داخل سیلندر اینسایز (Insize) 60-35 میلی متری مدل 60-2322",
+    "category_name": null
+  },
+  {
+    "id": 3629,
+    "sku": "2322-35",
+    "catalog_code": "2322-35A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2322-35A",
+      "range": "18-35mm",
+      "accuracy": "±0.015mm",
+      "resolution": "0.002mm/0.0001\" ±0.018mm",
+      "graduation": "0.01mm ±0.018mm 0.003mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE",
+      "features": [],
+      "pdf_page": 248,
+      "raw_row": "2322-35A 18-35mm ±0.015mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "بورگیج داخل سیلندر اینسایز (Insize) 35-18 میلی متری مدل 35-2322",
+    "category_name": null
+  },
+  {
+    "id": 3607,
+    "sku": "7114-3460",
+    "catalog_code": "7114-3460",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7114-3460",
+      "range": "2190-3460mm / Ø700-1100mm",
+      "accuracy": "circumference ±3mm; diameter ±1mm",
+      "resolution": "0.1mm",
+      "graduation": "0.1mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "CAN BE CUSTOM-MADE",
+      "features": [],
+      "pdf_page": 265,
+      "raw_row": "7114-3460 2190-3460mm Ø700-1100mm ±3mm ±1mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "سیرکومتر 1100-700 میلی متر اینسایز (Insize) مدل 3460-7114",
+    "category_name": null
+  },
+  {
+    "id": 3606,
+    "sku": "7114-2200",
+    "catalog_code": "7114-2200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7114-2200",
+      "range": "940-2200mm / Ø300-700mm",
+      "accuracy": "circumference ±3mm; diameter ±1mm",
+      "resolution": "0.1mm",
+      "graduation": "0.1mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "CAN BE CUSTOM-MADE",
+      "features": [],
+      "pdf_page": 265,
+      "raw_row": "7114-2200 940-2200mm Ø300-700mm ±3mm ±1mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "سیرکومتر 700-300 میلی متر اینسایز (Insize) مدل 2200-7114",
+    "category_name": null
+  },
+  {
+    "id": 3595,
+    "sku": "1140-50",
+    "catalog_code": "1140-50",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1140-50",
+      "range": "0-50mm/0-2\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA MINI DIGITAL DEPTH GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, set, mm/inch, preset (+,-)"
+      ],
+      "pdf_page": 101,
+      "raw_row": "1140-50 0-50mm/0-2\" ±0.02mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 5 سانتی متر عمق سنج مدل 50-1140",
+    "category_name": null
+  },
+  {
+    "id": 3583,
+    "sku": "1240-5001",
+    "catalog_code": "1240-5001",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1240-5001",
+      "range": "0-500mm",
+      "accuracy": "±0.05mm",
+      "resolution": "0.05mm",
+      "graduation": "1247-150 0-150mm ±0.05mm 0.05",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER DEPTH GAUGES (STANDARD TYPE)",
+      "features": [
+        "Satin chrome plated reading surface",
+        "Satin chrome plating finish on reading surface"
+      ],
+      "pdf_page": 98,
+      "raw_row": "1240-5001 0-500mm ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 50 سانتی متر عمق سنج استن استیل مدل 5001-1240",
+    "category_name": null
+  },
+  {
+    "id": 3581,
+    "sku": "1240-3001",
+    "catalog_code": "1240-3001",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1240-3001",
+      "range": "0-300mm",
+      "accuracy": "±0.04mm",
+      "resolution": "0.05mm",
+      "graduation": "1247-150 0-150mm ±0.05mm 0.05",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER DEPTH GAUGES (STANDARD TYPE)",
+      "features": [
+        "Satin chrome plated reading surface",
+        "Satin chrome plating finish on reading surface"
+      ],
+      "pdf_page": 98,
+      "raw_row": "1240-3001 0-300mm ±0.04mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس عمق سنج 30 سانتی متر اینسایز (Insize) مدل 3001-1240",
+    "category_name": null
+  },
+  {
+    "id": 3580,
+    "sku": "1240-2001",
+    "catalog_code": "1240-2001",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1240-2001",
+      "range": "0-200mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.05mm",
+      "graduation": "1247-150 0-150mm ±0.05mm 0.05",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER DEPTH GAUGES (STANDARD TYPE)",
+      "features": [
+        "Satin chrome plated reading surface",
+        "Satin chrome plating finish on reading surface"
+      ],
+      "pdf_page": 98,
+      "raw_row": "1240-2001 0-200mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 20 سانتی متر عمق سنج استن استیل مدل 2001-1240",
+    "category_name": null
+  },
+  {
+    "id": 3578,
+    "sku": "1240-1501",
+    "catalog_code": "1240-1501",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1240-1501",
+      "range": "0-150mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.05mm",
+      "graduation": "1247-150 0-150mm ±0.05mm 0.05",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER DEPTH GAUGES (STANDARD TYPE)",
+      "features": [
+        "Satin chrome plated reading surface",
+        "Satin chrome plating finish on reading surface"
+      ],
+      "pdf_page": 98,
+      "raw_row": "1240-1501 0-150mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 15 سانتی متر عمق سنج استن استیل مدل 1501-1240",
+    "category_name": null
+  },
+  {
+    "id": 3577,
+    "sku": "7110-2000",
+    "catalog_code": "7110-2000",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-2000",
+      "range": "2000mm/80\"",
+      "accuracy": "±1.00mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-2000 2000mm/80\" ±1.00mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 2 متری اینسایز (Insize) مدل 2000-7110",
+    "category_name": null
+  },
+  {
+    "id": 3576,
+    "sku": "7110-1500",
+    "catalog_code": "7110-1500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-1500",
+      "range": "1500mm/60\"",
+      "accuracy": "±1.00mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-1500 1500mm/60\" ±1.00mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 1.5 متری اینسایز (Insize) مدل 1500-7110",
+    "category_name": null
+  },
+  {
+    "id": 3571,
+    "sku": "4621-90",
+    "catalog_code": "4621-90",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-90",
+      "range": "0.90mm",
+      "accuracy": "±22µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-90 0.90mm ±22µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.90mm اینسایز (Insize) مدل 90-4621",
+    "category_name": null
+  },
+  {
+    "id": 3570,
+    "sku": "4621-80",
+    "catalog_code": "4621-80",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-80",
+      "range": "0.80mm",
+      "accuracy": "±19µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-80 0.80mm ±19µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.80mm اینسایز (Insize) مدل 80-4621",
+    "category_name": null
+  },
+  {
+    "id": 3569,
+    "sku": "4621-70",
+    "catalog_code": "4621-70",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-70",
+      "range": "0.70mm",
+      "accuracy": "±17µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-70 0.70mm ±17µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.70mm اینسایز (Insize) مدل 70-4621",
+    "category_name": null
+  },
+  {
+    "id": 3568,
+    "sku": "4621-50",
+    "catalog_code": "4621-50",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-50",
+      "range": "0.50mm",
+      "accuracy": "±14µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-50 0.50mm ±14µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.50mm اینسایز (Insize) مدل 50-4621",
+    "category_name": null
+  },
+  {
+    "id": 3567,
+    "sku": "4621-40",
+    "catalog_code": "4621-40",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-40",
+      "range": "0.40mm",
+      "accuracy": "±12µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-40 0.40mm ±12µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.40mm اینسایز (Insize) مدل 40-4621",
+    "category_name": null
+  },
+  {
+    "id": 3566,
+    "sku": "4621-30",
+    "catalog_code": "4621-30",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-30",
+      "range": "0.30mm",
+      "accuracy": "±9µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-30 0.30mm ±9µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.30mm اینسایز (Insize) مدل 30-4621",
+    "category_name": null
+  },
+  {
+    "id": 3565,
+    "sku": "4621-25",
+    "catalog_code": "4621-25",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-25",
+      "range": "0.25mm",
+      "accuracy": "±9µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-25 0.25mm ±9µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.25mm اینسایز (Insize) مدل 25-4621",
+    "category_name": null
+  },
+  {
+    "id": 3564,
+    "sku": "4621-20",
+    "catalog_code": "4621-20",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-20",
+      "range": "0.20mm",
+      "accuracy": "±8µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-20 0.20mm ±8µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.20mm اینسایز (Insize) مدل 20-4621",
+    "category_name": null
+  },
+  {
+    "id": 3563,
+    "sku": "4621-15",
+    "catalog_code": "4621-15",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-15",
+      "range": "0.15mm",
+      "accuracy": "±6µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-15 0.15mm ±6µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.15mm اینسایز (Insize) مدل 15-4621",
+    "category_name": null
+  },
+  {
+    "id": 3562,
+    "sku": "4621-10",
+    "catalog_code": "4621-10",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-10",
+      "range": "0.10mm",
+      "accuracy": "±5µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-10 0.10mm ±5µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.10mm اینسایز (Insize) مدل 10-4621",
+    "category_name": null
+  },
+  {
+    "id": 3561,
+    "sku": "4621-09",
+    "catalog_code": "4621-09",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-09",
+      "range": "0.09mm",
+      "accuracy": "±5µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-09 0.09mm ±5µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.09mm اینسایز (Insize) مدل 09-4621",
+    "category_name": null
+  },
+  {
+    "id": 3560,
+    "sku": "3203-75",
+    "catalog_code": "3203-75A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-75A",
+      "range": "50-75mm",
+      "accuracy": "±2μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-75A * 50-75mm ±2μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 75-50 میلی متر خارج سنج مدل 75-3203",
+    "category_name": null
+  },
+  {
+    "id": 3559,
+    "sku": "3203-50",
+    "catalog_code": "3203-50A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-50A",
+      "range": "25-50mm",
+      "accuracy": "±2μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-50A* 25-50mm ±2μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3203",
+    "category_name": null
+  },
+  {
+    "id": 3558,
+    "sku": "4621-08",
+    "catalog_code": "4621-08",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-08",
+      "range": "0.08mm",
+      "accuracy": "±5µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-08 0.08mm ±5µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.08mm اینسایز (Insize) مدل 08-4621",
+    "category_name": null
+  },
+  {
+    "id": 3557,
+    "sku": "4621-07",
+    "catalog_code": "4621-07",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-07",
+      "range": "0.07mm",
+      "accuracy": "±5µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-07 0.07mm ±5µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.07mm اینسایز (Insize) مدل 07-4621",
+    "category_name": null
+  },
+  {
+    "id": 3556,
+    "sku": "3203-25",
+    "catalog_code": "3203-25A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-25A",
+      "range": "0-25mm",
+      "accuracy": "±2μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-25A * 0-25mm ±2μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 25-0 میلی متر خارج سنج 0.01 مدل 25-3203",
+    "category_name": null
+  },
+  {
+    "id": 3555,
+    "sku": "4621-06",
+    "catalog_code": "4621-06",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-06",
+      "range": "0.06mm",
+      "accuracy": "±4µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-06 0.06mm ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.06mm اینسایز (Insize) مدل 06-4621",
+    "category_name": null
+  },
+  {
+    "id": 3554,
+    "sku": "4621-05",
+    "catalog_code": "4621-05",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-05",
+      "range": "0.05mm",
+      "accuracy": "±4µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-05 0.05mm ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.05mm اینسایز (Insize) مدل 05-4621",
+    "category_name": null
+  },
+  {
+    "id": 3553,
+    "sku": "4621-04",
+    "catalog_code": "4621-04",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-04",
+      "range": "0.04mm",
+      "accuracy": "±4µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-04 0.04mm ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.04mm اینسایز (insize) مدل 04-4621",
+    "category_name": null
+  },
+  {
+    "id": 3552,
+    "sku": "4621-03",
+    "catalog_code": "4621-03",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-03",
+      "range": "0.03mm",
+      "accuracy": "±4µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-03 0.03mm ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری با ضخامت 0.03 میلی‌متر اینسایز (Insize) مدل 03-4621",
+    "category_name": null
+  },
+  {
+    "id": 3551,
+    "sku": "3109-50",
+    "catalog_code": "3109-50A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-50A",
+      "range": "25-50mm/1-2\"",
+      "accuracy": "±2µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-50A * 25-50mm/1-2\" ±2µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3109",
+    "category_name": null
+  },
+  {
+    "id": 3550,
+    "sku": "3109-25",
+    "catalog_code": "3109-25A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-25A",
+      "range": "0-25mm/0-1\"",
+      "accuracy": "±2µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-25A * 0-25mm/0-1\" ±2µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 25-0 میلی متر خارج سنج مدل 25-3109",
+    "category_name": null
+  },
+  {
+    "id": 3549,
+    "sku": "3108-50",
+    "catalog_code": "3108-50A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3108-50A",
+      "range": "25-50mm/1-2\"",
+      "accuracy": "±2µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+      "features": [
+        "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+        "IP65",
+        "WATERPROOF",
+        "DATA OUTPUT",
+        "IP65 dust/waterproof",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Ratchet stop type",
+        "ratchet stop",
+        "Friction thimble type"
+      ],
+      "pdf_page": 152,
+      "raw_row": "3108-50A * 25-50mm/1-2\" ±2µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 50-25 میلی متر خارج سنج مدل 50-3108",
+    "category_name": null
+  },
+  {
+    "id": 3546,
+    "sku": "4621-02",
+    "catalog_code": "4621-02",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-02",
+      "range": "0.02mm",
+      "accuracy": "±4µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-02 0.02mm ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 0.02mm اینسایز (Insize) مدل 02-4621",
+    "category_name": null
+  },
+  {
+    "id": 3511,
+    "sku": "3594-25",
+    "catalog_code": "3594-25A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3594-25A",
+      "range": "0-25mm/0-1\"",
+      "accuracy": "±4μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "NON-ROTATING SPINDLE DISK MICROMETERS",
+      "features": [
+        "Ratchet stop",
+        "Data output",
+        "Automatic power off"
+      ],
+      "pdf_page": 204,
+      "raw_row": "3594-25A 0-25mm/0-1\" ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 25-0 میلی متر دیسکی مدل 25-3594",
+    "category_name": null
+  },
+  {
+    "id": 3487,
+    "sku": "2121-25",
+    "catalog_code": "2121-25",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "2121-25",
+      "range": "5-25mm/0.2-1.0\"",
+      "accuracy": "±0.03mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "",
+      "features": [],
+      "pdf_page": null,
+      "raw_row": "2121-25 5-25mm/0.2-1.0\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "پرگار دیجیتالی داخل سنج 25-5 میلی متری اینسایز (Insize) مدل 25-2121",
+    "category_name": null
+  },
+  {
+    "id": 3479,
+    "sku": "1106-1502",
+    "catalog_code": "1106-1502",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-1502",
+      "range": "0-1500mm/0-60\"",
+      "accuracy": "±0.11mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-1502 0-1500mm/0-60\" ±0.11mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106",
+    "category_name": null
+  },
+  {
+    "id": 3478,
+    "sku": "1106-2003",
+    "catalog_code": "1106-2003",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-2003",
+      "range": "0-2000mm/0-80\"",
+      "accuracy": "±0.14mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-2003 0-2000mm/0-80\" ±0.14mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106",
+    "category_name": null
+  },
+  {
+    "id": 3476,
+    "sku": "1214-1500",
+    "catalog_code": "1214-1500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1214-1500",
+      "range": "0-1500mm/0-60\"",
+      "accuracy": "±0.12mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1214-1500 0-1500mm/0-60\" ±0.12mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214",
+    "category_name": null
+  },
+  {
+    "id": 3475,
+    "sku": "1214-1000",
+    "catalog_code": "1214-1000",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1214-1000",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1214-1000 0-1000mm/0-40\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 1 متری مدل 1000-1214",
+    "category_name": null
+  },
+  {
+    "id": 3474,
+    "sku": "1106-1002",
+    "catalog_code": "1106-1002",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-1002",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-1002 0-1000mm/0-40\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106",
+    "category_name": null
+  },
+  {
+    "id": 3473,
+    "sku": "1205-3002",
+    "catalog_code": "1205-3002S",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1205-3002S",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.05mm/1/128\"",
+      "graduation": "0.05mm/1/128\" 1202-",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 43,
+      "raw_row": "1205-3002S 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205",
+    "category_name": null
+  },
+  {
+    "id": 3472,
+    "sku": "1205-2002",
+    "catalog_code": "1205-2002S",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1205-2002S",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.05mm/1/128\"",
+      "graduation": "0.05mm/1/128\" 1202-",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 43,
+      "raw_row": "1205-2002S 0-200mm/0-8\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205",
+    "category_name": null
+  },
+  {
+    "id": 3471,
+    "sku": "1111-75",
+    "catalog_code": "1111-75A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1111-75A",
+      "range": "0-75mm/0-3\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "LR44",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "MINI DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, zero, mm/inch",
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 42,
+      "raw_row": "1111-75A 0-75mm/0-3\" ±0.02mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111",
+    "category_name": null
+  },
+  {
+    "id": 3470,
+    "sku": "1205-1502",
+    "catalog_code": "1205-1502S",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1205-1502S",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.05mm/1/128\"",
+      "graduation": "0.05mm/1/128\" 1202-",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 43,
+      "raw_row": "1205-1502S 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205",
+    "category_name": null
+  },
+  {
+    "id": 2084,
+    "sku": "7114-950",
+    "catalog_code": "7114-950",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7114-950",
+      "range": "150-950mm / Ø50-300mm",
+      "accuracy": "circumference ±3mm; diameter ±1mm",
+      "resolution": "0.1mm",
+      "graduation": "0.1mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "CAN BE CUSTOM-MADE",
+      "features": [],
+      "pdf_page": 265,
+      "raw_row": "7114-950 150-950mm Ø50-300mm ±3mm ±1mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "سیرکومتر قطر لوله 20 - 300 — 0-950mm",
+    "category_name": null
+  },
+  {
+    "id": 2081,
+    "sku": "7110-600",
+    "catalog_code": "7110-600",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-600",
+      "range": "600mm/24\"",
+      "accuracy": "±0.50mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-600 600mm/24\" ±0.50mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 60 سانتی اینسایز (Insize) مدل 600-7110",
+    "category_name": null
+  },
+  {
+    "id": 2080,
+    "sku": "7110-500",
+    "catalog_code": "7110-500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-500",
+      "range": "500mm/20\"",
+      "accuracy": "±0.40mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-500 500mm/20\" ±0.40mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 50 سانتی اینسایز (Insize) مدل 500-7110",
+    "category_name": null
+  },
+  {
+    "id": 2079,
+    "sku": "7110-300",
+    "catalog_code": "7110-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-300",
+      "range": "300mm/12\"",
+      "accuracy": "±0.27mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-300 300mm/12\" ±0.27mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 30 سانتی اینسایز (Insize) مدل 300-7110",
+    "category_name": null
+  },
+  {
+    "id": 2078,
+    "sku": "7110-200",
+    "catalog_code": "7110-200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-200",
+      "range": "200mm/8\"",
+      "accuracy": "±0.18mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-200 200mm/8\" ±0.18mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 20 سانتی اینسایز (Insize) مدل 200-7110",
+    "category_name": null
+  },
+  {
+    "id": 2077,
+    "sku": "7110-150",
+    "catalog_code": "7110-150",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "7110-150",
+      "range": "150mm/6\"",
+      "accuracy": "±0.18mm",
+      "resolution": "0.5mm, 1mm",
+      "graduation": "on front and inch graduation on back 5",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "special steel",
+      "series": "FLEXIBLE RULERS",
+      "features": [
+        "Satin chrome plated"
+      ],
+      "pdf_page": 537,
+      "raw_row": "7110-150 150mm/6\" ±0.18mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "خط کش فلزی 15 سانتی اینسایز (Insize) مدل 150-7110",
+    "category_name": null
+  },
+  {
+    "id": 2016,
+    "sku": "4621-100",
+    "catalog_code": "4621-100",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "4621-100",
+      "range": "1.00mm",
+      "accuracy": "±24µm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "hardened alloy steel",
+      "series": "FEELER GAUGE STOCKS",
+      "features": [],
+      "pdf_page": 509,
+      "raw_row": "4621-100 1.00mm ±24µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "فیلر نواری 5 متری 1mm اینسایز (Insize) مدل 100-4621",
+    "category_name": null
+  },
+  {
+    "id": 1950,
+    "sku": "3203-300",
+    "catalog_code": "3203-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-300A",
+      "range": "275-300mm",
+      "accuracy": "±5μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-300A 275-300mm ±5μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 300-275 میلی متر خارج سنج مدل 300-3203",
+    "category_name": null
+  },
+  {
+    "id": 1949,
+    "sku": "3203-275",
+    "catalog_code": "3203-275A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-275A",
+      "range": "250-275mm",
+      "accuracy": "±5μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-275A 250-275mm ±5μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 275-250 میلی متر خارج سنج مدل 275-3203",
+    "category_name": null
+  },
+  {
+    "id": 1948,
+    "sku": "3203-250",
+    "catalog_code": "3203-250A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-250A",
+      "range": "225-250mm",
+      "accuracy": "±5μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-250A 225-250mm ±5μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 250-225 میلی متر خارج سنج مدل 250-3203",
+    "category_name": null
+  },
+  {
+    "id": 1947,
+    "sku": "3203-225",
+    "catalog_code": "3203-225A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-225A",
+      "range": "200-225mm",
+      "accuracy": "±4μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-225A 200-225mm ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 225-200 میلی متر خارج سنج مدل 225-3203",
+    "category_name": null
+  },
+  {
+    "id": 1946,
+    "sku": "3203-200",
+    "catalog_code": "3203-200A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-200A",
+      "range": "175-200mm",
+      "accuracy": "±4μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-200A 175-200mm ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 200-175 میلی متر خارج سنج مدل 200-3203",
+    "category_name": null
+  },
+  {
+    "id": 1945,
+    "sku": "3203-175",
+    "catalog_code": "3203-175A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-175A",
+      "range": "150-175mm",
+      "accuracy": "±4μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-175A 150-175mm ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 175-150 میلی متر خارج سنج مدل 175-3203",
+    "category_name": null
+  },
+  {
+    "id": 1943,
+    "sku": "3203-150",
+    "catalog_code": "3203-150A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-150A",
+      "range": "125-150mm",
+      "accuracy": "±3μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-150A 125-150mm ±3μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 150-125 میلی متر خارج سنج مدل 150-3203",
+    "category_name": null
+  },
+  {
+    "id": 1942,
+    "sku": "3203-125",
+    "catalog_code": "3203-125A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-125A",
+      "range": "100-125mm",
+      "accuracy": "±3μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-125A 100-125mm ±3μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 125-100 میلی متر خارج سنج مدل 125-3203",
+    "category_name": null
+  },
+  {
+    "id": 1941,
+    "sku": "3203-100",
+    "catalog_code": "3203-100A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3203-100A",
+      "range": "75-100mm",
+      "accuracy": "±3μm",
+      "resolution": "metric 0.01mm",
+      "graduation": "metric 0.01mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "DIN863-1",
+      "material": "",
+      "series": "OUTSIDE MICROMETERS",
+      "features": [
+        "ratchet stop",
+        "Carbide measuring faces"
+      ],
+      "pdf_page": 157,
+      "raw_row": "3203-100A* 75-100mm ±3μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3203",
+    "category_name": null
+  },
+  {
+    "id": 1928,
+    "sku": "3109-300",
+    "catalog_code": "3109-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-300A",
+      "range": "275-300mm/11-12\"",
+      "accuracy": "±5μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-300A 275-300mm/11-12\" ±5μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 275-300 میلی متر خارج سنج مدل 300-3109",
+    "category_name": null
+  },
+  {
+    "id": 1927,
+    "sku": "3109-275",
+    "catalog_code": "3109-275A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-275A",
+      "range": "250-275mm/10-11\"",
+      "accuracy": "±5μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-275A 250-275mm/10-11\" ±5μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 250-275 میلی متر خارج سنج مدل 275-3109",
+    "category_name": null
+  },
+  {
+    "id": 1926,
+    "sku": "3109-250",
+    "catalog_code": "3109-250A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-250A",
+      "range": "225-250mm/9-10\"",
+      "accuracy": "±4μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-250A 225-250mm/9-10\" ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 225-250 میلی متر خارج سنج مدل 250-3109",
+    "category_name": null
+  },
+  {
+    "id": 1925,
+    "sku": "3109-225",
+    "catalog_code": "3109-225A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-225A",
+      "range": "200-225mm/8-9\"",
+      "accuracy": "±4μm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-225A 200-225mm/8-9\" ±4μm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 200-225 میلی متر خارج سنج مدل 225-3109",
+    "category_name": null
+  },
+  {
+    "id": 1924,
+    "sku": "3109-200",
+    "catalog_code": "3109-200A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-200A",
+      "range": "175-200mm/7-8\"",
+      "accuracy": "±4µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-200A 175-200mm/7-8\" ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 200-175 میلی متر خارج سنج مدل 200-3109",
+    "category_name": null
+  },
+  {
+    "id": 1923,
+    "sku": "3109-175",
+    "catalog_code": "3109-175A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-175A",
+      "range": "150-175mm/6-7\"",
+      "accuracy": "±4µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-175A 150-175mm/6-7\" ±4µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 175-150 میلی متر خارج سنج مدل 175-3109",
+    "category_name": null
+  },
+  {
+    "id": 1922,
+    "sku": "3109-150",
+    "catalog_code": "3109-150A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-150A",
+      "range": "125-150mm/5-6\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-150A 125-150mm/5-6\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 150-125 میلی متر خارج سنج مدل 150-3109",
+    "category_name": null
+  },
+  {
+    "id": 1921,
+    "sku": "3109-125",
+    "catalog_code": "3109-125A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-125A",
+      "range": "100-125mm/4-5\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-125A 100-125mm/4-5\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 125-100 میلی متر خارج سنج مدل 125-3109",
+    "category_name": null
+  },
+  {
+    "id": 1920,
+    "sku": "3109-100",
+    "catalog_code": "3109-100A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3109-100A",
+      "range": "75-100mm/3-4\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "DIGITAL OUTSIDE MICROMETERS (BASIC TYPE, WITHOUT DATA OUTPUT) ATTENTION: NO",
+      "features": [
+        "DATA OUTPUT",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Friction thimble",
+        "friction",
+        "IP65 dust/waterproof",
+        "Data output",
+        "Carbide spindle tip",
+        "Ratchet stop"
+      ],
+      "pdf_page": 154,
+      "raw_row": "3109-100A* 75-100mm/3-4\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3109",
+    "category_name": null
+  },
+  {
+    "id": 1919,
+    "sku": "3108-100",
+    "catalog_code": "3108-100A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "3108-100A",
+      "range": "75-100mm/3-4\"",
+      "accuracy": "±3µm",
+      "resolution": "0.001mm/0.00005\"",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+      "features": [
+        "WATERPROOF DIGITAL OUTSIDE MICROMETERS (WITHOUT DATA OUTPUT)",
+        "IP65",
+        "WATERPROOF",
+        "DATA OUTPUT",
+        "IP65 dust/waterproof",
+        "Automatic power off",
+        "Carbide measuring faces",
+        "Ratchet stop type",
+        "ratchet stop",
+        "Friction thimble type"
+      ],
+      "pdf_page": 152,
+      "raw_row": "3108-100A* 75-100mm/3-4\" ±3µm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "میکرومتر دیجیتال اینسایز (Insize) 100-75 میلی متر خارج سنج مدل 100-3108",
+    "category_name": null
+  },
+  {
+    "id": 1909,
+    "sku": "2827-160",
+    "catalog_code": "2827-160A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2827-160A",
+      "range": "50-160mm",
+      "accuracy": "±0.018mm",
+      "resolution": "0.002mm/0.0001\"",
+      "graduation": "0.01mm ±0.018mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "ATTENTION: NOT SUITABLE BUILT-IN WIRELESS DIGITAL BORE GAUGES (WITH DIAL INDICATOR)",
+      "features": [],
+      "pdf_page": 253,
+      "raw_row": "2827-160A 50-160mm ±0.018mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "گیج داخل سیلندر اینسایز (Insize) 160-50 مدل 160-2827",
+    "category_name": null
+  },
+  {
+    "id": 1896,
+    "sku": "2322-450",
+    "catalog_code": "2322-450A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2322-450A",
+      "range": "250-450mm",
+      "accuracy": "±0.018mm",
+      "resolution": "0.002mm/0.0001\" ±0.018mm",
+      "graduation": "0.01mm ±0.018mm 0.003mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE",
+      "features": [],
+      "pdf_page": 248,
+      "raw_row": "2322-450A 250-450mm ±0.018mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "بورگیج داخل سیلندر اینسایز (Insize) 450-250 میلی متری مدل 450-2322",
+    "category_name": null
+  },
+  {
+    "id": 1895,
+    "sku": "2322-250",
+    "catalog_code": "2322-250A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "2322-250A",
+      "range": "160-250mm",
+      "accuracy": "±0.018mm",
+      "resolution": "0.002mm/0.0001\" ±0.018mm",
+      "graduation": "0.01mm ±0.018mm 0.003mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "BORE GAUGES (WITH DIAL INDICATOR) ATTENTION: NOT SUITABLE",
+      "features": [],
+      "pdf_page": 248,
+      "raw_row": "2322-250A 160-250mm ±0.018mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "بورگیج داخل سیلندر اینسایز (Insize) 250-160 میلی متری مدل 250-2322",
+    "category_name": null
+  },
+  {
+    "id": 1872,
+    "sku": "1530-500",
+    "catalog_code": "1530-500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1530-500",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA VARIOUS POINTS ARE DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, set, mm/inch, preset (+, -)",
+        "Automatic power off, move the digital"
+      ],
+      "pdf_page": 61,
+      "raw_row": "1530-500 0-500mm/0-20\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس داخل / خارج دیجیتال اینسایز (Insize) 50 سانت مدل 500-1530",
+    "category_name": null
+  },
+  {
+    "id": 1871,
+    "sku": "1530-300",
+    "catalog_code": "1530-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1530-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA VARIOUS POINTS ARE DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, set, mm/inch, preset (+, -)",
+        "Automatic power off, move the digital"
+      ],
+      "pdf_page": 61,
+      "raw_row": "1530-300 0-300mm/0-12\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی متر داخل و خارج سنج مدل 300-1530",
+    "category_name": null
+  },
+  {
+    "id": 1866,
+    "sku": "1316-500",
+    "catalog_code": "1316-500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1316-500",
+      "range": "0-500mm",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1316-500 0-500mm ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس استنلس استیل ساعتی اینسایز (Insize) 60 سانت مدل 500-1316",
+    "category_name": null
+  },
+  {
+    "id": 1865,
+    "sku": "1312-300",
+    "catalog_code": "1312-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1312-300A",
+      "range": "0-300mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1312-300A * 0-300mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز (Insize) 30 سانتی متر مدل 300-1312",
+    "category_name": null
+  },
+  {
+    "id": 1864,
+    "sku": "1312-200",
+    "catalog_code": "1312-200A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1312-200A",
+      "range": "0-200mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1312-200A * 0-200mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز (Insize) 20 سانتی متر مدل 200-1312",
+    "category_name": null
+  },
+  {
+    "id": 1863,
+    "sku": "1312-150",
+    "catalog_code": "1312-150A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1312-150A",
+      "range": "0-150mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1312-150A * 0-150mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز (Insize) 15 سانتی متر مدل 150-1312",
+    "category_name": null
+  },
+  {
+    "id": 1862,
+    "sku": "1311-300",
+    "catalog_code": "1311-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1311-300A",
+      "range": "0-300mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1311-300A * 0-300mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز (Insize) 30 سانتی متر مدل 300-1311",
+    "category_name": null
+  },
+  {
+    "id": 1861,
+    "sku": "1311-200",
+    "catalog_code": "1311-200A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1311-200A",
+      "range": "0-200mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1311-200A * 0-200mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز(Insize) 20 سانتی متر مدل 200-1311",
+    "category_name": null
+  },
+  {
+    "id": 1860,
+    "sku": "1311-150",
+    "catalog_code": "1311-150A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1311-150A",
+      "range": "0-150mm",
+      "accuracy": "±0.03mm",
+      "resolution": "0.02mm",
+      "graduation": "0.02mm",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIAL CALIPERS SHOCK",
+      "features": [
+        "carbide measuring faces",
+        "Carbide tipped jaws for inside and"
+      ],
+      "pdf_page": 46,
+      "raw_row": "1311-150A * 0-150mm ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ساعتی اینسایز (Insize) 15 سانتی متر مدل 150-1311",
+    "category_name": null
+  },
+  {
+    "id": 1859,
+    "sku": "1250-600",
+    "catalog_code": "1250-600",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1250-600",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.02mm/0.001\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "",
+      "features": [
+        "Satin chrome plated scale",
+        "Carbide tipped scriber"
+      ],
+      "pdf_page": 118,
+      "raw_row": "1250-600 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 60 سانتی متر پایه دار مدل 600-1250",
+    "category_name": null
+  },
+  {
+    "id": 1858,
+    "sku": "1250-300",
+    "catalog_code": "1250-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1250-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.04mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.02mm/0.001\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "",
+      "features": [
+        "Satin chrome plated scale",
+        "Carbide tipped scriber"
+      ],
+      "pdf_page": 118,
+      "raw_row": "1250-300 0-300mm/0-12\" ±0.04mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس پایه دار ساده اینسایز (Insize) 30 سانتی متر مدل 300-1250",
+    "category_name": null
+  },
+  {
+    "id": 1857,
+    "sku": "1236-524",
+    "catalog_code": "1236-524",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1236-524",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Satin chrome plated",
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 49,
+      "raw_row": "1236-524 0-500mm/0-20\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236",
+    "category_name": null
+  },
+  {
+    "id": 1856,
+    "sku": "1236-394",
+    "catalog_code": "1236-394",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1236-394",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.07mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Satin chrome plated",
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 49,
+      "raw_row": "1236-394 0-300mm/0-12\" ±0.07mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236",
+    "category_name": null
+  },
+  {
+    "id": 1854,
+    "sku": "1215-822",
+    "catalog_code": "1215-822",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-822",
+      "range": "0-800mm/0-32\"",
+      "accuracy": "±0.07mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-822 0-800mm/0-32\" ±0.07mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215",
+    "category_name": null
+  },
+  {
+    "id": 1853,
+    "sku": "1215-622",
+    "catalog_code": "1215-622",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-622",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-622 0-600mm/0-24\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215",
+    "category_name": null
+  },
+  {
+    "id": 1852,
+    "sku": "1215-532",
+    "catalog_code": "1215-532",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-532",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-532 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215",
+    "category_name": null
+  },
+  {
+    "id": 1851,
+    "sku": "1215-522",
+    "catalog_code": "1215-522",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-522",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-522 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215",
+    "category_name": null
+  },
+  {
+    "id": 1850,
+    "sku": "1215-392",
+    "catalog_code": "1215-392",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-392",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-392 0-300mm/0-12\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215",
+    "category_name": null
+  },
+  {
+    "id": 1849,
+    "sku": "1215-322",
+    "catalog_code": "1215-322",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-322",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-322 0-300mm/0-12\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215",
+    "category_name": null
+  },
+  {
+    "id": 1848,
+    "sku": "1215-1052",
+    "catalog_code": "1215-1052",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-1052",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.11mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-1052 0-1000mm/0-40\" ±0.11mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215",
+    "category_name": null
+  },
+  {
+    "id": 1847,
+    "sku": "1215-1032",
+    "catalog_code": "1215-1032",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1215-1032",
+      "range": "0-1000mm/0-40\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1215-1032 0-1000mm/0-40\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215",
+    "category_name": null
+  },
+  {
+    "id": 1846,
+    "sku": "1214-600",
+    "catalog_code": "1214-600",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1214-600",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1214-600 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 60 سانتی متر مدل 600-1214",
+    "category_name": null
+  },
+  {
+    "id": 1845,
+    "sku": "1214-500",
+    "catalog_code": "1214-500",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1214-500",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.02mm/0.001\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "VERNIER CALIPERS (SEPARATE TYPE)",
+      "features": [
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 51,
+      "raw_row": "1214-500 0-500mm/0-20\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس اینسایز (Insize) 50 سانتی متر مدل 500-1214",
+    "category_name": null
+  },
+  {
+    "id": 1844,
+    "sku": "1208-824",
+    "catalog_code": "1208-824",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1208-824",
+      "range": "0-800mm/0-32\"",
+      "accuracy": "±0.09mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "",
+      "features": [],
+      "pdf_page": null,
+      "raw_row": "1208-824 0-800mm/0-32\" ±0.09mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208",
+    "category_name": null
+  },
+  {
+    "id": 1843,
+    "sku": "1208-524",
+    "catalog_code": "1208-524",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1208-524",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.08mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "",
+      "features": [],
+      "pdf_page": null,
+      "raw_row": "1208-524 0-500mm/0-20\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208",
+    "category_name": null
+  },
+  {
+    "id": 1842,
+    "sku": "1208-511",
+    "catalog_code": "1208-511",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1208-511",
+      "range": "0-500mm",
+      "accuracy": "±0.05mm",
+      "resolution": "",
+      "graduation": "",
+      "battery": "",
+      "measuring_force": "",
+      "standard": "",
+      "material": "",
+      "series": "",
+      "features": [],
+      "pdf_page": null,
+      "raw_row": "1208-511 0-500mm ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208",
+    "category_name": null
+  },
+  {
+    "id": 1841,
+    "sku": "1196-300",
+    "catalog_code": "1196-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1196-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS (FRACTION READING)",
+      "features": [
+        "Non waterproof",
+        "Buttons: unit (inch fraction/mm/inch), on/off, zero",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output (for mm and inch)",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Data output"
+      ],
+      "pdf_page": 37,
+      "raw_row": "1196-300 * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (insize) 30 سانتی متر مدل 300-1196",
+    "category_name": null
+  },
+  {
+    "id": 1830,
+    "sku": "1172-200",
+    "catalog_code": "1172-200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1172-200",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.07mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "RELATIVE PRODUCT: CRIMP HEIGHT DATA DIGITAL CRIMP HEIGHT CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the",
+        "Automatic power off, move the digital"
+      ],
+      "pdf_page": 85,
+      "raw_row": "1172-200 0-200mm/0-8\" ±0.07mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172",
+    "category_name": null
+  },
+  {
+    "id": 1829,
+    "sku": "1170-300",
+    "catalog_code": "1170-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1170-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the"
+      ],
+      "pdf_page": 41,
+      "raw_row": "1170-300 0-300mm/0-12\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170",
+    "category_name": null
+  },
+  {
+    "id": 1828,
+    "sku": "1169-150",
+    "catalog_code": "1169-150",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1169-150",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIGITAL OUTSIDE GROOVE CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital unit to turn on power",
+        "Automatic power off, move the digital"
+      ],
+      "pdf_page": 71,
+      "raw_row": "1169-150 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فک باریک مدل 150-1169",
+    "category_name": null
+  },
+  {
+    "id": 1826,
+    "sku": "1156-600",
+    "catalog_code": "1156-600",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1156-600",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel (except the base)",
+      "series": "DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, preset +, preset -, ABS/INC",
+        "Automatic power off, move the digital unit to turn on power",
+        "Carbide tipped scriber",
+        "Data output"
+      ],
+      "pdf_page": 115,
+      "raw_row": "1156-600 * 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 60 سانتی متر پایه دار مدل 600-1156",
+    "category_name": null
+  },
+  {
+    "id": 1825,
+    "sku": "1156-300",
+    "catalog_code": "1156-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1156-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel (except the base)",
+      "series": "DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, preset +, preset -, ABS/INC",
+        "Automatic power off, move the digital unit to turn on power",
+        "Carbide tipped scriber",
+        "Data output"
+      ],
+      "pdf_page": 115,
+      "raw_row": "1156-300 * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی متر پایه دار مدل 300-1156",
+    "category_name": null
+  },
+  {
+    "id": 1824,
+    "sku": "1151-600",
+    "catalog_code": "1151-600A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1151-600A",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.01mm",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel (except the base)",
+      "series": "DIGITAL HEIGHT GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, data hold, ABS/INC, preset",
+        "Automatic power off, move the digital unit to turn on power",
+        "Carbide tipped scriber"
+      ],
+      "pdf_page": 116,
+      "raw_row": "1151-600A 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس پایه دار دو میله دیجیتال اینسایز (Insize) 60 سانت مدل 600-1151",
+    "category_name": null
+  },
+  {
+    "id": 1823,
+    "sku": "1151-300",
+    "catalog_code": "1151-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1151-300A",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.04mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.01mm",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel (except the base)",
+      "series": "DIGITAL HEIGHT GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, data hold, ABS/INC, preset",
+        "Automatic power off, move the digital unit to turn on power",
+        "Carbide tipped scriber"
+      ],
+      "pdf_page": 116,
+      "raw_row": "1151-300A 0-300mm/0-12\" ±0.04mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس پایه دار دو میله دیجیتال اینسایز (Insize) 30 سانت مدل 300-1151",
+    "category_name": null
+  },
+  {
+    "id": 1809,
+    "sku": "1140-150",
+    "catalog_code": "1140-150",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1140-150",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA MINI DIGITAL DEPTH GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, set, mm/inch, preset (+,-)"
+      ],
+      "pdf_page": 101,
+      "raw_row": "1140-150 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "عمق سنج دیجیتال اینسایز (Insize) 15 سانت با میله گرد مدل 150-1140",
+    "category_name": null
+  },
+  {
+    "id": 1808,
+    "sku": "1140-100",
+    "catalog_code": "1140-100",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1140-100",
+      "range": "0-100mm/0-4\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA MINI DIGITAL DEPTH GAUGES",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, set, mm/inch, preset (+,-)"
+      ],
+      "pdf_page": 101,
+      "raw_row": "1140-100 0-100mm/0-4\" ±0.02mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "عمق سنج دیجیتال اینسایز (Insize) 10 سانت با میله گرد مدل 100-1140",
+    "category_name": null
+  },
+  {
+    "id": 1807,
+    "sku": "1136-601",
+    "catalog_code": "1136-601",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1136-601",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 48,
+      "raw_row": "1136-601 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136",
+    "category_name": null
+  },
+  {
+    "id": 1806,
+    "sku": "1136-503",
+    "catalog_code": "1136-503",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1136-503",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 48,
+      "raw_row": "1136-503 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136",
+    "category_name": null
+  },
+  {
+    "id": 1805,
+    "sku": "1136-502",
+    "catalog_code": "1136-502",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1136-502",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 48,
+      "raw_row": "1136-502 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136",
+    "category_name": null
+  },
+  {
+    "id": 1804,
+    "sku": "1136-501",
+    "catalog_code": "1136-501",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1136-501",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 48,
+      "raw_row": "1136-501 0-500mm/0-20\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136",
+    "category_name": null
+  },
+  {
+    "id": 1803,
+    "sku": "1135-601",
+    "catalog_code": "1135-601",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1135-601",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "0.05mm/1/128\"",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Satin chrome plated",
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 49,
+      "raw_row": "1135-601 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135",
+    "category_name": null
+  },
+  {
+    "id": 1802,
+    "sku": "1123-300",
+    "catalog_code": "1123-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1123-300A",
+      "range": "24-300mm/0.9-12\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL INSIDE KNIFE-EDGE CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital"
+      ],
+      "pdf_page": 73,
+      "raw_row": "1123-300A 24-300mm/0.9-12\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس داخل دیجیتال اینسایز (Insize) 30 سانت مدل 300-1123",
+    "category_name": null
+  },
+  {
+    "id": 1800,
+    "sku": "1122-300",
+    "catalog_code": "1122-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1122-300",
+      "range": "4-300mm/0.16-12\"",
+      "accuracy": "±0.04mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL HOOK CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch",
+        "Automatic power off, move the digital unit to turn on power"
+      ],
+      "pdf_page": 79,
+      "raw_row": "1122-300 4-300mm/0.16-12\" ±0.04mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال شیار اینسایز( Insize) 30 سانتی متر مدل 300-1122",
+    "category_name": null
+  },
+  {
+    "id": 1791,
+    "sku": "1114-300",
+    "catalog_code": "1114-300A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1114-300A",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1114-300A * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114",
+    "category_name": null
+  },
+  {
+    "id": 1790,
+    "sku": "1114-200",
+    "catalog_code": "1114-200A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1114-200A",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1114-200A * 0-200mm/0-8\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114",
+    "category_name": null
+  },
+  {
+    "id": 1789,
+    "sku": "1114-150",
+    "catalog_code": "1114-150A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1114-150A",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1114-150A * 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114",
+    "category_name": null
+  },
+  {
+    "id": 1788,
+    "sku": "1111-100",
+    "catalog_code": "1111-100A",
+    "match_rule": "unique_letter_suffix",
+    "catalog": {
+      "code": "1111-100A",
+      "range": "0-100mm/0-4\"",
+      "accuracy": "±0.02mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "LR44",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "MINI DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof",
+        "Automatic power off, move the digital",
+        "Buttons: on/off, zero, mm/inch",
+        "Satin chrome plated reading surface"
+      ],
+      "pdf_page": 42,
+      "raw_row": "1111-100A 0-100mm/0-4\" ±0.02mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111",
+    "category_name": null
+  },
+  {
+    "id": 1787,
+    "sku": "1108-300",
+    "catalog_code": "1108-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1108-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "ATTENTION: THE WORKING LIFE OF WIRELESS DIGITAL CALIPERS (ZIGBEE)",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, data transmission",
+        "Automatic power off, move the digital unit to turn on power",
+        "Buttons: on/off, zero, mm/inch",
+        "Data output"
+      ],
+      "pdf_page": 35,
+      "raw_row": "1108-300 * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (insize) 30 سانتی متر مدل 300-1108",
+    "category_name": null
+  },
+  {
+    "id": 1786,
+    "sku": "1108-200",
+    "catalog_code": "1108-200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1108-200",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "ATTENTION: THE WORKING LIFE OF WIRELESS DIGITAL CALIPERS (ZIGBEE)",
+      "features": [
+        "Non waterproof",
+        "Buttons: on/off, zero, mm/inch, data transmission",
+        "Automatic power off, move the digital unit to turn on power",
+        "Buttons: on/off, zero, mm/inch",
+        "Data output"
+      ],
+      "pdf_page": 35,
+      "raw_row": "1108-200 * 0-200mm/0-8\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 20 سانتی متر مدل 200-1108",
+    "category_name": null
+  },
+  {
+    "id": 1784,
+    "sku": "1106-802",
+    "catalog_code": "1106-802",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-802",
+      "range": "0-800mm/0-32\"",
+      "accuracy": "±0.07mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-802 0-800mm/0-32\" ±0.07mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106",
+    "category_name": null
+  },
+  {
+    "id": 1783,
+    "sku": "1106-603",
+    "catalog_code": "1106-603",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-603",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-603 0-600mm/0-24\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106",
+    "category_name": null
+  },
+  {
+    "id": 1782,
+    "sku": "1106-602",
+    "catalog_code": "1106-602",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-602",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-602 0-600mm/0-24\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106",
+    "category_name": null
+  },
+  {
+    "id": 1781,
+    "sku": "1106-601",
+    "catalog_code": "1106-601",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-601",
+      "range": "0-600mm/0-24\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-601 0-600mm/0-24\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106",
+    "category_name": null
+  },
+  {
+    "id": 1780,
+    "sku": "1106-505",
+    "catalog_code": "1106-505",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-505",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.08mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-505 0-500mm/0-20\" ±0.08mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106",
+    "category_name": null
+  },
+  {
+    "id": 1779,
+    "sku": "1106-503",
+    "catalog_code": "1106-503",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-503",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-503 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106",
+    "category_name": null
+  },
+  {
+    "id": 1778,
+    "sku": "1106-502",
+    "catalog_code": "1106-502",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-502",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.06mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-502 0-500mm/0-20\" ±0.06mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106",
+    "category_name": null
+  },
+  {
+    "id": 1777,
+    "sku": "1106-501",
+    "catalog_code": "1106-501",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-501",
+      "range": "0-500mm/0-20\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-501 0-500mm/0-20\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 50 سانتی متر مدل 501-1106",
+    "category_name": null
+  },
+  {
+    "id": 1776,
+    "sku": "1106-302",
+    "catalog_code": "1106-302",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-302",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-302 0-300mm/0-12\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106",
+    "category_name": null
+  },
+  {
+    "id": 1775,
+    "sku": "1106-301",
+    "catalog_code": "1106-301",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1106-301",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.05mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "",
+      "material": "stainless steel",
+      "series": "DATA DIGITAL CALIPERS",
+      "features": [
+        "Non waterproof"
+      ],
+      "pdf_page": 47,
+      "raw_row": "1106-301 0-300mm/0-12\" ±0.05mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106",
+    "category_name": null
+  },
+  {
+    "id": 1774,
+    "sku": "1103-300",
+    "catalog_code": "1103-300",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1103-300",
+      "range": "0-300mm/0-12\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1103-300 * 0-300mm/0-12\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 30 سانتی متر مدل 300-1103",
+    "category_name": null
+  },
+  {
+    "id": 1773,
+    "sku": "1103-200",
+    "catalog_code": "1103-200",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1103-200",
+      "range": "0-200mm/0-8\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1103-200 * 0-200mm/0-8\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 20 سانتی متر مدل 200-1103",
+    "category_name": null
+  },
+  {
+    "id": 1772,
+    "sku": "1103-150",
+    "catalog_code": "1103-150",
+    "match_rule": "exact_code",
+    "catalog": {
+      "code": "1103-150",
+      "range": "0-150mm/0-6\"",
+      "accuracy": "±0.03mm",
+      "resolution": "0.01mm/0.0005\"",
+      "graduation": "",
+      "battery": "CR2032",
+      "measuring_force": "",
+      "standard": "DIN862",
+      "material": "stainless steel",
+      "series": "DIGITAL CALIPERS (ABSOLUTE SYSTEM)",
+      "features": [
+        "Non waterproof",
+        "Absolute system, low power consumption, long battery life",
+        "Buttons: on/off, mm/inch, ORIGIN, ZERO/ABS",
+        "Automatic power off, move the digital unit to turn on power",
+        "Data output",
+        "Buttons: zero, on/off, mm/inch"
+      ],
+      "pdf_page": 36,
+      "raw_row": "1103-150 * 0-150mm/0-6\" ±0.03mm",
+      "catalog_edition": "108A-2025-2027"
+    },
+    "name": "کولیس دیجیتال اینسایز (Insize) 15 سانتی متر مدل 150-1103",
+    "category_name": null
+  }
+]

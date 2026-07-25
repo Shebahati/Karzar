@@ -75,3 +75,6 @@ frontend/**/*.pem
 .deploy-secrets
 .env.staging.generated
 .logo_audit/
+
+# Local regenerable INSIZE PDF extract (run: python scripts/enrich_insize_from_catalog_108A.py index --extract)
+data/imports/insize/catalog_108A/pdf_text_full.txt
