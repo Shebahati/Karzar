@@ -20,9 +20,12 @@ async function collectProductEntries(
     });
 
     for (const product of result.data) {
+      const lastModified = product.updated_at
+        ? new Date(product.updated_at)
+        : now;
       entries.push({
         url: `${SITE}/product/${product.id}`,
-        lastModified: now,
+        lastModified,
         changeFrequency: "weekly",
         priority: 0.8,
       });
