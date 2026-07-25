@@ -419,7 +419,7 @@ export const catalogService = {
 
   async setProductAvailability(
     id: number,
-    payload: { is_available: boolean; reason?: string },
+    payload: import("@/types/product").ProductAvailabilityPayload,
   ): Promise<import("@/types/product").ProductStockInfo> {
     if (env.USE_MOCK) {
       return (await getMockApi()).adjustProductStock(id, {
