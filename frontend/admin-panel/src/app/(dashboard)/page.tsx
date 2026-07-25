@@ -191,7 +191,7 @@ export default function DashboardPage() {
           loading={salesPending}
         />
         <StatCard
-          label="فروش کل حسابفا"
+          label="فروش کل حسابفا (تأییدشده)"
           value={
             hesabfaSalesToman !== null
               ? formatToman(hesabfaSalesToman)

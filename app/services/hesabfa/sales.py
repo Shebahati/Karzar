@@ -13,6 +13,7 @@ from app.core.constants import TOMAN_TO_RIAL
 from app.core.logging import get_logger
 from app.db.models.commerce import Order, OrderMode, PaymentStatus
 from app.services.hesabfa.client import (
+    INVOICE_STATUS_APPROVED,
     INVOICE_TYPE_SALE,
     HesabfaClient,
     get_hesabfa_client,
@@ -49,16 +50,36 @@ async def website_paid_sales(db: AsyncSession) -> tuple[Decimal, int]:
     return Decimal(str(total or 0)), int(count or 0)
 
 
+def _invoice_amount(inv: dict) -> Decimal:
+    raw = inv.get("Sum") if inv.get("Sum") is not None else inv.get("Payable")
+    return Decimal(str(raw or 0))
+
+
+def _is_approved_sale_invoice(inv: dict) -> bool:
+    """Only approved, non-returned sale invoices count toward sales totals.
+
+    Drafts (Status=0) are excluded — they do not appear in Hesabfa P&L sales.
+    """
+    if inv.get("Returned") is True:
+        return False
+    try:
+        status = int(inv.get("Status"))
+    except (TypeError, ValueError):
+        return False
+    return status == INVOICE_STATUS_APPROVED
+
+
 async def hesabfa_sales_total(
     *,
     client: HesabfaClient | None = None,
     page_size: int = 100,
     max_pages: int = 50,
 ) -> tuple[Decimal, int]:
-    """Sum sale invoice `Sum` fields from Hesabfa (all channels).
+    """Sum approved sale invoice `Sum` fields from Hesabfa (all channels).
 
     Amounts are returned in Hesabfa's stored currency (typically Rials when
-    HESABFA_CURRENCY_UNIT=rial).
+    HESABFA_CURRENCY_UNIT=rial). Draft and returned invoices are excluded so
+    the total matches Hesabfa's posted فروش (sales) ledger.
     """
     api = client or get_hesabfa_client()
     total = Decimal("0")
@@ -74,11 +95,9 @@ async def hesabfa_sales_total(
         if not items:
             break
         for inv in items:
-            # Skip returned invoices when flagged
-            if inv.get("Returned") is True:
+            if not _is_approved_sale_invoice(inv):
                 continue
-            amount = Decimal(str(inv.get("Sum") if inv.get("Sum") is not None else inv.get("Payable") or 0))
-            total += amount
+            total += _invoice_amount(inv)
             count += 1
         total_count = int(page.get("TotalCount") or 0)
         skip += len(items)

@@ -45,7 +45,7 @@ HESABFA_CURRENCY_CODE=IRR
 | POST | `/api/v1/hesabfa/mappings/sync` | Match site `sku` ↔ Hesabfa `ProductCode` |
 | POST | `/api/v1/hesabfa/items/push` | Create/upsert site products in Hesabfa (stock 0) |
 | POST | `/api/v1/hesabfa/stock/sync` | **Deprecated no-op** |
-| GET | `/api/v1/hesabfa/sales-summary` | Website vs Hesabfa sales |
+| GET | `/api/v1/hesabfa/sales-summary` | Website paid total vs Hesabfa **approved** sale invoice sum (drafts excluded; amounts ÷10 to Toman when `HESABFA_CURRENCY_UNIT=rial`) |
 
 ## Inventory policy
 

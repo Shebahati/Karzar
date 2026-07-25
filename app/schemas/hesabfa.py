@@ -45,7 +45,10 @@ class HesabfaSalesSummaryResponse(BaseModel):
     website_paid_order_count: int
     hesabfa_sales_total: str | None = Field(
         default=None,
-        description="Sum of Hesabfa sale invoices (all channels) in Hesabfa currency unit",
+        description=(
+            "Sum of approved (Status=1), non-returned Hesabfa sale invoices "
+            "in Hesabfa currency unit (all channels, all-time in current fiscal data)"
+        ),
     )
     hesabfa_sales_total_toman: str | None = Field(
         default=None,

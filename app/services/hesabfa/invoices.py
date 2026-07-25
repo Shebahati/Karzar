@@ -17,6 +17,7 @@ from app.db.models.commerce import Order, OrderMode, PaymentStatus
 from app.db.models.hesabfa import HesabfaInvoiceRecord, HesabfaItemMapping
 from app.db.models.product import Product
 from app.services.hesabfa.client import (
+    INVOICE_STATUS_APPROVED,
     INVOICE_TYPE_SALE,
     HesabfaClient,
     get_hesabfa_client,
@@ -185,7 +186,9 @@ async def create_invoice_for_paid_order(
             "note": f"Karzar web order {order.tracking_code}",
             "sent": False,
             "invoiceType": INVOICE_TYPE_SALE,
-            "status": 2,
+            # Hesabfa Status: 0=draft, 1=approved (typestable). Only approved
+            # invoices post to the sales ledger / admin sales-summary.
+            "status": INVOICE_STATUS_APPROVED,
             "tag": f"order:{order.id}",
             "freight": 0,
             "currency": settings.HESABFA_CURRENCY_CODE,

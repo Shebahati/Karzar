@@ -332,3 +332,91 @@ def test_sales_summary_website_only_when_hesabfa_mocked(
     body = response.json()
     assert "website_paid_total_toman" in body
     assert body["hesabfa_available"] is False
+
+
+def test_hesabfa_sales_total_excludes_drafts_and_returned():
+    """Status=0 drafts inflate totals; only approved Status=1 should count."""
+    from app.services.hesabfa.sales import hesabfa_sales_total
+
+    mock_client = MagicMock()
+    mock_client.get_invoices = AsyncMock(
+        return_value={
+            "TotalCount": 4,
+            "List": [
+                {"Number": "1", "Sum": 1_000_000, "Status": 1, "Returned": False},
+                {"Number": "2", "Sum": 50_000_000, "Status": 0, "Returned": False},  # draft
+                {"Number": "3", "Sum": 2_000_000, "Status": 1, "Returned": True},  # returned
+                {"Number": "4", "Sum": 3_000_000, "Status": 1, "Returned": False},
+            ],
+        }
+    )
+
+    total, count = asyncio.run(hesabfa_sales_total(client=mock_client))
+    assert count == 2
+    assert total == Decimal("4000000")
+
+
+def test_hesabfa_amount_to_toman_divides_rials():
+    from app.services.hesabfa.sales import hesabfa_amount_to_toman
+
+    assert hesabfa_amount_to_toman(Decimal("10772530000")) == Decimal("1077253000.00")
+
+
+def test_invoice_payload_uses_approved_status(super_admin_headers, valid_product_data):
+    product = _create_product(super_admin_headers, valid_product_data)
+    product_id = product["id"]
+    sku = product["sku"]
+
+    async def run():
+        async with TestingSessionLocal() as session:
+            prod = (
+                await session.execute(select(Product).where(Product.id == product_id))
+            ).scalars().one()
+            prod.base_price = Decimal("100000")
+            session.add(
+                HesabfaItemMapping(
+                    product_id=product_id,
+                    sku=sku,
+                    hesabfa_code="000101",
+                    hesabfa_product_code=sku,
+                )
+            )
+            order = Order(
+                tracking_code="TRK-HF-STATUS",
+                mode=OrderMode.PURCHASE,
+                status="paid",
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("100000"),
+                customer_full_name="Status Test",
+                customer_phone="09123334455",
+                customer_is_guest=True,
+            )
+            session.add(order)
+            await session.flush()
+            session.add(
+                OrderItem(
+                    order_id=order.id,
+                    product_id=product_id,
+                    quantity=1,
+                    unit_price=Decimal("100000"),
+                )
+            )
+            await session.commit()
+            order = (
+                await session.execute(
+                    select(Order)
+                    .where(Order.id == order.id)
+                    .options(selectinload(Order.items))
+                )
+            ).scalars().one()
+
+            mock_client = MagicMock()
+            mock_client.get_contacts = AsyncMock(return_value={"List": [], "TotalCount": 0})
+            mock_client.save_contact = AsyncMock(return_value={"Code": "C002"})
+            mock_client.save_invoice = AsyncMock(return_value={"Number": "S-200"})
+            await create_invoice_for_paid_order(session, order, client=mock_client)
+            return mock_client.save_invoice.await_args.args[0]
+
+    payload = asyncio.run(run())
+    assert payload["status"] == 1
+    assert payload["invoiceType"] == 0

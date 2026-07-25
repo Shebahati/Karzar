@@ -14,6 +14,9 @@ logger = get_logger(__name__)
 
 # InvoiceType: 0 = sale
 INVOICE_TYPE_SALE = 0
+# Invoice Status (typestable): 0 = draft (پیش‌نویس), 1 = approved (تأیید شده)
+INVOICE_STATUS_DRAFT = 0
+INVOICE_STATUS_APPROVED = 1
 # ContactType: 1 = customer (اشخاص حقیقی / مشتری)
 CONTACT_TYPE_CUSTOMER = 1
 
