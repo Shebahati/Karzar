@@ -133,6 +133,8 @@ async def update_category(
     slug: str | None = None,
     icon: str | None = None,
     unset_icon: bool = False,
+    image_url: str | None = None,
+    unset_image_url: bool = False,
     meta_title: str | None = None,
     unset_meta_title: bool = False,
     meta_description: str | None = None,
@@ -152,6 +154,10 @@ async def update_category(
         category.icon = None
     elif icon is not None:
         category.icon = icon
+    if unset_image_url:
+        category.image_url = None
+    elif image_url is not None:
+        category.image_url = image_url
     if unset_meta_title:
         category.meta_title = None
     elif meta_title is not None:

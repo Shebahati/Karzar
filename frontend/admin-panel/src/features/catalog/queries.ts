@@ -367,6 +367,30 @@ export function useUploadBrandLogo() {
 
 
 
+export function useUploadCategoryImage() {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+
+      catalogService.uploadCategoryImage(id, file),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.categories() });
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.categoriesFlat() });
+
+    },
+
+  });
+
+}
+
+
+
 export function useUpdateBrand() {
 
   const queryClient = useQueryClient();

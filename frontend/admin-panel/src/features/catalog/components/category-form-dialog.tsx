@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Category } from "react-iconly";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { Category, Upload } from "react-iconly";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useUploadCategoryImage } from "@/features/catalog/queries";
+import { ApiError } from "@/lib/api-client";
 import type { CategoryCreatePayload, CategoryFlat, CategoryUpdatePayload } from "@/types/category";
 
 export type CategoryFormValues = {
@@ -51,6 +55,9 @@ export function CategoryFormDialog({
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [specKey, setSpecKey] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const uploadImage = useUploadCategoryImage();
 
   useEffect(() => {
     if (open) {
@@ -60,6 +67,7 @@ export function CategoryFormDialog({
       setMetaTitle(category?.meta_title ?? "");
       setMetaDescription(category?.meta_description ?? "");
       setSpecKey(category?.spec_template_key ?? "");
+      setPreviewUrl(category?.image_url ?? null);
     }
   }, [open, category]);
 
@@ -75,6 +83,17 @@ export function CategoryFormDialog({
       meta_description: metaDescription.trim() || undefined,
       spec_template_key: specKey.trim() || undefined,
     });
+  }
+
+  async function handleImagePick(file: File | undefined) {
+    if (!file || !category) return;
+    try {
+      const result = await uploadImage.mutateAsync({ id: category.id, file });
+      setPreviewUrl(result.image_url);
+      toast.success("تصویر دسته آپلود شد");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "آپلود تصویر ناموفق بود");
+    }
   }
 
   return (
@@ -114,6 +133,51 @@ export function CategoryFormDialog({
                 dir="ltr"
                 disabled={pending}
               />
+            </Field>
+          )}
+          {mode === "edit" && category && (
+            <Field label="تصویر کارت (فروشگاه)" htmlFor="category-image">
+              <div className="flex items-center gap-3">
+                <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#F7F7F7] ring-1 ring-border/40">
+                  {previewUrl ? (
+                    <Image
+                      src={previewUrl}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="object-contain p-1"
+                      unoptimized={previewUrl.toLowerCase().includes(".svg")}
+                    />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">بدون تصویر</span>
+                  )}
+                </span>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileRef}
+                    id="category-image"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => {
+                      void handleImagePick(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploadImage.isPending || pending}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <Upload set="light" size={16} primaryColor="currentColor" />
+                    {uploadImage.isPending ? "در حال آپلود..." : "آپلود تصویر"}
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    PNG / JPEG / WebP — حداکثر ۵ مگابایت
+                  </p>
+                </div>
+              </div>
             </Field>
           )}
           <Field label="آیکون (react-iconly)" htmlFor="category-icon">

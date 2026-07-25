@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo } from "react";
 import * as Icons from "react-iconly";
 import { useCategoryTree } from "@/features/catalog/queries";
@@ -14,6 +15,9 @@ import {
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
+/** Category image box — larger than brand strip logos (56px). */
+const IMAGE_SIZE = 80;
+
 function CategoryIcon({ name }: { name?: string }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
   const Icon = Cmp as typeof Icons.Category;
@@ -22,6 +26,9 @@ function CategoryIcon({ name }: { name?: string }) {
 
 function CategoryCard({ node }: { node: CategoryTreeNode }) {
   const highlight = isMetrologyRoot(node);
+  const imageUrl = node.image_url;
+  const isSvg = Boolean(imageUrl?.toLowerCase().includes(".svg"));
+
   return (
     <Link
       href={categoryHref(node)}
@@ -39,8 +46,21 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
             "linear-gradient(145deg, rgba(94,95,94,0.06) 0%, rgba(194,32,38,0.08) 100%)",
         }}
       />
-      <span className="relative grid h-12 w-12 place-items-center rounded-xl bg-secondary text-steel transition-colors group-hover:bg-accent group-hover:text-primary">
-        <CategoryIcon name={node.icon} />
+      <span className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-steel transition-colors group-hover:ring-steel/30">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt=""
+            width={IMAGE_SIZE}
+            height={IMAGE_SIZE}
+            className="object-contain p-1.5"
+            unoptimized={isSvg}
+          />
+        ) : (
+          <span className="grid h-full w-full place-items-center bg-secondary transition-colors group-hover:bg-accent group-hover:text-primary">
+            <CategoryIcon name={node.icon} />
+          </span>
+        )}
       </span>
       <div className="relative">
         <span className="line-clamp-2 text-sm font-bold leading-6 text-foreground">

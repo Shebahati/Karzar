@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Delete, Edit, Plus } from "react-iconly";
 
 import { Button } from "@/components/ui/button";
@@ -53,26 +54,42 @@ function CategoryColumn({
                 >
                   <button
                     type="button"
-                    className="min-w-0 flex-1 truncate text-start text-sm font-bold"
+                    className="flex min-w-0 flex-1 items-center gap-2 truncate text-start text-sm font-bold"
                     onClick={() => onSelect(item.id)}
                   >
-                    <span className="block truncate">{item.name}</span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-                      <span>عمق {item.depth}</span>
-                      {item.is_selectable ? (
-                        <span className="rounded bg-emerald-50 px-1 text-emerald-700">قابل انتخاب</span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#F7F7F7] text-[10px] text-muted-foreground ring-1 ring-border/30">
+                      {item.image_url ? (
+                        <Image
+                          src={item.image_url}
+                          alt=""
+                          width={36}
+                          height={36}
+                          className="object-contain p-0.5"
+                          unoptimized={item.image_url.toLowerCase().includes(".svg")}
+                        />
                       ) : (
-                        <span className="rounded bg-gray-100 px-1">غیرقابل‌انتخاب</span>
+                        (item.name || "؟").slice(0, 1)
                       )}
-                      <span>
-                        {(item.product_count ?? 0).toLocaleString("fa-IR")} محصول
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate">{item.name}</span>
+                      <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                        <span>عمق {item.depth}</span>
+                        {item.is_selectable ? (
+                          <span className="rounded bg-emerald-50 px-1 text-emerald-700">قابل انتخاب</span>
+                        ) : (
+                          <span className="rounded bg-gray-100 px-1">غیرقابل‌انتخاب</span>
+                        )}
+                        <span>
+                          {(item.product_count ?? 0).toLocaleString("fa-IR")} محصول
+                        </span>
+                        {(item.product_count ?? 0) === 0 && item.is_leaf ? (
+                          <span className="rounded bg-amber-50 px-1 text-amber-700">خالی</span>
+                        ) : null}
+                        {item.name.trim().startsWith("استاندارد") ? (
+                          <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
+                        ) : null}
                       </span>
-                      {(item.product_count ?? 0) === 0 && item.is_leaf ? (
-                        <span className="rounded bg-amber-50 px-1 text-amber-700">خالی</span>
-                      ) : null}
-                      {item.name.trim().startsWith("استاندارد") ? (
-                        <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
-                      ) : null}
                     </span>
                   </button>
                   <div className="flex shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
