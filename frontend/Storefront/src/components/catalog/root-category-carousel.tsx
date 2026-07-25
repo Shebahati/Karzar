@@ -119,7 +119,7 @@ export function RootCategoryCarousel() {
             >
               <span
                 className={cn(
-                  "grid h-14 w-14 place-items-center overflow-hidden rounded-xl",
+                  "relative block h-14 w-14 overflow-hidden rounded-xl",
                   active ? "bg-white/15" : "bg-white ring-1 ring-border/40",
                 )}
               >
@@ -130,11 +130,13 @@ export function RootCategoryCarousel() {
                     width={IMAGE_SIZE}
                     height={IMAGE_SIZE}
                     quality={100}
-                    className="h-full w-full object-contain p-2"
+                    className="h-full w-full object-cover"
                     unoptimized
                   />
                 ) : (
-                  <CatIcon name={node.icon} active={active} />
+                  <span className="grid h-full w-full place-items-center">
+                    <CatIcon name={node.icon} active={active} />
+                  </span>
                 )}
               </span>
               <span>
