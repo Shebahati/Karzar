@@ -64,18 +64,11 @@ BRAND_CFG = {
         "out_dir": OUT_ROOT / "astpower",
         "require_brand_tokens": ("ای اس تی", "ast power", "astpower", "ای.اس.تی"),
     },
-    "dasqua": {
-        "brand_ilike": "Dasqua",
-        "search_queries": ["داسکوا", "Dasqua"],
-        "out_dir": OUT_ROOT / "dasqua_shopmill",
-        "require_brand_tokens": ("داسکوا", "dasqua"),
-    },
 }
 
 MODEL_RE = re.compile(
     r"\b("
-    r"\d{3,5}-\d{3,5}"
-    r"|[A-Z]{1,6}\d{2,4}[A-Z]?(?:-[A-Z0-9]{1,10}){0,4}"
+    r"[A-Z]{1,6}\d{2,4}[A-Z]?(?:-[A-Z0-9]{1,10}){0,4}"
     r"|AST-[A-Z0-9/-]+"
     r"|D\d{2,4}"
     r"|00\d{4}"
