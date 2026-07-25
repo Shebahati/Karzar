@@ -67,3 +67,4 @@ frontend/**/*.pem
 # Ops secrets (never commit)
 .deploy-secrets
 .env.staging.generated
+.logo_audit/
