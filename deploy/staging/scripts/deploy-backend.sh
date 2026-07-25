@@ -31,6 +31,13 @@ if [[ -f docker-compose.image.yml ]]; then
   COMPOSE+=(-f docker-compose.image.yml)
 fi
 
+# Leftover frontend/ under repo root (rsync --exclude does not delete it) breaks
+# BuildKit context walk with permission denied on node_modules.
+if [[ -e frontend ]]; then
+  echo "Removing stale $ROOT_DIR/frontend before backend image build ..."
+  rm -rf frontend
+fi
+
 if [[ -f deploy/staging/Dockerfile.staging ]]; then
   echo "Building karzar-app:staging from Dockerfile.staging ..."
   docker build -f deploy/staging/Dockerfile.staging -t karzar-app:staging .
