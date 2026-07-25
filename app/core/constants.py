@@ -8,6 +8,7 @@ DEFAULT_TAX_PERCENT: int = 9
 
 # Product image constraints (URL-based uploads in admin panel).
 MAX_PRODUCT_IMAGES: int = 10
+# SVG intentionally excluded (SEC-21): scriptable markup must not be stored as product media.
 ALLOWED_IMAGE_URL_EXTENSIONS: frozenset[str] = frozenset(
-    {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}
+    {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 )

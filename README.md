@@ -423,8 +423,8 @@ Requires dev dependencies (`pip install -r requirements-dev.txt`). See [docs/TES
 ```bash
 pytest
 
-# Coverage gate (matches CI, minimum 62%)
-pytest --cov=app --cov-fail-under=62
+# Coverage gate (matches CI, minimum 67%)
+pytest --cov=app --cov-fail-under=67
 
 # Lint (also run in CI)
 ruff check app tests

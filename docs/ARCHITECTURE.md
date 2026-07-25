@@ -79,7 +79,9 @@ Money-path exceptions already hardened: payment callback commits only expected o
 - Rate limits / public throttles via Redis when configured
 - OTP: 6-digit codes hashed with HMAC-SHA256 + `SECRET_KEY` pepper (`app/utils/otp_hash.py`)
 - Production validators reject weak PIN, wildcard CORS, OTP echo, mock payment in production
-- Image URL SSRF guard; body size limits; optional HTTPS / trusted hosts
+- Image URL SSRF guard (hostname + resolve-time private IP block); raster-only uploads (no SVG)
+- Cookie CSRF Origin/Referer check on unsafe methods (`CookieCsrfOriginMiddleware`)
+- Body size limits; optional HTTPS / trusted hosts; `/metrics` loopback-only in nginx template
 
 ## Related docs
 

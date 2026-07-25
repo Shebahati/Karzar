@@ -53,7 +53,7 @@ pytest -m integration                      # Redis / E2E flows
 
 ## Coverage
 
-Minimum **62%** enforced in CI (`--cov-fail-under=62`).
+Minimum **67%** enforced in CI (`--cov-fail-under=67`); target **70%** on next ratchet.
 
 ```bash
 pytest --cov=app --cov-report=term-missing
