@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatValue } from "@/components/ui/stat-value";
 import { SystemStatusStrip } from "@/components/system-status-strip";
 import { useCategories, useProducts, useProductStatistics } from "@/features/catalog/queries";
 import { useHesabfaSalesSummary } from "@/features/hesabfa/queries";
@@ -33,18 +34,18 @@ function StatCard({ label, value, icon: Icon, tone = "primary", loading }: StatC
   const style = TONE_STYLES[tone];
   return (
     <Card className="hover:shadow-elevated">
-      <CardContent className="flex items-center gap-4 p-5">
+      <CardContent className="flex items-start gap-3 p-5 sm:gap-4">
         <div
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${style.bg}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 ${style.bg}`}
         >
           <Icon set="bulk" size={28} primaryColor={style.color} />
         </div>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-sm text-muted-foreground">{label}</span>
+        <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-visible">
+          <span className="text-sm leading-snug text-muted-foreground">{label}</span>
           {loading ? (
             <Skeleton className="h-6 w-20" />
           ) : (
-            <span className="truncate text-xl font-bold text-ink tnum">{value}</span>
+            <StatValue value={value} />
           )}
         </div>
       </CardContent>
