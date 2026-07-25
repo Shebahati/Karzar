@@ -6,10 +6,9 @@ from io import BytesIO
 from types import SimpleNamespace
 
 import pytest
-from starlette.datastructures import UploadFile
-
 from app.core import security_middleware as sm
 from app.utils.image_validation import validate_product_image_url
+from starlette.datastructures import UploadFile
 
 
 class TestOriginHelpers:
