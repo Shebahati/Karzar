@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """Download category card images and attach them to Category.image_url.
 
-Curated Wikimedia Commons photos of machining tools — matched by root id / Persian
-name. Prefer accurate category-themed imagery (never random Wikipedia page thumbs).
+Curated Wikimedia Commons catalog-quality photos of machining tools — matched by
+root id / Persian name. Prefer clean studio / controlled-lighting shots that
+harmonize with the Karzar storefront (steel neutrals, white/soft backgrounds).
 
-After download, each image is placed on a **square** canvas with adaptive subject
-margin (tighter for near-square catalog shots, wider for long thin tools) so
-storefront `object-cover` fills the rounded tile edge-to-edge without clipping
-tool tips/corners. PNG preferred when under the upload cap; otherwise JPEG q=95
-with no chroma subsampling (no subject downscale).
+Processing for the homepage 88×88 ``object-cover`` / ``rounded-xl`` tile:
+  1. Extreme aspect ratios are center-cropped to square (optional bias).
+  2. Remaining images are placed on a square canvas with adaptive margin so
+     rounded overflow never clips tips/corners, while near-square catalog shots
+     still fill the tile.
+PNG preferred when under the upload cap; otherwise JPEG q=95, no chroma
+subsampling (no destructive downscale below display×2–3x).
 
 Run on the API host / inside the API container (needs DB + writable uploads):
 
   python scripts/seed_category_images.py
   python scripts/seed_category_images.py --dry-run
   python scripts/seed_category_images.py --force
-  python scripts/seed_category_images.py --ids 1,7,9 --force
-  python scripts/seed_category_images.py --roots-only
+  python scripts/seed_category_images.py --ids 1,7,9,154,165 --force
 """
 
 from __future__ import annotations
@@ -46,62 +48,77 @@ MIN_BYTES = 800
 MAX_BYTES = MAX_UPLOAD_BYTES
 # Extra canvas margin so object-cover + rounded overflow never clips tips/corners.
 # Near-square sources use a tighter default so the subject fills the tile.
-PAD_RATIO = 0.16
+PAD_RATIO = 0.14
 PAD_RATIO_NEAR_SQUARE = 0.08
-PAD_RATIO_MODERATE = 0.12
-NEAR_SQUARE_AR = 1.2
-MODERATE_AR = 1.6
-MIN_PAD_PX = 48
+PAD_RATIO_MODERATE = 0.11
+NEAR_SQUARE_AR = 1.25
+MODERATE_AR = 1.7
+# Outside this range: center-crop to square before padding (fills 88px tiles).
+CROP_OUTSIDE_AR = (0.55, 1.85)
+MIN_PAD_PX = 40
 JPEG_QUALITY = 95
 
-# Seed catalog root ids (scripts/seed_categories.py).
-ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9})
+# Live + seed catalog root ids (incl. لوازم جانبی / اینسرت when renumbered).
+ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9, 154, 165})
+
+# Optional horizontal/vertical crop bias (0=left/top … 1=right/bottom) when
+# extreme-aspect sources are center-cropped to square.
+CROP_BIAS_BY_ID: dict[int, float] = {
+    7: 0.35,  # micrometer — keep frame + anvil in view
+    5: 0.45,  # drill set packaging — favor bit window
+}
 
 # Direct Commons image URLs keyed by category id (preferred).
 CURATED_BY_ID: dict[int, list[str]] = {
-    # ابزارگیر — loaded tool assemblies / collet
+    # ابزارگیر — INT40 taper toolholder / face-mill arbor on studio gray
     1: [
-        "https://upload.wikimedia.org/wikipedia/commons/1/12/Tool-Assemblies-Loaded.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/2/23/MillingCutterCarbideTippedFaceMill-INT40.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/4/4e/R8_Collet_with_end_mill.png",
     ],
-    # ابزار اینسرتی — indexable face mill with inserts
+    # ابزار اینسرتی — indexable face mill with gold carbide inserts
     2: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Carbide_tipped_face_mill_%283%29.jpg/960px-Carbide_tipped_face_mill_%283%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Carbide_tipped_face_mill_%281%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/8/8e/Carbide_tipped_face_mill_%283%29.jpg",
     ],
-    # اینسرت — tungsten carbide inserts
+    # اینسرت — tungsten carbide inserts on neutral ground (seed id 3 + live 165)
     3: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Tungsten_carbide_inserts.jpg/960px-Tungsten_carbide_inserts.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Tungsten_carbide_inserts.jpg/1920px-Tungsten_carbide_inserts.jpg",
     ],
-    # ابزار انگشتی — end mills
+    165: [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Tungsten_carbide_inserts.jpg/1920px-Tungsten_carbide_inserts.jpg",
+    ],
+    # ابزار انگشتی — slot / ball-nose end mill catalog layout on gray
     4: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/MillingCutterSlotEndMillBallnose.jpg/960px-MillingCutterSlotEndMillBallnose.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/End_Mills_and_Drill_Bit.jpg/960px-End_Mills_and_Drill_Bit.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/e6/MillingCutterSlotEndMillBallnose.jpg",
     ],
-    # مته — near-square fan of twist/wood bits (fills rounded tile); long strip fallbacks last
+    # مته — cobalt twist-drill set (catalog product photo, not rusty shop scatter)
     5: [
-        "https://upload.wikimedia.org/wikipedia/commons/7/72/A_variety_of_drill_bits.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Broca8mm.jpg/1280px-Broca8mm.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Drill_bits_2017_G1.jpg/1920px-Drill_bits_2017_G1.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/1/1a/2010-01-21_Craftsman_Professional_cobalt_drill_bit_set.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/e4/Group_of_drill_bits.jpg",
     ],
-    # قلاویز — catalog tap+die kit fills square; single machine tap as fallback
+    # قلاویز — spiral-point machine tap macro (square-friendly, technical)
     6: [
-        "https://upload.wikimedia.org/wikipedia/commons/0/01/Threading_dies_and_screw_taps.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/9/96/Machine-screw-tap-1.JPG",
-        "https://upload.wikimedia.org/wikipedia/commons/d/df/ThreadingTaps.jpg",
     ],
-    # اندازه گیری — full-res caliper originals (no 960px downscale)
+    # اندازه گیری — Mahr studio micrometer (white bg, premium metrology)
     7: [
+        "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mahr_Micromar_40A_0%E2%80%9325_mm_Micrometer.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/9/94/Messschieber.jpg",
     ],
-    # ابزار گیرشی — lathe chuck
+    # ابزار گیرشی — square lathe chuck head-on
     8: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Lathe_Chuck.jpg/960px-Lathe_Chuck.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/FourJawChuckIndependent.jpg/960px-FourJawChuckIndependent.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/d/d2/Lathe_Chuck.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Four_Jaw_Chuck_Independent.jpg",
     ],
-    # دستگاه‌های صنعتی — CNC milling
+    # دستگاه‌های صنعتی — CNC bed mill product shot on white
     9: [
+        "https://upload.wikimedia.org/wikipedia/commons/a/a6/Kent_USA_CNC_Bed_Mill_TW-32Qi.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/a/a7/CNC_Milling.png",
+    ],
+    # لوازم جانبی صنعتی — Mitutoyo dial indicator (studio gray)
+    154: [
+        "https://upload.wikimedia.org/wikipedia/commons/e/e0/DialTestIndicator2050-08.jpg",
     ],
 }
 
@@ -118,16 +135,16 @@ CURATED_BY_NAME: dict[str, list[str]] = {
     "ابزار گیرشی": CURATED_BY_ID[8],
     "دستگاه‌های صنعتی": CURATED_BY_ID[9],
     "دستگاه های صنعتی": CURATED_BY_ID[9],
+    "لوازم جانبی صنعتی": CURATED_BY_ID[154],
+    "لوازم جانبی": CURATED_BY_ID[154],
     # Useful mid-level themes (optional when --include-mid)
     "کولت": [
         "https://upload.wikimedia.org/wikipedia/commons/4/4e/R8_Collet_with_end_mill.png",
     ],
     "کولیس": [
-        "https://upload.wikimedia.org/wikipedia/commons/9/94/Messschieber.jpg",
-    ],
-    "میکرومتر": [
         "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
     ],
+    "میکرومتر": CURATED_BY_ID[7],
 }
 
 
@@ -167,7 +184,7 @@ def _sniff_ext(content: bytes, url: str, content_type: str | None) -> str | None
 
 async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[bytes, str] | None:
     try:
-        resp = await client.get(url, follow_redirects=True, timeout=30.0)
+        resp = await client.get(url, follow_redirects=True, timeout=60.0)
     except Exception:
         return None
     if resp.status_code != 200 or not resp.content:
@@ -214,22 +231,38 @@ def _adaptive_pad_ratio(width: int, height: int) -> float:
     return PAD_RATIO
 
 
+def _center_crop_square(im: Image.Image, *, bias: float = 0.5) -> Image.Image:
+    """Crop extreme aspect ratios to square so object-cover tiles read full-bleed."""
+    w, h = im.size
+    ar = w / h if h else 1.0
+    if CROP_OUTSIDE_AR[0] <= ar <= CROP_OUTSIDE_AR[1]:
+        return im
+    side = min(w, h)
+    bias = max(0.0, min(1.0, bias))
+    if w >= h:
+        left = int((w - side) * bias)
+        left = max(0, min(left, w - side))
+        return im.crop((left, 0, left + side, side))
+    top = int((h - side) * bias)
+    top = max(0, min(top, h - side))
+    return im.crop((0, top, side, top + side))
+
+
 def pad_for_card_frame(
     content: bytes,
     *,
     pad_ratio: float | None = None,
+    crop_bias: float = 0.5,
 ) -> tuple[bytes, str]:
-    """Place the photo on a square canvas with margin for rounded object-cover tiles.
+    """Prepare a square master for rounded object-cover category tiles.
 
-    Side length is max(w, h) + 2·pad so wide tools keep breathing room inside the
-    bitmap; near-square sources use a smaller pad so the subject fills the tile.
-    The storefront then fills the rounded square edge-to-edge.
-
-    Prefers lossless PNG for smaller / alpha images when under the upload cap;
-    otherwise high-quality JPEG (q=95, no chroma subsampling) — never downscales.
+    Extreme aspect ratios are center-cropped (with optional bias) so the subject
+    fills the 88×88 tile; otherwise the photo is letterboxed onto a square canvas
+    with adaptive margin. Prefers PNG under the upload cap; else JPEG q=95.
     """
     im = Image.open(BytesIO(content))
     im = ImageOps.exif_transpose(im)
+    im = _center_crop_square(im, bias=crop_bias)
     has_alpha = im.mode in {"RGBA", "LA"} or (
         im.mode == "P" and "transparency" in im.info
     )
@@ -384,7 +417,8 @@ async def main() -> int:
                     continue
                 content, ext, source = resolved
                 try:
-                    content, ext = pad_for_card_frame(content)
+                    bias = CROP_BIAS_BY_ID.get(category.id, 0.5)
+                    content, ext = pad_for_card_frame(content, crop_bias=bias)
                 except Exception as exc:
                     print(f"FAIL  {category.id} {category.name} (pad failed: {exc})")
                     fail += 1
