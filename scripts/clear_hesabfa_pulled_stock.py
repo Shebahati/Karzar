@@ -3,6 +3,9 @@
 
 Preserves ``is_available``. Site must not store warehouse counts.
 
+Uses ``asyncpg`` (already in the API image). Accepts plain ``postgresql://``
+or SQLAlchemy-style ``postgresql+asyncpg://`` URLs.
+
 Usage (API container / venv with DATABASE_URL):
 
   python scripts/clear_hesabfa_pulled_stock.py --dry-run
@@ -12,10 +15,52 @@ Usage (API container / venv with DATABASE_URL):
 from __future__ import annotations
 
 import argparse
+import asyncio
 import os
 import sys
 
-import psycopg
+import asyncpg
+
+
+def _normalize_dsn(url: str) -> str:
+    """Strip SQLAlchemy driver suffixes so asyncpg can connect."""
+    for prefix in ("postgresql+asyncpg://", "postgres+asyncpg://"):
+        if url.startswith(prefix):
+            return "postgresql://" + url[len(prefix) :]
+    return url
+
+
+async def _run(database_url: str, dry_run: bool) -> int:
+    conn = await asyncpg.connect(_normalize_dsn(database_url))
+    try:
+        pending = int(
+            await conn.fetchval(
+                """
+                SELECT COUNT(*)
+                FROM products
+                WHERE deleted_at IS NULL
+                  AND COALESCE(stock_quantity, 0) <> 0
+                """
+            )
+        )
+        print(f"products with non-zero stock_quantity: {pending}")
+        if dry_run or pending == 0:
+            return 0
+        status = await conn.execute(
+            """
+            UPDATE products
+            SET stock_quantity = 0,
+                updated_at = NOW()
+            WHERE deleted_at IS NULL
+              AND COALESCE(stock_quantity, 0) <> 0
+            """
+        )
+        # asyncpg returns e.g. "UPDATE 4183"
+        cleared = int(status.split()[-1]) if status.split()[-1].isdigit() else pending
+        print(f"cleared stock_quantity on {cleared} products (is_available unchanged)")
+        return 0
+    finally:
+        await conn.close()
 
 
 def main() -> int:
@@ -34,33 +79,7 @@ def main() -> int:
     if not args.database_url:
         print("DATABASE_URL is required", file=sys.stderr)
         return 2
-
-    with psycopg.connect(args.database_url) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT COUNT(*)
-                FROM products
-                WHERE deleted_at IS NULL
-                  AND COALESCE(stock_quantity, 0) <> 0
-                """
-            )
-            pending = int(cur.fetchone()[0])
-            print(f"products with non-zero stock_quantity: {pending}")
-            if args.dry_run or pending == 0:
-                return 0
-            cur.execute(
-                """
-                UPDATE products
-                SET stock_quantity = 0,
-                    updated_at = NOW()
-                WHERE deleted_at IS NULL
-                  AND COALESCE(stock_quantity, 0) <> 0
-                """
-            )
-            print(f"cleared stock_quantity on {cur.rowcount} products (is_available unchanged)")
-        conn.commit()
-    return 0
+    return asyncio.run(_run(args.database_url, args.dry_run))
 
 
 if __name__ == "__main__":
