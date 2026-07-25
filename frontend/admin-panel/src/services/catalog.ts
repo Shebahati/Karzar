@@ -190,6 +190,40 @@ export const catalogService = {
 
 
 
+  async uploadCategoryImage(
+
+    id: number,
+
+    file: File,
+
+  ): Promise<import("@/types/category").CategoryImageUploadResponse> {
+
+    if (env.USE_MOCK) {
+
+      return { id, image_url: URL.createObjectURL(file) };
+
+    }
+
+    const form = new FormData();
+
+    form.append("file", file);
+
+    const { data } = await apiClient.post<import("@/types/category").CategoryImageUploadResponse>(
+
+      `/categories/${id}/image`,
+
+      form,
+
+      { headers: { "Content-Type": "multipart/form-data" } },
+
+    );
+
+    return data;
+
+  },
+
+
+
   async deleteCategory(
     id: number,
     stepUpToken: string,

@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from app.db.models.product import Category
 from app.schemas.category import CategoryTreeResponse
 from app.utils.category_icons import resolve_category_icon
+from app.utils.product_presenter import absolutize_asset_url
 
 
 def _sort_categories(categories: Iterable[Category]) -> list[Category]:
@@ -79,6 +80,7 @@ def build_category_tree(
             slug=category.slug,
             parent_id=category.parent_id,
             icon=resolve_category_icon(category.name, category.icon, is_root=is_root),
+            image_url=absolutize_asset_url(category.image_url),
             product_count=counts.get(category.id),
             subcategories=[to_node(child) for child in children],
         )

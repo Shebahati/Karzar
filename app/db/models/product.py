@@ -91,6 +91,7 @@ class Category(Base):
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"))
     spec_template_key: Mapped[str | None] = mapped_column(String(50), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     subcategories: Mapped[list["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(

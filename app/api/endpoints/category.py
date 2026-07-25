@@ -1,17 +1,19 @@
 """Category endpoints for tree navigation, admin CRUD, and product entry templates."""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.crud import category as crud_category
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.category import (
     CategoryCreate,
     CategoryDeleteResponse,
     CategoryFlatResponse,
+    CategoryImageUploadResponse,
     CategoryListResponse,
     CategorySpecFilterOptionsResponse,
     CategorySpecLabelsResponse,
@@ -20,6 +22,7 @@ from app.schemas.category import (
     CategoryUpdate,
 )
 from app.services.category_service import CategoryService
+from app.utils.file_storage import save_category_image_upload
 
 logger = get_logger(__name__)
 router = APIRouter()
@@ -124,6 +127,59 @@ async def update_category(
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error updating category",
         ) from exc
+
+
+@router.post(
+    "/{category_id}/image",
+    response_model=CategoryImageUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a category card image (multipart file)",
+    tags=["Categories"],
+)
+async def upload_category_image(
+    category_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    category = await crud_category.get_category_by_id(db, category_id)
+    if category is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Category with ID '{category_id}' not found",
+        )
+
+    content_type = request.headers.get("content-type", "")
+    if "multipart/form-data" not in content_type:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="multipart/form-data with file is required",
+        )
+
+    form = await request.form()
+    upload = form.get("file")
+    if upload is None:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="file is required for multipart upload",
+        )
+    try:
+        image_path = await save_category_image_upload(category_id, upload)  # type: ignore[arg-type]
+    except ValueError as exc:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=str(exc),
+        ) from exc
+
+    updated = await CategoryService.set_image_url(db, category_id, image_path)
+    return CategoryImageUploadResponse(
+        id=updated.id,
+        image_url=updated.image_url or image_path,
+    )
 
 
 @router.delete(

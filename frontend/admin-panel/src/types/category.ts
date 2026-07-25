@@ -15,6 +15,7 @@ export interface CategoryFlat extends Category {
   ancestor_ids: number[];
   product_count?: number;
   icon?: string | null;
+  image_url?: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
   spec_template_key?: string | null;
@@ -24,6 +25,7 @@ export interface CategoryTreeNode extends Category {
   subcategories: CategoryTreeNode[];
   product_count?: number;
   icon?: string | null;
+  image_url?: string | null;
 }
 
 export interface Brand {
@@ -50,6 +52,11 @@ export interface BrandUpdatePayload {
 export interface BrandLogoUploadResponse {
   id: number;
   logo_url: string;
+}
+
+export interface CategoryImageUploadResponse {
+  id: number;
+  image_url: string;
 }
 
 export interface CategoryCreatePayload {

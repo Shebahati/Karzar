@@ -15,6 +15,7 @@ export interface CategoryFlat extends Category {
   ancestor_ids: number[];
   /** Storefront-only presentation helpers. */
   icon?: string;
+  image_url?: string | null;
   product_count?: number;
   meta_title?: string | null;
   meta_description?: string | null;
@@ -23,6 +24,7 @@ export interface CategoryFlat extends Category {
 
 export interface CategoryTreeNode extends Category {
   icon?: string;
+  image_url?: string | null;
   product_count?: number;
   subcategories: CategoryTreeNode[];
 }
