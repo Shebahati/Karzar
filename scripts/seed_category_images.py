@@ -60,18 +60,21 @@ CURATED_BY_ID: dict[int, list[str]] = {
         "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/MillingCutterSlotEndMillBallnose.jpg/960px-MillingCutterSlotEndMillBallnose.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/End_Mills_and_Drill_Bit.jpg/960px-End_Mills_and_Drill_Bit.jpg",
     ],
-    # مته — drill bits
+    # مته — drill bits (1920px thumb: full original is >5MB seed cap)
     5: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Drill_bits_2017_G1.jpg/960px-Drill_bits_2017_G1.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Drill_bits_2017_G1.jpg/1920px-Drill_bits_2017_G1.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/b/ba/End_Mills_and_Drill_Bit.jpg",
     ],
-    # قلاویز — machine tap
+    # قلاویز — near-square tap photos so object-contain fills the card
     6: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Machine-screw-tap-1.JPG/960px-Machine-screw-tap-1.JPG",
+        "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/f/fe/Tarauds_-_Mobilier_national.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/9/96/Machine-screw-tap-1.JPG",
     ],
-    # اندازه گیری — digital caliper
+    # اندازه گیری — full-res caliper originals (no 960px downscale)
     7: [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/2020_Suwmiarka_cyfrowa.jpg/960px-2020_Suwmiarka_cyfrowa.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Messschieber.jpg/960px-Messschieber.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/9/94/Messschieber.jpg",
     ],
     # ابزار گیرشی — lathe chuck
     8: [
@@ -101,11 +104,11 @@ CURATED_BY_NAME: dict[str, list[str]] = {
     "کولت": [
         "https://upload.wikimedia.org/wikipedia/commons/4/4e/R8_Collet_with_end_mill.png",
     ],
-    "میکرومتر": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/2020_Suwmiarka_cyfrowa.jpg/960px-2020_Suwmiarka_cyfrowa.jpg",
-    ],
     "کولیس": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Messschieber.jpg/960px-Messschieber.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/9/94/Messschieber.jpg",
+    ],
+    "میکرومتر": [
+        "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
     ],
 }
 

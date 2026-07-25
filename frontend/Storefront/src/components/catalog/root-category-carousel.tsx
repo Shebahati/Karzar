@@ -102,7 +102,6 @@ export function RootCategoryCarousel() {
           const active = selected.includes(node.id);
           const highlight = isMetrologyRoot(node);
           const imageUrl = node.image_url;
-          const isSvg = Boolean(imageUrl?.toLowerCase().includes(".svg"));
           return (
             <button
               key={node.id}
@@ -130,8 +129,9 @@ export function RootCategoryCarousel() {
                     alt=""
                     width={IMAGE_SIZE}
                     height={IMAGE_SIZE}
-                    className="h-full w-full rounded-xl object-cover"
-                    unoptimized={isSvg}
+                    quality={100}
+                    className="h-full w-full object-contain p-0.5"
+                    unoptimized
                   />
                 ) : (
                   <CatIcon name={node.icon} active={active} />
