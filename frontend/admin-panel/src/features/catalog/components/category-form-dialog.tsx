@@ -145,7 +145,7 @@ export function CategoryFormDialog({
                       alt=""
                       width={64}
                       height={64}
-                      className="object-contain p-1"
+                      className="object-contain p-2"
                       unoptimized={previewUrl.toLowerCase().includes(".svg")}
                     />
                   ) : (

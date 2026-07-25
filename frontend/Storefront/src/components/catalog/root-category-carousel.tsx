@@ -11,7 +11,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
 const MAX_ROOTS = 3;
-const IMAGE_SIZE = 48;
+const IMAGE_SIZE = 56;
 
 function CatIcon({ name, active }: { name?: string; active?: boolean }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
@@ -119,7 +119,7 @@ export function RootCategoryCarousel() {
             >
               <span
                 className={cn(
-                  "grid h-12 w-12 place-items-center overflow-hidden rounded-xl",
+                  "grid h-14 w-14 place-items-center overflow-hidden rounded-xl",
                   active ? "bg-white/15" : "bg-white ring-1 ring-border/40",
                 )}
               >
@@ -130,7 +130,7 @@ export function RootCategoryCarousel() {
                     width={IMAGE_SIZE}
                     height={IMAGE_SIZE}
                     quality={100}
-                    className="h-full w-full object-contain p-0.5"
+                    className="h-full w-full object-contain p-2"
                     unoptimized
                   />
                 ) : (

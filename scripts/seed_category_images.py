@@ -4,6 +4,10 @@
 Curated Wikimedia Commons photos of machining tools — matched by root id / Persian
 name. Prefer accurate category-themed imagery (never random Wikipedia page thumbs).
 
+After download, each image is padded (~16% margin) so object-contain inside a
+rounded square never clips tool tips/corners. PNG preferred when under the upload
+cap; otherwise JPEG q=95 with no chroma subsampling (no subject downscale).
+
 Run on the API host / inside the API container (needs DB + writable uploads):
 
   python scripts/seed_category_images.py
@@ -19,23 +23,29 @@ import argparse
 import asyncio
 import mimetypes
 import sys
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
+from PIL import Image, ImageOps
 from sqlalchemy import select
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db.database import async_session_maker
 from app.db.models.product import Category
-from app.utils.file_storage import save_category_image_bytes
+from app.utils.file_storage import MAX_UPLOAD_BYTES, save_category_image_bytes
 
 USER_AGENT = (
     "Mozilla/5.0 (compatible; KarzarCategoryImageBot/1.0; +https://www.karzartools.com)"
 )
 MIN_BYTES = 800
-MAX_BYTES = 5 * 1024 * 1024
+MAX_BYTES = MAX_UPLOAD_BYTES
+# Extra canvas margin so object-contain + rounded overflow never clips tips/corners.
+PAD_RATIO = 0.16
+MIN_PAD_PX = 48
+JPEG_QUALITY = 95
 
 # Seed catalog root ids (scripts/seed_categories.py).
 ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9})
@@ -166,6 +176,90 @@ async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[bytes, str] | Non
     return content, ext
 
 
+def _edge_rgb(im: Image.Image) -> tuple[int, int, int]:
+    """Average border colour so padded margins blend with the photo backdrop."""
+    rgb = im.convert("RGB")
+    w, h = rgb.size
+    samples: list[tuple[int, int, int]] = []
+    step = max(1, min(w, h) // 80)
+    for x in range(0, w, step):
+        samples.append(rgb.getpixel((x, 0)))
+        samples.append(rgb.getpixel((x, h - 1)))
+    for y in range(0, h, step):
+        samples.append(rgb.getpixel((0, y)))
+        samples.append(rgb.getpixel((w - 1, y)))
+    r = sum(c[0] for c in samples) // len(samples)
+    g = sum(c[1] for c in samples) // len(samples)
+    b = sum(c[2] for c in samples) // len(samples)
+    return (r, g, b)
+
+
+def pad_for_card_frame(
+    content: bytes,
+    *,
+    pad_ratio: float = PAD_RATIO,
+) -> tuple[bytes, str]:
+    """Expand canvas with margin so rounded card clips never cut the tool.
+
+    Prefers lossless PNG for smaller / alpha images when under the upload cap;
+    otherwise high-quality JPEG (q=95, no chroma subsampling) — never downscales.
+    """
+    im = Image.open(BytesIO(content))
+    im = ImageOps.exif_transpose(im)
+    has_alpha = im.mode in {"RGBA", "LA"} or (
+        im.mode == "P" and "transparency" in im.info
+    )
+
+    def _encode_jpeg(rgb: Image.Image) -> bytes:
+        out = BytesIO()
+        rgb.save(
+            out,
+            format="JPEG",
+            quality=JPEG_QUALITY,
+            subsampling=0,
+            optimize=True,
+        )
+        return out.getvalue()
+
+    def _encode_png(img: Image.Image) -> bytes:
+        out = BytesIO()
+        img.save(out, format="PNG", optimize=True)
+        return out.getvalue()
+
+    if has_alpha:
+        im = im.convert("RGBA")
+        w, h = im.size
+        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
+        canvas = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0))
+        canvas.paste(im, (pad, pad), im)
+        data = _encode_png(canvas)
+        if len(data) <= MAX_BYTES:
+            return data, ".png"
+        bg = _edge_rgb(im)
+        flat = Image.new("RGB", canvas.size, bg)
+        flat.paste(canvas, mask=canvas.split()[-1])
+        data = _encode_jpeg(flat)
+    else:
+        im = im.convert("RGB")
+        w, h = im.size
+        pad = max(int(max(w, h) * pad_ratio), MIN_PAD_PX)
+        bg = _edge_rgb(im)
+        canvas = Image.new("RGB", (w + 2 * pad, h + 2 * pad), bg)
+        canvas.paste(im, (pad, pad))
+        # Large photos: JPEG only (PNG encode of multi‑MP canvases is slow / oversized).
+        if canvas.width * canvas.height <= 2_500_000:
+            data = _encode_png(canvas)
+            if len(data) <= MAX_BYTES:
+                return data, ".png"
+        data = _encode_jpeg(canvas)
+
+    if len(data) < MIN_BYTES or len(data) > MAX_BYTES:
+        raise ValueError(
+            f"padded image size {len(data)}B outside [{MIN_BYTES}, {MAX_BYTES}]"
+        )
+    return data, ".jpg"
+
+
 def candidate_urls(category: Category, *, include_mid: bool) -> list[str]:
     urls: list[str] = []
     if category.id in CURATED_BY_ID:
@@ -252,10 +346,16 @@ async def main() -> int:
                     fail += 1
                     continue
                 content, ext, source = resolved
+                try:
+                    content, ext = pad_for_card_frame(content)
+                except Exception as exc:
+                    print(f"FAIL  {category.id} {category.name} (pad failed: {exc})")
+                    fail += 1
+                    continue
                 if args.dry_run:
                     print(
                         f"OK    {category.id} {category.name} would save "
-                        f"{len(content)}B {ext} from {source}"
+                        f"{len(content)}B {ext} (padded) from {source}"
                     )
                     ok += 1
                     continue
@@ -264,7 +364,7 @@ async def main() -> int:
                 await db.flush()
                 print(
                     f"OK    {category.id} {category.name} -> {path} "
-                    f"({len(content)}B, {source})"
+                    f"({len(content)}B padded {ext}, {source})"
                 )
                 ok += 1
 

@@ -16,7 +16,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
 /** Category image box — larger than brand strip logos (56px). */
-const IMAGE_SIZE = 80;
+const IMAGE_SIZE = 88;
 
 function CategoryIcon({ name }: { name?: string }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
@@ -45,7 +45,7 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
             "linear-gradient(145deg, rgba(94,95,94,0.06) 0%, rgba(194,32,38,0.08) 100%)",
         }}
       />
-      <span className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-steel transition-colors group-hover:ring-steel/30">
+      <span className="relative grid h-[88px] w-[88px] place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-steel transition-colors group-hover:ring-steel/30">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -53,7 +53,7 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
             width={IMAGE_SIZE}
             height={IMAGE_SIZE}
             quality={100}
-            className="h-full w-full object-contain p-1"
+            className="h-full w-full object-contain p-2.5"
             unoptimized
           />
         ) : (
