@@ -256,18 +256,25 @@ def http_json(
 def login() -> str:
     phone, password = _load_admin_creds()
     body = urllib.parse.urlencode({"username": phone, "password": password}).encode()
-    req = urllib.request.Request(
-        f"{API.rstrip('/')}/auth/login",
-        data=body,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "User-Agent": UA,
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
-        return json.loads(resp.read().decode())["access_token"]
+    last_err: Exception | None = None
+    for attempt in range(5):
+        req = urllib.request.Request(
+            f"{API.rstrip('/')}/auth/login",
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "User-Agent": UA,
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=45) as resp:  # noqa: S310
+                return json.loads(resp.read().decode())["access_token"]
+        except (TimeoutError, urllib.error.URLError) as exc:
+            last_err = exc
+            time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"admin login failed after retries: {last_err}")
 
 
 def base_code(code: str) -> str:
@@ -1083,13 +1090,16 @@ def run(args: argparse.Namespace) -> int:
             pid = row["id"]
             payload = row["payload"]
             assert_payload_safe(payload)
-            st, resp = http_json(
-                "PUT",
-                f"{API.rstrip('/')}/products/{pid}",
-                data=payload,
-                headers=auth,
-                timeout=90,
-            )
+            try:
+                st, resp = http_json(
+                    "PUT",
+                    f"{API.rstrip('/')}/products/{pid}",
+                    data=payload,
+                    headers=auth,
+                    timeout=90,
+                )
+            except Exception as exc:  # noqa: BLE001 — continue batch; record failure
+                st, resp = 0, {"error": str(exc)[:300]}
             ok = st in (200, 201)
             apply_rows.append(
                 {
@@ -1097,7 +1107,7 @@ def run(args: argparse.Namespace) -> int:
                     "sku": row["sku"],
                     "http_status": st,
                     "ok": ok,
-                    "payload_keys": "|".join(row["payload"].keys()),
+                    "payload_keys": "|".join(sorted(payload.keys())),
                     "error": "" if ok else json.dumps(resp, ensure_ascii=False)[:300],
                 }
             )
@@ -1106,7 +1116,7 @@ def run(args: argparse.Namespace) -> int:
             else:
                 summary["apply_errors"] += 1
                 print(f"[apply] FAIL {row['sku']} {st} {resp}")
-            time.sleep(0.08)
+            time.sleep(0.12)
         apply_csv = out / "apply_report.csv"
         write_csv(
             apply_csv,
