@@ -94,6 +94,8 @@ jobs:
             --exclude '.coverage' \
             --exclude 'actions-runner/' \
             "$SRC"/ /opt/karzar/Karzar/
+          # rsync --exclude 'frontend/' preserves a stale tree; remove it explicitly
+          rm -rf /opt/karzar/Karzar/frontend
 
       - name: Sync frontend → /opt/karzar/frontend
         run: |
