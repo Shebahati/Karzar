@@ -75,3 +75,6 @@ frontend/**/*.pem
 .deploy-secrets
 .env.staging.generated
 .logo_audit/
+
+# Chumpower official catalog: keep reports, skip bulky manufacturer PDF binaries
+data/imports/chumpower/official_catalog/pdfs/
