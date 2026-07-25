@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bag2, Buy, Category, Chart, Danger, Plus, Ticket, Wallet } from "react-iconly";
+import { Bag2, Buy, Category, Danger, Plus, Ticket } from "react-iconly";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatValue } from "@/components/ui/stat-value";
 import { SystemStatusStrip } from "@/components/system-status-strip";
 import { useCategories, useProducts, useProductStatistics } from "@/features/catalog/queries";
-import { useHesabfaSalesSummary } from "@/features/hesabfa/queries";
+import { useWebsitePaidSales } from "@/features/hesabfa/queries";
 import { useOrders } from "@/features/orders/queries";
 import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
 import type { IconlyIcon } from "@/components/layout/nav.config";
@@ -105,22 +105,21 @@ export default function DashboardPage() {
     status: "inquiry_review",
     limit: 6,
   });
-  const { data: salesSummary, isPending: salesPending } = useHesabfaSalesSummary();
+  const { data: websiteSalesSummary, isPending: salesPending } = useWebsitePaidSales();
 
   const products = productsData?.data ?? [];
   const totalProducts = stats?.total_products ?? productsData?.meta.total_count ?? 0;
+  const availableProducts =
+    stats?.available_products ??
+    Number(stats?.total_stock_quantity ?? products.filter((p) => p.availability).length);
   const outOfStock = products.filter((p) => p.stock_status === "out_of_stock");
   const lowStock = products.filter((p) => p.stock_status === "low_stock");
   const categoryCount =
     stats?.categories ??
     (categories ?? []).reduce((sum, c) => sum + 1 + c.subcategories.length, 0);
 
-  const inventoryValue = stats?.total_stock_value ?? null;
-  const websiteSales = salesSummary?.website_paid_total_toman
-    ? Number(salesSummary.website_paid_total_toman)
-    : null;
-  const hesabfaSalesToman = salesSummary?.hesabfa_sales_total_toman
-    ? Number(salesSummary.hesabfa_sales_total_toman)
+  const websiteSales = websiteSalesSummary?.website_paid_total_toman
+    ? Number(websiteSalesSummary.website_paid_total_toman)
     : null;
 
   const paidQueue: QueueItem[] = (paidOrders?.data ?? []).map((order) => ({
@@ -191,19 +190,6 @@ export default function DashboardPage() {
           loading={salesPending}
         />
         <StatCard
-          label="فروش کل حسابفا"
-          value={
-            hesabfaSalesToman !== null
-              ? formatToman(hesabfaSalesToman)
-              : salesSummary?.hesabfa_error
-                ? "غیرفعال"
-                : "—"
-          }
-          icon={Chart as IconlyIcon}
-          tone="primary"
-          loading={salesPending}
-        />
-        <StatCard
           label="کل محصولات"
           value={formatNumber(totalProducts)}
           icon={Bag2 as IconlyIcon}
@@ -211,21 +197,11 @@ export default function DashboardPage() {
           loading={statsPending && productsPending}
         />
         <StatCard
-          label="ارزش موجودی انبار"
-          value={inventoryValue !== null ? formatToman(inventoryValue) : "—"}
-          icon={Wallet as IconlyIcon}
+          label="محصولات موجود"
+          value={formatNumber(availableProducts)}
+          icon={Bag2 as IconlyIcon}
           tone="success"
           loading={statsPending}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
-        <StatCard
-          label="کالاهای نیازمند توجه"
-          value={formatNumber(outOfStock.length + lowStock.length)}
-          icon={Danger as IconlyIcon}
-          tone="warning"
-          loading={productsPending}
         />
         <StatCard
           label="دسته‌بندی‌ها"
@@ -233,6 +209,16 @@ export default function DashboardPage() {
           icon={Category as IconlyIcon}
           tone="neutral"
           loading={statsPending}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard
+          label="کالاهای نیازمند توجه"
+          value={formatNumber(outOfStock.length + lowStock.length)}
+          icon={Danger as IconlyIcon}
+          tone="warning"
+          loading={productsPending}
         />
       </div>
 

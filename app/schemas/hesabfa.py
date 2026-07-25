@@ -13,6 +13,7 @@ class HesabfaStatusResponse(BaseModel):
     stock_sync_interval_seconds: int
     stock_pull_enabled: bool = False
     item_push_enabled: bool = True
+    admin_reads_enabled: bool = False
 
 
 class HesabfaMappingSyncResponse(BaseModel):
@@ -43,15 +44,16 @@ class HesabfaItemPushResponse(BaseModel):
 class HesabfaSalesSummaryResponse(BaseModel):
     website_paid_total_toman: str = Field(description="Sum of paid purchase orders on the site (Tomans)")
     website_paid_order_count: int
+    # Always null — Hesabfa metrics must not be exposed to admin.
     hesabfa_sales_total: str | None = Field(
         default=None,
-        description="Sum of Hesabfa sale invoices (all channels) in Hesabfa currency unit",
+        description="Deprecated: always null (admin Hesabfa reads disabled)",
     )
     hesabfa_sales_total_toman: str | None = Field(
         default=None,
-        description="Hesabfa sales converted to Tomans for display parity",
+        description="Deprecated: always null (admin Hesabfa reads disabled)",
     )
     hesabfa_invoice_count: int | None = None
     hesabfa_currency_unit: str
-    hesabfa_available: bool
-    hesabfa_error: str | None = None
+    hesabfa_available: bool = False
+    hesabfa_error: str | None = "hesabfa_admin_reads_disabled"

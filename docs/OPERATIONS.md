@@ -78,6 +78,8 @@ See [HESABFA.md](./HESABFA.md) for env vars, SKU matching, site→Hesabfa item p
 
 **Inventory:** warehouse counts live **only in Hesabfa**. The site stores `is_available` (موجود/ناموجود) and never pulls `GetQuantity`.
 
+**Admin:** do not display Hesabfa-sourced metrics (`HESABFA_ADMIN_READS_ENABLED=false`). Keep invoice-after-payment + site→Hesabfa item push.
+
 On VPS, put `HESABFA_API_KEY` / `HESABFA_LOGIN_TOKEN` only in the API container secrets — never in git.
 
 ## Migrations

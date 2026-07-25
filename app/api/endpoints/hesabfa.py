@@ -17,11 +17,11 @@ from app.schemas.hesabfa import (
     HesabfaStatusResponse,
     HesabfaStockSyncResponse,
 )
-from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
+from app.services.hesabfa.client import get_hesabfa_client
 from app.services.hesabfa.exceptions import HesabfaError, HesabfaNotConfiguredError
 from app.services.hesabfa.item_push import push_all_site_products_to_hesabfa
 from app.services.hesabfa.mapping import sync_item_mappings_by_sku
-from app.services.hesabfa.sales import get_sales_summary, hesabfa_amount_to_toman
+from app.services.hesabfa.sales import get_sales_summary
 
 router = APIRouter()
 
@@ -56,6 +56,7 @@ async def hesabfa_status(
         stock_sync_interval_seconds=settings.HESABFA_STOCK_SYNC_INTERVAL_SECONDS,
         stock_pull_enabled=False,
         item_push_enabled=True,
+        admin_reads_enabled=settings.HESABFA_ADMIN_READS_ENABLED,
     )
 
 
@@ -133,25 +134,21 @@ async def sync_stock(
 @router.get(
     "/sales-summary",
     response_model=HesabfaSalesSummaryResponse,
-    summary="Hesabfa total sales vs website-only paid sales",
+    summary="Website-only paid sales (Hesabfa admin reads disabled)",
 )
 async def sales_summary(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ) -> HesabfaSalesSummaryResponse:
+    """Website paid totals only — never returns Hesabfa invoice/sales figures."""
     summary = await get_sales_summary(db)
-    hesabfa_toman = None
-    if summary.hesabfa_sales_total is not None:
-        hesabfa_toman = str(hesabfa_amount_to_toman(summary.hesabfa_sales_total))
     return HesabfaSalesSummaryResponse(
         website_paid_total_toman=str(summary.website_paid_total_toman),
         website_paid_order_count=summary.website_paid_order_count,
-        hesabfa_sales_total=(
-            str(summary.hesabfa_sales_total) if summary.hesabfa_sales_total is not None else None
-        ),
-        hesabfa_sales_total_toman=hesabfa_toman,
-        hesabfa_invoice_count=summary.hesabfa_invoice_count,
+        hesabfa_sales_total=None,
+        hesabfa_sales_total_toman=None,
+        hesabfa_invoice_count=None,
         hesabfa_currency_unit=summary.hesabfa_currency_unit,
-        hesabfa_available=summary.hesabfa_available or hesabfa_integration_active(),
-        hesabfa_error=summary.hesabfa_error,
+        hesabfa_available=False,
+        hesabfa_error=summary.hesabfa_error or "hesabfa_admin_reads_disabled",
     )

@@ -166,9 +166,11 @@ export interface ProductImageUploadResponse {
 export interface ProductStatisticsResponse {
   total_products: number;
   active_products: number;
-  /** Sum of base_price * stock_quantity across all non-deleted products. */
+  /** Deprecated zero — warehouse value is not stored on the site. */
   total_stock_value: string;
+  /** Count of products with is_available=true (not a warehouse quantity). */
   total_stock_quantity: string;
+  available_products?: number;
   categories: number;
   brands: number;
 }

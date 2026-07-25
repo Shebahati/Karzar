@@ -232,8 +232,9 @@ class ProductImageUploadResponse(BaseModel):
 class ProductStatisticsResponse(BaseModel):
     total_products: int
     active_products: int
-    total_stock_value: str
-    total_stock_quantity: str
+    total_stock_value: str  # always "0" — warehouse value not stored on site
+    total_stock_quantity: str  # count of is_available products (legacy field name)
+    available_products: int = 0
     categories: int
     brands: int
 
