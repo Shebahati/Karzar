@@ -219,11 +219,15 @@ def find_by_sku_in_title(
     sku: str,
     require_brand_tokens: tuple[str, ...],
 ) -> dict | None:
-    """Highest confidence: catalog SKU appears in shopmill title."""
+    """Highest confidence: catalog SKU appears in shopmill title (optional letter suffix)."""
     sku_raw = sku.strip()
     if len(sku_raw) < 4:
         return None
-    pat = re.compile(rf"(?<![A-Za-z0-9]){re.escape(sku_raw)}(?![A-Za-z0-9])", re.I)
+    # Allow trailing A/B/… after numeric Dasqua-style codes: 2020-1005a
+    pat = re.compile(
+        rf"(?<![A-Za-z0-9]){re.escape(sku_raw)}[A-Za-z]?(?![A-Za-z0-9-])",
+        re.I,
+    )
     hits: list[dict] = []
     for page in index:
         name = page.get("name") or ""
@@ -250,8 +254,8 @@ def catalog_match_keys(sku: str, name: str, brand_key: str) -> list[str]:
         pass
     else:
         keys.append(sku_n)
+        keys.append(normalize_dasqua_code(sku_n))
     keys.extend(extract_models(f"{sku} {name}"))
-    # AST numeric-only: try models from name only
     return list(dict.fromkeys([k for k in keys if k]))
 
 
