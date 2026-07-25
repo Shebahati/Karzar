@@ -74,7 +74,7 @@ BRAND_CFG = {
 
 MODEL_RE = re.compile(
     r"\b("
-    r"\d{3,5}-\d{3,5}"
+    r"\d{3,5}-\d{3,5}[A-Za-z]?"
     r"|[A-Z]{1,6}\d{2,4}[A-Z]?(?:-[A-Z0-9]{1,10}){0,4}"
     r"|AST-[A-Z0-9/-]+"
     r"|D\d{2,4}"
@@ -97,10 +97,22 @@ def normalize_token(tok: str) -> str:
     return re.sub(r"\s+", "", tok.strip().upper().replace("ـ", ""))
 
 
+def normalize_dasqua_code(tok: str) -> str:
+    """Strip trailing letter suffixes common on shopmill (2020-1005A → 2020-1005)."""
+    t = normalize_token(tok)
+    m = re.match(r"^(\d{3,5}-\d{3,5})[A-Z]*$", t)
+    return m.group(1) if m else t
+
+
 def extract_models(text: str) -> list[str]:
     found = [normalize_token(m.group(1)) for m in MODEL_RE.finditer(text or "")]
-    # Prefer longer / more specific tokens first when matching later
-    return list(dict.fromkeys(sorted(found, key=len, reverse=True)))
+    expanded: list[str] = []
+    for f in found:
+        expanded.append(f)
+        nd = normalize_dasqua_code(f)
+        if nd != f:
+            expanded.append(nd)
+    return list(dict.fromkeys(sorted(expanded, key=len, reverse=True)))
 
 
 def best_image(images: list[dict]) -> str | None:
