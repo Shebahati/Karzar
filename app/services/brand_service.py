@@ -6,9 +6,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.crud import brand as crud_brand
+from app.db.models.product import Brand
 from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
+from app.utils.product_presenter import absolutize_asset_url
 
 logger = get_logger(__name__)
+
+
+def brand_to_response(brand: Brand, product_count: int | None = None) -> BrandResponse:
+    return BrandResponse(
+        id=brand.id,
+        name=brand.name,
+        slug=brand.slug,
+        country=brand.country,
+        logo_url=absolutize_asset_url(brand.logo_url),
+        product_count=product_count,
+    )
 
 
 class BrandService:
@@ -18,15 +31,7 @@ class BrandService:
         responses: list[BrandResponse] = []
         for brand in brands:
             count = await crud_brand.count_products_for_brand(db, brand.id)
-            responses.append(
-                BrandResponse(
-                    id=brand.id,
-                    name=brand.name,
-                    slug=brand.slug,
-                    country=brand.country,
-                    product_count=count,
-                )
-            )
+            responses.append(brand_to_response(brand, count))
         return responses
 
     @staticmethod
@@ -40,17 +45,14 @@ class BrandService:
                 details=[{"field": "name", "message": "نام برند تکراری است."}],
             )
         brand = await crud_brand.create_brand(
-            db, name=payload.name.strip(), country=payload.country
+            db,
+            name=payload.name.strip(),
+            country=payload.country,
+            logo_url=payload.logo_url,
         )
         await db.commit()
         await db.refresh(brand)
-        return BrandResponse(
-            id=brand.id,
-            name=brand.name,
-            slug=brand.slug,
-            country=brand.country,
-            product_count=0,
-        )
+        return brand_to_response(brand, 0)
 
     @staticmethod
     async def update_brand(db: AsyncSession, brand_id: int, payload: BrandUpdate) -> BrandResponse:
@@ -82,16 +84,33 @@ class BrandService:
                 unset_country=payload.country is None,
             )
 
+        if "logo_url" in payload.model_fields_set:
+            brand = await crud_brand.update_brand(
+                db,
+                brand,
+                logo_url=payload.logo_url,
+                unset_logo=payload.logo_url is None,
+            )
+
         await db.commit()
         await db.refresh(brand)
         count = await crud_brand.count_products_for_brand(db, brand.id)
-        return BrandResponse(
-            id=brand.id,
-            name=brand.name,
-            slug=brand.slug,
-            country=brand.country,
-            product_count=count,
-        )
+        return brand_to_response(brand, count)
+
+    @staticmethod
+    async def set_logo_url(db: AsyncSession, brand_id: int, logo_url: str) -> BrandResponse:
+        brand = await crud_brand.get_brand_by_id(db, brand_id)
+        if brand is None:
+            raise api_error(
+                404,
+                error_code=ErrorCode.NOT_FOUND,
+                message=f"Brand with ID '{brand_id}' not found",
+            )
+        brand = await crud_brand.update_brand(db, brand, logo_url=logo_url)
+        await db.commit()
+        await db.refresh(brand)
+        count = await crud_brand.count_products_for_brand(db, brand.id)
+        return brand_to_response(brand, count)
 
     @staticmethod
     async def delete_brand(db: AsyncSession, brand_id: int) -> dict:

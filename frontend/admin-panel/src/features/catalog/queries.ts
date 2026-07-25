@@ -345,6 +345,28 @@ export function useCreateBrand() {
 
 
 
+export function useUploadBrandLogo() {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+
+      catalogService.uploadBrandLogo(id, file),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.brands() });
+
+    },
+
+  });
+
+}
+
+
+
 export function useUpdateBrand() {
 
   const queryClient = useQueryClient();

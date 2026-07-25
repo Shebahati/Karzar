@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Delete, Edit, Plus, Star } from "react-iconly";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { Delete, Edit, Plus, Star, Upload } from "react-iconly";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
   useCreateBrand,
   useDeleteBrand,
   useUpdateBrand,
+  useUploadBrandLogo,
 } from "@/features/catalog/queries";
 import { ApiError } from "@/lib/api-client";
 import type { Brand } from "@/types/category";
@@ -35,11 +37,14 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
   const createBrand = useCreateBrand();
   const updateBrand = useUpdateBrand();
   const deleteBrand = useDeleteBrand();
+  const uploadLogo = useUploadBrandLogo();
 
   const [editing, setEditing] = useState<Brand | null>(null);
   const [name, setName] = useState("");
   const [country, setCountry] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Brand | null>(null);
+  const [logoTargetId, setLogoTargetId] = useState<number | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function resetForm() {
     setEditing(null);
@@ -83,7 +88,6 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
 
   function handleDeleteVerified(stepUpToken: string) {
     if (!deleteTarget) return;
-    const brandName = deleteTarget.name;
     deleteBrand.mutate(
       { id: deleteTarget.id, stepUpToken },
       {
@@ -102,10 +106,37 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
     );
   }
 
+  function pickLogo(brandId: number) {
+    setLogoTargetId(brandId);
+    fileRef.current?.click();
+  }
+
+  async function onLogoSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const brandId = logoTargetId;
+    e.target.value = "";
+    setLogoTargetId(null);
+    if (!file || brandId == null) return;
+    try {
+      await uploadLogo.mutateAsync({ id: brandId, file });
+      toast.success("لوگوی برند ذخیره شد");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "آپلود لوگو ناموفق بود");
+    }
+  }
+
   const pending = createBrand.isPending || updateBrand.isPending;
 
   return (
     <>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+        onChange={onLogoSelected}
+      />
+
       <Dialog
         open={open}
         onOpenChange={(next) => {
@@ -121,10 +152,15 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
           </div>
           <DialogHeader>
             <DialogTitle className="text-[#4F4F4F]">مدیریت برندها</DialogTitle>
-            <DialogDescription>افزودن، ویرایش و حذف برندهای فروشگاه</DialogDescription>
+            <DialogDescription>
+              افزودن، ویرایش، لوگو و حذف برندهای فروشگاه
+            </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 rounded-xl bg-[#F7F7F7] p-4 shadow-sm md:grid-cols-[1fr_1fr_auto]">
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 gap-4 rounded-xl bg-[#F7F7F7] p-4 shadow-sm md:grid-cols-[1fr_1fr_auto]"
+          >
             <Field label="نام برند" htmlFor="brand-name" required>
               <Input
                 id="brand-name"
@@ -169,13 +205,40 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
                     key={brand.id}
                     className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#F7F7F7]"
                   >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-[#4F4F4F]">{brand.name}</p>
-                      {brand.country && (
-                        <p className="text-xs text-muted-foreground">{brand.country}</p>
-                      )}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#F7F7F7] text-sm font-bold text-muted-foreground">
+                        {brand.logo_url ? (
+                          // next/image remote config already allows api uploads
+                          <Image
+                            src={brand.logo_url}
+                            alt=""
+                            width={44}
+                            height={44}
+                            className="object-contain p-1"
+                            unoptimized={brand.logo_url.endsWith(".svg")}
+                          />
+                        ) : (
+                          (brand.name || "B").slice(0, 1)
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-[#4F4F4F]">{brand.name}</p>
+                        {brand.country && (
+                          <p className="text-xs text-muted-foreground">{brand.country}</p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex shrink-0 gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="آپلود لوگو"
+                        disabled={uploadLogo.isPending}
+                        onClick={() => pickLogo(brand.id)}
+                      >
+                        <Upload set="light" size={18} primaryColor="currentColor" />
+                      </Button>
                       <Button
                         type="button"
                         variant="ghost"

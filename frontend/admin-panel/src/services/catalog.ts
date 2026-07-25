@@ -266,6 +266,48 @@ export const catalogService = {
 
 
 
+  async uploadBrandLogo(
+
+    id: number,
+
+    file: File,
+
+  ): Promise<import("@/types/category").BrandLogoUploadResponse> {
+
+    if (env.USE_MOCK) {
+
+      const mock = await getMockApi();
+
+      if ("uploadBrandLogo" in mock && typeof mock.uploadBrandLogo === "function") {
+
+        return mock.uploadBrandLogo(id, file);
+
+      }
+
+      return { id, logo_url: URL.createObjectURL(file) };
+
+    }
+
+    const form = new FormData();
+
+    form.append("file", file);
+
+    const { data } = await apiClient.post<import("@/types/category").BrandLogoUploadResponse>(
+
+      `/brands/${id}/logo`,
+
+      form,
+
+      { headers: { "Content-Type": "multipart/form-data" } },
+
+    );
+
+    return data;
+
+  },
+
+
+
   async deleteBrand(id: number, stepUpToken: string): Promise<import("@/types/category").BrandDeleteResult> {
 
     if (env.USE_MOCK) return (await getMockApi()).deleteBrand(id, stepUpToken);
