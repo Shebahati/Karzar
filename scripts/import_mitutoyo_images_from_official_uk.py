@@ -113,7 +113,7 @@ def write_csv(path: Path, rows: list[dict[str, str]], fields: list[str]) -> None
         writer.writerows(rows)
 
 
-async def run(*, dry_run: bool, replace: bool, concurrency: int) -> None:
+async def run(*, dry_run: bool, replace: bool, missing_only: bool, concurrency: int) -> None:
     started = time.time()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -134,6 +134,28 @@ async def run(*, dry_run: bool, replace: bool, concurrency: int) -> None:
             ).all()
         )
         product_ids = [p.id for p in catalog]
+
+        if missing_only:
+            existing_primary = set(
+                (
+                    await session.execute(
+                        select(ProductImage.product_id).where(
+                            ProductImage.product_id.in_(product_ids),
+                            ProductImage.is_primary.is_(True),
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            before = len(catalog)
+            catalog = [p for p in catalog if p.id not in existing_primary]
+            product_ids = [p.id for p in catalog]
+            logger.info(
+                "missing-only: %s without primary (skipped %s with primary)",
+                len(catalog),
+                before - len(catalog),
+            )
 
         if replace and not dry_run:
             del_result = await session.execute(
@@ -245,7 +267,7 @@ async def run(*, dry_run: bool, replace: bool, concurrency: int) -> None:
 
     elapsed = int(time.time() - started)
     print("=== Mitutoyo official UK image import ===")
-    print(f"Mode: {'dry-run' if dry_run else 'live'} replace={replace}")
+    print(f"Mode: {'dry-run' if dry_run else 'live'} replace={replace} missing_only={missing_only}")
     print(f"Source: {CDN_BASE}")
     print(f"Min bytes: {MIN_BYTES} (photo webp/jpg only; no eps/bmp)")
     print(f"Catalog matched / inserted: {inserted}")
@@ -263,12 +285,24 @@ def main() -> None:
         action="store_true",
         help="Delete all existing Mitutoyo product_images before insert",
     )
+    parser.add_argument(
+        "--missing-only",
+        action="store_true",
+        help="Only fill products that lack a primary image (no delete)",
+    )
     parser.add_argument("--concurrency", type=int, default=12)
     args = parser.parse_args()
-    if not args.dry_run and not args.replace:
-        parser.error("Refusing live run without --replace (prevents mixing watermarked rows)")
+    if not args.dry_run and not args.replace and not args.missing_only:
+        parser.error("Refusing live run without --replace or --missing-only")
+    if args.replace and args.missing_only:
+        parser.error("Use either --replace or --missing-only, not both")
     asyncio.run(
-        run(dry_run=args.dry_run, replace=args.replace, concurrency=args.concurrency)
+        run(
+            dry_run=args.dry_run,
+            replace=args.replace,
+            missing_only=args.missing_only,
+            concurrency=args.concurrency,
+        )
     )
 
 
