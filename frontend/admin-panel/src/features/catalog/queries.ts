@@ -659,4 +659,23 @@ export function useBulkStockAdjust() {
   });
 }
 
+export function useBulkSetAvailability() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    import("@/types/product").BulkAvailabilityResponse,
+    ApiError,
+    {
+      items: import("@/types/product").BulkAvailabilityItem[];
+      stepUpToken: string;
+    }
+  >({
+    mutationFn: ({ items, stepUpToken }) =>
+      catalogService.bulkSetAvailability(items, stepUpToken),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.products() });
+    },
+  });
+}
+
 

@@ -14,13 +14,9 @@ _LOCK_PREFIX = "lock:"
 def _get_client():
     global _client
     if _client is None:
-        import redis.asyncio as aioredis
+        from app.core.redis_client import create_redis_client
 
-        _client = aioredis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            decode_responses=True,
-        )
+        _client = create_redis_client()
     return _client
 
 

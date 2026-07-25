@@ -30,7 +30,7 @@ import { StepUpDialog } from "@/components/step-up-dialog";
 import { CategoryLeafCombobox } from "@/features/catalog/components/category-leaf-combobox";
 import {
   useBrands,
-  useBulkStockAdjust,
+  useBulkSetAvailability,
   useDeleteProduct,
   useFlatCategories,
   useProducts,
@@ -99,11 +99,11 @@ export default function ProductsListPage() {
   const { data: brands = [] } = useBrands();
 
   const deleteProduct = useDeleteProduct();
-  const bulkStockAdjust = useBulkStockAdjust();
+  const bulkSetAvailability = useBulkSetAvailability();
   const [target, setTarget] = useState<ProductSummary | null>(null);
   const [bulkStepUpOpen, setBulkStepUpOpen] = useState(false);
   const [pendingBulkItems, setPendingBulkItems] = useState<
-    Array<{ product_id: number; quantity_delta: number; reason?: string }>
+    Array<{ product_id: number; is_available: boolean; reason?: string }>
   >([]);
 
   const products = useMemo(() => data?.data ?? [], [data]);
@@ -131,7 +131,7 @@ export default function ProductsListPage() {
   }
 
   function handleBulkVerified(stepUpToken: string) {
-    bulkStockAdjust.mutate(
+    bulkSetAvailability.mutate(
       { items: pendingBulkItems, stepUpToken },
       {
         onSuccess: (result) => {
@@ -210,8 +210,6 @@ export default function ProductsListPage() {
   }
 
   function submitBulkAdjust() {
-    // FE-A-20: site inventory is binary — map UI choice to legacy delta API
-    // (positive delta → available, negative → unavailable).
     if (selectedIds.size === 0) {
       toast.error("حداقل یک محصول را انتخاب کنید.");
       return;
@@ -223,10 +221,10 @@ export default function ProductsListPage() {
       return;
     }
 
-    const quantity_delta = bulkAvailability === "available" ? 1 : -1;
+    const is_available = bulkAvailability === "available";
     const items = Array.from(selectedIds).map((product_id) => ({
       product_id,
-      quantity_delta,
+      is_available,
       reason,
     }));
 
@@ -492,10 +490,10 @@ export default function ProductsListPage() {
           }
         }}
         onVerified={handleBulkVerified}
-        actionPending={bulkStockAdjust.isPending}
+        actionPending={bulkSetAvailability.isPending}
         title="تأیید بروزرسانی انبوه وضعیت موجودی"
         description={`برای علامت‌گذاری ${formatNumber(pendingBulkItems.length)} محصول به‌عنوان ${
-          pendingBulkItems[0]?.quantity_delta && pendingBulkItems[0].quantity_delta > 0
+          pendingBulkItems[0]?.is_available
             ? "موجود"
             : "ناموجود"
         }، کد امنیتی مدیر را وارد کنید.`}
@@ -553,10 +551,10 @@ export default function ProductsListPage() {
             <Button
               type="button"
               onClick={submitBulkAdjust}
-              disabled={bulkStockAdjust.isPending}
+              disabled={bulkSetAvailability.isPending}
               className="flex-1"
             >
-              {bulkStockAdjust.isPending ? (
+              {bulkSetAvailability.isPending ? (
                 "در حال ذخیره..."
               ) : (
                 <>

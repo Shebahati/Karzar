@@ -16,6 +16,7 @@ from app.services.order_service import transition_order_status
 from app.services.payment_ledger_service import (
     record_payment_failed,
     record_payment_initiated,
+    record_payment_unknown,
     record_payment_verified,
 )
 from app.services.payment_service import (
@@ -139,7 +140,13 @@ async def verify_order_payment(
             authority=authority,
             amount_rials=amount_rials,
         )
-    except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError) as exc:
+    except PaymentGatewayTimeoutError as exc:
+        # BE-03: timeout is ambiguous — leave order payable and mark UNKNOWN.
+        order.payment_status = PaymentStatus.UNKNOWN.value
+        await record_payment_unknown(db, order, authority=authority, ip_address=ip_address)
+        await db.flush()
+        raise exc
+    except (PaymentGatewayError, PaymentVerifyFailedError) as exc:
         order.payment_status = PaymentStatus.FAILED.value
         await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
         await db.flush()

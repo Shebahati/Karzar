@@ -74,6 +74,21 @@ export const catalogService = {
     return data;
   },
 
+  async getProductBySlug(slug: string): Promise<ProductDetail> {
+    if (env.USE_MOCK) {
+      const mock = await getMockApi();
+      if (typeof mock.getProductBySlug === "function") {
+        return mock.getProductBySlug(slug);
+      }
+      // Fallback: try numeric slug in mock catalog.
+      const asId = Number(slug);
+      if (Number.isFinite(asId) && asId > 0) return mock.getProduct(asId);
+      throw new Error(`Mock product slug not found: ${slug}`);
+    }
+    const { data } = await apiClient.get<ProductDetail>(`/products/slug/${slug}`);
+    return data;
+  },
+
   async getRelatedProducts(id: number): Promise<ProductSummary[]> {
     if (env.USE_MOCK) return (await getMockApi()).getRelatedProducts(id);
     const { data } = await apiClient.get<{ data: ProductSummary[] }>(

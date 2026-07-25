@@ -6,6 +6,11 @@
 #   NEXT_PUBLIC_API_BASE_URL — e.g. https://api.example.com/api/v1
 #   ADMIN_SESSION_SECRET — min 32 chars; HMAC for admin edge session cookie
 #
+# Build-time args (baked into Next.js bundles — must match commit, no post-deploy sed):
+#   NEXT_PUBLIC_USE_MOCK=false (default in Dockerfiles)
+#   NEXT_PUBLIC_API_BASE_URL (required)
+#   NEXT_PUBLIC_ASSET_BASE_URL (optional; Storefront CDN/origin for images)
+#
 # Example:
 #   export FRONTEND_ROOT=/opt/karzar/frontend
 #   export NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1
@@ -28,48 +33,18 @@ ADMIN_DIR="$FRONTEND_ROOT/admin-panel"
 [[ -d "$SHOP_DIR" ]] || { echo "Missing $SHOP_DIR" >&2; exit 1; }
 [[ -d "$ADMIN_DIR" ]] || { echo "Missing $ADMIN_DIR" >&2; exit 1; }
 
-# Ensure remote CDN images work on live catalog (idempotent patch if still locked down)
-for cfg in "$SHOP_DIR/next.config.ts" "$ADMIN_DIR/next.config.ts"; do
-  if [[ -f "$cfg" ]] && grep -q 'picsum.photos' "$cfg" && ! grep -q 'hostname: "\*\*"' "$cfg"; then
-    python3 - "$cfg" <<'PY'
-import pathlib, re, sys
-path = pathlib.Path(sys.argv[1])
-text = path.read_text()
-new = """images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "**" },
-      { protocol: "http", hostname: "localhost" },
-      { protocol: "http", hostname: "127.0.0.1" },
-    ],
-  },"""
-text2, n = re.subn(
-    r"images:\s*\{[\s\S]*?remotePatterns:\s*\[[\s\S]*?\],\s*\},",
-    new,
-    text,
-    count=1,
+SHOP_BUILD_ARGS=(
+  --build-arg NEXT_PUBLIC_USE_MOCK=false
+  --build-arg "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL"
 )
-if n:
-    path.write_text(text2)
-    print(f"patched remotePatterns in {path}")
-else:
-    print(f"skip patch (pattern not found): {path}")
-PY
-  fi
-done
-
-# Default mock off in env.ts if still true-by-default
-for envts in "$SHOP_DIR/src/config/env.ts" "$ADMIN_DIR/src/config/env.ts"; do
-  if [[ -f "$envts" ]] && grep -q '?? "true"' "$envts"; then
-    sed -i 's/?? "true").toLowerCase() !== "false"/?? "false").toLowerCase() === "true"/' "$envts" || true
-    echo "patched USE_MOCK default in $envts"
-  fi
-done
+if [[ -n "${NEXT_PUBLIC_ASSET_BASE_URL:-}" ]]; then
+  SHOP_BUILD_ARGS+=(--build-arg "NEXT_PUBLIC_ASSET_BASE_URL=$NEXT_PUBLIC_ASSET_BASE_URL")
+fi
 
 echo "Building shop image..."
 docker build \
   -f "$ROOT_DIR/deploy/staging/frontend/Dockerfile.storefront" \
-  --build-arg NEXT_PUBLIC_USE_MOCK=false \
-  --build-arg "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" \
+  "${SHOP_BUILD_ARGS[@]}" \
   -t karzar-shop:staging \
   "$SHOP_DIR"
 

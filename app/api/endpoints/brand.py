@@ -74,7 +74,9 @@ async def create_brand(
     _: User = Depends(get_current_super_admin),
 ):
     try:
-        return await BrandService.create_brand(db, payload)
+        result = await BrandService.create_brand(db, payload)
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except ValueError as exc:
@@ -105,7 +107,9 @@ async def update_brand(
     _: User = Depends(get_current_super_admin),
 ):
     try:
-        return await BrandService.update_brand(db, brand_id, payload)
+        result = await BrandService.update_brand(db, brand_id, payload)
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except ValueError as exc:
@@ -170,6 +174,7 @@ async def upload_brand_logo(
         ) from exc
 
     updated = await BrandService.set_logo_url(db, brand_id, logo_path)
+    await db.commit()
     return BrandLogoUploadResponse(id=updated.id, logo_url=updated.logo_url or logo_path)
 
 
@@ -185,7 +190,9 @@ async def delete_brand(
     _: User = Depends(get_current_super_admin_with_step_up),
 ):
     try:
-        return await BrandService.delete_brand(db, brand_id)
+        result = await BrandService.delete_brand(db, brand_id)
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except Exception as exc:

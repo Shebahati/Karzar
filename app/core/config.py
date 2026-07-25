@@ -23,10 +23,13 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str | None = None
     REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str | None = None
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_ISSUER: str = "karzar-api"
+    JWT_AUDIENCE: str = "karzar-clients"
     STEP_UP_TOKEN_EXPIRE_MINUTES: int = 5
     STEP_UP_MAX_ATTEMPTS: int = Field(default=5, ge=1, le=20)
     STEP_UP_ATTEMPT_WINDOW_SECONDS: int = Field(default=300, ge=30, le=3600)
@@ -84,6 +87,7 @@ class Settings(BaseSettings):
     HESABFA_CURRENCY_CODE: str = "IRR"
     PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
     ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
+    HESABFA_INVOICE_RETRY_INTERVAL_SECONDS: int = Field(default=120, ge=30, le=3600)
     ADMIN_STEP_UP_PIN: str = Field(
         ...,
         min_length=6,
@@ -98,12 +102,16 @@ class Settings(BaseSettings):
     LOG_TO_FILE: bool = True
     LOG_FILE: str = "logs/app.log"
     ENABLE_METRICS: bool = False
+    # When set, scrapers must send header X-Metrics-Token matching this value.
+    METRICS_SCRAPE_TOKEN: str | None = None
 
     # Optional error tracking (OPS-07). Leave empty until Sentry project exists.
     SENTRY_DSN: str | None = None
     SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.0, ge=0.0, le=1.0)
     # Optional external uptime check URL documented for operators (not called by app).
     UPTIME_CHECK_URL: str | None = None
+    # Public site origin (canonical links, absolute redirects).
+    SITE_URL: str | None = None
 
     # Public endpoint throttles (per client IP)
     PUBLIC_THROTTLE_CONTACT_MAX: int = Field(default=5, ge=1, le=1000)

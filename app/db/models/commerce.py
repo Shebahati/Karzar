@@ -39,6 +39,8 @@ class PaymentStatus(str, enum.Enum):
     PAID = "paid"
     FAILED = "failed"
     REFUNDED = "refunded"
+    # Gateway timed out / response ambiguous — order stays payable; re-verify allowed.
+    UNKNOWN = "unknown"
 
 
 class PaymentTransactionStatus(str, enum.Enum):
@@ -46,6 +48,7 @@ class PaymentTransactionStatus(str, enum.Enum):
     VERIFIED = "verified"
     FAILED = "failed"
     REFUNDED = "refunded"
+    UNKNOWN = "unknown"
 
 
 class PaymentTransaction(Base):

@@ -25,8 +25,10 @@ from app.core.security_middleware import (
     HttpsRedirectMiddleware,
     RequestBodySizeLimitMiddleware,
 )
+from app.core.job_heartbeat import all_job_heartbeats, record_job_heartbeat
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.db.database import async_session_maker
+from app.services.hesabfa.invoice_retry import retry_failed_hesabfa_invoices
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 
 setup_logging()
@@ -67,12 +69,41 @@ async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
                     cancelled = await cancel_expired_pending_payment_orders(session)
                     if cancelled:
                         await session.commit()
+                    else:
+                        await session.rollback()
+                record_job_heartbeat("order_expiry_sweep")
         except Exception:
             logger.exception("Order expiry sweep failed")
         try:
             await asyncio.wait_for(
                 stop_event.wait(),
                 timeout=settings.ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS,
+            )
+        except TimeoutError:
+            continue
+
+
+async def _hesabfa_invoice_retry_worker(stop_event: asyncio.Event) -> None:
+    """Periodically re-push failed/pending Hesabfa invoices (BE-07)."""
+    while not stop_event.is_set():
+        try:
+            if await try_acquire_lock(
+                "hesabfa_invoice_retry",
+                settings.HESABFA_INVOICE_RETRY_INTERVAL_SECONDS,
+            ):
+                async with async_session_maker() as session:
+                    created = await retry_failed_hesabfa_invoices(session)
+                    if created:
+                        await session.commit()
+                    else:
+                        await session.commit()  # persist attempt_count / next_attempt_at
+                record_job_heartbeat("hesabfa_invoice_retry")
+        except Exception:
+            logger.exception("Hesabfa invoice retry sweep failed")
+        try:
+            await asyncio.wait_for(
+                stop_event.wait(),
+                timeout=settings.HESABFA_INVOICE_RETRY_INTERVAL_SECONDS,
             )
         except TimeoutError:
             continue
@@ -85,13 +116,17 @@ async def lifespan(app: FastAPI):
     await bootstrap_catalog_seed()
     stop_event = asyncio.Event()
     expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
+    hesabfa_task = asyncio.create_task(_hesabfa_invoice_retry_worker(stop_event))
     try:
         yield
     finally:
         stop_event.set()
         expiry_task.cancel()
+        hesabfa_task.cancel()
         with suppress(asyncio.CancelledError):
             await expiry_task
+        with suppress(asyncio.CancelledError):
+            await hesabfa_task
 
 
 app = FastAPI(
@@ -133,6 +168,25 @@ if settings.ENABLE_METRICS:
         should_group_status_codes=True,
         excluded_handlers=["/metrics", "/health", "/ready"],
     ).instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+
+
+@app.middleware("http")
+async def metrics_scrape_auth_middleware(request: Request, call_next):
+    """Optional bearer-style token for /metrics when METRICS_SCRAPE_TOKEN is set."""
+    if (
+        settings.ENABLE_METRICS
+        and request.url.path == "/metrics"
+        and settings.METRICS_SCRAPE_TOKEN
+        and request.headers.get("X-Metrics-Token") != settings.METRICS_SCRAPE_TOKEN
+    ):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=build_error_payload(
+                error_code=ErrorCode.UNAUTHORIZED,
+                message="Invalid or missing metrics token",
+            ),
+        )
+    return await call_next(request)
 
 app.include_router(api_router, prefix="/api/v1")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -219,6 +273,10 @@ async def readiness_check():
     """Readiness probe — verifies database (and Redis when configured)."""
     db_ok = await check_database_connection()
     redis_ok = await ping_redis()
+    heartbeats = {
+        row.job: (row.last_run_at.isoformat() if row.last_run_at else None)
+        for row in all_job_heartbeats()
+    }
 
     if db_ok and redis_ok:
         return JSONResponse(
@@ -228,6 +286,7 @@ async def readiness_check():
                 "service": settings.PROJECT_NAME,
                 "database": "ok",
                 "redis": "ok" if settings.redis_enabled else "disabled",
+                "job_heartbeats": heartbeats,
             },
         )
 
@@ -238,6 +297,7 @@ async def readiness_check():
             "status": "not_ready",
             "database": "ok" if db_ok else "unavailable",
             "redis": "ok" if redis_ok else ("disabled" if not settings.redis_enabled else "unavailable"),
+            "job_heartbeats": heartbeats,
         },
     )
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Buy, TickSquare } from "react-iconly";
 import { Container } from "@/components/ui/container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { AuthStep, type ResolvedCustomer } from "@/components/checkout/auth-step";
 import { DetailsStep, type DetailsResult } from "@/components/checkout/details-step";
@@ -196,7 +197,7 @@ export function CheckoutView() {
     }
   };
 
-  if (!mounted) return <Container className="py-16" />;
+  if (!mounted) return <CheckoutHydrationSkeleton />;
 
   if (!lines.length) {
     return (
@@ -301,6 +302,28 @@ export function CheckoutView() {
             <OrderSummary lines={lines} isInquiry={isInquiry} />
           </div>
         </div>
+      </div>
+    </Container>
+  );
+}
+
+function CheckoutHydrationSkeleton() {
+  return (
+    <Container className="pt-8 pb-24 lg:py-12">
+      <Skeleton className="h-8 w-48" />
+      <div className="mt-6 flex gap-2">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-0.5 flex-1 self-center" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-5 w-32" />
+      </div>
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <Skeleton className="h-64 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-full rounded-xl" />
+        </div>
+        <Skeleton className="h-72 w-full rounded-2xl" />
       </div>
     </Container>
   );

@@ -275,6 +275,40 @@ async def read_product_by_sku(
 
 
 @router.get(
+    "/slug/{slug}",
+    response_model=ProductDetailResponse,
+    summary="Get product by SEO slug",
+)
+async def read_product_by_slug(
+    slug: str = Path(..., min_length=1, max_length=255, description="Product slug"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
+):
+    from app.crud import product as crud_product
+
+    try:
+        product = await crud_product.get_product_by_slug(db=db, slug=slug)
+        if not product:
+            raise api_error(
+                status.HTTP_404_NOT_FOUND,
+                error_code=ErrorCode.NOT_FOUND,
+                message=f"Product with slug '{slug}' not found",
+            )
+        _guard_inactive_product(product, current_user, slug)
+        audience = _audience_for_user(current_user)
+        return to_product_detail(product, await _category_metadata(db), audience=audience)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving product by slug: {str(e)}")
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error retrieving product",
+        ) from e
+
+
+@router.get(
     "/{product_id}",
     response_model=ProductDetailResponse,
     summary="Get product by ID",

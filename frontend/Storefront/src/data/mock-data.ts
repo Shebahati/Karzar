@@ -93,6 +93,7 @@ const BASE_PRODUCTS: RawProduct[] = [
   {
     id: 1,
     sku: "BSH-GSB-13RE",
+    slug: "bsh-gsb-13re",
     name: "دریل چکشی بوش مدل GSB 13 RE",
     category_id: 100,
     brand_id: 1,

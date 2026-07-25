@@ -46,5 +46,5 @@ async def run_idempotent(
         response_body=body,
         expires_at=expires_at,
     )
-    await db.commit()
+    await db.flush()
     return JSONResponse(status_code=status_code, content=body)

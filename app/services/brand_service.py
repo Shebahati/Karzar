@@ -50,7 +50,7 @@ class BrandService:
             country=payload.country,
             logo_url=payload.logo_url,
         )
-        await db.commit()
+        await db.flush()
         await db.refresh(brand)
         return brand_to_response(brand, 0)
 
@@ -92,7 +92,7 @@ class BrandService:
                 unset_logo=payload.logo_url is None,
             )
 
-        await db.commit()
+        await db.flush()
         await db.refresh(brand)
         count = await crud_brand.count_products_for_brand(db, brand.id)
         return brand_to_response(brand, count)
@@ -107,7 +107,7 @@ class BrandService:
                 message=f"Brand with ID '{brand_id}' not found",
             )
         brand = await crud_brand.update_brand(db, brand, logo_url=logo_url)
-        await db.commit()
+        await db.flush()
         await db.refresh(brand)
         count = await crud_brand.count_products_for_brand(db, brand.id)
         return brand_to_response(brand, count)
@@ -124,6 +124,6 @@ class BrandService:
 
         cleared = await crud_brand.clear_brand_on_products(db, brand_id)
         await crud_brand.delete_brand_row(db, brand)
-        await db.commit()
+        await db.flush()
         logger.info("Deleted brand %s; cleared brand_id on %s product(s)", brand_id, cleared)
         return {"id": brand_id, "products_cleared": cleared}

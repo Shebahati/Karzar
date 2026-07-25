@@ -633,6 +633,30 @@ export const catalogService = {
     return data;
   },
 
+  async bulkSetAvailability(
+    items: import("@/types/product").BulkAvailabilityItem[],
+    stepUpToken: string,
+  ): Promise<import("@/types/product").BulkAvailabilityResponse> {
+    if (env.USE_MOCK) {
+      const mock = await getMockApi();
+      if (typeof mock.bulkSetAvailability === "function") {
+        return mock.bulkSetAvailability(items);
+      }
+      // Shim: map binary flags onto deprecated quantity delta mock.
+      return mock.bulkStockAdjust(
+        items.map((item) => ({
+          product_id: item.product_id,
+          quantity_delta: item.is_available ? 1 : -1,
+          reason: item.reason,
+        })),
+      );
+    }
+    const { data } = await apiClient.put<
+      import("@/types/product").BulkAvailabilityResponse
+    >("/products/bulk/availability", { items }, withStepUp(stepUpToken));
+    return data;
+  },
+
 };
 
 

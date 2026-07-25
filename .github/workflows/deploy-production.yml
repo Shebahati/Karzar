@@ -13,7 +13,7 @@ on:
         type: string
 
 concurrency:
-  group: deploy-production
+  group: deploy-live
   cancel-in-progress: false
 
 permissions:

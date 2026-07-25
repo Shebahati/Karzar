@@ -80,6 +80,13 @@ jobs:
         if: needs.changes.outputs.backend == 'true'
         run: mypy app
 
+      - name: pip-audit (warn on dependency vulnerabilities)
+        if: needs.changes.outputs.backend == 'true'
+        continue-on-error: true
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
   test:
     name: test
     needs: changes
@@ -167,4 +174,4 @@ jobs:
           OTP_DEV_ECHO: "true"
         run: |
           pytest --maxfail=1 --disable-warnings \
-            --cov=app --cov-report=term-missing --cov-fail-under=68
+            --cov=app --cov-report=term-missing --cov-fail-under=70

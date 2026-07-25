@@ -27,7 +27,7 @@ async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
     await crud_otp.create_otp_code(
         db, phone=phone, code=code, expires_at=expires_at, purpose=OtpPurpose.LOGIN
     )
-    await db.commit()
+    await db.flush()
 
     body = settings.OTP_MESSAGE_TEMPLATE.format(code=code)
     await get_sms_provider().send(SmsMessage(receptor=phone, body=body, template_token=code))
@@ -66,7 +66,7 @@ async def verify_otp(db: AsyncSession, phone: str, code: str) -> OtpVerifyRespon
 
     await crud_otp.delete_otp(db, otp)
     tokens = await issue_auth_tokens(db, user)
-    await db.commit()
+    await db.flush()
 
     return OtpVerifyResponse(
         access_token=tokens["access_token"],
@@ -97,7 +97,7 @@ async def request_password_reset(db: AsyncSession, phone: str) -> OtpRequestResp
         expires_at=expires_at,
         purpose=OtpPurpose.PASSWORD_RESET,
     )
-    await db.commit()
+    await db.flush()
 
     body = f"کد بازیابی رمز عبور کارزار: {code}"
     await get_sms_provider().send(SmsMessage(receptor=phone, body=body, template_token=code))
@@ -131,4 +131,4 @@ async def confirm_password_reset(
     user.hashed_password = await get_password_hash_async(new_password)
     await crud_otp.delete_otp(db, otp)
     await logout_user(db, user)
-    await db.commit()
+    await db.flush()

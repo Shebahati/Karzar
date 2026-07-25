@@ -13,6 +13,10 @@ from app.services.order_service import transition_order_status
 
 logger = get_logger(__name__)
 
+# UNKNOWN stays payable for re-verify (BE-03) and is NOT auto-cancelled —
+# ops/reconcile must resolve gateway ambiguity.
+_EXPIRABLE_PAYMENT_STATUSES = (PaymentStatus.UNPAID.value,)
+
 
 def pending_payment_cutoff(*, now: datetime | None = None) -> datetime:
     """Orders created before this instant are eligible for expiry."""
@@ -34,7 +38,7 @@ async def cancel_expired_pending_payment_orders(db: AsyncSession) -> int:
         .where(
             Order.status == OrderStatus.PENDING_PAYMENT.value,
             Order.mode == OrderMode.PURCHASE,
-            Order.payment_status == PaymentStatus.UNPAID.value,
+            Order.payment_status.in_(_EXPIRABLE_PAYMENT_STATUSES),
             Order.created_at < cutoff,
         )
         .options(selectinload(Order.items))
@@ -51,7 +55,7 @@ async def cancel_expired_pending_payment_orders(db: AsyncSession) -> int:
         # Re-validate under the row lock (guards evaluated after lock, not on stale snapshot).
         if (
             order.status != OrderStatus.PENDING_PAYMENT.value
-            or order.payment_status != PaymentStatus.UNPAID.value
+            or order.payment_status not in _EXPIRABLE_PAYMENT_STATUSES
         ):
             logger.info(
                 "Skipped expiry for order id=%s after lock (status=%s payment=%s)",

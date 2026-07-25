@@ -81,7 +81,7 @@ async def upsert_cart_item(
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     try:
-        return await upsert_item(
+        result = await upsert_item(
             db,
             lane=_resolve_lane(payload.lane),
             product_id=payload.product_id,
@@ -89,6 +89,8 @@ async def upsert_cart_item(
             user=user,
             guest_token=guest_token,
         )
+        await db.commit()
+        return result
     except ValueError as exc:
         raise api_error(
             status.HTTP_400_BAD_REQUEST,
@@ -106,13 +108,15 @@ async def delete_cart_item(
     x_cart_token: str | None = Header(None, alias="X-Cart-Token"),
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
-    return await remove_item(
+    result = await remove_item(
         db,
         lane=_resolve_lane(lane),
         product_id=product_id,
         user=user,
         guest_token=guest_token,
     )
+    await db.commit()
+    return result
 
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT, tags=["Cart"])
@@ -124,6 +128,7 @@ async def clear_cart(
 ):
     user, guest_token = _require_cart_identity(current_user, x_cart_token)
     await clear_lane(db, lane=_resolve_lane(lane), user=user, guest_token=guest_token)
+    await db.commit()
 
 
 @router.post("/merge", response_model=list[CartResponse], tags=["Cart"])
@@ -133,9 +138,11 @@ async def merge_cart(
     current_user: User = Depends(get_current_active_user),
 ):
     lane = _resolve_lane(payload.lane) if payload.lane else None
-    return await merge_guest_into_user(
+    result = await merge_guest_into_user(
         db,
         guest_token=payload.guest_token,
         user=current_user,
         lane=lane,
     )
+    await db.commit()
+    return result

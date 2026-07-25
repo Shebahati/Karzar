@@ -300,6 +300,7 @@ async def password_reset_request(payload: PasswordResetRequest, db: AsyncSession
     await _record_auth_failure(throttle_key)
     try:
         response = await request_password_reset(db, payload.phone)
+        await db.commit()
         return response
     except ValueError:
         # Prevent phone-number enumeration: always return a generic success payload.
@@ -327,6 +328,7 @@ async def password_reset_confirm(
             code=payload.code,
             new_password=payload.new_password,
         )
+        await db.commit()
         await _clear_auth_failures(throttle_key)
         return {"ok": True}
     except ValueError as exc:
@@ -383,6 +385,7 @@ async def otp_request(payload: OtpRequest, db: AsyncSession = Depends(get_db)):
     await _record_auth_failure(throttle_key)
     try:
         response = await request_otp(db, payload.phone)
+        await db.commit()
         return response
     except Exception as exc:
         raise api_error(
@@ -406,6 +409,7 @@ async def otp_verify(
     )
     try:
         result = await verify_otp(db, payload.phone, payload.code)
+        await db.commit()
         await _clear_auth_failures(throttle_key)
         set_auth_cookies(
             response,

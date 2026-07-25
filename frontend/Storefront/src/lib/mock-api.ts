@@ -146,10 +146,20 @@ function brandBrief(brandId: number | null) {
   return { id: b.id, name: b.name, country: b.country ?? null };
 }
 
+function mockProductSlug(p: { id: number; sku: string; slug?: string | null }): string {
+  if (p.slug) return p.slug;
+  const fromSku = p.sku
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return fromSku || `product-${p.id}`;
+}
+
 function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
   return {
     id: p.id,
     sku: p.sku,
+    slug: mockProductSlug(p),
     name: p.name,
     thumbnail: p.thumbnail,
     base_price: p.base_price,
@@ -166,6 +176,7 @@ function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
 function toDetail(p: (typeof PRODUCTS)[number]): ProductDetail {
   return {
     ...p,
+    slug: mockProductSlug(p),
     stock_status: stockStatus(p),
     category: categoryBrief(p.category_id),
     brand: brandBrief(p.brand_id),
@@ -308,6 +319,17 @@ export const mockApi = {
   async getProduct(id: number): Promise<ProductDetail> {
     await sleep(env.MOCK_LATENCY_MS);
     const p = PRODUCTS.find((x) => x.id === id);
+    if (!p) throw new Error("محصول یافت نشد.");
+    return toDetail(p);
+  },
+
+  async getProductBySlug(slug: string): Promise<ProductDetail> {
+    await sleep(env.MOCK_LATENCY_MS);
+    const asId = Number(slug);
+    if (Number.isFinite(asId) && asId > 0 && String(asId) === slug) {
+      return this.getProduct(asId);
+    }
+    const p = PRODUCTS.find((x) => mockProductSlug(x) === slug);
     if (!p) throw new Error("محصول یافت نشد.");
     return toDetail(p);
   },

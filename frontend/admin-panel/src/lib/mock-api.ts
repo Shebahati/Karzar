@@ -1194,6 +1194,34 @@ export const mockApi = {
     });
   },
 
+  async bulkSetAvailability(
+    items: import("@/types/product").BulkAvailabilityItem[],
+  ): Promise<import("@/types/product").BulkAvailabilityResponse> {
+    const updated: number[] = [];
+    for (const item of items) {
+      const product = products.find((p) => p.id === item.product_id);
+      if (!product) continue;
+      const next = item.is_available ? 1 : 0;
+      productChangeLogs.push({
+        id: nextChangeLogId++,
+        product_id: product.id,
+        field_name: "availability",
+        old_value: String(product.availability),
+        new_value: String(item.is_available),
+        reason: item.reason ?? null,
+        created_at: nowIso(),
+      });
+      product.stock_quantity = String(next);
+      product.low_stock = false;
+      product.availability = item.is_available;
+      product.stock_status = item.is_available ? "in_stock" : "out_of_stock";
+      product.updated_at = nowIso();
+      updated.push(product.id);
+    }
+    recordAuditLog("bulk_availability", "product", updated.join(","), { count: updated.length });
+    return delay({ updated_product_ids: updated });
+  },
+
   async bulkStockAdjust(items: BulkStockAdjustItem[]): Promise<BulkStockAdjustResponse> {
     const updated: number[] = [];
     for (const item of items) {

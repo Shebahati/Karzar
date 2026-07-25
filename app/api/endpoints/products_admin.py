@@ -23,6 +23,8 @@ from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.common import build_pagination_meta
 from app.schemas.product import (
+    BulkAvailabilityRequest,
+    BulkAvailabilityResponse,
     BulkStockAdjustRequest,
     BulkStockAdjustResponse,
     ProductChangeLogEntry,
@@ -52,6 +54,7 @@ async def create_new_product(
 ):
     try:
         product = await ProductService.create_product_with_validation(db=db, product_data=product_in)
+        await db.commit()
         return await _product_detail_after_write(db, product.id)
     except HTTPException:
         raise
@@ -93,6 +96,7 @@ async def update_product(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
+        await db.commit()
         return await _product_detail_after_write(db, product_id)
     except HTTPException:
         raise
@@ -141,6 +145,7 @@ async def delete_product(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
+        await db.commit()
     except HTTPException:
         raise
     except Exception as e:
@@ -170,6 +175,7 @@ async def restore_product(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found or is not deleted",
             )
+        await db.commit()
         return await _product_detail_after_write(db, product_id)
     except HTTPException:
         raise
@@ -216,6 +222,67 @@ async def get_stock(
 
 
 @router.put(
+    "/bulk/availability",
+    response_model=BulkAvailabilityResponse,
+    summary="Bulk set product availability (موجود / ناموجود)",
+    tags=["Stock Management"],
+)
+async def bulk_set_availability(
+    payload: BulkAvailabilityRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    items = [
+        {
+            "product_id": item.product_id,
+            "is_available": item.is_available,
+            "reason": item.reason,
+        }
+        for item in payload.items
+    ]
+    try:
+        updated_ids = await ProductService.bulk_set_availability(
+            db, items, actor_user_id=current_user.id
+        )
+        await db.commit()
+        return BulkAvailabilityResponse(updated_product_ids=updated_ids)
+    except ValueError as e:
+        await db.rollback()
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message=str(e),
+        ) from e
+
+
+@router.post(
+    "/bulk/stock-adjust",
+    response_model=BulkStockAdjustResponse,
+    summary="Deprecated: bulk quantity delta → binary availability",
+    tags=["Stock Management"],
+    deprecated=True,
+)
+async def bulk_adjust_stock(
+    payload: BulkStockAdjustRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    items = [
+        {
+            "product_id": item.product_id,
+            "quantity_delta": item.quantity_delta,
+            "reason": item.reason,
+        }
+        for item in payload.items
+    ]
+    updated_ids = await ProductService.bulk_adjust_stock(
+        db, items, actor_user_id=current_user.id
+    )
+    await db.commit()
+    return BulkStockAdjustResponse(updated_product_ids=updated_ids)
+
+
+@router.put(
     "/{product_id}/availability",
     response_model=ProductDetailResponse,
     summary="Set product availability (موجود / ناموجود)",
@@ -242,6 +309,7 @@ async def set_availability(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
+        await db.commit()
         return await _product_detail_after_write(db, product_id)
     except HTTPException:
         raise
@@ -291,6 +359,7 @@ async def adjust_stock(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Product with ID '{product_id}' not found",
             )
+        await db.commit()
         return await _product_detail_after_write(db, product_id)
     except HTTPException:
         raise
@@ -307,32 +376,6 @@ async def adjust_stock(
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error adjusting stock",
         ) from e
-
-
-@router.post(
-    "/bulk/stock-adjust",
-    response_model=BulkStockAdjustResponse,
-    summary="Deprecated: bulk quantity delta → binary availability",
-    tags=["Stock Management"],
-    deprecated=True,
-)
-async def bulk_adjust_stock(
-    payload: BulkStockAdjustRequest,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_super_admin),
-):
-    items = [
-        {
-            "product_id": item.product_id,
-            "quantity_delta": item.quantity_delta,
-            "reason": item.reason,
-        }
-        for item in payload.items
-    ]
-    updated_ids = await ProductService.bulk_adjust_stock(
-        db, items, actor_user_id=current_user.id
-    )
-    return BulkStockAdjustResponse(updated_product_ids=updated_ids)
 
 
 @router.get(

@@ -99,6 +99,7 @@ async def push_items(
     _require_hesabfa_ready()
     try:
         result = await push_all_site_products_to_hesabfa(db, limit=limit)
+        await db.commit()
     except HesabfaNotConfiguredError as exc:
         raise api_error(503, error_code=ErrorCode.INTERNAL_ERROR, message=str(exc)) from exc
     except HesabfaError as exc:

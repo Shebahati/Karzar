@@ -46,7 +46,13 @@ class ProductCreate(BaseModel):
 
     base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
     is_available: bool = True
-    stock_quantity: Decimal = Field(default=Decimal("0.0"), max_digits=12, decimal_places=2)
+    stock_quantity: Decimal = Field(
+        default=Decimal("0.0"),
+        max_digits=12,
+        decimal_places=2,
+        deprecated=True,
+        description="Deprecated — site uses is_available; warehouse counts live in Hesabfa.",
+    )
     stock_unit: StockUnitValue = "piece"
 
     warranty_text: str | None = None
@@ -121,7 +127,11 @@ class ProductUpdate(BaseModel):
     brand_id: int | None = None
     base_price: Decimal | None = None
     is_available: bool | None = None
-    stock_quantity: Decimal | None = None
+    stock_quantity: Decimal | None = Field(
+        default=None,
+        deprecated=True,
+        description="Deprecated — site uses is_available; warehouse counts live in Hesabfa.",
+    )
     stock_unit: StockUnitValue | None = None
     warranty_text: str | None = None
     weight_grams: Decimal | None = None
@@ -195,7 +205,11 @@ class ProductDetailResponse(BaseModel):
     base_price: str | None = None
     original_price: str | None = None
     discount_percent: int | None = None
-    stock_quantity: str = "0"
+    stock_quantity: str = Field(
+        default="0",
+        deprecated=True,
+        description="Deprecated — always 0; use availability / stock_status.",
+    )
     stock_unit: str
     stock_status: str
     low_stock: bool = False
@@ -263,13 +277,21 @@ class StockStatusResponse(BaseModel):
     is_available: bool
     availability: bool
     stock_status: str
-    stock_quantity: Decimal = Decimal("0")
+    stock_quantity: Decimal = Field(
+        default=Decimal("0"),
+        deprecated=True,
+        description="Deprecated — always 0; use is_available / stock_status.",
+    )
     low_stock: bool = False
 
 
 class BulkStockAdjustItem(BaseModel):
     product_id: int = Field(..., ge=1)
-    quantity_delta: Decimal
+    quantity_delta: Decimal = Field(
+        ...,
+        deprecated=True,
+        description="Deprecated. Prefer BulkAvailabilityItem.is_available.",
+    )
     reason: str | None = Field(None, max_length=255)
 
 
@@ -278,6 +300,20 @@ class BulkStockAdjustRequest(BaseModel):
 
 
 class BulkStockAdjustResponse(BaseModel):
+    updated_product_ids: list[int]
+
+
+class BulkAvailabilityItem(BaseModel):
+    product_id: int = Field(..., ge=1)
+    is_available: bool
+    reason: str | None = Field(None, max_length=255)
+
+
+class BulkAvailabilityRequest(BaseModel):
+    items: list[BulkAvailabilityItem] = Field(..., min_length=1, max_length=100)
+
+
+class BulkAvailabilityResponse(BaseModel):
     updated_product_ids: list[int]
 
 

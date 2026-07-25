@@ -200,9 +200,9 @@ async def push_all_site_products_to_hesabfa(
                 updated += 1
             else:
                 created += 1
-            await db.commit()
+            await db.flush()
         except Exception as exc:
-            await db.rollback()
+            # Flush-only: do not roll back the caller's open transaction (BE-01).
             errors += 1
             msg = f"sku={product.sku} id={product.id}: {exc}"
             if len(samples) < 10:

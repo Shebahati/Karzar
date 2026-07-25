@@ -29,16 +29,20 @@ class ProductService:
 
         await ensure_selectable_product_category(db, product_data.category_id, required=True)
         await ensure_brand_exists(db, product_data.brand_id)
+        if product_data.is_available and product_data.base_price is None:
+            raise ValueError(
+                "Cannot mark available without a price; inquiry-only SKUs stay unavailable"
+            )
 
         product = await crud_product.create_product(db, product_data)
-        await db.commit()
+        await db.flush()
         logger.info(f"Product created successfully: {product.id}")
 
         try:
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, product)
-            await db.commit()
+            await db.flush()
         except Exception:
             logger.exception(
                 "Hesabfa item push failed after product create id=%s sku=%s",
@@ -131,6 +135,21 @@ class ProductService:
                 "warehouse counts live in Hesabfa. Use is_available instead."
             )
 
+        next_available = (
+            update_data.is_available
+            if "is_available" in update_data.model_fields_set
+            else product.is_available
+        )
+        next_price = (
+            update_data.base_price
+            if "base_price" in update_data.model_fields_set
+            else product.base_price
+        )
+        if next_available and next_price is None:
+            raise ValueError(
+                "Cannot mark available without a price; inquiry-only SKUs stay unavailable"
+            )
+
         tracked_fields = ("base_price", "original_price", "is_available")
         previous = {field: getattr(product, field, None) for field in tracked_fields}
 
@@ -149,14 +168,14 @@ class ProductService:
                     new_value=str(new_value) if new_value is not None else None,
                     reason="product_update",
                 )
-        await db.commit()
+        await db.flush()
         logger.info(f"Product updated successfully: {product_id}")
 
         try:
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, updated_product)
-            await db.commit()
+            await db.flush()
         except Exception:
             logger.exception(
                 "Hesabfa item push failed after product update id=%s",
@@ -177,6 +196,10 @@ class ProductService:
         product = await crud_product.get_product_by_id(db, product_id)
         if not product:
             return None
+        if is_available and product.base_price is None:
+            raise ValueError(
+                "Cannot mark available without a price; inquiry-only SKUs stay unavailable"
+            )
         old = product.is_available
         updated = await crud_product.set_product_availability(db, product_id, is_available)
         if updated and old != updated.is_available:
@@ -189,7 +212,7 @@ class ProductService:
                 reason=reason or "availability_toggle",
                 actor_user_id=actor_user_id,
             )
-            await db.commit()
+            await db.flush()
         return updated
 
     @staticmethod
@@ -254,8 +277,30 @@ class ProductService:
                 entity_type="product",
                 entity_id=str(product_id),
             )
-            await db.commit()
+            await db.flush()
         return deleted
+
+    @staticmethod
+    async def bulk_set_availability(
+        db: AsyncSession,
+        items: list[dict],
+        *,
+        actor_user_id: int | None = None,
+    ) -> list[int]:
+        """Binary bulk availability update (preferred over quantity_delta shim)."""
+        updated_ids: list[int] = []
+        for item in items:
+            product = await ProductService.set_availability_with_validation(
+                db,
+                int(item["product_id"]),
+                is_available=bool(item["is_available"]),
+                reason=item.get("reason") or "bulk_availability",
+                actor_user_id=actor_user_id,
+            )
+            if product:
+                updated_ids.append(product.id)
+        await db.flush()
+        return updated_ids
 
     @staticmethod
     async def bulk_adjust_stock(
@@ -281,5 +326,5 @@ class ProductService:
     async def restore_product(db: AsyncSession, product_id: int) -> Product | None:
         product = await crud_product.restore_product(db, product_id)
         if product:
-            await db.commit()
+            await db.flush()
         return product

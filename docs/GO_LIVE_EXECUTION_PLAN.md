@@ -1,5 +1,10 @@
 # برنامه اجرایی راه‌اندازی Karzar — بک‌اند، فرانت، داده، و عملیات
 
+> **وضعیت تا ۲۰۲۶-۰۷-۲۵**  
+> **برطرف‌شده (Wave A):** CI (lint/test/coverage/audit warn)، bind loopback برای DB/Redis، Redis password اختیاری، metrics token، deploy بدون sed روی فرانت، concurrency مشترک deploy، `stock_quantity` deprecated در OpenAPI.  
+> **باقی‌مانده:** L2/L3 go-live (کاتالوگ انبوه، Zarinpal sandbox→live، SMS، off-host backup، Sentry/uptime)، شکاف‌های فرانت (reports، inquiry PDF)، و **تفکیک host staging/production** (فعلاً یک VPS).  
+> فازبندی و تاریخچهٔ زیر حفظ شده‌اند — برای runbook به‌روز `docs/OPERATIONS.md` مراجعه کنید.
+
 **نسخه:** 1.0 — 2026-07-14  
 **وضعیت پروژه:** Backend `main` @ `af3b0e6` (P8 + docs)  
 **مخاطب:** تیم فنی، محصول، و عملیات  
@@ -22,7 +27,7 @@
 | **L2 — Staging** | دامنه HTTPS، داده واقعی جزئی، Zarinpal sandbox، SMS تست | QA + ذینفع |
 | **L3 — Production** | فروش واقعی، پرداخت/SMS زنده، پشتیبان‌گیری، مانیتورینگ، SLA | مشتری نهایی |
 
-**وضعیت فعلی:** بین L0 و L1 — بک‌اند آماده‌تر از فرانت و ops.
+**وضعیت فعلی:** L1 پایدار روی single-host live(=staging) با compensating controls؛ مسیر L2/L3 وابسته به Wave B (Sentry/uptime/offsite/host دوم).
 
 ---
 

@@ -1,5 +1,10 @@
 # سند عدم انطباق Backend — KarZar Frontend
 
+> **وضعیت تا ۲۰۲۶-۰۷-۲۵ (آرشیو + به‌روزرسانی)**  
+> بسیاری از شکاف‌های P0/P1 زیر در بک‌اند `main` برطرف شده‌اند (OTP `phone_number`، envelope خطا، checkout/payment، logistics پایه، multipart آپلود).  
+> **باقی‌مانده / مسدود خارجی:** گزارش aggregate ادمین، پیش‌فاکتور/PDF استعلام، Zarinpal/SMS/Hesabfa زنده (نیاز به حساب و env روی VPS)، و اتصال کامل فرانت با `USE_MOCK=false` در production.  
+> تاریخچهٔ زیر حفظ شده — برای وضعیت فعلی به `docs/FRONTEND_IMPLEMENTATION_GUIDE.md` و `frontend/BACKEND_HANDOFF.md` مراجعه کنید.
+
 **نسخه:** 2026-07-11  
 **مخاطب:** تیم Backend (FastAPI)  
 **هدف:** فهرست دقیق و اولویت‌بندی‌شدهٔ تمام شکاف‌های API، قرارداد داده، و رفتار مورد انتظار فرانت‌اند تا `NEXT_PUBLIC_USE_MOCK=false` بدون workaround اجرا شود.

@@ -7,6 +7,7 @@ import { Buy, Delete, Document, Danger } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { cn, formatToman, toPersianDigits } from "@/lib/utils";
+import { productHref } from "@/lib/product-url";
 import { isLoggedIn } from "@/lib/api-client";
 import { useCartStore, type CartLine } from "@/store/cart-store";
 import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
@@ -296,7 +297,7 @@ function CartRow({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Link
-          href={`/product/${product.id}`}
+          href={productHref(product)}
           className="line-clamp-2 text-sm font-bold text-foreground hover:text-primary"
         >
           {product.name}

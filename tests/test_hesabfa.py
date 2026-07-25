@@ -348,3 +348,116 @@ def test_hesabfa_status_reports_admin_reads_disabled(super_admin_headers):
     body = response.json()
     assert body["stock_pull_enabled"] is False
     assert body["admin_reads_enabled"] is False
+
+
+def test_invoice_marks_failed_on_api_error(super_admin_headers, valid_product_data):
+    product = _create_product(super_admin_headers, valid_product_data)
+    product_id = product["id"]
+    sku = product["sku"]
+
+    async def run():
+        async with TestingSessionLocal() as session:
+            prod = (
+                await session.execute(select(Product).where(Product.id == product_id))
+            ).scalars().one()
+            prod.tax_percent = Decimal("9")
+            session.add(
+                HesabfaItemMapping(
+                    product_id=product_id,
+                    sku=sku,
+                    hesabfa_code="000202",
+                    hesabfa_product_code=sku,
+                )
+            )
+            order = Order(
+                tracking_code="TRK-HF-FAIL",
+                mode=OrderMode.PURCHASE,
+                status="paid",
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("100000"),
+                customer_full_name="Fail Test",
+                customer_phone="09121110000",
+                customer_is_guest=True,
+            )
+            session.add(order)
+            await session.flush()
+            session.add(
+                OrderItem(
+                    order_id=order.id,
+                    product_id=product_id,
+                    quantity=1,
+                    unit_price=Decimal("100000"),
+                    product_name="Fail Insert",
+                    product_sku=sku,
+                    tax_percent=Decimal("0"),
+                )
+            )
+            await session.commit()
+
+            order = (
+                await session.execute(
+                    select(Order)
+                    .where(Order.id == order.id)
+                    .options(selectinload(Order.items))
+                )
+            ).scalars().one()
+
+            mock_client = MagicMock()
+            mock_client.get_contacts = AsyncMock(return_value={"List": [], "TotalCount": 0})
+            mock_client.save_contact = AsyncMock(return_value={"Code": "C002"})
+            mock_client.save_invoice = AsyncMock(
+                side_effect=HesabfaApiError("boom", error_code=500)
+            )
+
+            result = await create_invoice_for_paid_order(session, order, client=mock_client)
+            await session.commit()
+            record = (
+                await session.execute(
+                    select(HesabfaInvoiceRecord).where(
+                        HesabfaInvoiceRecord.order_id == order.id
+                    )
+                )
+            ).scalars().one()
+            return result.status, record.status, record.error_message
+
+    status, record_status, err = asyncio.run(run())
+    assert status == "failed"
+    assert record_status == "failed"
+    assert err
+
+
+def test_maybe_create_invoice_swallows_exception(super_admin_headers, valid_product_data, monkeypatch):
+    from app.services.hesabfa.invoices import maybe_create_invoice_after_payment
+
+    product = _create_product(super_admin_headers, valid_product_data)
+    product_id = product["id"]
+
+    async def run():
+        async with TestingSessionLocal() as session:
+            order = Order(
+                tracking_code="TRK-HF-SWALLOW",
+                mode=OrderMode.PURCHASE,
+                status="paid",
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("50000"),
+                customer_full_name="Swallow",
+                customer_phone="09121110001",
+                customer_is_guest=True,
+            )
+            session.add(order)
+            await session.commit()
+            await session.refresh(order)
+
+            async def boom(*_args, **_kwargs):
+                raise RuntimeError("unexpected")
+
+            monkeypatch.setattr(
+                "app.services.hesabfa.invoices.create_invoice_for_paid_order",
+                boom,
+            )
+            result = await maybe_create_invoice_after_payment(session, order)
+            return result
+
+    result = asyncio.run(run())
+    assert result is not None
+    assert result.status == "failed"

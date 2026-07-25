@@ -180,5 +180,5 @@ async def submit_contact(db: AsyncSession, payload: ContactRequest) -> ContactRe
         subject=payload.subject,
         message=payload.message,
     )
-    await db.commit()
+    await db.flush()
     return ContactResponse(ok=True, ticket=submission.ticket_code)

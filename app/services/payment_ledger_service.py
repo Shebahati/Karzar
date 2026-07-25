@@ -87,6 +87,23 @@ async def record_payment_failed(
     )
 
 
+async def record_payment_unknown(
+    db: AsyncSession,
+    order: Order,
+    *,
+    authority: str | None = None,
+    ip_address: str | None = None,
+) -> PaymentTransaction:
+    """Ledger row for ambiguous gateway outcomes (timeouts) — not a hard failure."""
+    return await _append(
+        db,
+        order,
+        status=PaymentTransactionStatus.UNKNOWN,
+        authority=authority,
+        ip_address=ip_address,
+    )
+
+
 async def record_payment_refunded(
     db: AsyncSession,
     order: Order,

@@ -1,5 +1,43 @@
 # Operations runbook — backup, restore, environments, observability
 
+## External blockers / compensating controls (Wave B)
+
+Items below are **not** fully automated until external accounts or infrastructure exist. Enable each when the corresponding secret or service is available — do not invent credentials.
+
+| Blocker | Env var(s) | Compensating control today | Enable when |
+|---------|------------|---------------------------|-------------|
+| Off-host backups | `BACKUP_OFFSITE_URI`, `BACKUP_LOCAL_DIR` | On-host `./backups/` only; daily cron via `install-backup-cron.sh` | S3/R2 bucket + IAM key on VPS; run `scripts/backup_offsite_sync.sh` after each dump |
+| Error tracking | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE` | Watch container logs + `/metrics` for 15 min post-deploy | Create Sentry project; `pip install sentry-sdk`; set DSN in server secrets |
+| Uptime monitoring | `UPTIME_CHECK_URL` (doc only) | Manual smoke + `smoke-staging.sh` on deploy | Point UptimeRobot/Better Stack at `GET /health` and `GET /ready` on API host |
+| Single-host staging | — (honesty) | Staging + production workflows target **same VPS** (`karzartools.com`); shared `deploy-live` concurrency | Split hosts before treating production as isolated |
+| Live payment | `PAYMENT_PROVIDER=zarinpal`, `ZARINPAL_MERCHANT_ID` | `PAYMENT_PROVIDER=mock` on staging; Zarinpal **sandbox** for L2 QA | Merchant ID + callback URL registered; see `deploy/staging/PROVIDERS_LATER.md` |
+| Metrics scrape auth | `METRICS_SCRAPE_TOKEN` | Nginx restricts `/metrics` to loopback (`127.0.0.1`) | Set token on API + pass `X-Metrics-Token` header from host-local scraper |
+| Redis AUTH | `REDIS_PASSWORD` | Redis on loopback only (`127.0.0.1:6379`); no password in dev | Set password in `.env` / server secrets; compose starts `redis-server --requirepass` |
+
+## GitHub Actions self-hosted runner (OPS-03)
+
+Deploy workflows package on `ubuntu-latest`, then run on the VPS self-hosted runner (`karzar-vps`). If GitHub-hosted jobs fail but the server is healthy, deploy manually:
+
+1. `git pull` (or rsync artifact) into `/opt/karzar/Karzar` and `/opt/karzar/frontend`.
+2. `bash deploy/staging/scripts/deploy-backend.sh`
+3. Export `FRONTEND_ROOT`, `NEXT_PUBLIC_API_BASE_URL`, `ADMIN_SESSION_SECRET`; run `deploy-frontend.sh`.
+4. `bash deploy/staging/scripts/smoke-staging.sh`
+
+**Runner service:** install the runner under `actions-runner/` with a **systemd unit** using `Restart=always` and `RestartSec=10` so transient network blips do not leave deploys blocked. After reboot, confirm `systemctl status actions.runner.*` is active before relying on CI deploy.
+
+## Frontend build-time environment (OPS-21)
+
+Next.js bundles are a function of **commit + build args** — never patch sources at deploy time.
+
+| Variable | App | Required | Notes |
+|----------|-----|----------|-------|
+| `NEXT_PUBLIC_API_BASE_URL` | Storefront, Admin | Yes | e.g. `https://api.karzartools.com/api/v1` |
+| `NEXT_PUBLIC_USE_MOCK` | Storefront, Admin | No (default `false`) | `true` only for offline dev/CI e2e |
+| `NEXT_PUBLIC_ASSET_BASE_URL` | Storefront | No | Optional CDN/origin; `next.config.ts` reads at build time |
+| `ADMIN_SESSION_SECRET` | Admin runtime | Yes (deploy) | Min 32 chars; **not** baked into bundle — Docker `-e` at run |
+
+`next.config.ts` derives `images.remotePatterns` from `NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_ASSET_BASE_URL` at build time.
+
 ## Environments
 
 | Env | `APP_ENV` | Compose files | Notes |
@@ -19,11 +57,11 @@ Compose uses a bridge network (`karzar`). Inside containers:
 - Postgres host: `db:5432`
 - Redis host: `redis:6379`
 
-Host-mapped ports for local tools:
+Host-mapped ports for local tools (bound to loopback — not exposed on LAN):
 
-- API `8000`
-- Postgres `5435`
-- Redis `6379`
+- API `127.0.0.1:8000`
+- Postgres `127.0.0.1:5435`
+- Redis `127.0.0.1:6379`
 
 ## Logging
 
@@ -39,7 +77,16 @@ When `ENABLE_METRICS=true`, scrape:
 GET /metrics
 ```
 
-Nginx staging template restricts `/metrics` to loopback (`allow 127.0.0.1; deny all`). Scrape from the host or a private agent only — never expose publicly.
+**Access control (defence in depth):**
+
+1. Nginx staging template restricts `/metrics` to loopback (`allow 127.0.0.1; deny all`). Scrape from the host or a private agent only — never expose publicly.
+2. When `METRICS_SCRAPE_TOKEN` is set, the API requires header `X-Metrics-Token` with the same value. If the token is unset, rely on the Nginx ACL as the compensating control.
+
+Example host-local scrape:
+
+```bash
+curl -fsS -H "X-Metrics-Token: $METRICS_SCRAPE_TOKEN" http://127.0.0.1:8000/metrics
+```
 
 Health probes:
 
@@ -119,7 +166,7 @@ Never downgrade production past a migration that dropped columns without a backu
 
 ## Deploy checklist
 
-1. Merge to `main`; CI must pass (lint + pytest + coverage ≥ 62%).
+1. Merge to `main`; CI must pass (lint + pytest + coverage ≥ 70%).
 2. Tag release in [API_CHANGELOG.md](API_CHANGELOG.md) if contract changed.
 3. **Staging on VPS:** follow [deploy/staging/STAGING_DEPLOY.md](../deploy/staging/STAGING_DEPLOY.md)
    (`docker compose -f docker-compose.yml -f docker-compose.staging.yml`).
@@ -186,3 +233,19 @@ Document results under `docs/roadmap/phase-0-execution-log.md` after running onc
 3. Restore uploads into scratch volume/path
 4. Hit `GET /ready` and spot-check one product image URL
 5. Record wall-clock time, gaps, owner (`shebahati`)
+
+## Wave B — external wiring (when secrets arrive)
+
+Code and docs are ready; **do not claim Done** until secrets are on the VPS and a drill/alert is proven.
+
+| ID | You provide | Wire-up steps |
+|----|-------------|---------------|
+| OPS-02 | `BACKUP_OFFSITE_URI` + S3/R2 keys | Set env on VPS; confirm `backup_offsite_sync.sh` exits 0; run restore drill checklist above once |
+| OPS-07 Sentry | Project DSN | Set `SENTRY_DSN` (+ optional `SENTRY_TRACES_SAMPLE_RATE`); `pip`/`requirements` already soft-init; verify one test error in Sentry |
+| OPS-07 Uptime | Monitor URL | Point UptimeRobot/Better Stack at `GET /health` and `GET /ready`; store URL in `UPTIME_CHECK_URL` for operators |
+| OPS-01 | Second host/DB **or** written single-host acceptance | If accepted: keep `deploy-live` concurrency + honesty comments; if second host: split compose/env and rename workflows |
+| SEC-09 | Rotate any chat-transited passwords/tokens | Operator-only; update password manager + VPS `.env` |
+| BE-31 | Zarinpal sandbox merchant | Set `PAYMENT_PROVIDER=zarinpal`, sandbox URLs + merchant id; run live verify once |
+
+Until then, compensating controls in this file remain the honest scorecard posture.
+

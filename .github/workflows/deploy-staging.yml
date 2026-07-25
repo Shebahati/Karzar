@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-staging
+  group: deploy-live
   cancel-in-progress: false
 
 permissions:

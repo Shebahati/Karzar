@@ -4,7 +4,8 @@ import json
 from typing import Any
 
 from fastapi import Request
-from sqlalchemy import ColumnElement, String, cast, func
+from sqlalchemy import ColumnElement, String, cast, func, type_coerce
+from sqlalchemy.dialects.postgresql import JSONB
 
 from app.core.errors import ErrorCode, api_error
 from app.db.models.product import Product
@@ -80,10 +81,13 @@ def build_specification_filters(
         accessor = _json_path_accessor(path)
         if icontains:
             conditions.append(accessor.astext.ilike(f"%{value}%"))
-        elif isinstance(value, bool):
-            conditions.append(accessor.astext == str(value).lower())
         else:
-            conditions.append(accessor.astext == str(value))
+            # Prefer JSONB @> so GIN (jsonb_ops) indexes can be used (DB-08).
+            parts = [part.strip() for part in path.split(".") if part.strip()]
+            nested: Any = value
+            for part in reversed(parts):
+                nested = {part: nested}
+            conditions.append(Product.specifications.contains(type_coerce(nested, JSONB)))
 
     return conditions
 

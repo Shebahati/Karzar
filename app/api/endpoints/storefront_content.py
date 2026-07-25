@@ -130,8 +130,11 @@ async def contact_us(
         window_seconds=settings.PUBLIC_THROTTLE_CONTACT_WINDOW,
     )
     try:
-        return await submit_contact(db, payload)
+        result = await submit_contact(db, payload)
+        await db.commit()
+        return result
     except Exception as exc:
+        await db.rollback()
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,

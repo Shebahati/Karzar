@@ -23,18 +23,13 @@ async def ping_redis() -> bool:
         return True
 
     try:
-        import redis.asyncio as aioredis
+        from app.core.redis_client import create_redis_client
 
         # redis_enabled guarantees REDIS_HOST is set; narrow for type checkers.
-        host = settings.REDIS_HOST
-        if not host:
+        if not settings.REDIS_HOST:
             return True
 
-        client = aioredis.Redis(
-            host=host,
-            port=settings.REDIS_PORT,
-            decode_responses=True,
-        )
+        client = create_redis_client()
         try:
             return await client.ping()
         finally:

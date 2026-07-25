@@ -78,6 +78,21 @@ async def get_product_by_id(db: AsyncSession, product_id: int) -> Product | None
     return result.scalar_one_or_none()
 
 
+async def get_product_by_slug(db: AsyncSession, slug: str) -> Product | None:
+    stmt = (
+        select(Product)
+        .where(
+            and_(
+                Product.slug == slug.strip(),
+                Product.deleted_at.is_(None),
+            )
+        )
+        .options(*_product_load_options())
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
 async def get_products_for_update(
     db: AsyncSession, product_ids: list[int]
 ) -> dict[int, Product]:
@@ -196,7 +211,9 @@ async def get_products(
         filters.append(Product.is_available.is_(False))
 
     if search and search.strip():
-        pattern = f"%{escape_ilike_pattern(search.strip())}%"
+        from app.utils.persian_normalize import normalize_persian_search
+
+        pattern = f"%{escape_ilike_pattern(normalize_persian_search(search))}%"
         search_filter = or_(
             Product.name.ilike(pattern, escape="\\"),
             Product.sku.ilike(pattern, escape="\\"),

@@ -83,13 +83,9 @@ class RedisRateLimiter:
 
     def _get_client(self):
         if self._client is None:
-            import redis.asyncio as aioredis
+            from app.core.redis_client import create_redis_client
 
-            self._client = aioredis.Redis(
-                host=settings.REDIS_HOST,
-                port=settings.REDIS_PORT,
-                decode_responses=True,
-            )
+            self._client = create_redis_client()
         return self._client
 
     def _k(self, key: str) -> str:

@@ -74,7 +74,7 @@ async def upsert_item(
         guest_token=guest_token,
     )
     await crud_platform.upsert_cart_item(db, cart, product_id=product_id, quantity=quantity)
-    await db.commit()
+    await db.flush()
     return await get_cart_response(db, lane=lane, user=user, guest_token=guest_token)
 
 
@@ -92,7 +92,7 @@ async def remove_item(
     if cart is None:
         return CartResponse(lane=lane.value, items=[], item_count=0)
     await crud_platform.remove_cart_item(db, cart, product_id)
-    await db.commit()
+    await db.flush()
     return await get_cart_response(db, lane=lane, user=user, guest_token=guest_token)
 
 
@@ -111,7 +111,7 @@ async def clear_lane(
         return
     await crud_platform.clear_cart_items(db, cart)
     if commit:
-        await db.commit()
+        await db.flush()
 
 
 async def merge_guest_into_user(
@@ -131,7 +131,7 @@ async def merge_guest_into_user(
             lane=cart_lane,
         )
         responses.append(await get_cart_response(db, lane=cart_lane, user=user))
-    await db.commit()
+    await db.flush()
     return responses
 
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Buy, Document } from "react-iconly";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
+import { productHref } from "@/lib/product-url";
 import { cn, formatToman } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductSummary } from "@/types/product";
@@ -34,7 +35,7 @@ export function ProductCard({
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={productHref(product)}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl bg-card shadow-soft transition-shadow duration-200 hover:shadow-elevated",
         className,

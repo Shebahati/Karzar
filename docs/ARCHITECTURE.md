@@ -66,6 +66,12 @@ Services and CRUD layers **flush only** (persist within the open transaction) un
 
 Money-path exceptions already hardened: payment callback commits only expected outcomes; unexpected errors roll back and log (see `payment.py`). New money-path code must follow the same pattern.
 
+**Contract test:** `tests/test_tx_ownership_contract.py` AST-scans money-path services and fails CI if any call `.commit()`.
+
+## Purchase availability invariant (inquiry-safe)
+
+A product may be `is_available=true` **only when** `base_price` is set. Inquiry-only / unpriced SKUs must remain `is_available=false` (or omit purchase lane). Enforced in `ProductService` create/update/availability — **not** a hard DB CHECK (that would break inquiry catalog rows).
+
 ## Compatibility shims
 
 - `crud/platform.py` re-exports cart/refresh/audit/idempotency modules.

@@ -200,7 +200,7 @@ class CategoryService:
                 meta_title=payload.meta_title,
                 meta_description=payload.meta_description,
             )
-        await db.commit()
+        await db.flush()
 
         refreshed = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(refreshed)
@@ -350,7 +350,7 @@ class CategoryService:
             ),
         )
 
-        await db.commit()
+        await db.flush()
         refreshed = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(refreshed)
         return _to_flat_response(
@@ -371,7 +371,7 @@ class CategoryService:
                 message=f"Category with ID '{category_id}' not found",
             )
         category = await crud_category.update_category(db, category, image_url=image_url)
-        await db.commit()
+        await db.flush()
         refreshed = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(refreshed)
         return _to_flat_response(
@@ -491,7 +491,7 @@ class CategoryService:
             message = "Empty category deleted; no product reassignment needed."
 
         await crud_category.delete_category_row(db, category)
-        await db.commit()
+        await db.flush()
 
         logger.info(
             "Deleted category %s (depth=%s); reassigned %s product(s) to category_id=%s",

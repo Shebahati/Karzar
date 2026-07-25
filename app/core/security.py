@@ -57,6 +57,8 @@ def create_access_token(
         "type": "access",
         "ver": token_version,
         "iat": datetime.now(UTC).timestamp(),
+        "iss": settings.JWT_ISSUER,
+        "aud": settings.JWT_AUDIENCE,
     }
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
@@ -81,6 +83,8 @@ def create_step_up_token(subject: str | Any) -> tuple[str, int]:
         "sub": str(subject),
         "type": STEP_UP_TOKEN_TYPE,
         "jti": jti,
+        "iss": settings.JWT_ISSUER,
+        "aud": settings.JWT_AUDIENCE,
     }
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return token, expires_in
@@ -89,7 +93,13 @@ def create_step_up_token(subject: str | Any) -> tuple[str, int]:
 def decode_token(token: str) -> dict:
     """Decode and verify a JWT; raises 401 on signature or expiry failure."""
     try:
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            audience=settings.JWT_AUDIENCE,
+            issuer=settings.JWT_ISSUER,
+        )
     except JWTError as exc:
         raise api_error(
             401,

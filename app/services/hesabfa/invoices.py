@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy import select
@@ -196,6 +196,7 @@ async def create_invoice_for_paid_order(
         record.hesabfa_number = number
         record.error_message = None
         record.payload_tag = f"order:{order.id}"
+        record.next_attempt_at = None
         await db.flush()
         logger.info(
             "Hesabfa invoice created order_id=%s number=%s",
@@ -206,6 +207,9 @@ async def create_invoice_for_paid_order(
     except Exception as exc:
         record.status = "failed"
         record.error_message = str(exc)[:1000]
+        record.attempt_count = int(record.attempt_count or 0) + 1
+        delay = min(3600, 60 * (2 ** max(0, record.attempt_count - 1)))
+        record.next_attempt_at = datetime.now(UTC) + timedelta(seconds=delay)
         await db.flush()
         logger.exception("Hesabfa invoice failed order_id=%s", order.id)
         if isinstance(exc, HesabfaError):

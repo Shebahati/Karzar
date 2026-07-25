@@ -30,6 +30,7 @@ PAYMENT_STATUS_LABELS_FA: dict[str, str] = {
     PaymentStatus.PAID.value: "پرداخت‌شده",
     PaymentStatus.FAILED.value: "ناموفق",
     PaymentStatus.REFUNDED.value: "بازپرداخت‌شده",
+    PaymentStatus.UNKNOWN.value: "نامشخص (در انتظار تأیید)",
 }
 
 ALLOWED_TRANSITIONS: dict[str, tuple[str, ...]] = {

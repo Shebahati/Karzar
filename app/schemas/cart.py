@@ -9,7 +9,11 @@ class CartItemResponse(BaseModel):
     quantity: int
     product_name: str
     base_price: str | None = None
-    stock_quantity: float | None = None
+    stock_quantity: float | None = Field(
+        default=None,
+        deprecated=True,
+        description="Deprecated — cart uses availability checks, not warehouse counts.",
+    )
 
 
 class CartResponse(BaseModel):

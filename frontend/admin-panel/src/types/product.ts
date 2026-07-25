@@ -67,6 +67,7 @@ export interface ProductDetail {
   base_price: string | null;
   original_price: string | null;
   discount_percent: number | null;
+  /** @deprecated Warehouse quantity — Hesabfa only; storefront uses binary availability. */
   stock_quantity: string;
   stock_unit: StockUnit;
   stock_status: string;
@@ -149,8 +150,10 @@ export interface ProductListParams {
 export interface ProductStockInfo {
   product_id: number;
   sku?: string;
+  /** @deprecated Warehouse quantity — not used for site availability toggles. */
   stock_quantity: string;
   stock_status: string;
+  /** @deprecated Prefer is_available for binary site stock. */
   quantity?: string;
   unit?: StockUnit;
   low_stock?: boolean;
@@ -159,6 +162,7 @@ export interface ProductStockInfo {
 }
 
 export interface ProductStockAdjustPayload {
+  /** @deprecated Use ProductAvailabilityPayload / bulk availability API instead. */
   delta: number;
   reason?: string | null;
 }
@@ -200,13 +204,25 @@ export interface ProductChangeLogEntry {
 
 export type ProductChangeLogListResponse = PaginatedResponse<ProductChangeLogEntry>;
 
-/** Mirrors `BulkStockAdjustItem` / `BulkStockAdjustRequest` — POST /products/bulk/stock-adjust. */
+/** Mirrors `BulkStockAdjustItem` / `BulkStockAdjustRequest` — deprecated shim. */
 export interface BulkStockAdjustItem {
   product_id: number;
+  /** @deprecated Prefer BulkAvailabilityItem.is_available */
   quantity_delta: number;
   reason?: string | null;
 }
 
 export interface BulkStockAdjustResponse {
+  updated_product_ids: number[];
+}
+
+/** PUT /products/bulk/availability — preferred binary bulk API. */
+export interface BulkAvailabilityItem {
+  product_id: number;
+  is_available: boolean;
+  reason?: string | null;
+}
+
+export interface BulkAvailabilityResponse {
   updated_product_ids: number[];
 }

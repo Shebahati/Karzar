@@ -53,7 +53,7 @@ pytest -m integration                      # Redis / E2E flows
 
 ## Coverage
 
-Minimum **67%** enforced in CI (`--cov-fail-under=67`); target **70%** on next ratchet.
+Minimum **70%** enforced in CI (`--cov-fail-under=70` and `pyproject.toml` `fail_under = 70`).
 
 ```bash
 pytest --cov=app --cov-report=term-missing
@@ -65,6 +65,8 @@ pytest --cov=app --cov-report=term-missing
 ruff check app tests
 mypy app
 ```
+
+`pyproject.toml` disables several mypy error codes (`arg-type`, `union-attr`, etc.) for gradual typing (QA-22). Wave A5 removed `list-item` and `index` from the disable list; re-enable others one at a time as modules are tightened.
 
 ## Pre-commit
 

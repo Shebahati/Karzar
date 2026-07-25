@@ -80,7 +80,9 @@ async def create_category(
     _: User = Depends(get_current_super_admin),
 ):
     try:
-        return await CategoryService.create_category(db, payload)
+        result = await CategoryService.create_category(db, payload)
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except ValueError as exc:
@@ -111,7 +113,9 @@ async def update_category(
     _: User = Depends(get_current_super_admin),
 ):
     try:
-        return await CategoryService.update_category(db, category_id, payload)
+        result = await CategoryService.update_category(db, category_id, payload)
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except ValueError as exc:
@@ -176,6 +180,7 @@ async def upload_category_image(
         ) from exc
 
     updated = await CategoryService.set_image_url(db, category_id, image_path)
+    await db.commit()
     return CategoryImageUploadResponse(
         id=updated.id,
         image_url=updated.image_url or image_path,
@@ -199,9 +204,11 @@ async def delete_category(
 ):
     """Delete a leaf category; products must move to another selectable leaf (requires step-up PIN)."""
     try:
-        return await CategoryService.delete_category_with_reassignment(
+        result = await CategoryService.delete_category_with_reassignment(
             db, category_id, target_category_id=target_category_id
         )
+        await db.commit()
+        return result
     except HTTPException:
         raise
     except Exception as exc:
