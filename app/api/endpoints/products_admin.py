@@ -312,8 +312,9 @@ async def adjust_stock(
 @router.post(
     "/bulk/stock-adjust",
     response_model=BulkStockAdjustResponse,
-    summary="Bulk stock adjustment (admin)",
+    summary="Deprecated: bulk quantity delta → binary availability",
     tags=["Stock Management"],
+    deprecated=True,
 )
 async def bulk_adjust_stock(
     payload: BulkStockAdjustRequest,

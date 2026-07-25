@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     template: "%s | کارزار",
   },
   description: "پنل مدیریت فروشگاه ابزارآلات صنعتی تراشکاری کارزار",
+  robots: { index: false, follow: false, nocache: true },
 };
 
 export const viewport: Viewport = {

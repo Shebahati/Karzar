@@ -60,6 +60,7 @@ export interface ProductSummary {
   /** Optional storefront marketing flags. */
   discount_percent?: number | null;
   original_price?: string | null;
+  updated_at?: string;
 }
 
 export interface ProductDetail {
