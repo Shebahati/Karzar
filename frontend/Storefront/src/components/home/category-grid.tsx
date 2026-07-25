@@ -53,7 +53,7 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
             alt=""
             width={IMAGE_SIZE}
             height={IMAGE_SIZE}
-            className="object-contain p-1.5"
+            className="h-full w-full rounded-xl object-cover"
             unoptimized={isSvg}
           />
         ) : (

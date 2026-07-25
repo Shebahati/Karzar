@@ -130,7 +130,7 @@ export function RootCategoryCarousel() {
                     alt=""
                     width={IMAGE_SIZE}
                     height={IMAGE_SIZE}
-                    className="object-contain p-1"
+                    className="h-full w-full rounded-xl object-cover"
                     unoptimized={isSvg}
                   />
                 ) : (
