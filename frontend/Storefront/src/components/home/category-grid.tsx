@@ -27,7 +27,6 @@ function CategoryIcon({ name }: { name?: string }) {
 function CategoryCard({ node }: { node: CategoryTreeNode }) {
   const highlight = isMetrologyRoot(node);
   const imageUrl = node.image_url;
-  const isSvg = Boolean(imageUrl?.toLowerCase().includes(".svg"));
 
   return (
     <Link
@@ -53,8 +52,9 @@ function CategoryCard({ node }: { node: CategoryTreeNode }) {
             alt=""
             width={IMAGE_SIZE}
             height={IMAGE_SIZE}
-            className="h-full w-full rounded-xl object-cover"
-            unoptimized={isSvg}
+            quality={100}
+            className="h-full w-full object-contain p-1"
+            unoptimized
           />
         ) : (
           <span className="grid h-full w-full place-items-center bg-secondary transition-colors group-hover:bg-accent group-hover:text-primary">
