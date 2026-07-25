@@ -3,10 +3,10 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import * as Icons from "react-iconly";
-import { useCategoryTree } from "@/features/catalog/queries";
+import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { useCatalogParams, parseIdList, encodeIdList } from "@/components/catalog/use-catalog-params";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isMetrologyRoot, orderedVisibleRoots } from "@/config/nav-groups";
+import { isMetrologyRoot, NAV_GROUPS, orderedVisibleRoots } from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -26,9 +26,10 @@ function CatIcon({ name, active }: { name?: string; active?: boolean }) {
  */
 export function RootCategoryCarousel() {
   const { data: tree = [], isLoading } = useCategoryTree();
+  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
   const { raw, setParams } = useCatalogParams();
   const selected = useMemo(() => parseIdList(raw.get("roots")), [raw]);
-  const roots = useMemo(() => orderedVisibleRoots(tree), [tree]);
+  const roots = useMemo(() => orderedVisibleRoots(tree, navDefs), [tree, navDefs]);
 
   const toggle = (node: CategoryTreeNode) => {
     const exists = selected.includes(node.id);
@@ -100,7 +101,7 @@ export function RootCategoryCarousel() {
 
         {roots.map((node) => {
           const active = selected.includes(node.id);
-          const highlight = isMetrologyRoot(node);
+          const highlight = isMetrologyRoot(node, navDefs);
           const imageUrl = node.image_url;
           return (
             <button

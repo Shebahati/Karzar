@@ -59,6 +59,21 @@ class HeroSlide(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
+class MegamenuNavGroup(Base):
+    """Storefront megamenu merchandising group over Layer-1 category roots."""
+
+    __tablename__ = "megamenu_nav_groups"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    label: Mapped[str] = mapped_column(String(100), nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    is_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    highlight: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    # Ordered list of Layer-1 category IDs belonging to this group.
+    root_category_ids: Mapped[list[int]] = mapped_column(JSONB, nullable=False, default=list)
+
+
 class ContactSubmission(Base):
     __tablename__ = "contact_submissions"
 

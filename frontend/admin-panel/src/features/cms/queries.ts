@@ -15,6 +15,8 @@ import type {
   HeroSlideListParams,
   HeroSlideUpdatePayload,
   ProductCommentListParams,
+  NavGroup,
+  NavGroupReplacePayload,
 } from "@/types/cms";
 
 /** Centralized, hierarchical query keys for safe cache invalidation. */
@@ -28,6 +30,7 @@ export const cmsKeys = {
   commentList: (params: ProductCommentListParams) => [...cmsKeys.comments(), "list", params] as const,
   contacts: () => [...cmsKeys.all, "contacts"] as const,
   contactList: (params: ContactSubmissionListParams) => [...cmsKeys.contacts(), "list", params] as const,
+  navGroups: () => [...cmsKeys.all, "nav-groups"] as const,
 };
 
 /* -------------------------------------------------------------------------- */
@@ -145,5 +148,26 @@ export function useContactSubmissions(params: ContactSubmissionListParams = {}) 
     queryKey: cmsKeys.contactList(params),
     queryFn: () => cmsService.listContactSubmissions(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Megamenu nav groups                                                      */
+/* -------------------------------------------------------------------------- */
+
+export function useNavGroups() {
+  return useQuery({
+    queryKey: cmsKeys.navGroups(),
+    queryFn: () => cmsService.listNavGroups(),
+  });
+}
+
+export function useReplaceNavGroups() {
+  const queryClient = useQueryClient();
+  return useMutation<NavGroup[], ApiError, NavGroupReplacePayload>({
+    mutationFn: (payload) => cmsService.replaceNavGroups(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: cmsKeys.navGroups() });
+    },
   });
 }

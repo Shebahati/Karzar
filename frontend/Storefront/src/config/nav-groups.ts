@@ -1,14 +1,17 @@
 /**
- * Merchandising display groups over taxonomy roots (FE-only; taxonomy stays ~10 roots).
+ * Merchandising display groups over taxonomy roots.
  *
  * Locked IA (docs/constitution + category plan):
  * - Commerce SoR = product-type tree, depth ≤ 3, products on L3 leaves
  * - Brand / country = facets (not categories)
- * - Top nav megamenu = these 5 merchandising groups
+ * - Top nav megamenu = these merchandising groups (API-backed; this file is fallback)
  * - Browse surfaces (home, catalog carousel, mobile sheet) = ordered L1 type roots
  * - PLP filter = same product tree (drill-down), not a third taxonomy
  *
  * Order is intentional: Metrology first.
+ *
+ * Runtime config: GET /nav-groups/ → map to NavGroupDef via `navGroupsFromApi`.
+ * If the API returns empty/unavailable, callers keep using `NAV_GROUPS` below.
  */
 
 export interface NavGroupDef {
@@ -16,8 +19,20 @@ export interface NavGroupDef {
   label: string;
   /** Highlight Metrology in menus. */
   highlight?: boolean;
-  /** Match roots by exact name (Persian) or slug substring. */
-  rootMatchers: string[];
+  /** Match roots by exact name (Persian) or slug substring (fallback path). */
+  rootMatchers?: string[];
+  /** Preferred: ordered Layer-1 category IDs from admin/API config. */
+  rootCategoryIds?: number[];
+}
+
+/** API row shape from GET /nav-groups/ */
+export interface NavGroupApiRow {
+  id: number;
+  slug: string;
+  label: string;
+  sort_order: number;
+  highlight?: boolean;
+  root_category_ids: number[];
 }
 
 export const NAV_GROUPS: NavGroupDef[] = [
@@ -56,6 +71,19 @@ export const NAV_GROUPS: NavGroupDef[] = [
     rootMatchers: ["لوازم جانبی صنعتی", "لوازم جانبی"],
   },
 ];
+
+/** Map API rows → NavGroupDef; empty input → empty (caller uses NAV_GROUPS fallback). */
+export function navGroupsFromApi(rows: NavGroupApiRow[] | null | undefined): NavGroupDef[] {
+  if (!rows?.length) return [];
+  return [...rows]
+    .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+    .map((row) => ({
+      id: row.slug,
+      label: row.label,
+      highlight: Boolean(row.highlight),
+      rootCategoryIds: [...(row.root_category_ids ?? [])],
+    }));
+}
 
 export interface CategoryLike {
   id: number;
@@ -104,6 +132,19 @@ export interface ResolvedNavGroup<T extends CategoryLike> {
   product_count: number;
 }
 
+function rootsForGroup<T extends CategoryLike>(visible: T[], group: NavGroupDef): T[] {
+  if (group.rootCategoryIds && group.rootCategoryIds.length > 0) {
+    const byId = new Map(visible.map((root) => [root.id, root]));
+    return group.rootCategoryIds
+      .map((id) => byId.get(id))
+      .filter((root): root is T => Boolean(root));
+  }
+  const matchers = group.rootMatchers ?? [];
+  return visible
+    .filter((root) => matchers.some((m) => matchesRoot(root, m)))
+    .sort((a, b) => matcherRank(a, matchers) - matcherRank(b, matchers));
+}
+
 export function buildNavGroups<T extends CategoryLike>(
   roots: T[],
   groups: NavGroupDef[] = NAV_GROUPS,
@@ -113,10 +154,9 @@ export function buildNavGroups<T extends CategoryLike>(
   const resolved: ResolvedNavGroup<T>[] = [];
 
   for (const group of groups) {
-    const matched = visible
-      .filter((root) => group.rootMatchers.some((m) => matchesRoot(root, m)))
-      .sort((a, b) => matcherRank(a, group.rootMatchers) - matcherRank(b, group.rootMatchers));
+    const matched = rootsForGroup(visible, group);
     matched.forEach((r) => assigned.add(r.id));
+    // Hide empty groups (no member roots with products) — storefront preference.
     if (matched.length === 0) continue;
     resolved.push({
       id: group.id,
@@ -153,8 +193,11 @@ function matcherRank(root: CategoryLike, matchers: string[]): number {
  * Shared by home carousel, catalog root multi-select, mobile category sheet,
  * and catalog filter L1 when no carousel root is selected.
  */
-export function orderedVisibleRoots<T extends CategoryLike>(roots: T[]): T[] {
-  return buildNavGroups(roots).flatMap((group) => group.roots);
+export function orderedVisibleRoots<T extends CategoryLike>(
+  roots: T[],
+  groups: NavGroupDef[] = NAV_GROUPS,
+): T[] {
+  return buildNavGroups(roots, groups).flatMap((group) => group.roots);
 }
 
 /**
@@ -174,21 +217,27 @@ export function isTaxonomyRoot(node: {
  * Stable merchandising order for a flat list of L1 roots (same as home/carousel).
  * Non-roots are left in input order after the ordered roots.
  */
-export function sortByNavOrder<T extends CategoryLike>(items: T[]): T[] {
+export function sortByNavOrder<T extends CategoryLike>(
+  items: T[],
+  groups: NavGroupDef[] = NAV_GROUPS,
+): T[] {
   const rootItems = items.filter((item) =>
     isTaxonomyRoot(item as T & { parent_id?: number | null; depth?: number | null }),
   );
   if (rootItems.length === 0) return items;
 
-  const orderedRoots = orderedVisibleRoots(rootItems);
+  const orderedRoots = orderedVisibleRoots(rootItems, groups);
   const orderedIds = new Set(orderedRoots.map((r) => r.id));
   const rest = items.filter((item) => !orderedIds.has(item.id));
   return [...orderedRoots, ...rest];
 }
 
 /** Whether a root belongs to the highlighted Metrology merchandising group. */
-export function isMetrologyRoot(root: CategoryLike): boolean {
-  const group = NAV_GROUPS.find((g) => g.highlight);
+export function isMetrologyRoot(root: CategoryLike, groups: NavGroupDef[] = NAV_GROUPS): boolean {
+  const group = groups.find((g) => g.highlight);
   if (!group) return false;
-  return group.rootMatchers.some((m) => matchesRoot(root, m));
+  if (group.rootCategoryIds?.length) {
+    return group.rootCategoryIds.includes(root.id);
+  }
+  return (group.rootMatchers ?? []).some((m) => matchesRoot(root, m));
 }

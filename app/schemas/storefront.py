@@ -53,6 +53,23 @@ class HeroSlideListResponse(BaseModel):
     data: list[HeroSlideResponse]
 
 
+class NavGroupPublicResponse(BaseModel):
+    """Public megamenu group config consumed by the storefront."""
+
+    id: int
+    slug: str
+    label: str
+    sort_order: int
+    highlight: bool = False
+    root_category_ids: list[int] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class NavGroupPublicListResponse(BaseModel):
+    data: list[NavGroupPublicResponse]
+
+
 class ProductCommentResponse(BaseModel):
     id: int
     product_id: int
