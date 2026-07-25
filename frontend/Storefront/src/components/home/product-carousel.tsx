@@ -23,8 +23,8 @@ export function ProductCarousel({
     const el = trackRef.current;
     if (!el) return;
     const amount = 300;
-    const isRtl = getComputedStyle(el).direction === "rtl";
-    el.scrollBy({ left: isRtl ? -dir * amount : dir * amount, behavior: "smooth" });
+    // Do not negate for RTL: Chromium already inverts scrollLeft under direction:rtl.
+    el.scrollBy({ left: dir * amount, behavior: "smooth" });
   };
 
   const cardWidth =
