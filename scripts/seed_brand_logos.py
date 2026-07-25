@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 """Download high-quality brand logos and attach them to Brand.logo_url.
 
+Priority (never attach unrelated Wikipedia page thumbnails):
+  1. Curated official / shopmill / Commons logo URLs
+  2. Brandfetch / Clearbit / DDG icon for known tooling domains only
+  3. Wikimedia Commons search only when the File: title contains brand + "logo"
+     and the hit is an image (not PDF/photo dump)
+
 Run on the API host / inside the API container (needs DB + writable uploads):
 
   python scripts/seed_brand_logos.py
   python scripts/seed_brand_logos.py --dry-run
   python scripts/seed_brand_logos.py --force
+  python scripts/seed_brand_logos.py --ids 2,3,15 --force
+  python scripts/seed_brand_logos.py --clear-ids 41,26,12
 """
 
 from __future__ import annotations
@@ -33,54 +41,89 @@ USER_AGENT = (
 MIN_BYTES = 800
 MAX_BYTES = 5 * 1024 * 1024
 
-# English key → candidate direct URLs (prefer PNG/SVG from Wikimedia / official CDNs).
+# Ambiguous short names: never auto-match Wikipedia / random CDNs.
+# Only curated URLs (or explicit leave-null) are allowed.
+AMBIGUOUS: frozenset[str] = frozenset(
+    {
+        "Acrobat",
+        "Jaguar",
+        "MAP",
+        "Deniz",
+        "Emkay",
+        "CP-GRAT",
+        "Chagan",
+        "MPA",
+        "Sahand",
+        "Promax",
+        "Viyer",
+        "OMG",
+        "Vertex",
+        "UTEX",
+        "Winstar",
+        "LI-HSUN",
+        "3Keego",
+        "Chumpower",
+        "TIGER TEC",
+        "Groz",
+        "ZPS",
+        "Vogel",  # many unrelated Vogel entities on Commons/Wikipedia
+    }
+)
+
+# English key → candidate direct URLs (prefer shopmill / Commons logo files).
 CURATED: dict[str, list[str]] = {
     "Mitutoyo": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Mitutoyo_logo.svg/512px-Mitutoyo_logo.svg.png",
-        "https://upload.wikimedia.org/wikipedia/commons/8/8a/Mitutoyo_logo.svg",
+        "https://shopmilltools.com/wp-content/uploads/2025/11/mitutoyo.webp",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/mitutoyo.webp",
+        "https://upload.wikimedia.org/wikipedia/commons/c/c2/Mitutoyo_company_logo.svg",
     ],
     "INSIZE": [
-        "https://www.insize.com/upload/image/20201210/insize-logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/insize-1.webp",
     ],
     "ASIMETO": [
-        "https://www.asimeto.com/wp-content/uploads/2019/05/asimeto-logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/asimeto.webp",
     ],
     "Dasqua": [
-        "https://www.dasqua.com/wp-content/uploads/2020/06/dasqua-logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/11/dasqua.webp",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/dasqua.webp",
     ],
     "KORLOY": [
-        "https://www.korloy.com/eng/images/common/logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/08/korloy.webp",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/korloy.webp",
     ],
     "ZCC.CT": [
-        "https://www.zccct.com/static/images/logo.png",
-    ],
-    "Vogel": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Vogel_Germany_logo.svg/512px-Vogel_Germany_logo.svg.png",
-    ],
-    "Narex": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Narex_logo.svg/512px-Narex_logo.svg.png",
-    ],
-    "RÖHM": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/R%C3%B6hm_GmbH_logo.svg/512px-R%C3%B6hm_GmbH_logo.svg.png",
-        "https://www.roehm.biz/fileadmin/user_upload/roehm-logo.svg",
-    ],
-    "Groz": [
-        "https://www.groz-tools.com/images/logo.png",
-    ],
-    "Vertex": [
-        "https://www.vertex-tools.com/images/logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/zcc-ct.webp",
     ],
     "GUANGLU": [
-        "https://www.guanglumeasuring.com/static/images/logo.png",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/guanglu.webp",
     ],
-    "Winstar": [
-        "https://www.winstar.com.tw/images/logo.png",
+    "TERMA": [
+        "https://shopmilltools.com/wp-content/uploads/2025/11/terma.webp",
+        "https://shopmilltools.com/wp-content/uploads/2025/09/terma.webp",
     ],
-    "ZPS": [
-        "https://www.zps.cz/files/logo.png",
+    "DOHRE": [
+        "https://shopmilltools.com/wp-content/uploads/2025/09/dohre.webp",
+    ],
+    "MAP": [
+        "https://shopmilltools.com/wp-content/uploads/2025/09/map.webp",
+        "https://shopmilltools.com/wp-content/uploads/2025/11/MAP.webp",
+    ],
+    "ASTPOWER": [
+        "https://shopmilltools.com/wp-content/uploads/2025/09/astpower.webp",
+    ],
+    "SAN OU": [
+        "https://shopmilltools.com/wp-content/uploads/2025/09/san-ou.webp",
+    ],
+    "Narex": [
+        "https://upload.wikimedia.org/wikipedia/commons/d/da/Narex-logo.png",
+    ],
+    "RÖHM": [
+        "https://upload.wikimedia.org/wikipedia/commons/6/62/R%C3%B6hm_GmbH_logo.svg",
     ],
 }
 
+# Domains for Brandfetch/Clearbit/DDG — only unambiguous tooling brands.
+# Do NOT map short/ambiguous names to unrelated consumer domains.
 DOMAINS: dict[str, str] = {
     "Mitutoyo": "mitutoyo.com",
     "INSIZE": "insize.com",
@@ -92,38 +135,45 @@ DOMAINS: dict[str, str] = {
     "Narex": "narex.cz",
     "RÖHM": "roehm.biz",
     "Groz": "groz-tools.com",
-    "Vertex": "vertex-tools.com",
     "GUANGLU": "guanglumeasuring.com",
-    "Winstar": "winstar.com.tw",
     "Chumpower": "chumpower.com",
     "TERMA": "terma.com.pl",
     "DOHRE": "dohre.com",
-    "MAP": "mapal.com",
     "SAN OU": "sanou.com.cn",
     "TIGER TEC": "tigertec.de",
-    "Emkay": "emkay.com",
-    "Jaguar": "jaguar.com",
-    "UTEX": "utex.com",
-    "LI-HSUN": "lihsun.com.tw",
-    "Viyer": "viyer.com",
-    "Transmex": "transmex.com",
-    "Deniz": "deniz.com",
-    "3Keego": "3keego.com",
-    "Chagan": "chagan.com",
-    "MPA": "mpa.com",
-    "Sahand": "sahand.com",
-    "Promax": "promax.com",
-    "CP-GRAT": "cpgrat.com",
-    "Acrobat": "acrobat.com",
-    "OMG": "omg.it",
-    "ZPS": "zps.cz",
     "ASTPOWER": "astpower.com",
+    "3Keego": "3keego.com",
+    "ZPS": "zps.cz",
+    "Winstar": "winstar.com.tw",
 }
+
+# Commons File: title must include one of these tokens (normalized) plus "logo".
+COMMONS_ALLOWED: frozenset[str] = frozenset(CURATED) | frozenset(
+    {
+        "Mitutoyo",
+        "Narex",
+        "RÖHM",
+        "Roehm",
+        "Rohm",
+        "MAPAL",  # only if we ever map MAP→MAPAL curated; search still gated
+    }
+)
+
+COMMONS_REJECT_TITLE = re.compile(
+    r"(pdf|portrait|photo|building|headquarters|newspaper|journal|newsletter|"
+    r"agreement|decision|horse|earth|astronaut|crater|mountain|ubuntu|"
+    r"university|music|saarland|verlag|publisher|plexiglas|kochi)",
+    re.I,
+)
 
 
 def english_name(full: str) -> str:
     left = full.split("|", 1)[0].strip()
     return left or full.strip()
+
+
+def _norm_token(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
 def _sniff_ext(content: bytes, url: str, content_type: str | None) -> str | None:
@@ -170,63 +220,71 @@ async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[bytes, str] | Non
     return content, ext
 
 
-async def wikimedia_logo(client: httpx.AsyncClient, name: str) -> tuple[bytes, str] | None:
-    api = "https://en.wikipedia.org/w/api.php"
-    try:
-        r = await client.get(
-            api,
-            params={
-                "action": "query",
-                "titles": name,
-                "prop": "pageimages",
-                "format": "json",
-                "pithumbsize": 800,
-                "redirects": 1,
-            },
-            timeout=20.0,
-        )
-        if r.status_code == 200:
-            pages = r.json().get("query", {}).get("pages", {})
-            for page in pages.values():
-                thumb = (page.get("thumbnail") or {}).get("source")
-                if thumb:
-                    got = await _fetch(client, thumb)
-                    if got:
-                        return got
-    except Exception:
-        pass
+def _title_matches_brand(title: str, name: str) -> bool:
+    """Require File: title to contain brand token AND logo."""
+    t = title.lower()
+    if "logo" not in t:
+        return False
+    if COMMONS_REJECT_TITLE.search(title):
+        return False
+    brand_norm = _norm_token(name)
+    title_norm = _norm_token(title)
+    if brand_norm and brand_norm in title_norm:
+        return True
+    # Allow diacritic-stripped Röhm / Roehm
+    if name in {"RÖHM", "Roehm"} and ("rohm" in title_norm or "roehm" in title_norm):
+        return True
+    return False
 
-    try:
-        r = await client.get(
-            "https://commons.wikimedia.org/w/api.php",
-            params={
-                "action": "query",
-                "list": "search",
-                "srsearch": f"{name} logo",
-                "srnamespace": 6,
-                "srlimit": 5,
-                "format": "json",
-            },
-            timeout=20.0,
-        )
-        if r.status_code != 200:
-            return None
-        for hit in r.json().get("query", {}).get("search", []):
-            title = hit.get("title") or ""
-            if not title.lower().startswith("file:"):
-                continue
-            info = await client.get(
+
+async def commons_logo_search(
+    client: httpx.AsyncClient,
+    name: str,
+) -> tuple[bytes, str] | None:
+    """Commons File: search — only titles containing brand + logo."""
+    queries = [f"{name} logo", f'"{name}" logo']
+    if name == "RÖHM":
+        queries = ["Röhm GmbH logo", "Roehm GmbH logo", "Röhm logo chuck"]
+
+    for q in queries:
+        try:
+            r = await client.get(
                 "https://commons.wikimedia.org/w/api.php",
                 params={
                     "action": "query",
-                    "titles": title,
-                    "prop": "imageinfo",
-                    "iiprop": "url",
-                    "iiurlwidth": 800,
+                    "list": "search",
+                    "srsearch": q,
+                    "srnamespace": 6,
+                    "srlimit": 8,
                     "format": "json",
                 },
                 timeout=20.0,
             )
+        except Exception:
+            continue
+        if r.status_code != 200:
+            continue
+        for hit in r.json().get("query", {}).get("search", []):
+            title = hit.get("title") or ""
+            if not title.lower().startswith("file:"):
+                continue
+            if not _title_matches_brand(title, name):
+                continue
+            try:
+                info = await client.get(
+                    "https://commons.wikimedia.org/w/api.php",
+                    params={
+                        "action": "query",
+                        "titles": title,
+                        "prop": "imageinfo",
+                        "iiprop": "url|mime|size",
+                        "iiurlwidth": 800,
+                        "format": "json",
+                    },
+                    timeout=20.0,
+                )
+            except Exception:
+                continue
             if info.status_code != 200:
                 continue
             pages = info.json().get("query", {}).get("pages", {})
@@ -234,13 +292,23 @@ async def wikimedia_logo(client: httpx.AsyncClient, name: str) -> tuple[bytes, s
                 infos = page.get("imageinfo") or []
                 if not infos:
                     continue
+                mime = (infos[0].get("mime") or "").lower()
+                if not mime.startswith("image/"):
+                    continue
+                if mime in {"application/pdf", "image/tiff"}:
+                    continue
                 url = infos[0].get("thumburl") or infos[0].get("url")
-                if url:
-                    got = await _fetch(client, url)
+                if not url:
+                    continue
+                got = await _fetch(client, url)
+                if got:
+                    return got
+                # SVG originals often work when thumb sizing fails
+                raw = infos[0].get("url")
+                if raw and raw != url:
+                    got = await _fetch(client, raw)
                     if got:
                         return got
-    except Exception:
-        return None
     return None
 
 
@@ -250,7 +318,6 @@ async def brandfetch_logo(client: httpx.AsyncClient, domain: str) -> tuple[bytes
         f"https://cdn.brandfetch.io/{domain}/w/512/h/512",
         f"https://logo.clearbit.com/{domain}",
         f"https://icons.duckduckgo.com/ip3/{domain}.ico",
-        f"https://www.google.com/s2/favicons?domain={quote(domain)}&sz=128",
     ]
     for url in candidates:
         got = await _fetch(client, url)
@@ -268,9 +335,9 @@ async def resolve_logo(
         if got:
             return got[0], got[1], f"curated:{url}"
 
-    wiki = await wikimedia_logo(client, name)
-    if wiki:
-        return wiki[0], wiki[1], "wikimedia"
+    # Ambiguous brands: curated only — never Wikipedia pageimages / loose search.
+    if name in AMBIGUOUS:
+        return None
 
     domain = DOMAINS.get(name)
     if domain:
@@ -278,40 +345,89 @@ async def resolve_logo(
         if bf:
             return bf[0], bf[1], f"cdn:{domain}"
 
-    alt = re.sub(r"[^A-Za-z0-9 .+-]", "", name).strip()
-    if alt and alt != name:
-        wiki2 = await wikimedia_logo(client, alt)
-        if wiki2:
-            return wiki2[0], wiki2[1], "wikimedia-alt"
+    # Strict Commons logo-file search (never enwiki pageimages).
+    commons = await commons_logo_search(client, name)
+    if commons:
+        return commons[0], commons[1], "commons-logo"
+
     return None
+
+
+def _parse_id_list(raw: str | None) -> set[int] | None:
+    if not raw:
+        return None
+    out: set[int] = set()
+    for part in raw.split(","):
+        part = part.strip()
+        if part:
+            out.add(int(part))
+    return out
 
 
 async def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true", help="Replace existing logos")
+    parser.add_argument(
+        "--ids",
+        help="Comma-separated brand IDs to process (default: all)",
+    )
+    parser.add_argument(
+        "--clear-ids",
+        help="Comma-separated brand IDs whose logo_url should be cleared (null)",
+    )
+    parser.add_argument(
+        "--clear-all-bad",
+        action="store_true",
+        help="Clear logo_url for every brand not in CURATED keep-set before fetch "
+        "(use with care; prefer --clear-ids)",
+    )
     args = parser.parse_args()
+
+    only_ids = _parse_id_list(args.ids)
+    clear_ids = _parse_id_list(args.clear_ids) or set()
 
     headers = {"User-Agent": USER_AGENT, "Accept": "image/*,*/*"}
     async with httpx.AsyncClient(headers=headers) as client:
         async with async_session_maker() as db:
             brands = list((await db.execute(select(Brand).order_by(Brand.name))).scalars())
-            ok = skip = fail = 0
+            ok = skip = fail = cleared = 0
+
             for brand in brands:
                 name = english_name(brand.name)
+                in_scope = only_ids is None or brand.id in only_ids
+
+                should_clear = brand.id in clear_ids or (
+                    args.clear_all_bad and name not in CURATED and bool(brand.logo_url)
+                )
+                if should_clear and (only_ids is None or brand.id in clear_ids or in_scope):
+                    if args.dry_run:
+                        print(f"CLEAR {brand.id} {name} (dry-run)")
+                    else:
+                        brand.logo_url = None
+                        await db.flush()
+                        print(f"CLEAR {brand.id} {name}")
+                    cleared += 1
+
+                if not in_scope:
+                    continue
+
                 if brand.logo_url and not args.force:
                     print(f"SKIP  {brand.id} {name} (has logo)")
                     skip += 1
                     continue
+
                 print(f"FETCH {brand.id} {name} …", flush=True)
                 resolved = await resolve_logo(client, name)
                 if not resolved:
-                    print(f"FAIL  {brand.id} {name} (no source)")
+                    print(f"FAIL  {brand.id} {name} (no safe source)")
                     fail += 1
                     continue
                 content, ext, source = resolved
                 if args.dry_run:
-                    print(f"OK    {brand.id} {name} would save {len(content)}B {ext} from {source}")
+                    print(
+                        f"OK    {brand.id} {name} would save {len(content)}B {ext} from {source}"
+                    )
                     ok += 1
                     continue
                 path = save_brand_logo_bytes(brand.id, content, ext)
@@ -319,10 +435,11 @@ async def main() -> int:
                 await db.flush()
                 print(f"OK    {brand.id} {name} -> {path} ({len(content)}B, {source})")
                 ok += 1
+
             if not args.dry_run:
                 await db.commit()
-            print(f"\nDone: ok={ok} skip={skip} fail={fail}")
-            return 0 if fail == 0 or ok > 0 else 1
+            print(f"\nDone: ok={ok} skip={skip} fail={fail} cleared={cleared}")
+            return 0 if fail == 0 or ok > 0 or cleared > 0 else 1
 
 
 if __name__ == "__main__":
