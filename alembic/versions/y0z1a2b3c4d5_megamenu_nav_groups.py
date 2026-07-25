@@ -35,6 +35,18 @@ def upgrade() -> None:
             server_default=sa.text("'[]'::jsonb"),
             nullable=False,
         ),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.UniqueConstraint("slug", name="uq_megamenu_nav_groups_slug"),
     )
     op.create_index("ix_megamenu_nav_groups_slug", "megamenu_nav_groups", ["slug"])
