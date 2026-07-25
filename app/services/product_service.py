@@ -9,10 +9,8 @@ from app.crud import platform as crud_platform
 from app.crud import product as crud_product
 from app.db.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.services.stock_ledger_service import record_adjustment_movement
 from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
-from app.utils.decimal_utils import to_decimal as _to_decimal
-from app.utils.storefront_catalog import stock_status_label
+from app.utils.storefront_catalog import product_is_available, stock_status_label
 
 logger = get_logger(__name__)
 
@@ -36,6 +34,18 @@ class ProductService:
         await db.commit()
         logger.info(f"Product created successfully: {product.id}")
 
+        try:
+            from app.services.hesabfa.item_push import ensure_product_in_hesabfa
+
+            await ensure_product_in_hesabfa(db, product)
+            await db.commit()
+        except Exception:
+            logger.exception(
+                "Hesabfa item push failed after product create id=%s sku=%s",
+                product.id,
+                product.sku,
+            )
+
         return product
 
     @staticmethod
@@ -44,12 +54,13 @@ class ProductService:
         if not product:
             return None
 
-        quantity = _to_decimal(product.stock_quantity)
+        available = product_is_available(product)
         return {
             "product": product,
-            "stock_status": stock_status_label(quantity, audience="admin"),
-            "low_stock": quantity > Decimal("0.0") and quantity < Decimal("10.0"),
-            "availability": product.is_active and quantity > Decimal("0.0"),
+            "stock_status": stock_status_label(available, audience="admin"),
+            "low_stock": False,
+            "availability": available,
+            "is_available": bool(product.is_available),
         }
 
     @staticmethod
@@ -116,10 +127,11 @@ class ProductService:
 
         if "stock_quantity" in update_data.model_fields_set:
             raise ValueError(
-                "stock_quantity cannot be set via product update; use stock adjust endpoint"
+                "stock_quantity cannot be set on the site; "
+                "warehouse counts live in Hesabfa. Use is_available instead."
             )
 
-        tracked_fields = ("base_price", "original_price")
+        tracked_fields = ("base_price", "original_price", "is_available")
         previous = {field: getattr(product, field, None) for field in tracked_fields}
 
         updated_product = await crud_product.update_product(db, product_id, update_data)
@@ -139,7 +151,46 @@ class ProductService:
                 )
         await db.commit()
         logger.info(f"Product updated successfully: {product_id}")
+
+        try:
+            from app.services.hesabfa.item_push import ensure_product_in_hesabfa
+
+            await ensure_product_in_hesabfa(db, updated_product)
+            await db.commit()
+        except Exception:
+            logger.exception(
+                "Hesabfa item push failed after product update id=%s",
+                product_id,
+            )
+
         return updated_product
+
+    @staticmethod
+    async def set_availability_with_validation(
+        db: AsyncSession,
+        product_id: int,
+        is_available: bool,
+        reason: str | None = None,
+        *,
+        actor_user_id: int | None = None,
+    ) -> Product | None:
+        product = await crud_product.get_product_by_id(db, product_id)
+        if not product:
+            return None
+        old = product.is_available
+        updated = await crud_product.set_product_availability(db, product_id, is_available)
+        if updated and old != updated.is_available:
+            await crud_platform.record_product_change(
+                db,
+                product_id=product_id,
+                field_name="is_available",
+                old_value=str(old),
+                new_value=str(updated.is_available),
+                reason=reason or "availability_toggle",
+                actor_user_id=actor_user_id,
+            )
+            await db.commit()
+        return updated
 
     @staticmethod
     async def adjust_stock_with_validation(
@@ -150,55 +201,32 @@ class ProductService:
         *,
         actor_user_id: int | None = None,
     ) -> Product | None:
-        logger.info(
-            f"Adjusting stock for product {product_id}: delta={quantity_delta}, reason={reason}"
+        """Deprecated quantity adjust — maps to availability for older clients."""
+        return await ProductService.set_availability_with_validation(
+            db,
+            product_id,
+            is_available=quantity_delta > Decimal("0"),
+            reason=reason or "legacy_stock_adjust",
+            actor_user_id=actor_user_id,
         )
-
-        product = await crud_product.get_product_by_id(db, product_id)
-        if not product:
-            return None
-
-        old_stock = product.stock_quantity
-        updated_product = await crud_product.update_stock(db, product_id, quantity_delta)
-        if updated_product:
-            await crud_platform.record_product_change(
-                db,
-                product_id=product_id,
-                field_name="stock_quantity",
-                old_value=str(old_stock),
-                new_value=str(updated_product.stock_quantity),
-                reason=reason,
-                actor_user_id=actor_user_id,
-            )
-            await record_adjustment_movement(
-                db,
-                product_id=product_id,
-                quantity_delta=quantity_delta,
-                reference_id=reason or "stock_adjust",
-                user_id=actor_user_id,
-            )
-            await db.commit()
-        return updated_product
 
     @staticmethod
     async def get_low_stock_products(
         db: AsyncSession, threshold: Decimal = Decimal("10.0"), limit: int = 100
     ) -> list[Product]:
-        logger.info(f"Retrieving low stock products (threshold: {threshold})")
+        del threshold
         products, _ = await crud_product.get_products(
             db=db,
             skip=0,
             limit=limit,
-            max_stock=threshold,
+            max_stock=Decimal("1"),
         )
-        logger.info(f"Found {len(products)} products with low stock")
         return products
 
     @staticmethod
     async def get_products_by_brand(
         db: AsyncSession, brand_id: int, skip: int = 0, limit: int = 100
     ) -> tuple[list[Product], int]:
-        logger.info(f"Retrieving products for brand ID: {brand_id}")
         return await crud_product.get_products(
             db=db,
             skip=skip,
@@ -208,7 +236,6 @@ class ProductService:
 
     @staticmethod
     async def get_product_statistics(db: AsyncSession) -> dict:
-        logger.info("Retrieving product statistics")
         return await crud_product.get_product_statistics(db)
 
     @staticmethod

@@ -302,21 +302,21 @@ export default function NewProductPage() {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="موجودی"
-                  htmlFor="stock_quantity"
-                  required
-                  error={errors.stock_quantity?.message}
-                >
-                  <Input
-                    id="stock_quantity"
-                    dir="ltr"
-                    inputMode="decimal"
-                    className="text-start tnum"
-                    aria-invalid={Boolean(errors.stock_quantity)}
-                    {...register("stock_quantity")}
+                            <div className="grid grid-cols-2 gap-4">
+                <Field label="وضعیت موجودی در سایت">
+                  <Controller
+                    control={control}
+                    name="is_available"
+                    render={({ field }) => (
+                      <label className="flex items-center gap-3 text-sm">
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <span>{field.value ? "موجود" : "ناموجود"}</span>
+                      </label>
+                    )}
                   />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    تعداد انبار فقط در حسابفا است؛ اینجا فقط موجود/ناموجود.
+                  </p>
                 </Field>
 
                 <Field label="واحد" error={errors.stock_unit?.message}>
@@ -340,6 +340,7 @@ export default function NewProductPage() {
                   />
                 </Field>
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <Field

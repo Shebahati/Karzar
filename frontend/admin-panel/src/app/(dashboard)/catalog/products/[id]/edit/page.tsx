@@ -329,24 +329,20 @@ export default function EditProductPage() {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="موجودی (فقط خواندنی)"
-                  htmlFor="stock_quantity"
-                  error={errors.stock_quantity?.message}
-                >
-                  <Input
-                    id="stock_quantity"
-                    dir="ltr"
-                    inputMode="decimal"
-                    className="text-start tnum"
-                    disabled
-                    readOnly
-                    aria-invalid={Boolean(errors.stock_quantity)}
-                    {...register("stock_quantity")}
+                            <div className="grid grid-cols-2 gap-4">
+                <Field label="وضعیت موجودی در سایت">
+                  <Controller
+                    control={control}
+                    name="is_available"
+                    render={({ field }) => (
+                      <label className="flex items-center gap-3 text-sm">
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <span>{field.value ? "موجود" : "ناموجود"}</span>
+                      </label>
+                    )}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    برای تغییر موجودی از بخش تنظیم موجودی زیر فرم استفاده کنید.
+                    تعداد انبار فقط در حسابفا است؛ اینجا فقط موجود/ناموجود.
                   </p>
                 </Field>
 
@@ -371,6 +367,7 @@ export default function EditProductPage() {
                   />
                 </Field>
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <Field

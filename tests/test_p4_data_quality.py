@@ -11,12 +11,12 @@ client = TestClient(app)
 
 
 class TestStockStatusConsistency:
-    def test_admin_stock_endpoint_uses_three_state_codes(
+    def test_admin_stock_endpoint_uses_availability_codes(
         self, valid_product_data, super_admin_headers
     ):
         create = client.post(
             "/api/v1/products/",
-            json={**valid_product_data, "sku": "P4-STOCK", "stock_quantity": "5"},
+            json={**valid_product_data, "sku": "P4-STOCK", "is_available": True},
             headers=super_admin_headers,
         )
         assert create.status_code == 201
@@ -27,11 +27,14 @@ class TestStockStatusConsistency:
             headers=super_admin_headers,
         )
         assert stock.status_code == 200
-        assert stock.json()["stock_status"] == "low_stock"
+        assert stock.json()["stock_status"] == "in_stock"
+        assert stock.json()["is_available"] is True
 
     def test_stock_status_label_audience_split(self):
-        assert stock_status_label(5, audience="admin") == "low_stock"
-        assert stock_status_label(5, audience="storefront") == "موجودی محدود"
+        assert stock_status_label(True, audience="admin") == "in_stock"
+        assert stock_status_label(True, audience="storefront") == "موجود"
+        assert stock_status_label(False, audience="admin") == "out_of_stock"
+        assert stock_status_label(False, audience="storefront") == "ناموجود"
 
 
 class TestCategoryDepthLimit:

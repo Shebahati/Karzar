@@ -74,7 +74,10 @@ Always restore onto staging first and run `pytest` / smoke checkout before produ
 
 ## Hesabfa (حسابفا)
 
-See [HESABFA.md](./HESABFA.md) for env vars, SKU matching, stock pull, and invoice-after-payment hook.
+See [HESABFA.md](./HESABFA.md) for env vars, SKU matching, site→Hesabfa item push (qty 0), and invoice-after-payment hook.
+
+**Inventory:** warehouse counts live **only in Hesabfa**. The site stores `is_available` (موجود/ناموجود) and never pulls `GetQuantity`.
+
 On VPS, put `HESABFA_API_KEY` / `HESABFA_LOGIN_TOKEN` only in the API container secrets — never in git.
 
 ## Migrations

@@ -1,7 +1,5 @@
 """Map ORM Product instances to frontend-facing Pydantic response models."""
 
-from decimal import Decimal
-
 from app.core.config import settings
 from app.db.models.product import Product
 from app.schemas.product import (
@@ -12,26 +10,28 @@ from app.schemas.product import (
     ProductSummaryResponse,
 )
 from app.utils.category_depth import CategoryMeta
-from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.specifications import normalize_specifications_for_api
 from app.utils.storefront_catalog import (
     Audience,
     compute_discount_percent,
     decimal_to_api_string,
     hierarchy_separator,
+    product_is_available,
     stock_status_label,
 )
 
-LOW_STOCK_THRESHOLD = Decimal("10.0")
-
 
 def stock_status_from_quantity(quantity, *, audience: Audience = "admin") -> str:
-    """Derive stock status label for admin or storefront audience."""
-    return stock_status_label(quantity, audience=audience)
+    """Deprecated: quantity ignored; treat truthy quantity as available."""
+    from decimal import Decimal
+
+    from app.utils.decimal_utils import to_decimal as _to_decimal
+
+    qty = _to_decimal(quantity) if quantity is not None else Decimal("0")
+    return stock_status_label(qty > Decimal("0.0"), audience=audience)
 
 
 def absolutize_asset_url(url: str | None) -> str | None:
-    """Make relative /static paths absolute using PUBLIC_ASSET_BASE when set."""
     if not url:
         return None
     stripped = url.strip()
@@ -46,7 +46,6 @@ def absolutize_asset_url(url: str | None) -> str | None:
 
 
 def get_thumbnail_url(product: Product) -> str | None:
-    """Return the primary image URL, falling back to the first image."""
     if not product.images:
         return None
     primary = next((image for image in product.images if image.is_primary), None)
@@ -95,7 +94,6 @@ def _brand_brief(product: Product) -> BrandBrief | None:
 
 
 def _images(product: Product) -> list[ProductImageResponse]:
-    """Map ORM images to response DTOs; primary image sorts first."""
     return [
         ProductImageResponse(
             id=image.id,
@@ -112,9 +110,7 @@ def to_product_summary(
     *,
     audience: Audience = "storefront",
 ) -> ProductSummaryResponse:
-    """Build the PLP card shape from a loaded Product ORM instance."""
-    quantity = _to_decimal(product.stock_quantity)
-    low_stock = quantity < LOW_STOCK_THRESHOLD
+    available = product_is_available(product)
     return ProductSummaryResponse(
         id=product.id,
         sku=product.sku,
@@ -123,8 +119,8 @@ def to_product_summary(
         base_price=decimal_to_api_string(product.base_price),
         original_price=decimal_to_api_string(product.original_price),
         discount_percent=compute_discount_percent(product.base_price, product.original_price),
-        stock_status=stock_status_label(quantity, audience=audience, low_stock=low_stock),
-        availability=bool(product.is_active and quantity > Decimal("0.0")),
+        stock_status=stock_status_label(available, audience=audience),
+        availability=available,
         is_original=product.is_original,
         category=_category_brief(product, category_metadata, audience=audience),
         brand=_brand_brief(product),
@@ -137,9 +133,7 @@ def to_product_detail(
     *,
     audience: Audience = "storefront",
 ) -> ProductDetailResponse:
-    """Build the full PDP shape including computed stock fields."""
-    quantity = _to_decimal(product.stock_quantity)
-    low_stock = quantity < LOW_STOCK_THRESHOLD
+    available = product_is_available(product)
     return ProductDetailResponse(
         id=product.id,
         sku=product.sku,
@@ -151,11 +145,12 @@ def to_product_detail(
         base_price=decimal_to_api_string(product.base_price),
         original_price=decimal_to_api_string(product.original_price),
         discount_percent=compute_discount_percent(product.base_price, product.original_price),
-        stock_quantity=decimal_to_api_string(quantity) or "0",
+        stock_quantity="0",
         stock_unit=product.stock_unit.value if hasattr(product.stock_unit, "value") else str(product.stock_unit),
-        stock_status=stock_status_label(quantity, audience=audience, low_stock=low_stock),
-        low_stock=low_stock,
-        availability=bool(product.is_active and quantity > Decimal("0.0")),
+        stock_status=stock_status_label(available, audience=audience),
+        low_stock=False,
+        availability=available,
+        is_available=bool(getattr(product, "is_available", True)),
         warranty_text=product.warranty_text,
         weight_grams=decimal_to_api_string(product.weight_grams),
         is_original=product.is_original,

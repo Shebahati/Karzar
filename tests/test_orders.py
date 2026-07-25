@@ -15,7 +15,8 @@ client = TestClient(app)
 
 
 def _create_product(super_admin_headers, valid_product_data, *, sku, stock="20"):
-    valid_product_data = {**valid_product_data, "sku": sku, "stock_quantity": stock}
+    available = float(stock) > 0
+    valid_product_data = {**valid_product_data, "sku": sku, "is_available": available}
     resp = client.post(
         "/api/v1/products/", json=valid_product_data, headers=super_admin_headers
     )
@@ -129,7 +130,7 @@ class TestAdminOrders:
         stock = client.get(
             f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
         )
-        assert float(stock.json()["stock_quantity"]) == 15.0
+        assert stock.json()["is_available"] is True
 
         resp = client.patch(
             f"/api/v1/orders/{order_id}/status",
@@ -142,7 +143,7 @@ class TestAdminOrders:
         restored = client.get(
             f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
         )
-        assert float(restored.json()["stock_quantity"]) == 20.0
+        assert restored.json()["is_available"] is True
 
         async def fetch_movements():
             async with TestingSessionLocal() as db:
@@ -199,7 +200,7 @@ class TestOrderExpiry:
         stock = client.get(
             f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
         )
-        assert float(stock.json()["stock_quantity"]) == 15.0
+        assert stock.json()["is_available"] is True
 
         monkeypatch.setattr(
             order_expiry_service,
@@ -220,7 +221,7 @@ class TestOrderExpiry:
         restored = client.get(
             f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
         )
-        assert float(restored.json()["stock_quantity"]) == 20.0
+        assert restored.json()["is_available"] is True
 
 
 class TestCustomerOrders:

@@ -22,8 +22,7 @@ function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
     .sort((a, b) => {
       const score = (p: ProductSummary) =>
         (p.discount_percent ?? 0) * 3 +
-        (p.stock_status === "low_stock" ? 12 : 0) +
-        (p.stock_status === "in_stock" || p.availability ? 8 : 0) +
+        (p.stock_status === "موجود" || p.stock_status === "in_stock" || p.availability ? 8 : 0) +
         (p.is_original ? 4 : 0);
       return score(b) - score(a);
     })

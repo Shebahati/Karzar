@@ -248,20 +248,18 @@ async def issue_order_quote(
 
 
 async def _restore_stock(db: AsyncSession, order: Order) -> None:
+    """No-op for warehouse counts (Hesabfa-only). Still records return ledger rows."""
     from app.crud import product as crud_product
 
     product_ids = [item.product_id for item in order.items]
     if not product_ids:
         return
-    products = await crud_product.get_products_for_update(db, product_ids)
+    await crud_product.get_products_for_update(db, product_ids)
     for item in order.items:
-        product = products.get(item.product_id)
-        if product is not None:
-            product.stock_quantity = product.stock_quantity + item.quantity
-            await record_return_movement(
-                db,
-                product_id=item.product_id,
-                quantity=item.quantity,
-                order_id=order.id,
-                user_id=order.user_id,
-            )
+        await record_return_movement(
+            db,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            order_id=order.id,
+            user_id=order.user_id,
+        )

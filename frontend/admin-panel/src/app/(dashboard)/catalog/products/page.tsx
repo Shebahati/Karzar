@@ -43,8 +43,9 @@ import type { ProductSummary } from "@/types/product";
 const PAGE_SIZE = 50;
 
 function StockBadge({ status }: { status: string }) {
-  if (status === "out_of_stock") return <Badge variant="danger">ناموجود</Badge>;
-  if (status === "low_stock") return <Badge variant="warning">موجودی کم</Badge>;
+  if (status === "out_of_stock" || status === "ناموجود") {
+    return <Badge variant="danger">ناموجود</Badge>;
+  }
   return <Badge variant="success">موجود</Badge>;
 }
 

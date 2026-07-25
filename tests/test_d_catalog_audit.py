@@ -58,7 +58,7 @@ def test_stock_quantity_update_blocked_on_put(valid_product_data, super_admin_he
     )
     assert blocked.status_code == 400
     assert blocked.json()["error_code"] == "BAD_REQUEST"
-    assert "stock adjust" in blocked.json()["message"].lower()
+    assert "is_available" in blocked.json()["message"].lower()
 
 
 def test_statistics_and_change_log_require_admin(valid_product_data, super_admin_headers):

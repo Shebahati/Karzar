@@ -151,8 +151,12 @@ class Product(Base):
     brand_id: Mapped[int | None] = mapped_column(ForeignKey("brands.id"))
 
     base_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    # Deprecated for sellable UX: warehouse counts live in Hesabfa only.
     stock_quantity: Mapped[Decimal] = mapped_column(
         Numeric(12, 2), default=Decimal("0.0"), server_default="0"
+    )
+    is_available: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true", nullable=False
     )
     stock_unit: Mapped[StockUnitEnum] = mapped_column(
         Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),

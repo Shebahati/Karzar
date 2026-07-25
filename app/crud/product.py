@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import and_, func, or_, update
+from sqlalchemy import and_, case, func, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -38,6 +38,8 @@ async def create_product(db: AsyncSession, product_in: ProductCreate) -> Product
     from app.utils.slugify import ensure_unique_slug
 
     payload = product_in.model_dump(exclude={"specifications", "stock_unit"})
+    payload["stock_quantity"] = Decimal("0.0")
+    payload.setdefault("is_available", True)
     slug = await ensure_unique_slug(
         product_in.name or product_in.sku,
         exists=lambda candidate: _product_slug_exists(db, candidate),
@@ -175,15 +177,14 @@ async def get_products(
         filters.append(
             and_(
                 Product.is_active.is_(True),
-                Product.stock_quantity > Decimal("0.0"),
+                Product.is_available.is_(True),
             )
         )
     elif in_stock is False:
-        # Out of stock: inactive OR zero/negative quantity (mirrors in-stock rules).
         filters.append(
             or_(
                 Product.is_active.is_(False),
-                Product.stock_quantity <= Decimal("0.0"),
+                Product.is_available.is_(False),
             )
         )
     if is_active is not None:
@@ -193,7 +194,7 @@ async def get_products(
     if max_price is not None:
         filters.append(Product.base_price <= max_price)
     if max_stock is not None:
-        filters.append(Product.stock_quantity < max_stock)
+        filters.append(Product.is_available.is_(False))
 
     if search and search.strip():
         pattern = f"%{escape_ilike_pattern(search.strip())}%"
@@ -323,63 +324,53 @@ async def restore_product(db: AsyncSession, product_id: int) -> Product | None:
 
 
 async def get_stock_status(db: AsyncSession, product_id: int) -> dict | None:
-    from app.utils.storefront_catalog import stock_status_label
+    from app.utils.storefront_catalog import product_is_available, stock_status_label
 
     product = await get_product_by_id(db, product_id)
     if not product:
         return None
 
-    quantity = _to_decimal(product.stock_quantity)
+    available = product_is_available(product)
     return {
         "product_id": product.id,
         "sku": product.sku,
-        "stock_quantity": quantity,
-        "stock_status": stock_status_label(quantity, audience="admin"),
+        "is_available": bool(product.is_available),
+        "availability": available,
+        "stock_status": stock_status_label(available, audience="admin"),
+        "stock_quantity": Decimal("0"),
+        "low_stock": False,
     }
+
+
+async def set_product_availability(
+    db: AsyncSession, product_id: int, is_available: bool
+) -> Product | None:
+    product = await get_product_by_id(db, product_id)
+    if not product:
+        return None
+    product.is_available = bool(is_available)
+    await db.flush()
+    return product
 
 
 async def update_stock(
     db: AsyncSession, product_id: int, quantity_delta: Decimal
 ) -> Product | None:
-    """Atomically adjust stock; rejects deltas that would drive quantity below zero."""
-    try:
-        stmt = (
-            update(Product)
-            .where(
-                and_(
-                    Product.id == product_id,
-                    Product.deleted_at.is_(None),
-                    Product.stock_quantity + quantity_delta >= Decimal("0.0"),
-                )
-            )
-            .values(stock_quantity=Product.stock_quantity + quantity_delta)
-            .returning(Product)
-        )
-        result = await db.execute(stmt)
-        updated_product = result.scalar_one_or_none()
-
-        if updated_product:
-            await db.flush()
-            logger.info(f"Updated stock for product {product_id}: delta={quantity_delta}")
-            return updated_product
-
-        await db.rollback()
-        logger.warning(f"Failed to update stock for {product_id}. Insufficient stock or not found.")
-        raise ValueError("Insufficient stock or product not found")
-    except Exception as e:
-        await db.rollback()
-        logger.error(f"Error updating stock: {str(e)}")
-        raise
+    """Deprecated: site no longer tracks warehouse counts."""
+    del quantity_delta
+    raise ValueError(
+        "Warehouse counts are managed in Hesabfa only; "
+        "use is_available / availability endpoint instead"
+    )
 
 
 async def get_product_statistics(db: AsyncSession) -> dict:
-    """Aggregate product counts and stock value entirely in the database."""
+    """Aggregate product counts; stock value/qty fields are deprecated zeros."""
     stmt = select(
         func.count(Product.id),
-        func.sum(func.coalesce(Product.base_price, 0) * Product.stock_quantity),
-        func.sum(Product.stock_quantity),
         func.count(Product.category_id.distinct()),
         func.count(Product.brand_id.distinct()),
+        func.sum(case((Product.is_available.is_(True), 1), else_=0)),
     ).where(Product.deleted_at.is_(None))
 
     result = await db.execute(stmt)
@@ -390,13 +381,15 @@ async def get_product_statistics(db: AsyncSession) -> dict:
     )
     active_count = (await db.execute(active_stmt)).scalar() or 0
 
+    available_count = int(row[3] or 0) if row else 0
     stats = {
         "total_products": row[0] or 0,
         "active_products": active_count,
-        "total_stock_value": Decimal(str(row[1] or 0)),
-        "total_stock_quantity": Decimal(str(row[2] or 0)),
-        "categories": row[3] or 0,
-        "brands": row[4] or 0,
+        "total_stock_value": Decimal("0"),
+        "total_stock_quantity": Decimal(str(available_count)),
+        "available_products": available_count,
+        "categories": row[1] or 0,
+        "brands": row[2] or 0,
     }
     logger.info(f"Product statistics retrieved: {stats}")
     return stats
