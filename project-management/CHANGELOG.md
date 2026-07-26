@@ -6,6 +6,7 @@
 - [x] Merged to `main`: Measurement promote CI (#81); SAN OU (#73), Mitutoyo leaflets (#72), Dasqua 2025 (#71), Chumpower (#70) enrichment; Hesabfa stock clear asyncpg (#56); CI lint/test unlock for frontend-only PRs (#26); Living PMO (#86)
 - [x] Staging deployed for the enrichment PRs above (#70–#73)
 - [x] Skipped (not merged): phase-A images continue (#67, open), Dohre enrichment (#69, open), Insize 108A (#74, closed)
+- [ ] **CAT-002** INSIZE shopmilltools content-only enrichment tooling + dry-run (861 matched / 872 catalog); staging apply in progress (`feat/insize-shopmill-spec-enrichment`)
 - [x] Created living PMO under `project-management/`
 - [x] Seeded tasks.json + import CSVs
 - [x] Documented 31 Shahrivar realism assessment

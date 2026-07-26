@@ -12,6 +12,8 @@ Operational and maintenance scripts under `scripts/` and `deploy/staging/scripts
 | `deploy/staging/scripts/smoke-staging.sh` | Post-deploy hard smoke (API/admin/shop) |
 | `deploy/staging/scripts/install-backup-cron.sh` | Install daily backup cron |
 | `scripts/dry_run_product_seo_descriptions.py` | Read-only SEO short/long stub coverage report (P1; no `--apply`) |
+| `scripts/enrich_insize_from_shopmill.py` | Content-only INSIZE enrichment from shopmilltools.com (specs/SEO; never price/stock) |
+| `scripts/shopmill_insize_crawl.py` | Crawl INSIZE PDPs from shopmilltools WC Store API (no prices persisted) |
 
 See [OPERATIONS.md](./OPERATIONS.md) for RPO/RTO, restore drills, and alerting hooks.
 

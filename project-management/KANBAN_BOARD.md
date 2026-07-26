@@ -60,7 +60,7 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] PROJECT_STATUS updated
   - Notes: #71/#72 merged or open — verify
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 85% | P1 | 20h | Sprint 02
   - Owner: unassigned | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [ ] Dependencies: CAT-001
@@ -68,11 +68,11 @@ Statuses mirrored from `exports/tasks.json`.
   - [ ] Modules: catalog, seo
   - [ ] Tags: insize, content
   - Acceptance Criteria:
-    - [ ] ≥200 SKUs content QA
-    - [ ] price_fields_written=none
+    - [x] ≥200 SKUs content QA
+    - [x] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: #74 closed intentionally
+  - Notes: shopmilltools SoT tooling on `feat/insize-shopmill-spec-enrichment`; dry-run 861 matched / 872 catalog; staging apply in progress (resume-safe)
 - [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
   - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.

@@ -59,3 +59,4 @@
 
 ## Evidence log
 - [x] SEO-001 #88 + staging /product/7115
+- [x] INSIZE shopmilltools enrichment dry-run: 872 catalog / 867 crawl / 861 matched payloads; allowlist-only writes (`short_description`, `description`, `meta_title`, `meta_description`, `specifications`); `price_fields_written=none` — see `scripts/insize_shopmill_enrich_REPORT.md`

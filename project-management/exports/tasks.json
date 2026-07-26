@@ -255,8 +255,8 @@
       "dod": [
         "SEO_PROGRESS note"
       ],
-      "status": "todo",
-      "progress": 15,
+      "status": "in_progress",
+      "progress": 85,
       "sprint": "02",
       "week": 3,
       "day": 1,
@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "#74 closed intentionally"
+      "notes": "shopmilltools SoT: enrich_insize_from_shopmill.py; dry-run 861/872; staging apply resume-safe; price_fields_written=none"
     },
     {
       "id": "CAT-003",

@@ -1,0 +1,144 @@
+{
+  "api": "https://api.karzartools.com/api/v1",
+  "source": "shopmilltools.com",
+  "brand_id": 3,
+  "shopmill_rows": 867,
+  "catalog_insize": 872,
+  "match_counts": {
+    "matched": 861,
+    "skipped_no_specs": 6,
+    "unmatched": 5
+  },
+  "matched": 861,
+  "payloads": 861,
+  "enriched_would_write": 861,
+  "skipped": {
+    "unmatched": 5,
+    "ambiguous": 0,
+    "skipped_no_specs": 6,
+    "already_complete": 0
+  },
+  "apply": true,
+  "applied": 219,
+  "apply_errors": 642,
+  "fields_written": [
+    "description",
+    "meta_description",
+    "meta_title",
+    "short_description",
+    "specifications"
+  ],
+  "commerce_policy": {
+    "forbidden_keys": [
+      "availability",
+      "base_price",
+      "currency",
+      "discount",
+      "discount_percent",
+      "hesabfa_stock",
+      "is_available",
+      "list_price",
+      "low_stock",
+      "original_price",
+      "price",
+      "sale_price",
+      "stock",
+      "stock_quantity",
+      "stock_status",
+      "stock_unit",
+      "tax_percent",
+      "warehouse_quantity",
+      "weight_grams"
+    ],
+    "allowed_put_keys": [
+      "description",
+      "meta_description",
+      "meta_title",
+      "short_description",
+      "specifications"
+    ],
+    "export_forbidden_count": 0,
+    "payload_forbidden_count": 0,
+    "zero_price_writes": true
+  },
+  "samples": [
+    {
+      "sku": "9646-301",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:کشور سازنده": "چین"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-53371/insize-portable-leeb-hardness-tester-9646-301/"
+    },
+    {
+      "sku": "5023",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:کشور سازنده": "چین"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-42795/insize-measuring-tool-set-5023/"
+    },
+    {
+      "sku": "5022",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:کشور سازنده": "چین"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-42790/insize-measuring-tool-set-5022/"
+    },
+    {
+      "sku": "5021",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:کشور سازنده": "چین"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-42784/insize-measuring-tool-set-5021/"
+    },
+    {
+      "sku": "5064",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:کشور سازنده": "چین"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-42781/insize-measuring-tool-set-5064/"
+    }
+  ],
+  "paths": {
+    "crawl_jsonl": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/shopmill_insize.jsonl",
+    "site_export": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/site_export.jsonl",
+    "match_report": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/match_report.csv",
+    "dry_run_payloads": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/dry_run_payloads.jsonl",
+    "apply_report": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/apply_report.csv",
+    "applied": "/home/moahmmad/Projects/Karzar/Website/backend-insize-shopmill/data/imports/insize/shopmill/applied.csv"
+  }
+}

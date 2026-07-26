@@ -32,4 +32,5 @@
   - Notes: Quality > volume; AI-assisted draft + human QA
 
 ## Evidence log
+- [x] INSIZE PDP specs/SEO content fill from shopmilltools.com (CAT-002) — dry-run evidence under `data/imports/insize/shopmill/`; staging apply resume-safe
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
