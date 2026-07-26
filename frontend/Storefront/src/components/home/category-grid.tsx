@@ -3,10 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import * as Icons from "react-iconly";
 import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AutoCarousel } from "@/components/ui/auto-carousel";
 import {
   categoryHref,
   isMetrologyRoot,
@@ -14,10 +14,8 @@ import {
   orderedVisibleRoots,
 } from "@/config/nav-groups";
 import { cn, formatNumber } from "@/lib/utils";
+import { useMotionSafe } from "@/lib/use-motion-safe";
 import type { CategoryTreeNode } from "@/types/category";
-
-/** Category image box — larger than brand strip logos (56px). */
-const IMAGE_SIZE = 88;
 
 function CategoryIcon({ name }: { name?: string }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
@@ -25,63 +23,89 @@ function CategoryIcon({ name }: { name?: string }) {
   return <Icon size="large" set="bold" primaryColor="#5E5F5E" />;
 }
 
-function CategoryCard({
+function CategoryTile({
   node,
   navDefs,
+  index,
 }: {
   node: CategoryTreeNode;
   navDefs: typeof NAV_GROUPS;
+  index: number;
 }) {
   const highlight = isMetrologyRoot(node, navDefs);
   const imageUrl = node.image_url;
+  const motionSafe = useMotionSafe();
 
   return (
-    <Link
-      href={categoryHref(node)}
-      className={cn(
-        "group relative flex h-[168px] w-[148px] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-4 shadow-soft transition-all duration-300 sm:h-[180px] sm:w-[168px]",
-        highlight
-          ? "border-primary/25 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glass"
-          : "border-border/50 hover:-translate-y-1 hover:border-steel/30 hover:shadow-glass",
-      )}
+    <motion.div
+      initial={motionSafe ? { opacity: 0, y: 18 } : false}
+      whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.35) }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background:
-            "linear-gradient(145deg, rgba(94,95,94,0.06) 0%, rgba(194,32,38,0.08) 100%)",
-        }}
-      />
-      <span className="relative block h-[88px] w-[88px] overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-steel transition-colors group-hover:ring-steel/30">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt=""
-            width={IMAGE_SIZE}
-            height={IMAGE_SIZE}
-            quality={100}
-            className="h-full w-full object-cover"
-            unoptimized
-          />
-        ) : (
-          <span className="grid h-full w-full place-items-center bg-secondary transition-colors group-hover:bg-accent group-hover:text-primary">
-            <CategoryIcon name={node.icon} />
-          </span>
+      <Link
+        href={categoryHref(node)}
+        className={cn(
+          "group flex h-full overflow-hidden rounded-2xl border bg-card shadow-soft transition-all duration-300",
+          "hover:-translate-y-1 hover:shadow-glass",
+          highlight
+            ? "border-primary/30 hover:border-primary/45"
+            : "border-border/55 hover:border-steel/35",
         )}
-      </span>
-      <div className="relative">
-        <span className="line-clamp-2 text-sm font-bold leading-6 text-foreground">
-          {node.name}
+      >
+        {/* Visual plane — image never carries overlaid copy */}
+        <span
+          className={cn(
+            "relative block w-[42%] min-w-[7.5rem] shrink-0 self-stretch overflow-hidden sm:w-[46%] sm:min-w-[9rem]",
+            highlight ? "bg-primary/5" : "bg-secondary/80",
+          )}
+        >
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt=""
+              fill
+              quality={92}
+              sizes="(max-width: 640px) 42vw, (max-width: 1024px) 22vw, 180px"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              unoptimized
+            />
+          ) : (
+            <span className="grid h-full min-h-[7.5rem] w-full place-items-center">
+              <CategoryIcon name={node.icon} />
+            </span>
+          )}
+          <span
+            aria-hidden
+            className={cn(
+              "absolute inset-y-0 end-0 w-px",
+              highlight ? "bg-primary/20" : "bg-border/50",
+            )}
+          />
         </span>
-        <span className="mt-1 block text-[11px] text-steel">
-          {formatNumber(node.product_count ?? 0)} محصول
+
+        <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 px-4 py-4 sm:px-5 sm:py-5">
+          {highlight && (
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+              اولویت کارگاه
+            </span>
+          )}
+          <span className="line-clamp-2 text-sm font-bold leading-6 text-foreground sm:text-base sm:leading-7">
+            {node.name}
+          </span>
+          <span className="text-xs text-steel">
+            {formatNumber(node.product_count ?? 0)} محصول
+          </span>
+          <span className="mt-1 text-xs font-bold text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:mt-2">
+            ورود به دسته ←
+          </span>
         </span>
-      </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
 
-/** Root (grandfather) category carousel for the home page — same order as catalog. */
+/** Ordered L1 roots — static responsive grid (no horizontal scroller). */
 export function CategoryGrid() {
   const { data, isLoading } = useCategoryTree();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
@@ -89,9 +113,9 @@ export function CategoryGrid() {
 
   if (isLoading) {
     return (
-      <div className="flex gap-3 overflow-hidden">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-[168px] w-[148px] shrink-0 rounded-2xl" />
+          <Skeleton key={i} className="h-[120px] w-full rounded-2xl sm:h-[136px]" />
         ))}
       </div>
     );
@@ -100,10 +124,10 @@ export function CategoryGrid() {
   if (!roots.length) return null;
 
   return (
-    <AutoCarousel autoPlay intervalMs={2800} itemClassName="w-auto">
-      {[...roots, ...roots].map((node, i) => (
-        <CategoryCard key={`${node.id}-${i}`} node={node} navDefs={navDefs} />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      {roots.map((node, i) => (
+        <CategoryTile key={node.id} node={node} navDefs={navDefs} index={i} />
       ))}
-    </AutoCarousel>
+    </div>
   );
 }
