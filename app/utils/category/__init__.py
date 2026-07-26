@@ -7,6 +7,7 @@ from app.utils.category_counts import (  # noqa: F401
 )
 from app.utils.category_depth import (  # noqa: F401
     MAX_CATEGORY_DEPTH,
+    MIN_PRODUCT_CATEGORY_DEPTH,
     CategoryMeta,
     build_category_metadata,
     is_selectable_product_category,

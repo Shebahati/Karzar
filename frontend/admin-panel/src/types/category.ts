@@ -19,6 +19,9 @@ export interface CategoryFlat extends Category {
   meta_title?: string | null;
   meta_description?: string | null;
   spec_template_key?: string | null;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
 }
 
 export interface CategoryTreeNode extends Category {
@@ -26,6 +29,9 @@ export interface CategoryTreeNode extends Category {
   product_count?: number;
   icon?: string | null;
   image_url?: string | null;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
 }
 
 export interface Brand {
@@ -66,6 +72,9 @@ export interface CategoryCreatePayload {
   meta_title?: string | null;
   meta_description?: string | null;
   spec_template_key?: string | null;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
 }
 
 export interface CategoryUpdatePayload {
@@ -76,6 +85,10 @@ export interface CategoryUpdatePayload {
   meta_title?: string | null;
   meta_description?: string | null;
   spec_template_key?: string | null;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
+  unset_megamenu_bold?: boolean;
 }
 
 export interface BrandDeleteResult {

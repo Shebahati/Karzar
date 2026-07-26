@@ -41,11 +41,11 @@ async def ensure_selectable_product_category(
         raise api_error(
             400,
             error_code=ErrorCode.BAD_REQUEST,
-            message="Category must be a depth-3 leaf",
+            message="Category must be a selectable leaf (depth 2 or 3)",
             details=[
                 {
                     "field": "category_id",
-                    "message": "محصول فقط می‌تواند به یک زیردستهٔ برگ با عمق ۳ اختصاص یابد.",
+                    "message": "محصول فقط می‌تواند به یک زیردستهٔ برگ با عمق ۲ یا ۳ اختصاص یابد.",
                 }
             ],
         )
