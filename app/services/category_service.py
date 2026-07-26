@@ -26,7 +26,12 @@ from app.services.spec_template_service import (
     resolve_spec_template,
 )
 from app.utils.category_counts import get_category_product_counts
-from app.utils.category_depth import build_category_metadata, is_selectable_product_category
+from app.utils.category_depth import (
+    MAX_CATEGORY_DEPTH,
+    MIN_PRODUCT_CATEGORY_DEPTH,
+    build_category_metadata,
+    is_selectable_product_category,
+)
 from app.utils.category_tree import build_category_tree
 from app.utils.product_presenter import absolutize_asset_url
 
@@ -403,9 +408,10 @@ class CategoryService:
     ) -> CategoryDeleteResponse:
         """Delete a leaf category.
 
-        Products may only move to another selectable leaf (depth 2 or 3). Never reassign
-        to a parent (often depth-2 and illegal for products). Empty categories can
-        be deleted without a target.
+        Products may only move to a selectable leaf (depth 2 or 3). The parent is
+        allowed as target when this category is its sole child — after delete the
+        parent becomes a depth-2|3 leaf (padding-«عمومی» collapse pattern). Empty
+        categories can be deleted without a target.
         """
         category = await crud_category.get_category_by_id(db, category_id)
         if category is None:
@@ -479,7 +485,23 @@ class CategoryService:
                         }
                     ],
                 )
-            if not is_selectable_product_category(target_meta):
+
+            # Parent becomes selectable only when this node is its sole child.
+            parent_becomes_leaf = (
+                category.parent_id is not None
+                and target_category_id == category.parent_id
+                and sum(1 for c in categories if c.parent_id == category.parent_id) == 1
+            )
+            target_ok = is_selectable_product_category(target_meta)
+            if parent_becomes_leaf:
+                parent_depth = target_meta["depth"]
+                target_ok = (
+                    MIN_PRODUCT_CATEGORY_DEPTH
+                    <= parent_depth
+                    <= MAX_CATEGORY_DEPTH
+                )
+
+            if not target_ok:
                 raise api_error(
                     400,
                     error_code=ErrorCode.BAD_REQUEST,
@@ -489,7 +511,8 @@ class CategoryService:
                             "field": "target_category_id",
                             "message": (
                                 "محصولات فقط به دستهٔ برگ عمق ۲ یا ۳ قابل انتقال هستند؛ "
-                                "انتقال به والد یا دستهٔ غیرقابل‌انتخاب مجاز نیست."
+                                "انتقال به والد فقط وقتی مجاز است که این فرزند تنها "
+                                "زیردستهٔ والد باشد (پس از حذف، والد برگ می‌شود)."
                             ),
                         }
                     ],

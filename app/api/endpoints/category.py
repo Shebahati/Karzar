@@ -192,12 +192,16 @@ async def delete_category(
     category_id: int,
     target_category_id: int | None = Query(
         None,
-        description="Selectable leaf (depth 2 or 3) to receive products when the category is non-empty",
+        description=(
+            "Selectable leaf (depth 2 or 3) to receive products when the category "
+            "is non-empty. Parent is allowed when this node is its sole child "
+            "(parent becomes a leaf after delete)."
+        ),
     ),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin_with_step_up),
 ):
-    """Delete a leaf category; products must move to another selectable leaf (requires step-up PIN)."""
+    """Delete a leaf category; products must move to a selectable leaf (requires step-up PIN)."""
     try:
         return await CategoryService.delete_category_with_reassignment(
             db, category_id, target_category_id=target_category_id

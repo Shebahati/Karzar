@@ -9,6 +9,7 @@
 - [x] Homepage hero + categories + why-karzar polish waves
 - [x] Metrology L1 reshape (56/81/87) + megamenu-only label
 - [x] Admin categories/megamenu unified (#85)
+- [ ] Remove padding «عمومی» L3 leaves (script + VPS workflow; API dry-run 23/1954; staging apply pending after merge)
 - [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
 - [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
 - [ ] Living PMO (#86) — **not** merged to `main` / staging (open on `feat/living-pmo`)

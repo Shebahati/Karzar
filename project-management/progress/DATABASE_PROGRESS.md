@@ -17,4 +17,5 @@
   - Notes: #66/#68
 
 ## Evidence log
+- [ ] Remove «عمومی» padding leaves — see `../DATABASE_PROGRESS.md` / `docs/taxonomy/remove_omumi_padding_dry_run_REPORT.md`
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
