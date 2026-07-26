@@ -11,3 +11,4 @@ Move completed task IDs here with date + PR.
 - [ ] Skipped (not done): #67 (open), #69 (open), #74 (closed)
 - [x] Living PMO bootstrap — 2026-07-26 — #86 → `main`
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (PDP+PLP hubs) — 2026-07-26 — #88 → `main` @89a4cf5 (staging deployed)
+- [x] SEO-002 Category hub intros + internal links — 2026-07-26 — #91 → `main` @d92722a (staging deployed)

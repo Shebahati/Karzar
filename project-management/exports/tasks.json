@@ -105,8 +105,8 @@
         "Live",
         "CONTENT_PROGRESS updated"
       ],
-      "status": "todo",
-      "progress": 0,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 3,
@@ -116,7 +116,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": ""
+      "notes": "Merged #91 → main @d92722a; Deploy Staging success. 15 Persian hub intros (150–300w) + ≥3 internal links each; content/hubs/intros.json; CategoryHubIntro + child chips; vitest hub-intros.test.ts. Verified staging /categories/انواع-کولیس."
     },
     {
       "id": "SEO-003",

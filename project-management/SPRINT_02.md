@@ -10,7 +10,7 @@
 - [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
-  - [ ] Dependencies: SEO-002
+  - [x] Dependencies: SEO-002
   - [ ] Files: content/blog/**, frontend/Storefront/**
   - [ ] Modules: content, seo
   - [ ] Tags: content, seo

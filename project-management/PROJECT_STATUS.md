@@ -1,7 +1,7 @@
 # Project Status
 
 **Updated:** 2026-07-26  
-**Weighted progress:** 25%  
+**Weighted progress:** 28%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -14,6 +14,7 @@
 - [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
 - [x] Living PMO (#86 → main)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
+- [x] SEO-002 Hub intros + internal links (#91 → main @d92722a, staging deployed)
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
 - [ ] 31 Shahrivar release freeze
