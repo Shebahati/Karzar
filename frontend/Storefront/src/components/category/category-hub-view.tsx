@@ -4,18 +4,29 @@ import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { CatalogView } from "@/components/catalog/catalog-view";
+import { CategoryHubIntro } from "@/components/category/category-hub-intro";
 import { useFlatCategories } from "@/features/catalog/queries";
 import { categoryHref } from "@/config/nav-groups";
+import type { HubIntro } from "@/lib/hub-intros";
 import { formatNumber } from "@/lib/utils";
 import type { CategoryFlat } from "@/types/category";
 
-export function CategoryHubView({ category }: { category: CategoryFlat }) {
+export function CategoryHubView({
+  category,
+  intro = null,
+}: {
+  category: CategoryFlat;
+  intro?: HubIntro | null;
+}) {
   const { data: all = [] } = useFlatCategories();
   const byId = new Map(all.map((c) => [c.id, c]));
   const pathIds = [...(category.ancestor_ids ?? []), category.id];
   const crumbs = pathIds
     .map((id) => byId.get(id))
     .filter((c): c is CategoryFlat => Boolean(c));
+  const children = all
+    .filter((c) => c.parent_id === category.id)
+    .sort((a, b) => (b.product_count ?? 0) - (a.product_count ?? 0));
 
   return (
     <>
@@ -47,15 +58,17 @@ export function CategoryHubView({ category }: { category: CategoryFlat }) {
 
         <header className="mb-6 max-w-3xl">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{category.name}</h1>
-          {category.meta_description || category.breadcrumb?.length ? (
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              {category.meta_description ||
-                `محصولات دسته «${category.breadcrumb?.join(" › ") ?? category.name}» در فروشگاه کارزار.`}
-            </p>
-          ) : null}
           {typeof category.product_count === "number" ? (
             <p className="mt-2 text-xs font-bold text-primary">
               {formatNumber(category.product_count)} محصول در این شاخه
+            </p>
+          ) : null}
+          {intro ? (
+            <CategoryHubIntro intro={intro} childCategories={children} />
+          ) : category.meta_description || category.breadcrumb?.length ? (
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              {category.meta_description ||
+                `محصولات دسته «${category.breadcrumb?.join(" › ") ?? category.name}» در فروشگاه کارزار.`}
             </p>
           ) : null}
         </header>
