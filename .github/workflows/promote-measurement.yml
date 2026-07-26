@@ -1,5 +1,6 @@
-# One-shot / repeatable VPS apply for Measurement L2→L1 reshape.
-# Runs on the self-hosted karzar-vps runner against the live compose stack.
+# Runs on karzar-vps against the live compose stack.
+# Uses the script already synced by Deploy Staging (no actions/checkout —
+# checkout hangs on this runner).
 name: Promote Measurement Taxonomy
 
 on:
@@ -18,19 +19,11 @@ jobs:
   promote:
     runs-on: [self-hosted, karzar-vps]
     steps:
-      - name: Checkout script source
-        uses: actions/checkout@v4
-
-      - name: Sync promote script into deploy tree
-        run: |
-          set -euo pipefail
-          install -m 0644 scripts/promote_measurement_to_l1.py \
-            /opt/karzar/Karzar/scripts/promote_measurement_to_l1.py
-
-      - name: Run promote (via-db)
+      - name: Run promote (via-db) from deploy tree
         working-directory: /opt/karzar/Karzar
         run: |
           set -euo pipefail
+          test -f scripts/promote_measurement_to_l1.py
           MODE="${{ inputs.mode }}"
           if [ "$MODE" = "apply" ]; then
             docker compose exec -T app \
