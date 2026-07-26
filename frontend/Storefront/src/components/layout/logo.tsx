@@ -41,6 +41,7 @@ export function Logo({
   href = "/",
   priority = false,
   height,
+  tone = "brand",
 }: {
   className?: string;
   variant?: LogoVariant;
@@ -48,6 +49,8 @@ export function Logo({
   priority?: boolean;
   /** Override display height (width scales from intrinsic aspect). */
   height?: number;
+  /** `onDark` forces a white mark for contrast over hero/media. */
+  tone?: "brand" | "onDark";
 }) {
   const asset = ASSETS[variant];
   const displayHeight = height ?? (variant === "icon" ? 36 : variant === "slogan" ? 44 : 28);
@@ -61,7 +64,10 @@ export function Logo({
       height={displayHeight}
       priority={priority}
       unoptimized
-      className="object-contain object-center"
+      className={cn(
+        "object-contain object-center transition-[filter] duration-300",
+        tone === "onDark" && "brightness-0 invert",
+      )}
     />
   );
 
