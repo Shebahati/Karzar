@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CategoryHubView } from "@/components/category/category-hub-view";
 import { Container } from "@/components/ui/container";
 import { ProductCardSkeleton } from "@/components/product/product-card";
+import { getHubIntro, hubIntroExcerpt } from "@/lib/hub-intros";
 import { buildCategoryHubJsonLd } from "@/lib/json-ld";
 import { catalogService } from "@/services/catalog";
 import type { CategoryFlat } from "@/types/category";
@@ -16,9 +17,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   try {
     const category = await catalogService.getCategoryBySlug(slug);
+    const intro = getHubIntro(category.slug ?? slug);
     const title = category.meta_title || `${category.name} | کارزار`;
     const description =
       category.meta_description ||
+      (intro ? hubIntroExcerpt(intro) : null) ||
       `خرید و مشاهده محصولات دسته ${category.name} در فروشگاه ابزار صنعتی کارزار.`;
     return {
       title,
@@ -50,6 +53,8 @@ export default async function CategoryHubPage({ params }: Props) {
     notFound();
   }
 
+  const intro = getHubIntro(category.slug ?? slug);
+
   let jsonLd: Record<string, unknown> | null = null;
   try {
     const [all, productsPage] = await Promise.all([
@@ -59,8 +64,12 @@ export default async function CategoryHubPage({ params }: Props) {
         category_id: category.id,
       }),
     ]);
+    const categoryForLd =
+      !category.meta_description && intro
+        ? { ...category, meta_description: hubIntroExcerpt(intro) }
+        : category;
     jsonLd = buildCategoryHubJsonLd({
-      category,
+      category: categoryForLd,
       ancestors: resolveAncestors(category, all),
       products: productsPage.data ?? [],
     });
@@ -87,7 +96,7 @@ export default async function CategoryHubPage({ params }: Props) {
           </Container>
         }
       >
-        <CategoryHubView category={category} />
+        <CategoryHubView category={category} intro={intro} />
       </Suspense>
     </>
   );
