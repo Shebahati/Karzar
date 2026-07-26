@@ -13,7 +13,7 @@
 - [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
 - [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
 - [x] Living PMO (#86 → main)
-- [ ] SEO schema completeness (SEO-001 in_progress 90% — FE JSON-LD shipped, staging verify pending)
+- [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
 - [ ] 31 Shahrivar release freeze

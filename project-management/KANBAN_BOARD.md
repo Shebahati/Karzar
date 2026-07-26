@@ -212,20 +212,7 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: Open PR #81
 
 ## in_progress
-- [ ] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `in_progress` 90% | P0 | 16h | Sprint 01
-  - Owner: unassigned | Week 2 Day 1 | Risk: med
-  - [x] Description: Complete structured data for products, offers, breadcrumbs, organization.
-  - [x] Dependencies: PMO-001
-  - [x] Files: frontend/Storefront/src/**
-  - [x] Modules: seo, frontend
-  - [x] Tags: seo, schema
-  - Acceptance Criteria:
-    - [ ] Rich Results test passes for sample PDPs (pending staging)
-    - [x] No invalid Offer without price
-  - Definition of Done:
-    - [ ] Deployed staging
-    - [x] Documented in STRUCTURED_DATA_PROGRESS
-  - Notes: PDP Product+gated Offer+Breadcrumb; category CollectionPage/ItemList; root Org+WebSite; vitest.
+
 - [ ] **PMO-001** Bootstrap living PMO workspace — `in_progress` 70% | P0 | 8h | Sprint 00
   - Owner: agent | Week 1 Day 1 | Risk: low
   - [ ] Description: Create project-management SoT, exports, Cursor rule, printable boards.
@@ -243,7 +230,20 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: This PR
 
 ## done
-- [ ] _(empty)_
+- [x] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `done` 100% | P0 | 16h | Sprint 01
+  - Owner: unassigned | Week 2 Day 1 | Risk: med
+  - [x] Description: Complete structured data for products, offers, breadcrumbs, organization.
+  - [x] Dependencies: PMO-001
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: seo, frontend
+  - [x] Tags: seo, schema
+  - Acceptance Criteria:
+    - [x] Rich Results-ready schema verified on staging sample PDP (/product/7115 Offer+IRR)
+    - [x] No invalid Offer without price
+  - Definition of Done:
+    - [x] Deployed staging
+    - [x] Documented in STRUCTURED_DATA_PROGRESS
+  - Notes: PDP Product+gated Offer+Breadcrumb; category CollectionPage/ItemList; root Org+WebSite; vitest.
 
 ## cancelled
 - [ ] _(empty)_

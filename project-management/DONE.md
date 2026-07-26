@@ -9,4 +9,5 @@ Move completed task IDs here with date + PR.
 - [x] Clear Hesabfa stock script asyncpg — 2026-07-26 — #56 → `main`
 - [x] CI: unlock frontend-only required lint/test — 2026-07-26 — #26 → `main`
 - [ ] Skipped (not done): #67 (open), #69 (open), #74 (closed)
-- [ ] _(PMO-001 / #86 — still open; not on `main` or staging)_
+- [x] Living PMO bootstrap — 2026-07-26 — #86 → `main`
+- [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (PDP+PLP hubs) — 2026-07-26 — #88 → `main` @89a4cf5 (staging deployed)
