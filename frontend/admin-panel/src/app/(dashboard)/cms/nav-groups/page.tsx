@@ -13,7 +13,7 @@ export default function NavGroupsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/catalog/categories?tab=megamenu");
+    router.replace("/catalog/categories");
   }, [router]);
 
   return (

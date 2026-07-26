@@ -1,8 +1,9 @@
 /**
  * Build storefront hero slides 1:1 with enabled megamenu nav groups.
  *
- * Image priority: CMS slide override (matched by group) → first L1 root
- * with image_url → static fallback by group slug.
+ * Image priority: CMS slide override (matched by group) → curated static
+ * fallback by group slug. Category packshots are skipped for full-bleed
+ * hero (they suit cards, not RTL left-weighted hero composition).
  * Copy priority: CMS override → curated defaults keyed by group slug.
  */
 
@@ -27,40 +28,44 @@ export interface NavHeroCopy {
   fallbackImage: string;
 }
 
-/** Curated Persian copy + image fallbacks for locked IA groups. */
+/**
+ * Curated Persian copy + image fallbacks for locked IA groups.
+ * Fallback photos are left-weighted (subject left, quieter right) so RTL
+ * hero copy on the right sits over empty space.
+ */
 export const NAV_HERO_COPY: Record<string, NavHeroCopy> = {
   metrology: {
     subtitle:
       "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — موجودی و استعلام برای خط تولید شما",
     cta_label: "مشاهده اندازه‌گیری",
-    fallbackImage: "/images/hero/karzar-metrology-lab.jpg",
+    fallbackImage: "/images/hero/hero-metrology-left.jpg",
   },
   cutting: {
     subtitle: "اینسرت، مته، قلاویز و ابزار انگشتی — انتخاب سریع برای براده‌برداری دقیق",
     cta_label: "مشاهده براده‌برداری",
-    fallbackImage: "/images/hero/hero-caliper-shop-rtl.jpg",
+    fallbackImage: "/images/hero/hero-cutting-left.jpg",
   },
   holding: {
     subtitle: "ابزارگیر، کولت و سیستم‌های گیرش ماشین‌ابزار برای پایداری بیشتر در ماشینکاری",
     cta_label: "مشاهده ابزارگیری",
-    fallbackImage: "/images/hero/hero-micrometer-rtl.jpg",
+    fallbackImage: "/images/hero/hero-holding-left.jpg",
   },
   machines: {
     subtitle: "ماشین‌ها و تجهیزات صنعتی برای تجهیز کارگاه و خط تولید",
     cta_label: "مشاهده ماشین‌ها",
-    fallbackImage: "/images/hero/hero-metrology-bench.jpg",
+    fallbackImage: "/images/hero/hero-machines-left.jpg",
   },
   accessories: {
     subtitle: "لوازم جانبی و مواد مصرفی کارگاهی برای تکمیل ابزارخانه و نگهداری روزمره",
     cta_label: "مشاهده لوازم جانبی",
-    fallbackImage: "/images/hero/hero-caliper-shop.jpg",
+    fallbackImage: "/images/hero/hero-accessories-left.jpg",
   },
 };
 
 const DEFAULT_COPY: NavHeroCopy = {
   subtitle: "کاتالوگ تخصصی ابزار صنعتی کارزار — از اندازه‌گیری تا براده‌برداری",
   cta_label: "مشاهده دسته‌بندی",
-  fallbackImage: "/images/hero/karzar-metrology-lab.jpg",
+  fallbackImage: "/images/hero/hero-metrology-left.jpg",
 };
 
 function normalizeFa(s: string): string {
@@ -94,13 +99,6 @@ export function matchCmsSlideToGroup(
   return ranked[0]?.slide;
 }
 
-function pickImage(roots: HeroCategoryNode[], fallback: string): string {
-  for (const root of roots) {
-    const url = root.image_url?.trim();
-    if (url) return url;
-  }
-  return fallback;
-}
 
 function pickHref(roots: HeroCategoryNode[]): string {
   if (roots.length === 1) return categoryHref(roots[0]);
@@ -133,8 +131,7 @@ export function buildHeroSlidesFromNavGroups(
     const subtitle = cms?.subtitle?.trim() || copy.subtitle;
     const cta_label = cms?.cta_label?.trim() || copy.cta_label;
     const cta_href = cms?.cta_href?.trim() || pickHref(group.roots as HeroCategoryNode[]);
-    const image =
-      cms?.image?.trim() || pickImage(group.roots as HeroCategoryNode[], copy.fallbackImage);
+    const image = cms?.image?.trim() || copy.fallbackImage;
 
     return {
       id: cms?.id ?? index + 1,

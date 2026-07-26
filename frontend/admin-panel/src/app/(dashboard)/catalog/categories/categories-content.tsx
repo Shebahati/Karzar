@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Category, Star } from "react-iconly";
 import { toast } from "sonner";
 
@@ -25,7 +24,6 @@ import { enrichFlatCategories } from "@/features/catalog/utils/category-tree";
 import { NavGroupsEditor } from "@/features/cms/components/nav-groups-editor";
 import { useNavGroups } from "@/features/cms/queries";
 import { ApiError } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
 import type { CategoryFlat } from "@/types/category";
 
 type FormMode = {
@@ -36,18 +34,7 @@ type FormMode = {
   category?: CategoryFlat | null;
 };
 
-type CategoriesTab = "tree" | "megamenu";
-
-function parseTab(raw: string | null): CategoriesTab {
-  return raw === "megamenu" ? "megamenu" : "tree";
-}
-
 export function CategoriesContent() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeTab = parseTab(searchParams.get("tab"));
-
   const { data: rawCategories = [], isPending } = useFlatCategories();
   const categories = useMemo(() => enrichFlatCategories(rawCategories), [rawCategories]);
   const { data: navGroupsData } = useNavGroups();
@@ -76,14 +63,6 @@ export function CategoriesContent() {
     layer: 1,
   });
 
-  function setTab(tab: CategoriesTab) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (tab === "tree") params.delete("tab");
-    else params.set("tab", tab);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }
-
   function openCreate(layer: 1 | 2 | 3) {
     const parentId = layer === 2 ? layer1Id : layer === 3 ? layer2Id : null;
     setForm({ open: true, mode: "create", layer, parentId });
@@ -93,7 +72,7 @@ export function CategoriesContent() {
     setForm({
       open: true,
       mode: "edit",
-      layer: category.depth as 1 | 2 | 3,
+      layer: Math.min(3, Math.max(1, category.depth)) as 1 | 2 | 3,
       category,
     });
   }
@@ -131,88 +110,80 @@ export function CategoriesContent() {
   const layerLabels = { 1: "دسته اصلی", 2: "زیردسته", 3: "دسته محصول" } as const;
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+    <div className="mx-auto flex max-w-7xl flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
             <Category set="bulk" size={26} primaryColor="#C22026" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#4F4F4F]">دسته‌بندی‌ها</h2>
+            <h2 className="text-2xl font-bold text-[#4F4F4F]">دسته‌بندی و مگامنو</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              درخت محصول و گروه‌های نمایشی مگامنو فروشگاه
+              درخت محصول، نمایش مگامنو، و گروه‌های فروشگاه — همه در یک صفحه
             </p>
           </div>
         </div>
-        {activeTab === "tree" ? (
-          <Button onClick={() => setBrandsOpen(true)}>
-            <Star set="bold" size={18} primaryColor="#FFFFFF" />
-            مدیریت برندها
-          </Button>
-        ) : null}
+        <Button onClick={() => setBrandsOpen(true)}>
+          <Star set="bold" size={18} primaryColor="#FFFFFF" />
+          مدیریت برندها
+        </Button>
       </div>
 
-      <div
-        role="tablist"
-        aria-label="بخش‌های دسته‌بندی"
-        className="inline-flex w-fit rounded-xl bg-white p-1 shadow-sm ring-1 ring-border/40"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "tree"}
-          className={cn(
-            "rounded-lg px-4 py-2 text-sm font-bold transition-colors",
-            activeTab === "tree"
-              ? "bg-accent text-primary"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-          onClick={() => setTab("tree")}
-        >
-          درخت دسته‌بندی
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "megamenu"}
-          className={cn(
-            "rounded-lg px-4 py-2 text-sm font-bold transition-colors",
-            activeTab === "megamenu"
-              ? "bg-accent text-primary"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-          onClick={() => setTab("megamenu")}
-        >
-          مگامنو فروشگاه
-        </button>
+      <div className="rounded-2xl border border-border/40 bg-gradient-to-l from-accent/40 to-white px-5 py-4 text-sm leading-relaxed text-[#4F4F4F] shadow-sm">
+        <p className="font-bold">راهنمای نمایش مگامنو</p>
+        <ul className="mt-2 list-disc space-y-1 pe-5 text-muted-foreground">
+          <li>
+            اگر لایهٔ سوم ندارید، در ویرایش لایهٔ ۲ گزینهٔ «نمایش به‌صورت برگ» را روشن کنید تا مثل لینک محصول دیده شود.
+          </li>
+          <li>
+            فرزند تنها با نام «عمومی» به‌صورت خودکار در مگامنو جمع می‌شود؛ می‌توانید همان والد را برگ کنید یا فرزند را پنهان کنید.
+          </li>
+          <li>پررنگ بودن متن را روی هر گره با حالت خودکار / همیشه پررنگ / معمولی تنظیم کنید.</li>
+        </ul>
       </div>
 
-      {activeTab === "megamenu" ? (
-        <NavGroupsEditor embedded />
-      ) : isPending ? (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Skeleton className="h-[420px] w-full rounded-xl" />
-          <Skeleton className="h-[420px] w-full rounded-xl" />
-          <Skeleton className="h-[420px] w-full rounded-xl" />
+      <section className="space-y-3">
+        <div>
+          <h3 className="text-lg font-bold text-[#4F4F4F]">درخت دسته‌بندی</h3>
+          <p className="text-sm text-muted-foreground">
+            لایه ۱ تا ۳ را مدیریت کنید. نشان‌های بنفش/نیلی وضعیت مگامنو را نشان می‌دهند.
+          </p>
         </div>
-      ) : (
-        <CategoryColumns
-          categories={categories}
-          layer1Id={layer1Id}
-          layer2Id={layer2Id}
-          rootGroupLabels={rootGroupLabels}
-          onSelectLayer1={(id) => {
-            setLayer1Id(id);
-            setLayer2Id(null);
-          }}
-          onSelectLayer2={setLayer2Id}
-          onAddLayer1={() => openCreate(1)}
-          onAddLayer2={() => openCreate(2)}
-          onAddLayer3={() => openCreate(3)}
-          onEdit={openEdit}
-          onDelete={setDeleteTarget}
-        />
-      )}
+        {isPending ? (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <Skeleton className="h-[420px] w-full rounded-xl" />
+            <Skeleton className="h-[420px] w-full rounded-xl" />
+            <Skeleton className="h-[420px] w-full rounded-xl" />
+          </div>
+        ) : (
+          <CategoryColumns
+            categories={categories}
+            layer1Id={layer1Id}
+            layer2Id={layer2Id}
+            rootGroupLabels={rootGroupLabels}
+            onSelectLayer1={(id) => {
+              setLayer1Id(id);
+              setLayer2Id(null);
+            }}
+            onSelectLayer2={setLayer2Id}
+            onAddLayer1={() => openCreate(1)}
+            onAddLayer2={() => openCreate(2)}
+            onAddLayer3={() => openCreate(3)}
+            onEdit={openEdit}
+            onDelete={setDeleteTarget}
+          />
+        )}
+      </section>
+
+      <section className="space-y-3 border-t border-border/40 pt-8">
+        <div>
+          <h3 className="text-lg font-bold text-[#4F4F4F]">گروه‌های مگامنو فروشگاه</h3>
+          <p className="text-sm text-muted-foreground">
+            ریشه‌های لایه ۱ را به گروه‌های نمایشی (اندازه‌گیری، براده‌برداری، …) وصل کنید.
+          </p>
+        </div>
+        <NavGroupsEditor embedded />
+      </section>
 
       <BrandsManagementModal open={brandsOpen} onOpenChange={setBrandsOpen} />
 

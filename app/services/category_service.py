@@ -55,6 +55,9 @@ def _to_flat_response(
         meta_title=category.meta_title,
         meta_description=category.meta_description,
         spec_template_key=category.spec_template_key,
+        megamenu_hidden=bool(category.megamenu_hidden),
+        megamenu_as_leaf=bool(category.megamenu_as_leaf),
+        megamenu_bold=category.megamenu_bold,
     )
 
 
@@ -191,6 +194,9 @@ class CategoryService:
             name=normalized_name,
             parent_id=payload.parent_id,
             spec_template_key=payload.spec_template_key,
+            megamenu_hidden=payload.megamenu_hidden,
+            megamenu_as_leaf=payload.megamenu_as_leaf,
+            megamenu_bold=payload.megamenu_bold,
         )
         if payload.icon is not None or payload.meta_title is not None or payload.meta_description is not None:
             category = await crud_category.update_category(
@@ -348,6 +354,14 @@ class CategoryService:
             unset_spec_template_key=(
                 "spec_template_key" in fields_set and payload.spec_template_key is None
             ),
+            megamenu_hidden=(
+                payload.megamenu_hidden if "megamenu_hidden" in fields_set else None
+            ),
+            megamenu_as_leaf=(
+                payload.megamenu_as_leaf if "megamenu_as_leaf" in fields_set else None
+            ),
+            megamenu_bold=payload.megamenu_bold if "megamenu_bold" in fields_set else None,
+            unset_megamenu_bold=bool(payload.unset_megamenu_bold),
         )
 
         await db.commit()
