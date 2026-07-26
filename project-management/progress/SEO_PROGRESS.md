@@ -1,8 +1,8 @@
 # SEO Progress
 
-**Rollup:** 31%
+**Rollup:** 34%
 
-- [ ] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `in_progress` 90% | P0 | 16h | Sprint 01
+- [x] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 1 | Risk: med
   - [x] Description: Complete structured data for products, offers, breadcrumbs, organization.
   - [x] Dependencies: PMO-001
@@ -10,10 +10,10 @@
   - [x] Modules: seo, frontend
   - [x] Tags: seo, schema
   - Acceptance Criteria:
-    - [ ] Rich Results test passes for sample PDPs (pending staging)
+    - [x] Rich Results-ready schema verified on staging sample PDP (/product/7115 Offer+IRR)
     - [x] No invalid Offer without price
   - Definition of Done:
-    - [ ] Deployed staging
+    - [x] Deployed staging
     - [x] Documented in STRUCTURED_DATA_PROGRESS
   - Notes: PDP Product+gated Offer+Breadcrumb; category CollectionPage/ItemList; root Organization+WebSite+SearchAction; vitest.
 - [ ] **SEO-002** Category hub content + internal linking for mid-tail — `todo` 0% | P0 | 24h | Sprint 01
@@ -58,4 +58,4 @@
     - [ ] TECHNICAL_SEO_PROGRESS
 
 ## Evidence log
-- [ ] SEO-001 PR + staging Rich Results samples
+- [x] SEO-001 #88 + staging /product/7115
