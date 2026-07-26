@@ -1,0 +1,23 @@
+# Task {ID}
+
+- [ ] **Title:**
+- [ ] **Description:**
+- [ ] **Priority:** P0 / P1 / P2
+- [ ] **Severity:** low / med / high
+- [ ] **Estimated hours:**
+- [ ] **Dependencies:**
+- [ ] **Related files:**
+- [ ] **Related modules:**
+- [ ] **Acceptance Criteria:**
+  - [ ] …
+- [ ] **Definition of Done:**
+  - [ ] …
+- [ ] **Status:** todo / in_progress / done
+- [ ] **Progress %:** 0
+- [ ] **Target Sprint:**
+- [ ] **Target Week:**
+- [ ] **Target Day:**
+- [ ] **Owner:**
+- [ ] **Tags:**
+- [ ] **Risk:**
+- [ ] **Notes:**

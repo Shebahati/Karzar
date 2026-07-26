@@ -1,0 +1,20 @@
+%%{init: {'theme':'base'}}%%
+gantt
+    title Karzar → 31 Shahrivar checkpoint
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+    section Foundation
+    PMO-001           :active, pmo, 2026-07-26, 3d
+    CAT-001 PR triage :cat1, after pmo, 3d
+    CAT-003 Images    :cat3, 2026-07-26, 5d
+    section SEO
+    SEO-001 Schema    :seo1, 2026-07-29, 7d
+    SEO-004 Tech SEO  :seo4, after seo1, 5d
+    SEO-002 Hubs      :seo2, after seo1, 7d
+    SEO-003 Articles  :seo3, after seo2, 28d
+    section UX/Perf
+    UX-002 PDP        :ux2, after seo1, 7d
+    PERF-001 CWV      :perf, 2026-08-09, 14d
+    section Freeze
+    SEC-001 Security  :sec, 2026-08-23, 7d
+    REL-001 Release   :rel, 2026-09-22, 2d

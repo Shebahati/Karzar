@@ -1,0 +1,61 @@
+# SEO Progress
+
+**Rollup:** 14%
+
+- [ ] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `todo` 20% | P0 | 16h | Sprint 01
+  - Owner: unassigned | Week 2 Day 1 | Risk: med
+  - [ ] Description: Complete structured data for products, offers, breadcrumbs, organization.
+  - [ ] Dependencies: PMO-001
+  - [ ] Files: frontend/Storefront/src/**, app/schemas/**
+  - [ ] Modules: seo, frontend
+  - [ ] Tags: seo, schema
+  - Acceptance Criteria:
+    - [ ] Rich Results test passes for sample PDPs
+    - [ ] No invalid Offer without price
+  - Definition of Done:
+    - [ ] Deployed staging
+    - [ ] Documented in STRUCTURED_DATA_PROGRESS
+  - Notes: Partial SEO plumbing already merged #66/#68
+- [ ] **SEO-002** Category hub content + internal linking for mid-tail — `todo` 0% | P0 | 24h | Sprint 01
+  - Owner: unassigned | Week 2 Day 3 | Risk: med
+  - [ ] Description: Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.
+  - [ ] Dependencies: SEO-001
+  - [ ] Files: frontend/Storefront/src/components/category/**, content/**
+  - [ ] Modules: seo, content
+  - [ ] Tags: seo, content
+  - Acceptance Criteria:
+    - [ ] Top 15 hubs have unique 150–300w intro
+    - [ ] Internal links ≥3 per hub
+  - Definition of Done:
+    - [ ] Live
+    - [ ] CONTENT_PROGRESS updated
+- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
+  - Owner: unassigned | Week 4 Day 1 | Risk: high
+  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [ ] Dependencies: SEO-002
+  - [ ] Files: content/blog/**, frontend/Storefront/**
+  - [ ] Modules: content, seo
+  - [ ] Tags: content, seo
+  - Acceptance Criteria:
+    - [ ] 24 published
+    - [ ] Each links ≥2 products
+    - [ ] FAQ schema where fit
+  - Definition of Done:
+    - [ ] CONTENT_CALENDAR checked
+    - [ ] Live
+  - Notes: Quality > volume; AI-assisted draft + human QA
+- [ ] **SEO-004** Technical SEO crawl hygiene — `todo` 30% | P0 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 2 | Risk: low
+  - [ ] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
+  - [ ] Dependencies: SEO-001
+  - [ ] Files: frontend/Storefront/**, deploy/**
+  - [ ] Modules: seo, ops
+  - [ ] Tags: seo, tech
+  - Acceptance Criteria:
+    - [ ] 0 soft-404 hubs
+    - [ ] Sitemap <50k urls valid
+  - Definition of Done:
+    - [ ] TECHNICAL_SEO_PROGRESS
+
+## Evidence log
+- [ ] Add links to PRs / GSC / Lighthouse here as you go

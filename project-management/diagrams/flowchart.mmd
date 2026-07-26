@@ -1,0 +1,9 @@
+flowchart TD
+  A[Idea / Bug / SEO gap] --> B{In PMO tasks.json?}
+  B -->|No| C[Create task ID + AC/DoD]
+  B -->|Yes| D[Assign sprint]
+  C --> D
+  D --> E[Implement in worktree]
+  E --> F[Tests + deploy staging]
+  F --> G[Update progress + CHANGELOG]
+  G --> H[DONE.md]
