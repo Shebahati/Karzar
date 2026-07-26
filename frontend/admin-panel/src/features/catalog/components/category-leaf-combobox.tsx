@@ -30,7 +30,7 @@ interface CategoryLeafComboboxProps {
 }
 
 /**
- * Command/Combobox restricted to layer-3 leaf categories (depth 3, no children).
+ * Command/Combobox restricted to selectable product leaf categories (depth 2 or 3).
  */
 export function CategoryLeafCombobox({
   categories,
@@ -65,7 +65,7 @@ export function CategoryLeafCombobox({
                 ? "در حال بارگذاری دسته‌بندی‌ها..."
                 : selected
                   ? formatCategoryLabel(selected)
-                  : "انتخاب دسته‌بندی لایه ۳"}
+                  : "انتخاب دسته‌بندی برگ"}
             </span>
           </span>
           <ChevronDown set="light" size={18} primaryColor="#828282" />
@@ -75,7 +75,7 @@ export function CategoryLeafCombobox({
         <Command>
           <CommandInput placeholder="جستجوی دسته‌بندی..." />
           <CommandList>
-            <CommandEmpty>دسته‌بندی لایه ۳ یافت نشد.</CommandEmpty>
+            <CommandEmpty>دسته‌بندی برگ یافت نشد.</CommandEmpty>
             <CommandGroup>
               {selectable.map((category) => {
                 const label = formatCategoryLabel(category);

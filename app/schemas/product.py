@@ -41,7 +41,11 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
-    category_id: int = Field(..., ge=1, description="Required selectable (depth-3 leaf) category")
+    category_id: int = Field(
+        ...,
+        ge=1,
+        description="Required selectable leaf category (depth 2 or 3)",
+    )
     brand_id: int | None = None
 
     base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
