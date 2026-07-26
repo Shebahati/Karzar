@@ -82,6 +82,9 @@ def build_category_tree(
             icon=resolve_category_icon(category.name, category.icon, is_root=is_root),
             image_url=absolutize_asset_url(category.image_url),
             product_count=counts.get(category.id),
+            megamenu_hidden=bool(getattr(category, "megamenu_hidden", False)),
+            megamenu_as_leaf=bool(getattr(category, "megamenu_as_leaf", False)),
+            megamenu_bold=getattr(category, "megamenu_bold", None),
             subcategories=[to_node(child) for child in children],
         )
 

@@ -7,6 +7,10 @@ import { ArrowLeft, Search } from "react-iconly";
 import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buildNavGroups, categoryHref, filterNonEmptyTree, NAV_GROUPS } from "@/config/nav-groups";
+import {
+  prepareMegamenuRoots,
+  resolveMegamenuBold,
+} from "@/lib/megamenu-display";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -79,8 +83,11 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
   const filteredRoots = useMemo(() => {
     if (!activeGroup) return [];
     const q = query.trim().toLowerCase();
-    if (!q) return activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean);
-    return activeGroup.roots
+    const base = prepareMegamenuRoots(
+      activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean) as CategoryTreeNode[],
+    );
+    if (!q) return base;
+    return base
       .map((root) => filterTreeByQuery(root, q))
       .filter((r): r is CategoryTreeNode => Boolean(r));
   }, [activeGroup, query]);
@@ -206,7 +213,7 @@ function MegaMenuRoot({
   root: CategoryTreeNode;
   onNavigate: () => void;
 }) {
-  const mids = filterNonEmptyTree(root.subcategories ?? []);
+  const mids = root.subcategories ?? [];
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -229,38 +236,52 @@ function MegaMenuRoot({
         <Link
           href={categoryHref(root)}
           onClick={onNavigate}
-          className="inline-flex text-sm font-bold text-primary hover:underline"
+          className="inline-flex text-sm text-muted-foreground transition-colors hover:text-primary"
         >
           مشاهده محصولات {root.name}
         </Link>
       ) : (
         <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-3">
-          {mids.map((mid) => (
-            <div key={mid.id} className="min-w-0">
-              <Link
-                href={categoryHref(mid)}
-                onClick={onNavigate}
-                className="block text-sm font-bold text-foreground transition-colors hover:text-primary"
-              >
-                {mid.name}
-              </Link>
-              {(mid.subcategories?.length ?? 0) > 0 ? (
-                <ul className="mt-2.5 space-y-1.5">
-                  {mid.subcategories.map((leaf) => (
-                    <li key={leaf.id}>
-                      <Link
-                        href={categoryHref(leaf)}
-                        onClick={onNavigate}
-                        className="block truncate text-sm text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {leaf.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          ))}
+          {mids.map((mid) => {
+            const kids = mid.subcategories ?? [];
+            const isBranch = kids.length > 0;
+            const bold = resolveMegamenuBold(mid, { isBranch });
+            return (
+              <div key={mid.id} className="min-w-0">
+                <Link
+                  href={categoryHref(mid)}
+                  onClick={onNavigate}
+                  className={cn(
+                    "block text-sm transition-colors hover:text-primary",
+                    bold ? "font-bold text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {mid.name}
+                </Link>
+                {isBranch ? (
+                  <ul className="mt-2.5 space-y-1.5">
+                    {kids.map((leaf) => {
+                      const leafBold = resolveMegamenuBold(leaf, { isBranch: false });
+                      return (
+                        <li key={leaf.id}>
+                          <Link
+                            href={categoryHref(leaf)}
+                            onClick={onNavigate}
+                            className={cn(
+                              "block truncate text-sm transition-colors hover:text-primary",
+                              leafBold ? "font-bold text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {leaf.name}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

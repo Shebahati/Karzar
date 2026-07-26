@@ -108,6 +108,17 @@ function CategoryColumn({
                             مگامنو: {groupLabelsById.get(item.id)}
                           </span>
                         ) : null}
+                        {item.megamenu_hidden ? (
+                          <span className="rounded bg-rose-50 px-1 text-rose-700">پنهان در مگامنو</span>
+                        ) : null}
+                        {item.megamenu_as_leaf ? (
+                          <span className="rounded bg-indigo-50 px-1 text-indigo-700">برگ مگامنو</span>
+                        ) : null}
+                        {item.megamenu_bold === true ? (
+                          <span className="rounded bg-slate-100 px-1 text-slate-700">Bold</span>
+                        ) : item.megamenu_bold === false ? (
+                          <span className="rounded bg-slate-50 px-1 text-slate-500">بدون Bold</span>
+                        ) : null}
                         {item.icon ? (
                           <span className="rounded bg-sky-50 px-1 text-sky-700" title={item.icon}>
                             آیکن
