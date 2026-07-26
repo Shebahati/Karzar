@@ -10,8 +10,10 @@ import {
   GoogleTagManagerNoscript,
 } from "@/components/analytics/google-tag-manager";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { buildSitewideJsonLd } from "@/lib/json-ld";
 
 const SITE_URL = "https://www.karzartools.com";
+const sitewideJsonLd = buildSitewideJsonLd();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -57,6 +59,10 @@ export default async function RootLayout({
         {/* Analytics: set NEXT_PUBLIC_GA_MEASUREMENT_ID *or* NEXT_PUBLIC_GTM_ID — not both. */}
         <GoogleTagManagerHead nonce={nonce} />
         <GoogleAnalytics nonce={nonce} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(sitewideJsonLd) }}
+        />
       </head>
       <body className="font-sans min-h-full bg-background text-foreground antialiased">
         <GoogleTagManagerNoscript />

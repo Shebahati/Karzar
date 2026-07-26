@@ -66,8 +66,8 @@
         "Deployed staging",
         "Documented in STRUCTURED_DATA_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 20,
+      "status": "in_progress",
+      "progress": 90,
       "sprint": "01",
       "week": 2,
       "day": 1,
@@ -77,7 +77,7 @@
         "schema"
       ],
       "risk": "med",
-      "notes": "Partial SEO plumbing already merged #66/#68"
+      "notes": "FE JSON-LD: Product+gated Offer+Breadcrumb PDP; CollectionPage/ItemList category hubs; Organization+WebSite+SearchAction root. Vitest coverage. Staging + Rich Results verify remaining."
     },
     {
       "id": "SEO-002",

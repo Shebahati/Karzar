@@ -12,14 +12,14 @@
 - [ ] Remove padding «عمومی» L3 leaves (script + VPS workflow; API dry-run 23/1954; staging apply pending after merge)
 - [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
 - [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
-- [ ] Living PMO (#86) — **not** merged to `main` / staging (open on `feat/living-pmo`)
-- [ ] SEO schema completeness
+- [x] Living PMO (#86 → main)
+- [ ] SEO schema completeness (SEO-001 in_progress 90% — FE JSON-LD shipped, staging verify pending)
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
 - [ ] 31 Shahrivar release freeze
 
 ## By stream
-- [x] PMO bootstrap (this folder on #86 only — awaiting merge)
+- [x] PMO bootstrap (#86 → main)
 - [ ] SEO — see `SEO_PROGRESS.md`
 - [ ] Content — see `CONTENT_PROGRESS.md`
 - [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md`
