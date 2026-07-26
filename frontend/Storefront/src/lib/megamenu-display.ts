@@ -3,6 +3,8 @@
  *
  * - Hides `megamenu_hidden` nodes
  * - Collapses padding «عمومی» singleton children into the parent leaf
+ *   (safety net if DB still has filler leaves; prefer
+ *   `scripts/remove_omumi_padding_leaves.py` for real cleanup)
  * - Honors `megamenu_as_leaf` (force terminal link, hide children)
  * - `megamenu_bold`: null = auto (branch headers bold; leaves normal)
  */

@@ -17,4 +17,5 @@
   - Notes: #66/#68
 
 ## Evidence log
+- [ ] Remove «عمومی» padding leaves — dry-run report `docs/taxonomy/remove_omumi_padding_dry_run_REPORT.md` (23 deletes / 1954 products); **staging apply not yet run** (SSH unavailable; use `remove-omumi-padding.yml` after Deploy Staging)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

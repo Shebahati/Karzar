@@ -11,6 +11,8 @@ describe("megamenu-display", () => {
     expect(isPaddingLeafName("عمومی")).toBe(true);
     expect(isPaddingLeafName("کولیس — عمومی")).toBe(true);
     expect(isPaddingLeafName("انواع کولیس")).toBe(false);
+    // Real merchandising name — not a padding filler
+    expect(isPaddingLeafName("ابزار دستی عمومی")).toBe(false);
   });
 
   it("collapses sole عمومی child into parent leaf", () => {
