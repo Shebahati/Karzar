@@ -88,7 +88,7 @@ def _row(c: dict[str, Any] | None) -> dict[str, Any] | None:
 
 
 async def apply_via_db(*, dry_run: bool) -> int:
-    """Promote + remap + delete hub using the app DB session (VPS container)."""
+    """Promote + remap + prune empty hub orphans using the app DB session."""
     from sqlalchemy import func, select
 
     from app.db.database import async_session_maker
@@ -110,6 +110,20 @@ async def apply_via_db(*, dry_run: bool) -> int:
             )
         ).scalar_one_or_none()
 
+        hub_children = [c for c in cats if c.parent_id == FORMER_HUB_ID]
+        empty_dup_l1 = [
+            c
+            for c in cats
+            if c.parent_id is None
+            and c.id not in PROMOTE_IDS
+            and c.id != FORMER_HUB_ID
+            and any(
+                n.replace("\u200c", "").replace(" ", "") in c.name.replace("\u200c", "").replace(" ", "")
+                or c.name.replace("\u200c", "").replace(" ", "") in n.replace("\u200c", "").replace(" ", "")
+                for n in ("اندازه گیری دقیق", "اندازه گیری آزمایشگاهی", "اندازه‌گیری دقیق", "اندازه‌گیری آزمایشگاهی")
+            )
+        ]
+
         plan = {
             "mode": "via-db",
             "dry_run": dry_run,
@@ -126,6 +140,12 @@ async def apply_via_db(*, dry_run: bool) -> int:
                 "from": list(metro.root_category_ids) if metro else None,
                 "to": list(PROMOTE_IDS),
             },
+            "prune_hub_children": [
+                {"id": c.id, "name": c.name} for c in hub_children
+            ],
+            "prune_empty_dup_l1": [
+                {"id": c.id, "name": c.name} for c in empty_dup_l1
+            ],
             "delete_hub": {
                 "id": FORMER_HUB_ID,
                 "present": hub is not None,
@@ -154,29 +174,97 @@ async def apply_via_db(*, dry_run: bool) -> int:
 
         await db.flush()
 
+        async def _direct_product_count(category_id: int) -> int:
+            return int(
+                await db.scalar(
+                    select(func.count())
+                    .select_from(Product)
+                    .where(
+                        Product.category_id == category_id,
+                        Product.deleted_at.is_(None),
+                    )
+                )
+                or 0
+            )
+
+        async def _child_ids(category_id: int) -> list[int]:
+            return list(
+                (
+                    await db.execute(
+                        select(Category.id).where(Category.parent_id == category_id)
+                    )
+                ).scalars().all()
+            )
+
+        # Prune empty leaf children recreated under former hub (ids 181–185 style).
+        for child in list(hub_children):
+            kids = await _child_ids(child.id)
+            products = await _direct_product_count(child.id)
+            if kids:
+                print(
+                    f"[prune] SKIP hub-child {child.id}: still has children {kids}",
+                    file=sys.stderr,
+                )
+                continue
+            if products > 0:
+                print(
+                    f"[prune] SKIP hub-child {child.id}: {products} products",
+                    file=sys.stderr,
+                )
+                continue
+            await db.delete(child)
+            print(f"[prune] hub-child {child.id} «{child.name}» removed")
+
+        await db.flush()
+
+        # Prune empty duplicate L1 roots (e.g. 179/180) that shadow promoted metrology.
+        for dup in empty_dup_l1:
+            kids = await _child_ids(dup.id)
+            products = await _direct_product_count(dup.id)
+            if kids or products > 0:
+                print(
+                    f"[prune] SKIP dup L1 {dup.id}: kids={kids} products={products}",
+                    file=sys.stderr,
+                )
+                continue
+            # Do not delete if referenced by any nav group.
+            nav_rows = list((await db.execute(select(MegamenuNavGroup))).scalars().all())
+            referenced = [
+                g.slug
+                for g in nav_rows
+                if dup.id in list(g.root_category_ids or [])
+            ]
+            if referenced:
+                print(
+                    f"[prune] SKIP dup L1 {dup.id}: in nav groups {referenced}",
+                    file=sys.stderr,
+                )
+                continue
+            await db.delete(dup)
+            print(f"[prune] dup L1 {dup.id} «{dup.name}» removed")
+
+        await db.flush()
+
+        hub = (
+            await db.execute(select(Category).where(Category.id == FORMER_HUB_ID))
+        ).scalar_one_or_none()
         if hub is None:
             print("[delete] hub id=7 already gone")
             await db.commit()
             return 0
 
-        remaining = (
-            await db.execute(select(Category.id).where(Category.parent_id == FORMER_HUB_ID))
-        ).scalars().all()
-        direct_products = await db.scalar(
-            select(func.count())
-            .select_from(Product)
-            .where(Product.category_id == FORMER_HUB_ID, Product.deleted_at.is_(None))
-        )
+        remaining = await _child_ids(FORMER_HUB_ID)
+        direct_products = await _direct_product_count(FORMER_HUB_ID)
         if remaining:
-            print(f"[delete] SKIP hub: still has children {list(remaining)}", file=sys.stderr)
-            await db.rollback()
+            print(f"[delete] SKIP hub: still has children {remaining}", file=sys.stderr)
+            await db.commit()
             return 2
-        if int(direct_products or 0) > 0:
+        if direct_products > 0:
             print(
                 f"[delete] SKIP hub: {direct_products} products still on category_id=7",
                 file=sys.stderr,
             )
-            await db.rollback()
+            await db.commit()
             return 2
 
         await db.delete(hub)
