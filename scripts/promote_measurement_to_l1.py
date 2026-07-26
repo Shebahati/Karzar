@@ -6,7 +6,9 @@ Live reshape (ids from production seed):
     to parent_id=null (new L1 roots).
   - Replace nav-group `metrology` root_category_ids with [56, 81, 87]
     (preserves other groups).
-  - Delete empty former hub root id=7 «اندازه گیری» once childless.
+  - Delete empty leftover hub children (e.g. 181–185 duplicates), empty
+    duplicate L1 shadows (e.g. 179/180), then delete hub id=7 once childless.
+  - On --via-db hub-delete skip: still COMMIT promote + nav (do not rollback).
 
 Dry-run by default. Apply modes:
   - API: --apply --confirm --token <jwt> [--step-up-token <tok>]
@@ -42,6 +44,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 FORMER_HUB_ID = 7
 PROMOTE_IDS = (56, 81, 87)
 METROLOGY_SLUG = "metrology"
+# Empty L1 name twins of promoted roots (ZWNJ / spacing variants collapse via _norm).
+DUP_L1_NAME_NORMS = frozenset(
+    {
+        "اندازهگیریدقیق",
+        "اندازهگیریآزمایشگاهی",
+    }
+)
+
+
+def _norm_name(name: str) -> str:
+    return name.replace("\u200c", "").replace(" ", "").strip()
 
 
 def http_json(
@@ -117,11 +130,7 @@ async def apply_via_db(*, dry_run: bool) -> int:
             if c.parent_id is None
             and c.id not in PROMOTE_IDS
             and c.id != FORMER_HUB_ID
-            and any(
-                n.replace("\u200c", "").replace(" ", "") in c.name.replace("\u200c", "").replace(" ", "")
-                or c.name.replace("\u200c", "").replace(" ", "") in n.replace("\u200c", "").replace(" ", "")
-                for n in ("اندازه گیری دقیق", "اندازه گیری آزمایشگاهی", "اندازه‌گیری دقیق", "اندازه‌گیری آزمایشگاهی")
-            )
+            and _norm_name(c.name) in DUP_L1_NAME_NORMS
         ]
 
         plan = {
