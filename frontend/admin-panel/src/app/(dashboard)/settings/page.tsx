@@ -12,17 +12,15 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { env } from "@/config/env";
 import {
-  DEFAULT_ADMIN_SETTINGS,
   getAdminSettings,
   saveAdminSettings,
   type AdminStoreSettings,
 } from "@/lib/admin-settings";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<AdminStoreSettings>(DEFAULT_ADMIN_SETTINGS);
+  const [settings, setSettings] = useState<AdminStoreSettings>(() => getAdminSettings());
 
   useEffect(() => {
-    setSettings(getAdminSettings());
     const sync = () => setSettings(getAdminSettings());
     window.addEventListener("karzar-admin-settings-change", sync);
     return () => window.removeEventListener("karzar-admin-settings-change", sync);

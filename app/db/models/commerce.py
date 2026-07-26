@@ -134,6 +134,12 @@ class OrderItem(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     unit_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    # Immutable catalog snapshot at order time (DB-01 / ARCH-06).
+    product_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    product_sku: Mapped[str] = mapped_column(String(50), nullable=False)
+    tax_percent: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), nullable=False, default=Decimal("0"), server_default="0"
+    )
 
     order: Mapped["Order"] = relationship("Order", back_populates="items")
 

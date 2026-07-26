@@ -54,6 +54,9 @@ async def create_order(
                 product_id=item["product_id"],
                 quantity=item["quantity"],
                 unit_price=item.get("unit_price"),
+                product_name=item["product_name"],
+                product_sku=item["product_sku"],
+                tax_percent=item.get("tax_percent") or 0,
             )
         )
 

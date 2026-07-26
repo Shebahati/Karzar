@@ -7,6 +7,10 @@ import { ArrowLeft, Search } from "react-iconly";
 import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buildNavGroups, categoryHref, filterNonEmptyTree, NAV_GROUPS } from "@/config/nav-groups";
+import {
+  prepareMegamenuRoots,
+  resolveMegamenuBold,
+} from "@/lib/megamenu-display";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -25,7 +29,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
   const groups = useMemo(() => buildNavGroups(tree, navDefs), [tree, navDefs]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const panelId = useId();
+  const searchId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,20 +43,51 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
       setQuery("");
       return;
     }
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel
+        ? Array.from(
+            panel.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        document.getElementById("karzar-mega-menu-trigger")?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
+    // Focus search when panel opens for keyboard users.
+    const search = document.getElementById(searchId);
+    search?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, searchId]);
 
   const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0] ?? null;
 
   const filteredRoots = useMemo(() => {
     if (!activeGroup) return [];
     const q = query.trim().toLowerCase();
-    if (!q) return activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean);
-    return activeGroup.roots
+    const base = prepareMegamenuRoots(
+      activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean) as CategoryTreeNode[],
+    );
+    if (!q) return base;
+    return base
       .map((root) => filterTreeByQuery(root, q))
       .filter((r): r is CategoryTreeNode => Boolean(r));
   }, [activeGroup, query]);
@@ -61,10 +96,11 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          id={panelId}
+          id="karzar-mega-menu"
           ref={panelRef}
-          role="region"
-          aria-label="منوی دسته‌بندی محصولات"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="karzar-mega-menu-trigger"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -138,6 +174,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                             <Search size="small" set="light" />
                           </span>
                           <input
+                            id={searchId}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="جستجو در این گروه…"
@@ -176,7 +213,7 @@ function MegaMenuRoot({
   root: CategoryTreeNode;
   onNavigate: () => void;
 }) {
-  const mids = filterNonEmptyTree(root.subcategories ?? []);
+  const mids = root.subcategories ?? [];
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -199,38 +236,52 @@ function MegaMenuRoot({
         <Link
           href={categoryHref(root)}
           onClick={onNavigate}
-          className="inline-flex text-sm font-bold text-primary hover:underline"
+          className="inline-flex text-sm text-muted-foreground transition-colors hover:text-primary"
         >
           مشاهده محصولات {root.name}
         </Link>
       ) : (
         <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-3">
-          {mids.map((mid) => (
-            <div key={mid.id} className="min-w-0">
-              <Link
-                href={categoryHref(mid)}
-                onClick={onNavigate}
-                className="block text-sm font-bold text-foreground transition-colors hover:text-primary"
-              >
-                {mid.name}
-              </Link>
-              {(mid.subcategories?.length ?? 0) > 0 ? (
-                <ul className="mt-2.5 space-y-1.5">
-                  {mid.subcategories.map((leaf) => (
-                    <li key={leaf.id}>
-                      <Link
-                        href={categoryHref(leaf)}
-                        onClick={onNavigate}
-                        className="block truncate text-sm text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {leaf.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          ))}
+          {mids.map((mid) => {
+            const kids = mid.subcategories ?? [];
+            const isBranch = kids.length > 0;
+            const bold = resolveMegamenuBold(mid, { isBranch });
+            return (
+              <div key={mid.id} className="min-w-0">
+                <Link
+                  href={categoryHref(mid)}
+                  onClick={onNavigate}
+                  className={cn(
+                    "block text-sm transition-colors hover:text-primary",
+                    bold ? "font-bold text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {mid.name}
+                </Link>
+                {isBranch ? (
+                  <ul className="mt-2.5 space-y-1.5">
+                    {kids.map((leaf) => {
+                      const leafBold = resolveMegamenuBold(leaf, { isBranch: false });
+                      return (
+                        <li key={leaf.id}>
+                          <Link
+                            href={categoryHref(leaf)}
+                            onClick={onNavigate}
+                            className={cn(
+                              "block truncate text-sm transition-colors hover:text-primary",
+                              leafBold ? "font-bold text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {leaf.name}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

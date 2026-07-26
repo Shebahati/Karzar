@@ -8,6 +8,13 @@ env/
 .env
 .env.local
 .env.*.local
+.env.staging
+.env.production
+.env*.backup
+*.pem
+*.key
+credentials.json
+secrets/
 
 # فایل‌های کش پایتون
 __pycache__/
@@ -68,3 +75,6 @@ frontend/**/*.pem
 .deploy-secrets
 .env.staging.generated
 .logo_audit/
+
+# Chumpower official catalog: keep reports, skip bulky manufacturer PDF binaries
+data/imports/chumpower/official_catalog/pdfs/

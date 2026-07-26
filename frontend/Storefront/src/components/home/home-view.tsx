@@ -8,6 +8,7 @@ import { ProductCarousel } from "@/components/home/product-carousel";
 import { BrandStrip } from "@/components/home/brand-strip";
 import { ArticlesSection } from "@/components/home/articles-section";
 import { WhyKarzar } from "@/components/home/why-karzar";
+import { FeatureStrip } from "@/components/home/feature-strip";
 import { SectionHeading } from "@/components/home/section-heading";
 import { useProducts } from "@/features/catalog/queries";
 import type { ProductSummary } from "@/types/product";
@@ -32,12 +33,12 @@ function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
 /** Client island for the home page — hydrated from RSC prefetch. */
 export function HomeView() {
   const catalog = useProducts({ limit: 48, sort: "newest" });
-  const products = catalog.data?.data ?? [];
+  const products = catalog.data?.data;
 
-  const bestsellers = useMemo(() => rankBestsellers(products), [products]);
+  const bestsellers = useMemo(() => rankBestsellers(products ?? []), [products]);
   const deals = useMemo(
     () =>
-      products
+      (products ?? [])
         .filter((p) => (p.discount_percent ?? 0) > 0)
         .sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0))
         .slice(0, 12),
@@ -46,18 +47,27 @@ export function HomeView() {
 
   return (
     <div className="pb-10 lg:pb-16">
-      <section className="relative">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(ellipse_at_top,_rgba(94,95,94,0.09),_transparent_60%)]" />
-        <Container className="relative pt-2 sm:pt-4">
-          <Hero />
-        </Container>
-      </section>
+      {/* Full-bleed hero — outside Container */}
+      <Hero />
 
-      <Container className="space-y-14 py-8 sm:space-y-20 sm:py-12">
+      <Container className="space-y-12 py-8 sm:space-y-16 sm:py-12 lg:space-y-20">
+        <section aria-labelledby="home-categories-heading">
+          <SectionHeading
+            id="home-categories-heading"
+            title="دسته‌بندی محصولات"
+            subtitle="مسیر سریع به دسته‌های اصلی کاتالوگ — اندازه‌گیری در ابتدا"
+            href="/catalog"
+            hrefLabel="همه محصولات"
+          />
+          <CategoryGrid />
+        </section>
+
+        <FeatureStrip />
+
         <section>
           <SectionHeading
             title="پرفروش‌ترین محصولات"
-            subtitle="بر اساس داده‌های زنده کاتالوگ فروشگاه"
+            subtitle="انتخاب سریع از موجودی زنده کاتالوگ"
             href="/catalog?sort=newest"
           />
           <ProductCarousel
@@ -68,34 +78,17 @@ export function HomeView() {
         </section>
 
         <section>
-          <SectionHeading
-            title="دسته‌بندی محصولات"
-            subtitle="همان دسته‌های اصلی فروشگاه — اندازه‌گیری در ابتدا"
-            href="/catalog"
-          />
-          <CategoryGrid />
-        </section>
-
-        <section>
           <SectionHeading title="برندهای معتبر" subtitle="نمایندگی رسمی برترین برندها" />
           <BrandStrip />
         </section>
 
         {(catalog.isLoading || deals.length > 0) && (
           <section>
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                  Offers
-                </p>
-                <h2 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">
-                  پیشنهادهای تخفیف‌دار
-                </h2>
-                <p className="mt-1 text-sm text-steel">
-                  قیمت‌های ویژه روی ابزارهای منتخب — با موشن و انتخاب سریع
-                </p>
-              </div>
-            </div>
+            <SectionHeading
+              title="پیشنهادهای تخفیف‌دار"
+              subtitle="قیمت ویژه روی ابزارهای منتخب"
+              href="/catalog?sort=newest"
+            />
             <ProductCarousel products={deals} isLoading={catalog.isLoading} variant="deal" />
           </section>
         )}

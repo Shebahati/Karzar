@@ -17,7 +17,8 @@ class TestCategoryAdminCrud:
         body = create.json()
         assert body["name"] == "P5 Admin Branch"
         assert body["depth"] == 2
-        assert body["is_selectable"] is False
+        # Depth-2 leaves are product-assignable (metrology-style short branches).
+        assert body["is_selectable"] is True
         category_id = body["id"]
 
         listing = client.get("/api/v1/categories/", headers=super_admin_headers)

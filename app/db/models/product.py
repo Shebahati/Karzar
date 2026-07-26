@@ -92,6 +92,15 @@ class Category(Base):
     spec_template_key: Mapped[str | None] = mapped_column(String(50), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Storefront megamenu presentation (admin-editable).
+    megamenu_hidden: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    megamenu_as_leaf: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    # None = auto (branch headers bold; terminal links normal). True/False override.
+    megamenu_bold: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
     subcategories: Mapped[list["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(
@@ -175,6 +184,7 @@ class Product(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     pdf_catalog_url: Mapped[str | None] = mapped_column(String(500))
+    short_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     original_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
     specifications: Mapped[dict[str, Any]] = mapped_column(

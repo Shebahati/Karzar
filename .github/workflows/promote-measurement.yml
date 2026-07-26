@@ -1,0 +1,34 @@
+# Runs on karzar-vps against the live compose stack.
+# Uses the script already synced by Deploy Staging (no actions/checkout —
+# checkout hangs on this runner).
+name: Promote Measurement Taxonomy
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run or apply"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - apply
+
+jobs:
+  promote:
+    runs-on: [self-hosted, karzar-vps]
+    steps:
+      - name: Run promote (via-db) from deploy tree
+        working-directory: /opt/karzar/Karzar
+        run: |
+          set -euo pipefail
+          test -f scripts/promote_measurement_to_l1.py
+          MODE="${{ inputs.mode }}"
+          if [ "$MODE" = "apply" ]; then
+            docker compose exec -T app \
+              python scripts/promote_measurement_to_l1.py --via-db --apply --confirm
+          else
+            docker compose exec -T app \
+              python scripts/promote_measurement_to_l1.py --via-db
+          fi

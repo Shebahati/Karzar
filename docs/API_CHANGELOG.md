@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 
+### 2026-07 — product SEO descriptions (P0)
+
+- Added nullable `products.short_description` (separate from long `description`).
+- Public product detail (+ list summary) now expose `slug`, `short_description`, `meta_title`, `meta_description` (detail); summary includes `slug` + `short_description`.
+- Admin create/update accept the same SEO fields. No URL migrate to `/product/[slug]` in this change.
+
 ### 2026-07 — P0 payment & checkout
 
 - Checkout (`POST /checkout`) returns `payment_url` for purchase mode (authenticated users).
@@ -72,8 +78,8 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 ### 2026-07 — catalog audit D
 
-- Added `tests/test_d_catalog_audit.py` (inactive PDP, slug lookups, stock PUT guard, admin stats/change-log, SEO field exposure debt assertion).
-- Confirmed: product/category/brand `meta_*` and product `slug` exist in DB but are not yet in API responses (non-breaking future addition).
+- Added `tests/test_d_catalog_audit.py` (inactive PDP, slug lookups, stock PUT guard, admin stats/change-log, SEO field exposure).
+- Product detail/create responses now include `slug`, `short_description`, `meta_title`, `meta_description` (see product SEO P0).
 
 ### 2026-07 — commerce audit E
 

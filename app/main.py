@@ -20,13 +20,39 @@ from app.core.errors import ErrorCode, build_error_payload, normalize_http_excep
 from app.core.health import check_database_connection, ping_redis
 from app.core.logging import get_logger, request_id_ctx_var, setup_logging
 from app.core.middleware import get_or_create_request_id
-from app.core.security_middleware import HttpsRedirectMiddleware, RequestBodySizeLimitMiddleware
+from app.core.security_middleware import (
+    CookieCsrfOriginMiddleware,
+    HttpsRedirectMiddleware,
+    RequestBodySizeLimitMiddleware,
+)
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.db.database import async_session_maker
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 
 setup_logging()
 logger = get_logger(__name__)
+
+if settings.SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.APP_ENV,
+            traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+            integrations=[
+                FastApiIntegration(),
+                SqlalchemyIntegration(),
+            ],
+            send_default_pii=False,
+        )
+        logger.info("Sentry initialized (environment=%s)", settings.APP_ENV)
+    except ImportError:
+        logger.warning(
+            "SENTRY_DSN is set but sentry-sdk is not installed; skipping Sentry init"
+        )
 
 
 async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
@@ -90,6 +116,7 @@ if settings.trusted_hosts_list:
 
 app.add_middleware(HttpsRedirectMiddleware)
 app.add_middleware(RequestBodySizeLimitMiddleware)
+app.add_middleware(CookieCsrfOriginMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

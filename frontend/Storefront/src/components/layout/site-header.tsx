@@ -101,6 +101,10 @@ export function SiteHeader() {
               >
                 <button
                   type="button"
+                  id="karzar-mega-menu-trigger"
+                  aria-expanded={megaOpen}
+                  aria-controls="karzar-mega-menu"
+                  aria-haspopup="true"
                   onMouseEnter={() => setMegaOpen(true)}
                   onClick={() => setMegaOpen((v) => !v)}
                   className={cn(

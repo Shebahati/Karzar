@@ -41,7 +41,11 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
-    category_id: int = Field(..., ge=1, description="Required selectable (depth-3 leaf) category")
+    category_id: int = Field(
+        ...,
+        ge=1,
+        description="Required selectable leaf category (depth 2 or 3)",
+    )
     brand_id: int | None = None
 
     base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
@@ -57,7 +61,10 @@ class ProductCreate(BaseModel):
     )
     is_active: bool = True
     pdf_catalog_url: str | None = None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
 
     specifications: dict[str, Any] = Field(default_factory=dict)
@@ -126,7 +133,10 @@ class ProductUpdate(BaseModel):
     tax_percent: Decimal | None = None
     is_active: bool | None = None
     pdf_catalog_url: str | None = None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = None
     specifications: dict[str, Any] | None = None
 
@@ -159,7 +169,9 @@ class ProductSummaryResponse(BaseModel):
 
     id: int
     sku: str
+    slug: str | None = None
     name: str
+    short_description: str | None = None
     thumbnail: str | None = None
     base_price: str | None = None
     original_price: str | None = None
@@ -178,6 +190,7 @@ class ProductDetailResponse(BaseModel):
 
     id: int
     sku: str
+    slug: str | None = None
     name: str
     category_id: int | None = None
     brand_id: int | None
@@ -198,7 +211,10 @@ class ProductDetailResponse(BaseModel):
     tax_percent: str
     is_active: bool
     pdf_catalog_url: str | None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
     thumbnail: str | None = None
     images: list[ProductImageResponse] = Field(default_factory=list)
     specifications: dict[str, Any] = Field(default_factory=dict)

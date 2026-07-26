@@ -146,6 +146,71 @@ def test_refund_appends_ledger_and_cancels_order(
     assert any(row.status == "initiated" for row in rows)
 
 
+def test_refund_works_after_shipped_fulfillment(
+    valid_product_data, super_admin_headers, step_up_headers, monkeypatch
+):
+    """BE-20 / QA-26: gateway refund of shipped orders must persist DB refund state."""
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+    reset_payment_provider_for_tests()
+
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "F-REF-SHIPPED"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = customer_auth_headers("09126660304")
+    checkout = _checkout(product_id, headers, phone="09126660304")
+    order_id = checkout["order_id"]
+    authority = checkout["authority"]
+
+    verify = client.post(
+        "/api/v1/payments/verify",
+        json={"order_id": order_id, "authority": authority, "status": "OK"},
+        headers=headers,
+    )
+    assert verify.status_code == 200
+
+    processing = client.patch(
+        f"/api/v1/orders/{order_id}/status",
+        json={"status": "processing"},
+        headers=step_up_headers,
+    )
+    assert processing.status_code == 200, processing.text
+
+    shipped = client.patch(
+        f"/api/v1/orders/{order_id}/status",
+        json={"status": "shipped", "postal_tracking_code": "1234567890"},
+        headers=step_up_headers,
+    )
+    assert shipped.status_code == 200, shipped.text
+    assert shipped.json()["status"] == "shipped"
+
+    refund = client.post(
+        "/api/v1/payments/refund",
+        json={"order_id": order_id},
+        headers=step_up_headers,
+    )
+    assert refund.status_code == 200, refund.text
+    body = refund.json()
+    assert body["payment_status"] == "refunded"
+    assert body["status"] == "cancelled"
+
+    async def fetch():
+        async with TestingSessionLocal() as db:
+            order = (
+                await db.execute(select(Order).where(Order.id == order_id))
+            ).scalar_one()
+            rows = await list_payment_transactions_for_order(db, order_id)
+            return order.status, order.payment_status, rows
+
+    order_status, payment_status, rows = asyncio.run(fetch())
+    assert order_status == "cancelled"
+    assert payment_status == "refunded"
+    assert any(row.status == "refunded" for row in rows)
+
+
 def test_order_amount_rials_rounds_half_up():
     class _Order:
         estimated_total = Decimal("10.15")

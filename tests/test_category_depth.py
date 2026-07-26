@@ -17,14 +17,14 @@ class TestSelectableCategoryRules:
         assert meta["is_leaf"] is True
         assert is_selectable_product_category(meta) is False
 
-    def test_depth_two_leaf_is_not_selectable(self):
+    def test_depth_two_leaf_is_selectable(self):
         categories = [
             _category(1, "Root"),
             _category(2, "Leaf", 1),
         ]
         meta = build_category_metadata(categories)[2]
         assert meta["depth"] == 2
-        assert is_selectable_product_category(meta) is False
+        assert is_selectable_product_category(meta) is True
 
     def test_depth_three_leaf_is_selectable(self):
         categories = [

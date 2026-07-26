@@ -52,6 +52,20 @@ karzar/
 5. Response shaping via `app/schemas/*` + presenters in `utils/`
 6. Error envelope from `app/core/errors.py`
 
+## Transaction ownership (BE-01)
+
+**Rule:** HTTP endpoint handlers own `await db.commit()` / `rollback()`.  
+Services and CRUD layers **flush only** (persist within the open transaction) unless a documented exception applies.
+
+| Layer | May `commit`/`rollback`? | Notes |
+|-------|--------------------------|--------|
+| `app/api/endpoints/*` | Yes | Owns request transaction boundary |
+| `app/services/*` | No (prefer) | `flush` after mutations; raise for caller to decide |
+| `app/crud/*` | No | `flush` / `refresh` only |
+| Background workers (`main` lifespan, scripts) | Yes | Worker owns its session lifecycle |
+
+Money-path exceptions already hardened: payment callback commits only expected outcomes; unexpected errors roll back and log (see `payment.py`). New money-path code must follow the same pattern.
+
 ## Compatibility shims
 
 - `crud/platform.py` re-exports cart/refresh/audit/idempotency modules.
@@ -63,9 +77,11 @@ karzar/
 - JWT + token_version revocation; refresh rotation
 - Step-up PIN (single-use jti) for destructive admin actions
 - Rate limits / public throttles via Redis when configured
-- OTP stored as SHA-256 (`otp_codes.code` length 64)
+- OTP: 6-digit codes hashed with HMAC-SHA256 + `SECRET_KEY` pepper (`app/utils/otp_hash.py`)
 - Production validators reject weak PIN, wildcard CORS, OTP echo, mock payment in production
-- Image URL SSRF guard; body size limits; optional HTTPS / trusted hosts
+- Image URL SSRF guard (hostname + resolve-time private IP block); raster-only uploads (no SVG)
+- Cookie CSRF Origin/Referer check on unsafe methods (`CookieCsrfOriginMiddleware`)
+- Body size limits; optional HTTPS / trusted hosts; `/metrics` loopback-only in nginx template
 
 ## Related docs
 

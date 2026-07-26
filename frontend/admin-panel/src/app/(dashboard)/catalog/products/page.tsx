@@ -65,7 +65,9 @@ export default function ProductsListPage() {
     Record<number, { name: string; sku: string }>
   >({});
   const [bulkOpen, setBulkOpen] = useState(false);
-  const [bulkDeltas, setBulkDeltas] = useState<Record<number, string>>({});
+  const [bulkAvailability, setBulkAvailability] = useState<"available" | "unavailable">(
+    "available",
+  );
   const [bulkReason, setBulkReason] = useState("");
 
   // Reset pagination whenever a filter changes (adjust-state-on-render pattern
@@ -133,7 +135,7 @@ export default function ProductsListPage() {
       { items: pendingBulkItems, stepUpToken },
       {
         onSuccess: (result) => {
-          toast.success("موجودی به‌صورت انبوه به‌روزرسانی شد", {
+          toast.success("وضعیت موجودی به‌صورت انبوه به‌روزرسانی شد", {
             description: `${formatNumber(result.updated_product_ids.length)} محصول به‌روزرسانی شد.`,
           });
           setBulkStepUpOpen(false);
@@ -202,32 +204,33 @@ export default function ProductsListPage() {
   }
 
   function openBulkDialog() {
-    const initial: Record<number, string> = {};
-    selectedIds.forEach((id) => {
-      initial[id] = "0";
-    });
-    setBulkDeltas(initial);
+    setBulkAvailability("available");
     setBulkReason("");
     setBulkOpen(true);
   }
 
   function submitBulkAdjust() {
-    const items = Object.entries(bulkDeltas)
-      .map(([id, delta]) => ({ product_id: Number(id), quantity_delta: Number(delta) }))
-      .filter((item) => Number.isFinite(item.quantity_delta) && item.quantity_delta !== 0);
-
-    if (items.length === 0) {
-      toast.error("حداقل یک تغییر موجودی غیر صفر وارد کنید.");
+    // FE-A-20: site inventory is binary — map UI choice to legacy delta API
+    // (positive delta → available, negative → unavailable).
+    if (selectedIds.size === 0) {
+      toast.error("حداقل یک محصول را انتخاب کنید.");
       return;
     }
 
     const reason = bulkReason.trim();
     if (reason.length < 3) {
-      toast.error("دلیل تغییر موجودی الزامی است (حداقل ۳ کاراکتر).");
+      toast.error("دلیل تغییر وضعیت الزامی است (حداقل ۳ کاراکتر).");
       return;
     }
 
-    setPendingBulkItems(items.map((item) => ({ ...item, reason })));
+    const quantity_delta = bulkAvailability === "available" ? 1 : -1;
+    const items = Array.from(selectedIds).map((product_id) => ({
+      product_id,
+      quantity_delta,
+      reason,
+    }));
+
+    setPendingBulkItems(items);
     setBulkStepUpOpen(true);
   }
 
@@ -322,7 +325,7 @@ export default function ProductsListPage() {
               لغو انتخاب
             </Button>
             <Button type="button" size="sm" onClick={openBulkDialog}>
-              بروزرسانی انبوه موجودی
+              بروزرسانی انبوه وضعیت موجودی
             </Button>
           </div>
         </div>
@@ -490,44 +493,54 @@ export default function ProductsListPage() {
         }}
         onVerified={handleBulkVerified}
         actionPending={bulkStockAdjust.isPending}
-        title="تأیید بروزرسانی انبوه موجودی"
-        description={`برای اعمال تغییر موجودی روی ${formatNumber(pendingBulkItems.length)} محصول، کد امنیتی مدیر را وارد کنید.`}
+        title="تأیید بروزرسانی انبوه وضعیت موجودی"
+        description={`برای علامت‌گذاری ${formatNumber(pendingBulkItems.length)} محصول به‌عنوان ${
+          pendingBulkItems[0]?.quantity_delta && pendingBulkItems[0].quantity_delta > 0
+            ? "موجود"
+            : "ناموجود"
+        }، کد امنیتی مدیر را وارد کنید.`}
       />
 
       <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>بروزرسانی انبوه موجودی</DialogTitle>
+            <DialogTitle>بروزرسانی انبوه وضعیت موجودی</DialogTitle>
             <DialogDescription>
-              انتخاب‌ها در چند صفحه حفظ می‌شوند. برای هر محصول مقدار تغییر موجودی را وارد کنید
-              (مثبت افزایش، منفی کاهش). ذکر دلیل الزامی است.
+              موجودی سایت فقط «موجود / ناموجود» است (نه تعداد). انتخاب‌ها در چند صفحه حفظ
+              می‌شوند. یک وضعیت برای همهٔ محصولات انتخاب‌شده اعمال می‌شود.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex max-h-64 flex-col gap-3 overflow-y-auto">
+          <div className="flex max-h-40 flex-col gap-2 overflow-y-auto rounded-md border border-border p-3 text-sm">
             {selectedProducts.map((product) => (
               <div key={product.id} className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-foreground">{product.name}</p>
-                  <p dir="ltr" className="text-start text-xs text-muted-foreground">
-                    {product.sku}
-                  </p>
-                </div>
-                <Input
-                  type="number"
-                  dir="ltr"
-                  className="w-28 text-start tnum"
-                  value={bulkDeltas[product.id] ?? "0"}
-                  onChange={(e) =>
-                    setBulkDeltas((prev) => ({ ...prev, [product.id]: e.target.value }))
-                  }
-                />
+                <p className="truncate font-bold text-foreground">{product.name}</p>
+                <p dir="ltr" className="shrink-0 text-xs text-muted-foreground">
+                  {product.sku}
+                </p>
               </div>
             ))}
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant={bulkAvailability === "available" ? "default" : "outline"}
+              onClick={() => setBulkAvailability("available")}
+            >
+              علامت موجود
+            </Button>
+            <Button
+              type="button"
+              variant={bulkAvailability === "unavailable" ? "default" : "outline"}
+              onClick={() => setBulkAvailability("unavailable")}
+            >
+              علامت ناموجود
+            </Button>
+          </div>
+
           <Textarea
-            placeholder="دلیل تغییر موجودی (الزامی)"
+            placeholder="دلیل تغییر وضعیت (الزامی)"
             value={bulkReason}
             onChange={(e) => setBulkReason(e.target.value)}
             rows={2}
@@ -548,7 +561,7 @@ export default function ProductsListPage() {
               ) : (
                 <>
                   <Swap set="bold" size={18} primaryColor="#FFFFFF" />
-                  اعمال تغییرات
+                  اعمال وضعیت
                 </>
               )}
             </Button>

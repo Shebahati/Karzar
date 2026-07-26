@@ -274,6 +274,9 @@ def test_invoice_creates_when_mapped(super_admin_headers, valid_product_data):
                     product_id=product_id,
                     quantity=2,
                     unit_price=Decimal("100000"),
+                    product_name="Test Insert",
+                    product_sku=sku,
+                    tax_percent=Decimal("0"),
                 )
             )
             await session.commit()

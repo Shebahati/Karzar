@@ -17,7 +17,7 @@ export function flattenCategoryTree(
       parent_id: node.parent_id,
       depth,
       is_leaf: isLeaf,
-      is_selectable: isLayer3Leaf(depth, isLeaf),
+      is_selectable: isSelectableProductCategory(depth, isLeaf),
       breadcrumb,
       ancestor_ids: ancestorIds,
     });
@@ -33,9 +33,14 @@ export function flattenCategoryTree(
   return rows;
 }
 
-/** Layer 3 = exactly two ancestors (parent + grandparent), leaf = no children. */
+/** Product leaves: depth 2 or 3 with no children (not L1 roots). */
+export function isSelectableProductCategory(depth: number, isLeaf: boolean): boolean {
+  return isLeaf && (depth === 2 || depth === 3);
+}
+
+/** @deprecated Prefer isSelectableProductCategory — kept for call-site compatibility. */
 export function isLayer3Leaf(depth: number, isLeaf: boolean): boolean {
-  return depth === 3 && isLeaf;
+  return isSelectableProductCategory(depth, isLeaf);
 }
 
 /**
@@ -85,7 +90,7 @@ export function enrichFlatCategories(categories: CategoryFlat[]): CategoryFlat[]
       is_leaf: isLeaf,
       breadcrumb,
       ancestor_ids: ancestorIds,
-      is_selectable: isLayer3Leaf(depth, isLeaf),
+      is_selectable: isSelectableProductCategory(depth, isLeaf),
     };
   });
 }

@@ -158,8 +158,11 @@ export function createProductFormSchema(template?: CategorySpecTemplate | null) 
         .trim()
         .min(1, { message: "نام محصول الزامی است." })
         .max(255, { message: "حداکثر ۲۵۵ کاراکتر." }),
+      short_description: z.string().max(1000, { message: "حداکثر ۱۰۰۰ کاراکتر." }),
       description: z.string().max(5000, { message: "حداکثر ۵۰۰۰ کاراکتر." }),
-      category_id: z.string().min(1, { message: "انتخاب دسته‌بندی لایه ۳ الزامی است." }),
+      meta_title: z.string().max(255, { message: "حداکثر ۲۵۵ کاراکتر." }),
+      meta_description: z.string().max(500, { message: "حداکثر ۵۰۰ کاراکتر." }),
+      category_id: z.string().min(1, { message: "انتخاب دسته‌بندی برگ الزامی است." }),
       brand_id: z.string(),
       base_price: optionalNumberString({ min: 0 }),
       original_price: optionalNumberString({ min: 0 }),
@@ -218,7 +221,10 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 export const productFormDefaults: ProductFormValues = {
   sku: "",
   name: "",
+  short_description: "",
   description: "",
+  meta_title: "",
+  meta_description: "",
   category_id: "",
   brand_id: "",
   base_price: "",
@@ -301,7 +307,10 @@ export function toProductCreatePayload(
   return {
     sku: values.sku.trim().toUpperCase(),
     name: values.name.trim(),
+    short_description: values.short_description?.trim() || null,
     description: values.description?.trim() || null,
+    meta_title: values.meta_title?.trim() || null,
+    meta_description: values.meta_description?.trim() || null,
     category_id: Number(values.category_id),
     brand_id: values.brand_id ? Number(values.brand_id) : null,
     base_price: parseNullableNumber(values.base_price),
@@ -322,7 +331,9 @@ export function toProductUpdatePayload(
   values: ProductFormValues,
   template?: CategorySpecTemplate | null,
 ): ProductUpdatePayload {
-  return toProductCreatePayload(values, template);
+  // FE-A-21: availability is owned by ProductStockSection (PUT /availability), not form save.
+  const { is_available: _availability, ...rest } = toProductCreatePayload(values, template);
+  return rest;
 }
 
 export function productDetailToFormValues(detail: ProductDetail): ProductFormValues {
@@ -369,7 +380,10 @@ export function productDetailToFormValues(detail: ProductDetail): ProductFormVal
   return {
     sku: detail.sku,
     name: detail.name,
+    short_description: detail.short_description ?? "",
     description: detail.description ?? "",
+    meta_title: detail.meta_title ?? "",
+    meta_description: detail.meta_description ?? "",
     category_id: detail.category_id ? String(detail.category_id) : "",
     brand_id: detail.brand_id ? String(detail.brand_id) : "",
     base_price: detail.base_price ?? "",

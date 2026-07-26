@@ -22,6 +22,21 @@ def _safe_extension(filename: str) -> str:
     return suffix
 
 
+def _verify_raster_image(content: bytes) -> None:
+    """Reject non-raster payloads (SVG/HTML/polyglots) via Pillow decode."""
+    from io import BytesIO
+
+    from PIL import Image, UnidentifiedImageError
+
+    try:
+        with Image.open(BytesIO(content)) as image:
+            image.verify()
+    except UnidentifiedImageError as exc:
+        raise ValueError("Uploaded file is not a valid raster image") from exc
+    except OSError as exc:
+        raise ValueError("Uploaded file is not a valid raster image") from exc
+
+
 async def _read_upload(upload: UploadFile) -> tuple[str, bytes]:
     if not upload.filename:
         raise ValueError("Uploaded file must have a filename")
@@ -31,6 +46,7 @@ async def _read_upload(upload: UploadFile) -> tuple[str, bytes]:
         raise ValueError("Uploaded file is empty")
     if len(content) > MAX_UPLOAD_BYTES:
         raise ValueError("Uploaded file exceeds the 5 MB size limit")
+    _verify_raster_image(content)
     return extension, content
 
 
@@ -65,6 +81,7 @@ def save_brand_logo_bytes(brand_id: int, content: bytes, extension: str) -> str:
         raise ValueError("Logo content is empty")
     if len(content) > MAX_UPLOAD_BYTES:
         raise ValueError("Logo exceeds the 5 MB size limit")
+    _verify_raster_image(content)
     target_dir = UPLOAD_ROOT / "brands" / str(brand_id)
     target_dir.mkdir(parents=True, exist_ok=True)
     filename = f"logo-{secrets.token_hex(8)}{suffix}"

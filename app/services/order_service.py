@@ -47,8 +47,11 @@ ALLOWED_TRANSITIONS: dict[str, tuple[str, ...]] = {
     ),
     OrderStatus.SHIPPED.value: (
         OrderStatus.DELIVERED.value,
+        OrderStatus.CANCELLED.value,  # post-fulfillment refund (BE-20)
     ),
-    OrderStatus.DELIVERED.value: (),
+    OrderStatus.DELIVERED.value: (
+        OrderStatus.CANCELLED.value,  # post-fulfillment refund (BE-20)
+    ),
     OrderStatus.CANCELLED.value: (),
     OrderStatus.INQUIRY_REVIEW.value: (
         OrderStatus.INQUIRY_QUOTED.value,

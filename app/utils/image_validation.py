@@ -2,8 +2,10 @@
 
 import ipaddress
 import re
+import socket
 from urllib.parse import urlparse
 
+from app.core.config import settings
 from app.core.constants import ALLOWED_IMAGE_URL_EXTENSIONS, MAX_PRODUCT_IMAGES
 
 _BLOCKED_HOSTNAMES = frozenset(
@@ -57,7 +59,28 @@ def _hostname_is_blocked(hostname: str) -> bool:
     return any(address in network for network in _PRIVATE_NETWORKS)
 
 
-def validate_product_image_url(image_url: str) -> str:
+def _resolve_and_block_private(hostname: str) -> None:
+    """Resolve hostname and reject if any A/AAAA lands in a private/special network."""
+    try:
+        infos = socket.getaddrinfo(hostname, None, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise ValueError("image_url hostname could not be resolved") from exc
+
+    if not infos:
+        raise ValueError("image_url hostname could not be resolved")
+
+    for info in infos:
+        sockaddr = info[4]
+        ip_text = sockaddr[0]
+        try:
+            address = ipaddress.ip_address(ip_text)
+        except ValueError:
+            continue
+        if any(address in network for network in _PRIVATE_NETWORKS):
+            raise ValueError("image_url must not target internal or private hosts")
+
+
+def validate_product_image_url(image_url: str, *, resolve_dns: bool = True) -> str:
     """Ensure the image URL looks like a supported, non-internal image resource."""
     normalized = image_url.strip()
     if not normalized:
@@ -80,7 +103,27 @@ def validate_product_image_url(image_url: str) -> str:
 
     if len(normalized) > 500:
         raise ValueError("image_url exceeds maximum length of 500 characters")
+
+    # Resolve-time SSRF guard (DNS rebinding): block if resolved IPs are private.
+    if resolve_dns and not _hostname_is_literal_ip(parsed.hostname):
+        try:
+            _resolve_and_block_private(parsed.hostname)
+        except ValueError as exc:
+            # Production: fail closed. DEBUG: allow unresolved fixture hosts (example.com).
+            if settings.DEBUG and "could not be resolved" in str(exc):
+                pass
+            else:
+                raise
+
     return normalized
+
+
+def _hostname_is_literal_ip(hostname: str) -> bool:
+    try:
+        ipaddress.ip_address(hostname.strip().lower().rstrip("."))
+        return True
+    except ValueError:
+        return False
 
 
 def ensure_image_count_within_limit(current_count: int) -> None:

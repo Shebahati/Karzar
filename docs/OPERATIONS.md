@@ -39,12 +39,26 @@ When `ENABLE_METRICS=true`, scrape:
 GET /metrics
 ```
 
+Nginx staging template restricts `/metrics` to loopback (`allow 127.0.0.1; deny all`). Scrape from the host or a private agent only — never expose publicly.
+
 Health probes:
 
 ```
 GET /health   # liveness
 GET /ready    # DB + Redis readiness
 ```
+
+## Alerting hooks (OPS-07)
+
+Until external accounts exist, treat these as **documented compensating controls**:
+
+| Hook | Env | Status |
+|------|-----|--------|
+| Sentry errors/traces | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE` | Soft-init in `app/main.py` when DSN set and `sentry-sdk` installed (`pip install sentry-sdk`) |
+| Uptime monitor | `UPTIME_CHECK_URL` (documentation only) | Point UptimeRobot/Better Stack at `GET /health` and `GET /ready` on API host |
+| Deploy smoke | `deploy/staging/scripts/smoke-staging.sh` | Hard gate in staging/production deploy workflows |
+
+Compensating until Sentry/uptime are live: watch `/metrics` + container logs for 15 minutes after every deploy; SEV1 path in the incident table below.
 
 ## Backup / restore (PostgreSQL)
 
@@ -150,9 +164,18 @@ Daily cron (with DB): `sudo bash deploy/staging/scripts/install-backup-cron.sh`
 ./scripts/restore_uploads.sh backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
 ```
 
-### Off-host requirement (Phase 0)
+### Off-host requirement (OPS-02 / Phase 0)
 
-On-host `./backups/` is **not** disaster recovery. After each dump/archive (or via sync job), copy both DB and uploads artifacts to off-host object storage. Retention suggestion: 7 daily + 4 weekly.
+On-host `./backups/` is **not** disaster recovery. After each dump/archive, sync to off-host storage:
+
+```bash
+# Set in server secrets (never commit):
+#   BACKUP_OFFSITE_URI=s3://your-bucket/karzar/
+#   BACKUP_LOCAL_DIR=/opt/karzar/backups
+sudo bash scripts/backup_offsite_sync.sh
+```
+
+Wire into cron after `install-backup-cron.sh` (append the sync job). Retention suggestion: 7 daily + 4 weekly off-host.
 
 ### Restore drill checklist
 

@@ -101,6 +101,9 @@ async def submit_checkout(
                 "product_id": product_id,
                 "quantity": quantity,
                 "unit_price": unit_price,
+                "product_name": product.name,
+                "product_sku": product.sku,
+                "tax_percent": product.tax_percent or Decimal("0"),
             }
         )
 
