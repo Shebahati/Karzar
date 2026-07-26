@@ -165,11 +165,12 @@ export function Hero() {
             />
             <div
               aria-hidden
-              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.55)_0%,rgba(18,18,18,0.28)_42%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(270deg,rgba(18,18,18,0.18)_0%,rgba(18,18,18,0.42)_48%,rgba(18,18,18,0.82)_100%)]"
+              // RTL copy sits on the right: darken the text side, keep the photo side lighter.
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.55)_0%,rgba(18,18,18,0.28)_42%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(90deg,rgba(18,18,18,0.18)_0%,rgba(18,18,18,0.42)_48%,rgba(18,18,18,0.82)_100%)]"
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(194,32,38,0.22),transparent_42%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(194,32,38,0.22),transparent_42%)]"
             />
           </motion.div>
         </AnimatePresence>
@@ -232,14 +233,18 @@ export function Hero() {
                 ))}
               </div>
 
-              <div className="flex gap-2">
+              {/*
+                Force LTR button order so physical left = next (megamenu top→bottom)
+                and physical right = previous, matching ArrowLeft/ArrowRight handlers.
+              */}
+              <div className="flex gap-2" dir="ltr">
                 <button
                   type="button"
                   aria-label="اسلاید بعدی"
                   onClick={goNext}
                   className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
                 >
-                  <ChevronRight set="light" size="small" />
+                  <ChevronLeft set="light" size="small" />
                 </button>
                 <button
                   type="button"
@@ -247,7 +252,7 @@ export function Hero() {
                   onClick={goPrev}
                   className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
                 >
-                  <ChevronLeft set="light" size="small" />
+                  <ChevronRight set="light" size="small" />
                 </button>
               </div>
             </div>
