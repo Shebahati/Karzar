@@ -1,0 +1,17 @@
+flowchart LR
+  subgraph Backlog
+    B1[KB-001]
+  end
+  subgraph Todo
+    T1[SEO-001]
+    T2[SEO-002]
+    T3[PERF-001]
+  end
+  subgraph InProgress
+    I1[PMO-001]
+  end
+  subgraph Done
+    D1[Taxonomy #78]
+    D2[Admin #85]
+  end
+  B1 -.-> T1 --> I1 --> D2

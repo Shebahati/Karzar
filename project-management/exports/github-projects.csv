@@ -1,0 +1,19 @@
+Title,Body,Status,Priority,Estimate,Labels,Milestone
+PMO-001: Bootstrap living PMO workspace,"Create project-management SoT, exports, Cursor rule, printable boards.\n\nAC: All required PMO files exist; Cursor rule alwaysApply; Exports importable",in_progress,P0,8,"pmo,meta",Sprint 00
+SEO-001: Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP,"Complete structured data for products, offers, breadcrumbs, organization.\n\nAC: Rich Results test passes for sample PDPs; No invalid Offer without price",todo,P0,16,"seo,schema",Sprint 01
+SEO-002: Category hub content + internal linking for mid-tail,Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.\n\nAC: Top 15 hubs have unique 150–300w intro; Internal links ≥3 per hub,todo,P0,24,"seo,content",Sprint 01
+SEO-003: Publish 24 buyer-intent articles (calendar),"One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).\n\nAC: 24 published; Each links ≥2 products; FAQ schema where fit",todo,P0,60,"content,seo",Sprint 02
+SEO-004: Technical SEO crawl hygiene,"Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.\n\nAC: 0 soft-404 hubs; Sitemap <50k urls valid",todo,P0,12,"seo,tech",Sprint 01
+CAT-001: Close enrichment PR triage (Dasqua/Mitutoyo/etc.),Merge or close remaining enrichment PRs with content-only guarantees.\n\nAC: Each open enrichment PR decided; No price writes,todo,P1,8,"catalog,ops",Sprint 00
+CAT-002: INSIZE JSON-schema content fill (staging apply),Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.\n\nAC: ≥200 SKUs content QA; price_fields_written=none,todo,P1,20,"insize,content",Sprint 02
+CAT-003: Category image coverage for all L1+key L2,Ensure every homepage/megamenu root has full-bleed quality image.\n\nAC: 0 L1 without image; Visual QA mobile,todo,P1,10,"ui,images",Sprint 00
+UX-001: PLP filter + hub IA polish,"Improve category PLP filters, empty states, mobile sheet clarity.\n\nAC: Mobile filter usable in <3 taps; Empty states Persian",todo,P1,20,ux,Sprint 01
+UX-002: PDP trust + specs presentation,Clarify short vs long description; specs SoT; no duplicate bullets.\n\nAC: Specs not duplicated in long desc; Trust strip visible,todo,P0,16,"ux,pdp",Sprint 01
+PERF-001: Core Web Vitals pass on home+PDP+PLP,LCP/INP/CLS budgets; image priority; font subsetting.\n\nAC: LCP≤2.5s mobile field or lab p75; CLS≤0.1,todo,P0,24,"perf,cwv",Sprint 02
+SEC-001: Security hygiene pass for go-live bar,"Admin noindex, step-up coverage, dependency scan, secrets audit.\n\nAC: Admin X-Robots-Tag; No secrets in FE",todo,P1,12,security,Sprint 03
+BE-001: Catalog API readiness for SEO fields,"Ensure short_description, meta, specs exposed consistently to storefront.\n\nAC: Contract tests green; OpenAPI updated",todo,P1,10,"backend,seo",Sprint 00
+FE-001: Design system tokens + homepage consistency,Align home sections after hero/categories/why-karzar polish.\n\nAC: Shared tokens for spacing/type; No purple-default AI look,todo,P2,12,design,Sprint 01
+KB-001: Knowledge platform phase-1 content graph seed,Link articles↔products↔categories; avoid second taxonomy.\n\nAC: Graph links queryable; No DAG categories,todo,P2,30,knowledge,Sprint 04
+REL-001: Release readiness for 31 Shahrivar checkpoint,"Freeze P0s, changelog, rollback plan, monitoring checklist.\n\nAC: All P0 done or explicitly deferred; Rollback noted",todo,P0,10,release,Sprint 04
+TD-001: Pay down category depth / selectable FE drift,Align admin FE helpers with depth-2|3 selectable rule everywhere.\n\nAC: No depth===3-only filters left,todo,P2,6,techdebt,Sprint 00
+OPS-001: Merge promote-measurement workflow fix #81,Land no-checkout workflow for taxonomy promote on VPS.\n\nAC: Workflow green,todo,P2,2,"ops,ci",Sprint 00

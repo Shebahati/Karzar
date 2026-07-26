@@ -1,0 +1,18 @@
+---
+description: Keep project-management PMO in sync with implementation
+alwaysApply: true
+---
+
+# Living PMO (mandatory)
+
+The folder `project-management/` is the Single Source of Truth for planning and status.
+
+Whenever you complete, start, cancel, or re-scope meaningful work:
+
+1. Update the matching task in `project-management/exports/tasks.json` (`status`, `progress`, `notes`).
+2. Reflect checkboxes in `PROJECT_STATUS.md`, the active `SPRINT_XX.md`, and the relevant `*_PROGRESS.md`.
+3. Append to `CHANGELOG.md` and, when done, `DONE.md` with task ID + PR link.
+4. If you discover debt/risk/blocker: update `TECH_DEBT.md` / `RISKS.md` / `BLOCKERS.md`.
+5. Never ship a feature without a PMO touch in the same PR when the change maps to a tracked task.
+
+Before large new work: read `EXECUTIVE_SUMMARY.md` and confirm priority against the 31 Shahrivar checkpoint (mid-tail SEO + UX + CWV — not head-term #1 vanity).

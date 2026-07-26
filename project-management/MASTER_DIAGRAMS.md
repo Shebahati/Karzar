@@ -1,0 +1,19 @@
+# Master Diagrams
+
+All Mermaid sources live in `diagrams/`.
+
+```mermaid
+flowchart TD
+  PMO-001 --> SEO-001
+  SEO-001 --> SEO-002
+  SEO-001 --> SEO-004
+  SEO-001 --> UX-002
+  SEO-002 --> SEO-003
+  SEO-003 --> KB-001
+  CAT-001 --> CAT-002
+  CAT-003 --> FE-001
+  SEO-003 --> REL-001
+  PERF-001 --> REL-001
+  SEC-001 --> REL-001
+
+```

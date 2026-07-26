@@ -1,0 +1,248 @@
+# Kanban Board
+
+Statuses mirrored from `exports/tasks.json`.
+
+## backlog
+- [ ] _(empty)_
+
+## todo
+- [ ] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `todo` 20% | P0 | 16h | Sprint 01
+  - Owner: unassigned | Week 2 Day 1 | Risk: med
+  - [ ] Description: Complete structured data for products, offers, breadcrumbs, organization.
+  - [ ] Dependencies: PMO-001
+  - [ ] Files: frontend/Storefront/src/**, app/schemas/**
+  - [ ] Modules: seo, frontend
+  - [ ] Tags: seo, schema
+  - Acceptance Criteria:
+    - [ ] Rich Results test passes for sample PDPs
+    - [ ] No invalid Offer without price
+  - Definition of Done:
+    - [ ] Deployed staging
+    - [ ] Documented in STRUCTURED_DATA_PROGRESS
+  - Notes: Partial SEO plumbing already merged #66/#68
+- [ ] **SEO-002** Category hub content + internal linking for mid-tail — `todo` 0% | P0 | 24h | Sprint 01
+  - Owner: unassigned | Week 2 Day 3 | Risk: med
+  - [ ] Description: Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.
+  - [ ] Dependencies: SEO-001
+  - [ ] Files: frontend/Storefront/src/components/category/**, content/**
+  - [ ] Modules: seo, content
+  - [ ] Tags: seo, content
+  - Acceptance Criteria:
+    - [ ] Top 15 hubs have unique 150–300w intro
+    - [ ] Internal links ≥3 per hub
+  - Definition of Done:
+    - [ ] Live
+    - [ ] CONTENT_PROGRESS updated
+- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
+  - Owner: unassigned | Week 4 Day 1 | Risk: high
+  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [ ] Dependencies: SEO-002
+  - [ ] Files: content/blog/**, frontend/Storefront/**
+  - [ ] Modules: content, seo
+  - [ ] Tags: content, seo
+  - Acceptance Criteria:
+    - [ ] 24 published
+    - [ ] Each links ≥2 products
+    - [ ] FAQ schema where fit
+  - Definition of Done:
+    - [ ] CONTENT_CALENDAR checked
+    - [ ] Live
+  - Notes: Quality > volume; AI-assisted draft + human QA
+- [ ] **SEO-004** Technical SEO crawl hygiene — `todo` 30% | P0 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 2 | Risk: low
+  - [ ] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
+  - [ ] Dependencies: SEO-001
+  - [ ] Files: frontend/Storefront/**, deploy/**
+  - [ ] Modules: seo, ops
+  - [ ] Tags: seo, tech
+  - Acceptance Criteria:
+    - [ ] 0 soft-404 hubs
+    - [ ] Sitemap <50k urls valid
+  - Definition of Done:
+    - [ ] TECHNICAL_SEO_PROGRESS
+- [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
+  - Owner: unassigned | Week 1 Day 2 | Risk: low
+  - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
+  - [ ] Dependencies: —
+  - [ ] Files: scripts/**, data/imports/**
+  - [ ] Modules: catalog
+  - [ ] Tags: catalog, ops
+  - Acceptance Criteria:
+    - [ ] Each open enrichment PR decided
+    - [ ] No price writes
+  - Definition of Done:
+    - [ ] PROJECT_STATUS updated
+  - Notes: #71/#72 merged or open — verify
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
+  - Owner: unassigned | Week 3 Day 1 | Risk: med
+  - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
+  - [ ] Dependencies: CAT-001
+  - [ ] Files: scripts/enrich_insize*.py
+  - [ ] Modules: catalog, seo
+  - [ ] Tags: insize, content
+  - Acceptance Criteria:
+    - [ ] ≥200 SKUs content QA
+    - [ ] price_fields_written=none
+  - Definition of Done:
+    - [ ] SEO_PROGRESS note
+  - Notes: #74 closed intentionally
+- [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 3 | Risk: low
+  - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
+  - [ ] Dependencies: —
+  - [ ] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
+  - [ ] Modules: frontend, catalog
+  - [ ] Tags: ui, images
+  - Acceptance Criteria:
+    - [ ] 0 L1 without image
+    - [ ] Visual QA mobile
+  - Definition of Done:
+    - [ ] UI_PROGRESS
+  - Notes: Partial via #85
+- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
+  - Owner: unassigned | Week 2 Day 4 | Risk: low
+  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [ ] Dependencies: —
+  - [ ] Files: frontend/Storefront/src/components/**
+  - [ ] Modules: frontend, ux
+  - [ ] Tags: ux
+  - Acceptance Criteria:
+    - [ ] Mobile filter usable in <3 taps
+    - [ ] Empty states Persian
+  - Definition of Done:
+    - [ ] UX_PROGRESS
+- [ ] **UX-002** PDP trust + specs presentation — `todo` 40% | P0 | 16h | Sprint 01
+  - Owner: unassigned | Week 2 Day 5 | Risk: low
+  - [ ] Description: Clarify short vs long description; specs SoT; no duplicate bullets.
+  - [ ] Dependencies: SEO-001
+  - [ ] Files: frontend/Storefront/src/components/product/**
+  - [ ] Modules: frontend, seo
+  - [ ] Tags: ux, pdp
+  - Acceptance Criteria:
+    - [ ] Specs not duplicated in long desc
+    - [ ] Trust strip visible
+  - Definition of Done:
+    - [ ] UX_PROGRESS
+  - Notes: Policy locked earlier
+- [ ] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `todo` 25% | P0 | 24h | Sprint 02
+  - Owner: unassigned | Week 3 Day 3 | Risk: med
+  - [ ] Description: LCP/INP/CLS budgets; image priority; font subsetting.
+  - [ ] Dependencies: —
+  - [ ] Files: frontend/Storefront/**
+  - [ ] Modules: frontend, perf
+  - [ ] Tags: perf, cwv
+  - Acceptance Criteria:
+    - [ ] LCP≤2.5s mobile field or lab p75
+    - [ ] CLS≤0.1
+  - Definition of Done:
+    - [ ] CORE_WEB_VITALS_PROGRESS
+- [ ] **SEC-001** Security hygiene pass for go-live bar — `todo` 50% | P1 | 12h | Sprint 03
+  - Owner: unassigned | Week 5 Day 1 | Risk: med
+  - [ ] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
+  - [ ] Dependencies: —
+  - [ ] Files: app/**, frontend/admin-panel/**
+  - [ ] Modules: security
+  - [ ] Tags: security
+  - Acceptance Criteria:
+    - [ ] Admin X-Robots-Tag
+    - [ ] No secrets in FE
+  - Definition of Done:
+    - [ ] SECURITY_PROGRESS
+- [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 4 | Risk: low
+  - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
+  - [ ] Dependencies: —
+  - [ ] Files: app/api/**, app/schemas/**
+  - [ ] Modules: backend
+  - [ ] Tags: backend, seo
+  - Acceptance Criteria:
+    - [ ] Contract tests green
+    - [ ] OpenAPI updated
+  - Definition of Done:
+    - [ ] BACKEND_PROGRESS
+  - Notes: #66/#68
+- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 6 | Risk: low
+  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
+  - [ ] Dependencies: CAT-003
+  - [ ] Files: frontend/Storefront/src/**
+  - [ ] Modules: frontend, design
+  - [ ] Tags: design
+  - Acceptance Criteria:
+    - [ ] Shared tokens for spacing/type
+    - [ ] No purple-default AI look
+  - Definition of Done:
+    - [ ] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04
+  - Owner: unassigned | Week 7 Day 1 | Risk: high
+  - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
+  - [ ] Dependencies: SEO-003
+  - [ ] Files: docs/KNOWLEDGE_PLATFORM*.md, app/**
+  - [ ] Modules: knowledge
+  - [ ] Tags: knowledge
+  - Acceptance Criteria:
+    - [ ] Graph links queryable
+    - [ ] No DAG categories
+  - Definition of Done:
+    - [ ] KNOWLEDGE_BASE_PROGRESS
+  - Notes: Defer if hours overrun
+- [ ] **REL-001** Release readiness for 31 Shahrivar checkpoint — `todo` 0% | P0 | 10h | Sprint 04
+  - Owner: unassigned | Week 8 Day 5 | Risk: med
+  - [ ] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
+  - [ ] Dependencies: SEO-003, PERF-001, SEC-001
+  - [ ] Files: project-management/RELEASE_PLAN.md
+  - [ ] Modules: ops
+  - [ ] Tags: release
+  - Acceptance Criteria:
+    - [ ] All P0 done or explicitly deferred
+    - [ ] Rollback noted
+  - Definition of Done:
+    - [ ] RELEASE_PLAN signed
+  - Notes: Checkpoint ≠ rank#1
+- [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
+  - Owner: unassigned | Week 1 Day 5 | Risk: low
+  - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
+  - [ ] Dependencies: —
+  - [ ] Files: frontend/admin-panel/**
+  - [ ] Modules: frontend, techdebt
+  - [ ] Tags: techdebt
+  - Acceptance Criteria:
+    - [ ] No depth===3-only filters left
+  - Definition of Done:
+    - [ ] TECH_DEBT
+- [ ] **OPS-001** Merge promote-measurement workflow fix #81 — `todo` 80% | P2 | 2h | Sprint 00
+  - Owner: unassigned | Week 1 Day 2 | Risk: low
+  - [ ] Description: Land no-checkout workflow for taxonomy promote on VPS.
+  - [ ] Dependencies: —
+  - [ ] Files: .github/workflows/**
+  - [ ] Modules: ops
+  - [ ] Tags: ops, ci
+  - Acceptance Criteria:
+    - [ ] Workflow green
+  - Definition of Done:
+    - [ ] DONE.md
+  - Notes: Open PR #81
+
+## in_progress
+- [ ] **PMO-001** Bootstrap living PMO workspace — `in_progress` 70% | P0 | 8h | Sprint 00
+  - Owner: agent | Week 1 Day 1 | Risk: low
+  - [ ] Description: Create project-management SoT, exports, Cursor rule, printable boards.
+  - [ ] Dependencies: —
+  - [ ] Files: project-management/**, .cursor/rules/pmo-living-system.mdc
+  - [ ] Modules: docs, ops
+  - [ ] Tags: pmo, meta
+  - Acceptance Criteria:
+    - [ ] All required PMO files exist
+    - [ ] Cursor rule alwaysApply
+    - [ ] Exports importable
+  - Definition of Done:
+    - [ ] Merged to main
+    - [ ] Linked from README
+  - Notes: This PR
+
+## done
+- [ ] _(empty)_
+
+## cancelled
+- [ ] _(empty)_
