@@ -19,10 +19,18 @@ export interface MegamenuCategoryNode {
   subcategories?: MegamenuCategoryNode[];
 }
 
-const PADDING_LEAF_RE = /(?:^|[—\-–]\s*)عمومی\s*$/u;
-
+/** Padding filler leaves like «عمومی» or «کولیس — عمومی» (no Unicode regex — SWC-safe). */
 export function isPaddingLeafName(name: string): boolean {
-  return PADDING_LEAF_RE.test((name || "").trim());
+  const n = (name || "").trim().replace(/\u200c/g, "");
+  if (!n) return false;
+  if (n === "عمومی") return true;
+  // Ends with dash/separator + عمومی
+  const separators = ["—", "-", "–", "ـ"];
+  for (const sep of separators) {
+    const idx = n.lastIndexOf(sep);
+    if (idx >= 0 && n.slice(idx + sep.length).trim() === "عمومی") return true;
+  }
+  return false;
 }
 
 function hasProducts(node: MegamenuCategoryNode): boolean {
@@ -32,11 +40,10 @@ function hasProducts(node: MegamenuCategoryNode): boolean {
 /** Auto bold: branch with visible children → bold; terminal link → normal. */
 export function resolveMegamenuBold(
   node: MegamenuCategoryNode,
-  *,
-  isBranch: boolean,
+  options: { isBranch: boolean },
 ): boolean {
   if (typeof node.megamenu_bold === "boolean") return node.megamenu_bold;
-  return isBranch;
+  return options.isBranch;
 }
 
 /**

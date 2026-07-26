@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Chart, Send, ShieldDone, TwoUsers } from "react-iconly";
 import { cn } from "@/lib/utils";
 import { useMotionSafe } from "@/lib/use-motion-safe";
@@ -11,13 +10,13 @@ const SERVICES = [
     Icon: ShieldDone,
     title: "ضمانت اصالت کالا",
     desc: "تمام محصولات مستقیماً از نمایندگی‌های رسمی عرضه می‌شوند.",
-    tone: "steel" as const,
+    tone: "primary" as const,
   },
   {
     Icon: Chart,
     title: "قیمت‌گذاری B2B",
     desc: "تخفیف پلکانی برای خریدهای سازمانی با فاکتور رسمی.",
-    tone: "primary" as const,
+    tone: "steel" as const,
   },
   {
     Icon: Send,
@@ -28,118 +27,100 @@ const SERVICES = [
   {
     Icon: TwoUsers,
     title: "مشاوره تخصصی",
-    desc: "انتخاب درست ابزار متناسب با نیاز شما.",
+    desc: "انتخاب درست ابزار متناسب با نیاز خط تولید شما.",
     tone: "steel" as const,
   },
 ];
 
 /**
- * Desktop: scroll-locks briefly while cards rise one-by-one.
- * Mobile: softer staggered reveal without hard lock.
+ * Trust section — one composition, brand-forward, intentional stagger.
+ * No scroll-lock; respects reduced-motion.
  */
 export function WhyKarzar() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const inView = useInView(sectionRef, { amount: 0.45, once: false });
   const motionSafe = useMotionSafe();
-  const [active, setActive] = useState(0);
-  const [played, setPlayed] = useState(false);
-  const locking = useRef(false);
-
-  useEffect(() => {
-    if (!inView || played || !motionSafe) return;
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      setPlayed(true);
-      setActive(SERVICES.length);
-      return;
-    }
-
-    if (locking.current) return;
-    locking.current = true;
-    const startY = window.scrollY;
-    let step = 0;
-
-    const prevOverflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-
-    const tick = window.setInterval(() => {
-      step += 1;
-      setActive(step);
-      if (step >= SERVICES.length) {
-        window.clearInterval(tick);
-        document.documentElement.style.overflow = prevOverflow;
-        setPlayed(true);
-        locking.current = false;
-        window.scrollTo({ top: startY, behavior: "instant" as ScrollBehavior });
-      }
-    }, 520);
-
-    return () => {
-      window.clearInterval(tick);
-      document.documentElement.style.overflow = prevOverflow;
-      locking.current = false;
-    };
-  }, [inView, played, motionSafe]);
-
-  useEffect(() => {
-    if (!motionSafe) {
-      setActive(SERVICES.length);
-      setPlayed(true);
-    }
-  }, [motionSafe]);
 
   return (
     <section
-      ref={sectionRef}
-      className="relative overflow-hidden rounded-[1.75rem] border border-border/50 bg-gradient-to-br from-card via-card to-secondary/80 px-5 py-10 sm:px-10 sm:py-14"
+      aria-labelledby="why-karzar-heading"
+      className="relative overflow-hidden rounded-[1.75rem] border border-border/45 bg-[#1a1c1b] px-5 py-12 text-white sm:px-10 sm:py-16"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(94,95,94,0.08),_transparent_55%)]" />
+      {/* Atmosphere — steel grain + red accent wash (not purple) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_100%_0%,rgba(194,32,38,0.22),transparent_55%),radial-gradient(ellipse_90%_70%_at_0%_100%,rgba(94,95,94,0.35),transparent_50%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -start-24 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl"
+      />
 
-      <div className="relative mb-10 max-w-xl text-center lg:mx-auto lg:mb-14">
-        <span className="inline-block rounded-full border border-steel/15 bg-secondary px-3 py-1 text-xs font-bold text-steel">
-          چرا کارزار؟
-        </span>
-        <h2 className="mt-4 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          تجربه حرفه‌ای خرید ابزار صنعتی
-        </h2>
-        <p className="mx-auto mt-2 text-sm leading-7 text-steel">
-          خدماتی که خرید شما را مطمئن، سریع و به‌صرفه می‌کند
-        </p>
+      <div className="relative mx-auto max-w-3xl text-center">
+        <motion.p
+          initial={motionSafe ? { opacity: 0, y: 12 } : false}
+          whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.45 }}
+          className="text-[11px] font-bold tracking-[0.22em] text-primary"
+        >
+          چرا کارزار
+        </motion.p>
+        <motion.h2
+          id="why-karzar-heading"
+          initial={motionSafe ? { opacity: 0, y: 16 } : false}
+          whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.06 }}
+          className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl"
+        >
+          خرید ابزار صنعتی با اطمینان کارگاهی
+        </motion.h2>
+        <motion.p
+          initial={motionSafe ? { opacity: 0, y: 14 } : false}
+          whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.12 }}
+          className="mx-auto mt-3 max-w-xl text-sm leading-7 text-white/65 sm:text-base"
+        >
+          اصالت، قیمت سازمانی، ارسال مطمئن و مشاوره تخصصی — مسیر خرید برای خط تولید شما.
+        </motion.p>
       </div>
 
-      <div className="relative mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
-        {SERVICES.map(({ Icon, title, desc, tone }, index) => {
-          const visible = active > index;
-          return (
-            <motion.article
-              key={title}
-              initial={false}
-              animate={
-                visible
-                  ? { opacity: 1, y: 0, scale: 1 }
-                  : { opacity: 0, y: 64, scale: 0.96 }
-              }
-              transition={{ type: "spring", stiffness: 120, damping: 18 }}
+      <div className="relative mx-auto mt-12 grid max-w-5xl gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2">
+        {SERVICES.map(({ Icon, title, desc, tone }, index) => (
+          <motion.article
+            key={title}
+            initial={motionSafe ? { opacity: 0, y: 28 } : false}
+            whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.45, delay: Math.min(0.08 * index, 0.28) }}
+            className="group relative bg-[#222524]/95 p-6 backdrop-blur-sm sm:p-8"
+          >
+            <span
               className={cn(
-                "rounded-2xl border border-border/40 bg-card/95 p-5 shadow-soft backdrop-blur-sm sm:p-6",
-                visible && "shadow-glass",
+                "grid h-12 w-12 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105",
+                tone === "primary"
+                  ? "bg-primary text-white"
+                  : "bg-white/10 text-white ring-1 ring-white/15",
               )}
             >
-              <span
-                className={cn(
-                  "grid h-12 w-12 place-items-center rounded-xl",
-                  tone === "primary"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-steel text-steel-foreground",
-                )}
-              >
-                <Icon set="bold" />
-              </span>
-              <h3 className="mt-4 text-base font-bold text-foreground sm:text-lg">{title}</h3>
-              <p className="mt-2 text-sm leading-7 text-steel">{desc}</p>
-            </motion.article>
-          );
-        })}
+              <Icon set="bold" />
+            </span>
+            <h3 className="mt-5 text-lg font-bold text-white">{title}</h3>
+            <p className="mt-2 max-w-sm text-sm leading-7 text-white/60">{desc}</p>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-px origin-end scale-x-0 bg-gradient-to-l from-primary/80 to-transparent transition-transform duration-500 group-hover:scale-x-100"
+            />
+          </motion.article>
+        ))}
       </div>
     </section>
   );
