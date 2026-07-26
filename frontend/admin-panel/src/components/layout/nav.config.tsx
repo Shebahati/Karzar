@@ -57,7 +57,6 @@ export const navSections: NavSection[] = [
     items: [
       { label: "مقالات", href: "/cms/articles", icon: Document as IconlyIcon, matchPrefix: true },
       { label: "اسلایدهای هدر", href: "/cms/hero-slides", icon: Image2 as IconlyIcon, matchPrefix: true },
-      { label: "گروه‌های مگامنو", href: "/cms/nav-groups", icon: Category as IconlyIcon, matchPrefix: true },
       { label: "نظرات محصولات", href: "/cms/comments", icon: Message as IconlyIcon, matchPrefix: true },
       { label: "پیام‌های تماس", href: "/cms/contacts", icon: Call as IconlyIcon, matchPrefix: true },
     ],
