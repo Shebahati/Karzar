@@ -11,7 +11,15 @@ DEFAULT_NAV_GROUP_SEEDS: list[dict[str, Any]] = [
         "label": "اندازه‌گیری",
         "highlight": True,
         "sort_order": 0,
-        "matchers": ["اندازه گیری", "اندازه‌گیری", "andaze", "measurement"],
+        "matchers": [
+            "اندازه گیری دقیق",
+            "CNC اندازه گیری",
+            "اندازه گیری آزمایشگاهی",
+            "اندازه گیری",
+            "اندازه‌گیری",
+            "andaze",
+            "measurement",
+        ],
     },
     {
         "slug": "cutting",

@@ -28,7 +28,7 @@ export function enrichCategories(categories: Category[]): CategoryFlat[] {
       ...c,
       depth,
       is_leaf,
-      is_selectable: depth === 3 && is_leaf,
+      is_selectable: depth === 2 || depth === 3 ? is_leaf : false,
       breadcrumb,
       ancestor_ids,
       icon: c.parent_id == null ? CATEGORY_ICONS[c.id] : undefined,
