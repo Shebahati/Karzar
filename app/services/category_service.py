@@ -389,7 +389,7 @@ class CategoryService:
     ) -> CategoryDeleteResponse:
         """Delete a leaf category.
 
-        Products may only move to another selectable depth-3 leaf. Never reassign
+        Products may only move to another selectable leaf (depth 2 or 3). Never reassign
         to a parent (often depth-2 and illegal for products). Empty categories can
         be deleted without a target.
         """
@@ -435,7 +435,7 @@ class CategoryService:
                             "field": "target_category_id",
                             "message": (
                                 "این دسته دارای محصول است؛ یک دستهٔ برگ قابل‌انتخاب "
-                                "(عمق ۳) برای انتقال محصولات مشخص کنید."
+                                "(عمق ۲ یا ۳) برای انتقال محصولات مشخص کنید."
                             ),
                         }
                     ],
@@ -469,12 +469,12 @@ class CategoryService:
                 raise api_error(
                     400,
                     error_code=ErrorCode.BAD_REQUEST,
-                    message="Target must be a selectable depth-3 leaf",
+                    message="Target must be a selectable leaf (depth 2 or 3)",
                     details=[
                         {
                             "field": "target_category_id",
                             "message": (
-                                "محصولات فقط به دستهٔ برگ عمق ۳ قابل انتقال هستند؛ "
+                                "محصولات فقط به دستهٔ برگ عمق ۲ یا ۳ قابل انتقال هستند؛ "
                                 "انتقال به والد یا دستهٔ غیرقابل‌انتخاب مجاز نیست."
                             ),
                         }

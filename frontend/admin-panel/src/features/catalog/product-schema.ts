@@ -162,7 +162,7 @@ export function createProductFormSchema(template?: CategorySpecTemplate | null) 
       description: z.string().max(5000, { message: "حداکثر ۵۰۰۰ کاراکتر." }),
       meta_title: z.string().max(255, { message: "حداکثر ۲۵۵ کاراکتر." }),
       meta_description: z.string().max(500, { message: "حداکثر ۵۰۰ کاراکتر." }),
-      category_id: z.string().min(1, { message: "انتخاب دسته‌بندی لایه ۳ الزامی است." }),
+      category_id: z.string().min(1, { message: "انتخاب دسته‌بندی برگ الزامی است." }),
       brand_id: z.string(),
       base_price: optionalNumberString({ min: 0 }),
       original_price: optionalNumberString({ min: 0 }),

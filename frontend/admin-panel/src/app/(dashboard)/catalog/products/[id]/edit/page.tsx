@@ -255,7 +255,7 @@ export default function EditProductPage() {
               </Field>
 
               <Field
-                label="دسته‌بندی (لایه ۳)"
+                label="دسته‌بندی (برگ قابل‌انتخاب)"
                 required
                 error={errors.category_id?.message}
                 className="sm:col-span-2"

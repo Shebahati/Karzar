@@ -187,7 +187,7 @@ export function ProductSpecificationsForm({
         <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
           <Document set="bulk" size={40} primaryColor="#BDBDBD" />
           <p className="text-sm text-muted-foreground">
-            ابتدا یک دسته‌بندی لایه ۳ انتخاب کنید تا بخش اطلاعات محصول بارگذاری شود.
+            ابتدا یک دسته‌بندی برگ انتخاب کنید تا بخش اطلاعات محصول بارگذاری شود.
           </p>
         </CardContent>
       </Card>
