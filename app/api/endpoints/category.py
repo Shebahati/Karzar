@@ -192,7 +192,7 @@ async def delete_category(
     category_id: int,
     target_category_id: int | None = Query(
         None,
-        description="Selectable depth-3 leaf to receive products when the category is non-empty",
+        description="Selectable leaf (depth 2 or 3) to receive products when the category is non-empty",
     ),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin_with_step_up),

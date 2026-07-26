@@ -2,7 +2,7 @@
  * Merchandising display groups over taxonomy roots.
  *
  * Locked IA (docs/constitution + category plan):
- * - Commerce SoR = product-type tree, depth ≤ 3, products on L3 leaves
+ * - Commerce SoR = product-type tree, depth ≤ 3, products on depth-2/3 leaves
  * - Brand / country = facets (not categories)
  * - Top nav megamenu = these merchandising groups (API-backed; this file is fallback)
  * - Browse surfaces (home, catalog carousel, mobile sheet) = ordered L1 type roots
@@ -40,7 +40,15 @@ export const NAV_GROUPS: NavGroupDef[] = [
     id: "metrology",
     label: "اندازه‌گیری",
     highlight: true,
-    rootMatchers: ["اندازه گیری", "اندازه‌گیری", "andaze", "measurement"],
+    rootMatchers: [
+      "اندازه گیری دقیق",
+      "CNC اندازه گیری",
+      "اندازه گیری آزمایشگاهی",
+      "اندازه گیری",
+      "اندازه‌گیری",
+      "andaze",
+      "measurement",
+    ],
   },
   {
     id: "cutting",
