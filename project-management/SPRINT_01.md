@@ -21,19 +21,21 @@
     - [x] Deployed staging
     - [x] Documented in STRUCTURED_DATA_PROGRESS
   - Notes: PDP Product+gated Offer+Breadcrumb; category CollectionPage/ItemList; root Org+WebSite; vitest.
-- [ ] **SEO-002** Category hub content + internal linking for mid-tail — `todo` 0% | P0 | 24h | Sprint 01
+- [x] **SEO-002** Category hub content + internal linking for mid-tail — `done` 100% | P0 | 24h | Sprint 01
   - Owner: unassigned | Week 2 Day 3 | Risk: med
-  - [ ] Description: Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.
-  - [ ] Dependencies: SEO-001
-  - [ ] Files: frontend/Storefront/src/components/category/**, content/**
-  - [ ] Modules: seo, content
-  - [ ] Tags: seo, content
+  - [x] Description: Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.
+  - [x] Dependencies: SEO-001
+  - [x] Files: frontend/Storefront/src/components/category/**, content/**
+  - [x] Modules: seo, content
+  - [x] Tags: seo, content
   - Acceptance Criteria:
-    - [ ] Top 15 hubs have unique 150–300w intro
-    - [ ] Internal links ≥3 per hub
+    - [x] Top 15 hubs have unique 150–300w intro
+    - [x] Internal links ≥3 per hub
   - Definition of Done:
-    - [ ] Live
-    - [ ] CONTENT_PROGRESS updated
+    - [x] Live
+    - [x] CONTENT_PROGRESS updated
+  - Notes: #91 → main @d92722a; Deploy Staging green; `content/hubs/intros.json` + CategoryHubIntro; verified `/categories/انواع-کولیس`.
+
 - [ ] **SEO-004** Technical SEO crawl hygiene — `todo` 30% | P0 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 2 | Risk: low
   - [ ] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
