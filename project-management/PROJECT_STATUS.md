@@ -9,19 +9,23 @@
 - [x] Homepage hero + categories + why-karzar polish waves
 - [x] Metrology L1 reshape (56/81/87) + megamenu-only label
 - [x] Admin categories/megamenu unified (#85)
+- [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
+- [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
+- [ ] Living PMO (#86) — **not** merged to `main` / staging (open on `feat/living-pmo`)
 - [ ] SEO schema completeness
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
 - [ ] 31 Shahrivar release freeze
 
 ## By stream
-- [x] PMO bootstrap (this folder)
+- [x] PMO bootstrap (this folder on #86 only — awaiting merge)
 - [ ] SEO — see `SEO_PROGRESS.md`
 - [ ] Content — see `CONTENT_PROGRESS.md`
 - [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md`
 - [ ] Performance — see `CORE_WEB_VITALS_PROGRESS.md`
 - [ ] Security — see `SECURITY_PROGRESS.md`
-- [ ] Catalog enrichment — see `BACKEND_PROGRESS.md`
+- [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
+- [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
 
 ## Active sprint
 See `sprints/SPRINT_00.md`
