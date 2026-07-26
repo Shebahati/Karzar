@@ -205,7 +205,8 @@ export function Hero() {
                 priority={activeIndex === 0}
                 quality={90}
                 sizes="100vw"
-                className="object-cover object-[center_40%]"
+                // Bias cover-crop left: subjects live on the photo side; RTL copy sits on the right.
+              className="object-cover object-[left_42%]"
               />
             </motion.div>
             <div

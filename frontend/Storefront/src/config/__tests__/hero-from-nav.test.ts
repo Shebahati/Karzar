@@ -58,12 +58,13 @@ describe("hero-from-nav", () => {
       "ابزارگیری و گیرش",
       "ماشین‌ها و تجهیزات",
     ]);
-    expect(slides[0].image).toBe("/uploads/categories/metrology.jpg");
+    // Curated hero art wins over category packshots (full-bleed RTL composition).
+    expect(slides[0].image).toBe("/images/hero/karzar-metrology-lab.jpg");
     expect(slides[0].cta_href).toBe("/categories/andaze-giri-7");
     // Multi-root cutting group → catalog roots filter
     expect(slides[1].cta_href).toBe("/catalog?roots=3,5");
-    // Machines uses fallback image when roots lack image_url
-    expect(slides[3].image).toContain("/images/hero/");
+    expect(slides[1].image).toBe("/images/hero/hero-cutting-rtl.jpg");
+    expect(slides[3].image).toBe("/images/hero/hero-machines-rtl.jpg");
   });
 
   it("applies matching CMS overrides without duplicating slides", () => {
