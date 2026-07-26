@@ -8,8 +8,10 @@ Live reshape (ids from production seed):
     (preserves other groups).
   - Delete empty former hub root id=7 «اندازه گیری» once childless.
 
-Dry-run by default. Apply requires --apply --confirm plus admin JWT.
-Deleting id=7 also needs --step-up-token (POST /auth/step-up).
+Dry-run by default. Apply modes:
+  - API: --apply --confirm --token <jwt> [--step-up-token <tok>]
+  - DB (preferred on VPS): --via-db --apply --confirm
+    (run inside app container; no JWT / step-up needed)
 
 Prerequisites:
   Deploy the selectable-leaf rule change (depth 2|3) BEFORE applying on live DB,
@@ -20,11 +22,14 @@ Usage:
   python scripts/promote_measurement_to_l1.py --api http://localhost:8000/api/v1
   python scripts/promote_measurement_to_l1.py --apply --confirm --token <jwt> \\
       --step-up-token <step-up>
+  docker compose exec app python scripts/promote_measurement_to_l1.py \\
+      --via-db --apply --confirm
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import sys
 from pathlib import Path
@@ -82,6 +87,104 @@ def _row(c: dict[str, Any] | None) -> dict[str, Any] | None:
     }
 
 
+async def apply_via_db(*, dry_run: bool) -> int:
+    """Promote + remap + delete hub using the app DB session (VPS container)."""
+    from sqlalchemy import func, select
+
+    from app.db.database import async_session_maker
+    from app.db.models.content import MegamenuNavGroup
+    from app.db.models.product import Category, Product
+
+    async with async_session_maker() as db:
+        cats = list((await db.execute(select(Category))).scalars().all())
+        by_id = {c.id: c for c in cats}
+        hub = by_id.get(FORMER_HUB_ID)
+        missing = [cid for cid in PROMOTE_IDS if cid not in by_id]
+        if missing:
+            print(f"FAIL missing promote targets: {missing}", file=sys.stderr)
+            return 1
+
+        metro = (
+            await db.execute(
+                select(MegamenuNavGroup).where(MegamenuNavGroup.slug == METROLOGY_SLUG)
+            )
+        ).scalar_one_or_none()
+
+        plan = {
+            "mode": "via-db",
+            "dry_run": dry_run,
+            "promote": [
+                {
+                    "id": cid,
+                    "name": by_id[cid].name,
+                    "from_parent_id": by_id[cid].parent_id,
+                    "to_parent_id": None,
+                }
+                for cid in PROMOTE_IDS
+            ],
+            "nav_metrology": {
+                "from": list(metro.root_category_ids) if metro else None,
+                "to": list(PROMOTE_IDS),
+            },
+            "delete_hub": {
+                "id": FORMER_HUB_ID,
+                "present": hub is not None,
+                "name": hub.name if hub else None,
+            },
+        }
+        print(json.dumps(plan, ensure_ascii=False, indent=2))
+
+        if dry_run:
+            print("\n[dry-run] No DB writes. Use --via-db --apply --confirm", file=sys.stderr)
+            return 0
+
+        for cid in PROMOTE_IDS:
+            row = by_id[cid]
+            if row.parent_id is None:
+                print(f"[promote] skip {cid}: already L1 ({row.name})")
+                continue
+            row.parent_id = None
+            print(f"[promote] {cid}: {row.name} parent_id → null")
+
+        if metro is None:
+            print(f"[nav] FAIL: slug={METROLOGY_SLUG} not found", file=sys.stderr)
+            return 2
+        metro.root_category_ids = list(PROMOTE_IDS)
+        print(f"[nav] metrology root_category_ids → {list(PROMOTE_IDS)}")
+
+        await db.flush()
+
+        if hub is None:
+            print("[delete] hub id=7 already gone")
+            await db.commit()
+            return 0
+
+        remaining = (
+            await db.execute(select(Category.id).where(Category.parent_id == FORMER_HUB_ID))
+        ).scalars().all()
+        direct_products = await db.scalar(
+            select(func.count())
+            .select_from(Product)
+            .where(Product.category_id == FORMER_HUB_ID, Product.deleted_at.is_(None))
+        )
+        if remaining:
+            print(f"[delete] SKIP hub: still has children {list(remaining)}", file=sys.stderr)
+            await db.rollback()
+            return 2
+        if int(direct_products or 0) > 0:
+            print(
+                f"[delete] SKIP hub: {direct_products} products still on category_id=7",
+                file=sys.stderr,
+            )
+            await db.rollback()
+            return 2
+
+        await db.delete(hub)
+        print(f"[delete] hub {FORMER_HUB_ID} «{hub.name}» removed")
+        await db.commit()
+        return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", default="http://localhost:8000/api/v1")
@@ -90,6 +193,11 @@ def main() -> int:
         "--step-up-token",
         default="",
         help="X-Step-Up-Token for DELETE of former hub (from POST /auth/step-up)",
+    )
+    parser.add_argument(
+        "--via-db",
+        action="store_true",
+        help="Apply via SQLAlchemy session (for docker compose exec on VPS)",
     )
     parser.add_argument(
         "--apply",
@@ -103,6 +211,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.via_db:
+        if args.apply and not args.confirm:
+            print("--apply requires --confirm", file=sys.stderr)
+            return 1
+        return asyncio.run(apply_via_db(dry_run=not args.apply))
+
     api = args.api.rstrip("/")
     st, cats_resp = http_json("GET", f"{api}/categories/")
     if st != 200:
@@ -113,7 +227,6 @@ def main() -> int:
     by_id = {int(c["id"]): c for c in cats if c.get("id") is not None}
 
     hub = by_id.get(FORMER_HUB_ID)
-    promote_rows = [by_id.get(cid) for cid in PROMOTE_IDS]
     children_of_hub = [c for c in cats if c.get("parent_id") == FORMER_HUB_ID]
 
     st_nav, nav_resp = http_json("GET", f"{api}/nav-groups/")
@@ -154,14 +267,14 @@ def main() -> int:
             "id": FORMER_HUB_ID,
             "current": _row(hub),
             "remaining_children_before_promote": [_row(c) for c in children_of_hub],
-            "note": "Delete only after promote makes hub childless and product_count==0",
+            "note": "Delete only after promote makes hub childless; count direct products only",
         },
         "notes": [
             "Deploy selectable depth 2|3 code before --apply on production.",
             "Products stay on former L3 leaves (become depth-2 after promote).",
             "Megamenu label «اندازه‌گیری» remains; it is not an L1 taxonomy root.",
-            "After merge: docker compose exec app python scripts/promote_measurement_to_l1.py "
-            "--apply --confirm --token <jwt> --step-up-token <tok>",
+            "Preferred on VPS: docker compose exec app python scripts/promote_measurement_to_l1.py "
+            "--via-db --apply --confirm",
         ],
     }
     print(json.dumps(plan, ensure_ascii=False, indent=2))
@@ -178,7 +291,7 @@ def main() -> int:
 
     if not args.apply:
         print(
-            "\n[dry-run] No changes written. Use --apply --confirm --token …",
+            "\n[dry-run] No changes written. Use --apply --confirm [--via-db|--token …]",
             file=sys.stderr,
         )
         return 0
@@ -187,7 +300,7 @@ def main() -> int:
         print("--apply requires --confirm", file=sys.stderr)
         return 1
     if not args.token:
-        print("--apply requires --token", file=sys.stderr)
+        print("--apply requires --token (or use --via-db)", file=sys.stderr)
         return 1
 
     auth = {"Authorization": f"Bearer {args.token}"}
@@ -268,7 +381,8 @@ def main() -> int:
         return exit_code
 
     remaining_children = [c for c in cats if c.get("parent_id") == FORMER_HUB_ID]
-    hub_products = int(hub.get("product_count") or 0)
+    # API product_count is subtree-aggregated; only block on direct products.
+    # Prefer --via-db for accurate direct-product checks.
     if remaining_children:
         exit_code = 2
         print(
@@ -277,18 +391,12 @@ def main() -> int:
             file=sys.stderr,
         )
         return exit_code
-    if hub_products > 0:
-        exit_code = 2
-        print(
-            f"[delete] SKIP hub {FORMER_HUB_ID}: product_count={hub_products}",
-            file=sys.stderr,
-        )
-        return exit_code
 
     if not args.step_up_token:
         exit_code = 2
         print(
-            "[delete] hub ready but --step-up-token required for DELETE",
+            "[delete] hub ready but --step-up-token required for DELETE "
+            "(or use --via-db)",
             file=sys.stderr,
         )
         return exit_code
@@ -301,7 +409,7 @@ def main() -> int:
         print(f"[delete] FAIL hub {FORMER_HUB_ID}: {st} {body}", file=sys.stderr)
         if st in (401, 403):
             print(
-                "Hint: DELETE requires super_admin JWT + --step-up-token.",
+                "Hint: DELETE requires super_admin JWT + --step-up-token, or --via-db.",
                 file=sys.stderr,
             )
 
