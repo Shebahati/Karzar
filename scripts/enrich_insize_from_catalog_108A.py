@@ -7,15 +7,19 @@ Allowed writes: short_description, description, meta_title, meta_description, sp
 Matching is very-high-confidence only (exact catalog Code No., or unambiguous single
 letter-suffix variant such as site 1111-100 → catalog 1111-100A).
 
-Usage (from backend root):
-  # Build/rebuild PDF index + match report (no network write)
-  python scripts/enrich_insize_from_catalog_108A.py index
-  python scripts/enrich_insize_from_catalog_108A.py match
-  python scripts/enrich_insize_from_catalog_108A.py dry-run [--limit N]
+v2 rules (locked JSON schema / measurement template):
+  - Never invent numeric specs; unknown → omit / false / []
+  - Accuracy ≠ Resolution
+  - Long description is editorial only — NEVER bullet-list specs
+  - Rewrite prior specs-echo long descriptions on rematch
+  - Measurement technical keys only (EN canonical); omit unknown / zero dimensions
+  - Never write base_price / is_available
 
-  # Apply content-only PUTs to staging API (requires admin login via env/.deploy-secrets)
-  python scripts/enrich_insize_from_catalog_108A.py apply --limit 20
-  python scripts/enrich_insize_from_catalog_108A.py apply
+Usage (from backend root):
+  python scripts/enrich_insize_from_catalog_108A.py index
+  python scripts/enrich_insize_from_catalog_108A.py match --refresh-site
+  python scripts/enrich_insize_from_catalog_108A.py dry-run
+  python scripts/enrich_insize_from_catalog_108A.py apply --apply-confirm --force --rebuild
 
 PDF (must exist):
   /home/moahmmad/Downloads/Telegram Desktop/INSIZE-Dimensional-Metrology-108A-2025-2027.pdf
@@ -87,18 +91,36 @@ FORBIDDEN_PAYLOAD_KEYS = frozenset(
     }
 )
 
-# Site often uses Persian technical_specs list keys (storefront shape).
-FA_KEY = {
-    "range": "بازه اندازه‌گیری",
-    "accuracy": "دقت",
-    "resolution": "تفکیک‌پذیری",
-    "graduation": "درجه بندی",
-    "material": "جنس",
-    "standard": "استاندارد",
-    "battery_type": "باتری",
-    "measuring_force": "نیروی اندازه‌گیری",
-    "series": "سری",
+# Locked measurement template technical_specs keys (English canonical only).
+MEASUREMENT_TECH_KEYS = (
+    "range",
+    "accuracy",
+    "resolution",
+    "material",
+    "standard",
+    "battery_type",
+)
+
+# Persian labels sometimes present in legacy rows — map back to EN canonical.
+FA_TO_EN = {
+    "بازه اندازه‌گیری": "range",
+    "بازه": "range",
+    "دقت": "accuracy",
+    "تفکیک‌پذیری": "resolution",
+    "رزولوشن": "resolution",
+    "درجه بندی": "resolution",
+    "جنس": "material",
+    "متریال": "material",
+    "استاندارد": "standard",
+    "باتری": "battery_type",
+    "نوع باتری": "battery_type",
+    "استاندارد باتری": "battery_type",
 }
+
+COUNTRY_LIKE_MATERIAL = re.compile(
+    r"^(چین|china|japan|ژاپن|germany|آلمان|taiwan|تایوان|usa|آمریکا)$",
+    re.I,
+)
 
 SERIES_FA = {
     "DIGITAL CALIPER": "کولیس دیجیتال",
@@ -112,7 +134,17 @@ SERIES_FA = {
     "DIAL INDICATOR": "ساعت اندیکاتور",
     "HEIGHT GAUGE": "ارتفاع‌سنج",
     "DEPTH GAUGE": "عمق‌سنج",
+    "DIGITAL HEIGHT GAUGE": "ارتفاع‌سنج دیجیتال",
+    "FEELER GAUGE": "فیلر",
+    "FLEXIBLE RULER": "خط‌کش انعطاف‌پذیر",
+    "CHAMFER GAUGE": "گیج پخ",
 }
+
+SPECS_ECHO_MARKERS = (
+    "مشخصات طبق کاتالوگ",
+    "مشخصات طبق کاتالوگ رسمی",
+)
+
 
 
 def _clean(s: str | None) -> str:
@@ -650,7 +682,7 @@ def write_match_csvs(matched: list[dict], rejected: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Content builders (facts only)
+# Content builders (facts only — locked measurement schema)
 # ---------------------------------------------------------------------------
 
 
@@ -661,7 +693,7 @@ def _tech_as_dict(specs: Any) -> dict[str, str]:
     out: dict[str, str] = {}
     if isinstance(tech, dict):
         for k, v in tech.items():
-            if v is None or v is False or v == "" or v == 0 or v == 0.0:
+            if v is None or v is False or v == "":
                 continue
             out[str(k)] = _clean(str(v))
     elif isinstance(tech, list):
@@ -687,18 +719,61 @@ def _is_stub(text: str | None, name: str | None = None) -> bool:
     return False
 
 
+def is_specs_echo_description(text: str | None) -> bool:
+    """True when long description is a bullet dump of specs (v1 anti-pattern)."""
+    body = text or ""
+    if not body.strip():
+        return False
+    for marker in SPECS_ECHO_MARKERS:
+        if marker in body:
+            return True
+    bullet_lines = re.findall(r"(?m)^-\s+.+$", body)
+    if len(bullet_lines) >= 3:
+        joined = "\n".join(bullet_lines)
+        if any(
+            token in joined
+            for token in (
+                "بازه",
+                "دقت",
+                "تفکیک",
+                "رزولوشن",
+                "جنس",
+                "باتری",
+                "استاندارد",
+                "Range",
+                "Accuracy",
+                "Resolution",
+            )
+        ):
+            return True
+    return False
+
+
 def _series_fa(series: str) -> str:
     s = _clean(series).upper()
     for en, fa in SERIES_FA.items():
         if en in s:
             return fa
-    # generic strip
     if s:
         return series.title() if series == series.upper() else series
     return ""
 
 
+def _looks_like_accuracy(val: str) -> bool:
+    return "±" in val or "+-" in val or val.strip().startswith("+")
+
+
+def _sanitize_material(val: str | None) -> str:
+    v = _clean(val)
+    if not v:
+        return ""
+    if COUNTRY_LIKE_MATERIAL.match(v):
+        return ""
+    return v[:120]
+
+
 def build_short_description(name: str, cat: dict[str, Any], category_name: str | None) -> str | None:
+    """1–3 factual Persian sentences; numbers only from catalog facts."""
     parts: list[str] = []
     series_fa = _series_fa(cat.get("series") or "")
     if series_fa:
@@ -706,7 +781,7 @@ def build_short_description(name: str, cat: dict[str, Any], category_name: str |
     elif category_name:
         parts.append(f"{category_name} برند INSIZE")
     else:
-        parts.append("محصول اندازه‌گیری برند INSIZE")
+        parts.append("ابزار اندازه‌گیری برند INSIZE")
 
     facts: list[str] = []
     if cat.get("range"):
@@ -731,40 +806,27 @@ def build_short_description(name: str, cat: dict[str, Any], category_name: str |
     return body[:500]
 
 
-def build_long_description(name: str, cat: dict[str, Any]) -> str | None:
-    lines: list[str] = []
+def build_long_description(
+    name: str,
+    cat: dict[str, Any],
+    category_name: str | None = None,
+) -> str | None:
+    """Editorial identity only — NEVER duplicate the specs table as bullets."""
+    _ = name
     series_fa = _series_fa(cat.get("series") or "")
-    if series_fa or cat.get("series"):
-        lines.append(f"{series_fa or cat.get('series')} — کد {_clean(cat.get('code'))}.")
-    bullets = []
-    for key, label in (
-        ("range", "بازه اندازه‌گیری"),
-        ("accuracy", "دقت"),
-        ("resolution", "تفکیک‌پذیری"),
-        ("graduation", "درجه بندی"),
-        ("standard", "استاندارد"),
-        ("material", "جنس"),
-        ("battery", "باتری"),
-        ("measuring_force", "نیروی اندازه‌گیری"),
-    ):
-        if cat.get(key):
-            bullets.append(f"{label}: {_clean(cat[key])}")
-    for feat in cat.get("features") or []:
-        # Keep English catalog feature lines as factual (no marketing fluff)
-        if feat and len(feat) < 120:
-            bullets.append(feat)
-    if not bullets:
-        return None
-    lines.append("مشخصات طبق کاتالوگ رسمی INSIZE " + CATALOG_EDITION + ":")
-    lines.extend(f"- {b}" for b in bullets[:12])
-    body = "\n".join(lines)
-    if _is_stub(body, name):
-        return None
-    return body[:4000]
+    identity = series_fa or (category_name or "").strip() or "ابزار اندازه‌گیری"
+    code = _clean(cat.get("code"))
+    sentences = [
+        f"{identity} برند INSIZE"
+        + (f" با کد کاتالوگ {code}" if code else "")
+        + ".",
+        "مشخصات عددی و ویژگی‌های فنی این مدل فقط در بخش مشخصات فنی همین صفحه آمده است.",
+        f"مرجع کاتالوگ رسمی INSIZE {CATALOG_EDITION}؛ برای استعلام موجودی و قیمت با کارزار تولز تماس بگیرید.",
+    ]
+    return " ".join(sentences)[:4000]
 
 
 def build_meta_title(name: str, sku: str) -> str:
-    # Prefer product name; append brand if missing
     base = _clean(name) or f"INSIZE {sku}"
     if "insize" not in base.casefold() and "اینسایز" not in base:
         base = f"{base} | INSIZE"
@@ -777,76 +839,173 @@ def build_meta_description(short: str | None, name: str, sku: str) -> str:
     return f"{_clean(name) or sku} | مشخصات طبق کاتالوگ INSIZE {CATALOG_EDITION}"[:500]
 
 
-def merge_specifications(existing: Any, cat: dict[str, Any]) -> dict[str, Any]:
-    """Merge catalog facts into specifications without wiping stronger existing values.
+def _parse_buttons_list(features: list[str]) -> list[str]:
+    for feat in features:
+        m = re.match(r"^Buttons?\s*:\s*(.+)$", feat, re.I)
+        if not m:
+            continue
+        raw = m.group(1)
+        parts = [p.strip(" .") for p in re.split(r"[,;/]| and ", raw) if p.strip(" .")]
+        return [p for p in parts if 1 < len(p) < 40][:12]
+    return []
 
-    Storage shape: dict technical_specs (English canonical keys + preserve Persian extras).
-    """
-    base = deepcopy(existing) if isinstance(existing, dict) else {}
-    tech_existing = _tech_as_dict(base)
 
-    # Canonical English keys from catalog
-    incoming_en = {
-        "range": _clean(cat.get("range")),
-        "accuracy": _clean(cat.get("accuracy")),
-        "resolution": _clean(cat.get("resolution") or cat.get("graduation")),
-        "material": _clean(cat.get("material")),
-        "standard": _clean(cat.get("standard")),
-        "battery_type": _clean(cat.get("battery")),
-        "measuring_force": _clean(cat.get("measuring_force")),
+def build_measurement_features(cat: dict[str, Any], existing_features: Any) -> dict[str, Any]:
+    """Map catalog feature lines → locked measurement feature keys only."""
+    base = dict(existing_features) if isinstance(existing_features, dict) else {}
+    feat_lines = [str(f) for f in (cat.get("features") or [])]
+    joined = " | ".join(feat_lines).lower()
+
+    waterproof = False
+    if re.search(r"\bwaterproof\b", joined) and not re.search(r"\bnon\s*waterproof\b", joined):
+        waterproof = True
+    elif re.search(r"\bip\s*\d+", joined):
+        waterproof = True
+    elif isinstance(base.get("waterproof"), bool) and "non waterproof" not in joined:
+        waterproof = bool(base["waterproof"])
+    if "non waterproof" in joined:
+        waterproof = False
+
+    data_output = bool(re.search(r"data\s*output", joined))
+    if not data_output and isinstance(base.get("data_output"), bool):
+        data_output = bool(base["data_output"])
+
+    auto_power_off = bool(re.search(r"automatic\s+power\s*off|auto\s*power\s*off", joined))
+    if not auto_power_off and isinstance(base.get("auto_power_off"), bool):
+        auto_power_off = bool(base["auto_power_off"])
+
+    buttons_list = _parse_buttons_list(feat_lines)
+    if not buttons_list:
+        prior = base.get("buttons_list") or base.get("buttons")
+        if isinstance(prior, list):
+            buttons_list = [str(x).strip() for x in prior if str(x).strip()][:12]
+        elif isinstance(prior, str) and prior.strip():
+            buttons_list = [p.strip() for p in prior.split(",") if p.strip()][:12]
+    has_buttons = bool(buttons_list) or bool(
+        re.search(r"^buttons?\s*:", "\n".join(feat_lines), re.I | re.M)
+    )
+
+    cert_text = ""
+    has_cert = False
+    for feat in feat_lines:
+        if re.search(
+            r"inspection\s+certificate|manufacturer.*certificate|supplied with.*certificate",
+            feat,
+            re.I,
+        ):
+            has_cert = True
+            cert_text = _clean(feat)[:200]
+            break
+    if not has_cert:
+        prior_cert = base.get("certification_text") or base.get("certification") or ""
+        if isinstance(prior_cert, str) and prior_cert.strip():
+            has_cert = True
+            cert_text = prior_cert.strip()[:200]
+        elif base.get("has_certification") is True:
+            has_cert = True
+
+    return {
+        "waterproof": waterproof,
+        "data_output": data_output,
+        "auto_power_off": auto_power_off,
+        "has_buttons": has_buttons,
+        "buttons_list": buttons_list,
+        "has_certification": has_cert,
+        "certification_text": cert_text if has_cert else "",
     }
-    incoming_en = {k: v for k, v in incoming_en.items() if v}
 
-    merged = dict(tech_existing)
 
-    def _empty(v: str | None) -> bool:
-        return not v or v in ("", "0", "0.0")
+def _normalize_dimensions(existing: Any) -> dict[str, Any]:
+    """Keep only known non-zero dimension keys; never invent zeros."""
+    raw: dict[str, Any] = {}
+    if isinstance(existing, dict):
+        raw = existing
+    elif isinstance(existing, list):
+        for row in existing:
+            if isinstance(row, dict) and row.get("key") is not None:
+                raw[str(row["key"])] = row.get("value")
 
-    for en_key, val in incoming_en.items():
-        fa_key = FA_KEY.get(en_key, en_key)
-        cur_en = merged.get(en_key)
-        cur_fa = merged.get(fa_key)
-
-        # Prefer catalog accuracy when existing "دقت" looks like resolution-only (no ±)
-        if en_key == "accuracy" and cur_fa and "±" not in cur_fa and "±" in val:
-            merged[fa_key] = val
-            merged[en_key] = val
+    allowed = {"L", "a", "b", "c", "d", "L_mm", "a_mm", "b_mm", "c_mm", "d_mm"}
+    out: dict[str, Any] = {}
+    for k, v in raw.items():
+        if k not in allowed:
             continue
-        if en_key == "resolution" and cur_fa and ("±" in cur_fa) and "±" not in val:
-            # existing fa accuracy mis-filed; still set resolution via en + fa resolution key
-            merged[en_key] = val
-            if _empty(merged.get(FA_KEY["resolution"])):
-                merged[FA_KEY["resolution"]] = val
+        if v is None or v == "" or v is False:
             continue
+        try:
+            num = float(v)
+        except (TypeError, ValueError):
+            s = _clean(str(v))
+            if s:
+                out[k] = s
+            continue
+        if num == 0.0:
+            continue
+        out[k] = num
+    return out
 
-        if _empty(cur_en):
-            merged[en_key] = val
-        # Fill Persian label if empty
-        if _empty(cur_fa):
-            merged[fa_key] = val
 
-    # Keep features / dimensions / accessories structure
-    features = base.get("features") if isinstance(base.get("features"), dict) else {}
-    if cat.get("features"):
-        # mark digital when series says digital
-        series_u = (cat.get("series") or "").upper()
-        if "DIGITAL" in series_u:
-            features = dict(features)
-            if "دیجیتال" not in features and "digital" not in {str(k).lower() for k in features}:
-                features["دیجیتال"] = True
-        if any("data output" in f.lower() for f in cat["features"]):
-            features = dict(features)
-            features.setdefault("data_output", True)
+def merge_specifications(existing: Any, cat: dict[str, Any]) -> dict[str, Any]:
+    """Build measurement-template specs from catalog; never invent values."""
+    base = deepcopy(existing) if isinstance(existing, dict) else {}
+    prior = _tech_as_dict(base)
 
-    out = {
+    prior_en: dict[str, str] = {}
+    for k, v in prior.items():
+        en = FA_TO_EN.get(k, k)
+        if en in MEASUREMENT_TECH_KEYS and v and not COUNTRY_LIKE_MATERIAL.match(v):
+            if en == "accuracy" and not _looks_like_accuracy(v) and en in prior_en:
+                continue
+            if en == "resolution" and _looks_like_accuracy(v):
+                continue
+            if en not in prior_en:
+                prior_en[en] = v
+            elif en == "material" and COUNTRY_LIKE_MATERIAL.match(prior_en[en]):
+                prior_en[en] = v
+
+    resolution = _clean(cat.get("resolution") or "")
+    if not resolution:
+        resolution = _clean(cat.get("graduation") or "")
+
+    incoming: dict[str, str] = {}
+    if cat.get("range"):
+        incoming["range"] = _clean(cat["range"])
+    if cat.get("accuracy"):
+        incoming["accuracy"] = _clean(cat["accuracy"])
+    if resolution:
+        incoming["resolution"] = resolution
+    mat = _sanitize_material(cat.get("material"))
+    if mat:
+        incoming["material"] = mat
+    if cat.get("standard"):
+        incoming["standard"] = _clean(cat["standard"])
+    if cat.get("battery"):
+        incoming["battery_type"] = _clean(cat["battery"])
+
+    merged: dict[str, str] = {}
+    for key in MEASUREMENT_TECH_KEYS:
+        if key in incoming:
+            merged[key] = incoming[key]
+        elif key in prior_en and prior_en[key]:
+            if key == "material" and not _sanitize_material(prior_en[key]):
+                continue
+            if key == "accuracy" and not _looks_like_accuracy(prior_en[key]):
+                continue
+            if key == "resolution" and _looks_like_accuracy(prior_en[key]):
+                continue
+            merged[key] = prior_en[key]
+
+    features = build_measurement_features(cat, base.get("features"))
+    dimensions = _normalize_dimensions(base.get("dimensions"))
+
+    out: dict[str, Any] = {
         "technical_specs": merged,
-        "features": features or base.get("features") or {},
-        "dimensions": base.get("dimensions") if base.get("dimensions") is not None else {},
+        "features": features,
+        "dimensions": dimensions,
         "optional_accessories": base.get("optional_accessories") or [],
     }
-    # Preserve unknown top-level keys (except we never touch price-like)
     for k, v in base.items():
-        if k in out or k in FORBIDDEN_PAYLOAD_KEYS or "price" in k.lower():
+        if k in out or k in FORBIDDEN_PAYLOAD_KEYS or "price" in str(k).lower():
             continue
         out[k] = v
     return out
@@ -863,32 +1022,48 @@ def build_content_payload(detail: dict[str, Any], cat: dict[str, Any]) -> dict[s
     meta_desc = detail.get("meta_description")
 
     new_short = build_short_description(name, cat, category_name)
-    new_long = build_long_description(name, cat)
+    new_long = build_long_description(name, cat, category_name)
     new_meta_title = build_meta_title(name, sku)
     new_meta_desc = build_meta_description(new_short or short, name, sku)
     new_specs = merge_specifications(detail.get("specifications"), cat)
 
     payload: dict[str, Any] = {}
 
-    if new_short and _is_stub(short, name):
-        payload["short_description"] = new_short
-    elif new_short and not short:
+    if new_short and (_is_stub(short, name) or not short):
         payload["short_description"] = new_short
 
-    if new_long and _is_stub(long, name):
-        payload["description"] = new_long
-    elif new_long and not long:
+    if new_long and (is_specs_echo_description(long) or _is_stub(long, name) or not long):
         payload["description"] = new_long
 
     if not meta_title:
         payload["meta_title"] = new_meta_title
-    if not meta_desc or _is_stub(meta_desc, name):
+    if not meta_desc or _is_stub(meta_desc, name) or is_specs_echo_description(meta_desc):
         payload["meta_description"] = new_meta_desc
 
-    # Specs: only if catalog adds something new
-    old_tech = _tech_as_dict(detail.get("specifications") or {})
-    new_tech = _tech_as_dict(new_specs)
-    if new_tech != old_tech:
+    old_specs = detail.get("specifications") or {}
+    old_collapsed: dict[str, str] = {}
+    for k, v in _tech_as_dict(old_specs).items():
+        en = FA_TO_EN.get(k, k)
+        if en in MEASUREMENT_TECH_KEYS and en not in old_collapsed:
+            old_collapsed[en] = v
+    new_tech = dict(new_specs.get("technical_specs") or {})
+
+    old_feats = old_specs.get("features") if isinstance(old_specs, dict) else {}
+    new_feats = new_specs.get("features") or {}
+    old_dims = _normalize_dimensions(
+        old_specs.get("dimensions") if isinstance(old_specs, dict) else {}
+    )
+    new_dims = new_specs.get("dimensions") or {}
+
+    has_fa_dupes = any(k in FA_TO_EN for k in _tech_as_dict(old_specs))
+    specs_changed = (
+        new_tech != old_collapsed
+        or new_feats != (old_feats if isinstance(old_feats, dict) else {})
+        or new_dims != old_dims
+        or is_specs_echo_description(long)
+        or has_fa_dupes
+    )
+    if specs_changed:
         payload["specifications"] = new_specs
 
     if not payload:
@@ -969,6 +1144,18 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
             skipped += 1
             continue
         assert_content_only(payload)
+        desc = payload.get("description") or ""
+        if is_specs_echo_description(desc) or re.search(r"(?m)^-\s*(بازه|دقت|تفکیک)", desc):
+            raise RuntimeError(f"Refusing specs-echo description for {row['sku']}")
+        specs = payload.get("specifications") or {}
+        dims = specs.get("dimensions") if isinstance(specs, dict) else {}
+        if isinstance(dims, dict):
+            for dk, dv in dims.items():
+                try:
+                    if float(dv) == 0.0:
+                        raise RuntimeError(f"Refusing zero dimension {dk} for {row['sku']}")
+                except (TypeError, ValueError):
+                    pass
         payloads.append(
             {
                 "id": row["id"],
@@ -1073,18 +1260,20 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     }
                 )
 
-    already_ok = _load_already_ok_ids()
+    already_ok = set() if args.force else _load_already_ok_ids()
     if already_ok:
         before = len(items)
         items = [it for it in items if int(it["id"]) not in already_ok]
         print(f"[apply] resume: skipping {before - len(items)} already-ok ids")
+    elif args.force:
+        print("[apply] --force: re-applying all planned items (ignore prior applied.csv)")
 
     print(f"[apply] content-only updates planned={len(items)} api={API}")
     token = login()
     auth = {"Authorization": f"Bearer {token}"}
 
     applied_rows: list[dict[str, Any]] = []
-    if APPLIED_CSV.exists():
+    if APPLIED_CSV.exists() and not args.force:
         with APPLIED_CSV.open(encoding="utf-8") as f:
             applied_rows = [dict(r) for r in csv.DictReader(f) if str(r.get("status")) in ("200", "201")]
 
@@ -1194,27 +1383,70 @@ def cmd_qa(args: argparse.Namespace) -> int:
         ]
     rows = rows[:sample_n]
     report = []
+    echo_count = 0
+    zero_dim_count = 0
     for r in rows:
         d = fetch_product_detail(int(r["id"]))
+        desc = d.get("description") or ""
+        echo = is_specs_echo_description(desc)
+        if echo:
+            echo_count += 1
+        dims = _normalize_dimensions(
+            (d.get("specifications") or {}).get("dimensions")
+            if isinstance(d.get("specifications"), dict)
+            else {}
+        )
+        raw_dims = (
+            (d.get("specifications") or {}).get("dimensions")
+            if isinstance(d.get("specifications"), dict)
+            else []
+        )
+        has_zero = False
+        if isinstance(raw_dims, list):
+            for row in raw_dims:
+                if isinstance(row, dict):
+                    try:
+                        if float(row.get("value")) == 0.0:
+                            has_zero = True
+                    except (TypeError, ValueError):
+                        pass
+        if has_zero:
+            zero_dim_count += 1
+        tech = _tech_as_dict(d.get("specifications"))
         report.append(
             {
                 "id": d["id"],
                 "sku": d["sku"],
                 "short_len": len(d.get("short_description") or ""),
-                "long_len": len(d.get("description") or ""),
+                "long_len": len(desc),
+                "specs_echo_description": echo,
+                "zero_dimensions_present": has_zero,
                 "has_meta_title": bool(d.get("meta_title")),
                 "has_meta_description": bool(d.get("meta_description")),
-                "tech_keys": sorted(_tech_as_dict(d.get("specifications")).keys()),
+                "tech_keys": sorted(tech.keys()),
                 "short_preview": (d.get("short_description") or "")[:120],
+                "long_preview": desc[:160],
+                "kept_dimensions": dims,
             }
         )
         time.sleep(args.sleep)
     out = OUT / "qa_sample.json"
-    out.write_text(json.dumps({"sample": report}, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[qa] sampled={len(report)} → {out}")
+    summary = {
+        "sampled": len(report),
+        "specs_echo_descriptions": echo_count,
+        "zero_dimensions_present": zero_dim_count,
+        "sample": report,
+    }
+    out.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(
+        f"[qa] sampled={len(report)} specs_echo={echo_count} zero_dims={zero_dim_count} → {out}",
+    )
     for row in report[:5]:
-        print(f"  {row['sku']}: short={row['short_len']} long={row['long_len']} meta_t={row['has_meta_title']}")
-    return 0
+        print(
+            f"  {row['sku']}: short={row['short_len']} long={row['long_len']} "
+            f"echo={row['specs_echo_description']} meta_t={row['has_meta_title']}"
+        )
+    return 0 if echo_count == 0 else 1
 
 
 def main() -> int:
@@ -1234,6 +1466,11 @@ def main() -> int:
         help="Required for apply; content-only PUTs, zero price fields",
     )
     ap.add_argument("--rebuild", action="store_true", help="Rebuild payloads on apply")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-apply even if id already succeeded in applied.csv (v2 rewrite)",
+    )
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
 

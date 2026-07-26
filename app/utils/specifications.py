@@ -77,11 +77,17 @@ def normalize_specifications_for_api(
 
     features_raw = specs.get("features")
     if isinstance(features_raw, dict):
-        features = {
-            str(key): value
-            for key, value in features_raw.items()
-            if isinstance(value, bool | str | int | float)
-        }
+        features: dict[str, Any] = {}
+        for key, value in features_raw.items():
+            if isinstance(value, bool | str | int | float):
+                features[str(key)] = value
+            elif isinstance(value, list):
+                # measurement template detail arrays (e.g. buttons_list)
+                features[str(key)] = [
+                    str(item).strip()
+                    for item in value
+                    if item is not None and str(item).strip()
+                ]
     else:
         features = {}
 
