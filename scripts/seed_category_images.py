@@ -59,12 +59,12 @@ MIN_PAD_PX = 40
 JPEG_QUALITY = 95
 
 # Live + seed catalog root ids (incl. لوازم جانبی / اینسرت when renumbered).
-ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9, 154, 165})
+ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 8, 9, 56, 81, 87, 154, 165})
 
 # Optional horizontal/vertical crop bias (0=left/top … 1=right/bottom) when
 # extreme-aspect sources are center-cropped to square.
 CROP_BIAS_BY_ID: dict[int, float] = {
-    7: 0.35,  # micrometer — keep frame + anvil in view
+    56: 0.35,  # micrometer — keep frame + anvil in view
     5: 0.45,  # drill set packaging — favor bit window
 }
 
@@ -101,15 +101,26 @@ CURATED_BY_ID: dict[int, list[str]] = {
         "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/9/96/Machine-screw-tap-1.JPG",
     ],
-    # اندازه گیری — Mahr studio micrometer (white bg, premium metrology)
-    7: [
+    # اندازه گیری دقیق / CNC / آزمایشگاهی (promoted L1s)
+    56: [
         "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mahr_Micromar_40A_0%E2%80%9325_mm_Micrometer.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
+    ],
+    81: [
+        "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
+    ],
+    87: [
+        "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mahr_Micromar_40A_0%E2%80%9325_mm_Micrometer.jpg",
     ],
     # ابزار گیرشی — square lathe chuck head-on
     8: [
         "https://upload.wikimedia.org/wikipedia/commons/d/d2/Lathe_Chuck.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/b/b6/Four_Jaw_Chuck_Independent.jpg",
+    ],
+    # اندازه گیری — legacy hub id (removed on live; keep for old DBs)
+    7: [
+        "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mahr_Micromar_40A_0%E2%80%9325_mm_Micrometer.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
     ],
     # دستگاه‌های صنعتی — CNC bed mill product shot on white
     9: [
@@ -132,6 +143,10 @@ CURATED_BY_NAME: dict[str, list[str]] = {
     "قلاویز": CURATED_BY_ID[6],
     "اندازه گیری": CURATED_BY_ID[7],
     "اندازه‌گیری": CURATED_BY_ID[7],
+    "اندازه گیری دقیق": CURATED_BY_ID[56],
+    "اندازه‌گیری دقیق": CURATED_BY_ID[56],
+    "CNC اندازه گیری": CURATED_BY_ID[81],
+    "اندازه گیری آزمایشگاهی": CURATED_BY_ID[87],
     "ابزار گیرشی": CURATED_BY_ID[8],
     "دستگاه‌های صنعتی": CURATED_BY_ID[9],
     "دستگاه های صنعتی": CURATED_BY_ID[9],
@@ -144,7 +159,7 @@ CURATED_BY_NAME: dict[str, list[str]] = {
     "کولیس": [
         "https://upload.wikimedia.org/wikipedia/commons/5/5c/2020_Suwmiarka_cyfrowa.jpg",
     ],
-    "میکرومتر": CURATED_BY_ID[7],
+    "میکرومتر": CURATED_BY_ID[56],
 }
 
 

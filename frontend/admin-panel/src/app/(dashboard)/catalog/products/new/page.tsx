@@ -124,7 +124,7 @@ export default function NewProductPage() {
           <div>
             <h2 className="text-2xl font-bold text-[#4F4F4F]">افزودن محصول جدید</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              دسته‌بندی لایه ۳ را انتخاب کنید تا قالب مشخصات فنی بارگذاری شود.
+              دسته‌بندی برگ را انتخاب کنید تا قالب مشخصات فنی بارگذاری شود.
             </p>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function NewProductPage() {
               </Field>
 
               <Field
-                label="دسته‌بندی (لایه ۳)"
+                label="دسته‌بندی (برگ قابل‌انتخاب)"
                 required
                 error={errors.category_id?.message}
                 className="sm:col-span-2"

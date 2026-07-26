@@ -13,7 +13,9 @@ import {
 
 describe("nav-groups", () => {
   const roots = [
-    { id: 7, name: "اندازه گیری", slug: "andaze-giri-7", product_count: 10, subcategories: [] },
+    { id: 56, name: "اندازه گیری دقیق", slug: "andaze-daghigh-56", product_count: 8, subcategories: [] },
+    { id: 81, name: "CNC اندازه گیری", slug: "cnc-andaze-81", product_count: 1, subcategories: [] },
+    { id: 87, name: "اندازه گیری آزمایشگاهی", slug: "lab-andaze-87", product_count: 1, subcategories: [] },
     { id: 3, name: "اینسرت", slug: "insert-3", product_count: 5, subcategories: [] },
     { id: 5, name: "مته", slug: "mete-5", product_count: 2, subcategories: [] },
     { id: 1, name: "ابزارگیر", slug: "abzargir-1", product_count: 3, subcategories: [] },
@@ -25,6 +27,7 @@ describe("nav-groups", () => {
     const groups = buildNavGroups(roots);
     expect(groups[0]?.id).toBe("metrology");
     expect(groups[0]?.highlight).toBe(true);
+    expect(groups[0]?.roots.map((r) => r.id)).toEqual([56, 81, 87]);
     expect(groups.some((g) => g.roots.some((r) => r.id === 99))).toBe(false);
     const cutting = groups.find((g) => g.id === "cutting");
     expect(cutting?.roots.map((r) => r.id).sort()).toEqual([3, 5]);
@@ -47,8 +50,10 @@ describe("nav-groups", () => {
   });
 
   it("prefers hub href when slug present", () => {
-    expect(categoryHref({ id: 7, slug: "andaze-giri-7" })).toBe("/categories/andaze-giri-7");
-    expect(categoryHref({ id: 7 })).toBe("/catalog?category=7");
+    expect(categoryHref({ id: 56, slug: "andaze-daghigh-56" })).toBe(
+      "/categories/andaze-daghigh-56",
+    );
+    expect(categoryHref({ id: 56 })).toBe("/catalog?category=56");
   });
 
   it("defines five merchandising groups", () => {
@@ -58,16 +63,16 @@ describe("nav-groups", () => {
 
   it("flattens groups into ordered visible roots", () => {
     const ordered = orderedVisibleRoots(roots);
-    expect(ordered.map((r) => r.id)).toEqual([7, 3, 5, 1, 9]);
-    expect(ordered[0]?.name).toBe("اندازه گیری");
+    expect(ordered.map((r) => r.id)).toEqual([56, 81, 87, 3, 5, 1, 9]);
+    expect(ordered[0]?.name).toBe("اندازه گیری دقیق");
     expect(isMetrologyRoot(ordered[0]!)).toBe(true);
-    expect(isMetrologyRoot(ordered[1]!)).toBe(false);
+    expect(isMetrologyRoot(ordered[3]!)).toBe(false);
   });
 
   it("detects taxonomy roots via parent_id null / depth 1 (not depth 0)", () => {
     expect(isTaxonomyRoot({ parent_id: null, depth: 1 })).toBe(true);
     expect(isTaxonomyRoot({ parent_id: null, depth: 0 })).toBe(true);
-    expect(isTaxonomyRoot({ parent_id: 7, depth: 2 })).toBe(false);
+    expect(isTaxonomyRoot({ parent_id: 56, depth: 2 })).toBe(false);
     expect(isTaxonomyRoot({ depth: 1 })).toBe(true);
     expect(isTaxonomyRoot({ depth: 0 })).toBe(false);
     expect(isTaxonomyRoot({ depth: 2 })).toBe(false);
@@ -76,10 +81,16 @@ describe("nav-groups", () => {
   it("sortByNavOrder matches orderedVisibleRoots for flat L1", () => {
     const flat = [
       { id: 5, name: "مته", product_count: 2, parent_id: null as number | null, depth: 1 },
-      { id: 7, name: "اندازه گیری", product_count: 10, parent_id: null as number | null, depth: 1 },
+      {
+        id: 56,
+        name: "اندازه گیری دقیق",
+        product_count: 8,
+        parent_id: null as number | null,
+        depth: 1,
+      },
       { id: 3, name: "اینسرت", product_count: 5, parent_id: null as number | null, depth: 1 },
     ];
-    expect(sortByNavOrder(flat).map((r) => r.id)).toEqual([7, 3, 5]);
+    expect(sortByNavOrder(flat).map((r) => r.id)).toEqual([56, 3, 5]);
   });
 
   it("prefers rootCategoryIds over matchers when present", () => {
@@ -87,11 +98,11 @@ describe("nav-groups", () => {
       {
         id: "custom",
         label: "سفارشی",
-        rootCategoryIds: [5, 7],
+        rootCategoryIds: [5, 56],
         rootMatchers: ["اینسرت"],
       },
     ]);
-    expect(groups[0]?.roots.map((r) => r.id)).toEqual([5, 7]);
+    expect(groups[0]?.roots.map((r) => r.id)).toEqual([5, 56]);
   });
 
   it("maps API rows and hides empty when no ids match", () => {
@@ -102,11 +113,12 @@ describe("nav-groups", () => {
         label: "اندازه‌گیری",
         sort_order: 0,
         highlight: true,
-        root_category_ids: [7],
+        root_category_ids: [56, 81, 87],
       },
     ]);
-    expect(defs[0]?.rootCategoryIds).toEqual([7]);
+    expect(defs[0]?.rootCategoryIds).toEqual([56, 81, 87]);
     const resolved = buildNavGroups(roots, defs);
     expect(resolved[0]?.id).toBe("metrology");
+    expect(resolved[0]?.roots.map((r) => r.id)).toEqual([56, 81, 87]);
   });
 });
