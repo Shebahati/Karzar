@@ -26,11 +26,18 @@ import { cn } from "@/lib/utils";
 const AUTOPLAY_MS = 5000;
 const SWIPE_THRESHOLD = 48;
 
+const easePremium = [0.22, 1, 0.36, 1] as const;
+
+/** Soft lift so body copy stays readable on busy hero photos. */
+const copyShadow =
+  "0 1px 2px rgba(0,0,0,0.72), 0 2px 16px rgba(0,0,0,0.45)";
+
 export function Hero() {
   const cmsQuery = useHeroSlides();
   const treeQuery = useCategoryTree();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -59,19 +66,29 @@ export function Hero() {
   const activeIndex = slides.length ? ((index % slides.length) + slides.length) % slides.length : 0;
 
   const go = useCallback(
-    (next: number) => {
+    (next: number, dir: number) => {
       if (!slides.length) return;
+      setDirection(dir);
       setIndex(((next % slides.length) + slides.length) % slides.length);
     },
     [slides.length],
   );
 
-  const goNext = useCallback(() => go(activeIndex + 1), [go, activeIndex]);
-  const goPrev = useCallback(() => go(activeIndex - 1), [go, activeIndex]);
+  const goNext = useCallback(() => go(activeIndex + 1, 1), [go, activeIndex]);
+  const goPrev = useCallback(() => go(activeIndex - 1, -1), [go, activeIndex]);
+
+  const goTo = useCallback(
+    (i: number) => {
+      if (i === activeIndex) return;
+      go(i, i > activeIndex ? 1 : -1);
+    },
+    [go, activeIndex],
+  );
 
   useEffect(() => {
     if (slides.length <= 1 || paused || reducedMotion) return;
     const t = window.setInterval(() => {
+      setDirection(1);
       setIndex((i) => (i + 1) % slides.length);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
@@ -90,15 +107,15 @@ export function Hero() {
         goPrev();
       } else if (e.key === "Home") {
         e.preventDefault();
-        go(0);
+        goTo(0);
       } else if (e.key === "End") {
         e.preventDefault();
-        go(slides.length - 1);
+        goTo(slides.length - 1);
       }
     };
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
-  }, [go, goNext, goPrev, slides.length]);
+  }, [goNext, goPrev, goTo, slides.length]);
 
   if (isLoading) {
     return (
@@ -111,6 +128,9 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex];
+  const slideMs = reducedMotion ? 0.18 : 0.85;
+  // RTL: positive x = enter from the right (start of reading direction).
+  const textX = reducedMotion ? 0 : direction * 28;
 
   return (
     <section
@@ -145,28 +165,53 @@ export function Hero() {
       }}
     >
       <div className="relative min-h-[min(78vh,560px)] w-full overflow-hidden sm:min-h-[min(72vh,620px)]">
-        <AnimatePresence mode="wait">
+        {/* Layered crossfade — sync keeps outgoing + incoming visible together */}
+        <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={slide.id}
-            initial={{ opacity: 0, scale: reducedMotion ? 1 : 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
+            custom={direction}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0.15 : 0.55, ease: "easeOut" }}
+            transition={{ duration: slideMs, ease: easePremium }}
             className="absolute inset-0"
           >
-            <Image
-              src={slide.image}
-              alt=""
-              fill
-              priority={activeIndex === 0}
-              quality={90}
-              sizes="100vw"
-              className="object-cover object-[center_40%]"
-            />
+            <motion.div
+              className="absolute inset-0 origin-center will-change-transform"
+              initial={{
+                scale: reducedMotion ? 1 : 1.06,
+                x: reducedMotion ? 0 : direction * -18,
+              }}
+              animate={{
+                scale: reducedMotion ? 1 : 1.12,
+                x: 0,
+              }}
+              transition={
+                reducedMotion
+                  ? { duration: 0.18 }
+                  : {
+                      scale: {
+                        duration: AUTOPLAY_MS / 1000,
+                        ease: "linear",
+                      },
+                      x: { duration: slideMs, ease: easePremium },
+                    }
+              }
+            >
+              <Image
+                src={slide.image}
+                alt=""
+                fill
+                priority={activeIndex === 0}
+                quality={90}
+                sizes="100vw"
+                className="object-cover object-[center_40%]"
+              />
+            </motion.div>
             <div
               aria-hidden
-              // RTL copy sits on the right: darken the text side, keep the photo side lighter.
-              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.55)_0%,rgba(18,18,18,0.28)_42%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(90deg,rgba(18,18,18,0.18)_0%,rgba(18,18,18,0.42)_48%,rgba(18,18,18,0.82)_100%)]"
+              // RTL copy sits on the right: denser under text, photo side stays open.
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.58)_0%,rgba(18,18,18,0.3)_40%,rgba(18,18,18,0.78)_100%)] sm:bg-[linear-gradient(90deg,rgba(18,18,18,0.14)_0%,rgba(18,18,18,0.36)_44%,rgba(18,18,18,0.78)_72%,rgba(18,18,18,0.9)_100%)]"
             />
             <div
               aria-hidden
@@ -177,37 +222,61 @@ export function Hero() {
 
         <Container className="relative z-10 flex min-h-[min(78vh,560px)] flex-col justify-end pb-10 pt-16 sm:min-h-[min(72vh,620px)] sm:justify-center sm:pb-16 sm:pt-20">
           <div className="max-w-xl">
-            <p className="text-sm font-bold tracking-wide text-white/90 sm:text-base">
-              کارزار
-            </p>
-            <div
-              className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14"
-              aria-hidden
-            />
-            <h1 className="mt-4 text-[1.65rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
-              {slide.title}
-            </h1>
-            <p className="mt-3 max-w-lg text-sm leading-7 text-white/88 sm:mt-4 sm:text-base sm:leading-8">
-              {slide.subtitle}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
-              <Link href={slide.cta_href} className="w-full sm:w-auto">
-                <Button size="lg" className="w-full gap-2 sm:w-auto">
-                  {slide.cta_label}
-                  <ArrowLeft set="bold" size="small" />
-                </Button>
-              </Link>
-              <Link href="/catalog" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  variant="soft"
-                  className="w-full border border-white/30 bg-white/10 text-white hover:bg-white/20 sm:w-auto"
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
+              <motion.div
+                key={slide.id}
+                custom={direction}
+                initial={{ opacity: 0, x: textX, y: reducedMotion ? 0 : 10 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{
+                  opacity: 0,
+                  x: reducedMotion ? 0 : direction * -18,
+                  y: reducedMotion ? 0 : -6,
+                }}
+                transition={{ duration: reducedMotion ? 0.15 : 0.55, ease: easePremium }}
+              >
+                <p
+                  className="text-sm font-bold tracking-wide text-white sm:text-base"
+                  style={{ textShadow: copyShadow }}
                 >
-                  مشاهده فروشگاه
-                </Button>
-              </Link>
-            </div>
+                  کارزار
+                </p>
+                <div
+                  className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14"
+                  aria-hidden
+                />
+                <h1
+                  className="mt-4 text-[1.65rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
+                  style={{ textShadow: copyShadow }}
+                >
+                  {slide.title}
+                </h1>
+                <p
+                  className="mt-3 max-w-lg text-sm leading-7 text-white sm:mt-4 sm:text-base sm:leading-8"
+                  style={{ textShadow: copyShadow }}
+                >
+                  {slide.subtitle}
+                </p>
+
+                <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+                  <Link href={slide.cta_href} className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full gap-2 sm:w-auto">
+                      {slide.cta_label}
+                      <ArrowLeft set="bold" size="small" />
+                    </Button>
+                  </Link>
+                  <Link href="/catalog" className="w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="soft"
+                      className="w-full border border-white/30 bg-white/10 text-white hover:bg-white/20 sm:w-auto"
+                    >
+                      مشاهده فروشگاه
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {slides.length > 1 && (
@@ -220,7 +289,7 @@ export function Hero() {
                     role="tab"
                     aria-label={`${s.title} — اسلاید ${i + 1}`}
                     aria-selected={i === activeIndex}
-                    onClick={() => setIndex(i)}
+                    onClick={() => goTo(i)}
                     className="touch-target rounded-full"
                   >
                     <span
