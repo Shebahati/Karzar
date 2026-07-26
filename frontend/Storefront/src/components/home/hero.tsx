@@ -220,7 +220,8 @@ export function Hero() {
           </motion.div>
         </AnimatePresence>
 
-        <Container className="relative z-10 flex min-h-[min(78vh,560px)] flex-col justify-end pb-10 pt-16 sm:min-h-[min(72vh,620px)] sm:justify-center sm:pb-16 sm:pt-20">
+        {/* Extra top pad clears the floating home header sitting over the full-bleed media. */}
+        <Container className="relative z-10 flex min-h-[min(78vh,560px)] flex-col justify-end pb-10 pt-[calc(5.25rem+env(safe-area-inset-top,0px))] sm:min-h-[min(72vh,620px)] sm:justify-center sm:pb-16 sm:pt-[calc(6rem+env(safe-area-inset-top,0px))]">
           <div className="max-w-xl">
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div

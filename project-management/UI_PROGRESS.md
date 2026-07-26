@@ -15,7 +15,7 @@
   - Definition of Done:
     - [ ] UI_PROGRESS
   - Notes: Partial via #85
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
+- [ ] **FE-001** Design system tokens + homepage consistency — `in_progress` 65% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
   - [ ] Description: Align home sections after hero/categories/why-karzar polish.
   - [ ] Dependencies: CAT-003
@@ -27,7 +27,8 @@
     - [ ] No purple-default AI look
   - Definition of Done:
     - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
+  - Notes: #85 why-karzar/categories; floating transparent home header over hero (glass on scroll)
 
 ## Evidence log
+- [ ] Floating home header / full-bleed hero polish (PR pending)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

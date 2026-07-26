@@ -37,6 +37,10 @@ export function SiteHeader() {
   const cartCount = useCartStore(selectCartCount);
   const quoteCount = useCartStore(selectQuoteCount);
 
+  const isHome = pathname === "/";
+  /** Transparent floating chrome only while the home hero sits under the nav. */
+  const overHero = isHome && !scrolled;
+
   useEffect(() => {
     setMounted(true);
     const sync = () => setHasToken(isLoggedIn());
@@ -73,23 +77,33 @@ export function SiteHeader() {
   };
 
   const displayName = me?.full_name?.trim() || me?.phone || "حساب من";
+  const logoTone = overHero ? "onDark" : "brand";
 
   return (
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,border-color] duration-300",
+          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,border-color,backdrop-filter] duration-300",
+          isHome ? "fixed inset-x-0 top-0" : "sticky top-0",
           scrolled
             ? "border-b border-white/40 bg-white/70 shadow-glass backdrop-blur-xl"
             : "border-b border-transparent bg-transparent",
         )}
         onMouseLeave={() => setMegaOpen(false)}
       >
+        {/* Near-imperceptible top shade so chrome stays readable over bright hero spots. */}
+        {overHero && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-[5.5rem] bg-gradient-to-b from-black/28 via-black/10 to-transparent"
+          />
+        )}
+
         <div className="relative mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
           {/* Desktop floating center composition */}
           <div className="hidden items-center gap-4 py-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
             <div className="flex items-center gap-2 justify-self-start">
-              <Logo variant="mark" height={30} priority />
+              <Logo variant="mark" height={30} priority tone={logoTone} />
             </div>
 
             <nav className="justify-self-center">
@@ -137,7 +151,12 @@ export function SiteHeader() {
 
             <div className="flex items-center justify-end gap-1.5 justify-self-end">
               <form onSubmit={submitSearch} className="relative me-1 hidden xl:block">
-                <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-steel">
+                <span
+                  className={cn(
+                    "pointer-events-none absolute start-3 top-1/2 -translate-y-1/2",
+                    overHero ? "text-steel/80" : "text-steel",
+                  )}
+                >
                   <Search size="small" set="light" />
                 </span>
                 <input
@@ -150,10 +169,21 @@ export function SiteHeader() {
                 />
               </form>
 
-              <HeaderIcon href="/cart" label="سبد" count={mounted ? cartCount : 0}>
+              <HeaderIcon
+                href="/cart"
+                label="سبد"
+                count={mounted ? cartCount : 0}
+                onDark={overHero}
+              >
                 <Buy set="bold" />
               </HeaderIcon>
-              <HeaderIcon href="/quote" label="استعلام" count={mounted ? quoteCount : 0} tone="steel">
+              <HeaderIcon
+                href="/quote"
+                label="استعلام"
+                count={mounted ? quoteCount : 0}
+                tone="steel"
+                onDark={overHero}
+              >
                 <Document set="bold" />
               </HeaderIcon>
 
@@ -184,11 +214,14 @@ export function SiteHeader() {
 
           {/* Mobile / tablet bar */}
           <div className="flex items-center gap-2 py-3 lg:hidden">
-            <Logo variant="mark" height={26} priority />
+            <Logo variant="mark" height={26} priority tone={logoTone} />
             <div className="ms-auto flex items-center gap-1">
               <button
                 type="button"
-                className="touch-target rounded-full text-steel hover:bg-white/60"
+                className={cn(
+                  "touch-target rounded-full hover:bg-white/60",
+                  overHero ? "text-white hover:bg-white/15" : "text-steel",
+                )}
                 aria-label="جستجو"
                 onClick={() => setMobileSearchOpen((v) => !v)}
               >
@@ -197,7 +230,10 @@ export function SiteHeader() {
               {mounted && hasToken ? (
                 <Link
                   href="/account"
-                  className="touch-target grid place-items-center rounded-full text-steel hover:bg-white/60"
+                  className={cn(
+                    "touch-target grid place-items-center rounded-full hover:bg-white/60",
+                    overHero ? "text-white hover:bg-white/15" : "text-steel",
+                  )}
                   aria-label="حساب کاربری"
                 >
                   <User set="bold" />
@@ -205,7 +241,10 @@ export function SiteHeader() {
               ) : (
                 <Link
                   href="/login?next=/account"
-                  className="touch-target grid place-items-center rounded-full text-steel hover:bg-white/60"
+                  className={cn(
+                    "touch-target grid place-items-center rounded-full hover:bg-white/60",
+                    overHero ? "text-white hover:bg-white/15" : "text-steel",
+                  )}
                   aria-label="ورود"
                 >
                   <User set="bold" />
@@ -249,18 +288,25 @@ function HeaderIcon({
   count,
   children,
   tone = "primary",
+  onDark = false,
 }: {
   href: string;
   label: string;
   count: number;
   children: React.ReactNode;
   tone?: "primary" | "steel";
+  onDark?: boolean;
 }) {
   return (
     <Link
       href={href}
       aria-label={label}
-      className="relative grid h-10 w-10 place-items-center rounded-full text-steel transition-colors hover:bg-white/70 hover:text-foreground"
+      className={cn(
+        "relative grid h-10 w-10 place-items-center rounded-full transition-colors",
+        onDark
+          ? "text-white hover:bg-white/15 hover:text-white"
+          : "text-steel hover:bg-white/70 hover:text-foreground",
+      )}
     >
       {children}
       {count > 0 && (
