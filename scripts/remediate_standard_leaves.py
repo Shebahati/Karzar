@@ -199,7 +199,7 @@ def main() -> int:
             "Storefront already hides product_count=0 via filterNonEmptyTree.",
             "Empty leaf/root hard-delete requires --delete-empty/--delete-empty-roots "
             "plus --confirm-delete and admin JWT (step-up may be required by API).",
-            "Delete API never reassigns products to a parent — only to another depth-3 leaf.",
+            "Delete API never reassigns products to a parent — only to another selectable leaf (depth 2 or 3).",
             "Only safe renames are applied with --apply.",
         ],
     }

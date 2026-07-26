@@ -716,15 +716,16 @@ export const BLOG_POSTS: BlogPost[] = [
 /* -------------------------------------------------------------------------- */
 /*  Hero slides.                                                               */
 /* -------------------------------------------------------------------------- */
+/** Optional CMS overrides — storefront maps these onto megamenu nav groups. */
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: 1,
-    title: "ابزار اندازه‌گیری دقیق",
+    title: "اندازه‌گیری",
     subtitle:
       "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — موجودی و استعلام برای خط تولید شما",
-    cta_label: "مشاهده محصولات",
+    cta_label: "مشاهده اندازه‌گیری",
     cta_href: "/catalog",
-    image: "/images/hero/karzar-metrology-lab.jpg",
+    image: "/images/hero/hero-metrology-left.jpg",
     accent: "#C22026",
   },
 ];
