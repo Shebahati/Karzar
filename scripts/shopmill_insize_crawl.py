@@ -151,6 +151,7 @@ def crawl(out_path: Path, *, per_page: int = 50, sleep_s: float = 0.7) -> None:
                 )
                 model = extract_model_code(name_exact)
                 sku = to_official_sku(model)
+                # Content/catalog crawl only — never persist shopmill commerce prices.
                 row = {
                     "source_id": item.get("id"),
                     "source_url": item.get("permalink"),
@@ -167,7 +168,6 @@ def crawl(out_path: Path, *, per_page: int = 50, sleep_s: float = 0.7) -> None:
                         for c in (item.get("categories") or [])
                     ],
                     "specifications": extract_specs(item.get("attributes") or []),
-                    "prices": item.get("prices"),
                 }
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
                 written += 1

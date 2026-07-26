@@ -26,6 +26,7 @@
 - [ ] Performance — see `CORE_WEB_VITALS_PROGRESS.md`
 - [ ] Security — see `SECURITY_PROGRESS.md`
 - [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
+- [ ] INSIZE shopmilltools content fill (CAT-002) — tooling + dry-run ready; staging apply in progress
 - [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
 
 ## Active sprint

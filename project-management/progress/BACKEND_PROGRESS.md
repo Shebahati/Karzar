@@ -15,7 +15,7 @@
   - Definition of Done:
     - [ ] PROJECT_STATUS updated
   - Notes: #71/#72 merged or open — verify
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 85% | P1 | 20h | Sprint 02
   - Owner: unassigned | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [ ] Dependencies: CAT-001
@@ -23,11 +23,11 @@
   - [ ] Modules: catalog, seo
   - [ ] Tags: insize, content
   - Acceptance Criteria:
-    - [ ] ≥200 SKUs content QA
-    - [ ] price_fields_written=none
+    - [x] ≥200 SKUs content QA
+    - [x] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: #74 closed intentionally
+  - Notes: shopmilltools SoT tooling on `feat/insize-shopmill-spec-enrichment`; dry-run 861 matched / 872 catalog; staging apply in progress (resume-safe)
 - [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low
   - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
