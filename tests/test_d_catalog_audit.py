@@ -58,7 +58,7 @@ def test_stock_quantity_update_blocked_on_put(valid_product_data, super_admin_he
     )
     assert blocked.status_code == 400
     assert blocked.json()["error_code"] == "BAD_REQUEST"
-    assert "stock adjust" in blocked.json()["message"].lower()
+    assert "is_available" in blocked.json()["message"].lower()
 
 
 def test_statistics_and_change_log_require_admin(valid_product_data, super_admin_headers):
@@ -91,16 +91,23 @@ def test_statistics_and_change_log_require_admin(valid_product_data, super_admin
 
 
 def test_category_slug_endpoint_exposes_seo_fields(valid_product_data, super_admin_headers):
-    """Category public slug endpoint exposes SEO fields; product create omits them."""
+    """Category and product public/admin responses expose SEO fields (may be null)."""
     create = client.post(
         "/api/v1/products/",
-        json={**valid_product_data, "sku": "D-SEO-DEBT"},
+        json={
+            **valid_product_data,
+            "sku": "D-SEO-DEBT",
+            "short_description": "توضیح کوتاه محصول برای تست قرارداد SEO کاتالوگ",
+            "meta_title": "عنوان سئو تست D",
+            "meta_description": "توضیح متای تست D با طول کافی برای قرارداد",
+        },
         headers=super_admin_headers,
     )
     assert create.status_code == 201
     body = create.json()
-    for field in ("slug", "meta_title", "meta_description"):
-        assert field not in body
+    for field in ("slug", "short_description", "meta_title", "meta_description"):
+        assert field in body
+    assert body["meta_title"] == "عنوان سئو تست D"
 
     leaf = next(
         row for row in client.get("/api/v1/categories/").json()["data"] if row["is_selectable"]

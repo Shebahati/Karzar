@@ -97,6 +97,29 @@
         ],
         "summary": "Get current authenticated user",
         "operationId": "get_me_api_v1_auth_me_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -107,13 +130,18 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/auth/change-password": {
@@ -123,15 +151,38 @@
         ],
         "summary": "Change current user password",
         "operationId": "change_password_api_v1_auth_change_password_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ChangePasswordRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -152,12 +203,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/auth/refresh": {
@@ -167,15 +213,40 @@
         ],
         "summary": "Rotate refresh token",
         "operationId": "refresh_token_api_v1_auth_refresh_post",
+        "parameters": [
+          {
+            "name": "karzar_refresh",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Refresh"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RefreshTokenRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Payload"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -208,6 +279,29 @@
         ],
         "summary": "Revoke refresh tokens and invalidate access tokens",
         "operationId": "logout_api_v1_auth_logout_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -216,13 +310,18 @@
                 "schema": {}
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/auth/password-reset/request": {
@@ -313,15 +412,38 @@
         "summary": "Verify admin PIN for destructive actions",
         "description": "Exchange a valid admin PIN for a short-lived step-up token.",
         "operationId": "verify_pin_api_v1_auth_verify_pin_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PinVerifyRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -344,12 +466,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/auth/otp/request": {
@@ -444,6 +561,24 @@
         "security": [
           {
             "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "requestBody": {
@@ -544,16 +679,19 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Filter by brand ID",
+              "description": "Filter by brand ID(s). Repeat param (brand_id=1&brand_id=2) or comma-separated (brand_id=1,2). Single value still works.",
               "title": "Brand Id"
             },
-            "description": "Filter by brand ID"
+            "description": "Filter by brand ID(s). Repeat param (brand_id=1&brand_id=2) or comma-separated (brand_id=1,2). Single value still works."
           },
           {
             "name": "is_active",
@@ -616,7 +754,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": 0.0
                 },
                 {
                   "type": "string",
@@ -638,7 +777,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": 0.0
                 },
                 {
                   "type": "string",
@@ -660,16 +800,19 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Filter by brand country",
+              "description": "Filter by brand country/countries. Repeat param or comma-separated. Single value still works.",
               "title": "Country"
             },
-            "description": "Filter by brand country"
+            "description": "Filter by brand country/countries. Repeat param or comma-separated. Single value still works."
           },
           {
             "name": "in_stock",
@@ -684,10 +827,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Only in-stock active products (true/false/1/0)",
+              "description": "In-stock filter: true/1 = available active; false/0 = out of stock",
               "title": "In Stock"
             },
-            "description": "Only in-stock active products (true/false/1/0)"
+            "description": "In-stock filter: true/1 = available active; false/0 = out of stock"
           },
           {
             "name": "sort",
@@ -702,10 +845,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Sort key: newest, price_asc, price_desc, name_asc, name_desc",
+              "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first (legacy: name_asc, name_desc)",
               "title": "Sort"
             },
-            "description": "Sort key: newest, price_asc, price_desc, name_asc, name_desc"
+            "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first (legacy: name_asc, name_desc)"
           },
           {
             "name": "ids",
@@ -742,6 +885,22 @@
               "title": "Filters"
             },
             "description": "JSON object for specification filters, e.g. {\"technical_specs.range\":\"0-150mm\"}"
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -788,6 +947,22 @@
             "schema": {
               "type": "integer",
               "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -860,6 +1035,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -898,6 +1089,22 @@
             "schema": {
               "type": "integer",
               "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -962,6 +1169,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -994,7 +1217,7 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Get product stock status",
+        "summary": "Get product availability status",
         "operationId": "get_stock_api_v1_products__product_id__stock_get",
         "security": [
           {
@@ -1009,6 +1232,22 @@
             "schema": {
               "type": "integer",
               "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -1036,14 +1275,107 @@
         }
       }
     },
+    "/api/v1/products/{product_id}/availability": {
+      "put": {
+        "tags": [
+          "Products",
+          "Stock Management"
+        ],
+        "summary": "Set product availability (موجود / ناموجود)",
+        "operationId": "set_availability_api_v1_products__product_id__availability_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "is_available",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "description": "True = موجود, False = ناموجود",
+              "title": "Is Available"
+            },
+            "description": "True = موجود, False = ناموجود"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/products/{product_id}/stock/adjust": {
       "post": {
         "tags": [
           "Products",
           "Stock Management"
         ],
-        "summary": "Adjust product stock",
+        "summary": "Deprecated: maps quantity delta to availability toggle",
         "operationId": "adjust_stock_api_v1_products__product_id__stock_adjust_post",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -1073,10 +1405,26 @@
                   "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
                 }
               ],
-              "description": "Quantity to add or subtract",
+              "description": "Deprecated. Positive → available, zero/negative → unavailable",
               "title": "Quantity Delta"
             },
-            "description": "Quantity to add or subtract"
+            "description": "Deprecated. Positive → available, zero/negative → unavailable"
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1111,15 +1459,38 @@
         ],
         "summary": "Bulk stock adjustment (admin)",
         "operationId": "bulk_adjust_stock_api_v1_products_bulk_stock_adjust_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/BulkStockAdjustRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -1142,12 +1513,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/products/{product_id}/change-log": {
@@ -1194,6 +1560,22 @@
               "default": 50,
               "title": "Limit"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1228,6 +1610,29 @@
         ],
         "summary": "Aggregate product statistics (admin)",
         "operationId": "read_product_statistics_api_v1_products_statistics_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1238,13 +1643,18 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/products/sku/{sku}": {
@@ -1273,6 +1683,22 @@
               "title": "Sku"
             },
             "description": "Product SKU"
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1402,6 +1828,22 @@
               "type": "integer",
               "title": "Product Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "requestBody": {
@@ -1459,6 +1901,22 @@
               "type": "integer",
               "title": "Product Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1513,6 +1971,22 @@
               "type": "integer",
               "title": "Image Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1562,6 +2036,22 @@
               "type": "integer",
               "title": "Image Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1608,6 +2098,22 @@
             "schema": {
               "type": "integer",
               "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -1674,15 +2180,38 @@
         ],
         "summary": "Create a category",
         "operationId": "create_category_api_v1_categories__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CategoryCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -1705,12 +2234,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/categories/slug/{slug}": {
@@ -1778,6 +2302,22 @@
               "type": "integer",
               "title": "Category Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "requestBody": {
@@ -1819,7 +2359,7 @@
           "Categories"
         ],
         "summary": "Delete a category with product reassignment",
-        "description": "Delete a leaf category and reassign its products per depth rules (requires step-up PIN).",
+        "description": "Delete a leaf category; products must move to another selectable leaf (requires step-up PIN).",
         "operationId": "delete_category_api_v1_categories__category_id__delete",
         "security": [
           {
@@ -1837,6 +2377,24 @@
             }
           },
           {
+            "name": "target_category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Selectable depth-3 leaf to receive products when the category is non-empty",
+              "title": "Target Category Id"
+            },
+            "description": "Selectable depth-3 leaf to receive products when the category is non-empty"
+          },
+          {
             "name": "X-Step-Up-Token",
             "in": "header",
             "required": false,
@@ -1851,6 +2409,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -1860,6 +2434,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CategoryDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/categories/{category_id}/image": {
+      "post": {
+        "tags": [
+          "Categories",
+          "Categories"
+        ],
+        "summary": "Upload a category card image (multipart file)",
+        "operationId": "upload_category_image_api_v1_categories__category_id__image_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryImageUploadResponse"
                 }
               }
             }
@@ -2043,15 +2681,38 @@
         ],
         "summary": "Create a brand",
         "operationId": "create_brand_api_v1_brands__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/BrandCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -2074,12 +2735,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/brands/slug/{slug}": {
@@ -2146,6 +2802,22 @@
             "schema": {
               "type": "integer",
               "title": "Brand Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -2219,6 +2891,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -2227,6 +2915,70 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}/logo": {
+      "post": {
+        "tags": [
+          "Brands",
+          "Brands"
+        ],
+        "summary": "Upload a brand logo (multipart file)",
+        "operationId": "upload_brand_logo_api_v1_brands__brand_id__logo_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Brand Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandLogoUploadResponse"
+                }
               }
             }
           },
@@ -2283,6 +3035,22 @@
                 }
               ],
               "title": "X-Cart-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -2349,6 +3117,22 @@
               ],
               "title": "X-Cart-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -2397,6 +3181,22 @@
                 }
               ],
               "title": "X-Cart-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -2484,6 +3284,22 @@
               ],
               "title": "X-Cart-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -2518,15 +3334,38 @@
         ],
         "summary": "Merge Cart",
         "operationId": "merge_cart_api_v1_cart_merge_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CartMergeRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -2534,10 +3373,10 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/CartResponse"
                   },
-                  "type": "array",
                   "title": "Response Merge Cart Api V1 Cart Merge Post"
                 }
               }
@@ -2553,12 +3392,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/orders/me": {
@@ -2595,6 +3429,22 @@
               "minimum": 1,
               "default": 20,
               "title": "Limit"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -2840,6 +3690,22 @@
               "default": "newest",
               "title": "Sort"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -2886,6 +3752,22 @@
             "schema": {
               "type": "integer",
               "title": "Order Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -2948,6 +3830,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3003,6 +3901,22 @@
                 }
               ],
               "title": "X-Step-Up-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3060,6 +3974,22 @@
             "schema": {
               "type": "integer",
               "title": "Order Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3125,6 +4055,22 @@
                 }
               ],
               "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3263,16 +4209,41 @@
           "Payments"
         ],
         "summary": "Verify payment callback",
+        "description": "Verify a gateway return by authority (order resolved server-side).\nOptional order_id must match the bound order when supplied.\nAuth is optional — authority is a capability token (same model as GET /callback).\nAuthenticated owners are still ownership-checked when the order has a user_id.",
         "operationId": "payment_verify_api_v1_payments_verify_post",
+        "security": [
+          {},
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PaymentVerifyRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -3295,12 +4266,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/payments/refund": {
@@ -3330,6 +4296,22 @@
                 }
               ],
               "title": "X-Step-Up-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3463,6 +4445,22 @@
               "default": "id_desc",
               "title": "Sort"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3556,6 +4554,22 @@
               ],
               "title": "Entity Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3600,6 +4614,22 @@
             "schema": {
               "type": "integer",
               "title": "User Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3661,6 +4691,22 @@
                 }
               ],
               "title": "X-Step-Up-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3733,6 +4779,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3788,6 +4850,22 @@
               "default": 50,
               "title": "Limit"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3823,6 +4901,24 @@
         "security": [
           {
             "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "requestBody": {
@@ -3880,6 +4976,22 @@
             "schema": {
               "type": "integer",
               "title": "Article Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -3953,6 +5065,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -3980,6 +5108,29 @@
         ],
         "summary": "List Hero Slides Admin",
         "operationId": "list_hero_slides_admin_api_v1_cms_hero_slides_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3990,13 +5141,18 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -4005,15 +5161,38 @@
         ],
         "summary": "Create Hero Slide Admin",
         "operationId": "create_hero_slide_admin_api_v1_cms_hero_slides_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/HeroSlideCreateRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -4036,12 +5215,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/cms/hero-slides/{slide_id}": {
@@ -4065,6 +5239,22 @@
             "schema": {
               "type": "integer",
               "title": "Slide Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -4138,6 +5328,22 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -4209,6 +5415,22 @@
               ],
               "title": "Product Id"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -4273,11 +5495,145 @@
               ],
               "title": "X-Step-Up-Token"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cms/nav-groups": {
+      "get": {
+        "tags": [
+          "CMS",
+          "CMS"
+        ],
+        "summary": "List Nav Groups Admin",
+        "operationId": "list_nav_groups_admin_api_v1_cms_nav_groups_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NavGroupListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CMS",
+          "CMS"
+        ],
+        "summary": "Replace Nav Groups Admin",
+        "operationId": "replace_nav_groups_admin_api_v1_cms_nav_groups_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NavGroupReplaceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NavGroupListResponse"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -4360,6 +5716,22 @@
               ],
               "title": "Phone"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -4369,6 +5741,296 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContactSubmissionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesabfa/status": {
+      "get": {
+        "tags": [
+          "Hesabfa"
+        ],
+        "summary": "Hesabfa integration status",
+        "operationId": "hesabfa_status_api_v1_hesabfa_status_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HesabfaStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesabfa/mappings/sync": {
+      "post": {
+        "tags": [
+          "Hesabfa"
+        ],
+        "summary": "Match site products to Hesabfa items by SKU",
+        "operationId": "sync_mappings_api_v1_hesabfa_mappings_sync_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HesabfaMappingSyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesabfa/items/push": {
+      "post": {
+        "tags": [
+          "Hesabfa"
+        ],
+        "summary": "Push site products into Hesabfa as item shells (qty 0)",
+        "operationId": "push_items_api_v1_hesabfa_items_push_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HesabfaItemPushResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesabfa/stock/sync": {
+      "post": {
+        "tags": [
+          "Hesabfa"
+        ],
+        "summary": "Deprecated: Hesabfa→site quantity pull is disabled",
+        "operationId": "sync_stock_api_v1_hesabfa_stock_sync_post",
+        "deprecated": true,
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HesabfaStockSyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesabfa/sales-summary": {
+      "get": {
+        "tags": [
+          "Hesabfa"
+        ],
+        "summary": "Website-only paid sales (Hesabfa admin reads disabled)",
+        "description": "Website paid totals only — never returns Hesabfa invoice/sales figures.",
+        "operationId": "sales_summary_api_v1_hesabfa_sales_summary_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HesabfaSalesSummaryResponse"
                 }
               }
             }
@@ -4538,6 +6200,29 @@
         }
       }
     },
+    "/api/v1/nav-groups/": {
+      "get": {
+        "tags": [
+          "Storefront",
+          "Storefront"
+        ],
+        "summary": "List Nav Groups Public",
+        "description": "Enabled megamenu groups for the storefront (empty → FE hardcoded fallback).",
+        "operationId": "list_nav_groups_public_api_v1_nav_groups__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NavGroupPublicListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/contact": {
       "post": {
         "tags": [
@@ -4625,6 +6310,22 @@
                 }
               ],
               "title": "X-Cart-Token"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],
@@ -5509,6 +7210,18 @@
               }
             ],
             "title": "Country"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
           }
         },
         "type": "object",
@@ -5532,6 +7245,24 @@
           "data"
         ],
         "title": "BrandListResponse"
+      },
+      "BrandLogoUploadResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "logo_url": {
+            "type": "string",
+            "title": "Logo Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "logo_url"
+        ],
+        "title": "BrandLogoUploadResponse"
       },
       "BrandResponse": {
         "properties": {
@@ -5616,6 +7347,18 @@
               }
             ],
             "title": "Country"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
           }
         },
         "type": "object",
@@ -5828,12 +7571,30 @@
             "type": "string",
             "title": "Name"
           },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
           "breadcrumb": {
             "items": {
               "type": "string"
             },
             "type": "array",
             "title": "Breadcrumb"
+          },
+          "ancestor_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Ancestor Ids"
           },
           "hierarchy_label": {
             "anyOf": [
@@ -5872,6 +7633,66 @@
               }
             ],
             "title": "Parent Id"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
+          },
+          "spec_template_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec Template Key"
           }
         },
         "type": "object",
@@ -5979,6 +7800,61 @@
               }
             ],
             "title": "Product Count"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
+          },
+          "spec_template_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec Template Key"
           }
         },
         "type": "object",
@@ -5992,6 +7868,24 @@
         ],
         "title": "CategoryFlatResponse",
         "description": "Flat category row with hierarchy metadata for admin product forms."
+      },
+      "CategoryImageUploadResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "image_url"
+        ],
+        "title": "CategoryImageUploadResponse"
       },
       "CategoryListResponse": {
         "properties": {
@@ -6137,6 +8031,18 @@
             "title": "Icon",
             "description": "react-iconly icon name (roots only)"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url",
+            "description": "Category card image URL"
+          },
           "product_count": {
             "anyOf": [
               {
@@ -6192,6 +8098,79 @@
               }
             ],
             "title": "Parent Id"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
+          },
+          "spec_template_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec Template Key"
           }
         },
         "type": "object",
@@ -6947,6 +8926,258 @@
         "type": "object",
         "title": "HeroSlideUpdateRequest"
       },
+      "HesabfaItemPushResponse": {
+        "properties": {
+          "created": {
+            "type": "integer",
+            "title": "Created"
+          },
+          "updated": {
+            "type": "integer",
+            "title": "Updated"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "errors": {
+            "type": "integer",
+            "title": "Errors"
+          },
+          "error_samples": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Error Samples"
+          }
+        },
+        "type": "object",
+        "required": [
+          "created",
+          "updated",
+          "skipped",
+          "errors"
+        ],
+        "title": "HesabfaItemPushResponse"
+      },
+      "HesabfaMappingSyncResponse": {
+        "properties": {
+          "matched": {
+            "type": "integer",
+            "title": "Matched"
+          },
+          "created": {
+            "type": "integer",
+            "title": "Created"
+          },
+          "updated": {
+            "type": "integer",
+            "title": "Updated"
+          },
+          "scanned_hesabfa": {
+            "type": "integer",
+            "title": "Scanned Hesabfa"
+          },
+          "unmatched_site_skus": {
+            "type": "integer",
+            "title": "Unmatched Site Skus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "matched",
+          "created",
+          "updated",
+          "scanned_hesabfa",
+          "unmatched_site_skus"
+        ],
+        "title": "HesabfaMappingSyncResponse"
+      },
+      "HesabfaSalesSummaryResponse": {
+        "properties": {
+          "website_paid_total_toman": {
+            "type": "string",
+            "title": "Website Paid Total Toman",
+            "description": "Sum of paid purchase orders on the site (Tomans)"
+          },
+          "website_paid_order_count": {
+            "type": "integer",
+            "title": "Website Paid Order Count"
+          },
+          "hesabfa_sales_total": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Sales Total",
+            "description": "Deprecated: always null (admin Hesabfa reads disabled)"
+          },
+          "hesabfa_sales_total_toman": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Sales Total Toman",
+            "description": "Deprecated: always null (admin Hesabfa reads disabled)"
+          },
+          "hesabfa_invoice_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Invoice Count"
+          },
+          "hesabfa_currency_unit": {
+            "type": "string",
+            "title": "Hesabfa Currency Unit"
+          },
+          "hesabfa_available": {
+            "type": "boolean",
+            "title": "Hesabfa Available",
+            "default": false
+          },
+          "hesabfa_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Error",
+            "default": "hesabfa_admin_reads_disabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "website_paid_total_toman",
+          "website_paid_order_count",
+          "hesabfa_currency_unit"
+        ],
+        "title": "HesabfaSalesSummaryResponse"
+      },
+      "HesabfaStatusResponse": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "test_mode": {
+            "type": "boolean",
+            "title": "Test Mode"
+          },
+          "base_url": {
+            "type": "string",
+            "title": "Base Url"
+          },
+          "warehouse_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warehouse Code"
+          },
+          "currency_unit": {
+            "type": "string",
+            "title": "Currency Unit"
+          },
+          "stock_sync_interval_seconds": {
+            "type": "integer",
+            "title": "Stock Sync Interval Seconds"
+          },
+          "stock_pull_enabled": {
+            "type": "boolean",
+            "title": "Stock Pull Enabled",
+            "default": false
+          },
+          "item_push_enabled": {
+            "type": "boolean",
+            "title": "Item Push Enabled",
+            "default": true
+          },
+          "admin_reads_enabled": {
+            "type": "boolean",
+            "title": "Admin Reads Enabled",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "configured",
+          "test_mode",
+          "base_url",
+          "currency_unit",
+          "stock_sync_interval_seconds"
+        ],
+        "title": "HesabfaStatusResponse"
+      },
+      "HesabfaStockSyncResponse": {
+        "properties": {
+          "checked": {
+            "type": "integer",
+            "title": "Checked"
+          },
+          "updated": {
+            "type": "integer",
+            "title": "Updated"
+          },
+          "unchanged": {
+            "type": "integer",
+            "title": "Unchanged"
+          },
+          "missing_in_hesabfa": {
+            "type": "integer",
+            "title": "Missing In Hesabfa"
+          },
+          "disabled": {
+            "type": "boolean",
+            "title": "Disabled",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "checked",
+          "updated",
+          "unchanged",
+          "missing_in_hesabfa"
+        ],
+        "title": "HesabfaStockSyncResponse"
+      },
       "IssueQuoteLineItem": {
         "properties": {
           "product_id": {
@@ -7011,6 +9242,185 @@
           "items"
         ],
         "title": "IssueQuoteRequest"
+      },
+      "NavGroupListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/NavGroupResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "NavGroupListResponse"
+      },
+      "NavGroupPublicListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/NavGroupPublicResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "NavGroupPublicListResponse"
+      },
+      "NavGroupPublicResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
+          },
+          "highlight": {
+            "type": "boolean",
+            "title": "Highlight",
+            "default": false
+          },
+          "root_category_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Root Category Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "label",
+          "sort_order"
+        ],
+        "title": "NavGroupPublicResponse",
+        "description": "Public megamenu group config consumed by the storefront."
+      },
+      "NavGroupReplaceItem": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order",
+            "default": 0
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled",
+            "default": true
+          },
+          "highlight": {
+            "type": "boolean",
+            "title": "Highlight",
+            "default": false
+          },
+          "root_category_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Root Category Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "label"
+        ],
+        "title": "NavGroupReplaceItem"
+      },
+      "NavGroupReplaceRequest": {
+        "properties": {
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/NavGroupReplaceItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Groups"
+          }
+        },
+        "type": "object",
+        "required": [
+          "groups"
+        ],
+        "title": "NavGroupReplaceRequest"
+      },
+      "NavGroupResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled"
+          },
+          "highlight": {
+            "type": "boolean",
+            "title": "Highlight"
+          },
+          "root_category_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Root Category Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "label",
+          "sort_order",
+          "is_enabled",
+          "highlight"
+        ],
+        "title": "NavGroupResponse"
       },
       "OrderDetailResponse": {
         "properties": {
@@ -7274,13 +9684,28 @@
               }
             ],
             "title": "Unit Price"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "product_sku": {
+            "type": "string",
+            "title": "Product Sku"
+          },
+          "tax_percent": {
+            "type": "string",
+            "title": "Tax Percent",
+            "default": "0"
           }
         },
         "type": "object",
         "required": [
           "id",
           "product_id",
-          "quantity"
+          "quantity",
+          "product_name",
+          "product_sku"
         ],
         "title": "OrderItemResponse"
       },
@@ -7509,12 +9934,22 @@
               }
             ],
             "title": "Unit Price"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "product_sku": {
+            "type": "string",
+            "title": "Product Sku"
           }
         },
         "type": "object",
         "required": [
           "product_id",
-          "quantity"
+          "quantity",
+          "product_name",
+          "product_sku"
         ],
         "title": "OrderTrackingItemResponse"
       },
@@ -7819,14 +10254,23 @@
       },
       "PaymentVerifyRequest": {
         "properties": {
-          "order_id": {
-            "type": "integer",
-            "minimum": 1.0,
-            "title": "Order Id"
-          },
           "authority": {
             "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
             "title": "Authority"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
           },
           "status": {
             "anyOf": [
@@ -7842,10 +10286,10 @@
         },
         "type": "object",
         "required": [
-          "order_id",
           "authority"
         ],
-        "title": "PaymentVerifyRequest"
+        "title": "PaymentVerifyRequest",
+        "description": "Verify by authority (preferred). ``order_id`` is optional when authority is known."
       },
       "PaymentVerifyResponse": {
         "properties": {
@@ -7871,6 +10315,17 @@
               }
             ],
             "title": "Ref Id"
+          },
+          "tracking_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking Code"
           }
         },
         "type": "object",
@@ -8132,6 +10587,11 @@
             ],
             "title": "Base Price"
           },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available",
+            "default": true
+          },
           "stock_quantity": {
             "anyOf": [
               {
@@ -8350,7 +10810,8 @@
           },
           "stock_quantity": {
             "type": "string",
-            "title": "Stock Quantity"
+            "title": "Stock Quantity",
+            "default": "0"
           },
           "stock_unit": {
             "type": "string",
@@ -8362,11 +10823,17 @@
           },
           "low_stock": {
             "type": "boolean",
-            "title": "Low Stock"
+            "title": "Low Stock",
+            "default": false
           },
           "availability": {
             "type": "boolean",
             "title": "Availability"
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available",
+            "default": true
           },
           "warranty_text": {
             "anyOf": [
@@ -8464,10 +10931,8 @@
           "sku",
           "name",
           "brand_id",
-          "stock_quantity",
           "stock_unit",
           "stock_status",
-          "low_stock",
           "availability",
           "warranty_text",
           "is_original",
@@ -8557,6 +11022,11 @@
           "total_stock_quantity": {
             "type": "string",
             "title": "Total Stock Quantity"
+          },
+          "available_products": {
+            "type": "integer",
+            "title": "Available Products",
+            "default": 0
           },
           "categories": {
             "type": "integer",
@@ -8743,6 +11213,17 @@
             ],
             "title": "Base Price"
           },
+          "is_available": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Available"
+          },
           "stock_quantity": {
             "anyOf": [
               {
@@ -8895,17 +11376,21 @@
       "RefreshTokenRequest": {
         "properties": {
           "refresh_token": {
-            "type": "string",
-            "maxLength": 256,
-            "minLength": 16,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Refresh Token"
           }
         },
         "type": "object",
-        "required": [
-          "refresh_token"
-        ],
-        "title": "RefreshTokenRequest"
+        "title": "RefreshTokenRequest",
+        "description": "Body refresh is optional when the HttpOnly refresh cookie is present."
       },
       "RelatedProductsResponse": {
         "properties": {
@@ -8985,25 +11470,40 @@
             "type": "string",
             "title": "Sku"
           },
-          "stock_quantity": {
-            "type": "string",
-            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-            "title": "Stock Quantity"
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available"
+          },
+          "availability": {
+            "type": "boolean",
+            "title": "Availability"
           },
           "stock_status": {
             "type": "string",
             "title": "Stock Status"
+          },
+          "stock_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Stock Quantity",
+            "default": "0"
+          },
+          "low_stock": {
+            "type": "boolean",
+            "title": "Low Stock",
+            "default": false
           }
         },
         "type": "object",
         "required": [
           "product_id",
           "sku",
-          "stock_quantity",
+          "is_available",
+          "availability",
           "stock_status"
         ],
         "title": "StockStatusResponse",
-        "description": "Admin stock snapshot. stock_status uses English codes: in_stock | low_stock | out_of_stock."
+        "description": "Admin availability snapshot (no warehouse counts on site)."
       },
       "TechnicalSpecsTemplate": {
         "properties": {

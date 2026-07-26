@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Bag2, Buy, Category, Danger, Plus, Ticket, Wallet } from "react-iconly";
+import { Bag2, Buy, Category, Danger, Plus, Ticket } from "react-iconly";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatValue } from "@/components/ui/stat-value";
 import { SystemStatusStrip } from "@/components/system-status-strip";
 import { useCategories, useProducts, useProductStatistics } from "@/features/catalog/queries";
+import { useWebsitePaidSales } from "@/features/hesabfa/queries";
 import { useOrders } from "@/features/orders/queries";
 import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
 import type { IconlyIcon } from "@/components/layout/nav.config";
@@ -32,18 +34,18 @@ function StatCard({ label, value, icon: Icon, tone = "primary", loading }: StatC
   const style = TONE_STYLES[tone];
   return (
     <Card className="hover:shadow-elevated">
-      <CardContent className="flex items-center gap-4 p-5">
+      <CardContent className="flex items-start gap-3 p-5 sm:gap-4">
         <div
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${style.bg}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 ${style.bg}`}
         >
           <Icon set="bulk" size={28} primaryColor={style.color} />
         </div>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-sm text-muted-foreground">{label}</span>
+        <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-visible">
+          <span className="text-sm leading-snug text-muted-foreground">{label}</span>
           {loading ? (
             <Skeleton className="h-6 w-20" />
           ) : (
-            <span className="truncate text-xl font-bold text-ink tnum">{value}</span>
+            <StatValue value={value} />
           )}
         </div>
       </CardContent>
@@ -103,16 +105,22 @@ export default function DashboardPage() {
     status: "inquiry_review",
     limit: 6,
   });
+  const { data: websiteSalesSummary, isPending: salesPending } = useWebsitePaidSales();
 
   const products = productsData?.data ?? [];
   const totalProducts = stats?.total_products ?? productsData?.meta.total_count ?? 0;
+  const availableProducts =
+    stats?.available_products ??
+    Number(stats?.total_stock_quantity ?? products.filter((p) => p.availability).length);
   const outOfStock = products.filter((p) => p.stock_status === "out_of_stock");
   const lowStock = products.filter((p) => p.stock_status === "low_stock");
   const categoryCount =
     stats?.categories ??
     (categories ?? []).reduce((sum, c) => sum + 1 + c.subcategories.length, 0);
 
-  const inventoryValue = stats?.total_stock_value ?? null;
+  const websiteSales = websiteSalesSummary?.website_paid_total_toman
+    ? Number(websiteSalesSummary.website_paid_total_toman)
+    : null;
 
   const paidQueue: QueueItem[] = (paidOrders?.data ?? []).map((order) => ({
     key: `order-${order.id}`,
@@ -175,6 +183,13 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
+          label="فروش وبسایت (پرداخت‌شده)"
+          value={websiteSales !== null ? formatToman(websiteSales) : "—"}
+          icon={Buy as IconlyIcon}
+          tone="success"
+          loading={salesPending}
+        />
+        <StatCard
           label="کل محصولات"
           value={formatNumber(totalProducts)}
           icon={Bag2 as IconlyIcon}
@@ -182,18 +197,11 @@ export default function DashboardPage() {
           loading={statsPending && productsPending}
         />
         <StatCard
-          label="ارزش موجودی انبار"
-          value={inventoryValue !== null ? formatToman(inventoryValue) : "—"}
-          icon={Wallet as IconlyIcon}
+          label="محصولات موجود"
+          value={formatNumber(availableProducts)}
+          icon={Bag2 as IconlyIcon}
           tone="success"
           loading={statsPending}
-        />
-        <StatCard
-          label="کالاهای نیازمند توجه"
-          value={formatNumber(outOfStock.length + lowStock.length)}
-          icon={Danger as IconlyIcon}
-          tone="warning"
-          loading={productsPending}
         />
         <StatCard
           label="دسته‌بندی‌ها"
@@ -201,6 +209,16 @@ export default function DashboardPage() {
           icon={Category as IconlyIcon}
           tone="neutral"
           loading={statsPending}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard
+          label="کالاهای نیازمند توجه"
+          value={formatNumber(outOfStock.length + lowStock.length)}
+          icon={Danger as IconlyIcon}
+          tone="warning"
+          loading={productsPending}
         />
       </div>
 

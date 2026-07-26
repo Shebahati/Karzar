@@ -90,6 +90,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
+    // Next 16 defaults qualities to [75] only — allow hero (90) and category cards (100).
+    qualities: [75, 90, 100],
     remotePatterns: imageRemotePatterns(),
   },
   async headers() {

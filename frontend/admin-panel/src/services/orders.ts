@@ -22,8 +22,9 @@ function mapLineItem(
     unit != null ? String(Number(unit) * qty) : null;
   return {
     ...raw,
-    product_name: product?.name ?? `محصول #${raw.product_id}`,
-    sku: product?.sku ?? null,
+    product_name:
+      raw.product_name ?? product?.name ?? `محصول #${raw.product_id}`,
+    sku: raw.product_sku ?? product?.sku ?? null,
     line_total: lineTotal,
   };
 }

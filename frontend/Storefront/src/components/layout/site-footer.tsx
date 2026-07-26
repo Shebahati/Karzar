@@ -39,8 +39,8 @@ export function SiteFooter() {
       <Container>
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <Logo />
-            <p className="mt-4 max-w-sm text-sm leading-7 text-muted-foreground">
+            <Logo variant="slogan" height={48} />
+            <p className="mt-4 max-w-sm text-sm leading-7 text-steel">
               کارزار، مرجع تخصصی خرید ابزارآلات صنعتی و تراشکاری از معتبرترین
               برندهای جهان با ضمانت اصالت و پشتیبانی حرفه‌ای.
             </p>
@@ -48,9 +48,9 @@ export function SiteFooter() {
               {TRUST.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-bold text-secondary-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-bold text-steel"
                 >
-                  <Icon size="small" set="bold" primaryColor="#C22026" />
+                  <Icon size="small" set="bold" primaryColor="#5E5F5E" />
                   {label}
                 </span>
               ))}

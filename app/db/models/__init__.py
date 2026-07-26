@@ -15,9 +15,15 @@ from app.db.models.content import (
     Article,
     ContactSubmission,
     HeroSlide,
+    MegamenuNavGroup,
     OtpCode,
     OtpPurpose,
     ProductComment,
+)
+from app.db.models.hesabfa import (
+    HesabfaContactMapping,
+    HesabfaInvoiceRecord,
+    HesabfaItemMapping,
 )
 from app.db.models.platform import (
     AdminAuditLog,
@@ -54,6 +60,7 @@ __all__ = [
     "UserRole",
     "Article",
     "HeroSlide",
+    "MegamenuNavGroup",
     "ContactSubmission",
     "OtpCode",
     "OtpPurpose",
@@ -65,6 +72,9 @@ __all__ = [
     "PaymentStatus",
     "PaymentTransaction",
     "PaymentTransactionStatus",
+    "HesabfaItemMapping",
+    "HesabfaContactMapping",
+    "HesabfaInvoiceRecord",
     "Cart",
     "CartItem",
     "CartLane",

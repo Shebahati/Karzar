@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { StatValue } from "@/components/ui/stat-value";
 import { useOrders } from "@/features/orders/queries";
 import { useProductStatistics, useProducts } from "@/features/catalog/queries";
 import { formatNumber, formatToman } from "@/lib/utils";
@@ -22,17 +23,17 @@ interface ReportStatProps {
 
 function ReportStat({ label, value, icon: Icon, loading, hint }: ReportStatProps) {
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="flex items-center gap-4 p-5">
+    <Card>
+      <CardContent className="flex items-start gap-3 p-5 sm:gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent">
           <Icon set="bulk" size={24} primaryColor="#C22026" />
         </div>
-        <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{label}</p>
+        <div className="min-w-0 flex-1 overflow-visible">
+          <p className="text-sm leading-snug text-muted-foreground">{label}</p>
           {loading ? (
             <Skeleton className="mt-1 h-6 w-24" />
           ) : (
-            <p className="truncate text-xl font-bold tnum">{value}</p>
+            <StatValue value={value} className="mt-0.5" />
           )}
           {hint ? <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p> : null}
         </div>
@@ -101,14 +102,14 @@ export default function ReportsPage() {
             hint={stats ? `${formatNumber(stats.active_products)} فعال` : undefined}
           />
           <ReportStat
-            label="ارزش موجودی"
-            value={statsError ? "—" : formatToman(stats?.total_stock_value ?? 0)}
-            icon={Wallet as IconlyIcon}
-            loading={catalogLoading}
-          />
-          <ReportStat
-            label="جمع موجودی عددی"
-            value={statsError ? "—" : formatNumber(Number(stats?.total_stock_quantity ?? 0))}
+            label="محصولات موجود"
+            value={
+              statsError
+                ? "—"
+                : formatNumber(
+                    stats?.available_products ?? Number(stats?.total_stock_quantity ?? 0),
+                  )
+            }
             icon={Chart as IconlyIcon}
             loading={catalogLoading}
           />
@@ -121,6 +122,12 @@ export default function ReportsPage() {
             }
             icon={Activity as IconlyIcon}
             loading={catalogLoading}
+          />
+          <ReportStat
+            label="کالاهای ناموجود (نمونه)"
+            value={formatNumber(outOfStock.length)}
+            icon={Danger as IconlyIcon}
+            loading={productsPending}
           />
         </div>
       </div>

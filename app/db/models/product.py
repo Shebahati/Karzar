@@ -91,6 +91,16 @@ class Category(Base):
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"))
     spec_template_key: Mapped[str | None] = mapped_column(String(50), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Storefront megamenu presentation (admin-editable).
+    megamenu_hidden: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    megamenu_as_leaf: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    # None = auto (branch headers bold; terminal links normal). True/False override.
+    megamenu_bold: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
     subcategories: Mapped[list["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(
@@ -110,6 +120,7 @@ class Brand(Base):
     meta_title: Mapped[str | None] = mapped_column(String(255))
     meta_description: Mapped[str | None] = mapped_column(String(500))
     country: Mapped[str | None] = mapped_column(String(50))
+    logo_url: Mapped[str | None] = mapped_column(String(500))
     products: Mapped[list["Product"]] = relationship("Product", back_populates="brand")
 
     def __str__(self) -> str:
@@ -149,8 +160,12 @@ class Product(Base):
     brand_id: Mapped[int | None] = mapped_column(ForeignKey("brands.id"))
 
     base_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    # Deprecated for sellable UX: warehouse counts live in Hesabfa only.
     stock_quantity: Mapped[Decimal] = mapped_column(
         Numeric(12, 2), default=Decimal("0.0"), server_default="0"
+    )
+    is_available: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true", nullable=False
     )
     stock_unit: Mapped[StockUnitEnum] = mapped_column(
         Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),
@@ -169,6 +184,7 @@ class Product(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     pdf_catalog_url: Mapped[str | None] = mapped_column(String(500))
+    short_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     original_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
     specifications: Mapped[dict[str, Any]] = mapped_column(

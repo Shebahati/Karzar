@@ -16,7 +16,10 @@ from app.schemas.storefront import (
     ContactResponse,
     HeroSlideListResponse,
     HeroSlideResponse,
+    NavGroupPublicListResponse,
+    NavGroupPublicResponse,
 )
+from app.services import nav_groups_service
 from app.services.checkout_service import submit_contact
 
 router = APIRouter()
@@ -91,6 +94,25 @@ async def list_hero_slides(db: AsyncSession = Depends(get_db)):
                 accent=slide.accent,
             )
             for slide in slides
+        ]
+    }
+
+
+@router.get("/nav-groups/", response_model=NavGroupPublicListResponse, tags=["Storefront"])
+async def list_nav_groups_public(db: AsyncSession = Depends(get_db)):
+    """Enabled megamenu groups for the storefront (empty → FE hardcoded fallback)."""
+    rows = await nav_groups_service.list_nav_groups(db, enabled_only=True)
+    return {
+        "data": [
+            NavGroupPublicResponse(
+                id=row.id,
+                slug=row.slug,
+                label=row.label,
+                sort_order=row.sort_order,
+                highlight=row.highlight,
+                root_category_ids=list(row.root_category_ids or []),
+            )
+            for row in rows
         ]
     }
 

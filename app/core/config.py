@@ -59,6 +59,29 @@ class Settings(BaseSettings):
     ZARINPAL_REQUEST_URL: str = "https://payment.zarinpal.com/pg/v4/payment/request.json"
     ZARINPAL_VERIFY_URL: str = "https://payment.zarinpal.com/pg/v4/payment/verify.json"
     PAYMENT_TIMEOUT_SECONDS: float = Field(default=12.0, ge=1.0, le=60.0)
+
+    # Hesabfa (حسابفا) accounting integration — secrets only via env / VPS.
+    # Disabled by default; enable after apiKey + loginToken are set on the server.
+    HESABFA_ENABLED: bool = False
+    HESABFA_API_KEY: str | None = None
+    HESABFA_LOGIN_TOKEN: str | None = None
+    # Optional legacy auth (prefer loginToken alone).
+    HESABFA_USER_ID: str | None = None
+    HESABFA_PASSWORD: str | None = None
+    HESABFA_BASE_URL: str = "https://api.hesabfa.com/v1"
+    # When true, invoice creation is skipped (safe sandbox). Item push still runs.
+    HESABFA_TEST_MODE: bool = True
+    HESABFA_TIMEOUT_SECONDS: float = Field(default=15.0, ge=1.0, le=120.0)
+    HESABFA_WAREHOUSE_CODE: int | None = None
+    # Legacy / unused — Hesabfa→site quantity pull is disabled.
+    HESABFA_STOCK_SYNC_INTERVAL_SECONDS: int = Field(default=3600, ge=60, le=86400)
+    # Admin must never display Hesabfa-sourced metrics (sales totals, stock, etc.).
+    # Invoice-after-payment + site→Hesabfa item push remain gated by HESABFA_ENABLED.
+    HESABFA_ADMIN_READS_ENABLED: bool = False
+    # Hesabfa monetary unit for invoice unitPrice. Site stores Tomans.
+    # "rial" multiplies site Tomans by TOMAN_TO_RIAL; "toman" sends as-is.
+    HESABFA_CURRENCY_UNIT: str = "rial"
+    HESABFA_CURRENCY_CODE: str = "IRR"
     PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
     ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
     ADMIN_STEP_UP_PIN: str = Field(
@@ -75,6 +98,12 @@ class Settings(BaseSettings):
     LOG_TO_FILE: bool = True
     LOG_FILE: str = "logs/app.log"
     ENABLE_METRICS: bool = False
+
+    # Optional error tracking (OPS-07). Leave empty until Sentry project exists.
+    SENTRY_DSN: str | None = None
+    SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.0, ge=0.0, le=1.0)
+    # Optional external uptime check URL documented for operators (not called by app).
+    UPTIME_CHECK_URL: str | None = None
 
     # Public endpoint throttles (per client IP)
     PUBLIC_THROTTLE_CONTACT_MAX: int = Field(default=5, ge=1, le=1000)
@@ -142,6 +171,14 @@ class Settings(BaseSettings):
             raise ValueError("PAYMENT_PROVIDER must be either 'mock' or 'zarinpal'")
         return normalized
 
+    @field_validator("HESABFA_CURRENCY_UNIT")
+    @classmethod
+    def validate_hesabfa_currency_unit(cls, v: str) -> str:
+        normalized = v.strip().lower()
+        if normalized not in {"rial", "toman"}:
+            raise ValueError("HESABFA_CURRENCY_UNIT must be either 'rial' or 'toman'")
+        return normalized
+
     @field_validator("APP_ENV")
     @classmethod
     def validate_app_env(cls, v: str) -> str:
@@ -161,7 +198,11 @@ class Settings(BaseSettings):
             "121212",
             "654321",
             "84729101",
+            "8472916350",  # former .env.example footgun (SEC-28)
             "change-me-admin-pin",
+            "replace-with-strong-pin",
+            "replace-with-strong-pin-min-8-digits",
+            "replace-me-with-unique-strong-pin",
         }
         is_production = self.APP_ENV == "production"
         harden = (not self.DEBUG) or is_production

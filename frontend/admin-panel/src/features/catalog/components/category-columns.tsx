@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Delete, Edit, Plus } from "react-iconly";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ interface CategoryColumnProps {
   onEdit?: (category: CategoryFlat) => void;
   onDelete?: (category: CategoryFlat) => void;
   emptyHint?: string;
+  /** Optional megamenu group label keyed by category id (L1). */
+  groupLabelsById?: Map<number, string>;
 }
 
 function CategoryColumn({
@@ -26,6 +29,7 @@ function CategoryColumn({
   onEdit,
   onDelete,
   emptyHint,
+  groupLabelsById,
 }: CategoryColumnProps) {
   return (
     <div className="flex min-h-[420px] flex-col rounded-xl bg-white shadow-sm">
@@ -53,26 +57,74 @@ function CategoryColumn({
                 >
                   <button
                     type="button"
-                    className="min-w-0 flex-1 truncate text-start text-sm font-bold"
+                    className="flex min-w-0 flex-1 items-center gap-2 truncate text-start text-sm font-bold"
                     onClick={() => onSelect(item.id)}
                   >
-                    <span className="block truncate">{item.name}</span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-                      <span>عمق {item.depth}</span>
-                      {item.is_selectable ? (
-                        <span className="rounded bg-emerald-50 px-1 text-emerald-700">قابل انتخاب</span>
+                    <span className="relative block h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-[#F7F7F7] text-[10px] text-muted-foreground ring-1 ring-border/30">
+                      {item.image_url ? (
+                        <Image
+                          src={item.image_url}
+                          alt=""
+                          width={36}
+                          height={36}
+                          className="h-full w-full object-cover"
+                          unoptimized={item.image_url.toLowerCase().includes(".svg")}
+                        />
                       ) : (
-                        <span className="rounded bg-gray-100 px-1">غیرقابل‌انتخاب</span>
+                        <span className="grid h-full w-full place-items-center">
+                          {(item.name || "؟").slice(0, 1)}
+                        </span>
                       )}
-                      <span>
-                        {(item.product_count ?? 0).toLocaleString("fa-IR")} محصول
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate">{item.name}</span>
+                      {item.slug ? (
+                        <span className="mt-0.5 block truncate font-mono text-[10px] font-normal text-muted-foreground/80 dir-ltr" dir="ltr">
+                          /{item.slug}
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 block text-[10px] font-medium text-amber-700">
+                          بدون اسلاگ
+                        </span>
+                      )}
+                      <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                        <span>عمق {item.depth}</span>
+                        {item.is_selectable ? (
+                          <span className="rounded bg-emerald-50 px-1 text-emerald-700">قابل انتخاب</span>
+                        ) : (
+                          <span className="rounded bg-gray-100 px-1">غیرقابل‌انتخاب</span>
+                        )}
+                        <span>
+                          {(item.product_count ?? 0).toLocaleString("fa-IR")} محصول
+                        </span>
+                        {(item.product_count ?? 0) === 0 && item.is_leaf ? (
+                          <span className="rounded bg-amber-50 px-1 text-amber-700">خالی</span>
+                        ) : null}
+                        {item.name.trim().startsWith("استاندارد") ? (
+                          <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
+                        ) : null}
+                        {groupLabelsById?.get(item.id) ? (
+                          <span className="rounded bg-violet-50 px-1 text-violet-700">
+                            مگامنو: {groupLabelsById.get(item.id)}
+                          </span>
+                        ) : null}
+                        {item.megamenu_hidden ? (
+                          <span className="rounded bg-rose-50 px-1 text-rose-700">پنهان در مگامنو</span>
+                        ) : null}
+                        {item.megamenu_as_leaf ? (
+                          <span className="rounded bg-indigo-50 px-1 text-indigo-700">برگ مگامنو</span>
+                        ) : null}
+                        {item.megamenu_bold === true ? (
+                          <span className="rounded bg-slate-100 px-1 text-slate-700">Bold</span>
+                        ) : item.megamenu_bold === false ? (
+                          <span className="rounded bg-slate-50 px-1 text-slate-500">بدون Bold</span>
+                        ) : null}
+                        {item.icon ? (
+                          <span className="rounded bg-sky-50 px-1 text-sky-700" title={item.icon}>
+                            آیکن
+                          </span>
+                        ) : null}
                       </span>
-                      {(item.product_count ?? 0) === 0 && item.is_leaf ? (
-                        <span className="rounded bg-amber-50 px-1 text-amber-700">خالی</span>
-                      ) : null}
-                      {item.name.trim().startsWith("استاندارد") ? (
-                        <span className="rounded bg-orange-50 px-1 text-orange-700">استاندارد</span>
-                      ) : null}
                     </span>
                   </button>
                   <div className="flex shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
@@ -120,6 +172,8 @@ interface CategoryColumnsProps {
   onAddLayer3: () => void;
   onEdit: (category: CategoryFlat) => void;
   onDelete: (category: CategoryFlat) => void;
+  /** Megamenu group labels for L1 roots. */
+  rootGroupLabels?: Map<number, string>;
 }
 
 export function CategoryColumns({
@@ -133,6 +187,7 @@ export function CategoryColumns({
   onAddLayer3,
   onEdit,
   onDelete,
+  rootGroupLabels,
 }: CategoryColumnsProps) {
   const layer1 = categories.filter((c) => c.depth === 1);
   const layer2 = layer1Id
@@ -153,6 +208,7 @@ export function CategoryColumns({
         onEdit={onEdit}
         onDelete={onDelete}
         emptyHint="دسته اصلی وجود ندارد"
+        groupLabelsById={rootGroupLabels}
       />
       <CategoryColumn
         title="لایه ۲ — زیردسته"

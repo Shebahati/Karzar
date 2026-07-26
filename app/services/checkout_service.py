@@ -74,12 +74,9 @@ async def submit_checkout(
         if not product or not product.is_active:
             raise ValueError(f"Product {product_id} is not available")
 
-        # Stock is only enforced for real purchases; inquiries may quote any item.
-        if is_purchase and product.stock_quantity < quantity:
-            raise ValueError(
-                f"Product {product_id} has insufficient stock "
-                f"(available: {product.stock_quantity}, requested: {quantity})"
-            )
+        # Availability is boolean on site; warehouse counts live in Hesabfa only.
+        if is_purchase and not getattr(product, "is_available", True):
+            raise ValueError(f"Product {product_id} is not available")
 
         unit_price = product.base_price
         # Dual-lane integrity: purchase checkout must never accept unpriced SKUs
@@ -97,7 +94,6 @@ async def submit_checkout(
             estimated_total += line_total + (line_total * tax_rate)
 
         if is_purchase:
-            product.stock_quantity = product.stock_quantity - quantity
             stock_reservations.append((product_id, quantity))
 
         line_items.append(
@@ -105,6 +101,9 @@ async def submit_checkout(
                 "product_id": product_id,
                 "quantity": quantity,
                 "unit_price": unit_price,
+                "product_name": product.name,
+                "product_sku": product.sku,
+                "tax_percent": product.tax_percent or Decimal("0"),
             }
         )
 

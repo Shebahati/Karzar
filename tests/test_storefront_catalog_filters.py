@@ -122,7 +122,7 @@ class TestCatalogFilterContract:
             json={
                 **valid_product_data,
                 "sku": "STOCK-OUT-1",
-                "stock_quantity": "0",
+                "is_available": False,
                 "name": "ناموجود تست",
             },
             headers=super_admin_headers,
@@ -132,7 +132,7 @@ class TestCatalogFilterContract:
             json={
                 **valid_product_data,
                 "sku": "STOCK-IN-1",
-                "stock_quantity": "5",
+                "is_available": True,
                 "name": "موجود تست",
             },
             headers=super_admin_headers,

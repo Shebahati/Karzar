@@ -185,7 +185,7 @@ async def restore_product(
 @router.get(
     "/{product_id}/stock",
     response_model=StockStatusResponse,
-    summary="Get product stock status",
+    summary="Get product availability status",
     tags=["Stock Management"],
 )
 async def get_stock(
@@ -215,16 +215,65 @@ async def get_stock(
         ) from e
 
 
+@router.put(
+    "/{product_id}/availability",
+    response_model=ProductDetailResponse,
+    summary="Set product availability (موجود / ناموجود)",
+    tags=["Stock Management"],
+)
+async def set_availability(
+    product_id: int,
+    is_available: bool = Query(..., description="True = موجود, False = ناموجود"),
+    reason: str | None = Query(default=None, max_length=255),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    try:
+        product = await ProductService.set_availability_with_validation(
+            db=db,
+            product_id=product_id,
+            is_available=is_available,
+            reason=reason,
+            actor_user_id=current_user.id,
+        )
+        if not product:
+            raise api_error(
+                status.HTTP_404_NOT_FOUND,
+                error_code=ErrorCode.NOT_FOUND,
+                message=f"Product with ID '{product_id}' not found",
+            )
+        return await _product_detail_after_write(db, product_id)
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message=str(e),
+        ) from e
+    except Exception as e:
+        logger.error(f"Error setting availability: {str(e)}")
+        raise api_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="Error setting availability",
+        ) from e
+
+
 @router.post(
     "/{product_id}/stock/adjust",
     response_model=ProductDetailResponse,
     status_code=status.HTTP_200_OK,
-    summary="Adjust product stock",
+    summary="Deprecated: maps quantity delta to availability toggle",
     tags=["Stock Management"],
+    deprecated=True,
 )
 async def adjust_stock(
     product_id: int,
-    quantity_delta: Decimal = Query(..., description="Quantity to add or subtract"),
+    quantity_delta: Decimal = Query(
+        ...,
+        description="Deprecated. Positive → available, zero/negative → unavailable",
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
 ):
@@ -263,8 +312,9 @@ async def adjust_stock(
 @router.post(
     "/bulk/stock-adjust",
     response_model=BulkStockAdjustResponse,
-    summary="Bulk stock adjustment (admin)",
+    summary="Deprecated: bulk quantity delta → binary availability",
     tags=["Stock Management"],
+    deprecated=True,
 )
 async def bulk_adjust_stock(
     payload: BulkStockAdjustRequest,

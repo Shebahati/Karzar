@@ -97,6 +97,9 @@ async def create_category(
     name: str,
     parent_id: int | None,
     spec_template_key: str | None = None,
+    megamenu_hidden: bool = False,
+    megamenu_as_leaf: bool = False,
+    megamenu_bold: bool | None = None,
 ) -> Category:
     from app.utils.slugify import ensure_unique_slug
 
@@ -116,6 +119,9 @@ async def create_category(
         parent_id=parent_id,
         spec_template_key=spec_template_key,
         slug=slug,
+        megamenu_hidden=megamenu_hidden,
+        megamenu_as_leaf=megamenu_as_leaf,
+        megamenu_bold=megamenu_bold,
     )
     db.add(category)
     await db.flush()
@@ -133,12 +139,18 @@ async def update_category(
     slug: str | None = None,
     icon: str | None = None,
     unset_icon: bool = False,
+    image_url: str | None = None,
+    unset_image_url: bool = False,
     meta_title: str | None = None,
     unset_meta_title: bool = False,
     meta_description: str | None = None,
     unset_meta_description: bool = False,
     spec_template_key: str | None = None,
     unset_spec_template_key: bool = False,
+    megamenu_hidden: bool | None = None,
+    megamenu_as_leaf: bool | None = None,
+    megamenu_bold: bool | None = None,
+    unset_megamenu_bold: bool = False,
 ) -> Category:
     if name is not None:
         category.name = name
@@ -152,6 +164,10 @@ async def update_category(
         category.icon = None
     elif icon is not None:
         category.icon = icon
+    if unset_image_url:
+        category.image_url = None
+    elif image_url is not None:
+        category.image_url = image_url
     if unset_meta_title:
         category.meta_title = None
     elif meta_title is not None:
@@ -164,6 +180,14 @@ async def update_category(
         category.spec_template_key = None
     elif spec_template_key is not None:
         category.spec_template_key = spec_template_key
+    if megamenu_hidden is not None:
+        category.megamenu_hidden = megamenu_hidden
+    if megamenu_as_leaf is not None:
+        category.megamenu_as_leaf = megamenu_as_leaf
+    if unset_megamenu_bold:
+        category.megamenu_bold = None
+    elif megamenu_bold is not None:
+        category.megamenu_bold = megamenu_bold
     await db.flush()
     await db.refresh(category)
     return category

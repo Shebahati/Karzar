@@ -1,0 +1,77 @@
+name: Frontend CI
+
+# OPS-04 / QA-21: gate lint + typecheck + unit tests for both Next apps.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+concurrency:
+  group: frontend-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  storefront:
+    name: storefront
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/Storefront
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/Storefront/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test
+
+  admin-panel:
+    name: admin-panel
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/admin-panel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/admin-panel/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test
+
+  storefront-e2e:
+    name: storefront-e2e
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/Storefront
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/Storefront/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_USE_MOCK: "true"
+          CI: "true"

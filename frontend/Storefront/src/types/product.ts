@@ -49,7 +49,9 @@ export interface ProductSpecifications {
 export interface ProductSummary {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
+  short_description?: string | null;
   thumbnail: string | null;
   base_price: string | null;
   stock_status: string;
@@ -60,11 +62,13 @@ export interface ProductSummary {
   /** Optional storefront marketing flags. */
   discount_percent?: number | null;
   original_price?: string | null;
+  updated_at?: string;
 }
 
 export interface ProductDetail {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
   category_id: number | null;
   brand_id: number | null;
@@ -86,7 +90,10 @@ export interface ProductDetail {
   pdf_catalog_url: string | null;
   thumbnail: string | null;
   images: ProductImage[];
+  short_description?: string | null;
   description: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   specifications: ProductSpecifications;
   created_at: string;
   updated_at: string;

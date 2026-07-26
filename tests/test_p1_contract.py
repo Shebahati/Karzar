@@ -18,6 +18,7 @@ class TestP1StorefrontContract:
         if tree:
             root = tree[0]
             assert "icon" in root
+            assert "image_url" in root
             assert "product_count" in root
 
     def test_flat_categories_have_product_count(self):

@@ -33,7 +33,7 @@ def _create_product(super_admin_headers):
         "name": f"P2 Test Product {suffix}",
         "category_id": 3,
         "brand_id": 1,
-        "stock_quantity": "20",
+        "is_available": True,
         "stock_unit": StockUnitEnum.PIECE.value,
         "base_price": "150000",
         "tax_percent": "9",
@@ -176,7 +176,7 @@ def test_checkout_idempotency(super_admin_headers):
 def test_product_change_log_on_stock_adjust(super_admin_headers):
     product_id = _create_product(super_admin_headers)
     adjust = client.post(
-        f"/api/v1/products/{product_id}/stock/adjust?quantity_delta=5",
+        f"/api/v1/products/{product_id}/stock/adjust?quantity_delta=-1",
         headers=super_admin_headers,
     )
     assert adjust.status_code == 200
@@ -188,7 +188,7 @@ def test_product_change_log_on_stock_adjust(super_admin_headers):
     assert logs.status_code == 200
     data = logs.json()["data"]
     assert len(data) >= 1
-    assert data[0]["field_name"] == "stock_quantity"
+    assert data[0]["field_name"] == "is_available"
 
 
 def test_bulk_stock_adjust(super_admin_headers):
@@ -199,7 +199,7 @@ def test_bulk_stock_adjust(super_admin_headers):
         "name": "Bulk Product",
         "category_id": 3,
         "brand_id": 1,
-        "stock_quantity": "10",
+        "is_available": True,
         "stock_unit": StockUnitEnum.PIECE.value,
         "is_active": True,
     }

@@ -41,10 +41,15 @@ class ProductCreate(BaseModel):
 
     sku: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
-    category_id: int = Field(..., ge=1, description="Required selectable (depth-3 leaf) category")
+    category_id: int = Field(
+        ...,
+        ge=1,
+        description="Required selectable leaf category (depth 2 or 3)",
+    )
     brand_id: int | None = None
 
     base_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
+    is_available: bool = True
     stock_quantity: Decimal = Field(default=Decimal("0.0"), max_digits=12, decimal_places=2)
     stock_unit: StockUnitValue = "piece"
 
@@ -56,7 +61,10 @@ class ProductCreate(BaseModel):
     )
     is_active: bool = True
     pdf_catalog_url: str | None = None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = Field(default=None, max_digits=15, decimal_places=2)
 
     specifications: dict[str, Any] = Field(default_factory=dict)
@@ -116,6 +124,7 @@ class ProductUpdate(BaseModel):
     category_id: int | None = Field(None, ge=1)
     brand_id: int | None = None
     base_price: Decimal | None = None
+    is_available: bool | None = None
     stock_quantity: Decimal | None = None
     stock_unit: StockUnitValue | None = None
     warranty_text: str | None = None
@@ -124,7 +133,10 @@ class ProductUpdate(BaseModel):
     tax_percent: Decimal | None = None
     is_active: bool | None = None
     pdf_catalog_url: str | None = None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = None
     specifications: dict[str, Any] | None = None
 
@@ -157,7 +169,9 @@ class ProductSummaryResponse(BaseModel):
 
     id: int
     sku: str
+    slug: str | None = None
     name: str
+    short_description: str | None = None
     thumbnail: str | None = None
     base_price: str | None = None
     original_price: str | None = None
@@ -176,6 +190,7 @@ class ProductDetailResponse(BaseModel):
 
     id: int
     sku: str
+    slug: str | None = None
     name: str
     category_id: int | None = None
     brand_id: int | None
@@ -184,18 +199,22 @@ class ProductDetailResponse(BaseModel):
     base_price: str | None = None
     original_price: str | None = None
     discount_percent: int | None = None
-    stock_quantity: str
+    stock_quantity: str = "0"
     stock_unit: str
     stock_status: str
-    low_stock: bool
+    low_stock: bool = False
     availability: bool
+    is_available: bool = True
     warranty_text: str | None
     weight_grams: str | None = None
     is_original: bool
     tax_percent: str
     is_active: bool
     pdf_catalog_url: str | None
+    short_description: str | None = None
     description: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
     thumbnail: str | None = None
     images: list[ProductImageResponse] = Field(default_factory=list)
     specifications: dict[str, Any] = Field(default_factory=dict)
@@ -229,8 +248,9 @@ class ProductImageUploadResponse(BaseModel):
 class ProductStatisticsResponse(BaseModel):
     total_products: int
     active_products: int
-    total_stock_value: str
-    total_stock_quantity: str
+    total_stock_value: str  # always "0" — warehouse value not stored on site
+    total_stock_quantity: str  # count of is_available products (legacy field name)
+    available_products: int = 0
     categories: int
     brands: int
 
@@ -240,12 +260,15 @@ class ProductListResponse(PaginatedResponse[ProductSummaryResponse]):
 
 
 class StockStatusResponse(BaseModel):
-    """Admin stock snapshot. stock_status uses English codes: in_stock | low_stock | out_of_stock."""
+    """Admin availability snapshot (no warehouse counts on site)."""
 
     product_id: int
     sku: str
-    stock_quantity: Decimal
+    is_available: bool
+    availability: bool
     stock_status: str
+    stock_quantity: Decimal = Decimal("0")
+    low_stock: bool = False
 
 
 class BulkStockAdjustItem(BaseModel):

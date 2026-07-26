@@ -31,6 +31,13 @@ if [[ -f docker-compose.image.yml ]]; then
   COMPOSE+=(-f docker-compose.image.yml)
 fi
 
+# Leftover frontend/ under repo root (rsync --exclude does not delete it) breaks
+# BuildKit context walk with permission denied on node_modules.
+if [[ -e frontend ]]; then
+  echo "Removing stale $ROOT_DIR/frontend before backend image build ..."
+  rm -rf frontend
+fi
+
 if [[ -f deploy/staging/Dockerfile.staging ]]; then
   echo "Building karzar-app:staging from Dockerfile.staging ..."
   docker build -f deploy/staging/Dockerfile.staging -t karzar-app:staging .
@@ -41,11 +48,16 @@ fi
 
 "${COMPOSE[@]}" up -d
 
-echo "Waiting for /ready ..."
+# TrustedHost + ENFORCE_HTTPS: probe loopback with public Host and forwarded proto.
+API_PROBE_HOST="${API_PROBE_HOST:-${TRUSTED_HOSTS%%,*}}"
+API_PROBE_HOST="${API_PROBE_HOST// /}"
+API_CURL=(curl -sS -H "Host: ${API_PROBE_HOST}" -H "X-Forwarded-Proto: https")
+echo "Waiting for /ready (Host: ${API_PROBE_HOST}) ..."
 for i in $(seq 1 60); do
-  if curl -sf "http://127.0.0.1:8000/ready" >/dev/null; then
+  code="$("${API_CURL[@]}" -o /tmp/karzar-ready.json -w '%{http_code}' "http://127.0.0.1:8000/ready" || true)"
+  if [[ "$code" == "200" ]]; then
     echo "API ready."
-    curl -sS "http://127.0.0.1:8000/ready"
+    cat /tmp/karzar-ready.json
     echo
     exit 0
   fi

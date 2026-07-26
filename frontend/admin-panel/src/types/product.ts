@@ -37,7 +37,9 @@ export interface ProductImage {
 export interface ProductSummary {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
+  short_description?: string | null;
   thumbnail: string | null;
   base_price: string | null;
   original_price: string | null;
@@ -52,8 +54,12 @@ export interface ProductSummary {
 export interface ProductDetail {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
+  short_description?: string | null;
   description: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id: number | null;
   brand_id: number | null;
   category: CategoryBrief | null;
@@ -66,6 +72,7 @@ export interface ProductDetail {
   stock_status: string;
   low_stock: boolean;
   availability: boolean;
+  is_available?: boolean;
   warranty_text: string | null;
   weight_grams: string | null;
   is_original: boolean;
@@ -83,12 +90,15 @@ export interface ProductDetail {
 export interface ProductCreatePayload {
   sku: string;
   name: string;
+  short_description?: string | null;
   description?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id: number;
   brand_id?: number | null;
   base_price?: number | null;
   original_price?: number | null;
-  stock_quantity: number;
+  is_available: boolean;
   stock_unit: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
@@ -103,11 +113,15 @@ export interface ProductCreatePayload {
 export interface ProductUpdatePayload {
   sku?: string;
   name?: string;
+  short_description?: string | null;
   description?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id?: number;
   brand_id?: number | null;
   base_price?: number | null;
   original_price?: number | null;
+  is_available?: boolean;
   stock_unit?: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
@@ -135,18 +149,22 @@ export interface ProductListParams {
 export interface ProductStockInfo {
   product_id: number;
   sku?: string;
-  /** Backend StockStatusResponse field. */
   stock_quantity: string;
   stock_status: string;
-  /** Convenience aliases used by older UI. */
   quantity?: string;
   unit?: StockUnit;
   low_stock?: boolean;
   availability?: boolean;
+  is_available?: boolean;
 }
 
 export interface ProductStockAdjustPayload {
   delta: number;
+  reason?: string | null;
+}
+
+export interface ProductAvailabilityPayload {
+  is_available: boolean;
   reason?: string | null;
 }
 
@@ -160,9 +178,11 @@ export interface ProductImageUploadResponse {
 export interface ProductStatisticsResponse {
   total_products: number;
   active_products: number;
-  /** Sum of base_price * stock_quantity across all non-deleted products. */
+  /** Deprecated zero — warehouse value is not stored on the site. */
   total_stock_value: string;
+  /** Count of products with is_available=true (not a warehouse quantity). */
   total_stock_quantity: string;
+  available_products?: number;
   categories: number;
   brands: number;
 }

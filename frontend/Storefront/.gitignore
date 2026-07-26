@@ -20,7 +20,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # env files (keep .env.example tracked)
-.env
 .env*.local
 
 # typescript

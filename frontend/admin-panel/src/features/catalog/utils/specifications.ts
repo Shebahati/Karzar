@@ -1,11 +1,14 @@
 import type { CategoryFlat } from "@/types/category";
 import type { CategorySpecTemplate } from "@/types/spec-template";
-import { enrichFlatCategories, isLayer3Leaf } from "@/features/catalog/utils/category-tree";
+import {
+  enrichFlatCategories,
+  isSelectableProductCategory,
+} from "@/features/catalog/utils/category-tree";
 
-/** Layer-3 leaf categories only (depth 3, exactly two ancestors, no children). */
+/** Selectable product leaves (depth 2 or 3, no children). */
 export function getSelectableCategories(categories: CategoryFlat[]): CategoryFlat[] {
   return enrichFlatCategories(categories).filter((c) =>
-    isLayer3Leaf(c.depth, c.is_leaf),
+    isSelectableProductCategory(c.depth, c.is_leaf),
   );
 }
 

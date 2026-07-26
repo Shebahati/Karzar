@@ -345,6 +345,52 @@ export function useCreateBrand() {
 
 
 
+export function useUploadBrandLogo() {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+
+      catalogService.uploadBrandLogo(id, file),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.brands() });
+
+    },
+
+  });
+
+}
+
+
+
+export function useUploadCategoryImage() {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+
+      catalogService.uploadCategoryImage(id, file),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.categories() });
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.categoriesFlat() });
+
+    },
+
+  });
+
+}
+
+
+
 export function useUpdateBrand() {
 
   const queryClient = useQueryClient();
@@ -419,6 +465,30 @@ export function useProductStock(id: number, enabled = true) {
     queryFn: () => catalogService.getProductStock(id),
 
     enabled: enabled && Number.isFinite(id),
+
+  });
+
+}
+
+
+
+export function useSetProductAvailability(id: number) {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+
+    mutationFn: (payload: import("@/types/product").ProductAvailabilityPayload) =>
+
+      catalogService.setProductAvailability(id, payload),
+
+    onSuccess: () => {
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.product(id) });
+
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.products() });
+
+    },
 
   });
 

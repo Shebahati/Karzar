@@ -22,8 +22,15 @@ class BrandListResponse(BaseModel):
 class BrandCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     country: str | None = Field(None, max_length=50)
+    logo_url: str | None = Field(None, max_length=500)
 
 
 class BrandUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100)
     country: str | None = Field(None, max_length=50)
+    logo_url: str | None = Field(None, max_length=500)
+
+
+class BrandLogoUploadResponse(BaseModel):
+    id: int
+    logo_url: str

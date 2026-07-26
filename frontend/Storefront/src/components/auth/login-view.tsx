@@ -122,7 +122,7 @@ export function LoginView() {
         className="w-full max-w-md rounded-3xl bg-card p-8 shadow-elevated sm:p-10"
       >
         <div className="flex flex-col items-center text-center">
-          <Logo />
+          <Logo variant="mark" height={32} />
           <h1 className="mt-6 text-xl font-bold text-foreground">
             {step === "phone" ? "ورود | ثبت‌نام" : "تأیید شماره موبایل"}
           </h1>

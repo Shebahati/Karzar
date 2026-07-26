@@ -190,6 +190,40 @@ export const catalogService = {
 
 
 
+  async uploadCategoryImage(
+
+    id: number,
+
+    file: File,
+
+  ): Promise<import("@/types/category").CategoryImageUploadResponse> {
+
+    if (env.USE_MOCK) {
+
+      return { id, image_url: URL.createObjectURL(file) };
+
+    }
+
+    const form = new FormData();
+
+    form.append("file", file);
+
+    const { data } = await apiClient.post<import("@/types/category").CategoryImageUploadResponse>(
+
+      `/categories/${id}/image`,
+
+      form,
+
+      { headers: { "Content-Type": "multipart/form-data" } },
+
+    );
+
+    return data;
+
+  },
+
+
+
   async deleteCategory(
     id: number,
     stepUpToken: string,
@@ -266,6 +300,48 @@ export const catalogService = {
 
 
 
+  async uploadBrandLogo(
+
+    id: number,
+
+    file: File,
+
+  ): Promise<import("@/types/category").BrandLogoUploadResponse> {
+
+    if (env.USE_MOCK) {
+
+      const mock = await getMockApi();
+
+      if ("uploadBrandLogo" in mock && typeof mock.uploadBrandLogo === "function") {
+
+        return mock.uploadBrandLogo(id, file);
+
+      }
+
+      return { id, logo_url: URL.createObjectURL(file) };
+
+    }
+
+    const form = new FormData();
+
+    form.append("file", file);
+
+    const { data } = await apiClient.post<import("@/types/category").BrandLogoUploadResponse>(
+
+      `/brands/${id}/logo`,
+
+      form,
+
+      { headers: { "Content-Type": "multipart/form-data" } },
+
+    );
+
+    return data;
+
+  },
+
+
+
   async deleteBrand(id: number, stepUpToken: string): Promise<import("@/types/category").BrandDeleteResult> {
 
     if (env.USE_MOCK) return (await getMockApi()).deleteBrand(id, stepUpToken);
@@ -321,18 +397,60 @@ export const catalogService = {
     const { data } = await apiClient.get<{
       product_id: number;
       sku?: string;
-      stock_quantity: string | number;
+      stock_quantity?: string | number;
       stock_status: string;
+      is_available?: boolean;
+      availability?: boolean;
     }>(`/products/${id}/stock`);
-    const qty = String(data.stock_quantity);
+    const available = Boolean(
+      data.is_available ?? data.availability ?? data.stock_status !== "out_of_stock",
+    );
     return {
       product_id: data.product_id,
       sku: data.sku,
-      stock_quantity: qty,
+      stock_quantity: "0",
       stock_status: data.stock_status,
-      quantity: qty,
-      low_stock: data.stock_status === "low_stock",
-      availability: data.stock_status !== "out_of_stock",
+      quantity: "0",
+      low_stock: false,
+      availability: available,
+      is_available: available,
+    };
+  },
+
+  async setProductAvailability(
+    id: number,
+    payload: import("@/types/product").ProductAvailabilityPayload,
+  ): Promise<import("@/types/product").ProductStockInfo> {
+    if (env.USE_MOCK) {
+      return (await getMockApi()).adjustProductStock(id, {
+        delta: payload.is_available ? 1 : -1,
+        reason: payload.reason,
+      });
+    }
+    const { data } = await apiClient.put<{
+      id: number;
+      sku: string;
+      stock_status: string;
+      stock_unit: string;
+      availability: boolean;
+      is_available?: boolean;
+    }>(`/products/${id}/availability`, null, {
+      params: {
+        is_available: payload.is_available,
+        reason: payload.reason ?? undefined,
+      },
+    });
+    const available = Boolean(data.is_available ?? data.availability);
+    return {
+      product_id: data.id,
+      sku: data.sku,
+      stock_quantity: "0",
+      stock_status: data.stock_status,
+      quantity: "0",
+      unit: data.stock_unit as import("@/types/product").StockUnit,
+      low_stock: false,
+      availability: available,
+      is_available: available,
     };
   },
 
@@ -340,29 +458,10 @@ export const catalogService = {
     id: number,
     payload: import("@/types/product").ProductStockAdjustPayload,
   ): Promise<import("@/types/product").ProductStockInfo> {
-    if (env.USE_MOCK) return (await getMockApi()).adjustProductStock(id, payload);
-    // Backend returns ProductDetailResponse from stock/adjust.
-    const { data } = await apiClient.post<{
-      id: number;
-      sku: string;
-      stock_quantity: string;
-      stock_status: string;
-      stock_unit: string;
-      low_stock: boolean;
-      availability: boolean;
-    }>(`/products/${id}/stock/adjust`, null, {
-      params: { quantity_delta: payload.delta, reason: payload.reason ?? undefined },
+    return this.setProductAvailability(id, {
+      is_available: payload.delta > 0,
+      reason: payload.reason ?? undefined,
     });
-    return {
-      product_id: data.id,
-      sku: data.sku,
-      stock_quantity: data.stock_quantity,
-      stock_status: data.stock_status,
-      quantity: data.stock_quantity,
-      unit: data.stock_unit as import("@/types/product").StockUnit,
-      low_stock: data.low_stock,
-      availability: data.availability,
-    };
   },
 
 

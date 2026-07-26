@@ -28,6 +28,7 @@ from app.services.spec_template_service import (
 from app.utils.category_counts import get_category_product_counts
 from app.utils.category_depth import build_category_metadata, is_selectable_product_category
 from app.utils.category_tree import build_category_tree
+from app.utils.product_presenter import absolutize_asset_url
 
 logger = get_logger(__name__)
 
@@ -50,9 +51,13 @@ def _to_flat_response(
         ancestor_ids=meta["ancestor_ids"],
         product_count=product_count,
         icon=category.icon,
+        image_url=absolutize_asset_url(category.image_url),
         meta_title=category.meta_title,
         meta_description=category.meta_description,
         spec_template_key=category.spec_template_key,
+        megamenu_hidden=bool(category.megamenu_hidden),
+        megamenu_as_leaf=bool(category.megamenu_as_leaf),
+        megamenu_bold=category.megamenu_bold,
     )
 
 
@@ -189,6 +194,9 @@ class CategoryService:
             name=normalized_name,
             parent_id=payload.parent_id,
             spec_template_key=payload.spec_template_key,
+            megamenu_hidden=payload.megamenu_hidden,
+            megamenu_as_leaf=payload.megamenu_as_leaf,
+            megamenu_bold=payload.megamenu_bold,
         )
         if payload.icon is not None or payload.meta_title is not None or payload.meta_description is not None:
             category = await crud_category.update_category(
@@ -330,6 +338,8 @@ class CategoryService:
             category,
             icon=payload.icon if "icon" in fields_set else None,
             unset_icon="icon" in fields_set and payload.icon is None,
+            image_url=payload.image_url if "image_url" in fields_set else None,
+            unset_image_url="image_url" in fields_set and payload.image_url is None,
             meta_title=payload.meta_title if "meta_title" in fields_set else None,
             unset_meta_title="meta_title" in fields_set and payload.meta_title is None,
             meta_description=(
@@ -344,8 +354,37 @@ class CategoryService:
             unset_spec_template_key=(
                 "spec_template_key" in fields_set and payload.spec_template_key is None
             ),
+            megamenu_hidden=(
+                payload.megamenu_hidden if "megamenu_hidden" in fields_set else None
+            ),
+            megamenu_as_leaf=(
+                payload.megamenu_as_leaf if "megamenu_as_leaf" in fields_set else None
+            ),
+            megamenu_bold=payload.megamenu_bold if "megamenu_bold" in fields_set else None,
+            unset_megamenu_bold=bool(payload.unset_megamenu_bold),
         )
 
+        await db.commit()
+        refreshed = await crud_category.get_all_categories(db)
+        metadata = build_category_metadata(refreshed)
+        return _to_flat_response(
+            next(c for c in refreshed if c.id == category.id),
+            metadata,
+            (await get_category_product_counts(db, refreshed)).get(category.id),
+        )
+
+    @staticmethod
+    async def set_image_url(
+        db: AsyncSession, category_id: int, image_url: str
+    ) -> CategoryFlatResponse:
+        category = await crud_category.get_category_by_id(db, category_id)
+        if category is None:
+            raise api_error(
+                404,
+                error_code=ErrorCode.NOT_FOUND,
+                message=f"Category with ID '{category_id}' not found",
+            )
+        category = await crud_category.update_category(db, category, image_url=image_url)
         await db.commit()
         refreshed = await crud_category.get_all_categories(db)
         metadata = build_category_metadata(refreshed)
@@ -364,7 +403,7 @@ class CategoryService:
     ) -> CategoryDeleteResponse:
         """Delete a leaf category.
 
-        Products may only move to another selectable depth-3 leaf. Never reassign
+        Products may only move to another selectable leaf (depth 2 or 3). Never reassign
         to a parent (often depth-2 and illegal for products). Empty categories can
         be deleted without a target.
         """
@@ -410,7 +449,7 @@ class CategoryService:
                             "field": "target_category_id",
                             "message": (
                                 "این دسته دارای محصول است؛ یک دستهٔ برگ قابل‌انتخاب "
-                                "(عمق ۳) برای انتقال محصولات مشخص کنید."
+                                "(عمق ۲ یا ۳) برای انتقال محصولات مشخص کنید."
                             ),
                         }
                     ],
@@ -444,12 +483,12 @@ class CategoryService:
                 raise api_error(
                     400,
                     error_code=ErrorCode.BAD_REQUEST,
-                    message="Target must be a selectable depth-3 leaf",
+                    message="Target must be a selectable leaf (depth 2 or 3)",
                     details=[
                         {
                             "field": "target_category_id",
                             "message": (
-                                "محصولات فقط به دستهٔ برگ عمق ۳ قابل انتقال هستند؛ "
+                                "محصولات فقط به دستهٔ برگ عمق ۲ یا ۳ قابل انتقال هستند؛ "
                                 "انتقال به والد یا دستهٔ غیرقابل‌انتخاب مجاز نیست."
                             ),
                         }

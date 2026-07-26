@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Document, Wallet } from "react-iconly";
@@ -11,6 +12,9 @@ import {
   type InquiryValues,
   type ShippingValues,
 } from "@/lib/validation";
+import { isLoggedIn } from "@/lib/api-client";
+import { cn, toPersianDigits } from "@/lib/utils";
+import { useAddressStore, type SavedAddress } from "@/store/address-store";
 import type { ResolvedCustomer } from "@/components/checkout/auth-step";
 
 export interface DetailsResult {
@@ -67,6 +71,8 @@ export function DetailsStep({
   );
 }
 
+type AddressMode = "saved" | "new";
+
 function ShippingForm({
   customer,
   submitting,
@@ -80,6 +86,24 @@ function ShippingForm({
   onSubmit: (r: DetailsResult) => void;
   onBack: () => void;
 }) {
+  const addresses = useAddressStore((s) => s.addresses);
+  const getDefault = useAddressStore((s) => s.getDefault);
+  const loggedIn = typeof window !== "undefined" && isLoggedIn();
+  const canUseSaved = loggedIn && addresses.length > 0;
+
+  const [mode, setMode] = useState<AddressMode>(canUseSaved ? "saved" : "new");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!canUseSaved) {
+      setMode("new");
+      return;
+    }
+    const def = getDefault();
+    setSelectedId(def?.id ?? addresses[0]?.id ?? null);
+    setMode("saved");
+  }, [canUseSaved, addresses, getDefault]);
+
   const form = useForm<ShippingValues>({
     resolver: zodResolver(shippingSchema),
     defaultValues: {
@@ -89,6 +113,25 @@ function ShippingForm({
   });
   const { errors } = form.formState;
   const formId = "checkout-shipping-form";
+
+  const applySaved = (addr: SavedAddress) => {
+    form.reset({
+      full_name: addr.full_name,
+      phone: addr.phone,
+      province: addr.province,
+      city: addr.city,
+      postal_code: addr.postal_code,
+      address_line: addr.address_line,
+      note: form.getValues("note") ?? "",
+    });
+  };
+
+  useEffect(() => {
+    if (mode !== "saved" || !selectedId) return;
+    const addr = addresses.find((a) => a.id === selectedId);
+    if (addr) applySaved(addr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, selectedId]);
 
   return (
     <>
@@ -110,24 +153,127 @@ function ShippingForm({
         className="rounded-2xl bg-card p-6 shadow-soft sm:p-8"
       >
         <h2 className="text-lg font-bold text-foreground">اطلاعات ارسال</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+
+        {canUseSaved && (
+          <div className="mt-5 space-y-3">
+            <div
+              role="tablist"
+              aria-label="منبع آدرس"
+              className="flex gap-2 rounded-xl bg-secondary p-1"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "saved"}
+                onClick={() => setMode("saved")}
+                className={cn(
+                  "flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
+                  mode === "saved"
+                    ? "bg-card text-foreground shadow-soft"
+                    : "text-steel hover:text-foreground",
+                )}
+              >
+                آدرس ذخیره‌شده
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "new"}
+                onClick={() => setMode("new")}
+                className={cn(
+                  "flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
+                  mode === "new"
+                    ? "bg-card text-foreground shadow-soft"
+                    : "text-steel hover:text-foreground",
+                )}
+              >
+                آدرس جدید
+              </button>
+            </div>
+
+            {mode === "saved" && (
+              <div className="space-y-2" role="radiogroup" aria-label="انتخاب آدرس">
+                {addresses.map((addr) => {
+                  const active = selectedId === addr.id;
+                  return (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => {
+                        setSelectedId(addr.id);
+                        applySaved(addr);
+                      }}
+                      className={cn(
+                        "w-full rounded-xl border px-4 py-3 text-start transition-colors",
+                        active
+                          ? "border-primary/40 bg-accent"
+                          : "border-border/50 bg-background hover:border-steel/30",
+                      )}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="font-bold text-foreground">{addr.label}</span>
+                        {addr.is_default && (
+                          <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                            پیش‌فرض
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-steel">
+                        {addr.full_name} · {toPersianDigits(addr.phone)}
+                        <br />
+                        {addr.province}، {addr.city} — {addr.address_line}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "mt-6 grid gap-4 sm:grid-cols-2",
+            mode === "saved" && canUseSaved ? "opacity-90" : "",
+          )}
+        >
           <Field label="نام و نام خانوادگی" error={errors.full_name?.message}>
-            <input {...form.register("full_name")} className={fieldInputClass} />
+            <input
+              {...form.register("full_name")}
+              className={fieldInputClass}
+              readOnly={mode === "saved" && canUseSaved}
+            />
           </Field>
           <Field label="شماره موبایل" error={errors.phone?.message}>
-            <input {...form.register("phone")} inputMode="tel" className={`${fieldInputClass} tnum`} />
+            <input
+              {...form.register("phone")}
+              inputMode="tel"
+              className={`${fieldInputClass} tnum`}
+              readOnly={mode === "saved" && canUseSaved}
+            />
           </Field>
           <Field label="استان" error={errors.province?.message}>
-            <input {...form.register("province")} className={fieldInputClass} />
+            <input
+              {...form.register("province")}
+              className={fieldInputClass}
+              readOnly={mode === "saved" && canUseSaved}
+            />
           </Field>
           <Field label="شهر" error={errors.city?.message}>
-            <input {...form.register("city")} className={fieldInputClass} />
+            <input
+              {...form.register("city")}
+              className={fieldInputClass}
+              readOnly={mode === "saved" && canUseSaved}
+            />
           </Field>
           <Field label="کد پستی" error={errors.postal_code?.message}>
             <input
               {...form.register("postal_code")}
               inputMode="numeric"
               className={`${fieldInputClass} tnum`}
+              readOnly={mode === "saved" && canUseSaved}
             />
           </Field>
           <Field label="نشانی کامل" error={errors.address_line?.message} className="sm:col-span-2">
@@ -136,6 +282,7 @@ function ShippingForm({
               rows={3}
               className={fieldTextareaClass}
               placeholder="خیابان، کوچه، پلاک، واحد"
+              readOnly={mode === "saved" && canUseSaved}
             />
           </Field>
           <Field label="توضیحات (اختیاری)" className="sm:col-span-2">

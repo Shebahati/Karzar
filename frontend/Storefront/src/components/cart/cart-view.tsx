@@ -14,11 +14,12 @@ import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
 type Mode = "cart" | "quote";
 
 function stockIssue(line: CartLine): string | null {
-  if (!line.product.availability || line.product.stock_status === "out_of_stock") {
+  if (
+    !line.product.availability ||
+    line.product.stock_status === "out_of_stock" ||
+    line.product.stock_status === "ناموجود"
+  ) {
     return "این کالا در حال حاضر ناموجود است.";
-  }
-  if (line.product.stock_status === "low_stock") {
-    return "موجودی این کالا محدود است؛ قبل از پرداخت همگام‌سازی کنید.";
   }
   return null;
 }

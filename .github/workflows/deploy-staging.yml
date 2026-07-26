@@ -94,6 +94,8 @@ jobs:
             --exclude '.coverage' \
             --exclude 'actions-runner/' \
             "$SRC"/ /opt/karzar/Karzar/
+          # rsync --exclude 'frontend/' preserves a stale tree; remove it explicitly
+          rm -rf /opt/karzar/Karzar/frontend
 
       - name: Sync frontend → /opt/karzar/frontend
         run: |
@@ -132,7 +134,8 @@ jobs:
           export ADMIN_SESSION_SECRET
           bash deploy/staging/scripts/deploy-frontend.sh
 
-          curl -sf http://127.0.0.1:8000/ready
-          echo
-          curl -sf -o /dev/null -w 'shop:%{http_code}\n' http://127.0.0.1:3000/
-          curl -sf -o /dev/null -w 'admin:%{http_code}\n' http://127.0.0.1:3001/ || true
+          # OPS-20: hard smoke gate — admin must not soft-fail.
+          API_BASE=http://127.0.0.1:8000 \
+          SHOP_BASE=http://127.0.0.1:3000 \
+          ADMIN_BASE=http://127.0.0.1:3001 \
+            bash deploy/staging/scripts/smoke-staging.sh

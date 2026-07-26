@@ -4,9 +4,13 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Search } from "react-iconly";
-import { useCategoryTree } from "@/features/catalog/queries";
+import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { buildNavGroups, categoryHref, filterNonEmptyTree } from "@/config/nav-groups";
+import { buildNavGroups, categoryHref, filterNonEmptyTree, NAV_GROUPS } from "@/config/nav-groups";
+import {
+  prepareMegamenuRoots,
+  resolveMegamenuBold,
+} from "@/lib/megamenu-display";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -17,14 +21,15 @@ interface MegaMenuProps {
 }
 
 /**
- * Desktop mega menu: 5 merchandising groups, search, hide empty categories.
+ * Desktop mega menu: merchandising groups from API (hardcoded fallback), search, hide empty.
  */
 export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
   const { data: tree = [], isLoading } = useCategoryTree();
-  const groups = useMemo(() => buildNavGroups(tree), [tree]);
+  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
+  const groups = useMemo(() => buildNavGroups(tree, navDefs), [tree, navDefs]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const panelId = useId();
+  const searchId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,20 +43,51 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
       setQuery("");
       return;
     }
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel
+        ? Array.from(
+            panel.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        document.getElementById("karzar-mega-menu-trigger")?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
+    // Focus search when panel opens for keyboard users.
+    const search = document.getElementById(searchId);
+    search?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, searchId]);
 
   const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0] ?? null;
 
   const filteredRoots = useMemo(() => {
     if (!activeGroup) return [];
     const q = query.trim().toLowerCase();
-    if (!q) return activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean);
-    return activeGroup.roots
+    const base = prepareMegamenuRoots(
+      activeGroup.roots.map((r) => filterNonEmptyTree([r])[0]).filter(Boolean) as CategoryTreeNode[],
+    );
+    if (!q) return base;
+    return base
       .map((root) => filterTreeByQuery(root, q))
       .filter((r): r is CategoryTreeNode => Boolean(r));
   }, [activeGroup, query]);
@@ -60,10 +96,11 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          id={panelId}
+          id="karzar-mega-menu"
           ref={panelRef}
-          role="region"
-          aria-label="منوی دسته‌بندی محصولات"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="karzar-mega-menu-trigger"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -78,10 +115,10 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
             transition={{ duration: 0.18, ease: "easeOut" }}
             className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8"
           >
-            <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-elevated">
+            <div className="max-h-[min(36rem,calc(100dvh-6.5rem))] overflow-hidden rounded-2xl border border-white/50 bg-white/75 shadow-elevated backdrop-blur-2xl supports-[backdrop-filter]:bg-white/65">
               {isLoading ? (
                 <div className="flex min-h-72">
-                  <div className="w-64 space-y-2 border-e border-border/60 p-4">
+                  <div className="w-64 space-y-2 border-e border-border/40 p-4">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Skeleton key={i} className="h-10 w-full rounded-xl" />
                     ))}
@@ -94,8 +131,8 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
               ) : groups.length === 0 ? (
                 <p className="p-8 text-sm text-muted-foreground">دسته‌بندی‌ای یافت نشد.</p>
               ) : (
-                <div className="flex min-h-[320px] max-h-[min(72vh,560px)]">
-                  <aside className="w-64 shrink-0 overflow-y-auto border-e border-border/60 bg-muted/30 py-2">
+                <div className="flex max-h-[min(36rem,calc(100dvh-6.5rem))] min-h-[320px]">
+                  <aside className="w-64 shrink-0 overflow-y-auto overscroll-contain border-e border-border/40 bg-steel/[0.04] py-2">
                     {groups.map((group) => {
                       const active = activeGroup?.id === group.id;
                       return (
@@ -106,7 +143,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                           onFocus={() => setActiveGroupId(group.id)}
                           className={cn(
                             "flex w-full items-center justify-between gap-2 px-4 py-3 text-start text-sm font-bold transition-colors",
-                            active ? "bg-card text-primary" : "text-foreground hover:text-primary",
+                            active ? "bg-white/80 text-primary" : "text-foreground hover:text-primary",
                             group.highlight && !active && "text-primary/90",
                           )}
                         >
@@ -123,30 +160,31 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                     })}
                   </aside>
 
-                  <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                     {activeGroup && (
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-6 py-3">
+                      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border/40 px-6 py-3">
                         <div>
                           <p className="text-sm font-bold text-foreground">{activeGroup.label}</p>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-[11px] text-steel">
                             {formatNumber(activeGroup.product_count)} محصول
                           </p>
                         </div>
-                        <div className="relative min-w-[200px] flex-1 max-w-xs">
-                          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <div className="relative min-w-[200px] max-w-xs flex-1">
+                          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-steel">
                             <Search size="small" set="light" />
                           </span>
                           <input
+                            id={searchId}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="جستجو در این گروه…"
                             aria-label="جستجو در منوی دسته‌بندی"
-                            className="h-10 w-full rounded-xl bg-input ps-9 pe-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                            className="h-10 w-full rounded-xl bg-white/70 ps-9 pe-3 text-sm outline-none backdrop-blur focus:ring-2 focus:ring-steel/20"
                           />
                         </div>
                       </div>
                     )}
-                    <div className="flex-1 overflow-y-auto p-6">
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">
                       {filteredRoots.length === 0 ? (
                         <p className="text-sm text-muted-foreground">نتیجه‌ای یافت نشد.</p>
                       ) : (
@@ -175,7 +213,7 @@ function MegaMenuRoot({
   root: CategoryTreeNode;
   onNavigate: () => void;
 }) {
-  const mids = filterNonEmptyTree(root.subcategories ?? []);
+  const mids = root.subcategories ?? [];
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -198,38 +236,52 @@ function MegaMenuRoot({
         <Link
           href={categoryHref(root)}
           onClick={onNavigate}
-          className="inline-flex text-sm font-bold text-primary hover:underline"
+          className="inline-flex text-sm text-muted-foreground transition-colors hover:text-primary"
         >
           مشاهده محصولات {root.name}
         </Link>
       ) : (
         <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-3">
-          {mids.map((mid) => (
-            <div key={mid.id} className="min-w-0">
-              <Link
-                href={categoryHref(mid)}
-                onClick={onNavigate}
-                className="block text-sm font-bold text-foreground transition-colors hover:text-primary"
-              >
-                {mid.name}
-              </Link>
-              {(mid.subcategories?.length ?? 0) > 0 ? (
-                <ul className="mt-2.5 space-y-1.5">
-                  {mid.subcategories.map((leaf) => (
-                    <li key={leaf.id}>
-                      <Link
-                        href={categoryHref(leaf)}
-                        onClick={onNavigate}
-                        className="block truncate text-sm text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {leaf.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          ))}
+          {mids.map((mid) => {
+            const kids = mid.subcategories ?? [];
+            const isBranch = kids.length > 0;
+            const bold = resolveMegamenuBold(mid, { isBranch });
+            return (
+              <div key={mid.id} className="min-w-0">
+                <Link
+                  href={categoryHref(mid)}
+                  onClick={onNavigate}
+                  className={cn(
+                    "block text-sm transition-colors hover:text-primary",
+                    bold ? "font-bold text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {mid.name}
+                </Link>
+                {isBranch ? (
+                  <ul className="mt-2.5 space-y-1.5">
+                    {kids.map((leaf) => {
+                      const leafBold = resolveMegamenuBold(leaf, { isBranch: false });
+                      return (
+                        <li key={leaf.id}>
+                          <Link
+                            href={categoryHref(leaf)}
+                            onClick={onNavigate}
+                            className={cn(
+                              "block truncate text-sm transition-colors hover:text-primary",
+                              leafBold ? "font-bold text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {leaf.name}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

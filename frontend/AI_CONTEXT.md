@@ -1,7 +1,15 @@
 # KarZar — AI Project Context (Full Handover)
 
-> **هدف این سند:** دادن کانتکست کامل به یک AI/توسعه‌دهنده جدید برای ادامه کار روی پروژه **بدون نیاز به کاوش اولیه**.  
-> **آخرین به‌روزرسانی:** ۱۴۰۵/۰۵/۰۲ (فازهای ۱–۵ اصلاح فرانت)  
+> **⚠️ OBSOLETE AS SoT (2026-07-25 / audit v2 DOC finding).**  
+> Do **not** trust §§1–20 of this file for current architecture. Confirmed false claims include: SQLAdmin `/admin`, “no refresh token”, missing checkout/OTP/blog/hero, ComingSoon admin pages, 5-digit migration head.  
+> **Canonical sources instead:**  
+> - `README.md` (cart/availability corrected 2026-07-25)  
+> - `docs/API_CONTRACT.md`, `docs/HESABFA.md`, `docs/OPERATIONS.md`  
+> - `docs/audits/v2/master-engineering-report-v2.md` + `docs/audits/v2/REMEDIATION-TO-9.md`  
+> Only the remediation log near the end may still be historically useful. Rewrite of this file is Wave 1 of remediation.
+
+> **هدف این سند (تاریخی):** دادن کانتکست به AI/توسعه‌دهنده.  
+> **آخرین به‌روزرسانی معتبر برای SoT:** ۱۴۰۵/۰۵/۰۳ — بنر فوق را بخوانید.  
 > **مسیر ریشه:** `/home/moahmmad/Projects/Karzar/Website/`
 
 ---

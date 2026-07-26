@@ -40,46 +40,48 @@
 
 @layer base {
   :root {
-    /* Surfaces — industrial B2B */
-    --background: 0 0% 97%; /* #F7F7F7 */
-    --foreground: 0 0% 14%; /* ink for body/titles */
-    --ink: 0 0% 12%;
+    /* Surfaces — cooler steel industrial, less festive red */
+    --background: 0 0% 96.5%; /* soft gray canvas */
+    --foreground: 0 1% 22%; /* near #5E5F5E family for body */
+    --ink: 0 1% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 14%;
+    --card-foreground: 0 1% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 14%;
+    --popover-foreground: 0 1% 20%;
 
-    /* Karzar Red — brand / go only */
+    /* Brand red — reserved for CTA / identity accents */
     --primary: 358 72% 44%; /* #C22026 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 22%;
+    --secondary: 0 1% 92%;
+    --secondary-foreground: 0 1% 28%;
 
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 1% 93%;
+    --muted-foreground: 0 1% 37%; /* #5E5F5E */
 
-    /* Cool steel accent (not pink) */
-    --accent: 210 12% 94%;
-    --accent-foreground: 210 14% 28%;
+    /* Steel gray brand companion */
+    --steel: 0 1% 37%; /* #5E5F5E */
+    --steel-foreground: 0 0% 100%;
 
-    /* Oxide destructive — distinct from brand red */
-    --destructive: 8 65% 38%;
+    --accent: 0 1% 94%;
+    --accent-foreground: 0 1% 28%;
+
+    --destructive: 8 55% 36%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 58% 39%;
+    --success: 142 42% 34%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 20%;
+    --warning: 38 70% 42%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 96%;
+    --border: 0 1% 86%;
+    --input: 0 1% 95%;
     --ring: 358 72% 44%;
 
-    --radius: 0.625rem; /* 10px industrial */
+    --radius: 0.75rem;
 
     --font-iranyekan: "IRANYekanX";
   }
