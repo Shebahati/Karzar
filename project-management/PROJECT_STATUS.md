@@ -1,7 +1,7 @@
 # Project Status
 
 **Updated:** 2026-07-27  
-**Weighted progress:** 69%  
+**Weighted progress:** 73%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -22,7 +22,7 @@
 - [x] FE-001 (partial) Floating transparent hero header (#93 → main @53f0100)
 - [x] 24 mid-tail articles
 - [x] CWV budgets green (PERF-001 foundations; field p75 monitor ongoing)
-- [ ] 31 Shahrivar release freeze
+- [x] 31 Shahrivar release freeze package documented (REL-001)
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
@@ -30,12 +30,12 @@
 - [x] Content — see `CONTENT_PROGRESS.md` (SEO-002/003 done)
 - [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 done; next: UX-001 or FE-001)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
-- [ ] Security — see `SECURITY_PROGRESS.md`
+- [ ] Security — see `SECURITY_PROGRESS.md` (release GO still requires SEC-001 closure or explicit risk acceptance)
 - [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
 - [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
 
 ## Active sprint
-See `sprints/SPRINT_02.md` (PERF-001 + SEO-003 done; next REL-001 path / remaining P1s)
+See `sprints/SPRINT_04.md` (REL-001 readiness documented; next highest-impact P1 execution)
 
 ## Blockers
 See `BLOCKERS.md`

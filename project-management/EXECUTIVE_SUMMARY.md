@@ -42,7 +42,7 @@
 - [x] SEO-004 Technical SEO hygiene (#94)
 - [x] UX-002 PDP specs/trust (#96)
 - [x] PERF-001 CWV home/PDP/PLP (#99)
-- [ ] REL-001 Release freeze
+- [x] REL-001 Release freeze documentation pack complete (GO remains conditional on SEC-001 or explicit risk acceptance)
 
 **Move to بعد از ۳۱ شهریور (P2+)**
 - [ ] KB-001 Knowledge graph phase-1

@@ -4,7 +4,7 @@
 **Target week index:** 7
 
 ## Goals
-- [ ] Defer KB, REL-001 checkpoint
+- [x] Defer KB, REL-001 checkpoint
 
 ## Tasks
 - [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04
@@ -20,21 +20,21 @@
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
   - Notes: Defer if hours overrun
-- [ ] **REL-001** Release readiness for 31 Shahrivar checkpoint — `todo` 0% | P0 | 10h | Sprint 04
+- [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
   - Owner: unassigned | Week 8 Day 5 | Risk: med
-  - [ ] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
-  - [ ] Dependencies: SEO-003, PERF-001, SEC-001
-  - [ ] Files: project-management/RELEASE_PLAN.md
-  - [ ] Modules: ops
-  - [ ] Tags: release
+  - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
+  - [x] Dependencies: SEO-003, PERF-001, SEC-001
+  - [x] Files: project-management/RELEASE_PLAN.md
+  - [x] Modules: ops
+  - [x] Tags: release
   - Acceptance Criteria:
-    - [ ] All P0 done or explicitly deferred
-    - [ ] Rollback noted
+    - [x] All P0 done or explicitly deferred
+    - [x] Rollback noted
   - Definition of Done:
-    - [ ] RELEASE_PLAN signed
-  - Notes: Checkpoint ≠ rank#1
+    - [x] RELEASE_PLAN signed
+  - Notes: Readiness documentation complete; GO remains conditional on SEC-001 closure or explicit risk acceptance with named owner.
 
 ## Sprint exit checklist
-- [ ] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
-- [ ] PROJECT_STATUS.md updated
-- [ ] CHANGELOG.md entry
+- [x] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
+- [x] PROJECT_STATUS.md updated
+- [x] CHANGELOG.md entry

@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — scope freeze documented (P0 completed/deferred), explicit go/no-go gates, rollback plan, launch-window verification checklist, and residual risk ownership added across PMO artifacts.
 - [x] **SEO-003** Publish 24 buyer-intent articles (calendar A01–D06) — #102 → `main` @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); CMS `ok=24`; verified `/blog/digital-caliper-workshop-accuracy`
 - [x] **SEO-001 follow-up** Store LocalBusiness geo + official Google Maps place on contact/footer/JSON-LD — (PR pending)
 - [x] **PERF-001** Core Web Vitals foundations (fonts/LCP/image pipeline) — #99 → `main` @d169831; Deploy Staging green (30251144532)

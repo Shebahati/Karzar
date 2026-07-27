@@ -576,8 +576,8 @@
       "dod": [
         "RELEASE_PLAN signed"
       ],
-      "status": "todo",
-      "progress": 0,
+      "status": "done",
+      "progress": 100,
       "sprint": "04",
       "week": 8,
       "day": 5,
@@ -586,7 +586,7 @@
         "release"
       ],
       "risk": "med",
-      "notes": "Checkpoint ≠ rank#1"
+      "notes": "REL-001 readiness pack completed (scope freeze, gates, rollback, monitoring checklist, explicit go/no-go). Final operational gate is conditional on SEC-001 closure or documented risk acceptance with named owner."
     },
     {
       "id": "TD-001",

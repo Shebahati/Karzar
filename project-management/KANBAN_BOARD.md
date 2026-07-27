@@ -109,19 +109,6 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
   - Notes: Defer if hours overrun
-- [ ] **REL-001** Release readiness for 31 Shahrivar checkpoint — `todo` 0% | P0 | 10h | Sprint 04
-  - Owner: unassigned | Week 8 Day 5 | Risk: med
-  - [ ] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
-  - [ ] Dependencies: SEO-003, PERF-001, SEC-001
-  - [ ] Files: project-management/RELEASE_PLAN.md
-  - [ ] Modules: ops
-  - [ ] Tags: release
-  - Acceptance Criteria:
-    - [ ] All P0 done or explicitly deferred
-    - [ ] Rollback noted
-  - Definition of Done:
-    - [ ] RELEASE_PLAN signed
-  - Notes: Checkpoint ≠ rank#1
 - [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
   - Owner: unassigned | Week 1 Day 5 | Risk: low
   - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
@@ -138,6 +125,19 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
+  - Owner: unassigned | Week 8 Day 5 | Risk: med
+  - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
+  - [x] Dependencies: SEO-003, PERF-001, SEC-001
+  - [x] Files: project-management/RELEASE_PLAN.md
+  - [x] Modules: ops
+  - [x] Tags: release
+  - Acceptance Criteria:
+    - [x] All P0 done or explicitly deferred
+    - [x] Rollback noted
+  - Definition of Done:
+    - [x] RELEASE_PLAN signed
+  - Notes: Readiness pack complete; GO remains conditional on SEC-001 closure or explicit risk acceptance with named owner.
 - [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
