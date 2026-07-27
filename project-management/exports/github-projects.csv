@@ -14,6 +14,6 @@ SEC-001: Security hygiene pass for go-live bar,"Admin noindex, step-up coverage,
 BE-001: Catalog API readiness for SEO fields,"Ensure short_description, meta, specs exposed consistently to storefront.\n\nAC: Contract tests green; OpenAPI updated",todo,P1,10,"backend,seo",Sprint 00
 FE-001: Design system tokens + homepage consistency,Align home sections after hero/categories/why-karzar polish.\n\nAC: Shared tokens for spacing/type; No purple-default AI look,in_progress,P2,12,design,Sprint 01
 KB-001: Knowledge platform phase-1 content graph seed,Link articles↔products↔categories; avoid second taxonomy.\n\nAC: Graph links queryable; No DAG categories,todo,P2,30,knowledge,Sprint 04
-REL-001: Release readiness for 31 Shahrivar checkpoint,"Freeze P0s, changelog, rollback plan, monitoring checklist.\n\nAC: All P0 done or explicitly deferred; Rollback noted",todo,P0,10,release,Sprint 04
+REL-001: Release readiness for 31 Shahrivar checkpoint,"Freeze P0s, changelog, rollback plan, monitoring checklist.\n\nAC: All P0 done or explicitly deferred; Rollback noted",done,P0,10,release,Sprint 04
 TD-001: Pay down category depth / selectable FE drift,Align admin FE helpers with depth-2|3 selectable rule everywhere.\n\nAC: No depth===3-only filters left,todo,P2,6,techdebt,Sprint 00
 OPS-001: Merge promote-measurement workflow fix #81,Land no-checkout workflow for taxonomy promote on VPS.\n\nAC: Workflow green,done,P2,2,"ops,ci",Sprint 00

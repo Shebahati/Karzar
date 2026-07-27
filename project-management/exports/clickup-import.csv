@@ -14,6 +14,6 @@ SEC-001,Security hygiene pass for go-live bar,todo,P1,720,"Admin noindex, step-u
 BE-001,Catalog API readiness for SEO fields,todo,P1,600,"Ensure short_description, meta, specs exposed consistently to storefront.","backend,seo",00,
 FE-001,Design system tokens + homepage consistency,in_progress,P2,720,Align home sections after hero/categories/why-karzar polish.,design,01,
 KB-001,Knowledge platform phase-1 content graph seed,todo,P2,1800,Link articles↔products↔categories; avoid second taxonomy.,knowledge,04,
-REL-001,Release readiness for 31 Shahrivar checkpoint,todo,P0,600,"Freeze P0s, changelog, rollback plan, monitoring checklist.",release,04,
+REL-001,Release readiness for 31 Shahrivar checkpoint,done,P0,600,"Freeze P0s, changelog, rollback plan, monitoring checklist.",release,04,
 TD-001,Pay down category depth / selectable FE drift,todo,P2,360,Align admin FE helpers with depth-2|3 selectable rule everywhere.,techdebt,00,
 OPS-001,Merge promote-measurement workflow fix #81,done,P2,120,Land no-checkout workflow for taxonomy promote on VPS.,"ops,ci",00,

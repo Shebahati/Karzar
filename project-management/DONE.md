@@ -19,3 +19,4 @@ Move completed task IDs here with date + PR.
 - [x] OPS-001 Measurement promote workflow — 2026-07-26 — #81 → `main` @e1981b6 (PMO marked done 2026-07-27)
 - [x] PERF-001 Core Web Vitals home+PDP+PLP — 2026-07-27 — #99 → `main` @d169831 (staging deployed)
 - [x] SEO-003 Publish 24 buyer-intent articles — 2026-07-27 — #102 → `main` @aa159b0; publish #103/#104; Deploy Staging (30255672560)
+- [x] REL-001 Release readiness for 31 Shahrivar checkpoint — 2026-07-27 — PMO release gates/scope freeze/rollback/monitoring pack completed (this PR)
