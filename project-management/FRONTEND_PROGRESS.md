@@ -41,19 +41,19 @@
   - Definition of Done:
     - [x] CORE_WEB_VITALS_PROGRESS
   - Notes: #99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP; vitest cwv.
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
   - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
   - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
 ## Evidence log
 - [x] PERF-001 PR https://github.com/Shebahati/Karzar/pull/99 → main @d169831; Deploy Staging green (30251144532)

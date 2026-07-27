@@ -503,8 +503,8 @@
       "dod": [
         "DESIGN_SYSTEM_PROGRESS"
       ],
-      "status": "in_progress",
-      "progress": 65,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 6,
@@ -513,7 +513,7 @@
         "design"
       ],
       "risk": "low",
-      "notes": "#85 why-karzar/categories; floating transparent home header over hero (glass on scroll)"
+      "notes": "2026-07-27: shared --space-section-* / --type-* tokens + home-stack; prior #93 header; steel/red (no purple)"
     },
     {
       "id": "KB-001",

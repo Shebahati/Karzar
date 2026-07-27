@@ -32,19 +32,7 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [x] SECURITY_PROGRESS
   - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
-  - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
-  - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
-  - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
+
 - [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
   - Owner: unassigned | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
@@ -63,6 +51,19 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 6 | Risk: low
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
+  - Acceptance Criteria:
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
+  - Definition of Done:
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 - [x] **TD-001** Pay down category depth / selectable FE drift — `done` 100% | P2 | 6h | Sprint 00
   - Owner: unassigned | Week 1 Day 5 | Risk: low
   - [x] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
