@@ -466,8 +466,8 @@
       "dod": [
         "BACKEND_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 70,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 4,
@@ -477,7 +477,7 @@
         "seo"
       ],
       "risk": "low",
-      "notes": "#66/#68"
+      "notes": "2026-07-27: openapi/v1.json regenerated from app.openapi(); ProductDetail/Summary/Create/Update expose short_description/meta_*/slug as applicable. Contract tests: test_product_seo_descriptions + test_d_catalog_audit SEO exposure green (16). Prior plumbing #66/#68."
     },
     {
       "id": "FE-001",
