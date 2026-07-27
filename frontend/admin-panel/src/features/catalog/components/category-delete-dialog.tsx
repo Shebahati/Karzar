@@ -68,7 +68,7 @@ export function CategoryDeleteDialog({
 
     const targetNum = targetId ? Number(targetId) : NaN;
     if (needsTarget && !Number.isFinite(targetNum)) {
-      setError("برای انتقال محصولات، یک دستهٔ برگ عمق ۳ انتخاب کنید.");
+      setError("برای انتقال محصولات، یک دستهٔ برگ قابل‌انتخاب انتخاب کنید.");
       return;
     }
 
@@ -121,13 +121,13 @@ export function CategoryDeleteDialog({
         {category && (
           <p className="rounded-xl bg-[#FFF5F5] p-4 text-sm leading-relaxed text-[#4F4F4F]">
             {needsTarget
-              ? "این دسته محصول دارد. محصولات فقط به یک دستهٔ برگ قابل‌انتخاب (عمق ۳) منتقل می‌شوند — انتقال به والد مجاز نیست."
+              ? "این دسته محصول دارد. محصولات فقط به یک دستهٔ برگ قابل‌انتخاب (عمق ۲ یا ۳) منتقل می‌شوند — انتقال به والد مجاز نیست."
               : "این دسته خالی است و بدون انتقال محصول حذف می‌شود."}
           </p>
         )}
 
         {needsTarget && (
-          <Field label="دستهٔ مقصد (برگ عمق ۳)" htmlFor="category-delete-target">
+          <Field label="دستهٔ مقصد (برگ قابل‌انتخاب)" htmlFor="category-delete-target">
             <CategoryLeafCombobox
               categories={selectableLeaves}
               value={targetId}

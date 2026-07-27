@@ -44,7 +44,7 @@ function buildCsp(nonce: string): string {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     `connect-src ${connectSrc}`,
-    "frame-src https://www.googletagmanager.com https://www.google.com https://maps.google.com https://*.enamad.ir https://trustseal.enamad.ir",
+    "frame-src https://www.googletagmanager.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

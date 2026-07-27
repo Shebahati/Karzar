@@ -1,0 +1,658 @@
+{
+  "as_of": "2026-07-27",
+  "deadline": "2026-09-22",
+  "tasks": [
+    {
+      "id": "PMO-001",
+      "title": "Bootstrap living PMO workspace",
+      "description": "Create project-management SoT, exports, Cursor rule, printable boards.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 8,
+      "deps": [],
+      "files": [
+        "project-management/**",
+        ".cursor/rules/pmo-living-system.mdc"
+      ],
+      "modules": [
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "All required PMO files exist",
+        "Cursor rule alwaysApply",
+        "Exports importable"
+      ],
+      "dod": [
+        "Merged to main",
+        "Linked from README"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "00",
+      "week": 1,
+      "day": 1,
+      "owner": "agent",
+      "tags": [
+        "pmo",
+        "meta"
+      ],
+      "risk": "low",
+      "notes": "#86 → main; living PMO in active use (SEO-001/002/004 PMO updates). AC met: files + alwaysApply rule + exports."
+    },
+    {
+      "id": "SEO-001",
+      "title": "Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP",
+      "description": "Complete structured data for products, offers, breadcrumbs, organization.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 16,
+      "deps": [
+        "PMO-001"
+      ],
+      "files": [
+        "frontend/Storefront/src/**",
+        "app/schemas/**"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "Rich Results test passes for sample PDPs",
+        "No invalid Offer without price"
+      ],
+      "dod": [
+        "Deployed staging",
+        "Documented in STRUCTURED_DATA_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "01",
+      "week": 2,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "seo",
+        "schema"
+      ],
+      "risk": "med",
+      "notes": "Merged #88 → main @89a4cf5; Deploy Staging success. Product+gated Offer+Breadcrumb PDP; CollectionPage/ItemList category hubs; Organization+WebSite+SearchAction layout. Vitest json-ld.test.ts. Verified staging PDP /product/7115 Offer price IRR."
+    },
+    {
+      "id": "SEO-002",
+      "title": "Category hub content + internal linking for mid-tail",
+      "description": "Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 24,
+      "deps": [
+        "SEO-001"
+      ],
+      "files": [
+        "frontend/Storefront/src/components/category/**",
+        "content/**"
+      ],
+      "modules": [
+        "seo",
+        "content"
+      ],
+      "ac": [
+        "Top 15 hubs have unique 150–300w intro",
+        "Internal links ≥3 per hub"
+      ],
+      "dod": [
+        "Live",
+        "CONTENT_PROGRESS updated"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "01",
+      "week": 2,
+      "day": 3,
+      "owner": "unassigned",
+      "tags": [
+        "seo",
+        "content"
+      ],
+      "risk": "med",
+      "notes": "Merged #91 → main @d92722a; Deploy Staging success. 15 Persian hub intros (150–300w) + ≥3 internal links each; content/hubs/intros.json; CategoryHubIntro + child chips; vitest hub-intros.test.ts. Verified staging /categories/انواع-کولیس."
+    },
+    {
+      "id": "SEO-003",
+      "title": "Publish 24 buyer-intent articles (calendar)",
+      "description": "One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 60,
+      "deps": [
+        "SEO-002"
+      ],
+      "files": [
+        "content/blog/**",
+        "frontend/Storefront/**"
+      ],
+      "modules": [
+        "content",
+        "seo"
+      ],
+      "ac": [
+        "24 published",
+        "Each links ≥2 products",
+        "FAQ schema where fit"
+      ],
+      "dod": [
+        "CONTENT_CALENDAR checked",
+        "Live"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "02",
+      "week": 4,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "content",
+        "seo"
+      ],
+      "risk": "high",
+      "notes": "#102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 articles CMS-live; verified sample /blog/digital-caliper-workshop-accuracy (+ FAQ/links/≥2 products)."
+    },
+    {
+      "id": "SEO-004",
+      "title": "Technical SEO crawl hygiene",
+      "description": "Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.",
+      "priority": "P0",
+      "severity": "med",
+      "hours": 12,
+      "deps": [
+        "SEO-001"
+      ],
+      "files": [
+        "frontend/Storefront/**",
+        "deploy/**"
+      ],
+      "modules": [
+        "seo",
+        "ops"
+      ],
+      "ac": [
+        "0 soft-404 hubs",
+        "Sitemap <50k urls valid"
+      ],
+      "dod": [
+        "TECHNICAL_SEO_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "01",
+      "week": 2,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "seo",
+        "tech"
+      ],
+      "risk": "low",
+      "notes": "#94 → main @a119b38; Deploy Staging green. Soft-404 empty hubs→404; sitemap 6007 urls (<50k) with lastmod; SITE_URL env; private+facet noindex; robots disallow; hreflang N/A (fa-only). Vitest crawl-hygiene+site-url."
+    },
+    {
+      "id": "CAT-001",
+      "title": "Close enrichment PR triage (Dasqua/Mitutoyo/etc.)",
+      "description": "Merge or close remaining enrichment PRs with content-only guarantees.",
+      "priority": "P1",
+      "severity": "med",
+      "hours": 8,
+      "deps": [],
+      "files": [
+        "scripts/**",
+        "data/imports/**"
+      ],
+      "modules": [
+        "catalog"
+      ],
+      "ac": [
+        "Each open enrichment PR decided",
+        "No price writes"
+      ],
+      "dod": [
+        "PROJECT_STATUS updated"
+      ],
+      "status": "todo",
+      "progress": 40,
+      "sprint": "00",
+      "week": 1,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "catalog",
+        "ops"
+      ],
+      "risk": "low",
+      "notes": "#71/#72 merged or open — verify"
+    },
+    {
+      "id": "CAT-002",
+      "title": "INSIZE JSON-schema content fill (staging apply)",
+      "description": "Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.",
+      "priority": "P1",
+      "severity": "med",
+      "hours": 20,
+      "deps": [
+        "CAT-001"
+      ],
+      "files": [
+        "scripts/enrich_insize*.py"
+      ],
+      "modules": [
+        "catalog",
+        "seo"
+      ],
+      "ac": [
+        "≥200 SKUs content QA",
+        "price_fields_written=none"
+      ],
+      "dod": [
+        "SEO_PROGRESS note"
+      ],
+      "status": "todo",
+      "progress": 15,
+      "sprint": "02",
+      "week": 3,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "insize",
+        "content"
+      ],
+      "risk": "med",
+      "notes": "#74 closed intentionally"
+    },
+    {
+      "id": "CAT-003",
+      "title": "Category image coverage for all L1+key L2",
+      "description": "Ensure every homepage/megamenu root has full-bleed quality image.",
+      "priority": "P1",
+      "severity": "med",
+      "hours": 10,
+      "deps": [],
+      "files": [
+        "scripts/seed_category_images.py",
+        "frontend/Storefront/public/images/**"
+      ],
+      "modules": [
+        "frontend",
+        "catalog"
+      ],
+      "ac": [
+        "0 L1 without image",
+        "Visual QA mobile"
+      ],
+      "dod": [
+        "UI_PROGRESS"
+      ],
+      "status": "todo",
+      "progress": 60,
+      "sprint": "00",
+      "week": 1,
+      "day": 3,
+      "owner": "unassigned",
+      "tags": [
+        "ui",
+        "images"
+      ],
+      "risk": "low",
+      "notes": "Partial via #85"
+    },
+    {
+      "id": "UX-001",
+      "title": "PLP filter + hub IA polish",
+      "description": "Improve category PLP filters, empty states, mobile sheet clarity.",
+      "priority": "P1",
+      "severity": "med",
+      "hours": 20,
+      "deps": [],
+      "files": [
+        "frontend/Storefront/src/components/**"
+      ],
+      "modules": [
+        "frontend",
+        "ux"
+      ],
+      "ac": [
+        "Mobile filter usable in <3 taps",
+        "Empty states Persian"
+      ],
+      "dod": [
+        "UX_PROGRESS"
+      ],
+      "status": "todo",
+      "progress": 35,
+      "sprint": "01",
+      "week": 2,
+      "day": 4,
+      "owner": "unassigned",
+      "tags": [
+        "ux"
+      ],
+      "risk": "low",
+      "notes": ""
+    },
+    {
+      "id": "UX-002",
+      "title": "PDP trust + specs presentation",
+      "description": "Clarify short vs long description; specs SoT; no duplicate bullets.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 16,
+      "deps": [
+        "SEO-001"
+      ],
+      "files": [
+        "frontend/Storefront/src/components/product/**"
+      ],
+      "modules": [
+        "frontend",
+        "seo"
+      ],
+      "ac": [
+        "Specs not duplicated in long desc",
+        "Trust strip visible"
+      ],
+      "dod": [
+        "UX_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "01",
+      "week": 2,
+      "day": 5,
+      "owner": "unassigned",
+      "tags": [
+        "ux",
+        "pdp"
+      ],
+      "risk": "low",
+      "notes": "#96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip."
+    },
+    {
+      "id": "PERF-001",
+      "title": "Core Web Vitals pass on home+PDP+PLP",
+      "description": "LCP/INP/CLS budgets; image priority; font subsetting.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 24,
+      "deps": [],
+      "files": [
+        "frontend/Storefront/**"
+      ],
+      "modules": [
+        "frontend",
+        "perf"
+      ],
+      "ac": [
+        "LCP≤2.5s mobile field or lab p75",
+        "CLS≤0.1"
+      ],
+      "dod": [
+        "CORE_WEB_VITALS_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "02",
+      "week": 3,
+      "day": 3,
+      "owner": "unassigned",
+      "tags": [
+        "perf",
+        "cwv"
+      ],
+      "risk": "med",
+      "notes": "#99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props (priority/fetchPriority/q75) on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP + deviceSizes; vitest cwv budgets."
+    },
+    {
+      "id": "SEC-001",
+      "title": "Security hygiene pass for go-live bar",
+      "description": "Admin noindex, step-up coverage, dependency scan, secrets audit.",
+      "priority": "P1",
+      "severity": "high",
+      "hours": 12,
+      "deps": [],
+      "files": [
+        "app/**",
+        "frontend/admin-panel/**"
+      ],
+      "modules": [
+        "security"
+      ],
+      "ac": [
+        "Admin X-Robots-Tag",
+        "No secrets in FE"
+      ],
+      "dod": [
+        "SECURITY_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "03",
+      "week": 5,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "security"
+      ],
+      "risk": "med",
+      "notes": "Admin X-Robots-Tag + metadata robots noindex; secrets hygiene script green (no FE key material); step-up PIN on destructive admin surfaces (products/orders/CMS/customers/brands/categories); Pillow==12.3.0; residual: ecdsa PYSEC-2026-1325 via python-jose; Next/postcss/sharp high advisories deferred (force Next 16.2.12 out of range). Evidence: scripts/security_hygiene_check.sh + admin security-headers vitest."
+    },
+    {
+      "id": "BE-001",
+      "title": "Catalog API readiness for SEO fields",
+      "description": "Ensure short_description, meta, specs exposed consistently to storefront.",
+      "priority": "P1",
+      "severity": "med",
+      "hours": 10,
+      "deps": [],
+      "files": [
+        "app/api/**",
+        "app/schemas/**"
+      ],
+      "modules": [
+        "backend"
+      ],
+      "ac": [
+        "Contract tests green",
+        "OpenAPI updated"
+      ],
+      "dod": [
+        "BACKEND_PROGRESS"
+      ],
+      "status": "todo",
+      "progress": 70,
+      "sprint": "00",
+      "week": 1,
+      "day": 4,
+      "owner": "unassigned",
+      "tags": [
+        "backend",
+        "seo"
+      ],
+      "risk": "low",
+      "notes": "#66/#68"
+    },
+    {
+      "id": "FE-001",
+      "title": "Design system tokens + homepage consistency",
+      "description": "Align home sections after hero/categories/why-karzar polish.",
+      "priority": "P2",
+      "severity": "low",
+      "hours": 12,
+      "deps": [
+        "CAT-003"
+      ],
+      "files": [
+        "frontend/Storefront/src/**"
+      ],
+      "modules": [
+        "frontend",
+        "design"
+      ],
+      "ac": [
+        "Shared tokens for spacing/type",
+        "No purple-default AI look"
+      ],
+      "dod": [
+        "DESIGN_SYSTEM_PROGRESS"
+      ],
+      "status": "in_progress",
+      "progress": 65,
+      "sprint": "01",
+      "week": 2,
+      "day": 6,
+      "owner": "unassigned",
+      "tags": [
+        "design"
+      ],
+      "risk": "low",
+      "notes": "#85 why-karzar/categories; floating transparent home header over hero (glass on scroll)"
+    },
+    {
+      "id": "KB-001",
+      "title": "Knowledge platform phase-1 content graph seed",
+      "description": "Link articles↔products↔categories; avoid second taxonomy.",
+      "priority": "P2",
+      "severity": "med",
+      "hours": 30,
+      "deps": [
+        "SEO-003"
+      ],
+      "files": [
+        "docs/KNOWLEDGE_PLATFORM*.md",
+        "app/**"
+      ],
+      "modules": [
+        "knowledge"
+      ],
+      "ac": [
+        "Graph links queryable",
+        "No DAG categories"
+      ],
+      "dod": [
+        "KNOWLEDGE_BASE_PROGRESS"
+      ],
+      "status": "todo",
+      "progress": 10,
+      "sprint": "04",
+      "week": 7,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "knowledge"
+      ],
+      "risk": "high",
+      "notes": "Defer if hours overrun"
+    },
+    {
+      "id": "REL-001",
+      "title": "Release readiness for 31 Shahrivar checkpoint",
+      "description": "Freeze P0s, changelog, rollback plan, monitoring checklist.",
+      "priority": "P0",
+      "severity": "high",
+      "hours": 10,
+      "deps": [
+        "SEO-003",
+        "PERF-001",
+        "SEC-001"
+      ],
+      "files": [
+        "project-management/RELEASE_PLAN.md"
+      ],
+      "modules": [
+        "ops"
+      ],
+      "ac": [
+        "All P0 done or explicitly deferred",
+        "Rollback noted"
+      ],
+      "dod": [
+        "RELEASE_PLAN signed"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "04",
+      "week": 8,
+      "day": 5,
+      "owner": "unassigned",
+      "tags": [
+        "release"
+      ],
+      "risk": "med",
+      "notes": "REL-001 readiness pack completed (scope freeze, gates, rollback, monitoring checklist, explicit go/no-go). Final operational gate is conditional on SEC-001 closure or documented risk acceptance with named owner."
+    },
+    {
+      "id": "TD-001",
+      "title": "Pay down category depth / selectable FE drift",
+      "description": "Align admin FE helpers with depth-2|3 selectable rule everywhere.",
+      "priority": "P2",
+      "severity": "low",
+      "hours": 6,
+      "deps": [],
+      "files": [
+        "frontend/admin-panel/**"
+      ],
+      "modules": [
+        "frontend",
+        "techdebt"
+      ],
+      "ac": [
+        "No depth===3-only filters left"
+      ],
+      "dod": [
+        "TECH_DEBT"
+      ],
+      "status": "todo",
+      "progress": 50,
+      "sprint": "00",
+      "week": 1,
+      "day": 5,
+      "owner": "unassigned",
+      "tags": [
+        "techdebt"
+      ],
+      "risk": "low",
+      "notes": ""
+    },
+    {
+      "id": "OPS-001",
+      "title": "Merge promote-measurement workflow fix #81",
+      "description": "Land no-checkout workflow for taxonomy promote on VPS.",
+      "priority": "P2",
+      "severity": "low",
+      "hours": 2,
+      "deps": [],
+      "files": [
+        ".github/workflows/**"
+      ],
+      "modules": [
+        "ops"
+      ],
+      "ac": [
+        "Workflow green"
+      ],
+      "dod": [
+        "DONE.md"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "00",
+      "week": 1,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "ops",
+        "ci"
+      ],
+      "risk": "low",
+      "notes": "#81 → main @e1981b6; promote-measurement workflow (no checkout); Backend CI green; Deploy Staging not required (workflow/script-only)."
+    }
+  ]
+}

@@ -459,6 +459,11 @@ alembic current
 alembic history
 ```
 
+
+## Project Management Office
+
+Living SoT: [`project-management/README.md`](project-management/README.md) — status, sprints, exports, printable wallboards.
+
 ## Documentation
 
 | Doc | Purpose |

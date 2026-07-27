@@ -70,6 +70,8 @@ docker build \
   -f "$ROOT_DIR/deploy/staging/frontend/Dockerfile.storefront" \
   --build-arg NEXT_PUBLIC_USE_MOCK=false \
   --build-arg "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" \
+  --build-arg "NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://www.karzartools.com}" \
+  --build-arg "NEXT_PUBLIC_SEO_INDEXABLE=${NEXT_PUBLIC_SEO_INDEXABLE:-true}" \
   -t karzar-shop:staging \
   "$SHOP_DIR"
 

@@ -13,6 +13,7 @@ import { parseIdList, useCatalogParams } from "@/components/catalog/use-catalog-
 import { useBrands, useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
+import { isPlpLcpIndex } from "@/lib/cwv";
 import { formatNumber, toPersianDigits } from "@/lib/utils";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import type { ProductListParams, ProductSummary } from "@/types/product";
@@ -361,8 +362,12 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
                   isFetching && page > 1 ? "opacity-80" : "opacity-100"
                 }`}
               >
-                {displayProducts.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                {displayProducts.map((p, i) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    priority={page === 1 && isPlpLcpIndex(i)}
+                  />
                 ))}
               </div>
               {hasMore && (

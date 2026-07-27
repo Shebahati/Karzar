@@ -1,0 +1,34 @@
+{
+  "milestones": [
+    {
+      "id": "M0",
+      "title": "PMO live",
+      "date": "2026-07-26",
+      "status": "in_progress"
+    },
+    {
+      "id": "M1",
+      "title": "Schema+hubs",
+      "date": "2026-08-09",
+      "status": "todo"
+    },
+    {
+      "id": "M2",
+      "title": "12 articles + CWV mid",
+      "date": "2026-08-30",
+      "status": "todo"
+    },
+    {
+      "id": "M3",
+      "title": "24 articles",
+      "date": "2026-09-13",
+      "status": "todo"
+    },
+    {
+      "id": "M4",
+      "title": "31 Shahrivar freeze",
+      "date": "2026-09-22",
+      "status": "todo"
+    }
+  ]
+}

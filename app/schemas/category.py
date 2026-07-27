@@ -21,7 +21,7 @@ class CategoryFlatResponse(CategoryResponse):
     is_leaf: bool
     is_selectable: bool = Field(
         ...,
-        description="True only when depth==3 and the category is a leaf node",
+        description="True when the category is a leaf at depth 2 or 3 (not an L1 root)",
     )
     breadcrumb: list[str] = Field(default_factory=list)
     ancestor_ids: list[int] = Field(default_factory=list)
@@ -31,6 +31,9 @@ class CategoryFlatResponse(CategoryResponse):
     meta_title: str | None = None
     meta_description: str | None = None
     spec_template_key: str | None = None
+    megamenu_hidden: bool = False
+    megamenu_as_leaf: bool = False
+    megamenu_bold: bool | None = None
 
 
 class CategoryListResponse(BaseModel):
@@ -43,6 +46,9 @@ class CategoryTreeResponse(CategoryResponse):
     icon: str | None = Field(None, description="react-iconly icon name (roots only)")
     image_url: str | None = Field(None, description="Category card image URL")
     product_count: int | None = Field(None, ge=0)
+    megamenu_hidden: bool = False
+    megamenu_as_leaf: bool = False
+    megamenu_bold: bool | None = None
     subcategories: list["CategoryTreeResponse"] = []
 
 
@@ -97,6 +103,9 @@ class CategoryCreate(BaseModel):
     meta_title: str | None = Field(None, max_length=255)
     meta_description: str | None = Field(None, max_length=500)
     spec_template_key: str | None = Field(None, max_length=50)
+    megamenu_hidden: bool = False
+    megamenu_as_leaf: bool = False
+    megamenu_bold: bool | None = None
 
 
 class CategoryUpdate(BaseModel):
@@ -108,6 +117,10 @@ class CategoryUpdate(BaseModel):
     meta_title: str | None = Field(None, max_length=255)
     meta_description: str | None = Field(None, max_length=500)
     spec_template_key: str | None = Field(None, max_length=50)
+    megamenu_hidden: bool | None = None
+    megamenu_as_leaf: bool | None = None
+    megamenu_bold: bool | None = None
+    unset_megamenu_bold: bool = False
 
 
 class CategoryImageUploadResponse(BaseModel):

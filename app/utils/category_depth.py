@@ -5,8 +5,11 @@ from typing import TypedDict
 
 from app.db.models.product import Category
 
-# Business rule: products may only attach to depth-3 leaf categories.
+# Tree may be at most 3 layers. Products attach to leaf categories at depth 2 or 3
+# (not L1 roots). Some merchandising branches (e.g. metrology after L2→L1 promote)
+# are intentionally only two layers deep.
 MAX_CATEGORY_DEPTH = 3
+MIN_PRODUCT_CATEGORY_DEPTH = 2
 
 
 class CategoryMeta(TypedDict):
@@ -46,5 +49,8 @@ def build_category_metadata(categories: list[Category]) -> dict[int, CategoryMet
 
 
 def is_selectable_product_category(meta: CategoryMeta) -> bool:
-    """Only strict 3rd-layer leaf categories may carry products (storefront contract)."""
-    return meta["is_leaf"] and meta["depth"] == 3
+    """Leaf categories at depth 2 or 3 may carry products (not L1 roots)."""
+    return (
+        meta["is_leaf"]
+        and MIN_PRODUCT_CATEGORY_DEPTH <= meta["depth"] <= MAX_CATEGORY_DEPTH
+    )

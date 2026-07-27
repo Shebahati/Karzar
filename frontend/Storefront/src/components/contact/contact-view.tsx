@@ -3,31 +3,40 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Call, Location, Message, Send, TickSquare } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Field, fieldInputClass, fieldTextareaClass } from "@/components/ui/field";
 import { contactSchema, type ContactValues } from "@/lib/validation";
 import { useSubmitContact } from "@/features/checkout/queries";
+import {
+  STORE_ADDRESS_FA,
+  STORE_EMAIL,
+  STORE_MAPS_EMBED_URL,
+  STORE_MAPS_URL,
+  STORE_PHONE_DISPLAY,
+  STORE_PHONE_E164,
+} from "@/lib/store-location";
 
 const DETAILS = [
   {
     Icon: Message,
     label: "ایمیل پشتیبانی",
-    value: "info@karzartools.com",
-    href: "mailto:info@karzartools.com",
+    value: STORE_EMAIL,
+    href: `mailto:${STORE_EMAIL}`,
   },
   {
     Icon: Call,
     label: "تماس تلفنی",
-    value: "09912480087",
-    href: "tel:+989912480087",
+    value: STORE_PHONE_DISPLAY,
+    href: `tel:${STORE_PHONE_E164}`,
   },
   {
     Icon: Location,
     label: "نشانی",
-    value: "تهران، امام خمینی، بین زندنژاد و مریخ، پاساژ فجر، پلاک ۱۰۸",
-    href: "https://maps.google.com/?q=%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D8%8C%20%D8%A7%D9%85%D8%A7%D9%85%20%D8%AE%D9%85%DB%8C%D9%86%DB%8C%D8%8C%20%D9%BE%D8%A7%D8%B3%D8%A7%DA%98%20%D9%81%D8%AC%D8%B1%20%D9%BE%D9%84%D8%A7%DA%A9%20108",
+    value: STORE_ADDRESS_FA,
+    href: STORE_MAPS_URL,
   },
 ];
 
@@ -135,7 +144,7 @@ export function ContactView() {
             transition={{ duration: 0.45 }}
             className="space-y-4"
           >
-            <div className="grid gap-3">
+            <div id="store-address" className="grid gap-3 scroll-mt-24">
               {DETAILS.map(({ Icon, label, value, href }) => (
                 <a
                   key={label}
@@ -156,14 +165,23 @@ export function ContactView() {
             </div>
 
             <div className="overflow-hidden rounded-2xl shadow-card">
-              <iframe
+              <Image
                 title="موقعیت فروشگاه کارزار"
-                src="https://www.google.com/maps?q=%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D8%8C+%D8%A7%D9%85%D8%A7%D9%85+%D8%AE%D9%85%DB%8C%D9%86%DB%8C%D8%8C+%D9%BE%D8%A7%D8%B3%D8%A7%DA%98+%D9%81%D8%AC%D8%B1+%D9%BE%D9%84%D8%A7%DA%A9+108&z=17&output=embed"
-                className="h-64 w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                src={STORE_MAPS_EMBED_URL}
+                alt="نمای محل فروشگاه کارزار"
+                width={1200}
+                height={600}
+                className="h-64 w-full object-cover"
               />
             </div>
+            <p className="text-center text-xs text-muted-foreground">
+              <a
+                href={STORE_MAPS_URL}
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                مشاهده جزئیات نشانی
+              </a>
+            </p>
           </motion.div>
         </div>
       </Container>

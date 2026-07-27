@@ -1,15 +1,15 @@
 import type { BlogPost } from "@/types/content";
 
 const COVER =
-  "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1600&q=80";
+  "/images/placeholders/karzar-editorial.svg";
 const IMG_PARTS =
-  "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=1200&q=80";
+  "/images/placeholders/karzar-editorial.svg";
 const IMG_PRESSURE =
-  "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1200&q=80";
+  "/images/placeholders/karzar-editorial.svg";
 const IMG_READING =
-  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80";
+  "/images/placeholders/karzar-editorial.svg";
 const IMG_ANGLE =
-  "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=1200&q=80";
+  "/images/placeholders/karzar-editorial.svg";
 
 /** SEO pillar article: خواندن کولیس ورنیه */
 export const VERNIER_CALIPER_ARTICLE: Omit<BlogPost, "id"> & { id?: number } = {

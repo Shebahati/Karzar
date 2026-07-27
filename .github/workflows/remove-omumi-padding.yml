@@ -1,0 +1,34 @@
+# Runs on karzar-vps against the live compose stack.
+# Uses the script already synced by Deploy Staging (no actions/checkout —
+# checkout hangs on this runner).
+name: Remove Omumi Padding Leaves
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run or apply"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - apply
+
+jobs:
+  remove-omumi:
+    runs-on: [self-hosted, karzar-vps]
+    steps:
+      - name: Run remove_omumi_padding_leaves (via-db) from deploy tree
+        working-directory: /opt/karzar/Karzar
+        run: |
+          set -euo pipefail
+          test -f scripts/remove_omumi_padding_leaves.py
+          MODE="${{ inputs.mode }}"
+          if [ "$MODE" = "apply" ]; then
+            docker compose exec -T app \
+              python scripts/remove_omumi_padding_leaves.py --via-db --apply --confirm
+          else
+            docker compose exec -T app \
+              python scripts/remove_omumi_padding_leaves.py --via-db
+          fi

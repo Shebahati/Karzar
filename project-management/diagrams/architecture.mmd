@@ -1,0 +1,26 @@
+flowchart TB
+  subgraph Clients
+    SF[Storefront Next]
+    AD[Admin Next]
+  end
+  subgraph API
+    BE[FastAPI]
+  end
+  subgraph Data
+    PG[(Postgres)]
+    RD[(Redis)]
+    UP[Uploads]
+  end
+  subgraph External
+    HF[Hesabfa]
+    ZP[Zarinpal]
+    SMS[SMS]
+  end
+  SF --> BE
+  AD --> BE
+  BE --> PG
+  BE --> RD
+  BE --> UP
+  BE --> HF
+  BE --> ZP
+  BE --> SMS

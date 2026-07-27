@@ -20,12 +20,18 @@ export interface CategoryFlat extends Category {
   meta_title?: string | null;
   meta_description?: string | null;
   spec_template_key?: string | null;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
 }
 
 export interface CategoryTreeNode extends Category {
   icon?: string;
   image_url?: string | null;
   product_count?: number;
+  megamenu_hidden?: boolean;
+  megamenu_as_leaf?: boolean;
+  megamenu_bold?: boolean | null;
   subcategories: CategoryTreeNode[];
 }
 

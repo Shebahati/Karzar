@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ChevronLeft, Document, Swap } from "react-iconly";
+import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,9 +10,14 @@ import { ProductGallery } from "@/components/product/product-gallery";
 import { TwoLaneActions } from "@/components/product/two-lane-actions";
 import { MobileStickyBuyBar } from "@/components/product/mobile-sticky-buy-bar";
 import { ProductSpecTabs } from "@/components/product/product-spec-tabs";
+import { ProductTrustStrip } from "@/components/product/product-trust-strip";
 import { SectionHeading } from "@/components/home/section-heading";
 import { useFlatCategories, useProduct } from "@/features/catalog/queries";
 import { categoryHref } from "@/config/nav-groups";
+import {
+  filterEditorialDescription,
+  hasRenderableSpecs,
+} from "@/lib/pdp-description";
 import { formatToman } from "@/lib/utils";
 
 const ProductComments = dynamic(
@@ -64,6 +69,16 @@ export function ProductDetailView({ id }: { id: number }) {
       ? crumbs.map((c) => c.name)
       : (product.category?.breadcrumb ?? []);
 
+  const showSpecSection =
+    hasRenderableSpecs(product.specifications) ||
+    Boolean(
+      filterEditorialDescription(
+        product.description,
+        product.specifications,
+        product.short_description,
+      ),
+    );
+
   return (
     <Container className="pt-6 pb-24 lg:py-10">
       <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
@@ -111,7 +126,9 @@ export function ProductDetailView({ id }: { id: number }) {
           </h1>
 
           {product.short_description ? (
-            <p className="mt-3 text-sm leading-8 text-foreground/90">{product.short_description}</p>
+            <p className="mt-3 text-sm leading-8 text-foreground/90">
+              {product.short_description}
+            </p>
           ) : null}
 
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
@@ -119,13 +136,6 @@ export function ProductDetailView({ id }: { id: number }) {
               کد کالا: {product.sku}
             </span>
             <StockBadge status={product.stock_status} available={product.availability} />
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {product.warranty_text && (
-              <Chip icon={<Document size="small" set="bold" />}>{product.warranty_text}</Chip>
-            )}
-            <Chip icon={<Swap size="small" set="bold" />}>۷ روز ضمانت بازگشت</Chip>
           </div>
 
           <div className="mt-6 rounded-2xl bg-secondary/60 p-5">
@@ -155,16 +165,29 @@ export function ProductDetailView({ id }: { id: number }) {
             </div>
             <TwoLaneActions product={product} />
           </div>
+
+          <ProductTrustStrip
+            className="mt-5"
+            warrantyText={product.warranty_text}
+            isOriginal={product.is_original}
+          />
         </div>
       </div>
 
-      <section className="mt-12">
-        <SectionHeading title="مشخصات محصول" />
-        <ProductSpecTabs
-          specifications={product.specifications}
-          description={product.description}
-        />
-      </section>
+      {showSpecSection ? (
+        <section className="mt-12" aria-labelledby="pdp-specs-heading">
+          <SectionHeading
+            id="pdp-specs-heading"
+            title="مشخصات فنی"
+            subtitle="جدول مشخصات منبع اصلی است؛ توضیحات تحریریه جداگانه نمایش داده می‌شود"
+          />
+          <ProductSpecTabs
+            specifications={product.specifications}
+            description={product.description}
+            shortDescription={product.short_description}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-12">
         <SectionHeading title="دیدگاه کاربران" />
@@ -185,15 +208,6 @@ function StockBadge({ status, available }: { status: string; available: boolean 
   return <Badge variant={available ? "success" : "muted"}>{status}</Badge>;
 }
 
-function Chip({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-xl bg-card px-3 py-2 text-xs font-bold text-foreground shadow-soft">
-      <span className="text-primary">{icon}</span>
-      {children}
-    </span>
-  );
-}
-
 function DetailSkeleton() {
   return (
     <Container className="py-10">
@@ -204,6 +218,7 @@ function DetailSkeleton() {
           <Skeleton className="h-8 w-3/4" />
           <Skeleton className="h-5 w-1/2" />
           <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-24 w-full rounded-2xl" />
         </div>
       </div>
     </Container>

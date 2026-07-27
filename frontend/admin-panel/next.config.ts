@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { securityHeaders } from "./src/lib/security-headers";
 
 type RemotePattern = {
   protocol: "http" | "https";
@@ -56,14 +57,6 @@ function imageRemotePatterns(): RemotePattern[] {
 
   return patterns;
 }
-
-/** Non-CSP headers — CSP (with nonce) is set in middleware.ts */
-const securityHeaders = [
-  { key: "X-Frame-Options", value: "DENY" },
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-];
 
 const nextConfig: NextConfig = {
   output: "standalone",
