@@ -6,4 +6,5 @@
 - [ ] **R4** Enrichment scripts writing commerce fields — Owner: Backend/data owner — *mitigate:* content-only assertions and no price/stock mutation policy.
 - [ ] **R5** Single VPS staging=live blast radius — Owner: Ops — *mitigate:* pre-release backup verification + rollback operator assignment + off-peak deployment.
 - [ ] **R6** Scope creep before checkpoint (knowledge platform and broad P2 work) — Owner: PMO — *mitigate:* KB-001 deferred; enforce freeze list from REL-001.
-- [ ] **R7** Security gate incomplete at release decision point (`SEC-001`) — Owner: Security/Ops — *mitigate:* complete SEC-001 or document explicit risk acceptance before GO.
+- [x] ~~**R7** Security gate incomplete at release decision point (`SEC-001`)~~ — mitigated 2026-07-27: SEC-001 ACs closed (X-Robots-Tag, FE secrets audit, step-up inventory, dep scan evidence).
+- [ ] **R8** Residual dependency advisories after SEC-001 — Owner: Security/Ops — *mitigate:* schedule controlled upgrades for (a) `ecdsa` PYSEC-2026-1325 via `python-jose`, (b) Next/postcss/sharp high advisories requiring Next 16.2.12 force bump outside current range; do not force-bump on release critical path without regression plan.

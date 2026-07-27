@@ -20,3 +20,4 @@ Move completed task IDs here with date + PR.
 - [x] PERF-001 Core Web Vitals home+PDP+PLP — 2026-07-27 — #99 → `main` @d169831 (staging deployed)
 - [x] SEO-003 Publish 24 buyer-intent articles — 2026-07-27 — #102 → `main` @aa159b0; publish #103/#104; Deploy Staging (30255672560)
 - [x] REL-001 Release readiness for 31 Shahrivar checkpoint — 2026-07-27 — PMO release gates/scope freeze/rollback/monitoring pack completed (this PR)
+- [x] SEC-001 Security hygiene pass for go-live bar — 2026-07-27 — admin X-Robots-Tag + secrets audit + step-up inventory + Pillow 12.3.0 (this PR; merge SHA pending)

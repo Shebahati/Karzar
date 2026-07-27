@@ -432,8 +432,8 @@
       "dod": [
         "SECURITY_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 50,
+      "status": "done",
+      "progress": 100,
       "sprint": "03",
       "week": 5,
       "day": 1,
@@ -442,7 +442,7 @@
         "security"
       ],
       "risk": "med",
-      "notes": ""
+      "notes": "Admin X-Robots-Tag + metadata robots noindex; secrets hygiene script green (no FE key material); step-up PIN on destructive admin surfaces (products/orders/CMS/customers/brands/categories); Pillow==12.3.0; residual: ecdsa PYSEC-2026-1325 via python-jose; Next/postcss/sharp high advisories deferred (force Next 16.2.12 out of range). Evidence: scripts/security_hygiene_check.sh + admin security-headers vitest."
     },
     {
       "id": "BE-001",

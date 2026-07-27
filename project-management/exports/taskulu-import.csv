@@ -10,7 +10,7 @@ CAT-003,Category image coverage for all L1+key L2,todo,P1,10,Ensure every homepa
 UX-001,PLP filter + hub IA polish,todo,P1,20,"Improve category PLP filters, empty states, mobile sheet clarity.",01,ux
 UX-002,PDP trust + specs presentation,done,P0,16,Clarify short vs long description; specs SoT; no duplicate bullets.,01,"ux,pdp"
 PERF-001,Core Web Vitals pass on home+PDP+PLP,done,P0,24,LCP/INP/CLS budgets; image priority; font subsetting.,02,"perf,cwv"
-SEC-001,Security hygiene pass for go-live bar,todo,P1,12,"Admin noindex, step-up coverage, dependency scan, secrets audit.",03,security
+SEC-001,Security hygiene pass for go-live bar,done,P1,12,"Admin noindex, step-up coverage, dependency scan, secrets audit.",03,security
 BE-001,Catalog API readiness for SEO fields,todo,P1,10,"Ensure short_description, meta, specs exposed consistently to storefront.",00,"backend,seo"
 FE-001,Design system tokens + homepage consistency,in_progress,P2,12,Align home sections after hero/categories/why-karzar polish.,01,design
 KB-001,Knowledge platform phase-1 content graph seed,todo,P2,30,Link articles↔products↔categories; avoid second taxonomy.,04,knowledge

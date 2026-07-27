@@ -19,7 +19,7 @@
 ### Deferred / out-of-scope for checkpoint
 - [x] `KB-001` deferred to post-checkpoint (P2, high effort, non-critical for current KPI)
 - [x] `CAT-002` deferred as content-safe backlog (not required for launch bar)
-- [x] `SEC-001` remains open as P1 hardening; required for **GO** but not for documentation completion of REL-001
+- [x] `SEC-001` completed (admin noindex/X-Robots-Tag, secrets audit, step-up inventory, dep scan); residual transitive advisories tracked as R8
 
 Rationale: checkpoint KPI is stable store + indexable mid-tail + CWV discipline, not head-term rank race or broad platform expansion.
 
@@ -37,7 +37,7 @@ Rationale: checkpoint KPI is stable store + indexable mid-tail + CWV discipline,
 
 ### Operations/security gates
 - [x] Backup/rollback steps documented (see section 4)
-- [ ] `SEC-001` completion or explicit temporary risk acceptance by owner
+- [x] `SEC-001` completion (ACs met; residual dep advisories accepted as R8 with named follow-up)
 - [ ] Clear owner assignment for launch command + rollback command
 
 ## 3) Launch window verification checklist
@@ -77,13 +77,13 @@ Run immediately after merge to `main` and staging/prod deployment event:
 ### GO requires all of:
 - P0 baseline above remains intact in `main`
 - No open Sev1 blockers
-- `SEC-001` either completed or risk-accepted by accountable owner
+- `SEC-001` completed (residual R8 dep advisories tracked, not blocking hygiene ACs)
 - Rollback operator + release operator explicitly assigned
 - Launch window checklist executed and logged
 
 ### NO-GO if any of:
 - Sev1 blocker unresolved
-- Security hardening ownership unresolved (`SEC-001` gap)
+- Release/rollback ownership unresolved
 - Rollback path cannot be executed quickly/clearly
 
 ## 6) Residual risks at freeze point

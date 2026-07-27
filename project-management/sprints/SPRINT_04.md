@@ -32,7 +32,7 @@
     - [x] Rollback noted
   - Definition of Done:
     - [x] RELEASE_PLAN signed
-  - Notes: Readiness documentation complete; GO remains conditional on SEC-001 closure or explicit risk acceptance with named owner.
+  - Notes: Readiness documentation complete; SEC-001 hygiene ACs closed; residual dep advisories as R8; GO still needs named release/rollback owners.
 
 ## Sprint exit checklist
 - [x] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md

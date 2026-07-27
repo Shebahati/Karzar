@@ -17,7 +17,7 @@ Make Karzar the **most trustworthy industrial tooling storefront in Persian sear
 - [ ] W1 Sprint 00 — PMO, triage PRs, images, FE selectable drift
 - [ ] W2–3 Sprint 01 — Schema + hubs + PDP UX
 - [ ] W3–5 Sprint 02 — Articles batch 1–12 + CWV
-- [ ] W5–6 Sprint 03 — Articles 13–24 + security hygiene
+- [x] W5–6 Sprint 03 — Articles 13–24 + security hygiene
 - [ ] W7–8 Sprint 04 — Knowledge defer decision + REL-001 freeze
 
 ## Explicit non-goals before checkpoint
