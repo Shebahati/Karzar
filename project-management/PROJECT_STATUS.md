@@ -1,7 +1,7 @@
 # Project Status
 
 **Updated:** 2026-07-27  
-**Weighted progress:** 52%  
+**Weighted progress:** 69%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -18,15 +18,16 @@
 - [x] SEO-004 Technical crawl hygiene (#94 → main @a119b38, staging deployed)
 - [x] UX-002 PDP trust + specs presentation (#96 → main @e8ea7bf, staging deployed)
 - [x] PERF-001 Core Web Vitals foundations home+PDP+PLP (#99 → main @d169831, staging deployed)
+- [x] SEO-003 24 buyer-intent articles (#102 → main @aa159b0; publish #103/#104; staging deployed)
 - [x] FE-001 (partial) Floating transparent hero header (#93 → main @53f0100)
-- [ ] 24 mid-tail articles
+- [x] 24 mid-tail articles
 - [x] CWV budgets green (PERF-001 foundations; field p75 monitor ongoing)
 - [ ] 31 Shahrivar release freeze
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
-- [ ] SEO — see `SEO_PROGRESS.md` (001/002/004 done; 003 open)
-- [ ] Content — see `CONTENT_PROGRESS.md`
+- [x] SEO — see `SEO_PROGRESS.md` (001–004 done)
+- [x] Content — see `CONTENT_PROGRESS.md` (SEO-002/003 done)
 - [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 done; next: UX-001 or FE-001)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [ ] Security — see `SECURITY_PROGRESS.md`
@@ -34,7 +35,7 @@
 - [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
 
 ## Active sprint
-See `sprints/SPRINT_02.md` (PERF-001 done; SEO-003 next)
+See `sprints/SPRINT_02.md` (PERF-001 + SEO-003 done; next REL-001 path / remaining P1s)
 
 ## Blockers
 See `BLOCKERS.md`

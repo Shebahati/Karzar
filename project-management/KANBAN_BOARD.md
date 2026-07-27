@@ -6,22 +6,6 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
-  - Owner: unassigned | Week 4 Day 1 | Risk: high
-  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
-  - [x] Dependencies: SEO-002
-  - [ ] Files: content/blog/**, frontend/Storefront/**
-  - [ ] Modules: content, seo
-  - [ ] Tags: content, seo
-  - Acceptance Criteria:
-    - [ ] 24 published
-    - [ ] Each links ≥2 products
-    - [ ] FAQ schema where fit
-  - Definition of Done:
-    - [ ] CONTENT_CALENDAR checked
-    - [ ] Live
-  - Notes: Quality > volume; AI-assisted draft + human QA
-
 - [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
   - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
@@ -154,6 +138,21 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
+  - Owner: unassigned | Week 4 Day 1 | Risk: high
+  - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [x] Dependencies: SEO-002
+  - [x] Files: content/blog/**, frontend/Storefront/**
+  - [x] Modules: content, seo
+  - [x] Tags: content, seo
+  - Acceptance Criteria:
+    - [x] 24 published
+    - [x] Each links ≥2 products
+    - [x] FAQ schema where fit
+  - Definition of Done:
+    - [x] CONTENT_CALENDAR checked
+    - [x] Live
+  - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles live.
 - [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
   - [x] Description: LCP/INP/CLS budgets; image priority; font subsetting.

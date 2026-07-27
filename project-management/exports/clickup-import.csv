@@ -2,7 +2,7 @@ task_id,task_name,status,priority,time_estimate,description,tags,sprint,parent_i
 PMO-001,Bootstrap living PMO workspace,done,P0,480,"Create project-management SoT, exports, Cursor rule, printable boards.","pmo,meta",00,
 SEO-001,Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP,done,P0,960,"Complete structured data for products, offers, breadcrumbs, organization.","seo,schema",01,
 SEO-002,Category hub content + internal linking for mid-tail,done,P0,1440,Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.,"seo,content",01,
-SEO-003,Publish 24 buyer-intent articles (calendar),todo,P0,3600,"One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).","content,seo",02,
+SEO-003,Publish 24 buyer-intent articles (calendar),done,P0,3600,"One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).","content,seo",02,
 SEO-004,Technical SEO crawl hygiene,done,P0,720,"Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.","seo,tech",01,
 CAT-001,Close enrichment PR triage (Dasqua/Mitutoyo/etc.),todo,P1,480,Merge or close remaining enrichment PRs with content-only guarantees.,"catalog,ops",00,
 CAT-002,INSIZE JSON-schema content fill (staging apply),todo,P1,1200,Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.,"insize,content",02,

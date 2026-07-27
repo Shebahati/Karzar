@@ -1,6 +1,6 @@
 # SEO Progress
 
-**Rollup:** 49%
+**Rollup:** 100%
 
 - [x] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 1 | Risk: med
@@ -31,21 +31,21 @@
     - [x] CONTENT_PROGRESS updated
   - Notes: #91 → main @d92722a; Deploy Staging green; `content/hubs/intros.json` + CategoryHubIntro; verified `/categories/انواع-کولیس`.
 
-- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
+- [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
-  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
   - [x] Dependencies: SEO-002
-  - [ ] Files: content/blog/**, frontend/Storefront/**
-  - [ ] Modules: content, seo
-  - [ ] Tags: content, seo
+  - [x] Files: content/blog/**, frontend/Storefront/**
+  - [x] Modules: content, seo
+  - [x] Tags: content, seo
   - Acceptance Criteria:
-    - [ ] 24 published
-    - [ ] Each links ≥2 products
-    - [ ] FAQ schema where fit
+    - [x] 24 published
+    - [x] Each links ≥2 products
+    - [x] FAQ schema where fit
   - Definition of Done:
-    - [ ] CONTENT_CALENDAR checked
-    - [ ] Live
-  - Notes: Quality > volume; AI-assisted draft + human QA
+    - [x] CONTENT_CALENDAR checked
+    - [x] Live
+  - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); `content/blog/articles.json` + CMS upsert; verified sample `/blog/digital-caliper-workshop-accuracy`.
 - [x] **SEO-004** Technical SEO crawl hygiene — `done` 100% | P0 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 2 | Risk: low
   - [x] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
@@ -62,5 +62,6 @@
 
 ## Evidence log
 - [x] SEO-004 PR https://github.com/Shebahati/Karzar/pull/94 + staging robots/sitemap/facet noindex
+- [x] SEO-003 PR https://github.com/Shebahati/Karzar/pull/102 (+ #103/#104) + staging `/blog/digital-caliper-workshop-accuracy`
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 + staging hub `/categories/انواع-کولیس`
 - [x] SEO-001 #88 + staging /product/7115
