@@ -46,8 +46,8 @@ export function HomeView() {
   );
 
   return (
-    <div className="pb-section-y">
-      {/* Full-bleed hero — outside Container */}
+    <div className="pb-10 lg:pb-16">
+      {/* Full-bleed hero — outside Container; section rhythm lives in .home-stack */}
       <Hero />
 
       <Container className="home-stack">
