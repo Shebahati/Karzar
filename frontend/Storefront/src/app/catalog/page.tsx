@@ -6,13 +6,9 @@ import { CatalogView } from "@/components/catalog/catalog-view";
 import { Container } from "@/components/ui/container";
 import { ProductCardSkeleton } from "@/components/product/product-card";
 import { catalogKeys } from "@/features/catalog/keys";
+import { NOINDEX_FOLLOW, isFacetedSearchParams } from "@/lib/crawl-hygiene";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
-
-export const metadata: Metadata = {
-  title: "فروشگاه ابزار",
-  description: "مرور و فیلتر محصولات ابزار صنعتی و تراشکاری کارزار.",
-};
 
 const DEFAULT_PLP = { limit: 24, skip: 0 } as const;
 
@@ -21,6 +17,21 @@ type SearchParams = Record<string, string | string[] | undefined>;
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const faceted = isFacetedSearchParams(sp);
+  return {
+    title: "فروشگاه ابزار",
+    description: "مرور و فیلتر محصولات ابزار صنعتی و تراشکاری کارزار.",
+    alternates: { canonical: "/catalog" },
+    ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
+  };
 }
 
 /**

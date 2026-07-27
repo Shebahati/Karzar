@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { ArticleView } from "@/components/blog/article-view";
+import { getSiteUrl } from "@/lib/site-url";
 import { catalogService } from "@/services/catalog";
 import { extractArticleSeo } from "@/types/content";
 
 type Props = { params: Promise<{ slug: string }> };
 
-const SITE = "https://www.karzartools.com";
+const SITE = getSiteUrl();
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
