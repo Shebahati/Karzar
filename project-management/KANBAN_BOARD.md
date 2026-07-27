@@ -19,19 +19,6 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] SEO_PROGRESS note
   - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally
-- [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
-  - Owner: unassigned | Week 1 Day 3 | Risk: low
-  - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
-  - [ ] Modules: frontend, catalog
-  - [ ] Tags: ui, images
-  - Acceptance Criteria:
-    - [ ] 0 L1 without image
-    - [ ] Visual QA mobile
-  - Definition of Done:
-    - [ ] UI_PROGRESS
-  - Notes: Partial via #85
 - [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
   - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
@@ -100,6 +87,20 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **CAT-003** Category image coverage for all L1+key L2 — `done` 100% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 3 | Risk: low
+  - [x] Description: Ensure every homepage/megamenu root has full-bleed quality image.
+  - [x] Dependencies: —
+  - [x] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
+  - [x] Modules: frontend, catalog
+  - [x] Tags: ui, images
+  - Acceptance Criteria:
+    - [x] 0 L1 without image
+    - [x] Visual QA mobile
+  - Definition of Done:
+    - [x] UI_PROGRESS
+  - Notes: Helicoil L1 186–188 curated; prior L1 map via #85; seed script ready for API image_url on metrology+helicoil; key L2 optional.
+
 - [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low
   - [x] Description: Ensure short_description, meta, specs exposed consistently to storefront.

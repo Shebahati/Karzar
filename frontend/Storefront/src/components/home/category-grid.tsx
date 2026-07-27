@@ -14,53 +14,10 @@ import {
   orderedVisibleRoots,
 } from "@/config/nav-groups";
 import { CONTENT_IMAGE_QUALITY } from "@/lib/cwv";
+import { resolveCategoryImage } from "@/lib/category-images";
 import { cn, formatNumber } from "@/lib/utils";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import type { CategoryTreeNode } from "@/types/category";
-
-/** Curated local art — preferred over API packshots for homepage tiles. */
-const CURATED_BY_ID: Record<number, string> = {
-  1: "/images/categories/toolholding.jpg",
-  2: "/images/categories/insert-tools.jpg",
-  4: "/images/categories/endmills.jpg",
-  5: "/images/categories/drills.jpg",
-  6: "/images/categories/taps.jpg",
-  8: "/images/categories/workholding.jpg",
-  9: "/images/categories/machines.jpg",
-  56: "/images/categories/metrology-precision.jpg",
-  81: "/images/categories/metrology-cnc.jpg",
-  87: "/images/categories/metrology-lab.jpg",
-  154: "/images/categories/accessories.jpg",
-  165: "/images/categories/inserts.jpg",
-};
-
-const CURATED_BY_NAME: Record<string, string> = {
-  ابزارگیر: CURATED_BY_ID[1],
-  "ابزار اینسرتی": CURATED_BY_ID[2],
-  اینسرت: CURATED_BY_ID[165],
-  "ابزار انگشتی": CURATED_BY_ID[4],
-  مته: CURATED_BY_ID[5],
-  قلاویز: CURATED_BY_ID[6],
-  "ابزار گیرشی": CURATED_BY_ID[8],
-  "دستگاه‌های صنعتی": CURATED_BY_ID[9],
-  "دستگاه های صنعتی": CURATED_BY_ID[9],
-  "اندازه گیری دقیق": CURATED_BY_ID[56],
-  "اندازه‌گیری دقیق": CURATED_BY_ID[56],
-  "CNC اندازه گیری": CURATED_BY_ID[81],
-  "اندازه گیری آزمایشگاهی": CURATED_BY_ID[87],
-  "لوازم جانبی صنعتی": CURATED_BY_ID[154],
-};
-
-function normalizeName(name: string): string {
-  return name.trim().replace(/\u200c/g, "").replace(/ي/g, "ی").replace(/ك/g, "ک");
-}
-
-function resolveCategoryImage(node: CategoryTreeNode): string | null {
-  if (CURATED_BY_ID[node.id]) return CURATED_BY_ID[node.id];
-  const byName = CURATED_BY_NAME[normalizeName(node.name)];
-  if (byName) return byName;
-  return node.image_url ?? null;
-}
 
 function CategoryIcon({ name }: { name?: string }) {
   const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;

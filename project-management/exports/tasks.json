@@ -291,8 +291,8 @@
       "dod": [
         "UI_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 60,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 3,
@@ -302,7 +302,7 @@
         "images"
       ],
       "risk": "low",
-      "notes": "Partial via #85"
+      "notes": "2026-07-27: all 15 live L1 roots have curated FE images (added helicoil 186–188 assets); seed_category_images ROOT_IDS+Commons URLs updated for API image_url apply on VPS; vitest category-images; key L2 packshots remain optional follow-up (megamenu text-only)."
     },
     {
       "id": "UX-001",
