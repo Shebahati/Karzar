@@ -12,7 +12,7 @@ Move completed task IDs here with date + PR.
 - [x] Living PMO bootstrap (PMO-001) — 2026-07-26 — #86 → `main` (marked done 2026-07-27)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (PDP+PLP hubs) — 2026-07-26 — #88 → `main` @89a4cf5 (staging deployed)
 - [x] SEO-002 Category hub intros + internal links — 2026-07-26 — #91 → `main` @d92722a (staging deployed)
-- [x] FE-001 (partial) Floating transparent hero header — 2026-07-26 — #93 → `main` @53f0100 (staging deployed)
+- [x] FE-001 Design system tokens + homepage consistency — 2026-07-27 — this PR (tokens+home-stack; builds on #93 header)
 - [x] Taxonomy remove «عمومی» padding leaves — 2026-07-26 — #87 → `main`; staging apply 23 cats / 1970 products
 - [x] SEO-004 Technical crawl hygiene — 2026-07-27 — #94 → `main` @a119b38 (staging deployed)
 - [x] UX-002 PDP trust + specs presentation — 2026-07-27 — #96 → `main` @e8ea7bf (staging deployed)

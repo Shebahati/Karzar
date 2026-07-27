@@ -24,12 +24,12 @@ export function SectionHeading({
       <div>
         <div className="flex items-center gap-2.5">
           <span className="h-6 w-1.5 rounded-full bg-primary" aria-hidden />
-          <h2 id={id} className="text-lg font-bold text-foreground sm:text-2xl">
+          <h2 id={id} className="type-section text-foreground">
             {title}
           </h2>
         </div>
         {subtitle && (
-          <p className="mt-1.5 ps-4 text-xs leading-6 text-muted-foreground sm:text-sm">
+          <p className="type-lede mt-1.5 ps-4 text-muted-foreground">
             {subtitle}
           </p>
         )}

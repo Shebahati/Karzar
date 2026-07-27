@@ -51,6 +51,30 @@
     --ring: 358 72% 44%;
 
     --radius: 0.75rem;
+
+    /* FE-001 — shared homepage rhythm (spacing + type). Steel/red only — no purple. */
+    --space-section-y: 2rem;
+    --space-section-gap: 3rem;
+    --type-section: 1.125rem;
+    --type-section-lg: 1.5rem;
+    --type-lede: 0.75rem;
+    --type-lede-lg: 0.875rem;
+    --leading-lede: 1.5rem;
+    --leading-lede-lg: 1.75rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --space-section-y: 3rem;
+      --space-section-gap: 4rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --space-section-gap: 5rem;
+      --space-section-y: 4rem;
+    }
   }
 }
 
@@ -118,6 +142,37 @@
 
   .glass-strong {
     @apply bg-white/85 backdrop-blur-2xl backdrop-saturate-150;
+  }
+
+  /** Homepage section stack — uses FE-001 CSS variables. */
+  .home-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-section-gap);
+    padding-block: var(--space-section-y);
+  }
+
+  .type-section {
+    font-size: var(--type-section);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  @media (min-width: 640px) {
+    .type-section {
+      font-size: var(--type-section-lg);
+      line-height: 1.3;
+    }
+  }
+
+  .type-lede {
+    font-size: var(--type-lede);
+    line-height: var(--leading-lede);
+  }
+  @media (min-width: 640px) {
+    .type-lede {
+      font-size: var(--type-lede-lg);
+      line-height: var(--leading-lede-lg);
+    }
   }
 
   .no-scrollbar {
