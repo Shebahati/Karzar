@@ -1,0 +1,69 @@
+{
+  "api": "https://api.karzartools.com/api/v1",
+  "official_source": "https://www.dohrecnc.com",
+  "brand_id": 9,
+  "exported": 0,
+  "official_models_indexed": 0,
+  "match_counts": {},
+  "payloads": 0,
+  "apply": false,
+  "applied": 0,
+  "apply_errors": 0,
+  "commerce_policy": {
+    "forbidden_keys": [
+      "availability",
+      "base_price",
+      "discount",
+      "discount_percent",
+      "is_available",
+      "list_price",
+      "low_stock",
+      "original_price",
+      "price",
+      "sale_price",
+      "stock",
+      "stock_quantity",
+      "stock_status",
+      "stock_unit",
+      "tax_percent",
+      "weight_grams"
+    ],
+    "allowed_put_keys": [
+      "description",
+      "meta_description",
+      "meta_title",
+      "short_description",
+      "specifications"
+    ],
+    "price_writes": 0,
+    "stock_writes": 0,
+    "payload_commerce_violations": [],
+    "zero_price_writes_confirmed": true,
+    "apply_payload_keys_union": [],
+    "note": "No product PUT executed. Allowlist excludes all price/stock fields. Export sanitizer strips commerce keys from any future detail fetches."
+  },
+  "blocker": {
+    "code": "zero_skus",
+    "message": "Brand DOHRE | دوهره (id=9) exists on api.karzartools.com with product_count=0. Enrichment payloads cannot be applied until active SKUs are imported and linked to brand_id=9."
+  },
+  "paths": {
+    "site_export": "/home/moahmmad/Projects/Karzar/Website/backend-dohre-enrich/data/imports/dohre/official_catalog/site_export.jsonl",
+    "site_export_csv": "/home/moahmmad/Projects/Karzar/Website/backend-dohre-enrich/data/imports/dohre/official_catalog/site_export.csv",
+    "official_model_index": "/home/moahmmad/Projects/Karzar/Website/backend-dohre-enrich/data/imports/dohre/official_catalog/official_model_index.jsonl",
+    "match_report": "/home/moahmmad/Projects/Karzar/Website/backend-dohre-enrich/data/imports/dohre/official_catalog/match_report.csv",
+    "dry_run_payloads": "/home/moahmmad/Projects/Karzar/Website/backend-dohre-enrich/data/imports/dohre/official_catalog/dry_run_payloads.jsonl"
+  },
+  "official_crawl": {
+    "html_pages_indexed": 45,
+    "series_pages": 22,
+    "pdf_links_discovered": 3,
+    "pdf_urls": [
+      "https://www.dohrecnc.com/uploads/file/68b4f782e3dcf.pdf",
+      "https://www.dohrecnc.com/uploads/file/68b4f93bb995d.pdf",
+      "https://www.dohrecnc.com/uploads/file/68b4f9a3229b7.pdf"
+    ],
+    "pdfs_downloaded": 0,
+    "pdf_download_note": "Official PDF hosts reset/timeout during crawl; URLs retained for resume.",
+    "unique_model_tokens": 0
+  }
+}
