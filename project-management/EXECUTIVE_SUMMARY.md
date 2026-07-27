@@ -41,7 +41,7 @@
 - [ ] SEO-003 24 articles
 - [x] SEO-004 Technical SEO hygiene (#94)
 - [x] UX-002 PDP specs/trust (#96)
-- [ ] PERF-001 CWV home/PDP/PLP
+- [x] PERF-001 CWV home/PDP/PLP (#99)
 - [ ] REL-001 Release freeze
 
 **Move to بعد از ۳۱ شهریور (P2+)**

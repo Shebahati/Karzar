@@ -1,6 +1,6 @@
 # Frontend Progress
 
-**Rollup:** 39%
+**Rollup:** 55%
 
 - [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
@@ -27,18 +27,19 @@
   - Definition of Done:
     - [x] UX_PROGRESS
   - Notes: #96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip.
-- [ ] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `todo` 25% | P0 | 24h | Sprint 02
+- [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
-  - [ ] Description: LCP/INP/CLS budgets; image priority; font subsetting.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/**
-  - [ ] Modules: frontend, perf
-  - [ ] Tags: perf, cwv
+  - [x] Description: LCP/INP/CLS budgets; image priority; font subsetting.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/**
+  - [x] Modules: frontend, perf
+  - [x] Tags: perf, cwv
   - Acceptance Criteria:
-    - [ ] LCP≤2.5s mobile field or lab p75
-    - [ ] CLS≤0.1
+    - [x] LCP≤2.5s mobile field or lab p75
+    - [x] CLS≤0.1
   - Definition of Done:
-    - [ ] CORE_WEB_VITALS_PROGRESS
+    - [x] CORE_WEB_VITALS_PROGRESS
+  - Notes: #99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP; vitest cwv.
 - [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
   - [ ] Description: Align home sections after hero/categories/why-karzar polish.
@@ -54,4 +55,5 @@
   - Notes: #85 why-karzar/categories
 
 ## Evidence log
+- [x] PERF-001 PR https://github.com/Shebahati/Karzar/pull/99 → main @d169831; Deploy Staging green (30251144532)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

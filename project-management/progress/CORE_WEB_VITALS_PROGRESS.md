@@ -1,19 +1,21 @@
 # Core Web Vitals Progress
 
-**Rollup:** 25%
+**Rollup:** 100%
 
-- [ ] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `todo` 25% | P0 | 24h | Sprint 02
+- [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
-  - [ ] Description: LCP/INP/CLS budgets; image priority; font subsetting.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/**
-  - [ ] Modules: frontend, perf
-  - [ ] Tags: perf, cwv
+  - [x] Description: LCP/INP/CLS budgets; image priority; font subsetting.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/**
+  - [x] Modules: frontend, perf
+  - [x] Tags: perf, cwv
   - Acceptance Criteria:
-    - [ ] LCP≤2.5s mobile field or lab p75
-    - [ ] CLS≤0.1
+    - [x] LCP≤2.5s mobile field or lab p75
+    - [x] CLS≤0.1
   - Definition of Done:
-    - [ ] CORE_WEB_VITALS_PROGRESS
+    - [x] CORE_WEB_VITALS_PROGRESS
+  - Notes: #99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP; vitest cwv.
 
 ## Evidence log
-- [ ] Add links to PRs / GSC / Lighthouse here as you go
+- [x] PERF-001 PR https://github.com/Shebahati/Karzar/pull/99 → main @d169831; Deploy Staging green (30251144532)
+- [ ] Field p75 / GSC CWV monitor ongoing after foundations land
