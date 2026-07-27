@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **SEO-001 follow-up** Store LocalBusiness geo + official Google Maps place on contact/footer/JSON-LD — (PR pending)
 - [x] **PERF-001** Core Web Vitals foundations (fonts/LCP/image pipeline) — #99 → `main` @d169831; Deploy Staging green (30251144532)
 - [x] **UX-002** PDP trust strip + specs SoT presentation — #96 → `main` @e8ea7bf; Deploy Staging green; verified `/product/2000` (trust+RTL specs) + `/product/7115` (trust+JSON-LD)
 - [x] **OPS-001** Measurement promote workflow marked done in PMO — #81 → `main` @e1981b6 (merged 2026-07-26; Kanban sync)

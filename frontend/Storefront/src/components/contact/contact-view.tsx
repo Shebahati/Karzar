@@ -9,25 +9,33 @@ import { Button } from "@/components/ui/button";
 import { Field, fieldInputClass, fieldTextareaClass } from "@/components/ui/field";
 import { contactSchema, type ContactValues } from "@/lib/validation";
 import { useSubmitContact } from "@/features/checkout/queries";
+import {
+  STORE_ADDRESS_FA,
+  STORE_EMAIL,
+  STORE_MAPS_EMBED_URL,
+  STORE_MAPS_URL,
+  STORE_PHONE_DISPLAY,
+  STORE_PHONE_E164,
+} from "@/lib/store-location";
 
 const DETAILS = [
   {
     Icon: Message,
     label: "ایمیل پشتیبانی",
-    value: "info@karzartools.com",
-    href: "mailto:info@karzartools.com",
+    value: STORE_EMAIL,
+    href: `mailto:${STORE_EMAIL}`,
   },
   {
     Icon: Call,
     label: "تماس تلفنی",
-    value: "09912480087",
-    href: "tel:+989912480087",
+    value: STORE_PHONE_DISPLAY,
+    href: `tel:${STORE_PHONE_E164}`,
   },
   {
     Icon: Location,
     label: "نشانی",
-    value: "تهران، امام خمینی، بین زندنژاد و مریخ، پاساژ فجر، پلاک ۱۰۸",
-    href: "https://maps.google.com/?q=%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D8%8C%20%D8%A7%D9%85%D8%A7%D9%85%20%D8%AE%D9%85%DB%8C%D9%86%DB%8C%D8%8C%20%D9%BE%D8%A7%D8%B3%D8%A7%DA%98%20%D9%81%D8%AC%D8%B1%20%D9%BE%D9%84%D8%A7%DA%A9%20108",
+    value: STORE_ADDRESS_FA,
+    href: STORE_MAPS_URL,
   },
 ];
 
@@ -140,6 +148,9 @@ export function ContactView() {
                 <a
                   key={label}
                   href={href}
+                  {...(href.startsWith("http")
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-soft transition-shadow hover:shadow-card"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent text-primary">
@@ -157,13 +168,24 @@ export function ContactView() {
 
             <div className="overflow-hidden rounded-2xl shadow-card">
               <iframe
-                title="موقعیت فروشگاه کارزار"
-                src="https://www.google.com/maps?q=%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D8%8C+%D8%A7%D9%85%D8%A7%D9%85+%D8%AE%D9%85%DB%8C%D9%86%DB%8C%D8%8C+%D9%BE%D8%A7%D8%B3%D8%A7%DA%98+%D9%81%D8%AC%D8%B1+%D9%BE%D9%84%D8%A7%DA%A9+108&z=17&output=embed"
+                title="موقعیت فروشگاه کارزار روی نقشه گوگل"
+                src={STORE_MAPS_EMBED_URL}
                 className="h-64 w-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
               />
             </div>
+            <p className="text-center text-xs text-muted-foreground">
+              <a
+                href={STORE_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                مشاهده در Google Maps
+              </a>
+            </p>
           </motion.div>
         </div>
       </Container>

@@ -10,12 +10,22 @@
 
 import { resolveJsonLdDescription } from "@/lib/product-seo";
 import { getSiteUrl } from "@/lib/site-url";
+import {
+  STORE_ADDRESS_COUNTRY,
+  STORE_ADDRESS_FA,
+  STORE_ADDRESS_LOCALITY,
+  STORE_EMAIL,
+  STORE_GEO,
+  STORE_MAPS_URL,
+  STORE_NAME_FA,
+  STORE_PHONE_E164,
+} from "@/lib/store-location";
 import type { CategoryFlat } from "@/types/category";
 import type { ProductDetail, ProductImage, ProductSummary } from "@/types/product";
 
 /** Re-export for tests / consumers; resolved once at module load (build-time NEXT_PUBLIC_*). */
 export const SITE_URL = getSiteUrl();
-export const ORG_NAME = "کارزار";
+export const ORG_NAME = STORE_NAME_FA;
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 
@@ -52,13 +62,31 @@ export function categoryPageUrl(slug: string): string {
   return `${SITE_URL}/categories/${slug}`;
 }
 
+/**
+ * Sitewide org node: Organization + LocalBusiness (same @id) with geo / address / hasMap.
+ * Telephone + email mirror contact/footer; openingHours omitted (not published elsewhere).
+ */
 export function buildOrganizationNode(): JsonLdNode {
   return {
-    "@type": "Organization",
+    "@type": ["Organization", "LocalBusiness"],
     "@id": ORG_ID,
     name: ORG_NAME,
     url: SITE_URL,
     logo: `${SITE_URL}/icon.svg`,
+    email: STORE_EMAIL,
+    telephone: STORE_PHONE_E164,
+    hasMap: STORE_MAPS_URL,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: STORE_ADDRESS_FA,
+      addressLocality: STORE_ADDRESS_LOCALITY,
+      addressCountry: STORE_ADDRESS_COUNTRY,
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: STORE_GEO.latitude,
+      longitude: STORE_GEO.longitude,
+    },
   };
 }
 

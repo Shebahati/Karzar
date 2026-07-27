@@ -30,4 +30,5 @@
 
 ## Evidence log
 - [x] UX-002 PR https://github.com/Shebahati/Karzar/pull/96 → main @e8ea7bf; Deploy Staging green; verified /product/2000 (trust+specs) + /product/7115 (trust+JSON-LD)
+- [ ] Contact/footer official Google Maps place (KarZar Tools) — PR pending; address SoT unchanged (پاساژ فجر ۱۰۸)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

@@ -138,10 +138,31 @@ describe("buildProductPageJsonLd", () => {
 });
 
 describe("buildSitewideJsonLd", () => {
-  it("emits Organization + WebSite with SearchAction", () => {
+  it("emits Organization+LocalBusiness + WebSite with SearchAction", () => {
     const doc = buildSitewideJsonLd();
     const graph = doc["@graph"] as Record<string, unknown>[];
-    expect(graph.map((n) => n["@type"])).toEqual(["Organization", "WebSite"]);
+    expect(graph.map((n) => n["@type"])).toEqual([
+      ["Organization", "LocalBusiness"],
+      "WebSite",
+    ]);
+    const org = graph[0];
+    expect(org).toMatchObject({
+      hasMap: expect.stringContaining("google.com/maps/place/KarZar+Tools"),
+      telephone: "+989912480087",
+      email: "info@karzartools.com",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "تهران",
+        addressCountry: "IR",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 35.6873,
+        longitude: 51.40428,
+      },
+    });
+    expect(org).not.toHaveProperty("openingHours");
+    expect(org).not.toHaveProperty("openingHoursSpecification");
     const website = graph[1];
     expect(website.potentialAction).toMatchObject({
       "@type": "SearchAction",
