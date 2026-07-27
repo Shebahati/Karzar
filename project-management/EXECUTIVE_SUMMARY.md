@@ -38,7 +38,7 @@
 **Keep (P0) to 31 Shahrivar**
 - [x] SEO-001 Schema Product/Offer/Breadcrumb (#88)
 - [x] SEO-002 Hub intros + internal links (#91)
-- [ ] SEO-003 24 articles
+- [x] SEO-003 24 articles (#102 + staging)
 - [x] SEO-004 Technical SEO hygiene (#94)
 - [x] UX-002 PDP specs/trust (#96)
 - [x] PERF-001 CWV home/PDP/PLP (#99)

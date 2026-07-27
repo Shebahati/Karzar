@@ -4,25 +4,25 @@
 **Target week index:** 3
 
 ## Goals
-- [ ] Articles 1–12
+- [x] Articles 1–12 (SEO-003 full calendar A–D = 24)
 - [x] Performance (PERF-001)
 
 ## Tasks
-- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
+- [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
-  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
   - [x] Dependencies: SEO-002
-  - [ ] Files: content/blog/**, frontend/Storefront/**
-  - [ ] Modules: content, seo
-  - [ ] Tags: content, seo
+  - [x] Files: content/blog/**, frontend/Storefront/**
+  - [x] Modules: content, seo
+  - [x] Tags: content, seo
   - Acceptance Criteria:
-    - [ ] 24 published
-    - [ ] Each links ≥2 products
-    - [ ] FAQ schema where fit
+    - [x] 24 published
+    - [x] Each links ≥2 products
+    - [x] FAQ schema where fit
   - Definition of Done:
-    - [ ] CONTENT_CALENDAR checked
-    - [ ] Live
-  - Notes: Quality > volume; AI-assisted draft + human QA
+    - [x] CONTENT_CALENDAR checked
+    - [x] Live
+  - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles live.
 - [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
   - Owner: unassigned | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
@@ -51,6 +51,6 @@
   - Notes: #99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP; vitest cwv.
 
 ## Sprint exit checklist
-- [ ] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
+- [x] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
 - [x] PROJECT_STATUS.md updated
 - [x] CHANGELOG.md entry

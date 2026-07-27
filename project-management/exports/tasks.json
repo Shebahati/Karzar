@@ -145,8 +145,8 @@
         "CONTENT_CALENDAR checked",
         "Live"
       ],
-      "status": "todo",
-      "progress": 5,
+      "status": "done",
+      "progress": 100,
       "sprint": "02",
       "week": 4,
       "day": 1,
@@ -156,7 +156,7 @@
         "seo"
       ],
       "risk": "high",
-      "notes": "Quality > volume; AI-assisted draft + human QA"
+      "notes": "#102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 articles CMS-live; verified sample /blog/digital-caliper-workshop-accuracy (+ FAQ/links/≥2 products)."
     },
     {
       "id": "SEO-004",

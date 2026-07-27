@@ -1,6 +1,6 @@
 # Content Progress
 
-**Rollup:** 32%
+**Rollup:** 100%
 
 - [x] **SEO-002** Category hub content + internal linking for mid-tail — `done` 100% | P0 | 24h | Sprint 01
   - Owner: unassigned | Week 2 Day 3 | Risk: med
@@ -17,22 +17,22 @@
     - [x] CONTENT_PROGRESS updated
   - Notes: #91 → main @d92722a; Deploy Staging green; `content/hubs/intros.json` + CategoryHubIntro; verified `/categories/انواع-کولیس`.
 
-- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
+- [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
-  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
   - [x] Dependencies: SEO-002
-  - [ ] Files: content/blog/**, frontend/Storefront/**
-  - [ ] Modules: content, seo
-  - [ ] Tags: content, seo
+  - [x] Files: content/blog/**, frontend/Storefront/**
+  - [x] Modules: content, seo
+  - [x] Tags: content, seo
   - Acceptance Criteria:
-    - [ ] 24 published
-    - [ ] Each links ≥2 products
-    - [ ] FAQ schema where fit
+    - [x] 24 published
+    - [x] Each links ≥2 products
+    - [x] FAQ schema where fit
   - Definition of Done:
-    - [ ] CONTENT_CALENDAR checked
-    - [ ] Live
-  - Notes: Quality > volume; AI-assisted draft + human QA
+    - [x] CONTENT_CALENDAR checked
+    - [x] Live
+  - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles; verified `/blog/digital-caliper-workshop-accuracy`.
 
 ## Evidence log
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 — 15 hubs live
-- [ ] Add links to PRs / GSC / Lighthouse here as you go
+- [x] SEO-003 PR https://github.com/Shebahati/Karzar/pull/102 (+ #103/#104) — 24 articles live
