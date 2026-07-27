@@ -139,3 +139,8 @@ jobs:
           SHOP_BASE=http://127.0.0.1:3000 \
           ADMIN_BASE=http://127.0.0.1:3001 \
             bash deploy/staging/scripts/smoke-staging.sh
+
+          # SEO-003: publish buyer-intent articles into CMS so /blog/* goes live.
+          export FRONTEND_ROOT="${FRONTEND_ROOT:-/opt/karzar/frontend}"
+          export KARZAR_API_BASE="${KARZAR_API_BASE:-https://api.karzartools.com/api/v1}"
+          python3 scripts/publish_seo003_articles.py

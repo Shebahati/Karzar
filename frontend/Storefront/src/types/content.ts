@@ -53,6 +53,11 @@ export type BlogBlock =
       variant?: "tip" | "warning" | "note";
       text: string;
     }
+  | {
+      type: "links";
+      title?: string;
+      items: { href: string; label: string }[];
+    }
   | { type: "faq"; items: BlogFaqItem[] };
 
 export interface BlogPost extends Article {

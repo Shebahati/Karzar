@@ -10,6 +10,7 @@ import type { Brand, Category } from "@/types/category";
 import type { ProductDetail, ProductSummary } from "@/types/product";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import { VERNIER_CALIPER_ARTICLE } from "@/data/articles/how-to-read-vernier-caliper";
+import { blogArticleToPost, listBlogArticles } from "@/lib/blog-articles";
 import {
   expandCategories,
   expandCategoryIcons,
@@ -565,6 +566,10 @@ export const COMMENTS: ProductComment[] = [
 /* -------------------------------------------------------------------------- */
 /*  Articles (related content on PDP / blog teasers).                          */
 /* -------------------------------------------------------------------------- */
+const SEO003_BLOG_POSTS: BlogPost[] = listBlogArticles().map((article, index) =>
+  blogArticleToPost(article, 100 + index),
+);
+
 export const ARTICLES: Article[] = [
   {
     id: 4,
@@ -575,6 +580,17 @@ export const ARTICLES: Article[] = [
     published_at: VERNIER_CALIPER_ARTICLE.published_at,
     reading_minutes: VERNIER_CALIPER_ARTICLE.reading_minutes,
   },
+  ...SEO003_BLOG_POSTS.map(
+    ({ id, slug, title, excerpt, cover_image, published_at, reading_minutes }) => ({
+      id,
+      slug,
+      title,
+      excerpt,
+      cover_image,
+      published_at,
+      reading_minutes,
+    }),
+  ),
   {
     id: 1,
     slug: "how-to-choose-drill",
@@ -612,6 +628,7 @@ export const BLOG_POSTS: BlogPost[] = [
     id: 4,
     ...VERNIER_CALIPER_ARTICLE,
   },
+  ...SEO003_BLOG_POSTS,
   {
     id: 1,
     slug: "how-to-choose-drill",
