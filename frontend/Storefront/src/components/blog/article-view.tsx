@@ -248,6 +248,27 @@ function BlockRenderer({ block }: { block: BlogBlock }) {
         </aside>
       );
     }
+    case "links":
+      return (
+        <nav aria-label={block.title || "لینک‌های مرتبط"} className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
+          {block.title ? (
+            <p className="mb-3 text-sm font-bold text-foreground">{block.title}</p>
+          ) : null}
+          <ul className="space-y-2">
+            {block.items.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="inline-flex items-center gap-1.5 text-[14.5px] font-bold text-primary hover:underline"
+                >
+                  {item.label}
+                  <ChevronLeft size="small" set="light" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      );
     case "faq":
       return <FaqSection items={block.items} />;
     case "paragraph":
