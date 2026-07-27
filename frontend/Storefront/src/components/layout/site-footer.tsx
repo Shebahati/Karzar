@@ -109,24 +109,18 @@ export function SiteFooter() {
                 <Location size="small" set="light" />
                 <a
                   href={STORE_MAPS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="transition-colors hover:text-primary"
                 >
                   {STORE_ADDRESS_FA}
                 </a>
               </li>
               <li className="flex items-start gap-2.5 pt-1">
-                {/* Enamad: replace href/img with official badge snippet when issued */}
-                <a
-                  href="https://trustseal.enamad.ir/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-lg border border-border/70 bg-secondary px-3 text-[10px] font-bold text-muted-foreground transition-colors hover:text-primary"
+                <span
+                  className="inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-lg border border-border/70 bg-secondary px-3 text-[10px] font-bold text-muted-foreground"
                   title="نماد اعتماد الکترونیکی"
                 >
-                  Enamad
-                </a>
+                  نماد اعتماد
+                </span>
               </li>
             </ul>
           </div>

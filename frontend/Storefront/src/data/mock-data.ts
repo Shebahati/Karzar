@@ -17,8 +17,8 @@ import {
   expandProducts,
 } from "./mock-catalog-generator";
 
-const IMG = (seed: string) =>
-  `https://picsum.photos/seed/${seed}/800/800`;
+const IMG = (_seed: string) =>
+  `/images/placeholders/karzar-editorial.svg`;
 
 /* -------------------------------------------------------------------------- */
 /*  Categories (flat list with parent_id; tree is derived).                   */

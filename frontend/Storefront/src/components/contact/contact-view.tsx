@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Call, Location, Message, Send, TickSquare } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -143,14 +144,11 @@ export function ContactView() {
             transition={{ duration: 0.45 }}
             className="space-y-4"
           >
-            <div className="grid gap-3">
+            <div id="store-address" className="grid gap-3 scroll-mt-24">
               {DETAILS.map(({ Icon, label, value, href }) => (
                 <a
                   key={label}
                   href={href}
-                  {...(href.startsWith("http")
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
                   className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-soft transition-shadow hover:shadow-card"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent text-primary">
@@ -167,23 +165,21 @@ export function ContactView() {
             </div>
 
             <div className="overflow-hidden rounded-2xl shadow-card">
-              <iframe
-                title="موقعیت فروشگاه کارزار روی نقشه گوگل"
+              <Image
+                title="موقعیت فروشگاه کارزار"
                 src={STORE_MAPS_EMBED_URL}
-                className="h-64 w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
+                alt="نمای محل فروشگاه کارزار"
+                width={1200}
+                height={600}
+                className="h-64 w-full object-cover"
               />
             </div>
             <p className="text-center text-xs text-muted-foreground">
               <a
                 href={STORE_MAPS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="font-medium text-primary underline-offset-2 hover:underline"
               >
-                مشاهده در Google Maps
+                مشاهده جزئیات نشانی
               </a>
             </p>
           </motion.div>
