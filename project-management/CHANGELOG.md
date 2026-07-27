@@ -1,11 +1,11 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
-- [x] **FE-001 follow-up** Separate page footer padding from section tokens (avoid double `pb-section-y` + `.home-stack`)
-- [x] **FE-001** Design system tokens + homepage consistency — shared section spacing/type tokens + home-stack; steel/red (closes remaining after #93)
-- [x] **TD-001** Pay down category depth/selectable FE drift — depth 2|3 helpers + docs; no depth===3-only filters
-- [x] **UX-001** PLP filter + hub IA polish — mobile quick chips ≤3 taps; Persian empty states; hub child nav
-- [x] **CAT-003** L1 category image coverage — helicoil roots 186–188 curated assets + seed URLs; all live L1 mapped
+- [x] **FE-001 follow-up** Separate page footer padding from section tokens — #117 → `main` @174718f (Deploy Staging 30282336447)
+- [x] **FE-001** Design system tokens + homepage consistency — #115 → `main` @daa8abd; shared section spacing/type tokens + home-stack; steel/red (closes remaining after #93)
+- [x] **TD-001** Pay down category depth/selectable FE drift — #114 → `main` @8cd01bd; depth 2|3 helpers + docs; no depth===3-only filters
+- [x] **UX-001** PLP filter + hub IA polish — #113 → `main` @f4ec40b; mobile quick chips ≤3 taps; Persian empty states; hub child nav
+- [x] **CAT-003** L1 category image coverage — #112 → `main` @fb7d628; helicoil roots 186–188 curated assets + seed URLs; all live L1 mapped
 - [x] **BE-001** Catalog API SEO fields readiness — regenerated `openapi/v1.json` (short_description/meta_*/slug); contract tests green
 - [x] **CAT-001** Close enrichment PR triage — #67 phase-A image docs → `main` @f51c9fd; #69 Dohre tooling → `main` @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; **#90 INSIZE deferred with CAT-002**
 - [x] **CAT-002** / **KB-001** explicitly deferred (post-31-Shahrivar / launch-bar) per RELEASE_PLAN + EXECUTIVE_SUMMARY; D7 recorded
