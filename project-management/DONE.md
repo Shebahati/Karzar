@@ -24,3 +24,4 @@ Move completed task IDs here with date + PR.
 - [x] BE-001 Catalog API SEO fields readiness — 2026-07-27 — openapi regen + contract tests (this PR)
 - [x] CAT-003 Category L1 image coverage — 2026-07-27 — #112 → `main` @fb7d628 (staging deployed)
 - [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — this PR (quick filters + Persian empty + hub child nav)
+- [x] TD-001 Category depth/selectable FE drift — 2026-07-27 — this PR

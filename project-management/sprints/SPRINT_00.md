@@ -64,17 +64,18 @@
     - [x] BACKEND_PROGRESS
   - Notes: Regenerated `openapi/v1.json` (SEO fields on product schemas); #66/#68 plumbing; pytest SEO/audit 16 passed.
 
-- [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
+- [x] **TD-001** Pay down category depth / selectable FE drift — `done` 100% | P2 | 6h | Sprint 00
   - Owner: unassigned | Week 1 Day 5 | Risk: low
-  - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/admin-panel/**
-  - [ ] Modules: frontend, techdebt
-  - [ ] Tags: techdebt
+  - [x] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
+  - [x] Dependencies: —
+  - [x] Files: frontend/admin-panel/**
+  - [x] Modules: frontend, techdebt
+  - [x] Tags: techdebt
   - Acceptance Criteria:
-    - [ ] No depth===3-only filters left
+    - [x] No depth===3-only filters left
   - Definition of Done:
-    - [ ] TECH_DEBT
+    - [x] TECH_DEBT
+
 - [x] **OPS-001** Merge promote-measurement workflow fix #81 — `done` 100% | P2 | 2h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
   - [x] Description: Land no-checkout workflow for taxonomy promote on VPS.

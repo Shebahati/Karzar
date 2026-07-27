@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **TD-001** Pay down category depth/selectable FE drift — depth 2|3 helpers + docs; no depth===3-only filters
 - [x] **UX-001** PLP filter + hub IA polish — mobile quick chips ≤3 taps; Persian empty states; hub child nav
 - [x] **CAT-003** L1 category image coverage — helicoil roots 186–188 curated assets + seed URLs; all live L1 mapped
 - [x] **BE-001** Catalog API SEO fields readiness — regenerated `openapi/v1.json` (short_description/meta_*/slug); contract tests green

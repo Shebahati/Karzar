@@ -27,6 +27,7 @@
 - [x] CAT-001 enrichment PR triage closed (#67/#69 decided+merged; #90 deferred w/ CAT-002)
 - [x] BE-001 Catalog API SEO fields readiness (openapi snapshot + contract tests)
 - [x] UX-001 PLP filter + hub IA polish (mobile ≤3 taps + Persian empty + hub child nav)
+- [x] TD-001 Category depth/selectable FE drift (depth 2|3)
 - [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
 
 ## By stream
@@ -40,7 +41,7 @@
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; next: FE-001 / TD-001)
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; next: FE-001)
 
 ## Blockers
 See `BLOCKERS.md`

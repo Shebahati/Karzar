@@ -193,8 +193,9 @@ export function CategoryColumns({
   const layer2 = layer1Id
     ? categories.filter((c) => c.depth === 2 && c.parent_id === layer1Id)
     : [];
+  // Column 3 = direct children of selected L2 (parent_id), not a depth===3-only selectable filter.
   const layer3 = layer2Id
-    ? categories.filter((c) => c.depth === 3 && c.parent_id === layer2Id)
+    ? categories.filter((c) => c.parent_id === layer2Id)
     : [];
 
   return (
