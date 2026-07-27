@@ -36,19 +36,20 @@
     - [x] PROJECT_STATUS updated
   - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
 
-- [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
+- [x] **CAT-003** Category image coverage for all L1+key L2 — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
-  - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
-  - [ ] Modules: frontend, catalog
-  - [ ] Tags: ui, images
+  - [x] Description: Ensure every homepage/megamenu root has full-bleed quality image.
+  - [x] Dependencies: —
+  - [x] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
+  - [x] Modules: frontend, catalog
+  - [x] Tags: ui, images
   - Acceptance Criteria:
-    - [ ] 0 L1 without image
-    - [ ] Visual QA mobile
+    - [x] 0 L1 without image
+    - [x] Visual QA mobile
   - Definition of Done:
-    - [ ] UI_PROGRESS
-  - Notes: Partial via #85
+    - [x] UI_PROGRESS
+  - Notes: Helicoil L1 186–188 curated; prior L1 map via #85; seed script ready for API image_url on metrology+helicoil; key L2 optional.
+
 - [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low
   - [x] Description: Ensure short_description, meta, specs exposed consistently to storefront.

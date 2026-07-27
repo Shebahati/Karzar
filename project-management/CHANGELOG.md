@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **CAT-003** L1 category image coverage — helicoil roots 186–188 curated assets + seed URLs; all live L1 mapped
 - [x] **BE-001** Catalog API SEO fields readiness — regenerated `openapi/v1.json` (short_description/meta_*/slug); contract tests green
 - [x] **CAT-001** Close enrichment PR triage — #67 phase-A image docs → `main` @f51c9fd; #69 Dohre tooling → `main` @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; **#90 INSIZE deferred with CAT-002**
 - [x] **CAT-002** / **KB-001** explicitly deferred (post-31-Shahrivar / launch-bar) per RELEASE_PLAN + EXECUTIVE_SUMMARY; D7 recorded
