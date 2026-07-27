@@ -30,12 +30,14 @@ describe("FE-001 design tokens", () => {
     expect(tw).toContain("var(--type-section)");
   });
 
-  it("home stack uses shared rhythm classes", () => {
+  it("home stack uses shared rhythm classes without double section padding", () => {
     const home = readFileSync(
       resolve(ROOT, "src/components/home/home-view.tsx"),
       "utf8",
     );
     expect(home).toContain("home-stack");
-    expect(home).toContain("pb-section-y");
+    // Page footer rhythm stays separate; section gap/padding come from .home-stack tokens.
+    expect(home).not.toContain("pb-section-y");
+    expect(home).toMatch(/pb-10/);
   });
 });
