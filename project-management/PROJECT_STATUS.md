@@ -11,7 +11,7 @@
 - [x] Admin categories/megamenu unified (#85)
 - [x] Remove padding «عمومی» L3 leaves — #87; staging apply **23 cats / 1970 products**
 - [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
-- [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
+- [x] Ops/CI on `main`: **OPS-001** #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
 - [x] Living PMO (#86 → main; PMO-001 done)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
 - [x] SEO-002 Hub intros + internal links (#91 → main @d92722a, staging deployed)

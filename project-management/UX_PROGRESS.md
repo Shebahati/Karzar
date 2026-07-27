@@ -30,5 +30,4 @@
 
 ## Evidence log
 - [x] UX-002 PR https://github.com/Shebahati/Karzar/pull/96 → main @e8ea7bf; Deploy Staging green; verified /product/2000 (trust+specs) + /product/7115 (trust+JSON-LD)
-- [x] Floating transparent hero header #93 (partial FE-001) → main @53f0100
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

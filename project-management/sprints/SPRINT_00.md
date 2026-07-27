@@ -72,18 +72,18 @@
     - [ ] No depth===3-only filters left
   - Definition of Done:
     - [ ] TECH_DEBT
-- [ ] **OPS-001** Merge promote-measurement workflow fix #81 — `todo` 80% | P2 | 2h | Sprint 00
+- [x] **OPS-001** Merge promote-measurement workflow fix #81 — `done` 100% | P2 | 2h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
-  - [ ] Description: Land no-checkout workflow for taxonomy promote on VPS.
-  - [ ] Dependencies: —
-  - [ ] Files: .github/workflows/**
-  - [ ] Modules: ops
-  - [ ] Tags: ops, ci
+  - [x] Description: Land no-checkout workflow for taxonomy promote on VPS.
+  - [x] Dependencies: —
+  - [x] Files: .github/workflows/**
+  - [x] Modules: ops
+  - [x] Tags: ops, ci
   - Acceptance Criteria:
-    - [ ] Workflow green
+    - [x] Workflow green
   - Definition of Done:
-    - [ ] DONE.md
-  - Notes: Open PR #81
+    - [x] DONE.md
+  - Notes: #81 → main @e1981b6; workflow/script-only (no Deploy Staging)
 
 ## Sprint exit checklist
 - [ ] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
