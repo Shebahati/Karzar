@@ -40,7 +40,7 @@
 - [x] SEO-002 Hub intros + internal links (#91)
 - [ ] SEO-003 24 articles
 - [x] SEO-004 Technical SEO hygiene (#94)
-- [ ] UX-002 PDP specs/trust
+- [x] UX-002 PDP specs/trust (#96)
 - [ ] PERF-001 CWV home/PDP/PLP
 - [ ] REL-001 Release freeze
 

@@ -6,8 +6,6 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-
-
 - [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
@@ -75,19 +73,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] Empty states Persian
   - Definition of Done:
     - [ ] UX_PROGRESS
-- [ ] **UX-002** PDP trust + specs presentation — `todo` 40% | P0 | 16h | Sprint 01
-  - Owner: unassigned | Week 2 Day 5 | Risk: low
-  - [ ] Description: Clarify short vs long description; specs SoT; no duplicate bullets.
-  - [ ] Dependencies: SEO-001
-  - [ ] Files: frontend/Storefront/src/components/product/**
-  - [ ] Modules: frontend, seo
-  - [ ] Tags: ux, pdp
-  - Acceptance Criteria:
-    - [ ] Specs not duplicated in long desc
-    - [ ] Trust strip visible
-  - Definition of Done:
-    - [ ] UX_PROGRESS
-  - Notes: Policy locked earlier
+
 - [ ] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `todo` 25% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
   - [ ] Description: LCP/INP/CLS budgets; image priority; font subsetting.
@@ -175,23 +161,36 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No depth===3-only filters left
   - Definition of Done:
     - [ ] TECH_DEBT
-- [ ] **OPS-001** Merge promote-measurement workflow fix #81 — `todo` 80% | P2 | 2h | Sprint 00
-  - Owner: unassigned | Week 1 Day 2 | Risk: low
-  - [ ] Description: Land no-checkout workflow for taxonomy promote on VPS.
-  - [ ] Dependencies: —
-  - [ ] Files: .github/workflows/**
-  - [ ] Modules: ops
-  - [ ] Tags: ops, ci
-  - Acceptance Criteria:
-    - [ ] Workflow green
-  - Definition of Done:
-    - [ ] DONE.md
-  - Notes: Open PR #81
-
 ## in_progress
 - [ ] _(empty)_
 
 ## done
+- [x] **OPS-001** Merge promote-measurement workflow fix #81 — `done` 100% | P2 | 2h | Sprint 00
+  - Owner: unassigned | Week 1 Day 2 | Risk: low
+  - [x] Description: Land no-checkout workflow for taxonomy promote on VPS.
+  - [x] Dependencies: —
+  - [x] Files: .github/workflows/**
+  - [x] Modules: ops
+  - [x] Tags: ops, ci
+  - Acceptance Criteria:
+    - [x] Workflow green
+  - Definition of Done:
+    - [x] DONE.md
+  - Notes: #81 → main @e1981b6; promote-measurement workflow (no checkout); Deploy Staging not required (workflow/script-only).
+- [x] **UX-002** PDP trust + specs presentation — `done` 100% | P0 | 16h | Sprint 01
+  - Owner: unassigned | Week 2 Day 5 | Risk: low
+  - [x] Description: Clarify short vs long description; specs SoT; no duplicate bullets.
+  - [x] Dependencies: SEO-001
+  - [x] Files: frontend/Storefront/src/components/product/**
+  - [x] Modules: frontend, seo
+  - [x] Tags: ux, pdp
+  - Acceptance Criteria:
+    - [x] Specs not duplicated in long desc
+    - [x] Trust strip visible
+  - Definition of Done:
+    - [x] UX_PROGRESS
+  - Notes: #96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip.
+
 - [x] **SEO-004** Technical SEO crawl hygiene — `done` 100% | P0 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 2 | Risk: low
   - [x] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.

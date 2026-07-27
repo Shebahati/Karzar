@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **UX-002** PDP trust strip + specs SoT presentation — #96 → `main` @e8ea7bf; Deploy Staging green; verified `/product/2000` (trust+RTL specs) + `/product/7115` (trust+JSON-LD)
 - [x] **SEO-004** Technical crawl hygiene — #94 → `main` @a119b38; Deploy Staging green; robots/sitemap/SITE_URL; empty-hub 404; facet+private noindex; sitemap 6007 urls
 - [x] **PMO-001** Living PMO bootstrap marked done (in active use since #86)
 - [x] **FE-001** (partial) Floating transparent home header over full-bleed hero — #93 → `main` @53f0100; Deploy Staging green

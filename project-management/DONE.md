@@ -15,3 +15,4 @@ Move completed task IDs here with date + PR.
 - [x] FE-001 (partial) Floating transparent hero header — 2026-07-26 — #93 → `main` @53f0100 (staging deployed)
 - [x] Taxonomy remove «عمومی» padding leaves — 2026-07-26 — #87 → `main`; staging apply 23 cats / 1970 products
 - [x] SEO-004 Technical crawl hygiene — 2026-07-27 — #94 → `main` @a119b38 (staging deployed)
+- [x] UX-002 PDP trust + specs presentation — 2026-07-27 — #96 → `main` @e8ea7bf (staging deployed)

@@ -362,8 +362,8 @@
       "dod": [
         "UX_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 40,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 5,
@@ -373,7 +373,7 @@
         "pdp"
       ],
       "risk": "low",
-      "notes": "Policy locked earlier"
+      "notes": "#96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip."
     },
     {
       "id": "PERF-001",
@@ -641,8 +641,8 @@
       "dod": [
         "DONE.md"
       ],
-      "status": "todo",
-      "progress": 80,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 2,
@@ -652,7 +652,7 @@
         "ci"
       ],
       "risk": "low",
-      "notes": "Open PR #81"
+      "notes": "#81 → main @e1981b6; promote-measurement workflow (no checkout); Backend CI green; Deploy Staging not required (workflow/script-only)."
     }
   ]
 }
