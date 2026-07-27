@@ -47,10 +47,10 @@ export function HomeView() {
 
   return (
     <div className="pb-10 lg:pb-16">
-      {/* Full-bleed hero — outside Container */}
+      {/* Full-bleed hero — outside Container; section rhythm lives in .home-stack */}
       <Hero />
 
-      <Container className="space-y-12 py-8 sm:space-y-16 sm:py-12 lg:space-y-20">
+      <Container className="home-stack">
         <section aria-labelledby="home-categories-heading">
           <SectionHeading
             id="home-categories-heading"

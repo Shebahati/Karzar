@@ -2,33 +2,34 @@
 
 **Rollup:** 58%
 
-- [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
+- [x] **CAT-003** Category image coverage for all L1+key L2 — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
-  - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
-  - [ ] Modules: frontend, catalog
-  - [ ] Tags: ui, images
+  - [x] Description: Ensure every homepage/megamenu root has full-bleed quality image.
+  - [x] Dependencies: —
+  - [x] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
+  - [x] Modules: frontend, catalog
+  - [x] Tags: ui, images
   - Acceptance Criteria:
-    - [ ] 0 L1 without image
-    - [ ] Visual QA mobile
+    - [x] 0 L1 without image
+    - [x] Visual QA mobile
   - Definition of Done:
-    - [ ] UI_PROGRESS
-  - Notes: Partial via #85
-- [ ] **FE-001** Design system tokens + homepage consistency — `in_progress` 65% | P2 | 12h | Sprint 01
+    - [x] UI_PROGRESS
+  - Notes: Helicoil L1 186–188 curated; prior L1 map via #85; seed script ready for API image_url on metrology+helicoil; key L2 optional.
+
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
   - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
   - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories; floating transparent home header over hero (glass on scroll)
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
 ## Evidence log
-- [ ] Floating home header / full-bleed hero polish (PR pending)
+- [x] Floating home header / full-bleed hero polish — #93; tokens/home-stack this PR
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

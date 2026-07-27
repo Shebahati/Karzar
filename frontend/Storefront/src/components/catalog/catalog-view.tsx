@@ -354,7 +354,11 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
               ))}
             </div>
           ) : total === 0 ? (
-            <EmptyState onClear={clearAll} />
+            <EmptyState
+              onClear={clearAll}
+              hasActiveFilters={activeCount > 0}
+              categoryName={activeCategoryName}
+            />
           ) : (
             <>
               <div
@@ -417,19 +421,49 @@ function SpecChip({
   );
 }
 
-function EmptyState({ onClear }: { onClear: () => void }) {
+function EmptyState({
+  onClear,
+  hasActiveFilters,
+  categoryName,
+}: {
+  onClear: () => void;
+  hasActiveFilters: boolean;
+  categoryName?: string;
+}) {
+  const title = hasActiveFilters
+    ? "با این فیلترها محصولی پیدا نشد"
+    : categoryName
+      ? `فعلاً محصولی در «${categoryName}» نیست`
+      : "محصولی یافت نشد";
+  const detail = hasActiveFilters
+    ? "فیلترها را کم کنید یا همه را حذف کنید تا نتایج بیشتری ببینید."
+    : categoryName
+      ? "زیر‌دسته‌های مرتبط را از بالای صفحه امتحان کنید یا بعداً سر بزنید."
+      : "عبارت جستجو یا فیلترها را تغییر دهید.";
+
   return (
-    <div className="grid place-items-center rounded-xl bg-card py-20 text-center shadow-soft">
+    <div
+      className="grid place-items-center rounded-xl bg-card py-20 text-center shadow-soft"
+      dir="rtl"
+      role="status"
+    >
       <div className="grid h-16 w-16 place-items-center rounded-xl bg-accent text-primary">
         <Filter set="bold" primaryColor="#C22026" />
       </div>
-      <p className="mt-4 font-medium text-foreground">محصولی یافت نشد</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        فیلترها را تغییر دهید یا همه را حذف کنید.
-      </p>
-      <Button className="mt-6" variant="outline" onClick={onClear}>
-        حذف همه فیلترها
-      </Button>
+      <p className="mt-4 font-medium text-foreground">{title}</p>
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{detail}</p>
+      {hasActiveFilters ? (
+        <Button className="mt-6" variant="outline" onClick={onClear}>
+          حذف همه فیلترها
+        </Button>
+      ) : (
+        <a
+          href="/catalog"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-lg px-6 text-sm font-medium text-foreground shadow-soft ring-1 ring-inset ring-border hover:bg-accent"
+        >
+          بازگشت به فروشگاه
+        </a>
+      )}
     </div>
   );
 }

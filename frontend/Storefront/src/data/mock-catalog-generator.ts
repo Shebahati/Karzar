@@ -11,7 +11,7 @@ type RawProduct = Omit<ProductDetail, "category" | "brand" | "stock_status"> & {
   brand_id: number | null;
 };
 
-const IMG = (seed: string) => `https://picsum.photos/seed/${seed}/800/800`;
+const IMG = (seed: string) => `/images/placeholders/karzar-editorial.svg`;
 
 const L1_NAMES = [
   "ابزار برقی",

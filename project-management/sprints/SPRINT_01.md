@@ -49,18 +49,19 @@
   - Definition of Done:
     - [x] TECHNICAL_SEO_PROGRESS
   - Notes: #94 → main @a119b38; Deploy Staging green; soft-404→404; facet/private noindex; sitemap 6007 urls
-- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
+- [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
-  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/src/components/**
-  - [ ] Modules: frontend, ux
-  - [ ] Tags: ux
+  - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/src/components/**
+  - [x] Modules: frontend, ux
+  - [x] Tags: ux
   - Acceptance Criteria:
-    - [ ] Mobile filter usable in <3 taps
-    - [ ] Empty states Persian
+    - [x] Mobile filter usable in <3 taps
+    - [x] Empty states Persian
   - Definition of Done:
-    - [ ] UX_PROGRESS
+    - [x] UX_PROGRESS
+
 - [x] **UX-002** PDP trust + specs presentation — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 5 | Risk: low
   - [x] Description: Clarify short vs long description; specs SoT; no duplicate bullets.
@@ -74,19 +75,19 @@
   - Definition of Done:
     - [x] UX_PROGRESS
   - Notes: #96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip.
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
   - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
   - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
 ## Sprint exit checklist
 - [ ] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md

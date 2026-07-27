@@ -2,18 +2,19 @@
 
 **Rollup:** 55%
 
-- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
+- [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
-  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/src/components/**
-  - [ ] Modules: frontend, ux
-  - [ ] Tags: ux
+  - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/src/components/**
+  - [x] Modules: frontend, ux
+  - [x] Tags: ux
   - Acceptance Criteria:
-    - [ ] Mobile filter usable in <3 taps
-    - [ ] Empty states Persian
+    - [x] Mobile filter usable in <3 taps
+    - [x] Empty states Persian
   - Definition of Done:
-    - [ ] UX_PROGRESS
+    - [x] UX_PROGRESS
+
 - [x] **UX-002** PDP trust + specs presentation — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 5 | Risk: low
   - [x] Description: Clarify short vs long description; specs SoT; no duplicate bullets.
@@ -40,19 +41,19 @@
   - Definition of Done:
     - [x] CORE_WEB_VITALS_PROGRESS
   - Notes: #99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP; vitest cwv.
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
   - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
   - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
 ## Evidence log
 - [x] PERF-001 PR https://github.com/Shebahati/Karzar/pull/99 → main @d169831; Deploy Staging green (30251144532)

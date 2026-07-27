@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CloseSquare } from "react-iconly";
 import { FilterPanel } from "@/components/catalog/filter-panel";
+import { QuickFilterBar } from "@/components/catalog/quick-filter-bar";
 import { Button } from "@/components/ui/button";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { useMotionSafe } from "@/lib/use-motion-safe";
@@ -70,8 +71,9 @@ export function MobileFilterDrawer({ productCount = 0 }: { productCount?: number
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-              {/* Keep drawer open while adjusting filters — close via footer CTA. */}
-              <FilterPanel notifyOnChange={false} />
+              {/* Quick chips keep apply path ≤3 taps; accordion for full IA. */}
+              <QuickFilterBar />
+              <FilterPanel notifyOnChange={false} mobileDefaults />
             </div>
             <div className="border-t border-border/60 bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft">
               <Button className="w-full" onClick={() => setOpen(false)}>

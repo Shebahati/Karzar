@@ -1,0 +1,17 @@
+{
+  "index": {
+    "source": "https://www.dohrecnc.com",
+    "fetched_at": "2026-07-25T20:36:14Z",
+    "html_pages_indexed": 45,
+    "product_urls_discovered": 0,
+    "product_records": 0,
+    "series_pages": 22,
+    "pdf_links": 3,
+    "unique_model_tokens": 0,
+    "sample_models": [],
+    "pdfs_downloaded": 0
+  },
+  "product_urls": [],
+  "models": [],
+  "downloaded_pdfs": []
+}

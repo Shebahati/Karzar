@@ -147,7 +147,7 @@ export async function downloadOrderPdf(
   y += 10;
   doc.setTextColor(...BRAND_RED);
   doc.setFont("helvetica", "bold");
-  doc.text("karzar.ir", 14, y);
+  doc.text("KARZAR", 14, y);
 
   const suffix = kind === "proforma" ? "proforma" : "invoice";
   doc.save(`karzar-${suffix}-${tracking.tracking_code}.pdf`);

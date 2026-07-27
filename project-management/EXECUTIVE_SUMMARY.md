@@ -38,11 +38,11 @@
 **Keep (P0) to 31 Shahrivar**
 - [x] SEO-001 Schema Product/Offer/Breadcrumb (#88)
 - [x] SEO-002 Hub intros + internal links (#91)
-- [ ] SEO-003 24 articles
+- [x] SEO-003 24 articles (#102 + staging)
 - [x] SEO-004 Technical SEO hygiene (#94)
 - [x] UX-002 PDP specs/trust (#96)
 - [x] PERF-001 CWV home/PDP/PLP (#99)
-- [ ] REL-001 Release freeze
+- [x] REL-001 Release freeze documentation pack complete (GO still needs named release/rollback owners; SEC-001 closed)
 
 **Move to بعد از ۳۱ شهریور (P2+)**
 - [ ] KB-001 Knowledge graph phase-1
@@ -52,7 +52,8 @@
 
 ## Current portfolio snapshot
 - Live: homepage mega/hero, taxonomy metrology promote, admin megamenu controls, SEO short_description plumbing
-- Open historically: enrichment PRs, workflow #81, INSIZE apply paused
+- CAT-001 closed 2026-07-27 (#67/#69 merged; #70–#73 prior; #90 deferred w/ CAT-002)
+- Explicitly deferred: CAT-002 (INSIZE #90), KB-001 (post-31-Shahrivar)
 
 ## Decision
 > Checkpoint KPI = **quality + indexable mid-tail + CWV**, not **#1 head-term rank**.

@@ -22,6 +22,11 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 
+### 2026-07-27 — BE-001 OpenAPI snapshot sync
+
+- Regenerated committed `openapi/v1.json` from `app.openapi()` so product schemas document `short_description`, `meta_title`, `meta_description`, and `slug` (detail/summary as applicable).
+- Runtime contract unchanged vs #66/#68; snapshot drift fixed for offline typegen.
+
 ### 2026-07 — product SEO descriptions (P0)
 
 - Added nullable `products.short_description` (separate from long `description`).

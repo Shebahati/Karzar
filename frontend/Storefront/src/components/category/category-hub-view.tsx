@@ -5,6 +5,7 @@ import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { CatalogView } from "@/components/catalog/catalog-view";
 import { CategoryHubIntro } from "@/components/category/category-hub-intro";
+import { HubChildNav } from "@/components/category/hub-child-nav";
 import { useFlatCategories } from "@/features/catalog/queries";
 import { categoryHref } from "@/config/nav-groups";
 import type { HubIntro } from "@/lib/hub-intros";
@@ -27,6 +28,8 @@ export function CategoryHubView({
   const children = all
     .filter((c) => c.parent_id === category.id)
     .sort((a, b) => (b.product_count ?? 0) - (a.product_count ?? 0));
+  // Avoid duplicating child chips when SEO intro already lists them.
+  const showStandaloneChildNav = !intro;
 
   return (
     <>
@@ -72,6 +75,10 @@ export function CategoryHubView({
             </p>
           ) : null}
         </header>
+
+        {showStandaloneChildNav ? (
+          <HubChildNav childCategories={children} hubName={category.name} />
+        ) : null}
       </Container>
 
       <CatalogView lockedCategoryId={category.id} />

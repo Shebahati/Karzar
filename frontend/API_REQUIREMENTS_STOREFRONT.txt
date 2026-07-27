@@ -68,7 +68,7 @@ CategoryFlat = {
   "parent_id": 10,
   "depth": 3,                      // 1=root, 2=mid, 3=leaf
   "is_leaf": true,
-  "is_selectable": true,           // true only when depth==3 && is_leaf
+  "is_selectable": true,           // true when leaf at depth 2 or 3 (not L1 roots)
   "breadcrumb": ["ابزار برقی", "دریل و دریل شارژی", "دریل چکشی"],
   "ancestor_ids": [1, 10],
   "product_count": 3               // optional

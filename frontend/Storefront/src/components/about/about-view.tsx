@@ -78,7 +78,7 @@ export function AboutView() {
             className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-elevated"
           >
             <Image
-              src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=1200&q=80"
+              src="/images/placeholders/karzar-editorial.svg"
               alt="کارگاه کارزار"
               fill
               priority

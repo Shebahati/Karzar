@@ -6,39 +6,10 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
-  - Owner: unassigned | Week 4 Day 1 | Risk: high
-  - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
-  - [x] Dependencies: SEO-002
-  - [ ] Files: content/blog/**, frontend/Storefront/**
-  - [ ] Modules: content, seo
-  - [ ] Tags: content, seo
-  - Acceptance Criteria:
-    - [ ] 24 published
-    - [ ] Each links ≥2 products
-    - [ ] FAQ schema where fit
-  - Definition of Done:
-    - [ ] CONTENT_CALENDAR checked
-    - [ ] Live
-  - Notes: Quality > volume; AI-assisted draft + human QA
-
-- [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
-  - Owner: unassigned | Week 1 Day 2 | Risk: low
-  - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/**, data/imports/**
-  - [ ] Modules: catalog
-  - [ ] Tags: catalog, ops
-  - Acceptance Criteria:
-    - [ ] Each open enrichment PR decided
-    - [ ] No price writes
-  - Definition of Done:
-    - [ ] PROJECT_STATUS updated
-  - Notes: #71/#72 merged or open — verify
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **DEFERRED** (post-checkpoint / launch-bar)
   - Owner: unassigned | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
-  - [ ] Dependencies: CAT-001
+  - [x] Dependencies: CAT-001
   - [ ] Files: scripts/enrich_insize*.py
   - [ ] Modules: catalog, seo
   - [ ] Tags: insize, content
@@ -47,75 +18,25 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: #74 closed intentionally
-- [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
-  - Owner: unassigned | Week 1 Day 3 | Risk: low
-  - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
-  - [ ] Modules: frontend, catalog
-  - [ ] Tags: ui, images
-  - Acceptance Criteria:
-    - [ ] 0 L1 without image
-    - [ ] Visual QA mobile
-  - Definition of Done:
-    - [ ] UI_PROGRESS
-  - Notes: Partial via #85
-- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
-  - Owner: unassigned | Week 2 Day 4 | Risk: low
-  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/src/components/**
-  - [ ] Modules: frontend, ux
-  - [ ] Tags: ux
-  - Acceptance Criteria:
-    - [ ] Mobile filter usable in <3 taps
-    - [ ] Empty states Persian
-  - Definition of Done:
-    - [ ] UX_PROGRESS
-
-- [ ] **SEC-001** Security hygiene pass for go-live bar — `todo` 50% | P1 | 12h | Sprint 03
+  - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally
+- [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
   - Owner: unassigned | Week 5 Day 1 | Risk: med
-  - [ ] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
-  - [ ] Dependencies: —
-  - [ ] Files: app/**, frontend/admin-panel/**
-  - [ ] Modules: security
-  - [ ] Tags: security
+  - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
+  - [x] Dependencies: —
+  - [x] Files: app/**, frontend/admin-panel/**
+  - [x] Modules: security
+  - [x] Tags: security
   - Acceptance Criteria:
-    - [ ] Admin X-Robots-Tag
-    - [ ] No secrets in FE
+    - [x] Admin X-Robots-Tag
+    - [x] No secrets in FE
   - Definition of Done:
-    - [ ] SECURITY_PROGRESS
-- [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
-  - Owner: unassigned | Week 1 Day 4 | Risk: low
-  - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
-  - [ ] Dependencies: —
-  - [ ] Files: app/api/**, app/schemas/**
-  - [ ] Modules: backend
-  - [ ] Tags: backend, seo
-  - Acceptance Criteria:
-    - [ ] Contract tests green
-    - [ ] OpenAPI updated
-  - Definition of Done:
-    - [ ] BACKEND_PROGRESS
-  - Notes: #66/#68
-- [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
-  - Owner: unassigned | Week 2 Day 6 | Risk: low
-  - [ ] Description: Align home sections after hero/categories/why-karzar polish.
-  - [ ] Dependencies: CAT-003
-  - [ ] Files: frontend/Storefront/src/**
-  - [ ] Modules: frontend, design
-  - [ ] Tags: design
-  - Acceptance Criteria:
-    - [ ] Shared tokens for spacing/type
-    - [ ] No purple-default AI look
-  - Definition of Done:
-    - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04
+    - [x] SECURITY_PROGRESS
+  - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
+
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
   - Owner: unassigned | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
-  - [ ] Dependencies: SEO-003
+  - [x] Dependencies: SEO-003
   - [ ] Files: docs/KNOWLEDGE_PLATFORM*.md, app/**
   - [ ] Modules: knowledge
   - [ ] Tags: knowledge
@@ -124,36 +45,117 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: Defer if hours overrun
-- [ ] **REL-001** Release readiness for 31 Shahrivar checkpoint — `todo` 0% | P0 | 10h | Sprint 04
-  - Owner: unassigned | Week 8 Day 5 | Risk: med
-  - [ ] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
-  - [ ] Dependencies: SEO-003, PERF-001, SEC-001
-  - [ ] Files: project-management/RELEASE_PLAN.md
-  - [ ] Modules: ops
-  - [ ] Tags: release
-  - Acceptance Criteria:
-    - [ ] All P0 done or explicitly deferred
-    - [ ] Rollback noted
-  - Definition of Done:
-    - [ ] RELEASE_PLAN signed
-  - Notes: Checkpoint ≠ rank#1
-- [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
-  - Owner: unassigned | Week 1 Day 5 | Risk: low
-  - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/admin-panel/**
-  - [ ] Modules: frontend, techdebt
-  - [ ] Tags: techdebt
-  - Acceptance Criteria:
-    - [ ] No depth===3-only filters left
-  - Definition of Done:
-    - [ ] TECH_DEBT
+  - Notes: DEFERRED per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path
 
 ## in_progress
 - [ ] _(empty)_
 
 ## done
+- [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 6 | Risk: low
+  - [x] Description: Align home sections after hero/categories/why-karzar polish.
+  - [x] Dependencies: CAT-003
+  - [x] Files: frontend/Storefront/src/**
+  - [x] Modules: frontend, design
+  - [x] Tags: design
+  - Acceptance Criteria:
+    - [x] Shared tokens for spacing/type
+    - [x] No purple-default AI look
+  - Definition of Done:
+    - [x] DESIGN_SYSTEM_PROGRESS
+  - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
+- [x] **TD-001** Pay down category depth / selectable FE drift — `done` 100% | P2 | 6h | Sprint 00
+  - Owner: unassigned | Week 1 Day 5 | Risk: low
+  - [x] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
+  - [x] Dependencies: —
+  - [x] Files: frontend/admin-panel/**
+  - [x] Modules: frontend, techdebt
+  - [x] Tags: techdebt
+  - Acceptance Criteria:
+    - [x] No depth===3-only filters left
+  - Definition of Done:
+    - [x] TECH_DEBT
+- [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
+  - Owner: unassigned | Week 2 Day 4 | Risk: low
+  - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/src/components/**
+  - [x] Modules: frontend, ux
+  - [x] Tags: ux
+  - Acceptance Criteria:
+    - [x] Mobile filter usable in <3 taps
+    - [x] Empty states Persian
+  - Definition of Done:
+    - [x] UX_PROGRESS
+- [x] **CAT-003** Category image coverage for all L1+key L2 — `done` 100% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 3 | Risk: low
+  - [x] Description: Ensure every homepage/megamenu root has full-bleed quality image.
+  - [x] Dependencies: —
+  - [x] Files: scripts/seed_category_images.py, frontend/Storefront/public/images/**
+  - [x] Modules: frontend, catalog
+  - [x] Tags: ui, images
+  - Acceptance Criteria:
+    - [x] 0 L1 without image
+    - [x] Visual QA mobile
+  - Definition of Done:
+    - [x] UI_PROGRESS
+  - Notes: Helicoil L1 186–188 curated; prior L1 map via #85; seed script ready for API image_url on metrology+helicoil; key L2 optional.
+
+- [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 4 | Risk: low
+  - [x] Description: Ensure short_description, meta, specs exposed consistently to storefront.
+  - [x] Dependencies: —
+  - [x] Files: app/api/**, app/schemas/**, openapi/v1.json
+  - [x] Modules: backend
+  - [x] Tags: backend, seo
+  - Acceptance Criteria:
+    - [x] Contract tests green
+    - [x] OpenAPI updated
+  - Definition of Done:
+    - [x] BACKEND_PROGRESS
+  - Notes: Regenerated `openapi/v1.json` (SEO fields on product schemas); #66/#68 plumbing; pytest SEO/audit 16 passed.
+
+- [x] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `done` 100% | P1 | 8h | Sprint 00
+  - Owner: unassigned | Week 1 Day 2 | Risk: low
+  - [x] Description: Merge or close remaining enrichment PRs with content-only guarantees.
+  - [x] Dependencies: —
+  - [x] Files: scripts/**, data/imports/**
+  - [x] Modules: catalog
+  - [x] Tags: catalog, ops
+  - Acceptance Criteria:
+    - [x] Each open enrichment PR decided
+    - [x] No price writes
+  - Definition of Done:
+    - [x] PROJECT_STATUS updated
+  - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
+- [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
+  - Owner: unassigned | Week 8 Day 5 | Risk: med
+  - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
+  - [x] Dependencies: SEO-003, PERF-001, SEC-001
+  - [x] Files: project-management/RELEASE_PLAN.md
+  - [x] Modules: ops
+  - [x] Tags: release
+  - Acceptance Criteria:
+    - [x] All P0 done or explicitly deferred
+    - [x] Rollback noted
+  - Definition of Done:
+    - [x] RELEASE_PLAN signed
+  - Notes: Readiness pack complete; SEC-001 closed for hygiene ACs; residual transitive dep advisories tracked as R8; GO still needs named release/rollback owners.
+- [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
+  - Owner: unassigned | Week 4 Day 1 | Risk: high
+  - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
+  - [x] Dependencies: SEO-002
+  - [x] Files: content/blog/**, frontend/Storefront/**
+  - [x] Modules: content, seo
+  - [x] Tags: content, seo
+  - Acceptance Criteria:
+    - [x] 24 published
+    - [x] Each links ≥2 products
+    - [x] FAQ schema where fit
+  - Definition of Done:
+    - [x] CONTENT_CALENDAR checked
+    - [x] Live
+  - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles live.
 - [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
   - [x] Description: LCP/INP/CLS budgets; image priority; font subsetting.

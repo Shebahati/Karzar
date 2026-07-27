@@ -145,8 +145,8 @@
         "CONTENT_CALENDAR checked",
         "Live"
       ],
-      "status": "todo",
-      "progress": 5,
+      "status": "done",
+      "progress": 100,
       "sprint": "02",
       "week": 4,
       "day": 1,
@@ -156,7 +156,7 @@
         "seo"
       ],
       "risk": "high",
-      "notes": "Quality > volume; AI-assisted draft + human QA"
+      "notes": "#102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 articles CMS-live; verified sample /blog/digital-caliper-workshop-accuracy (+ FAQ/links/≥2 products)."
     },
     {
       "id": "SEO-004",
@@ -218,8 +218,8 @@
       "dod": [
         "PROJECT_STATUS updated"
       ],
-      "status": "todo",
-      "progress": 40,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 2,
@@ -229,7 +229,7 @@
         "ops"
       ],
       "risk": "low",
-      "notes": "#71/#72 merged or open — verify"
+      "notes": "2026-07-27 triage: #67 phase-A images docs → main @f51c9fd; #69 Dohre tooling → main @0829571 (Deploy Staging green 30274744553); #70–#73 already merged; #74 closed; #90 INSIZE deferred with CAT-002 (EXEC/RELEASE freeze). No price writes."
     },
     {
       "id": "CAT-002",
@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "#74 closed intentionally"
+      "notes": "DEFERRED post-31-Shahrivar / launch-bar (RELEASE_PLAN + EXEC): keep #90 open for content-safe resume; #74 closed intentionally; partial staging apply evidence lives on #90 branch."
     },
     {
       "id": "CAT-003",
@@ -291,8 +291,8 @@
       "dod": [
         "UI_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 60,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 3,
@@ -302,7 +302,7 @@
         "images"
       ],
       "risk": "low",
-      "notes": "Partial via #85"
+      "notes": "2026-07-27: all 15 live L1 roots have curated FE images (added helicoil 186–188 assets); seed_category_images ROOT_IDS+Commons URLs updated for API image_url apply on VPS; vitest category-images; key L2 packshots remain optional follow-up (megamenu text-only)."
     },
     {
       "id": "UX-001",
@@ -326,8 +326,8 @@
       "dod": [
         "UX_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 35,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 4,
@@ -336,7 +336,7 @@
         "ux"
       ],
       "risk": "low",
-      "notes": ""
+      "notes": "2026-07-27: mobile quick filter chips (≤3 taps) + Persian empty states + hub child nav; vitest ux-001-plp"
     },
     {
       "id": "UX-002",
@@ -432,8 +432,8 @@
       "dod": [
         "SECURITY_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 50,
+      "status": "done",
+      "progress": 100,
       "sprint": "03",
       "week": 5,
       "day": 1,
@@ -442,7 +442,7 @@
         "security"
       ],
       "risk": "med",
-      "notes": ""
+      "notes": "Admin X-Robots-Tag + metadata robots noindex; secrets hygiene script green (no FE key material); step-up PIN on destructive admin surfaces (products/orders/CMS/customers/brands/categories); Pillow==12.3.0; residual: ecdsa PYSEC-2026-1325 via python-jose; Next/postcss/sharp high advisories deferred (force Next 16.2.12 out of range). Evidence: scripts/security_hygiene_check.sh + admin security-headers vitest."
     },
     {
       "id": "BE-001",
@@ -466,8 +466,8 @@
       "dod": [
         "BACKEND_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 70,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 4,
@@ -477,7 +477,7 @@
         "seo"
       ],
       "risk": "low",
-      "notes": "#66/#68"
+      "notes": "2026-07-27: openapi/v1.json regenerated from app.openapi(); ProductDetail/Summary/Create/Update expose short_description/meta_*/slug as applicable. Contract tests: test_product_seo_descriptions + test_d_catalog_audit SEO exposure green (16). Prior plumbing #66/#68."
     },
     {
       "id": "FE-001",
@@ -503,8 +503,8 @@
       "dod": [
         "DESIGN_SYSTEM_PROGRESS"
       ],
-      "status": "in_progress",
-      "progress": 65,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 6,
@@ -513,7 +513,7 @@
         "design"
       ],
       "risk": "low",
-      "notes": "#85 why-karzar/categories; floating transparent home header over hero (glass on scroll)"
+      "notes": "2026-07-27: shared --space-section-* / --type-* tokens + home-stack; prior #93 header; steel/red (no purple)"
     },
     {
       "id": "KB-001",
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "Defer if hours overrun"
+      "notes": "DEFERRED post-31-Shahrivar (EXECUTIVE_SUMMARY P2+ / RELEASE_PLAN / D7): not on checkpoint KPI path; high effort; revisit after freeze."
     },
     {
       "id": "REL-001",
@@ -576,8 +576,8 @@
       "dod": [
         "RELEASE_PLAN signed"
       ],
-      "status": "todo",
-      "progress": 0,
+      "status": "done",
+      "progress": 100,
       "sprint": "04",
       "week": 8,
       "day": 5,
@@ -586,7 +586,7 @@
         "release"
       ],
       "risk": "med",
-      "notes": "Checkpoint ≠ rank#1"
+      "notes": "REL-001 readiness pack completed (scope freeze, gates, rollback, monitoring checklist, explicit go/no-go). Final operational gate is conditional on SEC-001 closure or documented risk acceptance with named owner."
     },
     {
       "id": "TD-001",
@@ -609,8 +609,8 @@
       "dod": [
         "TECH_DEBT"
       ],
-      "status": "todo",
-      "progress": 50,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 5,
@@ -619,7 +619,7 @@
         "techdebt"
       ],
       "risk": "low",
-      "notes": ""
+      "notes": "2026-07-27: removed depth===3-only column filter; dropped isLayer3Leaf; aligned FE constants+docs with backend depth 2|3; vitest category-tree"
     },
     {
       "id": "OPS-001",

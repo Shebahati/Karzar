@@ -59,7 +59,9 @@ MIN_PAD_PX = 40
 JPEG_QUALITY = 95
 
 # Live + seed catalog root ids (incl. لوازم جانبی / اینسرت when renumbered).
-ROOT_IDS: frozenset[int] = frozenset({1, 2, 3, 4, 5, 6, 8, 9, 56, 81, 87, 154, 165})
+ROOT_IDS: frozenset[int] = frozenset(
+    {1, 2, 3, 4, 5, 6, 8, 9, 56, 81, 87, 154, 165, 186, 187, 188}
+)
 
 # Optional horizontal/vertical crop bias (0=left/top … 1=right/bottom) when
 # extreme-aspect sources are center-cropped to square.
@@ -131,6 +133,19 @@ CURATED_BY_ID: dict[int, list[str]] = {
     154: [
         "https://upload.wikimedia.org/wikipedia/commons/e/e0/DialTestIndicator2050-08.jpg",
     ],
+    # هلی‌کویل L1 roots (live ids 186–188)
+    186: [  # فنر هلی کویل
+        "https://upload.wikimedia.org/wikipedia/commons/a/af/Helicoil_plus.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/1/1b/Helicoil_14x1.25.jpg",
+    ],
+    187: [  # قلاویز هلی کویل
+        "https://upload.wikimedia.org/wikipedia/commons/1/1b/Helicoil_14x1.25.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/9/9b/Spiral_point_tap.jpg",
+    ],
+    188: [  # کیت کامل هلی کویل
+        "https://upload.wikimedia.org/wikipedia/commons/b/b7/Hit_Sert_precision_thread_inserts_M6_10_by_Colly_Company_AB_Lidingoe_Sweden.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/af/Helicoil_plus.jpg",
+    ],
 }
 
 # Fallback by normalized Persian name (for renamed roots or mid-level).
@@ -152,6 +167,10 @@ CURATED_BY_NAME: dict[str, list[str]] = {
     "دستگاه های صنعتی": CURATED_BY_ID[9],
     "لوازم جانبی صنعتی": CURATED_BY_ID[154],
     "لوازم جانبی": CURATED_BY_ID[154],
+    "فنر هلی کویل": CURATED_BY_ID[186],
+    "قلاویز هلی کویل": CURATED_BY_ID[187],
+    "کیت کامل هلی کویل": CURATED_BY_ID[188],
+    "اندازه گیری فرز CNC": CURATED_BY_ID[81],
     # Useful mid-level themes (optional when --include-mid)
     "کولت": [
         "https://upload.wikimedia.org/wikipedia/commons/4/4e/R8_Collet_with_end_mill.png",

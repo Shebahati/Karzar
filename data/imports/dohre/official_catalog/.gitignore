@@ -1,0 +1,6 @@
+pages/
+pdfs/
+*.html
+*.pdf
+*.txt
+!README.md

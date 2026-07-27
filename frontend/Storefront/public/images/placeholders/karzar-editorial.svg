@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <rect width="1600" height="900" fill="#F5F5F5"/>
+  <rect x="120" y="120" width="1360" height="660" rx="28" fill="#E7E7E7"/>
+  <path d="M220 680L500 430L720 610L940 360L1260 680H220Z" fill="#D6D6D6"/>
+  <circle cx="520" cy="320" r="74" fill="#C22026" fill-opacity="0.18"/>
+  <rect x="620" y="290" width="360" height="34" rx="8" fill="#C22026" fill-opacity="0.22"/>
+  <rect x="620" y="346" width="280" height="24" rx="8" fill="#C22026" fill-opacity="0.16"/>
+  <rect x="620" y="520" width="420" height="22" rx="8" fill="#B0B0B0"/>
+  <rect x="620" y="558" width="360" height="22" rx="8" fill="#C7C7C7"/>
+  <text x="620" y="470" fill="#5E5F5E" font-family="Arial, sans-serif" font-size="48" font-weight="700">KARZAR</text>
+</svg>

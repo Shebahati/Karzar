@@ -98,6 +98,24 @@ const config: Config = {
       spacing: {
         13: "3.25rem",
         18: "4.5rem",
+        /** FE-001 shared section rhythm (see globals.css :root). */
+        "section-y": "var(--space-section-y)",
+        "section-gap": "var(--space-section-gap)",
+      },
+      fontSize: {
+        section: [
+          "var(--type-section)",
+          { lineHeight: "1.35", fontWeight: "700" },
+        ],
+        "section-lg": [
+          "var(--type-section-lg)",
+          { lineHeight: "1.3", fontWeight: "700" },
+        ],
+        lede: ["var(--type-lede)", { lineHeight: "var(--leading-lede)" }],
+        "lede-lg": [
+          "var(--type-lede-lg)",
+          { lineHeight: "var(--leading-lede-lg)" },
+        ],
       },
       boxShadow: {
         soft: "0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06)",
