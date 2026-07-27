@@ -1,7 +1,7 @@
 # Project Status
 
 **Updated:** 2026-07-27  
-**Weighted progress:** 32%  
+**Weighted progress:** 44%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -16,6 +16,7 @@
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
 - [x] SEO-002 Hub intros + internal links (#91 → main @d92722a, staging deployed)
 - [x] SEO-004 Technical crawl hygiene (#94 → main @a119b38, staging deployed)
+- [x] UX-002 PDP trust + specs presentation (#96 → main @e8ea7bf, staging deployed)
 - [x] FE-001 (partial) Floating transparent hero header (#93 → main @53f0100)
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
@@ -25,7 +26,7 @@
 - [x] PMO bootstrap (#86 → main)
 - [ ] SEO — see `SEO_PROGRESS.md` (001/002/004 done; 003 open)
 - [ ] Content — see `CONTENT_PROGRESS.md`
-- [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (next: UX-002)
+- [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 done; next: UX-001 or FE-001)
 - [ ] Performance — see `CORE_WEB_VITALS_PROGRESS.md`
 - [ ] Security — see `SECURITY_PROGRESS.md`
 - [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
