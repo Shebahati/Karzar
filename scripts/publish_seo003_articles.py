@@ -38,23 +38,37 @@ def articles_path() -> Path:
     return ROOT / "frontend" / "Storefront" / "content" / "blog" / "articles.json"
 
 
+def _parse_env_file(path: Path) -> dict[str, str]:
+    out: dict[str, str] = {}
+    if not path.exists():
+        return out
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, val = line.split("=", 1)
+        out[key.strip()] = val.strip().strip("'").strip('"')
+    return out
+
+
 def _load_admin_creds() -> tuple[str, str]:
     phone = os.getenv("INITIAL_SUPER_ADMIN_PHONE")
     password = os.getenv("INITIAL_SUPER_ADMIN_PASSWORD")
     for secrets in (
         Path("/opt/karzar/.deploy-secrets"),
-        ROOT / ".deploy-secrets",
         Path("/opt/karzar/Karzar/.deploy-secrets"),
+        Path("/opt/karzar/Karzar/.env"),
+        ROOT / ".deploy-secrets",
+        ROOT / ".env",
     ):
-        if not secrets.exists():
-            continue
-        for line in secrets.read_text(encoding="utf-8").splitlines():
-            if line.startswith("INITIAL_SUPER_ADMIN_PHONE=") and not phone:
-                phone = line.split("=", 1)[1].strip()
-            if line.startswith("INITIAL_SUPER_ADMIN_PASSWORD=") and not password:
-                password = line.split("=", 1)[1].strip()
+        parsed = _parse_env_file(secrets)
+        phone = phone or parsed.get("INITIAL_SUPER_ADMIN_PHONE")
+        password = password or parsed.get("INITIAL_SUPER_ADMIN_PASSWORD")
     if not phone or not password:
-        raise RuntimeError("missing admin creds (INITIAL_SUPER_ADMIN_PHONE/PASSWORD)")
+        raise RuntimeError(
+            "missing admin creds (INITIAL_SUPER_ADMIN_PHONE/PASSWORD in env, "
+            ".deploy-secrets, or .env)"
+        )
     return phone, password
 
 
