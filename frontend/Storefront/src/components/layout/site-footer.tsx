@@ -4,6 +4,13 @@ import Link from "next/link";
 import { Call, Location, Message, ShieldDone } from "react-iconly";
 import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
+import {
+  STORE_ADDRESS_FA,
+  STORE_EMAIL,
+  STORE_MAPS_URL,
+  STORE_PHONE_DISPLAY,
+  STORE_PHONE_E164,
+} from "@/lib/store-location";
 
 const COLUMNS = [
   {
@@ -81,28 +88,33 @@ export function SiteFooter() {
               <li className="flex items-center gap-2.5">
                 <Call size="small" set="light" />
                 <a
-                  href="tel:+989912480087"
+                  href={`tel:${STORE_PHONE_E164}`}
                   className="transition-colors hover:text-primary tnum"
                   dir="ltr"
                 >
-                  09912480087
+                  {STORE_PHONE_DISPLAY}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Message size="small" set="light" />
                 <a
-                  href="mailto:info@karzartools.com"
+                  href={`mailto:${STORE_EMAIL}`}
                   className="transition-colors hover:text-primary"
                   dir="ltr"
                 >
-                  info@karzartools.com
+                  {STORE_EMAIL}
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <Location size="small" set="light" />
-                <span>
-                  تهران، امام خمینی، بین زندنژاد و مریخ، پاساژ فجر، پلاک ۱۰۸
-                </span>
+                <a
+                  href={STORE_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-primary"
+                >
+                  {STORE_ADDRESS_FA}
+                </a>
               </li>
               <li className="flex items-start gap-2.5 pt-1">
                 {/* Enamad: replace href/img with official badge snippet when issued */}

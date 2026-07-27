@@ -15,10 +15,11 @@
   - Definition of Done:
     - [x] Deployed staging
     - [x] Documented in STRUCTURED_DATA_PROGRESS
-  - Notes: Ship Product (url + gallery images) + gated Offer (IRR / catalog `base_price`) + BreadcrumbList on PDP; CollectionPage+ItemList+Breadcrumb on `/categories/[slug]`; Organization+WebSite+SearchAction in root layout. Vitest `json-ld.test.ts`. No aggregateRating/reviews invented.
+  - Notes: Ship Product (url + gallery images) + gated Offer (IRR / catalog `base_price`) + BreadcrumbList on PDP; CollectionPage+ItemList+Breadcrumb on `/categories/[slug]`; Organization+WebSite+SearchAction in root layout. Vitest `json-ld.test.ts`. No aggregateRating/reviews invented. Follow-up: layout Organization extended with LocalBusiness + PostalAddress + GeoCoordinates (35.6873, 51.40428) + hasMap to official KarZar Tools Google place; contact/footer Maps links aligned (no invented hours).
 
 ## Evidence log
 - [x] PR https://github.com/Shebahati/Karzar/pull/88
 - [x] Staging sample PDP (priced): /product/7115 Product+Offer IRR
 - [ ] Staging sample PDP (inquiry / null price) — Product without Offer (gate covered by vitest; null-price SKU scarce in first API page)
 - [x] Category hub CollectionPage/ItemList shipped (SSR on /categories/[slug])
+- [ ] Store LocalBusiness geo/hasMap on layout — PR pending (contact + footer Maps place)
