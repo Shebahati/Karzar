@@ -397,8 +397,8 @@
       "dod": [
         "CORE_WEB_VITALS_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 25,
+      "status": "done",
+      "progress": 100,
       "sprint": "02",
       "week": 3,
       "day": 3,
@@ -408,7 +408,7 @@
         "cwv"
       ],
       "risk": "med",
-      "notes": ""
+      "notes": "#99 → main @d169831; Deploy Staging green (30251144532). next/font IRANYekanX 400/500/700 subset+preload; LCP image props (priority/fetchPriority/q75) on hero#0, PDP gallery, first PLP/home cards; AVIF/WebP + deviceSizes; vitest cwv budgets."
     },
     {
       "id": "SEC-001",

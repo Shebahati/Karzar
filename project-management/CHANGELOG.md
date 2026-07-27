@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **PERF-001** Core Web Vitals foundations (fonts/LCP/image pipeline) — #99 → `main` @d169831; Deploy Staging green (30251144532)
 - [x] **UX-002** PDP trust strip + specs SoT presentation — #96 → `main` @e8ea7bf; Deploy Staging green; verified `/product/2000` (trust+RTL specs) + `/product/7115` (trust+JSON-LD)
 - [x] **OPS-001** Measurement promote workflow marked done in PMO — #81 → `main` @e1981b6 (merged 2026-07-26; Kanban sync)
 - [x] **SEO-004** Technical crawl hygiene — #94 → `main` @a119b38; Deploy Staging green; robots/sitemap/SITE_URL; empty-hub 404; facet+private noindex; sitemap 6007 urls

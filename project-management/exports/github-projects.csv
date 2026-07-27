@@ -9,7 +9,7 @@ CAT-002: INSIZE JSON-schema content fill (staging apply),Resume content-only INS
 CAT-003: Category image coverage for all L1+key L2,Ensure every homepage/megamenu root has full-bleed quality image.\n\nAC: 0 L1 without image; Visual QA mobile,todo,P1,10,"ui,images",Sprint 00
 UX-001: PLP filter + hub IA polish,"Improve category PLP filters, empty states, mobile sheet clarity.\n\nAC: Mobile filter usable in <3 taps; Empty states Persian",todo,P1,20,ux,Sprint 01
 UX-002: PDP trust + specs presentation,Clarify short vs long description; specs SoT; no duplicate bullets.\n\nAC: Specs not duplicated in long desc; Trust strip visible,done,P0,16,"ux,pdp",Sprint 01
-PERF-001: Core Web Vitals pass on home+PDP+PLP,LCP/INP/CLS budgets; image priority; font subsetting.\n\nAC: LCP≤2.5s mobile field or lab p75; CLS≤0.1,todo,P0,24,"perf,cwv",Sprint 02
+PERF-001: Core Web Vitals pass on home+PDP+PLP,LCP/INP/CLS budgets; image priority; font subsetting.\n\nAC: LCP≤2.5s mobile field or lab p75; CLS≤0.1,done,P0,24,"perf,cwv",Sprint 02
 SEC-001: Security hygiene pass for go-live bar,"Admin noindex, step-up coverage, dependency scan, secrets audit.\n\nAC: Admin X-Robots-Tag; No secrets in FE",todo,P1,12,security,Sprint 03
 BE-001: Catalog API readiness for SEO fields,"Ensure short_description, meta, specs exposed consistently to storefront.\n\nAC: Contract tests green; OpenAPI updated",todo,P1,10,"backend,seo",Sprint 00
 FE-001: Design system tokens + homepage consistency,Align home sections after hero/categories/why-karzar polish.\n\nAC: Shared tokens for spacing/type; No purple-default AI look,in_progress,P2,12,design,Sprint 01
