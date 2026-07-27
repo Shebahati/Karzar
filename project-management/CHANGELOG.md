@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-27
+- [x] **FE-001 follow-up** Separate page footer padding from section tokens (avoid double `pb-section-y` + `.home-stack`)
 - [x] **FE-001** Design system tokens + homepage consistency — shared section spacing/type tokens + home-stack; steel/red (closes remaining after #93)
 - [x] **TD-001** Pay down category depth/selectable FE drift — depth 2|3 helpers + docs; no depth===3-only filters
 - [x] **UX-001** PLP filter + hub IA polish — mobile quick chips ≤3 taps; Persian empty states; hub child nav
