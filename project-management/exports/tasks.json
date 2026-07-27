@@ -326,8 +326,8 @@
       "dod": [
         "UX_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 35,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 4,
@@ -336,7 +336,7 @@
         "ux"
       ],
       "risk": "low",
-      "notes": ""
+      "notes": "2026-07-27: mobile quick filter chips (≤3 taps) + Persian empty states + hub child nav; vitest ux-001-plp"
     },
     {
       "id": "UX-002",

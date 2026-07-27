@@ -26,19 +26,21 @@
 - [x] SEC-001 Security hygiene pass (admin X-Robots-Tag, secrets audit, step-up inventory, dep scan)
 - [x] CAT-001 enrichment PR triage closed (#67/#69 decided+merged; #90 deferred w/ CAT-002)
 - [x] BE-001 Catalog API SEO fields readiness (openapi snapshot + contract tests)
+- [x] UX-001 PLP filter + hub IA polish (mobile ≤3 taps + Persian empty + hub child nav)
+- [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
 - [x] SEO — see `SEO_PROGRESS.md` (001–004 done)
 - [x] Content — see `CONTENT_PROGRESS.md` (SEO-002/003 done)
-- [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 done; next: UX-001 or FE-001)
+- [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 + UX-001 done; next: FE-001)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001 closed; next highest-impact P1: UX-001 / CAT-003)
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; next: FE-001 / TD-001)
 
 ## Blockers
 See `BLOCKERS.md`

@@ -19,19 +19,6 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] SEO_PROGRESS note
   - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally
-- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
-  - Owner: unassigned | Week 2 Day 4 | Risk: low
-  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/src/components/**
-  - [ ] Modules: frontend, ux
-  - [ ] Tags: ux
-  - Acceptance Criteria:
-    - [ ] Mobile filter usable in <3 taps
-    - [ ] Empty states Persian
-  - Definition of Done:
-    - [ ] UX_PROGRESS
-
 - [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
   - Owner: unassigned | Week 5 Day 1 | Risk: med
   - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
@@ -87,6 +74,18 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
+  - Owner: unassigned | Week 2 Day 4 | Risk: low
+  - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/src/components/**
+  - [x] Modules: frontend, ux
+  - [x] Tags: ux
+  - Acceptance Criteria:
+    - [x] Mobile filter usable in <3 taps
+    - [x] Empty states Persian
+  - Definition of Done:
+    - [x] UX_PROGRESS
 - [x] **CAT-003** Category image coverage for all L1+key L2 — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
   - [x] Description: Ensure every homepage/megamenu root has full-bleed quality image.
