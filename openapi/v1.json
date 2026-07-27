@@ -1457,8 +1457,9 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Bulk stock adjustment (admin)",
+        "summary": "Deprecated: bulk quantity delta → binary availability",
         "operationId": "bulk_adjust_stock_api_v1_products_bulk_stock_adjust_post",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -2359,7 +2360,7 @@
           "Categories"
         ],
         "summary": "Delete a category with product reassignment",
-        "description": "Delete a leaf category; products must move to another selectable leaf (requires step-up PIN).",
+        "description": "Delete a leaf category; products must move to a selectable leaf (requires step-up PIN).",
         "operationId": "delete_category_api_v1_categories__category_id__delete",
         "security": [
           {
@@ -2389,10 +2390,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Selectable depth-3 leaf to receive products when the category is non-empty",
+              "description": "Selectable leaf (depth 2 or 3) to receive products when the category is non-empty. Parent is allowed when this node is its sole child (parent becomes a leaf after delete).",
               "title": "Target Category Id"
             },
-            "description": "Selectable depth-3 leaf to receive products when the category is non-empty"
+            "description": "Selectable leaf (depth 2 or 3) to receive products when the category is non-empty. Parent is allowed when this node is its sole child (parent becomes a leaf after delete)."
           },
           {
             "name": "X-Step-Up-Token",
@@ -7693,6 +7694,27 @@
               }
             ],
             "title": "Spec Template Key"
+          },
+          "megamenu_hidden": {
+            "type": "boolean",
+            "title": "Megamenu Hidden",
+            "default": false
+          },
+          "megamenu_as_leaf": {
+            "type": "boolean",
+            "title": "Megamenu As Leaf",
+            "default": false
+          },
+          "megamenu_bold": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu Bold"
           }
         },
         "type": "object",
@@ -7773,7 +7795,7 @@
           "is_selectable": {
             "type": "boolean",
             "title": "Is Selectable",
-            "description": "True only when depth==3 and the category is a leaf node"
+            "description": "True when the category is a leaf at depth 2 or 3 (not an L1 root)"
           },
           "breadcrumb": {
             "items": {
@@ -7855,6 +7877,27 @@
               }
             ],
             "title": "Spec Template Key"
+          },
+          "megamenu_hidden": {
+            "type": "boolean",
+            "title": "Megamenu Hidden",
+            "default": false
+          },
+          "megamenu_as_leaf": {
+            "type": "boolean",
+            "title": "Megamenu As Leaf",
+            "default": false
+          },
+          "megamenu_bold": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu Bold"
           }
         },
         "type": "object",
@@ -8055,6 +8098,27 @@
             ],
             "title": "Product Count"
           },
+          "megamenu_hidden": {
+            "type": "boolean",
+            "title": "Megamenu Hidden",
+            "default": false
+          },
+          "megamenu_as_leaf": {
+            "type": "boolean",
+            "title": "Megamenu As Leaf",
+            "default": false
+          },
+          "megamenu_bold": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu Bold"
+          },
           "subcategories": {
             "items": {
               "$ref": "#/components/schemas/CategoryTreeResponse"
@@ -8171,6 +8235,44 @@
               }
             ],
             "title": "Spec Template Key"
+          },
+          "megamenu_hidden": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu Hidden"
+          },
+          "megamenu_as_leaf": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu As Leaf"
+          },
+          "megamenu_bold": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megamenu Bold"
+          },
+          "unset_megamenu_bold": {
+            "type": "boolean",
+            "title": "Unset Megamenu Bold",
+            "default": false
           }
         },
         "type": "object",
@@ -10559,7 +10661,7 @@
             "type": "integer",
             "minimum": 1.0,
             "title": "Category Id",
-            "description": "Required selectable (depth-3 leaf) category"
+            "description": "Required selectable leaf category (depth 2 or 3)"
           },
           "brand_id": {
             "anyOf": [
@@ -10678,6 +10780,17 @@
             ],
             "title": "Pdf Catalog Url"
           },
+          "short_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Description"
+          },
           "description": {
             "anyOf": [
               {
@@ -10688,6 +10801,30 @@
               }
             ],
             "title": "Description"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
           },
           "original_price": {
             "anyOf": [
@@ -10728,6 +10865,17 @@
           "sku": {
             "type": "string",
             "title": "Sku"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
           },
           "name": {
             "type": "string",
@@ -10880,6 +11028,17 @@
             ],
             "title": "Pdf Catalog Url"
           },
+          "short_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Description"
+          },
           "description": {
             "anyOf": [
               {
@@ -10890,6 +11049,28 @@
               }
             ],
             "title": "Description"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
           },
           "thumbnail": {
             "anyOf": [
@@ -11058,9 +11239,31 @@
             "type": "string",
             "title": "Sku"
           },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
           "name": {
             "type": "string",
             "title": "Name"
+          },
+          "short_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Description"
           },
           "thumbnail": {
             "anyOf": [
@@ -11330,6 +11533,17 @@
             ],
             "title": "Pdf Catalog Url"
           },
+          "short_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Description"
+          },
           "description": {
             "anyOf": [
               {
@@ -11340,6 +11554,30 @@
               }
             ],
             "title": "Description"
+          },
+          "meta_title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Title"
+          },
+          "meta_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Description"
           },
           "original_price": {
             "anyOf": [

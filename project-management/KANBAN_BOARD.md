@@ -58,19 +58,6 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [x] SECURITY_PROGRESS
   - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
-- [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
-  - Owner: unassigned | Week 1 Day 4 | Risk: low
-  - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
-  - [ ] Dependencies: —
-  - [ ] Files: app/api/**, app/schemas/**
-  - [ ] Modules: backend
-  - [ ] Tags: backend, seo
-  - Acceptance Criteria:
-    - [ ] Contract tests green
-    - [ ] OpenAPI updated
-  - Definition of Done:
-    - [ ] BACKEND_PROGRESS
-  - Notes: #66/#68
 - [ ] **FE-001** Design system tokens + homepage consistency — `todo` 55% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
   - [ ] Description: Align home sections after hero/categories/why-karzar polish.
@@ -113,6 +100,20 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
+  - Owner: unassigned | Week 1 Day 4 | Risk: low
+  - [x] Description: Ensure short_description, meta, specs exposed consistently to storefront.
+  - [x] Dependencies: —
+  - [x] Files: app/api/**, app/schemas/**, openapi/v1.json
+  - [x] Modules: backend
+  - [x] Tags: backend, seo
+  - Acceptance Criteria:
+    - [x] Contract tests green
+    - [x] OpenAPI updated
+  - Definition of Done:
+    - [x] BACKEND_PROGRESS
+  - Notes: Regenerated `openapi/v1.json` (SEO fields on product schemas); #66/#68 plumbing; pytest SEO/audit 16 passed.
+
 - [x] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `done` 100% | P1 | 8h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
   - [x] Description: Merge or close remaining enrichment PRs with content-only guarantees.

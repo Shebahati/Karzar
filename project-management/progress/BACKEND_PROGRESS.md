@@ -29,19 +29,20 @@
     - [ ] SEO_PROGRESS note
   - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open; #74 closed intentionally
 
-- [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
+- [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low
-  - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
-  - [ ] Dependencies: —
-  - [ ] Files: app/api/**, app/schemas/**
-  - [ ] Modules: backend
-  - [ ] Tags: backend, seo
+  - [x] Description: Ensure short_description, meta, specs exposed consistently to storefront.
+  - [x] Dependencies: —
+  - [x] Files: app/api/**, app/schemas/**, openapi/v1.json
+  - [x] Modules: backend
+  - [x] Tags: backend, seo
   - Acceptance Criteria:
-    - [ ] Contract tests green
-    - [ ] OpenAPI updated
+    - [x] Contract tests green
+    - [x] OpenAPI updated
   - Definition of Done:
-    - [ ] BACKEND_PROGRESS
-  - Notes: #66/#68
+    - [x] BACKEND_PROGRESS
+  - Notes: Regenerated `openapi/v1.json` (SEO fields on product schemas); #66/#68 plumbing; pytest SEO/audit 16 passed.
+
 
 ## Evidence log
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

@@ -25,6 +25,7 @@
 - [x] 31 Shahrivar release freeze package documented (REL-001)
 - [x] SEC-001 Security hygiene pass (admin X-Robots-Tag, secrets audit, step-up inventory, dep scan)
 - [x] CAT-001 enrichment PR triage closed (#67/#69 decided+merged; #90 deferred w/ CAT-002)
+- [x] BE-001 Catalog API SEO fields readiness (openapi snapshot + contract tests)
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
@@ -37,7 +38,7 @@
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001 closed; next highest-impact P1: BE-001 / UX-001 / CAT-003)
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001 closed; next highest-impact P1: UX-001 / CAT-003)
 
 ## Blockers
 See `BLOCKERS.md`
