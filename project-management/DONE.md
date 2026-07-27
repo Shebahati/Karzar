@@ -22,4 +22,5 @@ Move completed task IDs here with date + PR.
 - [x] REL-001 Release readiness for 31 Shahrivar checkpoint — 2026-07-27 — PMO release gates/scope freeze/rollback/monitoring pack completed (this PR)
 - [x] SEC-001 Security hygiene pass for go-live bar — 2026-07-27 — admin X-Robots-Tag + secrets audit + step-up inventory + Pillow 12.3.0 (this PR; merge SHA pending)
 - [x] BE-001 Catalog API SEO fields readiness — 2026-07-27 — openapi regen + contract tests (this PR)
-- [x] CAT-003 Category L1 image coverage — 2026-07-27 — this PR (helicoil + curated map)
+- [x] CAT-003 Category L1 image coverage — 2026-07-27 — #112 → `main` @fb7d628 (staging deployed)
+- [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — this PR (quick filters + Persian empty + hub child nav)

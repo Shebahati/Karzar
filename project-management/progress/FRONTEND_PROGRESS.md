@@ -2,18 +2,19 @@
 
 **Rollup:** 55%
 
-- [ ] **UX-001** PLP filter + hub IA polish — `todo` 35% | P1 | 20h | Sprint 01
+- [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
-  - [ ] Description: Improve category PLP filters, empty states, mobile sheet clarity.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/Storefront/src/components/**
-  - [ ] Modules: frontend, ux
-  - [ ] Tags: ux
+  - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.
+  - [x] Dependencies: —
+  - [x] Files: frontend/Storefront/src/components/**
+  - [x] Modules: frontend, ux
+  - [x] Tags: ux
   - Acceptance Criteria:
-    - [ ] Mobile filter usable in <3 taps
-    - [ ] Empty states Persian
+    - [x] Mobile filter usable in <3 taps
+    - [x] Empty states Persian
   - Definition of Done:
-    - [ ] UX_PROGRESS
+    - [x] UX_PROGRESS
+
 - [x] **UX-002** PDP trust + specs presentation — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 5 | Risk: low
   - [x] Description: Clarify short vs long description; specs SoT; no duplicate bullets.

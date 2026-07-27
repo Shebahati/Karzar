@@ -23,9 +23,12 @@ export function FilterPanel({
   onApplied,
   /** When true, each change notifies parent (legacy). Prefer false + footer CTA on mobile. */
   notifyOnChange = false,
+  /** Mobile drawer: open high-traffic sections so filters need fewer taps. */
+  mobileDefaults = false,
 }: {
   onApplied?: () => void;
   notifyOnChange?: boolean;
+  mobileDefaults?: boolean;
 }) {
   const {
     params,
@@ -97,6 +100,19 @@ export function FilterPanel({
 
   const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
   const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
+  const openBrand =
+    mobileDefaults || selectedBrandIds.length > 0;
+  // On mobile, brand opens by default; category only when already scoped.
+  const openCategory =
+    params.category_id != null ||
+    (!mobileDefaults && selectedRoots.length > 0);
+  const openCountry = selectedCountries.length > 0;
+  const openPrice =
+    params.min_price != null || params.max_price != null;
+  const openStock = Boolean(params.in_stock);
+  const openSpecs = Boolean(
+    params.spec_filters && Object.keys(params.spec_filters).length > 0,
+  );
 
   return (
     <div className="space-y-3">
@@ -126,7 +142,7 @@ export function FilterPanel({
             ? "زیرمجموعه‌های ریشه‌های انتخاب‌شده در کاروسل"
             : "همان ریشه‌های صفحهٔ اصلی؛ برای محدود کردن از کاروسل بالا استفاده کنید"
         }
-        defaultOpen={false}
+        defaultOpen={openCategory}
       >
         <div className="relative mb-3">
           <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -177,7 +193,7 @@ export function FilterPanel({
             : "می‌توانید چند برند را همزمان انتخاب کنید"
         }
         badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
-        defaultOpen={false}
+        defaultOpen={openBrand}
       >
         {(brands?.length ?? 0) > 6 && (
           <div className="relative mb-3">
@@ -266,7 +282,7 @@ export function FilterPanel({
               ? toPersianDigits(selectedCountries.length)
               : undefined
           }
-          defaultOpen={false}
+          defaultOpen={openCountry}
         >
           {selectedCountries.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -324,7 +340,7 @@ export function FilterPanel({
         </AccordionFilter>
       )}
 
-      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={false}>
+      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={openPrice}>
         <PriceRangeSlider
           minValue={priceMin}
           maxValue={priceMax}
@@ -340,7 +356,7 @@ export function FilterPanel({
         />
       </AccordionFilter>
 
-      <AccordionFilter title="موجودی" defaultOpen={false}>
+      <AccordionFilter title="موجودی" defaultOpen={openStock}>
         <Checkbox
           id="in-stock-only"
           checked={params.in_stock ?? false}
@@ -357,7 +373,7 @@ export function FilterPanel({
         <AccordionFilter
           title="مشخصات فنی"
           hint="بر اساس دستهٔ انتخاب‌شده"
-          defaultOpen={false}
+          defaultOpen={openSpecs}
         >
           {Object.entries(specOptions.technical_specs).map(([key, values]) => (
             <SpecFilterRow
