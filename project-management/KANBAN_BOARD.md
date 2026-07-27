@@ -6,23 +6,10 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
-  - Owner: unassigned | Week 1 Day 2 | Risk: low
-  - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/**, data/imports/**
-  - [ ] Modules: catalog
-  - [ ] Tags: catalog, ops
-  - Acceptance Criteria:
-    - [ ] Each open enrichment PR decided
-    - [ ] No price writes
-  - Definition of Done:
-    - [ ] PROJECT_STATUS updated
-  - Notes: #71/#72 merged or open — verify
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **DEFERRED** (post-checkpoint / launch-bar)
   - Owner: unassigned | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
-  - [ ] Dependencies: CAT-001
+  - [x] Dependencies: CAT-001
   - [ ] Files: scripts/enrich_insize*.py
   - [ ] Modules: catalog, seo
   - [ ] Tags: insize, content
@@ -31,7 +18,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: #74 closed intentionally
+  - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally
 - [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
   - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
@@ -97,10 +84,10 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] DESIGN_SYSTEM_PROGRESS
   - Notes: #85 why-karzar/categories
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
   - Owner: unassigned | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
-  - [ ] Dependencies: SEO-003
+  - [x] Dependencies: SEO-003
   - [ ] Files: docs/KNOWLEDGE_PLATFORM*.md, app/**
   - [ ] Modules: knowledge
   - [ ] Tags: knowledge
@@ -109,7 +96,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: Defer if hours overrun
+  - Notes: DEFERRED per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path
 - [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
   - Owner: unassigned | Week 1 Day 5 | Risk: low
   - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
@@ -126,6 +113,19 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## done
+- [x] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `done` 100% | P1 | 8h | Sprint 00
+  - Owner: unassigned | Week 1 Day 2 | Risk: low
+  - [x] Description: Merge or close remaining enrichment PRs with content-only guarantees.
+  - [x] Dependencies: —
+  - [x] Files: scripts/**, data/imports/**
+  - [x] Modules: catalog
+  - [x] Tags: catalog, ops
+  - Acceptance Criteria:
+    - [x] Each open enrichment PR decided
+    - [x] No price writes
+  - Definition of Done:
+    - [x] PROJECT_STATUS updated
+  - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
 - [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
   - Owner: unassigned | Week 8 Day 5 | Risk: med
   - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.

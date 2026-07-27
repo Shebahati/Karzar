@@ -10,7 +10,7 @@
 - [x] Metrology L1 reshape (56/81/87) + megamenu-only label
 - [x] Admin categories/megamenu unified (#85)
 - [x] Remove padding «عمومی» L3 leaves — #87; staging apply **23 cats / 1970 products**
-- [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
+- [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU, #69 Dohre (0-SKU tooling)
 - [x] Ops/CI on `main`: **OPS-001** #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
 - [x] Living PMO (#86 → main; PMO-001 done)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
@@ -24,6 +24,7 @@
 - [x] CWV budgets green (PERF-001 foundations; field p75 monitor ongoing)
 - [x] 31 Shahrivar release freeze package documented (REL-001)
 - [x] SEC-001 Security hygiene pass (admin X-Robots-Tag, secrets audit, step-up inventory, dep scan)
+- [x] CAT-001 enrichment PR triage closed (#67/#69 decided+merged; #90 deferred w/ CAT-002)
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
@@ -32,11 +33,11 @@
 - [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-002 done; next: UX-001 or FE-001)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
-- [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
-- [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
+- [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
+- [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 closed; next highest-impact P1: BE-001 / UX-001 / CAT-*)
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001 closed; next highest-impact P1: BE-001 / UX-001 / CAT-003)
 
 ## Blockers
 See `BLOCKERS.md`

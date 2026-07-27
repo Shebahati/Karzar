@@ -65,3 +65,5 @@
 - [x] SEO-003 PR https://github.com/Shebahati/Karzar/pull/102 (+ #103/#104) + staging `/blog/digital-caliper-workshop-accuracy`
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 + staging hub `/categories/انواع-کولیس`
 - [x] SEO-001 #88 + staging /product/7115
+
+- [x] CAT-002 INSIZE apply deferred (post-checkpoint); tooling candidate remains #90
