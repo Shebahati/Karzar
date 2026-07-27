@@ -11,7 +11,7 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] **SEO-003** Publish 24 buyer-intent articles (calendar) — `todo` 5% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [ ] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
-  - [ ] Dependencies: SEO-002
+  - [x] Dependencies: SEO-002
   - [ ] Files: content/blog/**, frontend/Storefront/**
   - [ ] Modules: content, seo
   - [ ] Tags: content, seo
@@ -23,18 +23,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] CONTENT_CALENDAR checked
     - [ ] Live
   - Notes: Quality > volume; AI-assisted draft + human QA
-- [ ] **SEO-004** Technical SEO crawl hygiene — `todo` 30% | P0 | 12h | Sprint 01
-  - Owner: unassigned | Week 2 Day 2 | Risk: low
-  - [ ] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
-  - [ ] Dependencies: SEO-001
-  - [ ] Files: frontend/Storefront/**, deploy/**
-  - [ ] Modules: seo, ops
-  - [ ] Tags: seo, tech
-  - Acceptance Criteria:
-    - [ ] 0 soft-404 hubs
-    - [ ] Sitemap <50k urls valid
-  - Definition of Done:
-    - [ ] TECHNICAL_SEO_PROGRESS
+
 - [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
   - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
@@ -200,24 +189,37 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: Open PR #81
 
 ## in_progress
-
-- [ ] **PMO-001** Bootstrap living PMO workspace — `in_progress` 70% | P0 | 8h | Sprint 00
-  - Owner: agent | Week 1 Day 1 | Risk: low
-  - [ ] Description: Create project-management SoT, exports, Cursor rule, printable boards.
-  - [ ] Dependencies: —
-  - [ ] Files: project-management/**, .cursor/rules/pmo-living-system.mdc
-  - [ ] Modules: docs, ops
-  - [ ] Tags: pmo, meta
-  - Acceptance Criteria:
-    - [ ] All required PMO files exist
-    - [ ] Cursor rule alwaysApply
-    - [ ] Exports importable
-  - Definition of Done:
-    - [ ] Merged to main
-    - [ ] Linked from README
-  - Notes: This PR
+- [ ] _(empty)_
 
 ## done
+- [x] **SEO-004** Technical SEO crawl hygiene — `done` 100% | P0 | 12h | Sprint 01
+  - Owner: unassigned | Week 2 Day 2 | Risk: low
+  - [x] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
+  - [x] Dependencies: SEO-001
+  - [x] Files: frontend/Storefront/**, deploy/**
+  - [x] Modules: seo, ops
+  - [x] Tags: seo, tech
+  - Acceptance Criteria:
+    - [x] 0 soft-404 hubs
+    - [x] Sitemap <50k urls valid
+  - Definition of Done:
+    - [x] TECHNICAL_SEO_PROGRESS
+  - Notes: #94 → main @a119b38; Deploy Staging green; soft-404→404; facet/private noindex; sitemap 6007 urls
+- [x] **PMO-001** Bootstrap living PMO workspace — `done` 100% | P0 | 8h | Sprint 00
+  - Owner: agent | Week 1 Day 1 | Risk: low
+  - [x] Description: Create project-management SoT, exports, Cursor rule, printable boards.
+  - [x] Dependencies: —
+  - [x] Files: project-management/**, .cursor/rules/pmo-living-system.mdc
+  - [x] Modules: docs, ops
+  - [x] Tags: pmo, meta
+  - Acceptance Criteria:
+    - [x] All required PMO files exist
+    - [x] Cursor rule alwaysApply
+    - [x] Exports importable
+  - Definition of Done:
+    - [x] Merged to main
+    - [x] Linked from README
+  - Notes: #86 → main; living PMO in active use
 - [x] **SEO-002** Category hub content + internal linking for mid-tail — `done` 100% | P0 | 24h | Sprint 01
   - Owner: unassigned | Week 2 Day 3 | Risk: med
   - [x] Description: Write hub intros for L1/L2 metrology+cutting; link to leaves and guides.

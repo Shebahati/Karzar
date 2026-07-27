@@ -27,8 +27,8 @@
     - [ ] No purple-default AI look
   - Definition of Done:
     - [ ] DESIGN_SYSTEM_PROGRESS
-  - Notes: #85 why-karzar/categories; floating transparent home header over hero (glass on scroll)
+  - Notes: #85 why-karzar/categories; floating transparent home header over hero (#93 → main @53f0100)
 
 ## Evidence log
-- [ ] Floating home header / full-bleed hero polish (PR pending)
+- [x] Floating home header / full-bleed hero polish — #93 → `main` @53f0100 (staging deployed)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

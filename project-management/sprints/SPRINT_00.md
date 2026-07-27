@@ -7,21 +7,21 @@
 - [ ] PMO, PR triage, images, selectable FE drift
 
 ## Tasks
-- [ ] **PMO-001** Bootstrap living PMO workspace — `in_progress` 70% | P0 | 8h | Sprint 00
+- [x] **PMO-001** Bootstrap living PMO workspace — `done` 100% | P0 | 8h | Sprint 00
   - Owner: agent | Week 1 Day 1 | Risk: low
-  - [ ] Description: Create project-management SoT, exports, Cursor rule, printable boards.
-  - [ ] Dependencies: —
-  - [ ] Files: project-management/**, .cursor/rules/pmo-living-system.mdc
-  - [ ] Modules: docs, ops
-  - [ ] Tags: pmo, meta
+  - [x] Description: Create project-management SoT, exports, Cursor rule, printable boards.
+  - [x] Dependencies: —
+  - [x] Files: project-management/**, .cursor/rules/pmo-living-system.mdc
+  - [x] Modules: docs, ops
+  - [x] Tags: pmo, meta
   - Acceptance Criteria:
-    - [ ] All required PMO files exist
-    - [ ] Cursor rule alwaysApply
-    - [ ] Exports importable
+    - [x] All required PMO files exist
+    - [x] Cursor rule alwaysApply
+    - [x] Exports importable
   - Definition of Done:
-    - [ ] Merged to main
-    - [ ] Linked from README
-  - Notes: This PR
+    - [x] Merged to main
+    - [x] Linked from README
+  - Notes: #86 → main; living PMO in active use (SEO-001/002/004)
 - [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
   - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.

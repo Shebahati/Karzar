@@ -1,7 +1,7 @@
 # Executive Summary — Karzar to 31 Shahrivar ۱۴۰۵
 
-**Date:** 2026-07-26  
-**Checkpoint:** 2026-09-22 (~58 days / ~8 weeks)
+**Date:** 2026-07-27  
+**Checkpoint:** 2026-09-22 (~57 days / ~8 weeks)
 
 ## Direct answers (required before execution)
 
@@ -39,7 +39,7 @@
 - [x] SEO-001 Schema Product/Offer/Breadcrumb (#88)
 - [x] SEO-002 Hub intros + internal links (#91)
 - [ ] SEO-003 24 articles
-- [ ] SEO-004 Technical SEO hygiene
+- [x] SEO-004 Technical SEO hygiene (#94)
 - [ ] UX-002 PDP specs/trust
 - [ ] PERF-001 CWV home/PDP/PLP
 - [ ] REL-001 Release freeze
