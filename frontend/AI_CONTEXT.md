@@ -433,7 +433,7 @@ location.href = '/';
 
 - Zod schema: `features/catalog/product-schema.ts`
 - Spec form داینامیک: `product-specifications-form.tsx` از template دسته
-- دسته فقط leaf لایه ۳: `category-leaf-combobox.tsx` + `isLayer3Leaf()` در `category-tree.ts`
+- دسته برگ قابل‌انتخاب (عمق ۲ یا ۳): `category-leaf-combobox.tsx` + `isSelectableProductCategory()` در `category-tree.ts`
 - Mapper: `toProductCreatePayload` / `toProductUpdatePayload`
 
 ### React Query defaults (`providers.tsx`)
@@ -654,16 +654,16 @@ async someMethod(params) {
 
 ## 12. مدل داده و دسته‌بندی
 
-### قانون ۳ لایه (حیاتی)
+### قانون عمق (حیاتی)
 
 ```
-Depth 1 (root)     → مثلاً «ابزار برقی»
-  Depth 2 (mid)    → مثلاً «دریل و دریل شارژی»
-    Depth 3 (leaf) → مثلاً «دریل چکشی» ← فقط اینجا product + spec template
+Depth 1 (root)     → مثلاً «ابزار برقی» — محصول نمی‌گیرد
+  Depth 2 (mid/leaf) → مثلاً «دریل و دریل شارژی» — اگر برگ باشد، محصول + قالب مشخصات مجاز
+    Depth 3 (leaf) → مثلاً «دریل چکشی» ← محصول + مشخصات؛ برخی شاخه‌ها فقط تا عمق ۲ هستند
 ```
 
 **توابع کلیدی:**
-- Admin: `src/features/catalog/utils/category-tree.ts` → `isLayer3Leaf()`, `flattenCategoryTree()`
+- Admin: `src/features/catalog/utils/category-tree.ts` → `isSelectableProductCategory()`, `flattenCategoryTree()`
 - Storefront: `src/lib/category-tree.ts` → `collectDescendantIds()` برای فیلتر subtree
 - Backend: `app/utils/category_depth.py`, `app/utils/category_tree.py`
 

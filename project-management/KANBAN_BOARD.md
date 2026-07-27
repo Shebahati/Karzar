@@ -58,22 +58,22 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
   - Notes: DEFERRED per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path
-- [ ] **TD-001** Pay down category depth / selectable FE drift — `todo` 50% | P2 | 6h | Sprint 00
-  - Owner: unassigned | Week 1 Day 5 | Risk: low
-  - [ ] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
-  - [ ] Dependencies: —
-  - [ ] Files: frontend/admin-panel/**
-  - [ ] Modules: frontend, techdebt
-  - [ ] Tags: techdebt
-  - Acceptance Criteria:
-    - [ ] No depth===3-only filters left
-  - Definition of Done:
-    - [ ] TECH_DEBT
 
 ## in_progress
 - [ ] _(empty)_
 
 ## done
+- [x] **TD-001** Pay down category depth / selectable FE drift — `done` 100% | P2 | 6h | Sprint 00
+  - Owner: unassigned | Week 1 Day 5 | Risk: low
+  - [x] Description: Align admin FE helpers with depth-2|3 selectable rule everywhere.
+  - [x] Dependencies: —
+  - [x] Files: frontend/admin-panel/**
+  - [x] Modules: frontend, techdebt
+  - [x] Tags: techdebt
+  - Acceptance Criteria:
+    - [x] No depth===3-only filters left
+  - Definition of Done:
+    - [x] TECH_DEBT
 - [x] **UX-001** PLP filter + hub IA polish — `done` 100% | P1 | 20h | Sprint 01
   - Owner: unassigned | Week 2 Day 4 | Risk: low
   - [x] Description: Improve category PLP filters, empty states, mobile sheet clarity.

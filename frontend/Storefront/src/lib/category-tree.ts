@@ -1,6 +1,18 @@
 import type { Category, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import { CATEGORY_ICONS } from "@/data/mock-data";
 
+/** Mirror admin/backend: products attach to leaf depth 2 or 3 (not L1). */
+const MAX_CATEGORY_DEPTH = 3;
+const MIN_PRODUCT_CATEGORY_DEPTH = 2;
+
+function isSelectableProductCategory(depth: number, isLeaf: boolean): boolean {
+  return (
+    isLeaf &&
+    depth >= MIN_PRODUCT_CATEGORY_DEPTH &&
+    depth <= MAX_CATEGORY_DEPTH
+  );
+}
+
 /** Build depth/leaf/breadcrumb metadata for a flat category list. */
 export function enrichCategories(categories: Category[]): CategoryFlat[] {
   const byId = new Map(categories.map((c) => [c.id, c]));
@@ -28,7 +40,7 @@ export function enrichCategories(categories: Category[]): CategoryFlat[] {
       ...c,
       depth,
       is_leaf,
-      is_selectable: depth === 2 || depth === 3 ? is_leaf : false,
+      is_selectable: isSelectableProductCategory(depth, is_leaf),
       breadcrumb,
       ancestor_ids,
       icon: c.parent_id == null ? CATEGORY_ICONS[c.id] : undefined,

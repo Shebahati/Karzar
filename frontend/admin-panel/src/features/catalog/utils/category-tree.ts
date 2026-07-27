@@ -1,5 +1,9 @@
 import type { CategoryFlat, CategoryTreeNode } from "@/types/category";
 
+/** Mirror app.utils.category_depth — products attach to leaf depth 2 or 3 (not L1). */
+export const MAX_CATEGORY_DEPTH = 3;
+export const MIN_PRODUCT_CATEGORY_DEPTH = 2;
+
 /** Flatten nested tree into rows with depth, breadcrumb, and leaf metadata. */
 export function flattenCategoryTree(
   nodes: CategoryTreeNode[],
@@ -35,12 +39,11 @@ export function flattenCategoryTree(
 
 /** Product leaves: depth 2 or 3 with no children (not L1 roots). */
 export function isSelectableProductCategory(depth: number, isLeaf: boolean): boolean {
-  return isLeaf && (depth === 2 || depth === 3);
-}
-
-/** @deprecated Prefer isSelectableProductCategory — kept for call-site compatibility. */
-export function isLayer3Leaf(depth: number, isLeaf: boolean): boolean {
-  return isSelectableProductCategory(depth, isLeaf);
+  return (
+    isLeaf &&
+    depth >= MIN_PRODUCT_CATEGORY_DEPTH &&
+    depth <= MAX_CATEGORY_DEPTH
+  );
 }
 
 /**

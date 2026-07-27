@@ -609,8 +609,8 @@
       "dod": [
         "TECH_DEBT"
       ],
-      "status": "todo",
-      "progress": 50,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 5,
@@ -619,7 +619,7 @@
         "techdebt"
       ],
       "risk": "low",
-      "notes": ""
+      "notes": "2026-07-27: removed depth===3-only column filter; dropped isLayer3Leaf; aligned FE constants+docs with backend depth 2|3; vitest category-tree"
     },
     {
       "id": "OPS-001",
