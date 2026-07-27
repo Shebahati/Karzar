@@ -147,7 +147,7 @@ describe("buildSitewideJsonLd", () => {
     ]);
     const org = graph[0];
     expect(org).toMatchObject({
-      hasMap: expect.stringContaining("google.com/maps/place/KarZar+Tools"),
+      hasMap: "/contact#store-address",
       telephone: "+989912480087",
       email: "info@karzartools.com",
       address: {

@@ -33,6 +33,23 @@
     - [x] Live
   - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles; verified `/blog/digital-caliper-workshop-accuracy`.
 
+- [x] **CONTENT-URL-001** Remove non-Karzar website references from storefront content/images — `done` 100% | P0 | 6h | Sprint 04
+  - Owner: unassigned | Week 4 Day 2 | Risk: med
+  - [x] Description: Purge external website mentions from customer-facing content, replace third-party image links with local assets, and remove external footer/contact website links.
+  - [x] Dependencies: SEO-003
+  - [x] Files: frontend/Storefront/content/**, frontend/Storefront/src/**, frontend/Storefront/public/images/placeholders/**
+  - [x] Modules: content, ui
+  - [x] Tags: content, ux, compliance
+  - Acceptance Criteria:
+    - [x] No non-Karzar website references in storefront content payloads
+    - [x] All customer-visible article/about images served from local assets
+    - [x] Contact/footer external website links removed
+  - Definition of Done:
+    - [x] CONTENT_PROGRESS updated
+    - [x] CHANGELOG updated
+  - Notes: Local placeholder assets added for article/about/map visuals; Google Maps and Enamad external links removed from customer-visible footer/contact surface; removed www.craftsman.com mark from categories/drills.jpg.
+
 ## Evidence log
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 — 15 hubs live
 - [x] SEO-003 PR https://github.com/Shebahati/Karzar/pull/102 (+ #103/#104) — 24 articles live
+- [x] CONTENT-URL-001 cleanup PR pending — non-Karzar website references removed from storefront content/UI surface

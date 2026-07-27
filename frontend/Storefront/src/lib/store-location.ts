@@ -1,7 +1,7 @@
 /**
  * Single source of truth for KarZar Tools storefront contact / map identity.
- * Street address matches existing contact + footer copy; Maps place is the
- * official Google listing (g/11ntgsmq22). Do not invent hours here.
+ * Street address matches existing contact + footer copy.
+ * External map links are intentionally excluded from customer-facing content.
  */
 
 export const STORE_NAME = "KarZar Tools";
@@ -14,13 +14,11 @@ export const STORE_ADDRESS_FA =
 export const STORE_ADDRESS_LOCALITY = "تهران";
 export const STORE_ADDRESS_COUNTRY = "IR";
 
-/** Official Google Maps place (KarZar Tools). */
-export const STORE_MAPS_URL =
-  "https://www.google.com/maps/place/KarZar+Tools/@35.6873,51.40428,17z/data=!3m1!4b1!4m6!3m5!1s0x3f8e01002501921b:0xf1af8e0b47b31b9f!8m2!3d35.6873!4d51.40428!16s%2Fg%2F11ntgsmq22";
+/** Internal contact anchor for storefront address access. */
+export const STORE_MAPS_URL = "/contact#store-address";
 
-/** Lazy iframe embed pinned to place coordinates (no Maps Embed API key). */
-export const STORE_MAPS_EMBED_URL =
-  "https://www.google.com/maps?q=35.6873,51.40428&z=17&hl=fa&output=embed";
+/** Local map placeholder asset (no third-party embeds). */
+export const STORE_MAPS_EMBED_URL = "/images/placeholders/store-location-map.svg";
 
 export const STORE_GEO = {
   latitude: 35.6873,
