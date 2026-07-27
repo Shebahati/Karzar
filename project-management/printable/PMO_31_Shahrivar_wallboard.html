@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>کارزار — تخته PMO تا ۳۱ شهریور | Karzar Wallboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --brand: #C22026;
+    --brand-deep: #8E161B;
+    --ink: #16181D;
+    --muted: #5A616E;
+    --line: #D8DCE3;
+    --paper: #F7F8FA;
+    --card: #FFFFFF;
+    --done: #1F7A4D;
+    --done-bg: #E8F5EE;
+    --wip: #B85A12;
+    --wip-bg: #FFF3E6;
+    --todo: #3D4654;
+    --todo-bg: #EEF1F5;
+    --defer: #6B6478;
+    --defer-bg: #F1EFF4;
+    --p0-tint: #FFF5F5;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  @page {
+    size: A4 portrait;
+    margin: 11mm 12mm 12mm 12mm;
+  }
+
+  body {
+    margin: 0;
+    background: #E6E8ED;
+    color: var(--ink);
+    font-family: "Vazirmatn", "IBM Plex Sans", Tahoma, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  .sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 16px;
+    padding: 12mm 12mm 14mm;
+    background:
+      linear-gradient(180deg, rgba(194,32,38,0.04) 0%, transparent 28%),
+      radial-gradient(120% 60% at 100% 0%, rgba(22,24,29,0.035), transparent 55%),
+      var(--paper);
+    position: relative;
+    page-break-after: always;
+    break-after: page;
+  }
+  .sheet:last-child { page-break-after: auto; break-after: auto; margin-bottom: 0; }
+
+  .en { font-family: "IBM Plex Sans", "Vazirmatn", sans-serif; direction: ltr; unicode-bidi: isolate; }
+  .mono { font-family: "IBM Plex Sans", ui-monospace, monospace; direction: ltr; unicode-bidi: isolate; letter-spacing: 0.02em; }
+
+  /* —— Header —— */
+  .mast {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+    border-bottom: 2.5px solid var(--brand);
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .brand-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brand-mark .logo {
+    font-weight: 800;
+    font-size: 26pt;
+    letter-spacing: -0.02em;
+    color: var(--brand);
+    line-height: 1;
+  }
+  .brand-mark .sub {
+    font-size: 9pt;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mast h1 {
+    margin: 6px 0 0;
+    font-size: 15pt;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .mast-meta {
+    text-align: left;
+    direction: ltr;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 8pt;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .mast-meta strong { color: var(--ink); font-weight: 600; }
+  .badge {
+    display: inline-block;
+    background: var(--brand);
+    color: #fff;
+    font-weight: 700;
+    font-size: 8pt;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "";
+    width: 3.5px;
+    height: 1em;
+    background: var(--brand);
+    border-radius: 2px;
+    flex: 0 0 auto;
+  }
+  h3 {
+    margin: 0 0 6px;
+    font-size: 9.5pt;
+    font-weight: 700;
+  }
+
+  /* —— Legend —— */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 0 0 12px;
+    font-size: 8pt;
+    color: var(--muted);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+  }
+  .dot {
+    width: 9px; height: 9px; border-radius: 2px; display: inline-block;
+  }
+  .dot.done { background: var(--done); }
+  .dot.wip { background: var(--wip); }
+  .dot.todo { background: var(--todo); }
+  .dot.defer { background: var(--defer); }
+  .dot.p0 { background: var(--brand); }
+
+  /* —— North star —— */
+  .north {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-right: 4px solid var(--brand);
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border-radius: 2px;
+  }
+  .north p { margin: 0; font-size: 9.5pt; }
+  .north .kpi {
+    margin-top: 6px;
+    font-size: 8.5pt;
+    color: var(--muted);
+  }
+  .north .kpi strong { color: var(--brand-deep); }
+
+  /* —— Stats row —— */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 9px 10px;
+    border-radius: 2px;
+  }
+  .stat .k { font-size: 7.5pt; color: var(--muted); font-weight: 600; }
+  .stat .v {
+    margin-top: 2px;
+    font-size: 16pt;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .stat .h { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
+
+  /* —— Progress —— */
+  .prog-block { margin-bottom: 14px; }
+  .prog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+    font-size: 8.5pt;
+  }
+  .prog-head strong { font-size: 10pt; }
+  .track {
+    height: 12px;
+    background: #E2E5EB;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+  .track > i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-deep), var(--brand));
+    border-radius: 2px;
+  }
+  .track.green > i { background: linear-gradient(90deg, #16653F, var(--done)); }
+
+  .bars {
+    display: grid;
+    gap: 5px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 36px;
+    gap: 8px;
+    align-items: center;
+    font-size: 8pt;
+  }
+  .bar-row .id { font-weight: 700; }
+  .bar-row .mini {
+    height: 8px;
+    background: #E6E9EF;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-row .mini i { display: block; height: 100%; background: var(--brand); }
+  .bar-row.done .mini i { background: var(--done); }
+  .bar-row .pct { text-align: left; direction: ltr; color: var(--muted); font-family: "IBM Plex Sans", sans-serif; }
+
+  /* —— Two columns —— */
+  .cols-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 10px 11px;
+  }
+  .panel ul { margin: 0; padding: 0 14px 0 0; }
+  .panel li { margin: 3px 0; }
+  .panel li.done { color: var(--done); }
+  .panel li.todo { color: var(--todo); }
+  .panel li.defer { color: var(--defer); }
+
+  /* —— Timeline —— */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .tl {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 8px;
+    min-height: 92px;
+    position: relative;
+  }
+  .tl::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; left: 0;
+    height: 3px;
+    background: var(--line);
+  }
+  .tl.done::before { background: var(--done); }
+  .tl.wip::before { background: var(--wip); }
+  .tl.todo::before { background: var(--todo); }
+  .tl .wk {
+    font-size: 7.5pt;
+    color: var(--muted);
+    font-family: "IBM Plex Sans", sans-serif;
+    direction: ltr;
+    text-align: left;
+  }
+  .tl .name { font-weight: 700; font-size: 9pt; margin: 2px 0 4px; }
+  .tl ul { margin: 0; padding: 0 12px 0 0; font-size: 7.5pt; color: var(--muted); }
+  .tl li { margin: 1px 0; }
+
+  /* —— Milestone strip —— */
+  .ms {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin: 8px 0 14px;
+    position: relative;
+  }
+  .ms::before {
+    content: "";
+    position: absolute;
+    top: 11px;
+    right: 8%;
+    left: 8%;
+    height: 2px;
+    background: var(--line);
+    z-index: 0;
+  }
+  .ms-item {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    padding: 0 4px;
+  }
+  .ms-dot {
+    width: 14px; height: 14px;
+    margin: 4px auto 6px;
+    border-radius: 50%;
+    border: 2.5px solid var(--line);
+    background: var(--paper);
+  }
+  .ms-item.done .ms-dot { background: var(--done); border-color: var(--done); }
+  .ms-item.wip .ms-dot { background: var(--wip); border-color: var(--wip); }
+  .ms-item .d {
+    font-size: 7pt;
+    font-family: "IBM Plex Sans", sans-serif;
+    direction: ltr;
+    color: var(--muted);
+  }
+  .ms-item .t { font-size: 7.5pt; font-weight: 600; margin-top: 2px; }
+
+  /* —— Task table —— */
+  table.board {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    background: var(--card);
+  }
+  table.board th {
+    background: #EEF0F4;
+    font-weight: 700;
+    text-align: right;
+    padding: 5px 6px;
+    border: 1px solid var(--line);
+    font-size: 7.5pt;
+  }
+  table.board td {
+    padding: 4px 6px;
+    border: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  table.board tr.p0 td:first-child { box-shadow: inset -3px 0 0 var(--brand); }
+  table.board .st {
+    display: inline-block;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+  .st.done { background: var(--done-bg); color: var(--done); }
+  .st.wip { background: var(--wip-bg); color: var(--wip); }
+  .st.todo { background: var(--todo-bg); color: var(--todo); }
+  .st.defer { background: var(--defer-bg); color: var(--defer); }
+
+  .cb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .box {
+    width: 11px; height: 11px;
+    border: 1.5px solid #6B7280;
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 8px;
+    line-height: 1;
+  }
+  .cb.checked .box {
+    background: var(--done);
+    border-color: var(--done);
+    color: #fff;
+  }
+  .cb.checked { color: var(--done); }
+  .cb.open .box { background: #fff; }
+
+  /* —— Dep graph —— */
+  .deps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 8pt;
+    margin-bottom: 10px;
+  }
+  .chip {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 3px 7px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-family: "IBM Plex Sans", "Vazirmatn", sans-serif;
+    direction: ltr;
+  }
+  .chip.done { background: var(--done-bg); border-color: #B7DFC8; color: var(--done); }
+  .chip.open { background: var(--p0-tint); border-color: #F0B4B6; color: var(--brand-deep); }
+  .arrow { color: var(--muted); font-family: "IBM Plex Sans", sans-serif; direction: ltr; }
+
+  /* —— Checklist —— */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .check-grid label {
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+    font-size: 8.5pt;
+    padding: 4px 0;
+    border-bottom: 1px dashed #E2E5EB;
+  }
+  .check-grid .box { margin-top: 2px; }
+
+  .foot {
+    position: absolute;
+    bottom: 8mm;
+    left: 12mm;
+    right: 12mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 7pt;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 5px;
+    font-family: "IBM Plex Sans", "Vazirmatn", sans-serif;
+  }
+  .note {
+    font-size: 7.5pt;
+    color: var(--muted);
+    margin: 6px 0 0;
+    line-height: 1.4;
+  }
+  .callout {
+    background: var(--wip-bg);
+    border: 1px solid #F0D2A8;
+    border-radius: 2px;
+    padding: 7px 10px;
+    font-size: 8pt;
+    margin: 8px 0 0;
+  }
+  .hours {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .hours .panel .v {
+    font-size: 14pt;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .hours .panel .k { font-size: 7.5pt; color: var(--muted); font-weight: 600; }
+
+  .section { margin-bottom: 14px; }
+
+  @media print {
+    body { background: #fff; }
+    .sheet {
+      width: auto;
+      min-height: auto;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      box-shadow: none;
+    }
+    .no-print { display: none !important; }
+  }
+
+  @media screen {
+    body { padding: 20px 0 40px; }
+    .sheet {
+      box-shadow: 0 8px 28px rgba(22,24,29,0.12);
+    }
+    .toolbar {
+      max-width: 210mm;
+      margin: 0 auto 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      font-size: 9pt;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .toolbar button {
+      background: var(--brand);
+      color: #fff;
+      border: 0;
+      padding: 7px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <div>
+    <strong>کارزار PMO Wallboard</strong>
+    <span class="en" style="color:var(--muted)"> · A4 portrait · Print / Save as PDF</span>
+  </div>
+  <button type="button" onclick="window.print()">چاپ / PDF</button>
+</div>
+
+<!-- ===================== PAGE 1 ===================== -->
+<section class="sheet" aria-label="Page 1 — Executive">
+  <header class="mast">
+    <div>
+      <div class="brand-mark">
+        <div class="logo">کارزار</div>
+        <div class="sub en">Karzar Tools · Living PMO</div>
+      </div>
+      <h1>تخته پیگیری پروژه تا ۳۱ شهریور ۱۴۰۵</h1>
+    </div>
+    <div class="mast-meta">
+      <span class="badge">CHECKPOINT</span><br/>
+      <strong>2026-09-22</strong> · 31 Shahrivar<br/>
+      As-of <strong>2026-07-27</strong><br/>
+      Source: <span class="mono">origin/main</span> PMO
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="pill"><i class="dot done"></i> انجام‌شده Done</span>
+    <span class="pill"><i class="dot wip"></i> در حال انجام In progress</span>
+    <span class="pill"><i class="dot todo"></i> باقی‌مانده Todo</span>
+    <span class="pill"><i class="dot defer"></i> موکول Deferred</span>
+    <span class="pill"><i class="dot p0"></i> اولویت P0</span>
+  </div>
+
+  <div class="north">
+    <p><strong>North-star:</strong> قابل‌اعتمادترین فروشگاه ابزار صنعتی فارسی برای کوئری‌های mid-tail خریدار — با UX قوی و SEO فنی محکم؛ رشد تدریجی به‌سمت head terms.</p>
+    <p class="kpi"><strong>KPI چک‌پوینت:</strong> کیفیت + mid-tail قابل ایندکس + CWV — <em>نه</em> رنک ۱ «کولیس» / «ابزار تراش».</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="k">پیشرفت وزن‌دار · Weighted</div>
+      <div class="v" style="color:var(--brand)">52%</div>
+      <div class="h en">PROJECT_STATUS</div>
+    </div>
+    <div class="stat">
+      <div class="k">روز تا چک‌پوینت · Days left</div>
+      <div class="v">≈57</div>
+      <div class="h">≈ ۸ هفته · 8 weeks</div>
+    </div>
+    <div class="stat">
+      <div class="k">P0 انجام‌شده / کل</div>
+      <div class="v">6<span style="font-size:11pt;color:var(--muted)">/8</span></div>
+      <div class="h en">tasks · ~100 / 170h done</div>
+    </div>
+    <div class="stat">
+      <div class="k">مقالات هدف · Articles</div>
+      <div class="v">24</div>
+      <div class="h">SEO-003 · buyer-intent</div>
+    </div>
+  </div>
+
+  <div class="section prog-block">
+    <div class="prog-head">
+      <strong>پیشرفت کلی پورتفolio</strong>
+      <span class="en">Overall weighted progress</span>
+    </div>
+    <div class="track"><i style="width:52%"></i></div>
+  </div>
+
+  <div class="section">
+    <h2>P0 Freeze Set — تا ۳۱ شهریور <span class="en" style="font-weight:500;color:var(--muted);font-size:8.5pt">≈ 170 eng+content hours</span></h2>
+    <div class="bars">
+      <div class="bar-row done"><span class="id mono">PMO-001</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row done"><span class="id mono">SEO-001</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row done"><span class="id mono">SEO-002</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row"><span class="id mono">SEO-003</span><div class="mini"><i style="width:5%"></i></div><span class="pct">5%</span></div>
+      <div class="bar-row done"><span class="id mono">SEO-004</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row done"><span class="id mono">UX-002</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row done"><span class="id mono">PERF-001</span><div class="mini"><i style="width:100%"></i></div><span class="pct">100%</span></div>
+      <div class="bar-row"><span class="id mono">REL-001</span><div class="mini"><i style="width:0%"></i></div><span class="pct">0%</span></div>
+    </div>
+    <p class="note">P0 باقی‌مانده در Living PMO: <span class="mono">SEO-003</span> (۶۰h · ۵٪) + <span class="mono">REL-001</span> (۱۰h). مجموع ≈ ۶۷h کار باز روی مسیر freeze.</p>
+    <div class="callout">
+      <strong>یادداشت هم‌ترازی main:</strong> PR <span class="mono">#102</span> (۲۴ مقاله SEO-003) روی <span class="mono">main</span> merge شده؛ Deploy Staging ناموفق بوده و Kanban هنوز <span class="mono">todo @5%</span> است تا verify + sync PMO.
+    </div>
+  </div>
+
+  <div class="hours">
+    <div class="panel">
+      <div class="k">ساعت P0 · Freeze</div>
+      <div class="v">≈170h</div>
+      <div style="font-size:7.5pt;color:var(--muted);margin-top:4px">۱–۲ مهندس + QA محتوا · ۱۵–۲۵h/هفته</div>
+    </div>
+    <div class="panel">
+      <div class="k">کل بک‌لاگ P0–P2</div>
+      <div class="v">≈300h</div>
+      <div style="font-size:7.5pt;color:var(--muted);margin-top:4px">فشار روی زمان‌بندی؛ KB موکول</div>
+    </div>
+    <div class="panel">
+      <div class="k">AI leverage</div>
+      <div class="v">۳۰–۴۰٪</div>
+      <div style="font-size:7.5pt;color:var(--muted);margin-top:4px">wall-clock؛ QA/publish/CWV انسانی</div>
+    </div>
+  </div>
+
+  <div class="cols-2">
+    <div class="panel">
+      <h3>واقع‌بینانه تا چک‌پوینت · Yes</h3>
+      <ul>
+        <li class="done">فروشگاه پایدار + UX قوی</li>
+        <li class="done">CWV قابل قبول (PERF-001)</li>
+        <li class="done">SEO foundation + schema</li>
+        <li class="todo">۲۴ مقاله باکیفیت (SEO-003)</li>
+        <li class="todo">catalog hygiene + freeze</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>غیرواقع‌بینانه · Explicit non-goals</h3>
+      <ul>
+        <li class="defer">رنک ۱ گوگل روی «کولیس»</li>
+        <li class="defer">knowledge platform کامل (KB-001)</li>
+        <li class="defer">enrichment همه برندها</li>
+        <li class="defer">صفر tech debt / mega design-system</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>کارزار · PMO Wallboard · صفحه ۱ از ۴</span>
+    <span class="en">project-management/printable/PMO_31_Shahrivar_wallboard.pdf</span>
+  </div>
+</section>
+
+<!-- ===================== PAGE 2 ===================== -->
+<section class="sheet" aria-label="Page 2 — Timeline">
+  <header class="mast">
+    <div>
+      <div class="brand-mark">
+        <div class="logo" style="font-size:20pt">کارزار</div>
+        <div class="sub en">Timeline · Sprints · Dependencies</div>
+      </div>
+      <h1>جدول زمانی تا ۳۱ شهریور · Sprint map</h1>
+    </div>
+    <div class="mast-meta">
+      Weeks from <strong>2026-07-26</strong><br/>
+      Freeze <strong>2026-09-22</strong>
+    </div>
+  </header>
+
+  <div class="section">
+    <h2>مایلستون‌ها · Milestones</h2>
+    <div class="ms">
+      <div class="ms-item done">
+        <div class="ms-dot"></div>
+        <div class="d">07-26</div>
+        <div class="t">M0 · PMO live</div>
+      </div>
+      <div class="ms-item done">
+        <div class="ms-dot"></div>
+        <div class="d">08-09</div>
+        <div class="t">M1 · Schema+hubs</div>
+      </div>
+      <div class="ms-item wip">
+        <div class="ms-dot"></div>
+        <div class="d">08-30</div>
+        <div class="t">M2 · Articles+CWV</div>
+      </div>
+      <div class="ms-item">
+        <div class="ms-dot"></div>
+        <div class="d">09-13</div>
+        <div class="t">M3 · 24 articles</div>
+      </div>
+      <div class="ms-item">
+        <div class="ms-dot"></div>
+        <div class="d">09-22</div>
+        <div class="t">M4 · Freeze</div>
+      </div>
+    </div>
+    <p class="note">وضعیت مایلستون بر اساس وضعیت تسک‌های Living PMO: Schema/hubs/CWV انجام؛ مقالات و freeze باز. (فایل <span class="mono">milestones.json</span> ممکن است عقب باشد.)</p>
+  </div>
+
+  <div class="section">
+    <h2>اسپرینت‌ها · Sprint outline 00–04</h2>
+    <div class="timeline">
+      <div class="tl done">
+        <div class="wk">W1 · S00</div>
+        <div class="name">Foundation</div>
+        <ul>
+          <li>✓ PMO-001</li>
+          <li>✓ OPS-001</li>
+          <li>□ CAT-001/003</li>
+          <li>□ BE-001 · TD-001</li>
+        </ul>
+      </div>
+      <div class="tl done">
+        <div class="wk">W2–3 · S01</div>
+        <div class="name">SEO + PDP</div>
+        <ul>
+          <li>✓ SEO-001/002/004</li>
+          <li>✓ UX-002</li>
+          <li>□ UX-001</li>
+          <li>◐ FE-001 65%</li>
+        </ul>
+      </div>
+      <div class="tl wip">
+        <div class="wk">W3–5 · S02</div>
+        <div class="name">Content + CWV</div>
+        <ul>
+          <li>✓ PERF-001</li>
+          <li>□ SEO-003 5%</li>
+          <li>□ CAT-002</li>
+        </ul>
+      </div>
+      <div class="tl todo">
+        <div class="wk">W5–6 · S03</div>
+        <div class="name">Finish + Sec</div>
+        <ul>
+          <li>□ SEO-003 wrap</li>
+          <li>□ SEC-001 50%</li>
+        </ul>
+      </div>
+      <div class="tl todo">
+        <div class="wk">W7–8 · S04</div>
+        <div class="name">Freeze</div>
+        <ul>
+          <li>◇ KB-001 defer</li>
+          <li>□ REL-001</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>وابستگی‌های سطح بالا · Critical path</h2>
+    <div class="deps">
+      <span class="chip done">PMO-001</span>
+      <span class="arrow">→</span>
+      <span class="chip done">SEO-001</span>
+      <span class="arrow">→</span>
+      <span class="chip done">SEO-002</span>
+      <span class="arrow">→</span>
+      <span class="chip open">SEO-003</span>
+      <span class="arrow">→</span>
+      <span class="chip open">REL-001</span>
+    </div>
+    <div class="deps">
+      <span class="chip done">SEO-001</span>
+      <span class="arrow">→</span>
+      <span class="chip done">SEO-004</span>
+      <span class="arrow">·</span>
+      <span class="chip done">UX-002</span>
+      <span class="arrow">·</span>
+      <span class="chip done">PERF-001</span>
+      <span class="arrow">→</span>
+      <span class="chip open">REL-001</span>
+    </div>
+    <div class="deps">
+      <span class="chip open">CAT-001</span>
+      <span class="arrow">→</span>
+      <span class="chip open">CAT-002</span>
+      <span class="arrow">·</span>
+      <span class="chip open">CAT-003</span>
+      <span class="arrow">→</span>
+      <span class="chip open">FE-001</span>
+      <span class="arrow">·</span>
+      <span class="chip open">SEC-001</span>
+      <span class="arrow">→</span>
+      <span class="chip open">REL-001</span>
+    </div>
+    <p class="note">REL-001 deps در PMO: <span class="mono">SEO-003 + PERF-001 + SEC-001</span>. KB-001 وابسته به SEO-003 است و در صورت overrun موکول می‌شود.</p>
+  </div>
+
+  <div class="cols-2">
+    <div class="panel">
+      <h3>Outcome map · اهداف</h3>
+      <ul>
+        <li class="done"><span class="cb checked"><span class="box">✓</span></span> O1 IA + megamenu</li>
+        <li class="done"><span class="cb checked"><span class="box">✓</span></span> O2 Taxonomy metrology</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> O3 Schema + crawl (عملاً نزدیک کامل)</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> O4 ۲۴ راهنما لینک‌شده به SKU</li>
+        <li class="done"><span class="cb checked"><span class="box">✓</span></span> O5 CWV money pages</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> O6 Release freeze</li>
+      </ul>
+      <p class="note">O3/O5 در MASTER_ROADMAP هنوز unchecked اما تسک‌های SEO-001/004 و PERF-001 در Kanban done هستند.</p>
+    </div>
+    <div class="panel">
+      <h3>Release gate · REL-001</h3>
+      <ul>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> همه P0 انجام یا defer صریح</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> CWV budgets recorded</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> Schema smoke passed</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> No Sev1 blockers</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> Backup verified</li>
+        <li class="todo"><span class="cb open"><span class="box"></span></span> Rollback + CHANGELOG</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>ریسک و بلاکر · Snapshot</h2>
+    <div class="cols-2">
+      <div class="panel">
+        <h3>Blockers</h3>
+        <ul>
+          <li class="done">✓ Runner offline (رفع شد)</li>
+          <li class="todo">□ Editorial QA برای ۲۴ مقاله</li>
+          <li class="todo">□ Owner assignment برای P0</li>
+          <li class="todo">□ GSC API (اختیاری)</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Top risks</h3>
+        <ul>
+          <li>R1 انتظار head-term vs mid-tail</li>
+          <li>R2 hallucination مشخصات با AI</li>
+          <li>R3 رگرسیون CWV از تصاویر</li>
+          <li>R6 scope creep دانش‌نامه</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>کارزار · PMO Wallboard · صفحه ۲ از ۴</span>
+    <span class="en">Checkpoint 2026-09-22 · Living PMO</span>
+  </div>
+</section>
+
+<!-- ===================== PAGE 3 ===================== -->
+<section class="sheet" aria-label="Page 3 — Task board">
+  <header class="mast">
+    <div>
+      <div class="brand-mark">
+        <div class="logo" style="font-size:20pt">کارزار</div>
+        <div class="sub en">Full task wallboard · 18 tracked</div>
+      </div>
+      <h1>تخته تسک‌ها · Done vs Remaining</h1>
+    </div>
+    <div class="mast-meta">
+      From <span class="mono">exports/tasks.json</span><br/>
+      + Kanban / Sprint SoT
+    </div>
+  </header>
+
+  <table class="board">
+    <thead>
+      <tr>
+        <th style="width:12%">وضعیت</th>
+        <th style="width:14%">ID</th>
+        <th>عنوان · Title</th>
+        <th style="width:7%">Pri</th>
+        <th style="width:8%">Hours</th>
+        <th style="width:7%">%</th>
+        <th style="width:8%">Sprint</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> PMO-001</span></td>
+        <td>Bootstrap living PMO workspace</td>
+        <td>P0</td><td class="en">8h</td><td class="en">100</td><td class="en">S00</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> SEO-001</span></td>
+        <td>Product/Offer/Breadcrumb JSON-LD · PDP+PLP</td>
+        <td>P0</td><td class="en">16h</td><td class="en">100</td><td class="en">S01</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> SEO-002</span></td>
+        <td>Hub intros + internal linking · mid-tail</td>
+        <td>P0</td><td class="en">24h</td><td class="en">100</td><td class="en">S01</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> SEO-004</span></td>
+        <td>Technical SEO crawl hygiene</td>
+        <td>P0</td><td class="en">12h</td><td class="en">100</td><td class="en">S01</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> UX-002</span></td>
+        <td>PDP trust + specs presentation</td>
+        <td>P0</td><td class="en">16h</td><td class="en">100</td><td class="en">S01</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> PERF-001</span></td>
+        <td>CWV foundations · home + PDP + PLP</td>
+        <td>P0</td><td class="en">24h</td><td class="en">100</td><td class="en">S02</td>
+      </tr>
+      <tr>
+        <td><span class="st done">DONE</span></td>
+        <td class="mono"><span class="cb checked"><span class="box">✓</span> OPS-001</span></td>
+        <td>Measurement promote workflow #81</td>
+        <td>P2</td><td class="en">2h</td><td class="en">100</td><td class="en">S00</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> SEO-003</span></td>
+        <td>۲۴ مقاله buyer-intent · calendar A–D</td>
+        <td>P0</td><td class="en">60h</td><td class="en">5</td><td class="en">S02</td>
+      </tr>
+      <tr>
+        <td><span class="st wip">WIP</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> FE-001</span></td>
+        <td>Design tokens + homepage consistency (partial header #93)</td>
+        <td>P2</td><td class="en">12h</td><td class="en">65</td><td class="en">S01</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> BE-001</span></td>
+        <td>Catalog API SEO fields readiness</td>
+        <td>P1</td><td class="en">10h</td><td class="en">70</td><td class="en">S00</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> CAT-003</span></td>
+        <td>Category image coverage L1 + key L2</td>
+        <td>P1</td><td class="en">10h</td><td class="en">60</td><td class="en">S00</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> SEC-001</span></td>
+        <td>Security hygiene · go-live bar</td>
+        <td>P1</td><td class="en">12h</td><td class="en">50</td><td class="en">S03</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> TD-001</span></td>
+        <td>Category depth / selectable FE drift</td>
+        <td>P2</td><td class="en">6h</td><td class="en">50</td><td class="en">S00</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> CAT-001</span></td>
+        <td>Enrichment PR triage close-out</td>
+        <td>P1</td><td class="en">8h</td><td class="en">40</td><td class="en">S00</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> UX-001</span></td>
+        <td>PLP filter + hub IA polish</td>
+        <td>P1</td><td class="en">20h</td><td class="en">35</td><td class="en">S01</td>
+      </tr>
+      <tr>
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> CAT-002</span></td>
+        <td>INSIZE content fill · staging apply</td>
+        <td>P1</td><td class="en">20h</td><td class="en">15</td><td class="en">S02</td>
+      </tr>
+      <tr>
+        <td><span class="st defer">DEFER</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> KB-001</span></td>
+        <td>Knowledge graph phase-1 · بعد از ۳۱ شهریور اگر overrun</td>
+        <td>P2</td><td class="en">30h</td><td class="en">10</td><td class="en">S04</td>
+      </tr>
+      <tr class="p0">
+        <td><span class="st todo">TODO</span></td>
+        <td class="mono"><span class="cb open"><span class="box"></span> REL-001</span></td>
+        <td>Release readiness · ۳۱ شهریور freeze</td>
+        <td>P0</td><td class="en">10h</td><td class="en">0</td><td class="en">S04</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section" style="margin-top:12px">
+    <h2>ساعت‌های باقی‌مانده تقریبی · Remaining effort</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">P0 باز</div>
+        <div class="v" style="font-size:14pt">≈67h</div>
+        <div class="h en">SEO-003 + REL-001</div>
+      </div>
+      <div class="stat">
+        <div class="k">P1 باز</div>
+        <div class="v" style="font-size:14pt">≈48h</div>
+        <div class="h">CAT / UX / SEC / BE</div>
+      </div>
+      <div class="stat">
+        <div class="k">P2 باز (بدون KB)</div>
+        <div class="v" style="font-size:14pt">≈7h</div>
+        <div class="h en">FE-001 + TD-001</div>
+      </div>
+      <div class="stat">
+        <div class="k">موکول · KB-001</div>
+        <div class="v" style="font-size:14pt;color:var(--defer)">≈27h</div>
+        <div class="h">بعد از چک‌پوینت</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>کارزار · PMO Wallboard · صفحه ۳ از ۴</span>
+    <span class="en">Reflects living PMO — do not invent scope</span>
+  </div>
+</section>
+
+<!-- ===================== PAGE 4 ===================== -->
+<section class="sheet" aria-label="Page 4 — Remaining checklist">
+  <header class="mast">
+    <div>
+      <div class="brand-mark">
+        <div class="logo" style="font-size:20pt">کارزار</div>
+        <div class="sub en">Daily tracking checklist</div>
+      </div>
+      <h1>چک‌لیست باقی‌مانده · تا freeze</h1>
+    </div>
+    <div class="mast-meta">
+      Print &amp; tick daily<br/>
+      Hang beside desk
+    </div>
+  </header>
+
+  <div class="section">
+    <h2>مسیر بحرانی P0 · Must ship / close</h2>
+    <div class="check-grid">
+      <label><span class="box"></span><span><strong class="mono">SEO-003</strong> — ۲۴ مقاله منتشر + لینک ≥۲ محصول + FAQ جایی که مناسب · staging verify پس از #102</span></label>
+      <label><span class="box"></span><span><strong class="mono">REL-001</strong> — امضای RELEASE_PLAN · rollback · monitoring · CHANGELOG</span></label>
+      <label><span class="box"></span><span>Editorial QA ظرفیت مقالات (بلاکر باز)</span></label>
+      <label><span class="box"></span><span>Owner matrix برای P0 (D6)</span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>P1 توصیه برای کیفیت چک‌پوینت</h2>
+    <div class="check-grid">
+      <label><span class="box"></span><span><strong class="mono">SEC-001</strong> — admin noindex · secrets · dep scan (۱۲h · ۵۰٪)</span></label>
+      <label><span class="box"></span><span><strong class="mono">UX-001</strong> — PLP filter موبایل &lt;۳ لمس (۲۰h · ۳۵٪)</span></label>
+      <label><span class="box"></span><span><strong class="mono">BE-001</strong> — قرارداد API فیلدهای SEO (۱۰h · ۷۰٪)</span></label>
+      <label><span class="box"></span><span><strong class="mono">CAT-001</strong> — triage enrichment PRها بدون price write</span></label>
+      <label><span class="box"></span><span><strong class="mono">CAT-003</strong> — تصویر همه L1 / L2 کلیدی</span></label>
+      <label><span class="box"></span><span><strong class="mono">CAT-002</strong> — INSIZE content-only ≥۲۰۰ SKU (پس از CAT-001)</span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>P2 / موکول · بعد از ۳۱ شهریور در صورت فشار</h2>
+    <div class="check-grid">
+      <label><span class="box"></span><span><strong class="mono">FE-001</strong> — تکمیل design tokens (الان ۶۵٪ · header شفاف انجام)</span></label>
+      <label><span class="box"></span><span><strong class="mono">TD-001</strong> — selectable depth drift در admin FE</span></label>
+      <label><span class="box"></span><span><strong class="mono">KB-001</strong> — knowledge graph seed · <em>defer default</em></span></label>
+      <label><span class="box"></span><span>Rank-chasing head terms به‌عنوان KPI اصلی — نه برای این چک‌پوینت</span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>انجام‌شده اخیر · Already landed (مرجع دیواری)</h2>
+    <div class="check-grid">
+      <label class="cb checked"><span class="box">✓</span><span>SEO-001 #88 · SEO-002 #91 · SEO-004 #94</span></label>
+      <label class="cb checked"><span class="box">✓</span><span>UX-002 #96 · PERF-001 #99 · OPS-001 #81</span></label>
+      <label class="cb checked"><span class="box">✓</span><span>PMO-001 #86 · Taxonomy/hero/megamenu waves</span></label>
+      <label class="cb checked"><span class="box">✓</span><span>Enrichment tooling #70–#73 · remove «عمومی» #87</span></label>
+    </div>
+  </div>
+
+  <div class="north" style="margin-top:14px">
+    <p><strong>تصمیم ثابت:</strong> Checkpoint KPI = <strong>quality + indexable mid-tail + CWV</strong> — نه #1 head-term rank.</p>
+    <p class="kpi">منبع حقیقت: <span class="mono">project-management/</span> روی <span class="mono">origin/main</span> · این PDF فقط نمای چاپی است؛ هنگام تغییر scope، Living PMO را به‌روز کنید.</p>
+  </div>
+
+  <div class="cols-2" style="margin-top:12px">
+    <div class="panel">
+      <h3>اسکیما هدف · ۸–۱۲ الگو</h3>
+      <p style="margin:0;font-size:8pt;color:var(--muted)" class="en">Organization · WebSite · BreadcrumbList · Product · Offer · AggregateRating? · FAQPage · ItemList · Article · CollectionPage</p>
+    </div>
+    <div class="panel">
+      <h3>تست‌ها · ۲۵–۵۰</h3>
+      <p style="margin:0;font-size:8pt;color:var(--muted)">API contract + storefront unit/e2e smoke برای مسیرهای SEO/CWV</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>کارزار · PMO Wallboard · صفحه ۴ از ۴ · As-of 2026-07-27</span>
+    <span class="en">Weighted 52% · P0 path ≈170h · Freeze 31 Shahrivar</span>
+  </div>
+</section>
+
+</body>
+</html>
