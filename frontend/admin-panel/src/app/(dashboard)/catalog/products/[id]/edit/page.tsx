@@ -187,17 +187,59 @@ export default function EditProductPage() {
               </Field>
 
               <Field
-                label="توضیحات"
+                label="توضیح کوتاه"
+                htmlFor="short_description"
+                error={errors.short_description?.message}
+                hint="نمایش در صفحه محصول و منبع پیش‌فرض متا/JSON-LD"
+                className="sm:col-span-2"
+              >
+                <textarea
+                  id="short_description"
+                  rows={3}
+                  className="w-full rounded-xl border border-input bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  aria-invalid={Boolean(errors.short_description)}
+                  {...register("short_description")}
+                />
+              </Field>
+
+              <Field
+                label="توضیحات کامل"
                 htmlFor="description"
                 error={errors.description?.message}
                 className="sm:col-span-2"
               >
                 <textarea
                   id="description"
-                  rows={4}
+                  rows={5}
                   className="w-full rounded-xl border border-input bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   aria-invalid={Boolean(errors.description)}
                   {...register("description")}
+                />
+              </Field>
+
+              <Field
+                label="Meta title"
+                htmlFor="meta_title"
+                error={errors.meta_title?.message}
+                hint="اختیاری — در صورت خالی بودن، نام محصول استفاده می‌شود"
+              >
+                <Input
+                  id="meta_title"
+                  aria-invalid={Boolean(errors.meta_title)}
+                  {...register("meta_title")}
+                />
+              </Field>
+
+              <Field
+                label="Meta description"
+                htmlFor="meta_description"
+                error={errors.meta_description?.message}
+                hint="اختیاری — در صورت خالی بودن، توضیح کوتاه اولویت دارد"
+              >
+                <Input
+                  id="meta_description"
+                  aria-invalid={Boolean(errors.meta_description)}
+                  {...register("meta_description")}
                 />
               </Field>
 
@@ -213,7 +255,7 @@ export default function EditProductPage() {
               </Field>
 
               <Field
-                label="دسته‌بندی (لایه ۳)"
+                label="دسته‌بندی (برگ قابل‌انتخاب)"
                 required
                 error={errors.category_id?.message}
                 className="sm:col-span-2"

@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { HomeView } from "@/components/home/home-view";
+import { NAV_GROUPS, navGroupsFromApi } from "@/config/nav-groups";
 import { catalogKeys } from "@/features/catalog/keys";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
@@ -14,6 +15,14 @@ export default async function HomePage() {
     queryClient.prefetchQuery({
       queryKey: catalogKeys.hero(),
       queryFn: () => catalogService.listHeroSlides(),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: catalogKeys.navGroups(),
+      queryFn: async () => {
+        const rows = await catalogService.listNavGroups();
+        const fromApi = navGroupsFromApi(rows);
+        return fromApi.length > 0 ? fromApi : NAV_GROUPS;
+      },
     }),
     queryClient.prefetchQuery({
       queryKey: catalogKeys.categoriesTree(),

@@ -599,6 +599,10 @@ function buildSeedProduct(
 
   return {
     description: null,
+    short_description: null,
+    meta_title: null,
+    meta_description: null,
+    slug: `product-${partial.id}`,
     original_price: null,
     discount_percent: null,
     warranty_text: "۱۸ ماه گارانتی شرکتی",
@@ -965,7 +969,11 @@ export const mockApi = {
       id: nextProductId++,
       sku,
       name: payload.name.trim(),
+      short_description: payload.short_description ?? null,
       description: payload.description ?? null,
+      meta_title: payload.meta_title ?? null,
+      meta_description: payload.meta_description ?? null,
+      slug: `product-${nextProductId - 1}`,
       category_id: payload.category_id,
       brand_id: payload.brand_id ?? null,
       base_price: payload.base_price != null ? payload.base_price.toFixed(2) : null,
@@ -1001,6 +1009,10 @@ export const mockApi = {
     const current = products[index];
     if (payload.sku) current.sku = payload.sku.trim().toUpperCase();
     if (payload.name) current.name = payload.name.trim();
+    if (payload.short_description !== undefined) current.short_description = payload.short_description;
+    if (payload.description !== undefined) current.description = payload.description;
+    if (payload.meta_title !== undefined) current.meta_title = payload.meta_title;
+    if (payload.meta_description !== undefined) current.meta_description = payload.meta_description;
     if (payload.category_id) current.category_id = payload.category_id;
     if (payload.brand_id !== undefined) current.brand_id = payload.brand_id;
     if (payload.specifications) current.specifications = payload.specifications;

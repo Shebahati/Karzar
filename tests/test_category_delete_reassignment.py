@@ -75,7 +75,7 @@ class TestCategoryDeleteReassignment:
         }
         assert "target_category_id" in detail_fields
 
-    def test_delete_with_products_rejects_parent_as_target(
+    def test_delete_with_products_rejects_parent_when_siblings_remain(
         self, step_up_headers, super_admin_headers, valid_product_data
     ):
         mid_id, leaf_id = _make_leaf(
@@ -83,6 +83,12 @@ class TestCategoryDeleteReassignment:
             mid_name="Reject Parent Mid",
             leaf_name="Reject Parent Leaf",
         )
+        sibling = client.post(
+            "/api/v1/categories/",
+            json={"name": "Reject Parent Sibling", "parent_id": mid_id},
+            headers=step_up_headers,
+        )
+        assert sibling.status_code == 201, sibling.text
 
         product = client.post(
             "/api/v1/products/",
@@ -108,6 +114,49 @@ class TestCategoryDeleteReassignment:
         listing = client.get("/api/v1/categories/")
         ids = [row["id"] for row in listing.json()["data"]]
         assert leaf_id in ids
+
+    def test_delete_with_products_reassigns_to_sole_parent(
+        self, step_up_headers, super_admin_headers, valid_product_data
+    ):
+        mid_id, leaf_id = _make_leaf(
+            step_up_headers,
+            mid_name="Allow Parent Mid",
+            leaf_name="Allow Parent Leaf — عمومی",
+        )
+
+        product = client.post(
+            "/api/v1/products/",
+            json={
+                **valid_product_data,
+                "sku": f"DEL-SOLE-{leaf_id}",
+                "name": "محصول تست انتقال به والد",
+                "category_id": leaf_id,
+            },
+            headers=super_admin_headers,
+        )
+        assert product.status_code == 201, product.text
+        product_id = product.json()["id"]
+
+        deleted = client.delete(
+            f"/api/v1/categories/{leaf_id}?target_category_id={mid_id}",
+            headers=step_up_headers,
+        )
+        assert deleted.status_code == 200, deleted.text
+        body = deleted.json()
+        assert body["products_reassigned"] == 1
+        assert body["new_category_id"] == mid_id
+
+        moved = client.get(f"/api/v1/products/{product_id}", headers=super_admin_headers)
+        assert moved.status_code == 200
+        assert moved.json()["category_id"] == mid_id
+
+        listing = client.get("/api/v1/categories/")
+        assert listing.status_code == 200
+        mid = next(row for row in listing.json()["data"] if row["id"] == mid_id)
+        assert mid["is_leaf"] is True
+        assert mid["is_selectable"] is True
+        assert mid["depth"] == 2
+        assert leaf_id not in [row["id"] for row in listing.json()["data"]]
 
     def test_delete_with_products_reassigns_to_selectable_leaf(
         self, step_up_headers, super_admin_headers, valid_product_data

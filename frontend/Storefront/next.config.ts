@@ -7,7 +7,7 @@ type RemotePattern = {
   pathname?: string;
 };
 
-/** Explicit allowlist for next/image — no wildcard hosts. Demo CDNs only in development. */
+/** Explicit allowlist for next/image — no wildcard hosts. */
 function imageRemotePatterns(): RemotePattern[] {
   const patterns: RemotePattern[] = [
     {
@@ -28,13 +28,6 @@ function imageRemotePatterns(): RemotePattern[] {
       pathname: "/static/uploads/**",
     },
   ];
-
-  if (process.env.NODE_ENV !== "production") {
-    patterns.push(
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-    );
-  }
 
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
   try {
@@ -90,8 +83,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
-    // Next 16 defaults qualities to [75] only — allow hero (90) and category cards (100).
+    // Prefer modern codecs; keep 90/100 allowlisted for rare curated stills.
+    formats: ["image/avif", "image/webp"],
     qualities: [75, 90, 100],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: imageRemotePatterns(),
   },
   async headers() {

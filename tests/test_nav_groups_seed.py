@@ -8,7 +8,9 @@ from app.services.nav_groups_seed import (
 
 def test_seed_resolves_metrology_and_cutting_without_overlap():
     roots = [
-        (7, "اندازه گیری", "andaze-giri-7"),
+        (56, "اندازه گیری دقیق", "andaze-giri-daghigh-56"),
+        (81, "CNC اندازه گیری", "cnc-andaze-giri-81"),
+        (87, "اندازه گیری آزمایشگاهی", "andaze-giri-azmayeshgahi-87"),
         (3, "اینسرت", "insert-3"),
         (5, "مته", "mete-5"),
         (1, "ابزارگیر", "abzargir-1"),
@@ -24,9 +26,9 @@ def test_seed_resolves_metrology_and_cutting_without_overlap():
             assigned=assigned,
         )
 
-    assert resolved["metrology"] == [7]
+    assert resolved["metrology"] == [56, 81, 87]
     assert resolved["cutting"] == [3, 5]
     assert resolved["holding"] == [1]
     assert resolved["machines"] == [9]
     assert resolved["accessories"] == [11]
-    assert len(assigned) == 6
+    assert len(assigned) == 8

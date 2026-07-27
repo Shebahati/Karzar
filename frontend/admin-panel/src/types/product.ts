@@ -37,7 +37,9 @@ export interface ProductImage {
 export interface ProductSummary {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
+  short_description?: string | null;
   thumbnail: string | null;
   base_price: string | null;
   original_price: string | null;
@@ -52,8 +54,12 @@ export interface ProductSummary {
 export interface ProductDetail {
   id: number;
   sku: string;
+  slug?: string | null;
   name: string;
+  short_description?: string | null;
   description: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id: number | null;
   brand_id: number | null;
   category: CategoryBrief | null;
@@ -84,7 +90,10 @@ export interface ProductDetail {
 export interface ProductCreatePayload {
   sku: string;
   name: string;
+  short_description?: string | null;
   description?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id: number;
   brand_id?: number | null;
   base_price?: number | null;
@@ -104,7 +113,10 @@ export interface ProductCreatePayload {
 export interface ProductUpdatePayload {
   sku?: string;
   name?: string;
+  short_description?: string | null;
   description?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   category_id?: number;
   brand_id?: number | null;
   base_price?: number | null;

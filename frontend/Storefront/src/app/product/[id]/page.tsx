@@ -3,9 +3,12 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { catalogKeys } from "@/features/catalog/keys";
 import { getQueryClient } from "@/lib/get-query-client";
+import { buildProductPageJsonLd } from "@/lib/json-ld";
+import {
+  resolveMetaDescription,
+  resolveMetaTitle,
+} from "@/lib/product-seo";
 import { catalogService } from "@/services/catalog";
-
-const SITE = "https://www.karzartools.com";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -17,10 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   try {
     const product = await catalogService.getProduct(productId);
-    const title = product.name;
-    const description =
-      product.description?.slice(0, 160) ||
-      `خرید ${product.name} از فروشگاه کارزار با ضمانت اصالت.`;
+    const title = resolveMetaTitle(product.meta_title, product.name);
+    const description = resolveMetaDescription({
+      metaDescription: product.meta_description,
+      shortDescription: product.short_description,
+      description: product.description,
+      name: product.name,
+    });
     const images = product.thumbnail ? [{ url: product.thumbnail }] : undefined;
     return {
       title,
@@ -48,68 +54,7 @@ export default async function ProductPage({ params }: Props) {
 
     try {
       const product = await catalogService.getProduct(productId);
-      const url = `${SITE}/product/${productId}`;
-      const availability = product.availability
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock";
-      const breadcrumbs: Record<string, unknown>[] = [
-        { "@type": "ListItem", position: 1, name: "خانه", item: SITE },
-      ];
-      if (product.category?.name) {
-        breadcrumbs.push({
-          "@type": "ListItem",
-          position: 2,
-          name: product.category.name,
-          item: product.category.slug
-            ? `${SITE}/categories/${product.category.slug}`
-            : undefined,
-        });
-        breadcrumbs.push({
-          "@type": "ListItem",
-          position: 3,
-          name: product.name,
-          item: url,
-        });
-      } else {
-        breadcrumbs.push({
-          "@type": "ListItem",
-          position: 2,
-          name: product.name,
-          item: url,
-        });
-      }
-
-      jsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Product",
-            "@id": `${url}#product`,
-            name: product.name,
-            sku: product.sku,
-            description:
-              product.description?.slice(0, 500) ||
-              `خرید ${product.name} از فروشگاه کارزار`,
-            image: product.thumbnail ? [product.thumbnail] : undefined,
-            brand: product.brand?.name
-              ? { "@type": "Brand", name: product.brand.name }
-              : undefined,
-            offers: {
-              "@type": "Offer",
-              url,
-              priceCurrency: "IRR",
-              price: product.base_price ?? undefined,
-              availability,
-              itemCondition: "https://schema.org/NewCondition",
-              seller: { "@type": "Organization", name: "کارزار", url: SITE },
-            },
-          },
-          {
-            "@type": "BreadcrumbList",
-            itemListElement: breadcrumbs,
-          },
-        ],
-      };
+      jsonLd = buildProductPageJsonLd(product);
     } catch {
       jsonLd = null;
     }

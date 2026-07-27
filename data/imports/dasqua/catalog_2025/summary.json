@@ -1,0 +1,56 @@
+{
+  "api": "https://api.karzartools.com/api/v1",
+  "pdf": "/home/moahmmad/Downloads/Telegram Desktop/DASQUA 2025 EDITION 0718(1).pdf",
+  "brand_id": 4,
+  "exported": 727,
+  "match_counts": {
+    "unmatched": 123,
+    "unmatched_no_spec_row": 252,
+    "matched": 343,
+    "conflict": 9
+  },
+  "payloads": 343,
+  "apply": false,
+  "applied": 0,
+  "apply_errors": 0,
+  "commerce_policy": {
+    "forbidden_keys": [
+      "availability",
+      "base_price",
+      "discount",
+      "discount_percent",
+      "is_available",
+      "list_price",
+      "low_stock",
+      "original_price",
+      "price",
+      "sale_price",
+      "stock",
+      "stock_quantity",
+      "stock_status",
+      "stock_unit",
+      "tax_percent",
+      "weight_grams"
+    ],
+    "allowed_put_keys": [
+      "description",
+      "meta_description",
+      "meta_title",
+      "short_description",
+      "specifications"
+    ],
+    "export_forbidden_hits": [],
+    "export_forbidden_count": 0,
+    "payload_forbidden_hits": [],
+    "payload_forbidden_count": 0,
+    "zero_price_writes": true,
+    "zero_price_reads_persisted": true
+  },
+  "paths": {
+    "site_export": "/home/moahmmad/Projects/Karzar/Website/backend-dasqua-enrich/data/imports/dasqua/catalog_2025/site_export.jsonl",
+    "site_export_csv": "/home/moahmmad/Projects/Karzar/Website/backend-dasqua-enrich/data/imports/dasqua/catalog_2025/site_export.csv",
+    "pdf_index": "/home/moahmmad/Projects/Karzar/Website/backend-dasqua-enrich/data/imports/dasqua/catalog_2025/pdf_index.jsonl",
+    "match_report": "/home/moahmmad/Projects/Karzar/Website/backend-dasqua-enrich/data/imports/dasqua/catalog_2025/match_report.csv",
+    "dry_run_payloads": "/home/moahmmad/Projects/Karzar/Website/backend-dasqua-enrich/data/imports/dasqua/catalog_2025/dry_run_payloads.jsonl"
+  }
+}

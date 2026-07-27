@@ -114,7 +114,9 @@ def to_product_summary(
     return ProductSummaryResponse(
         id=product.id,
         sku=product.sku,
+        slug=product.slug,
         name=product.name,
+        short_description=product.short_description,
         thumbnail=get_thumbnail_url(product),
         base_price=decimal_to_api_string(product.base_price),
         original_price=decimal_to_api_string(product.original_price),
@@ -137,6 +139,7 @@ def to_product_detail(
     return ProductDetailResponse(
         id=product.id,
         sku=product.sku,
+        slug=product.slug,
         name=product.name,
         category_id=product.category_id,
         brand_id=product.brand_id,
@@ -157,7 +160,10 @@ def to_product_detail(
         tax_percent=decimal_to_api_string(product.tax_percent) or "0",
         is_active=product.is_active,
         pdf_catalog_url=product.pdf_catalog_url,
+        short_description=product.short_description,
         description=product.description,
+        meta_title=product.meta_title,
+        meta_description=product.meta_description,
         thumbnail=get_thumbnail_url(product),
         images=_images(product),
         specifications=normalize_specifications_for_api(

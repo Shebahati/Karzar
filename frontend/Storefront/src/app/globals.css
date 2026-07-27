@@ -3,40 +3,9 @@
 @tailwind utilities;
 
 /* -------------------------------------------------------------------------- */
-/*  IRANYekanX font family (Persian).                                         */
-/*  Font files live under `public/fonts/`.                                    */
+/*  IRANYekanX is loaded via next/font (src/lib/fonts.ts) — weight-subsetted  */
+/*  400/500/700 with preload. --font-iranyekan is set on <html>.              */
 /* -------------------------------------------------------------------------- */
-@font-face {
-  font-family: "IRANYekanX";
-  src: url("/fonts/IRANYekanX-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "IRANYekanX";
-  src: url("/fonts/IRANYekanX-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "IRANYekanX";
-  src: url("/fonts/IRANYekanX-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "IRANYekanX";
-  src: url("/fonts/IRANYekanX-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
 
 @layer base {
   :root {
@@ -82,8 +51,6 @@
     --ring: 358 72% 44%;
 
     --radius: 0.75rem;
-
-    --font-iranyekan: "IRANYekanX";
   }
 }
 
