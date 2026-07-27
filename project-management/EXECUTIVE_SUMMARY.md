@@ -52,7 +52,8 @@
 
 ## Current portfolio snapshot
 - Live: homepage mega/hero, taxonomy metrology promote, admin megamenu controls, SEO short_description plumbing
-- Open historically: enrichment PRs, workflow #81, INSIZE apply paused
+- CAT-001 closed 2026-07-27 (#67/#69 merged; #70–#73 prior; #90 deferred w/ CAT-002)
+- Explicitly deferred: CAT-002 (INSIZE #90), KB-001 (post-31-Shahrivar)
 
 ## Decision
 > Checkpoint KPI = **quality + indexable mid-tail + CWV**, not **#1 head-term rank**.

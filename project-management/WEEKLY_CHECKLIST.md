@@ -6,4 +6,4 @@
 - [ ] Review Search Console (index coverage + top queries)
 - [ ] Content calendar: next 3 articles locked
 - [ ] Update printable boards if milestones changed
-- [ ] Triage open GitHub PRs into CAT-001
+- [x] Triage open GitHub PRs into CAT-001 (closed 2026-07-27)

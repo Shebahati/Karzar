@@ -218,8 +218,8 @@
       "dod": [
         "PROJECT_STATUS updated"
       ],
-      "status": "todo",
-      "progress": 40,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 2,
@@ -229,7 +229,7 @@
         "ops"
       ],
       "risk": "low",
-      "notes": "#71/#72 merged or open — verify"
+      "notes": "2026-07-27 triage: #67 phase-A images docs → main @f51c9fd; #69 Dohre tooling → main @0829571 (Deploy Staging green 30274744553); #70–#73 already merged; #74 closed; #90 INSIZE deferred with CAT-002 (EXEC/RELEASE freeze). No price writes."
     },
     {
       "id": "CAT-002",
@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "#74 closed intentionally"
+      "notes": "DEFERRED post-31-Shahrivar / launch-bar (RELEASE_PLAN + EXEC): keep #90 open for content-safe resume; #74 closed intentionally; partial staging apply evidence lives on #90 branch."
     },
     {
       "id": "CAT-003",
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "Defer if hours overrun"
+      "notes": "DEFERRED post-31-Shahrivar (EXECUTIVE_SUMMARY P2+ / RELEASE_PLAN / D7): not on checkpoint KPI path; high effort; revisit after freeze."
     },
     {
       "id": "REL-001",

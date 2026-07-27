@@ -6,4 +6,4 @@
 - [x] **D4** Enrichment never writes price/stock/availability
 - [x] **D5** Checkpoint KPI ≠ Google #1 on head terms
 - [ ] **D6** Owner matrix for P0 tasks (fill names)
-- [ ] **D7** Final call: ship or defer KB-001 at Sprint 03 review
+- [x] **D7** Final call: ship or defer KB-001 at Sprint 03 review — **DEFER** post-31-Shahrivar (EXEC/RELEASE freeze; P2 high effort; not checkpoint KPI)

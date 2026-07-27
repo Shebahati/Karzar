@@ -22,19 +22,20 @@
     - [x] Merged to main
     - [x] Linked from README
   - Notes: #86 → main; living PMO in active use (SEO-001/002/004)
-- [ ] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `todo` 40% | P1 | 8h | Sprint 00
+- [x] **CAT-001** Close enrichment PR triage (Dasqua/Mitutoyo/etc.) — `done` 100% | P1 | 8h | Sprint 00
   - Owner: unassigned | Week 1 Day 2 | Risk: low
-  - [ ] Description: Merge or close remaining enrichment PRs with content-only guarantees.
-  - [ ] Dependencies: —
-  - [ ] Files: scripts/**, data/imports/**
-  - [ ] Modules: catalog
-  - [ ] Tags: catalog, ops
+  - [x] Description: Merge or close remaining enrichment PRs with content-only guarantees.
+  - [x] Dependencies: —
+  - [x] Files: scripts/**, data/imports/**
+  - [x] Modules: catalog
+  - [x] Tags: catalog, ops
   - Acceptance Criteria:
-    - [ ] Each open enrichment PR decided
-    - [ ] No price writes
+    - [x] Each open enrichment PR decided
+    - [x] No price writes
   - Definition of Done:
-    - [ ] PROJECT_STATUS updated
-  - Notes: #71/#72 merged or open — verify
+    - [x] PROJECT_STATUS updated
+  - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
+
 - [ ] **CAT-003** Category image coverage for all L1+key L2 — `todo` 60% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 3 | Risk: low
   - [ ] Description: Ensure every homepage/megamenu root has full-bleed quality image.
