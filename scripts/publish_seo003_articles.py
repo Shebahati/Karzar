@@ -171,11 +171,27 @@ def main() -> int:
     token = login()
     auth = {"Authorization": f"Bearer {token}"}
 
-    st, listing = http_json("GET", f"{API}/cms/articles?limit=500", headers=auth)
-    if st != 200:
-        print(f"[seo003] list fail {st} {listing}", file=sys.stderr)
-        return 1
-    by_slug = {a.get("slug"): a for a in (listing.get("data") or [])}
+    by_slug: dict = {}
+    skip = 0
+    page_size = 200
+    while True:
+        st, listing = http_json(
+            "GET",
+            f"{API}/cms/articles?limit={page_size}&skip={skip}",
+            headers=auth,
+        )
+        if st != 200:
+            print(f"[seo003] list fail {st} {listing}", file=sys.stderr)
+            return 1
+        batch = listing.get("data") or []
+        for a in batch:
+            if a.get("slug"):
+                by_slug[a["slug"]] = a
+        if len(batch) < page_size:
+            break
+        skip += len(batch)
+        if skip > 5000:
+            break
 
     ok = 0
     fail = 0
