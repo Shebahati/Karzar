@@ -21,6 +21,7 @@ import {
   useHeroSlides,
   useNavGroupDefs,
 } from "@/features/catalog/queries";
+import { lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 
 const AUTOPLAY_MS = 5000;
@@ -202,10 +203,9 @@ export function Hero() {
                 src={slide.image}
                 alt=""
                 fill
-                priority={activeIndex === 0}
-                quality={90}
                 sizes="100vw"
                 className="object-cover object-[left_42%]"
+                {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
               />
             </motion.div>
             <div
