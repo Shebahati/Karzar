@@ -9,10 +9,12 @@
  */
 
 import { resolveJsonLdDescription } from "@/lib/product-seo";
+import { getSiteUrl } from "@/lib/site-url";
 import type { CategoryFlat } from "@/types/category";
 import type { ProductDetail, ProductImage, ProductSummary } from "@/types/product";
 
-export const SITE_URL = "https://www.karzartools.com";
+/** Re-export for tests / consumers; resolved once at module load (build-time NEXT_PUBLIC_*). */
+export const SITE_URL = getSiteUrl();
 export const ORG_NAME = "کارزار";
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;

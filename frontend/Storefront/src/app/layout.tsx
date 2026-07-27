@@ -11,8 +11,10 @@ import {
 } from "@/components/analytics/google-tag-manager";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { buildSitewideJsonLd } from "@/lib/json-ld";
+import { NOINDEX_NOFOLLOW } from "@/lib/crawl-hygiene";
+import { getSiteUrl, isSeoIndexable } from "@/lib/site-url";
 
-const SITE_URL = "https://www.karzartools.com";
+const SITE_URL = getSiteUrl();
 const sitewideJsonLd = buildSitewideJsonLd();
 
 export const metadata: Metadata = {
@@ -41,6 +43,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  ...(isSeoIndexable() ? {} : { robots: NOINDEX_NOFOLLOW }),
 };
 
 export const viewport: Viewport = {
