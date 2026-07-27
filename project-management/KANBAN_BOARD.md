@@ -58,18 +58,19 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] UX_PROGRESS
 
-- [ ] **SEC-001** Security hygiene pass for go-live bar — `todo` 50% | P1 | 12h | Sprint 03
+- [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
   - Owner: unassigned | Week 5 Day 1 | Risk: med
-  - [ ] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
-  - [ ] Dependencies: —
-  - [ ] Files: app/**, frontend/admin-panel/**
-  - [ ] Modules: security
-  - [ ] Tags: security
+  - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
+  - [x] Dependencies: —
+  - [x] Files: app/**, frontend/admin-panel/**
+  - [x] Modules: security
+  - [x] Tags: security
   - Acceptance Criteria:
-    - [ ] Admin X-Robots-Tag
-    - [ ] No secrets in FE
+    - [x] Admin X-Robots-Tag
+    - [x] No secrets in FE
   - Definition of Done:
-    - [ ] SECURITY_PROGRESS
+    - [x] SECURITY_PROGRESS
+  - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
 - [ ] **BE-001** Catalog API readiness for SEO fields — `todo` 70% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low
   - [ ] Description: Ensure short_description, meta, specs exposed consistently to storefront.
@@ -137,7 +138,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [x] Rollback noted
   - Definition of Done:
     - [x] RELEASE_PLAN signed
-  - Notes: Readiness pack complete; GO remains conditional on SEC-001 closure or explicit risk acceptance with named owner.
+  - Notes: Readiness pack complete; SEC-001 closed for hygiene ACs; residual transitive dep advisories tracked as R8; GO still needs named release/rollback owners.
 - [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).
