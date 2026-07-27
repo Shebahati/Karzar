@@ -10,9 +10,11 @@ import {
   GoogleTagManagerNoscript,
 } from "@/components/analytics/google-tag-manager";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { iranYekan } from "@/lib/fonts";
 import { buildSitewideJsonLd } from "@/lib/json-ld";
 import { NOINDEX_NOFOLLOW } from "@/lib/crawl-hygiene";
 import { getSiteUrl, isSeoIndexable } from "@/lib/site-url";
+import { cn } from "@/lib/utils";
 
 const SITE_URL = getSiteUrl();
 const sitewideJsonLd = buildSitewideJsonLd();
@@ -57,7 +59,11 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang="fa" dir="rtl" className="h-full">
+    <html
+      lang="fa"
+      dir="rtl"
+      className={cn("h-full", iranYekan.variable)}
+    >
       <head>
         {/* Analytics: set NEXT_PUBLIC_GA_MEASUREMENT_ID *or* NEXT_PUBLIC_GTM_ID — not both. */}
         <GoogleTagManagerHead nonce={nonce} />

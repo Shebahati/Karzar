@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { lazyImageProps, lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { ProductImage } from "@/types/product";
 
@@ -46,6 +47,7 @@ export function ProductGallery({
                 fill
                 sizes="64px"
                 className="object-contain p-1"
+                {...lazyImageProps()}
               />
             </button>
           ))}
@@ -58,7 +60,7 @@ export function ProductGallery({
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-contain p-4"
-          priority
+          {...lcpImageProps()}
         />
       </div>
     </div>

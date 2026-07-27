@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Buy, Document } from "react-iconly";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
+import { CONTENT_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn, formatToman } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductSummary } from "@/types/product";
@@ -13,9 +14,12 @@ import type { ProductSummary } from "@/types/product";
 export function ProductCard({
   product,
   className,
+  priority = false,
 }: {
   product: ProductSummary;
   className?: string;
+  /** Mark above-the-fold PLP/home cards as LCP candidates. */
+  priority?: boolean;
 }) {
   const addToCart = useCartStore((s) => s.addToCart);
   const addToQuote = useCartStore((s) => s.addToQuote);
@@ -48,6 +52,9 @@ export function ProductCard({
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.03]"
+            {...(priority
+              ? lcpImageProps()
+              : { loading: "lazy" as const, quality: CONTENT_IMAGE_QUALITY })}
           />
         ) : (
           <ProductPlaceholder name={product.name} sku={product.sku} />

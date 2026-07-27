@@ -13,6 +13,7 @@ import {
   NAV_GROUPS,
   orderedVisibleRoots,
 } from "@/config/nav-groups";
+import { CONTENT_IMAGE_QUALITY } from "@/lib/cwv";
 import { cn, formatNumber } from "@/lib/utils";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import type { CategoryTreeNode } from "@/types/category";
@@ -109,7 +110,7 @@ function CategoryTile({
               src={imageUrl}
               alt=""
               fill
-              quality={90}
+              quality={CONTENT_IMAGE_QUALITY}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
               unoptimized={imageUrl.startsWith("http")}

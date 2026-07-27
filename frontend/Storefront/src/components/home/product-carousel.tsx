@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "react-iconly";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
+import { isPlpLcpIndex } from "@/lib/cwv";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
@@ -56,9 +57,9 @@ export function ProductCarousel({
       )}
     >
       <div ref={trackRef} className="no-scrollbar flex gap-3 overflow-x-auto pb-2 sm:gap-4">
-        {products.map((p) => (
+        {products.map((p, i) => (
           <div key={p.id} className={cn("shrink-0", cardWidth)}>
-            <ProductCard product={p} />
+            <ProductCard product={p} priority={isPlpLcpIndex(i, 2)} />
           </div>
         ))}
       </div>
