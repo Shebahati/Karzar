@@ -12,7 +12,7 @@ Move completed task IDs here with date + PR.
 - [x] Living PMO bootstrap (PMO-001) — 2026-07-26 — #86 → `main` (marked done 2026-07-27)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (PDP+PLP hubs) — 2026-07-26 — #88 → `main` @89a4cf5 (staging deployed)
 - [x] SEO-002 Category hub intros + internal links — 2026-07-26 — #91 → `main` @d92722a (staging deployed)
-- [x] FE-001 Design system tokens + homepage consistency — 2026-07-27 — this PR (tokens+home-stack; builds on #93 header)
+- [x] FE-001 Design system tokens + homepage consistency — 2026-07-27 — #115 → `main` @daa8abd; padding follow-up #117 → `main` @174718f (staging deployed); builds on #93 header
 - [x] Taxonomy remove «عمومی» padding leaves — 2026-07-26 — #87 → `main`; staging apply 23 cats / 1970 products
 - [x] SEO-004 Technical crawl hygiene — 2026-07-27 — #94 → `main` @a119b38 (staging deployed)
 - [x] UX-002 PDP trust + specs presentation — 2026-07-27 — #96 → `main` @e8ea7bf (staging deployed)
@@ -23,5 +23,5 @@ Move completed task IDs here with date + PR.
 - [x] SEC-001 Security hygiene pass for go-live bar — 2026-07-27 — admin X-Robots-Tag + secrets audit + step-up inventory + Pillow 12.3.0 (this PR; merge SHA pending)
 - [x] BE-001 Catalog API SEO fields readiness — 2026-07-27 — openapi regen + contract tests (this PR)
 - [x] CAT-003 Category L1 image coverage — 2026-07-27 — #112 → `main` @fb7d628 (staging deployed)
-- [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — this PR (quick filters + Persian empty + hub child nav)
-- [x] TD-001 Category depth/selectable FE drift — 2026-07-27 — this PR
+- [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — #113 → `main` @f4ec40b (staging deployed)
+- [x] TD-001 Category depth/selectable FE drift — 2026-07-27 — #114 → `main` @8cd01bd (staging deployed)

@@ -19,16 +19,17 @@
 - [x] UX-002 PDP trust + specs presentation (#96 → main @e8ea7bf, staging deployed)
 - [x] PERF-001 Core Web Vitals foundations home+PDP+PLP (#99 → main @d169831, staging deployed)
 - [x] SEO-003 24 buyer-intent articles (#102 → main @aa159b0; publish #103/#104; staging deployed)
-- [x] FE-001 Design system tokens + homepage consistency (#93 header + this PR tokens/home-stack)
+- [x] FE-001 Design system tokens + homepage consistency (#115 @daa8abd + #117 @174718f; builds on #93 header)
 - [x] 24 mid-tail articles
 - [x] CWV budgets green (PERF-001 foundations; field p75 monitor ongoing)
 - [x] 31 Shahrivar release freeze package documented (REL-001)
 - [x] SEC-001 Security hygiene pass (admin X-Robots-Tag, secrets audit, step-up inventory, dep scan)
 - [x] CAT-001 enrichment PR triage closed (#67/#69 decided+merged; #90 deferred w/ CAT-002)
 - [x] BE-001 Catalog API SEO fields readiness (openapi snapshot + contract tests)
-- [x] UX-001 PLP filter + hub IA polish (mobile ≤3 taps + Persian empty + hub child nav)
-- [x] TD-001 Category depth/selectable FE drift (depth 2|3)
+- [x] UX-001 PLP filter + hub IA polish (#113 → main @f4ec40b)
+- [x] TD-001 Category depth/selectable FE drift (#114 → main @8cd01bd)
 - [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
+- [x] FE-001 follow-up homepage padding (#117 → main @174718f)
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
