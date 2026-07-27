@@ -1,7 +1,7 @@
 # Project Status
 
-**Updated:** 2026-07-26  
-**Weighted progress:** 28%  
+**Updated:** 2026-07-27  
+**Weighted progress:** 32%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -9,28 +9,30 @@
 - [x] Homepage hero + categories + why-karzar polish waves
 - [x] Metrology L1 reshape (56/81/87) + megamenu-only label
 - [x] Admin categories/megamenu unified (#85)
-- [ ] Remove padding «عمومی» L3 leaves (script + VPS workflow; API dry-run 23/1954; staging apply pending after merge)
+- [x] Remove padding «عمومی» L3 leaves — #87; staging apply **23 cats / 1970 products**
 - [x] Catalog enrichment tooling on `main` + staging: #70 Chumpower, #71 Dasqua, #72 Mitutoyo, #73 SAN OU
 - [x] Ops/CI on `main`: #81 Measurement promote workflow, #56 Hesabfa stock clear asyncpg, #26 frontend-only CI unlock
-- [x] Living PMO (#86 → main)
+- [x] Living PMO (#86 → main; PMO-001 done)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (#88 → main, staging deployed)
 - [x] SEO-002 Hub intros + internal links (#91 → main @d92722a, staging deployed)
+- [x] SEO-004 Technical crawl hygiene (#94 → main @a119b38, staging deployed)
+- [x] FE-001 (partial) Floating transparent hero header (#93 → main @53f0100)
 - [ ] 24 mid-tail articles
 - [ ] CWV budgets green
 - [ ] 31 Shahrivar release freeze
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
-- [ ] SEO — see `SEO_PROGRESS.md`
+- [ ] SEO — see `SEO_PROGRESS.md` (001/002/004 done; 003 open)
 - [ ] Content — see `CONTENT_PROGRESS.md`
-- [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md`
+- [ ] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (next: UX-002)
 - [ ] Performance — see `CORE_WEB_VITALS_PROGRESS.md`
 - [ ] Security — see `SECURITY_PROGRESS.md`
 - [x] Catalog enrichment tooling landed (#70–#73); apply/runouts still open — see `BACKEND_PROGRESS.md`
 - [ ] Skipped for now: #67 phase-A images (open), #69 Dohre (open), #74 Insize 108A (closed)
 
 ## Active sprint
-See `sprints/SPRINT_00.md`
+See `sprints/SPRINT_01.md`
 
 ## Blockers
 See `BLOCKERS.md`

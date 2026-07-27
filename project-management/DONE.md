@@ -9,6 +9,9 @@ Move completed task IDs here with date + PR.
 - [x] Clear Hesabfa stock script asyncpg — 2026-07-26 — #56 → `main`
 - [x] CI: unlock frontend-only required lint/test — 2026-07-26 — #26 → `main`
 - [ ] Skipped (not done): #67 (open), #69 (open), #74 (closed)
-- [x] Living PMO bootstrap — 2026-07-26 — #86 → `main`
+- [x] Living PMO bootstrap (PMO-001) — 2026-07-26 — #86 → `main` (marked done 2026-07-27)
 - [x] SEO-001 Product/Offer/Breadcrumb JSON-LD (PDP+PLP hubs) — 2026-07-26 — #88 → `main` @89a4cf5 (staging deployed)
 - [x] SEO-002 Category hub intros + internal links — 2026-07-26 — #91 → `main` @d92722a (staging deployed)
+- [x] FE-001 (partial) Floating transparent hero header — 2026-07-26 — #93 → `main` @53f0100 (staging deployed)
+- [x] Taxonomy remove «عمومی» padding leaves — 2026-07-26 — #87 → `main`; staging apply 23 cats / 1970 products
+- [x] SEO-004 Technical crawl hygiene — 2026-07-27 — #94 → `main` @a119b38 (staging deployed)

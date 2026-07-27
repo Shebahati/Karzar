@@ -29,4 +29,5 @@
   - Notes: Policy locked earlier
 
 ## Evidence log
+- [x] Floating transparent hero header #93 (partial FE-001) → main @53f0100
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

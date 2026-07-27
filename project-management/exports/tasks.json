@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-26",
+  "as_of": "2026-07-27",
   "deadline": "2026-09-22",
   "tasks": [
     {
@@ -27,8 +27,8 @@
         "Merged to main",
         "Linked from README"
       ],
-      "status": "in_progress",
-      "progress": 70,
+      "status": "done",
+      "progress": 100,
       "sprint": "00",
       "week": 1,
       "day": 1,
@@ -38,7 +38,7 @@
         "meta"
       ],
       "risk": "low",
-      "notes": "This PR"
+      "notes": "#86 → main; living PMO in active use (SEO-001/002/004 PMO updates). AC met: files + alwaysApply rule + exports."
     },
     {
       "id": "SEO-001",
@@ -183,8 +183,8 @@
       "dod": [
         "TECHNICAL_SEO_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 30,
+      "status": "done",
+      "progress": 100,
       "sprint": "01",
       "week": 2,
       "day": 2,
@@ -194,7 +194,7 @@
         "tech"
       ],
       "risk": "low",
-      "notes": ""
+      "notes": "#94 → main @a119b38; Deploy Staging green. Soft-404 empty hubs→404; sitemap 6007 urls (<50k) with lastmod; SITE_URL env; private+facet noindex; robots disallow; hreflang N/A (fa-only). Vitest crawl-hygiene+site-url."
     },
     {
       "id": "CAT-001",

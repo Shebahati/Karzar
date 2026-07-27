@@ -1,6 +1,6 @@
 # SEO Progress
 
-**Rollup:** 42%
+**Rollup:** 49%
 
 - [x] **SEO-001** Ship Product/Offer/Breadcrumb JSON-LD on PDP+PLP — `done` 100% | P0 | 16h | Sprint 01
   - Owner: unassigned | Week 2 Day 1 | Risk: med
@@ -46,19 +46,21 @@
     - [ ] CONTENT_CALENDAR checked
     - [ ] Live
   - Notes: Quality > volume; AI-assisted draft + human QA
-- [ ] **SEO-004** Technical SEO crawl hygiene — `todo` 30% | P0 | 12h | Sprint 01
+- [x] **SEO-004** Technical SEO crawl hygiene — `done` 100% | P0 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 2 | Risk: low
-  - [ ] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
-  - [ ] Dependencies: SEO-001
-  - [ ] Files: frontend/Storefront/**, deploy/**
-  - [ ] Modules: seo, ops
-  - [ ] Tags: seo, tech
+  - [x] Description: Canonicals, sitemap freshness, robots, hreflang if needed, indexation audit.
+  - [x] Dependencies: SEO-001
+  - [x] Files: frontend/Storefront/**, deploy/**
+  - [x] Modules: seo, ops
+  - [x] Tags: seo, tech
   - Acceptance Criteria:
-    - [ ] 0 soft-404 hubs
-    - [ ] Sitemap <50k urls valid
+    - [x] 0 soft-404 hubs
+    - [x] Sitemap <50k urls valid
   - Definition of Done:
-    - [ ] TECHNICAL_SEO_PROGRESS
+    - [x] TECHNICAL_SEO_PROGRESS
+  - Notes: #94 → main @a119b38; Deploy Staging green; soft-404→404; facet/private noindex; sitemap 6007 urls; hreflang N/A.
 
 ## Evidence log
+- [x] SEO-004 PR https://github.com/Shebahati/Karzar/pull/94 + staging robots/sitemap/facet noindex
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 + staging hub `/categories/انواع-کولیس`
 - [x] SEO-001 #88 + staging /product/7115
