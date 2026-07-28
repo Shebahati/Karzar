@@ -1,5 +1,10 @@
 # PMO / Product Changelog (living)
 
+## 2026-07-28
+- [x] **PMO close pass** validated checkpoint-final PMO state against current SoT: only CAT-002 and KB-001 remain open and intentionally deferred
+- [x] **Deferred governance hardened** for CAT-002/KB-001 across `tasks.json`, `PROJECT_STATUS.md`, `RELEASE_PLAN.md`, `DECISIONS.md`, `KANBAN_BOARD.md`, `BACKEND_PROGRESS.md`, and `KNOWLEDGE_BASE_PROGRESS.md` with explicit owner `PMO` + revisit date `2026-09-23`
+- [x] **Portfolio status corrected** weighted progress updated to 85% (hours-weighted from `exports/tasks.json` progress values)
+
 ## 2026-07-27
 - [x] **FE-001 follow-up** Separate page footer padding from section tokens — #117 → `main` @174718f (Deploy Staging 30282336447)
 - [x] **FE-001** Design system tokens + homepage consistency — #115 → `main` @daa8abd; shared section spacing/type tokens + home-stack; steel/red (closes remaining after #93)

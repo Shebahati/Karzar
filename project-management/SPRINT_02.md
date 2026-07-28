@@ -24,7 +24,7 @@
     - [x] Live
   - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles live.
 - [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **DEFERRED**
-  - Owner: unassigned | Week 3 Day 1 | Risk: med
+  - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [x] Dependencies: CAT-001
   - [ ] Files: scripts/enrich_insize*.py
@@ -35,7 +35,7 @@
     - [ ] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open; #74 closed intentionally
+  - Notes: DEFERRED at checkpoint close (2026-07-28) per RELEASE_PLAN/EXEC; #90 kept open; #74 closed intentionally; revisit 2026-09-23
 
 - [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med

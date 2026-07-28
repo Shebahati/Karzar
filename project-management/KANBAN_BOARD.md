@@ -7,7 +7,7 @@ Statuses mirrored from `exports/tasks.json`.
 
 ## todo
 - [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **DEFERRED** (post-checkpoint / launch-bar)
-  - Owner: unassigned | Week 3 Day 1 | Risk: med
+  - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [x] Dependencies: CAT-001
   - [ ] Files: scripts/enrich_insize*.py
@@ -18,7 +18,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: DEFERRED per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally
+  - Notes: DEFERRED at checkpoint close (2026-07-28) per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally; revisit 2026-09-23
 - [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
   - Owner: unassigned | Week 5 Day 1 | Risk: med
   - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
@@ -34,7 +34,7 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
 
 - [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
-  - Owner: unassigned | Week 7 Day 1 | Risk: high
+  - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
   - [ ] Files: docs/KNOWLEDGE_PLATFORM*.md, app/**
@@ -45,7 +45,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: DEFERRED per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path
+  - Notes: DEFERRED at checkpoint close (2026-07-28) per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path; revisit 2026-09-23
 
 ## in_progress
 - [ ] _(empty)_
