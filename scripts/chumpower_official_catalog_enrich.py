@@ -477,7 +477,7 @@ def persian_long_description(
             facts.append(f"{label}: {tech[key]}")
     if not facts:
         return None
-    lines.append("مشخصات طبق کاتالوگ/صفحه رسمی Chumpower Machinery (chumpowerchuck.com):")
+    lines.append("مشخصات طبق کاتالوگ رسمی برند Chumpower Machinery:")
     lines.extend(f"- {f}" for f in facts)
     if source_url:
         lines.append(f"منبع: {source_url}")

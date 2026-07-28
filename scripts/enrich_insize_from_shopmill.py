@@ -66,6 +66,7 @@ UA = "KarzarInsizeShopmillEnrich/1.0"
 INSIZE_BRAND_ID = 3
 OUT_DIR = _ROOT / "data" / "imports" / "insize" / "shopmill"
 SOURCE_LABEL = "shopmilltools.com"
+CUSTOMER_SOURCE_LABEL = "مشخصات رسمی برند"
 
 FORBIDDEN_PAYLOAD_KEYS = frozenset(
     {
@@ -684,7 +685,7 @@ def persian_short_description(
         parts.append("؛ ".join(facts[:3]))
     if sku:
         parts.append(f"کد {sku}")
-    parts.append(f"مشخصات طبق {SOURCE_LABEL}")
+    parts.append(CUSTOMER_SOURCE_LABEL)
     body = ". ".join(parts) + "."
     if is_stub_description(body, product_name=name):
         return None
@@ -701,7 +702,7 @@ def persian_long_description(
     return (
         f"{cat} برند اینسایز (INSIZE){code}. "
         "مشخصات عددی و ویژگی‌های فنی این مدل فقط در بخش مشخصات فنی همین صفحه آمده است. "
-        f"مرجع مشخصات: جدول ویژگی‌های محصول در {SOURCE_LABEL}."
+        f"مرجع مشخصات: {CUSTOMER_SOURCE_LABEL}."
     )[:4000]
 
 
@@ -715,7 +716,7 @@ def meta_title_for(name: str, sku: str) -> str:
 def meta_description_for(short: str | None, name: str, sku: str) -> str:
     if short and not is_stub_description(short, product_name=name):
         return short[:500]
-    return f"{_clean(name) or sku} | مشخصات طبق {SOURCE_LABEL}"[:500]
+    return f"{_clean(name) or sku} | {CUSTOMER_SOURCE_LABEL}"[:500]
 
 
 def _product_brand_name(product: dict[str, Any]) -> str | None:
