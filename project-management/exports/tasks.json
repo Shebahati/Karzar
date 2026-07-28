@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-27",
+  "as_of": "2026-07-28",
   "deadline": "2026-09-22",
   "tasks": [
     {
@@ -71,7 +71,7 @@
       "sprint": "01",
       "week": 2,
       "day": 1,
-      "owner": "unassigned",
+      "owner": "pmo",
       "tags": [
         "seo",
         "schema"
@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "DEFERRED post-31-Shahrivar / launch-bar (RELEASE_PLAN + EXEC): keep #90 open for content-safe resume; #74 closed intentionally; partial staging apply evidence lives on #90 branch."
+      "notes": "DEFERRED at checkpoint close (2026-07-28): out of launch-bar scope; keep #90 open for content-safe resume; #74 closed intentionally; no price writes. Owner: PMO. Revisit date: 2026-09-23 (post-checkpoint planning)."
     },
     {
       "id": "CAT-003",
@@ -296,7 +296,7 @@
       "sprint": "00",
       "week": 1,
       "day": 3,
-      "owner": "unassigned",
+      "owner": "pmo",
       "tags": [
         "ui",
         "images"
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "DEFERRED post-31-Shahrivar (EXECUTIVE_SUMMARY P2+ / RELEASE_PLAN / D7): not on checkpoint KPI path; high effort; revisit after freeze."
+      "notes": "DEFERRED at checkpoint close (2026-07-28): P2 high effort and not on launch-bar KPI path per D7/RELEASE_PLAN. Owner: PMO. Revisit date: 2026-09-23 (post-checkpoint planning)."
     },
     {
       "id": "REL-001",

@@ -25,3 +25,4 @@ Move completed task IDs here with date + PR.
 - [x] CAT-003 Category L1 image coverage — 2026-07-27 — #112 → `main` @fb7d628 (staging deployed)
 - [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — #113 → `main` @f4ec40b (staging deployed)
 - [x] TD-001 Category depth/selectable FE drift — 2026-07-27 — #114 → `main` @8cd01bd (staging deployed)
+- [x] PMO checkpoint-close consistency pass — 2026-07-28 — PMO artifacts synchronized; CAT-002/KB-001 kept deferred with owner PMO and revisit date 2026-09-23 (no code-scope PR)

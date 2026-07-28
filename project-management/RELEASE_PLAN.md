@@ -20,6 +20,7 @@
 - [x] `KB-001` deferred to post-checkpoint (P2, high effort, non-critical for current KPI)
 - [x] `CAT-002` deferred as content-safe backlog (not required for launch bar)
 - [x] `SEC-001` completed (admin noindex/X-Robots-Tag, secrets audit, step-up inventory, dep scan); residual transitive advisories tracked as R8
+- [x] Deferred-task ownership/date recorded at close (2026-07-28): owner `PMO`, revisit `2026-09-23` for both `CAT-002` and `KB-001`
 
 Rationale: checkpoint KPI is stable store + indexable mid-tail + CWV discipline, not head-term rank race or broad platform expansion.
 

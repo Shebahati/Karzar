@@ -1,6 +1,6 @@
 # Executive Summary — Karzar to 31 Shahrivar ۱۴۰۵
 
-**Date:** 2026-07-27  
+**Date:** 2026-07-28  
 **Checkpoint:** 2026-09-22 (~57 days / ~8 weeks)
 
 ## Direct answers (required before execution)
@@ -54,6 +54,11 @@
 - Live: homepage mega/hero, taxonomy metrology promote, admin megamenu controls, SEO short_description plumbing
 - CAT-001 closed 2026-07-27 (#67/#69 merged; #70–#73 prior; #90 deferred w/ CAT-002)
 - Explicitly deferred: CAT-002 (INSIZE #90), KB-001 (post-31-Shahrivar)
+- Deferred governance locked (2026-07-28): owner PMO, revisit date 2026-09-23 for CAT-002 and KB-001
+
+## Checkpoint-close PMO state
+- PMO is **operationally complete for 31 Shahrivar checkpoint**.
+- Remaining open items are intentional deferrals only (CAT-002, KB-001), not execution gaps in checkpoint scope.
 
 ## Decision
 > Checkpoint KPI = **quality + indexable mid-tail + CWV**, not **#1 head-term rank**.

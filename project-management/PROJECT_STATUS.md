@@ -1,7 +1,7 @@
 # Project Status
 
-**Updated:** 2026-07-27  
-**Weighted progress:** 75%  
+**Updated:** 2026-07-28  
+**Weighted progress:** 85%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -40,9 +40,10 @@
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
+- [x] Deferred ownership locked at checkpoint close (2026-07-28): CAT-002/KB-001 owner = PMO, revisit date = 2026-09-23
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only)
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only). PMO state: **operationally complete for checkpoint**.
 
 ## Blockers
 See `BLOCKERS.md`
