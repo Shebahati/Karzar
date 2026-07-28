@@ -733,6 +733,12 @@ def _product_category_name(product: dict[str, Any]) -> str | None:
     return product.get("category_name")
 
 
+def _has_customer_facing_external_domain(text: str | None) -> bool:
+    if not text:
+        return False
+    return "shopmilltools.com" in text.lower()
+
+
 def build_payload(
     product: dict[str, Any],
     shop_row: dict[str, Any],
@@ -763,7 +769,11 @@ def build_payload(
     meta_desc = product.get("meta_description")
 
     new_short = None
-    if not short or is_stub_description(short, product_name=name):
+    if (
+        not short
+        or is_stub_description(short, product_name=name)
+        or _has_customer_facing_external_domain(short)
+    ):
         new_short = persian_short_description(
             name=name,
             brand_name=brand_name,
@@ -773,7 +783,11 @@ def build_payload(
         )
 
     new_long = None
-    if not long or is_stub_description(long, product_name=name):
+    if (
+        not long
+        or is_stub_description(long, product_name=name)
+        or _has_customer_facing_external_domain(long)
+    ):
         new_long = persian_long_description(category_name=category_name, sku=sku)
 
     new_meta_title = None
@@ -781,7 +795,11 @@ def build_payload(
         new_meta_title = meta_title_for(name, sku)
 
     new_meta_desc = None
-    if not (meta_desc or "").strip() or is_stub_description(meta_desc, product_name=name):
+    if (
+        not (meta_desc or "").strip()
+        or is_stub_description(meta_desc, product_name=name)
+        or _has_customer_facing_external_domain(meta_desc)
+    ):
         new_meta_desc = meta_description_for(new_short or short, name, sku)
 
     payload: dict[str, Any] = {}
