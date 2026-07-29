@@ -148,7 +148,7 @@ flowchart TD
 | `T-03` | Crawl competitor (facts only) | URL → fact rows | Agent | `azarsanat_crawl.py` | **Text/image fields must be empty in output** | `HC-05` (review diff) |
 | `T-04` | Extract structured knowledge | PDF/HTML → CSV + summary | Agent | `parse_price_list_pdfs.py` | Row count, non-null SKU, price parses to int | None (output is inert) |
 | `T-05` | Review extraction | CSV + summary → approved CSV | Human | Read `import_review_summary.txt`, spot-check 10 rows | Sampling record in task record | **`HC-05`** |
-| `T-06` | Load into database | CSV → DB rows | Agent proposes, human applies | `seed_products_from_csv.py --dry-run` then apply | `--gate ingestion`; env must not be prod | **`HC-09`** (authorise run) |
+| `T-06` | Load into database | CSV → DB rows | Agent proposes, human applies | `seed_products_from_csv.py --dry-run` then apply | `--gate ingestion-boundary`; env must not be prod | **`HC-09`** (authorise run) |
 | `T-07` | Decide | Intent → ADR/RFC in `Proposed` | Human (Board) | Write ADR, hold minute | ADR template compliance | **`HC-02`** (accept) |
 | `T-08` | Specify | ADR → feature contract | Agent | `SPEC-feature-contract.prompt.md` | `--gate citation`, `--gate links` | **`HC-01`** (accept + freeze spec) |
 | `T-09` | Propose taxonomy change | CSV/category data → proposal report | Agent | `promote_measurement_to_l1.py --dry-run`, `remediate_standard_leaves.py` | Dry-run report only; zero writes | **`HC-02`** (taxonomy is an architectural decision) |
@@ -255,7 +255,7 @@ the one place where AODS asks the human to do arithmetic-like work, and it is wo
 uncheckable claim into a checkable one.
 
 **Open issue `OI-KF-01`.** There is currently no automated provenance store — provenance lives in the task
-record markdown. A machine-readable `data/imports/PROVENANCE.yaml` would let `--gate ingestion` verify
+record markdown. A machine-readable `data/imports/PROVENANCE.yaml` would let `--gate ingestion-boundary` verify
 that every CSV in the tree has a recorded source. Deferred because it requires a decision about whether
 historical CSVs (already committed without provenance) get backfilled or grandfathered.
 
@@ -331,7 +331,7 @@ the specific ways this repository leaks knowledge is generic advice, not a contr
 | Observed behaviour written down as decided architecture | `frontend/AI_CONTEXT.md` (~1,000 lines) | Fact/intent separation (§4); forbidden-context list |
 | Competitor prose entering product descriptions | PRs #122 and #124 (two force-rewrites) | Legal-provenance matrix (§2.1) — competitor text: never |
 | Numeric fact restated in four documents, diverging | Coverage gate as 62/67/67/68% | Single-source numeric facts; `T-13` reconciles from evidence |
-| Script defaulting to production as its knowledge sink | 18 scripts, `KARZAR_API_BASE` default | `--gate ingestion`, blocking |
+| Script defaulting to production as its knowledge sink | 18 scripts, `KARZAR_API_BASE` default | `--gate ingestion-boundary`, blocking |
 | Quality asserted rather than measured | `SCORECARD-AFTER-REMEDIATION.md` 9.0/10 self-certified | `K-AGENT-CLAIM` trust = zero; independent re-audit required |
 | Authority document living outside version control | `Website/docs/` authoring tree | `CR-009`, escalated for human decision |
 | Knowledge base with no decay policy | Same `AI_CONTEXT.md`, stale banner only | §6 decay table |
@@ -342,7 +342,7 @@ the specific ways this repository leaks knowledge is generic advice, not a contr
 
 | ID | Issue | Why it needs a human | Blocks |
 |---|---|---|---|
-| `OI-KF-01` | No machine-readable provenance store for `data/imports/**` | Requires a backfill-vs-grandfather decision on already-committed CSVs | Full `--gate ingestion` provenance checking |
+| `OI-KF-01` | No machine-readable provenance store for `data/imports/**` | Requires a backfill-vs-grandfather decision on already-committed CSVs | Full `--gate ingestion-boundary` provenance checking |
 | `OI-KF-02` | Licensing status of supplier catalogue images is undocumented | Legal question; affects whether `T-02` image imports are permissible at all | Image import resumption (already paused per Phase 1 doc) |
 | `OI-KF-03` | Decay periods in §6 (90/365 days) are proposed, not derived from supplier release cadence | Owner knows the real cadence | Enforcement of price staleness |
 | `OI-KF-04` | Whether `docs/KNOWLEDGE_PLATFORM_PHASE*.md` (three docs, "awaiting approval") are `Accepted` intent or lapsed proposals | Their status line says "awaiting approval to start"; no minute recorded | Whether the Knowledge Graph work is in scope for the current wave |

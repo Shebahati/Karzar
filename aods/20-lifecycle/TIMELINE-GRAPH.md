@@ -185,7 +185,7 @@ with a genuine missing specification — waits.
 **ARCH-GATE** | Recurring | Every `IMPL` node | See GATE 4 | Board | HC-03 |
 **CITATION-GATE** | Recurring | Every PR | Cited paths resolve on the merge base | AI Reviewer | HC-08 |
 **INGESTION-GATE** | Recurring | Every `CT-DATA` node | Category declared; local API base; dry-run attached | Backend Architect | HC-07 |
-**BASELINE-GATE** | Per release | `L3` | Tag + measured baseline numbers | Release Manager | HC-13 |
+**BASELINE-GATE** | Per release | `L3` | Tag + measured baseline numbers | Release Manager | HC-06 |
 
 ### 4.1 Freeze semantics
 

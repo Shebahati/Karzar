@@ -55,7 +55,7 @@
 | CR-014 | EPIC-1 deliverable 5 (`/brands/{slug}`) unimplemented and unspecified | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` retains ~1,000 lines of false claims behind a banner | **BLOCKER** for AI work | Documentation Architect | OPEN |
 | CR-016 | Pytest markers and options declared twice (`pytest.ini` + `pyproject.toml`) | LOW | QA Engineer | OPEN |
-| CR-017 | 58 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
+| CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
 | CR-018 | PR checklist is Accepted but no `pull_request_template.md` exists | MEDIUM | Documentation Architect | OPEN |
 | CR-019 | Knowledge Platform Phase 3 says pause image import; `CATALOG_IMAGES_PLAN.md` is actively importing | MEDIUM | Owner | OPEN |
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
@@ -564,15 +564,16 @@ and either use the markers or drop them.
 
 ---
 
-## CR-017 — Repository hygiene: 58 unmerged branches, 45 worktrees
+## CR-017 — Repository hygiene: 62 unmerged branches, 45 worktrees
 
 | Field | Value |
 |-------|-------|
 | **Severity** | MEDIUM · **Owner** Owner · **Status** OPEN |
 
-`git branch -r --no-merged origin/main` → **58**: ~25 undeleted post-squash branches (ahead 1–2 = merge artifact
-only), 20 dependabot, ~11 genuinely stale (e.g. `chore/insize-catalog-108A-enrich`, `feat/v2-complete-backlog`
-57 behind, `fix/hero-composition-images`).
+`git branch -r --no-merged origin/main` → **62** on 2026-07-29: undeleted post-squash branches (ahead 1–2 = merge
+artifact only), 20 dependabot, and genuinely stale ones (e.g. `chore/insize-catalog-108A-enrich`,
+`feat/v2-complete-backlog` 57 behind, `fix/hero-composition-images`). The count drifts daily, so the **command**
+is the citable fact and the number is a dated measurement.
 
 `git-development-workflow.md` reports **45 local worktrees**, that local `main` is held by worktree
 `backend-stat-fix` (22 behind), and that the primary checkout is parked on `chore/phase9-align-origin-main`.
@@ -580,7 +581,8 @@ It points to `docs/audits/worktree-cleanup-execution-plan.md`, which is **not in
 
 `docs/CONTRIBUTING.md` requires *"delete the branch after merge"* — not happening.
 Per `git-development-workflow.md` §7, destructive git actions need *"a written plan + confirmation"*, so no agent
-may clean this up unilaterally. Human checkpoint **HC-14**.
+may clean this up unilaterally. Decided by the owner at **`HC-03`**, since this is a register entry rather than an
+AODS amendment.
 
 ---
 

@@ -373,7 +373,7 @@ document to be disbelieved.
 |---|---|---|
 | One human holds every role | Separation of duties is temporal, not personal. A determined operator can approve their own work in every capacity. | Mechanical gates cannot be persuaded; checkpoint steps are literal and few enough to actually run |
 | Checkpoint completion is self-reported | `F-08` (governance theatre) is undetectable from inside the repo | Keep checkpoints short; require an artifact (a pasted command output) rather than a claim |
-| Canon Lock is unmerged (`CR-001`) | Every citation to it currently fails to resolve on `main`; the governance base is not in the governed tree | `--gate links` reports it explicitly rather than silently passing; the unblocking action is `HC-07` on PR #125 |
+| Canon Lock is unmerged (`CR-001`) | Every citation to it currently fails to resolve on `main`; the governance base is not in the governed tree | `--gate links` reports it explicitly rather than silently passing; the unblocking path is `HC-02` then `HC-07` on PR #125 |
 | Authority tree lives partly outside Git (`Website/docs/`, `CR-009`) | Some authoritative text is unversioned and unreviewable | Escalated; no mitigation available inside this repo |
 | Staging and production share infrastructure | A "staging deploy" is not an independent rehearsal | Recorded as a risk; deployment remains manual |
 | No branch protection configured | The "never commit to `main`" rule is honour-based (`OI-GOV-02`) | Proposed; requires repo-admin action |

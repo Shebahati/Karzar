@@ -69,7 +69,7 @@
 | Content store | `frontend/Storefront/content/` — `blog/articles.json` (24 SEO-003 articles), `hubs/intros.json` (15 hub intros). **JSON, not MDX.** |
 | Publish path | `scripts/publish_seo003_articles.py` → CMS API (runs post-deploy on staging) |
 | Catalog scale | ~5,901 active products (frozen baseline figure cited across governance docs) |
-| Enrichment | 55 scripts: vendor crawlers (Mitutoyo, INSIZE/Shopmill, Dasqua, Azarsanat, Chumpower, Dohre, SAN OU), image mirrors, taxonomy remediation, SEO generation |
+| Enrichment | 41 Python scripts (63 tracked files under `scripts/`, including shell helpers, brand-logo assets and dry-run reports): vendor crawlers (Mitutoyo, INSIZE/Shopmill, Dasqua, Azarsanat, Chumpower, Dohre, SAN OU), image mirrors, taxonomy remediation, SEO generation |
 
 ### 2.4 CI/CD and ops
 
@@ -110,7 +110,7 @@ graph TB
         CL --> ADR & RFC & STD & IA
     end
     subgraph PlaneA["Plane A — PMO (planning & status)"]
-        TJ["exports/tasks.json<br/>18 tasks · 85.3% weighted"]
+        TJ["exports/tasks.json<br/>18 tasks · 85.3% weighted<br/>(19 after AODS-001)"]
         PS["PROJECT_STATUS · KANBAN · SPRINT_00..04"]
         PROG["14 × *_PROGRESS.md<br/>⚠ duplicated at 2 paths"]
         RULE[".cursor/rules/pmo-living-system.mdc<br/>alwaysApply: true"]
@@ -166,11 +166,11 @@ Key mechanics this layer establishes, which AODS adopts rather than reinvents:
 **Observed EPIC-1 state on `main`:** deliverables 1–2 shipped (`frontend/Storefront/src/app/product/[slug]/`, 301 from id, PRs #126/#127).
 Deliverable 5 **not shipped** — there is no `frontend/Storefront/src/app/brands/` route.
 
-### 3.2 Plane A — PMO (`project-management/`, 78 files)
+### 3.2 Plane A — PMO (`project-management/`, 79 files)
 
 | Element | Detail |
 |---------|--------|
-| Machine SoT | `exports/tasks.json` — `as_of 2026-07-28`, `deadline 2026-09-22`, **18 tasks**, 20 fields per task |
+| Machine SoT | `exports/tasks.json` — `as_of 2026-07-28`, `deadline 2026-09-22`, **18 tasks**, 20 fields per task. (This pack's own PMO entry, `AODS-001`, makes it 19 and moves `as_of` to 2026-07-29; the figures above are the pre-existing state this audit measured.) |
 | Enums | `status` ∈ {`done`,`todo`} (never `in_progress`, though the template offers it); `priority` P0–P2; `owner` ∈ {`agent`,`pmo`,`unassigned`} |
 | Weighted progress | **85.3%** of 300h (matches `PROJECT_STATUS.md` 85%) |
 | Open tasks | `CAT-002` (INSIZE fill, 15%), `KB-001` (knowledge graph, 10%) — both **deliberately deferred** to after 2026-09-22 |
@@ -225,10 +225,10 @@ routes through `quantity_delta` stock-adjust; offsite backup is script-only; no 
 | Commit convention | `type(scope): subject (#PR)`; 150/232 (64.7%) conventional; 90/232 (38.8%) carry a PR number; **25/232 (10.8%) carry a task ID** despite `DAILY_CHECKLIST.md` requiring one |
 | Branch convention (observed) | `feat/*` ×18, `fix/*` ×9, `docs/*` ×8, `chore/*` ×5, `feature/*` ×2, `dependabot/*` ×20 |
 | Branch convention (required) | `git-development-workflow.md` + Developer Standards say **`feature/*`**; `docs/CONTRIBUTING.md` says **`feat/`** |
-| Unmerged remote branches | **58** — ~25 are undeleted post-squash branches, 20 dependabot, ~11 stale/abandoned |
+| Unmerged remote branches | **62** as measured by `git branch -r --no-merged origin/main` on 2026-07-29 — 20 dependabot, the rest undeleted post-squash and stale branches. This number drifts daily; the command, not the number, is the citable fact |
 | Worktrees | `git-development-workflow.md` reports **45** local worktrees, local `main` held hostage by worktree `backend-stat-fix`, primary checkout parked on `chore/phase9-align-origin-main` |
 | PR body convention | Emergent, no template file: `## Summary`, optional `## Canon Lock`, `## Test plan`, and `Made with [Cursor](https://cursor.com)` on 20/20 recent merged PRs |
-| Code debt markers | **Zero** literal `TODO`/`FIXME`/`HACK`/`XXX` in `app/` or either `src/` |
+| Code debt markers | **Zero** literal `TODO`, `FIXME` or `HACK` in `app/` or either `src/`. (A naive scan that also greps `XXX` returns 13 hits, all of them `09XXXXXXXXX` phone-number placeholders — a reminder to verify a grep before quoting it.) |
 | Abandoned work | 8 unmerged-closed PRs; mostly duplicate/superseded (e.g. #116 vs #115, #123 vs #124), one large abandonment: **#74 (+64,062)** INSIZE tooling |
 
 ---
@@ -243,7 +243,7 @@ routes through `quantity_delta` stock-adjust; offsite backup is script-only; no 
 | Contract / integration | 8 | `docs/API_CONTRACT.md`, `API_CHANGELOG.md`, `ARCHITECTURE.md`, `FRONTEND_INTEGRATION.md`, `auth-cookie-httponly-contract.md` |
 | Operational policy | 7 | `docs/OPERATIONS.md`, `HESABFA.md`, `COLLABORATOR_DEPLOY.md`, `deploy/staging/STAGING_DEPLOY.md`, `SCRIPTS.md`, `SEED_IMPORT.md`, `TESTING.md` |
 | Audit evidence | 22 | `docs/audits/**` (v1 + v2) |
-| Planning / PMO | 78 | `project-management/**` |
+| Planning / PMO | 79 | `project-management/**` |
 | Design programme (not implemented) | 3 | `docs/KNOWLEDGE_PLATFORM_PHASE1/2/3*.md` |
 | Active operational plans | 3 | `CATALOG_IMAGES_PLAN.md`, `CATALOG_IMAGES_PROGRESS_2026-07-25.md`, `architecture/product-seo-descriptions-plan.md` |
 | Bilingual pairs (en/fa) | 12 (6 pairs) | `frontend/docs/audits/*`, `frontend/docs/gaps/*`, `frontend/docs/deploy/*` |
@@ -347,3 +347,43 @@ gh pr list --state all --limit 130 --json number,state,additions,changedFiles
 ```
 
 Or simply: `python3 aods/tools/aods_validate.py --all --json > aods/reports/validation/audit.json`
+
+---
+
+## 10. Self-audit of this document
+
+This pack asserts that it never invents repository facts. That assertion is only worth anything if it was
+checked, so every numeric and line-number claim in the pack was re-verified against the repository by an
+independent pass before the pack was proposed. It found errors, listed here because a correction log is
+evidence and a silent fix is not.
+
+| Claim as first written | Verified truth | Command used |
+|---|---|---|
+| "55 scripts" in `scripts/` | 41 Python files; 63 tracked files in total | `ls scripts/*.py \| wc -l`; `git ls-files scripts/ \| wc -l` |
+| 58 unmerged remote branches | 62 on 2026-07-29 | `git branch -r --no-merged origin/main \| wc -l` |
+| `project-management/` has 78 files | 79 | `git ls-files project-management/ \| wc -l` |
+| Zero `TODO`/`FIXME`/`HACK`/`XXX` in `app/` or `src/` | Zero `TODO`/`FIXME`/`HACK`; 13 `XXX` hits, all `09XXXXXXXXX` phone masks | `rg -c 'TODO\|FIXME\|HACK' …` |
+| `~150 markdown documents` (in the validation framework) | 140 excluding `aods/` — the charter's `~140` was right | `git ls-files '*.md' \| rg -v '^aods/' \| wc -l` |
+| `ADR-010:41` states the `/brands/{slug}` rule | Line 41 is a "Cons:" bullet; the rules are at lines 64 and 67 | `git show origin/docs/wave1-canon-lock-promote:… \| rg -n 'brands/'` |
+| `RFC-005:88` states "product count and top-5 categories" | Line 88 is blank; the scope statement is at line 30 and says something different | same, `rg -n 'count\|categor'` |
+| `--gate ingestion` | The gate is named `ingestion-boundary` | `aods_validate.py --list-gates` |
+| Task records live at `aods/tasks/` | The rest of the pack uses `aods/reports/tasks/` | `rg 'reports/tasks'` |
+| 15 prompt lint rules | The table listed 14; the validator enforces 15. `P-15` was missing from the table | `rg '^\| .P-' PROMPT-LIBRARY-ARCHITECTURE.md` |
+
+Four checkpoint IDs and three counts were also inconsistent between documents and were reconciled against the
+authoritative definitions (`HUMAN-INTERVENTION-MODEL.md` §2 for checkpoints, `CONFLICT-REGISTER.md` for
+conflicts, `role-registry.yaml` for roles).
+
+**What this says about the design.** Two of these errors are worth more than the rest. The wrong line numbers
+in `CURSOR-AUTO-MODE-STRATEGY.md` §3.1 sat inside the `RESTATE` example — the very block whose purpose is to
+catch fabricated citations — and would have taught every future agent that approximate citations pass. And
+`--gate ingestion` was a gate name that did not exist, which is charter failure criterion `F-04` written into
+the pack that defines it. Plausible-looking precision is the characteristic AI failure mode, and it does not
+stop being one when the author is writing the governance document. This is also why `CR-017` and the branch
+count now state the *command* as the citable fact, with the number as a dated measurement: counts that drift
+daily should never have been written as though they were constants.
+
+**Residual.** Three classes of claim remain unverifiable from inside the repository and are marked as such:
+GitHub branch-protection settings, VPS/secret configuration, and the contents of the external
+`Website/docs/` authoring tree (`CR-009`). The 45-worktree and CI-run-history figures are relayed from
+`git-development-workflow.md` and the Actions history respectively, not re-measured here.

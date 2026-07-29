@@ -35,7 +35,7 @@ and the prompt library. It is process-only — **no application code, schema, or
 | 11 instantiated prompts | [`70-prompts/*/`](../70-prompts/) | Prompts | `--gate prompts` |
 | Validation framework | [`80-validation/VALIDATION-FRAMEWORK.md`](../80-validation/VALIDATION-FRAMEWORK.md) | Doc | Describes the gates below |
 | Risk register (18 risks) | [`RISK-REGISTER.md`](RISK-REGISTER.md) | Doc | — |
-| Knowledge flow (17 transformations) | [`KNOWLEDGE-FLOW.md`](KNOWLEDGE-FLOW.md) | Doc | `--gate ingestion` |
+| Knowledge flow (17 transformations) | [`KNOWLEDGE-FLOW.md`](KNOWLEDGE-FLOW.md) | Doc | `--gate ingestion-boundary` |
 | Governance | [`GOVERNANCE.md`](GOVERNANCE.md) | Doc | — |
 | Deliverables & adoption (this) | `DELIVERABLES-AND-ADOPTION.md` | Doc | — |
 | Document registry | [`registry/document-registry.yaml`](../registry/document-registry.yaml) | Machine-readable | `--gate registry` |
@@ -144,7 +144,7 @@ Two rules live outside this tree because Cursor requires them there:
 | Numeric directory prefixes (`10-`, `20-`, …) | Reading order is part of the design: repository intelligence must be read before lifecycle, which must be read before roles. Filesystem sort teaches the order for free, and gaps (`15-`) allow insertion without renumbering. | Alphabetical ordering scatters the reading sequence; a separate `INDEX.md` would drift |
 | One concern per file, `SCREAMING-KEBAB.md` | Files are cited by path in prompts and PR bodies; stable, guessable, greppable names matter more than aesthetics. Uppercase distinguishes AODS docs from product docs at a glance in search results. | Lowercase files blend into `docs/` |
 | Registries in YAML, not JSON | They are human-edited and need comments — YAML has them, JSON does not, and every registry row needs a `notes` field explaining its authority | JSON: no comments; TOML: poor nested-list ergonomics |
-| Task records as markdown under `aods/tasks/` | Committed and diffable, so the audit trail survives in Git rather than in a chat transcript | A database or external tracker would be unversioned, which is exactly `CR-009`'s failure |
+| Task records as markdown under `aods/reports/tasks/` | Committed and diffable, so the audit trail survives in Git rather than in a chat transcript | A database or external tracker would be unversioned, which is exactly `CR-009`'s failure |
 | Baseline in `registry/`, not `reports/` | The baseline is *input* to the validator, not output from it. Putting it beside the other registries keeps everything a tool reads in one directory. | In `reports/` it would look like regenerable noise and get cleaned up |
 | Prompts split by archetype subdirectory | The archetype determines the default `allowed_paths`; the directory makes the archetype impossible to mistake | A flat directory makes archetype a naming convention only, which decays |
 
@@ -276,7 +276,7 @@ flowchart LR
 |---|---|---|---|---|
 | **0 — Land** | — | Merge this pack as `Proposed`. Changes no behaviour. | Pack on `main`; `aods_validate.py --list-gates` runs | — |
 | **1 — Advisory** | Phase 0 | Run `--all` locally before each PR. Record the baseline. Fix only what is free to fix. | `registry/validation-baseline.json` exists with an owner per entry | — |
-| **2 — Deconflict** | Phase 1 | Board decides `CR-001` (merge PR #125), `CR-002` (branch naming), `CR-003` (coverage number), `CR-007` (PMO canonical path) | Those four rows closed with dates | Requires `HC-07` on PR #125, then `HC-03` / `HC-04` |
+| **2 — Deconflict** | Phase 1 | Board decides `CR-001` (merge PR #125), `CR-002` (branch naming), `CR-003` (coverage number), `CR-007` (PMO canonical path) | Those four rows closed with dates | Requires `HC-02` + `HC-07` on PR #125, then `HC-04` |
 | **3 — Accept** | Phase 2 | Board reviews the pack; minute; Canon Lock row; statuses → `Accepted`; versions → `1.0.0` | `document-registry.yaml` shows `accepted` for the AODS pack | **Board decision — the one irreducible human gate** |
 | **4 — Enforce** | Phase 3 | Wire gates into `backend-ci.yml` as required checks; enable branch protection | A PR violating a gate cannot merge | `OI-GOV-02`, `OI-GOV-05`, `HC-14` |
 | **5 — Execute** | Phase 4 | Run one real epic entirely through the node model: `SPEC → IMPL → TEST → AUD(review) → DOC → GOV` | One wave completed with a full task-record trail and zero `PARTIAL` nodes | Requires a frozen spec (`HC-01`) |
@@ -324,7 +324,7 @@ designed escape valve.
 | AODS document | SemVer, per document (`0.1.0`) | Document header | Per `GOVERNANCE.md` §5.3 |
 | Prompt | `vN` integer in front-matter | Prompt front-matter + library changelog | Author; human approves |
 | Registry | No version; the git SHA is the version | — | — |
-| Task record | Immutable once the node closes | `aods/tasks/<NODE-ID>.md` | Append a new record; never edit a closed one |
+| Task record | Immutable once the node closes | `aods/reports/tasks/<NODE-ID>.md` | Append a new record; never edit a closed one |
 | Baseline | Dated entries, no version | `aods/registry/validation-baseline.json` | `HC-14` |
 | Conflict register | Append-only, no version | Row `id` is the identity | Register anyone; close Board only |
 | Pack as a whole | Git commit SHA | — | — |
@@ -343,10 +343,10 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 
 | # | Action | Checkpoint | Why first |
 |---|---|---|---|
-| 1 | Review and merge PR #125 (Canon Lock promotion) | `HC-07` | Closes `CR-001`. Until it merges, every governance citation in the repository — including this pack's — fails to resolve on `main`. Nothing else in adoption is worth doing first. |
+| 1 | Accept and merge PR #125 (Canon Lock promotion) | `HC-02` then `HC-07` | Closes `CR-001`. Until it merges, every governance citation in the repository — including this pack's — fails to resolve on `main`. Nothing else in adoption is worth doing first. |
 | 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`. |
 | 3 | Regenerate `openapi/v1.json` | `HC-05` | `CR-012`, and the cheapest real fix on this list. `/api/v1/products/slug/{slug}` has been live since PR #126 while the snapshot dates from PR #111, so the declared machine contract is currently wrong. One command, then `--gate openapi` can become blocking. |
-| 4 | Decide `CR-007`: which PMO progress path is canonical | `HC-03` | Six divergent duplicate files; every PMO write is currently ambiguous. |
+| 4 | Decide `CR-007`: which PMO progress path is canonical | `HC-04` | Six divergent duplicate files; every PMO write is currently ambiguous. |
 | 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
 | 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
 | 7 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |
@@ -360,7 +360,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | ID | Issue | Decision needed from | Blocks |
 |---|---|---|---|
 | `OI-DEL-01` | Whether `aods/` stays at the root or moves under `docs/` after PR #125 merges and the `docs/` namespace stabilises | Board | Nothing; a later move is a pure rename plus registry update |
-| `OI-DEL-02` | Whether `aods/tasks/` records are committed for every node or only for `C2`+ changes | Owner | Repository size vs audit completeness trade-off |
+| `OI-DEL-02` | Whether `aods/reports/tasks/` records are committed for every node or only for `C2`+ changes | Owner | Repository size vs audit completeness trade-off |
 | `OI-DEL-03` | Whether the Knowledge Platform Phase 1–3 documents are in scope for the next wave (`OI-KF-04`) | Owner | Which epic follows RFC-005 |
 | `OI-DEL-04` | No Board-minute storage location exists in the repo (`OI-GOV-07`) | Board | Verifiable acceptance of this pack at Phase 3 |
 | `OI-DEL-05` | Whether a `C0`/`C1` fast path (single node, gates only, no separate review node) is acceptable | Owner | Whether Phase 5 is affordable for small changes |

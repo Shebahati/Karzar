@@ -72,7 +72,7 @@ Read these four things:
 3. [`10-repository-intelligence/CONFLICT-REGISTER.md`](10-repository-intelligence/CONFLICT-REGISTER.md)
    §Summary — 23 recorded contradictions in the repository, none silently resolved.
 4. [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md) §6 — the
-   eight next actions for the human operator, in order.
+   nine next actions for the human operator, in order.
 
 ---
 

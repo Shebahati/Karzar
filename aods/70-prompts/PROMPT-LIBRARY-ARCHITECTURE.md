@@ -289,6 +289,7 @@ Two properties are load-bearing:
 | `P-12` | File is ≤400 lines |
 | `P-13` | `version` is valid SemVer |
 | `P-14` | No secret-shaped literal (long hex/base64, `sk-`, `ghp_`) |
+| `P-15` | The `AUTO MODE PROTOCOL` block matches `PROMPT-TEMPLATE.md` byte-for-byte |
 
 ---
 

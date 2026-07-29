@@ -121,7 +121,7 @@ and a scorecard that disagreed with both. Ground truth must be *measured*, and m
 | **Outputs** | `BASELINE-RECORD` artifact; annotated tag (the repo's existing convention: `KARZAR-BASELINE-YYYYMMDD`). |
 | **Exit criteria** | Tag exists on `main`; every baseline number is reproducible by a command. |
 | **Role** | Release Manager |
-| **Mode** | `HUMAN` — tagging and pushing are human actions (**HC-13**); `git-development-workflow.md` §6 forbids agent pushes. |
+| **Mode** | `HUMAN` — tagging and pushing are human actions (**HC-06**); `git-development-workflow.md` §6 forbids agent pushes. |
 | **Failure mode** | Baseline numbers cited from prose instead of measured, then propagated forever. `karzar-developer-standards.md` S2 forbids invented metrics. |
 
 ---
@@ -369,7 +369,7 @@ and a scorecard that disagreed with both. Ground truth must be *measured*, and m
 | L0 | `registry` | `REPOSITORY-AUDIT` | Project Architect | — |
 | L1 | `registry`, `links` | `AUTHORITY-MODEL` + registry | Architecture Board | HC-02 |
 | L2 | — | `CONFLICT-REGISTER` rows | per-rank authority | HC-01 |
-| L3 | full CI + all gates | `BASELINE-RECORD` + tag | Release Manager | HC-13 |
+| L3 | full CI + all gates | `BASELINE-RECORD` + tag | Release Manager | HC-06 |
 | L4 | `pmo` | `TASK-RECORD` (draft) | PMO | HC-04 |
 | L5 | — | `RESEARCH-NOTE` | domain architect | — |
 | L6 | `links` | `SPEC` | domain architect | HC-05 |
@@ -396,7 +396,7 @@ AODS cannot fully run `L4→L18` until the bootstrap loop closes. Current state:
 |-----------------|--------|---------------|
 | L0 Repository Intelligence | **Done** (this pack) | — |
 | L1 Authority Reconciliation | **Drafted, awaiting ratification** | HC-02 not yet performed |
-| L2 Conflict Adjudication | **22 conflicts registered, 0 resolved** | 5 BLOCKERs: `CR-001`, `CR-004`, `CR-009`, `CR-011`, `CR-015` |
+| L2 Conflict Adjudication | **23 conflicts registered, 0 resolved** | 5 BLOCKERs: `CR-001`, `CR-004`, `CR-009`, `CR-011`, `CR-015` |
 | L3 Baseline Freeze | **Not started** | Depends on L2 |
 
 **Consequence.** Until L2 closes, AODS runs in **degraded mode**: the steady-state loop is usable, but every task

@@ -12,7 +12,7 @@
 
 > **Every gate has a runnable command. A documented gate with no command is failure criterion `F-04`.**
 
-This repository's central weakness is not missing rules — it has three governance systems and ~150 markdown
+This repository's central weakness is not missing rules — it has three governance systems and ~140 markdown
 documents. It is that almost nothing enforces them. Before AODS, the only always-on control was one Cursor rule,
 and the audit found documented rules violated in code (`CR-021`), in scripts (`CR-004`), and in the documents
 themselves (`CR-003`). The framework below therefore contains **no aspirational gates**. Each entry is either:

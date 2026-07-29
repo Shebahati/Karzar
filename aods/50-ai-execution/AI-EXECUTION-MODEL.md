@@ -298,7 +298,8 @@ Node `IMPL-brand-hub-endpoint-001` from [`../registry/task-graph.yaml`](../regis
 
 **This node cannot legally execute today.** RFC-005 lives only on the unmerged Canon Lock branch, so the citation
 gate would fail on the merge base. That is the system working: the blocker was found before a developer wrote code
-against a specification that no reviewer could open. The unblock path is `HC-02` → merge PR #125 → `CR-001` closed.
+against a specification that no reviewer could open. The unblock path is `HC-02` (Board accepts) → `HC-07` (merge
+PR #125) → `CR-001` closed.
 
 ---
 

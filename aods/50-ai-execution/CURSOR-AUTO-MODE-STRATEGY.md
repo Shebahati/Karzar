@@ -93,16 +93,24 @@ Required shape:
 ```
 ## RESTATE
 Governing authority for this task:
-  - RFC-005 §4 (docs/architecture/rfc/RFC-005-brand-hub-launch.md:88) — brand hub must expose
-    product count and top-5 categories.   [resolves on merge base: YES/NO]
-  - ADR-010 §3 (docs/architecture/adr/ADR-010-seo-url-contract.md:41) — canonical path is
-    /brands/{slug}, singular product path is /product/{slug}.
+  - RFC-005 (docs/architecture/rfc/RFC-005-brand-hub-launch.md:30) — Brand Hub pages at
+    /brands/{slug} with SEO meta exposure via API and internal linking from PDP/category;
+    no Facts, dual-write, or Knowledge Graph tables. Unbranded products (288) stay valid
+    without a fake "Generic" brand.        [resolves on merge base: YES/NO]
+  - ADR-010 §Decision, rules 1 and 4 (docs/architecture/adr/ADR-010-seo-url-contract.md:64,
+    :67) — canonical product path is singular /product/{slug}; brand hubs MUST use
+    /brands/{slug}.
 Constraints I must not violate:
   - BE-01 (docs/ARCHITECTURE.md:57) — HTTP endpoint handlers own commit/rollback; services
     and CRUD flush only, unless a documented exception applies.
 What is NOT specified and I will therefore NOT invent:
   - Sort order of the category list. (Halting? No — spec silent, D2 choice, logged.)
 ```
+
+> **These are real citations, checked against the documents on `docs/wave1-canon-lock-promote`.** An earlier draft
+> of this example carried plausible-looking line numbers that pointed at a "Cons:" bullet and a blank line. That is
+> the exact defect `RESTATE` exists to catch, and shipping it inside the template would have taught every future
+> agent that approximate citations are acceptable. Line numbers in examples get checked like any other claim.
 
 The `[resolves on merge base: NO]` case is a **hard stop**. That single field is the control whose absence produced
 `CR-001`: PR #127 merged citing `CANON-LOCK.md`, which existed only on an unmerged branch. No human noticed, because

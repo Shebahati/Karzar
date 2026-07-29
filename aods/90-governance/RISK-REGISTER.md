@@ -76,7 +76,7 @@ without reasoning is unarguable and therefore useless.
 | **Controls** | `--gate citation` resolves each path with `git cat-file -e <base>:<path>`; `registry` gate cross-checks `on_main`; `links` gate reports unmerged targets distinctly |
 | **Residual** | The gate is not yet required in CI, and no PR template forces the `Authority:` line (`CR-018`) |
 | **Owner** | Architecture Board |
-| **Recovery** | Merge PR #125 (`HC-02`), which retroactively resolves the citation |
+| **Recovery** | Board accepts the Wave-1 pack (`HC-02`), then the PR is merged (`HC-07`), which retroactively resolves the citation |
 
 ### `R-004` — Merging to `main` deploys to the live site unintentionally
 
