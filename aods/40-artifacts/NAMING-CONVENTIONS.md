@@ -178,6 +178,10 @@ Workflow nodes are **not** the same objects as PMO tasks: one PMO task expands t
 | `GOV` | Governance / registry / PMO mutation | `GOV-pmo-canonicalise-001` |
 | `REL` | Release / deploy activity | `REL-wave-a1-001` |
 
+Human checkpoints also appear in the graph as nodes, using the inverted form `HC-<nnn>-<slug>`
+(for example `HC-002-ratify`), because a checkpoint is a real dependency edge rather than an
+annotation on one. The validator accepts both grammars and rejects everything else.
+
 **Binding rule.** A node's `TYPE` determines its default `allowed_paths`. `IMPL` may not edit `docs/**`; `DOC` may
 not edit `app/**`. This is the mechanical expression of atomicity (charter principle 5) and the primary defence
 against Auto Mode's "helpfully fixed the docs too" failure. Cross-type work = two nodes = two PRs, or one PR with
