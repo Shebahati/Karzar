@@ -150,6 +150,7 @@ function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
   return {
     id: p.id,
     sku: p.sku,
+    slug: p.sku.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || `product-${p.id}`,
     name: p.name,
     thumbnail: p.thumbnail,
     base_price: p.base_price,
@@ -164,8 +165,11 @@ function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
 }
 
 function toDetail(p: (typeof PRODUCTS)[number]): ProductDetail {
+  const summarySlug =
+    p.sku.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || `product-${p.id}`;
   return {
     ...p,
+    slug: summarySlug,
     stock_status: stockStatus(p),
     category: categoryBrief(p.category_id),
     brand: brandBrief(p.brand_id),
@@ -308,6 +312,19 @@ export const mockApi = {
   async getProduct(id: number): Promise<ProductDetail> {
     await sleep(env.MOCK_LATENCY_MS);
     const p = PRODUCTS.find((x) => x.id === id);
+    if (!p) throw new Error("محصول یافت نشد.");
+    return toDetail(p);
+  },
+
+  async getProductBySlug(slug: string): Promise<ProductDetail> {
+    await sleep(env.MOCK_LATENCY_MS);
+    const normalized = slug.trim().toLowerCase();
+    const p = PRODUCTS.find((x) => {
+      const s =
+        x.sku.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") ||
+        `product-${x.id}`;
+      return s === normalized;
+    });
     if (!p) throw new Error("محصول یافت نشد.");
     return toDetail(p);
   },

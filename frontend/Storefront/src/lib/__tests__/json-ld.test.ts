@@ -15,11 +15,12 @@ function baseProduct(overrides: Partial<ProductDetail> = {}): ProductDetail {
   return {
     id: 42,
     sku: "INS-1108",
+    slug: "ins-1108-digital-caliper",
     name: "کولیس دیجیتال اینسایز",
     category_id: 1,
     brand_id: 1,
     category: { id: 1, name: "کولیس", slug: "caliper" },
-    brand: { id: 1, name: "INSIZE" },
+    brand: { id: 1, name: "INSIZE", slug: "insize" },
     base_price: "1250000",
     original_price: null,
     discount_percent: null,
@@ -90,7 +91,7 @@ describe("buildProductNode / Offer gating", () => {
   it("emits Offer with IRR price when base_price is present", () => {
     const node = buildProductNode(baseProduct());
     expect(node["@type"]).toBe("Product");
-    expect(node.url).toBe(`${SITE_URL}/product/42`);
+    expect(node.url).toBe(`${SITE_URL}/product/ins-1108-digital-caliper`);
     expect(node.offers).toMatchObject({
       "@type": "Offer",
       priceCurrency: "IRR",
@@ -104,7 +105,7 @@ describe("buildProductNode / Offer gating", () => {
   it("omits Offer for inquiry SKUs (null base_price)", () => {
     const node = buildProductNode(baseProduct({ base_price: null }));
     expect(node["@type"]).toBe("Product");
-    expect(node.url).toBe(`${SITE_URL}/product/42`);
+    expect(node.url).toBe(`${SITE_URL}/product/ins-1108-digital-caliper`);
     expect(node.offers).toBeUndefined();
   });
 
