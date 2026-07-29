@@ -74,6 +74,14 @@ export const catalogService = {
     return data;
   },
 
+  async getProductBySlug(slug: string): Promise<ProductDetail> {
+    if (env.USE_MOCK) return (await getMockApi()).getProductBySlug(slug);
+    const { data } = await apiClient.get<ProductDetail>(
+      `/products/slug/${encodeURIComponent(slug.trim())}`,
+    );
+    return data;
+  },
+
   async getRelatedProducts(id: number): Promise<ProductSummary[]> {
     if (env.USE_MOCK) return (await getMockApi()).getRelatedProducts(id);
     const { data } = await apiClient.get<{ data: ProductSummary[] }>(
