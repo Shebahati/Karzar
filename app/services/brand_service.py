@@ -20,6 +20,8 @@ def brand_to_response(brand: Brand, product_count: int | None = None) -> BrandRe
         slug=brand.slug,
         country=brand.country,
         logo_url=absolutize_asset_url(brand.logo_url),
+        meta_title=brand.meta_title,
+        meta_description=brand.meta_description,
         product_count=product_count,
     )
 
@@ -90,6 +92,22 @@ class BrandService:
                 brand,
                 logo_url=payload.logo_url,
                 unset_logo=payload.logo_url is None,
+            )
+
+        if "meta_title" in payload.model_fields_set:
+            brand = await crud_brand.update_brand(
+                db,
+                brand,
+                meta_title=payload.meta_title,
+                unset_meta_title=payload.meta_title is None,
+            )
+
+        if "meta_description" in payload.model_fields_set:
+            brand = await crud_brand.update_brand(
+                db,
+                brand,
+                meta_description=payload.meta_description,
+                unset_meta_description=payload.meta_description is None,
             )
 
         await db.commit()

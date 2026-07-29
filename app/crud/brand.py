@@ -66,6 +66,10 @@ async def update_brand(
     unset_country: bool = False,
     logo_url: str | None = None,
     unset_logo: bool = False,
+    meta_title: str | None = None,
+    unset_meta_title: bool = False,
+    meta_description: str | None = None,
+    unset_meta_description: bool = False,
 ) -> Brand:
     if name is not None:
         brand.name = name
@@ -77,6 +81,14 @@ async def update_brand(
         brand.logo_url = None
     elif logo_url is not None:
         brand.logo_url = logo_url
+    if unset_meta_title:
+        brand.meta_title = None
+    elif meta_title is not None:
+        brand.meta_title = meta_title
+    if unset_meta_description:
+        brand.meta_description = None
+    elif meta_description is not None:
+        brand.meta_description = meta_description
     await db.flush()
     await db.refresh(brand)
     return brand

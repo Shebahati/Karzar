@@ -26,6 +26,7 @@ class CategoryBrief(BaseModel):
 class BrandBrief(BaseModel):
     id: int
     name: str
+    slug: str | None = None
     country: str | None = None
 
 class ProductImageResponse(BaseModel):

@@ -89,6 +89,7 @@ def _brand_brief(product: Product) -> BrandBrief | None:
     return BrandBrief(
         id=product.brand.id,
         name=product.brand.name,
+        slug=getattr(product.brand, "slug", None),
         country=product.brand.country,
     )
 
