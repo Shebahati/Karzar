@@ -117,6 +117,24 @@ async def get_product_by_sku(
     return result.scalar_one_or_none()
 
 
+async def get_product_by_slug(
+    db: AsyncSession, slug: str, *, include_deleted: bool = False
+) -> Product | None:
+    """Resolve storefront PDP by public slug (ADR-010 / RFC-004)."""
+    normalized = slug.strip()
+    if not normalized:
+        return None
+    stmt = (
+        select(Product)
+        .where(Product.slug == normalized)
+        .options(*_product_load_options())
+    )
+    if not include_deleted:
+        stmt = stmt.where(Product.deleted_at.is_(None))
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
 async def get_products(
     db: AsyncSession,
     skip: int = 0,

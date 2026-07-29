@@ -136,6 +136,31 @@ class TestProductRetrieval:
         tech_specs = data["specifications"]["technical_specs"]
         assert any(row["key"] == "range" and row["value"] == "0-150mm" for row in tech_specs)
 
+    def test_product_detail_by_slug(self, valid_product_data, super_admin_headers):
+        """EPIC 1 / RFC-004: storefront resolve by public slug."""
+        create_response = client.post(
+            "/api/v1/products/",
+            json=valid_product_data,
+            headers=super_admin_headers,
+        )
+        assert create_response.status_code == 201
+        created = create_response.json()
+        product_id = created["id"]
+        slug = created.get("slug")
+        assert slug
+
+        response = client.get(f"/api/v1/products/slug/{slug}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == product_id
+        assert data["slug"] == slug
+        assert data["sku"] == valid_product_data["sku"]
+
+    def test_product_detail_by_slug_not_found(self):
+        response = client.get("/api/v1/products/slug/does-not-exist-epic1")
+        assert response.status_code == 404
+        assert response.json()["error_code"] == "NOT_FOUND"
+
     def test_product_detail_preserves_dynamic_specifications(
         self, valid_product_data, super_admin_headers
     ):
