@@ -61,6 +61,7 @@
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
 | CR-021 | Release/rollback owners unnamed while REL-001 is marked done | HIGH | Owner | OPEN |
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
+| CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
 **Open BLOCKERs: 5.** Until `CR-001`, `CR-004`, `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
 **degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
@@ -445,6 +446,19 @@ ruff, mypy, and pytest. `tests/test_p5_contract.py` exercises `app.openapi()` be
 The v2 documentation audit already caught this drifting once (audit cited 71 paths; the file now has 81), proving
 the failure mode is live rather than theoretical.
 
+**The snapshot is drifted right now, and `--gate openapi` proves it.** Running the gate against `main` reports:
+
+```
+FAIL  openapi   1 checked
+  - openapi/v1.json: path present in the app but missing from the snapshot:
+    /api/v1/products/slug/{slug} (CR-012)
+```
+
+`GET /api/v1/products/slug/{slug}` was added by PR #126 (`feat(api): EPIC1 product-by-slug and brand meta for
+hubs`). The snapshot was last regenerated in PR #111. Two EPIC-1 pull requests therefore merged while the
+declared machine contract was stale, and nothing anywhere reported it — this is the same auditability void as
+`CR-001`, arriving through a different door. The gate is a regression test for exactly this event.
+
 **Options:** (A) add a CI step that regenerates and `git diff --exit-code`s the snapshot; (B) add a pytest that
 compares `app.openapi()` to the file; (C) stop committing the snapshot and publish it as a build artifact.
 
@@ -667,8 +681,41 @@ Three separate nodes — not one PR.
 
 ---
 
+## CR-023 — Broken relative links inside merged documentation
+
+| Field | Value |
+|-------|-------|
+| **Severity** | LOW · **Owner** Documentation Architect · **Status** OPEN |
+
+`--gate links` reports two link targets that do not resolve on `main`, both inside a document that *is* on
+`main`. These are distinct from `CR-010` (Canon Lock citing documents that do not exist anywhere) and from
+`CR-001` (citations resolving only on an unmerged branch): here the target document exists, and the link is
+simply written relative to the repository root rather than relative to the linking file.
+
+| Location | Link as written | Actual path | Correct relative form |
+|---|---|---|---|
+| `docs/BACKEND_CHANGES.md:67` | `docs/LOCAL_DEV_FRONTEND.md` | `docs/LOCAL_DEV_FRONTEND.md` | `LOCAL_DEV_FRONTEND.md` |
+| `docs/BACKEND_CHANGES.md:99` | `docs/TESTING.md` | `docs/TESTING.md` | `TESTING.md` |
+
+Registered rather than fixed for two reasons. First, `docs/BACKEND_CHANGES.md` is classified `HISTORICAL` in
+[`../registry/document-registry.yaml`](../registry/document-registry.yaml), and editing a historical record
+to make a validator green is the wrong instinct — historical documents are evidence of what was written at
+the time. Second, this AODS pack is process-only and does not touch product documentation; doing so would
+violate the node-type path separation it defines.
+
+**AI recommendation (advisory):** fix both links in a `DOC` node, since a two-character path correction does
+not alter the historical content. Alternatively, declare `HISTORICAL` documents exempt from link checking —
+but that weakens the gate, so the cheap fix is preferable.
+
+**Why this row exists at all.** `--write-baseline` emits a warning for any entry it cannot attribute to a
+`CR-nnn`. These two were the only unattributed entries, and leaving them unattributed would have turned the
+baseline into exactly the silent suppression list the validation framework forbids.
+
+---
+
 ## Change log for this register
 
 | Date | Change | By |
 |------|--------|-----|
 | 2026-07-29 | Register opened with CR-001…CR-022 from the AODS Phase-0 audit | AODS design task |
+| 2026-07-29 | Added CR-023 — broken relative links surfaced by `--gate links` and flagged as unattributed by the baseline writer | AODS design task |

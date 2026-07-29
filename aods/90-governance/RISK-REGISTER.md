@@ -100,7 +100,7 @@ without reasoning is unarguable and therefore useless.
 | **I** | 5 — customer-visible wrong product data; selective reversal is hard |
 | **Exposure** | **20 — Critical** |
 | **Controls** | `--gate ingestion-boundary`; `KNOW` prompt hard stops; `HC-09` target verification; `ADR-012` |
-| **Residual** | The gate detects 15 of 18 (`OI-V1`); the defaults themselves are unchanged (`CR-004`) |
+| **Residual** | The gate now detects all 18, but the defaults themselves are unchanged (`CR-004`); detection is not remediation |
 | **Owner** | Backend Architect |
 | **Recovery** | Restore from the backup taken before the run; if none, reconstruct from the source extract's provenance record |
 

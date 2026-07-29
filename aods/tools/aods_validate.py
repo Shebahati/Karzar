@@ -129,10 +129,13 @@ class GateResult:
 # --------------------------------------------------------------------------- helpers
 
 
-def run(cmd: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
+def run(
+    cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = None
+) -> tuple[int, str, str]:
     try:
         proc = subprocess.run(
-            cmd, cwd=str(cwd or REPO), capture_output=True, text=True, timeout=300, check=False
+            cmd, cwd=str(cwd or REPO), capture_output=True, text=True, timeout=300,
+            check=False, env=env,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         return 127, "", str(exc)
@@ -283,7 +286,7 @@ def gate_links(_: argparse.Namespace) -> GateResult:
                         f"(lives on {unmerged[target_rel]} — CR-001)",
                     )
                 else:
-                    result.fail(f"{rel}:{line}", f"broken link: {target}")
+                    result.fail(f"{rel}:{line}", f"broken link: {target} (CR-023)")
     return result
 
 
@@ -630,6 +633,18 @@ def gate_allowlist(args: argparse.Namespace) -> GateResult:
     return result
 
 
+OPENAPI_PLACEHOLDER_ENV = {
+    "POSTGRES_USER": "aods_validate",
+    "POSTGRES_PASSWORD": "aods_validate_not_a_real_password",
+    "POSTGRES_SERVER": "127.0.0.1",
+    "POSTGRES_PORT": "5432",
+    "POSTGRES_DB": "aods_validate",
+    "SECRET_KEY": "aods-validate-placeholder-secret-key-32-chars-min",
+    "ADMIN_STEP_UP_PIN": "000000",
+    "DEBUG": "True",
+}
+
+
 def gate_openapi(_: argparse.Namespace) -> GateResult:
     """The committed OpenAPI snapshot matches the running app (CR-012)."""
     result = GateResult("openapi")
@@ -637,16 +652,34 @@ def gate_openapi(_: argparse.Namespace) -> GateResult:
     if not snapshot.exists():
         result.skipped = "openapi/v1.json not present"
         return result
-    code, out, err = run([
-        sys.executable, "-c",
-        "import json,sys;from app.main import app;"
-        "sys.stdout.write(json.dumps(app.openapi(), ensure_ascii=False, sort_keys=True))",
-    ])
+    # Schema generation only needs Settings to validate; it opens no socket and touches no database.
+    # Placeholders are supplied so the gate is runnable on a bare checkout without a .env, and are
+    # deliberately non-functional values that could not reach a real service if something tried.
+    env = dict(os.environ)
+    env.setdefault("PYTHONPATH", str(REPO))
+    for key, value in OPENAPI_PLACEHOLDER_ENV.items():
+        env.setdefault(key, value)
+
+    code, out, err = run(
+        [
+            sys.executable, "-c",
+            "import json,sys;from app.main import app;"
+            "sys.stdout.write(json.dumps(app.openapi(), ensure_ascii=False, sort_keys=True))",
+        ],
+        env=env,
+    )
     if code != 0:
-        result.skipped = (
-            "cannot import app.main (dependencies not installed here); "
-            "run in an environment with requirements.txt installed"
-        )
+        tail = (err or out or "").strip().splitlines()[-3:]
+        detail = " | ".join(line.strip() for line in tail) or "no output"
+        if "ModuleNotFoundError" in (err or ""):
+            result.skipped = (
+                "cannot import app.main — dependencies not installed; "
+                f"run with requirements.txt installed ({detail})"
+            )
+        else:
+            # Anything other than a missing dependency is a real problem: the app cannot
+            # produce its own contract, so the snapshot is unverifiable. Never a silent pass.
+            result.fail("openapi/v1.json", f"could not generate the live schema: {detail} (CR-012)")
         return result
     try:
         live = json.loads(out)
@@ -658,26 +691,59 @@ def gate_openapi(_: argparse.Namespace) -> GateResult:
     live_paths = set(live.get("paths", {}))
     committed_paths = set(committed.get("paths", {}))
     for path in sorted(live_paths - committed_paths):
-        result.fail("openapi/v1.json", f"path present in the app but missing from the snapshot: {path}")
+        result.fail("openapi/v1.json", f"path present in the app but missing from the snapshot: {path} (CR-012)")
     for path in sorted(committed_paths - live_paths):
-        result.fail("openapi/v1.json", f"path in the snapshot no longer exists in the app: {path}")
+        result.fail("openapi/v1.json", f"path in the snapshot no longer exists in the app: {path} (CR-012)")
     if live_paths == committed_paths and json.dumps(live, sort_keys=True) != json.dumps(committed, sort_keys=True):
-        result.fail("openapi/v1.json", "paths match but schemas differ — regenerate the snapshot")
+        result.fail("openapi/v1.json", "paths match but schemas differ — regenerate the snapshot (CR-012)")
     return result
 
 
+PROD_HOST = "karzartools.com"
+
+# A production default can be spelled three ways in this repository, and an earlier version of this
+# gate only recognised the first — it reported 15 offenders where the audit had found 18. All three
+# forms are equally effective at pointing a routine script at the live site, so all three are checked.
+INGESTION_PATTERNS = (
+    # 1. os.getenv("ANY_BASE_VAR", "https://api.karzartools.com/...")
+    (
+        re.compile(
+            r"""(?:getenv|environ\.get)\(\s*["'](?P<var>[A-Z0-9_]+)["']\s*,\s*["'](?P<default>[^"']+)["']"""
+        ),
+        "defaults {var} to production: {default}",
+    ),
+    # 2. argparse: default="https://api.karzartools.com/..."
+    (
+        re.compile(r"""\bdefault\s*=\s*["'](?P<default>https?://[^"']+)["']"""),
+        "argparse default targets production: {default}",
+    ),
+    # 3. A bare assignment to a production URL with no environment override at all.
+    (
+        re.compile(r"""^\s*(?P<var>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*["'](?P<default>https?://[^"']+)["']""", re.M),
+        "hardcodes production base in {var}: {default}",
+    ),
+)
+
+
 def gate_ingestion_boundary(_: argparse.Namespace) -> GateResult:
-    """No script defaults to a production API base (ADR-012 / CR-004)."""
+    """No script defaults to a production API or asset base (ADR-012 / CR-004)."""
     result = GateResult("ingestion-boundary")
-    pattern = re.compile(r"""(?:getenv|environ\.get)\(\s*["']KARZAR_API_BASE["']\s*,\s*["']([^"']+)["']""")
     for rel in tracked_files("scripts/*.py"):
         text = (REPO / rel).read_text(encoding="utf-8", errors="replace")
         result.checked += 1
-        for match in pattern.finditer(text):
-            default = match.group(1)
-            if "karzartools.com" in default:
+        seen: set[int] = set()
+        for pattern, template in INGESTION_PATTERNS:
+            for match in pattern.finditer(text):
+                default = match.group("default")
+                if PROD_HOST not in default:
+                    continue
                 line = text[: match.start()].count("\n") + 1
-                result.fail(f"{rel}:{line}", f"defaults KARZAR_API_BASE to production: {default} (ADR-012, CR-004)")
+                if line in seen:  # one line, one finding, whichever pattern matched first
+                    continue
+                seen.add(line)
+                groups = match.groupdict()
+                detail = template.format(var=groups.get("var") or "value", default=default)
+                result.fail(f"{rel}:{line}", f"{detail} (ADR-012, CR-004)")
     return result
 
 
@@ -712,20 +778,57 @@ def load_baseline() -> set[str]:
     return {str(entry["key"]) for entry in data.get("known_failures", []) if "key" in entry}
 
 
+# A baseline entry with no owner is a suppression, so the writer refuses to produce one:
+# it derives the conflict ID from the finding message and the owner from the gate.
+# ARTIFACT-ARCHITECTURE.md requires date + owner + conflict ID on every baselined violation.
+BASELINE_OWNER_BY_GATE = {
+    "links": "R-DOC-ARCH",
+    "registry": "R-DOC-ARCH",
+    "pmo": "R-PMO",
+    "prompts": "R-PROMPT-ENG",
+    "graph": "R-PROJ-ARCH",
+    "naming": "R-DOC-ARCH",
+    "openapi": "R-BE-ARCH",
+    "ingestion-boundary": "R-DATA-ENG",
+    "citation": "R-AI-REVIEWER",
+    "allowlist": "R-AI-REVIEWER",
+}
+
+CONFLICT_ID_RE = re.compile(r"\bCR-\d{3}\b")
+
+
 def write_baseline(results: list[GateResult]) -> int:
-    entries = [f.as_dict() for result in results for f in result.findings]
+    entries = []
+    unattributed = []
+    for result in results:
+        for finding in result.findings:
+            entry = finding.as_dict()
+            match = CONFLICT_ID_RE.search(entry.get("message", ""))
+            entry["conflict_id"] = match.group(0) if match else "UNASSIGNED"
+            entry["owner_role"] = BASELINE_OWNER_BY_GATE.get(result.name, "R-PROJ-ARCH")
+            entry["recorded_at"] = os.environ.get("AODS_BASELINE_DATE", "")
+            if entry["conflict_id"] == "UNASSIGNED":
+                unattributed.append(entry["path"])
+            entries.append(entry)
+
     payload = {
         "_comment": (
             "Known validation failures, recorded so CI can enforce 'no new failures' while the "
             "existing ones are worked off. Entries are visible debt, not suppressions. Removing an "
             "entry that still fails will fail CI. Each should map to a CR-nnn in "
-            "aods/10-repository-intelligence/CONFLICT-REGISTER.md."
+            "aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means "
+            "the debt is real but not yet registered, which is itself a finding."
         ),
         "recorded_at": os.environ.get("AODS_BASELINE_DATE", ""),
         "count": len(entries),
+        "unassigned_conflict_ids": len(unattributed),
         "known_failures": entries,
     }
     BASELINE.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if unattributed:
+        print(f"WARNING: {len(unattributed)} entr(ies) have no CR-nnn; register them or fix them:")
+        for path in unattributed:
+            print(f"  - {path}")
     return len(entries)
 
 
@@ -768,8 +871,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="emit machine-readable results")
     parser.add_argument("--write-baseline", action="store_true", help="record current failures as known")
     parser.add_argument("--no-baseline", action="store_true", help="ignore the baseline; report every failure")
+    parser.add_argument(
+        "--all", action="store_true",
+        help="every non-contextual gate with the baseline ignored: the honest picture, including known debt",
+    )
     parser.add_argument("--list-gates", action="store_true", help="list gate names and exit")
     args = parser.parse_args(argv)
+
+    if args.all:
+        args.no_baseline = True
 
     if args.list_gates:
         for name in KNOWN_GATES:

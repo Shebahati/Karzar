@@ -346,4 +346,4 @@ git log --pretty='%h|%an|%ad|%s' --date=short -200
 gh pr list --state all --limit 130 --json number,state,additions,changedFiles
 ```
 
-Or simply: `python3 aods/tools/aods_validate.py --all --report aods/reports/audit.json`
+Or simply: `python3 aods/tools/aods_validate.py --all --json > aods/reports/validation/audit.json`

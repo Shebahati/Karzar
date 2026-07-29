@@ -41,7 +41,7 @@ There is no fourth category. "Should be reviewed for quality" is not a gate.
 | `G-07` | `citation` | **Every path cited in a PR body resolves on the merge base** | `--gate citation --pr-body <file>` |
 | `G-08` | `allowlist` | The diff stays inside the node's declared `allowed_paths` | `--gate allowlist --node <ID>` |
 | `G-09` | `openapi` | The committed snapshot matches the running app | `--gate openapi` |
-| `G-10` | `ingestion-boundary` | No script defaults `KARZAR_API_BASE` to production | `--gate ingestion-boundary` |
+| `G-10` | `ingestion-boundary` | No script defaults an API or asset base to production, in any of three spellings (env default, `argparse` default, bare assignment) | `--gate ingestion-boundary` |
 
 `G-07` is the keystone. It is the check whose absence allowed PR #127 to merge citing
 `docs/architecture/CANON-LOCK.md`, a file that exists only on unmerged branch `docs/wave1-canon-lock-promote`
@@ -144,10 +144,9 @@ flowchart TD
 
 ### 5.1 Why a baseline exists
 
-The gates **fail on this repository today** — 40 findings at the time of writing. That is the correct result: they
-are reporting `CR-001`, `CR-004`, `CR-007`, and two pre-existing broken links in `docs/BACKEND_CHANGES.md`. But a
-gate that has never been green cannot be wired into CI as blocking, and a gate not wired into CI decays into
-documentation.
+The gates **fail on this repository today** — 30 findings at the time of writing. That is the correct result: they
+are independently reporting `CR-001`, `CR-004`, `CR-007`, `CR-012`, and `CR-023`. But a gate that has never been
+green cannot be wired into CI as blocking, and a gate not wired into CI decays into documentation.
 
 The baseline resolves this without dishonesty:
 
@@ -157,7 +156,9 @@ python3 aods/tools/aods_validate.py --gate all                    # fails only o
 python3 aods/tools/aods_validate.py --gate all --no-baseline      # the unvarnished truth
 ```
 
-`aods/registry/validation-baseline.json` lists every known failure with its gate, path, and message.
+`aods/registry/validation-baseline.json` lists every known failure with its gate, path, message, `owner_role`,
+`conflict_id`, and `recorded_at` date. The writer prints a warning for any finding it cannot attribute to a
+`CR-nnn`, so an unregistered suppression cannot enter the file quietly — that warning is what produced `CR-023`.
 
 ### 5.2 The rules that keep a baseline from becoming a suppression list
 
@@ -172,18 +173,35 @@ python3 aods/tools/aods_validate.py --gate all --no-baseline      # the unvarnis
 
 ### 5.3 Current baseline composition
 
+Measured, not estimated — `python3 aods/tools/aods_validate.py --all` at the commit that introduced this pack:
+
 | Findings | Gate | Cause | Closes when |
 |----------|------|-------|-------------|
-| 10 | `links` | AODS documents cite Canon Lock paths absent from `main` | `CR-001` — PR #125 merges |
-| 2 | `links` | `docs/BACKEND_CHANGES.md` has two wrong relative paths | A one-line `DOC` node fixes them |
+| 3 | `links` | AODS documents cite Canon Lock paths that exist only on the PR #125 branch | `CR-001` — PR #125 merges |
+| 2 | `links` | `docs/BACKEND_CHANGES.md` has two root-relative paths that should be file-relative | `CR-023` — a one-line `DOC` node |
 | 6 | `pmo` | Six `*_PROGRESS.md` pairs diverge across two paths | `CR-007` — `HC-04` picks a canonical path |
-| 15 | `ingestion-boundary` | Scripts default `KARZAR_API_BASE` to production | `CR-004` — defaults flipped to local |
+| 1 | `openapi` | `/api/v1/products/slug/{slug}` is live but absent from the snapshot | `CR-012` — regenerate, then keep the gate |
+| 18 | `ingestion-boundary` | Scripts default an API or asset base to production | `CR-004` — defaults flipped to local |
+| **30** | | | |
 
-> **Note on a discrepancy.** The audit recorded **18** scripts defaulting to production; `G-10` detects **15**. The
-> gate's pattern matches `getenv`/`environ.get` with a literal default, so it misses other shapes (module-level
-> constants, `argparse` defaults, `or "https://…"` fallbacks). The gate is therefore a **lower bound**, not a
-> census. Recorded as open issue `OI-V1`; the remediation node must fix all 18, not the 15 the gate can see.
-> Publishing 15 as though it were the total would be exactly the self-certification error of `CR-006`.
+> **On the 15-vs-18 discrepancy, and how it was closed.** The first version of `G-10` matched only
+> `getenv("KARZAR_API_BASE", …)` and therefore reported **15** offenders where the audit had found **18** —
+> a gate quietly weaker than the audit it was meant to enforce. The three it missed were
+> `materialize_product_images.py` and `mirror_product_images.py` (a different variable, `PUBLIC_ASSET_BASE`)
+> and `remove_omumi_padding_leaves.py` (an `argparse` default). The gate now checks all three shapes and
+> reports 18, matching the audit exactly.
+>
+> This is recorded rather than silently fixed because it is the more interesting failure mode: a gate that
+> under-reports produces *false confidence*, which is worse than no gate. Had the 15 been published as the
+> total, it would have been the self-certification error of `CR-006` committed by a script instead of a human.
+
+> **On the OpenAPI finding.** `G-09` was originally written to skip when `app.main` could not be imported,
+> and it skipped on every run — the import was failing on missing configuration, not missing dependencies,
+> and the skip message asserted the wrong cause. The gate now supplies non-functional placeholder settings
+> (schema generation opens no socket and touches no database), distinguishes a genuinely missing dependency
+> from any other import failure, and **fails** rather than skips in the latter case. On the first run that
+> actually executed, it found live contract drift that had passed through two merged EPIC-1 pull requests
+> undetected. A gate that skips silently is indistinguishable from a gate that passes.
 
 ---
 
@@ -215,9 +233,17 @@ per wave. Two results from building this framework are worth recording, because 
 |-------------|-------------|
 | `G-06` initially flagged `scripts/backup_db.sh`, `backup_uploads.sh`, `backup_offsite_sync.sh`, and `install-backup-cron.sh` | The reserved-word list banned `backup`, which legitimately *names the purpose* of those scripts. Four false positives on a brand-new gate is how a gate loses credibility on day one; `backup` was removed and the reasoning recorded in `NAMING-CONVENTIONS.md` §2.1 |
 | `G-01` initially failed every AODS document with "row says on_main: false but the file exists" | The check compared the registry claim against the **working tree**, but `on_main` is a claim about the **branch**. It now asks `git cat-file -e origin/main:<path>`. A validator that mis-defines its own field produces confident nonsense |
+| `G-10` reported 15 production-defaulting scripts where the audit had found 18 | The pattern recognised one env-var shape. **Under-reporting is the most dangerous gate defect** — it manufactures false confidence and would have let three offenders through a gate specifically built to catch them. Now checks env defaults, `argparse` defaults, and bare assignments; reports 18 |
+| `G-09` skipped on every single run, printing "dependencies not installed" while the dependencies were installed | The import was failing on missing **configuration**. The gate diagnosed the wrong cause and then skipped, and a skip reads like a pass at a glance. It now supplies placeholder settings, and fails rather than skips on any import error that is not a missing module. On its first real execution it found contract drift that two merged EPIC-1 PRs had carried undetected |
+| The baseline writer produced entries with no owner and no conflict ID | The framework's own rule (`B-02`) requires both, so the writer was violating a rule this document states. It now derives `conflict_id` from the finding text, assigns `owner_role` by gate, and warns loudly on anything unattributed — which is how `CR-023` was found |
 
-Both are recorded here rather than quietly fixed, because "the gate was wrong" is a class of failure the framework
+These are recorded rather than quietly fixed, because "the gate was wrong" is a class of failure the framework
 must be able to admit. A gate the team cannot criticise is a gate the team will start ignoring.
+
+Note the pattern across all five: **three of the four gate defects made the gate weaker, not noisier.** Only
+`G-06` produced false positives. Reviewers naturally notice a gate that complains too much and naturally
+trust a gate that complains too little, so the review effort for new gates should be spent asking "what would
+this miss?" rather than "is this too strict?"
 
 ---
 
@@ -258,7 +284,7 @@ Deliberately **not** included in this change:
 |-----------|-----|
 | Making the job required for merge | The gates must be green-with-baseline in practice first; a required job that always fails gets bypassed, and a bypassed gate teaches the team that gates are optional |
 | Adding the citation gate to the PR workflow | Needs the PR template (`CR-018`) so `Node:` and `Authority:` lines exist to check |
-| Wiring `G-09 openapi` | It currently skips outside an installed environment; in CI it would run, but see `CR-012` — the pre-existing drift must be measured first |
+| Wiring `G-09 openapi` as blocking | The drift has now been measured: `/api/v1/products/slug/{slug}` is missing from the snapshot (`CR-012`). Regenerate the snapshot first, then make the gate blocking — turning it on before the fix would simply add a permanently red required check |
 | Touching `deploy-staging.yml` | That file's push trigger is `CR-011`, a BLOCKER; changing it is its own node with its own review |
 
 No dependency is added: the validators are stdlib-only and run on `python3` alone. This is why
@@ -303,9 +329,9 @@ no gate, because it produces a green tick.
 
 | ID | Issue | Needs |
 |----|-------|-------|
-| `OI-V1` | `G-10` finds 15 of the 18 known production-defaulting scripts; its pattern misses non-`getenv` shapes. | Broaden the pattern, or accept it as a lower bound and drive remediation from the audit's list of 18. Recommendation: both — broaden the pattern **and** state the bound in the report. |
+| ~~`OI-V1`~~ | **Closed 2026-07-29.** `G-10` found 15 of 18; its pattern missed `PUBLIC_ASSET_BASE` and `argparse` defaults. | Pattern broadened to three shapes; the gate now reports 18, matching the audit. See §5.3. |
 | `OI-V2` | `G-08` needs a node ID it cannot infer, so an operator who omits `--node` gets a silent skip rather than a failure. | Make `Node:` a required PR-body field once `CR-018` (PR template) is resolved, then fail the citation gate when it is absent. |
-| `OI-V3` | `G-09` skips when the app cannot be imported, which is indistinguishable from a pass at a glance. | Skips are printed as `SKIP`, never `PASS`, and never count toward success — but a CI job must treat "openapi skipped" as a failure in an environment where it should have run. |
+| `OI-V3` | `G-09` skipped on every run because `app.main` needs configuration, and the skip message wrongly blamed missing dependencies. | **Partly closed 2026-07-29:** the gate now injects non-functional placeholder settings, runs, and fails rather than skips on any import error other than a missing module. Remaining need: a CI job must still treat a genuine `openapi` skip as a failure in an environment where the gate should have run. |
 | `OI-V4` | The frontend has no test-coverage threshold while the backend gate is 68%. | Board decision on a frontend threshold. Not set here: inventing a number would create a fifth coverage figure, which is the `CR-003` disease. |
 | `OI-V5` | No gate detects that a summary artifact is stale relative to its source SHA. | Deferred `--gate summaries`. Kept out of the first set to keep every shipped gate real. |
 | `OI-V6` | Nothing verifies that a task record's pasted gate output was actually produced by that command. | Structurally unsolvable by inspection; mitigated because reviewers re-run the gates themselves (`HC-05` step 3). |
