@@ -1,0 +1,445 @@
+# AODS Role Registry
+# ---------------------------------------------------------------------------
+# Machine-readable twin of aods/30-roles/ROLE-ARCHITECTURE.md
+#
+# A role is a bounded execution identity, not a person. One human may hold many
+# roles but NEVER two roles in the same task.
+#
+# `decision_ceiling` D0..D5 — an agent needing a decision above its ceiling has
+# exactly one legal output: HALT + escalate to `escalates_to`.
+#
+# `allowed_paths` / `forbidden_paths` are enforced by --gate allowlist against
+# the node's declared paths, which must be a subset of the role's paths.
+# ---------------------------------------------------------------------------
+
+meta:
+  version: 0.1.0
+  status: proposed
+  owner_role: R-PROJ-ARCH
+  note: >-
+    Karzar has ONE human operator. Separation of duties between humans is
+    impossible today; AODS substitutes temporal separation, agent separation,
+    mechanical gates, and written decisions. See ROLE-ARCHITECTURE.md §6.1 and
+    CONFLICT-REGISTER.md CR-021.
+
+decision_levels:
+  D5: "Irreversible/external: push, merge, deploy, delete, rotate secrets, tag, spend"
+  D4: "Accept a document; add a Canon Lock row; freeze architecture"
+  D3: "Choose between valid designs; set priority; approve spec or plan"
+  D2: "Choose implementation approach inside an approved plan; classify; assign ID"
+  D1: "Report; pass/fail a gate; refuse to proceed"
+  D0: "Execute only; no decisions"
+
+roles:
+
+  - id: R-OWNER
+    name: Human Operator
+    kind: human
+    mission: Hold ultimate authority; perform every action a machine must not perform.
+    decision_ceiling: D5
+    escalates_to: null
+    allowed_paths: ["**"]
+    forbidden_paths: []
+    validates: [human-checkpoint-evidence]
+    default_context_tier: T3
+    notes: "Currently Mohammad Shebahati, also holding R-BOARD. Bus factor 1 — RISK R-09."
+
+  - id: R-BOARD
+    name: Architecture Board
+    kind: human
+    mission: Be the sole authority that makes a document binding.
+    decision_ceiling: D4
+    escalates_to: R-OWNER
+    allowed_paths:
+      - "docs/architecture/**"
+      - "docs/development/standards/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [arch-gate, adr-quality, no-self-accept]
+    default_context_tier: T2
+    required_artifact: "Board minute with Jalali+Gregorian date, signature, scope"
+
+  - id: R-PROJ-ARCH
+    name: Project Architect
+    kind: ai_or_human
+    mission: Own the development system — intake classification, decomposition, workflow integrity.
+    decision_ceiling: D3
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "aods/**"
+      - "project-management/exports/tasks.json"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+      - "alembic/**"
+    validates: [graph, prompts]
+    default_context_tier: T2
+
+  - id: R-SYS-ARCH
+    name: System Architect
+    kind: ai_or_human
+    mission: Keep the whole system coherent across backend, frontends, data, and SEO surfaces.
+    decision_ceiling: D3
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "docs/architecture/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [adr-conflict-free]
+    default_context_tier: T3
+    notes: "Authors at Proposed only. May never set Accepted."
+
+  - id: R-BE-ARCH
+    name: Backend Architect
+    kind: ai_or_human
+    mission: Own the API contract, service layering, and transaction correctness.
+    decision_ceiling: D3
+    escalates_to: R-SYS-ARCH
+    allowed_paths:
+      - "app/**"
+      - "openapi/**"
+      - "docs/API_CONTRACT.md"
+      - "docs/API_CHANGELOG.md"
+    forbidden_paths:
+      - "frontend/**"
+      - "alembic/versions/**"
+    validates: [openapi, breaking-change-classification]
+    default_context_tier: T2
+    owns_conflicts: [CR-005, CR-012, CR-022, CR-004]
+
+  - id: R-FE-ARCH
+    name: Frontend Architect
+    kind: ai_or_human
+    mission: Own routing, rendering strategy, component architecture, design tokens, RTL correctness.
+    decision_ceiling: D3
+    escalates_to: R-SYS-ARCH
+    allowed_paths:
+      - "frontend/**"
+    forbidden_paths:
+      - "app/**"
+      - "alembic/**"
+    validates: [typecheck, a11y, cwv-budget, rtl-correctness]
+    default_context_tier: T2
+    owns_conflicts: [CR-014]
+    notes: "Must heed frontend/admin-panel/AGENTS.md — Next.js 16 differs from model training data."
+
+  - id: R-DB-ARCH
+    name: Database Architect
+    kind: ai_or_human
+    mission: Own the schema, its evolution, and data integrity.
+    decision_ceiling: D3
+    escalates_to: R-SYS-ARCH
+    allowed_paths:
+      - "alembic/**"
+      - "app/db/models/**"
+    forbidden_paths:
+      - "frontend/**"
+    validates: [migration-updown, single-alembic-head]
+    default_context_tier: T2
+    notes: "Current head z1a2b3c4d5e6, 27 revisions, single head must be preserved."
+
+  - id: R-SEC-ARCH
+    name: Security Architect
+    kind: ai_or_human
+    mission: Keep authentication, authorisation, secrets, and the public attack surface safe.
+    decision_ceiling: D3
+    escalates_to: R-OWNER
+    allowed_paths:
+      - "app/core/**"
+      - "app/api/deps.py"
+      - "tests/test_*security*.py"
+      - "tests/test_p3_security.py"
+    forbidden_paths:
+      - "frontend/**/src/components/**"
+    validates: [secret-scan, step-up-enforcement]
+    default_context_tier: T2
+    veto: true
+
+  - id: R-SEO
+    name: SEO / Information Architecture Engineer
+    kind: ai_or_human
+    mission: Own public URL semantics, indexability, structured data, content architecture.
+    decision_ceiling: D3
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "frontend/Storefront/src/app/sitemap.ts"
+      - "frontend/Storefront/src/app/robots.ts"
+      - "frontend/Storefront/src/lib/json-ld.ts"
+      - "frontend/Storefront/content/**"
+    forbidden_paths:
+      - "app/**"
+    validates: [redirect-matrix, canonical-jsonld-agreement]
+    default_context_tier: T2
+    owns_conflicts: [CR-014]
+    notes: "May not invent thin-content thresholds — CR-014 is a human decision."
+
+  - id: R-KNOW
+    name: Knowledge Engineer
+    kind: ai_or_human
+    mission: Convert external sources into validated structured knowledge without touching production.
+    decision_ceiling: D2
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "data/imports/**"
+      - "scripts/**"
+      - "aods/reports/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [ingestion-boundary, dry-run-evidence]
+    default_context_tier: T2
+    owns_conflicts: [CR-004]
+
+  - id: R-DOC-ARCH
+    name: Documentation Architect
+    kind: ai_or_human
+    mission: Keep the document corpus classified, current, and non-contradictory.
+    decision_ceiling: D2
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "docs/**"
+      - "README.md"
+      - "frontend/**/*.md"
+      - "aods/**"
+      - ".github/pull_request_template.md"
+    forbidden_paths:
+      - "docs/architecture/**"
+      - "docs/audits/**"
+    validates: [registry, links]
+    default_context_tier: T2
+    owns_conflicts: [CR-010, CR-015, CR-018, CR-020]
+
+  - id: R-PROMPT-ENG
+    name: Prompt Engineer
+    kind: ai_or_human
+    mission: Own the prompt library as versioned engineering assets.
+    decision_ceiling: D2
+    escalates_to: R-PROJ-ARCH
+    allowed_paths:
+      - "aods/70-prompts/**"
+      - ".cursor/rules/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [prompts]
+    default_context_tier: T1
+
+  - id: R-PMO
+    name: PMO / Planner
+    kind: ai_or_human
+    mission: Keep planning and status truthful and consistent.
+    decision_ceiling: D2
+    escalates_to: R-OWNER
+    allowed_paths:
+      - "project-management/**"
+    forbidden_paths:
+      - "project-management/exports/clickup-import.csv"
+      - "project-management/exports/github-projects.csv"
+      - "project-management/exports/taskulu-import.csv"
+      - "project-management/printable/**"
+    validates: [pmo]
+    default_context_tier: T1
+    owns_conflicts: [CR-007, CR-013, CR-021, CR-008]
+    notes: "Rank 7 authority — may never decide architecture questions."
+
+  - id: R-BE-ENG
+    name: Backend Engineer
+    kind: ai
+    mission: Execute an approved change plan on the backend surface as the smallest correct diff.
+    decision_ceiling: D2
+    escalates_to: R-BE-ARCH
+    allowed_paths:
+      - "app/**"
+    forbidden_paths:
+      - "docs/architecture/**"
+      - "project-management/**"
+      - "alembic/versions/**"
+      - ".github/workflows/**"
+      - ".env*"
+      - "frontend/AI_CONTEXT.md"
+    validates: [allowlist, lint, secret-scan]
+    default_context_tier: T1
+
+  - id: R-FE-ENG
+    name: Frontend Engineer
+    kind: ai
+    mission: Execute an approved change plan on the frontend surface as the smallest correct diff.
+    decision_ceiling: D2
+    escalates_to: R-FE-ARCH
+    allowed_paths:
+      - "frontend/Storefront/src/**"
+      - "frontend/admin-panel/src/**"
+    forbidden_paths:
+      - "app/**"
+      - "docs/architecture/**"
+      - "project-management/**"
+      - "frontend/AI_CONTEXT.md"
+    validates: [allowlist, typecheck, lint]
+    default_context_tier: T1
+
+  - id: R-DB-ENG
+    name: Database Engineer
+    kind: ai
+    mission: Author reversible migrations and model changes per an approved plan.
+    decision_ceiling: D2
+    escalates_to: R-DB-ARCH
+    allowed_paths:
+      - "alembic/versions/**"
+      - "app/db/models/**"
+    forbidden_paths:
+      - "frontend/**"
+      - "docs/architecture/**"
+    validates: [allowlist, migration-updown]
+    default_context_tier: T1
+    notes: "Data backfill is a separate Category A/B job — never inside a migration."
+
+  - id: R-DATA-ENG
+    name: Data / Catalog Engineer
+    kind: ai
+    mission: Build and run versioned catalog transformation jobs, locally only.
+    decision_ceiling: D2
+    escalates_to: R-KNOW
+    allowed_paths:
+      - "scripts/**"
+      - "data/imports/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [allowlist, ingestion-boundary, dry-run-evidence]
+    default_context_tier: T1
+
+  - id: R-CONTENT-ENG
+    name: Content Engineer
+    kind: ai
+    mission: Author and publish Persian buyer-intent content per the calendar and SEO rules.
+    decision_ceiling: D2
+    escalates_to: R-SEO
+    allowed_paths:
+      - "frontend/Storefront/content/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/Storefront/src/**"
+    validates: [content-schema, links]
+    default_context_tier: T1
+
+  - id: R-AI-REVIEWER
+    name: AI Reviewer
+    kind: ai
+    mission: Certify mechanically that a change is in-scope, legal, and evidenced — without having written it.
+    decision_ceiling: D1
+    escalates_to: R-PROJ-ARCH
+    allowed_paths:
+      - "aods/reports/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+      - "alembic/**"
+      - "scripts/**"
+      - "docs/**"
+      - "project-management/**"
+    validates: [all]
+    default_context_tier: T1
+    separation: >-
+      MUST be a different agent invocation from the one that produced the diff.
+      Sees the diff and the gate results, not the reasoning that produced them.
+      This is the structural control against CR-006-style self-certification.
+
+  - id: R-QA
+    name: QA Engineer
+    kind: ai
+    mission: Prove correctness with executable evidence and prevent regression.
+    decision_ceiling: D1
+    escalates_to: R-PROJ-ARCH
+    allowed_paths:
+      - "tests/**"
+      - "frontend/Storefront/e2e/**"
+      - "frontend/admin-panel/e2e/**"
+      - "frontend/*/src/**/__tests__/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/*/src/app/**"
+      - "frontend/*/src/components/**"
+    validates: [test, coverage, e2e, migration-updown, post-deploy]
+    default_context_tier: T1
+    owns_conflicts: [CR-003, CR-016]
+    notes: "May block a release. May never change production code to make a test pass."
+
+  - id: R-AUDITOR
+    name: Independent Auditor
+    kind: ai_or_human
+    mission: Measure the true state of the system with hostile scepticism.
+    decision_ceiling: D1
+    escalates_to: R-BOARD
+    allowed_paths:
+      - "docs/audits/**"
+      - "aods/reports/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [scorecard-regression]
+    default_context_tier: T3
+    owns_conflicts: [CR-006]
+    separation: "MUST be separate from every role that produced the work under audit."
+
+  - id: R-DEVOPS
+    name: DevOps Engineer
+    kind: ai_or_human
+    mission: Own CI, deployment mechanics, observability, and backups.
+    decision_ceiling: D3
+    escalates_to: R-OWNER
+    allowed_paths:
+      - ".github/workflows/**"
+      - "deploy/**"
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "docker-entrypoint.sh"
+      - "gunicorn_conf.py"
+      - "scripts/*.sh"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/*/src/**"
+      - ".env*"
+    validates: [smoke, workflow-lint]
+    default_context_tier: T2
+    owns_conflicts: [CR-011, CR-012]
+    notes: "Must never add a live-host deploy trigger without a human gate."
+
+  - id: R-REL
+    name: Release Manager
+    kind: ai_or_human
+    mission: Ensure every release is intentional, verified, and reversible.
+    decision_ceiling: D3
+    escalates_to: R-OWNER
+    allowed_paths:
+      - "project-management/RELEASE_PLAN.md"
+      - "aods/reports/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/**"
+    validates: [citation, smoke, post-deploy]
+    default_context_tier: T1
+    notes: >-
+      While CR-011 is open, EVERY merge to main is a production release and must
+      route through HC-12. No release without a rollback note.
+
+separations_of_duty:
+  - rule: implementer_is_not_reviewer
+    detail: "The agent invocation that produced a diff must never produce its VALIDATION-REPORT."
+    prevents: "Self-review; unbacked claims (failure criterion F-07)"
+  - rule: implementer_is_not_auditor
+    detail: "An audit of work must come from a role that did not perform it."
+    prevents: "CR-006 — a 9.0 scorecard published by the programme that scored 5.7"
+  - rule: author_is_not_acceptor
+    detail: "R-SYS-ARCH proposes; only R-BOARD accepts."
+    prevents: "Self-acceptance of ADRs in feature PRs (CANON-LOCK.md §6)"
+  - rule: implementer_is_not_test_author
+    detail: "R-QA writes tests from the spec, not from the implementation."
+    prevents: "Tests that encode the bug"
+  - rule: agent_does_not_push
+    detail: "Only R-OWNER pushes, merges, deploys, tags."
+    prevents: "Unreviewed change reaching a live host (git-development-workflow.md §6)"
+  - rule: pmo_does_not_decide_architecture
+    detail: "Rank 7 may not answer rank 1 questions."
+    prevents: "CR-008 — competing priority systems"

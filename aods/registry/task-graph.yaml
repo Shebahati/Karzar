@@ -1,0 +1,521 @@
+# AODS Task Graph
+# ---------------------------------------------------------------------------
+# Machine-readable twin of aods/20-lifecycle/WORKFLOW-GRAPH.md
+#
+# Contains:
+#   1. `archetypes` — reusable node contracts. Project nodes inherit via `extends`.
+#   2. `nodes`      — the live graph for currently-known work.
+#
+# Checked by `aods/tools/aods_validate.py --gate graph` against invariants
+# GI-1..GI-10 in WORKFLOW-GRAPH.md §7.
+# ---------------------------------------------------------------------------
+
+meta:
+  version: 0.1.0
+  status: proposed
+  owner_role: R-PROJ-ARCH
+  base_commit: c022a44
+  pr_budget:
+    max_changed_lines: 400
+    max_changed_files: 15
+    rationale: >-
+      Observed merged-PR mean is +575/-77 across 11.7 files, with outliers at
+      +5194 (#102), +3477 (#25), +3105 (#86) that were unreviewable in practice.
+      The budget is set just below the observed mean so that exceeding it forces
+      a decomposition decision rather than a heroic review.
+  max_concurrent_human_checkpoints: 3
+
+# ===========================================================================
+# 1. ARCHETYPES
+# ===========================================================================
+
+archetypes:
+
+  AUD:
+    purpose_template: "Measure reality in <area> and produce evidence"
+    role: R-KNOW
+    context_tier: T2
+    allowed_paths: ["aods/reports/**"]
+    forbidden_paths: ["app/**", "frontend/**", "alembic/**", "scripts/**"]
+    gates: [links]
+    acceptance:
+      - "Every claim carries a file path, a line number, or a command output"
+      - "Unknowns are enumerated, never assumed"
+    failure_conditions:
+      - "No governing authority row can be located for the area"
+      - "Target area is classified QUARANTINED"
+    recovery:
+      - "No governing row -> escalate to a SPEC node"
+      - "Quarantined -> escalate HC-05"
+
+  SPEC:
+    purpose_template: "Define correct behaviour for <feature>, testably"
+    role: R-SYS-ARCH
+    context_tier: T2
+    allowed_paths: ["docs/**", "aods/reports/**"]
+    forbidden_paths:
+      ["app/**", "frontend/**", "alembic/**", "scripts/**", "docs/architecture/**"]
+    gates: [links, registry]
+    acceptance:
+      - "Every requirement has an ID and an objectively testable acceptance criterion"
+      - "Empty and error states defined"
+      - "Rollback stated"
+      - "Open questions enumerated and either answered or escalated as CR-nnn"
+    failure_conditions:
+      - "An open question would require inventing a product decision"
+      - "The spec contradicts an Accepted ADR"
+    recovery:
+      - "Emit HALT with numbered open questions -> HC-05"
+      - "Contradiction -> new CR-nnn -> HC-03"
+
+  ADR:
+    purpose_template: "Record the durable decision for <question>"
+    role: R-SYS-ARCH
+    context_tier: T3
+    allowed_paths: ["docs/architecture/adr/**"]
+    forbidden_paths: ["app/**", "frontend/**"]
+    gates: [links, citation]
+    acceptance:
+      - ">=2 considered options with pros/cons/risks"
+      - "Decision uses MUST/SHOULD/MAY"
+      - "Consequences and gates stated"
+      - "Status is Proposed — NEVER Accepted by the author"
+    failure_conditions: ["Author attempts to set status Accepted"]
+    recovery: ["HALT -> HC-03 Board minute required"]
+
+  IMPL:
+    purpose_template: "Implement <requirement group> as the smallest correct diff"
+    role: R-BE-ENG
+    context_tier: T1
+    allowed_paths: []          # MUST be set explicitly per node
+    forbidden_paths:
+      - "docs/architecture/**"
+      - "project-management/**"
+      - ".github/workflows/**"
+      - ".env*"
+      - "frontend/AI_CONTEXT.md"
+      - "frontend/BACKEND_NON_COMPLIANCE.md"
+      - "docs/FRONTEND_IMPLEMENTATION_GUIDE.md"
+    gates: [allowlist, lint, typecheck, secret-scan]
+    acceptance:
+      - "git diff --name-only is a subset of allowed_paths"
+      - "Diff <= 400 lines and <= 15 files"
+      - "No new dependency unless the CHANGE-PLAN declares it"
+      - "No unrelated formatting churn"
+      - "No TODO/FIXME left behind (repo currently has zero — preserve that)"
+    failure_conditions:
+      - "The change requires a file outside allowed_paths"
+      - "The spec is ambiguous at the point of implementation"
+      - "A previously passing test fails for an unrelated reason"
+      - "A schema change not in the plan is required"
+      - "attempts == 2"
+    recovery:
+      - "Out-of-scope file -> HALT, return to DSGN with the path and reason. NEVER widen silently."
+      - "Ambiguity -> HALT to SPEC"
+      - "Unrelated failure -> HALT and report as a discovered defect; do not fix here"
+      - "attempts == 2 -> HALT. A third strategy is forbidden."
+
+  TEST:
+    purpose_template: "Prove the acceptance criteria of <spec> and prevent regression"
+    role: R-QA
+    context_tier: T1
+    allowed_paths:
+      - "tests/**"
+      - "frontend/Storefront/e2e/**"
+      - "frontend/admin-panel/e2e/**"
+      - "frontend/*/src/**/__tests__/**"
+    forbidden_paths:
+      - "app/**"
+      - "frontend/*/src/app/**"
+      - "frontend/*/src/components/**"
+    gates: [test, coverage]
+    acceptance:
+      - "Each new test names the spec criterion it covers"
+      - "Coverage >= 68 percent"
+      - "A bug fix has a test that fails without the fix"
+    failure_conditions:
+      - "The only way to pass is to change production code"
+      - "Coverage would drop below the gate"
+    recovery:
+      - "HALT and report the defect to the IMPL owner. Never weaken the assertion or the gate."
+
+  KNOW:
+    purpose_template: "Extract and validate facts from <source> without touching production"
+    role: R-KNOW
+    context_tier: T2
+    allowed_paths: ["data/imports/**", "scripts/**", "aods/reports/**"]
+    forbidden_paths: ["app/**", "frontend/**"]
+    gates: [ingestion-boundary, dry-run-evidence, citation]
+    acceptance:
+      - "Category A/B/C declared"
+      - "KARZAR_API_BASE resolves to a local address"
+      - "Source, Destination, Owner, Validation, Audit, Rollback all declared"
+      - "Dry-run report attached with counts"
+      - "Fail-closed on unexpected delta"
+      - "top:* operational keys not surfaced as customer properties"
+      - "Persian display strings treated as aliases, not distinct properties"
+    failure_conditions:
+      - "Source file missing or checksum mismatch"
+      - "Script would default to a production API base"
+      - "Delta exceeds declared tolerance"
+    recovery:
+      - "Missing/mismatched source -> HALT to HC-07"
+      - "Production default -> HARD FAIL, no override (pr-checklist explicit fail)"
+      - "Delta exceeded -> HALT; Category B authorisation required"
+    blocked_by: [CR-004]
+
+  DOC:
+    purpose_template: "Synchronise <documents> with the delivered reality"
+    role: R-DOC-ARCH
+    context_tier: T1
+    allowed_paths: ["docs/**", "README.md", "frontend/**/*.md", "aods/**"]
+    forbidden_paths: ["docs/architecture/**", "docs/audits/**"]
+    gates: [links, registry]
+    acceptance:
+      - "No number contradicts its authoritative source"
+      - "New or changed endpoints appear in docs/API_CHANGELOG.md"
+      - "Every link resolves"
+      - "Stale docs receive a dated banner rather than a silent edit"
+    failure_conditions: ["The correct fix would weaken a CANON document"]
+    recovery: ["HALT -> CR-nnn -> HC-03. Editing a doc downward to match defective code is forbidden."]
+
+  GOV:
+    purpose_template: "Synchronise PMO state for <task id>"
+    role: R-PMO
+    context_tier: T0
+    allowed_paths: ["project-management/**"]
+    forbidden_paths:
+      - "project-management/exports/clickup-import.csv"
+      - "project-management/exports/github-projects.csv"
+      - "project-management/exports/taskulu-import.csv"
+      - "project-management/printable/**"
+    gates: [pmo]
+    acceptance:
+      - "Status and progress identical across tasks.json and every mirror"
+      - "Both copies of any duplicated file updated until CR-007 is resolved"
+      - "Task ID present in CHANGELOG.md, and in DONE.md when complete"
+    failure_conditions:
+      - "No task ID maps to the work (orphan, as in CR-013)"
+      - "Duplicate files diverge"
+    recovery:
+      - "Orphan -> create the task in tasks.json first, then mirror"
+      - "Divergence -> HALT to CR-007; do not pick a winner"
+    blocked_by: [CR-007]
+
+  REL:
+    purpose_template: "Release <change> with a human gate and a working rollback"
+    role: R-REL
+    context_tier: T0
+    allowed_paths: []
+    forbidden_paths: ["**"]
+    gates: [citation, smoke, post-deploy]
+    acceptance:
+      - "Smoke gate green"
+      - "/health and /ready return OK"
+      - "Storefront and admin reachable"
+      - "Post-deploy checks match the spec's acceptance criteria"
+    failure_conditions:
+      - "Smoke fails"
+      - "Post-deploy check fails"
+      - "Post-deploy automation fails (the observed real-world failure mode)"
+    recovery:
+      - "git revert the merge commit -> redeploy -> restore data from backup if a data job ran"
+      - "NEVER hand-patch the live host"
+    blocked_by: [CR-011]
+
+# ===========================================================================
+# 2. LIVE NODES
+# ===========================================================================
+
+nodes:
+
+  # ---- Programme A · AODS adoption -------------------------------------
+
+  - id: GOV-aods-001
+    extends: GOV
+    purpose: "Register AODS-001 in the PMO and record this design task"
+    inputs: [aods/AODS-CHARTER.md]
+    produces: [PMO-TASKS, PMO-CHANGELOG, PMO-PROJECT-STATUS]
+    depends_on: []
+    acceptance:
+      - "AODS-001 exists in tasks.json with status and progress"
+      - "CHANGELOG entry carries the task ID and the PR link"
+      - "A GOVERNANCE_PROGRESS ledger exists in both duplicate locations (CR-007 unresolved)"
+
+  - id: AUD-repo-001
+    extends: AUD
+    purpose: "Full repository audit — documents, code, process, deployment"
+    inputs: []
+    produces: [AODS-AUDIT]
+    depends_on: []
+    status: complete
+    evidence: aods/10-repository-intelligence/REPOSITORY-AUDIT.md
+
+  - id: SPEC-authority-001
+    extends: SPEC
+    purpose: "Define the document authority model and conflict-resolution algorithm"
+    inputs: [AODS-AUDIT]
+    produces: [AODS-AUTHORITY, "aods/registry/document-registry.yaml"]
+    depends_on: [AUD-repo-001]
+    status: complete
+    allowed_paths: ["aods/**"]
+
+  - id: GOV-conflicts-001
+    extends: AUD
+    purpose: "Register every discovered contradiction as an owned open issue"
+    inputs: [AODS-AUDIT, AODS-AUTHORITY]
+    produces: [AODS-CONFLICTS]
+    depends_on: [SPEC-authority-001]
+    status: complete
+    allowed_paths: ["aods/**"]
+    acceptance:
+      - "Every conflict states both sides with citations"
+      - "Every conflict names a decision authority"
+      - "No conflict is resolved by the AI"
+
+  - id: HC-002-ratify
+    kind: human_checkpoint
+    purpose: "Board ratifies the authority model and assigns conflict owners"
+    role: R-BOARD
+    depends_on: [GOV-conflicts-001]
+    blocks: [IMPL-canon-merge-001, IMPL-quarantine-001]
+    human_checkpoint: HC-02
+
+  - id: IMPL-canon-merge-001
+    extends: IMPL
+    purpose: "Resolve CR-001 — bring Canon Lock onto main so citations resolve"
+    role: R-OWNER
+    inputs: ["PR #125"]
+    produces: [CANON-LOCK, ADR-010, ADR-012, RFC-004, RFC-005, DEV-STANDARDS]
+    depends_on: [HC-002-ratify]
+    allowed_paths: ["docs/architecture/**", "docs/development/**"]
+    gates: [links, citation]
+    blocked_by: [CR-001, CR-010]
+    human_checkpoint: HC-03
+    notes: >-
+      Highest-leverage single action in the repository. Docs-only, no runtime risk.
+      Converts ARCH-GATE and CITATION-GATE from fiction to function.
+
+  - id: IMPL-quarantine-001
+    extends: DOC
+    purpose: "Resolve CR-015 — truncate frontend/AI_CONTEXT.md and archive the false body"
+    inputs: [AI-CONTEXT]
+    produces: ["docs/archive/AI_CONTEXT-2026-07-11.md"]
+    depends_on: [HC-002-ratify]
+    allowed_paths: ["frontend/AI_CONTEXT.md", "docs/archive/**", "aods/registry/**"]
+    blocked_by: [CR-015]
+    acceptance:
+      - "Only the obsolete banner and the still-useful remediation log remain in place"
+      - "The archived copy carries a dated superseded banner"
+      - "Registry row updated from quarantined to historical"
+
+  - id: IMPL-deploy-gate-001
+    extends: IMPL
+    purpose: "Resolve CR-011 — remove the push trigger so no merge deploys to a live host unattended"
+    role: R-DEVOPS
+    inputs: [".github/workflows/deploy-staging.yml"]
+    produces: [".github/workflows/deploy-staging.yml"]
+    depends_on: [HC-002-ratify]
+    allowed_paths: [".github/workflows/**", "docs/COLLABORATOR_DEPLOY.md"]
+    gates: [workflow-lint, smoke]
+    blocked_by: [CR-011]
+    human_checkpoint: HC-09
+
+  - id: IMPL-ingestion-default-001
+    extends: IMPL
+    purpose: "Resolve CR-004 — flip the 18 production API defaults to local and add a fail-closed guard"
+    role: R-DATA-ENG
+    inputs: ["scripts/**", INGESTION-POLICY, ADR-012]
+    produces: ["scripts/**"]
+    depends_on: [IMPL-canon-merge-001]
+    allowed_paths: ["scripts/**", "docs/SCRIPTS.md"]
+    gates: [ingestion-boundary, citation, test]
+    blocked_by: [CR-004]
+    notes: >-
+      Must classify the deploy-time publisher scripts (publish_seo003_articles.py)
+      separately — they legitimately target the deployed host and are not Category A.
+
+  - id: IMPL-openapi-gate-001
+    extends: IMPL
+    purpose: "Resolve CR-012 — verify openapi/v1.json in CI"
+    role: R-DEVOPS
+    inputs: [".github/workflows/backend-ci.yml", OPENAPI-SNAPSHOT]
+    produces: [".github/workflows/backend-ci.yml", "tests/test_openapi_snapshot.py"]
+    depends_on: []
+    allowed_paths: [".github/workflows/**", "tests/**"]
+    gates: [openapi, test]
+    blocked_by: [CR-012]
+
+  - id: IMPL-pr-template-001
+    extends: DOC
+    purpose: "Resolve CR-018 — add a PR template implementing the Accepted PR checklist"
+    inputs: [PR-CHECKLIST, CITATION-RULES]
+    produces: [".github/pull_request_template.md"]
+    depends_on: [IMPL-canon-merge-001]
+    allowed_paths: [".github/pull_request_template.md"]
+    gates: [links]
+    blocked_by: [CR-018]
+
+  # ---- Programme B · EPIC-1 Brand Hub (worked example) -----------------
+
+  - id: AUD-brandhub-001
+    extends: AUD
+    purpose: "Measure brand coverage — brands, product counts per brand, existing routes, brand meta in the API"
+    inputs: [IA-EPIC1, ADR-010, RFC-005]
+    produces: ["aods/reports/AUD-brandhub-001.md"]
+    depends_on: []
+    acceptance:
+      - "Product count per brand measured from the database, not estimated"
+      - "Confirms whether frontend/Storefront/src/app/brands/ exists"
+      - "Confirms which brand meta fields the API already exposes (PR #126)"
+
+  - id: SPEC-brandhub-001
+    extends: SPEC
+    purpose: "Define the Brand Hub page contract (missing specification G-01)"
+    role: R-FE-ARCH
+    inputs: [AUD-brandhub-001, ADR-010, RFC-005, IA-PACK, IA-EPIC1]
+    produces: ["docs/architecture/brand-hub-page-contract.md"]
+    depends_on: [AUD-brandhub-001]
+    blocked_by: [CR-014]
+    open_questions:
+      - "Minimum product count for a publishable brand hub?"
+      - "Indexability rule below that threshold (noindex, or do not create the route)?"
+      - "Is hub intro copy authored like content/hubs/intros.json, or generated?"
+      - "Pagination and default sort for the hub PLP?"
+    human_checkpoint: HC-05
+    notes: >-
+      The agent MUST NOT invent the thin-content threshold. epic1-ia-readiness.md
+      warns about thin brand hubs and forbids thin facet hubs, but sets no number.
+
+  - id: HC-003-rfc005
+    kind: human_checkpoint
+    purpose: "Board accepts RFC-005 and adds/confirms the Canon Lock row"
+    role: R-BOARD
+    depends_on: [SPEC-brandhub-001]
+    blocks: [IMPL-fe-brandhub-route-001]
+    human_checkpoint: HC-03
+    notes: >-
+      RFC-005 is listed Accepted in CANON-LOCK.md but Draft in rfc/README.md —
+      status ambiguity that must be closed before ARCH-GATE can pass honestly.
+
+  - id: IMPL-fe-brandhub-route-001
+    extends: IMPL
+    purpose: "Implement the /brands/{slug} route (EPIC-1 deliverable 5)"
+    role: R-FE-ENG
+    inputs: [SPEC-brandhub-001]
+    produces: ["frontend/Storefront/src/app/brands/[slug]/page.tsx"]
+    depends_on: [HC-003-rfc005]
+    allowed_paths: ["frontend/Storefront/src/app/brands/**"]
+    gates: [allowlist, typecheck, lint, citation]
+    citations_required: [ADR-010, RFC-005, IA-EPIC1]
+
+  - id: IMPL-fe-brandhub-jsonld-001
+    extends: IMPL
+    purpose: "Align brand hub JSON-LD @id and BreadcrumbList to the canonical slug URL"
+    role: R-FE-ENG
+    inputs: [SPEC-brandhub-001, ADR-010]
+    produces: ["frontend/Storefront/src/lib/json-ld.ts"]
+    depends_on: [HC-003-rfc005]
+    allowed_paths: ["frontend/Storefront/src/lib/json-ld.ts"]
+    gates: [allowlist, typecheck, lint, citation]
+    parallel_with: [IMPL-fe-brandhub-route-001]
+    notes: "Disjoint allowed_paths from the route node — safe to run concurrently."
+
+  - id: IMPL-sitemap-brands-001
+    extends: IMPL
+    purpose: "Add brand hubs to the sitemap (EPIC-1 deliverable 3)"
+    role: R-SEO
+    inputs: [SPEC-brandhub-001]
+    produces: ["frontend/Storefront/src/app/sitemap.ts"]
+    depends_on: [HC-003-rfc005]
+    allowed_paths: ["frontend/Storefront/src/app/sitemap.ts"]
+    gates: [allowlist, typecheck, citation]
+    parallel_with: [IMPL-fe-brandhub-route-001, IMPL-fe-brandhub-jsonld-001]
+
+  - id: TEST-e2e-brandhub-001
+    extends: TEST
+    purpose: "Prove a priority brand hub returns 200 with a product list"
+    inputs: [SPEC-brandhub-001, IMPL-fe-brandhub-route-001]
+    produces: ["frontend/Storefront/e2e/brandhub-smoke.spec.ts"]
+    depends_on: [IMPL-fe-brandhub-route-001]
+    acceptance:
+      - "Covers epic1-ia-readiness engineering acceptance: at least one priority brand hub returns 200 with a product list"
+      - "Covers: no new indexable thin facet hubs introduced"
+
+  - id: DOC-brandhub-001
+    extends: DOC
+    purpose: "Update the contract and IA readiness checkboxes for the brand hub"
+    inputs: [IMPL-fe-brandhub-route-001, IMPL-sitemap-brands-001]
+    produces: [API-CHANGELOG, API-CONTRACT]
+    depends_on: [TEST-e2e-brandhub-001]
+    notes: >-
+      IA readiness checkboxes live under docs/architecture/ (CANON) and may only be
+      ticked with evidence; if that requires a CANON edit, route through HC-03.
+
+  - id: GOV-brandhub-001
+    extends: GOV
+    purpose: "Register and track the EPIC-1 brand hub work in the PMO (closes part of CR-008)"
+    inputs: [IMPL-fe-brandhub-route-001]
+    produces: [PMO-TASKS, PMO-PROJECT-STATUS, PMO-CHANGELOG]
+    depends_on: [TEST-e2e-brandhub-001]
+    blocked_by: [CR-008]
+    notes: >-
+      EPIC-1 PRs #126 and #127 shipped with no task ID, violating the alwaysApply
+      PMO rule. This node establishes the EPIC-1 <-> task-ID join.
+
+  - id: REL-brandhub-001
+    extends: REL
+    purpose: "Merge, deploy, and verify the brand hub on the live site"
+    inputs: [DOC-brandhub-001, GOV-brandhub-001]
+    produces: ["aods/reports/RELEASE-brandhub-001.md"]
+    depends_on: [DOC-brandhub-001, GOV-brandhub-001]
+    human_checkpoint: HC-12
+    blocked_by: [CR-011]
+
+  # ---- Programme C · Debt (no blockers; start any time) ----------------
+
+  - id: IMPL-be01-money-path-001
+    extends: IMPL
+    purpose: "Resolve CR-005 for the money path — hoist commits out of checkout and payment services"
+    role: R-BE-ENG
+    inputs: [ARCHITECTURE-MAP, REMEDIATION-TO-9]
+    produces: ["app/services/checkout_service.py", "app/api/endpoints/checkout.py"]
+    depends_on: []
+    allowed_paths: ["app/services/checkout_service.py", "app/api/endpoints/checkout.py"]
+    gates: [allowlist, lint, test, coverage]
+    blocked_by: [CR-005]
+    acceptance:
+      - "Behaviour unchanged — no test assertion modified"
+      - "Services flush; the endpoint owns commit and rollback"
+    notes: "One service per node. Money paths first per REMEDIATION-TO-9 P1."
+
+  - id: DOC-coverage-number-001
+    extends: DOC
+    purpose: "Resolve CR-003 — make one coverage number authoritative"
+    inputs: [TESTING, ROOT-README, API-CHANGELOG]
+    produces: [TESTING, ROOT-README, API-CHANGELOG]
+    depends_on: []
+    allowed_paths: ["docs/TESTING.md", "README.md", "docs/API_CHANGELOG.md"]
+    blocked_by: [CR-003]
+
+  - id: DOC-availability-001
+    extends: DOC
+    purpose: "Resolve CR-022 — correct the availability and low_stock documentation to the binary model"
+    inputs: [FRONTEND-INTEGRATION, HESABFA]
+    produces: [FRONTEND-INTEGRATION]
+    depends_on: []
+    allowed_paths: ["docs/FRONTEND_INTEGRATION.md", "docs/API_CHANGELOG.md"]
+    blocked_by: [CR-022]
+
+  - id: GOV-pmo-orphans-001
+    extends: GOV
+    purpose: "Resolve CR-013 — register orphan work items and fix stale PMO mirrors"
+    inputs: [PMO-TASKS]
+    produces: [PMO-TASKS, PMO-KANBAN, PMO-ROADMAP, "project-management/exports/milestones.json"]
+    depends_on: []
+    blocked_by: [CR-013]
+    acceptance:
+      - "CONTENT-URL-001 and the SEO-001 follow-up exist in tasks.json"
+      - "SEC-001 moved to the done column"
+      - "MASTER_ROADMAP outcomes and milestones.json reflect completed tasks"
+      - "GENERATED exports regenerated, not hand-edited"
