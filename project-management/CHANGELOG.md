@@ -8,6 +8,7 @@
 - [x] **`CR-023` opened** — two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve; surfaced because the baseline writer refuses to record an unattributed suppression.
 - [x] **31 findings baselined** as visible, owned, dated debt in `aods/registry/validation-baseline.json`. The file may only shrink without approval.
 - [x] **Two Cursor rules added** — `aods-auto-mode.mdc` (always-on safety floor: forbidden context, no push/merge/deploy, cite-don't-infer, halt instead of guess) and `aods-node-execution.mdc` (rules for editing AODS itself). `pmo-living-system.mdc` left untouched.
+- [x] **Independent accuracy pass on the pack itself** — every numeric and line-number claim re-verified against the repository. Corrected: 55→41 scripts, 58→62 unmerged branches, 78→79 PMO files, ~150→~140 markdown documents, two wrong line citations inside the `RESTATE` example, a gate name (`--gate ingestion`) that did not exist, and a missing prompt-lint rule. Logged in `aods/10-repository-intelligence/REPOSITORY-AUDIT.md` §10 rather than fixed silently.
 - [x] **`D9` opened in `DECISIONS.md`** — adopting AODS is a Board decision, not an agent decision.
 
 ## 2026-07-28
