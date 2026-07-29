@@ -20,6 +20,7 @@ forbidden_context:
   - frontend/AI_CONTEXT.md
   - frontend/BACKEND_NON_COMPLIANCE.md
   - frontend/BACKEND_HANDOFF.md
+  - docs/FRONTEND_IMPLEMENTATION_GUIDE.md
   - docs/GO_LIVE_EXECUTION_PLAN.md
   - docs/audits/v1/
   - docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md
@@ -95,6 +96,7 @@ and reading them causes hallucinated requirements:
 | `frontend/AI_CONTEXT.md` | ~1,000 lines of confirmed-false architecture claims (CR-015) |
 | `frontend/BACKEND_NON_COMPLIANCE.md` | Obsolete gap ledger; presents resolved issues as open (CR-015) |
 | `frontend/BACKEND_HANDOFF.md` | Same class of staleness (CR-015) |
+| `docs/FRONTEND_IMPLEMENTATION_GUIDE.md` | Self-declares primary frontend authority but frozen at 2026-07-13; reports a since-fixed OTP bug as open (CR-015) |
 | `docs/GO_LIVE_EXECUTION_PLAN.md` | Pre-launch plan contradicted by the live site (CR-014) |
 | `docs/audits/v1/**` | Superseded by the v2 audit generation |
 | `docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md` | Self-certified 9.0 against a 5.7 audit (CR-006) |

@@ -145,6 +145,7 @@ The deny-list is a first-class control, not an afterthought. It is generated fro
 | `frontend/AI_CONTEXT.md` | Obsolete banner, but ~1,000 lines of confirmed-false architecture claims that read as authoritative | `CR-015` |
 | `frontend/BACKEND_NON_COMPLIANCE.md` | Gap ledger whose items are mostly resolved; presents fixed problems as open | `CR-015` |
 | `frontend/BACKEND_HANDOFF.md` | Same class of staleness | `CR-015` |
+| `docs/FRONTEND_IMPLEMENTATION_GUIDE.md` | Self-declares primary frontend authority, frozen at 2026-07-13; claims ~55% integration and an OTP bug fixed on 2026-07-17 | `CR-015` |
 | `docs/GO_LIVE_EXECUTION_PLAN.md` | Pre-launch plan contradicted by the live site; `HISTORICAL` | `CR-014` |
 | `docs/audits/v1/**` | Superseded by v2 generation | — |
 | `docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md` | Self-certified 9.0 against a 5.7 audit; misleads about quality state | `CR-006` |

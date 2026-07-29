@@ -45,7 +45,10 @@ unclassified_allow:
   - "docs/audits/**"                             # bulk EVIDENCE; represented by summary rows below
   - "project-management/progress/**"             # bulk PLAN mirrors; see CR-007
   - "project-management/sprints/**"              # bulk PLAN mirrors; see CR-007
-  - "aods/70-prompts/library/**"                 # validated by --gate prompts instead
+  - "project-management/*_PROGRESS.md"           # root-level twins of progress/**; see CR-007
+  - "project-management/SPRINT_*.md"             # root-level twins of sprints/**; see CR-007
+  - "frontend/docs/**"                           # bilingual audit/gap twins; EVIDENCE, superseded by v2
+  - "aods/70-prompts/*/*.prompt.md"              # validated by --gate prompts instead
 
 documents:
 
@@ -116,6 +119,84 @@ documents:
     on_main: false
     citation_required_for: [CT-URL-SEO]
     notes: "adr/README.md and rfc/README.md still index RFC-005 as Draft while CANON-LOCK lists it Accepted. Status ambiguity — resolve with CR-010."
+
+  # Index / template documents from the Wave-1 pack. They are not themselves binding criteria,
+  # but they are the discovery surface an agent uses to find the ADRs and RFCs, and they are
+  # cited by AODS documents — so they must be classified. All on_main: false (CR-001).
+  - id: ADR-INDEX
+    path: docs/architecture/adr/README.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+    notes: "ADR index + §2 status rules (only the Board may set Accepted). Indexes RFC-005 as Draft while CANON-LOCK says Accepted — CR-010."
+
+  - id: RFC-INDEX-README
+    path: docs/architecture/rfc/README.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+
+  - id: RFC-INDEX
+    path: docs/architecture/rfc/rfc-index.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+    notes: "RFC counter. Consult before issuing a new RFC number (NAMING-CONVENTIONS §4.2)."
+
+  - id: RFC-TEMPLATE
+    path: docs/architecture/rfc/RFC-TEMPLATE.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+
+  - id: ARCH-README
+    path: docs/architecture/README.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+
+  - id: IA-README
+    path: docs/architecture/information-architecture/README.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-SYS-ARCH
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+
+  - id: STANDARDS-README
+    path: docs/development/standards/README.md
+    class: REFERENCE
+    rank: 40
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+
+  - id: PROMOTION-WAVE1
+    path: docs/architecture/PROMOTION-WAVE1.md
+    class: EVIDENCE
+    rank: 50
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    branch: docs/wave1-canon-lock-promote
+    notes: "Record of the Wave-1 promotion decision. Evidence for the HC-02 minute that closes CR-001."
 
   - id: IA-PACK
     path: docs/architecture/information-architecture/karzar-information-architecture.md
@@ -972,7 +1053,7 @@ documents:
     on_main: false
 
   - id: AODS-PROMPT-TEMPLATE
-    path: aods/70-prompts/templates/AODS-PROMPT-TEMPLATE.md
+    path: aods/70-prompts/PROMPT-TEMPLATE.md
     class: PROPOSED
     rank: 99
     status: proposed

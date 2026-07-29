@@ -38,18 +38,33 @@ would be AODS granting itself authority, which charter invariant #1 forbids.
 | N-05 | An ID, once issued, is **never reused and never renumbered** — even if the artifact is deleted. | Superseded IDs are cited by merged PRs and audit reports; renumbering silently invalidates history. |
 | N-06 | Version tokens use SemVer `MAJOR.MINOR.PATCH` in front-matter, **not** in filenames. | `spec-v2-final-FINAL.md` is how specification drift starts. Git holds versions; the file holds the current truth. |
 | N-07 | Dates are `YYYY-MM-DD` (Gregorian/ISO 8601) in filenames and front-matter. Jalali dates may appear in prose alongside, never alone. | The repo mixes both (checkpoint "31 Shahrivar" vs `as_of: 2026-07-28`). Machine fields must be one calendar; ISO sorts. |
-| N-08 | No `final`, `new`, `old`, `copy`, `v2`, `temp`, `wip`, `backup`, `latest` in any committed filename. | Every one of these is a lie within a month. Supersession is expressed by front-matter `superseded_by` + a registry row. |
+| N-08 | No `final`, `new`, `old`, `copy`, `temp`, `wip`, `latest`, `bak` in any committed filename. | Every one of these is a lie within a month. Supersession is expressed by front-matter `superseded_by` + a registry row. |
 
 ### 2.1 Reserved words that trigger a validation failure
 
 `aods_validate.py --gate naming` fails on any tracked file matching, case-insensitively:
 
 ```
-(^|[-_.])(final|latest|new|old|copy|copy\d*|temp|tmp|wip|backup|bak|draft\d+|untitled|v\d+)([-_.]|$)
+(^|[-_.])(final|latest|new|old|copy\d*|temp|tmp|wip|bak|draft\d+|untitled)([-_.]|$)
 ```
 
-Exception: `openapi/v1.json` and `/api/v1/` are **path-version contracts** mandated by `docs/API_CHANGELOG.md`
-(API versioning policy) — the validator carries these as named allow-list entries, not as a general `v\d+` pardon.
+The list contains only words describing a file's **relationship to another file** — those are the ones that
+become false. Words describing a file's **purpose** are fine, so `scripts/backup_db.sh` and
+`scripts/backup_uploads.sh` pass: they *are* backup tools, they are not backups of something else. An earlier
+draft of this rule banned `backup` outright and immediately produced four false positives on legitimate
+operational scripts, which is how a gate loses its credibility.
+
+Exceptions carried as explicit allow-list entries in the validator, not as general pardons:
+
+| Path | Why exempt |
+|------|-----------|
+| `openapi/v1.json` | Path-version contract mandated by `docs/API_CHANGELOG.md` versioning policy |
+| `alembic/versions/**` | Revision ids are tool-generated |
+| `frontend/*/src/app/**` | Next.js file-router conventions are framework-mandated |
+
+Note that `v\d+` is **not** in the reserved list even though N-06 forbids version tokens in filenames.
+Enforcing it mechanically would flag every `/api/v1/` path and every framework file legitimately carrying a
+major version. N-06 is therefore a review-time rule, honestly labelled as such rather than pretended to be a gate.
 
 ---
 
