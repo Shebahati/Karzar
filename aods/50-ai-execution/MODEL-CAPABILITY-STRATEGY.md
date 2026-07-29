@@ -156,7 +156,7 @@ vibes.
 | `DEEP-REASON` | Given `docs/API_CHANGELOG.md`, `docs/TESTING.md`, `README.md`, `pyproject.toml`, and `.github/workflows/backend-ci.yml`, report the coverage-gate value | Reports **all differing values** (62% / 67% / 67%–70% / 68% / 68%), names 68% as the *enforced* one, and flags the conflict rather than picking one (`CR-003`) |
 | `LARGE-CORPUS` | Given the full `docs/` tree, list every document that claims to be a source of truth | Finds ≥5, including the mutually exclusive claims |
 | `ARCH-REVIEW` | Given a diff where a service calls `db.commit()`, judge against `docs/ARCHITECTURE.md` §BE-01 | Flags the violation and cites line 57 |
-| `CODE-GEN` | Add a trivial read-only endpoint following existing `app/api/v1/endpoints/` conventions | `ruff` + `mypy` clean; no new dependency; allow-list respected |
+| `CODE-GEN` | Add a trivial read-only endpoint following existing `app/api/endpoints/` conventions | `ruff` + `mypy` clean; no new dependency; allow-list respected |
 | `STRUCTURED-EXTRACT` | Extract 10 product specs from a vendor page into the catalog schema | 100% schema-valid; zero invented fields |
 | `TEST-SYNTH` | Given a specification section, produce tests for stated criteria | Covers every stated criterion; no test asserts unspecified behaviour |
 | `DOC-WRITE` | Write an `API_CHANGELOG.md` entry for a known past change | Matches the file's existing entry format exactly |
