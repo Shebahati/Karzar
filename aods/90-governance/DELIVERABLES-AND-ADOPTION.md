@@ -18,7 +18,7 @@ and the prompt library. It is process-only — **no application code, schema, or
 | Charter (system overview, principles, invariants) | [`AODS-CHARTER.md`](../AODS-CHARTER.md) | Doc | — |
 | Repository audit | [`10-repository-intelligence/REPOSITORY-AUDIT.md`](../10-repository-intelligence/REPOSITORY-AUDIT.md) | Doc (`EVIDENCE`) | — |
 | Authority model + precedence ladder | [`10-repository-intelligence/AUTHORITY-MODEL.md`](../10-repository-intelligence/AUTHORITY-MODEL.md) | Doc | Enforced by `--gate registry` |
-| Conflict register (22 rows, `CR-001`…`CR-022`) | [`10-repository-intelligence/CONFLICT-REGISTER.md`](../10-repository-intelligence/CONFLICT-REGISTER.md) | Doc (append-only) | Partially: 3 rows independently confirmed by validators |
+| Conflict register (23 rows, `CR-001`…`CR-023`) | [`10-repository-intelligence/CONFLICT-REGISTER.md`](../10-repository-intelligence/CONFLICT-REGISTER.md) | Doc (append-only) | Partially: `CR-004`, `CR-007`, `CR-012` confirmed by validators; `CR-023` discovered by one |
 | Project lifecycle (two loops, 19 stages `L0`…`L18`) | [`20-lifecycle/PROJECT-LIFECYCLE.md`](../20-lifecycle/PROJECT-LIFECYCLE.md) | Doc | — |
 | Workflow DAG (node specs) | [`20-lifecycle/WORKFLOW-GRAPH.md`](../20-lifecycle/WORKFLOW-GRAPH.md) | Doc | `--gate graph` |
 | Timeline / critical path | [`20-lifecycle/TIMELINE-GRAPH.md`](../20-lifecycle/TIMELINE-GRAPH.md) | Doc | — |
@@ -344,13 +344,14 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | # | Action | Checkpoint | Why first |
 |---|---|---|---|
 | 1 | Review and merge PR #125 (Canon Lock promotion) | `HC-07` | Closes `CR-001`. Until it merges, every governance citation in the repository — including this pack's — fails to resolve on `main`. Nothing else in adoption is worth doing first. |
-| 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-010`. |
-| 3 | Decide `CR-007`: which PMO progress path is canonical | `HC-03` | Six divergent duplicate files; every PMO write is currently ambiguous. |
-| 4 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
-| 5 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
-| 6 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |
-| 7 | Hold a Board session on this pack; accept or reject | `HC-14` | Phase 3. Nothing here is binding until this happens. |
-| 8 | Decide whether AODS gates become required CI checks | `HC-14` | Phase 4. |
+| 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`. |
+| 3 | Regenerate `openapi/v1.json` | `HC-05` | `CR-012`, and the cheapest real fix on this list. `/api/v1/products/slug/{slug}` has been live since PR #126 while the snapshot dates from PR #111, so the declared machine contract is currently wrong. One command, then `--gate openapi` can become blocking. |
+| 4 | Decide `CR-007`: which PMO progress path is canonical | `HC-03` | Six divergent duplicate files; every PMO write is currently ambiguous. |
+| 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
+| 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
+| 7 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |
+| 8 | Hold a Board session on this pack; accept or reject | `HC-14` | Phase 3. Nothing here is binding until this happens. |
+| 9 | Decide whether AODS gates become required CI checks | `HC-14` | Phase 4. |
 
 ---
 

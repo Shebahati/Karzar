@@ -1,6 +1,6 @@
 # Project Status
 
-**Updated:** 2026-07-28  
+**Updated:** 2026-07-29  
 **Weighted progress:** 85%  
 **Checkpoint:** 2026-09-22
 
@@ -41,9 +41,15 @@
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 - [x] Deferred ownership locked at checkpoint close (2026-07-28): CAT-002/KB-001 owner = PMO, revisit date = 2026-09-23
+- [ ] **AODS-001** AI-Orchestrated Development System designed and shipped as **Proposed** — `aods/`; awaiting Architecture Board acceptance (HC-14)
 
 ## Active sprint
 See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only). PMO state: **operationally complete for checkpoint**.
+
+## Process governance (AODS-001)
+Repository process is now governed by `aods/` (status **Proposed** — not binding until a Board minute accepts it).
+Runnable gates: `python3 aods/tools/aods_validate.py`. 23 conflicts registered in
+`aods/10-repository-intelligence/CONFLICT-REGISTER.md`; 5 are BLOCKERs and are mirrored in `BLOCKERS.md`.
 
 ## Blockers
 See `BLOCKERS.md`

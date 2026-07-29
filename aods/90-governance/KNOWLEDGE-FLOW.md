@@ -49,8 +49,8 @@ the gaps", and it is the reason [`RISK-REGISTER.md`](RISK-REGISTER.md) `R-002` i
 ### 2.1 Legal-provenance matrix
 
 Not all knowledge may be used for all purposes. This matrix is binding and derives from
-[`docs/architecture/adr/ADR-012`](../../docs/architecture/adr/) (ingestion policy) plus the two remediation
-PRs that had to scrub external-domain wording from descriptions (#122, #124).
+[`ADR-012-ingestion-boundary-local-vs-production.md`](../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md)
+plus the two remediation PRs that had to scrub external-domain wording from descriptions (#122, #124).
 
 | Class | May set specs/numbers | May set descriptions | May set images | May set price | May set taxonomy |
 |---|---|---|---|---|---|

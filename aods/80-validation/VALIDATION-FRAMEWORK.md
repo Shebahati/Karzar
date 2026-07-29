@@ -144,7 +144,7 @@ flowchart TD
 
 ### 5.1 Why a baseline exists
 
-The gates **fail on this repository today** — 30 findings at the time of writing. That is the correct result: they
+The gates **fail on this repository today** — 31 findings at the time of writing. That is the correct result: they
 are independently reporting `CR-001`, `CR-004`, `CR-007`, `CR-012`, and `CR-023`. But a gate that has never been
 green cannot be wired into CI as blocking, and a gate not wired into CI decays into documentation.
 
@@ -177,12 +177,12 @@ Measured, not estimated — `python3 aods/tools/aods_validate.py --all` at the c
 
 | Findings | Gate | Cause | Closes when |
 |----------|------|-------|-------------|
-| 3 | `links` | AODS documents cite Canon Lock paths that exist only on the PR #125 branch | `CR-001` — PR #125 merges |
+| 4 | `links` | AODS documents cite Canon Lock paths that exist only on the PR #125 branch | `CR-001` — PR #125 merges |
 | 2 | `links` | `docs/BACKEND_CHANGES.md` has two root-relative paths that should be file-relative | `CR-023` — a one-line `DOC` node |
 | 6 | `pmo` | Six `*_PROGRESS.md` pairs diverge across two paths | `CR-007` — `HC-04` picks a canonical path |
 | 1 | `openapi` | `/api/v1/products/slug/{slug}` is live but absent from the snapshot | `CR-012` — regenerate, then keep the gate |
 | 18 | `ingestion-boundary` | Scripts default an API or asset base to production | `CR-004` — defaults flipped to local |
-| **30** | | | |
+| **31** | | | |
 
 > **On the 15-vs-18 discrepancy, and how it was closed.** The first version of `G-10` matched only
 > `getenv("KARZAR_API_BASE", …)` and therefore reported **15** offenders where the audit had found **18** —

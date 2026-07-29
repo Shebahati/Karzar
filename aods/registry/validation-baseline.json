@@ -1,9 +1,18 @@
 {
   "_comment": "Known validation failures, recorded so CI can enforce 'no new failures' while the existing ones are worked off. Entries are visible debt, not suppressions. Removing an entry that still fails will fail CI. Each should map to a CR-nnn in aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means the debt is real but not yet registered, which is itself a finding.",
   "recorded_at": "2026-07-29",
-  "count": 30,
+  "count": 31,
   "unassigned_conflict_ids": 0,
   "known_failures": [
+    {
+      "gate": "links",
+      "path": "aods/90-governance/KNOWLEDGE-FLOW.md:52",
+      "message": "link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
+      "key": "links:aods/90-governance/KNOWLEDGE-FLOW.md:52:link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
+      "conflict_id": "CR-001",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
     {
       "gate": "links",
       "path": "aods/AODS-CHARTER.md:12",

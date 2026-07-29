@@ -36,7 +36,7 @@ python3 aods/tools/aods_validate.py --list-gates
 ```
 
 Expect failures on the current tree. That is the point: the gates report the repository's real state, and
-three of them independently confirm conflicts found during the audit (`CR-004`, `CR-007`, `CR-010`).
+they independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`.
 
 ---
 
@@ -70,7 +70,7 @@ Read these four things:
 2. [`10-repository-intelligence/AUTHORITY-MODEL.md`](10-repository-intelligence/AUTHORITY-MODEL.md) §3 —
    the precedence ladder, i.e. which document wins when two disagree.
 3. [`10-repository-intelligence/CONFLICT-REGISTER.md`](10-repository-intelligence/CONFLICT-REGISTER.md)
-   §Summary — 22 recorded contradictions in the repository, none silently resolved.
+   §Summary — 23 recorded contradictions in the repository, none silently resolved.
 4. [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md) §6 — the
    eight next actions for the human operator, in order.
 
