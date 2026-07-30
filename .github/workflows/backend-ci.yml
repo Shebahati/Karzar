@@ -64,7 +64,7 @@ jobs:
         run: git fetch --no-tags origin main:refs/remotes/origin/main
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -93,7 +93,7 @@ jobs:
 
       - name: Setup Python
         if: needs.changes.outputs.backend == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -150,7 +150,7 @@ jobs:
 
       - name: Setup Python
         if: needs.changes.outputs.backend == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
