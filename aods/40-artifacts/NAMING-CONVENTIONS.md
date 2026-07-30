@@ -244,7 +244,7 @@ Implemented by `aods_validate.py --gate naming`. Anchored, `re`-compatible, stdl
 | ADR file | `^docs/architecture/adr/ADR-\d{3}-[a-z0-9]+(-[a-z0-9]+)*\.md$` |
 | RFC file | `^docs/architecture/rfc/RFC-\d{3}-[a-z0-9]+(-[a-z0-9]+)*\.md$` |
 | Sprint file | `^project-management/sprints/SPRINT_\d{2}\.md$` |
-| PMO progress ledger | `^project-management/(progress/)?[A-Z][A-Z0-9_]*_PROGRESS\.md$` |
+| PMO progress ledger | `^project-management/progress/[A-Z][A-Z0-9_]*_PROGRESS\.md$` |
 | AODS document | `^aods/(\d{2}-[a-z-]+/)?[A-Z][A-Z0-9-]*\.md$` |
 | AODS prompt | `^aods/70-prompts/[a-z-]+/(AUD\|SPEC\|IMPL\|TEST\|KNOW\|DOC\|GOV\|REL)-[a-z0-9-]+\.prompt\.md$` |
 | AODS registry | `^aods/registry/[a-z0-9-]+\.(yaml\|json)$` |

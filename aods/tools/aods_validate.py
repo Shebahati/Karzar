@@ -344,14 +344,32 @@ def gate_pmo(_: argparse.Namespace) -> GateResult:
         if tid not in by_id:
             result.fail(where, f"cites task {tid}, which has no entry in tasks.json")
 
-    # Divergent duplicate progress ledgers (CR-007).
-    for rel in tracked_files("project-management/*_PROGRESS.md"):
-        twin = Path("project-management/progress") / Path(rel).name
-        if (REPO / twin).exists():
-            a = (REPO / rel).read_bytes()
-            b = (REPO / twin).read_bytes()
-            if a != b:
-                result.fail(rel, f"diverges from duplicate at {twin} (CR-007: no canonical path decided)")
+    # CR-007: root-level *_PROGRESS.md twins are forbidden; progress/ is canonical.
+    for rel in tracked_files():
+        path = Path(rel)
+        if path.parent != Path("project-management"):
+            continue
+        if not path.name.endswith("_PROGRESS.md"):
+            continue
+        if not (REPO / rel).is_file():
+            continue
+        result.fail(
+            rel,
+            "root progress twin forbidden; canonical path is project-management/progress/ (CR-007)",
+        )
+    # Same rule for root sprint twins.
+    for rel in tracked_files():
+        path = Path(rel)
+        if path.parent != Path("project-management"):
+            continue
+        if not re.fullmatch(r"SPRINT_\d+\.md", path.name):
+            continue
+        if not (REPO / rel).is_file():
+            continue
+        result.fail(
+            rel,
+            "root sprint twin forbidden; canonical path is project-management/sprints/ (CR-007)",
+        )
     return result
 
 

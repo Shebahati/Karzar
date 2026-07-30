@@ -45,7 +45,7 @@
 | CR-004 | Script defaults no longer point at production API (ADR-012); fail-closed Category B still optional residual | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
-| CR-007 | PMO progress/sprint files duplicated at two paths; 6 pairs divergent | HIGH | PMO | OPEN |
+| CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
 | CR-008 | Two priority systems: PMO checkpoint vs Board EPIC-1; EPIC-1 PRs have no task ID | HIGH | Owner (PMO + Board) | OPEN |
 | CR-009 | `Website/docs/` authoring SoR is outside version control | **BLOCKER** | Owner | OPEN |
 | CR-010 | Canon Lock and Git workflow cite ≥12 documents that do not exist in the repo | HIGH | Architecture Board | OPEN |
@@ -276,7 +276,7 @@ document the compensating controls explicitly per category.
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | PMO |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
 14 progress ledgers and 5 sprint files exist at both `project-management/X.md` and
 `project-management/{progress,sprints}/X.md`. All 5 sprint pairs are identical. **6 of 14 progress pairs diverge:**
@@ -299,6 +299,15 @@ naming a directory, so each agent picks one. Missing specification `G-08`.
 **AI recommendation (advisory): Option A** — `project-management/README.md` already documents `progress/` and
 `sprints/` as the layout, and the `progress/` copies are the *newer* ones in 5 of 6 divergences. Merge the unique
 content forward before deleting. **This requires a human decision because it deletes files.**
+
+
+**DECISION (2026-07-30, Mohammad Shebahati — Board / operator session): Option A.**
+`project-management/progress/` and `project-management/sprints/` are canonical. Unique content from
+divergent root copies was merged forward (DATABASE root content promoted; UI evidence SHA kept).
+Root `*_PROGRESS.md` and `SPRINT_*.md` twins deleted (19 files). `.cursor/rules/pmo-living-system.mdc`,
+README, GOV-pmo-sync prompt, skill, and registry updated. `--gate pmo` divergence checks pass because
+duplicates no longer exist. **Status → CLOSED.**
+
 
 ---
 
@@ -738,3 +747,4 @@ baseline into exactly the silent suppression list the validation framework forbi
 | 2026-07-29 | Register opened with CR-001…CR-022 from the AODS Phase-0 audit | AODS design task |
 | 2026-07-29 | Added CR-023 — broken relative links surfaced by `--gate links` and flagged as unattributed by the baseline writer | AODS design task |
 | 2026-07-30 | CR-012 snapshot regenerated (MITIGATED); CI wiring deferred to Phase 4 | Operator session under Board order |
+| 2026-07-30 | CR-007 CLOSED — Option A progress/+sprints/ canonical; root twins deleted | Board / operator session |

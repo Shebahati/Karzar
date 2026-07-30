@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-007 CLOSED** — Option A: `progress/` + `sprints/` canonical; deleted 19 root twin files; living-PMO rule + GOV prompt updated.
 - [x] **CR-004 CLOSED** — 18 scripts default to local API/asset base (ADR-012 Option A); `--gate ingestion-boundary` PASS; residual fail-closed/Category-B classify tracked as tech debt.
 - [x] **CR-001 CLOSED** — Canon Lock on `main` via #125; registry `on_main` reconciled (53 docs); baseline CR-001 link findings removed.
 - [x] **CR-012** Regenerated `openapi/v1.json` (81→82 paths; adds `/api/v1/products/slug/{slug}`); `--gate openapi` PASS; baseline entry removed; CI wiring still Phase-4.

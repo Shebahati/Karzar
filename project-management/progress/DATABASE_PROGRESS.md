@@ -18,4 +18,5 @@
 
 
 ## Evidence log
-- [x] Remove «عمومی» padding leaves — see `../DATABASE_PROGRESS.md` (#87 staging apply 23 cats / 1970 products)
+- [x] Remove «عمومی» padding leaves — #87 → `main`; staging apply **23 categories deleted / 1970 products** remapped to L2 parents (dry-run report had 23/1954; live apply 1970)
+- [ ] Add links to PRs / GSC / Lighthouse here as you go

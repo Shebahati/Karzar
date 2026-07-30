@@ -1,7 +1,7 @@
 {
   "_comment": "Known validation failures, recorded so CI can enforce 'no new failures' while the existing ones are worked off. Entries are visible debt, not suppressions. Removing an entry that still fails will fail CI. Each should map to a CR-nnn in aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means the debt is real but not yet registered, which is itself a finding.",
   "recorded_at": "2026-07-30",
-  "count": 62,
+  "count": 56,
   "unassigned_conflict_ids": 0,
   "known_failures": [
     {
@@ -20,60 +20,6 @@
       "key": "links:docs/BACKEND_CHANGES.md:99:broken link: docs/TESTING.md (CR-023)",
       "conflict_id": "CR-023",
       "owner_role": "R-DOC-ARCH",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/BACKEND_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/BACKEND_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/BACKEND_PROGRESS.md:diverges from duplicate at project-management/progress/BACKEND_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/DATABASE_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/DATABASE_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/DATABASE_PROGRESS.md:diverges from duplicate at project-management/progress/DATABASE_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/KNOWLEDGE_BASE_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/KNOWLEDGE_BASE_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/KNOWLEDGE_BASE_PROGRESS.md:diverges from duplicate at project-management/progress/KNOWLEDGE_BASE_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/STRUCTURED_DATA_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/STRUCTURED_DATA_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/STRUCTURED_DATA_PROGRESS.md:diverges from duplicate at project-management/progress/STRUCTURED_DATA_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/UI_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/UI_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/UI_PROGRESS.md:diverges from duplicate at project-management/progress/UI_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "pmo",
-      "path": "project-management/UX_PROGRESS.md",
-      "message": "diverges from duplicate at project-management/progress/UX_PROGRESS.md (CR-007: no canonical path decided)",
-      "key": "pmo:project-management/UX_PROGRESS.md:diverges from duplicate at project-management/progress/UX_PROGRESS.md (CR-007: no canonical path decided)",
-      "conflict_id": "CR-007",
-      "owner_role": "R-PMO",
       "recorded_at": "2026-07-29"
     },
     {

@@ -48,10 +48,8 @@ unclassified_allow:
   - "project-management/printable/README.md"
   - "project-management/_templates/**"
   - "docs/audits/**"                             # bulk EVIDENCE; represented by summary rows below
-  - "project-management/progress/**"             # bulk PLAN mirrors; see CR-007
-  - "project-management/sprints/**"              # bulk PLAN mirrors; see CR-007
-  - "project-management/*_PROGRESS.md"           # root-level twins of progress/**; see CR-007
-  - "project-management/SPRINT_*.md"             # root-level twins of sprints/**; see CR-007
+  - "project-management/progress/**"             # canonical progress ledgers (CR-007 Option A)
+  - "project-management/sprints/**"              # canonical sprint files (CR-007 Option A)
   - "frontend/docs/**"                           # bilingual audit/gap twins; EVIDENCE, superseded by v2
   - "aods/70-prompts/*/*.prompt.md"              # validated by --gate prompts instead
 
@@ -704,17 +702,15 @@ documents:
     on_main: true
     notes: "Lives under docs/architecture/ but is a PLAN, not CANON. P0 merged in #66."
 
-  # PMO duplicate mirrors at repo-root level (see CR-007).
-  # Registered as a class so the pmo gate can detect divergence.
-  - id: PMO-PROGRESS-MIRRORS
-    path: project-management/BACKEND_PROGRESS.md
+  # PMO progress ledgers (canonical under progress/ — CR-007 Option A, 2026-07-30).
+  - id: PMO-PROGRESS-CANON
+    path: project-management/progress/BACKEND_PROGRESS.md
     class: PLAN
     rank: 7
-    status: disputed
+    status: current
     owner_role: R-PMO
     on_main: true
-    duplicate_of: project-management/progress/BACKEND_PROGRESS.md
-    notes: "Representative row for the 14 duplicated progress ledgers; 6 of 14 pairs divergent — CR-007. Canonical path undecided (gap G-08)."
+    notes: "Representative row for progress/*_PROGRESS.md. Root twins deleted under CR-007 Option A."
 
   # =========================================================================
   # RANK 8 · REFERENCE

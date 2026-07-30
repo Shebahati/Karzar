@@ -31,5 +31,5 @@
   - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
 ## Evidence log
-- [x] Floating home header / full-bleed hero polish — #93; tokens/home-stack this PR
+- [x] Floating home header / full-bleed hero polish — #93 → `main` @53f0100 (staging deployed); FE-001 tokens/home-stack followed
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

@@ -139,10 +139,9 @@ If the TASK appears to require violating one of these, HALT (E2) and report the 
   be escaped to `\uXXXX` — that would rewrite the whole file and bury your one-line change).
 - **Never delete** any file or any historical entry.
 - **Never** set `progress: 100` unless `{{NEW_STATUS}}` is `done` **and** the PR is merged.
-- **Never** resolve the duplicate-progress-file question. Six `*_PROGRESS.md` pairs exist at two paths
-  and diverge (`CR-007`). Update **both** copies identically and record that you did. Choosing a
-  canonical path is a human decision (`HC-04`).
-- Keep `as_of` in `tasks.json` current if the file's convention requires it.
+- **Never** resolve planning/priority conflicts between Board and PMO (`CR-008`) — escalate.
+- Update only `project-management/progress/*_PROGRESS.md` for domain ledgers (canonical per CR-007).
+  Do **not** recreate root-level `*_PROGRESS.md` or `SPRINT_*.md` twins.
 
 ## 9. TASK
 
@@ -151,8 +150,7 @@ If the TASK appears to require violating one of these, HALT (E2) and report the 
 3. Append to the entry's `notes`: `{{NOTE}}` and `{{PR_LINK}}`. Do not overwrite existing notes.
 4. Update the matching checkbox/row in `PROJECT_STATUS.md`.
 5. Update the checkbox in the active sprint file.
-6. Update the relevant `*_PROGRESS.md`. If two copies exist (root and `progress/`), update **both**
-   identically and note it — see §8.
+6. Update the relevant `project-management/progress/*_PROGRESS.md` (canonical path — CR-007).
 7. Append a `CHANGELOG.md` entry in the file's existing format, dated, referencing `{{TASK_ID}}` and `{{PR_LINK}}`.
 8. If `{{NEW_STATUS}}` is `done`, append to `DONE.md` with the task ID and PR link.
 9. Verify consistency with the gate. Every surface must agree; a partial update is the exact defect
@@ -161,8 +159,7 @@ If the TASK appears to require violating one of these, HALT (E2) and report the 
 ## 10. EXPECTED OUTPUTS
 
 1. Consistent status across every surface named in §7 rule 1.
-2. A task record at `aods/reports/tasks/{{NODE_ID}}.md` listing every file touched and, for the
-   duplicate progress files, confirmation that both copies were updated.
+2. A task record at `aods/reports/tasks/{{NODE_ID}}.md` listing every file touched.
 3. A response following OUTPUT FORMAT (§14).
 
 ## 11. VALIDATION CHECKLIST
@@ -191,8 +188,8 @@ Halt immediately, using the HALT FORMAT, if any of these is true:
 1. `{{TASK_ID}}` does not exist in `tasks.json`. (E1 — creating a task is a planning decision.)
 2. `{{NEW_STATUS}}` is not one of the status values already used in the file. (E1)
 3. `{{NEW_PROGRESS}}` is `100` but `{{NEW_STATUS}}` is not `done`, or no PR link was supplied. (E2)
-4. The two copies of a `*_PROGRESS.md` file diverge so much that updating both identically is impossible
-   without choosing a winner. (E3 — `CR-007`, `HC-04`. **Do not pick a winner.**)
+4. A required ledger path under `progress/` is missing or you are asked to recreate a deleted root twin.
+   (E3 — report; do not recreate root duplicates.)
 5. The task's acceptance criteria are not met but `{{NEW_STATUS}}` is `done`. (E2 — report the gap.)
 6. The `--gate pmo` validator still fails after your update for reasons pre-dating your change.
    (E4 — report the pre-existing inconsistency; do not fix unrelated tasks here.)
@@ -205,8 +202,7 @@ Halt immediately, using the HALT FORMAT, if any of these is true:
 - Attempt 2 fails → HALT with both attempts documented.
 - A third strategy is forbidden.
 - **Never** mark something done to make a board look better.
-- **Never** silently delete one of the duplicate progress files, however obviously redundant it appears.
-  That is `CR-007`, and it belongs to a human.
+- **Never** recreate deleted root-level `*_PROGRESS.md` / `SPRINT_*.md` twins (CR-007 closed — Option A).
 - If `--gate pmo` reports failures on **other** tasks, list them in the task record as pre-existing debt.
   Do not fix them: a status change you did not verify is a fabricated status.
 
@@ -223,7 +219,7 @@ Constraints I must not violate:
   - tasks.json is the PMO source of truth; markdown mirrors it
   - CHANGELOG/DONE append-only
   - progress 100 only when done AND merged
-  - Update BOTH copies of duplicated *_PROGRESS.md (CR-007); do not pick a canonical path
+  - Update project-management/progress/*_PROGRESS.md only (CR-007 canonical)
 Current state of {{TASK_ID}}: status=<...> progress=<...>
 Target state: status={{NEW_STATUS}} progress={{NEW_PROGRESS}}
 Acceptance criteria met: <YES/NO — evidence>
@@ -233,7 +229,7 @@ Files I will change (must be a subset of ALLOWED SCOPE):
   1. project-management/exports/tasks.json — the {{TASK_ID}} entry only
   2. project-management/PROJECT_STATUS.md — the {{TASK_ID}} row
   3. project-management/sprints/SPRINT_<nn>.md — the checkbox
-  4. project-management/<X>_PROGRESS.md AND project-management/progress/<X>_PROGRESS.md — both copies
+  4. project-management/progress/<X>_PROGRESS.md — canonical ledger
   5. project-management/CHANGELOG.md — appended
   6. project-management/DONE.md — appended (only if status=done)
 Files I will NOT change although related:
