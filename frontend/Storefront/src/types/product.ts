@@ -45,6 +45,12 @@ export interface ProductSpecifications {
   technical_specs: SpecItem[];
   dimensions: SpecItem[];
   features: Record<string, boolean | string>;
+  /**
+   * Soft accessory labels / codes from catalog JSONB.
+   * Often empty — PDP must still render an honest empty slot (FE-002 / Bible conflict matrix).
+   * Evidence: docs/examples/sample_product.json, docs/FRONTEND_INTEGRATION.md.
+   */
+  optional_accessories?: string[];
 }
 
 export interface ProductSummary {

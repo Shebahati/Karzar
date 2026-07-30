@@ -29,4 +29,4 @@
 
 ## Progress (weighted by hours)
 
-**~82%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · **328h** done-status · open: CAT-002 / KB-001 / SEO-008 / FE-002
+**~85%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · open: CAT-002 / KB-001 (checkpoint deferrals)

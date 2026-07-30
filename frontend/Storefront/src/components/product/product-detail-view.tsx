@@ -11,6 +11,8 @@ import { TwoLaneActions } from "@/components/product/two-lane-actions";
 import { MobileStickyBuyBar } from "@/components/product/mobile-sticky-buy-bar";
 import { ProductSpecTabs } from "@/components/product/product-spec-tabs";
 import { ProductTrustStrip } from "@/components/product/product-trust-strip";
+import { ProductPdfCta } from "@/components/product/product-pdf-cta";
+import { ProductAccessoriesSlot } from "@/components/product/product-accessories-slot";
 import { SectionHeading } from "@/components/home/section-heading";
 import { useFlatCategories, useProduct } from "@/features/catalog/queries";
 import { categoryHref } from "@/config/nav-groups";
@@ -175,6 +177,8 @@ export function ProductDetailView({ id }: { id: number }) {
             warrantyText={product.warranty_text}
             isOriginal={product.is_original}
           />
+
+          <ProductPdfCta product={product} />
         </div>
       </div>
 
@@ -192,6 +196,8 @@ export function ProductDetailView({ id }: { id: number }) {
           />
         </section>
       ) : null}
+
+      <ProductAccessoriesSlot product={product} />
 
       <section className="mt-12">
         <SectionHeading title="دیدگاه کاربران" />

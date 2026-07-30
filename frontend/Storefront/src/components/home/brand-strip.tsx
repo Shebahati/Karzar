@@ -12,18 +12,22 @@ function BrandCard({
   country,
   logoUrl,
   id,
+  slug,
 }: {
   id: number;
   name: string;
   country?: string | null;
   logoUrl?: string | null;
+  slug?: string | null;
 }) {
   const initial = (name || "B").slice(0, 1);
   const isSvg = Boolean(logoUrl?.toLowerCase().includes(".svg"));
+  // Prefer Brand Hub URL (ADR-010 / RFC-005); facet only if slug missing.
+  const href = slug?.trim() ? `/brands/${slug.trim()}` : `/catalog?brand=${id}`;
 
   return (
     <Link
-      href={`/catalog?brand=${id}`}
+      href={href}
       className={cn(
         "group relative flex h-[132px] w-[200px] flex-col justify-between overflow-hidden rounded-2xl border border-border/50 bg-card p-4 shadow-soft transition-all duration-300 sm:h-[148px] sm:w-[220px]",
         "hover:-translate-y-1 hover:border-steel/35 hover:shadow-glass",
@@ -93,6 +97,7 @@ export function BrandStrip() {
           name={brand.name}
           country={brand.country}
           logoUrl={brand.logo_url}
+          slug={brand.slug}
         />
       ))}
     </AutoCarousel>
