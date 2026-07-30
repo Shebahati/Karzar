@@ -1,0 +1,287 @@
+{
+  "_comment": "Known validation failures, recorded so CI can enforce 'no new failures' while the existing ones are worked off. Entries are visible debt, not suppressions. Removing an entry that still fails will fail CI. Each should map to a CR-nnn in aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means the debt is real but not yet registered, which is itself a finding.",
+  "recorded_at": "2026-07-29",
+  "count": 31,
+  "unassigned_conflict_ids": 0,
+  "known_failures": [
+    {
+      "gate": "links",
+      "path": "aods/90-governance/KNOWLEDGE-FLOW.md:52",
+      "message": "link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
+      "key": "links:aods/90-governance/KNOWLEDGE-FLOW.md:52:link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
+      "conflict_id": "CR-001",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "aods/AODS-CHARTER.md:14",
+      "message": "link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:14:link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "conflict_id": "CR-001",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "aods/AODS-CHARTER.md:15",
+      "message": "link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:15:link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
+      "conflict_id": "CR-001",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "aods/AODS-CHARTER.md:19",
+      "message": "link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:19:link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "conflict_id": "CR-001",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "docs/BACKEND_CHANGES.md:67",
+      "message": "broken link: docs/LOCAL_DEV_FRONTEND.md (CR-023)",
+      "key": "links:docs/BACKEND_CHANGES.md:67:broken link: docs/LOCAL_DEV_FRONTEND.md (CR-023)",
+      "conflict_id": "CR-023",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "docs/BACKEND_CHANGES.md:99",
+      "message": "broken link: docs/TESTING.md (CR-023)",
+      "key": "links:docs/BACKEND_CHANGES.md:99:broken link: docs/TESTING.md (CR-023)",
+      "conflict_id": "CR-023",
+      "owner_role": "R-DOC-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/BACKEND_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/BACKEND_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/BACKEND_PROGRESS.md:diverges from duplicate at project-management/progress/BACKEND_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/DATABASE_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/DATABASE_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/DATABASE_PROGRESS.md:diverges from duplicate at project-management/progress/DATABASE_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/KNOWLEDGE_BASE_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/KNOWLEDGE_BASE_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/KNOWLEDGE_BASE_PROGRESS.md:diverges from duplicate at project-management/progress/KNOWLEDGE_BASE_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/STRUCTURED_DATA_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/STRUCTURED_DATA_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/STRUCTURED_DATA_PROGRESS.md:diverges from duplicate at project-management/progress/STRUCTURED_DATA_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/UI_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/UI_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/UI_PROGRESS.md:diverges from duplicate at project-management/progress/UI_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "pmo",
+      "path": "project-management/UX_PROGRESS.md",
+      "message": "diverges from duplicate at project-management/progress/UX_PROGRESS.md (CR-007: no canonical path decided)",
+      "key": "pmo:project-management/UX_PROGRESS.md:diverges from duplicate at project-management/progress/UX_PROGRESS.md (CR-007: no canonical path decided)",
+      "conflict_id": "CR-007",
+      "owner_role": "R-PMO",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "openapi",
+      "path": "openapi/v1.json",
+      "message": "path present in the app but missing from the snapshot: /api/v1/products/slug/{slug} (CR-012)",
+      "key": "openapi:openapi/v1.json:path present in the app but missing from the snapshot: /api/v1/products/slug/{slug} (CR-012)",
+      "conflict_id": "CR-012",
+      "owner_role": "R-BE-ARCH",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/azarsanat_import.py:29",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/azarsanat_import.py:29:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/azarsanat_rebrand.py:26",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/azarsanat_rebrand.py:26:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/catalog_remediation.py:24",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/catalog_remediation.py:24:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/chumpower_official_catalog_enrich.py:56",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/chumpower_official_catalog_enrich.py:56:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/dasqua_catalog_2025_enrich.py:54",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/dasqua_catalog_2025_enrich.py:54:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/dohre_official_catalog_enrich.py:47",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/dohre_official_catalog_enrich.py:47:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/dry_run_product_seo_descriptions.py:40",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/dry_run_product_seo_descriptions.py:40:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/enrich_insize_from_shopmill.py:64",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/enrich_insize_from_shopmill.py:64:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/enrich_mitutoyo_from_leaflets.py:50",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/enrich_mitutoyo_from_leaflets.py:50:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/insize_price_update.py:25",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/insize_price_update.py:25:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/materialize_product_images.py:40",
+      "message": "defaults PUBLIC_ASSET_BASE to production: https://api.karzartools.com (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/materialize_product_images.py:40:defaults PUBLIC_ASSET_BASE to production: https://api.karzartools.com (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/mirror_product_images.py:49",
+      "message": "defaults PUBLIC_ASSET_BASE to production: https://api.karzartools.com (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/mirror_product_images.py:49:defaults PUBLIC_ASSET_BASE to production: https://api.karzartools.com (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/mitutoyo_import.py:27",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/mitutoyo_import.py:27:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/publish_seo003_articles.py:25",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/publish_seo003_articles.py:25:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/publish_vernier_article.py:18",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/publish_vernier_article.py:18:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/remove_omumi_padding_leaves.py:253",
+      "message": "argparse default targets production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/remove_omumi_padding_leaves.py:253:argparse default targets production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/sanou_official_catalog_enrich.py:49",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/sanou_official_catalog_enrich.py:49:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "ingestion-boundary",
+      "path": "scripts/shopmill_insize_sync.py:27",
+      "message": "defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "key": "ingestion-boundary:scripts/shopmill_insize_sync.py:27:defaults KARZAR_API_BASE to production: https://api.karzartools.com/api/v1 (ADR-012, CR-004)",
+      "conflict_id": "CR-004",
+      "owner_role": "R-DATA-ENG",
+      "recorded_at": "2026-07-29"
+    }
+  ]
+}

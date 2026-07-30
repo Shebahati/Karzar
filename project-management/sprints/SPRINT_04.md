@@ -34,6 +34,25 @@
     - [x] RELEASE_PLAN signed
   - Notes: Readiness documentation complete; SEC-001 hygiene ACs closed; residual dep advisories as R8; GO still needs named release/rollback owners.
 
+- [x] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `done` 100% | P1 | 24h | Sprint 04
+  - Owner: agent | Week 1 Day 3 | Risk: med
+  - [x] Description: Repository audit, then the governing process system for AI-assisted development.
+  - [x] Dependencies: none
+  - [x] Files: aods/**, .cursor/rules/aods-*.mdc
+  - [x] Modules: docs, ops
+  - [x] Tags: aods, governance, meta, process
+  - Acceptance Criteria:
+    - [x] All 19 required sections delivered as documentation
+    - [x] Validators run on python3 with no third-party imports
+    - [x] Every tracked markdown file is classified in the document registry
+    - [x] Conflicts reported with owners, never silently resolved
+    - [x] Prompt library follows one mandatory template and passes the prompt lint
+  - Definition of Done:
+    - [x] aods_validate.py exits 0 against the recorded baseline
+    - [x] CHANGELOG.md + PROJECT_STATUS.md updated
+    - [x] Board acceptance (HC-14) — **Accepted** ۸ مرداد ۱۴۰۵; signed Mohammad Shebahati / محمد شباهتی; pack `1.0.0`; minute `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`; PR #128
+  - Notes: Process-only; no application behaviour changed. D9 closed. Canon Lock row still needs PR #125 merge (`CR-001`).
+
 ## Sprint exit checklist
 - [x] All P0 tasks in sprint done or explicitly moved with note in DECISIONS.md
 - [x] PROJECT_STATUS.md updated

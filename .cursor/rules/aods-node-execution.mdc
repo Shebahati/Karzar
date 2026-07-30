@@ -1,0 +1,67 @@
+---
+description: Rules for editing the AODS pack itself — registry sync, status honesty, append-only registers
+globs: aods/**
+---
+
+# Editing AODS itself
+
+A change under `aods/**` is a `C5 — Governance-affecting` change
+(`aods/90-governance/GOVERNANCE.md` §3.1). Follow the update workflow in
+`aods/90-governance/DELIVERABLES-AND-ADOPTION.md` §3.
+
+## 1. Status honesty
+
+AODS documents are **`Accepted`** as of ۸ مرداد ۱۴۰۵ (Board minute
+`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`). Do **not** silently change status, rank, or
+authority. Further status changes (`Deprecated` / amendment of binding rules) require a new Architecture
+Board minute plus a `docs/architecture/CANON-LOCK.md` update (`HC-14`), per
+`docs/development/standards/documentation-citation-rules.md`.
+
+## 2. A rule with no enforcement is a proposal
+
+If you add a rule to any AODS document, you must do one of these:
+
+- Point at the registry field or validator gate that enforces it, or
+- Add the check to `aods/tools/aods_validate.py`, or
+- Label it explicitly as advisory and add an `OI-` open-issue row.
+
+Do not write rules that read as binding but have no mechanism. That is the failure this pack exists to fix.
+
+## 3. Keep prose and registries in sync
+
+| If you change | Also update |
+|---|---|
+| A document's path, class, or status | `aods/registry/document-registry.yaml` |
+| A role's authority or ID | `aods/registry/role-registry.yaml` |
+| A node type, gate, or dependency | `aods/registry/task-graph.yaml` |
+| A gate's name or behaviour | `aods/80-validation/VALIDATION-FRAMEWORK.md` and the tool |
+| A human checkpoint | `aods/60-human/HUMAN-INTERVENTION-MODEL.md` — and every doc citing that `HC-nn` |
+| Any new markdown file anywhere in the repo | `document-registry.yaml` (or an `unclassified_allow` glob) |
+
+Then run `python3 aods/tools/aods_validate.py --all` and read the output.
+
+## 4. Append-only artifacts
+
+- `aods/10-repository-intelligence/CONFLICT-REGISTER.md` — add `CR-nnn` rows; close them with a dated
+  decision line; never rewrite or delete a row.
+- `aods/reports/tasks/*.md` — a closed task record is immutable. Write a new record instead.
+- `aods/registry/validation-baseline.json` — every entry needs a date and an owner. Entries are removed by fixing the
+  underlying problem, not by editing the reason.
+
+## 5. Tooling constraints
+
+`aods/tools/*.py` must run on a bare Python 3 with **no third-party imports**. `PyYAML` is not a dependency
+of this repository and must not become one for governance tooling; `aods_yaml.py` is the deliberately
+minimal parser. If you need a YAML construct it does not support, extend it and raise clearly on anything
+unsupported rather than guessing.
+
+## 6. Do not invent repository facts
+
+Statements about the repository in these documents are audit findings, and every count, path, and line
+reference must be verifiable at the commit you write it. If you state "18 scripts do X", verify the number.
+A governance pack that misdescribes its own repository is worse than no pack.
+
+## 7. PMO touch
+
+Per `.cursor/rules/pmo-living-system.mdc`, AODS work is tracked as `AODS-001` in
+`project-management/exports/tasks.json`. Update it, its markdown mirrors, and `CHANGELOG.md` in the same PR.

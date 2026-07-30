@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-28",
+  "as_of": "2026-07-29",
   "deadline": "2026-09-22",
   "tasks": [
     {
@@ -653,6 +653,51 @@
       ],
       "risk": "low",
       "notes": "#81 → main @e1981b6; promote-measurement workflow (no checkout); Backend CI green; Deploy Staging not required (workflow/script-only)."
+    },
+    {
+      "id": "AODS-001",
+      "title": "Design the AI-Orchestrated Development System (AODS)",
+      "description": "Audit the repository, then design the governing process system for AI-assisted development: authority model, conflict register, lifecycle, workflow DAG, roles, artifacts, AI execution and Auto Mode strategy, context management, human checkpoints, prompt library, validation gates, risk, knowledge flow, governance, adoption plan. Process-only: no application behaviour changes.",
+      "priority": "P1",
+      "severity": "high",
+      "hours": 24,
+      "deps": [],
+      "files": [
+        "aods/**",
+        ".cursor/rules/aods-auto-mode.mdc",
+        ".cursor/rules/aods-node-execution.mdc"
+      ],
+      "modules": [
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "All 19 required sections delivered as documentation",
+        "Validators run on python3 with no third-party imports",
+        "Every tracked markdown file is classified in the document registry",
+        "Conflicts are reported with owners, never silently resolved",
+        "Prompt library follows one mandatory template and passes the prompt lint"
+      ],
+      "dod": [
+        "aods_validate.py exits 0 against the recorded baseline",
+        "CHANGELOG.md + PROJECT_STATUS.md + DONE.md updated",
+        "Board minute recorded (HC-14); D9 closed; pack Accepted 1.0.0",
+        "PR #128 opened for merge to main"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "04",
+      "week": 1,
+      "day": 3,
+      "owner": "agent",
+      "tags": [
+        "aods",
+        "governance",
+        "meta",
+        "process"
+      ],
+      "risk": "medium",
+      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Canon Lock row still depends on merging PR #125 (CR-001). Validators still surface CR-004/007/012/023 as known debt."
     }
   ]
 }

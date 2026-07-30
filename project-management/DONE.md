@@ -26,3 +26,4 @@ Move completed task IDs here with date + PR.
 - [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — #113 → `main` @f4ec40b (staging deployed)
 - [x] TD-001 Category depth/selectable FE drift — 2026-07-27 — #114 → `main` @8cd01bd (staging deployed)
 - [x] PMO checkpoint-close consistency pass — 2026-07-28 — PMO artifacts synchronized; CAT-002/KB-001 kept deferred with owner PMO and revisit date 2026-09-23 (no code-scope PR)
+- [x] **AODS-001** AI-Orchestrated Development System — 2026-07-30 (۸ مرداد ۱۴۰۵) — Board **Accepted** in full; signed Mohammad Shebahati / محمد شباهتی; pack `1.0.0`; PR [#128](https://github.com/Shebahati/Karzar/pull/128); minute `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`

@@ -1,7 +1,7 @@
 # Project Status
 
-**Updated:** 2026-07-28  
-**Weighted progress:** 85%  
+**Updated:** 2026-07-30  
+**Weighted progress:** 86%  
 **Checkpoint:** 2026-09-22
 
 ## Overall
@@ -30,6 +30,7 @@
 - [x] TD-001 Category depth/selectable FE drift (#114 → main @8cd01bd)
 - [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
 - [x] FE-001 follow-up homepage padding (#117 → main @174718f)
+- [x] **AODS-001** AI-Orchestrated Development System **Accepted** ۱.۰.۰ — Board minute ۸ مرداد ۱۴۰۵ (Mohammad Shebahati); PR #128
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
@@ -41,9 +42,17 @@
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 - [x] Deferred ownership locked at checkpoint close (2026-07-28): CAT-002/KB-001 owner = PMO, revisit date = 2026-09-23
+- [x] Process governance — AODS Accepted (D9); see `aods/`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only). PMO state: **operationally complete for checkpoint**.
+See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 + AODS-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only). PMO state: **operationally complete for checkpoint**.
+
+## Process governance (AODS-001)
+Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).
+Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Decision **D9** closed.
+Runnable gates: `python3 aods/tools/aods_validate.py`. 23 conflicts registered in
+`aods/10-repository-intelligence/CONFLICT-REGISTER.md`; 5 are BLOCKERs and are mirrored in `BLOCKERS.md`.
+Canon Lock row still requires merge of PR #125 (`CR-001`).
 
 ## Blockers
 See `BLOCKERS.md`

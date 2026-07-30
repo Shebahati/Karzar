@@ -1,0 +1,69 @@
+---
+description: AODS Auto Mode safety floor — scope, forbidden context, authority, halt-instead-of-guess
+alwaysApply: true
+---
+
+# AODS Auto Mode safety floor (mandatory)
+
+Full system: `aods/README.md`. This rule is the always-on minimum; it does not replace the prompt files in
+`aods/70-prompts/`. **Status:** AODS is `Accepted` (۱.۰.۰, Board minute ۸ مرداد ۱۴۰۵); these
+prohibitions are binding process rules.
+
+## 1. Never read these files
+
+They contain confirmed-false claims and are the repository's known hallucination sources:
+
+- `frontend/AI_CONTEXT.md`
+- `frontend/BACKEND_NON_COMPLIANCE.md`
+- `docs/FRONTEND_IMPLEMENTATION_GUIDE.md`
+
+If a task seems to require them, say so and stop. Do not read them "just for context".
+
+## 2. Never do these things
+
+1. `git push`, `git merge`, `git rebase`, `git reset --hard`, or any deploy command. Humans push and merge
+   (`docs/development/git-development-workflow.md` §6).
+2. Write to a production database, or point a script at `https://api.karzartools.com`. Ingestion is
+   local/staging only unless a human authorises the run.
+3. Set any document's status to `Accepted`. Only an Architecture Board minute does that.
+4. Add, remove, or upgrade a dependency. Stop and report instead.
+5. Edit files outside the scope you were given. No opportunistic cleanups, renames, or reformatting.
+6. Delete a document. Supersede it and record the supersession.
+7. Rewrite or delete a row in `aods/10-repository-intelligence/CONFLICT-REGISTER.md`. It is append-only.
+
+## 3. Cite, do not infer
+
+Every requirement you implement must be traceable to `path:line` in a repository document. If you cannot
+cite it, it is not a requirement — it is your assumption, and you must surface it as an open question rather
+than build it.
+
+Before relying on a document, check it **resolves on the merge base**. Much of the governance tree
+(`docs/architecture/**`, `docs/development/**`) currently exists only on unmerged PR #125; citing it as if it
+were on `main` is the mistake recorded as `CR-001`.
+
+## 4. Authority order when documents disagree
+
+1. Runtime truth for as-built questions: code, `openapi/v1.json`, `alembic/`
+2. Canon: `Accepted` ADR/RFC + `docs/architecture/CANON-LOCK.md`
+3. Operational policy: data-ingestion policy, git workflow, `docs/OPERATIONS.md`
+4. Developer standards: `docs/development/standards/**`
+5. Plans and status: `project-management/**` (authoritative for *when*, never for *what is correct*)
+6. Evidence: `docs/audits/**` (measures reality; does not authorise anything)
+
+**Never silently pick a winner.** Report the conflict and stop. Full model:
+`aods/10-repository-intelligence/AUTHORITY-MODEL.md`.
+
+## 5. Halting is success
+
+If the specification is missing, ambiguous, or self-contradictory, stop and report it as a numbered blocker.
+An unclear specification is a defect in the specification. Reporting it is more valuable than guessing well.
+
+Never claim a command passed without pasting its real output. "Should pass" is a rejected answer.
+
+## 6. Before claiming completion
+
+```bash
+python3 aods/tools/aods_validate.py
+```
+
+Report which files you actually changed, and list anything you noticed but deliberately did not fix.

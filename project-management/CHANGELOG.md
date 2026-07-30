@@ -1,5 +1,20 @@
 # PMO / Product Changelog (living)
 
+## 2026-07-30
+- [x] **D9 / HC-14** Architecture Board **Accepted AODS in full** — ۸ مرداد ۱۴۰۵; signed **Mohammad Shebahati / محمد شباهتی**. Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Pack headers + registry → **Accepted / 1.0.0**.
+- [x] **AODS-001 → `done`** — PR [#128](https://github.com/Shebahati/Karzar/pull/128). Remaining: merge #125 (Canon Lock row / `CR-001`), then #128 to `main`.
+
+## 2026-07-29
+- [x] **AODS-001** AI-Orchestrated Development System designed and delivered under `aods/` — 19 required sections, 23 documents, 11 instantiated prompts, 3 machine-readable registries, and stdlib-only runnable validators. Initially shipped as **Proposed**; Board acceptance recorded 2026-07-30 (see above). Process-only: no application behaviour changed.
+- [x] **Validation gates now exist and run** — `python3 aods/tools/aods_validate.py` (8 automatic gates: registry, links, pmo, prompts, graph, naming, openapi, ingestion-boundary; 2 contextual: citation, allowlist). Previously the repository had no validator of any kind.
+- [x] **23 governance conflicts registered** in `aods/10-repository-intelligence/CONFLICT-REGISTER.md`, none silently resolved. 5 are BLOCKERs and are now mirrored in `BLOCKERS.md`; the rest feed `RISKS.md` (R9–R11) and `TECH_DEBT.md`.
+- [x] **Three conflicts independently confirmed by tooling rather than by reading:** `CR-004` (18 scripts default to the production API, violating Accepted ADR-012), `CR-007` (6 divergent PMO ledger pairs), and `CR-012` — `openapi/v1.json` is missing `/api/v1/products/slug/{slug}`, live since #126 while the snapshot was last regenerated in #111. Two EPIC-1 PRs merged against a stale machine contract with nothing reporting it.
+- [x] **`CR-023` opened** — two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve; surfaced because the baseline writer refuses to record an unattributed suppression.
+- [x] **31 findings baselined** as visible, owned, dated debt in `aods/registry/validation-baseline.json`. The file may only shrink without approval.
+- [x] **Two Cursor rules added** — `aods-auto-mode.mdc` (always-on safety floor: forbidden context, no push/merge/deploy, cite-don't-infer, halt instead of guess) and `aods-node-execution.mdc` (rules for editing AODS itself). `pmo-living-system.mdc` left untouched.
+- [x] **Independent accuracy pass on the pack itself** — every numeric and line-number claim re-verified against the repository. Corrected: 55→41 scripts, 58→62 unmerged branches, 78→79 PMO files, ~150→~140 markdown documents, two wrong line citations inside the `RESTATE` example, a gate name (`--gate ingestion`) that did not exist, and a missing prompt-lint rule. Logged in `aods/10-repository-intelligence/REPOSITORY-AUDIT.md` §10 rather than fixed silently.
+- [x] **`D9` opened in `DECISIONS.md`** — adopting AODS is a Board decision, not an agent decision.
+
 ## 2026-07-28
 - [x] **PMO close pass** validated checkpoint-final PMO state against current SoT: only CAT-002 and KB-001 remain open and intentionally deferred
 - [x] **Deferred governance hardened** for CAT-002/KB-001 across `tasks.json`, `PROJECT_STATUS.md`, `RELEASE_PLAN.md`, `DECISIONS.md`, `KANBAN_BOARD.md`, `BACKEND_PROGRESS.md`, and `KNOWLEDGE_BASE_PROGRESS.md` with explicit owner `PMO` + revisit date `2026-09-23`
