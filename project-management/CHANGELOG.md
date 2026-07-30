@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-022 CLOSED (Option A)** — `FRONTEND_INTEGRATION.md` + `API_CHANGELOG.md` aligned to binary `is_available`; legacy stock fields deprecated in changelog; **D19**. Admin bulk migrate = follow-up IMPL.
 - [x] **CR-020 CLOSED (Option A)** — Bilingual policy: EN contracts / FA operator deploy; `translated_from`/`normative_role`; settings paths proposed/non-Canon; deploy one-VPS (`CR-011`); **D18**.
 - [x] **CR-017 CLOSED (Option B)** — Policy/defer deletes; hangover refreshed to cite live `git branch -r --no-merged` / `git worktree list`; residual branch/worktree debt acknowledged; **D17** recorded. No mass deletes / worktree remove in this node.
 - [x] **CR-019 CLOSED (Option A)** — `CATALOG_IMAGES_PLAN.md` remains authorized image-import plan; Phase-3 pause annotated superseded-for-now (losing side) via **D7**/**D8**; **D16** recorded. No import run in this node.
