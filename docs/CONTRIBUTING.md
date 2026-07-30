@@ -29,5 +29,6 @@ Endpoints own `commit`/`rollback`. Services and CRUD flush only. See [ARCHITECTU
 
 ## Docs authority
 
-Engineering quality bar and remediation targets: `docs/audits/v2/`.  
-When site docs contradict v2, **edit the site docs** to match v2.
+**Live engineering quality bar:** [`docs/audits/v2/master-engineering-report-v2.md`](./audits/v2/master-engineering-report-v2.md) (v2 audit) + remediation programme [`docs/audits/v2/REMEDIATION-TO-9.md`](./audits/v2/REMEDIATION-TO-9.md).  
+When site docs contradict that bar, **edit the site docs** to match.  
+[`docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md`](./audits/v2/SCORECARD-AFTER-REMEDIATION.md) is **HISTORICAL** self-certification only — not merge criteria (`CR-006` Option B, 2026-07-30).

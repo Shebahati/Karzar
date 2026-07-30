@@ -1,3 +1,8 @@
+> **HISTORICAL / NON-AUTHORITATIVE (AODS CR-006 CLOSED 2026-07-30).**  
+> This file is a **self-certification** dated the same day as the v2 audit. It MUST NOT be used as the live quality bar or as merge criteria.  
+> **Live bar:** [`master-engineering-report-v2.md`](./master-engineering-report-v2.md) (5.7/10) + [`REMEDIATION-TO-9.md`](./REMEDIATION-TO-9.md).  
+> Independent v3 audit (Option A) remains deferred.
+
 # Scorecard After Remediation (v2 rubric)
 
 **Date:** 2026-07-25  
