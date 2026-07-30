@@ -28,4 +28,5 @@ Move completed task IDs here with date + PR.
 - [x] PMO checkpoint-close consistency pass — 2026-07-28 — PMO artifacts synchronized; CAT-002/KB-001 kept deferred with owner PMO and revisit date 2026-09-23 (no code-scope PR)
 - [x] **AODS-001** AI-Orchestrated Development System — 2026-07-30 (۸ مرداد ۱۴۰۵) — Board **Accepted** in full; signed Mohammad Shebahati / محمد شباهتی; pack `1.0.0`; PR [#128](https://github.com/Shebahati/Karzar/pull/128); minute `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`
 - [x] **CR-015** Quarantine `frontend/AI_CONTEXT.md` — 2026-07-30 — PR [#135](https://github.com/Shebahati/Karzar/pull/135)
-- [x] **CR-004 residual B+C** Fail-closed production write guard + Category B deploy publisher — 2026-07-30 — PR pending
+- [x] **CR-004 residual B+C** Fail-closed production write guard + Category B deploy publisher — 2026-07-30 — PR [#136](https://github.com/Shebahati/Karzar/pull/136)
+- [x] **Phase 4 / OI-GOV-05** AODS gates in Backend CI (`aods` job) — 2026-07-30 — PR pending; closes `CR-012`

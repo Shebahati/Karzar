@@ -11,3 +11,4 @@
 - [x] **D8** Checkpoint-close defer governance (2026-07-28): keep **CAT-002** and **KB-001** as deferred backlog (not done); assign owner **PMO**; set revisit date **2026-09-23** for post-checkpoint planning.
 - [x] **D10** PMO canonical paths (2026-07-30): `project-management/progress/*_PROGRESS.md` and `project-management/sprints/SPRINT_XX.md` only — closes AODS `CR-007` Option A; root twins deleted.
 - [x] **D11** CR-004 residual B+C (2026-07-30): fail-closed `KARZAR_ALLOW_PRODUCTION_WRITE=1` + `KARZAR_INGESTION_CATEGORY=B` via `scripts/ingestion_boundary.py`; `publish_seo003_articles.py` classified Category B deploy publisher.
+- [x] **D12** Phase 4 / OI-GOV-05 (2026-07-30): Backend CI job `aods` runs baseline-aware `aods_validate.py` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`; `CR-012` CLOSED. Admin still adds `aods` to branch-protection required checks (`OI-GOV-02`).

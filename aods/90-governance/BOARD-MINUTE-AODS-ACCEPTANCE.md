@@ -39,9 +39,12 @@ scope; Architecture Board Canon Lock and the PMO retain that authority. Preceden
 ## Explicit non-decisions (still open)
 
 This minute does **not** close conflict-register rows other than enabling process authority. Still OPEN and
-requiring separate Board/owner action: `CR-001` (merge Canon Lock PR #125), `CR-002`, `CR-003`, `CR-004`,
+requiring separate Board/owner action at acceptance time: `CR-001`, `CR-002`, `CR-003`, `CR-004`,
 `CR-007`, `CR-011`, `CR-012`, `CR-015`, and remaining rows. Phase-4 CI enforcement of AODS gates remains a
 separate `HC-14` decision (`OI-GOV-05`).
+
+**Update 2026-07-30:** Phase 4 / `OI-GOV-05` decided — see [`BOARD-MINUTE-AODS-PHASE4-CI.md`](BOARD-MINUTE-AODS-PHASE4-CI.md).
+Several listed conflicts have since closed (`CR-001`, `CR-004`, `CR-007`, `CR-012`, `CR-015`); see conflict register.
 
 ## Canon Lock instruction
 

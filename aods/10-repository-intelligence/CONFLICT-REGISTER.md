@@ -50,7 +50,7 @@
 | CR-009 | `Website/docs/` authoring SoR is outside version control | **BLOCKER** | Owner | OPEN |
 | CR-010 | Canon Lock and Git workflow cite ≥12 documents that do not exist in the repo | HIGH | Architecture Board | OPEN |
 | CR-011 | Staging and production are the same VPS; merge to `main` auto-deploys live | **BLOCKER** | DevOps / Release Manager | OPEN |
-| CR-012 | `openapi/v1.json` snapshot drift fixed 2026-07-30; CI wiring still open | HIGH | Backend Architect | MITIGATED |
+| CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
 | CR-014 | EPIC-1 deliverable 5 (`/brands/{slug}`) unimplemented and unspecified | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
@@ -459,7 +459,7 @@ as a **production release** and routes it through human checkpoint **HC-12**.
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Backend Architect |
-| **Status** | MITIGATED |
+| **Status** | CLOSED |
 
 `docs/API_CONTRACT.md` designates `openapi/v1.json` as the machine contract and documents a regeneration command.
 The snapshot holds 81 paths and 115 schemas. **No workflow regenerates or diffs it** — `backend-ci.yml` runs only
@@ -494,6 +494,11 @@ compares `app.openapi()` to the file; (C) stop committing the snapshot and publi
 Baseline entry for this drift removed. **Follow-up remains:** wire `--gate openapi` (or equivalent pytest
 snapshot diff) as a required CI check — Option A/B — tracked under Phase 4 / `OI-GOV-05`. Until then status is
 **MITIGATED**, not CLOSED.
+
+**DECISION (2026-07-30 follow-up, Mohammad Shebahati — Phase 4 / OI-GOV-05):** Wired
+`python3 aods/tools/aods_validate.py` (includes `--gate openapi`) as Backend CI job **`aods`**.
+Minute: `aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md`. **Status → CLOSED.**
+Repo admin still must add `aods` to branch-protection required checks (`OI-GOV-02`).
 
 
 ---
@@ -754,6 +759,7 @@ baseline into exactly the silent suppression list the validation framework forbi
 |------|--------|-----|
 | 2026-07-29 | Register opened with CR-001…CR-022 from the AODS Phase-0 audit | AODS design task |
 | 2026-07-29 | Added CR-023 — broken relative links surfaced by `--gate links` and flagged as unattributed by the baseline writer | AODS design task |
+| 2026-07-30 | CR-012 CLOSED — Phase 4 CI job `aods` wires validators including openapi | Board / OI-GOV-05 |
 | 2026-07-30 | CR-012 snapshot regenerated (MITIGATED); CI wiring deferred to Phase 4 | Operator session under Board order |
 | 2026-07-30 | CR-007 CLOSED — Option A progress/+sprints/ canonical; root twins deleted | Board / operator session |
 | 2026-07-30 | CR-015 CLOSED — Option A stub+archive quarantine | Board / operator session |

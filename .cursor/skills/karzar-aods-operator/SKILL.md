@@ -176,8 +176,8 @@ Source: `aods/10-repository-intelligence/CONFLICT-REGISTER.md` (append-only).
 | CR-011 | Staging ≈ production (same VPS) |
 | CR-015 | **CLOSED** — FE AI_CONTEXT stubbed; archive forbidden |
 
-Also watch: CR-002 branch naming, CR-003 coverage %, CR-007 duplicate PMO paths,
-CR-012 OpenAPI, CR-014 Brand Hub underspec, CR-018 missing PR template.
+Also watch: CR-002 branch naming, CR-003 coverage %, CR-018 missing PR template.
+Phase 4 CI job `aods` is live (OI-GOV-05); add it to branch-protection required checks (`OI-GOV-02`).
 
 ## 7. PMO living system (same PR)
 
