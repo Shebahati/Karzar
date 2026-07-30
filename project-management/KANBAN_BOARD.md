@@ -48,7 +48,10 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: DEFERRED at checkpoint close (2026-07-28) per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path; revisit 2026-09-23
 
 ## in_progress
-- [ ] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `in_progress` 90% | P1 | 24h | Sprint 04
+_(empty — AODS-001 Accepted and moved to done)_
+
+## done
+- [x] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `done` 100% | P1 | 24h | Sprint 04
   - Owner: agent | Week 1 Day 3 | Risk: med
   - [x] Description: Repository audit, then the governing process system for AI-assisted development.
   - [x] Dependencies: —
@@ -62,10 +65,10 @@ Statuses mirrored from `exports/tasks.json`.
     - [x] Conflicts reported with owners, never silently resolved
   - Definition of Done:
     - [x] `aods_validate.py` exits 0 against the recorded baseline
-    - [ ] Architecture Board acceptance (HC-14) — pack ships as **Proposed**
-  - Notes: Process-only. Blocked from `done` by design: only a Board minute can accept the pack, so an agent marking it done would be the self-certification error of `CR-006`. See `DECISIONS.md` D9.
+    - [x] Architecture Board acceptance (HC-14) — **Accepted** ۸ مرداد ۱۴۰۵; signed Mohammad Shebahati; pack `1.0.0`; PR #128
+  - Notes: D9 closed. Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Canon Lock row still needs PR #125 (`CR-001`).
 
-## done
+
 - [x] **FE-001** Design system tokens + homepage consistency — `done` 100% | P2 | 12h | Sprint 01
   - Owner: unassigned | Week 2 Day 6 | Risk: low
   - [x] Description: Align home sections after hero/categories/why-karzar polish.

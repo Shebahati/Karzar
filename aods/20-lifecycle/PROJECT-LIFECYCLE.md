@@ -2,8 +2,8 @@
 
 **Document ID:** `AODS-LIFE-001`
 **Document type:** Process standard (Plane B)
-**Status:** **Proposed**
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 
 > **Design note.** Karzar is **not** a greenfield project. It is a live production system with ~5,901 products,

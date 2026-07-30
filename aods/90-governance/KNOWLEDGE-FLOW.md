@@ -1,8 +1,8 @@
 # Knowledge Flow
 
 **Document ID:** `AODS-KNOWLEDGE-FLOW`
-**Status:** **Proposed** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) status)
-**Version:** 0.1.0
+**Status:** **Accepted** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) Board acceptance)
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Satisfies:** required section 14 (Knowledge Flow)
 

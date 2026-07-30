@@ -15,27 +15,27 @@
     },
     {
       "gate": "links",
-      "path": "aods/AODS-CHARTER.md:12",
+      "path": "aods/AODS-CHARTER.md:14",
       "message": "link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:12:link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:14:link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
       "conflict_id": "CR-001",
       "owner_role": "R-DOC-ARCH",
       "recorded_at": "2026-07-29"
     },
     {
       "gate": "links",
-      "path": "aods/AODS-CHARTER.md:13",
+      "path": "aods/AODS-CHARTER.md:15",
       "message": "link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:13:link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:15:link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
       "conflict_id": "CR-001",
       "owner_role": "R-DOC-ARCH",
       "recorded_at": "2026-07-29"
     },
     {
       "gate": "links",
-      "path": "aods/AODS-CHARTER.md:17",
+      "path": "aods/AODS-CHARTER.md:19",
       "message": "link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:17:link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
+      "key": "links:aods/AODS-CHARTER.md:19:link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
       "conflict_id": "CR-001",
       "owner_role": "R-DOC-ARCH",
       "recorded_at": "2026-07-29"

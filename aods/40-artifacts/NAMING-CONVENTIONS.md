@@ -1,8 +1,8 @@
 # Naming Conventions
 
 **Document ID:** `AODS-NAMING`
-**Status:** Proposed (see [`../AODS-CHARTER.md`](../AODS-CHARTER.md) status honesty note)
-**Version:** 0.1.0
+**Status:** **Accepted** (see [`../AODS-CHARTER.md`](../AODS-CHARTER.md) Board acceptance)
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Required by:** AODS charter § "Deterministic" and § "Auditable"
 

@@ -6,8 +6,8 @@ alwaysApply: true
 # AODS Auto Mode safety floor (mandatory)
 
 Full system: `aods/README.md`. This rule is the always-on minimum; it does not replace the prompt files in
-`aods/70-prompts/`. **Status:** AODS is `Proposed`; these prohibitions restate rules that are already canon
-or already agreed, so they apply regardless.
+`aods/70-prompts/`. **Status:** AODS is `Accepted` (۱.۰.۰, Board minute ۸ مرداد ۱۴۰۵); these
+prohibitions are binding process rules.
 
 ## 1. Never read these files
 

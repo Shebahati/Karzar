@@ -1,8 +1,8 @@
 # Prompt Library Architecture
 
 **Document ID:** `AODS-PROMPTS`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Template:** [`PROMPT-TEMPLATE.md`](PROMPT-TEMPLATE.md) — every prompt in the library instantiates it without omission.
 

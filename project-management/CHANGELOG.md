@@ -1,7 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-07-30
+- [x] **D9 / HC-14** Architecture Board **Accepted AODS in full** — ۸ مرداد ۱۴۰۵; signed **Mohammad Shebahati / محمد شباهتی**. Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Pack headers + registry → **Accepted / 1.0.0**.
+- [x] **AODS-001 → `done`** — PR [#128](https://github.com/Shebahati/Karzar/pull/128). Remaining: merge #125 (Canon Lock row / `CR-001`), then #128 to `main`.
+
 ## 2026-07-29
-- [x] **AODS-001** AI-Orchestrated Development System designed and delivered under `aods/` — 19 required sections, 23 documents, 11 instantiated prompts, 3 machine-readable registries, and stdlib-only runnable validators. Status **Proposed**; not binding until an Architecture Board minute accepts it (HC-14). Process-only: no application behaviour changed.
+- [x] **AODS-001** AI-Orchestrated Development System designed and delivered under `aods/` — 19 required sections, 23 documents, 11 instantiated prompts, 3 machine-readable registries, and stdlib-only runnable validators. Initially shipped as **Proposed**; Board acceptance recorded 2026-07-30 (see above). Process-only: no application behaviour changed.
 - [x] **Validation gates now exist and run** — `python3 aods/tools/aods_validate.py` (8 automatic gates: registry, links, pmo, prompts, graph, naming, openapi, ingestion-boundary; 2 contextual: citation, allowlist). Previously the repository had no validator of any kind.
 - [x] **23 governance conflicts registered** in `aods/10-repository-intelligence/CONFLICT-REGISTER.md`, none silently resolved. 5 are BLOCKERs and are now mirrored in `BLOCKERS.md`; the rest feed `RISKS.md` (R9–R11) and `TECH_DEBT.md`.
 - [x] **Three conflicts independently confirmed by tooling rather than by reading:** `CR-004` (18 scripts default to the production API, violating Accepted ADR-012), `CR-007` (6 divergent PMO ledger pairs), and `CR-012` — `openapi/v1.json` is missing `/api/v1/products/slug/{slug}`, live since #126 while the snapshot was last regenerated in #111. Two EPIC-1 PRs merged against a stale machine contract with nothing reporting it.

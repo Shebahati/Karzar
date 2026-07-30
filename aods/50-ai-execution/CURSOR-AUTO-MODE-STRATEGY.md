@@ -1,8 +1,8 @@
 # Cursor Auto Mode Strategy
 
 **Document ID:** `AODS-AUTOMODE`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Governing constraint:** All development on this repository is executed in Cursor Auto Mode.
 

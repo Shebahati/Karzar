@@ -11,10 +11,11 @@ A change under `aods/**` is a `C5 — Governance-affecting` change
 
 ## 1. Status honesty
 
-Every AODS document is **`Proposed`**. Do not change any of them to `Accepted`, `Binding`, or `Locked`.
-Acceptance requires an Architecture Board minute plus a `docs/architecture/CANON-LOCK.md` row, per
-`docs/development/standards/documentation-citation-rules.md`, which states that silent status upgrades in PRs
-without a Board minute are non-compliant.
+AODS documents are **`Accepted`** as of ۸ مرداد ۱۴۰۵ (Board minute
+`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`). Do **not** silently change status, rank, or
+authority. Further status changes (`Deprecated` / amendment of binding rules) require a new Architecture
+Board minute plus a `docs/architecture/CANON-LOCK.md` update (`HC-14`), per
+`docs/development/standards/documentation-citation-rules.md`.
 
 ## 2. A rule with no enforcement is a proposal
 

@@ -1,8 +1,8 @@
 # AODS — AI-Orchestrated Development System
 
-**Status:** **Proposed.** Nothing here is binding until the Architecture Board accepts it
+**Status:** **Accepted.** Binding process system per Architecture Board minute ۱۴۰۵/۰۵/۰۸
 (see [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md) §4).
-**Version:** 0.1.0 · **Date:** 2026-07-29
+**Version:** 1.0.0 · **Accepted:** ۱۴۰۵/۰۵/۰۸ (2026-07-30)
 
 AODS is the operating system for AI-assisted development in this repository. It defines how a change is
 specified, executed, validated, recorded, and approved — so that an agent running in **Cursor Auto Mode**,
@@ -115,8 +115,10 @@ file in the repository is classified.
 
 Stated up front, because a governance pack that claims completeness is the first one to be disbelieved.
 
-- **This pack is `Proposed`.** It cannot be cited as merge criteria yet.
-- **Its own foundation is unmerged.** The Canon Lock governance layer it defers to lives on PR #125, so
+- **This pack is `Accepted` (۱.۰.۰)** as of ۸ مرداد ۱۴۰۵ — see
+  [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md).
+  Canon Lock row still depends on merging PR #125 (`CR-001`).
+- **Its Canon Lock foundation is still unmerged.** The Wave-1 Canon Lock layer lives on PR #125, so
   many citations here do not resolve on `main` (`CR-001`). `--gate links` reports this explicitly instead
   of quietly passing.
 - **One human holds every role.** Separation of duties is separation in *time and artifact*, not in person.

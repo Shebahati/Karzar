@@ -2,8 +2,8 @@
 
 **Document ID:** `AODS-CR-001`
 **Document type:** Governance register (append-only)
-**Status:** **Proposed** (register is live; entries await decision)
-**Version:** 0.1.0
+**Status:** **Accepted** (living register; individual `CR-*` rows remain OPEN until Board decision)
+**Version:** 1.0.0
 **Opened:** 2026-07-29
 **Decision authority:** per-row (see `Owner`)
 

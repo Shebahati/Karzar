@@ -1,8 +1,8 @@
 # Deliverables and Adoption
 
 **Document ID:** `AODS-DELIVERABLES`
-**Status:** **Proposed** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) status)
-**Version:** 0.1.0
+**Status:** **Accepted** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) Board acceptance)
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Satisfies:** required section 19 (Deliverables)
 
@@ -350,7 +350,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
 | 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
 | 7 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |
-| 8 | Hold a Board session on this pack; accept or reject | `HC-14` | Phase 3. Nothing here is binding until this happens. |
+| 8 | ~~Hold a Board session on this pack; accept or reject~~ **DONE** ۸ مرداد ۱۴۰۵ — Accepted in full; signed Mohammad Shebahati / محمد شباهتی | `HC-14` | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md). Pack is `Accepted` / `1.0.0`. |
 | 9 | Decide whether AODS gates become required CI checks | `HC-14` | Phase 4. |
 
 ---
@@ -362,5 +362,5 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | `OI-DEL-01` | Whether `aods/` stays at the root or moves under `docs/` after PR #125 merges and the `docs/` namespace stabilises | Board | Nothing; a later move is a pure rename plus registry update |
 | `OI-DEL-02` | Whether `aods/reports/tasks/` records are committed for every node or only for `C2`+ changes | Owner | Repository size vs audit completeness trade-off |
 | `OI-DEL-03` | Whether the Knowledge Platform Phase 1–3 documents are in scope for the next wave (`OI-KF-04`) | Owner | Which epic follows RFC-005 |
-| `OI-DEL-04` | No Board-minute storage location exists in the repo (`OI-GOV-07`) | Board | Verifiable acceptance of this pack at Phase 3 |
+| `OI-DEL-04` | Board-minute storage — AODS minute recorded at [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); general path convention for future minutes still open (`OI-GOV-07`) | Board | Future acceptances |
 | `OI-DEL-05` | Whether a `C0`/`C1` fast path (single node, gates only, no separate review node) is acceptable | Owner | Whether Phase 5 is affordable for small changes |

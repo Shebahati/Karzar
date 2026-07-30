@@ -680,11 +680,12 @@
       ],
       "dod": [
         "aods_validate.py exits 0 against the recorded baseline",
-        "CHANGELOG.md + PROJECT_STATUS.md updated",
-        "PR opened; Board acceptance tracked separately (status stays Proposed)"
+        "CHANGELOG.md + PROJECT_STATUS.md + DONE.md updated",
+        "Board minute recorded (HC-14); D9 closed; pack Accepted 1.0.0",
+        "PR #128 opened for merge to main"
       ],
-      "status": "in_progress",
-      "progress": 90,
+      "status": "done",
+      "progress": 100,
       "sprint": "04",
       "week": 1,
       "day": 3,
@@ -696,7 +697,7 @@
         "process"
       ],
       "risk": "medium",
-      "notes": "Documentation + tooling delivered on branch cursor/design-ai-orchestrated-development-system-4263. Status intentionally in_progress, not done: AODS ships as Proposed and only an Architecture Board minute can accept it (HC-14), so claiming done would be the self-certification error recorded as CR-006. Validators independently confirmed CR-004 (18 scripts default to production), CR-007 (6 divergent PMO ledger pairs), CR-012 (openapi/v1.json is missing /api/v1/products/slug/{slug}) and produced CR-023. 31 findings recorded in aods/registry/validation-baseline.json as visible debt."
+      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Canon Lock row still depends on merging PR #125 (CR-001). Validators still surface CR-004/007/012/023 as known debt."
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Prompt Template (mandatory)
 
 **Document ID:** `AODS-PROMPT-TEMPLATE`
-**Status:** Proposed
+**Status:** **Accepted**
 **Version:** 1.0.0
 **Date:** 2026-07-29
 

@@ -1,8 +1,8 @@
 # Governance
 
 **Document ID:** `AODS-GOVERNANCE`
-**Status:** **Proposed** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) status)
-**Version:** 0.1.0
+**Status:** **Accepted** (inherits [`AODS-CHARTER.md`](../AODS-CHARTER.md) Board acceptance)
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Satisfies:** required section 18 (Governance)
 
@@ -377,7 +377,7 @@ document to be disbelieved.
 | Authority tree lives partly outside Git (`Website/docs/`, `CR-009`) | Some authoritative text is unversioned and unreviewable | Escalated; no mitigation available inside this repo |
 | Staging and production share infrastructure | A "staging deploy" is not an independent rehearsal | Recorded as a risk; deployment remains manual |
 | No branch protection configured | The "never commit to `main`" rule is honour-based (`OI-GOV-02`) | Proposed; requires repo-admin action |
-| AODS is `Proposed` | Nothing in this document is binding yet | Adoption path in [`DELIVERABLES-AND-ADOPTION.md`](DELIVERABLES-AND-ADOPTION.md) |
+| AODS is `Accepted` (۱.۰.۰) but Canon Lock row not yet on `main` | Process is binding; citations to Canon Lock still fail until PR #125 merges | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); unblock via `HC-07` on #125 |
 
 ---
 
@@ -391,4 +391,4 @@ document to be disbelieved.
 | `OI-GOV-04` | Whether the PMO checkpoint calendar or the Board's EPIC-1 wave sets priority when they disagree (`CR-008`) | Owner | Node prioritisation |
 | `OI-GOV-05` | Whether AODS gates become required status checks in CI, and on which branches | Owner | CI wiring (`HC-14`) |
 | `OI-GOV-06` | No PR template exists although the accepted PR checklist mandates citations | Owner | `--gate citation` in practice |
-| `OI-GOV-07` | Board minutes have no storage location in the repo; acceptances are currently unrecorded artifacts | Board | Verifiability of every `Accepted` status |
+| `OI-GOV-07` | Board minutes storage — **partially closed**: AODS acceptance minute lives at [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); general convention for future minutes still needed | Board | Verifiability of every `Accepted` status |

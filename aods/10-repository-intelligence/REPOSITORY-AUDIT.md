@@ -3,7 +3,7 @@
 **Document ID:** `AODS-AUDIT-001`
 **Document type:** Evidence / measurement (Plane C — as-built verification)
 **Status:** Evidence. **Not policy.** Per Canon Lock §4, audits *"measure reality; do not edit upward to look healthier."*
-**Version:** 0.1.0
+**Version:** 1.0.0
 **Audit date:** 2026-07-29
 **Base commit audited:** `c022a44` (`origin/main`)
 **Method:** Full file enumeration, `git`/`gh` history analysis, `diff` on duplicate pairs, cross-reference of documents against code.

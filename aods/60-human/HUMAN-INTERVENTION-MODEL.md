@@ -1,8 +1,8 @@
 # Human Intervention Model
 
 **Document ID:** `AODS-HUMAN`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Rule of this document:** the phrase *"human reviews"* is banned. Every checkpoint lists the literal actions,
 commands, and pass/fail conditions. If a step cannot be written as an observable action, it is not a checkpoint.

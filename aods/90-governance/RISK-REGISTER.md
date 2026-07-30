@@ -1,8 +1,8 @@
 # Risk Register
 
 **Document ID:** `AODS-RISK`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Scope:** Risks to the *development process*. Product and business risks belong to the PMO; infrastructure
 incidents belong to `docs/OPERATIONS.md`.

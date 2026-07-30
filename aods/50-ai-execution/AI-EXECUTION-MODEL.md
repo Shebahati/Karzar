@@ -1,8 +1,8 @@
 # AI Execution Model
 
 **Document ID:** `AODS-EXEC`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Companions:** [`CURSOR-AUTO-MODE-STRATEGY.md`](CURSOR-AUTO-MODE-STRATEGY.md) · [`CONTEXT-MANAGEMENT.md`](CONTEXT-MANAGEMENT.md) · [`MODEL-CAPABILITY-STRATEGY.md`](MODEL-CAPABILITY-STRATEGY.md)
 

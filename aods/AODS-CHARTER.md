@@ -2,21 +2,24 @@
 
 **Document ID:** `AODS-CHARTER`
 **Document type:** Process / methodology standard (Plane B — design intent)
-**Status:** **Proposed** — NOT binding until Architecture Board acceptance
-**Version:** 0.1.0
+**Status:** **Accepted** — binding process standard (Architecture Board minute ۱۴۰۵/۰۵/۰۸)
+**Version:** 1.0.0
 **Date:** 2026-07-29
+**Accepted on:** ۱۴۰۵/۰۵/۰۸ (2026-07-30)
+**Accepted by:** Mohammad Shebahati / محمد شباهتی (Architecture Board)
 **Repo:** `https://github.com/Shebahati/Karzar` (checkout role: `Website/backend`)
-**Owner (proposed):** Platform / Staff Engineering (logical role)
+**Owner:** Platform / Staff Engineering (logical role)
 **Acceptance authority:** Architecture Board (Mohammad Shebahati)
 
-> **Status honesty (mandatory).** Per [`docs/architecture/adr/README.md` §2](../docs/architecture/adr/README.md) and
+> **Acceptance record.** Per [`docs/architecture/adr/README.md` §2](../docs/architecture/adr/README.md) and
 > [`docs/development/standards/documentation-citation-rules.md`](../docs/development/standards/documentation-citation-rules.md),
-> only the Architecture Board may set a document to **Accepted**, and *"silent status upgrades in PRs without Board minute are
-> non-compliant."* This charter therefore ships as **Proposed**. It describes how work *should* be executed and provides
-> runnable tooling, but it **MUST NOT** be cited as sole merge criteria until a Board minute adds it to
-> [`docs/architecture/CANON-LOCK.md`](../docs/architecture/CANON-LOCK.md).
+> only the Architecture Board may set a document to **Accepted**. This charter was accepted by Board minute on
+> **۸ مرداد ۱۴۰۵ (2026-07-30)**, signed **Mohammad Shebahati / محمد شباهتی**. The minute is
+> [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md). A Canon Lock
+> row MUST be added to [`docs/architecture/CANON-LOCK.md`](../docs/architecture/CANON-LOCK.md) (PR #125 /
+> post-merge follow-up) so citations resolve on `main`.
 >
-> Adoption path and the exact human steps to accept it: [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md).
+> Adoption phases after acceptance: [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md).
 
 ---
 

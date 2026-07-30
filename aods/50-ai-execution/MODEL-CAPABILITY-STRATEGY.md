@@ -1,8 +1,8 @@
 # AI Model Capability Strategy
 
 **Document ID:** `AODS-MODELS`
-**Status:** Proposed
-**Version:** 0.1.0
+**Status:** **Accepted**
+**Version:** 1.0.0
 **Date:** 2026-07-29
 **Design rule:** The system binds to **capability classes**, never to model names. Model names appear only in one
 table (§4), which is explicitly labelled perishable.

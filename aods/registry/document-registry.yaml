@@ -22,11 +22,15 @@
 # ---------------------------------------------------------------------------
 
 meta:
-  version: 0.1.0
-  status: proposed
+  version: 1.0.0
+  status: accepted
   generated_by: AODS design task (aods/10-repository-intelligence/REPOSITORY-AUDIT.md)
   audited_commit: c022a44
   audited_at: "2026-07-29"
+  accepted_on: "2026-07-30"
+  accepted_jalali: "1405/05/08"
+  accepted_by: "Mohammad Shebahati"
+  board_minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
   owner_role: R-DOC-ARCH
 
 # Globs that are exempt from the "every markdown must be classified" rule.
@@ -931,182 +935,192 @@ documents:
     on_main: true
     notes: "Slices I0-I15; I0 never started. Says pause image import — conflicts with CATALOG-IMAGES-PLAN (CR-019)."
 
+  # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-    notes: "This system. Proposed until an Architecture Board minute adds a Canon Lock row (HC-03)."
+    notes: "Accepted ۸ مرداد ۱۴۰۵ (2026-07-30) by Mohammad Shebahati. Binding process charter. Canon Lock row pending PR #125 merge (CR-001)."
 
   - id: AODS-AUTHORITY
     path: aods/10-repository-intelligence/AUTHORITY-MODEL.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-CONFLICTS
     path: aods/10-repository-intelligence/CONFLICT-REGISTER.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-AI-REVIEWER
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-LIFECYCLE
     path: aods/20-lifecycle/PROJECT-LIFECYCLE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-WORKFLOW
     path: aods/20-lifecycle/WORKFLOW-GRAPH.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-TIMELINE
     path: aods/20-lifecycle/TIMELINE-GRAPH.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-ROLES
     path: aods/30-roles/ROLE-ARCHITECTURE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-ARTIFACTS
     path: aods/40-artifacts/ARTIFACT-ARCHITECTURE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-NAMING
     path: aods/40-artifacts/NAMING-CONVENTIONS.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-EXEC-MODEL
     path: aods/50-ai-execution/AI-EXECUTION-MODEL.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROMPT-ENG
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-AUTO-MODE
     path: aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROMPT-ENG
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-CONTEXT
     path: aods/50-ai-execution/CONTEXT-MANAGEMENT.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROMPT-ENG
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-MODELS
     path: aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-HUMAN
     path: aods/60-human/HUMAN-INTERVENTION-MODEL.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-OWNER
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-PROMPTS
     path: aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROMPT-ENG
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-PROMPT-TEMPLATE
     path: aods/70-prompts/PROMPT-TEMPLATE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROMPT-ENG
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-VALIDATION
     path: aods/80-validation/VALIDATION-FRAMEWORK.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-AI-REVIEWER
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-RISK
     path: aods/90-governance/RISK-REGISTER.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-KNOWLEDGE-FLOW
     path: aods/90-governance/KNOWLEDGE-FLOW.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-KNOW
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-GOVERNANCE
     path: aods/90-governance/GOVERNANCE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-BOARD
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-DELIVERABLES
     path: aods/90-governance/DELIVERABLES-AND-ADOPTION.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
-
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-README
     path: aods/README.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: POLICY
+    rank: 6
+    status: accepted
     owner_role: R-PROJ-ARCH
     on_main: false
+    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
+  - id: AODS-BOARD-MINUTE-001
+    path: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
+    class: EVIDENCE
+    rank: 9
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    notes: "Board minute ۸ مرداد ۱۴۰۵ — AODS Accepted in full; signed Mohammad Shebahati."
 
   # =========================================================================
   # HISTORICAL — readable for context, never for instruction
