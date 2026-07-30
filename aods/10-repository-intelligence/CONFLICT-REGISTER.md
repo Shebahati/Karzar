@@ -42,7 +42,7 @@
 | CR-001 | Canon Lock promoted to `main` via PR #125 (2026-07-30); citations resolve | ~~BLOCKER~~ CLOSED | Architecture Board | CLOSED |
 | CR-002 | Branch naming: `feature/*` (Canon) vs `feat/*` (CONTRIBUTING + 18 branches) | HIGH | Architecture Board | OPEN |
 | CR-003 | Coverage gate stated as 62% / 67% / 67% / 68% in four documents | MEDIUM | QA Engineer | OPEN |
-| CR-004 | 18 enrichment scripts default to production API, violating Accepted ADR-012 | **BLOCKER** | Backend Architect + Board | OPEN |
+| CR-004 | Script defaults no longer point at production API (ADR-012); fail-closed Category B still optional residual | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
 | CR-007 | PMO progress/sprint files duplicated at two paths; 6 pairs divergent | HIGH | PMO | OPEN |
@@ -63,8 +63,8 @@
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
-**Open BLOCKERs: 4.** Until `CR-004`, `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
-degraded mode for those surfaces. `CR-001` closed 2026-07-30 (PR #125 on `main`).
+**Open BLOCKERs: 3.** Until `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
+degraded mode for those surfaces. `CR-001` and `CR-004` closed 2026-07-30.
 **degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
@@ -169,14 +169,7 @@ all four; (C) generate the number into docs from `pyproject.toml`.
 |-------|-------|
 | **Severity** | BLOCKER (for any catalog-write work) |
 | **Owner** | Backend Architect + Architecture Board |
-| **Status** | OPEN |
-
-**Side A (`CANON`, rank 2).** `data-ingestion-policy.md` §3: *"**Ban default live-API imports** against
-`https://api.karzartools.com` for routine work."* ADR-012 (**Accepted**) makes the local/production ingestion
-boundary binding. `karzar-developer-standards.md` §5: *"`KARZAR_API_BASE` for Category A = **local**."*
-`pr-checklist.md` explicit fail: *"Production `KARZAR_API_BASE` as default for Category A scripts."*
-
-**Side B (code).** 18 scripts in `scripts/` default to production:
+| **Status** | CLOSED |
 
 ```
 scripts/shopmill_insize_sync.py:27           scripts/azarsanat_import.py:29
@@ -204,6 +197,13 @@ document classifies it.
 
 **AI recommendation (advisory): A + B + C together**, as one `IMPL` node per script group, since the policy is
 Accepted and the drift is unambiguous. **This must not be done as a side effect of unrelated work.**
+
+**DECISION (2026-07-30, Mohammad Shebahati — Board / operator session): Option A executed.**
+All 18 listed defaults flipped to local (`http://127.0.0.1:8000/api/v1` or `http://127.0.0.1:8000` for
+`PUBLIC_ASSET_BASE`). `--gate ingestion-boundary` PASS; CR-004 baseline entries removed. **Status → CLOSED.**
+**Residual (not this node):** Option B fail-closed guard + Option C formal Category B classification for
+deploy-time publishers (`publish_seo003_articles.py` / staging workflow) — track as follow-up tech debt,
+not a remaining BLOCKER for defaults.
 
 ---
 

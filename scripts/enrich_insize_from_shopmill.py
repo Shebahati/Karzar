@@ -61,7 +61,7 @@ from app.utils.seo_descriptions import (  # noqa: E402
     is_stub_description,
 )
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1").rstrip("/")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1").rstrip("/")
 UA = "KarzarInsizeShopmillEnrich/1.0"
 INSIZE_BRAND_ID = 3
 OUT_DIR = _ROOT / "data" / "imports" / "insize" / "shopmill"

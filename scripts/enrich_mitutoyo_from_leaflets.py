@@ -47,7 +47,7 @@ PDF_DIR = OUT_DIR / "pdfs"
 REPORT_DIR = OUT_DIR / "reports"
 SITE_EXPORT = PROJECT_ROOT / "data" / "imports" / "mitutoyo" / "site_mitutoyo_export_noprice.json"
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1").rstrip("/")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1").rstrip("/")
 UA = "KarzarMitutoyoLeafletEnrich/1.0"
 MITUTOYO_BRAND_ID = 2
 

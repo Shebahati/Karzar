@@ -23,6 +23,8 @@ Dry-run by default. Apply:
 
 Usage:
   python scripts/remove_omumi_padding_leaves.py
+  python scripts/remove_omumi_padding_leaves.py --api http://127.0.0.1:8000/api/v1
+  # Category B (explicit production — never the default):
   python scripts/remove_omumi_padding_leaves.py --api https://api.karzartools.com/api/v1
   python scripts/remove_omumi_padding_leaves.py --via-db
   python scripts/remove_omumi_padding_leaves.py --via-db --apply --confirm
@@ -250,7 +252,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--api",
-        default="https://api.karzartools.com/api/v1",
+        default="http://127.0.0.1:8000/api/v1",
         help="Public API base for report-only dry-run",
     )
     parser.add_argument(
