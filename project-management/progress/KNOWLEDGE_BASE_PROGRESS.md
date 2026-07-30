@@ -19,4 +19,4 @@
 ## Evidence log
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
 - [x] 2026-07-30 foundation SPECs (Proposed) — [#167](https://github.com/Shebahati/Karzar/pull/167)
-- [ ] 2026-07-30 architecture completion pack (Proposed) — PR pending
+- [x] 2026-07-30 architecture completion pack (Proposed) — [#168](https://github.com/Shebahati/Karzar/pull/168)
