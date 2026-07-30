@@ -231,12 +231,12 @@ documents:
 
   - id: IA-BRAND-HUB-PAGE-CONTRACT
     path: docs/architecture/information-architecture/brand-hub-page-contract.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-FE-ARCH
     on_main: true
-    notes: "Proposed Brand Hub `/brands/{slug}` page contract for SEO-008 / CR-014 G-01. Not merge criteria until HC-01 Accepted. Thin-content thresholds left as open questions."
+    notes: "Accepted 2026-07-30 (HC-01 / Board). Brand Hub `/brands/{slug}` page contract for SEO-008. Q1–Q5 frozen D21. Binding with ADR-010 / RFC-005."
 
   - id: INGESTION-POLICY
     path: docs/architecture/data-ingestion-policy.md

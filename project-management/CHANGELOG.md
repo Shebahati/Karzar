@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-014 CLOSED** — Brand Hub page contract **Accepted** (Q1–Q5 = D21); Canon Lock + registry; SEO-008 IMPL unblocked (separate node).
 - [x] **CR-005 CLOSED (Option A)** — BE-01 incremental: checkout_service cleared (`submit_contact` → endpoint commit); **D20**. Residual: otp/cart/product/brand/category/idempotency/hesabfa.
 - [x] **CR-022 CLOSED (Option A)** — `FRONTEND_INTEGRATION.md` + `API_CHANGELOG.md` aligned to binary `is_available`; legacy stock fields deprecated in changelog; **D19**. Admin bulk migrate = follow-up IMPL.
 - [x] **CR-020 CLOSED (Option A)** — Bilingual policy: EN contracts / FA operator deploy; `translated_from`/`normative_role`; settings paths proposed/non-Canon; deploy one-VPS (`CR-011`); **D18**.
