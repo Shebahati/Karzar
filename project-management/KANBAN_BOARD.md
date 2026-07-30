@@ -6,7 +6,7 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **DEFERRED** (post-checkpoint / launch-bar)
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **eligible to start**
   - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [x] Dependencies: CAT-001
@@ -18,9 +18,9 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] price_fields_written=none
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: DEFERRED at checkpoint close (2026-07-28) per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally; revisit 2026-09-23
+  - Notes: Historical deferral at checkpoint close (2026-07-28); #90 kept open; #74 closed. D22 (2026-07-30): 2026-09-23 date gate lifted — eligible to start. HC-09/ADR-012 before catalog write.
 
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **eligible to start**
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
@@ -32,7 +32,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: DEFERRED at checkpoint close (2026-07-28) per EXECUTIVE_SUMMARY / RELEASE_PLAN / D7; not on checkpoint KPI path; revisit 2026-09-23
+  - Notes: Historical deferral at checkpoint close (2026-07-28) per D7/RELEASE_PLAN. D22 (2026-07-30): 2026-09-23 date gate lifted — eligible to start. Phase-1 graph slice still needs SPEC before IMPL.
 
 ## in_progress
 _(empty — AODS-001 Accepted and moved to done)_

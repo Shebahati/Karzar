@@ -75,4 +75,4 @@
 - [x] SEO-001 #88 + staging /product/7115
 - [x] SEO-005 / SEO-006 / SEO-007 / SEO-008 / SEO-009 EPIC-1 Board wave done 2026-07-30 (CR-008 C)
 
-- [x] CAT-002 INSIZE apply deferred (post-checkpoint); tooling candidate remains #90
+- [ ] CAT-002 INSIZE apply eligible to start (schedule gate lifted 2026-07-30); tooling candidate remains #90

@@ -831,3 +831,5 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-005 CLOSED — Option A: BE-01 incremental; checkout_service cleared; residual other services (D20) | Board / operator session |
 | 2026-07-30 | CR-014 progress — Q1–Q5 frozen (D21); still OPEN pending HC-01 Accepted | Board / operator session |
 | 2026-07-30 | CR-014 CLOSED — page contract Accepted + Canon Lock (HC-01 / D21); SEO-008 IMPL residual | Board / operator session |
+| 2026-07-30 | PMO schedule note — CAT-002/KB-001 **2026-09-23** start gate lifted (eligible to start); D7/D8 historical rows not rewritten; D16 image-plan authority unchanged | PMO GOV-pmo-sync |
+| 2026-07-30 | PMO **D22** recorded — supersedes D8 schedule/start-gate only; residual mirrors (RELEASE_PLAN, KANBAN, README, export CSVs, operator skill §7) aligned; audit evidence left historical | PMO GOV-pmo-sync |

@@ -44,26 +44,26 @@
 - [x] PERF-001 CWV home/PDP/PLP (#99)
 - [x] REL-001 Release freeze documentation pack complete (release/rollback owners named 2026-07-30 — Mohammad Shebahati, single-operator S1 / `CR-021` CLOSED; SEC-001 closed)
 
-**Move to بعد از ۳۱ شهریور (P2+)**
-- [ ] KB-001 Knowledge graph phase-1
+**Move to بعد از ۳۱ شهریور (P2+) — schedule note**
+- [ ] KB-001 Knowledge graph phase-1 — **eligible to start** (2026-09-23 date gate lifted 2026-07-30; still P2)
 - [ ] Broad brand enrichment beyond content-safe merges
 - [ ] Design-system mega-refactor
 - [ ] Rank-chasing for head terms as primary KPI
 
 ## Current portfolio snapshot
 - Live: homepage mega/hero, taxonomy metrology promote, admin megamenu controls, SEO short_description plumbing
-- CAT-001 closed 2026-07-27 (#67/#69 merged; #70–#73 prior; #90 deferred w/ CAT-002)
-- Explicitly deferred: CAT-002 (INSIZE #90), KB-001 (post-31-Shahrivar)
-- Deferred governance locked (2026-07-28): owner PMO, revisit date 2026-09-23 for CAT-002 and KB-001
+- CAT-001 closed 2026-07-27 (#67/#69 merged; #70–#73 prior; #90 tooling candidate for CAT-002)
+- CAT-002 (INSIZE #90) and KB-001: **eligible to start** — schedule unblock 2026-07-30 lifted the 2026-09-23 start gate (owner PMO)
+- Historical: deferred at checkpoint close (2026-07-28) under D7/D8; date gate no longer blocks start
 
 ## Checkpoint-close PMO state
 - PMO is **operationally complete for 31 Shahrivar checkpoint**.
-- Remaining **checkpoint** open items are intentional deferrals only (CAT-002, KB-001), not execution gaps in checkpoint scope.
+- Checkpoint-scope execution gaps closed; CAT-002 / KB-001 remain open backlog and are now startable (not date-blocked).
 
 ## Post-checkpoint Board wave (EPIC-1) — PMO join
 - Board EPIC-1 (`epic1-ia-readiness.md`) is tracked in PMO via **D14** / `CR-008` Option C (2026-07-30).
-- Open Board-wave tasks: **SEO-008** (Brand Hub), **FE-002** (PDF+accessories). See `sprints/SPRINT_05.md`.
-- This wave is **not** a reopen of 31-Shahrivar P0s and does not lift CAT-002/KB-001 deferral (revisit 2026-09-23).
+- EPIC-1 Board wave complete (SEO-005…009, BE-002, FE-002). See `sprints/SPRINT_05.md`.
+- This wave did not reopen 31-Shahrivar P0s. Separate GOV node (2026-07-30) lifted CAT-002/KB-001 **start** date gate.
 
 ## Decision
 > Checkpoint KPI = **quality + indexable mid-tail + CWV**, not **#1 head-term rank**.
