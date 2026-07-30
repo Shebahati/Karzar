@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **OI-GOV-02 CLOSED** — Protect main requires `lint`+`test`+`aods` (verified 2026-07-30).
 - [x] **OI-GOV-02 apply path** — script `scripts/ops_require_aods_status_check.sh` ready; Protect main currently requires `lint`+`test` only; `aods` pending repo-admin apply (agent token HTTP 403).
 - [x] **CR-004 residual B+C CLOSED** — `scripts/ingestion_boundary.py` fail-closed guard; deploy-staging sets Category B env for `publish_seo003_articles.py`; policy/SCRIPTS docs updated.
 - [x] **Phase 4 / OI-GOV-05** — Backend CI job `aods` runs `aods_validate.py` (incl. openapi); `CR-012` CLOSED; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`.

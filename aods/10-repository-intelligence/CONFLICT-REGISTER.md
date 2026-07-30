@@ -498,7 +498,7 @@ snapshot diff) as a required CI check — Option A/B — tracked under Phase 4 /
 **DECISION (2026-07-30 follow-up, Mohammad Shebahati — Phase 4 / OI-GOV-05):** Wired
 `python3 aods/tools/aods_validate.py` (includes `--gate openapi`) as Backend CI job **`aods`**.
 Minute: `aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md`. **Status → CLOSED.**
-Repo admin still must add `aods` to branch-protection required checks (`OI-GOV-02`).
+Repo admin later added `aods` to Protect main required checks (`OI-GOV-02` CLOSED 2026-07-30).
 
 
 ---

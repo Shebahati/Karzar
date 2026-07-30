@@ -347,7 +347,7 @@ nodes:
     blocked_by: []
     notes: >-
       CLOSED via Phase 4: backend-ci.yml job `aods` runs aods_validate.py (includes openapi).
-      Branch-protection required-check addition remains OI-GOV-02.
+      OI-GOV-02 CLOSED 2026-07-30 — Protect main requires lint+test+aods.
 
   - id: IMPL-pr-template-001
     extends: DOC

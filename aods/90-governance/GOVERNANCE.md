@@ -206,7 +206,7 @@ nothing to it except a validator and one recorded conflict.
 
 | Rule | Source | Enforcement |
 |---|---|---|
-| Work happens on a branch, never on `main` | git workflow doc | Branch protection (proposed; `OI-GOV-02`) |
+| Work happens on a branch, never on `main` | git workflow doc | Branch ruleset **Protect main** (`OI-GOV-02` CLOSED) |
 | Branch names follow the declared taxonomy | git workflow doc vs `docs/CONTRIBUTING.md` — **these disagree** (`CR-002`) | Blocked pending `HC-04` decision |
 | No agent pushes | git workflow doc §6 | Procedural; agents have no credentials |
 | One node = one PR where practical | AODS (proposed) | Advisory, PR-size budget |
@@ -376,7 +376,7 @@ document to be disbelieved.
 | Canon Lock is unmerged (`CR-001`) | Every citation to it currently fails to resolve on `main`; the governance base is not in the governed tree | `--gate links` reports it explicitly rather than silently passing; the unblocking path is `HC-02` then `HC-07` on PR #125 |
 | Authority tree lives partly outside Git (`Website/docs/`, `CR-009`) | Some authoritative text is unversioned and unreviewable | Escalated; no mitigation available inside this repo |
 | Staging and production share infrastructure | A "staging deploy" is not an independent rehearsal | Recorded as a risk; deployment remains manual |
-| Branch ruleset exists but `aods` not yet a required check | Job `aods` can fail without blocking merge (`OI-GOV-02` residual) | Ruleset **Protect main** (`19696648`) already requires `lint`+`test`; apply `scripts/ops_require_aods_status_check.sh` as repo admin |
+| Branch ruleset **Protect main** requires `lint`+`test`+`aods` | Merge blocked unless AODS gates pass | **CLOSED** 2026-07-30 — verified via ruleset API |
 | AODS is `Accepted` (۱.۰.۰) but Canon Lock row not yet on `main` | Process is binding; citations to Canon Lock still fail until PR #125 merges | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); unblock via `HC-07` on #125 |
 
 ---
@@ -386,9 +386,9 @@ document to be disbelieved.
 | ID | Issue | Decision needed from | Blocks |
 |---|---|---|---|
 | `OI-GOV-01` | No freeze-state registry; "what is frozen" is unanswerable | Board | Mechanical `ARCH-GATE` |
-| `OI-GOV-02` | Ruleset **Protect main** is active (`lint`+`test` required) but **`aods` is not yet a required status check**. Apply: `bash scripts/ops_require_aods_status_check.sh` as repo admin (or UI https://github.com/Shebahati/Karzar/rules/19696648). Cloud agent tokens get HTTP 403 (no Administration scope). | Repo admin | Merge-blocking for AODS gates |
+| `OI-GOV-02` | ~~No / incomplete branch protection on `main`~~ **CLOSED** 2026-07-30 — ruleset **Protect main** (`19696648`) requires `lint`, `test`, **`aods`** (strict up-to-date). Verified: `bash scripts/ops_require_aods_status_check.sh --check` → OK. | Repo admin | — |
 | `OI-GOV-03` | `CR-002` branch-naming conflict between two authoritative docs | Owner (`HC-04`) | Branch-name validation |
 | `OI-GOV-04` | Whether the PMO checkpoint calendar or the Board's EPIC-1 wave sets priority when they disagree (`CR-008`) | Owner | Node prioritisation |
-| `OI-GOV-05` | ~~Whether AODS gates become required status checks~~ **DECIDED** 2026-07-30: yes — Backend CI job `aods` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`. Admin must still add `aods` to branch-protection required checks (`OI-GOV-02`). | Owner | — |
+| `OI-GOV-05` | ~~Whether AODS gates become required status checks~~ **DECIDED** 2026-07-30: yes — Backend CI job `aods` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`. Required-check wiring completed via `OI-GOV-02` CLOSE. | Owner | — |
 | `OI-GOV-06` | No PR template exists although the accepted PR checklist mandates citations | Owner | `--gate citation` in practice |
 | `OI-GOV-07` | Board minutes storage — **partially closed**: AODS acceptance minute lives at [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); general convention for future minutes still needed | Board | Verifiability of every `Accepted` status |

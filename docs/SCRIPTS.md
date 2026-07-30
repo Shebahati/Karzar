@@ -14,7 +14,7 @@ Operational and maintenance scripts under `scripts/` and `deploy/staging/scripts
 | `scripts/dry_run_product_seo_descriptions.py` | Read-only SEO short/long stub coverage report (P1; no `--apply`) |
 | `scripts/ingestion_boundary.py` | ADR-012 fail-closed helper (`resolve_api_base` / `resolve_asset_base`); requires `KARZAR_ALLOW_PRODUCTION_WRITE=1` + `KARZAR_INGESTION_CATEGORY=B` for production hosts |
 | `scripts/publish_seo003_articles.py` | CMS upsert of buyer-intent articles; **Category B** when invoked by `deploy-staging.yml` against the live API |
-| `scripts/ops_require_aods_status_check.sh` | Repo-admin helper: add `aods` to Protect main required checks (`OI-GOV-02`); `--check` is read-only |
+| `scripts/ops_require_aods_status_check.sh` | Repo-admin helper / verifier for Protect main required checks (`lint`+`test`+`aods`; `OI-GOV-02` CLOSED) |
 
 See [OPERATIONS.md](./OPERATIONS.md) for RPO/RTO, restore drills, and alerting hooks.
 

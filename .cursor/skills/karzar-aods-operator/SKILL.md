@@ -177,7 +177,7 @@ Source: `aods/10-repository-intelligence/CONFLICT-REGISTER.md` (append-only).
 | CR-015 | **CLOSED** — FE AI_CONTEXT stubbed; archive forbidden |
 
 Also watch: CR-002 branch naming, CR-003 coverage %, CR-018 missing PR template.
-Phase 4 CI job `aods` is live (OI-GOV-05); add it to branch-protection required checks (`OI-GOV-02`).
+Phase 4 CI job `aods` is live and required on Protect main (OI-GOV-05 + OI-GOV-02 CLOSED).
 
 ## 7. PMO living system (same PR)
 
