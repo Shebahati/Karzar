@@ -34,6 +34,21 @@
     - [x] RELEASE_PLAN signed
   - Notes: Readiness documentation complete; SEC-001 hygiene ACs closed; residual dep advisories as R8; release/rollback owners named 2026-07-30 (S1 / `CR-021` CLOSED).
 
+- [x] **FE-003** Remove non-Karzar website references from storefront content/images — `done` 100% | P0 | 6h | Sprint 04
+  - Owner: unassigned | Week 4 Day 2 | Risk: med
+  - [x] Description: Purge external website mentions; local assets; remove external footer/contact website links. (CR-013; was CONTENT-URL-001.)
+  - [x] Dependencies: SEO-003
+  - [x] Files: frontend/Storefront/content/**, frontend/Storefront/src/**
+  - [x] Modules: content, ui
+  - [x] Tags: content, ux, compliance
+  - Acceptance Criteria:
+    - [x] No non-Karzar website references in storefront content payloads
+    - [x] Customer-visible images from local assets
+    - [x] Contact/footer external website links removed
+  - Definition of Done:
+    - [x] CONTENT_PROGRESS
+  - Notes: #109 → main @f100ffa.
+
 - [x] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `done` 100% | P1 | 24h | Sprint 04
   - Owner: agent | Week 1 Day 3 | Risk: med
   - [x] Description: Repository audit, then the governing process system for AI-assisted development.

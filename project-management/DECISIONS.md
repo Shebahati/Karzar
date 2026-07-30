@@ -26,3 +26,4 @@
   | 8 | Category Hub `/categories/{slug}` affirm | **SEO-009** | done |
 
   Sprint container for the Board wave: `sprints/SPRINT_05.md`. Does **not** reopen checkpoint P0s or lift CAT-002/KB-001 deferral.
+- [x] **D15** CR-013 orphan registration (2026-07-30): register `CONTENT-URL-001` → **FE-003** (#109) and «SEO-001 follow-up» → **SEO-010** (#101) in `exports/tasks.json`; reconcile primary PMO mirrors. Residual: `printable/` wallboard + CSV exports remain **GENERATED** and must be regenerated (not hand-patched).

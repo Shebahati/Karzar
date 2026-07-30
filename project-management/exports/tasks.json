@@ -934,6 +934,48 @@
       "notes": "Partial UI affordances exist; full EPIC-1 Relation-layer slots not accepted as done. Post-checkpoint Board wave."
     },
     {
+      "id": "FE-003",
+      "title": "Remove non-Karzar website references from storefront content/images",
+      "description": "Purge external website mentions from customer-facing content, replace third-party image links with local assets, and remove external footer/contact website links. Formerly tracked as orphan CONTENT-URL-001 (CR-013).",
+      "priority": "P0",
+      "complexity": "med",
+      "hours": 6,
+      "deps": [
+        "SEO-003"
+      ],
+      "files": [
+        "frontend/Storefront/content/**",
+        "frontend/Storefront/src/**",
+        "frontend/Storefront/public/images/placeholders/**"
+      ],
+      "modules": [
+        "content",
+        "ui"
+      ],
+      "ac": [
+        "No non-Karzar website references in storefront content payloads",
+        "All customer-visible article/about images served from local assets",
+        "Contact/footer external website links removed"
+      ],
+      "dod": [
+        "CONTENT_PROGRESS updated",
+        "CHANGELOG updated"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "04",
+      "week": 4,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "content",
+        "ux",
+        "compliance"
+      ],
+      "risk": "med",
+      "notes": "Registered under CR-013 (was CONTENT-URL-001). #109 → main @f100ffa; local placeholders; Maps/Enamad external links removed from customer-visible footer/contact; craftsman.com mark removed from categories/drills.jpg."
+    },
+    {
       "id": "SEO-009",
       "title": "EPIC-1.8 Preserve/enhance Category Hub `/categories/{slug}`",
       "description": "Board EPIC-1 deliverable 8: affirm CURRENT Category Hub remains healthy under slug IA.",
@@ -969,6 +1011,48 @@
       ],
       "risk": "low",
       "notes": "Affirmed CURRENT: categories/{slug} live; SEO-002 hub intros. Registered under CR-008 Option C."
+    },
+    {
+      "id": "SEO-010",
+      "title": "Store LocalBusiness geo + Maps place on contact/footer/JSON-LD",
+      "description": "Extend layout Organization with LocalBusiness + PostalAddress + GeoCoordinates + hasMap; align contact/footer Maps links. Formerly tracked as orphan «SEO-001 follow-up» (CR-013).",
+      "priority": "P0",
+      "complexity": "low",
+      "hours": 4,
+      "deps": [
+        "SEO-001"
+      ],
+      "files": [
+        "frontend/Storefront/src/lib/json-ld.ts",
+        "frontend/Storefront/src/lib/store-location.ts",
+        "frontend/Storefront/src/components/contact/**",
+        "frontend/Storefront/src/components/layout/**"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "Organization JSON-LD includes LocalBusiness + geo + hasMap",
+        "Contact/footer store identity SoT aligned (no invented hours)"
+      ],
+      "dod": [
+        "STRUCTURED_DATA_PROGRESS",
+        "UX_PROGRESS evidence"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "01",
+      "week": 2,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "seo",
+        "schema",
+        "localbusiness"
+      ],
+      "risk": "low",
+      "notes": "Registered under CR-013 (was SEO-001 follow-up). #101 → main @1e8cd9b; evidence frontend/Storefront/src/lib/json-ld.ts buildOrganizationNode LocalBusiness+hasMap+geo. Later FE-003 redirected customer-facing map href to internal /contact#store-address (no third-party embed)."
     }
   ]
 }

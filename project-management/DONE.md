@@ -20,7 +20,7 @@ Move completed task IDs here with date + PR.
 - [x] PERF-001 Core Web Vitals home+PDP+PLP — 2026-07-27 — #99 → `main` @d169831 (staging deployed)
 - [x] SEO-003 Publish 24 buyer-intent articles — 2026-07-27 — #102 → `main` @aa159b0; publish #103/#104; Deploy Staging (30255672560)
 - [x] REL-001 Release readiness for 31 Shahrivar checkpoint — 2026-07-27 — PMO release gates/scope freeze/rollback/monitoring pack completed (this PR)
-- [x] SEC-001 Security hygiene pass for go-live bar — 2026-07-27 — admin X-Robots-Tag + secrets audit + step-up inventory + Pillow 12.3.0 (this PR; merge SHA pending)
+- [x] SEC-001 Security hygiene pass for go-live bar — 2026-07-27 — admin X-Robots-Tag + secrets audit + step-up inventory + Pillow 12.3.0 (landed with checkpoint PMO close; no dedicated SEC-001 PR SHA recorded — do not invent)
 - [x] BE-001 Catalog API SEO fields readiness — 2026-07-27 — openapi regen + contract tests (this PR)
 - [x] CAT-003 Category L1 image coverage — 2026-07-27 — #112 → `main` @fb7d628 (staging deployed)
 - [x] UX-001 PLP filter + hub IA polish — 2026-07-27 — #113 → `main` @f4ec40b (staging deployed)
@@ -31,3 +31,6 @@ Move completed task IDs here with date + PR.
 - [x] **CR-004 residual B+C** Fail-closed production write guard + Category B deploy publisher — 2026-07-30 — PR [#136](https://github.com/Shebahati/Karzar/pull/136)
 - [x] **Phase 4 / OI-GOV-05** AODS gates in Backend CI (`aods` job) — 2026-07-30 — PR [#137](https://github.com/Shebahati/Karzar/pull/137); closes `CR-012`
 - [x] **OI-GOV-02** Protect main requires `lint`+`test`+`aods` — 2026-07-30 — admin applied; docs [#140](https://github.com/Shebahati/Karzar/pull/140)
+- [x] **FE-003** Remove non-Karzar website references from storefront — 2026-07-30 (registered CR-013; was CONTENT-URL-001) — [#109](https://github.com/Shebahati/Karzar/pull/109) → `main` @f100ffa
+- [x] **SEO-010** Store LocalBusiness geo + Maps place on contact/footer/JSON-LD — 2026-07-30 (registered CR-013; was SEO-001 follow-up) — [#101](https://github.com/Shebahati/Karzar/pull/101) → `main` @1e8cd9b
+- [x] **CR-013 CLOSED** — orphan PMO IDs registered (FE-003 / SEO-010); primary mirrors reconciled; GENERATED wallboard/CSV residual (do not hand-patch)

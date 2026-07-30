@@ -3,7 +3,7 @@
 **Single Source of Truth** for planning, tracking, and release readiness.
 
 - **Deadline checkpoint:** 31 شهریور ۱۴۰۵ ≈ **2026-09-22**
-- **As-of:** 2026-07-26
+- **As-of:** 2026-07-30
 - **Machine SoT:** `exports/tasks.json` (update this first, then regenerate markdown if needed)
 - **Human SoT:** this folder’s markdown checklists
 
@@ -29,4 +29,4 @@
 
 ## Progress (weighted by hours)
 
-**~25%** of tracked backlog hours claimed · **300h** estimated · **170h** P0
+**~82%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · **328h** done-status · open: CAT-002 / KB-001 / SEO-008 / FE-002
