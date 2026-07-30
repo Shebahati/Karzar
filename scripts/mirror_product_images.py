@@ -44,9 +44,12 @@ def _ext_from_url_or_ct(url: str, content_type: str | None) -> str:
 
 
 def _public_base() -> str:
-    import os
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    from ingestion_boundary import resolve_asset_base  # noqa: E402
 
-    return os.getenv("PUBLIC_ASSET_BASE", "http://127.0.0.1:8000").rstrip("/")
+    return resolve_asset_base()
 
 
 async def mirror_one(

@@ -697,7 +697,7 @@
         "process"
       ],
       "risk": "medium",
-      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Canon Lock row still depends on merging PR #125 (CR-001). Validators still surface CR-004/007/012/023 as known debt."
+      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Follow-ons: CR-001/004/007/012/015 closed or mitigated; Phase 4 CI wiring (OI-GOV-05) still open."
     }
   ]
 }

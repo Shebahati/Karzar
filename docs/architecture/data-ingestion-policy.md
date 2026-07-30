@@ -71,15 +71,23 @@ Raw production rows, laptop dumps pushed to VPS, and undocumented Admin click-op
 5. **Align** all routine transforms with: develop/test on **local** API → commit → PR → validate → controlled production execution (if any).  
 6. **Prod→Dev DB dump** is Category **C** (historical/baseline migration), not a substitute for Categories A/B.
 
-Evidence that script defaults currently point at production (treat as **non-compliant for routine use** until overridden):
+**Defaults (remediated 2026-07-30, CR-004 Option A):** Category A scripts default to
+`KARZAR_API_BASE=http://127.0.0.1:8000/api/v1` (or local `PUBLIC_ASSET_BASE`).
+
+**Fail-closed (remediated 2026-07-30, CR-004 residual Options B+C):** any script that resolves
+a production host (`*.karzartools.com`) MUST also have:
 
 ```text
-KARZAR_API_BASE default = https://api.karzartools.com/api/v1
+KARZAR_ALLOW_PRODUCTION_WRITE=1
+KARZAR_INGESTION_CATEGORY=B
 ```
 
-Examples (repo): `backend/scripts/shopmill_insize_sync.py`, `mitutoyo_import.py`, `azarsanat_import.py`, `insize_price_update.py`, `catalog_remediation.py`, and related enrich scripts documented in `specification-data-flow.md`.
+Enforced by `scripts/ingestion_boundary.py`. Missing either aborts with exit 2.
 
-**This policy does not modify those scripts**; operators must override destination explicitly and remediate defaults in a future code PR under the development lifecycle standard.
+**Deploy-time publishers (Category B, not Category A enrichment):**
+`scripts/publish_seo003_articles.py` is invoked by `.github/workflows/deploy-staging.yml` after
+smoke. It upserts Git-versioned CMS articles to the deployed API. That path is formally
+**Category B** and the workflow sets the production base + fail-closed env vars explicitly.
 
 ---
 
@@ -192,11 +200,13 @@ export KARZAR_API_BASE=http://127.0.0.1:8000/api/v1
 |-------|------|
 | **Purpose** | Intentional catalog mutation on the live operational store |
 | **Destination** | Explicit `KARZAR_API_BASE=https://api.karzartools.com/api/v1` |
+| **Opt-in env** | `KARZAR_ALLOW_PRODUCTION_WRITE=1` **and** `KARZAR_INGESTION_CATEGORY=B` (fail-closed) |
 | **Approval** | Change ticket + Prod DB owner (or delegate) + pipeline declaration §5 |
 | **Backup** | **Mandatory** VPS `./scripts/backup_db.sh` before write; retain artifact |
 | **Scope** | Prefer brand/SKU allowlist; limited blast radius |
 | **Post** | Validation + Audit Trail; Rollback path identified |
 | **Forbidden** | “Quick” runs without ticket/backup; relying on script default URL |
+| **Deploy publishers** | `publish_seo003_articles.py` (CMS upsert from Git `articles.json`) is Category B when run against the live host via deploy-staging |
 
 ### Category C — Historical Migration Import
 

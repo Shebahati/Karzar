@@ -1,14 +1,34 @@
 #!/usr/bin/env python3
 """Publish / update SEO-003 buyer-intent articles via CMS API.
 
+Category classification (ADR-012 / data-ingestion-policy.md):
+  - Default / local runs → Category A (KARZAR_API_BASE defaults to 127.0.0.1).
+  - Post-deploy CMS publish on the live host → Category B (deploy-time publisher).
+    Deploy workflow must set KARZAR_API_BASE to the deployed API plus
+    KARZAR_ALLOW_PRODUCTION_WRITE=1 and KARZAR_INGESTION_CATEGORY=B.
+
+PIPELINE DECLARATION (Category B deploy path)
+---------------------------------------------
+Name: SEO-003 buyer-intent article publish
+Category: B (controlled production CMS upsert; not Category A catalog enrichment)
+Git path: scripts/publish_seo003_articles.py
+Owner: Platform / SEO ops (invoked by .github/workflows/deploy-staging.yml)
+Source: frontend/Storefront/content/blog/articles.json (Git-versioned)
+Destination: deployed API (KARZAR_API_BASE explicit; typically https://api.karzartools.com/api/v1)
+Validation: script upserts by slug; dry-run via --dry-run
+Audit: GitHub Actions deploy run + server logs
+Rollback: re-publish previous articles.json revision; CMS row restore from backup if needed
+
 Source of truth:
   frontend/Storefront/content/blog/articles.json
   (on VPS after deploy: $FRONTEND_ROOT/Storefront/content/blog/articles.json)
 
 Examples:
   python scripts/publish_seo003_articles.py --dry-run
-  # Category A default is local (ADR-012). Category B deploy publish must set the base explicitly:
+  # Category B deploy publish (never the default):
   KARZAR_API_BASE=https://api.karzartools.com/api/v1 \\
+  KARZAR_ALLOW_PRODUCTION_WRITE=1 \\
+  KARZAR_INGESTION_CATEGORY=B \\
     python scripts/publish_seo003_articles.py
 """
 
@@ -23,7 +43,12 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
+from pathlib import Path as _IngestionPath
+import sys as _ingestion_sys
+_ingestion_sys.path.insert(0, str(_IngestionPath(__file__).resolve().parent))
+from ingestion_boundary import resolve_api_base  # noqa: E402
+
+API = resolve_api_base()
 ROOT = Path(__file__).resolve().parents[1]
 
 

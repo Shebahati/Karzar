@@ -1209,9 +1209,9 @@ documents:
     rank: 10
     status: archived
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     forbidden_context: true
-    notes: "Full body of frontend/AI_CONTEXT.md quarantined 2026-07-30 (CR-015 Option A). Never load for agent context. Flip on_main after merge."
+    notes: "Full body of frontend/AI_CONTEXT.md quarantined 2026-07-30 (CR-015 Option A, PR #135). Never load for agent context."
 
 
   - id: BACKEND-NON-COMPLIANCE

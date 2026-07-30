@@ -12,6 +12,8 @@ Operational and maintenance scripts under `scripts/` and `deploy/staging/scripts
 | `deploy/staging/scripts/smoke-staging.sh` | Post-deploy hard smoke (API/admin/shop) |
 | `deploy/staging/scripts/install-backup-cron.sh` | Install daily backup cron |
 | `scripts/dry_run_product_seo_descriptions.py` | Read-only SEO short/long stub coverage report (P1; no `--apply`) |
+| `scripts/ingestion_boundary.py` | ADR-012 fail-closed helper (`resolve_api_base` / `resolve_asset_base`); requires `KARZAR_ALLOW_PRODUCTION_WRITE=1` + `KARZAR_INGESTION_CATEGORY=B` for production hosts |
+| `scripts/publish_seo003_articles.py` | CMS upsert of buyer-intent articles; **Category B** when invoked by `deploy-staging.yml` against the live API |
 
 See [OPERATIONS.md](./OPERATIONS.md) for RPO/RTO, restore drills, and alerting hooks.
 

@@ -33,6 +33,8 @@ Primary checkout: `Website/backend`. Branch rules: `git-development-workflow.md`
 - Category A scripts/docs/examples MUST default or document **local** base.  
 - Production URL as unnoticed default is **non-compliant**.  
 - PR checklist fails if production base is the routine path.
+- Targeting a production host requires **both** `KARZAR_ALLOW_PRODUCTION_WRITE=1` and
+  `KARZAR_INGESTION_CATEGORY=B` (fail-closed via `scripts/ingestion_boundary.py`).
 
 ---
 

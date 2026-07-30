@@ -16,7 +16,6 @@ import argparse
 import asyncio
 import hashlib
 import mimetypes
-import os
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
@@ -37,7 +36,12 @@ USER_AGENT = (
 
 
 def _public_base() -> str:
-    return os.getenv("PUBLIC_ASSET_BASE", "http://127.0.0.1:8000").rstrip("/")
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    from ingestion_boundary import resolve_asset_base  # noqa: E402
+
+    return resolve_asset_base()
 
 
 def _ext_from_url_or_ct(url: str, content_type: str | None) -> str:

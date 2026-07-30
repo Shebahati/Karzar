@@ -42,7 +42,7 @@
 | CR-001 | Canon Lock promoted to `main` via PR #125 (2026-07-30); citations resolve | ~~BLOCKER~~ CLOSED | Architecture Board | CLOSED |
 | CR-002 | Branch naming: `feature/*` (Canon) vs `feat/*` (CONTRIBUTING + 18 branches) | HIGH | Architecture Board | OPEN |
 | CR-003 | Coverage gate stated as 62% / 67% / 67% / 68% in four documents | MEDIUM | QA Engineer | OPEN |
-| CR-004 | Script defaults no longer point at production API (ADR-012); fail-closed Category B still optional residual | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
+| CR-004 | Script defaults local + fail-closed Category B guard (`ingestion_boundary.py`); deploy publisher classified B | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
@@ -204,6 +204,12 @@ All 18 listed defaults flipped to local (`http://127.0.0.1:8000/api/v1` or `http
 **Residual (not this node):** Option B fail-closed guard + Option C formal Category B classification for
 deploy-time publishers (`publish_seo003_articles.py` / staging workflow) — track as follow-up tech debt,
 not a remaining BLOCKER for defaults.
+
+**DECISION (2026-07-30 follow-up, Mohammad Shebahati — operator session): Options B+C executed.**
+Shared helper `scripts/ingestion_boundary.py`; wired into the CR-004 script set + image materializers;
+`deploy-staging.yml` sets `KARZAR_ALLOW_PRODUCTION_WRITE=1` + `KARZAR_INGESTION_CATEGORY=B` for
+`publish_seo003_articles.py`, which is formally classified Category B (CMS deploy publisher, not
+Category A enrichment). Residual tech-debt checkbox closed.
 
 ---
 

@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-004 residual B+C CLOSED** — `scripts/ingestion_boundary.py` fail-closed guard; deploy-staging sets Category B env for `publish_seo003_articles.py`; policy/SCRIPTS docs updated.
 - [x] **CR-015 CLOSED** — quarantined `frontend/AI_CONTEXT.md` (Option A: stub + archive under `docs/archive/`).
 - [x] **CR-007 CLOSED** — Option A: `progress/` + `sprints/` canonical; deleted 19 root twin files; living-PMO rule + GOV prompt updated.
 - [x] **CR-004 CLOSED** — 18 scripts default to local API/asset base (ADR-012 Option A); `--gate ingestion-boundary` PASS; residual fail-closed/Category-B classify tracked as tech debt.
