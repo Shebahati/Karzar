@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 import re
 import time
 import urllib.error
@@ -22,7 +23,12 @@ import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
-API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
+_scripts_dir = Path(__file__).resolve().parent
+if str(_scripts_dir) not in sys.path:
+    sys.path.insert(0, str(_scripts_dir))
+from ingestion_boundary import resolve_api_base  # noqa: E402
+
+API = resolve_api_base()
 INSIZE_BRAND_ID = 3
 UA = "KarzarInsizePriceUpdater/1.0"
 

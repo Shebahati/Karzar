@@ -171,10 +171,10 @@ Source: `aods/10-repository-intelligence/CONFLICT-REGISTER.md` (append-only).
 | ID | Reality |
 |----|---------|
 | CR-001 | Canon Lock **is on main** (PR #125). Row may still show OPEN until a dated Board close — append a decision; do not rewrite history. |
-| CR-004 | **18 scripts** still default to production API |
+| CR-004 | **CLOSED** — local defaults + fail-closed Category B (`ingestion_boundary.py`) |
 | CR-009 | Authoring SoR partly outside Git (`Website/docs/`) |
 | CR-011 | Staging ≈ production (same VPS) |
-| CR-015 | Quarantined FE docs still present on disk |
+| CR-015 | **CLOSED** — FE AI_CONTEXT stubbed; archive forbidden |
 
 Also watch: CR-002 branch naming, CR-003 coverage %, CR-007 duplicate PMO paths,
 CR-012 OpenAPI, CR-014 Brand Hub underspec, CR-018 missing PR template.

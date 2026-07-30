@@ -25,7 +25,8 @@ Usage:
   python scripts/remove_omumi_padding_leaves.py
   python scripts/remove_omumi_padding_leaves.py --api http://127.0.0.1:8000/api/v1
   # Category B (explicit production — never the default):
-  python scripts/remove_omumi_padding_leaves.py --api https://api.karzartools.com/api/v1
+  KARZAR_ALLOW_PRODUCTION_WRITE=1 KARZAR_INGESTION_CATEGORY=B \\
+    python scripts/remove_omumi_padding_leaves.py --api https://api.karzartools.com/api/v1
   python scripts/remove_omumi_padding_leaves.py --via-db
   python scripts/remove_omumi_padding_leaves.py --via-db --apply --confirm
 """
@@ -271,6 +272,13 @@ def main() -> int:
         help="Required safety flag alongside --apply",
     )
     args = parser.parse_args()
+
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    from ingestion_boundary import assert_destination_allowed  # noqa: E402
+
+    assert_destination_allowed(args.api, label="--api")
 
     if args.apply and not args.via_db:
         print(

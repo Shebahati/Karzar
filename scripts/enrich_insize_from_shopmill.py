@@ -61,7 +61,12 @@ from app.utils.seo_descriptions import (  # noqa: E402
     is_stub_description,
 )
 
-API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1").rstrip("/")
+_scripts_dir = Path(__file__).resolve().parent
+if str(_scripts_dir) not in sys.path:
+    sys.path.insert(0, str(_scripts_dir))
+from ingestion_boundary import resolve_api_base  # noqa: E402
+
+API = resolve_api_base()
 UA = "KarzarInsizeShopmillEnrich/1.0"
 INSIZE_BRAND_ID = 3
 OUT_DIR = _ROOT / "data" / "imports" / "insize" / "shopmill"

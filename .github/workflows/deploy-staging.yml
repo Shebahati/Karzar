@@ -140,9 +140,12 @@ jobs:
           ADMIN_BASE=http://127.0.0.1:3001 \
             bash deploy/staging/scripts/smoke-staging.sh
 
-          # SEO-003: publish buyer-intent articles into CMS so /blog/* goes live.
+          # SEO-003: Category B deploy-time CMS publish (ADR-012 / CR-004 residual).
+          # Not Category A enrichment — articles.json is Git SoT; live host is destination.
           export FRONTEND_ROOT="${FRONTEND_ROOT:-/opt/karzar/frontend}"
           export KARZAR_API_BASE="${KARZAR_API_BASE:-https://api.karzartools.com/api/v1}"
+          export KARZAR_ALLOW_PRODUCTION_WRITE=1
+          export KARZAR_INGESTION_CATEGORY=B
           # Creds live in preserved server .env / .deploy-secrets (rsync-excluded).
           set -a
           # shellcheck disable=SC1091

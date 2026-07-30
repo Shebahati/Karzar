@@ -12,4 +12,4 @@
 - [ ] Pytest markers/options declared twice (`pytest.ini` + `pyproject.toml`) (AODS `CR-016`)
 - [ ] 58 unmerged remote branches, 45 local worktrees (AODS `CR-017`)
 - [ ] 31 validator findings recorded as visible debt in `aods/registry/validation-baseline.json`; the file may only shrink
-- [ ] After CR-004 defaults fix: add fail-closed `KARZAR_ALLOW_PRODUCTION_WRITE` guard + classify deploy publishers as Category B (ADR-012 Options B+C)
+- [x] After CR-004 defaults fix: fail-closed `KARZAR_ALLOW_PRODUCTION_WRITE` + classify deploy publishers as Category B (ADR-012 Options B+C) — closed 2026-07-30

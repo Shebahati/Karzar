@@ -23,8 +23,14 @@ from collections import Counter
 from pathlib import Path
 
 import os
+import sys
 
-API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
+_scripts_dir = Path(__file__).resolve().parent
+if str(_scripts_dir) not in sys.path:
+    sys.path.insert(0, str(_scripts_dir))
+from ingestion_boundary import resolve_api_base  # noqa: E402
+
+API = resolve_api_base()
 BRAND_ID = 2  # Mitutoyo | میتوتویو
 STOCK_QTY = "10"
 

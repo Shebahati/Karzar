@@ -332,8 +332,8 @@ nodes:
     gates: [ingestion-boundary, citation, test]
     blocked_by: [CR-004]
     notes: >-
-      Must classify the deploy-time publisher scripts (publish_seo003_articles.py)
-      separately — they legitimately target the deployed host and are not Category A.
+      Defaults flipped (Option A). Fail-closed guard + Category B classification for
+      publish_seo003_articles.py / deploy-staging completed as residual B+C.
 
   - id: IMPL-openapi-gate-001
     extends: IMPL
