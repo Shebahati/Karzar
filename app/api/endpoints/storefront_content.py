@@ -130,10 +130,12 @@ async def contact_us(
         window_seconds=settings.PUBLIC_THROTTLE_CONTACT_WINDOW,
     )
     try:
-        return await submit_contact(db, payload)
+        result = await submit_contact(db, payload)
     except Exception as exc:
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,
             message="Error submitting contact form",
         ) from exc
+    await db.commit()
+    return result

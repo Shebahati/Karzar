@@ -37,4 +37,5 @@ Move completed task IDs here with date + PR.
 - [x] **CR-017 CLOSED (Option B)** — repo hygiene: policy/defer deletes; hangover live-command cites; residual acknowledged; **D17** — 2026-07-30 — [#159](https://github.com/Shebahati/Karzar/pull/159)
 - [x] **CR-019 CLOSED (Option A)** — image-import priority: `CATALOG_IMAGES_PLAN` authorized; Phase-3 pause superseded-for-now; **D16** — 2026-07-30 — [#158](https://github.com/Shebahati/Karzar/pull/158)
 - [x] **CR-020 CLOSED (Option A)** — bilingual normative roles + non-Canon settings paths; deploy one-VPS; **D18** — 2026-07-30 — [#160](https://github.com/Shebahati/Karzar/pull/160)
-- [x] **CR-022 CLOSED (Option A)** — availability docs → binary `is_available`; API_CHANGELOG deprecation; **D19**; admin bulk migrate residual — 2026-07-30 — no dedicated PR yet (governance node `GOV-2026-07-30-cr022-availability-semantics`)
+- [x] **CR-022 CLOSED (Option A)** — availability docs → binary `is_available`; API_CHANGELOG deprecation; **D19**; admin bulk migrate residual — 2026-07-30 — [#161](https://github.com/Shebahati/Karzar/pull/161)
+- [x] **CR-005 CLOSED (Option A)** — BE-01 incremental; checkout_service cleared; residual other services; **D20** — 2026-07-30 — no dedicated PR yet (node `GOV-2026-07-30-cr005-tx-ownership`)
