@@ -10,6 +10,11 @@
 
 **Paused:** Product image import — reopen only after you say so (recommended: after I3 or I5 when hubs/SEO exist).
 
+> **Superseded-for-now (2026-07-30):** This pause is the **losing side** under AODS `CR-019` Option A /
+> `project-management/DECISIONS.md` **D16**. While **KB-001** remains deferred (**D7**/**D8**),
+> [`CATALOG_IMAGES_PLAN.md`](./CATALOG_IMAGES_PLAN.md) is the authorized product-image import plan.
+> Do not treat this pause as blocking that plan.
+
 ---
 
 ## 0. How to read this roadmap

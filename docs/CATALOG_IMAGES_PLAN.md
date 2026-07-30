@@ -1,5 +1,7 @@
 # Catalog main images — 7 brands (Phase A plan)
 
+**Authority (2026-07-30):** Authorized product-image import plan under AODS `CR-019` Option A / `DECISIONS.md` **D16** (Phase-3 pause superseded-for-now).
+
 Live DB (`karzar_staging` @ VPS, **2026-07-25 evening re-measure**), `deleted_at IS NULL`:
 
 | Brand (site) | ID | Active | With primary | Missing | Δ vs morning snapshot |

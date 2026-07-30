@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-019 CLOSED (Option A)** — `CATALOG_IMAGES_PLAN.md` remains authorized image-import plan; Phase-3 pause annotated superseded-for-now (losing side) via **D7**/**D8**; **D16** recorded. No import run in this node.
 - [x] **CR-013 CLOSED** — Registered orphans as **FE-003** (was CONTENT-URL-001, #109) and **SEO-010** (was SEO-001 follow-up, #101); reconciled primary PMO mirrors; milestones M0–M4 → done; MASTER_ROADMAP O3–O6 checked; README hours from tasks.json (~82% weighted); SEC-001 KANBAN/DONE honesty. Residual: GENERATED wallboard/printable/CSV — regenerate, do not hand-patch.
 - [x] **CR-006 CLOSED (Option B)** — Scorecard demoted `HISTORICAL`; live quality bar = v2 master audit + `REMEDIATION-TO-9`; CONTRIBUTING updated; Option A (v3 audit) deferred.
 - [x] **CR-016 CLOSED (Option A)** — Pytest SoT = `pyproject.toml` only; deleted duplicate `pytest.ini` after carrying `python_classes`/`python_functions`.
