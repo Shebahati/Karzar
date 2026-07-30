@@ -1,23 +1,11 @@
 name: Deploy Staging
 
 # Staging = live VPS serving karzartools.com (single host until prod is split).
+# CR-011 Option B (2026-07-30): NO push-to-main auto-deploy — human must
+# Actions → Deploy Staging → Run workflow (workflow_dispatch) on `main`.
 # Pattern: checkout on GitHub-hosted (VPS often gets 504 from github.com), then
 # artifact → self-hosted runner for local rsync/rebuild. Never runs on fork PRs.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "app/**"
-      - "alembic/**"
-      - "deploy/**"
-      - "frontend/**"
-      - "scripts/**"
-      - "docker-compose*.yml"
-      - "Dockerfile*"
-      - "requirements*.txt"
-      - "gunicorn_conf.py"
-      - "docker-entrypoint.sh"
-      - ".github/workflows/deploy-staging.yml"
   workflow_dispatch:
 
 concurrency:
@@ -33,7 +21,7 @@ jobs:
     name: Package sources
     runs-on: ubuntu-latest
     # Same-repo only (never trust fork workflows on self-hosted)
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'Shebahati/Karzar'
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,7 +50,7 @@ jobs:
     needs: package
     runs-on: [self-hosted, karzar-vps]
     environment: staging
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'Shebahati/Karzar'
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     steps:
       - name: Download deploy artifact
         uses: actions/download-artifact@v4

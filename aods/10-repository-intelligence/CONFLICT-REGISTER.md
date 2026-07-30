@@ -49,7 +49,7 @@
 | CR-008 | Two priority systems: PMO checkpoint vs Board EPIC-1; EPIC-1 PRs have no task ID | HIGH | Owner (PMO + Board) | OPEN |
 | CR-009 | `Website/docs/` authoring SoR is outside version control | **BLOCKER** | Owner | OPEN |
 | CR-010 | Canon Lock and Git workflow cite ≥12 documents that do not exist in the repo | HIGH | Architecture Board | OPEN |
-| CR-011 | Staging and production are the same VPS; merge to `main` auto-deploys live | **BLOCKER** | DevOps / Release Manager | OPEN |
+| CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
 | CR-014 | EPIC-1 deliverable 5 (`/brands/{slug}`) unimplemented and unspecified | HIGH | Frontend Architect + SEO | OPEN |
@@ -63,8 +63,9 @@
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
-**Open BLOCKERs: 2.** Until `CR-009` and `CR-011` are resolved, AODS operates in
-degraded mode for those surfaces. `CR-001` and `CR-004` closed 2026-07-30.
+**Open BLOCKERs: 1.** Until `CR-009` is resolved, AODS operates in
+degraded mode for that surface. `CR-011` closed 2026-07-30 (Option B — no push auto-deploy;
+same-VPS residual tracked as ops risk / future Option A).
 **degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
@@ -428,19 +429,19 @@ off-main). Those findings are baselined under `conflict_id: CR-010` until Board 
 |-------|-------|
 | **Severity** | BLOCKER |
 | **Owner** | DevOps / Release Manager |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
 `deploy-production.yml` header: *"Production host is NOT split yet — same VPS as staging (karzartools.com).
 Dangerous to auto-deploy: ONLY workflow_dispatch + GitHub Environment `production`."*
 
-But `deploy-staging.yml` triggers on **push to `main`** (path-filtered) and deploys to that same VPS and the same
-public domains, with **no human approval**, then runs `publish_seo003_articles.py` against it.
+But `deploy-staging.yml` (historically) triggered on **push to `main`** (path-filtered) and deployed to that same VPS
+and the same public domains, with **no human approval**, then ran `publish_seo003_articles.py` against it.
 
-**Net effect:** the guarded "production" workflow is ceremonial. Any merge to `main` touching `app/**`,
-`frontend/**`, `deploy/**`, `scripts/**`, or requirements/Docker files ships to the live public site immediately.
+**Net effect (historical):** the guarded "production" workflow was ceremonial. Any merge to `main` touching `app/**`,
+`frontend/**`, `deploy/**`, `scripts/**`, or requirements/Docker files shipped to the live public site immediately.
 Both observed Deploy Staging failures happened *after* the smoke gate, i.e. against live.
 
-This also contradicts `git-development-workflow.md` §5: *"Promote: Git merge → local/staging verify → Alembic on
+This also contradicted `git-development-workflow.md` §5: *"Promote: Git merge → local/staging verify → Alembic on
 target → production"*, which presumes distinct stages.
 
 **Options:** (A) provision a real staging host and re-point `deploy-staging.yml`;
@@ -448,8 +449,14 @@ target → production"*, which presumes distinct stages.
 (C) rename the workflows to `deploy-live.yml` and delete `deploy-production.yml` so the documentation is honest.
 
 **AI recommendation (advisory): Option B immediately** (a one-line trigger change buys a real human gate),
-**Option A as the durable fix, Option C's honesty applied either way.** Until then, AODS treats every merge to `main`
-as a **production release** and routes it through human checkpoint **HC-12**.
+**Option A as the durable fix, Option C's honesty applied either way.**
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option B):** Removed `on.push` from
+`.github/workflows/deploy-staging.yml`. Deploy Staging runs **only** via `workflow_dispatch` (Actions → Run
+workflow on `main`), jobs gated `workflow_dispatch && repository == Shebahati/Karzar`, Environment `staging`
+unchanged. Docs (`COLLABORATOR_DEPLOY.md`) and PMO mirrors updated. **Status → CLOSED** for the auto-deploy
+hazard. **Residual:** same VPS as production until Option A — tracked in `RISKS.md` R5 / BLOCKERS residual note;
+merge to `main` no longer ships live by itself.
 
 ---
 
