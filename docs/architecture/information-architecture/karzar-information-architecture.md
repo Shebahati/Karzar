@@ -4,7 +4,8 @@
 **Date:** 2026-07-29  
 **Owners:** SEO owner · Frontend lead · Platform Architect (acceptance via Board)  
 **Parents:** Master Architecture Bible · ADR-010 / ADR-002 / ADR-006 · Domain Model  
-**Companions:** [`layer-model.md`](./layer-model.md) · [`url-map.md`](./url-map.md) · [`page-type-catalog.md`](./page-type-catalog.md) · [`navigation-system.md`](./navigation-system.md) · [`internal-linking-rules.md`](./internal-linking-rules.md) · [`epic1-ia-readiness.md`](./epic1-ia-readiness.md)  
+**Companions (in repo):** [`url-map.md`](./url-map.md) · [`epic1-ia-readiness.md`](./epic1-ia-readiness.md)  
+**Companions (not in repo — do not invent):** `layer-model.md` · `page-type-catalog.md` · `navigation-system.md` · `internal-linking-rules.md`  
 **Legacy input:** `docs/constitution/information-architecture-constitution.md` (Category “no paths” claim is **stale** — Canon C4)  
 **Baseline:** 5901 active products · Tag `KARZAR-BASELINE-20260728`
 
@@ -97,7 +98,7 @@ Product PDP is primarily Commerce Axis but MUST accept Knowledge Axis modules (g
 
 ## 4. Layer Model Summary
 
-Eight layers — Knowledge, Navigation, Entity, SEO, Content, Relation, Schema, Search — detailed in [`layer-model.md`](./layer-model.md). **Database tables are not an IA layer.**
+Eight layers — Knowledge, Navigation, Entity, SEO, Content, Relation, Schema, Search — (detail historically in `layer-model.md`, **not in this repository**). **Database tables are not an IA layer.**
 
 ---
 
@@ -236,7 +237,7 @@ Mapping to Category roots is many-to-many (Domain Model): Category ≠ Tool Clas
 
 ## 10. Page Type System (summary)
 
-Sixteen minimum types catalogued in [`page-type-catalog.md`](./page-type-catalog.md): Home, Catalog PLP, Category Hub, Brand Hub, PDP, Article/Guide, Blog index, Learning index, Glossary, Tool Class Hub, Comparison, Standard, Application, Search results, Utilities (noindex), Static legal/marketing.
+Sixteen minimum types (catalog historically in `page-type-catalog.md`, **not in this repository**): Home, Catalog PLP, Category Hub, Brand Hub, PDP, Article/Guide, Blog index, Learning index, Glossary, Tool Class Hub, Comparison, Standard, Application, Search results, Utilities (noindex), Static legal/marketing.
 
 ---
 
@@ -254,13 +255,13 @@ Canonical decisions live in [`url-map.md`](./url-map.md) and **ADR-010**:
 
 ## 12. Navigation Architecture (summary)
 
-See [`navigation-system.md`](./navigation-system.md): megamenu = Category tree; crumbs link hubs; Brand launch order by EPIC 0 counts (ASTPOWER → INSIZE → Dasqua → Chumpower → Mitutoyo → SAN OU).
+Navigation (detail historically in `navigation-system.md`, **not in this repository**): megamenu = Category tree; crumbs link hubs; Brand launch order by EPIC 0 counts (ASTPOWER → INSIZE → Dasqua → Chumpower → Mitutoyo → SAN OU).
 
 ---
 
 ## 13. Internal Linking & Equity Rules
 
-See [`internal-linking-rules.md`](./internal-linking-rules.md). Core: PDP↔Category↔Brand; no orphan hubs; honest empty Document/Accessory slots; no facet-hub spam.
+Internal linking (detail historically in `internal-linking-rules.md`, **not in this repository**). Core: PDP↔Category↔Brand; no orphan hubs; honest empty Document/Accessory slots; no facet-hub spam.
 
 ---
 

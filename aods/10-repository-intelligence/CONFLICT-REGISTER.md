@@ -61,11 +61,11 @@
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
-| CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
+| CR-023 | Broken doc links fixed (BACKEND_CHANGES + Bible/IA/arch README not-in-repo prune) | LOW | Documentation Architect | CLOSED |
 
 **Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
 `CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
-`CR-010` closed 2026-07-30 (ADR/RFC index prune). Residual dangling links in Bible/IA/arch README tracked as `CR-023`.
+`CR-010` closed 2026-07-30 (ADR/RFC index prune). `CR-023` closed 2026-07-30 (remaining broken links pruned; `--gate links` clean).
 **degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
@@ -382,7 +382,7 @@ diffed, linted, backed up, or read by any agent working from the GitHub checkout
 Updated `CANON-LOCK.md` (removed external authoring-mirror authority; dropped missing Binding rows; marked
 unpromoted packs as not-in-repo / not citeable), `git-development-workflow.md` Repo boundary + Related,
 and `PROMOTION-WAVE1.md`. **Status → CLOSED.** **Residual:** importing `Website/docs/` remains future Option A;
-dangling Bible/IA/arch-README links remain under `CR-023` (`CR-010` CLOSED 2026-07-30).
+Bible/IA/arch-README dangling links closed with `CR-023` (2026-07-30).
 
 ---
 
@@ -429,8 +429,7 @@ as live links.
 **DECISION (2026-07-30, Mohammad Shebahati — HC-03 follow-up / Option B+C):** Pruned `docs/architecture/adr/README.md`,
 `docs/architecture/rfc/README.md`, and `rfc-index.md` so only **present** Accepted files are linked; reserved IDs
 listed as not-in-repo / not citeable. Removed corresponding `validation-baseline.json` entries; reassigned remaining
-baselined dangling links in Bible / IA / architecture README to **`CR-023`**. **Status → CLOSED.** Residual link debt
-outside ADR/RFC indexes continues under `CR-023`.
+baselined dangling links in Bible / IA / architecture README to **`CR-023`**. **Status → CLOSED.** Residual link debt outside ADR/RFC indexes closed under `CR-023` (2026-07-30).
 
 
 ## CR-011 — Staging and production are the same host; `main` auto-deploys live
@@ -749,31 +748,23 @@ Three separate nodes — not one PR.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | LOW · **Owner** Documentation Architect · **Status** OPEN |
+| **Severity** | LOW · **Owner** Documentation Architect · **Status** CLOSED |
 
-`--gate links` reports two link targets that do not resolve on `main`, both inside a document that *is* on
-`main`. These are distinct from `CR-010` (Canon Lock citing documents that do not exist anywhere) and from
-`CR-001` (citations resolving only on an unmerged branch): here the target document exists, and the link is
-simply written relative to the repository root rather than relative to the linking file.
+`--gate links` reported broken links on `main`: (1) root-relative typos in `docs/BACKEND_CHANGES.md` pointing at
+files that exist but with the wrong relative form; (2) markdown links from Bible / IA / architecture README to
+packs that were never promoted into this repository (absorbed from `CR-010` residual).
 
 | Location | Link as written | Actual path | Correct relative form |
 |---|---|---|---|
-| `docs/BACKEND_CHANGES.md:67` | `docs/LOCAL_DEV_FRONTEND.md` | `docs/LOCAL_DEV_FRONTEND.md` | `LOCAL_DEV_FRONTEND.md` |
-| `docs/BACKEND_CHANGES.md:99` | `docs/TESTING.md` | `docs/TESTING.md` | `TESTING.md` |
+| `docs/BACKEND_CHANGES.md:67` | `docs/LOCAL_DEV_FRONTEND.md` | `docs/LOCAL_DEV_FRONTEND.md` | `./LOCAL_DEV_FRONTEND.md` |
+| `docs/BACKEND_CHANGES.md:99` | `docs/TESTING.md` | `docs/TESTING.md` | `./TESTING.md` |
 
-Registered rather than fixed for two reasons. First, `docs/BACKEND_CHANGES.md` is classified `HISTORICAL` in
-[`../registry/document-registry.yaml`](../registry/document-registry.yaml), and editing a historical record
-to make a validator green is the wrong instinct — historical documents are evidence of what was written at
-the time. Second, this AODS pack is process-only and does not touch product documentation; doing so would
-violate the node-type path separation it defines.
+**AI recommendation (advisory):** fix both links in a `DOC` node; also prune not-in-repo pack links.
 
-**AI recommendation (advisory):** fix both links in a `DOC` node, since a two-character path correction does
-not alter the historical content. Alternatively, declare `HISTORICAL` documents exempt from link checking —
-but that weakens the gate, so the cheap fix is preferable.
-
-**Why this row exists at all.** `--write-baseline` emits a warning for any entry it cannot attribute to a
-`CR-nnn`. These two were the only unattributed entries, and leaving them unattributed would have turned the
-baseline into exactly the silent suppression list the validation framework forbids.
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03):** Fixed `BACKEND_CHANGES.md` relatives; rewrote
+`docs/architecture/README.md`, IA README + primary, and Bible pack pointers to mark missing packs as
+**not in this repository** instead of linking them. Cleared all `links` entries from
+`validation-baseline.json`. `--gate links` PASS with **0 baselined**. **Status → CLOSED.**
 
 ---
 

@@ -64,7 +64,7 @@ Boolean values accept `"true"` / `"false"` strings.
 
 ## Local Backend for Frontend Testing
 
-See [docs/LOCAL_DEV_FRONTEND.md](docs/LOCAL_DEV_FRONTEND.md).
+See [`LOCAL_DEV_FRONTEND.md`](./LOCAL_DEV_FRONTEND.md).
 
 Quick checklist:
 - `DEBUG=true`, `OTP_DEV_ECHO=true`, `PAYMENT_PROVIDER=mock`
@@ -96,7 +96,7 @@ curl -s -X POST http://localhost:8000/api/v1/checkout -H "Content-Type: applicat
 160 passed, 2 skipped (pytest; coverage ≥ 62%)
 ```
 
-See [docs/TESTING.md](docs/TESTING.md) for markers, CI, and Postgres/Redis integration setup.
+See [`TESTING.md`](./TESTING.md) for markers, CI, and Postgres/Redis integration setup.
 
 ## Tracking response (clarification)
 

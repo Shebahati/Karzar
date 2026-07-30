@@ -172,7 +172,7 @@ Evolve from a **strong industrial commerce catalog** into an **Industrial Knowle
 
 ## 3. Domain Overview
 
-> **Full entity dictionary is owned by Prompt 3** — pack now at [`docs/architecture/domain/`](./domain/README.md) (`karzar-domain-model.md` + entity/relationship dictionaries). Definitions below remain orientation-only.
+> **Full entity dictionary is owned by Prompt 3** — pack path `docs/architecture/domain/` is **not in this repository** until promoted. Definitions below remain orientation-only.
 
 | Concept | One-paragraph meaning (orientation) |
 |---------|-------------------------------------|
@@ -337,9 +337,9 @@ Property dictionary + Facts + Evidence overlay; JSONB strangler until cutover cr
 
 Measure → map → dual-write (gated) → read preference shift → deprecate JSONB as spec SoT only when RFC exit criteria pass.
 
-**PIM pack (Prompt 6):** [`docs/architecture/pim/`](./pim/README.md) — field groups, tiers, JSONB→Facts strangler; legacy `product-information-management.md` MERGE after Accepted (Canon C2).
+**PIM pack (Prompt 6):** `docs/architecture/pim/` — **not in this repository** until promoted; field groups, tiers, JSONB→Facts strangler (historical intent).
 
-**Property Governance (Prompt 7):** [`docs/architecture/property-governance/`](./property-governance/README.md) — dictionary lifecycle, FA/EN aliases, candidate backlog (**DO NOT APPLY**); dual-write remains gated (Canon C8).
+**Property Governance (Prompt 7):** `docs/architecture/property-governance/` — **not in this repository** until promoted; dual-write remains gated.
 
 ---
 
@@ -353,7 +353,7 @@ Measure → map → dual-write (gated) → read preference shift → deprecate J
 
 **Gate:** No user-facing RAG launch while Evidence≈0 without explicit high-risk acceptance via ADR-009 path.
 
-**KG pack (Prompt 5):** [`docs/architecture/knowledge-graph/`](./knowledge-graph/README.md) — logical overlay, Style A Fact nodes, EPIC 4 gates (≠ AI launch).
+**KG pack (Prompt 5):** `docs/architecture/knowledge-graph/` — **not in this repository** until promoted; logical overlay, Style A Fact nodes (historical intent).
 
 ---
 
@@ -361,8 +361,7 @@ Measure → map → dual-write (gated) → read preference shift → deprecate J
 
 Capabilities (future): embedding pipeline, chunking, citation, retriever, ranking/re-ranking, hybrid search, vector store.  
 
-**Pack (Prompt 13):** [`docs/architecture/ai/`](./ai/README.md) — Proposed; primary `karzar-enterprise-ai-architecture.md`.  
-**Gates:** ADR-009 A–D. **Current:** Gate C **FAIL** (Evidence/PDF ≈ 0) ⇒ user-facing generative **BLOCKED**. Vector DB choice remains **PROVISIONAL**.  
+**Pack (Prompt 13):** `docs/architecture/ai/` — **not in this repository** until promoted. Generative remains **BLOCKED** until Evidence/gates exist (ADR-009 reserved, not promoted).  
 
 Offline evaluation MAY proceed; production generative answers MUST NOT before gates. AI never Approves/Publishes (Data Gov).
 
@@ -376,7 +375,7 @@ Offline evaluation MAY proceed; production generative answers MUST NOT before ga
 | **Knowledge search** | Articles/hubs/docs | Grows with Evidence |
 | **Hybrid** | Fuse lexical + semantic + graph-bias | After embedding readiness; Prompt 14 depth |
 
-**Pack (Prompt 14):** [`docs/architecture/search/`](./search/README.md) — Proposed; Catalog ≠ Knowledge (ADR-007); lexical-first; facet≠hub; engine choice **PROVISIONAL**.
+**Pack (Prompt 14):** `docs/architecture/search/` — **not in this repository** until promoted; Catalog ≠ Knowledge; lexical-first (historical intent).
 
 Catalog search ≠ knowledge search responsibilities (ADR-007).
 
@@ -430,7 +429,7 @@ Status: **PASS** — `docs/audits/repository-governance-final-lock.md`. Prompt 1
 
 ### 13.3 Data Governance
 
-**Pack (Prompt 8):** [`docs/architecture/governance/`](./governance/README.md) — RACI, stewardship, approval/publishing, versioning/rollback, risk tiers.  
+**Pack (Prompt 8):** `docs/architecture/governance/` — **not in this repository** until promoted; RACI/stewardship (historical intent).  
 
 Binding interim + permanent importer rule: **`data-ingestion-policy.md` wins** for importers; this pack MUST NOT weaken local-only Category A enrichment. Property approval remains steward-scoped (Prompt 7); enterprise RACI lives in the governance pack. Legacy `data-governance.md` → MERGE after Accepted (Canon C2).
 
@@ -484,7 +483,7 @@ Idea → RFC (Prompt 10) → ADR if durable decision (Prompt 2) → Implementati
 
 ## 15. Roadmap Alignment
 
-**Pack (Prompt 15):** [`docs/roadmap/enterprise/`](../roadmap/enterprise/README.md) — Proposed program plan; 90-day EPIC1-first; dual-write/RAG gated; full traceability.
+**Pack (Prompt 15):** `docs/roadmap/enterprise/` — **not in this repository** until promoted; EPIC1-first program plan (historical intent).
 
 | Epic | Status / intent | Unblocked by prompts |
 |------|-----------------|----------------------|
@@ -549,11 +548,11 @@ Process SoT: [`docs/architecture/rfc/README.md`](./rfc/README.md) · Full index:
 | RFC System | 10 | `docs/architecture/rfc/` |
 | Developer Standards | 11 | `docs/development/standards/` (**Proposed** — Prompt 11) |
 | Repository Governance v2 | 12 | `docs/governance/repository/` (**Proposed** — Prompt 12) |
-| Enterprise AI | 13 | [`docs/architecture/ai/`](./ai/README.md) (**Proposed** — Prompt 13; Gate C FAIL ⇒ generative blocked) |
-| Enterprise Search | 14 | [`docs/architecture/search/`](./search/README.md) (**Proposed** — Prompt 14; lexical-first; store PROVISIONAL) |
-| Enterprise Roadmap | 15 | [`docs/roadmap/enterprise/`](../roadmap/enterprise/README.md) (**Proposed** — Prompt 15; EPIC1-first; dual-write/RAG gated) |
+| Enterprise AI | 13 | `docs/architecture/ai/` (**not in repo** — Prompt 13; generative blocked) |
+| Enterprise Search | 14 | `docs/architecture/search/` (**not in repo** — Prompt 14) |
+| Enterprise Roadmap | 15 | `docs/roadmap/enterprise/` (**not in repo** — Prompt 15) |
 
-Binding today without waiting: `data-ingestion-policy.md`, `development-lifecycle-standard.md`, `git-development-workflow.md`.
+Binding today without waiting: [`data-ingestion-policy.md`](./data-ingestion-policy.md), [`git-development-workflow.md`](../development/git-development-workflow.md). (`development-lifecycle-standard.md` is **not in this repository**.)
 
 ---
 
@@ -561,7 +560,7 @@ Binding today without waiting: `data-ingestion-policy.md`, `development-lifecycl
 
 **Baseline evidence (frozen):** avg quality **~58.3/100** (exact **58.33** in score baseline); empty technical_specs **~70.34%**; without image **~79.78%**; PDF **0**; accessories **0**; unbranded **288**; active **5901** — cite `docs/audits/EPIC0-executive-summary.md`.
 
-**DQ pack (Prompt 9):** [`docs/architecture/data-quality/`](./data-quality/README.md) — seven dimensions, Baseline Model v0 vs Framework v1, frozen [`baselines-epic0.md`](./data-quality/baselines-epic0.md), Epic KPI bridge (mapping ≠ dual-write; graph ≠ RAG).
+**DQ pack (Prompt 9):** `docs/architecture/data-quality/` (incl. `baselines-epic0.md`) — **not in this repository** until promoted. Cite existing EPIC0 audits under `docs/audits/` when present.
 
 | Epic | Metric families (names / intent) | Targets |
 |------|----------------------------------|---------|
