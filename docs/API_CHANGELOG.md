@@ -68,7 +68,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 ### 2026-07 — P5 testing & CI
 
-- No API shape changes; coverage gate 62%, ruff/mypy in CI, expanded test suite (160+ tests).
+- No API shape changes; coverage gate **68%** (enforced), ruff/mypy in CI, expanded test suite (160+ tests).
 
 ### 2026-07 — structure refactor + OTP hash column fix
 

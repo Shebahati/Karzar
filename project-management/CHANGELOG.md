@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-003 CLOSED (Option A)** — Coverage prose aligned to enforced **68%** (`pyproject.toml` + `backend-ci.yml` SoT); `README.md` / `docs/TESTING.md` / `docs/API_CHANGELOG.md` + TECH_DEBT updated.
 - [x] **CR-023 CLOSED** — Fixed broken doc links (`BACKEND_CHANGES` relatives + Bible/IA/architecture README not-in-repo prune); `--gate links` clean; links baseline emptied.
 - [x] **CR-010 CLOSED** — ADR/RFC indexes list only in-repo Accepted files; reserved IDs not linked; baseline shrunk; residual Bible/IA/arch README dangling links reassigned to `CR-023`.
 - [x] **CR-009 CLOSED (Option B)** — Binding SoR = this Git repo only; Canon Lock / git workflow / PROMOTION-WAVE1 no longer treat `Website/docs/` as Authoring SoR; missing Binding rows removed; `CR-010` closed separately (index prune).
