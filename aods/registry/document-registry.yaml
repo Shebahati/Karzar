@@ -234,9 +234,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-FE-ARCH
-    on_main: false
-    branch: docs/cr014-brand-hub-page-contract
-    notes: "Proposed Brand Hub `/brands/{slug}` page contract for SEO-008 / CR-014 G-01. Not merge criteria until HC-01 Accepted. Flip on_main to true in the merge follow-up once the path is on origin/main."
+    on_main: true
+    notes: "Proposed Brand Hub `/brands/{slug}` page contract for SEO-008 / CR-014 G-01. Not merge criteria until HC-01 Accepted. Thin-content thresholds left as open questions."
 
   - id: INGESTION-POLICY
     path: docs/architecture/data-ingestion-policy.md
