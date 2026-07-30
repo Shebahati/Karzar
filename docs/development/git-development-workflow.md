@@ -119,7 +119,7 @@ Catalog writers must use:
 
 | Tag | Target | Status |
 |-----|--------|--------|
-| `KARZAR-BASELINE-20260728` | `6e56431` | Prepared — see `docs/audits/baseline-tag-readiness.md` |
+| `KARZAR-BASELINE-20260728` | `6e56431` | Prepared — evidence note historically pointed at `docs/audits/baseline-tag-readiness.md` (**not in this repo** — `CR-010`) |
 
 Rollback uses the tag for **code**; DB restore uses off-host dumps — not the tag alone.
 
@@ -129,16 +129,24 @@ Rollback uses the tag for **code**; DB restore uses off-host dumps — not the t
 
 | Path | Role |
 |------|------|
-| `Website/backend` | Canonical GitHub repo |
-| `Website/docs` | Authoring SoR; promote KEEP docs into `backend/docs/` |
+| This repository (`Shebahati/Karzar` — `docs/`, `aods/`, `app/`, …) | **Sole source of record** for binding criteria, PRs, and agent context |
+| Historical `Website/docs/` (outside this checkout) | **Not** Authoring SoR for merge criteria (`CR-009` Option B, 2026-07-30). May hold unpromoted drafts on a local machine only; promote into this repo before citing |
 | `/home/moahmmad/Projects` | Unrelated local git — **not** Karzar remote |
 
 ---
 
 ## Related
 
+In-repo (prefer these):
+
+- [`docs/architecture/CANON-LOCK.md`](../architecture/CANON-LOCK.md)
+- [`docs/architecture/PROMOTION-WAVE1.md`](../architecture/PROMOTION-WAVE1.md)
+- [`docs/development/standards/`](standards/)
+
+Paths formerly listed here but **not present** in this repository (do not cite until promoted — `CR-010`):
+
 - `docs/development/local-baseline-environment.md`
 - `docs/development/documentation-index.md`
-- `docs/architecture/development-lifecycle-standard.md`
+- `docs/architecture/development-lifecycle-standard.md` / `docs/development/development-lifecycle-standard.md`
 - `docs/audits/final-repository-state-audit.md`
 - `docs/roadmap/post-migration-development-plan.md`
