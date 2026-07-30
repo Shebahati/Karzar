@@ -942,6 +942,51 @@ documents:
     on_main: true
     notes: "Slices I0-I15; I0 never started. Says pause image import — conflicts with CATALOG-IMAGES-PLAN (CR-019)."
 
+  - id: SPEC-PACK-README
+    path: docs/architecture/specs/README.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06)."
+
+  - id: SPEC-PKE-MODEL
+    path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs."
+
+  - id: SPEC-TAXONOMY-MODEL
+    path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001)."
+
+  - id: SPEC-KG-MODEL
+    path: docs/architecture/specs/SPEC-knowledge-graph-model.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL."
+
+  - id: SPEC-IMPORT-PLAYBOOK
+    path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-DATA-ENG
+    on_main: true
+    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012."
+
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md

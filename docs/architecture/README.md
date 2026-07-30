@@ -18,6 +18,7 @@ Also known as **KarzarTools Canonical Architecture**. Do not create a second `Ka
 | Information Architecture | [`information-architecture/`](./information-architecture/README.md) |
 | RFCs (Accepted: 004, 005) | [`rfc/`](./rfc/README.md) |
 | Ingestion policy | [`data-ingestion-policy.md`](./data-ingestion-policy.md) |
+| Knowledge foundation specs (**Proposed**) | [`specs/`](./specs/README.md) |
 | Wave-1 promotion record | [`PROMOTION-WAVE1.md`](./PROMOTION-WAVE1.md) |
 
 Developer Standards: [`docs/development/standards/`](../development/standards/) · Git workflow: [`docs/development/git-development-workflow.md`](../development/git-development-workflow.md)
@@ -26,9 +27,9 @@ Developer Standards: [`docs/development/standards/`](../development/standards/) 
 
 | Pack | Historical path | Status intent |
 |------|-----------------|---------------|
-| Domain Model | `docs/architecture/domain/` | Proposed — not promoted |
-| Knowledge Graph | `docs/architecture/knowledge-graph/` | Proposed — not promoted |
-| PIM | `docs/architecture/pim/` | Proposed — not promoted |
+| Domain Model | `docs/architecture/domain/` | Proposed — not promoted (interim foundation: [`specs/SPEC-product-knowledge-entity-model.md`](./specs/SPEC-product-knowledge-entity-model.md)) |
+| Knowledge Graph | `docs/architecture/knowledge-graph/` | Proposed — not promoted (interim foundation: [`specs/SPEC-knowledge-graph-model.md`](./specs/SPEC-knowledge-graph-model.md)) |
+| PIM | `docs/architecture/pim/` | Proposed — not promoted (interim foundation: [`specs/`](./specs/README.md) entity + import playbook) |
 | Property Governance | `docs/architecture/property-governance/` | Proposed — not promoted |
 | Data Governance | `docs/architecture/governance/` | Proposed — not promoted |
 | Data Quality | `docs/architecture/data-quality/` | Proposed — not promoted |

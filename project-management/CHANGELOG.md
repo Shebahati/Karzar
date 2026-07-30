@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **KB-001 foundation SPECs (Proposed)** — landed `docs/architecture/specs/` pack: Product Knowledge Entity, Industrial Taxonomy, Knowledge Graph, Import & Enrichment Playbook + pack README (analysis, decisions, UD list, sequence). No code/migrations. Not Canon Lock until Board Accept (UD-06). KB-001 progress 10%→20%.
 - [x] **CAT-002 / KB-001 schedule unblock** — lifted mandatory revisit/start gate **2026-09-23** (**D22** supersedes D8 schedule part only; D7/D8 kept as history). Both remain `todo` (15% / 10%) and are **eligible to start now** (deps CAT-001 / SEO-003 done). Residual mirrors aligned: `DECISIONS.md`, `RELEASE_PLAN.md`, `KANBAN_BOARD.md`, `README.md`, export CSVs, operator skill §7. No catalog/KB implementation. D16 image-plan authority unchanged.
 - [x] **FE-002 done** — PDP PDF catalog CTA (after trust strip) + always-visible accessories slot with honest empty / label / product-card states.
 - [x] **SEO-008 done** — Brand Hub sitemap (`/brands/{slug}` for product_count≥1) + homepage brand-strip links to hubs; `/brands` index still deferred (Q4=B).
