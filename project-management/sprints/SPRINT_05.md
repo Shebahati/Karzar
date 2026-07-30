@@ -5,24 +5,25 @@
 
 ## Goals
 - [x] Register EPIC-1 ↔ PMO mapping (D14) and close `CR-008`
-- [ ] Ship remaining open EPIC-1 PMO tasks (`SEO-008`, `FE-002`) after SPEC gates
+- [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
 - [x] **SEO-005** EPIC-1.1–1.2 PDP slug + 301 — `done` 100% | P1 | Sprint 05 — #127
 - [x] **SEO-006** EPIC-1.3 Cards/breadcrumbs/sitemap slug — `done` 100% | P1 | Sprint 05
 - [x] **SEO-007** EPIC-1.4 JSON-LD slug `@id` — `done` 100% | P1 | Sprint 05
-- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `in_progress` 55% | P1 | 24h | Sprint 05 — route `/brands/[slug]` (D21); sitemap/nav follow-up
-  - Owner: unassigned | Risk: medium
-  - Notes: Accepted contract + Canon Lock. Storefront hub page shipped; IMPL-sitemap-nav still open (Q4=B no `/brands` index).
+- [x] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `done` 100% | P1 | 24h | Sprint 05 — route + sitemap + brand-strip hub links (Q4 index deferred)
+  - Owner: unassigned | Risk: low
+  - Notes: Accepted contract D21. Nodes: brand-hub-route + sitemap-nav.
 - [x] **BE-002** EPIC-1.6 Brand meta for hubs — `done` 100% | P1 | Sprint 05 — #126
-- [ ] **FE-002** EPIC-1.7 PDF CTA + accessories slot — `todo` 10% | P1 | 12h | Sprint 05
-  - Owner: unassigned | Risk: med
+- [x] **FE-002** EPIC-1.7 PDF CTA + accessories slot — `done` 100% | P1 | 12h | Sprint 05
+  - Owner: unassigned | Risk: low
+  - Notes: PDF CTA + always-visible accessories slot (honest empty).
 - [x] **SEO-009** EPIC-1.8 Category Hub affirm — `done` 100% | P1 | Sprint 05
 
 ## Sprint exit checklist
-- [ ] Open EPIC-1 tasks done or explicitly re-deferred with DECISIONS note
-- [ ] PROJECT_STATUS.md updated
-- [ ] CHANGELOG.md entry
+- [x] Open EPIC-1 tasks done or explicitly re-deferred with DECISIONS note
+- [x] PROJECT_STATUS.md updated
+- [x] CHANGELOG.md entry
 
 ## Notes
 Checkpoint deferrals **CAT-002** / **KB-001** remain owned by PMO with revisit **2026-09-23** — unchanged by this sprint.

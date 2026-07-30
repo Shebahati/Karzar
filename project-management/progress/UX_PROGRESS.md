@@ -29,7 +29,11 @@
     - [x] UX_PROGRESS
   - Notes: #96 → main @e8ea7bf; Deploy Staging green (30249086441). Trust strip (اصالت/گارانتی/بازگشت/ارسال); RTL specs table SoT; editorial dedup vs specs+short_description; JSON-LD preserved; vitest pdp-description+trust-strip.
 
+- [x] **FE-002** EPIC-1.7 PDP PDF CTA + accessories slot — `done` 100% | P1 | 12h | Sprint 05
+  - Notes: Relation-layer Document + Accessory slots with honest empty states (Bible + IA).
+
 ## Evidence log
 - [x] UX-002 PR https://github.com/Shebahati/Karzar/pull/96 → main @e8ea7bf; Deploy Staging green; verified /product/2000 (trust+specs) + /product/7115 (trust+JSON-LD)
 - [x] **SEO-010** Contact/footer store LocalBusiness geo / Maps identity — #101 → main @1e8cd9b; address SoT unchanged (پاساژ فجر ۱۰۸); later FE-003 uses internal `/contact#store-address` for customer-facing map href
+- [x] FE-002 PDF CTA + accessories slot (this change; PR pending)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

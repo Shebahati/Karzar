@@ -62,6 +62,26 @@ async function collectCategoryEntries(
   }
 }
 
+/** Brand hubs with ≥1 products (D21 Q1); thin/empty stay noindex and out of sitemap (Q2). */
+async function collectBrandEntries(
+  site: string,
+  now: Date,
+): Promise<MetadataRoute.Sitemap> {
+  try {
+    const brands = await catalogService.listBrands();
+    return brands
+      .filter((b) => (b.product_count ?? 0) >= 1 && Boolean(b.slug?.trim()))
+      .map((b) => ({
+        url: `${site}/brands/${b.slug!.trim()}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = getSiteUrl();
   const now = new Date();
@@ -95,10 +115,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const categoryEntries = await collectCategoryEntries(site, now);
+  const brandEntries = await collectBrandEntries(site, now);
 
   return capSitemapEntries([
     ...staticEntries,
     ...categoryEntries,
+    ...brandEntries,
     ...blogEntries,
     ...productEntries,
   ]);

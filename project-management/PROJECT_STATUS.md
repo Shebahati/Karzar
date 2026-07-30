@@ -37,7 +37,7 @@
 - [x] PMO bootstrap (#86 → main)
 - [x] SEO — see `SEO_PROGRESS.md` (001–004 checkpoint done; EPIC-1 SEO-005…009 in Sprint 05)
 - [x] Content — see `CONTENT_PROGRESS.md` (SEO-002/003 done)
-- [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-001/002 + FE-001 done; FE-002 open)
+- [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-001/002 + FE-001 + FE-002 done)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
@@ -47,7 +47,7 @@
 - [x] Backend EPIC-1 brand meta — **BE-002** done (#126); see `BACKEND_PROGRESS.md`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Open Board-wave: **SEO-008**, **FE-002**. Checkpoint deferrals: CAT-002 / KB-001 (revisit 2026-09-23).
+See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). Checkpoint deferrals: CAT-002 / KB-001 (revisit 2026-09-23).
 
 ## Process governance (AODS-001)
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).

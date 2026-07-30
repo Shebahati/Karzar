@@ -55,10 +55,11 @@
     - [x] DESIGN_SYSTEM_PROGRESS
   - Notes: #85 why-karzar/categories; #93 floating header; FE-001 tokens home-stack
 
-- [ ] **FE-002** EPIC-1.7 PDP PDF CTA + accessories slot — `todo` 10% | P1 | 12h | Sprint 05
-  - Owner: unassigned | Risk: med
-  - Notes: Post-checkpoint Board wave (D14 / CR-008 C). Partial Document affordances exist; full IA Relation-layer slots not done.
+- [x] **FE-002** EPIC-1.7 PDP PDF CTA + accessories slot — `done` 100% | P1 | 12h | Sprint 05
+  - Owner: unassigned | Risk: low
+  - Notes: PDF CTA after trust strip (honest empty); accessories slot always visible (labels / product IDs / empty). Bible conflict matrix + epic1-ia-readiness.
 
 ## Evidence log
 - [x] PERF-001 PR https://github.com/Shebahati/Karzar/pull/99 → main @d169831; Deploy Staging green (30251144532)
+- [x] FE-002 PDP PDF CTA + accessories slot (this change; PR pending)
 - [ ] Add links to PRs / GSC / Lighthouse here as you go

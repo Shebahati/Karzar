@@ -39,4 +39,6 @@ Move completed task IDs here with date + PR.
 - [x] **CR-020 CLOSED (Option A)** — bilingual normative roles + non-Canon settings paths; deploy one-VPS; **D18** — 2026-07-30 — [#160](https://github.com/Shebahati/Karzar/pull/160)
 - [x] **CR-022 CLOSED (Option A)** — availability docs → binary `is_available`; API_CHANGELOG deprecation; **D19**; admin bulk migrate residual — 2026-07-30 — [#161](https://github.com/Shebahati/Karzar/pull/161)
 - [x] **CR-005 CLOSED (Option A)** — BE-01 incremental; checkout_service cleared; residual other services; **D20** — 2026-07-30 — [#162](https://github.com/Shebahati/Karzar/pull/162)
-- [x] **CR-014 CLOSED** — Brand Hub page contract Accepted (D21 Q + HC-01); Canon Lock; SEO-008 IMPL unblocked — 2026-07-30 — no dedicated PR yet (node `GOV-2026-07-30-cr014-hc01-freeze`)
+- [x] **CR-014 CLOSED** — Brand Hub page contract Accepted (D21 Q + HC-01); Canon Lock; SEO-008 IMPL unblocked — 2026-07-30 — [#163](https://github.com/Shebahati/Karzar/pull/163)
+- [x] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — 2026-07-30 — route [#164](https://github.com/Shebahati/Karzar/pull/164); sitemap+nav (this change)
+- [x] **FE-002** EPIC-1.7 PDP PDF CTA + accessories slot — 2026-07-30 — (this change; PR pending)

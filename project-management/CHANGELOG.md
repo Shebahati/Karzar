@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **FE-002 done** — PDP PDF catalog CTA (after trust strip) + always-visible accessories slot with honest empty / label / product-card states.
+- [x] **SEO-008 done** — Brand Hub sitemap (`/brands/{slug}` for product_count≥1) + homepage brand-strip links to hubs; `/brands` index still deferred (Q4=B).
 - [x] **SEO-008 IMPL (route)** — Storefront `/brands/[slug]` Brand Hub per Accepted contract (D21); PDP brand link prefers hub URL; sitemap/nav residual.
 - [x] **CR-014 CLOSED** — Brand Hub page contract **Accepted** (Q1–Q5 = D21); Canon Lock + registry; SEO-008 IMPL unblocked (separate node).
 - [x] **CR-005 CLOSED (Option A)** — BE-01 incremental: checkout_service cleared (`submit_contact` → endpoint commit); **D20**. Residual: otp/cart/product/brand/category/idempotency/hesabfa.

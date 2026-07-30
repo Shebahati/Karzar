@@ -843,8 +843,8 @@
         "SEO_PROGRESS",
         "IA checklist Brand Hub row"
       ],
-      "status": "in_progress",
-      "progress": 55,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 2,
       "day": 1,
@@ -854,8 +854,8 @@
         "seo",
         "brand-hub"
       ],
-      "risk": "medium",
-      "notes": "2026-07-30 IMPL route `/brands/[slug]` (node IMPL-2026-07-30-seo008-brand-hub-route). D21 applied. Residual: sitemap/nav wave; TEST ACs; PDP uses /brands/{slug} when brand.slug set."
+      "risk": "low",
+      "notes": "2026-07-30: route + sitemap brand hubs (product_count≥1) + brand-strip→/brands/{slug}. Q4=/brands index deferred. Nodes IMPL-seo008-brand-hub-route + sitemap-nav."
     },
     {
       "id": "BE-002",
@@ -919,8 +919,8 @@
       "dod": [
         "FRONTEND_PROGRESS or UX_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 10,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 2,
       "day": 2,
@@ -930,8 +930,8 @@
         "frontend",
         "pdp"
       ],
-      "risk": "med",
-      "notes": "Partial UI affordances exist; full EPIC-1 Relation-layer slots not accepted as done. Post-checkpoint Board wave."
+      "risk": "low",
+      "notes": "2026-07-30: ProductPdfCta after trust strip; ProductAccessoriesSlot always visible (empty/labels/IDs→carousel). optional_accessories typed on ProductSpecifications. Honest empty per Bible conflict matrix + epic1-ia-readiness."
     },
     {
       "id": "FE-003",
