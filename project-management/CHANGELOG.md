@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-006 CLOSED (Option B)** — Scorecard demoted `HISTORICAL`; live quality bar = v2 master audit + `REMEDIATION-TO-9`; CONTRIBUTING updated; Option A (v3 audit) deferred.
 - [x] **CR-016 CLOSED (Option A)** — Pytest SoT = `pyproject.toml` only; deleted duplicate `pytest.ini` after carrying `python_classes`/`python_functions`.
 - [x] **CR-018 CLOSED** — Added `.github/pull_request_template.md` from Accepted `pr-checklist.md` + citation minima; TECH_DEBT cleared.
 - [x] **CR-014 SPEC (Proposed)** — Brand Hub page contract drafted at `docs/architecture/information-architecture/brand-hub-page-contract.md`; Q1–Q5 await HC-01; SEO-008 still blocked for IMPL.

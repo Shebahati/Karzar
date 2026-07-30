@@ -44,7 +44,7 @@
 | CR-003 | Coverage gate prose aligned to enforced 68% (Option A) | MEDIUM | QA Engineer | CLOSED |
 | CR-004 | Script defaults local + fail-closed Category B guard (`ingestion_boundary.py`); deploy publisher classified B | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
-| CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
+| CR-006 | Scorecard 9.0 demoted HISTORICAL; live bar = v2 audit 5.7 + remediation (Option B) | HIGH | Independent auditor | CLOSED |
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
 | CR-008 | EPIC-1 ↔ PMO mapping table + task IDs (Option C) | HIGH | Owner (PMO + Board) | CLOSED |
 | CR-009 | Binding SoR = this Git repo only (Option B); external `Website/docs/` not citeable | ~~BLOCKER~~ CLOSED | Owner | CLOSED |
@@ -252,30 +252,19 @@ minute and contradicts an open P1 remediation item.
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Independent auditor (must not be the implementer) |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
-`docs/audits/v2/master-engineering-report-v2.md` scores the platform **5.7/10** overall.
-`docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md`, dated the **same day**, claims **9.0 in every category** —
-with no independent re-audit. It also contains its own invalidation rule:
-*"If any evidence above regresses on `main`, drop the affected category immediately."*
+**Historical conflict:** `master-engineering-report-v2.md` scored **5.7/10**; same-day `SCORECARD-AFTER-REMEDIATION.md`
+self-certified **9.0** in every category without independent re-audit. Evidence items (docs honesty, BE-01, staging
+host, etc.) had not held.
 
-**Evidence items that have not held:**
+**Options (historical):** (A) commission v3 audit; (B) demote scorecard to HISTORICAL / non-live; (C) keep 9.0 with
+compensating controls.
 
-| Scorecard claim | Observed |
-|---|---|
-| Documentation 9.0, citing `AI_CONTEXT.md` honesty | Body still contains ~1,000 lines of false claims (`CR-015`) |
-| Binary availability admin UI | `admin-panel/.../products/page.tsx` bulk path still uses `quantity_delta` stock-adjust |
-| Architecture 9.0 | BE-01 still violated in 8 modules (`CR-005`) |
-| Ops offsite backup | Script exists; effective only if `BACKUP_OFFSITE_URI` is configured (unknown, `U-04`) |
-| Second staging host | Still one VPS (`CR-011`) |
-
-**Options:** (A) commission a v3 audit by a role separated from the implementer, and treat 9.0 as void until then;
-(B) demote the scorecard to `EVIDENCE`/`HISTORICAL` and use v2 + remediation as the live bar; (C) keep 9.0 and
-document the compensating controls explicitly per category.
-
-**AI recommendation (advisory): B now, A when the wave closes.** Under the authority model, a self-certification is
-`EVIDENCE` (rank 9) and cannot outrank the audit it claims to supersede. AODS therefore separates the
-**AI Reviewer** and **Auditor** roles from the **Implementer** role by construction (see `ROLE-ARCHITECTURE.md` §6).
+**DECISION (2026-07-30, Mohammad Shebahati — Option B):** Live quality bar =
+`docs/audits/v2/master-engineering-report-v2.md` + `docs/audits/v2/REMEDIATION-TO-9.md`. Scorecard registry row →
+`HISTORICAL` / rank 10; HISTORICAL banner prepended; `docs/CONTRIBUTING.md` updated. Option A (independent v3)
+deferred. Option C rejected. **Status → CLOSED.**
 
 ---
 

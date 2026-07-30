@@ -371,12 +371,12 @@ documents:
 
   - id: SCORECARD-AFTER
     path: docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md
-    class: EVIDENCE
-    rank: 9
-    status: disputed
+    class: HISTORICAL
+    rank: 10
+    status: historical
     owner_role: R-AUDITOR
     on_main: true
-    notes: "Claims all categories 9.0 — self-certification, not an independent audit. CR-006. Cannot outrank AUDIT-V2-MASTER."
+    notes: "CR-006 CLOSED 2026-07-30 Option B — self-certification 9.0 demoted; not live bar. Live bar = AUDIT-V2-MASTER + REMEDIATION-TO-9. Independent v3 (Option A) deferred."
 
   - id: AUDIT-V1-MASTER
     path: docs/audits/master-engineering-report.md
