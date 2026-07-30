@@ -844,7 +844,7 @@
         "IA checklist Brand Hub row"
       ],
       "status": "todo",
-      "progress": 0,
+      "progress": 15,
       "sprint": "05",
       "week": 2,
       "day": 1,
@@ -855,7 +855,7 @@
         "brand-hub"
       ],
       "risk": "high",
-      "notes": "OPEN. No Storefront brands/ route yet. Do not implement until SPEC frozen (CR-014). Post-checkpoint Board wave — not 31-Shahrivar P0. Revisit with Phase 5 AODS."
+      "notes": "OPEN. SPEC Proposed 2026-07-30: docs/architecture/information-architecture/brand-hub-page-contract.md (node SPEC-2026-07-30-cr014-brand-hub-contract). Do not IMPL until HC-01 freezes Q1–Q5 (CR-014). No Storefront brands/ route yet. Post-checkpoint Board wave."
     },
     {
       "id": "BE-002",

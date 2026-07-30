@@ -228,6 +228,16 @@ documents:
     owner_role: R-BOARD
     on_main: true
 
+  - id: IA-BRAND-HUB-PAGE-CONTRACT
+    path: docs/architecture/information-architecture/brand-hub-page-contract.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-FE-ARCH
+    on_main: false
+    branch: docs/cr014-brand-hub-page-contract
+    notes: "Proposed Brand Hub `/brands/{slug}` page contract for SEO-008 / CR-014 G-01. Not merge criteria until HC-01 Accepted. Flip on_main to true in the merge follow-up once the path is on origin/main."
+
   - id: INGESTION-POLICY
     path: docs/architecture/data-ingestion-policy.md
     class: CANON
