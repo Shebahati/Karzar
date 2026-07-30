@@ -94,6 +94,8 @@ Align with `git-development-workflow.md`:
 | `chore/*` | Maintenance |
 | `docs/*` | Documentation |
 
+Do not open new `feat/*` branches (`CR-002` Option A). Historical `feat/*` remotes are grandfathered until deleted. `cursor/*` is a Cloud Agent carve-out only.
+
 No direct development on `main`. Temporary Phase-9 stand-in may track main content until unlock — still branch for new work.
 
 ---

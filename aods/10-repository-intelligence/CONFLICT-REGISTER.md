@@ -40,7 +40,7 @@
 | ID | Title | Severity | Owner | Status |
 |----|-------|----------|-------|--------|
 | CR-001 | Canon Lock promoted to `main` via PR #125 (2026-07-30); citations resolve | ~~BLOCKER~~ CLOSED | Architecture Board | CLOSED |
-| CR-002 | Branch naming: `feature/*` (Canon) vs `feat/*` (CONTRIBUTING + 18 branches) | HIGH | Architecture Board | OPEN |
+| CR-002 | Branch naming Canon `feature/*` wins (Option A); `feat/*` grandfathered | HIGH | Architecture Board | CLOSED |
 | CR-003 | Coverage gate prose aligned to enforced 68% (Option A) | MEDIUM | QA Engineer | CLOSED |
 | CR-004 | Script defaults local + fail-closed Category B guard (`ingestion_boundary.py`); deploy publisher classified B | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
@@ -113,28 +113,26 @@ removed. **Status → CLOSED.** Residual dangling refs inside the Canon pack rem
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Architecture Board |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
 **Side A (`CANON`, rank 2).** `docs/development/git-development-workflow.md` and
 `karzar-developer-standards.md` §4 mandate `feature/*`, `fix/*`, `hotfix/*`, `chore/*`, `docs/*`.
 `pr-checklist.md` lists branch prefix as an "Always" gate.
 
-**Side B (`POLICY`, rank 6).** `docs/CONTRIBUTING.md`: *"Branch names: `fix/…`, `feat/…`, `chore/…`, `docs/…`"* —
-`feat/` not `feature/`, and no `hotfix/`.
+**Side B (`POLICY`, rank 6).** `docs/CONTRIBUTING.md` historically said `feat/…` (not `feature/`), no `hotfix/`.
 
-**Side C (observed).** 18 branches use `feat/*`, only 2 use `feature/*`. The dominant practice follows the
-*lower-ranked* document.
+**Side C (observed at decision).** ~18 remote branches used `feat/*`, ~2 used `feature/*`. Dominant practice
+followed the lower-ranked document.
 
-**Note on this PR.** The branch for the AODS work is `cursor/design-ai-orchestrated-development-system-4263`,
-which matches **neither** standard — it is imposed by the Cloud Agent branch-prefix policy. That is a third
-input the standard does not contemplate, and it should be addressed in the resolution.
+**Options (historical):** (A) amend `CONTRIBUTING.md` to `feature/*` (no mass-rename); (B) amend Canon to `feat/*`
+via Board minute; (C) accept both prefixes explicitly.
 
-**Options:** (A) amend `CONTRIBUTING.md` to `feature/*` and rename in-flight branches; (B) amend the Canon documents
-to `feat/*` via Board minute, matching practice; (C) accept both prefixes explicitly in both documents.
-
-**AI recommendation (advisory): Option C**, plus an explicit carve-out for agent-generated `cursor/*` branches.
-Rationale: precedence says `feature/*` wins, but 90% of history uses `feat/*`; renaming history is worthless churn,
-and a validator that fails 18 existing branches will be disabled rather than obeyed.
+**DECISION (2026-07-30, Mohammad Shebahati — HC-04 Option A):** Canon wins. New work uses
+`feature/*` | `fix/*` | `hotfix/*` | `chore/*` | `docs/*`. `docs/CONTRIBUTING.md` and
+`docs/COLLABORATOR_DEPLOY.md` aligned to Canon. Existing `feat/*` remotes are **grandfathered** until deleted
+(no mass-rename per HC-04). Explicit carve-out: Cloud Agent `cursor/*` is platform-imposed and not a human
+convention. Option C rejected (permanent dual grammar). Option B rejected (would demote Binding Canon for
+historical habit). **Status → CLOSED.**
 
 ---
 

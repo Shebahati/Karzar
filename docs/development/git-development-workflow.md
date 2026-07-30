@@ -27,6 +27,10 @@ main
 
 Optional prefixes also allowed: `chore/*`, `docs/*` (same PR rules).
 
+**Legacy / carve-outs (`CR-002` Option A, 2026-07-30):** do not create new `feat/*` branches.
+Existing remote `feat/*` names are grandfathered until deleted (no mass-rename). Cloud Agent
+`cursor/*` is platform-imposed and allowed when the execution platform requires it.
+
 ### `main`
 
 | Rule | Detail |
