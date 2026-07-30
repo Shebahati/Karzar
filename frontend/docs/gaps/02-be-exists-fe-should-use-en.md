@@ -1,11 +1,16 @@
 # Backend Exists — Frontend Must Consume (Current Gap List)
 
-**Date:** 18 July 2026  
+**Date:** 18 July 2026 (companion FA ahead on completed deepenings: 24 July 2026)  
 **Audience:** Frontend engineers / QA  
 **Base path:** `/api/v1`  
 **Scope:** Endpoints implemented in `Karzar-main` that the frontend either still ignores, only partially consumes, or should deepen after the July 2026 remediation.
 
+**normative_role:** `contract` (EN) — AODS `CR-020` / **D18**  
+**Companion:** `02-be-exists-fe-should-use-fa.md` (must change in the same PR)
+
 > **Important:** The earlier audit listed statistics, bulk stock, change-log, audit-logs, user soft-delete, order archive, and password reset/change as **MISSING_FE**. Those are now **wired** in `admin-panel` / Storefront account security. This document is the **post-remediation** truth.
+
+> **CR-020:** FA companion (2026-07-24) lists additional completed deepenings in its QA checklist (§۲). Prefer FA §۲ for “done” ops UX notes; keep this EN file as the contract-facing unused/partial inventory. Update both languages together.
 
 ---
 

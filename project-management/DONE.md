@@ -34,5 +34,6 @@ Move completed task IDs here with date + PR.
 - [x] **FE-003** Remove non-Karzar website references from storefront — 2026-07-30 (registered CR-013; was CONTENT-URL-001) — [#109](https://github.com/Shebahati/Karzar/pull/109) → `main` @f100ffa
 - [x] **SEO-010** Store LocalBusiness geo + Maps place on contact/footer/JSON-LD — 2026-07-30 (registered CR-013; was SEO-001 follow-up) — [#101](https://github.com/Shebahati/Karzar/pull/101) → `main` @1e8cd9b
 - [x] **CR-013 CLOSED** — orphan PMO IDs registered (FE-003 / SEO-010); primary mirrors reconciled; GENERATED wallboard/CSV residual (do not hand-patch)
-- [x] **CR-019 CLOSED (Option A)** — image-import priority: `CATALOG_IMAGES_PLAN` authorized; Phase-3 pause superseded-for-now; **D16** — 2026-07-30 — no dedicated PR yet (governance-only node `GOV-2026-07-30-cr019-image-import-priority`)
-- [x] **CR-017 CLOSED (Option B)** — repo hygiene: policy/defer deletes; hangover live-command cites; residual acknowledged; **D17** — 2026-07-30 — no dedicated PR yet (governance-only node `GOV-2026-07-30-cr017-repo-hygiene`)
+- [x] **CR-017 CLOSED (Option B)** — repo hygiene: policy/defer deletes; hangover live-command cites; residual acknowledged; **D17** — 2026-07-30 — [#159](https://github.com/Shebahati/Karzar/pull/159)
+- [x] **CR-019 CLOSED (Option A)** — image-import priority: `CATALOG_IMAGES_PLAN` authorized; Phase-3 pause superseded-for-now; **D16** — 2026-07-30 — [#158](https://github.com/Shebahati/Karzar/pull/158)
+- [x] **CR-020 CLOSED (Option A)** — bilingual normative roles + non-Canon settings paths; deploy one-VPS; **D18** — 2026-07-30 — no dedicated PR yet (governance node `GOV-2026-07-30-cr020-bilingual-doc-pairs`)

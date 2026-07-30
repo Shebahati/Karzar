@@ -58,7 +58,7 @@
 | CR-017 | Repo hygiene residual acknowledged (Option B); hangover cites live git commands; no mass deletes | MEDIUM | Owner | CLOSED |
 | CR-018 | PR checklist mirrored in `.github/pull_request_template.md` | MEDIUM | Documentation Architect | CLOSED |
 | CR-019 | Image import: `CATALOG_IMAGES_PLAN.md` authorized (Option A); Phase-3 pause superseded-for-now by D7/D8 | MEDIUM | Owner | CLOSED |
-| CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
+| CR-020 | Bilingual pairs: EN contracts / FA operator; settings path non-Canon until BE (Option A / D18) | MEDIUM | Documentation Architect | CLOSED |
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Broken doc links fixed (BACKEND_CHANGES + Bible/IA/arch README not-in-repo prune) | LOW | Documentation Architect | CLOSED |
@@ -699,7 +699,7 @@ Recorded as **D16**. This node does **not** run imports; ADR-012 / HC-09 still g
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** Documentation Architect · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** Documentation Architect · **Status** CLOSED |
 
 | Pair | Divergence |
 |------|-----------|
@@ -711,6 +711,15 @@ Recorded as **D16**. This node does **not** run imports; ADR-012 / HC-09 still g
 contracts), mark the other a translation with a `translated_from` header, and require both to change in the same PR.
 Do not let an unbuilt endpoint have two proposed paths — that is a specification defect, resolvable only by the
 Backend Architect.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option A):** Bilingual policy — **EN normative for
+contracts / FE–BE gap lists**; **FA normative for operator-facing deploy guidance**; the other language is a
+companion with `translated_from` / `normative_role` headers; both languages of a pair MUST change in the same
+PR going forward. Site-settings proposals (`/api/v1/settings/site` vs `/cms/site-settings`|`/settings`) remain
+**proposed / non-Canon** until Backend Architect names one path (Owner did not pick a path in approval).
+`DEPLOYMENT_en.md` aligned to **one-VPS** binding reality (`CR-011` Option B); split-host framed as optional
+growth only. Recorded as **D18**. **Status → CLOSED.**
+**Follow-up:** Backend Architect HC when site-settings is specified (not this node).
 
 ---
 
@@ -798,3 +807,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-015 CLOSED — Option A stub+archive quarantine | Board / operator session |
 | 2026-07-30 | CR-019 CLOSED — Option A: CATALOG_IMAGES_PLAN authorized; Phase-3 pause superseded-for-now (D16) | Board / operator session |
 | 2026-07-30 | CR-017 CLOSED — Option B: policy/defer deletes; hangover cites live git commands; residual acknowledged (D17) | Board / operator session |
+| 2026-07-30 | CR-020 CLOSED — Option A: bilingual normative roles + non-Canon settings paths; deploy one-VPS (D18) | Board / operator session |

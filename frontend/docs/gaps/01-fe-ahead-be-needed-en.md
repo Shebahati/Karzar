@@ -5,7 +5,12 @@
 **Base path:** `/api/v1`  
 **Scope:** Capabilities the current `karzar-frontend` (Storefront + admin-panel) needs for a complete, honest product — endpoints that **do not exist** (or are too thin) on `Karzar-main`.
 
+**normative_role:** `contract` (EN) — AODS `CR-020` / **D18**  
+**Companion:** `01-fe-ahead-be-needed-fa.md` (must change in the same PR)
+
 > After the July 2026 FE remediation, fabricated surfaces (fake SMS success, pretend document upload) were removed or labeled. This document lists **backend work still required** if those product capabilities should become real.
+
+> **CR-020:** Paths below for **unbuilt** endpoints are **proposals only — not Canon**. Runtime truth is `openapi/v1.json` + code. Site settings must not be treated as specified until Backend Architect names one path.
 
 ---
 
@@ -27,12 +32,17 @@ Happy-path commerce (catalog → dual-lane cart → OTP checkout → payment →
 
 **FE today:** Admin `/settings` → `localStorage`. Storefront footer/contact identity hardcoded.
 
+**Status (CR-020 / D18):** **proposed / non-Canon.** Historical proposals diverge across the bilingual pair
+(`GET/PUT /api/v1/settings/site` here vs FA `/cms/site-settings` or `/settings`). **Do not implement either
+as binding** until Backend Architect picks exactly one path under a SPEC/IMPL node.
+
 ```http
+# PROPOSAL ONLY — not Canon (one of several historical sketches)
 GET  /api/v1/settings/site
 PUT  /api/v1/settings/site          # SuperAdmin (+ optional step-up)
 ```
 
-**Suggested response**
+**Suggested response** (illustrative only)
 
 ```json
 {

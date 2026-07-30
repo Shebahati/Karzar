@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-020 CLOSED (Option A)** — Bilingual policy: EN contracts / FA operator deploy; `translated_from`/`normative_role`; settings paths proposed/non-Canon; deploy one-VPS (`CR-011`); **D18**.
 - [x] **CR-017 CLOSED (Option B)** — Policy/defer deletes; hangover refreshed to cite live `git branch -r --no-merged` / `git worktree list`; residual branch/worktree debt acknowledged; **D17** recorded. No mass deletes / worktree remove in this node.
 - [x] **CR-019 CLOSED (Option A)** — `CATALOG_IMAGES_PLAN.md` remains authorized image-import plan; Phase-3 pause annotated superseded-for-now (losing side) via **D7**/**D8**; **D16** recorded. No import run in this node.
 - [x] **CR-013 CLOSED** — Registered orphans as **FE-003** (was CONTENT-URL-001, #109) and **SEO-010** (was SEO-001 follow-up, #101); reconciled primary PMO mirrors; milestones M0–M4 → done; MASTER_ROADMAP O3–O6 checked; README hours from tasks.json (~82% weighted); SEC-001 KANBAN/DONE honesty. Residual: GENERATED wallboard/printable/CSV — regenerate, do not hand-patch.
