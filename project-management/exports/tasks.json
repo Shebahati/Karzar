@@ -843,8 +843,8 @@
         "SEO_PROGRESS",
         "IA checklist Brand Hub row"
       ],
-      "status": "todo",
-      "progress": 25,
+      "status": "in_progress",
+      "progress": 55,
       "sprint": "05",
       "week": 2,
       "day": 1,
@@ -855,7 +855,7 @@
         "brand-hub"
       ],
       "risk": "medium",
-      "notes": "SPEC Accepted 2026-07-30 (CR-014 CLOSED / D21): Q1=A ≥1; Q2=A 200+noindex; Q3=B meta_description; Q4=B no /brands index yet; Q5=B logo optional. Canon Lock row present. Ready for IMPL-frontend-route `/brands/[slug]`. No Storefront brands/ route yet."
+      "notes": "2026-07-30 IMPL route `/brands/[slug]` (node IMPL-2026-07-30-seo008-brand-hub-route). D21 applied. Residual: sitemap/nav wave; TEST ACs; PDP uses /brands/{slug} when brand.slug set."
     },
     {
       "id": "BE-002",

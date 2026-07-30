@@ -42,7 +42,13 @@ function productMatchesRoots(
   return (flat.ancestor_ids ?? []).some((id) => rootSet.has(id));
 }
 
-export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } = {}) {
+export function CatalogView({
+  lockedCategoryId,
+  lockedBrandId,
+}: {
+  lockedCategoryId?: number;
+  lockedBrandId?: number;
+} = {}) {
   const { params, activeCount, categorySlug, brandSlug, setParams, setSpecFilter, clearAll, raw } =
     useCatalogParams();
   const selectedRoots = useMemo(() => parseIdList(raw.get("roots")), [raw]);
@@ -56,6 +62,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
   /** Multi-root OR filter with no leaf category → client-side product filter. */
   const multiRootClientFilter =
     lockedCategoryId == null &&
+    lockedBrandId == null &&
     selectedRoots.length > 1 &&
     params.category_id == null;
 
@@ -72,11 +79,20 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
   }, [lockedCategoryId, params.category_id, setParams]);
 
   useEffect(() => {
+    if (lockedBrandId == null) return;
+    const current = params.brand_ids ?? [];
+    if (current.length !== 1 || current[0] !== lockedBrandId) {
+      setParams({ brand: lockedBrandId });
+    }
+  }, [lockedBrandId, params.brand_ids, setParams]);
+
+  useEffect(() => {
     let cancelled = false;
     async function resolveSlugs() {
       const next: ProductListParams = {
         ...params,
         ...(lockedCategoryId != null ? { category_id: lockedCategoryId } : {}),
+        ...(lockedBrandId != null ? { brand_ids: [lockedBrandId] } : {}),
       };
       const errors: string[] = [];
       try {
@@ -89,7 +105,11 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
             errors.push(`دسته «${categorySlug}» یافت نشد`);
           }
         }
-        if (brandSlug && !(params.brand_ids?.length)) {
+        if (
+          brandSlug &&
+          !(params.brand_ids?.length) &&
+          lockedBrandId == null
+        ) {
           try {
             const brand = await catalogService.getBrandBySlug(brandSlug);
             next.brand_ids = [brand.id];
@@ -126,7 +146,15 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
     return () => {
       cancelled = true;
     };
-  }, [params, categorySlug, brandSlug, setParams, lockedCategoryId, selectedRoots]);
+  }, [
+    params,
+    categorySlug,
+    brandSlug,
+    setParams,
+    lockedCategoryId,
+    lockedBrandId,
+    selectedRoots,
+  ]);
 
   const queryParams = useMemo(
     () => ({
@@ -177,6 +205,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
     : activeCategoryName ?? activeBrandName ?? "فروشگاه ابزار";
   const onlyCategoryFilter =
     lockedCategoryId == null &&
+    lockedBrandId == null &&
     activeCategory?.slug &&
     !params.search &&
     !selectedBrandIds.length &&
@@ -207,6 +236,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
       key: `brand-${brandId}`,
       label: name,
       clear: () => {
+        if (lockedBrandId != null) return;
         const next = selectedBrandIds.filter((id) => id !== brandId);
         setParams({ brand: next.length ? next.join(",") : null });
       },
@@ -304,7 +334,7 @@ export function CatalogView({ lockedCategoryId }: { lockedCategoryId?: number } 
         </div>
       )}
 
-      {lockedCategoryId == null && (
+      {lockedCategoryId == null && lockedBrandId == null && (
         <div className="mb-6">
           <RootCategoryCarousel />
         </div>

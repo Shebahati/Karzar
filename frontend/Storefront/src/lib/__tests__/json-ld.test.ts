@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SITE_URL,
+  buildBrandHubJsonLd,
   buildCategoryHubJsonLd,
   buildProductNode,
   buildProductPageJsonLd,
@@ -8,7 +9,7 @@ import {
   hasPresentPrice,
   resolveProductImages,
 } from "@/lib/json-ld";
-import type { CategoryFlat } from "@/types/category";
+import type { Brand, CategoryFlat } from "@/types/category";
 import type { ProductDetail, ProductSummary } from "@/types/product";
 
 function baseProduct(overrides: Partial<ProductDetail> = {}): ProductDetail {
@@ -238,5 +239,42 @@ describe("buildCategoryHubJsonLd", () => {
     const main = collection.mainEntity as Record<string, unknown>;
     expect(main["@type"]).toBe("ItemList");
     expect(main.numberOfItems).toBe(1);
+  });
+});
+
+describe("buildBrandHubJsonLd", () => {
+  it("emits Brand + CollectionPage with absolute /brands/{slug} @id", () => {
+    const brand: Brand = {
+      id: 3,
+      name: "INSIZE",
+      slug: "insize",
+      meta_description: "کولیس و میکرومتر صنعتی",
+      product_count: 10,
+    };
+    const products: ProductSummary[] = [
+      {
+        id: 1,
+        sku: "X",
+        slug: "p-1",
+        name: "Product 1",
+        thumbnail: null,
+        base_price: "100",
+        stock_status: "in_stock",
+        availability: true,
+        is_original: true,
+        category: null,
+        brand: { id: 3, name: "INSIZE", slug: "insize" },
+      },
+    ];
+    const doc = buildBrandHubJsonLd({ brand, products });
+    const graph = doc["@graph"] as Record<string, unknown>[];
+    expect(graph.map((n) => n["@type"])).toEqual([
+      "Brand",
+      "CollectionPage",
+      "BreadcrumbList",
+    ]);
+    const collection = graph[1];
+    expect(collection["@id"]).toBe(`${SITE_URL}/brands/insize`);
+    expect(collection.url).toBe(`${SITE_URL}/brands/insize`);
   });
 });

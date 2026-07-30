@@ -114,7 +114,11 @@ export function ProductDetailView({ id }: { id: number }) {
         <div className="flex flex-col">
           {product.brand && (
             <Link
-              href={`/catalog?brand=${product.brand.id}`}
+              href={
+                product.brand.slug
+                  ? `/brands/${product.brand.slug}`
+                  : `/catalog?brand=${product.brand.id}`
+              }
               className="text-sm font-bold text-primary"
             >
               {product.brand.name}
