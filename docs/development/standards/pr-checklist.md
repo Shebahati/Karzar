@@ -5,7 +5,7 @@
 
 ## Always
 
-- [ ] Branch from current mainline (`feature/*` | `fix/*` | `hotfix/*` | `chore/*` | `docs/*`) — **no direct `main` commits**  
+- [ ] Branch from current mainline (`feature/*` | `fix/*` | `hotfix/*` | `chore/*` | `docs/*`) — **no direct `main` commits**; no new `feat/*` (`CR-002` A); `cursor/*` only if Cloud Agent platform requires it  
 - [ ] One concern per PR  
 - [ ] CI green  
 - [ ] Reviewer approved  

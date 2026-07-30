@@ -2,7 +2,11 @@
 
 ## Branch & PR hygiene
 
-- Branch names: `fix/…`, `feat/…`, `chore/…`, `docs/…`
+- Branch names (Canon / SoT — [`development/git-development-workflow.md`](./development/git-development-workflow.md)):
+  `feature/…`, `fix/…`, `hotfix/…`, `chore/…`, `docs/…`
+- **New work** must use those prefixes. Historical remote branches named `feat/…` are grandfathered until
+  deleted; do **not** mass-rename them (`CR-002` Option A / `HC-04`).
+- Cloud Agent may create `cursor/…` branches (platform-imposed); do not treat that as a human convention.
 - One concern per PR; squash-merge; delete the branch after merge
 - PR body: Summary + Test plan + audit IDs when remediating (`BE-20`, `OPS-02`, …)
 - Never force-push `main`; rebase onto `origin/main` before opening a PR

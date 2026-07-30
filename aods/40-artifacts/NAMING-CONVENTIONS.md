@@ -191,19 +191,21 @@ both node records attached.
 
 ## 6. Branch naming
 
-> **Conflict `CR-002` is unresolved.** `docs/development/git-development-workflow.md` and `docs/CONTRIBUTING.md`
-> prescribe different grammars, and 20+ live branches follow neither consistently. AODS **does not pick a winner.**
-> Recorded, escalated to `HC-04`.
+> **`CR-002` CLOSED (2026-07-30) — HC-04 Option A.** Canon wins:
+> [`docs/development/git-development-workflow.md`](../../docs/development/git-development-workflow.md).
 
-Until the Board decides, the rule an agent follows is **conservative and non-committal**:
+**Required prefixes for new work:** `feature/*` | `fix/*` | `hotfix/*` | `chore/*` | `docs/*`.
+
+**Agent rule:**
 
 1. Read `docs/development/git-development-workflow.md` on the current merge base.
-2. Use the pattern it states.
-3. If the pattern cannot be determined from that file, **HALT** and cite `CR-002`. Do not invent.
+2. Use that pattern for any new branch you create.
+3. Do **not** open new `feat/*` branches. Do **not** mass-rename existing remotes.
 
-Observed live prefixes, for recognition only (not endorsement): `chore/`, `docs/`, `feat/`, `fix/`, `dependabot/`,
-`cursor/`. Cloud-agent branches carry a mandated `cursor/<descriptive-name>-<run>` shape imposed by the execution
-platform, which is **outside** repository convention and must not be cited as precedent for human branches.
+**Grandfather:** Historical `feat/*` remotes remain valid until deleted.
+
+**Carve-out:** Cloud-agent `cursor/<descriptive-name>-<run>` is platform-imposed; recognize it, do not cite it as
+human-branch precedent. `dependabot/*` is similarly external.
 
 ---
 

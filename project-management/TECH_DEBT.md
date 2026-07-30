@@ -5,6 +5,7 @@
 - [ ] Multiple long-lived enrichment worktrees to prune
 - [ ] Hero/CMS image precedence edge cases — monitor after #84
 - [x] Coverage threshold prose aligned to enforced **68%** (AODS `CR-003` Option A, 2026-07-30) — SoT: `pyproject.toml` + `backend-ci.yml`
+- [x] Branch naming Canon `feature/*` (AODS `CR-002` Option A, 2026-07-30) — `feat/*` grandfathered; no mass-rename
 - [ ] Coverage gate noise when tests fail early
 - [x] PMO progress ledgers duplicated — **CLOSED** 2026-07-30 (AODS `CR-007` Option A: `progress/`+`sprints/` canonical)
 - [x] `openapi/v1.json` snapshot drift vs app — regenerated 2026-07-30; CI job `aods` verifies via `--gate openapi` (AODS `CR-012` CLOSED / Phase 4)
