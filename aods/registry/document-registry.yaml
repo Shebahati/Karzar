@@ -948,8 +948,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06)."
+    on_main: false
+    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06). Flip on_main after merge."
 
   - id: SPEC-PKE-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
@@ -957,8 +957,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs."
+    on_main: false
+    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs. Flip on_main after merge."
 
   - id: SPEC-TAXONOMY-MODEL
     path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
@@ -966,8 +966,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001)."
+    on_main: false
+    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001). Flip on_main after merge."
 
   - id: SPEC-KG-MODEL
     path: docs/architecture/specs/SPEC-knowledge-graph-model.md
@@ -975,8 +975,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL."
+    on_main: false
+    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL. Flip on_main after merge."
 
   - id: SPEC-IMPORT-PLAYBOOK
     path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
@@ -984,8 +984,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-DATA-ENG
-    on_main: true
-    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012."
+    on_main: false
+    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012. Flip on_main after merge."
 
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER

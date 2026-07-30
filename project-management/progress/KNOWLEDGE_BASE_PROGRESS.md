@@ -18,4 +18,4 @@
 
 ## Evidence log
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
-- [ ] 2026-07-30 foundation SPECs PR (Proposed) — pending merge link
+- [x] 2026-07-30 foundation SPECs (Proposed) — [#167](https://github.com/Shebahati/Karzar/pull/167)
