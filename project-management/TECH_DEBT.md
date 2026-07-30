@@ -7,7 +7,7 @@
 - [ ] Coverage gate noise when tests fail early
 - [ ] Coverage threshold stated as 62/67/67/68% across four documents; enforced value is 68 (AODS `CR-003`)
 - [ ] PMO progress ledgers duplicated at two paths with 6 divergent pairs; no canonical path decided (AODS `CR-007`)
-- [ ] `openapi/v1.json` drifted from the app and has no CI verification (AODS `CR-012`)
+- [x] `openapi/v1.json` snapshot drift vs app — regenerated 2026-07-30 (AODS `CR-012` MITIGATED); CI verification of the gate still open (Phase 4 / `OI-GOV-05`)
 - [ ] PR checklist is Accepted but `pull_request_template.md` does not exist (AODS `CR-018`)
 - [ ] Pytest markers/options declared twice (`pytest.ini` + `pyproject.toml`) (AODS `CR-016`)
 - [ ] 58 unmerged remote branches, 45 local worktrees (AODS `CR-017`)

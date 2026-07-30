@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 
+### 2026-07-30 — CR-012 OpenAPI snapshot sync (EPIC-1 slug)
+
+- Regenerated committed `openapi/v1.json` from `app.openapi()` (81 → 82 paths).
+- Adds missing `GET /api/v1/products/slug/{slug}` (live since PR #126; snapshot had lagged since PR #111).
+- `python3 aods/tools/aods_validate.py --gate openapi` now PASSes with zero findings for this drift.
+- Durable CI wiring of the gate remains a Phase-4 follow-up (`OI-GOV-05`); this change closes the *current* contract drift only.
+
 ### 2026-07-27 — BE-001 OpenAPI snapshot sync
 
 - Regenerated committed `openapi/v1.json` from `app.openapi()` so product schemas document `short_description`, `meta_title`, `meta_description`, and `slug` (detail/summary as applicable).
