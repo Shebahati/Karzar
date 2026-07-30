@@ -10,7 +10,7 @@
 - [x] PMO progress ledgers duplicated — **CLOSED** 2026-07-30 (AODS `CR-007` Option A: `progress/`+`sprints/` canonical)
 - [x] `openapi/v1.json` snapshot drift vs app — regenerated 2026-07-30; CI job `aods` verifies via `--gate openapi` (AODS `CR-012` CLOSED / Phase 4)
 - [x] PR checklist mirrored in `.github/pull_request_template.md` (AODS `CR-018` CLOSED, 2026-07-30)
-- [ ] Pytest markers/options declared twice (`pytest.ini` + `pyproject.toml`) (AODS `CR-016`)
+- [x] Pytest config SoT = `pyproject.toml` only; `pytest.ini` removed (AODS `CR-016` Option A, 2026-07-30)
 - [ ] 58 unmerged remote branches, 45 local worktrees (AODS `CR-017`)
 - [ ] 0 validator findings in `aods/registry/validation-baseline.json` (emptied 2026-07-30 with `CR-023`); file may only shrink without HC-14
 - [x] **OI-GOV-02** Add `aods` to Protect main required checks — closed 2026-07-30 (admin applied; verify OK)
