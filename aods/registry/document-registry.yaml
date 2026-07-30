@@ -1119,6 +1119,15 @@ documents:
     on_main: true
     notes: "Board minute ۸ مرداد ۱۴۰۵ — AODS Accepted in full; signed Mohammad Shebahati."
 
+  - id: AODS-BOARD-MINUTE-002
+    path: aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md
+    class: EVIDENCE
+    rank: 9
+    status: accepted
+    owner_role: R-BOARD
+    on_main: false
+    notes: "Phase 4 / OI-GOV-05 — wire aods job in backend-ci.yml. Flip on_main after merge."
+
 
   - id: CURSOR-SKILL-AODS-OPERATOR
     path: .cursor/skills/karzar-aods-operator/SKILL.md

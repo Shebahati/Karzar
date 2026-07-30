@@ -697,7 +697,7 @@
         "process"
       ],
       "risk": "medium",
-      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Follow-ons: CR-001/004/007/012/015 closed or mitigated; Phase 4 CI wiring (OI-GOV-05) still open."
+      "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Follow-ons closed: CR-001/004/007/012/015; Phase 4 CI job aods (OI-GOV-05 / D12). Residual: branch-protection required check for aods (OI-GOV-02)."
     }
   ]
 }

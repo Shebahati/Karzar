@@ -389,6 +389,6 @@ document to be disbelieved.
 | `OI-GOV-02` | No branch protection on `main`; direct-commit prohibition is unenforced | Repo admin | Version-control governance §5.1 |
 | `OI-GOV-03` | `CR-002` branch-naming conflict between two authoritative docs | Owner (`HC-04`) | Branch-name validation |
 | `OI-GOV-04` | Whether the PMO checkpoint calendar or the Board's EPIC-1 wave sets priority when they disagree (`CR-008`) | Owner | Node prioritisation |
-| `OI-GOV-05` | Whether AODS gates become required status checks in CI, and on which branches | Owner | CI wiring (`HC-14`) |
+| `OI-GOV-05` | ~~Whether AODS gates become required status checks~~ **DECIDED** 2026-07-30: yes — Backend CI job `aods` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`. Admin must still add `aods` to branch-protection required checks (`OI-GOV-02`). | Owner | — |
 | `OI-GOV-06` | No PR template exists although the accepted PR checklist mandates citations | Owner | `--gate citation` in practice |
 | `OI-GOV-07` | Board minutes storage — **partially closed**: AODS acceptance minute lives at [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); general convention for future minutes still needed | Board | Verifiability of every `Accepted` status |
