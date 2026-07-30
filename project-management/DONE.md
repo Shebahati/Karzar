@@ -35,3 +35,4 @@ Move completed task IDs here with date + PR.
 - [x] **SEO-010** Store LocalBusiness geo + Maps place on contact/footer/JSON-LD — 2026-07-30 (registered CR-013; was SEO-001 follow-up) — [#101](https://github.com/Shebahati/Karzar/pull/101) → `main` @1e8cd9b
 - [x] **CR-013 CLOSED** — orphan PMO IDs registered (FE-003 / SEO-010); primary mirrors reconciled; GENERATED wallboard/CSV residual (do not hand-patch)
 - [x] **CR-019 CLOSED (Option A)** — image-import priority: `CATALOG_IMAGES_PLAN` authorized; Phase-3 pause superseded-for-now; **D16** — 2026-07-30 — no dedicated PR yet (governance-only node `GOV-2026-07-30-cr019-image-import-priority`)
+- [x] **CR-017 CLOSED (Option B)** — repo hygiene: policy/defer deletes; hangover live-command cites; residual acknowledged; **D17** — 2026-07-30 — no dedicated PR yet (governance-only node `GOV-2026-07-30-cr017-repo-hygiene`)
