@@ -26,6 +26,7 @@ forbidden_context:
   - docs/GO_LIVE_EXECUTION_PLAN.md
   - docs/audits/v1/
   - docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md
+  - docs/archive/AI_CONTEXT-2026-07-11.md
 gates: [ingestion-boundary, lint, types, allowlist, citation]
 produces: [KNOWLEDGE-EXTRACT, TASK-RECORD]
 supersedes: null
