@@ -540,7 +540,7 @@
         "KNOWLEDGE_BASE_PROGRESS"
       ],
       "status": "todo",
-      "progress": 20,
+      "progress": 35,
       "sprint": "04",
       "week": 7,
       "day": 1,
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28) P2 high effort and not on launch-bar KPI path per D7/RELEASE_PLAN. Owner: PMO. Schedule unblock 2026-07-30 (D22): eligible to start. 2026-07-30: foundation SPECs Proposed under docs/architecture/specs/ (PKE, taxonomy, KG, import playbook) — prerequisite for phase-1 graph IMPL; Board Accept (UD-06) still required before treating as Canon. Graph seed IMPL not started."
+      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28). D22 eligible to start. 2026-07-30: foundation SPECs Proposed (#167). Same day: architecture completion pack (audit, domain, property dictionary, taxonomy seed, KG registry, transform, target arch, readiness) Proposed on cursor/knowledge-architecture-completion-5986. Board Accept UD-06 still required; graph IMPL not started."
     },
     {
       "id": "REL-001",

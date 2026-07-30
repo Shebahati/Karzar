@@ -1,8 +1,8 @@
 # Knowledge Base Progress
 
-**Rollup:** 20%
+**Rollup:** 35%
 
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 20% | P2 | 30h | Sprint 04 — **eligible to start**
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 35% | P2 | 30h | Sprint 04 — **eligible to start**
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
@@ -14,8 +14,9 @@
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: Historical deferral at checkpoint close (2026-07-28) per D7/RELEASE_PLAN. Schedule unblock 2026-07-30: eligible to start. **2026-07-30:** foundation SPECs Proposed at `docs/architecture/specs/` (entity / taxonomy / KG / import playbook). Graph IMPL not started; Board Accept of SPECs still open (UD-06). Taxonomy SPEC interprets “no second taxonomy” as no second *commerce* Category DAG.
+  - Notes: Foundation SPECs Proposed (#167). **Architecture completion pack** Proposed (audit + domain + property dictionary + taxonomy seed + KG registry + transform + target + readiness). Graph IMPL not started; Board Accept UD-06 open. “No second taxonomy” = no second *commerce* Category DAG.
 
 ## Evidence log
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
 - [x] 2026-07-30 foundation SPECs (Proposed) — [#167](https://github.com/Shebahati/Karzar/pull/167)
+- [ ] 2026-07-30 architecture completion pack (Proposed) — PR pending

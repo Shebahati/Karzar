@@ -20,7 +20,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] SEO_PROGRESS note
   - Notes: Historical deferral at checkpoint close (2026-07-28); #90 kept open; #74 closed. D22 (2026-07-30): 2026-09-23 date gate lifted — eligible to start. HC-09/ADR-012 before catalog write.
 
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 20% | P2 | 30h | Sprint 04 — **eligible to start**
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 35% | P2 | 30h | Sprint 04 — **eligible to start**
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
@@ -32,7 +32,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: Historical deferral at checkpoint close (2026-07-28) per D7/RELEASE_PLAN. D22 (2026-07-30): eligible to start. Foundation SPECs Proposed under `docs/architecture/specs/` (2026-07-30); graph IMPL not started; Board Accept UD-06 open.
+  - Notes: Foundation SPECs (#167) + architecture completion pack Proposed 2026-07-30; graph IMPL not started; Board Accept UD-06 open.
 
 ## in_progress
 _(empty — AODS-001 Accepted and moved to done)_

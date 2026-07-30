@@ -987,6 +987,87 @@ documents:
     on_main: false
     notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012. Flip on_main after merge."
 
+  - id: SPEC-FULL-AUDIT
+    path: docs/architecture/specs/FULL_PLATFORM_ARCHITECTURE_AUDIT.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Full platform as-built audit for knowledge completion pack. Flip on_main after merge."
+
+  - id: SPEC-FOUNDATION-REVIEW
+    path: docs/architecture/specs/FOUNDATION_ARCHITECTURE_REVIEW.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Review of foundation SPECs vs repository. Flip on_main after merge."
+
+  - id: SPEC-DOMAIN-MODEL
+    path: docs/architecture/specs/SPEC-domain-model.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Logical domain ER commerce+knowledge. Flip on_main after merge."
+
+  - id: SPEC-PROPERTY-DICTIONARY
+    path: docs/architecture/specs/SPEC-property-dictionary-system.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Property Definition/Template/Fact system. Dual-write still gated. Flip on_main after merge."
+
+  - id: SPEC-TAXONOMY-SEED
+    path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Concrete taxonomy seed; does not replace commerce categories. Flip on_main after merge."
+
+  - id: SPEC-KG-REGISTRY
+    path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Official KG relation vocabulary. Flip on_main after merge."
+
+  - id: SPEC-DATA-TRANSFORM
+    path: docs/architecture/specs/SPEC-data-transformation-architecture.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-DATA-ENG
+    on_main: false
+    notes: "Supplier→production transform mechanics. Flip on_main after merge."
+
+  - id: SPEC-KP-TARGET-ARCH
+    path: docs/architecture/specs/KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Target blueprint connecting commerce/knowledge/SEO/AI. Flip on_main after merge."
+
+  - id: SPEC-IMPL-READINESS
+    path: docs/architecture/specs/FOUNDATION_IMPLEMENTATION_READINESS.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Implementation readiness gates for KB engineering. Flip on_main after merge."
+
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md

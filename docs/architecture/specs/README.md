@@ -75,12 +75,28 @@ This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation**
 
 ## 1. Pack contents
 
+### 1.1 Foundation SPECs (2026-07-30)
+
 | Spec | Path | Owns |
 |------|------|------|
 | Product Knowledge Entity Model | [`SPEC-product-knowledge-entity-model.md`](./SPEC-product-knowledge-entity-model.md) | Identity, classification hooks, technical knowledge, content modules, relationship vocabulary |
 | Industrial Taxonomy Model | [`SPEC-industrial-taxonomy-model.md`](./SPEC-industrial-taxonomy-model.md) | Multi-dimensional taxonomy, node types, SEO page rules, expansion without schema redesign |
 | Knowledge Graph Model | [`SPEC-knowledge-graph-model.md`](./SPEC-knowledge-graph-model.md) | Nodes, edges, cardinality, identity, provenance, governance |
 | Product Import & Enrichment Playbook | [`SPEC-product-import-enrichment-playbook.md`](./SPEC-product-import-enrichment-playbook.md) | Raw→production pipeline stages, AI limits, human review tiers |
+
+### 1.2 Architecture completion pack (2026-07-30)
+
+| Document | Path | Owns |
+|----------|------|------|
+| Full Platform Architecture Audit | [`FULL_PLATFORM_ARCHITECTURE_AUDIT.md`](./FULL_PLATFORM_ARCHITECTURE_AUDIT.md) | As-built map, SEO/import reality, debt, conflicts |
+| Foundation Architecture Review | [`FOUNDATION_ARCHITECTURE_REVIEW.md`](./FOUNDATION_ARCHITECTURE_REVIEW.md) | Consistency critique of foundation SPECs |
+| Domain Model | [`SPEC-domain-model.md`](./SPEC-domain-model.md) | Full logical ER, ownership, strangler map |
+| Property Dictionary System | [`SPEC-property-dictionary-system.md`](./SPEC-property-dictionary-system.md) | Definitions, templates, Facts, FA/EN, units |
+| Industrial Taxonomy Master Seed | [`SPEC-industrial-taxonomy-master-seed.md`](./SPEC-industrial-taxonomy-master-seed.md) | Concrete nodes + commerce L1 bridge |
+| Knowledge Graph Registry | [`SPEC-knowledge-graph-registry.md`](./SPEC-knowledge-graph-registry.md) | Official relation vocabulary + publish rules |
+| Data Transformation Architecture | [`SPEC-data-transformation-architecture.md`](./SPEC-data-transformation-architecture.md) | Mapping, duplicates, provenance, rollback |
+| Knowledge Platform Target Architecture | [`KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md`](./KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md) | PDP composition; plane integration |
+| Foundation Implementation Readiness | [`FOUNDATION_IMPLEMENTATION_READINESS.md`](./FOUNDATION_IMPLEMENTATION_READINESS.md) | What engineering may/may not build yet |
 
 ---
 
