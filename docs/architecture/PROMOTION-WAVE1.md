@@ -1,18 +1,20 @@
 # Wave-1 Documentation Promotion Record
 
-**Status:** Completed (local tree)  
+**Status:** Completed (into this repository)  
 **Date:** ۱۴۰۵/۰۵/۰۷ (2026-07-29)  
 **Board:** Architecture Board · Signed: محمد شباهتی / Mohammad Shebahati  
-**Minute:** موج ۱ قفل EPIC 1 — تصمیم **الف** · Topic 5 تصمیم **ج** (promote now)
+**Minute:** موج ۱ قفل EPIC 1 — تصمیم **الف** · Topic 5 تصمیم **ج** (promote now)  
+**SoR update:** ۱۴۰۵/۰۵/۰۸ (2026-07-30) — AODS `CR-009` Option B (binding SoR = this Git tree only)
 
 ---
 
 ## What was promoted
 
-From authoring tree `Website/docs/` → canonical repo docs `Website/backend/docs/`:
+Historically copied from a local authoring tree `Website/docs/` into the canonical Git docs
+(now at repository root `docs/`, formerly described as `Website/backend/docs/`):
 
-| Area | Paths under `backend/docs/` |
-|------|------------------------------|
+| Area | Paths under `docs/` |
+|------|----------------------|
 | Canon Lock | `architecture/CANON-LOCK.md` |
 | Bible | `architecture/karzar-knowledge-platform-master-architecture.md` |
 | ADR-010 / ADR-012 | `architecture/adr/` |
@@ -26,23 +28,17 @@ From authoring tree `Website/docs/` → canonical repo docs `Website/backend/doc
 
 ---
 
-## Canonical vs authoring (after promotion)
+## Canonical vs authoring (after `CR-009` Option B)
 
 | Role | Path |
 |------|------|
-| **Canonical (normative Wave-1)** | `backend/docs/architecture/CANON-LOCK.md` and promoted siblings |
-| **Authoring / extended packs** | `Website/docs/` (still holds Proposed packs + audits) |
+| **Canonical (normative Wave-1 + AODS)** | This repository: `docs/architecture/CANON-LOCK.md`, promoted siblings, and `aods/` |
+| **Unpromoted drafts outside Git** | Historical local `Website/docs/` — **not** Authoring SoR; **not** citeable for merge criteria until Board promotes files into this repo (`CR-009` B). Importing that tree remains future **Option A**. |
 
-Edits to Wave-1 **Accepted** criteria SHOULD land first in `backend/docs/` (or be copied in the same change set). Authoring tree files keep a promotion banner pointing here.
+Edits to Wave-1 **Accepted** criteria MUST land in this repository. Do not treat an external mirror as authoritative.
 
 ---
 
 ## Git next step (human)
 
-Files are on disk under `backend/`. Commit/PR on branch `docs/*` when ready — **not auto-committed** by this promotion step unless Board requests commit separately.
-
-Suggested commit subject:
-
-```text
-docs: promote Wave-1 Canon Lock (Accepted) into backend/docs
-```
+Wave-1 promotion is on `main`. Further pack promotions require Board minute + Canon Lock row updates in the same change set.

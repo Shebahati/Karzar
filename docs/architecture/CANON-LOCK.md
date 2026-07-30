@@ -2,12 +2,16 @@
 
 **Document type:** Binding criteria index (not a second architecture bible)  
 **Status:** **Accepted** (Wave-1 EPIC-1 Canon Lock)  
-**Location:** Canonical promoted copy (`backend/docs/architecture/CANON-LOCK.md`)  
+**Location:** Canonical copy in this repository (`docs/architecture/CANON-LOCK.md`)  
 **Purpose:** Single answer to: *What is mandatory criteria for work today?*
 
-> **Promotion record:** see [`PROMOTION-WAVE1.md`](./PROMOTION-WAVE1.md). Authoring mirror: `Website/docs/architecture/CANON-LOCK.md`.
+> **Promotion record:** see [`PROMOTION-WAVE1.md`](./PROMOTION-WAVE1.md).  
+> **SoR rule (AODS `CR-009` Option B, 2026-07-30):** Binding merge criteria live **only** in this Git
+> repository. Paths outside the checkout (including historical `Website/docs/`) are **not** Authoring SoR
+> for agents or PR review and MUST NOT be cited as merge criteria until Board promotes them into this tree.
 
 > If a document is **not** listed here as **Accepted** or **Binding**, it MUST NOT alone be used as merge criteria for EPIC 1 work — unless Architecture Board later adds it to this index.
+> If a listed path is marked **not in this repository**, it is **not** Binding until promoted — do not invent its contents.
 
 ---
 
@@ -67,27 +71,33 @@ These were already normative. Wave 1 does **not** weaken them.
 | Document | Path | Status | Mandatory for |
 |----------|------|--------|----------------|
 | Data ingestion policy | [`data-ingestion-policy.md`](./data-ingestion-policy.md) | **Binding** | Importers, enrichment Category A/B/C |
-| Development lifecycle | `docs/development/development-lifecycle-standard.md` (if present under docs tree) | **Binding** | Env / release discipline |
-| Git development workflow | `docs/development/git-development-workflow.md` | **Binding** | Branch / PR workflow |
-| Repository git lock evidence | [`../audits/repository-governance-final-lock.md`](../audits/repository-governance-final-lock.md) | **PASS (evidence)** | Cite; do not relitigate lock as failed |
+| Git development workflow | [`../development/git-development-workflow.md`](../development/git-development-workflow.md) | **Binding** | Branch / PR workflow |
+
+> **Removed from Binding rows (AODS `CR-009`/`CR-010`, 2026-07-30):**  
+> `docs/development/development-lifecycle-standard.md` and  
+> `docs/audits/repository-governance-final-lock.md` were listed as Binding/evidence but **are not present**
+> in this repository. They MUST NOT be cited as merge criteria until Board promotes them here. Residual
+> dangling citations elsewhere remain `CR-010` until cleared.
 
 ---
 
 ## 3. Explicitly NOT locked as Wave-1 merge criteria
 
-Still **Proposed / Draft** — may guide design; MUST NOT block or authorize EPIC 1 alone; MUST NOT unlock dual-write or RAG.
+Still **Proposed / Draft** in Board intent — and, under `CR-009` Option B, **most of these packs are not in
+this Git checkout**. They may **not** be cited, invented, or used as merge criteria until Board promotes
+concrete files into this repository and adds Accepted/Binding rows above.
 
-| Area | Path / IDs | Note |
-|------|------------|------|
-| ADR-001 … ADR-009, ADR-011 | `docs/architecture/adr/` | Proposed (except 010, 012) |
-| RFC-001, 002, 003, 006, 007 | `docs/architecture/rfc/` | Draft |
-| Domain, KG, PIM, Property Gov, Data Gov, DQ | respective packs | Proposed |
-| Enterprise AI | `docs/architecture/ai/` | Proposed; Gate C FAIL ⇒ generative blocked |
-| Enterprise Search | `docs/architecture/search/` | Proposed; lexical-first OK to design against |
-| Repo Governance v2 | `docs/governance/repository/` | Proposed |
-| Enterprise Roadmap | `docs/roadmap/enterprise/` | Proposed (program plan; EPIC1-first already aligns) |
-| Dual-write enablement | RFC-001/003 path | **Deferred** — separate Board gate |
-| Generative RAG | ADR-009 Gates A–D | **Deferred / blocked** while Evidence≈0 |
+| Area | Path / IDs | In this repo? | Note |
+|------|------------|---------------|------|
+| ADR-001 … ADR-009, ADR-011 | `docs/architecture/adr/` | **No** (only 010, 012 + README present) | Not citeable until promoted |
+| RFC-001, 002, 003, 006, 007 | `docs/architecture/rfc/` | **No** (only 004, 005 + index/template) | Not citeable until promoted |
+| Domain, KG, PIM, Property Gov, Data Gov, DQ | respective packs | **No** | Not citeable until promoted |
+| Enterprise AI | `docs/architecture/ai/` | **No** | Generative blocked until pack exists + Gate C |
+| Enterprise Search | `docs/architecture/search/` | **No** | Not citeable until promoted |
+| Repo Governance v2 | `docs/governance/repository/` | **No** | Not citeable until promoted |
+| Enterprise Roadmap | `docs/roadmap/enterprise/` | **No** | Not citeable until promoted |
+| Dual-write enablement | RFC-001/003 path | **No** | **Deferred** — separate Board gate |
+| Generative RAG | ADR-009 Gates A–D | **No** | **Deferred / blocked** while Evidence≈0 |
 
 ---
 
@@ -95,8 +105,9 @@ Still **Proposed / Draft** — may guide design; MUST NOT block or authorize EPI
 
 | Kind | Path | Rule |
 |------|------|------|
-| EPIC 0 audits / baselines | `docs/audits/EPIC0-*`, DQ `baselines-epic0.md` | Measure reality; do not edit upward to look healthier |
-| Worktree / lock reports | `docs/audits/repository-*`, `worktree-*` | Evidence + policy pointers |
+| EPIC 0 / repository audits present under `docs/audits/` | only files that **exist** in this checkout | Measure reality; do not invent missing audit paths; do not edit upward to look healthier |
+
+Missing historical audit filenames cited in older prose are **not** evidence and are tracked under `CR-010` until removed or promoted.
 
 ---
 

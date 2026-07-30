@@ -47,7 +47,7 @@
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
 | CR-008 | Two priority systems: PMO checkpoint vs Board EPIC-1; EPIC-1 PRs have no task ID | HIGH | Owner (PMO + Board) | OPEN |
-| CR-009 | `Website/docs/` authoring SoR is outside version control | **BLOCKER** | Owner | OPEN |
+| CR-009 | Binding SoR = this Git repo only (Option B); external `Website/docs/` not citeable | ~~BLOCKER~~ CLOSED | Owner | CLOSED |
 | CR-010 | Canon Lock and Git workflow cite ≥12 documents that do not exist in the repo | HIGH | Architecture Board | OPEN |
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
@@ -63,10 +63,10 @@
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
-**Open BLOCKERs: 1.** Until `CR-009` is resolved, AODS operates in
-degraded mode for that surface. `CR-011` closed 2026-07-30 (Option B — no push auto-deploy;
-same-VPS residual tracked as ops risk / future Option A).
-**degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
+**Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
+`CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
+Residual HIGH items (e.g. `CR-010` dangling Proposed-index links) remain open but are not BLOCKERs.
+**degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
 
@@ -354,17 +354,17 @@ will keep being violated, which trains agents to ignore rules — the worst poss
 |-------|-------|
 | **Severity** | BLOCKER |
 | **Owner** | Owner |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
-`git-development-workflow.md` §"Repo boundary" states:
+`git-development-workflow.md` §"Repo boundary" (historical) stated:
 
 | Path | Role |
 |------|------|
 | `Website/backend` | Canonical GitHub repo |
 | `Website/docs` | **Authoring SoR**; promote KEEP docs into `backend/docs/` |
 
-`PROMOTION-WAVE1.md` confirms Wave-1 documents were authored in `Website/docs/` and copied into `backend/docs/`,
-and that `Website/docs/` still holds *"Proposed packs + audits"*.
+`PROMOTION-WAVE1.md` confirmed Wave-1 documents were authored in `Website/docs/` and copied into the Git docs tree,
+and that `Website/docs/` still held *"Proposed packs + audits"* outside version control.
 
 **Consequence.** Canon Lock's `PROPOSED` inventory (ADR-001…009/011, RFC-001/002/003/006/007, Domain, KG, PIM,
 Property Governance, Data Governance, DQ, `docs/architecture/ai/`, `docs/architecture/search/`,
@@ -375,9 +375,14 @@ diffed, linted, backed up, or read by any agent working from the GitHub checkout
 **Options:** (A) move `Website/docs/` into the repo (e.g. `docs/_authoring/` or a second repo with a submodule);
 (B) keep it out but forbid Canon Lock from referencing anything not promoted; (C) promote the whole tree now.
 
-**AI recommendation (advisory): Option B immediately** (make Canon Lock self-contained — this also closes `CR-010`),
-**then Option A** for durability. Rationale: a binding index that points outside version control cannot satisfy the
-"auditable" or "reproducible" principles, and single-machine authority is a bus-factor-1 data-loss risk.
+**AI recommendation (advisory): Option B immediately** (make Canon Lock self-contained — reduces `CR-010`),
+**then Option A** for durability.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option B):** Binding SoR is **this Git repository only**.
+Updated `CANON-LOCK.md` (removed external authoring-mirror authority; dropped missing Binding rows; marked
+unpromoted packs as not-in-repo / not citeable), `git-development-workflow.md` Repo boundary + Related,
+and `PROMOTION-WAVE1.md`. **Status → CLOSED.** **Residual:** importing `Website/docs/` remains future Option A;
+dangling Proposed-index links elsewhere remain `CR-010` (OPEN, not BLOCKER).
 
 ---
 
@@ -421,6 +426,11 @@ unenforceable), **Option C for Proposed rows.** Enforced going forward by `--gat
 dangling citations in this row as concrete findings (previously invisible because the citing files were
 off-main). Those findings are baselined under `conflict_id: CR-010` until Board chooses Option B
 (self-contain Canon) or promotes the missing packs. This does **not** close `CR-010`.
+
+**PROGRESS (2026-07-30, with CR-009 Option B):** Binding rows in `CANON-LOCK.md` that pointed at missing
+files were removed; §3 packs marked not-in-repo; git workflow Related list no longer presents missing paths
+as live links. **Status remains OPEN** for residual dangling links in `adr/README.md` / `rfc/README.md` and
+baselined `--gate links` findings until a dedicated `CR-010` cleanup node.
 
 
 ## CR-011 — Staging and production are the same host; `main` auto-deploys live
