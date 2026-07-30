@@ -53,7 +53,7 @@
 | CR-012 | `openapi/v1.json` snapshot drift fixed 2026-07-30; CI wiring still open | HIGH | Backend Architect | MITIGATED |
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
 | CR-014 | EPIC-1 deliverable 5 (`/brands/{slug}`) unimplemented and unspecified | HIGH | Frontend Architect + SEO | OPEN |
-| CR-015 | `frontend/AI_CONTEXT.md` retains ~1,000 lines of false claims behind a banner | **BLOCKER** for AI work | Documentation Architect | OPEN |
+| CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest markers and options declared twice (`pytest.ini` + `pyproject.toml`) | LOW | QA Engineer | OPEN |
 | CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
 | CR-018 | PR checklist is Accepted but no `pull_request_template.md` exists | MEDIUM | Documentation Architect | OPEN |
@@ -63,7 +63,7 @@
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
-**Open BLOCKERs: 3.** Until `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
+**Open BLOCKERs: 2.** Until `CR-009` and `CR-011` are resolved, AODS operates in
 degraded mode for those surfaces. `CR-001` and `CR-004` closed 2026-07-30.
 **degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
@@ -545,7 +545,9 @@ Board review.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | BLOCKER for AI-executed work · **Owner** Documentation Architect · **Status** OPEN |
+| **Severity** | BLOCKER for AI-executed work |
+| **Owner** | Documentation Architect |
+| **Status** | CLOSED |
 
 The file is 37 KB / ~1,053 lines across 21 sections. Its banner (added 2026-07-25) states:
 
@@ -748,3 +750,4 @@ baseline into exactly the silent suppression list the validation framework forbi
 | 2026-07-29 | Added CR-023 — broken relative links surfaced by `--gate links` and flagged as unattributed by the baseline writer | AODS design task |
 | 2026-07-30 | CR-012 snapshot regenerated (MITIGATED); CI wiring deferred to Phase 4 | Operator session under Board order |
 | 2026-07-30 | CR-007 CLOSED — Option A progress/+sprints/ canonical; root twins deleted | Board / operator session |
+| 2026-07-30 | CR-015 CLOSED — Option A stub+archive quarantine | Board / operator session |

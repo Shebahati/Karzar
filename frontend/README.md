@@ -60,7 +60,7 @@ Phases 1–5 of frontend audit remediation on `main`:
 4. **SEO/perf** — home RSC prefetch, product sitemap, lazy PDP sections, image allowlist
 5. **Hardening** — Vitest + Playwright smoke, real admin README/`.env.example`, prod CSP without `unsafe-eval`, skip-link + mobile menu focus trap
 
-Details: `docs/audits/`, `AI_CONTEXT.md` §21, app READMEs.
+Details: `docs/audits/`, quarantined stub `AI_CONTEXT.md` (§21 only; full body in `docs/archive/AI_CONTEXT-2026-07-11.md`), app READMEs.
 
 ---
 
