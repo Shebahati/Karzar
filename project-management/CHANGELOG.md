@@ -1,7 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
-- [x] **CR-009 CLOSED (Option B)** — Binding SoR = this Git repo only; Canon Lock / git workflow / PROMOTION-WAVE1 no longer treat `Website/docs/` as Authoring SoR; missing Binding rows removed; `CR-010` residual indexes remain OPEN.
+- [x] **CR-010 CLOSED** — ADR/RFC indexes list only in-repo Accepted files; reserved IDs not linked; baseline shrunk; residual Bible/IA/arch README dangling links reassigned to `CR-023`.
+- [x] **CR-009 CLOSED (Option B)** — Binding SoR = this Git repo only; Canon Lock / git workflow / PROMOTION-WAVE1 no longer treat `Website/docs/` as Authoring SoR; missing Binding rows removed; `CR-010` closed separately (index prune).
 - [x] **CR-011 CLOSED (Option B)** — `deploy-staging.yml` no longer runs on push to `main`; `workflow_dispatch` only; `COLLABORATOR_DEPLOY.md` updated; same-VPS residual tracked until Option A.
 - [x] **CR-021 CLOSED** — Release + rollback owner = Mohammad Shebahati / محمد شباهتی (single-operator S1); `RELEASE_PLAN.md` §0; D6 checked; BLOCKERS/DEPENDENCIES/EXECUTIVE_SUMMARY aligned.
 - [x] **Cursor rule** Added always-on `aods-kickoff-gate.mdc` — fill AODS NODE KICKOFF, wait for human confirm, then execute (survives chat context compaction); no PMO task ID (CR-008).
