@@ -53,10 +53,15 @@ pytest -m integration                      # Redis / E2E flows
 
 ## Coverage
 
-Minimum **67%** enforced in CI (`--cov-fail-under=67`); target **70%** on next ratchet.
+**Enforced gate: 68%** — single source of truth:
+
+- `pyproject.toml` → `[tool.coverage.report] fail_under = 68`
+- `.github/workflows/backend-ci.yml` → `--cov-fail-under=68`
+
+Aspirational ratchet toward **70%** may be planned later; it is **not** the current CI fail threshold (`CR-003` Option A, 2026-07-30).
 
 ```bash
-pytest --cov=app --cov-report=term-missing
+pytest --cov=app --cov-report=term-missing --cov-fail-under=68
 ```
 
 ## Lint & types

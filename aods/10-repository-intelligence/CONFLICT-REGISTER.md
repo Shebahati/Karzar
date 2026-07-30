@@ -41,7 +41,7 @@
 |----|-------|----------|-------|--------|
 | CR-001 | Canon Lock promoted to `main` via PR #125 (2026-07-30); citations resolve | ~~BLOCKER~~ CLOSED | Architecture Board | CLOSED |
 | CR-002 | Branch naming: `feature/*` (Canon) vs `feat/*` (CONTRIBUTING + 18 branches) | HIGH | Architecture Board | OPEN |
-| CR-003 | Coverage gate stated as 62% / 67% / 67% / 68% in four documents | MEDIUM | QA Engineer | OPEN |
+| CR-003 | Coverage gate prose aligned to enforced 68% (Option A) | MEDIUM | QA Engineer | CLOSED |
 | CR-004 | Script defaults local + fail-closed Category B guard (`ingestion_boundary.py`); deploy publisher classified B | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
@@ -144,23 +144,27 @@ and a validator that fails 18 existing branches will be disabled rather than obe
 |-------|-------|
 | **Severity** | MEDIUM |
 | **Owner** | QA Engineer role |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
-| Source | Value |
+| Source | Value (historical drift) |
 |--------|-------|
-| `docs/API_CHANGELOG.md` (P5 entry) | 62% |
-| `docs/TESTING.md` | 67% minimum, 70% target |
-| `README.md` | 67% |
-| `pyproject.toml` `[tool.coverage.report] fail_under` | **68** |
-| `.github/workflows/backend-ci.yml` `--cov-fail-under` | **68** |
+| `docs/API_CHANGELOG.md` (P5 entry) | 62% → corrected to **68%** |
+| `docs/TESTING.md` | 67% / 70% target → **68%** enforced + 70% aspirational note |
+| `README.md` | 67% → **68%** |
+| `pyproject.toml` `[tool.coverage.report] fail_under` | **68** (SoT) |
+| `.github/workflows/backend-ci.yml` `--cov-fail-under` | **68** (SoT) |
 
-**Enforced reality: 68%.** The other three are stale prose.
+**Enforced reality: 68%.**
 
 **Options:** (A) correct all prose to 68% and add a single-source note; (B) raise CI toward the 70% target and update
 all four; (C) generate the number into docs from `pyproject.toml`.
 
-**AI recommendation (advisory): Option A now, Option C when a docs-generation step exists.** The Charter's
-"single-source numeric facts" principle applies: numbers duplicated in prose always drift.
+**AI recommendation (advisory): Option A now, Option C when a docs-generation step exists.**
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option A):** Aligned `README.md`, `docs/TESTING.md`, and
+`docs/API_CHANGELOG.md` to **68%**; documented SoT as `pyproject.toml` + `backend-ci.yml`. Did not raise CI to 70%
+(Option B deferred). **Status → CLOSED.** Residual: historical `docs/BACKEND_CHANGES.md` still mentions ≥62%
+(outside this node allow-list; `HISTORICAL` class).
 
 ---
 
