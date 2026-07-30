@@ -1,9 +1,19 @@
 # Release Plan — REL-001 (31 Shahrivar Checkpoint)
 
-**Last updated:** 2026-07-27  
+**Last updated:** 2026-07-30  
 **Checkpoint date:** 2026-09-22 (31 Shahrivar)  
 **Decision type:** Readiness + explicit go/no-go gate
 
+## 0) Named operators (AODS `CR-021` — CLOSED 2026-07-30)
+
+| Role | Person | Notes |
+|------|--------|-------|
+| **Release owner** | Mohammad Shebahati / محمد شباهتی | Authorises merge/deploy for checkpoint releases |
+| **Rollback owner** | Mohammad Shebahati / محمد شباهتی | Executes §4 rollback |
+
+**Model:** single-operator release path **accepted** (HC-03 Option S1). Compensating control = this document §4
+(`identify last known good` → redeploy prior revision → smoke + SEO quick checks → PMO incident note). Separation
+of duties is not available with one human; bus-factor-1 and same-VPS staging (`CR-011`) remain residual ops risk.
 ## 1) Scope freeze (P0 baseline)
 
 ### Completed P0 scope
@@ -39,7 +49,7 @@ Rationale: checkpoint KPI is stable store + indexable mid-tail + CWV discipline,
 ### Operations/security gates
 - [x] Backup/rollback steps documented (see section 4)
 - [x] `SEC-001` completion (ACs met; residual dep advisories accepted as R8 with named follow-up)
-- [ ] Clear owner assignment for launch command + rollback command
+- [x] Clear owner assignment for launch command + rollback command — Mohammad Shebahati (both; S1 / `CR-021` CLOSED 2026-07-30)
 
 ## 3) Launch window verification checklist
 
@@ -84,7 +94,7 @@ Run immediately after merge to `main` and staging/prod deployment event:
 
 ### NO-GO if any of:
 - Sev1 blocker unresolved
-- Release/rollback ownership unresolved
+- Release/rollback ownership unresolved *(resolved 2026-07-30 — see §0)*
 - Rollback path cannot be executed quickly/clearly
 
 ## 6) Residual risks at freeze point

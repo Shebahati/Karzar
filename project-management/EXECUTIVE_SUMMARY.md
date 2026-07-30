@@ -42,7 +42,7 @@
 - [x] SEO-004 Technical SEO hygiene (#94)
 - [x] UX-002 PDP specs/trust (#96)
 - [x] PERF-001 CWV home/PDP/PLP (#99)
-- [x] REL-001 Release freeze documentation pack complete (GO still needs named release/rollback owners; SEC-001 closed)
+- [x] REL-001 Release freeze documentation pack complete (release/rollback owners named 2026-07-30 — Mohammad Shebahati, single-operator S1 / `CR-021` CLOSED; SEC-001 closed)
 
 **Move to بعد از ۳۱ شهریور (P2+)**
 - [ ] KB-001 Knowledge graph phase-1

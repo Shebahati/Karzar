@@ -17,5 +17,5 @@ See `diagrams/dependencies.mmd` and each task `deps`.
 ## Release-window dependencies (REL-001)
 - [ ] CI + deploy workflow health on `main`
 - [ ] Access to logs/monitoring for first 30 minutes post-deploy
-- [ ] Named release owner and named rollback owner
+- [x] Named release owner and named rollback owner — **Mohammad Shebahati / محمد شباهتی** (both; single-operator S1, 2026-07-30; AODS `CR-021` CLOSED)
 - [x] SEC-001 hygiene gate (closed 2026-07-27; residual R8 dep advisories)
