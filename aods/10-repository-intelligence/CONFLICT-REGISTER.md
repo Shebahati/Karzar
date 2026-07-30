@@ -52,7 +52,7 @@
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
-| CR-014 | EPIC-1 deliverable 5 (`/brands/{slug}`) unimplemented and unspecified | HIGH | Frontend Architect + SEO | OPEN |
+| CR-014 | Brand Hub page contract Proposed (SPEC); awaits HC-01 freeze / SEO-008 IMPL | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest markers and options declared twice (`pytest.ini` + `pyproject.toml`) | LOW | QA Engineer | OPEN |
 | CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
@@ -548,24 +548,23 @@ rather than hand-patched.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | HIGH · **Owner** Frontend Architect + SEO Engineer · **Status** OPEN |
+| **Severity** | HIGH · **Owner** Frontend Architect + SEO Engineer · **Status** OPEN (SPEC-ready) |
 
 `epic1-ia-readiness.md` requires: *"Ship Brand Hub `/brands/{slug}` for priority brands"* and
 *"Expose Brand meta needed for hubs."* ADR-010 §4 mandates `/brands/{slug}` and names the priority brands
 (ASTPOWER, INSIZE, Dasqua, Chumpower, Mitutoyo, SAN OU) via RFC-005.
 
-**Observed:** `frontend/Storefront/src/app/` contains no `brands/` route. Backend brand meta landed in PR #126.
-Deliverables 1–2 (slug PDP + 301) shipped in #127.
+**Observed:** `frontend/Storefront/src/app/` contains no `brands/` route. Backend brand meta landed in PR #126
+(**BE-002**). Deliverables 1–2 shipped in #127 (**SEO-005**).
 
-**Missing specification `G-01`:** no document defines the Brand Hub *page contract* — required regions, content
-model, PLP behaviour, pagination, meta/JSON-LD shape, or the empty-state rule when a brand has few products.
-`epic1-ia-readiness.md` warns of *"Brand hub thin content"* and mandates *"No new indexable thin facet 'hubs'"*
-but sets no threshold.
+**SPEC progress (2026-07-30):** Proposed page contract at
+[`docs/architecture/information-architecture/brand-hub-page-contract.md`](../../docs/architecture/information-architecture/brand-hub-page-contract.md)
+(`SPEC-brand-hub-page-contract` / node `SPEC-2026-07-30-cr014-brand-hub-contract`). Covers regions, data reuse
+(`BrandResponse` + products `brand_id` list), URL/SEO/JSON-LD minima, and falsifiable ACs.
 
-**Resolution requires a human decision on:** minimum product count to publish a hub, indexability rule below that
-threshold, and whether hub intro copy is authored (like `content/hubs/intros.json`) or generated.
-**AODS forbids an agent from inventing these**; the correct output is a `SPEC` node producing a page contract for
-Board review.
+**Still blocking IMPL (`G-01` / HC-01):** Open questions Q1–Q5 in that spec (min product count, below-threshold
+indexability, intro authored vs meta-only, `/brands` index, logo requirement). **AODS forbids inventing these.**
+**Status remains OPEN** until Board freezes the spec (`HC-01`) and/or SEO-008 ships.
 
 ---
 

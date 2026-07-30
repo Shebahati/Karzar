@@ -11,9 +11,9 @@
 - [x] **SEO-005** EPIC-1.1–1.2 PDP slug + 301 — `done` 100% | P1 | Sprint 05 — #127
 - [x] **SEO-006** EPIC-1.3 Cards/breadcrumbs/sitemap slug — `done` 100% | P1 | Sprint 05
 - [x] **SEO-007** EPIC-1.4 JSON-LD slug `@id` — `done` 100% | P1 | Sprint 05
-- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `todo` 0% | P1 | 24h | Sprint 05 — **blocked on CR-014 SPEC**
+- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `todo` 15% | P1 | 24h | Sprint 05 — **SPEC Proposed; IMPL blocked on HC-01 (Q1–Q5)**
   - Owner: unassigned | Risk: high
-  - Notes: Do not implement until page contract frozen (G-01 / RFC-005).
+  - Notes: Page contract: `docs/architecture/information-architecture/brand-hub-page-contract.md`. Do not implement until Board freezes open questions (CR-014).
 - [x] **BE-002** EPIC-1.6 Brand meta for hubs — `done` 100% | P1 | Sprint 05 — #126
 - [ ] **FE-002** EPIC-1.7 PDF CTA + accessories slot — `todo` 10% | P1 | 12h | Sprint 05
   - Owner: unassigned | Risk: med
