@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CAT-002 / KB-001 schedule unblock** — lifted mandatory revisit/start gate **2026-09-23** (**D22** supersedes D8 schedule part only; D7/D8 kept as history). Both remain `todo` (15% / 10%) and are **eligible to start now** (deps CAT-001 / SEO-003 done). Residual mirrors aligned: `DECISIONS.md`, `RELEASE_PLAN.md`, `KANBAN_BOARD.md`, `README.md`, export CSVs, operator skill §7. No catalog/KB implementation. D16 image-plan authority unchanged.
 - [x] **FE-002 done** — PDP PDF catalog CTA (after trust strip) + always-visible accessories slot with honest empty / label / product-card states.
 - [x] **SEO-008 done** — Brand Hub sitemap (`/brands/{slug}` for product_count≥1) + homepage brand-strip links to hubs; `/brands` index still deferred (Q4=B).
 - [x] **SEO-008 IMPL (route)** — Storefront `/brands/[slug]` Brand Hub per Accepted contract (D21); PDP brand link prefers hub URL; sitemap/nav residual.

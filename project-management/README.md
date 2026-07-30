@@ -29,4 +29,4 @@
 
 ## Progress (weighted by hours)
 
-**~85%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · open: CAT-002 / KB-001 (checkpoint deferrals)
+**~85%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · open: CAT-002 / KB-001 (**eligible to start**; D22 lifted 2026-09-23 date gate)

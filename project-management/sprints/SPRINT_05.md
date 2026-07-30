@@ -26,4 +26,4 @@
 - [x] CHANGELOG.md entry
 
 ## Notes
-Checkpoint deferrals **CAT-002** / **KB-001** remain owned by PMO with revisit **2026-09-23** — unchanged by this sprint.
+**CAT-002** / **KB-001** remain owned by PMO; schedule unblock 2026-07-30 lifted the **2026-09-23** start gate — both are eligible to start (implementation is a separate node).

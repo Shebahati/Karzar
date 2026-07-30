@@ -27,10 +27,11 @@ of duties is not available with one human; bus-factor-1 and same-VPS staging (`C
 - [x] `REL-001` Release readiness pack (this update)
 
 ### Deferred / out-of-scope for checkpoint
-- [x] `KB-001` deferred to post-checkpoint (P2, high effort, non-critical for current KPI)
-- [x] `CAT-002` deferred as content-safe backlog (not required for launch bar)
+- [x] `KB-001` deferred to post-checkpoint (P2, high effort, non-critical for current KPI) — historical at close
+- [x] `CAT-002` deferred as content-safe backlog (not required for launch bar) — historical at close
 - [x] `SEC-001` completed (admin noindex/X-Robots-Tag, secrets audit, step-up inventory, dep scan); residual transitive advisories tracked as R8
-- [x] Deferred-task ownership/date recorded at close (2026-07-28): owner `PMO`, revisit `2026-09-23` for both `CAT-002` and `KB-001`
+- [x] Deferred-task ownership recorded at close (2026-07-28): owner `PMO` for both `CAT-002` and `KB-001`
+- [x] **Schedule unblock (2026-07-30, D22):** mandatory revisit/start gate `2026-09-23` lifted — `CAT-002` / `KB-001` remain open backlog and are **eligible to start now** (implementation is a separate node; HC-09 / ADR-012 still apply)
 
 Rationale: checkpoint KPI is stable store + indexable mid-tail + CWV discipline, not head-term rank race or broad platform expansion.
 

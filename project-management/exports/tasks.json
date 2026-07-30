@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "DEFERRED at checkpoint close (2026-07-28): out of launch-bar scope; keep #90 open for content-safe resume; #74 closed intentionally; no price writes. Owner: PMO. Revisit date: 2026-09-23 (post-checkpoint planning)."
+      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28) out of launch-bar scope; #90 kept open for content-safe resume; #74 closed intentionally; no price writes. Owner: PMO. Schedule unblock 2026-07-30 (GOV-pmo-sync): 2026-09-23 revisit date gate lifted — eligible to start now. Dep CAT-001 done. HC-09/ADR-012 still apply before any staging/prod catalog write."
     },
     {
       "id": "CAT-003",
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "DEFERRED at checkpoint close (2026-07-28): P2 high effort and not on launch-bar KPI path per D7/RELEASE_PLAN. Owner: PMO. Revisit date: 2026-09-23 (post-checkpoint planning)."
+      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28) P2 high effort and not on launch-bar KPI path per D7/RELEASE_PLAN. Owner: PMO. Schedule unblock 2026-07-30 (GOV-pmo-sync): 2026-09-23 revisit date gate lifted — eligible to start now. Dep SEO-003 done. Phase-1 graph slice still needs SPEC before IMPL (open question)."
     },
     {
       "id": "REL-001",

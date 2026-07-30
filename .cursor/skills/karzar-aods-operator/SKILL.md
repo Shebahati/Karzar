@@ -191,7 +191,7 @@ When starting / completing / cancelling / re-scoping meaningful work:
 4. New debt/risk/blocker → `TECH_DEBT.md` / `RISKS.md` / `BLOCKERS.md`
 5. Progress ledgers: `project-management/progress/` only; sprints: `project-management/sprints/` only (CR-007 Option A)
 
-Deferred past checkpoint (owner PMO, revisit **2026-09-23**): **CAT-002**, **KB-001**.
+Open backlog eligible to start (owner PMO; **D22** lifted **2026-09-23** date gate): **CAT-002**, **KB-001**.
 
 ## 8. Branch / PR shape
 

@@ -40,14 +40,14 @@
 - [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-001/002 + FE-001 + FE-002 done)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
-- [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
-- [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
-- [x] Deferred ownership locked at checkpoint close (2026-07-28): CAT-002/KB-001 owner = PMO, revisit date = 2026-09-23
+- [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE eligible to start (schedule gate lifted 2026-07-30) — see `BACKEND_PROGRESS.md`
+- [x] #74 Insize 108A closed; CAT-002 (#90) / KB-001 no longer date-gated for start
+- [x] Schedule unblock 2026-07-30: CAT-002/KB-001 owner = PMO; 2026-09-23 revisit date gate lifted — eligible to start now
 - [x] Process governance — AODS Accepted (D9); see `aods/`
 - [x] Backend EPIC-1 brand meta — **BE-002** done (#126); see `BACKEND_PROGRESS.md`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). Checkpoint deferrals: CAT-002 / KB-001 (revisit 2026-09-23).
+See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). CAT-002 / KB-001: **eligible to start** (2026-09-23 date gate lifted 2026-07-30).
 
 ## Process governance (AODS-001)
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).
