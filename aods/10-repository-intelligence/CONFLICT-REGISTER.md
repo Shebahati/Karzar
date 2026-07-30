@@ -43,7 +43,7 @@
 | CR-002 | Branch naming Canon `feature/*` wins (Option A); `feat/*` grandfathered | HIGH | Architecture Board | CLOSED |
 | CR-003 | Coverage gate prose aligned to enforced 68% (Option A) | MEDIUM | QA Engineer | CLOSED |
 | CR-004 | Script defaults local + fail-closed Category B guard (`ingestion_boundary.py`); deploy publisher classified B | ~~BLOCKER~~ CLOSED | Backend Architect + Board | CLOSED |
-| CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
+| CR-005 | BE-01 tx ownership: Option A incremental; checkout_service clear; residual other services (D20) | HIGH | Backend Architect | CLOSED |
 | CR-006 | Scorecard 9.0 demoted HISTORICAL; live bar = v2 audit 5.7 + remediation (Option B) | HIGH | Independent auditor | CLOSED |
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
 | CR-008 | EPIC-1 ↔ PMO mapping table + task IDs (Option C) | HIGH | Owner (PMO + Board) | CLOSED |
@@ -222,7 +222,7 @@ Category A enrichment). Residual tech-debt checkbox closed.
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Backend Architect |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
 **Side A (rank 6 `POLICY` + rank 8 `REFERENCE`).** `docs/ARCHITECTURE.md` §"Transaction ownership (BE-01)" and
 `docs/CONTRIBUTING.md`: *"Endpoints own `commit`/`rollback`. Services and CRUD flush only."*
@@ -243,6 +243,14 @@ BE-01, and the remediation programme still lists it as open.
 **AI recommendation (advisory): Option A, incrementally, money paths first** (`checkout_service`, `payment_*`),
 each as a separate `IMPL`+`TEST` node pair with no behaviour change. Option B is legitimate but requires a Board
 minute and contradicts an open P1 remediation item.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option A):** Incremental BE-01 remediation — services
+`flush` only; endpoints own `commit`. First slice: `submit_checkout` already compliant; hoist
+`checkout_service.submit_contact` commit to `storefront_content.contact_us` (checkout_service now has
+**0** service commits). Payment endpoint handlers already own commits (no `payment_*` service commits).
+Recorded as **D20**. **Status → CLOSED** for the *conflict* (direction chosen + first slice landed).
+**Residual IMPL nodes (not this PR):** `otp_service`, `cart_service`, `product_service`, `brand_service`,
+`category_service`, `idempotency_service`, `hesabfa/item_push` — money-adjacent next = cart/otp.
 
 ---
 
@@ -816,3 +824,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-017 CLOSED — Option B: policy/defer deletes; hangover cites live git commands; residual acknowledged (D17) | Board / operator session |
 | 2026-07-30 | CR-020 CLOSED — Option A: bilingual normative roles + non-Canon settings paths; deploy one-VPS (D18) | Board / operator session |
 | 2026-07-30 | CR-022 CLOSED — Option A: FRONTEND_INTEGRATION + API_CHANGELOG binary/deprecation (D19); bulk migrate residual | Board / operator session |
+| 2026-07-30 | CR-005 CLOSED — Option A: BE-01 incremental; checkout_service cleared; residual other services (D20) | Board / operator session |

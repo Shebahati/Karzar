@@ -66,6 +66,8 @@ Services and CRUD layers **flush only** (persist within the open transaction) un
 
 Money-path exceptions already hardened: payment callback commits only expected outcomes; unexpected errors roll back and log (see `payment.py`). New money-path code must follow the same pattern.
 
+**Remediation (AODS `CR-005` / D20, Option A):** Incremental — services move to `flush` only; endpoints own `commit`. Money path first. `submit_checkout` was already flush-only; `checkout_service.submit_contact` hoist completed 2026-07-30. Residual service-level commits remain in otp/cart/product/brand/category/idempotency/hesabfa (separate IMPL nodes).
+
 ## Compatibility shims
 
 - `crud/platform.py` re-exports cart/refresh/audit/idempotency modules.
