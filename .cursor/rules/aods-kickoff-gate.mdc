@@ -1,0 +1,58 @@
+---
+description: AODS kickoff gate — fill NODE KICKOFF, wait for human confirm, then execute
+alwaysApply: true
+---
+
+# AODS kickoff gate (mandatory — survives context compaction)
+
+This rule is the durable twin of the chat protocol. It applies every turn, including after
+context summarization. It does **not** replace `aods-auto-mode.mdc` or
+`.cursor/skills/karzar-aods-operator/SKILL.md`.
+
+## When it applies
+
+Any user message that requests **work** on this repo (implement, edit, fix, migrate, ingest,
+audit write-up, PMO update, PR prep, etc.).
+
+## When it does NOT apply
+
+- Pure Q&A with **no** file/command side effects (explain a doc, define a term)
+- The user message is itself an approval/rejection of an already-shown kickoff
+  (`تأیید` / `برو` / `execute` / `رد` / field corrections only)
+
+## Protocol (exact order)
+
+1. **Do not edit, create, delete, or run mutating commands yet.**
+2. Fill and reply with this block (all fields; use `UNKNOWN` + why if unsure):
+
+```text
+AODS NODE KICKOFF — obey karzar-aods-operator + aods-auto-mode
+
+NODE_ID: …
+ARCHETYPE: <SPEC | IMPL | TEST | DOC | GOV | AUD | KNOW>
+PROMPT: aods/70-prompts/<folder>/<file>.prompt.md
+TASK_ID: <from project-management/exports/tasks.json | NONE — CR-008>
+CHANGE_CLASS: <C0|C1|C2|C3|C4|C5|C6>
+GOAL: <one sentence>
+NON_GOALS: <what must NOT be done>
+ALLOWLIST:
+  - <path or glob>
+AUTHORITY (must resolve on origin/main):
+  - <path>
+FORBIDDEN: Quarantined docs; push/merge/deploy; Accepted; prod API/DB
+CONSTRAINTS:
+  - cite path:line on origin/main; READ → RESTATE → PLAN before edit
+  - HALT on ambiguity/conflict (CR-nnn); max 2 attempts
+  - aods_validate.py before done; paste real output; PMO if meaningful
+DONE WHEN:
+  - …
+```
+
+3. **Stop.** Wait for explicit human approval (`تأیید` / `برو` / `execute`) or field fixes.
+4. Only after approval: run the chosen `PROMPT`, stay inside `ALLOWLIST`, then VERIFY/RECORD.
+
+## Hard stops
+
+- Missing `PROMPT`, empty `ALLOWLIST`, or `AUTHORITY` that does not resolve on `origin/main`
+  → leave as `UNKNOWN` and **do not** treat a vague "go ahead" as license to invent them.
+- If approval arrives but required fields are still `UNKNOWN` → HALT; ask only for those fields.
