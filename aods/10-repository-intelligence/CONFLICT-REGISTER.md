@@ -56,7 +56,7 @@
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest markers and options declared twice (`pytest.ini` + `pyproject.toml`) | LOW | QA Engineer | OPEN |
 | CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
-| CR-018 | PR checklist is Accepted but no `pull_request_template.md` exists | MEDIUM | Documentation Architect | OPEN |
+| CR-018 | PR checklist mirrored in `.github/pull_request_template.md` | MEDIUM | Documentation Architect | CLOSED |
 | CR-019 | Knowledge Platform Phase 3 says pause image import; `CATALOG_IMAGES_PLAN.md` is actively importing | MEDIUM | Owner | OPEN |
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
@@ -644,18 +644,16 @@ AODS amendment.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** Documentation Architect · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** Documentation Architect · **Status** CLOSED |
 
 `pr-checklist.md` is **Accepted** and says *"Paste into PR description or use as review gate."*
-`documentation-citation-rules.md` defines a minimum citation block. `karzar-developer-standards.md` §11 asks the
-open question: *"CI template to auto-comment PR checklist?"*
+`documentation-citation-rules.md` defines a minimum citation block.
 
-No `.github/pull_request_template.md` exists. Compliance is therefore memory-based — which is why only ~11% of
-commits carry a task ID, and why the emergent template (`## Summary` / `## Canon Lock` / `## Test plan` /
-`Made with Cursor`) varies between PRs.
-
-**AI recommendation (advisory):** add `.github/pull_request_template.md` generated from `pr-checklist.md` plus the
-citation block, and enforce with `--gate citation`. Cheap, high leverage, no behaviour change.
+**DECISION (2026-07-30, Mohammad Shebahati — CR-018):** Added
+[`.github/pull_request_template.md`](../../.github/pull_request_template.md) derived from
+`docs/development/standards/pr-checklist.md` Always checklist + citation minima from
+`documentation-citation-rules.md`. Auto-comment CI bot deferred (open question in developer standards §11).
+**Status → CLOSED.**
 
 ---
 

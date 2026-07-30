@@ -40,6 +40,7 @@ unclassified_allow:
   - "**/node_modules/**"
   - ".git/**"
   - "aods/reports/**"
+  - ".github/*.md"                               # GitHub PR/issue templates (CR-018)
   - "frontend/Storefront/content/**/README.md"   # per-directory data notes
   - "data/imports/**/README.md"                  # per-import provenance notes
   - "scripts/brand_logo_assets/README.md"
@@ -282,7 +283,7 @@ documents:
     status: accepted
     owner_role: R-BOARD
     on_main: true
-    notes: "Explicit PR fails enumerated. No .github/pull_request_template.md implements it — CR-018."
+    notes: "Explicit PR fails enumerated. Implemented by .github/pull_request_template.md (CR-018 CLOSED 2026-07-30)."
 
   - id: CITATION-RULES
     path: docs/development/standards/documentation-citation-rules.md

@@ -1,7 +1,6 @@
 # PR Checklist — Karzar
 
-**Status:** **Accepted** (Wave-1 · part of Developer Standards) · Paste into PR description or use as review gate  
-**Canon Lock:** [`docs/architecture/CANON-LOCK.md`](../../architecture/CANON-LOCK.md)
+**Status:** **Accepted** (Wave-1 · part of Developer Standards) · GitHub PR form: [`.github/pull_request_template.md`](../../../.github/pull_request_template.md) · Canon Lock: [`docs/architecture/CANON-LOCK.md`](../../architecture/CANON-LOCK.md)
 
 ## Always
 
