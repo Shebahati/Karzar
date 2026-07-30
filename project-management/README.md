@@ -11,7 +11,7 @@
 
 1. Before coding: read `PROJECT_STATUS.md` + current `sprints/SPRINT_XX.md`
 2. Pick a task ID from `exports/tasks.json` / `KANBAN_BOARD.md`
-3. After finishing work: update task `status`/`progress`, then touch related `*_PROGRESS.md`, `CHANGELOG.md`, `DONE.md`
+3. After finishing work: update task `status`/`progress`, then touch related `progress/*_PROGRESS.md`, `CHANGELOG.md`, `DONE.md`
 4. Never leave code shipped without PMO update (enforced by Cursor rule `.cursor/rules/pmo-living-system.mdc`)
 
 ## Layout
@@ -24,8 +24,8 @@
 | `exports/` | ClickUp / Taskulu / GitHub / JSON |
 | `printable/` | Wall-track HTML (A4/A3) |
 | `diagrams/` | Mermaid sources |
-| `sprints/` | Sprint_00…04 |
-| `progress/` | Domain progress ledgers |
+| `sprints/` | **Canonical** sprint files `SPRINT_00…04` (CR-007) |
+| `progress/` | **Canonical** domain progress ledgers (CR-007) |
 
 ## Progress (weighted by hours)
 

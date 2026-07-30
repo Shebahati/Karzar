@@ -346,7 +346,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | 1 | ~~Accept and merge PR #125 (Canon Lock promotion)~~ **DONE** 2026-07-30 (`8b63415`) | `HC-02` then `HC-07` | `CR-001` **CLOSED**. Canon + standards resolve on `main`. |
 | 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`. |
 | 3 | ~~Regenerate `openapi/v1.json`~~ **DONE** 2026-07-30 — 81→82 paths; slug product path present; `--gate openapi` PASS | `HC-05` | `CR-012` MITIGATED. Remaining: wire gate as required CI (`OI-GOV-05` / Phase 4). |
-| 4 | Decide `CR-007`: which PMO progress path is canonical | `HC-04` | Six divergent duplicate files; every PMO write is currently ambiguous. |
+| 4 | ~~Decide `CR-007`: which PMO progress path is canonical~~ **DONE** 2026-07-30 — Option A `progress/`+`sprints/` | `HC-04` | Root twins deleted; living-PMO rule updated. |
 | 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
 | 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
 | 7 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |

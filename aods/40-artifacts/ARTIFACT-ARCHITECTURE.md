@@ -105,7 +105,7 @@ AODS does **not** redefine these. It records their validity criteria so the `pmo
 | ID | Location | Validity criteria |
 |----|----------|-------------------|
 `TASK-ENTRY` | `project-management/exports/tasks.json` | All 20 fields present; `status` ∈ {`todo`,`in_progress`,`done`,`cancelled`}; `deps` reference existing IDs |
-`PROGRESS-LEDGER` | `project-management/progress/*_PROGRESS.md` | Status matches `tasks.json`; both duplicate copies identical until `CR-007` is resolved |
+`PROGRESS-LEDGER` | `project-management/progress/*_PROGRESS.md` | Status matches `tasks.json`; root twins forbidden (CR-007 Option A) |
 `SPRINT-FILE` | `project-management/sprints/SPRINT_XX.md` | Goal checkboxes reflect constituent task states |
 `KANBAN` | `project-management/KANBAN_BOARD.md` | Task appears in the column matching its status |
 `CHANGELOG-ENTRY` | `project-management/CHANGELOG.md` | Dated section; task ID + PR link |

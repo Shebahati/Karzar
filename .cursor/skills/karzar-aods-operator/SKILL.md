@@ -188,7 +188,7 @@ When starting / completing / cancelling / re-scoping meaningful work:
 2. Mirror checkboxes in `PROJECT_STATUS.md`, active `SPRINT_XX.md`, relevant `*_PROGRESS.md`
 3. Append `CHANGELOG.md`; on done, `DONE.md` with task ID + PR link
 4. New debt/risk/blocker → `TECH_DEBT.md` / `RISKS.md` / `BLOCKERS.md`
-5. Until `CR-007` is decided, keep **both** duplicated progress/sprint copies in sync
+5. Progress ledgers: `project-management/progress/` only; sprints: `project-management/sprints/` only (CR-007 Option A)
 
 Deferred past checkpoint (owner PMO, revisit **2026-09-23**): **CAT-002**, **KB-001**.
 

@@ -7,10 +7,15 @@ alwaysApply: true
 
 The folder `project-management/` is the Single Source of Truth for planning and status.
 
+**Canonical paths (CR-007 / HC-04, 2026-07-30):**
+- Progress ledgers: `project-management/progress/*_PROGRESS.md` only
+- Sprint files: `project-management/sprints/SPRINT_XX.md` only
+- Do **not** create or update root-level `project-management/*_PROGRESS.md` or `project-management/SPRINT_*.md` twins
+
 Whenever you complete, start, cancel, or re-scope meaningful work:
 
 1. Update the matching task in `project-management/exports/tasks.json` (`status`, `progress`, `notes`).
-2. Reflect checkboxes in `PROJECT_STATUS.md`, the active `SPRINT_XX.md`, and the relevant `*_PROGRESS.md`.
+2. Reflect checkboxes in `PROJECT_STATUS.md`, the active `sprints/SPRINT_XX.md`, and the relevant `progress/*_PROGRESS.md`.
 3. Append to `CHANGELOG.md` and, when done, `DONE.md` with task ID + PR link.
 4. If you discover debt/risk/blocker: update `TECH_DEBT.md` / `RISKS.md` / `BLOCKERS.md`.
 5. Never ship a feature without a PMO touch in the same PR when the change maps to a tracked task.
