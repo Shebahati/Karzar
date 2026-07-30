@@ -41,6 +41,7 @@
 | IA pack (EPIC 1 scope) | [`information-architecture/README.md`](./information-architecture/README.md) | **Accepted** | ۱۴۰۵/۰۵/۰۷ | Mohammad Shebahati | EPIC 1 routes, hubs, page types, indexation honesty |
 | IA primary | [`information-architecture/karzar-information-architecture.md`](./information-architecture/karzar-information-architecture.md) | **Accepted** | ۱۴۰۵/۰۵/۰۷ | Mohammad Shebahati | Same (EPIC 1 surfaces) |
 | EPIC 1 IA Readiness | [`information-architecture/epic1-ia-readiness.md`](./information-architecture/epic1-ia-readiness.md) | **Accepted** | ۱۴۰۵/۰۵/۰۷ | Mohammad Shebahati | EPIC 1 delivery checklist |
+| Brand Hub page contract | [`information-architecture/brand-hub-page-contract.md`](./information-architecture/brand-hub-page-contract.md) | **Accepted** | 2026-07-30 | Mohammad Shebahati | SEO-008 / Brand Hub `/brands/{slug}` IMPL (Q1–Q5 = D21) |
 
 ---
 

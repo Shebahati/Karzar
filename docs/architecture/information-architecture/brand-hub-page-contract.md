@@ -1,19 +1,20 @@
 ---
 id: SPEC-brand-hub-page-contract
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_adr: docs/architecture/adr/ADR-010-seo-url-contract.md
 governing_rfc: docs/architecture/rfc/RFC-005-brand-hub-launch.md
 owner: Frontend Architect + SEO Engineer
 task_id: SEO-008
 aods_conflict: CR-014
+accepted_by: Mohammad Shebahati / محمد شباهتی (Board — operator instructed agent to record Accepted 2026-07-30)
 ---
 
 # Brand Hub page contract — `/brands/{slug}`
 
-**Status:** Proposed (awaits Board freeze — `HC-01`). Not merge criteria until Accepted.  
-**PMO:** `SEO-008` · Sprint 05 · closes specification gap `CR-014` / `G-01` for *structure*; threshold decisions remain Open questions below.
+**Status:** **Accepted** (2026-07-30) — Q1–Q5 frozen **D21**; Board Accepted under `HC-01` (recorded per Owner order). Binding merge criteria for SEO-008 / Brand Hub IMPL (also listed in Canon Lock).  
+**PMO:** `SEO-008` · Sprint 05 · closes `CR-014` / `G-01`.
 
 ## 1. Purpose
 
@@ -42,10 +43,10 @@ honest (no fake “Generic” brand).
 - Facts / Evidence / Knowledge Graph modules on the hub (RFC-005 Non-goals).
 - Inventing brands or hubs for unbranded SKUs (ADR-002 / RFC-005 Option C rejected).
 - Replacing Category Hub or treating `?brand=` / catalog facets as Brand Hubs (ADR-010 §8, url-map).
-- Deciding thin-content **product-count** thresholds or indexability policy — see Open questions (CR-014 G-01).
+- Deciding thin-content **product-count** thresholds or indexability policy without Board — answered **D21** (see §9); do not re-open in IMPL.
 - Implementing `/brands` collection index in this contract (RFC-005 §12 Q1 — open).
 - Changing BE-01 transaction ownership or admin Brand CRUD semantics.
-- Setting this document to `Accepted` (Board / `HC-01` only).
+- Setting this document to `Accepted` — **done 2026-07-30** (Board / Owner order).
 
 ## 4. Data contract
 
@@ -64,7 +65,7 @@ Reuse `BrandResponse` as returned by `GET /api/v1/brands/slug/{slug}` (no parall
 | `meta_description` | str \| null | yes | `brands.meta_description` | SEO + short supporting blurb if no authored intro |
 | `product_count` | int \| null | yes | counted active products | display / thin-policy input (**threshold open**) |
 
-**As-built gap:** ORM `Brand` has **no** long `description` column (`app/db/models/product.py:115-124`). Hub “blurb” MUST NOT invent copy; until Open question Q3 is decided, supporting sentence MAY use `meta_description` when present, else omit (name-only hero is allowed).
+**As-built gap:** ORM `Brand` has **no** long `description` column (`app/db/models/product.py:115-124`). Hub “blurb” MUST NOT invent copy. **Q3 = B (frozen D21):** supporting sentence MAY use `meta_description` when present, else omit (name-only hero is allowed).
 
 Example (illustrative):
 
@@ -94,7 +95,7 @@ Product card fields: existing storefront `ProductSummary` / card contract (no ne
 | `<title>` / OG title | `meta_title` if non-empty; else template including brand `name` (RFC-005 §5 SEO) |
 | meta description | `meta_description` if non-empty; else template; never fabricated specs |
 | canonical | `https://{site}/brands/{slug}` self-canonical |
-| robots | **Open question Q2** until Board freeze; MUST NOT treat facet URLs as this hub |
+| robots | **Q2=A (D21):** below-threshold / empty → `noindex`; MUST NOT treat facet URLs as this hub |
 
 ### 4.4 JSON-LD (minimum)
 
@@ -103,7 +104,7 @@ Product card fields: existing storefront `ProductSummary` / card contract (no ne
 | `@id` | Absolute canonical hub URL `/brands/{slug}` (ADR-010 Decision 6) |
 | Brand / Organization node | Brand `name` + `@id`; no false AggregateRating |
 | ItemList / CollectionPage | Optional EPIC-1; if present, item URLs MUST be `/product/{slug}` when slug exists (ADR-010 / RFC-004 alignment) |
-| BreadcrumbList | Home → Brands? → {Brand}; whether intermediate `/brands` exists is Open (RFC-005 §12 Q1) |
+| BreadcrumbList | Home → {Brand} for wave 1 (**Q4=B** — no `/brands` index yet); revisit when index ships |
 
 ## 5. Behaviour
 
@@ -120,7 +121,7 @@ Product card fields: existing storefront `ProductSummary` / card contract (no ne
 | Case | HTTP / UX | Notes |
 |------|-----------|-------|
 | Unknown slug | API 404 `NOT_FOUND`; page **notFound** | `brand.py:54-58` |
-| Brand exists, zero active products | **Open question Q1/Q2** — do not invent; until freeze, IMPL MUST NOT choose silently | CR-014 G-01 |
+| Brand exists, zero active products | **Q1=A / Q2=A (D21):** still publish hub (≥1 threshold means empty is below); **200 + `noindex`** | CR-014 / D21 |
 | Unbranded product | No hub membership; PDP ok | RFC-005 Wave table |
 | Invalid `brand_id` query on products | 422 `VALIDATION_FAILED` | products_catalog |
 | Admin-only mutations | Unchanged (step-up delete etc.) | out of hub page scope |
@@ -145,7 +146,7 @@ Product card fields: existing storefront `ProductSummary` / card contract (no ne
 5. Given a launched-wave brand, when sitemap is generated for that wave, then it emits an absolute `/brands/{slug}` entry for that brand.
 6. Given hub JSON-LD is emitted, when `@id` is read, then it equals the canonical `/brands/{slug}` URL (absolute).
 7. Given `meta_title` and `meta_description` are null, when the hub renders, then the page still returns 200 with template fallbacks and does **not** invent product datasheet claims.
-8. Given Board has not Accepted this spec, when an IMPL PR cites only this file as merge criteria, then review MUST reject until `HC-01` sets status Accepted (or Board explicitly authorises implementation-against-Proposed).
+8. Given this spec is **Accepted** (2026-07-30), IMPL PRs MAY cite it as merge criteria together with ADR-010 / RFC-005 / Canon Lock.
 
 ## 8. Out-of-scope discoveries
 
@@ -154,32 +155,34 @@ Product card fields: existing storefront `ProductSummary` / card contract (no ne
 - `/brands` index page, logo asset requirements, multi-brand OEM names — RFC-005 §12.
 - Category empty-hub hygiene is a pattern reference only; copying its threshold without Board decision would invent policy (`CR-014`).
 
-## 9. Open questions
+## 9. Open questions — **FROZEN** (2026-07-30 / D21)
 
-| # | Question | Options | Consequence | Decider |
-|---|----------|---------|-------------|--------|
-| Q1 | Minimum active product count to **publish** a hub? | A) ≥1 B) ≥N (Board names N) C) Wave membership only (ignore count) | Affects which Wave-3 brands ship and empty-grid UX | Board / HC-01 |
-| Q2 | If below threshold (or empty grid): what? | A) 200 + `noindex` B) 404 C) 200 indexable but omit from sitemap/nav | Indexability / thin-hub risk vs IA honesty | Board / HC-01 |
-| Q3 | Hub intro copy source? | A) Authored file (like `content/hubs/intros.json`) B) `meta_description` only C) Generated later (out of EPIC-1) | Content ops vs ship speed; as-built has no `description` column | Board / HC-01 |
-| Q4 | Is `/brands` index in wave 1? | A) Yes B) Later C) Never | Breadcrumb + internal linking | Board (RFC-005 §12) |
-| Q5 | Brand logo required for wave 1? | A) Required B) Optional | Asset pipeline | Board (RFC-005 §12) |
+| # | Question | Board answer | Consequence |
+|---|----------|--------------|-------------|
+| Q1 | Minimum active product count to **publish** a hub? | **A) ≥1** | Empty-grid brands: see Q2 |
+| Q2 | If below threshold (or empty grid): what? | **A) 200 + `noindex`** | Thin hubs stay reachable; not indexed |
+| Q3 | Hub intro copy source? | **B) `meta_description` only** | No authored intros file in EPIC-1 |
+| Q4 | Is `/brands` index in wave 1? | **B) Later** | Breadcrumb omits intermediate `/brands` for now |
+| Q5 | Brand logo required for wave 1? | **B) Optional** | Render logo when `logo_url` present |
 
-**Do not answer these in IMPL.** Freeze answers into this document’s Decision Log when Board Accepts.
+**Still required for IMPL merge criteria:** ~~Board sets front-matter `status: Accepted`~~ — **done 2026-07-30**. Cite this Accepted contract + ADR-010 / RFC-005.
 
 ## 10. Implementation node breakdown
 
 | Node | Archetype | Notes |
 |------|-----------|--------|
-| `HC-01` freeze this spec | Human | Resolve Q1–Q5; set `status: Accepted`; Canon Lock cite as needed |
+| `HC-01` Accept this spec | Human | **DONE 2026-07-30** — Q1–Q5 + Accepted + Canon Lock row |
 | `IMPL-backend` brand hub readiness | IMPL | Confirm public slug + meta + counts; product filter already exists — gap only if contract tests missing |
-| `IMPL-frontend-route` `/brands/[slug]` | IMPL | Page regions per §4–5; wire SEO-008 |
-| `IMPL-sitemap-nav` | IMPL | Wave sitemap + PDP/category internal links |
+| `IMPL-frontend-route` `/brands/[slug]` | IMPL | Page regions per §4–5; wire SEO-008; apply Q1–Q5 |
+| `IMPL-sitemap-nav` | IMPL | Wave sitemap + PDP/category internal links (no `/brands` index until Q4 revisit) |
 | `TEST-from-spec` | TEST | Automate AC 1–7 where feasible |
 | `DOC-api-contract-sync` | DOC | If any new public field ships, update API_CHANGELOG / OpenAPI |
-| `GOV-pmo-sync` | GOV | Mark SEO-008 progress; close CR-014 when Accepted + shipped or when SPEC-only residual cleared |
+| `GOV-pmo-sync` | GOV | Mark SEO-008 progress; close CR-014 when Accepted + shipped or when SPEC Accepted clears G-01 |
 
 ## 11. Decision log
 
 | Date | Decision | By | Note |
 |------|----------|----|------|
 | 2026-07-30 | Draft Proposed page contract; thresholds left open | AODS SPEC node | Resume path A after HALT; `CR-014` SPEC-ready |
+| 2026-07-30 | Freeze Q1=A, Q2=A, Q3=B, Q4=B, Q5=B | Mohammad Shebahati / Board | **D21** |
+| 2026-07-30 | `status: Accepted` + Canon Lock row | Mohammad Shebahati / Board (Owner ordered agent to record) | Closes `CR-014` G-01; unlocks SEO-008 IMPL |

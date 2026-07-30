@@ -52,7 +52,7 @@
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
 | CR-013 | Orphans registered as FE-003 (#109) + SEO-010 (#101); GENERATED wallboard/CSV residual | MEDIUM | PMO | CLOSED |
-| CR-014 | Brand Hub page contract Proposed (SPEC); awaits HC-01 freeze / SEO-008 IMPL | HIGH | Frontend Architect + SEO | OPEN |
+| CR-014 | Brand Hub page contract Accepted (D21 Q + HC-01); SEO-008 IMPL unblocked | HIGH | Frontend Architect + SEO | CLOSED |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest config SoT = `pyproject.toml` only (Option A) | LOW | QA Engineer | CLOSED |
 | CR-017 | Repo hygiene residual acknowledged (Option B); hangover cites live git commands; no mass deletes | MEDIUM | Owner | CLOSED |
@@ -558,7 +558,7 @@ PMO-SYNC).
 
 | Field | Value |
 |-------|-------|
-| **Severity** | HIGH · **Owner** Frontend Architect + SEO Engineer · **Status** OPEN (SPEC-ready) |
+| **Severity** | HIGH · **Owner** Frontend Architect + SEO Engineer · **Status** CLOSED |
 
 `epic1-ia-readiness.md` requires: *"Ship Brand Hub `/brands/{slug}` for priority brands"* and
 *"Expose Brand meta needed for hubs."* ADR-010 §4 mandates `/brands/{slug}` and names the priority brands
@@ -572,9 +572,13 @@ PMO-SYNC).
 (`SPEC-brand-hub-page-contract` / node `SPEC-2026-07-30-cr014-brand-hub-contract`). Covers regions, data reuse
 (`BrandResponse` + products `brand_id` list), URL/SEO/JSON-LD minima, and falsifiable ACs.
 
-**Still blocking IMPL (`G-01` / HC-01):** Open questions Q1–Q5 in that spec (min product count, below-threshold
-indexability, intro authored vs meta-only, `/brands` index, logo requirement). **AODS forbids inventing these.**
-**Status remains OPEN** until Board freezes the spec (`HC-01`) and/or SEO-008 ships.
+**Q freeze (2026-07-30, Mohammad Shebahati — D21):** Q1=A (≥1), Q2=A (200+noindex), Q3=B (meta_description only),
+Q4=B (`/brands` index later), Q5=B (logo optional). Recorded in the page-contract Decision Log.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-01 Accepted):** Owner ordered agent to record
+`status: Accepted` on the page contract, add Canon Lock row, and flip registry
+`IA-BRAND-HUB-PAGE-CONTRACT` to CANON/accepted. **Status → CLOSED.** Residual delivery = **SEO-008** IMPL
+(`/brands/[slug]`) — separate node; G-01 inventing thresholds is cleared.
 
 ---
 
@@ -825,3 +829,5 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-020 CLOSED — Option A: bilingual normative roles + non-Canon settings paths; deploy one-VPS (D18) | Board / operator session |
 | 2026-07-30 | CR-022 CLOSED — Option A: FRONTEND_INTEGRATION + API_CHANGELOG binary/deprecation (D19); bulk migrate residual | Board / operator session |
 | 2026-07-30 | CR-005 CLOSED — Option A: BE-01 incremental; checkout_service cleared; residual other services (D20) | Board / operator session |
+| 2026-07-30 | CR-014 progress — Q1–Q5 frozen (D21); still OPEN pending HC-01 Accepted | Board / operator session |
+| 2026-07-30 | CR-014 CLOSED — page contract Accepted + Canon Lock (HC-01 / D21); SEO-008 IMPL residual | Board / operator session |

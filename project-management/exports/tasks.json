@@ -844,7 +844,7 @@
         "IA checklist Brand Hub row"
       ],
       "status": "todo",
-      "progress": 15,
+      "progress": 25,
       "sprint": "05",
       "week": 2,
       "day": 1,
@@ -854,8 +854,8 @@
         "seo",
         "brand-hub"
       ],
-      "risk": "high",
-      "notes": "OPEN. SPEC Proposed 2026-07-30: docs/architecture/information-architecture/brand-hub-page-contract.md (node SPEC-2026-07-30-cr014-brand-hub-contract). Do not IMPL until HC-01 freezes Q1–Q5 (CR-014). No Storefront brands/ route yet. Post-checkpoint Board wave."
+      "risk": "medium",
+      "notes": "SPEC Accepted 2026-07-30 (CR-014 CLOSED / D21): Q1=A ≥1; Q2=A 200+noindex; Q3=B meta_description; Q4=B no /brands index yet; Q5=B logo optional. Canon Lock row present. Ready for IMPL-frontend-route `/brands/[slug]`. No Storefront brands/ route yet."
     },
     {
       "id": "BE-002",
