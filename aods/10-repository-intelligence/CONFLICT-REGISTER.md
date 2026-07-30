@@ -57,7 +57,7 @@
 | CR-016 | Pytest config SoT = `pyproject.toml` only (Option A) | LOW | QA Engineer | CLOSED |
 | CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
 | CR-018 | PR checklist mirrored in `.github/pull_request_template.md` | MEDIUM | Documentation Architect | CLOSED |
-| CR-019 | Knowledge Platform Phase 3 says pause image import; `CATALOG_IMAGES_PLAN.md` is actively importing | MEDIUM | Owner | OPEN |
+| CR-019 | Image import: `CATALOG_IMAGES_PLAN.md` authorized (Option A); Phase-3 pause superseded-for-now by D7/D8 | MEDIUM | Owner | CLOSED |
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
@@ -664,7 +664,7 @@ AODS amendment.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** Owner · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** Owner · **Status** CLOSED |
 
 `docs/KNOWLEDGE_PLATFORM_PHASE3_IMPLEMENTATION_ROADMAP.md` states product image import is **paused** pending the
 knowledge track. `docs/CATALOG_IMAGES_PLAN.md` + `CATALOG_IMAGES_PROGRESS_2026-07-25.md` are **actively executing**
@@ -675,6 +675,13 @@ document says so.
 
 **AI recommendation (advisory):** annotate the Phase-3 pause as superseded-for-now by the deferral of KB-001,
 recorded in `DECISIONS.md`. A one-line decision closes it.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option A):** While **KB-001** remains deferred
+(`project-management/DECISIONS.md` **D7**/**D8**), `docs/CATALOG_IMAGES_PLAN.md` is the **authorized**
+product-image import plan; the Phase-3 roadmap pause is annotated **superseded-for-now** (losing side).
+Recorded as **D16**. This node does **not** run imports; ADR-012 / HC-09 still govern any future ingest.
+**Status → CLOSED.**
+**Follow-up node:** none
 
 ---
 
@@ -779,3 +786,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-012 snapshot regenerated (MITIGATED); CI wiring deferred to Phase 4 | Operator session under Board order |
 | 2026-07-30 | CR-007 CLOSED — Option A progress/+sprints/ canonical; root twins deleted | Board / operator session |
 | 2026-07-30 | CR-015 CLOSED — Option A stub+archive quarantine | Board / operator session |
+| 2026-07-30 | CR-019 CLOSED — Option A: CATALOG_IMAGES_PLAN authorized; Phase-3 pause superseded-for-now (D16) | Board / operator session |
