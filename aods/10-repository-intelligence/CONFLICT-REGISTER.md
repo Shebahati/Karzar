@@ -54,7 +54,7 @@
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
 | CR-014 | Brand Hub page contract Proposed (SPEC); awaits HC-01 freeze / SEO-008 IMPL | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
-| CR-016 | Pytest markers and options declared twice (`pytest.ini` + `pyproject.toml`) | LOW | QA Engineer | OPEN |
+| CR-016 | Pytest config SoT = `pyproject.toml` only (Option A) | LOW | QA Engineer | CLOSED |
 | CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
 | CR-018 | PR checklist mirrored in `.github/pull_request_template.md` | MEDIUM | Documentation Architect | CLOSED |
 | CR-019 | Knowledge Platform Phase 3 says pause image import; `CATALOG_IMAGES_PLAN.md` is actively importing | MEDIUM | Owner | OPEN |
@@ -607,14 +607,15 @@ every prompt's `## FORBIDDEN CONTEXT` block.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | LOW · **Owner** QA Engineer · **Status** OPEN |
+| **Severity** | LOW · **Owner** QA Engineer · **Status** CLOSED |
 
-`pytest.ini` and `pyproject.toml` `[tool.pytest.ini_options]` both define `testpaths`, `python_files`, `addopts`,
-and the same three markers. `pytest.ini` wins by precedence, so the `pyproject.toml` block is dead configuration
-that will silently diverge. Also, only 3 of 276 tests actually use a marker.
+**Historical:** `pytest.ini` and `pyproject.toml` `[tool.pytest.ini_options]` both defined `testpaths`,
+`python_files`, `addopts`, and the same three markers. `pytest.ini` won by precedence, so the `pyproject.toml`
+block was dead configuration.
 
-**AI recommendation (advisory):** keep one file (`pyproject.toml`, alongside ruff/mypy/coverage), delete the other,
-and either use the markers or drop them.
+**DECISION (2026-07-30, Mohammad Shebahati — Option A):** Single SoT = `pyproject.toml` `[tool.pytest.ini_options]`
+(alongside ruff/mypy/coverage). Carried `python_classes` / `python_functions` from `pytest.ini`, then **deleted**
+`pytest.ini`. Markers retained (`unit` / `integration` / `slow`); usage expansion deferred. **Status → CLOSED.**
 
 ---
 

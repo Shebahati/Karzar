@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-016 CLOSED (Option A)** — Pytest SoT = `pyproject.toml` only; deleted duplicate `pytest.ini` after carrying `python_classes`/`python_functions`.
 - [x] **CR-018 CLOSED** — Added `.github/pull_request_template.md` from Accepted `pr-checklist.md` + citation minima; TECH_DEBT cleared.
 - [x] **CR-014 SPEC (Proposed)** — Brand Hub page contract drafted at `docs/architecture/information-architecture/brand-hub-page-contract.md`; Q1–Q5 await HC-01; SEO-008 still blocked for IMPL.
 - [x] **CR-008 CLOSED (Option C)** — EPIC-1 ↔ PMO mapping (**D14**); tasks `SEO-005`…`SEO-009`, `BE-002`, `FE-002`; Sprint 05 Board wave; checkpoint deferrals unchanged.
