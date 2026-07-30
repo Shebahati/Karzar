@@ -1125,8 +1125,8 @@ documents:
     rank: 9
     status: accepted
     owner_role: R-BOARD
-    on_main: false
-    notes: "Phase 4 / OI-GOV-05 — wire aods job in backend-ci.yml. Flip on_main after merge."
+    on_main: true
+    notes: "Phase 4 / OI-GOV-05 — Backend CI job aods; signed Mohammad Shebahati; PR #137."
 
 
   - id: CURSOR-SKILL-AODS-OPERATOR
