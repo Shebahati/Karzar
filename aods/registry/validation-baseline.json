@@ -1,7 +1,7 @@
 {
   "_comment": "Known validation failures, recorded so CI can enforce 'no new failures' while the existing ones are worked off. Entries are visible debt, not suppressions. Removing an entry that still fails will fail CI. Each should map to a CR-nnn in aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means the debt is real but not yet registered, which is itself a finding.",
-  "recorded_at": "2026-07-29",
-  "count": 31,
+  "recorded_at": "2026-07-30",
+  "count": 30,
   "unassigned_conflict_ids": 0,
   "known_failures": [
     {
@@ -110,15 +110,6 @@
       "key": "pmo:project-management/UX_PROGRESS.md:diverges from duplicate at project-management/progress/UX_PROGRESS.md (CR-007: no canonical path decided)",
       "conflict_id": "CR-007",
       "owner_role": "R-PMO",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "openapi",
-      "path": "openapi/v1.json",
-      "message": "path present in the app but missing from the snapshot: /api/v1/products/slug/{slug} (CR-012)",
-      "key": "openapi:openapi/v1.json:path present in the app but missing from the snapshot: /api/v1/products/slug/{slug} (CR-012)",
-      "conflict_id": "CR-012",
-      "owner_role": "R-BE-ARCH",
       "recorded_at": "2026-07-29"
     },
     {
