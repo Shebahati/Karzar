@@ -20,7 +20,7 @@ import {
   STORE_NAME_FA,
   STORE_PHONE_E164,
 } from "@/lib/store-location";
-import type { CategoryFlat } from "@/types/category";
+import type { Brand, CategoryFlat } from "@/types/category";
 import type { ProductDetail, ProductImage, ProductSummary } from "@/types/product";
 
 /** Re-export for tests / consumers; resolved once at module load (build-time NEXT_PUBLIC_*). */
@@ -65,6 +65,10 @@ export function productPageUrl(product: {
 
 export function categoryPageUrl(slug: string): string {
   return `${SITE_URL}/categories/${slug}`;
+}
+
+export function brandPageUrl(slug: string): string {
+  return `${SITE_URL}/brands/${slug}`;
 }
 
 /**
@@ -272,5 +276,57 @@ export function buildCategoryHubJsonLd(opts: {
   return wrapJsonLdGraph([
     collection,
     buildBreadcrumbList(buildCategoryBreadcrumbs(category, ancestors)),
+  ]);
+}
+
+/** CollectionPage + Brand for Brand Hub pages (ADR-010 / brand-hub-page-contract §4.4). */
+export function buildBrandHubJsonLd(opts: {
+  brand: Brand;
+  products: ProductSummary[];
+}): JsonLdNode {
+  const { brand, products } = opts;
+  const slug = brand.slug;
+  const url = slug ? brandPageUrl(slug) : `${SITE_URL}/catalog?brand=${brand.id}`;
+
+  const itemListElement = products.map((p, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    url: productPageUrl(p),
+    name: p.name,
+  }));
+
+  const brandNode: JsonLdNode = {
+    "@type": "Brand",
+    "@id": `${url}#brand`,
+    name: brand.name,
+    url,
+  };
+
+  const collection: JsonLdNode = {
+    "@type": "CollectionPage",
+    "@id": url,
+    name: brand.name,
+    url,
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": `${url}#brand` },
+    mainEntity: {
+      "@type": "ItemList",
+      "@id": `${url}#itemlist`,
+      numberOfItems: products.length,
+      itemListElement,
+    },
+  };
+
+  if (brand.meta_description) {
+    collection.description = brand.meta_description;
+  }
+
+  return wrapJsonLdGraph([
+    brandNode,
+    collection,
+    buildBreadcrumbList([
+      { name: "خانه", url: SITE_URL },
+      { name: brand.name, url },
+    ]),
   ]);
 }

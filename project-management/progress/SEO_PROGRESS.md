@@ -65,7 +65,7 @@
 - [x] **SEO-005** EPIC-1.1–1.2 PDP slug + 301 — `done` 100% | P1 | Sprint 05 — #127
 - [x] **SEO-006** EPIC-1.3 Cards/breadcrumbs/sitemap slug — `done` 100% | P1 | Sprint 05
 - [x] **SEO-007** EPIC-1.4 JSON-LD slug `@id` — `done` 100% | P1 | Sprint 05
-- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `todo` 15% | P1 | Sprint 05 — SPEC Proposed (`brand-hub-page-contract.md`); HC-01 Q1–Q5 open
+- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `in_progress` 55% | P1 | Sprint 05 — route `/brands/[slug]` landed (D21); sitemap/nav residual
 - [x] **SEO-009** EPIC-1.8 Category Hub affirm — `done` 100% | P1 | Sprint 05
 
 ## Evidence log
