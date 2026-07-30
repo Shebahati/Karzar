@@ -64,6 +64,7 @@ Cite as `path:line` against **`origin/main`**, not an unmerged branch tip.
 ### Never read (hallucination sources)
 
 - `frontend/AI_CONTEXT.md`
+- `docs/archive/AI_CONTEXT-2026-07-11.md`
 - `frontend/BACKEND_NON_COMPLIANCE.md`
 - `frontend/BACKEND_HANDOFF.md`
 - `docs/FRONTEND_IMPLEMENTATION_GUIDE.md`

@@ -44,4 +44,4 @@ Open http://localhost:3001
 - Destructive actions require step-up PIN (`X-Step-Up-Token`)
 - Optional password login setting is **mock-only**
 
-See also: `../docs/auth-cookie-httponly-contract.md`, `../AI_CONTEXT.md`, `../README.md`.
+See also: `../docs/auth-cookie-httponly-contract.md`, `../README.md`. (`../AI_CONTEXT.md` is quarantined — CR-015.)

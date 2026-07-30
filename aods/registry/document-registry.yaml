@@ -1200,12 +1200,19 @@ documents:
     on_main: true
     forbidden_context: true
     notes: >-
-      CR-015 · BLOCKER for AI work. ~1053 lines. Own banner lists confirmed-false claims:
-      SQLAdmin /admin, "no refresh token", missing checkout/OTP/blog/hero endpoints,
-      ComingSoon admin pages, wrong Alembic head (f1a2b3c4d5e6 vs actual z1a2b3c4d5e6).
-      A banner does not protect chunk-based retrieval. Remediation: truncate to banner + §21,
-      archive the rest to docs/archive/. Cited by SCORECARD-AFTER-REMEDIATION as evidence of
-      Documentation 9.0 — see CR-006.
+      CR-015 CLOSED (2026-07-30 Option A): stub retains obsolete banner + §21 only.
+      Full historical body at docs/archive/AI_CONTEXT-2026-07-11.md. Keep forbidden_context.
+
+  - id: FE-AI-CONTEXT-ARCHIVE
+    path: docs/archive/AI_CONTEXT-2026-07-11.md
+    class: HISTORICAL
+    rank: 10
+    status: archived
+    owner_role: R-DOC-ARCH
+    on_main: false
+    forbidden_context: true
+    notes: "Full body of frontend/AI_CONTEXT.md quarantined 2026-07-30 (CR-015 Option A). Never load for agent context. Flip on_main after merge."
+
 
   - id: BACKEND-NON-COMPLIANCE
     path: frontend/BACKEND_NON_COMPLIANCE.md

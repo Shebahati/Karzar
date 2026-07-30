@@ -42,4 +42,4 @@ When `USE_MOCK=true`, OTP code is typically `11111` (see mock API).
 - Stable `Idempotency-Key` for checkout/payment retries
 - Pending payment recovery via session + localStorage + tracking code
 
-Parent docs: `../README.md`, `../AI_CONTEXT.md`.
+Parent docs: `../README.md`. (`../AI_CONTEXT.md` is quarantined — CR-015; do not use as SoT.)

@@ -14,6 +14,7 @@ prohibitions are binding process rules.
 They contain confirmed-false claims and are the repository's known hallucination sources:
 
 - `frontend/AI_CONTEXT.md`
+- `docs/archive/AI_CONTEXT-2026-07-11.md`
 - `frontend/BACKEND_NON_COMPLIANCE.md`
 - `docs/FRONTEND_IMPLEMENTATION_GUIDE.md`
 

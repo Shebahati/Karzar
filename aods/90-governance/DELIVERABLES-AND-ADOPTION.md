@@ -349,7 +349,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | 4 | ~~Decide `CR-007`: which PMO progress path is canonical~~ **DONE** 2026-07-30 — Option A `progress/`+`sprints/` | `HC-04` | Root twins deleted; living-PMO rule updated. |
 | 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
 | 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
-| 7 | Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md` | `HC-03` | ~1,000 lines of confirmed-false architecture claims that agents can still load. |
+| 7 | ~~Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md`~~ **DONE** 2026-07-30 — Option A stub+archive | `HC-03` | Full body in `docs/archive/AI_CONTEXT-2026-07-11.md`. |
 | 8 | ~~Hold a Board session on this pack; accept or reject~~ **DONE** ۸ مرداد ۱۴۰۵ — Accepted in full; signed Mohammad Shebahati / محمد شباهتی | `HC-14` | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md). Pack is `Accepted` / `1.0.0`. |
 | 9 | Decide whether AODS gates become required CI checks | `HC-14` | Phase 4. |
 
