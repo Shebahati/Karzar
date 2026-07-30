@@ -58,7 +58,12 @@
 
 ## Checkpoint-close PMO state
 - PMO is **operationally complete for 31 Shahrivar checkpoint**.
-- Remaining open items are intentional deferrals only (CAT-002, KB-001), not execution gaps in checkpoint scope.
+- Remaining **checkpoint** open items are intentional deferrals only (CAT-002, KB-001), not execution gaps in checkpoint scope.
+
+## Post-checkpoint Board wave (EPIC-1) — PMO join
+- Board EPIC-1 (`epic1-ia-readiness.md`) is tracked in PMO via **D14** / `CR-008` Option C (2026-07-30).
+- Open Board-wave tasks: **SEO-008** (Brand Hub), **FE-002** (PDF+accessories). See `sprints/SPRINT_05.md`.
+- This wave is **not** a reopen of 31-Shahrivar P0s and does not lift CAT-002/KB-001 deferral (revisit 2026-09-23).
 
 ## Decision
 > Checkpoint KPI = **quality + indexable mid-tail + CWV**, not **#1 head-term rank**.

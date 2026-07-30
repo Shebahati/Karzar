@@ -347,11 +347,12 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`. |
 | 3 | ~~Regenerate `openapi/v1.json`~~ **DONE** 2026-07-30 — 81→82 paths; slug product path present; `--gate openapi` PASS | `HC-05` | `CR-012` **CLOSED** (CI job `aods` includes openapi gate). |
 | 4 | ~~Decide `CR-007`: which PMO progress path is canonical~~ **DONE** 2026-07-30 — Option A `progress/`+`sprints/` | `HC-04` | Root twins deleted; living-PMO rule updated. |
-| 5 | Decide `CR-003`: the one true coverage number | `HC-03` | Four documents state four values; CI enforces one. |
-| 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
+| 5 | ~~Decide `CR-003`: the one true coverage number~~ **DONE** 2026-07-30 — Option A enforced **68%** | `HC-03` | `CR-003` **CLOSED**. |
+| 6 | ~~Decide `CR-002`: branch naming~~ **DONE** 2026-07-30 — Option A Canon `feature/*` | `HC-04` | `CR-002` **CLOSED**; `feat/*` grandfathered. |
 | 7 | ~~Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md`~~ **DONE** 2026-07-30 — Option A stub+archive | `HC-03` | Full body in `docs/archive/AI_CONTEXT-2026-07-11.md`. |
 | 8 | ~~Hold a Board session on this pack; accept or reject~~ **DONE** ۸ مرداد ۱۴۰۵ — Accepted in full; signed Mohammad Shebahati / محمد شباهتی | `HC-14` | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md). Pack is `Accepted` / `1.0.0`. |
 | 9 | ~~Decide whether AODS gates become required CI checks~~ **DONE** 2026-07-30 — Phase 4 job `aods` + Protect main required check | `HC-14` | Minute: [`BOARD-MINUTE-AODS-PHASE4-CI.md`](BOARD-MINUTE-AODS-PHASE4-CI.md). `OI-GOV-02` CLOSED. |
+| 10 | ~~Decide `CR-008`: EPIC-1 ↔ PMO join~~ **DONE** 2026-07-30 — Option C + D14 mapping / Sprint 05 | `HC-04` | `CR-008` **CLOSED**. Open Board-wave: `SEO-008`, `FE-002`. |
 
 ---
 

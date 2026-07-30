@@ -46,7 +46,7 @@
 | CR-005 | BE-01 transaction ownership: docs say endpoints commit; 26 service commits exist | HIGH | Backend Architect | OPEN |
 | CR-006 | Quality bar: v2 audit 5.7 vs self-certified scorecard 9.0 | HIGH | Independent auditor | OPEN |
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
-| CR-008 | Two priority systems: PMO checkpoint vs Board EPIC-1; EPIC-1 PRs have no task ID | HIGH | Owner (PMO + Board) | OPEN |
+| CR-008 | EPIC-1 ↔ PMO mapping table + task IDs (Option C) | HIGH | Owner (PMO + Board) | CLOSED |
 | CR-009 | Binding SoR = this Git repo only (Option B); external `Website/docs/` not citeable | ~~BLOCKER~~ CLOSED | Owner | CLOSED |
 | CR-010 | ADR/RFC indexes + Canon Binding cites pruned; residual bible/IA/arch README links → CR-023 | HIGH | Architecture Board | CLOSED |
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
@@ -326,27 +326,26 @@ duplicates no longer exist. **Status → CLOSED.**
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Owner (as both PMO and Board) |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
-**System 1 (PMO, rank 7).** `EXECUTIVE_SUMMARY.md`: checkpoint 2026-09-22, KPI *"quality + indexable mid-tail + CWV,
-not #1 head-term rank"*; PMO declared *"operationally complete for 31 Shahrivar checkpoint"*; only CAT-002 and KB-001
-remain, both deliberately deferred. The always-applied Cursor rule mandates: *"Before large new work: read
-`EXECUTIVE_SUMMARY.md` and confirm priority against the 31 Shahrivar checkpoint."*
+**System 1 (PMO, rank 7).** `EXECUTIVE_SUMMARY.md`: checkpoint 2026-09-22; PMO *"operationally complete for 31 Shahrivar
+checkpoint"*; CAT-002 and KB-001 deliberately deferred to 2026-09-23.
 
-**System 2 (Board, rank 1).** Wave-1 Canon Lock opened **EPIC-1** on 2026-07-29: slug PDP, 301s, brand hubs, JSON-LD
-`@id`. `epic1-ia-readiness.md` lists 8 deliverables.
+**System 2 (Board, rank 1).** Wave-1 Canon Lock / `epic1-ia-readiness.md` lists 8 EPIC-1 deliverables (slug PDP, 301s,
+brand hubs, JSON-LD `@id`, …).
 
-**The collision.** PRs #126 and #127 delivered EPIC-1 deliverables 1–2 and carry **no PMO task ID**, no `tasks.json`
-entry, and no progress-ledger update — violating the very rule that is `alwaysApply: true`. Meanwhile PMO reports
-85.3% complete and "operationally complete," which is true for the checkpoint and false for the live workload.
+**The collision (historical).** PRs #126 and #127 delivered EPIC-1 work with **no PMO task ID**, violating the living-PMO
+rule while PMO correctly reported checkpoint completion.
 
-**Options:** (A) register EPIC-1 as PMO tasks (`EPIC1-001…008` or `SEO-005+`) and re-open PMO for a new sprint;
-(B) declare the checkpoint closed, archive PMO, and let the Board's EPIC/Wave structure own planning;
-(C) keep both, with an explicit mapping table `EPIC-1 deliverable ↔ PMO task ID`.
+**Options (historical):** (A) full EPIC-1 PMO sprint reopen; (B) archive PMO for Board-only planning; (C) keep both with
+an explicit `EPIC-1 deliverable ↔ PMO task ID` mapping.
 
-**AI recommendation (advisory): Option C, implemented as Option A's registration step.** The authority model already
-separates *what* (Board) from *when/status* (PMO); what is missing is the join. Without it, the `alwaysApply` rule
-will keep being violated, which trains agents to ignore rules — the worst possible outcome.
+**DECISION (2026-07-30, Mohammad Shebahati — HC Option C):** Keep both systems. Authority unchanged (Board = *what*,
+PMO = *when/status*). Registered thin PMO tasks and published the mapping in `DECISIONS.md` **D14**. Checkpoint remains
+operationally complete; EPIC-1 is a **post-checkpoint Board wave**, not a reopen of 31-Shahrivar P0s. Open EPIC-1 work:
+`SEO-008` (Brand Hub / CR-014), `FE-002` (PDF+accessories). Retroactive done: `SEO-005`–`SEO-007`, `SEO-009`, `BE-002`
+(#126/#127). Option B rejected (would contradict living-PMO). Option A-as-full-sprint rejected; registration is the
+thin A step inside C. **Status → CLOSED.**
 
 ---
 

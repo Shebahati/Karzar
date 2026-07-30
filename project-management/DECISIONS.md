@@ -13,3 +13,16 @@
 - [x] **D11** CR-004 residual B+C (2026-07-30): fail-closed `KARZAR_ALLOW_PRODUCTION_WRITE=1` + `KARZAR_INGESTION_CATEGORY=B` via `scripts/ingestion_boundary.py`; `publish_seo003_articles.py` classified Category B deploy publisher.
 - [x] **D12** Phase 4 / OI-GOV-05 (2026-07-30): Backend CI job `aods` runs baseline-aware `aods_validate.py` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`; `CR-012` CLOSED.
 - [x] **D13** OI-GOV-02 (2026-07-30): Protect main ruleset requires `lint`+`test`+`aods` (strict) — merge-blocking AODS gates.
+- [x] **D14** EPIC-1 ↔ PMO join (2026-07-30): closes AODS `CR-008` **Option C**. Checkpoint PMO stays authoritative for *when/status* of the 31 Shahrivar freeze; Board EPIC-1 stays authoritative for *what* is correct. Mapping (`epic1-ia-readiness.md` → `tasks.json`):
+
+  | EPIC-1 # | Deliverable | PMO task | Status |
+  |----------|-------------|----------|--------|
+  | 1–2 | PDP `/product/{slug}` + 301 id→slug | **SEO-005** | done (#127) |
+  | 3 | Cards / breadcrumbs / sitemap slug | **SEO-006** | done (residual: some account `/product/{id}` links) |
+  | 4 | JSON-LD `@id` / BreadcrumbList slug URL | **SEO-007** | done |
+  | 5 | Brand Hub `/brands/{slug}` | **SEO-008** | todo (blocked on SPEC / `CR-014`) |
+  | 6 | Brand meta for hubs | **BE-002** | done (#126) |
+  | 7 | PDF CTA + accessories slot | **FE-002** | todo |
+  | 8 | Category Hub `/categories/{slug}` affirm | **SEO-009** | done |
+
+  Sprint container for the Board wave: `sprints/SPRINT_05.md`. Does **not** reopen checkpoint P0s or lift CAT-002/KB-001 deferral.

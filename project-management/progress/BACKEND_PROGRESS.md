@@ -43,6 +43,10 @@
     - [x] BACKEND_PROGRESS
   - Notes: Regenerated `openapi/v1.json` (SEO fields on product schemas); #66/#68 plumbing; pytest SEO/audit 16 passed.
 
+- [x] **BE-002** EPIC-1.6 Brand meta for hubs — `done` 100% | P1 | 10h | Sprint 05
+  - Owner: pmo | Risk: low
+  - Notes: PR #126; registered under CR-008 Option C / D14 (2026-07-30).
+
 
 ## Evidence log
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
