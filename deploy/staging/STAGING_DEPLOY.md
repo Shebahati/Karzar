@@ -3,6 +3,9 @@
 **هدف این فاز:** سایت روی سرور با HTTPS، کاتالوگ واقعی، پرداخت mock و SMS console.  
 **Zarinpal / Kavenegar زنده:** بعداً — ببین [PROVIDERS_LATER.md](PROVIDERS_LATER.md).
 
+**CI deploy:** از ۱۴۰۵/۰۵/۰۸ (`CR-011` Option B) workflow `Deploy Staging` فقط با `workflow_dispatch`
+اجرا می‌شود (نه push به `main`). جزئیات: [`docs/COLLABORATOR_DEPLOY.md`](../../docs/COLLABORATOR_DEPLOY.md).
+
 پیش‌فرض دامنه: `api.` / `shop.` / `admin.` (در قالب‌ها `example.com` را عوض کنید).
 
 ---

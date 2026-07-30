@@ -19,10 +19,10 @@ Karzar/
 
 | محیط | شاخه / تریگر | سرور | تأیید |
 |------|---------------|------|--------|
-| **Staging** | push به `main` (با path filter) یا Run workflow | همان VPS زنده (`karzartools.com`) | Environment `staging` (فقط شاخه `main`) |
+| **Staging** | **فقط** `workflow_dispatch` (Actions → Run workflow روی `main`) | همان VPS زنده (`karzartools.com`) | Environment `staging` (فقط شاخه `main`) |
 | **Production** | **فقط** `workflow_dispatch` با تأیید متنی `deploy-production` | فعلاً **همان VPS** (جدا نشده) | Environment `production` + reviewer `Shebahati` + wait timer |
 
-تا وقتی host جدا برای production نداریم، **Deploy Production را به‌صورت دستی و با تأیید owner بزنید** — push به `main` فقط Staging را جلو می‌اندازد.
+تا وقتی host جدا برای production نداریم، هر دیپلوی به این VPS **زنده** است. از ۱۴۰۵/۰۵/۰۸ (`CR-011` Option B) merge به `main` دیگر Deploy Staging را خودکار اجرا نمی‌کند — باید دستی Run workflow بزنید.
 
 مسیرها روی سرور:
 - بک‌اند: `/opt/karzar/Karzar`
@@ -31,11 +31,11 @@ Karzar/
 
 > چرا self-hosted؟ از GitHub-hosted به SSH این VPS timeout می‌شود. چرا artifact؟ از خود VPS به `github.com` گاهی 504 می‌دهد؛ بنابراین checkout روی `ubuntu-latest` است و فقط artifact روی runner سرور پیاده می‌شود.
 
-## استقرار Staging (خودکار برای همکار فرانت)
+## استقرار Staging (دستی — `CR-011` Option B)
 
-1. روی شاخه فیچر کار کنید → PR به `main` بزنید (نیاز به review).
-2. بعد از merge به `main`، اگر تغییر در `frontend/**` یا مسیرهای بک‌اند دیپلوی باشد، **Deploy Staging** اجرا می‌شود.
-3. دستی: Actions → Deploy Staging → **Run workflow** (از شاخه `main`).
+1. روی شاخه فیچر کار کنید → PR به `main` بزنید (نیاز به CI سبز + review rules).
+2. بعد از merge به `main`، **دیپلوی خودکار نیست**.
+3. دستی: Actions → **Deploy Staging** → **Run workflow** (از شاخه `main`) — این همان VPS زنده است (HC-11/HC-12).
 
 چک سریع بعد از دیپلوی:
 - https://www.karzartools.com/
@@ -59,7 +59,7 @@ cd Karzar/frontend/Storefront   # یا admin-panel
 git checkout -b feat/ui-...
 git add -A && git commit -m "feat(ui): ..."
 git push -u origin HEAD
-# PR به main → بعد از merge، Staging خودکار دیپلوی می‌شود
+# PR به main → بعد از merge، در صورت نیاز Actions → Deploy Staging → Run workflow (دستی؛ CR-011 B)
 ```
 
 هرگز این‌ها را commit نکنید: `.env`، `.env.local`، `.deploy-secrets`، کلید SSH.
