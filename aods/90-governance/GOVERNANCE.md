@@ -376,7 +376,7 @@ document to be disbelieved.
 | Canon Lock is unmerged (`CR-001`) | Every citation to it currently fails to resolve on `main`; the governance base is not in the governed tree | `--gate links` reports it explicitly rather than silently passing; the unblocking path is `HC-02` then `HC-07` on PR #125 |
 | Authority tree lives partly outside Git (`Website/docs/`, `CR-009`) | Some authoritative text is unversioned and unreviewable | Escalated; no mitigation available inside this repo |
 | Staging and production share infrastructure | A "staging deploy" is not an independent rehearsal | Recorded as a risk; deployment remains manual |
-| No branch protection configured | The "never commit to `main`" rule is honour-based (`OI-GOV-02`) | Proposed; requires repo-admin action |
+| Branch ruleset exists but `aods` not yet a required check | Job `aods` can fail without blocking merge (`OI-GOV-02` residual) | Ruleset **Protect main** (`19696648`) already requires `lint`+`test`; apply `scripts/ops_require_aods_status_check.sh` as repo admin |
 | AODS is `Accepted` (۱.۰.۰) but Canon Lock row not yet on `main` | Process is binding; citations to Canon Lock still fail until PR #125 merges | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md); unblock via `HC-07` on #125 |
 
 ---
@@ -386,7 +386,7 @@ document to be disbelieved.
 | ID | Issue | Decision needed from | Blocks |
 |---|---|---|---|
 | `OI-GOV-01` | No freeze-state registry; "what is frozen" is unanswerable | Board | Mechanical `ARCH-GATE` |
-| `OI-GOV-02` | No branch protection on `main`; direct-commit prohibition is unenforced | Repo admin | Version-control governance §5.1 |
+| `OI-GOV-02` | Ruleset **Protect main** is active (`lint`+`test` required) but **`aods` is not yet a required status check**. Apply: `bash scripts/ops_require_aods_status_check.sh` as repo admin (or UI https://github.com/Shebahati/Karzar/rules/19696648). Cloud agent tokens get HTTP 403 (no Administration scope). | Repo admin | Merge-blocking for AODS gates |
 | `OI-GOV-03` | `CR-002` branch-naming conflict between two authoritative docs | Owner (`HC-04`) | Branch-name validation |
 | `OI-GOV-04` | Whether the PMO checkpoint calendar or the Board's EPIC-1 wave sets priority when they disagree (`CR-008`) | Owner | Node prioritisation |
 | `OI-GOV-05` | ~~Whether AODS gates become required status checks~~ **DECIDED** 2026-07-30: yes — Backend CI job `aods` on every PR/`main` push; minute `BOARD-MINUTE-AODS-PHASE4-CI.md`. Admin must still add `aods` to branch-protection required checks (`OI-GOV-02`). | Owner | — |

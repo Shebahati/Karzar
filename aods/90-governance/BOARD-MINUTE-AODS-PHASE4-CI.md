@@ -42,6 +42,13 @@ Adding the GitHub Actions job is necessary but not sufficient. A repo admin must
 required status checks on `main` (alongside `lint` / `test`) to satisfy `OI-GOV-02` mechanically.
 Until then the job still runs and fails PRs visibly; it is not yet merge-blocking via branch rules.
 
+**Apply (repo admin):**
+
+```bash
+bash scripts/ops_require_aods_status_check.sh
+# or UI: https://github.com/Shebahati/Karzar/rules/19696648 → add context `aods`
+```
+
 ## Non-decisions
 
-This minute does not close `OI-GOV-02` (branch protection configuration itself) or `CR-011` (staging≈prod).
+This minute does not close `OI-GOV-02` (adding `aods` to the existing Protect main ruleset) or `CR-011` (staging≈prod).
