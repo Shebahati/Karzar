@@ -47,15 +47,15 @@
 | **Accepted on** | ۱۴۰۵/۰۵/۰۸ (2026-07-30) — ۸ مرداد ۱۴۰۵ |
 | **Board** | Architecture Board |
 | **Signed** | محمد شباهتی / Mohammad Shebahati |
-| **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](../../../aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md) (lands with PR #128) |
+| **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](../../aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md) (lands with PR #128) |
 | **Scope** | Adopt AODS (`aods/`) as the binding process system for how changes are executed, validated, recorded, and approved |
 
 ## 1b. Accepted — Process (AODS)
 
 | Document | Path | Status | Since | Signed | Mandatory for |
 |----------|------|--------|-------|--------|----------------|
-| AODS Charter | [`../../../aods/AODS-CHARTER.md`](../../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
-| AODS pack (root) | [`../../../aods/`](../../../aods/) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Same — full pack under `aods/` version 1.0.0 |
+| AODS Charter | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
+| AODS pack (root) | [`../../aods/`](../../aods/) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Same — full pack under `aods/` version 1.0.0 |
 
 
 ---
