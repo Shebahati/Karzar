@@ -22,6 +22,17 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 
+### 2026-07-30 — CR-022 availability semantics (docs)
+
+- **Binding model:** site inventory is **binary** (`is_available` / storefront `availability`). Warehouse counts live only in Hesabfa (`README.md`, `docs/HESABFA.md`, `app/crud/product.py`). Closes AODS `CR-022` Option A (**D19**).
+- **`FRONTEND_INTEGRATION.md`:** corrected stale claims (`low_stock` when qty&lt;10; `availability` from `stock_quantity > 0`).
+- **Deprecated / legacy (still returned for compatibility — do not use as inventory truth):**
+  - `stock_quantity` on product/stock payloads — not a real count (typically `"0"`).
+  - `low_stock` — always `false` at runtime; no site threshold.
+  - `GET /api/v1/products/{id}/stock` — prefer product fields / availability updates via `is_available`.
+  - `POST /api/v1/products/{id}/stock/adjust` — raises; use `is_available` / availability endpoint instead.
+- **Follow-up (not this change):** migrate admin bulk path off deprecated stock adjust (advisory node 3).
+
 ### 2026-07-30 — CR-012 OpenAPI snapshot sync (EPIC-1 slug)
 
 - Regenerated committed `openapi/v1.json` from `app.openapi()` (81 → 82 paths).

@@ -89,11 +89,12 @@ This document answers every contract requirement you originally requested and de
 | `category_id`, `brand_id` | `number` | |
 | `category`, `brand` | nested brief objects | |
 | `base_price` | `string \| null` | |
-| `stock_quantity` | `string` | Decimal as string |
-| `stock_unit` | `"piece" \| "kg" \| "meter" \| "pack"` | |
-| `stock_status` | `"in_stock" \| "out_of_stock"` | |
-| `low_stock` | `boolean` | `true` when quantity < 10 |
-| `availability` | `boolean` | `is_active && stock_quantity > 0` |
+| `stock_quantity` | `string` | **Legacy** — not a warehouse count (kept `0` / Decimal string); see `README` / `HESABFA.md` |
+| `stock_unit` | `"piece" \| "kg" \| "meter" \| "pack"` | Legacy unit label; not used for site inventory |
+| `stock_status` | `"in_stock" \| "out_of_stock"` | Derived from binary availability (`is_available` + active), not qty |
+| `low_stock` | `boolean` | **Always `false` in runtime** — site has no numeric threshold; do not treat as qty&lt;10 |
+| `availability` | `boolean` | Binary storefront availability from `is_available` (and active), **not** `stock_quantity > 0` |
+| `is_available` | `boolean` | Canonical site inventory flag (موجود / ناموجود); prefer this over legacy stock fields |
 | `thumbnail` | `string \| null` | |
 | `images` | `{ id, url, is_primary }[]` | |
 | `specifications` | object (typed, see below) | |
@@ -133,7 +134,7 @@ This document answers every contract requirement you originally requested and de
 }
 ```
 
-**Frontend usage:** Build the specs table from `specifications.technical_specs`, feature chips from `specifications.features`, gallery from `images` (fallback: `thumbnail`), CTA from `availability` / `stock_status`.
+**Frontend usage:** Build the specs table from `specifications.technical_specs`, feature chips from `specifications.features`, gallery from `images` (fallback: `thumbnail`), CTA from `availability` / `stock_status` / `is_available` (binary model — AODS `CR-022` / **D19**).
 
 **Images:** Uploaded by the catalog team via admin (`/admin` → Product Images). Until then, `thumbnail` is `null` and `images` is `[]` — always handle placeholders.
 

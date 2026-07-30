@@ -60,7 +60,7 @@
 | CR-019 | Image import: `CATALOG_IMAGES_PLAN.md` authorized (Option A); Phase-3 pause superseded-for-now by D7/D8 | MEDIUM | Owner | CLOSED |
 | CR-020 | Bilingual pairs: EN contracts / FA operator; settings path non-Canon until BE (Option A / D18) | MEDIUM | Documentation Architect | CLOSED |
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
-| CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
+| CR-022 | Availability semantics: docs aligned to binary `is_available` (Option A / D19); admin bulk migrate residual | MEDIUM | Backend Architect | CLOSED |
 | CR-023 | Broken doc links fixed (BACKEND_CHANGES + Bible/IA/arch README not-in-repo prune) | LOW | Documentation Architect | CLOSED |
 
 **Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
@@ -755,7 +755,7 @@ PMO mirrors updated (BLOCKERS, RELEASE_PLAN, DEPENDENCIES, D6, EXECUTIVE_SUMMARY
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** Backend Architect · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** Backend Architect · **Status** CLOSED |
 
 `docs/FRONTEND_INTEGRATION.md` documents `low_stock` as true when quantity < 10, and `availability` derived from
 stock quantity. Code (`app/crud/product.py`) always returns `low_stock: False` and derives availability from the
@@ -768,6 +768,13 @@ count"*, and `POST /products/{id}/stock/adjust` is deprecated but still used by 
 **AI recommendation (advisory):** correct `FRONTEND_INTEGRATION.md` to the binary model, add a deprecation note to
 the legacy stock fields in `API_CHANGELOG.md`, and migrate the admin bulk path to the availability endpoint.
 Three separate nodes — not one PR.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option A):** Nodes 1–2 of the advisory. Corrected
+`docs/FRONTEND_INTEGRATION.md` to the binary `is_available` model (matching `README.md`, `docs/HESABFA.md`,
+and `app/crud/product.py`). Added deprecation note for legacy stock fields/routes in `docs/API_CHANGELOG.md`.
+Recorded as **D19**. Admin bulk-path migrate to the availability endpoint remains a **follow-up IMPL node**
+(not this PR). Does **not** implement qty&lt;10 `low_stock` behaviour. **Status → CLOSED.**
+**Follow-up node:** IMPL — migrate admin bulk stock path off deprecated `POST .../stock/adjust`.
 
 ---
 
@@ -808,3 +815,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-019 CLOSED — Option A: CATALOG_IMAGES_PLAN authorized; Phase-3 pause superseded-for-now (D16) | Board / operator session |
 | 2026-07-30 | CR-017 CLOSED — Option B: policy/defer deletes; hangover cites live git commands; residual acknowledged (D17) | Board / operator session |
 | 2026-07-30 | CR-020 CLOSED — Option A: bilingual normative roles + non-Canon settings paths; deploy one-VPS (D18) | Board / operator session |
+| 2026-07-30 | CR-022 CLOSED — Option A: FRONTEND_INTEGRATION + API_CHANGELOG binary/deprecation (D19); bulk migrate residual | Board / operator session |
