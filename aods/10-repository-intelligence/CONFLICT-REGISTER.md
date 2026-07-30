@@ -48,7 +48,7 @@
 | CR-007 | PMO canonical = progress/ + sprints/; root twins deleted | HIGH | PMO | CLOSED |
 | CR-008 | Two priority systems: PMO checkpoint vs Board EPIC-1; EPIC-1 PRs have no task ID | HIGH | Owner (PMO + Board) | OPEN |
 | CR-009 | Binding SoR = this Git repo only (Option B); external `Website/docs/` not citeable | ~~BLOCKER~~ CLOSED | Owner | CLOSED |
-| CR-010 | Canon Lock and Git workflow cite ≥12 documents that do not exist in the repo | HIGH | Architecture Board | OPEN |
+| CR-010 | ADR/RFC indexes + Canon Binding cites pruned; residual bible/IA/arch README links → CR-023 | HIGH | Architecture Board | CLOSED |
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
 | CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
@@ -65,7 +65,7 @@
 
 **Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
 `CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
-Residual HIGH items (e.g. `CR-010` dangling Proposed-index links) remain open but are not BLOCKERs.
+`CR-010` closed 2026-07-30 (ADR/RFC index prune). Residual dangling links in Bible/IA/arch README tracked as `CR-023`.
 **degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
@@ -382,7 +382,7 @@ diffed, linted, backed up, or read by any agent working from the GitHub checkout
 Updated `CANON-LOCK.md` (removed external authoring-mirror authority; dropped missing Binding rows; marked
 unpromoted packs as not-in-repo / not citeable), `git-development-workflow.md` Repo boundary + Related,
 and `PROMOTION-WAVE1.md`. **Status → CLOSED.** **Residual:** importing `Website/docs/` remains future Option A;
-dangling Proposed-index links elsewhere remain `CR-010` (OPEN, not BLOCKER).
+dangling Bible/IA/arch-README links remain under `CR-023` (`CR-010` CLOSED 2026-07-30).
 
 ---
 
@@ -392,7 +392,7 @@ dangling Proposed-index links elsewhere remain `CR-010` (OPEN, not BLOCKER).
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Architecture Board |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 
 Verified missing on branch `docs/wave1-canon-lock-promote` (and on `main`):
 
@@ -419,18 +419,18 @@ with no way to read it.
 **AI recommendation (advisory): Option B for the Binding rows** (a Binding row pointing at a missing file is
 unenforceable), **Option C for Proposed rows.** Enforced going forward by `--gate links`.
 
----
-
-
-**NOTE (2026-07-30, after CR-001 Option A):** Canon Lock is on `main`. `--gate links` now reports the
-dangling citations in this row as concrete findings (previously invisible because the citing files were
-off-main). Those findings are baselined under `conflict_id: CR-010` until Board chooses Option B
-(self-contain Canon) or promotes the missing packs. This does **not** close `CR-010`.
+**NOTE (2026-07-30, after CR-001 Option A):** Canon Lock landed on `main`; `--gate links` then surfaced the
+dangling citations as concrete findings (previously invisible while citing files were off-main).
 
 **PROGRESS (2026-07-30, with CR-009 Option B):** Binding rows in `CANON-LOCK.md` that pointed at missing
 files were removed; §3 packs marked not-in-repo; git workflow Related list no longer presents missing paths
-as live links. **Status remains OPEN** for residual dangling links in `adr/README.md` / `rfc/README.md` and
-baselined `--gate links` findings until a dedicated `CR-010` cleanup node.
+as live links.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 follow-up / Option B+C):** Pruned `docs/architecture/adr/README.md`,
+`docs/architecture/rfc/README.md`, and `rfc-index.md` so only **present** Accepted files are linked; reserved IDs
+listed as not-in-repo / not citeable. Removed corresponding `validation-baseline.json` entries; reassigned remaining
+baselined dangling links in Bible / IA / architecture README to **`CR-023`**. **Status → CLOSED.** Residual link debt
+outside ADR/RFC indexes continues under `CR-023`.
 
 
 ## CR-011 — Staging and production are the same host; `main` auto-deploys live
