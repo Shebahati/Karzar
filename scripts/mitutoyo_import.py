@@ -24,7 +24,7 @@ from pathlib import Path
 
 import os
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 BRAND_ID = 2  # Mitutoyo | میتوتویو
 STOCK_QTY = "10"
 

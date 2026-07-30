@@ -37,7 +37,7 @@ from app.utils.seo_descriptions import (  # noqa: E402
     template_apply_ready,
 )
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 UA = "KarzarSeoDescriptionDryRun/0.2"
 
 # Locked P2 brand order → known staging brand IDs (fallback if brands list is slow).

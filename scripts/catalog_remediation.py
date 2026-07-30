@@ -21,7 +21,7 @@ import urllib.request
 from collections import Counter
 from pathlib import Path
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 UA = "KarzarCatalogRemediation/1.0"
 
 # Remove marketing fluff but keep «مدل CODE»

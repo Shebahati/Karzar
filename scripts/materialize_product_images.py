@@ -37,7 +37,7 @@ USER_AGENT = (
 
 
 def _public_base() -> str:
-    return os.getenv("PUBLIC_ASSET_BASE", "https://api.karzartools.com").rstrip("/")
+    return os.getenv("PUBLIC_ASSET_BASE", "http://127.0.0.1:8000").rstrip("/")
 
 
 def _ext_from_url_or_ct(url: str, content_type: str | None) -> str:

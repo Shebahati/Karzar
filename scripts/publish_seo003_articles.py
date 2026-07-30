@@ -7,6 +7,7 @@ Source of truth:
 
 Examples:
   python scripts/publish_seo003_articles.py --dry-run
+  # Category A default is local (ADR-012). Category B deploy publish must set the base explicitly:
   KARZAR_API_BASE=https://api.karzartools.com/api/v1 \\
     python scripts/publish_seo003_articles.py
 """
@@ -22,7 +23,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 ROOT = Path(__file__).resolve().parents[1]
 
 

@@ -46,7 +46,7 @@ from app.utils.seo_descriptions import (  # noqa: E402
     is_stub_description,
 )
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 UA = "KarzarSanouOfficialCatalogEnrich/1.0"
 BRAND_ID_DEFAULT = 20  # SAN OU | سانو
 OUT_DIR = _ROOT / "data" / "imports" / "sanou" / "official_catalog"

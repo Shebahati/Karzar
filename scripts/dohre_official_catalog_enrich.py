@@ -44,7 +44,7 @@ from app.utils.seo_descriptions import (  # noqa: E402
     render_short_description_template,
 )
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 UA = "KarzarDohreOfficialCatalogEnrich/1.0"
 BRAND_ID_DEFAULT = 9  # DOHRE | دوهره
 OFFICIAL_BASE = "https://www.dohrecnc.com"

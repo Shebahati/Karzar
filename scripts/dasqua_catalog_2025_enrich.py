@@ -51,7 +51,7 @@ from app.utils.seo_descriptions import (  # noqa: E402
     render_short_description_template,
 )
 
-API = os.getenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+API = os.getenv("KARZAR_API_BASE", "http://127.0.0.1:8000/api/v1")
 UA = "KarzarDasquaCatalog2025Enrich/1.0"
 BRAND_ID_DEFAULT = 4  # Dasqua | داسکوا
 OUT_DIR = _ROOT / "data" / "imports" / "dasqua" / "catalog_2025"
