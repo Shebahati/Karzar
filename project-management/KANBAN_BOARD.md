@@ -19,19 +19,6 @@ Statuses mirrored from `exports/tasks.json`.
   - Definition of Done:
     - [ ] SEO_PROGRESS note
   - Notes: DEFERRED at checkpoint close (2026-07-28) per RELEASE_PLAN/EXEC; #90 kept open for resume; #74 closed intentionally; revisit 2026-09-23
-- [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
-  - Owner: unassigned | Week 5 Day 1 | Risk: med
-  - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
-  - [x] Dependencies: —
-  - [x] Files: app/**, frontend/admin-panel/**
-  - [x] Modules: security
-  - [x] Tags: security
-  - Acceptance Criteria:
-    - [x] Admin X-Robots-Tag
-    - [x] No secrets in FE
-  - Definition of Done:
-    - [x] SECURITY_PROGRESS
-  - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
 
 - [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **DEFERRED** (post-31-Shahrivar)
   - Owner: PMO | Week 7 Day 1 | Risk: high
@@ -51,6 +38,46 @@ Statuses mirrored from `exports/tasks.json`.
 _(empty — AODS-001 Accepted and moved to done)_
 
 ## done
+- [x] **FE-003** Remove non-Karzar website references from storefront content/images — `done` 100% | P0 | 6h | Sprint 04
+  - Owner: unassigned | Week 4 Day 2 | Risk: med
+  - [x] Description: Purge external website mentions; local assets; remove external footer/contact website links. (CR-013; was CONTENT-URL-001.)
+  - [x] Dependencies: SEO-003
+  - [x] Files: frontend/Storefront/content/**, frontend/Storefront/src/**, frontend/Storefront/public/images/placeholders/**
+  - [x] Modules: content, ui
+  - [x] Tags: content, ux, compliance
+  - Acceptance Criteria:
+    - [x] No non-Karzar website references in storefront content payloads
+    - [x] Customer-visible images from local assets
+    - [x] Contact/footer external website links removed
+  - Definition of Done:
+    - [x] CONTENT_PROGRESS
+  - Notes: #109 → main @f100ffa.
+- [x] **SEO-010** Store LocalBusiness geo + Maps place on contact/footer/JSON-LD — `done` 100% | P0 | 4h | Sprint 01
+  - Owner: unassigned | Week 2 Day 2 | Risk: low
+  - [x] Description: LocalBusiness + geo + hasMap on layout Organization. (CR-013; was SEO-001 follow-up.)
+  - [x] Dependencies: SEO-001
+  - [x] Files: frontend/Storefront/src/lib/json-ld.ts, frontend/Storefront/src/lib/store-location.ts
+  - [x] Modules: seo, frontend
+  - [x] Tags: seo, schema
+  - Acceptance Criteria:
+    - [x] LocalBusiness + geo + hasMap in JSON-LD
+    - [x] Contact/footer identity SoT aligned
+  - Definition of Done:
+    - [x] STRUCTURED_DATA_PROGRESS
+  - Notes: #101 → main @1e8cd9b.
+- [x] **SEC-001** Security hygiene pass for go-live bar — `done` 100% | P1 | 12h | Sprint 03
+  - Owner: unassigned | Week 5 Day 1 | Risk: med
+  - [x] Description: Admin noindex, step-up coverage, dependency scan, secrets audit.
+  - [x] Dependencies: —
+  - [x] Files: app/**, frontend/admin-panel/**
+  - [x] Modules: security
+  - [x] Tags: security
+  - Acceptance Criteria:
+    - [x] Admin X-Robots-Tag
+    - [x] No secrets in FE
+  - Definition of Done:
+    - [x] SECURITY_PROGRESS
+  - Notes: Admin X-Robots-Tag + secrets hygiene script + step-up inventory; Pillow 12.3.0; residual dep advisories in RISKS R8.
 - [x] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `done` 100% | P1 | 24h | Sprint 04
   - Owner: agent | Week 1 Day 3 | Risk: med
   - [x] Description: Repository audit, then the governing process system for AI-assisted development.

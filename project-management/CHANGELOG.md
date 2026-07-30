@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-013 CLOSED** — Registered orphans as **FE-003** (was CONTENT-URL-001, #109) and **SEO-010** (was SEO-001 follow-up, #101); reconciled primary PMO mirrors; milestones M0–M4 → done; MASTER_ROADMAP O3–O6 checked; README hours from tasks.json (~82% weighted); SEC-001 KANBAN/DONE honesty. Residual: GENERATED wallboard/printable/CSV — regenerate, do not hand-patch.
 - [x] **CR-006 CLOSED (Option B)** — Scorecard demoted `HISTORICAL`; live quality bar = v2 master audit + `REMEDIATION-TO-9`; CONTRIBUTING updated; Option A (v3 audit) deferred.
 - [x] **CR-016 CLOSED (Option A)** — Pytest SoT = `pyproject.toml` only; deleted duplicate `pytest.ini` after carrying `python_classes`/`python_functions`.
 - [x] **CR-018 CLOSED** — Added `.github/pull_request_template.md` from Accepted `pr-checklist.md` + citation minima; TECH_DEBT cleared.
@@ -55,7 +56,7 @@
 - [x] **SEC-001** Security hygiene pass for go-live bar — admin `X-Robots-Tag` + layout noindex; secrets hygiene script green; FE key-material scan 0 hits; step-up PIN coverage inventoried; Pillow→12.3.0; residual ecdsa/Next advisories → RISKS R8
 - [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — scope freeze documented (P0 completed/deferred), explicit go/no-go gates, rollback plan, launch-window verification checklist, and residual risk ownership added across PMO artifacts.
 - [x] **SEO-003** Publish 24 buyer-intent articles (calendar A01–D06) — #102 → `main` @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); CMS `ok=24`; verified `/blog/digital-caliper-workshop-accuracy`
-- [x] **SEO-001 follow-up** Store LocalBusiness geo + official Google Maps place on contact/footer/JSON-LD — (PR pending)
+- [x] **SEO-010** Store LocalBusiness geo + official Google Maps place on contact/footer/JSON-LD — #101 → `main` @1e8cd9b (was «SEO-001 follow-up»; registered CR-013)
 - [x] **PERF-001** Core Web Vitals foundations (fonts/LCP/image pipeline) — #99 → `main` @d169831; Deploy Staging green (30251144532)
 - [x] **UX-002** PDP trust strip + specs SoT presentation — #96 → `main` @e8ea7bf; Deploy Staging green; verified `/product/2000` (trust+RTL specs) + `/product/7115` (trust+JSON-LD)
 - [x] **OPS-001** Measurement promote workflow marked done in PMO — #81 → `main` @e1981b6 (merged 2026-07-26; Kanban sync)

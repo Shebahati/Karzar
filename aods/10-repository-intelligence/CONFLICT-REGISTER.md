@@ -51,7 +51,7 @@
 | CR-010 | ADR/RFC indexes + Canon Binding cites pruned; residual bible/IA/arch README links → CR-023 | HIGH | Architecture Board | CLOSED |
 | CR-011 | Auto-deploy on push to `main` removed (Option B); same-VPS residual until Option A | ~~BLOCKER~~ CLOSED | DevOps / Release Manager | CLOSED |
 | CR-012 | `openapi/v1.json` regenerated + Backend CI job `aods` runs `--gate openapi` | HIGH | Backend Architect | CLOSED |
-| CR-013 | Orphan/untracked work items: `CONTENT-URL-001`, `SEO-001 follow-up` | MEDIUM | PMO | OPEN |
+| CR-013 | Orphans registered as FE-003 (#109) + SEO-010 (#101); GENERATED wallboard/CSV residual | MEDIUM | PMO | CLOSED |
 | CR-014 | Brand Hub page contract Proposed (SPEC); awaits HC-01 freeze / SEO-008 IMPL | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest config SoT = `pyproject.toml` only (Option A) | LOW | QA Engineer | CLOSED |
@@ -513,7 +513,7 @@ Repo admin later added `aods` to Protect main required checks (`OI-GOV-02` CLOSE
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** PMO · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** PMO · **Status** CLOSED |
 
 | Item | Problem |
 |------|---------|
@@ -530,6 +530,19 @@ Repo admin later added `aods` to Protect main required checks (`OI-GOV-02` CLOSE
 **AI recommendation (advisory):** register the orphans as real task IDs, then run one `PMO-SYNC` node with
 `--gate pmo` enforcing parity thereafter. The wallboard and CSVs should be marked `GENERATED` and regenerated
 rather than hand-patched.
+
+**DECISION (2026-07-30, Mohammad Shebahati — approved node GOV-2026-07-30-cr013-pmo-orphans / Option register-orphans):**
+Registered orphans as real `tasks.json` IDs — **FE-003** ← `CONTENT-URL-001` (#109 → `main` @f100ffa),
+**SEO-010** ← «SEO-001 follow-up» LocalBusiness geo/hasMap (#101 → `main` @1e8cd9b; evidence
+`frontend/Storefront/src/lib/json-ld.ts` `buildOrganizationNode`). Reconciled primary mirrors
+(`CONTENT_PROGRESS`, `STRUCTURED_DATA_PROGRESS`, `UX_PROGRESS`, `KANBAN_BOARD`, `DONE`, `CHANGELOG`,
+`SPRINT_04`, `MASTER_ROADMAP` O3–O6, `milestones.json` M0–M4 → `done`, `README` hours from tasks.json,
+`DECISIONS` **D15**). **Status → CLOSED.**
+
+**Residuals (deliberately not hand-patched):** `printable/PMO_31_Shahrivar_wallboard.{html,pdf}` and CSV
+exports under `project-management/exports/` remain **GENERATED** — regenerate via the export pipeline, do not
+edit by hand. `SPRINT_00`/`SPRINT_01` Goals checkbox drift remains outside this node's allow-list (future
+PMO-SYNC).
 
 ---
 

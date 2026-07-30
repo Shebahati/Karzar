@@ -8,10 +8,10 @@ Make Karzar the **most trustworthy industrial tooling storefront in Persian sear
 ## Outcome map
 - [x] O1 Storefront IA + merchandising megamenu
 - [x] O2 Taxonomy: metrology display groups without fake L1 hub
-- [ ] O3 Structured data + crawl hygiene
-- [ ] O4 24 indexable guides linked to SKUs
-- [ ] O5 CWV pass on money pages
-- [ ] O6 Release freeze + observability
+- [x] O3 Structured data + crawl hygiene
+- [x] O4 24 indexable guides linked to SKUs
+- [x] O5 CWV pass on money pages
+- [x] O6 Release freeze + observability
 
 ## Timeline (weeks from 2026-07-26)
 - [ ] W1 Sprint 00 — PMO, triage PRs, images, FE selectable drift
