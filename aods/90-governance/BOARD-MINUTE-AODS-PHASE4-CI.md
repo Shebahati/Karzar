@@ -49,6 +49,10 @@ bash scripts/ops_require_aods_status_check.sh
 # or UI: https://github.com/Shebahati/Karzar/rules/19696648 → add context `aods`
 ```
 
+**Update 2026-07-30:** Repo admin applied — Protect main now requires `lint` + `test` + `aods`
+(strict). `OI-GOV-02` **CLOSED**. Verify: `bash scripts/ops_require_aods_status_check.sh --check`.
+
 ## Non-decisions
 
-This minute does not close `OI-GOV-02` (adding `aods` to the existing Protect main ruleset) or `CR-011` (staging≈prod).
+This minute originally deferred `OI-GOV-02`; that residual is now closed (see update above).
+`CR-011` (staging≈prod) remains open.

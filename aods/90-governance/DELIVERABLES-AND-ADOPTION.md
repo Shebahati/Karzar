@@ -278,7 +278,7 @@ flowchart LR
 | **1 — Advisory** | Phase 0 | Run `--all` locally before each PR. Record the baseline. Fix only what is free to fix. | `registry/validation-baseline.json` exists with an owner per entry | — |
 | **2 — Deconflict** | Phase 1 | Board decides `CR-001` (merge PR #125), `CR-002` (branch naming), `CR-003` (coverage number), `CR-007` (PMO canonical path) | Those four rows closed with dates | Requires `HC-02` + `HC-07` on PR #125, then `HC-04` |
 | **3 — Accept** | Phase 2 | Board reviews the pack; minute; Canon Lock row; statuses → `Accepted`; versions → `1.0.0` | `document-registry.yaml` shows `accepted` for the AODS pack | **Board decision — the one irreducible human gate** |
-| **4 — Enforce** | Phase 3 | ~~Wire gates into `backend-ci.yml`~~ **DONE** 2026-07-30 — job `aods` runs baseline-aware `aods_validate.py` | Job present on PRs; add `aods` to branch protection (`OI-GOV-02`) | Minute `BOARD-MINUTE-AODS-PHASE4-CI.md`; `OI-GOV-05` closed |
+| **4 — Enforce** | Phase 3 | ~~Wire gates into `backend-ci.yml`~~ **DONE** 2026-07-30 — job `aods` + Protect main requires `aods` | A PR failing `aods` cannot merge | Minute `BOARD-MINUTE-AODS-PHASE4-CI.md`; `OI-GOV-05` + `OI-GOV-02` closed |
 | **5 — Execute** | Phase 4 | Run one real epic entirely through the node model: `SPEC → IMPL → TEST → AUD(review) → DOC → GOV` | One wave completed with a full task-record trail and zero `PARTIAL` nodes | Requires a frozen spec (`HC-01`) |
 | **6 — Steady state** | Phase 5 | Monthly governance review; quarterly independent audit; baseline shrinks | Governance health metrics (`GOVERNANCE.md` §7.3) trending correctly | — |
 
@@ -351,7 +351,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 | 6 | Decide `CR-002`: branch naming | `HC-04` | Two authoritative documents disagree. |
 | 7 | ~~Decide `CR-015`: delete or quarantine `frontend/AI_CONTEXT.md`~~ **DONE** 2026-07-30 — Option A stub+archive | `HC-03` | Full body in `docs/archive/AI_CONTEXT-2026-07-11.md`. |
 | 8 | ~~Hold a Board session on this pack; accept or reject~~ **DONE** ۸ مرداد ۱۴۰۵ — Accepted in full; signed Mohammad Shebahati / محمد شباهتی | `HC-14` | Minute: [`BOARD-MINUTE-AODS-ACCEPTANCE.md`](BOARD-MINUTE-AODS-ACCEPTANCE.md). Pack is `Accepted` / `1.0.0`. |
-| 9 | ~~Decide whether AODS gates become required CI checks~~ **DONE** 2026-07-30 — Phase 4 job `aods` | `HC-14` | Minute: [`BOARD-MINUTE-AODS-PHASE4-CI.md`](BOARD-MINUTE-AODS-PHASE4-CI.md). Add `aods` to branch protection (`OI-GOV-02`). |
+| 9 | ~~Decide whether AODS gates become required CI checks~~ **DONE** 2026-07-30 — Phase 4 job `aods` + Protect main required check | `HC-14` | Minute: [`BOARD-MINUTE-AODS-PHASE4-CI.md`](BOARD-MINUTE-AODS-PHASE4-CI.md). `OI-GOV-02` CLOSED. |
 
 ---
 

@@ -51,9 +51,9 @@ See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 + AODS-001 
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).
 Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Decision **D9** closed.
 Phase 4 CI: Backend CI job `aods` (**D12** / `OI-GOV-05`); minute `BOARD-MINUTE-AODS-PHASE4-CI.md`.
+Protect main requires `lint`+`test`+`aods` (**D13** / `OI-GOV-02` CLOSED).
 Runnable gates: `python3 aods/tools/aods_validate.py`. Conflicts: `aods/10-repository-intelligence/CONFLICT-REGISTER.md`
 (CR-001/004/007/012/015 closed; open BLOCKERs: CR-009, CR-011).
-Add CI job `aods` to branch-protection required checks when ready (`OI-GOV-02`).
 
 ## Blockers
 See `BLOCKERS.md`
