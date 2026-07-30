@@ -31,21 +31,23 @@
 - [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
 - [x] FE-001 follow-up homepage padding (#117 → main @174718f)
 - [x] **AODS-001** AI-Orchestrated Development System **Accepted** ۱.۰.۰ — Board minute ۸ مرداد ۱۴۰۵ (Mohammad Shebahati); PR #128
+- [x] **CR-008 / D14** EPIC-1 ↔ PMO join (Option C) — tasks `SEO-005`…`SEO-009`, `BE-002`, `FE-002`; see `sprints/SPRINT_05.md`
 
 ## By stream
 - [x] PMO bootstrap (#86 → main)
-- [x] SEO — see `SEO_PROGRESS.md` (001–004 done)
+- [x] SEO — see `SEO_PROGRESS.md` (001–004 checkpoint done; EPIC-1 SEO-005…009 in Sprint 05)
 - [x] Content — see `CONTENT_PROGRESS.md` (SEO-002/003 done)
-- [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-001/002 + FE-001 done)
+- [x] UX/UI — see `UX_PROGRESS.md` / `UI_PROGRESS.md` (UX-001/002 + FE-001 done; FE-002 open)
 - [x] Performance — see `CORE_WEB_VITALS_PROGRESS.md` (PERF-001 done)
 - [x] Security — see `SECURITY_PROGRESS.md` (SEC-001 done; residual dep advisories R8)
 - [x] Catalog enrichment triage (CAT-001) closed; CAT-002 INSIZE deferred — see `BACKEND_PROGRESS.md`
 - [x] Explicitly deferred: CAT-002 (#90 open), KB-001 (post-31-Shahrivar); #74 Insize 108A closed
 - [x] Deferred ownership locked at checkpoint close (2026-07-28): CAT-002/KB-001 owner = PMO, revisit date = 2026-09-23
 - [x] Process governance — AODS Accepted (D9); see `aods/`
+- [x] Backend EPIC-1 brand meta — **BE-002** done (#126); see `BACKEND_PROGRESS.md`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (REL-001 + SEC-001 + CAT-001/003 + UX-001 + AODS-001 closed; checkpoint open items: deferred CAT-002 / KB-001 only). PMO state: **operationally complete for checkpoint**.
+See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Open Board-wave: **SEO-008**, **FE-002**. Checkpoint deferrals: CAT-002 / KB-001 (revisit 2026-09-23).
 
 ## Process governance (AODS-001)
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).
@@ -53,7 +55,7 @@ Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Decision **D9** cl
 Phase 4 CI: Backend CI job `aods` (**D12** / `OI-GOV-05`); minute `BOARD-MINUTE-AODS-PHASE4-CI.md`.
 Protect main requires `lint`+`test`+`aods` (**D13** / `OI-GOV-02` CLOSED).
 Runnable gates: `python3 aods/tools/aods_validate.py`. Conflicts: `aods/10-repository-intelligence/CONFLICT-REGISTER.md`
-(CR-001/004/007/012/015 closed; open BLOCKERs: CR-009, CR-011).
+(CR-001/002/003/004/007/008/009/010/011/012/015/021/023 closed among others; open BLOCKERs: 0).
 
 ## Blockers
 See `BLOCKERS.md`

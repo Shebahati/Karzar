@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-008 CLOSED (Option C)** — EPIC-1 ↔ PMO mapping (**D14**); tasks `SEO-005`…`SEO-009`, `BE-002`, `FE-002`; Sprint 05 Board wave; checkpoint deferrals unchanged.
 - [x] **CR-002 CLOSED (Option A)** — Canon `feature/*` wins; CONTRIBUTING + COLLABORATOR_DEPLOY aligned; `feat/*` grandfathered (no mass-rename); `cursor/*` carve-out documented.
 - [x] **CR-003 CLOSED (Option A)** — Coverage prose aligned to enforced **68%** (`pyproject.toml` + `backend-ci.yml` SoT); `README.md` / `docs/TESTING.md` / `docs/API_CHANGELOG.md` + TECH_DEBT updated.
 - [x] **CR-023 CLOSED** — Fixed broken doc links (`BACKEND_CHANGES` relatives + Bible/IA/architecture README not-in-repo prune); `--gate links` clean; links baseline emptied.

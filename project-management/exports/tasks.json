@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-29",
+  "as_of": "2026-07-30",
   "deadline": "2026-09-22",
   "tasks": [
     {
@@ -698,6 +698,277 @@
       ],
       "risk": "medium",
       "notes": "Accepted in full by Architecture Board on ۸ مرداد ۱۴۰۵ (2026-07-30), signed Mohammad Shebahati / محمد شباهتی. Minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md. Pack status Accepted / 1.0.0. PR #128. Follow-ons closed: CR-001/004/007/012/015; Phase 4 CI job aods (OI-GOV-05 / D12); Protect main requires aods (OI-GOV-02 / D13)."
+    },
+    {
+      "id": "SEO-005",
+      "title": "EPIC-1.1–1.2 PDP slug route + 301 id→slug",
+      "description": "Board EPIC-1 deliverables 1–2 (epic1-ia-readiness.md): `/product/{slug}` and 301 from `/product/{id}`.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 16,
+      "deps": [
+        "BE-001"
+      ],
+      "files": [
+        "frontend/Storefront/src/app/product/**",
+        "frontend/Storefront/src/lib/product-url.ts"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "PDP serves slug URL",
+        "Numeric id URL permanent-redirects to slug when slug exists"
+      ],
+      "dod": [
+        "SEO_PROGRESS",
+        "PR merged"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 1,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "epic1",
+        "seo",
+        "slug"
+      ],
+      "risk": "med",
+      "notes": "Shipped PR #127 (2026-07-29/30). Registered retroactively under CR-008 Option C so EPIC-1 work is PMO-citeable. Not a 31-Shahrivar checkpoint reopen."
+    },
+    {
+      "id": "SEO-006",
+      "title": "EPIC-1.3 Cards, breadcrumbs, sitemap use slug",
+      "description": "Board EPIC-1 deliverable 3: product cards, breadcrumbs, sitemap prefer canonical slug URLs.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "SEO-005"
+      ],
+      "files": [
+        "frontend/Storefront/src/components/product/**",
+        "frontend/Storefront/src/app/sitemap.ts"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "Primary merchandising links use productPath/slug",
+        "Sitemap emits /product/{slug} when slug present"
+      ],
+      "dod": [
+        "SEO_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 1,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "epic1",
+        "seo",
+        "slug"
+      ],
+      "risk": "low",
+      "notes": "productPath on ProductCard/cart; sitemap prefers slug. Residual: some account order links still `/product/{id}` — track as follow-up, not blocking this registration (CR-008 C)."
+    },
+    {
+      "id": "SEO-007",
+      "title": "EPIC-1.4 JSON-LD @id / BreadcrumbList use canonical slug URL",
+      "description": "Board EPIC-1 deliverable 4: structured data canonical URLs use slug when present.",
+      "priority": "P1",
+      "complexity": "low",
+      "hours": 6,
+      "deps": [
+        "SEO-001",
+        "SEO-005"
+      ],
+      "files": [
+        "frontend/Storefront/src/lib/json-ld.ts"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "Product JSON-LD url/@id prefer /product/{slug}"
+      ],
+      "dod": [
+        "STRUCTURED_DATA_PROGRESS or SEO_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 1,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "epic1",
+        "seo",
+        "json-ld"
+      ],
+      "risk": "low",
+      "notes": "json-ld.ts productPageUrl prefers slug; builds on SEO-001. Registered under CR-008 Option C."
+    },
+    {
+      "id": "SEO-008",
+      "title": "EPIC-1.5 Brand Hub `/brands/{slug}` for priority brands",
+      "description": "Board EPIC-1 deliverable 5 (ADR-010 / RFC-005). Blocked on page-contract SPEC (AODS CR-014 / G-01).",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 24,
+      "deps": [
+        "BE-002",
+        "SEO-005"
+      ],
+      "files": [
+        "frontend/Storefront/src/app/brands/**",
+        "docs/architecture/rfc/RFC-005-brand-hub-launch.md"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "At least one priority Brand Hub returns 200 with product list",
+        "No thin facet hubs as Brand substitutes"
+      ],
+      "dod": [
+        "SEO_PROGRESS",
+        "IA checklist Brand Hub row"
+      ],
+      "status": "todo",
+      "progress": 0,
+      "sprint": "05",
+      "week": 2,
+      "day": 1,
+      "owner": "unassigned",
+      "tags": [
+        "epic1",
+        "seo",
+        "brand-hub"
+      ],
+      "risk": "high",
+      "notes": "OPEN. No Storefront brands/ route yet. Do not implement until SPEC frozen (CR-014). Post-checkpoint Board wave — not 31-Shahrivar P0. Revisit with Phase 5 AODS."
+    },
+    {
+      "id": "BE-002",
+      "title": "EPIC-1.6 Expose Brand meta needed for hubs",
+      "description": "Board EPIC-1 deliverable 6: API/product surface brand meta for Brand Hub.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 10,
+      "deps": [
+        "BE-001"
+      ],
+      "files": [
+        "app/api/**",
+        "app/schemas/**"
+      ],
+      "modules": [
+        "backend",
+        "seo"
+      ],
+      "ac": [
+        "Brand meta required for hubs available on API surface used by storefront"
+      ],
+      "dod": [
+        "BACKEND_PROGRESS",
+        "OpenAPI if contract changed"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 1,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "epic1",
+        "backend",
+        "brand"
+      ],
+      "risk": "low",
+      "notes": "Shipped PR #126 (epic1-api-slug-and-brand-meta). Registered retroactively under CR-008 Option C."
+    },
+    {
+      "id": "FE-002",
+      "title": "EPIC-1.7 PDP PDF CTA + accessories slot",
+      "description": "Board EPIC-1 deliverable 7: render PDF CTA and accessories slot (honest empty OK per IA).",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 12,
+      "deps": [
+        "SEO-005"
+      ],
+      "files": [
+        "frontend/Storefront/src/components/product/**"
+      ],
+      "modules": [
+        "frontend"
+      ],
+      "ac": [
+        "Document/PDF CTA region present",
+        "Accessories slot present (empty OK)"
+      ],
+      "dod": [
+        "FRONTEND_PROGRESS or UX_PROGRESS"
+      ],
+      "status": "todo",
+      "progress": 10,
+      "sprint": "05",
+      "week": 2,
+      "day": 2,
+      "owner": "unassigned",
+      "tags": [
+        "epic1",
+        "frontend",
+        "pdp"
+      ],
+      "risk": "med",
+      "notes": "Partial UI affordances exist; full EPIC-1 Relation-layer slots not accepted as done. Post-checkpoint Board wave."
+    },
+    {
+      "id": "SEO-009",
+      "title": "EPIC-1.8 Preserve/enhance Category Hub `/categories/{slug}`",
+      "description": "Board EPIC-1 deliverable 8: affirm CURRENT Category Hub remains healthy under slug IA.",
+      "priority": "P1",
+      "complexity": "low",
+      "hours": 4,
+      "deps": [
+        "SEO-002"
+      ],
+      "files": [
+        "frontend/Storefront/src/app/categories/**"
+      ],
+      "modules": [
+        "seo",
+        "frontend"
+      ],
+      "ac": [
+        "Category Hub still works for slug categories"
+      ],
+      "dod": [
+        "SEO_PROGRESS"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 1,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "epic1",
+        "seo",
+        "category-hub"
+      ],
+      "risk": "low",
+      "notes": "Affirmed CURRENT: categories/{slug} live; SEO-002 hub intros. Registered under CR-008 Option C."
     }
   ]
 }

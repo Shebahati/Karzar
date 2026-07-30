@@ -60,10 +60,19 @@
     - [x] TECHNICAL_SEO_PROGRESS
   - Notes: #94 → main @a119b38; Deploy Staging green; soft-404→404; facet/private noindex; sitemap 6007 urls; hreflang N/A.
 
+## EPIC-1 Board wave (post-checkpoint — D14 / CR-008 C)
+
+- [x] **SEO-005** EPIC-1.1–1.2 PDP slug + 301 — `done` 100% | P1 | Sprint 05 — #127
+- [x] **SEO-006** EPIC-1.3 Cards/breadcrumbs/sitemap slug — `done` 100% | P1 | Sprint 05
+- [x] **SEO-007** EPIC-1.4 JSON-LD slug `@id` — `done` 100% | P1 | Sprint 05
+- [ ] **SEO-008** EPIC-1.5 Brand Hub `/brands/{slug}` — `todo` 0% | P1 | Sprint 05 — blocked on `CR-014` SPEC
+- [x] **SEO-009** EPIC-1.8 Category Hub affirm — `done` 100% | P1 | Sprint 05
+
 ## Evidence log
 - [x] SEO-004 PR https://github.com/Shebahati/Karzar/pull/94 + staging robots/sitemap/facet noindex
 - [x] SEO-003 PR https://github.com/Shebahati/Karzar/pull/102 (+ #103/#104) + staging `/blog/digital-caliper-workshop-accuracy`
 - [x] SEO-002 PR https://github.com/Shebahati/Karzar/pull/91 + staging hub `/categories/انواع-کولیس`
 - [x] SEO-001 #88 + staging /product/7115
+- [x] SEO-005 / SEO-006 / SEO-007 / SEO-009 registered 2026-07-30 (CR-008 C); Brand Hub open as SEO-008
 
 - [x] CAT-002 INSIZE apply deferred (post-checkpoint); tooling candidate remains #90
