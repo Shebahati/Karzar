@@ -27,6 +27,7 @@ meta:
   generated_by: AODS design task (aods/10-repository-intelligence/REPOSITORY-AUDIT.md)
   audited_commit: c022a44
   audited_at: "2026-07-29"
+  on_main_reconciled_at: "2026-07-30"
   accepted_on: "2026-07-30"
   accepted_jalali: "1405/05/08"
   accepted_by: "Mohammad Shebahati"
@@ -71,7 +72,7 @@ documents:
     accepted_on: "2026-07-29"
     accepted_by: Architecture Board (Mohammad Shebahati)
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
     citation_required_for: [CT-URL-SEO, CT-DATA, CT-API, CT-SCHEMA]
     notes: "Root of all binding authority. NOT ON MAIN — see CR-001. Merged PR #127 already cites it."
@@ -82,7 +83,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "Orientation hub (Plane B). Does not override binding ingestion policy."
 
   - id: ADR-010
@@ -91,7 +92,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-URL-SEO]
     notes: "Canonical /product/{slug} singular; 301 from /product/{id}; /brands/{slug}. Supersedes plural constitution row."
 
@@ -101,7 +102,7 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-DATA]
     notes: "Inviolable per cross-cutting rule R4. Violated by 18 scripts — see CR-004."
 
@@ -111,7 +112,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-URL-SEO]
 
   - id: RFC-005
@@ -120,7 +121,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-URL-SEO]
     notes: "adr/README.md and rfc/README.md still index RFC-005 as Draft while CANON-LOCK lists it Accepted. Status ambiguity — resolve with CR-010."
 
@@ -133,7 +134,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
     notes: "ADR index + §2 status rules (only the Board may set Accepted). Indexes RFC-005 as Draft while CANON-LOCK says Accepted — CR-010."
 
@@ -143,7 +144,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
 
   - id: RFC-INDEX
@@ -152,7 +153,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
     notes: "RFC counter. Consult before issuing a new RFC number (NAMING-CONVENTIONS §4.2)."
 
@@ -162,7 +163,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
 
   - id: ARCH-README
@@ -171,7 +172,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
 
   - id: IA-README
@@ -180,7 +181,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-SYS-ARCH
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
 
   - id: STANDARDS-README
@@ -189,7 +190,7 @@ documents:
     rank: 40
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
 
   - id: PROMOTION-WAVE1
@@ -198,7 +199,7 @@ documents:
     rank: 50
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     branch: docs/wave1-canon-lock-promote
     notes: "Record of the Wave-1 promotion decision. Evidence for the HC-02 minute that closes CR-001."
 
@@ -208,7 +209,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-URL-SEO]
 
   - id: IA-EPIC1
@@ -217,7 +218,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-URL-SEO]
     notes: "8 EPIC-1 deliverables + 6 engineering-acceptance checkboxes. Deliverable 5 (/brands/{slug}) unimplemented — CR-014."
 
@@ -227,7 +228,7 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
 
   - id: INGESTION-POLICY
     path: docs/architecture/data-ingestion-policy.md
@@ -235,7 +236,7 @@ documents:
     rank: 2
     status: binding
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     citation_required_for: [CT-DATA]
     notes: "Sole living ingestion policy. Declares Category A/B/C. Bans production API defaults — CR-004."
 
@@ -245,7 +246,7 @@ documents:
     rank: 2
     status: binding
     owner_role: R-OWNER
-    on_main: false
+    on_main: true
     notes: "Branch model feature/fix/hotfix/chore/docs — conflicts with CONTRIBUTING.md (CR-002). §6: no automatic agent push."
 
   - id: DEV-STANDARDS
@@ -254,7 +255,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     citation_required_for: [CT-API, CT-DOMAIN, CT-SCHEMA, CT-URL-SEO, CT-FE-UI, CT-DATA]
     notes: "Principles S1-S10. Mandatory for all PRs."
 
@@ -264,7 +265,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "DoD per PR type. Note: file's own header says 'Status: Proposed' while CANON-LOCK lists the pack Accepted — internal inconsistency, part of CR-010."
 
   - id: PR-CHECKLIST
@@ -273,7 +274,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "Explicit PR fails enumerated. No .github/pull_request_template.md implements it — CR-018."
 
   - id: CITATION-RULES
@@ -282,7 +283,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "Defines the minimum PR citation block. Basis of the citation gate."
 
   - id: STD-ALEMBIC
@@ -291,7 +292,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DB-ARCH
-    on_main: false
+    on_main: true
     citation_required_for: [CT-SCHEMA]
 
   - id: STD-API
@@ -300,7 +301,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     citation_required_for: [CT-API]
 
   - id: STD-FRONTEND
@@ -309,7 +310,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-FE-ARCH
-    on_main: false
+    on_main: true
     citation_required_for: [CT-FE-UI, CT-URL-SEO]
 
   - id: STD-TESTING
@@ -318,7 +319,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-QA
-    on_main: false
+    on_main: true
 
   - id: STD-SECURITY
     path: docs/development/standards/security-and-secrets.md
@@ -326,7 +327,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-SEC-ARCH
-    on_main: false
+    on_main: true
     citation_required_for: [CT-SEC]
 
   - id: STD-LOCAL-ENRICH
@@ -335,7 +336,7 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-KNOW
-    on_main: false
+    on_main: true
     citation_required_for: [CT-DATA]
 
   # =========================================================================
@@ -851,7 +852,7 @@ documents:
     rank: 9
     status: current
     owner_role: R-AUDITOR
-    on_main: false
+    on_main: true
     notes: "This pack's Phase-0 audit. Evidence, not policy."
 
   - id: CATALOG-IMAGES-PROGRESS
@@ -942,8 +943,8 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
-    notes: "Accepted ۸ مرداد ۱۴۰۵ (2026-07-30) by Mohammad Shebahati. Binding process charter. Canon Lock row pending PR #125 merge (CR-001)."
+    on_main: true
+    notes: "Accepted ۸ مرداد ۱۴۰۵ (2026-07-30) by Mohammad Shebahati. Binding process charter. Canon Lock on main via PR #125; CR-001 closed."
 
   - id: AODS-AUTHORITY
     path: aods/10-repository-intelligence/AUTHORITY-MODEL.md
@@ -951,7 +952,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-CONFLICTS
     path: aods/10-repository-intelligence/CONFLICT-REGISTER.md
@@ -959,7 +960,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-AI-REVIEWER
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-LIFECYCLE
     path: aods/20-lifecycle/PROJECT-LIFECYCLE.md
@@ -967,7 +968,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-WORKFLOW
     path: aods/20-lifecycle/WORKFLOW-GRAPH.md
@@ -975,7 +976,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-TIMELINE
     path: aods/20-lifecycle/TIMELINE-GRAPH.md
@@ -983,7 +984,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-ROLES
     path: aods/30-roles/ROLE-ARCHITECTURE.md
@@ -991,7 +992,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-ARTIFACTS
     path: aods/40-artifacts/ARTIFACT-ARCHITECTURE.md
@@ -999,7 +1000,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-NAMING
     path: aods/40-artifacts/NAMING-CONVENTIONS.md
@@ -1007,7 +1008,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-EXEC-MODEL
     path: aods/50-ai-execution/AI-EXECUTION-MODEL.md
@@ -1015,7 +1016,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-AUTO-MODE
     path: aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md
@@ -1023,7 +1024,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-CONTEXT
     path: aods/50-ai-execution/CONTEXT-MANAGEMENT.md
@@ -1031,7 +1032,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-MODELS
     path: aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md
@@ -1039,7 +1040,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-HUMAN
     path: aods/60-human/HUMAN-INTERVENTION-MODEL.md
@@ -1047,7 +1048,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-OWNER
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-PROMPTS
     path: aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md
@@ -1055,7 +1056,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-PROMPT-TEMPLATE
     path: aods/70-prompts/PROMPT-TEMPLATE.md
@@ -1063,7 +1064,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-VALIDATION
     path: aods/80-validation/VALIDATION-FRAMEWORK.md
@@ -1071,7 +1072,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-AI-REVIEWER
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-RISK
     path: aods/90-governance/RISK-REGISTER.md
@@ -1079,7 +1080,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-KNOWLEDGE-FLOW
     path: aods/90-governance/KNOWLEDGE-FLOW.md
@@ -1087,7 +1088,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-KNOW
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-GOVERNANCE
     path: aods/90-governance/GOVERNANCE.md
@@ -1095,7 +1096,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-DELIVERABLES
     path: aods/90-governance/DELIVERABLES-AND-ADOPTION.md
@@ -1103,7 +1104,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-README
     path: aods/README.md
@@ -1111,7 +1112,7 @@ documents:
     rank: 6
     status: accepted
     owner_role: R-PROJ-ARCH
-    on_main: false
+    on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
   - id: AODS-BOARD-MINUTE-001
     path: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
@@ -1119,8 +1120,27 @@ documents:
     rank: 9
     status: accepted
     owner_role: R-BOARD
-    on_main: false
+    on_main: true
     notes: "Board minute ۸ مرداد ۱۴۰۵ — AODS Accepted in full; signed Mohammad Shebahati."
+
+
+  - id: CURSOR-SKILL-AODS-OPERATOR
+    path: .cursor/skills/karzar-aods-operator/SKILL.md
+    class: POLICY
+    rank: 6
+    status: accepted
+    owner_role: R-PROJ-ARCH
+    on_main: true
+    notes: "Project Cursor skill for Accepted AODS 1.0.0 operations (PR #129)."
+
+  - id: CURSOR-SKILL-AODS-OPERATOR-NOTES
+    path: .cursor/skills/karzar-aods-operator/references/NOTES.md
+    class: REFERENCE
+    rank: 8
+    status: current
+    owner_role: R-PROJ-ARCH
+    on_main: true
+    notes: "Companion notes for karzar-aods-operator skill."
 
   # =========================================================================
   # HISTORICAL — readable for context, never for instruction

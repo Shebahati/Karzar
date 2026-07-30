@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-001 CLOSED** — Canon Lock on `main` via #125; registry `on_main` reconciled (53 docs); baseline CR-001 link findings removed.
 - [x] **CR-012** Regenerated `openapi/v1.json` (81→82 paths; adds `/api/v1/products/slug/{slug}`); `--gate openapi` PASS; baseline entry removed; CI wiring still Phase-4.
 - [x] **Skill** Added Cursor skill `karzar-aods-operator` (`.cursor/skills/karzar-aods-operator/SKILL.md`) — operating pack for Accepted AODS 1.0.0 + Canon Lock on main; refreshed `aods-auto-mode.mdc` CR-001 citation note.
 - [x] **D9 / HC-14** Architecture Board **Accepted AODS in full** — ۸ مرداد ۱۴۰۵; signed **Mohammad Shebahati / محمد شباهتی**. Minute: `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`. Pack headers + registry → **Accepted / 1.0.0**.

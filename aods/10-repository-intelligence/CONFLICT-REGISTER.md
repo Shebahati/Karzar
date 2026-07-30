@@ -39,7 +39,7 @@
 
 | ID | Title | Severity | Owner | Status |
 |----|-------|----------|-------|--------|
-| CR-001 | Canon Lock is binding but not on `main`; merged PRs already cite it | **BLOCKER** | Architecture Board | OPEN |
+| CR-001 | Canon Lock promoted to `main` via PR #125 (2026-07-30); citations resolve | ~~BLOCKER~~ CLOSED | Architecture Board | CLOSED |
 | CR-002 | Branch naming: `feature/*` (Canon) vs `feat/*` (CONTRIBUTING + 18 branches) | HIGH | Architecture Board | OPEN |
 | CR-003 | Coverage gate stated as 62% / 67% / 67% / 68% in four documents | MEDIUM | QA Engineer | OPEN |
 | CR-004 | 18 enrichment scripts default to production API, violating Accepted ADR-012 | **BLOCKER** | Backend Architect + Board | OPEN |
@@ -63,7 +63,8 @@
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
-**Open BLOCKERs: 5.** Until `CR-001`, `CR-004`, `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
+**Open BLOCKERs: 4.** Until `CR-004`, `CR-009`, `CR-011`, and `CR-015` are resolved, AODS operates in
+degraded mode for those surfaces. `CR-001` closed 2026-07-30 (PR #125 on `main`).
 **degraded mode** — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
 
 ---
@@ -74,19 +75,18 @@
 |-------|-------|
 | **Severity** | BLOCKER |
 | **Owner** | Architecture Board (Mohammad Shebahati) |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 | **Affects** | Every PR in Wave-1 / EPIC-1 scope; the entire AODS authority model rank 1 |
 
 **Side A — the documents.** `docs/architecture/CANON-LOCK.md` is marked **Accepted** (۱۴۰۵/۰۵/۰۷, signed) and states:
 *"If a document is not listed here as Accepted or Binding, it MUST NOT alone be used as merge criteria for EPIC 1 work."*
 `documentation-citation-rules.md` adds: *"Missing Canon citation on URL/SEO/enrich PRs is an explicit PR fail."*
 
-**Side B — the repository.** All 29 of those files exist **only** on branch `docs/wave1-canon-lock-promote`
-(open **PR #125**, +3,351 lines). They are absent from `main` at `c022a44`.
+**Side B — the repository (historical).** At register open (2026-07-29), the 29 Wave-1 files existed only on
+branch `docs/wave1-canon-lock-promote` (PR #125) and were absent from `main` at `c022a44`.
 
-**Consequence already realised.** PR #127 (`feat(storefront): EPIC1 slug PDP + 301 (PR-C)`) **merged** with a
-`## Canon Lock` section citing `docs/architecture/CANON-LOCK.md`, `ADR-010`, `RFC-004`. A reviewer following that
-citation from `main` gets a 404. This satisfies AODS failure criterion **F-01 (auditability void)**.
+**Consequence already realised (historical).** PR #127 merged citing Canon Lock paths that 404'd on `main` —
+AODS failure criterion **F-01 (auditability void)** — until promotion landed.
 
 **Options**
 
@@ -96,13 +96,13 @@ citation from `main` gets a 404. This satisfies AODS failure criterion **F-01 (a
 | B | Keep Canon Lock off `main`; cite by branch+commit SHA | Auditable but fragile; contradicts *"canonical promoted copy"* in `PROMOTION-WAVE1.md`. |
 | C | Declare Canon Lock non-binding until merged, and retroactively strip citations | Contradicts the signed Board minute. |
 
-**AI recommendation (advisory only): Option A**, then fix `CR-010` in a follow-up docs PR. Rationale: the Board has
-already signed the acceptance; the only defect is that the promotion's final step —
-*"Files are on disk under `backend/`. Commit/PR on branch `docs/*` when ready — **not auto-committed**"* — was never
-completed by a human. This is precisely a missing `HUMAN-INTERVENTION` step, which AODS now makes explicit as **HC-03**.
+**AI recommendation (advisory only): Option A**, then fix `CR-010` in a follow-up docs PR.
 
-**Resolution requires:** Board decision recorded in `docs/architecture/CANON-LOCK.md` (or a Board minute file), and
-either a merge of #125 or a written status downgrade.
+**DECISION (2026-07-30, Mohammad Shebahati — Board / operator session): Option A executed.**
+PR #125 merged to `main` at `8b63415` (2026-07-30T03:07:32Z). `docs/architecture/CANON-LOCK.md` and the Wave-1
+pack resolve on `origin/main`. AODS Accepted 1.0.0 landed via PR #128; skill via #129. Registry `on_main`
+flags reconciled to `true` for promoted Canon + AODS documents; CR-001 validation-baseline link findings
+removed. **Status → CLOSED.** Residual dangling refs inside the Canon pack remain `CR-010` (separate).
 
 ---
 
@@ -399,6 +399,13 @@ with no way to read it.
 unenforceable), **Option C for Proposed rows.** Enforced going forward by `--gate links`.
 
 ---
+
+
+**NOTE (2026-07-30, after CR-001 Option A):** Canon Lock is on `main`. `--gate links` now reports the
+dangling citations in this row as concrete findings (previously invisible because the citing files were
+off-main). Those findings are baselined under `conflict_id: CR-010` until Board chooses Option B
+(self-contain Canon) or promotes the missing packs. This does **not** close `CR-010`.
+
 
 ## CR-011 — Staging and production are the same host; `main` auto-deploys live
 
