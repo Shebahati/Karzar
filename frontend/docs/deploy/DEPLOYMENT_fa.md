@@ -3,6 +3,10 @@
 **تاریخ:** ۱۸ ژوئیه ۲۰۲۶  
 **شامل:** API (`Karzar-main`) + فروشگاه + پنل ادمین (`karzar-frontend`)
 
+**normative_role:** `operator` (FA) — AODS `CR-020` / **D18**  
+**Companion:** `DEPLOYMENT_en.md` (فنی؛ هر دو در یک PR)  
+**توپولوژی الزام‌آور:** **یک VPS** (`CR-011` Option B). جداسازی host فقط برای رشد اختیاری است.
+
 ---
 
 ## ۱) چه چیزهایی لازم است روی سرور؟
@@ -160,8 +164,8 @@ server {
 
 ## ۷) مقیاس کوچک vs رشد
 
-**شروع:** یک VPS + Docker Compose + Nginx کافی است.  
-**رشد:** API و DB را جدا کنید، Redis managed، CDN برای استاتیک/تصاویر، و بیلد فرانت روی CI با artifact.
+**شروع:** یک VPS + Docker Compose + Nginx کافی است (**الزام فعلی — CR-011**).  
+**رشد:** API و DB را جدا کنید، Redis managed، CDN برای استاتیک/تصاویر، و بیلد فرانت روی CI با artifact — فقط پس از تصمیم صریح HC.
 
 ---
 

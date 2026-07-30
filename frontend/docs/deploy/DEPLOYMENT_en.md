@@ -3,9 +3,33 @@
 **Date:** 18 July 2026  
 **Stacks:** `Karzar-main` (FastAPI + Postgres + Redis) · `karzar-frontend` (Storefront + admin-panel, Next.js)
 
+**normative_role:** `companion` (EN technical) — AODS `CR-020` / **D18**  
+**translated_from:** `DEPLOYMENT_fa.md` (FA = operator-facing normative; must change in the same PR)  
+**Binding topology:** **one VPS** (AODS `CR-011` Option B). Split-host diagrams below are **optional growth**, not current production truth.
+
 ---
 
 ## 1. Target topology
+
+### 1.1 Binding today (one VPS — CR-011)
+
+```text
+                    ┌─────────────────────┐
+   Clients ──TLS──► │ Nginx (same VPS)    │
+                    └─────────┬───────────┘
+            ┌─────────────────┼─────────────────┐
+            ▼                 ▼                 ▼
+   shop.… :3000 Next   admin.… :3001 Next   api.… :8000
+                                               │
+                                    ┌──────────┴──────────┐
+                                    ▼                     ▼
+                               Postgres 15              Redis 7
+                         (Compose on the same machine)
+```
+
+All three hostnames may resolve to **one** machine. Same-VPS residual (bus factor / blast radius) remains tracked under `CR-011` until Option A (separate hosts) is deliberately chosen.
+
+### 1.2 Optional growth (not current binding)
 
 ```text
                     ┌─────────────────────┐
@@ -21,7 +45,7 @@
                                Postgres 15              Redis 7
 ```
 
-**Why split hosts:** clean CORS, isolated admin surface, independent caching/CDN later.
+**Why split hosts later:** cleaner CORS isolation, isolated admin surface, independent caching/CDN — **only after** an explicit HC decision; do not treat this as today’s required layout.
 
 ---
 
@@ -29,9 +53,9 @@
 
 | Environment | vCPU | RAM | Disk | Notes |
 |-------------|------|-----|------|-------|
-| Staging | 2 | 4 GB | 40 GB SSD | Docker + two Next processes |
-| Production (small) | 4 | 8 GB | 80 GB+ SSD | Headroom for image uploads + PG |
-| Production (growth) | split API/DB | 16 GB+ | managed disk + object storage | Move media off local disk |
+| Staging | 2 | 4 GB | 40 GB SSD | Docker + two Next processes **on one VPS** |
+| Production (small) | 4 | 8 GB | 80 GB+ SSD | Headroom for image uploads + PG **on one VPS** |
+| Production (growth) | split API/DB | 16 GB+ | managed disk + object storage | Optional later; not CR-011 binding |
 
 ---
 
