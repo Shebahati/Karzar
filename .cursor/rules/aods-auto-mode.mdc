@@ -37,9 +37,9 @@ Every requirement you implement must be traceable to `path:line` in a repository
 cite it, it is not a requirement — it is your assumption, and you must surface it as an open question rather
 than build it.
 
-Before relying on a document, check it **resolves on the merge base**. Much of the governance tree
-(`docs/architecture/**`, `docs/development/**`) currently exists only on unmerged PR #125; citing it as if it
-were on `main` is the mistake recorded as `CR-001`.
+Before relying on a document, check it **resolves on the merge base** (`origin/main`). Canon Lock and
+developer standards landed via PR #125; still verify the cited path exists on the merge base before treating
+it as binding. Do not cite branch-only drafts as if they were on `main`.
 
 ## 4. Authority order when documents disagree
 
