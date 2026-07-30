@@ -55,7 +55,7 @@
 | CR-014 | Brand Hub page contract Proposed (SPEC); awaits HC-01 freeze / SEO-008 IMPL | HIGH | Frontend Architect + SEO | OPEN |
 | CR-015 | `frontend/AI_CONTEXT.md` quarantined (stub + archive) | ~~BLOCKER~~ CLOSED | Documentation Architect | CLOSED |
 | CR-016 | Pytest config SoT = `pyproject.toml` only (Option A) | LOW | QA Engineer | CLOSED |
-| CR-017 | 62 unmerged remote branches; 45 local worktrees; local `main` held by a worktree | MEDIUM | Owner | OPEN |
+| CR-017 | Repo hygiene residual acknowledged (Option B); hangover cites live git commands; no mass deletes | MEDIUM | Owner | CLOSED |
 | CR-018 | PR checklist mirrored in `.github/pull_request_template.md` | MEDIUM | Documentation Architect | CLOSED |
 | CR-019 | Image import: `CATALOG_IMAGES_PLAN.md` authorized (Option A); Phase-3 pause superseded-for-now by D7/D8 | MEDIUM | Owner | CLOSED |
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
@@ -625,7 +625,7 @@ block was dead configuration.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | MEDIUM · **Owner** Owner · **Status** OPEN |
+| **Severity** | MEDIUM · **Owner** Owner · **Status** CLOSED |
 
 `git branch -r --no-merged origin/main` → **62** on 2026-07-29: undeleted post-squash branches (ahead 1–2 = merge
 artifact only), 20 dependabot, and genuinely stale ones (e.g. `chore/insize-catalog-108A-enrich`,
@@ -640,6 +640,16 @@ It points to `docs/audits/worktree-cleanup-execution-plan.md`, which is **not in
 Per `git-development-workflow.md` §7, destructive git actions need *"a written plan + confirmation"*, so no agent
 may clean this up unilaterally. Decided by the owner at **`HC-03`**, since this is a register entry rather than an
 AODS amendment.
+
+**DECISION (2026-07-30, Mohammad Shebahati — HC-03 Option B):** **Policy / defer deletes.** Close this register
+entry with **acknowledged residual**: remote unmerged-branch debt and local worktree debt remain operator-owned;
+agents **record only** and must not unilaterally `git worktree remove`, `branch -D`, or mass-delete. Refreshed
+`docs/development/git-development-workflow.md` hangover (and Worktrees cleanup row) to cite live commands
+`git branch -r --no-merged origin/main` and `git worktree list` instead of the missing
+`docs/audits/worktree-cleanup-execution-plan.md` (do **not** invent that plan). CONTRIBUTING
+*"delete the branch after merge"* remains the human norm; §7 still requires a written plan + confirmation before
+destructive git. Recorded as **D17**. **Status → CLOSED.**
+**Follow-up:** optional human-owned cleanup under §7 when a written plan exists — not this node.
 
 ---
 
@@ -787,3 +797,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-007 CLOSED — Option A progress/+sprints/ canonical; root twins deleted | Board / operator session |
 | 2026-07-30 | CR-015 CLOSED — Option A stub+archive quarantine | Board / operator session |
 | 2026-07-30 | CR-019 CLOSED — Option A: CATALOG_IMAGES_PLAN authorized; Phase-3 pause superseded-for-now (D16) | Board / operator session |
+| 2026-07-30 | CR-017 CLOSED — Option B: policy/defer deletes; hangover cites live git commands; residual acknowledged (D17) | Board / operator session |

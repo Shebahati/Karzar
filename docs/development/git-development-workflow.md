@@ -61,14 +61,17 @@ Existing remote `feat/*` names are grandfathered until deleted (no mass-rename).
 
 ## Current migration hangover (temporary)
 
-| Item | Value |
-|------|-------|
-| Primary checkout branch | `chore/phase9-align-origin-main` (= `origin/main` @ `6e56431`) |
-| Blocker | Worktree `backend-stat-fix` holds local `main` (22 behind) |
-| Worktrees | 45 — see `docs/audits/worktree-cleanup-execution-plan.md` |
-| Target end-state | Primary on `main`; retire Phase 9 stand-in |
+Dated snapshots go stale; **re-measure with live commands** (do not cite a missing cleanup plan):
 
-Until unlock: treat `chore/phase9-align-origin-main` as the stand-in for `main` content; still use feature branches for new work.
+| Item | How to measure / policy |
+|------|-------------------------|
+| Remote unmerged branches | `git branch -r --no-merged origin/main` (e.g. **62** on 2026-07-30 this checkout; drifts daily) |
+| Local worktrees | `git worktree list` (e.g. **1** on 2026-07-30 this checkout — primary on `main`) |
+| Residual (acknowledged) | Unmerged remotes + post-merge branch deletes not consistently done (`docs/CONTRIBUTING.md`); `CR-017` Option B |
+| Destructive cleanup | Forbidden without a **written plan + confirmation** (§7). Agents record only — no mass `worktree remove` / `branch -D` |
+
+Prefer primary checkout on `main`; still use feature branches for new work. Missing path
+`docs/audits/worktree-cleanup-execution-plan.md` is **not** inventable here (`CR-010` / `CR-017` Option B).
 
 ---
 
@@ -115,7 +118,7 @@ Catalog writers must use:
 | Default | One primary tree on `main` |
 | Extra | Only for concurrent PR isolation |
 | Nested | Do not `git add` linked worktrees (e.g. `backend-pmo/`) from parent |
-| Cleanup | Follow execution plan — confirm before remove |
+| Cleanup | Confirm with written plan first (§7); re-measure via `git worktree list` — no missing-plan cite |
 
 ---
 
