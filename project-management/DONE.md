@@ -30,4 +30,4 @@ Move completed task IDs here with date + PR.
 - [x] **CR-015** Quarantine `frontend/AI_CONTEXT.md` — 2026-07-30 — PR [#135](https://github.com/Shebahati/Karzar/pull/135)
 - [x] **CR-004 residual B+C** Fail-closed production write guard + Category B deploy publisher — 2026-07-30 — PR [#136](https://github.com/Shebahati/Karzar/pull/136)
 - [x] **Phase 4 / OI-GOV-05** AODS gates in Backend CI (`aods` job) — 2026-07-30 — PR [#137](https://github.com/Shebahati/Karzar/pull/137); closes `CR-012`
-- [x] **OI-GOV-02** Protect main requires `lint`+`test`+`aods` — 2026-07-30 — admin applied; docs close PR pending
+- [x] **OI-GOV-02** Protect main requires `lint`+`test`+`aods` — 2026-07-30 — admin applied; docs [#140](https://github.com/Shebahati/Karzar/pull/140)
