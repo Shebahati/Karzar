@@ -27,7 +27,7 @@ jobs:
     if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Upload deploy artifact
         uses: actions/upload-artifact@v4
