@@ -50,7 +50,7 @@ before merge):
 
 | Document | Path | Status | Since | Signed | Mandatory for |
 |----------|------|--------|-------|--------|----------------|
-| AODS — AI-Orchestrated Development System | [`aods/AODS-CHARTER.md`](../../../aods/AODS-CHARTER.md) (pack root [`aods/`](../../../aods/)) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
+| AODS — AI-Orchestrated Development System | [`../AODS-CHARTER.md`](../AODS-CHARTER.md) (pack root [`../`](../)) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
 
 ## Evidence
 
