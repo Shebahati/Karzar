@@ -147,7 +147,7 @@ _(empty — AODS-001 Accepted and moved to done)_
     - [x] PROJECT_STATUS updated
   - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
 - [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
-  - Owner: unassigned | Week 8 Day 5 | Risk: med
+  - Owner: Mohammad Shebahati | Week 8 Day 5 | Risk: med
   - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
   - [x] Dependencies: SEO-003, PERF-001, SEC-001
   - [x] Files: project-management/RELEASE_PLAN.md
@@ -158,7 +158,7 @@ _(empty — AODS-001 Accepted and moved to done)_
     - [x] Rollback noted
   - Definition of Done:
     - [x] RELEASE_PLAN signed
-  - Notes: Readiness pack complete; SEC-001 closed for hygiene ACs; residual transitive dep advisories tracked as R8; GO still needs named release/rollback owners.
+  - Notes: Readiness pack complete; SEC-001 closed for hygiene ACs; residual transitive dep advisories tracked as R8; release/rollback owners named 2026-07-30 (S1 / `CR-021` CLOSED).
 - [x] **SEO-003** Publish 24 buyer-intent articles (calendar) — `done` 100% | P0 | 60h | Sprint 02
   - Owner: unassigned | Week 4 Day 1 | Risk: high
   - [x] Description: One article per mid-tail cluster (کولیس دیجیتال, میکرومتر خارج‌سنج, …).

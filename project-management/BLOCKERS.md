@@ -3,7 +3,7 @@
 - [x] ~~Runner offline~~ — karzar-vps restored (historical)
 - [ ] Search Console API access for weekly automation (optional)
 - [x] ~~Editorial QA capacity for 24 articles~~ — SEO-003 24 articles published and verified
-- [ ] Clear owner assignment for release command/rollback command (still `unassigned`)
+- [x] ~~Clear owner assignment for release command/rollback command~~ — **CLOSED** 2026-07-30 (AODS `CR-021` S1): release + rollback owner = **Mohammad Shebahati / محمد شباهتی** (single-operator model accepted; compensating control = `RELEASE_PLAN.md` §4)
 - [x] ~~SEC-001 closure or explicit risk acceptance owner for GO decision~~ — SEC-001 closed 2026-07-27; residual dep advisories tracked as R8
 - [x] ~~**Canon Lock is not on `main`** (AODS `CR-001`)~~ — **CLOSED** 2026-07-30: PR #125 merged (`8b63415`); Canon + standards resolve on `main`. Owner: Architecture Board
 - [x] ~~**18 scripts default to the production API** (AODS `CR-004`)~~ — **CLOSED** 2026-07-30: defaults → local (Option A); fail-closed `KARZAR_ALLOW_PRODUCTION_WRITE` + Category B classify for deploy publishers (Options B+C).

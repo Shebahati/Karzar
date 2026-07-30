@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CR-021 CLOSED** — Release + rollback owner = Mohammad Shebahati / محمد شباهتی (single-operator S1); `RELEASE_PLAN.md` §0; D6 checked; BLOCKERS/DEPENDENCIES/EXECUTIVE_SUMMARY aligned.
 - [x] **Cursor rule** Added always-on `aods-kickoff-gate.mdc` — fill AODS NODE KICKOFF, wait for human confirm, then execute (survives chat context compaction); no PMO task ID (CR-008).
 - [x] **OI-GOV-02 CLOSED** — Protect main requires `lint`+`test`+`aods` (verified 2026-07-30).
 - [x] **OI-GOV-02 apply path** — script `scripts/ops_require_aods_status_check.sh` ready; Protect main currently requires `lint`+`test` only; `aods` pending repo-admin apply (agent token HTTP 403).

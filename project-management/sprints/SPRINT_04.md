@@ -21,7 +21,7 @@
     - [ ] KNOWLEDGE_BASE_PROGRESS
   - Notes: DEFERRED at checkpoint close (2026-07-28) post-31-Shahrivar (EXEC/RELEASE/D7); not checkpoint KPI; revisit 2026-09-23
 - [x] **REL-001** Release readiness for 31 Shahrivar checkpoint — `done` 100% | P0 | 10h | Sprint 04
-  - Owner: unassigned | Week 8 Day 5 | Risk: med
+  - Owner: Mohammad Shebahati | Week 8 Day 5 | Risk: med
   - [x] Description: Freeze P0s, changelog, rollback plan, monitoring checklist.
   - [x] Dependencies: SEO-003, PERF-001, SEC-001
   - [x] Files: project-management/RELEASE_PLAN.md
@@ -32,7 +32,7 @@
     - [x] Rollback noted
   - Definition of Done:
     - [x] RELEASE_PLAN signed
-  - Notes: Readiness documentation complete; SEC-001 hygiene ACs closed; residual dep advisories as R8; GO still needs named release/rollback owners.
+  - Notes: Readiness documentation complete; SEC-001 hygiene ACs closed; residual dep advisories as R8; release/rollback owners named 2026-07-30 (S1 / `CR-021` CLOSED).
 
 - [x] **AODS-001** Design the AI-Orchestrated Development System (AODS) — `done` 100% | P1 | 24h | Sprint 04
   - Owner: agent | Week 1 Day 3 | Risk: med

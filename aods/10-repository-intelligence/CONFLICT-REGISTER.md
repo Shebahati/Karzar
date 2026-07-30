@@ -59,7 +59,7 @@
 | CR-018 | PR checklist is Accepted but no `pull_request_template.md` exists | MEDIUM | Documentation Architect | OPEN |
 | CR-019 | Knowledge Platform Phase 3 says pause image import; `CATALOG_IMAGES_PLAN.md` is actively importing | MEDIUM | Owner | OPEN |
 | CR-020 | Bilingual doc pairs diverge, including contradictory API paths | MEDIUM | Documentation Architect | OPEN |
-| CR-021 | Release/rollback owners unnamed while REL-001 is marked done | HIGH | Owner | OPEN |
+| CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: `low_stock` documented as qty<10, hardcoded `False` in code | MEDIUM | Backend Architect | OPEN |
 | CR-023 | Two root-relative links in `docs/BACKEND_CHANGES.md` do not resolve | LOW | Documentation Architect | OPEN |
 
@@ -684,7 +684,7 @@ Backend Architect.
 
 | Field | Value |
 |-------|-------|
-| **Severity** | HIGH · **Owner** Owner · **Status** OPEN |
+| **Severity** | HIGH · **Owner** Owner · **Status** CLOSED |
 
 `EXECUTIVE_SUMMARY.md`: *"REL-001 Release freeze documentation pack complete (GO still needs named release/rollback
 owners…)"*, yet `tasks.json` has `REL-001` `done` 100%. `BLOCKERS.md` lists the unassigned release/rollback owner as
@@ -698,6 +698,13 @@ bus factor of 1 (`RISK-REGISTER` R-09).
 **AI recommendation (advisory):** either name a second human for rollback authority, or explicitly record
 "single-operator release model accepted, with automated rollback (`git revert` + documented restore) as the
 compensating control." Marking REL-001 done while a GO blocker is open is exactly the pattern `CR-006` describes.
+
+**DECISION (2026-07-30, Mohammad Shebahati / محمد شباهتی — HC-03, Option S1):** Single-operator release model
+**accepted**. Release owner = **Mohammad Shebahati / محمد شباهتی**; Rollback owner = **Mohammad Shebahati / محمد شباهتی**.
+Compensating control: documented rollback in `project-management/RELEASE_PLAN.md` §4 (`git` identify last known
+good → redeploy prior revision → smoke home/PLP/PDP/blog → sitemap/robots/schema checks → PMO incident note).
+Bus-factor-1 residual remains tracked under ops risk (same-VPS `CR-011`); it is not an unnamed-owner gap.
+PMO mirrors updated (BLOCKERS, RELEASE_PLAN, DEPENDENCIES, D6, EXECUTIVE_SUMMARY). **Status → CLOSED.**
 
 ---
 
