@@ -41,5 +41,7 @@ export interface Brand {
   slug?: string;
   country?: string | null;
   logo_url?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
   product_count?: number;
 }

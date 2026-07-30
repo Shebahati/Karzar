@@ -20,6 +20,7 @@ export type CategoryBrief = Pick<Category, "id" | "name"> & {
   hierarchy_label?: string | null;
 };
 export type BrandBrief = Pick<Brand, "id" | "name"> & {
+  slug?: string | null;
   country?: string | null;
 };
 

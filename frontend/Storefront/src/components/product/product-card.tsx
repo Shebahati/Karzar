@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
 import { CONTENT_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn, formatToman } from "@/lib/utils";
+import { productPath } from "@/lib/product-url";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductSummary } from "@/types/product";
 
@@ -38,7 +39,7 @@ export function ProductCard({
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={productPath(product)}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl bg-card shadow-soft transition-shadow duration-200 hover:shadow-elevated",
         className,

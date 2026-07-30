@@ -54,8 +54,13 @@ export function resolveProductImages(product: {
   return undefined;
 }
 
-export function productPageUrl(productId: number): string {
-  return `${SITE_URL}/product/${productId}`;
+export function productPageUrl(product: {
+  id: number;
+  slug?: string | null;
+}): string {
+  const slug = product.slug?.trim();
+  if (slug) return `${SITE_URL}/product/${slug}`;
+  return `${SITE_URL}/product/${product.id}`;
 }
 
 export function categoryPageUrl(slug: string): string {
@@ -160,7 +165,7 @@ export function buildPdpBreadcrumbs(product: {
  * so Google does not see an invalid Offer without price.
  */
 export function buildProductNode(product: ProductDetail): JsonLdNode {
-  const url = productPageUrl(product.id);
+  const url = productPageUrl(product);
   const node: JsonLdNode = {
     "@type": "Product",
     "@id": `${url}#product`,
@@ -199,7 +204,7 @@ export function buildProductNode(product: ProductDetail): JsonLdNode {
 }
 
 export function buildProductPageJsonLd(product: ProductDetail): JsonLdNode {
-  const url = productPageUrl(product.id);
+  const url = productPageUrl(product);
   return wrapJsonLdGraph([
     buildProductNode(product),
     buildBreadcrumbList(buildPdpBreadcrumbs({ ...product, url })),
@@ -242,7 +247,7 @@ export function buildCategoryHubJsonLd(opts: {
   const itemListElement = products.map((p, index) => ({
     "@type": "ListItem",
     position: index + 1,
-    url: productPageUrl(p.id),
+    url: productPageUrl(p),
     name: p.name,
   }));
 

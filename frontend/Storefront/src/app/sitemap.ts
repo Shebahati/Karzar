@@ -26,7 +26,9 @@ async function collectProductEntries(
         ? new Date(product.updated_at)
         : now;
       entries.push({
-        url: `${site}/product/${product.id}`,
+        url: product.slug
+          ? `${site}/product/${product.slug}`
+          : `${site}/product/${product.id}`,
         lastModified,
         changeFrequency: "weekly",
         priority: 0.8,

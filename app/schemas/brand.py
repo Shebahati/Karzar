@@ -10,6 +10,8 @@ class BrandResponse(BaseModel):
     slug: str
     country: str | None = None
     logo_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
     product_count: int | None = Field(None, ge=0)
 
     model_config = ConfigDict(from_attributes=True)
@@ -29,6 +31,8 @@ class BrandUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100)
     country: str | None = Field(None, max_length=50)
     logo_url: str | None = Field(None, max_length=500)
+    meta_title: str | None = Field(None, max_length=255)
+    meta_description: str | None = Field(None, max_length=500)
 
 
 class BrandLogoUploadResponse(BaseModel):
