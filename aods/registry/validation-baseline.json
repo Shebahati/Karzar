@@ -1,45 +1,9 @@
 {
   "_comment": "Known validation failures, recorded so CI can enforce 'no new failures' while the existing ones are worked off. Entries are visible debt, not suppressions. Removing an entry that still fails will fail CI. Each should map to a CR-nnn in aods/10-repository-intelligence/CONFLICT-REGISTER.md; conflict_id UNASSIGNED means the debt is real but not yet registered, which is itself a finding.",
   "recorded_at": "2026-07-30",
-  "count": 30,
+  "count": 80,
   "unassigned_conflict_ids": 0,
   "known_failures": [
-    {
-      "gate": "links",
-      "path": "aods/90-governance/KNOWLEDGE-FLOW.md:52",
-      "message": "link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
-      "key": "links:aods/90-governance/KNOWLEDGE-FLOW.md:52:link target is registered but not on main: ../../docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md (lives on unmerged branch — CR-001)",
-      "conflict_id": "CR-001",
-      "owner_role": "R-DOC-ARCH",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "links",
-      "path": "aods/AODS-CHARTER.md:14",
-      "message": "link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:14:link target is registered but not on main: ../docs/architecture/adr/README.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "conflict_id": "CR-001",
-      "owner_role": "R-DOC-ARCH",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "links",
-      "path": "aods/AODS-CHARTER.md:15",
-      "message": "link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:15:link target is registered but not on main: ../docs/development/standards/documentation-citation-rules.md (lives on unmerged branch — CR-001)",
-      "conflict_id": "CR-001",
-      "owner_role": "R-DOC-ARCH",
-      "recorded_at": "2026-07-29"
-    },
-    {
-      "gate": "links",
-      "path": "aods/AODS-CHARTER.md:19",
-      "message": "link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "key": "links:aods/AODS-CHARTER.md:19:link target is registered but not on main: ../docs/architecture/CANON-LOCK.md (lives on docs/wave1-canon-lock-promote — CR-001)",
-      "conflict_id": "CR-001",
-      "owner_role": "R-DOC-ARCH",
-      "recorded_at": "2026-07-29"
-    },
     {
       "gate": "links",
       "path": "docs/BACKEND_CHANGES.md:67",
@@ -273,6 +237,546 @@
       "conflict_id": "CR-004",
       "owner_role": "R-DATA-ENG",
       "recorded_at": "2026-07-29"
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/CANON-LOCK.md:72",
+      "message": "broken link: ../audits/repository-governance-final-lock.md (CR-023)",
+      "key": "links:docs/architecture/CANON-LOCK.md:72:broken link: ../audits/repository-governance-final-lock.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:20",
+      "message": "broken link: ./pim/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:20:broken link: ./pim/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:21",
+      "message": "broken link: ./property-governance/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:21:broken link: ./property-governance/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:22",
+      "message": "broken link: ./governance/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:22:broken link: ./governance/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:23",
+      "message": "broken link: ./data-quality/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:23:broken link: ./data-quality/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:25",
+      "message": "broken link: ./ai/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:25:broken link: ./ai/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:26",
+      "message": "broken link: ./search/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:26:broken link: ./search/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/README.md:27",
+      "message": "broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "key": "links:docs/architecture/README.md:27:broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:48",
+      "message": "broken link: ./ADR-001-source-of-truth-planes.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:48:broken link: ./ADR-001-source-of-truth-planes.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:49",
+      "message": "broken link: ./ADR-002-product-identity.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:49:broken link: ./ADR-002-product-identity.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:50",
+      "message": "broken link: ./ADR-003-product-specifications-storage.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:50:broken link: ./ADR-003-product-specifications-storage.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:51",
+      "message": "broken link: ./ADR-004-jsonb-strategy-and-fa-en-mapping.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:51:broken link: ./ADR-004-jsonb-strategy-and-fa-en-mapping.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:52",
+      "message": "broken link: ./ADR-005-knowledge-graph.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:52:broken link: ./ADR-005-knowledge-graph.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:54",
+      "message": "broken link: ../knowledge-graph/README.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:54:broken link: ../knowledge-graph/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:55",
+      "message": "broken link: ./ADR-006-category-taxonomy.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:55:broken link: ./ADR-006-category-taxonomy.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:56",
+      "message": "broken link: ./ADR-007-search-strategy.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:56:broken link: ./ADR-007-search-strategy.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:57",
+      "message": "broken link: ./ADR-008-evidence-and-documents.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:57:broken link: ./ADR-008-evidence-and-documents.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:58",
+      "message": "broken link: ./ADR-009-ai-retrieval-gates.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:58:broken link: ./ADR-009-ai-retrieval-gates.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/adr/README.md:60",
+      "message": "broken link: ./ADR-011-property-dictionary-governance.md (CR-023)",
+      "key": "links:docs/architecture/adr/README.md:60:broken link: ./ADR-011-property-dictionary-governance.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/README.md:23",
+      "message": "broken link: ./layer-model.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/README.md:23:broken link: ./layer-model.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/README.md:25",
+      "message": "broken link: ./page-type-catalog.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/README.md:25:broken link: ./page-type-catalog.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/README.md:26",
+      "message": "broken link: ./navigation-system.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/README.md:26:broken link: ./navigation-system.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/README.md:27",
+      "message": "broken link: ./internal-linking-rules.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/README.md:27:broken link: ./internal-linking-rules.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:7",
+      "message": "broken link: ./layer-model.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:7:broken link: ./layer-model.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:7",
+      "message": "broken link: ./page-type-catalog.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:7:broken link: ./page-type-catalog.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:7",
+      "message": "broken link: ./navigation-system.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:7:broken link: ./navigation-system.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:7",
+      "message": "broken link: ./internal-linking-rules.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:7:broken link: ./internal-linking-rules.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:100",
+      "message": "broken link: ./layer-model.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:100:broken link: ./layer-model.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:239",
+      "message": "broken link: ./page-type-catalog.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:239:broken link: ./page-type-catalog.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:257",
+      "message": "broken link: ./navigation-system.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:257:broken link: ./navigation-system.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/information-architecture/karzar-information-architecture.md:263",
+      "message": "broken link: ./internal-linking-rules.md (CR-023)",
+      "key": "links:docs/architecture/information-architecture/karzar-information-architecture.md:263:broken link: ./internal-linking-rules.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:175",
+      "message": "broken link: ./domain/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:175:broken link: ./domain/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:340",
+      "message": "broken link: ./pim/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:340:broken link: ./pim/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:342",
+      "message": "broken link: ./property-governance/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:342:broken link: ./property-governance/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:356",
+      "message": "broken link: ./knowledge-graph/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:356:broken link: ./knowledge-graph/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:364",
+      "message": "broken link: ./ai/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:364:broken link: ./ai/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:379",
+      "message": "broken link: ./search/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:379:broken link: ./search/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:433",
+      "message": "broken link: ./governance/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:433:broken link: ./governance/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:487",
+      "message": "broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:487:broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:552",
+      "message": "broken link: ./ai/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:552:broken link: ./ai/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:553",
+      "message": "broken link: ./search/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:553:broken link: ./search/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:554",
+      "message": "broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:554:broken link: ../roadmap/enterprise/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:564",
+      "message": "broken link: ./data-quality/README.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:564:broken link: ./data-quality/README.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/karzar-knowledge-platform-master-architecture.md:564",
+      "message": "broken link: ./data-quality/baselines-epic0.md (CR-023)",
+      "key": "links:docs/architecture/karzar-knowledge-platform-master-architecture.md:564:broken link: ./data-quality/baselines-epic0.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/README.md:78",
+      "message": "broken link: ./RFC-001-move-jsonb-specs-toward-facts.md (CR-023)",
+      "key": "links:docs/architecture/rfc/README.md:78:broken link: ./RFC-001-move-jsonb-specs-toward-facts.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/README.md:79",
+      "message": "broken link: ./RFC-002-knowledge-graph-introduction.md (CR-023)",
+      "key": "links:docs/architecture/rfc/README.md:79:broken link: ./RFC-002-knowledge-graph-introduction.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/README.md:80",
+      "message": "broken link: ./RFC-003-pim-dual-write-migration.md (CR-023)",
+      "key": "links:docs/architecture/rfc/README.md:80:broken link: ./RFC-003-pim-dual-write-migration.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/README.md:83",
+      "message": "broken link: ./RFC-006-vector-search-introduction.md (CR-023)",
+      "key": "links:docs/architecture/rfc/README.md:83:broken link: ./RFC-006-vector-search-introduction.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/README.md:84",
+      "message": "broken link: ./RFC-007-property-governance-rollout.md (CR-023)",
+      "key": "links:docs/architecture/rfc/README.md:84:broken link: ./RFC-007-property-governance-rollout.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/rfc-index.md:9",
+      "message": "broken link: ./RFC-001-move-jsonb-specs-toward-facts.md (CR-023)",
+      "key": "links:docs/architecture/rfc/rfc-index.md:9:broken link: ./RFC-001-move-jsonb-specs-toward-facts.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/rfc-index.md:10",
+      "message": "broken link: ./RFC-002-knowledge-graph-introduction.md (CR-023)",
+      "key": "links:docs/architecture/rfc/rfc-index.md:10:broken link: ./RFC-002-knowledge-graph-introduction.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/rfc-index.md:11",
+      "message": "broken link: ./RFC-003-pim-dual-write-migration.md (CR-023)",
+      "key": "links:docs/architecture/rfc/rfc-index.md:11:broken link: ./RFC-003-pim-dual-write-migration.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/rfc-index.md:14",
+      "message": "broken link: ./RFC-006-vector-search-introduction.md (CR-023)",
+      "key": "links:docs/architecture/rfc/rfc-index.md:14:broken link: ./RFC-006-vector-search-introduction.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
+    },
+    {
+      "gate": "links",
+      "path": "docs/architecture/rfc/rfc-index.md:15",
+      "message": "broken link: ./RFC-007-property-governance-rollout.md (CR-023)",
+      "key": "links:docs/architecture/rfc/rfc-index.md:15:broken link: ./RFC-007-property-governance-rollout.md (CR-023)",
+      "conflict_id": "CR-010",
+      "owner_role": "R-BOARD",
+      "recorded_at": "2026-07-30",
+      "notes": "Surfaced after CR-001 Option A (Canon on main). Accept CR-010 dangling refs until those packs are promoted or links pruned."
     }
   ]
 }

@@ -343,7 +343,7 @@ Ordered, and each one references the checkpoint that defines its literal steps i
 
 | # | Action | Checkpoint | Why first |
 |---|---|---|---|
-| 1 | Accept and merge PR #125 (Canon Lock promotion) | `HC-02` then `HC-07` | Closes `CR-001`. Until it merges, every governance citation in the repository — including this pack's — fails to resolve on `main`. Nothing else in adoption is worth doing first. |
+| 1 | ~~Accept and merge PR #125 (Canon Lock promotion)~~ **DONE** 2026-07-30 (`8b63415`) | `HC-02` then `HC-07` | `CR-001` **CLOSED**. Canon + standards resolve on `main`. |
 | 2 | Run `python3 aods/tools/aods_validate.py --all` and read the output | — | See the real state. The validators independently confirm `CR-004`, `CR-007`, and `CR-012`, and one of them discovered `CR-023`. |
 | 3 | ~~Regenerate `openapi/v1.json`~~ **DONE** 2026-07-30 — 81→82 paths; slug product path present; `--gate openapi` PASS | `HC-05` | `CR-012` MITIGATED. Remaining: wire gate as required CI (`OI-GOV-05` / Phase 4). |
 | 4 | Decide `CR-007`: which PMO progress path is canonical | `HC-04` | Six divergent duplicate files; every PMO write is currently ambiguous. |
