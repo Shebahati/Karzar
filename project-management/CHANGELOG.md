@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **CAT-002 local Category A apply** — repaired `lathe_api` (wrong Website/backend bind-mount + SCRAM password mismatch); `curl /ready` OK; dry-run then `--apply --apply-confirm` on `http://127.0.0.1:8000/api/v1`: **applied=126 err=0**; already_complete=735; unmatched=5; `zero_price_writes=true`. No staging/prod; AC ≥200 SKU QA still open. Task → `in_progress` 75%.
+- [x] **CAT-002 transition fill (Strategy C-as-A) — dry-run partial** — KNOW node offline dry-run PASS (`scripts/enrich_insize_from_shopmill.py --reuse-crawl --reuse-export`): 867 crawl / 861 matched payloads; `zero_price_writes=true`; country≠material. Artifacts + provenance under `data/imports/insize/shopmill/`. **Apply HALTED** (local `127.0.0.1:8000` down — `lathe_api` crash-loop). No staging/prod; no HC-09. Task → `in_progress` 40%. AC ≥200 SKU QA still open.
 - [x] **CAT-002 / KB-001 schedule unblock** — lifted mandatory revisit/start gate **2026-09-23** (**D22** supersedes D8 schedule part only; D7/D8 kept as history). Both remain `todo` (15% / 10%) and are **eligible to start now** (deps CAT-001 / SEO-003 done). Residual mirrors aligned: `DECISIONS.md`, `RELEASE_PLAN.md`, `KANBAN_BOARD.md`, `README.md`, export CSVs, operator skill §7. No catalog/KB implementation. D16 image-plan authority unchanged.
 - [x] **FE-002 done** — PDP PDF catalog CTA (after trust strip) + always-visible accessories slot with honest empty / label / product-card states.
 - [x] **SEO-008 done** — Brand Hub sitemap (`/brands/{slug}` for product_count≥1) + homepage brand-strip links to hubs; `/brands` index still deferred (Q4=B).
