@@ -97,6 +97,7 @@ This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation**
 | Data Transformation Architecture | [`SPEC-data-transformation-architecture.md`](./SPEC-data-transformation-architecture.md) | Mapping, duplicates, provenance, rollback |
 | Knowledge Platform Target Architecture | [`KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md`](./KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md) | PDP composition; plane integration |
 | Foundation Implementation Readiness | [`FOUNDATION_IMPLEMENTATION_READINESS.md`](./FOUNDATION_IMPLEMENTATION_READINESS.md) | What engineering may/may not build yet |
+| خلاصه اجرایی فارسی | [`KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md`](./KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md) | One-page precise FA summary of the full pack |
 
 ---
 

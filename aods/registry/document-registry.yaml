@@ -1068,6 +1068,15 @@ documents:
     on_main: false
     notes: "Implementation readiness gates for KB engineering. Flip on_main after merge."
 
+  - id: SPEC-PACK-SUMMARY-FA
+    path: docs/architecture/specs/KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Persian executive summary of knowledge foundation + completion pack. Flip on_main after merge."
+
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md
