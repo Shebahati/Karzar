@@ -255,8 +255,8 @@
       "dod": [
         "SEO_PROGRESS note"
       ],
-      "status": "todo",
-      "progress": 15,
+      "status": "in_progress",
+      "progress": 75,
       "sprint": "02",
       "week": 3,
       "day": 1,
@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28) out of launch-bar scope; #90 kept open for content-safe resume; #74 closed intentionally; no price writes. Owner: PMO. Schedule unblock 2026-07-30 (GOV-pmo-sync): 2026-09-23 revisit date gate lifted — eligible to start now. Dep CAT-001 done. HC-09/ADR-012 still apply before any staging/prod catalog write."
+      "notes": "2026-07-30 local Category A APPLY PASS after API stack repair. API: http://127.0.0.1:8000/api/v1. Applied 126 / errors 0; match: already_complete=735 matched=126 skipped_no_specs=6 unmatched=5; catalog_insize=872; zero_price_writes=true; fields=description,meta_*,short_description,specifications. Stack fix: stopped wrong Project=backend lathe_api (bind-mount Website/backend); compose up from Karzar-clean/Karzar (mount=repo root); ALTER ROLE password to match .env (SCRAM vs trust); aligned local INITIAL_SUPER_ADMIN password hash for apply login. No prod/staging write; no HC-09. AC ≥200 SKU QA spot-check still open."
     },
     {
       "id": "CAT-003",

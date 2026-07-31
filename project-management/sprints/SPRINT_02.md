@@ -23,7 +23,7 @@
     - [x] CONTENT_CALENDAR checked
     - [x] Live
   - Notes: #102 → main @aa159b0; publish fixes #103/#104; Deploy Staging green (30255672560); 24 CMS articles live.
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **eligible to start**
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 75% | P1 | 20h | Sprint 02
   - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [x] Dependencies: CAT-001
@@ -32,10 +32,10 @@
   - [ ] Tags: insize, content
   - Acceptance Criteria:
     - [ ] ≥200 SKUs content QA
-    - [ ] price_fields_written=none
+    - [x] price_fields_written=none (dry-run only; apply HALTED)
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: Historical deferral at checkpoint close (2026-07-28); #90 kept open; #74 closed. Schedule unblock 2026-07-30: 2026-09-23 date gate lifted — eligible to start. HC-09/ADR-012 before catalog write.
+  - Notes: 2026-07-30 offline dry-run 861 matched payloads; local apply blocked — lathe_api crash-loop / port 8000 down. Category A local-only; no HC-09.
 
 - [x] **PERF-001** Core Web Vitals pass on home+PDP+PLP — `done` 100% | P0 | 24h | Sprint 02
   - Owner: unassigned | Week 3 Day 3 | Risk: med
