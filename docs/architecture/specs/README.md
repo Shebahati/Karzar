@@ -105,6 +105,7 @@ This pack is the **living Accepted knowledge foundation** under `docs/architectu
 | Seed | Path | Notes |
 |------|------|-------|
 | Property Dictionary v0 (metrology) | [`seeds/property-dictionary-v0-metrology.json`](./seeds/property-dictionary-v0-metrology.json) | UD-03 A · Day-4 · **no** dual-write |
+| Taxonomy v0 (metrology) | [`seeds/taxonomy-v0-metrology.json`](./seeds/taxonomy-v0-metrology.json) | UD-03 A · Day-4 · bridge only · **no** second Category DAG |
 | Seeds README | [`seeds/README.md`](./seeds/README.md) | Operator checklist + rules |
 
 ---

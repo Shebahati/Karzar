@@ -3,7 +3,8 @@
 **Rollup:** 35%
 
 - [x] **KB-001** Knowledge platform phase-1 content graph seed — `done` 100% | P2 | 30h | Sprint 04 — Day-3 CLOSED (#176)
-- [ ] **Property Dictionary v0 (metrology)** — Git seed landed Day-4; dual-write still gated
+- [x] **Property Dictionary v0 (metrology)** — Git seed landed Day-4; dual-write still gated
+- [x] **Taxonomy v0 (metrology)** — Git seed + commerce L1 bridge; no second Category DAG
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
