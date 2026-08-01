@@ -315,17 +315,18 @@ export function DesignedHero({
     [pack.slides],
   );
 
-  const hasPublishedDock = Boolean(pack.categoryDock?.categories?.length);
+  const dockCategories = pack.categoryDock?.categories;
+  const hasPublishedDock = Boolean(dockCategories?.length);
 
   const orbDefs = useMemo(() => {
     // Admin-published dock is authoritative for membership + featuredOrder 0–5.
-    if (pack.categoryDock?.categories?.length) {
-      return orbsFromPublishedDock(pack.categoryDock.categories, roots);
+    if (dockCategories?.length) {
+      return orbsFromPublishedDock(dockCategories, roots);
     }
     const live = orbsFromRoots(roots, null);
     if (live.length) return live;
     return HERO_ORB_CATEGORIES;
-  }, [roots, pack.categoryDock?.categories]);
+  }, [roots, dockCategories]);
 
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);

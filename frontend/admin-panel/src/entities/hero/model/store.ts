@@ -35,16 +35,16 @@ import type {
 } from "./types";
 
 type Listener = () => void;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetFn = (partial: any, replace?: boolean) => void;
+type PartialOrUpdater<T> = Partial<T> | ((state: T) => Partial<T> | T);
+type SetFn<T> = (partial: PartialOrUpdater<T>, replace?: boolean) => void;
 type GetFn<T> = () => T;
 
 function create<T extends object>() {
-  return (initializer: (set: SetFn, get: GetFn<T>) => T) => {
+  return (initializer: (set: SetFn<T>, get: GetFn<T>) => T) => {
     let state = {} as T;
     const listeners = new Set<Listener>();
     const get: GetFn<T> = () => state;
-    const set: SetFn = (partial, replace = false) => {
+    const set: SetFn<T> = (partial, replace = false) => {
       const next = typeof partial === "function" ? partial(state) : partial;
       if (next === state) return;
       state = replace ? (next as T) : Object.assign({}, state, next);
@@ -67,15 +67,15 @@ function create<T extends object>() {
 }
 
 function persist<T extends object>(
-  config: (set: SetFn, get: GetFn<T>) => T,
+  config: (set: SetFn<T>, get: GetFn<T>) => T,
   options: {
     name: string;
     partialize: (s: T) => object;
     merge: (persisted: unknown, current: T) => T;
   },
 ) {
-  return (set: SetFn, get: GetFn<T>) => {
-    const setAndPersist: SetFn = (partial, replace) => {
+  return (set: SetFn<T>, get: GetFn<T>) => {
+    const setAndPersist: SetFn<T> = (partial, replace) => {
       set(partial, replace);
       try {
         if (typeof window !== "undefined") {
