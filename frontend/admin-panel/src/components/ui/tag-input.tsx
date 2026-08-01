@@ -71,7 +71,7 @@ export function TagInput({
           onClick={() => addTag(draft)}
           aria-label="افزودن"
         >
-          <Plus set="bold" size={18} primaryColor="#C22026" />
+          <Plus set="bold" size={18} primaryColor="#D02327" />
         </Button>
       </div>
       {value.length > 0 && (

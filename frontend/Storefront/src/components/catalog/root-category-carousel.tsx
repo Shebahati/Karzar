@@ -1,159 +1,392 @@
 "use client";
 
-import { useMemo } from "react";
-import Image from "next/image";
-import * as Icons from "react-iconly";
-import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
-import { useCatalogParams, parseIdList, encodeIdList } from "@/components/catalog/use-catalog-params";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "react-iconly";
+import { useCatalogParams } from "@/components/catalog/use-catalog-params";
+import { CategoryVisualIcon } from "@/components/ui/category-visual-icon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isMetrologyRoot, NAV_GROUPS, orderedVisibleRoots } from "@/config/nav-groups";
+import { resolveCategoryIconUrl } from "@/config/category-icons";
+import { useCategoryTree, useFlatCategories, useNavGroupDefs } from "@/features/catalog/queries";
+import {
+  categoryHref,
+  isTaxonomyRoot,
+  NAV_GROUPS,
+  orderedTaxonomyRoots,
+} from "@/config/nav-groups";
+import { readHorizontalScrollEdges } from "@/lib/scroll-edges";
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
-const MAX_ROOTS = 3;
-const IMAGE_SIZE = 56;
+const DRAG_THRESHOLD = 6;
 
-function CatIcon({ name, active }: { name?: string; active?: boolean }) {
-  const Cmp = (name && (Icons as Record<string, unknown>)[name]) || Icons.Category;
-  const Icon = Cmp as typeof Icons.Category;
-  return <Icon set="bold" primaryColor={active ? "#FFFFFF" : "#5E5F5E"} />;
+/** Resolve the L1 taxonomy root for a selected category id (itself or ancestor). */
+function resolveRootId(
+  categoryId: number | undefined,
+  flat: { id: number; parent_id: number | null; ancestor_ids?: number[] | null }[] | undefined,
+): number | null {
+  if (categoryId == null) return null;
+  // Until flat taxonomy loads, treat the selected id as the active root so the orb highlights immediately.
+  if (!flat?.length) return categoryId;
+  const byId = new Map(flat.map((c) => [c.id, c]));
+  const cat = byId.get(categoryId);
+  if (!cat) return categoryId;
+  if (isTaxonomyRoot(cat)) return cat.id;
+  for (const aid of cat.ancestor_ids ?? []) {
+    const ancestor = byId.get(aid);
+    if (ancestor && isTaxonomyRoot(ancestor)) return ancestor.id;
+  }
+  let current = cat;
+  while (current.parent_id != null) {
+    const parent = byId.get(current.parent_id);
+    if (!parent) break;
+    if (isTaxonomyRoot(parent)) return parent.id;
+    current = parent;
+  }
+  return null;
+}
+
+function CategoryOrbButton({
+  node,
+  active,
+  onSelect,
+  buttonRef,
+}: {
+  node: CategoryTreeNode;
+  active: boolean;
+  onSelect: (node: CategoryTreeNode) => void;
+  buttonRef?: (el: HTMLButtonElement | null) => void;
+}) {
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      aria-pressed={active}
+      onClick={() => onSelect(node)}
+      className={cn(
+        "group flex w-[5.5rem] shrink-0 snap-start flex-col items-center outline-none sm:w-[6.25rem]",
+        "focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-primary/40",
+      )}
+    >
+      <span
+        className={cn(
+          "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full transition-all duration-300 ease-out sm:h-[4.75rem] sm:w-[4.75rem]",
+          active
+            ? "scale-[1.08] bg-primary text-white shadow-[0_12px_32px_rgba(208,35,39,0.38)] ring-4 ring-primary/15"
+            : "bg-[#F5F5F5] text-steel shadow-[0_6px_20px_rgba(0,0,0,0.05)] group-hover:bg-primary/10 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.14)]",
+        )}
+      >
+        <CategoryVisualIcon
+          icon={resolveCategoryIconUrl(node) ?? node.icon}
+          size={32}
+          overflowTop
+          color={active ? "#FFFFFF" : "#5E5F5E"}
+        />
+      </span>
+      <span
+        className={cn(
+          "mt-2.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:text-xs",
+          active ? "font-black text-primary" : "font-bold text-foreground/85 group-hover:text-foreground",
+        )}
+      >
+        {node.name}
+      </span>
+      <span
+        className={cn(
+          "mt-0.5 text-[10px] transition-colors duration-300",
+          active ? "font-bold text-primary/75" : "font-medium text-steel",
+        )}
+      >
+        {formatNumber(node.product_count ?? 0)} محصول
+      </span>
+    </button>
+  );
 }
 
 /**
- * Top-of-catalog grandfather category carousel.
- * Same ordered non-empty roots as home (Metrology first via nav-groups).
- * Multi-select up to 3 roots (OR). Clears leaf category when roots change.
+ * Catalog L1 orbs as a horizontal RTL-aware carousel.
+ * Single-select: sets URL `category` → API `category_id`. Second click clears (unless locked).
+ *
+ * Prefers RSC-passed `initialTree` so SSR HTML matches hydrated client
+ * (avoids shimmer ↔ orbs hydration mismatch, same pattern as BrandStrip).
  */
-export function RootCategoryCarousel() {
-  const { data: tree = [], isLoading } = useCategoryTree();
+export function RootCategoryCarousel({
+  lockedCategoryId,
+  initialTree = [],
+}: {
+  /** Hub pages: force-select this category’s L1 root even before URL sync. */
+  lockedCategoryId?: number;
+  /** RSC prefetch seed — keeps first paint stable across hydrate. */
+  initialTree?: CategoryTreeNode[];
+} = {}) {
+  const router = useRouter();
+  const { data, isLoading } = useCategoryTree();
+  const { data: flatCategories } = useFlatCategories();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
-  const { raw, setParams } = useCatalogParams();
-  const selected = useMemo(() => parseIdList(raw.get("roots")), [raw]);
-  const roots = useMemo(() => orderedVisibleRoots(tree, navDefs), [tree, navDefs]);
+  const { params, setParams } = useCatalogParams();
+  const tree = useMemo(
+    () => (data?.length ? data : initialTree) ?? [],
+    [data, initialTree],
+  );
+  const roots = useMemo(() => orderedTaxonomyRoots(tree, navDefs), [tree, navDefs]);
 
-  const toggle = (node: CategoryTreeNode) => {
-    const exists = selected.includes(node.id);
-    let next: number[];
-    if (exists) next = selected.filter((id) => id !== node.id);
-    else if (selected.length >= MAX_ROOTS) next = [...selected.slice(1), node.id];
-    else next = [...selected, node.id];
+  const selectedCategoryId = lockedCategoryId ?? params.category_id;
+  const activeRootId = useMemo(
+    () => resolveRootId(selectedCategoryId, flatCategories),
+    [selectedCategoryId, flatCategories],
+  );
 
-    setParams({
-      roots: encodeIdList(next),
-      category: next.length === 1 ? next[0] : null,
+  const trackRef = useRef<HTMLDivElement>(null);
+  const orbRefs = useRef(new Map<number, HTMLButtonElement>());
+  const didScrollToActive = useRef<number | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startScroll: number;
+    moved: boolean;
+    dragging: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
+
+  const updateEdges = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const edges = readHorizontalScrollEdges(el);
+    setCanScrollLeft(edges.canScrollLeft);
+    setCanScrollRight(edges.canScrollRight);
+    setHasOverflow(edges.hasOverflow);
+  }, []);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    updateEdges();
+    // Layout can settle after fonts/icons; re-measure next frames.
+    const raf1 = requestAnimationFrame(() => {
+      updateEdges();
+      requestAnimationFrame(updateEdges);
     });
+    const onScroll = () => updateEdges();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(() => updateEdges());
+    ro.observe(el);
+    // Also watch the first child — content width changes independently of the rail.
+    const first = el.firstElementChild;
+    if (first) ro.observe(first);
+    return () => {
+      cancelAnimationFrame(raf1);
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, [updateEdges, roots.length]);
+
+  // Scroll the URL/locked selected orb into view once per active root.
+  useEffect(() => {
+    if (activeRootId == null || !roots.length) return;
+    if (didScrollToActive.current === activeRootId) return;
+    const btn = orbRefs.current.get(activeRootId);
+    if (!btn) return;
+    didScrollToActive.current = activeRootId;
+    requestAnimationFrame(() => {
+      btn.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      updateEdges();
+    });
+  }, [activeRootId, roots.length, updateEdges]);
+
+  const step = useCallback((dir: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const amount = Math.min(280, Math.max(160, el.clientWidth * 0.65));
+    // Chromium already inverts scrollLeft under direction:rtl — do not negate.
+    el.scrollBy({ left: dir * amount, behavior: "smooth" });
+    // Edges update on scroll event; also nudge after the smooth scroll starts.
+    requestAnimationFrame(updateEdges);
+  }, [updateEdges]);
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    // Touch uses native overflow pan; custom drag is mouse/pen only.
+    if (e.pointerType === "touch") return;
+    if (e.button !== 0) return;
+    const el = trackRef.current;
+    if (!el) return;
+    // A prior drag can set suppress without a following click — never leave it sticky.
+    suppressClickRef.current = false;
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScroll: el.scrollLeft,
+      moved: false,
+      dragging: true,
+    };
+    // Capture only after the drag threshold so orb button clicks stay reliable.
   };
 
-  if (isLoading) {
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    const el = trackRef.current;
+    if (!drag?.dragging || !el || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    if (!drag.moved && Math.abs(dx) < DRAG_THRESHOLD) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+    // scrollLeft delta matches pointer delta in both LTR and RTL (Chromium).
+    el.scrollLeft = drag.startScroll - dx;
+  };
+
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    const el = trackRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    if (drag.moved) suppressClickRef.current = true;
+    dragRef.current = null;
+    if (el?.hasPointerCapture(e.pointerId)) {
+      el.releasePointerCapture(e.pointerId);
+    }
+    updateEdges();
+  };
+
+  const onClickCapture = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (!suppressClickRef.current) return;
+    suppressClickRef.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const selectRoot = (node: CategoryTreeNode) => {
+    // Hub: switching root navigates to that category; cannot clear the lock.
+    if (lockedCategoryId != null) {
+      if (activeRootId === node.id) return;
+      router.push(categoryHref(node));
+      return;
+    }
+    // Toggle off when this root (or a descendant under it) is already active.
+    if (activeRootId === node.id) {
+      setParams({ category: null, roots: null });
+      return;
+    }
+    // Single select — replace previous; drop legacy multi-root param.
+    // Stay on /catalog?category=id so PLP filters in place (hub links still via home/menus).
+    setParams({ category: node.id, roots: null });
+  };
+
+  // Only shimmer when neither RSC seed nor query data is available.
+  if (!roots.length && isLoading) {
     return (
-      <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-[108px] w-[128px] shrink-0 rounded-2xl" />
+      <div className="flex gap-4 overflow-x-auto pe-2 pt-3 pb-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex w-[5.5rem] shrink-0 flex-col items-center gap-2.5 sm:w-[6.25rem]">
+            <Skeleton className="h-[4.25rem] w-[4.25rem] rounded-full sm:h-[4.75rem] sm:w-[4.75rem]" />
+            <Skeleton className="h-3 w-14 rounded-full" />
+          </div>
         ))}
       </div>
     );
   }
 
+  if (!roots.length) return null;
+
   return (
-    <div>
+    <div className="min-w-0 w-full">
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-foreground">دسته‌های اصلی</h2>
-          <p className="text-[11px] text-steel">
-            تا {formatNumber(MAX_ROOTS)} دسته را همزمان انتخاب کنید
-          </p>
+          <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
+          <p className="text-[11px] text-steel">یک دسته را انتخاب کنید</p>
         </div>
-        {selected.length > 0 && (
+        {lockedCategoryId == null && activeRootId != null && (
           <button
             type="button"
-            className="text-xs font-bold text-primary"
-            onClick={() => setParams({ roots: null, category: null })}
+            className="text-xs font-bold text-primary transition-opacity hover:opacity-80"
+            onClick={() => setParams({ category: null, roots: null })}
           >
             پاک کردن
           </button>
         )}
       </div>
 
-      <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-        <button
-          type="button"
-          onClick={() => setParams({ roots: null, category: null })}
+      {/*
+        Vertical padding lives on the scroll rail so scale + soft shadow of the
+        selected orb are not clipped. overflow-x:auto forces y to auto in CSS,
+        so padding (not overflow-y:visible) is the reliable fix.
+        min-w-0 + w-full keeps the rail inside the page column so overflow scrolls
+        inside the track instead of expanding the layout.
+      */}
+      <div className="relative min-w-0 w-full">
+        <div
+          ref={trackRef}
+          aria-label="دسته‌های اصلی"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onClickCapture={onClickCapture}
           className={cn(
-            "flex h-[108px] w-[128px] shrink-0 flex-col justify-between rounded-2xl border p-3 text-start transition-all",
-            selected.length === 0
-              ? "border-steel bg-steel text-white shadow-glass"
-              : "border-border/50 bg-card text-foreground shadow-soft hover:border-steel/30",
+            "no-scrollbar flex w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-1 pt-3 pb-5 sm:gap-4",
+            "snap-x snap-mandatory touch-pan-x select-none",
+            "cursor-grab active:cursor-grabbing",
           )}
         >
-          <span
-            className={cn(
-              "grid h-10 w-10 place-items-center rounded-xl",
-              selected.length === 0 ? "bg-white/15" : "bg-secondary",
-            )}
-          >
-            <Icons.Category
-              set="bold"
-              primaryColor={selected.length === 0 ? "#FFFFFF" : "#5E5F5E"}
-            />
-          </span>
-          <span className="text-xs font-bold leading-5">همه دسته‌ها</span>
-        </button>
-
-        {roots.map((node) => {
-          const active = selected.includes(node.id);
-          const highlight = isMetrologyRoot(node, navDefs);
-          const imageUrl = node.image_url;
-          return (
-            <button
+          {roots.map((node) => (
+            <CategoryOrbButton
               key={node.id}
+              node={node}
+              active={activeRootId === node.id}
+              onSelect={selectRoot}
+              buttonRef={(el) => {
+                if (el) orbRefs.current.set(node.id, el);
+                else orbRefs.current.delete(node.id);
+              }}
+            />
+          ))}
+        </div>
+
+        {hasOverflow && (
+          <>
+            {/* Physical right (−start in RTL): only when more content exists toward visual right. */}
+            <button
               type="button"
-              aria-pressed={active}
-              onClick={() => toggle(node)}
+              aria-label="به راست"
+              disabled={!canScrollRight}
+              onClick={() => step(1)}
               className={cn(
-                "flex h-[108px] w-[128px] shrink-0 flex-col justify-between rounded-2xl border p-3 text-start transition-all",
-                active
-                  ? "border-primary bg-primary text-primary-foreground shadow-primary-glow"
-                  : highlight
-                    ? "border-primary/25 bg-card shadow-soft hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glass"
-                    : "border-border/50 bg-card shadow-soft hover:-translate-y-0.5 hover:border-steel/30 hover:shadow-glass",
+                "absolute -start-1 top-[2.55rem] z-10 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-steel shadow-[0_8px_20px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-all duration-300 lg:grid sm:top-[2.8rem]",
+                "hover:text-primary disabled:pointer-events-none disabled:opacity-0",
               )}
             >
-              <span
-                className={cn(
-                  "relative block h-14 w-14 overflow-hidden rounded-xl",
-                  active ? "bg-white/15" : "bg-white ring-1 ring-border/40",
-                )}
-              >
-                {imageUrl && !active ? (
-                  <Image
-                    src={imageUrl}
-                    alt=""
-                    width={IMAGE_SIZE}
-                    height={IMAGE_SIZE}
-                    quality={100}
-                    className="h-full w-full object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <span className="grid h-full w-full place-items-center">
-                    <CatIcon name={node.icon} active={active} />
-                  </span>
-                )}
-              </span>
-              <span>
-                <span className="line-clamp-2 text-xs font-bold leading-5">{node.name}</span>
-                <span
-                  className={cn(
-                    "mt-0.5 block text-[10px]",
-                    active ? "text-white/80" : "text-steel",
-                  )}
-                >
-                  {formatNumber(node.product_count ?? 0)}
-                </span>
-              </span>
+              <ChevronRight set="light" size="small" />
             </button>
-          );
-        })}
+            {/* Physical left (−end in RTL): only when more content exists toward visual left. */}
+            <button
+              type="button"
+              aria-label="به چپ"
+              disabled={!canScrollLeft}
+              onClick={() => step(-1)}
+              className={cn(
+                "absolute -end-1 top-[2.55rem] z-10 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-steel shadow-[0_8px_20px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-all duration-300 lg:grid sm:top-[2.8rem]",
+                "hover:text-primary disabled:pointer-events-none disabled:opacity-0",
+              )}
+            >
+              <ChevronLeft set="light" size="small" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

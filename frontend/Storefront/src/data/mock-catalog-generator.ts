@@ -11,30 +11,21 @@ type RawProduct = Omit<ProductDetail, "category" | "brand" | "stock_status"> & {
   brand_id: number | null;
 };
 
-const IMG = (seed: string) => `/images/placeholders/karzar-editorial.svg`;
+const IMG = (seed: string) =>
+  `/images/placeholders/karzar-editorial.svg?v=${encodeURIComponent(seed)}`;
 
-const L1_NAMES = [
-  "ابزار برقی",
-  "ابزار دستی",
-  "ابزار اندازه‌گیری",
-  "تجهیزات کارگاهی",
-  "ابزار بادی و پنوماتیک",
-  "جوش و برش",
-  "ایمنی و حفاظت فردی",
-  "لوازم جانبی و مصرفی",
-  "ابزار باغبانی",
-  "رفع‌سازی و نگهداری",
-  "ابزار دقیق‌سازی",
-  "حمل‌ونقل و انبارداری",
-];
+/**
+ * Extra L1 names only when missing from BASE.
+ * The 12 hero IA roots are seeded in mock-data BASE_CATEGORIES.
+ */
+const L1_NAMES: string[] = [];
 
 const L2_SUFFIXES = ["صنعتی", "حرفه‌ای", "نیمه‌صنعتی", "سبک", "سنگین", "تخصصی"];
 const L3_SUFFIXES = ["سری استاندارد", "سری پیشرفته", "سری اقتصادی", "سری حرفه‌ای"];
 
 export function expandCategories(base: Category[]): Category[] {
   const categories: Category[] = [...base];
-  let nextId =
-    Math.max(...base.map((c) => c.id), 0) + 100;
+  let nextId = Math.max(...base.map((c) => c.id), 0) + 100;
 
   for (const l1Name of L1_NAMES) {
     const exists = categories.some((c) => c.name === l1Name && c.parent_id === null);
@@ -68,10 +59,12 @@ export function expandProducts(
   base: RawProduct[],
   categories: Category[],
 ): RawProduct[] {
-  const leafIds = categories.filter((c) => {
-    const hasChild = categories.some((x) => x.parent_id === c.id);
-    return !hasChild;
-  }).map((c) => c.id);
+  const leafIds = categories
+    .filter((c) => {
+      const hasChild = categories.some((x) => x.parent_id === c.id);
+      return !hasChild;
+    })
+    .map((c) => c.id);
 
   const products: RawProduct[] = [...base];
   let nextId = Math.max(...base.map((p) => p.id), 0) + 1;
@@ -80,12 +73,13 @@ export function expandProducts(
   const brandIds = [...new Set(base.map((p) => p.brand_id).filter(Boolean))] as number[];
 
   for (let i = 0; i < leafIds.length; i++) {
-    const leafId = leafIds[i];
+    const leafId = leafIds[i]!;
     if (base.some((p) => p.category_id === leafId)) continue;
 
     const template = templates[i % templates.length];
-    const variant = Math.floor(i / templates.length) + 1;
-    const brandId = brandIds[i % brandIds.length] ?? template.brand_id;
+    if (!template) continue;
+    const variant = Math.floor(i / Math.max(templates.length, 1)) + 1;
+    const brandId = brandIds[i % Math.max(brandIds.length, 1)] ?? template.brand_id;
 
     products.push({
       ...template,
@@ -114,11 +108,24 @@ export function expandCategoryIcons(
   base: Record<number, string>,
   categories: Category[],
 ): Record<number, string> {
-  const icons = ["Activity", "Setting", "Filter2", "Work", "Bag", "Buy", "Category", "Star"];
+  const icons = [
+    "Scan",
+    "Discovery",
+    "Setting",
+    "Work",
+    "Category",
+    "Edit",
+    "Filter2",
+    "TickSquare",
+    "Bag",
+    "ShieldDone",
+    "Graph",
+    "Buy",
+  ];
   const result = { ...base };
   for (const c of categories) {
     if (c.parent_id === null && !result[c.id]) {
-      result[c.id] = icons[c.id % icons.length];
+      result[c.id] = icons[c.id % icons.length]!;
     }
   }
   return result;

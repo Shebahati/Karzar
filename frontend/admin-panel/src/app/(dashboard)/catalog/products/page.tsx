@@ -263,7 +263,7 @@ export default function ProductsListPage() {
 
       <div className="rounded-xl bg-white p-4 shadow-sm">
         <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#4F4F4F]">
-          <Filter set="light" size={18} primaryColor="#C22026" />
+          <Filter set="light" size={18} primaryColor="#D02327" />
           فیلتر پیشرفته
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -341,7 +341,7 @@ export default function ProductsListPage() {
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
-              <Delete set="bulk" size={44} primaryColor="#C22026" />
+              <Delete set="bulk" size={44} primaryColor="#D02327" />
               <p className="text-sm font-bold text-foreground">
                 {error instanceof ApiError ? error.message : "خطا در دریافت محصولات"}
               </p>
@@ -390,7 +390,7 @@ export default function ProductsListPage() {
                     />
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
-                        <Bag2 set="bulk" size={22} primaryColor="#C22026" />
+                        <Bag2 set="bulk" size={22} primaryColor="#D02327" />
                       </div>
                       <div className="flex min-w-0 flex-col">
                         <span className="truncate text-sm font-bold text-[#4F4F4F]">

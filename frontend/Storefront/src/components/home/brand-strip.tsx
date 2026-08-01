@@ -1,101 +1,90 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useBrands } from "@/features/catalog/queries";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SafeImage } from "@/components/ui/safe-image";
 import { AutoCarousel } from "@/components/ui/auto-carousel";
+import { resolveBrandLogoUrl } from "@/config/brand-logos";
 import { cn } from "@/lib/utils";
+import type { Brand } from "@/types/category";
 
 function BrandCard({
   name,
-  country,
   logoUrl,
   id,
   slug,
 }: {
   id: number;
   name: string;
-  country?: string | null;
   logoUrl?: string | null;
   slug?: string | null;
 }) {
   const initial = (name || "B").slice(0, 1);
-  const isSvg = Boolean(logoUrl?.toLowerCase().includes(".svg"));
-  // Prefer Brand Hub URL (ADR-010 / RFC-005); facet only if slug missing.
+  const resolvedLogo = resolveBrandLogoUrl(name, logoUrl);
+  const isSvg = Boolean(resolvedLogo?.toLowerCase().includes(".svg"));
   const href = slug?.trim() ? `/brands/${slug.trim()}` : `/catalog?brand=${id}`;
 
   return (
     <Link
       href={href}
       className={cn(
-        "group relative flex h-[132px] w-[200px] flex-col justify-between overflow-hidden rounded-2xl border border-border/50 bg-card p-4 shadow-soft transition-all duration-300 sm:h-[148px] sm:w-[220px]",
-        "hover:-translate-y-1 hover:border-steel/35 hover:shadow-glass",
+        "group relative block h-[150px] w-[180px] overflow-hidden rounded-[1.35rem] bg-[#F3F3F3] shadow-soft transition-all duration-400 sm:h-[170px] sm:w-[210px]",
+        "hover:-translate-y-1 hover:shadow-elevated",
       )}
     >
-      <div className="pointer-events-none absolute -end-6 -top-6 h-24 w-24 rounded-full bg-steel/5 transition-transform duration-500 group-hover:scale-125" />
-      <div className="relative flex items-center gap-3">
-        <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border/40 text-base font-bold text-steel">
-          {logoUrl ? (
-            <Image
-              src={logoUrl}
-              alt=""
-              width={56}
-              height={56}
-              className="object-contain p-1.5"
-              unoptimized={isSvg}
-            />
-          ) : (
-            initial
-          )}
+      <span className="absolute inset-0 bottom-10 grid place-items-center bg-white sm:bottom-11">
+        {resolvedLogo ? (
+          <SafeImage
+            src={resolvedLogo}
+            alt=""
+            fill
+            className="object-contain p-5 pb-2 transition-transform duration-500 group-hover:scale-105 sm:p-6 sm:pb-3"
+            sizes="210px"
+            unoptimized={isSvg}
+            fallback={<span className="text-4xl font-black text-steel/30">{initial}</span>}
+          />
+        ) : (
+          <span className="text-4xl font-black text-steel/30">{initial}</span>
+        )}
+      </span>
+
+      {/* Glass name strip */}
+      <span className="absolute inset-x-0 bottom-0 border-t border-white/40 bg-white/55 px-3 py-2.5 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40">
+        <span className="block truncate text-center text-xs font-black tracking-tight text-foreground sm:text-sm">
+          {name}
         </span>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-foreground">{name}</p>
-          {country ? (
-            <p className="mt-0.5 truncate text-xs text-steel">{country}</p>
-          ) : (
-            <p className="mt-0.5 text-xs text-muted-foreground">برند صنعتی</p>
-          )}
-        </div>
-      </div>
-      <div className="relative flex items-center justify-between">
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-steel/70">
-          Official
-        </span>
-        <span className="text-xs font-bold text-primary opacity-0 transition-opacity group-hover:opacity-100">
-          مشاهده ←
-        </span>
-      </div>
+      </span>
     </Link>
   );
 }
 
-export function BrandStrip() {
-  const { data, isLoading } = useBrands();
+/**
+ * Brand strip for the home page.
+ * Prefers RSC-passed brands so SSR HTML matches the hydrated client tree
+ * (avoids shimmer ↔ BrandCard hydration mismatch).
+ */
+export function BrandStrip({ initialBrands = [] }: { initialBrands?: Brand[] }) {
+  const { data } = useBrands();
+  // Props from RSC prefetch win for first paint; query data takes over after hydrate/refetch.
+  const brands = (data?.length ? data : initialBrands) ?? [];
 
-  if (isLoading) {
-    return (
-      <div className="flex gap-3 overflow-hidden">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-[132px] w-[200px] shrink-0 rounded-2xl" />
-        ))}
-      </div>
-    );
-  }
-
-  const brands = data ?? [];
-  if (!brands.length) return null;
+  if (brands.length === 0) return null;
 
   const loop = brands.length < 6 ? [...brands, ...brands, ...brands] : [...brands, ...brands];
 
   return (
-    <AutoCarousel autoPlay intervalMs={3000} itemClassName="w-auto">
+    <AutoCarousel
+      autoPlay
+      intervalMs={2800}
+      itemClassName="w-auto"
+      gapClass="gap-3 sm:gap-4"
+      showControls
+    >
       {loop.map((brand, i) => (
         <BrandCard
           key={`${brand.id}-${i}`}
           id={brand.id}
           name={brand.name}
-          country={brand.country}
           logoUrl={brand.logo_url}
           slug={brand.slug}
         />

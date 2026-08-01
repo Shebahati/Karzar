@@ -9,33 +9,48 @@ import { cn, formatNumber } from "@/lib/utils";
 import { useMe } from "@/features/auth/queries";
 import { isLoggedIn } from "@/lib/api-client";
 import { selectCartCount, selectQuoteCount, useCartStore } from "@/store/cart-store";
+import { useUiStore } from "@/store/ui-store";
 
 /** Glassmorphism bottom navigation for mobile/tablet viewports. */
 export function MobileBottomNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const [catalogOpen, setCatalogOpen] = useState(false);
+  const catalogOpen = useUiStore((s) => s.mobileCategoryOpen);
+  const setCatalogOpen = useUiStore((s) => s.setMobileCategoryOpen);
   const cartCount = useCartStore(selectCartCount);
   const quoteCount = useCartStore(selectQuoteCount);
   const { data: me } = useMe(mounted && isLoggedIn());
 
   useEffect(() => setMounted(true), []);
 
+  // Dismiss category sheet on any route change so it never traps UI across pages.
+  useEffect(() => {
+    setCatalogOpen(false);
+  }, [pathname, setCatalogOpen]);
+
   const accountHref = mounted && isLoggedIn() ? "/account" : "/login?next=/account";
   const accountLabel = me?.full_name?.split(" ")[0] ?? "حساب";
 
+  const closeCatalog = () => setCatalogOpen(false);
+
   return (
     <>
-      <MobileCategoryMenu open={catalogOpen} onClose={() => setCatalogOpen(false)} />
+      <MobileCategoryMenu open={catalogOpen} onClose={closeCatalog} />
 
       <nav className="glass-strong fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom)] lg:hidden">
         <ul className="mx-auto flex max-w-md items-stretch justify-between px-2">
-          <NavItem href="/" label="خانه" Icon={Home} active={pathname === "/"} />
+          <NavItem
+            href="/"
+            label="خانه"
+            Icon={Home}
+            active={pathname === "/"}
+            onNavigate={closeCatalog}
+          />
 
           <li className="flex-1">
             <button
               type="button"
-              onClick={() => setCatalogOpen(true)}
+              onClick={() => setCatalogOpen(!catalogOpen)}
               className={cn(
                 "relative flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-bold transition-colors",
                 catalogOpen || pathname.startsWith("/catalog")
@@ -54,6 +69,7 @@ export function MobileBottomNav() {
             Icon={Buy}
             active={pathname.startsWith("/cart")}
             badge={mounted ? cartCount : 0}
+            onNavigate={closeCatalog}
           />
           <NavItem
             href="/quote"
@@ -62,8 +78,15 @@ export function MobileBottomNav() {
             active={pathname.startsWith("/quote")}
             badge={mounted ? quoteCount : 0}
             badgeTone="steel"
+            onNavigate={closeCatalog}
           />
-          <NavItem href={accountHref} label={accountLabel} Icon={User} active={pathname.startsWith("/account") || pathname === "/login"} />
+          <NavItem
+            href={accountHref}
+            label={accountLabel}
+            Icon={User}
+            active={pathname.startsWith("/account") || pathname === "/login"}
+            onNavigate={closeCatalog}
+          />
         </ul>
       </nav>
     </>
@@ -77,6 +100,7 @@ function NavItem({
   active,
   badge = 0,
   badgeTone = "primary",
+  onNavigate,
 }: {
   href: string;
   label: string;
@@ -84,11 +108,13 @@ function NavItem({
   active: boolean;
   badge?: number;
   badgeTone?: "primary" | "steel";
+  onNavigate?: () => void;
 }) {
   return (
     <li className="flex-1">
       <Link
         href={href}
+        onClick={onNavigate}
         className={cn(
           "relative flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors",
           active ? "text-primary" : "text-muted-foreground",

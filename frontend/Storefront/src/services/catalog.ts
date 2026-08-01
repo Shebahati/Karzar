@@ -11,6 +11,10 @@ import { apiClient } from "@/lib/api-client";
 import { getMockApi } from "@/lib/get-mock-api";
 import { encodeSlugPathSegment } from "@/lib/product-url";
 import { env } from "@/config/env";
+import {
+  isCategoryIconUrl,
+  resolveCategoryIconUrl,
+} from "@/config/category-icons";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import type { SpecFilterOptions } from "@/types/spec-filter";
@@ -22,17 +26,37 @@ import type {
   ProductSummary,
 } from "@/types/product";
 
+/** Fill missing L1 icon URLs from the designed asset map (live API often omits them). */
+function enrichTreeIcons(nodes: CategoryTreeNode[]): CategoryTreeNode[] {
+  return nodes.map((node) => {
+    const resolved =
+      resolveCategoryIconUrl(node) ??
+      (isCategoryIconUrl(node.icon) ? node.icon : null);
+    return {
+      ...node,
+      icon: resolved ?? node.icon,
+      subcategories: node.subcategories?.length
+        ? enrichTreeIcons(node.subcategories)
+        : node.subcategories,
+    };
+  });
+}
+
 export const catalogService = {
   async listCategoriesTree(): Promise<CategoryTreeNode[]> {
     if (env.USE_MOCK) return (await getMockApi()).listCategoriesTree();
     const { data } = await apiClient.get<CategoryTreeNode[]>("/categories/tree");
-    return data;
+    return enrichTreeIcons(data ?? []);
   },
 
   async listCategoriesFlat(): Promise<CategoryFlat[]> {
     if (env.USE_MOCK) return (await getMockApi()).listCategoriesFlat();
     const { data } = await apiClient.get<{ data: CategoryFlat[] }>("/categories/");
-    return data.data;
+    return (data.data ?? []).map((row) => {
+      if (row.parent_id != null) return row;
+      const resolved = resolveCategoryIconUrl(row);
+      return resolved ? { ...row, icon: resolved } : row;
+    });
   },
 
   async listBrands(): Promise<Brand[]> {
@@ -130,10 +154,11 @@ export const catalogService = {
   async listNavGroups(): Promise<NavGroupApiRow[]> {
     if (env.USE_MOCK) return [];
     try {
-      const { data } = await apiClient.get<{ data: NavGroupApiRow[] }>("/nav-groups/");
-      return data.data ?? [];
+      const { data } = await apiClient.get<{ data?: NavGroupApiRow[] }>("/nav-groups/");
+      const rows = data?.data;
+      return Array.isArray(rows) ? rows : [];
     } catch {
-      // Hardcoded NAV_GROUPS fallback when API unavailable.
+      // Network / server error → hardcoded NAV_GROUPS fallback in the query layer.
       return [];
     }
   },

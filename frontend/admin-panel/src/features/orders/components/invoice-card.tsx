@@ -21,7 +21,7 @@ export function InvoiceCard({ order }: InvoiceCardProps) {
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10">
-            <Document set="bulk" size={22} primaryColor="#C22026" />
+            <Document set="bulk" size={22} primaryColor="#D02327" />
           </span>
           <div>
             <CardTitle className="text-base">پیش‌فاکتور / فاکتور</CardTitle>

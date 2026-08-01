@@ -70,9 +70,9 @@ function OrderGroup({
     <div>
       <div className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
         {icon === "purchase" ? (
-          <Buy set="bulk" size={18} primaryColor="#C22026" />
+          <Buy set="bulk" size={18} primaryColor="#D02327" />
         ) : (
-          <Document set="bulk" size={18} primaryColor="#C22026" />
+          <Document set="bulk" size={18} primaryColor="#D02327" />
         )}
         {title}
         <Badge variant="outline" className="tnum">

@@ -50,9 +50,24 @@ export function useBrands(): UseQueryResult<Brand[]> {
 export function useProducts(
   params: ProductListParams,
 ): UseQueryResult<ProductListResponse> {
+  // Drop empty values so query keys match RSC prefetch and stay stable.
+  const normalized = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => {
+      if (v == null || v === "") return false;
+      if (Array.isArray(v) && v.length === 0) return false;
+      if (
+        typeof v === "object" &&
+        !Array.isArray(v) &&
+        Object.keys(v as object).length === 0
+      ) {
+        return false;
+      }
+      return true;
+    }),
+  ) as ProductListParams;
   return useQuery({
-    queryKey: catalogKeys.products(params),
-    queryFn: () => catalogService.listProducts(params),
+    queryKey: catalogKeys.products(normalized),
+    queryFn: () => catalogService.listProducts(normalized),
     placeholderData: keepPreviousData,
   });
 }
@@ -130,7 +145,9 @@ export function useNavGroupDefs(): UseQueryResult<NavGroupDef[]> {
       const fromApi = navGroupsFromApi(rows);
       return fromApi.length > 0 ? fromApi : NAV_GROUPS;
     },
+    placeholderData: NAV_GROUPS,
     staleTime: 10 * 60 * 1000,
+    retry: false,
   });
 }
 

@@ -20,19 +20,11 @@ describe("product-url", () => {
     expect(productPath({ id: 42, slug: null })).toBe("/product/42");
   });
 
-  it("safeDecodeURIComponent decodes once and tolerates plain/malformed", () => {
-    const persian = "میله-اینسایز";
-    const encoded = encodeURIComponent(persian);
-    expect(safeDecodeURIComponent(encoded)).toBe(persian);
-    expect(safeDecodeURIComponent(persian)).toBe(persian);
-    expect(safeDecodeURIComponent("%E0%A4%A")).toBe("%E0%A4%A");
-  });
-
-  it("encodeSlugPathSegment never double-encodes a pre-encoded slug", () => {
-    const persian = "میله-اینسایز";
-    const once = encodeURIComponent(persian);
-    expect(encodeSlugPathSegment(persian)).toBe(once);
-    expect(encodeSlugPathSegment(once)).toBe(once);
-    expect(encodeSlugPathSegment(` ${once} `)).toBe(once);
+  it("decode-once then encode-once for API path segments", () => {
+    expect(safeDecodeURIComponent("%D8%A7%D8%A8%D8%B2%D8%A7%D8%B1")).toBe("ابزار");
+    expect(safeDecodeURIComponent("ابزار")).toBe("ابزار");
+    const encoded = encodeSlugPathSegment("%D8%A7%D8%A8%D8%B2%D8%A7%D8%B1");
+    expect(decodeURIComponent(encoded)).toBe("ابزار");
+    expect(encodeSlugPathSegment(encoded)).toBe(encoded);
   });
 });

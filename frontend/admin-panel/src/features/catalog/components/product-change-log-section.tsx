@@ -62,7 +62,7 @@ export function ProductChangeLogSection({ productId }: { productId: number }) {
     <Card className="border-transparent shadow-card">
       <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <TimeCircle set="bulk" size={22} primaryColor="#C22026" />
+          <TimeCircle set="bulk" size={22} primaryColor="#D02327" />
           <CardTitle className="text-[#4F4F4F]">تاریخچه تغییرات</CardTitle>
         </div>
         <Select value={filter} onValueChange={(v) => setFilter(v as ChangeFilter)}>

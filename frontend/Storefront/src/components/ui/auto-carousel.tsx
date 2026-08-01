@@ -6,43 +6,76 @@ import {
   useEffect,
   useRef,
   useState,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import { ChevronLeft, ChevronRight } from "react-iconly";
+import { readHorizontalScrollEdges } from "@/lib/scroll-edges";
 import { cn } from "@/lib/utils";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 
+const DRAG_THRESHOLD = 6;
+
 /**
- * Horizontal carousel with optional autoplay.
- * User interaction pauses autoplay briefly, then resumes.
+ * Horizontal carousel with optional autoplay, chevrons, and drag-to-slide.
+ * User interaction / hover pauses autoplay; resumes after a short idle.
+ * Click-through after a drag is suppressed so card links stay intentional.
  */
 export function AutoCarousel({
   children,
   className,
   itemClassName,
+  trackClassName,
   autoPlay = true,
   intervalMs = 3200,
   gapClass = "gap-3 sm:gap-4",
   showControls = true,
+  controlClassName,
 }: {
   children: ReactNode;
   className?: string;
   itemClassName?: string;
+  trackClassName?: string;
   autoPlay?: boolean;
   intervalMs?: number;
   gapClass?: string;
   showControls?: boolean;
+  /** Extra classes for chevron buttons (position tweaks). */
+  controlClassName?: string;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const motionSafe = useMotionSafe();
   const [paused, setPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const items = Children.toArray(children);
+
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startScroll: number;
+    moved: boolean;
+    dragging: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
 
   const pauseTemporarily = useCallback(() => {
     setPaused(true);
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
     resumeTimer.current = setTimeout(() => setPaused(false), 5000);
+  }, []);
+
+  const updateEdges = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const edges = readHorizontalScrollEdges(el);
+    setCanScrollLeft(edges.canScrollLeft);
+    setCanScrollRight(edges.canScrollRight);
+    setHasOverflow(edges.hasOverflow);
   }, []);
 
   const step = useCallback(
@@ -51,7 +84,6 @@ export function AutoCarousel({
       if (!el) return;
       const amount = Math.min(320, el.clientWidth * 0.7);
       // Do not negate for RTL: Chromium already inverts scrollLeft under direction:rtl.
-      // Left control (dir=-1) must move content right; right control (dir=1) left.
       el.scrollBy({ left: dir * amount, behavior: "smooth" });
       pauseTemporarily();
     },
@@ -59,7 +91,21 @@ export function AutoCarousel({
   );
 
   useEffect(() => {
-    if (!autoPlay || !motionSafe || paused) return;
+    const el = trackRef.current;
+    if (!el) return;
+    updateEdges();
+    const onScroll = () => updateEdges();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(() => updateEdges());
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, [updateEdges, items.length]);
+
+  useEffect(() => {
+    if (!autoPlay || !motionSafe || paused || hoverPaused) return;
     const el = trackRef.current;
     if (!el) return;
 
@@ -67,7 +113,9 @@ export function AutoCarousel({
       const maxScroll = el.scrollWidth - el.clientWidth;
       if (maxScroll <= 8) return;
       const isRtl = getComputedStyle(el).direction === "rtl";
-      const atEnd = isRtl ? Math.abs(el.scrollLeft) >= maxScroll - 4 : el.scrollLeft >= maxScroll - 4;
+      const atEnd = isRtl
+        ? Math.abs(el.scrollLeft) >= maxScroll - 4
+        : el.scrollLeft >= maxScroll - 4;
       if (atEnd) {
         el.scrollTo({ left: 0, behavior: "smooth" });
       } else {
@@ -77,7 +125,7 @@ export function AutoCarousel({
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [autoPlay, motionSafe, paused, intervalMs]);
+  }, [autoPlay, motionSafe, paused, hoverPaused, intervalMs]);
 
   useEffect(
     () => () => {
@@ -86,18 +134,73 @@ export function AutoCarousel({
     [],
   );
 
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pauseTemporarily();
+    // Touch uses native overflow pan; custom drag is mouse/pen only.
+    if (e.pointerType === "touch") return;
+    if (e.button !== 0) return;
+    const el = trackRef.current;
+    if (!el) return;
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScroll: el.scrollLeft,
+      moved: false,
+      dragging: true,
+    };
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    const el = trackRef.current;
+    if (!drag?.dragging || !el || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    if (!drag.moved && Math.abs(dx) < DRAG_THRESHOLD) return;
+    drag.moved = true;
+    // scrollLeft delta matches pointer delta in both LTR and RTL (Chromium).
+    el.scrollLeft = drag.startScroll - dx;
+  };
+
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    const el = trackRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    if (drag.moved) suppressClickRef.current = true;
+    dragRef.current = null;
+    if (el?.hasPointerCapture(e.pointerId)) {
+      el.releasePointerCapture(e.pointerId);
+    }
+  };
+
+  const onClickCapture = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (!suppressClickRef.current) return;
+    suppressClickRef.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const showChevrons = showControls && hasOverflow && motionSafe;
+
   return (
     <div
       className={cn("relative", className)}
-      onPointerDown={pauseTemporarily}
       onWheel={pauseTemporarily}
-      onTouchStart={pauseTemporarily}
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
     >
       <div
         ref={trackRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={onClickCapture}
         className={cn(
-          "no-scrollbar flex snap-x snap-mandatory overflow-x-auto scroll-smooth pb-1",
+          "no-scrollbar flex snap-x snap-mandatory overflow-x-auto scroll-smooth",
+          "touch-pan-x select-none cursor-grab active:cursor-grabbing",
           gapClass,
+          trackClassName ?? "pb-1",
         )}
       >
         {items.map((child, i) => (
@@ -107,26 +210,38 @@ export function AutoCarousel({
         ))}
       </div>
 
-      {showControls && motionSafe && items.length > 2 && (
+      {showChevrons ? (
         <>
+          {/* Physical right: scroll toward higher scrollLeft (visual right / RTL start). */}
           <button
             type="button"
-            aria-label="بعدی"
+            aria-label="به راست"
+            disabled={!canScrollRight}
             onClick={() => step(1)}
-            className="absolute -start-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border/60 bg-card/90 text-steel shadow-card backdrop-blur-md hover:text-primary lg:grid"
+            className={cn(
+              "absolute -start-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border/50 bg-card/95 text-steel shadow-card backdrop-blur-md transition-all duration-300 lg:grid",
+              "hover:text-primary disabled:pointer-events-none disabled:opacity-0",
+              controlClassName,
+            )}
           >
             <ChevronRight set="light" size="small" />
           </button>
+          {/* Physical left: scroll toward lower scrollLeft (visual left / RTL end). */}
           <button
             type="button"
-            aria-label="قبلی"
+            aria-label="به چپ"
+            disabled={!canScrollLeft}
             onClick={() => step(-1)}
-            className="absolute -end-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border/60 bg-card/90 text-steel shadow-card backdrop-blur-md hover:text-primary lg:grid"
+            className={cn(
+              "absolute -end-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border/50 bg-card/95 text-steel shadow-card backdrop-blur-md transition-all duration-300 lg:grid",
+              "hover:text-primary disabled:pointer-events-none disabled:opacity-0",
+              controlClassName,
+            )}
           >
             <ChevronLeft set="light" size="small" />
           </button>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

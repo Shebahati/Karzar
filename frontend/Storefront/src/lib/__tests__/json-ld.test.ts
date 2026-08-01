@@ -149,7 +149,7 @@ describe("buildSitewideJsonLd", () => {
     ]);
     const org = graph[0];
     expect(org).toMatchObject({
-      hasMap: "/contact#store-address",
+      hasMap: "https://neshan.org/maps/places/vbvELT2xOtSQ",
       telephone: "+989912480087",
       email: "info@karzartools.com",
       address: {
@@ -159,8 +159,8 @@ describe("buildSitewideJsonLd", () => {
       },
       geo: {
         "@type": "GeoCoordinates",
-        latitude: 35.6873,
-        longitude: 51.40428,
+        latitude: 35.6869844,
+        longitude: 51.4044884,
       },
     });
     expect(org).not.toHaveProperty("openingHours");

@@ -95,7 +95,7 @@ export function CreatableCombobox({
                 <CommandItem key={option} value={option} onSelect={() => commit(option)}>
                   <span className="flex-1 truncate">{option}</span>
                   {value === option && (
-                    <TickSquare set="bold" size={16} primaryColor="#C22026" />
+                    <TickSquare set="bold" size={16} primaryColor="#D02327" />
                   )}
                 </CommandItem>
               ))}

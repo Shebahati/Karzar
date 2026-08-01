@@ -107,7 +107,7 @@ export function CategoryDeleteDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg border-transparent shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-          <Danger set="bulk" size={28} primaryColor="#C22026" />
+          <Danger set="bulk" size={28} primaryColor="#D02327" />
         </div>
         <DialogHeader>
           <DialogTitle className="text-[#4F4F4F]">حذف دسته‌بندی</DialogTitle>

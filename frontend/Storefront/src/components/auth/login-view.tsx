@@ -12,8 +12,9 @@ import { authService } from "@/services/auth";
 import { authKeys } from "@/features/auth/queries";
 import { toEnglishDigits } from "@/lib/utils";
 
+import { OTP_LENGTH } from "@/lib/otp";
+
 type Step = "phone" | "otp";
-const OTP_LENGTH = 5;
 
 function safeNextPath(raw: string | null): string {
   if (!raw) return "/";
@@ -129,7 +130,7 @@ export function LoginView() {
           <p className="mt-2 text-sm text-muted-foreground">
             {step === "phone"
               ? "شماره موبایل خود را وارد کنید تا درخواست کد تأیید ثبت شود."
-              : `اگر پیامک رسیده، کد ۵ رقمی ارسال‌شده به ${phone} را وارد کنید.`}
+              : `اگر پیامک رسیده، کد ۶ رقمی ارسال‌شده به ${phone} را وارد کنید.`}
           </p>
         </div>
 

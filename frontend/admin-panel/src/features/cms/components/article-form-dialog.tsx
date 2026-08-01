@@ -174,7 +174,7 @@ export function ArticleFormDialog({
     <Dialog open={open} onOpenChange={(next) => (!pending ? onOpenChange(next) : undefined)}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-transparent shadow-card">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-          <Document set="bulk" size={24} primaryColor="#C22026" />
+          <Document set="bulk" size={24} primaryColor="#D02327" />
         </div>
         <DialogHeader>
           <DialogTitle className="text-[#4F4F4F]">

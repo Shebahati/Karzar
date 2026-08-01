@@ -51,7 +51,13 @@ import type {
 } from "@/types/payment";
 import type { SpecFilterOptions } from "@/types/spec-filter";
 
-const flat: CategoryFlat[] = enrichCategories(CATEGORIES);
+const flat: CategoryFlat[] = enrichCategories(CATEGORIES).map((c) => {
+  const descendantIds = new Set(collectDescendantIds(CATEGORIES, c.id));
+  const product_count = PRODUCTS.filter(
+    (p) => p.is_active && p.category_id != null && descendantIds.has(p.category_id),
+  ).length;
+  return { ...c, product_count };
+});
 const flatById = new Map(flat.map((c) => [c.id, c]));
 
 type MockOrder = {
@@ -153,6 +159,7 @@ function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
     slug: p.sku.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || `product-${p.id}`,
     name: p.name,
     thumbnail: p.thumbnail,
+    images: p.images,
     base_price: p.base_price,
     original_price: p.original_price,
     discount_percent: p.discount_percent,
@@ -655,12 +662,12 @@ export const mockApi = {
 
   async requestOtp(payload: OtpRequestPayload): Promise<OtpRequestResponse> {
     await sleep(env.MOCK_LATENCY_MS);
-    return { phone: payload.phone, expires_in: 120, dev_code: "11111" };
+    return { phone: payload.phone, expires_in: 120, dev_code: "111111" };
   },
 
   async verifyOtp(payload: OtpVerifyPayload): Promise<OtpVerifyResponse> {
     await sleep(env.MOCK_LATENCY_MS);
-    if (payload.code !== "11111") {
+    if (payload.code !== "111111") {
       throw new Error("کد وارد شده صحیح نیست.");
     }
     mockSession.phone = payload.phone;

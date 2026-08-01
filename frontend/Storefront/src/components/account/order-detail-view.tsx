@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
+import { ArrowRight } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { useOrderTracking } from "@/features/orders/queries";
@@ -30,9 +31,10 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
     <Container className="py-8 lg:py-12">
       <Link
         href={`/account/orders?mode=${data?.mode === "inquiry" ? "inquiry" : "purchase"}`}
-        className="text-sm font-medium text-primary"
+        className="inline-flex items-center gap-1 text-sm font-medium text-primary"
       >
-        ← بازگشت به سفارش‌ها
+        <ArrowRight size="small" set="light" primaryColor="#D02327" />
+        بازگشت به سفارش‌ها
       </Link>
 
       <h1 className="mt-4 text-2xl font-bold text-foreground">جزئیات سفارش</h1>
@@ -87,19 +89,18 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
                         href={`/product/${item.product_id}`}
                         className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-secondary"
                       >
-                        {thumb ? (
-                          <Image
-                            src={thumb}
-                            alt={name}
-                            fill
-                            sizes="56px"
-                            className="object-contain p-1"
-                          />
-                        ) : (
-                          <span className="grid h-full place-items-center text-[10px] text-muted-foreground">
-                            بدون تصویر
-                          </span>
-                        )}
+                        <SafeImage
+                          src={thumb ?? ""}
+                          alt={name}
+                          fill
+                          sizes="56px"
+                          className="object-contain p-1"
+                          fallback={
+                            <span className="grid h-full place-items-center text-[10px] text-muted-foreground">
+                              بدون تصویر
+                            </span>
+                          }
+                        />
                       </Link>
                       <div className="min-w-0 flex-1">
                         <Link

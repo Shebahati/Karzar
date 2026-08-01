@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Buy, Delete, Document, Danger } from "react-iconly";
+import { Buy, Delete, Document, Danger, Plus } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/safe-image";
 import { cn, formatToman, toPersianDigits } from "@/lib/utils";
 import { productPath } from "@/lib/product-url";
 import { isLoggedIn } from "@/lib/api-client";
@@ -280,19 +280,18 @@ function CartRow({
       )}
     >
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-accent">
-        {product.thumbnail ? (
-          <Image
-            src={product.thumbnail}
-            alt={product.name}
-            fill
-            sizes="96px"
-            className="object-contain p-1"
-          />
-        ) : (
-          <span className="grid h-full w-full place-items-center text-lg font-medium text-accent-foreground">
-            {(product.name || "ک").slice(0, 1)}
-          </span>
-        )}
+        <SafeImage
+          src={product.thumbnail ?? ""}
+          alt={product.name}
+          fill
+          sizes="96px"
+          className="object-contain p-1"
+          fallback={
+            <span className="grid h-full w-full place-items-center text-lg font-medium text-accent-foreground">
+              {(product.name || "ک").slice(0, 1)}
+            </span>
+          }
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -313,7 +312,7 @@ function CartRow({
               type="button"
               aria-label="کاهش"
               onClick={() => onQty(product.id, quantity - 1)}
-              className="touch-target rounded-lg bg-white text-lg text-foreground shadow-soft"
+              className="touch-target grid place-items-center rounded-lg bg-white text-lg font-medium leading-none text-foreground shadow-soft"
             >
               −
             </button>
@@ -322,9 +321,9 @@ function CartRow({
               type="button"
               aria-label="افزایش"
               onClick={() => onQty(product.id, quantity + 1)}
-              className="touch-target rounded-lg bg-white text-lg text-foreground shadow-soft"
+              className="touch-target grid place-items-center rounded-lg bg-white text-foreground shadow-soft"
             >
-              +
+              <Plus size="small" set="bold" primaryColor="#5E5F5E" />
             </button>
           </div>
 

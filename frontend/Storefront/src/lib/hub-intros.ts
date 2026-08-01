@@ -27,6 +27,39 @@ const DATA = introsJson as HubIntrosFile;
 
 const BY_SLUG = new Map(DATA.hubs.map((hub) => [hub.slug, hub]));
 
+/**
+ * Live L1 categories + older Persian path segments → intros.json hub keys (latin L1).
+ */
+const SLUG_ALIASES: Record<string, string> = {
+  "اندازه-گیری-دقیق": "andaze-giri-daghigh",
+  "اندازه-گیری-آزمایشگاهی": "andaze-giri-azmayeshgahi",
+  "اندازه-گیری-فرز-cnc": "andaze-giri-cnc",
+  "cnc-اندازه-گیری": "andaze-giri-cnc",
+  "ابزار-اینسرتی": "abzar-inserti",
+  اینسرت: "insert",
+  "ابزار-انگشتی": "abzar-angoshti",
+  مته: "mete",
+  قلاویز: "ghalaviz",
+  ابزارگیر: "abzargir",
+  "ابزار-گیرشی": "abzar-gireshi",
+  "دستگاههای-صنعتی": "dastgah-sanati",
+  "دستگاه‌های-صنعتی": "dastgah-sanati",
+  "لوازم-جانبی-صنعتی": "lavazem-janebi",
+  // latin keys also resolve if intros still used Persian (defensive)
+  "andaze-giri-daghigh": "andaze-giri-daghigh",
+  "andaze-giri-azmayeshgahi": "andaze-giri-azmayeshgahi",
+  "andaze-giri-cnc": "andaze-giri-cnc",
+  "abzar-inserti": "abzar-inserti",
+  insert: "insert",
+  "abzar-angoshti": "abzar-angoshti",
+  mete: "mete",
+  ghalaviz: "ghalaviz",
+  abzargir: "abzargir",
+  "abzar-gireshi": "abzar-gireshi",
+  "dastgah-sanati": "dastgah-sanati",
+  "lavazem-janebi": "lavazem-janebi",
+};
+
 /** Count whitespace-separated tokens (Persian/Latin). */
 export function countWords(text: string): number {
   const trimmed = text.trim();
@@ -42,9 +75,34 @@ export function listHubIntros(): HubIntro[] {
   return DATA.hubs;
 }
 
+function resolveIntroSlug(slug: string): HubIntro | null {
+  const direct = BY_SLUG.get(slug);
+  if (direct) return direct;
+
+  const aliasTarget = SLUG_ALIASES[slug];
+  if (aliasTarget) {
+    const viaAlias = BY_SLUG.get(aliasTarget);
+    if (viaAlias) return viaAlias;
+  }
+
+  // DB sometimes appends `-{id}` to Persian slugs.
+  const stripped = slug.replace(/-\d+$/u, "");
+  if (stripped !== slug) {
+    const viaStrip = BY_SLUG.get(stripped);
+    if (viaStrip) return viaStrip;
+    const aliasFromStrip = SLUG_ALIASES[stripped];
+    if (aliasFromStrip) {
+      const via = BY_SLUG.get(aliasFromStrip);
+      if (via) return via;
+    }
+  }
+
+  return null;
+}
+
 export function getHubIntro(slug: string | null | undefined): HubIntro | null {
   if (!slug) return null;
-  return BY_SLUG.get(slug) ?? null;
+  return resolveIntroSlug(slug);
 }
 
 /** Plain excerpt for meta / JSON-LD (no invented claims). */

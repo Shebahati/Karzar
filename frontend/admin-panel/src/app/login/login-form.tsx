@@ -112,7 +112,7 @@ export function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-card">
+          <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-card">
             <LogoMark size={28} />
           </div>
           <CardTitle className="text-2xl">ورود به پنل کارزار</CardTitle>

@@ -148,7 +148,7 @@ export function BrandsManagementModal({ open, onOpenChange }: BrandsManagementMo
       >
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto border-white/40 bg-white/90 shadow-[0_8px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-primary">
-            <Star set="bulk" size={28} primaryColor="#C22026" />
+            <Star set="bulk" size={28} primaryColor="#D02327" />
           </div>
           <DialogHeader>
             <DialogTitle className="text-[#4F4F4F]">مدیریت برندها</DialogTitle>

@@ -76,7 +76,7 @@ export function RelatedProductsPicker({ value, onChange, disabled }: RelatedProd
                       onSelect={() => toggle(product.id)}
                     >
                       <span className="flex-1 truncate">{product.name}</span>
-                      {isSelected && <TickSquare set="bold" size={16} primaryColor="#C22026" />}
+                      {isSelected && <TickSquare set="bold" size={16} primaryColor="#D02327" />}
                     </CommandItem>
                   );
                 })}

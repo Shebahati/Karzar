@@ -88,94 +88,128 @@ function nowIso(): string {
 const categories: CategoryTreeNode[] = [
   {
     id: 1,
-    name: "ابزار تراشکاری",
+    name: "اندازه‌گیری",
     parent_id: null,
-    subcategories: [
-      { id: 11, name: "الماس تراشکاری (اینسرت)", parent_id: 1, subcategories: [] },
-      { id: 12, name: "هلدر و نگهدارنده", parent_id: 1, subcategories: [] },
-      { id: 13, name: "بار تراش (Boring Bar)", parent_id: 1, subcategories: [] },
-    ],
+    slug: "andaze-giri",
+    icon: "/category-icons/andaze-giri.png",
+    image_url: "/category-icons/andaze-giri.png",
+    product_count: 0,
+    subcategories: [],
   },
   {
     id: 2,
-    name: "ابزار فرزکاری",
+    name: "ابزار اینسرتی",
     parent_id: null,
-    subcategories: [
-      { id: 21, name: "تیغه فرز انگشتی", parent_id: 2, subcategories: [] },
-      { id: 22, name: "کله گاوی", parent_id: 2, subcategories: [] },
-    ],
+    slug: "abzar-inserti",
+    icon: "/category-icons/abzar-inserti.png",
+    image_url: "/category-icons/abzar-inserti.png",
+    product_count: 0,
+    subcategories: [],
   },
   {
     id: 3,
-    name: "ابزار سوراخکاری",
+    name: "اینسرت",
     parent_id: null,
-    subcategories: [
-      { id: 31, name: "مته HSS", parent_id: 3, subcategories: [] },
-      { id: 32, name: "مته کارباید", parent_id: 3, subcategories: [] },
-    ],
+    slug: "insert",
+    icon: "/category-icons/insert.png",
+    image_url: "/category-icons/insert.png",
+    product_count: 0,
+    subcategories: [],
   },
   {
     id: 4,
-    name: "ابزار اندازه‌گیری",
+    name: "فرز انگشتی",
     parent_id: null,
-    subcategories: [
-      {
-        id: 41,
-        name: "کولیس",
-        parent_id: 4,
-        subcategories: [
-          { id: 411, name: "کولیس دیجیتال ۰-۱۵۰mm", parent_id: 41, subcategories: [] },
-        ],
-      },
-      { id: 42, name: "میکرومتر", parent_id: 4, subcategories: [] },
-    ],
+    slug: "farz-angoshti",
+    icon: "/category-icons/farz-angoshti.png",
+    image_url: "/category-icons/farz-angoshti.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 5,
+    name: "قلاویز",
+    parent_id: null,
+    slug: "ghalaviz",
+    icon: "/category-icons/ghalaviz.png",
+    image_url: "/category-icons/ghalaviz.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 6,
+    name: "ابزار گیر",
+    parent_id: null,
+    slug: "abzar-gir",
+    icon: "/category-icons/abzar-gir.png",
+    image_url: "/category-icons/abzar-gir.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 7,
+    name: "ابزار گیرشی",
+    parent_id: null,
+    slug: "abzar-gireshi",
+    icon: "/category-icons/abzar-gireshi.png",
+    image_url: "/category-icons/abzar-gireshi.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 8,
+    name: "دستگاه‌های صنعتی",
+    parent_id: null,
+    slug: "dastgah-sanati",
+    icon: "/category-icons/dastgah-sanati.png",
+    image_url: "/category-icons/dastgah-sanati.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 9,
+    name: "هلی کویل",
+    parent_id: null,
+    slug: "heli-coil",
+    icon: "/category-icons/heli-coil.png",
+    image_url: "/category-icons/heli-coil.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 10,
+    name: "مته",
+    parent_id: null,
+    slug: "mete",
+    icon: "/category-icons/mete.png",
+    image_url: "/category-icons/mete.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 11,
+    name: "ابزار کارگاهی : دریل عادی",
+    parent_id: null,
+    slug: "abzar-kargahi",
+    icon: "/category-icons/abzar-kargahi.png",
+    image_url: "/category-icons/abzar-kargahi.png",
+    product_count: 0,
+    subcategories: [],
+  },
+  {
+    id: 12,
+    name: "روغن و روانکار",
+    parent_id: null,
+    slug: "roghan-ravankar",
+    icon: "/category-icons/roghan-ravankar.png",
+    image_url: "/category-icons/roghan-ravankar.png",
+    product_count: 0,
+    subcategories: [],
   },
 ];
 
 (function expandAdminCategoryTree() {
-  let nextId = 500;
-  const l1Names = [
-    "ابزار بادی و پنوماتیک",
-    "جوش و برش",
-    "ایمنی و حفاظت فردی",
-    "لوازم جانبی و مصرفی",
-    "ابزار باغبانی",
-    "رفع‌سازی و نگهداری",
-    "ابزار دقیق‌سازی",
-    "حمل‌ونقل و انبارداری",
-  ];
-  const l2Suffixes = ["صنعتی", "حرفه‌ای", "نیمه‌صنعتی", "سبک", "سنگین", "تخصصی"];
-  const l3Suffixes = ["سری استاندارد", "سری پیشرفته", "سری اقتصادی", "سری حرفه‌ای"];
-
-  for (const l1Name of l1Names) {
-    if (categories.some((c) => c.name === l1Name)) continue;
-    const l1Id = nextId++;
-    const l1Node: CategoryTreeNode = {
-      id: l1Id,
-      name: l1Name,
-      parent_id: null,
-      subcategories: [],
-    };
-    for (const l2Suffix of l2Suffixes) {
-      const l2Id = nextId++;
-      const l2Node: CategoryTreeNode = {
-        id: l2Id,
-        name: `${l1Name} ${l2Suffix}`,
-        parent_id: l1Id,
-        subcategories: [],
-      };
-      for (const l3Suffix of l3Suffixes) {
-        l2Node.subcategories.push({
-          id: nextId++,
-          name: `${l2Suffix} — ${l3Suffix}`,
-          parent_id: l2Id,
-          subcategories: [],
-        });
-      }
-      l1Node.subcategories.push(l2Node);
-    }
-    categories.push(l1Node);
-  }
+  // Keep mock taxonomy aligned with live L1 hero set — no extra hardcoded roots.
 })();
 
 const brands: Brand[] = [
@@ -470,7 +504,7 @@ const heroSlides: HeroSlide[] = [
     cta_label: "مشاهده محصولات",
     cta_href: "/products?category=11",
     image: "https://picsum.photos/seed/karzar-hero-1/1600/700",
-    accent: "#C22026",
+    accent: "#D02327",
     sort_order: 1,
     is_active: true,
   },
@@ -635,7 +669,7 @@ const products: MockProduct[] = [
     id: 1,
     sku: "CNMG-120408",
     name: "الماس تراشکاری CNMG 120408 روکش CVD",
-    category_id: 11,
+    category_id: 8,
     brand_id: 1,
     base_price: "1850000.00",
     stock_quantity: "120.00",
@@ -652,7 +686,7 @@ const products: MockProduct[] = [
     id: 2,
     sku: "DCMT-11T304",
     name: "الماس تراشکاری DCMT 11T304 پرداختکاری",
-    category_id: 11,
+    category_id: 8,
     brand_id: 2,
     base_price: "1320000.00",
     stock_quantity: "3.00",
@@ -668,7 +702,7 @@ const products: MockProduct[] = [
     id: 3,
     sku: "EMILL-D10-Z4",
     name: "تیغ فرز انگشتی کارباید قطر ۱۰ چهار پر",
-    category_id: 21,
+    category_id: 9,
     brand_id: 4,
     base_price: "4200000.00",
     stock_quantity: "42.00",
@@ -685,7 +719,7 @@ const products: MockProduct[] = [
     id: 4,
     sku: "DRILL-HSS-8.5",
     name: "مته HSS کبالت‌دار قطر ۸.۵ میلی‌متر",
-    category_id: 31,
+    category_id: 10,
     brand_id: 5,
     base_price: "320000.00",
     stock_quantity: "0.00",
@@ -701,7 +735,7 @@ const products: MockProduct[] = [
     id: 5,
     sku: "CALIPER-150-DIG",
     name: "کولیس دیجیتال ۱۵۰ میلی‌متر ضدآب",
-    category_id: 41,
+    category_id: 4,
     brand_id: 3,
     base_price: "5600000.00",
     stock_quantity: "18.00",
@@ -850,7 +884,7 @@ function toDetail(product: MockProduct): ProductDetail {
 /* -------------------------------------------------------------------------- */
 
 const MOCK_SPEC_TEMPLATE: CategorySpecTemplate = {
-  category_id: 411,
+  category_id: 4,
   category_name: "کولیس دیجیتال ۰-۱۵۰mm",
   breadcrumb: ["ابزار اندازه‌گیری", "کولیس", "کولیس دیجیتال ۰-۱۵۰mm"],
   technical_specs: {
@@ -1566,7 +1600,53 @@ export const mockApi = {
     const row = flat.find((c) => c.id === id);
     if (!row) throw new ApiError({ status: 404, code: "NOT_FOUND", message: "Category not found" });
     if (payload.name) row.name = payload.name;
+    if (payload.slug !== undefined) row.slug = payload.slug ?? undefined;
+    if (payload.icon !== undefined) row.icon = payload.icon;
+    if (payload.meta_title !== undefined) row.meta_title = payload.meta_title;
+    if (payload.meta_description !== undefined) row.meta_description = payload.meta_description;
+    if (payload.spec_template_key !== undefined) {
+      row.spec_template_key = payload.spec_template_key;
+    }
+    if (payload.megamenu_hidden !== undefined) row.megamenu_hidden = payload.megamenu_hidden;
+    if (payload.megamenu_as_leaf !== undefined) row.megamenu_as_leaf = payload.megamenu_as_leaf;
+    if (payload.megamenu_bold !== undefined) row.megamenu_bold = payload.megamenu_bold;
+    // Mirror onto in-memory tree node
+    const patchTree = (nodes: CategoryTreeNode[]): boolean => {
+      for (const n of nodes) {
+        if (n.id === id) {
+          if (payload.name) n.name = payload.name;
+          if (payload.slug !== undefined) n.slug = payload.slug ?? undefined;
+          if (payload.icon !== undefined) n.icon = payload.icon;
+          return true;
+        }
+        if (patchTree(n.subcategories)) return true;
+      }
+      return false;
+    };
+    patchTree(categories);
     return delay(row);
+  },
+
+  async uploadCategoryImage(
+    id: number,
+    file: File,
+  ): Promise<{ id: number; image_url: string }> {
+    const url = URL.createObjectURL(file);
+    const flat = flattenCategoryTree(categories);
+    const row = flat.find((c) => c.id === id);
+    if (row) row.image_url = url;
+    const patchTree = (nodes: CategoryTreeNode[]): boolean => {
+      for (const n of nodes) {
+        if (n.id === id) {
+          n.image_url = url;
+          return true;
+        }
+        if (patchTree(n.subcategories)) return true;
+      }
+      return false;
+    };
+    patchTree(categories);
+    return delay({ id, image_url: url });
   },
 
   async deleteCategory(id: number, stepUpToken: string | null): Promise<CategoryDeleteResult> {

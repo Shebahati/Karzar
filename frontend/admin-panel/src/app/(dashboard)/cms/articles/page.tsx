@@ -142,7 +142,7 @@ export default function ArticlesPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
-                        <Document set="bulk" size={20} primaryColor="#C22026" />
+                        <Document set="bulk" size={20} primaryColor="#D02327" />
                       </div>
                       <div className="flex min-w-0 flex-col">
                         <span className="truncate text-sm font-bold text-[#4F4F4F]">{article.title}</span>

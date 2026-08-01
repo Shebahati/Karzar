@@ -142,7 +142,7 @@ export default function NewProductPage() {
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Card className="border-transparent shadow-card">
             <CardHeader className="flex-row items-center gap-2">
-              <Bag set="bulk" size={22} primaryColor="#C22026" />
+              <Bag set="bulk" size={22} primaryColor="#D02327" />
               <CardTitle className="text-[#4F4F4F]">اطلاعات پایه</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -307,7 +307,7 @@ export default function NewProductPage() {
         <div className="flex flex-col gap-6">
           <Card className="border-transparent shadow-card">
             <CardHeader className="flex-row items-center gap-2">
-              <InfoCircle set="bulk" size={22} primaryColor="#C22026" />
+              <InfoCircle set="bulk" size={22} primaryColor="#D02327" />
               <CardTitle className="text-[#4F4F4F]">قیمت و موجودی</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
@@ -418,7 +418,7 @@ export default function NewProductPage() {
 
           <Card className="border-transparent shadow-card">
             <CardHeader className="flex-row items-center gap-2">
-              <Setting set="bulk" size={22} primaryColor="#C22026" />
+              <Setting set="bulk" size={22} primaryColor="#D02327" />
               <CardTitle className="text-[#4F4F4F]">تنظیمات انتشار</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">

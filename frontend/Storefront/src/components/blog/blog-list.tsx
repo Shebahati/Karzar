@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, TimeCircle } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useArticles } from "@/features/catalog/queries";
 import { formatNumber } from "@/lib/utils";
 
@@ -55,14 +55,25 @@ export function BlogList() {
                   href={`/blog/${article.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card shadow-soft transition-shadow hover:shadow-elevated"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <Image
-                      src={article.cover_image}
-                      alt={article.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
+                    {article.cover_image ? (
+                      <SafeImage
+                        src={article.cover_image}
+                        alt={article.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallback={
+                          <span className="grid h-full w-full place-items-center text-2xl font-bold text-muted-foreground/40">
+                            {(article.title || "ک").slice(0, 1)}
+                          </span>
+                        }
+                      />
+                    ) : (
+                      <span className="grid h-full w-full place-items-center text-2xl font-bold text-muted-foreground/40">
+                        {(article.title || "ک").slice(0, 1)}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <h2 className="line-clamp-2 text-base font-bold leading-7 text-foreground transition-colors group-hover:text-primary">

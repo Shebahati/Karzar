@@ -4,13 +4,14 @@ import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { CatalogView } from "@/components/catalog/catalog-view";
+import { resolveBrandLogoUrl } from "@/config/brand-logos";
 import { formatNumber } from "@/lib/utils";
 import type { Brand } from "@/types/category";
 
 /** Brand Hub PLP shell — brand-hub-page-contract §5 / D21. */
 export function BrandHubView({ brand }: { brand: Brand }) {
   const blurb = brand.meta_description?.trim() || null;
-  const logo = brand.logo_url?.trim() || null;
+  const logo = resolveBrandLogoUrl(brand.name, brand.logo_url);
 
   return (
     <>

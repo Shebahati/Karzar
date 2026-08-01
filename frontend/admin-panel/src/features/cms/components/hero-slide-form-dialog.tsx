@@ -34,7 +34,7 @@ function emptyValues(nextSortOrder: number): HeroSlideFormValues {
     cta_label: "",
     cta_href: "",
     image: "",
-    accent: "#C22026",
+    accent: "#D02327",
     sort_order: String(nextSortOrder),
     is_active: true,
   };
@@ -119,7 +119,7 @@ export function HeroSlideFormDialog({
     <Dialog open={open} onOpenChange={(next) => (!pending ? onOpenChange(next) : undefined)}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-transparent shadow-card">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-          <Image2 set="bulk" size={24} primaryColor="#C22026" />
+          <Image2 set="bulk" size={24} primaryColor="#D02327" />
         </div>
         <DialogHeader>
           <DialogTitle className="text-[#4F4F4F]">
@@ -189,7 +189,7 @@ export function HeroSlideFormDialog({
               <div className="flex items-center gap-2">
                 <span
                   className="h-11 w-11 shrink-0 rounded-lg shadow-soft"
-                  style={{ backgroundColor: values.accent || "#C22026" }}
+                  style={{ backgroundColor: values.accent || "#D02327" }}
                 />
                 <Input
                   id="hero-accent"
@@ -199,7 +199,7 @@ export function HeroSlideFormDialog({
                   onChange={(e) => update("accent", e.target.value)}
                   disabled={pending}
                   aria-invalid={Boolean(errors.accent)}
-                  placeholder="#C22026"
+                  placeholder="#D02327"
                 />
               </div>
             </Field>

@@ -15,6 +15,7 @@ import {
 } from "@/lib/inquiry-pending";
 import { useCartStore } from "@/store/cart-store";
 import { guestSchema, phoneSchema, type GuestValues } from "@/lib/validation";
+import { OTP_LENGTH } from "@/lib/otp";
 import { toEnglishDigits } from "@/lib/utils";
 import { z } from "zod";
 
@@ -25,7 +26,9 @@ export interface ResolvedCustomer {
 }
 
 type Lane = "choose" | "guest" | "otp";
-const codeSchema = z.object({ code: z.string().length(5, "کد ۵ رقمی را کامل وارد کنید.") });
+const codeSchema = z.object({
+  code: z.string().length(OTP_LENGTH, `کد ${OTP_LENGTH} رقمی را کامل وارد کنید.`),
+});
 
 /**
  * Step 1 of checkout. For purchase mode (C2), guest checkout is disabled —
@@ -282,10 +285,10 @@ function OtpLane({
               {...codeForm.register("code")}
               inputMode="numeric"
               dir="ltr"
-              maxLength={5}
+              maxLength={OTP_LENGTH}
               autoFocus
               className="h-12 w-full rounded-xl bg-input px-4 text-center text-lg tracking-[0.5em] outline-none focus:ring-2 focus:ring-ring/40 tnum"
-              placeholder="—————"
+              placeholder="——————"
             />
           </Field>
           {process.env.NEXT_PUBLIC_USE_MOCK === "true" && (

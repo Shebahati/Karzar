@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { TimeCircle } from "react-iconly";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useArticles } from "@/features/catalog/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumber } from "@/lib/utils";
@@ -35,13 +35,14 @@ export function ArticlesSection() {
             href={`/blog/${article.slug}`}
             className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card shadow-soft transition-shadow hover:shadow-elevated"
           >
-            <div className="relative aspect-[16/10] overflow-hidden">
-              <Image
+            <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
+              <SafeImage
                 src={article.cover_image}
                 alt={article.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
+                fallback={<div className="absolute inset-0 bg-muted/60" />}
               />
             </div>
             <div className="flex flex-1 flex-col p-5">

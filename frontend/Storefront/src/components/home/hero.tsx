@@ -7,54 +7,94 @@ import {
   useRef,
   useState,
 } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "react-iconly";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { buildHeroSlidesFromNavGroups } from "@/config/hero-from-nav";
-import { NAV_GROUPS } from "@/config/nav-groups";
+import { HeroCategoryOrbs } from "@/components/home/hero-category-orbs";
+import { DesignedHero } from "@/components/home/designed-hero";
 import {
-  useCategoryTree,
-  useHeroSlides,
-  useNavGroupDefs,
-} from "@/features/catalog/queries";
+  featuredOrbs,
+  matchOrbToTreeNode,
+  orbHref,
+  orbsFromRoots,
+} from "@/config/hero-orbs";
+import { orderedTaxonomyRoots, NAV_GROUPS } from "@/config/nav-groups";
+import { useCategoryTree, useHeroSlides, useNavGroupDefs } from "@/features/catalog/queries";
+import { useDesignedHeroPack } from "@/features/home/use-hero-design";
 import { lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
+import type { HeroSlide } from "@/types/content";
+import type { CategoryTreeNode } from "@/types/category";
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 5500;
 const SWIPE_THRESHOLD = 48;
-
 const easePremium = [0.22, 1, 0.36, 1] as const;
 
-/** Soft lift so body copy stays readable on busy hero photos. */
 const copyShadow =
   "0 1px 2px rgba(0,0,0,0.72), 0 2px 16px rgba(0,0,0,0.45)";
 
+function buildOrbSlides(
+  roots: CategoryTreeNode[],
+  cms: HeroSlide[],
+): HeroSlide[] {
+  const orbs = orbsFromRoots(roots);
+  const featured = featuredOrbs(orbs.length ? orbs : undefined);
+  const usedCms = new Set<number>();
+
+  return featured.map((orb, index) => {
+    const node = matchOrbToTreeNode(orb, roots);
+    const cmsMatch = cms.find((s) => {
+      if (usedCms.has(s.id)) return false;
+      const t = (s.title ?? "").replace(/\u200c/g, "");
+      return t.includes(orb.name.slice(0, 6)) || orb.name.includes(t.slice(0, 6));
+    });
+    if (cmsMatch) usedCms.add(cmsMatch.id);
+
+    return {
+      id: cmsMatch?.id ?? index + 1,
+      title: cmsMatch?.title?.trim() || orb.name,
+      subtitle: cmsMatch?.subtitle?.trim() || orb.subtitle,
+      cta_label: (cmsMatch?.cta_label?.trim() || orb.ctaLabel).replace(/\s*←\s*$/u, ""),
+      cta_href: cmsMatch?.cta_href?.trim() || orbHref(orb, node),
+      image: cmsMatch?.image?.trim() || orb.heroImage,
+      accent: cmsMatch?.accent?.trim() || "#D02327",
+    };
+  });
+}
+
 export function Hero() {
+  const designQuery = useDesignedHeroPack();
   const cmsQuery = useHeroSlides();
   const treeQuery = useCategoryTree();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
 
-  const slides = useMemo(
-    () =>
-      buildHeroSlidesFromNavGroups(
-        treeQuery.data ?? [],
-        navDefs,
-        cmsQuery.data ?? [],
-      ),
-    [treeQuery.data, navDefs, cmsQuery.data],
+  const designedPack = designQuery.data;
+  const hasDesigned =
+    !!designedPack?.slides?.filter((s) => s.isActive).length;
+
+  const roots = useMemo(
+    () => orderedTaxonomyRoots(treeQuery.data ?? [], navDefs),
+    [treeQuery.data, navDefs],
   );
 
-  const isLoading = cmsQuery.isLoading || treeQuery.isLoading;
+  const slides = useMemo(
+    () => buildOrbSlides(roots, cmsQuery.data ?? []),
+    [roots, cmsQuery.data],
+  );
+
+  const isLoading =
+    designQuery.isLoading ||
+    (!hasDesigned && (cmsQuery.isLoading || treeQuery.isLoading));
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -64,7 +104,9 @@ export function Hero() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const activeIndex = slides.length ? ((index % slides.length) + slides.length) % slides.length : 0;
+  const activeIndex = slides.length
+    ? ((index % slides.length) + slides.length) % slides.length
+    : 0;
 
   const go = useCallback(
     (next: number, dir: number) => {
@@ -87,50 +129,61 @@ export function Hero() {
   );
 
   useEffect(() => {
-    if (slides.length <= 1 || paused || reducedMotion) return;
+    if (hasDesigned || menuOpen || slides.length <= 1 || paused || reducedMotion) return;
     const t = window.setInterval(() => {
       setDirection(1);
       setIndex((i) => (i + 1) % slides.length);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [slides.length, paused, reducedMotion]);
+  }, [hasDesigned, menuOpen, slides.length, paused, reducedMotion]);
 
   useEffect(() => {
+    if (hasDesigned) return;
     const el = regionRef.current;
     if (!el) return;
     const onKey = (e: KeyboardEvent) => {
+      if (menuOpen) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setMenuOpen(false);
+        }
+        return;
+      }
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        // RTL: left arrow advances to next slide
         goNext();
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         goPrev();
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        goTo(0);
-      } else if (e.key === "End") {
-        e.preventDefault();
-        goTo(slides.length - 1);
       }
     };
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, goTo, slides.length]);
+  }, [hasDesigned, menuOpen, goNext, goPrev]);
 
   if (isLoading) {
     return (
-      <div className="relative min-h-[min(78vh,560px)] w-full overflow-hidden bg-secondary sm:min-h-[min(72vh,620px)]">
+      <div className="relative h-[62dvh] w-full overflow-hidden bg-secondary md:h-[100dvh]">
         <Skeleton className="absolute inset-0 rounded-none" />
       </div>
     );
   }
 
+  if (hasDesigned && designedPack) {
+    return (
+      <DesignedHero
+        pack={designedPack}
+        roots={roots}
+        menuOpen={menuOpen}
+        onMenuOpenChange={setMenuOpen}
+      />
+    );
+  }
+
   if (!slides.length) return null;
 
-  const slide = slides[activeIndex];
+  const slide = slides[activeIndex]!;
   const slideMs = reducedMotion ? 0.18 : 0.85;
-  // RTL: positive x = enter from the right (start of reading direction).
   const textX = reducedMotion ? 0 : direction * 28;
 
   return (
@@ -138,8 +191,8 @@ export function Hero() {
       ref={regionRef}
       tabIndex={0}
       aria-roledescription="carousel"
-      aria-label="معرفی دسته‌های اصلی کارزار"
-      className="relative outline-none"
+      aria-label="هیرو دسته‌بندی‌های کارزار"
+      className="relative h-[62dvh] w-full outline-none md:h-[100dvh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -156,26 +209,26 @@ export function Hero() {
         const start = touchStartX.current;
         touchStartX.current = null;
         setPaused(false);
-        if (start == null) return;
+        if (menuOpen || start == null) return;
         const dx = (e.changedTouches[0]?.clientX ?? start) - start;
         if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-        // RTL swipe: finger moves left (negative dx) → previous in visual order;
-        // finger moves right → next. Match common RTL carousel expectation.
         if (dx > 0) goNext();
         else goPrev();
       }}
     >
-      <div className="relative min-h-[min(78vh,560px)] w-full overflow-hidden sm:min-h-[min(72vh,620px)]">
-        {/* Layered crossfade — sync keeps outgoing + incoming visible together */}
+      <div className="relative h-full w-full overflow-hidden">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={slide.id}
             custom={direction}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: menuOpen ? 0.42 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: slideMs, ease: easePremium }}
-            className="absolute inset-0"
+            className={cn(
+              "absolute inset-0 transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+              menuOpen && "scale-[1.015]",
+            )}
           >
             <motion.div
               className="absolute inset-0 origin-center will-change-transform"
@@ -184,44 +237,45 @@ export function Hero() {
                 x: reducedMotion ? 0 : direction * -18,
               }}
               animate={{
-                scale: reducedMotion ? 1 : 1.12,
+                scale: reducedMotion ? 1 : 1.1,
                 x: 0,
               }}
               transition={
                 reducedMotion
                   ? { duration: 0.18 }
                   : {
-                      scale: {
-                        duration: AUTOPLAY_MS / 1000,
-                        ease: "linear",
-                      },
+                      scale: { duration: AUTOPLAY_MS / 1000, ease: "linear" },
                       x: { duration: slideMs, ease: easePremium },
                     }
               }
             >
-              <Image
+              <SafeImage
                 src={slide.image}
                 alt=""
                 fill
                 sizes="100vw"
                 className="object-cover object-[left_42%]"
+                fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
                 {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
               />
             </motion.div>
             <div
               aria-hidden
-              // RTL copy sits on the right: denser under text, photo side stays open.
-              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.58)_0%,rgba(18,18,18,0.3)_40%,rgba(18,18,18,0.78)_100%)] sm:bg-[linear-gradient(90deg,rgba(18,18,18,0.14)_0%,rgba(18,18,18,0.36)_44%,rgba(18,18,18,0.78)_72%,rgba(18,18,18,0.9)_100%)]"
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(194,32,38,0.22),transparent_42%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* Extra top pad clears the floating home header sitting over the full-bleed media. */}
-        <Container className="relative z-10 flex min-h-[min(78vh,560px)] flex-col justify-end pb-10 pt-[calc(5.25rem+env(safe-area-inset-top,0px))] sm:min-h-[min(72vh,620px)] sm:justify-center sm:pb-16 sm:pt-[calc(6rem+env(safe-area-inset-top,0px))]">
+        <div
+          className={cn(
+            "relative z-10 flex h-full flex-col justify-center px-5 pb-36 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] sm:px-10 lg:px-16",
+            menuOpen && "pointer-events-none translate-y-1 opacity-35",
+          )}
+        >
           <div className="max-w-xl">
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
@@ -242,18 +296,15 @@ export function Hero() {
                 >
                   کارزار
                 </p>
-                <div
-                  className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14"
-                  aria-hidden
-                />
+                <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
                 <h1
-                  className="mt-4 text-[1.65rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
+                  className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
                   style={{ textShadow: copyShadow }}
                 >
                   {slide.title}
                 </h1>
                 <p
-                  className="mt-3 max-w-lg text-sm leading-7 text-white sm:mt-4 sm:text-base sm:leading-8"
+                  className="mt-3 max-w-lg text-sm leading-7 text-white/95 sm:mt-4 sm:text-base sm:leading-8"
                   style={{ textShadow: copyShadow }}
                 >
                   {slide.subtitle}
@@ -280,15 +331,14 @@ export function Hero() {
             </AnimatePresence>
           </div>
 
-          {slides.length > 1 && (
-            <div className="mt-8 flex items-center justify-between gap-4 sm:mt-12">
+          {slides.length > 1 && !menuOpen ? (
+            <div className="mt-8 flex items-center gap-4 sm:mt-10">
               <div className="flex gap-1.5" role="tablist" aria-label="انتخاب اسلاید">
                 {slides.map((s, i) => (
                   <button
                     key={s.id}
                     type="button"
                     role="tab"
-                    aria-label={`${s.title} — اسلاید ${i + 1}`}
                     aria-selected={i === activeIndex}
                     onClick={() => goTo(i)}
                     className="touch-target rounded-full"
@@ -302,17 +352,12 @@ export function Hero() {
                   </button>
                 ))}
               </div>
-
-              {/*
-                Force LTR button order so physical left = next (megamenu top→bottom)
-                and physical right = previous, matching ArrowLeft/ArrowRight handlers.
-              */}
               <div className="flex gap-2" dir="ltr">
                 <button
                   type="button"
                   aria-label="اسلاید بعدی"
                   onClick={goNext}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
+                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
                 >
                   <ChevronLeft set="light" size="small" />
                 </button>
@@ -320,14 +365,23 @@ export function Hero() {
                   type="button"
                   aria-label="اسلاید قبلی"
                   onClick={goPrev}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
+                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
                 >
                   <ChevronRight set="light" size="small" />
                 </button>
               </div>
             </div>
-          )}
-        </Container>
+          ) : null}
+        </div>
+
+        <HeroCategoryOrbs
+          activeIndex={activeIndex}
+          onSelectFeatured={goTo}
+          roots={roots}
+          defs={orbsFromRoots(roots)}
+          menuOpen={menuOpen}
+          onMenuOpenChange={setMenuOpen}
+        />
 
         <span className="sr-only" aria-live="polite">
           {slide.title}

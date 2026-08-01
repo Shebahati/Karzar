@@ -45,7 +45,8 @@ describe("SEO-002 hub intros", () => {
 
   it("resolves known metrology/cutting slugs", () => {
     expect(getHubIntro("انواع-کولیس")?.name).toContain("کولیس");
-    expect(getHubIntro("مته")?.links.length).toBeGreaterThanOrEqual(3);
+    expect(getHubIntro("mete")?.links.length).toBeGreaterThanOrEqual(3);
+    expect(getHubIntro("andaze-giri-daghigh")?.name).toContain("اندازه");
     expect(getHubIntro("missing-slug-xyz")).toBeNull();
   });
 

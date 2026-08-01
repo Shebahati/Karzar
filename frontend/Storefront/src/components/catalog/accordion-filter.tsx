@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { ChevronDown } from "react-iconly";
 import { cn } from "@/lib/utils";
 
 /** Collapsed-by-default accordion section for catalog filters. */
@@ -40,12 +41,12 @@ export function AccordionFilter({
         </span>
         <span
           className={cn(
-            "grid h-8 w-8 place-items-center rounded-lg bg-secondary text-steel transition-transform",
+            "grid h-8 w-8 place-items-center rounded-lg bg-secondary text-steel transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
             open && "rotate-180",
           )}
           aria-hidden
         >
-          ⌃
+          <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />
         </span>
       </button>
       {open && <div className="border-t border-border/40 px-4 py-3">{children}</div>}

@@ -114,7 +114,7 @@ export function CategoriesContent() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-            <Category set="bulk" size={26} primaryColor="#C22026" />
+            <Category set="bulk" size={26} primaryColor="#D02327" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-[#4F4F4F]">دسته‌بندی و مگامنو</h2>

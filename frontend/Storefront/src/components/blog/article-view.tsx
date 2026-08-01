@@ -1,15 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { Calendar, ChevronLeft, TimeCircle, User } from "react-iconly";
+import { Calendar, ChevronDown, ChevronLeft, TimeCircle, User } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SafeImage } from "@/components/ui/safe-image";
 import { SectionHeading } from "@/components/home/section-heading";
 import { ProductCarousel } from "@/components/home/product-carousel";
 import { useArticle, useProductsByIds } from "@/features/catalog/queries";
 import { formatNumber } from "@/lib/utils";
 import { extractArticleSeo, type BlogBlock, type BlogFaqItem } from "@/types/content";
+import { toSafeNextImageSrc } from "@/lib/image-remote-patterns";
 
 function faDate(iso: string) {
   return new Date(iso).toLocaleDateString("fa-IR", {
@@ -107,16 +108,17 @@ export function ArticleView({ slug }: { slug: string }) {
           </div>
         </header>
 
-        {post.cover_image ? (
+        {toSafeNextImageSrc(post.cover_image) ? (
           <div className="relative mx-auto mt-8 aspect-[16/8] max-w-4xl overflow-hidden rounded-3xl shadow-card">
-            <Image
-              src={post.cover_image}
+            <SafeImage
+              src={post.cover_image!}
               alt={post.title}
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 60vw"
               className="object-cover"
               itemProp="image"
+              fallback={null}
             />
           </div>
         ) : null}
@@ -222,12 +224,17 @@ function BlockRenderer({ block }: { block: BlogBlock }) {
       return (
         <figure className="my-6 overflow-hidden rounded-2xl border border-border bg-muted/20">
           <div className="relative aspect-[16/10] w-full">
-            <Image
+            <SafeImage
               src={block.src}
               alt={block.alt}
               fill
               sizes="(max-width: 768px) 100vw, 680px"
               className="object-cover"
+              fallback={
+                <span className="grid h-full w-full place-items-center text-sm text-muted-foreground">
+                  {block.alt || "تصویر"}
+                </span>
+              }
             />
           </div>
           {block.caption ? (
@@ -288,7 +295,12 @@ function FaqSection({ items }: { items: BlogFaqItem[] }) {
           <summary className="cursor-pointer list-none text-[15px] font-bold text-foreground marker:content-none">
             <span className="flex items-start justify-between gap-3">
               {item.question}
-              <span className="mt-0.5 text-muted-foreground transition group-open:rotate-45">+</span>
+              <span
+                className="mt-0.5 shrink-0 text-muted-foreground transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-open:rotate-180"
+                aria-hidden
+              >
+                <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />
+              </span>
             </span>
           </summary>
           <p className="mt-3 text-[14.5px] leading-8 text-foreground/85">{item.answer}</p>

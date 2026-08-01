@@ -37,7 +37,7 @@ function CategoryColumn({
         <h3 className="text-sm font-bold text-[#4F4F4F]">{title}</h3>
         {onAdd && (
           <Button type="button" variant="ghost" size="icon" aria-label="افزودن" onClick={onAdd}>
-            <Plus set="bold" size={18} primaryColor="#C22026" />
+            <Plus set="bold" size={18} primaryColor="#D02327" />
           </Button>
         )}
       </div>

@@ -82,7 +82,7 @@ export default function DeletedProductsPage() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary">
-                        <Bag2 set="bulk" size={20} primaryColor="#C22026" />
+                        <Bag2 set="bulk" size={20} primaryColor="#D02327" />
                       </span>
                       <div>
                         <p className="text-sm font-bold">{product.name}</p>

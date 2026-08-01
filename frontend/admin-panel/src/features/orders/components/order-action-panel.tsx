@@ -127,7 +127,7 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
               className="w-full gap-2 border-destructive/30 text-destructive hover:bg-destructive/5 sm:w-auto"
               onClick={() => setCancelOpen(true)}
             >
-              <CloseSquare set="light" size={18} primaryColor="#C22026" />
+              <CloseSquare set="light" size={18} primaryColor="#D02327" />
               لغو {order.mode === "inquiry" ? "استعلام" : "سفارش"}
             </Button>
           )}

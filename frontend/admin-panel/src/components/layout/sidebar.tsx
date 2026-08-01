@@ -109,7 +109,7 @@ export function Sidebar() {
         <div className="flex h-24 shrink-0 items-center justify-center overflow-hidden">
           <div className="flex items-center gap-3 transition-all duration-500">
             <div className={cn(
-              "flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-soft transition-all duration-500",
+              "flex items-center justify-center rounded-xl bg-white shadow-soft transition-all duration-500",
               isCollapsed ? "h-12 w-12" : "h-11 w-11"
             )}>
               <LogoMark size={isCollapsed ? 26 : 22} />

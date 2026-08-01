@@ -17,7 +17,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { useUploadCategoryImage } from "@/features/catalog/queries";
+import { useUploadCategoryImage, useUpdateCategory } from "@/features/catalog/queries";
 import { ApiError } from "@/lib/api-client";
 import type { CategoryCreatePayload, CategoryFlat, CategoryUpdatePayload } from "@/types/category";
 
@@ -71,8 +71,11 @@ export function CategoryFormDialog({
   const [megamenuAsLeaf, setMegamenuAsLeaf] = useState(false);
   const [boldMode, setBoldMode] = useState<MegamenuBoldMode>("auto");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const iconFileRef = useRef<HTMLInputElement>(null);
   const uploadImage = useUploadCategoryImage();
+  const updateCategory = useUpdateCategory();
 
   useEffect(() => {
     if (open) {
@@ -86,6 +89,14 @@ export function CategoryFormDialog({
       setMegamenuAsLeaf(Boolean(category?.megamenu_as_leaf));
       setBoldMode(boldModeFromCategory(category));
       setPreviewUrl(category?.image_url ?? null);
+      setIconPreviewUrl(
+        category?.icon &&
+          (category.icon.startsWith("/") ||
+            category.icon.startsWith("http") ||
+            category.icon.startsWith("blob:"))
+          ? category.icon
+          : null,
+      );
     }
   }, [open, category]);
 
@@ -117,12 +128,29 @@ export function CategoryFormDialog({
     }
   }
 
+  async function handleIconPick(file: File | undefined) {
+    if (!file || !category) return;
+    try {
+      const result = await uploadImage.mutateAsync({ id: category.id, file });
+      const url = result.image_url;
+      await updateCategory.mutateAsync({
+        id: category.id,
+        payload: { icon: url },
+      });
+      setIcon(url);
+      setIconPreviewUrl(url);
+      toast.success("آیکون دسته ذخیره شد");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "آپلود آیکون ناموفق بود");
+    }
+  }
+
   return (
     <Sheet open={open} onOpenChange={(next) => (!pending ? onOpenChange(next) : undefined)}>
       <SheetContent side="left" className="p-0">
         <SheetHeader className="pe-14">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-            <Category set="bulk" size={24} primaryColor="#C22026" />
+            <Category set="bulk" size={24} primaryColor="#D02327" />
           </div>
           <SheetTitle className="text-[#4F4F4F]">
             {mode === "create" ? `افزودن ${layerLabel}` : `ویرایش ${layerLabel}`}
@@ -249,12 +277,68 @@ export function CategoryFormDialog({
               </div>
             </div>
 
-            <Field label="آیکون (react-iconly)" htmlFor="category-icon">
+            {mode === "edit" && category && (
+              <Field label="آیکون داک / اورب (PNG)" htmlFor="category-icon-file">
+                <div className="flex items-center gap-3">
+                  <span className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-[#F7F7F7] ring-1 ring-border/40">
+                    {iconPreviewUrl ? (
+                      <Image
+                        src={iconPreviewUrl}
+                        alt=""
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 object-contain"
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">بدون آیکون</span>
+                    )}
+                  </span>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={iconFileRef}
+                      id="category-icon-file"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                      className="hidden"
+                      onChange={(e) => {
+                        void handleIconPick(e.target.files?.[0]);
+                        e.target.value = "";
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploadImage.isPending || updateCategory.isPending || pending}
+                      onClick={() => iconFileRef.current?.click()}
+                    >
+                      <Upload set="light" size={16} primaryColor="currentColor" />
+                      {uploadImage.isPending || updateCategory.isPending
+                        ? "در حال آپلود..."
+                        : "آپلود آیکون"}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground">
+                      روی داک هیرو و کاروسل فروشگاه نمایش داده می‌شود
+                    </p>
+                  </div>
+                </div>
+              </Field>
+            )}
+
+            <Field label="آیکون (URL یا نام Iconly)" htmlFor="category-icon">
               <Input
                 id="category-icon"
                 value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                placeholder="Category"
+                onChange={(e) => {
+                  setIcon(e.target.value);
+                  const v = e.target.value.trim();
+                  setIconPreviewUrl(
+                    v.startsWith("/") || v.startsWith("http") || v.startsWith("blob:")
+                      ? v
+                      : null,
+                  );
+                }}
+                placeholder="/category-icons/andaze-giri.png"
                 dir="ltr"
                 disabled={pending}
               />

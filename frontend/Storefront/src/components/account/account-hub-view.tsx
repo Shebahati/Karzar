@@ -101,7 +101,7 @@ export function AccountHubView() {
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
             background:
-              "radial-gradient(ellipse at 100% 0%, #C22026 0%, transparent 55%), radial-gradient(ellipse at 0% 100%, #5E5F5E 0%, transparent 50%)",
+              "radial-gradient(ellipse at 100% 0%, #D02327 0%, transparent 55%), radial-gradient(ellipse at 0% 100%, #5E5F5E 0%, transparent 50%)",
           }}
         />
         <div className="relative flex flex-wrap items-center gap-4">

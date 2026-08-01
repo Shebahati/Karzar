@@ -198,8 +198,12 @@ export const catalogService = {
 
   ): Promise<import("@/types/category").CategoryImageUploadResponse> {
 
-    if (env.USE_MOCK) {
+  if (env.USE_MOCK) {
 
+      const mock = await getMockApi();
+      if (typeof mock.uploadCategoryImage === "function") {
+        return mock.uploadCategoryImage(id, file);
+      }
       return { id, image_url: URL.createObjectURL(file) };
 
     }

@@ -3,7 +3,7 @@ import type { OrderTracking } from "@/types/order";
 import { formatNumber, toPersianDigits } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 
-const BRAND_RED: [number, number, number] = [194, 32, 38];
+const BRAND_RED: [number, number, number] = [208, 35, 39];
 const BRAND_STEEL: [number, number, number] = [94, 95, 94];
 
 function fa(value: string | number | null | undefined): string {

@@ -8,25 +8,25 @@ const ASSETS: Record<
   LogoVariant,
   { src: string; width: number; height: number; alt: string }
 > = {
-  /** Square K mark — favicon / compact chrome. */
+  /** Chevron mark — favicon / compact chrome. */
   icon: {
     src: "/images/brand/icon.svg",
-    width: 40,
-    height: 40,
+    width: 118,
+    height: 105,
     alt: "کارزار",
   },
   /** Horizontal wordmark without slogan. */
   mark: {
     src: "/images/brand/logo.svg",
-    width: 168,
-    height: 30,
+    width: 663,
+    height: 105,
     alt: "کارزار",
   },
   /** Horizontal wordmark + Cutting Tools slogan — large surfaces only. */
   slogan: {
     src: "/images/brand/logo-slogan.svg",
-    width: 220,
-    height: 55,
+    width: 663,
+    height: 105,
     alt: "کارزار — Cutting Tools",
   },
 };

@@ -2,18 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Buy, Category, Document, Search, User } from "react-iconly";
+import { usePathname } from "next/navigation";
+import { Buy, Category, Search, User } from "react-iconly";
 import { Logo } from "@/components/layout/logo";
 import { MegaMenu } from "@/components/layout/mega-menu";
+import { SpotlightSearch } from "@/components/layout/spotlight-search";
 import { Button } from "@/components/ui/button";
 import { isLoggedIn } from "@/lib/api-client";
-import {
-  selectCartCount,
-  selectQuoteCount,
-  useCartStore,
-} from "@/store/cart-store";
-import { cn, formatNumber, toEnglishDigits } from "@/lib/utils";
+import { selectCartCount, useCartStore } from "@/store/cart-store";
+import { cn, formatNumber } from "@/lib/utils";
 import { useMe } from "@/features/auth/queries";
 
 const NAV_LINKS = [
@@ -24,21 +21,17 @@ const NAV_LINKS = [
 ];
 
 export function SiteHeader() {
-  const router = useRouter();
   const pathname = usePathname();
   const [megaOpen, setMegaOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [search, setSearch] = useState("");
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const { data: me } = useMe(mounted && hasToken);
 
   const cartCount = useCartStore(selectCartCount);
-  const quoteCount = useCartStore(selectQuoteCount);
 
   const isHome = pathname === "/";
-  /** Transparent floating chrome only while the home hero sits under the nav. */
   const overHero = isHome && !scrolled;
 
   useEffect(() => {
@@ -60,21 +53,21 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = toEnglishDigits(search).trim();
-    if (pathname === "/catalog") {
-      const next = new URLSearchParams(
-        typeof window !== "undefined" ? window.location.search : "",
-      );
-      if (q) next.set("search", q);
-      else next.delete("search");
-      const qs = next.toString();
-      router.push(qs ? `/catalog?${qs}` : "/catalog");
-      return;
-    }
-    router.push(q ? `/catalog?search=${encodeURIComponent(q)}` : "/catalog");
-  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSpotlightOpen(true);
+        setMegaOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    setSpotlightOpen(false);
+  }, [pathname]);
 
   const displayName = me?.full_name?.trim() || me?.phone || "حساب من";
   const logoTone = overHero ? "onDark" : "brand";
@@ -83,34 +76,35 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,border-color,backdrop-filter] duration-300",
+          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,backdrop-filter] duration-300",
           isHome ? "fixed inset-x-0 top-0" : "sticky top-0",
-          scrolled
-            ? "border-b border-white/40 bg-white/70 shadow-glass backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent",
+          scrolled ? "bg-white/70 shadow-glass backdrop-blur-xl" : "bg-transparent",
         )}
         onMouseLeave={() => setMegaOpen(false)}
       >
-        {/* Near-imperceptible top shade so chrome stays readable over bright hero spots. */}
         {overHero && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-[5.5rem] bg-gradient-to-b from-black/28 via-black/10 to-transparent"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[6.5rem] bg-gradient-to-b from-black/55 via-black/25 to-transparent"
           />
         )}
 
-        <div className="relative mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
-          {/* Desktop floating center composition */}
-          <div className="hidden items-center gap-4 py-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+        <div className="relative mx-auto max-w-[1280px] px-3 sm:px-4 lg:px-4 xl:px-6">
+          {/* Desktop — 1fr | auto | 1fr keeps nav capsule at true viewport center */}
+          <div className="hidden items-center py-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-2">
             <div className="flex items-center gap-2 justify-self-start">
-              <Logo variant="mark" height={30} priority tone={logoTone} />
+              <Logo variant="mark" height={22} priority tone={logoTone} />
             </div>
 
             <nav className="justify-self-center">
               <div
                 className={cn(
                   "flex items-center gap-0.5 rounded-full px-1.5 py-1 transition-colors",
-                  scrolled ? "bg-white/50" : "bg-white/40 backdrop-blur-md",
+                  overHero
+                    ? "bg-black/40 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+                    : scrolled
+                      ? "bg-white/55"
+                      : "bg-white/45 backdrop-blur-md",
                 )}
               >
                 <button
@@ -124,75 +118,83 @@ export function SiteHeader() {
                   className={cn(
                     "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-bold transition-colors",
                     megaOpen
-                      ? "bg-steel text-white"
-                      : "text-foreground/85 hover:bg-white/80 hover:text-foreground",
+                      ? "bg-primary text-white"
+                      : overHero
+                        ? "text-white/90 hover:bg-white/15 hover:text-white"
+                        : "text-foreground/85 hover:bg-white/80 hover:text-foreground",
                   )}
                 >
                   <Category size="small" set="bold" />
                   دسته‌ها
                 </button>
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onMouseEnter={() => setMegaOpen(false)}
-                    className={cn(
-                      "rounded-full px-3.5 py-2 text-sm font-bold transition-colors",
-                      pathname === link.href || pathname.startsWith(link.href + "/")
-                        ? "text-primary"
-                        : "text-foreground/75 hover:bg-white/80 hover:text-foreground",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const active =
+                    pathname === link.href || pathname.startsWith(link.href + "/");
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onMouseEnter={() => setMegaOpen(false)}
+                      className={cn(
+                        "rounded-full px-3.5 py-2 text-sm font-bold transition-colors",
+                        overHero
+                          ? active
+                            ? "bg-white/15 text-white"
+                            : "text-white/80 hover:bg-white/12 hover:text-white"
+                          : active
+                            ? "text-primary"
+                            : "text-foreground/75 hover:bg-white/80 hover:text-foreground",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </div>
             </nav>
 
-            <div className="flex items-center justify-end gap-1.5 justify-self-end">
-              <form onSubmit={submitSearch} className="relative me-1 hidden xl:block">
-                <span
+            <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setMegaOpen(false);
+                  setSpotlightOpen(true);
+                }}
+                className={cn(
+                  "me-1 flex h-9 items-center gap-2 rounded-full px-3 text-[13px] transition-all",
+                  overHero
+                    ? "bg-black/40 text-white/75 shadow-[0_8px_28px_rgba(0,0,0,0.28)] backdrop-blur-xl hover:bg-black/50 hover:text-white"
+                    : "bg-white/80 text-steel shadow-soft backdrop-blur-md hover:bg-white hover:text-foreground",
+                )}
+                aria-label="جستجو"
+              >
+                <Search size="small" set="bold" />
+                <span className="hidden min-w-[5.5rem] text-start xl:inline">جستجوی ابزار…</span>
+                <kbd
                   className={cn(
-                    "pointer-events-none absolute start-3 top-1/2 -translate-y-1/2",
-                    overHero ? "text-steel/80" : "text-steel",
+                    "ms-0.5 hidden rounded-md px-1.5 py-0.5 text-[10px] font-bold xl:inline",
+                    overHero ? "bg-white/15 text-white/55" : "bg-steel/10 text-steel/60",
                   )}
                 >
-                  <Search size="small" set="light" />
-                </span>
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="جستجو…"
-                  className={cn(
-                    "h-10 w-48 rounded-full border border-border/40 bg-white/70 pe-3 ps-9 text-sm outline-none backdrop-blur-md transition-all placeholder:text-steel/60 focus:w-64 focus:ring-2 focus:ring-steel/20",
-                  )}
-                />
-              </form>
+                  ⌘K
+                </kbd>
+              </button>
 
-              <HeaderIcon
-                href="/cart"
-                label="سبد"
-                count={mounted ? cartCount : 0}
-                onDark={overHero}
-              >
+              <HeaderIcon href="/cart" label="سبد" count={mounted ? cartCount : 0} onDark={overHero}>
                 <Buy set="bold" />
-              </HeaderIcon>
-              <HeaderIcon
-                href="/quote"
-                label="استعلام"
-                count={mounted ? quoteCount : 0}
-                tone="steel"
-                onDark={overHero}
-              >
-                <Document set="bold" />
               </HeaderIcon>
 
               {mounted && hasToken ? (
                 <Link
                   href="/account"
-                  className="ms-1 inline-flex max-w-[150px] items-center gap-2 rounded-full border border-border/40 bg-white/70 px-3 py-1.5 text-sm font-bold text-foreground backdrop-blur-md hover:border-steel/30"
+                  className={cn(
+                    "ms-1 inline-flex max-w-[150px] items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold backdrop-blur-md transition-colors",
+                    overHero
+                      ? "bg-black/40 text-white hover:bg-black/50"
+                      : "bg-white/75 text-foreground hover:bg-white",
+                  )}
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-steel text-[11px] text-white">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-[11px] text-white">
                     {(displayName || "ک").slice(0, 1)}
                   </span>
                   <span className="truncate">{displayName}</span>
@@ -202,7 +204,12 @@ export function SiteHeader() {
                   <Button
                     variant="soft"
                     size="sm"
-                    className="gap-1.5 rounded-full border border-border/40 bg-white/70"
+                    className={cn(
+                      "gap-1.5 rounded-full shadow-none",
+                      overHero
+                        ? "bg-black/40 text-white hover:bg-black/50 hover:text-white"
+                        : "bg-white/75",
+                    )}
                   >
                     <User size="small" set="bold" />
                     ورود
@@ -212,64 +219,36 @@ export function SiteHeader() {
             </div>
           </div>
 
-          {/* Mobile / tablet bar */}
-          <div className="flex items-center gap-2 py-3 lg:hidden">
-            <Logo variant="mark" height={26} priority tone={logoTone} />
-            <div className="ms-auto flex items-center gap-1">
-              <button
-                type="button"
-                className={cn(
-                  "touch-target rounded-full hover:bg-white/60",
-                  overHero ? "text-white hover:bg-white/15" : "text-steel",
-                )}
-                aria-label="جستجو"
-                onClick={() => setMobileSearchOpen((v) => !v)}
-              >
-                <Search set="bold" />
-              </button>
-              {mounted && hasToken ? (
-                <Link
-                  href="/account"
-                  className={cn(
-                    "touch-target grid place-items-center rounded-full hover:bg-white/60",
-                    overHero ? "text-white hover:bg-white/15" : "text-steel",
-                  )}
-                  aria-label="حساب کاربری"
-                >
-                  <User set="bold" />
-                </Link>
-              ) : (
-                <Link
-                  href="/login?next=/account"
-                  className={cn(
-                    "touch-target grid place-items-center rounded-full hover:bg-white/60",
-                    overHero ? "text-white hover:bg-white/15" : "text-steel",
-                  )}
-                  aria-label="ورود"
-                >
-                  <User set="bold" />
-                </Link>
+          {/* Mobile */}
+          <div className="flex items-center gap-2 py-2.5 lg:hidden">
+            <Logo variant="mark" height={19} priority tone={logoTone} />
+            <button
+              type="button"
+              onClick={() => setSpotlightOpen(true)}
+              className={cn(
+                "ms-2 flex h-10 flex-1 items-center gap-2 rounded-full px-3.5 text-start text-sm transition-colors",
+                overHero
+                  ? "bg-black/40 text-white/70 shadow-[0_6px_20px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+                  : "bg-white/80 text-steel shadow-soft backdrop-blur-md",
               )}
+              aria-label="جستجو"
+            >
+              <Search size="small" set="bold" />
+              <span className="truncate">جستجوی ابزار…</span>
+            </button>
+            <div className="flex items-center gap-0.5">
+              <Link
+                href={mounted && hasToken ? "/account" : "/login?next=/account"}
+                className={cn(
+                  "touch-target grid place-items-center rounded-full",
+                  overHero ? "text-white hover:bg-white/15" : "text-steel hover:bg-white/60",
+                )}
+                aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
+              >
+                <User set="bold" />
+              </Link>
             </div>
           </div>
-
-          {mobileSearchOpen && (
-            <form
-              onSubmit={(e) => {
-                submitSearch(e);
-                setMobileSearchOpen(false);
-              }}
-              className="pb-3 lg:hidden"
-            >
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                autoFocus
-                placeholder="جستجوی محصول…"
-                className="h-12 w-full rounded-2xl border border-border/50 bg-white/80 px-4 text-base outline-none backdrop-blur-md focus:ring-2 focus:ring-steel/20"
-              />
-            </form>
-          )}
 
           <MegaMenu
             open={megaOpen}
@@ -278,6 +257,8 @@ export function SiteHeader() {
           />
         </div>
       </header>
+
+      <SpotlightSearch open={spotlightOpen} onClose={() => setSpotlightOpen(false)} />
     </>
   );
 }
@@ -287,14 +268,12 @@ function HeaderIcon({
   label,
   count,
   children,
-  tone = "primary",
   onDark = false,
 }: {
   href: string;
   label: string;
   count: number;
   children: React.ReactNode;
-  tone?: "primary" | "steel";
   onDark?: boolean;
 }) {
   return (
@@ -310,12 +289,7 @@ function HeaderIcon({
     >
       {children}
       {count > 0 && (
-        <span
-          className={cn(
-            "absolute -top-0.5 end-0 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-medium text-white tnum",
-            tone === "steel" ? "bg-steel" : "bg-primary",
-          )}
-        >
+        <span className="absolute -top-0.5 end-0 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-medium text-white tnum">
           {formatNumber(count)}
         </span>
       )}

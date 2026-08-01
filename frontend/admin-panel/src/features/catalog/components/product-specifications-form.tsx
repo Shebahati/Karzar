@@ -209,7 +209,7 @@ export function ProductSpecificationsForm({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
-        <Work set="bulk" size={22} primaryColor="#C22026" />
+        <Work set="bulk" size={22} primaryColor="#D02327" />
         <div>
           <h3 className="text-lg font-bold text-[#4F4F4F]">اطلاعات محصول</h3>
           <p className="text-xs text-muted-foreground">{template.breadcrumb.join(" / ")}</p>
@@ -218,7 +218,7 @@ export function ProductSpecificationsForm({
 
       <Card className="border-transparent shadow-card">
         <CardHeader className="flex-row items-center gap-2 pb-3">
-          <Setting set="bulk" size={20} primaryColor="#C22026" />
+          <Setting set="bulk" size={20} primaryColor="#D02327" />
           <CardTitle className="text-base text-[#4F4F4F]">مشخصات فنی</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -241,7 +241,7 @@ export function ProductSpecificationsForm({
             className="self-start"
             onClick={() => techArray.append({ key: "", value: "" })}
           >
-            <Plus set="bold" size={18} primaryColor="#C22026" />
+            <Plus set="bold" size={18} primaryColor="#D02327" />
             افزودن مشخصه فنی
           </Button>
         </CardContent>
@@ -249,7 +249,7 @@ export function ProductSpecificationsForm({
 
       <Card className="border-transparent shadow-card">
         <CardHeader className="flex-row items-center gap-2 pb-3">
-          <Document set="bulk" size={20} primaryColor="#C22026" />
+          <Document set="bulk" size={20} primaryColor="#D02327" />
           <CardTitle className="text-base text-[#4F4F4F]">ویژگی‌ها</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -336,7 +336,7 @@ export function ProductSpecificationsForm({
 
       <Card className="border-transparent shadow-card">
         <CardHeader className="flex-row items-center gap-2 pb-3">
-          <Work set="bulk" size={20} primaryColor="#C22026" />
+          <Work set="bulk" size={20} primaryColor="#D02327" />
           <CardTitle className="text-base text-[#4F4F4F]">ابعاد و اندازه‌ها</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -360,7 +360,7 @@ export function ProductSpecificationsForm({
             className="self-start"
             onClick={() => dimArray.append({ key: "", value: "" })}
           >
-            <Plus set="bold" size={18} primaryColor="#C22026" />
+            <Plus set="bold" size={18} primaryColor="#D02327" />
             افزودن بعد
           </Button>
         </CardContent>
