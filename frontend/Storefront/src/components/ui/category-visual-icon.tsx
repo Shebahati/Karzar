@@ -24,6 +24,8 @@ export function CategoryVisualIcon({
   className,
   imgClassName,
   overflowTop = false,
+  /** Multiplier when overflowTop (default ~2.02×). Hero dock may bump further. */
+  overflowScale = 2.015,
   alt = "",
 }: {
   icon?: string | null;
@@ -31,12 +33,42 @@ export function CategoryVisualIcon({
   color?: string;
   className?: string;
   imgClassName?: string;
-  /** Scale up and nudge upward so the glyph overflows the circle top. */
+  /** Scale up; centered in parent circle with a tiny upward peek. */
   overflowTop?: boolean;
+  overflowScale?: number;
   alt?: string;
 }) {
   if (isCategoryIconUrl(icon)) {
-    const imgSize = overflowTop ? Math.round(size * 1.55) : size;
+    // Circles stay sized by the parent; only the glyph grows / nudges.
+    const imgSize = overflowTop ? Math.round(size * overflowScale) : size;
+    // Absolute flex center keeps the glyph dead-center in the circle (avoids
+    // left-stuck replaced-element / RTL quirks). Tiny -translate-y peeks top.
+    if (overflowTop) {
+      return (
+        <span
+          className={cn(
+            "pointer-events-none absolute inset-0 flex items-center justify-center overflow-visible",
+            className,
+          )}
+          aria-hidden={alt ? undefined : true}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic category CDN/local URLs */}
+          <img
+            src={icon!}
+            alt={alt}
+            width={imgSize}
+            height={imgSize}
+            className={cn(
+              "mx-auto block select-none object-contain object-center",
+              "-translate-y-[8%] drop-shadow-[0_6px_12px_rgba(0,0,0,0.28)]",
+              imgClassName,
+            )}
+            style={{ width: imgSize, height: imgSize, maxWidth: "none" }}
+            draggable={false}
+          />
+        </span>
+      );
+    }
     return (
       // eslint-disable-next-line @next/next/no-img-element -- dynamic category CDN/local URLs
       <img
@@ -45,8 +77,7 @@ export function CategoryVisualIcon({
         width={imgSize}
         height={imgSize}
         className={cn(
-          "pointer-events-none select-none object-contain",
-          overflowTop && "-translate-y-[18%] drop-shadow-[0_6px_12px_rgba(0,0,0,0.28)]",
+          "pointer-events-none mx-auto block select-none object-contain object-center",
           imgClassName,
           className,
         )}

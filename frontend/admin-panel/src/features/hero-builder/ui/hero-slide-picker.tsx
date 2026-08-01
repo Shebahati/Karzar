@@ -1,6 +1,11 @@
 "use client";
 
-import { useHeroBuilderStore, createDefaultProject } from "@/entities/hero";
+import {
+  createDefaultProject,
+  featuredDockCategories,
+  HERO_FEATURED_SLOT_COUNT,
+  useHeroBuilderStore,
+} from "@/entities/hero";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -25,32 +30,50 @@ export function HeroSlidePicker({
   } = useHeroBuilderStore();
 
   const slides = [...project.slides].sort((a, b) => a.sortOrder - b.sortOrder);
+  const featuredCount = featuredDockCategories(
+    project.categoryDock ?? { categories: [] },
+  ).length;
 
   return (
     <div className="flex h-[calc(100vh-7.5rem)] min-h-[560px] flex-col gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3 rounded-2xl bg-card px-5 py-4 shadow-soft">
-        <div>
-          <h1 className="text-xl font-black text-ink">اسلایدهای هیرو</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            شش اسلاید پاور کارزار آماده است — ویرایش کنید یا پکیج پیش‌فرض را دوباره بارگذاری کنید.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              importProject(createDefaultProject());
-              toast.success("پکیج ۶ اسلایدی کارزار بارگذاری شد");
-            }}
-          >
-            بارگذاری پکیج ۶ اسلایدی
-          </Button>
-          {onOpenDock ? (
-            <Button type="button" variant="outline" onClick={onOpenDock}>
-              مدیریت داک دسته‌ها
+      <header className="rounded-2xl bg-card px-5 py-4 shadow-soft">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold tracking-wide text-muted-foreground">
+              طراحی هیرو
+            </p>
+            <h1 className="mt-0.5 text-xl font-black text-ink">اسلایدها و داک</h1>
+            <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              هر پاور داک یک اسلاید دارد. اول داک را تنظیم کنید، بعد اسلاید را ویرایش و منتشر کنید.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {onOpenDock ? (
+              <Button type="button" onClick={onOpenDock}>
+                داک ۵ پاور ({featuredCount}/{HERO_FEATURED_SLOT_COUNT})
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                importProject(createDefaultProject());
+                toast.success("پکیج ۵ اسلایدی کارزار بارگذاری شد");
+              }}
+            >
+              بارگذاری پکیج پیش‌فرض
             </Button>
-          ) : null}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                addSlide();
+                onEnter();
+              }}
+            >
+              اسلاید جدید
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -61,11 +84,12 @@ export function HeroSlidePicker({
               ? slide.config.background.imageUrl
               : undefined;
           const selected = project.activeSlideId === slide.id;
+          const linked = slide.config.linkedOrbKey;
           return (
             <article
               key={slide.id}
               className={cn(
-                "group flex flex-col overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-inset transition",
+                "flex flex-col overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-inset transition",
                 selected ? "ring-primary" : "ring-border/70 hover:ring-border",
               )}
             >
@@ -91,7 +115,7 @@ export function HeroSlidePicker({
                     style={{ background: slide.config.background.color }}
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-3">
                   <div className="text-sm font-bold text-white drop-shadow">
                     {slide.config.typography.title || slide.name}
@@ -100,11 +124,18 @@ export function HeroSlidePicker({
                     {slide.config.typography.subtitle}
                   </div>
                 </div>
-                {!slide.isActive ? (
-                  <span className="absolute start-3 top-3 rounded-lg bg-black/55 px-2 py-1 text-[10px] font-bold text-white">
-                    غیرفعال
-                  </span>
-                ) : null}
+                <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
+                  {!slide.isActive ? (
+                    <span className="rounded-lg bg-black/55 px-2 py-1 text-[10px] font-bold text-white">
+                      مخفی
+                    </span>
+                  ) : null}
+                  {linked ? (
+                    <span className="rounded-lg bg-primary/90 px-2 py-1 text-[10px] font-bold text-white">
+                      پاور · {linked === "discounts" ? "تخفیف‌ها" : linked}
+                    </span>
+                  ) : null}
+                </div>
               </button>
 
               <div className="flex flex-col gap-2 p-3">
@@ -123,7 +154,7 @@ export function HeroSlidePicker({
                       onEnter();
                     }}
                   >
-                    ویرایش
+                    ویرایش اسلاید
                   </Button>
                   <Button
                     type="button"
@@ -148,7 +179,9 @@ export function HeroSlidePicker({
                     type="button"
                     className={cn(
                       "rounded-lg px-2 py-1 text-[11px] font-bold",
-                      slide.isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
+                      slide.isActive
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground",
                     )}
                     onClick={() => setSlideActive(slide.id, !slide.isActive)}
                   >
@@ -184,7 +217,7 @@ export function HeroSlidePicker({
             addSlide();
             onEnter();
           }}
-          className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+          className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/20 text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
         >
           <span className="text-3xl font-black">+</span>
           <span className="text-sm font-bold">اسلاید جدید</span>

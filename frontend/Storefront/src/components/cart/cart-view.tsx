@@ -11,6 +11,7 @@ import { productPath } from "@/lib/product-url";
 import { isLoggedIn } from "@/lib/api-client";
 import { useCartStore, type CartLine } from "@/store/cart-store";
 import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
+import { CartProformaButton } from "@/components/cart/cart-proforma-button";
 
 type Mode = "cart" | "quote";
 
@@ -105,7 +106,7 @@ export function CartView({ mode }: { mode: Mode }) {
   }
 
   return (
-    <Container className="pt-8 pb-24 lg:py-12">
+    <Container className="pt-8 pb-32 lg:py-12">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{title}</h1>
@@ -229,11 +230,18 @@ export function CartView({ mode }: { mode: Mode }) {
                   <span className="text-muted-foreground">مجموع</span>
                   <span className="font-bold text-foreground tnum">{formatToman(total)}</span>
                 </div>
-                <Link href="/checkout" className="mt-6 block">
-                  <Button size="lg" className="w-full" disabled={stockWarnings.some((w) => w.line.product.stock_status === "out_of_stock")}>
+                {stockWarnings.length > 0 ? (
+                  <Button size="lg" className="mt-6 w-full" disabled>
                     تکمیل خرید و پرداخت
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/checkout" className="mt-6 block">
+                    <Button size="lg" className="w-full">
+                      تکمیل خرید و پرداخت
+                    </Button>
+                  </Link>
+                )}
+                <CartProformaButton lines={lines} className="mt-3" />
               </>
             ) : (
               <>
@@ -253,7 +261,13 @@ export function CartView({ mode }: { mode: Mode }) {
         </div>
       </div>
 
-      <MobileCartDock mode={mode} total={total} itemCount={lines.length} />
+      <MobileCartDock
+        mode={mode}
+        total={total}
+        itemCount={lines.length}
+        lines={mode === "cart" ? lines : undefined}
+        checkoutDisabled={mode === "cart" && stockWarnings.length > 0}
+      />
     </Container>
   );
 }

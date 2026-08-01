@@ -11,10 +11,18 @@ import {
   featuredOrbs,
   matchOrbToTreeNode,
   orbHref,
+  isDiscountsOrbKey,
   type HeroOrbDef,
   HERO_ORB_CATEGORIES,
 } from "@/config/hero-orbs";
 import type { CategoryTreeNode } from "@/types/category";
+
+function isOverlayExcludedOrb(orb: Pick<HeroOrbDef, "key" | "name" | "slugHint" | "special">): boolean {
+  if (orb.special || isDiscountsOrbKey(orb.key)) return true;
+  if (orb.slugHint === "takhfif") return true;
+  const n = orb.name.replace(/\u200c/g, "").replace(/\s+/g, " ").trim();
+  return n === "تخفیف‌ها" || n === "تخفیف ها" || n === "تخفیف";
+}
 
 const springSoft = { type: "spring" as const, stiffness: 420, damping: 36, mass: 0.8 };
 const fadeQuick = { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] as const };
@@ -52,33 +60,40 @@ function MaterialOrb({
   onClick?: () => void;
   accent?: boolean;
 }) {
+  // Dock md: base×1.4 then ×0.85 (net ~×1.19). Circle/icon/label/gaps share ratio.
   const disc =
     size === "lg"
       ? "h-[4.75rem] w-[4.75rem] sm:h-[5.25rem] sm:w-[5.25rem]"
       : size === "sm"
-        ? "h-11 w-11"
-        : "h-14 w-14 sm:h-[3.75rem] sm:w-[3.75rem]";
-  const iconSize = size === "lg" ? 34 : size === "sm" ? 24 : 30;
+        ? "h-[3.27rem] w-[3.27rem]"
+        : "h-[4.165rem] w-[4.165rem] sm:h-[4.46rem] sm:w-[4.46rem]";
+  const iconSize = size === "lg" ? 34 : size === "sm" ? 29 : 36;
+  /** Another +30% on hero only (2.015 × 1.3 ≈ 2.62); circles stay the same. */
+  const heroOverflowScale = 2.62;
   const resolvedIcon =
     resolveCategoryIconUrl({ name: orb.name, icon: orb.icon }) ?? orb.icon;
 
   const discClass = cn(
-    "relative grid place-items-center overflow-visible rounded-full transition-[transform,background-color,box-shadow,opacity] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] will-change-transform",
+    "relative flex items-center justify-center overflow-visible rounded-full transition-[transform,background-color,box-shadow,opacity] duration-300 ease-out will-change-transform",
     disc,
     accent &&
       "bg-[#D02327] shadow-[0_10px_28px_rgba(208,35,39,0.45)] group-hover:bg-[#b81e23] group-active:scale-[0.96]",
     !accent &&
       selected &&
-      "scale-[1.08] bg-white/30 shadow-[0_10px_28px_rgba(0,0,0,0.32)] ring-2 ring-white/45",
+      "scale-[1.08] bg-white/40 shadow-[0_10px_28px_rgba(0,0,0,0.28)] ring-2 ring-white/55",
     !accent &&
       !selected &&
       !dimmed &&
-      "bg-white/[0.16] shadow-[0_6px_18px_rgba(0,0,0,0.22)] group-hover:bg-white/[0.22] group-hover:scale-[1.04]",
-    !accent && dimmed && !selected && "bg-white/[0.1] opacity-70 scale-[0.96]",
+      "bg-white/[0.26] shadow-[0_6px_18px_rgba(0,0,0,0.2)] ring-1 ring-white/30 group-hover:bg-white/[0.34] group-hover:scale-[1.04]",
+    !accent && dimmed && !selected && "bg-white/[0.18] opacity-75 ring-1 ring-white/20 scale-[0.96]",
   );
 
+  // Fixed 2-line slot so short/long names keep orb discs on one baseline (nav items-end).
   const labelClass = cn(
-    "mt-2.5 max-w-[4.75rem] text-center text-[10px] font-semibold leading-snug tracking-tight sm:max-w-[5.5rem] sm:text-[11px]",
+    "mt-3 max-w-[5.65rem] text-center text-[12px] font-semibold leading-snug tracking-tight sm:max-w-[6.55rem] sm:text-[13px]",
+    "line-clamp-2 min-h-[2.75em]", // 2 × leading-snug; ellipsis only past 2 lines
+    size === "sm" && "mt-2 max-w-[4.7rem] text-[10px] sm:max-w-[5.1rem] sm:text-[11px]",
+    size === "lg" && "mt-2.5 max-w-[4.75rem] text-[10px] sm:max-w-[5.5rem] sm:text-[11px]",
     "transition-opacity duration-300",
     accent && "text-white/95",
     !accent && selected && "text-white",
@@ -93,6 +108,13 @@ function MaterialOrb({
           icon={resolvedIcon}
           size={iconSize}
           overflowTop={!accent}
+          overflowScale={heroOverflowScale}
+          // Dead-center in circle with a tiny upward peek (overrides default −8%).
+          imgClassName={
+            !accent
+              ? "-translate-y-[6%] drop-shadow-[0_6px_12px_rgba(0,0,0,0.28)]"
+              : undefined
+          }
           color={accent ? "#FFFFFF" : selected ? "#FFFFFF" : "rgba(255,255,255,0.95)"}
         />
       </span>
@@ -139,13 +161,15 @@ export function HeroCategoryOrbs({
   onMenuOpenChange: (open: boolean) => void;
   dockScale?: "sm" | "md" | "lg";
   dockFadeTall?: boolean;
-  /** When true, never invent a first-6 fallback — honor featuredOrder from pack. */
+  /** When true, never invent a first-5 fallback — honor featuredOrder from pack. */
   respectFeaturedOnly?: boolean;
 }) {
   const featuredRaw = featuredOrbs(defs);
-  // Never invent a first-6 set when a published dock already decided featuredOrder.
+  // Never invent a first-5 set when a published dock already decided featuredOrder.
   const featured =
-    featuredRaw.length || respectFeaturedOnly ? featuredRaw : defs.slice(0, 6);
+    featuredRaw.length || respectFeaturedOnly ? featuredRaw : defs.slice(0, 5);
+  /** All-categories overlay: real L1 only — never show تخفیف‌ها / discounts special. */
+  const menuOrbs = defs.filter((orb) => !isOverlayExcludedOrb(orb));
   const reduced = usePrefersReducedMotion();
 
   return (
@@ -168,9 +192,10 @@ export function HeroCategoryOrbs({
         <nav
           aria-label="دسته‌های پاور هیرو"
           className={cn(
-            "pointer-events-auto relative mx-auto flex max-w-3xl items-end justify-center overflow-visible px-4 pt-5 sm:gap-5 sm:px-8",
-            dockScale === "lg" && "origin-bottom scale-105 gap-6",
-            dockScale === "sm" && "origin-bottom scale-95",
+            // Gaps: prior +40% then ×0.85 together with orbs
+            "pointer-events-auto relative mx-auto flex max-w-5xl items-end justify-center overflow-visible gap-[1.49rem] px-4 pt-5 sm:gap-[1.7rem] sm:px-8",
+            dockScale === "lg" && "origin-bottom scale-105 gap-[1.7rem] sm:gap-[1.91rem]",
+            dockScale === "sm" && "origin-bottom scale-95 gap-[1.06rem] sm:gap-[1.28rem]",
           )}
         >
           {featured.map((orb, i) => (
@@ -238,7 +263,7 @@ export function HeroCategoryOrbs({
               </div>
 
               <div className="grid grid-cols-3 gap-x-2 gap-y-7 sm:grid-cols-6 sm:gap-x-4 sm:gap-y-9">
-                {defs.map((orb, i) => {
+                {menuOrbs.map((orb, i) => {
                   const node = matchOrbToTreeNode(orb, roots);
                   return (
                     <motion.div

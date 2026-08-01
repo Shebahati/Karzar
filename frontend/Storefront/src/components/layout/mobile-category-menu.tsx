@@ -6,12 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Category, CloseSquare } from "react-iconly";
 import * as Icons from "react-iconly";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
+import { useCategoryTree } from "@/features/catalog/queries";
 import {
   categoryHref,
   filterNonEmptyTree,
-  NAV_GROUPS,
-  orderedVisibleRoots,
+  orderedTaxonomyRoots,
 } from "@/config/nav-groups";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { useMotionSafe } from "@/lib/use-motion-safe";
@@ -35,7 +34,6 @@ function CatIcon({ name }: { name?: string }) {
  */
 export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
   const { data: tree = [], isLoading } = useCategoryTree();
-  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
   const motionSafe = useMotionSafe();
   const [stack, setStack] = useState<CategoryTreeNode[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -58,9 +56,9 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
 
   const current = stack[stack.length - 1] ?? null;
   const children = useMemo(() => {
-    if (!current) return orderedVisibleRoots(tree, navDefs);
+    if (!current) return orderedTaxonomyRoots(tree);
     return filterNonEmptyTree(current.subcategories ?? []);
-  }, [current, tree, navDefs]);
+  }, [current, tree]);
 
   const title = current?.name ?? "دسته‌بندی محصولات";
   const browseHref = current ? categoryHref(current) : "/catalog";

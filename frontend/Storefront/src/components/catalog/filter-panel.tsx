@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, CloseSquare, Search, TickSquare } from "react-iconly";
+import { CloseSquare, Search, TickSquare } from "react-iconly";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
-import { useBrands, useFlatCategories, useNavGroupDefs, useSpecFilterOptions } from "@/features/catalog/queries";
+import { useBrands, useSpecFilterOptions } from "@/features/catalog/queries";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import { AccordionFilter } from "@/components/catalog/accordion-filter";
+import { CategoryTreeFilter } from "@/components/catalog/category-tree-filter";
 import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
 import {
   DEFAULT_MAX_PRICE,
@@ -14,8 +15,6 @@ import {
   encodeCountryList,
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
-import { isTaxonomyRoot, NAV_GROUPS, sortByNavOrder, type NavGroupDef } from "@/config/nav-groups";
-import type { CategoryFlat } from "@/types/category";
 
 /** Shared filter UI rendered inside the desktop sidebar and the mobile drawer. */
 export function FilterPanel({
@@ -24,10 +23,13 @@ export function FilterPanel({
   notifyOnChange = false,
   /** Mobile drawer: open high-traffic sections so filters need fewer taps. */
   mobileDefaults = false,
+  /** Hub pages lock a category in the path — clear must leave the hub. */
+  lockedCategoryId,
 }: {
   onApplied?: () => void;
   notifyOnChange?: boolean;
   mobileDefaults?: boolean;
+  lockedCategoryId?: number;
 }) {
   const {
     params,
@@ -36,15 +38,15 @@ export function FilterPanel({
     toggleBrand,
     toggleCountry,
     clearAll,
+    unlockToCatalog,
+    applyCategory,
     activeCount,
   } = useCatalogParams();
-  const { data: categories, isLoading: categoriesLoading } = useFlatCategories();
   const { data: brands, isLoading: brandsLoading } = useBrands();
-  const { data: specOptions } = useSpecFilterOptions(params.category_id ?? 0);
-  const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
+  const effectiveCategoryId = params.category_id ?? lockedCategoryId;
+  const { data: specOptions } = useSpecFilterOptions(effectiveCategoryId ?? 0);
 
   const [brandQuery, setBrandQuery] = useState("");
-  const [categoryQuery, setCategoryQuery] = useState("");
 
   const notify = () => {
     if (notifyOnChange) onApplied?.();
@@ -52,27 +54,6 @@ export function FilterPanel({
 
   const selectedBrandIds = params.brand_ids ?? [];
   const selectedCountries = params.countries ?? [];
-
-  /** L1 root for the currently selected category (carousel or sidebar). */
-  const scopeRootId = useMemo(() => {
-    if (params.category_id == null || !categories?.length) return null;
-    const byId = new Map(categories.map((c) => [c.id, c]));
-    const cat = byId.get(params.category_id);
-    if (!cat) return null;
-    if (isTaxonomyRoot(cat)) return cat.id;
-    for (const aid of cat.ancestor_ids ?? []) {
-      const ancestor = byId.get(aid);
-      if (ancestor && isTaxonomyRoot(ancestor)) return ancestor.id;
-    }
-    let current = cat;
-    while (current.parent_id != null) {
-      const parent = byId.get(current.parent_id);
-      if (!parent) break;
-      if (isTaxonomyRoot(parent)) return parent.id;
-      current = parent;
-    }
-    return null;
-  }, [params.category_id, categories]);
 
   const countries = useMemo(
     () =>
@@ -105,22 +86,10 @@ export function FilterPanel({
     );
   }, [brands, brandQuery]);
 
-  const scopedCategories = useMemo(() => {
-    const list = categories ?? [];
-    if (scopeRootId == null) return list;
-    return list.filter((c) => {
-      if (c.id === scopeRootId) return true;
-      if (c.parent_id === scopeRootId) return true;
-      return (c.ancestor_ids ?? []).includes(scopeRootId);
-    });
-  }, [categories, scopeRootId]);
-
   const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
   const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
   const openBrand =
     mobileDefaults || selectedBrandIds.length > 0;
-  // Category tree is a primary filter — open by default so the live tree is visible.
-  const openCategory = true;
   const openCountry = selectedCountries.length > 0;
   const openPrice =
     params.min_price != null || params.max_price != null;
@@ -129,26 +98,19 @@ export function FilterPanel({
     params.spec_filters && Object.keys(params.spec_filters).length > 0,
   );
 
-  const selectedCategory = useMemo(
-    () =>
-      params.category_id != null
-        ? (categories ?? []).find((c) => c.id === params.category_id)
-        : undefined,
-    [categories, params.category_id],
-  );
-
-  const categoryHint = useMemo(() => {
-    if (selectedCategory?.name) return selectedCategory.name;
-    if (!categoriesLoading && (categories?.length ?? 0) > 0) {
-      return `${toPersianDigits(categories!.length)} دسته از سرور`;
-    }
-    return undefined;
-  }, [selectedCategory, categoriesLoading, categories]);
-
+  /** URL `category` → product list API `category_id` (incl. L1/L2/L3; API expands subtree). */
   const selectCategory = (id: number | null) => {
-    // Selecting a concrete node drives `category` → API `category_id`.
-    // Drop legacy multi-root param whenever category changes.
-    setParams({ category: id, roots: null });
+    applyCategory(id, { lockedCategoryId });
+    notify();
+  };
+
+  const handleClearAll = () => {
+    if (lockedCategoryId != null) {
+      unlockToCatalog({ preserveFacets: false });
+    } else {
+      clearAll();
+    }
+    setBrandQuery("");
     notify();
   };
 
@@ -156,79 +118,23 @@ export function FilterPanel({
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2 px-0.5">
         <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
-        {activeCount > 0 && (
+        {(activeCount > 0 || lockedCategoryId != null) && (
           <button
             type="button"
-            onClick={() => {
-              clearAll();
-              setBrandQuery("");
-              setCategoryQuery("");
-              notify();
-            }}
+            onClick={handleClearAll}
             className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
           >
             <CloseSquare size="small" set="light" />
-            حذف همه ({formatNumber(activeCount)})
+            حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
           </button>
         )}
       </div>
 
-      <AccordionFilter
-        title="دسته‌بندی"
-        hint={categoryHint}
-        badge={
-          params.category_id != null ? toPersianDigits(1) : undefined
-        }
-        defaultOpen={openCategory}
-      >
-        <div className="relative mb-3">
-          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-            <Search size="small" set="light" />
-          </span>
-          <input
-            value={categoryQuery}
-            onChange={(e) => setCategoryQuery(e.target.value)}
-            placeholder="جستجوی دسته…"
-            aria-label="جستجوی دسته‌بندی"
-            className="h-11 w-full rounded-xl bg-input ps-9 pe-3 text-base outline-none focus:ring-2 focus:ring-ring/40 md:text-sm"
-          />
-        </div>
-        <div className="max-h-80 space-y-0.5 overflow-y-auto pe-1">
-          <ChipButton
-            active={params.category_id == null}
-            onClick={() => selectCategory(null)}
-          >
-            همه کالاها
-          </ChipButton>
-          {scopeRootId != null &&
-            (() => {
-              const root = (categories ?? []).find((c) => c.id === scopeRootId);
-              if (!root) return null;
-              return (
-                <ChipButton
-                  key={root.id}
-                  active={params.category_id === root.id}
-                  onClick={() => selectCategory(root.id)}
-                >
-                  {root.name}
-                </ChipButton>
-              );
-            })()}
-          {categoriesLoading ? (
-            <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری…</p>
-          ) : (
-            <CategoryAccordion
-              categories={scopedCategories}
-              activeId={params.category_id}
-              searchQuery={categoryQuery}
-              navDefs={navDefs}
-              /* Selected L1 → start at L2 under that root; else full L1 tree. */
-              excludeRootDepth={scopeRootId != null}
-              onSelect={(id) => selectCategory(id)}
-            />
-          )}
-        </div>
-      </AccordionFilter>
+      <CategoryTreeFilter
+        activeId={effectiveCategoryId ?? null}
+        onSelect={(id) => selectCategory(id)}
+        onClear={() => selectCategory(null)}
+      />
 
       <AccordionFilter
         title="برند"
@@ -622,240 +528,6 @@ function SpecFilterRow({
   );
 }
 
-function CategoryAccordion({
-  categories,
-  activeId,
-  searchQuery,
-  onSelect,
-  excludeRootDepth = false,
-  navDefs = NAV_GROUPS,
-}: {
-  categories: CategoryFlat[];
-  activeId?: number;
-  searchQuery: string;
-  onSelect: (id: number) => void;
-  /** When true, skip L1 taxonomy roots (already selected via catalog carousel). */
-  excludeRootDepth?: boolean;
-  navDefs?: NavGroupDef[];
-}) {
-  const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
-
-  const childrenByParent = useMemo(() => {
-    const map = new Map<number | null, CategoryFlat[]>();
-    const ensure = (node: CategoryFlat) => {
-      if (excludeRootDepth && isTaxonomyRoot(node)) return;
-      const parent = node.parent_id ?? null;
-      const list = map.get(parent) ?? [];
-      if (!list.some((c) => c.id === node.id)) {
-        list.push(node);
-        map.set(parent, list);
-      }
-    };
-
-    for (const c of categories) {
-      if (excludeRootDepth && isTaxonomyRoot(c)) continue;
-      // Only hide categories the API marks as empty — missing count must still show.
-      const knownEmpty = c.product_count != null && c.product_count === 0;
-      if (knownEmpty && c.id !== activeId) continue;
-      ensure(c);
-    }
-
-    // Keep ancestors of visible / active nodes so the drill-down path stays intact.
-    const seedIds = [...map.values()].flat().map((c) => c.id);
-    if (activeId != null) seedIds.push(activeId);
-    for (const id of seedIds) {
-      let current = byId.get(id);
-      while (current) {
-        ensure(current);
-        current =
-          current.parent_id != null ? byId.get(current.parent_id) : undefined;
-      }
-    }
-
-    return map;
-  }, [categories, activeId, excludeRootDepth, byId]);
-
-  const activeAncestors = useMemo(() => {
-    if (activeId == null) return new Set<number>();
-    const ids = new Set<number>();
-    let current = byId.get(activeId);
-    while (current) {
-      ids.add(current.id);
-      current = current.parent_id != null ? byId.get(current.parent_id) : undefined;
-    }
-    return ids;
-  }, [byId, activeId]);
-
-  const searchVisible = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return null as Set<number> | null;
-    const matched = new Set<number>();
-    for (const c of categories) {
-      if (excludeRootDepth && isTaxonomyRoot(c)) continue;
-      if (c.name.toLowerCase().includes(q)) matched.add(c.id);
-    }
-    const visible = new Set<number>(matched);
-    for (const id of matched) {
-      let current = byId.get(id);
-      while (current?.parent_id != null) {
-        const parent = byId.get(current.parent_id);
-        if (parent && !(excludeRootDepth && isTaxonomyRoot(parent))) {
-          visible.add(current.parent_id);
-        }
-        current = parent;
-      }
-      const stack = [id];
-      while (stack.length) {
-        const nodeId = stack.pop()!;
-        for (const child of childrenByParent.get(nodeId) ?? []) {
-          if (!visible.has(child.id)) {
-            visible.add(child.id);
-            stack.push(child.id);
-          }
-        }
-      }
-    }
-    return visible;
-  }, [categories, searchQuery, byId, childrenByParent, excludeRootDepth]);
-
-  const searchExpandIds = useMemo(() => {
-    if (!searchVisible) return new Set<number>();
-    return new Set(searchVisible);
-  }, [searchVisible]);
-
-  const [expanded, setExpanded] = useState<Set<number>>(() => new Set(activeAncestors));
-
-  useEffect(() => {
-    if (activeAncestors.size === 0) return;
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      activeAncestors.forEach((id) => next.add(id));
-      return next;
-    });
-  }, [activeAncestors]);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) return;
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      searchExpandIds.forEach((id) => next.add(id));
-      return next;
-    });
-  }, [searchQuery, searchExpandIds]);
-
-  // L1 in merchandising order (same as home/carousel). When roots excluded, start at L2.
-  const roots = useMemo(() => {
-    if (!excludeRootDepth) {
-      const top = childrenByParent.get(null) ?? [];
-      return sortByNavOrder(top, navDefs).filter(
-        (n) => !searchVisible || searchVisible.has(n.id),
-      );
-    }
-    const out: CategoryFlat[] = [];
-    const seen = new Set<number>();
-    for (const [, list] of childrenByParent) {
-      for (const node of list) {
-        const parent = node.parent_id != null ? byId.get(node.parent_id) : undefined;
-        const parentIsExcludedRoot = parent != null && isTaxonomyRoot(parent);
-        const isOrphanNonRoot = node.parent_id == null && !isTaxonomyRoot(node);
-        if (parentIsExcludedRoot || isOrphanNonRoot) {
-          if (seen.has(node.id)) continue;
-          if (searchVisible && !searchVisible.has(node.id)) continue;
-          seen.add(node.id);
-          out.push(node);
-        }
-      }
-    }
-    for (const n of childrenByParent.get(null) ?? []) {
-      if (seen.has(n.id)) continue;
-      if (searchVisible && !searchVisible.has(n.id)) continue;
-      seen.add(n.id);
-      out.push(n);
-    }
-    return out;
-  }, [childrenByParent, excludeRootDepth, searchVisible, byId, navDefs]);
-
-  if (searchVisible && roots.length === 0) {
-    return <p className="px-2 py-3 text-xs text-steel">دسته‌ای یافت نشد.</p>;
-  }
-
-  if (roots.length === 0) {
-    return (
-      <p className="px-2 py-3 text-xs text-steel">
-        {excludeRootDepth ? "زیر‌دسته‌ای موجود نیست." : "دسته‌ای موجود نیست."}
-      </p>
-    );
-  }
-
-  const renderNode = (node: CategoryFlat, depth: number) => {
-    const kids = (childrenByParent.get(node.id) ?? []).filter(
-      (n) => !searchVisible || searchVisible.has(n.id),
-    );
-    const hasKids = kids.length > 0;
-    const isOpen = expanded.has(node.id) || Boolean(searchQuery.trim() && hasKids);
-    const panelId = `cat-panel-${node.id}`;
-    const isActive = activeId === node.id;
-    const isAncestor = activeAncestors.has(node.id) && !isActive;
-
-    return (
-      <div key={node.id}>
-        <div className="flex items-stretch gap-0.5">
-          {hasKids ? (
-            <button
-              type="button"
-              aria-expanded={isOpen}
-              aria-controls={panelId}
-              aria-label={isOpen ? `بستن ${node.name}` : `باز کردن ${node.name}`}
-              onClick={() => {
-                setExpanded((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(node.id)) next.delete(node.id);
-                  else next.add(node.id);
-                  return next;
-                });
-              }}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
-            >
-              <span
-                className={cn(
-                  "inline-flex transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-                  isOpen && "rotate-90",
-                )}
-                aria-hidden
-              >
-                <ChevronRight size="small" set="light" primaryColor="#5E5F5E" />
-              </span>
-            </button>
-          ) : (
-            <span className="w-11 shrink-0" aria-hidden />
-          )}
-          <button
-            type="button"
-            onClick={() => onSelect(node.id)}
-            className={cn(
-              "flex min-h-11 flex-1 items-center rounded-xl px-3 text-start text-sm transition-colors",
-              isActive
-                ? "bg-accent font-bold text-primary ring-1 ring-primary/20"
-                : isAncestor
-                  ? "font-semibold text-foreground/90 hover:bg-muted"
-                  : "text-foreground/80 hover:bg-muted",
-            )}
-          >
-            <span className="truncate">{node.name}</span>
-          </button>
-        </div>
-        {hasKids && isOpen && (
-          <div id={panelId} className="ms-4 border-s border-border/60 ps-1">
-            {kids.map((child) => renderNode(child, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return <div className="space-y-0.5">{roots.map((r) => renderNode(r, 0))}</div>;
-}
-
 function MultiSelectRow({
   active,
   onClick,
@@ -894,33 +566,3 @@ function MultiSelectRow({
   );
 }
 
-function ChipButton({
-  active,
-  indent = 0,
-  onClick,
-  children,
-  className,
-}: {
-  active: boolean;
-  indent?: number;
-  onClick: () => void;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{ paddingInlineStart: `${0.75 + indent * 0.75}rem` }}
-      className={cn(
-        "flex min-h-11 w-full items-center gap-2 rounded-xl py-2 pe-3 text-start text-sm transition-colors",
-        active
-          ? "bg-accent font-bold text-primary ring-1 ring-primary/20"
-          : "text-foreground/80 hover:bg-muted",
-        className,
-      )}
-    >
-      {children}
-    </button>
-  );
-}

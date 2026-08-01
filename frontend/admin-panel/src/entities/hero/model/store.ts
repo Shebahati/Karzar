@@ -15,6 +15,7 @@ import {
   categoryDockFromRoots,
   DEFAULT_CATEGORY_DOCK,
   featuredDockCategories,
+  HERO_FEATURED_SLOT_COUNT,
   orbFromTreeRoot,
   syncDockWithRoots,
   HERO_BADGE_KINDS,
@@ -130,12 +131,13 @@ function withSlideConfig(
   };
 }
 
-/** Keep featuredOrder as sparse slots 0–5 so empty slots stay empty. Dedup only. */
+/** Keep featuredOrder as sparse slots 0–4 so empty slots stay empty. Dedup only. */
 function densifyFeatured(categories: HeroOrbCategory[]): HeroOrbCategory[] {
   const claimed = new Map<number, string>();
+  const maxSlot = HERO_FEATURED_SLOT_COUNT - 1;
   return categories.map((c) => {
     if (c.featuredOrder == null) return { ...c, featuredOrder: null };
-    const slot = Math.max(0, Math.min(5, Math.floor(c.featuredOrder)));
+    const slot = Math.max(0, Math.min(maxSlot, Math.floor(c.featuredOrder)));
     if (claimed.has(slot)) return { ...c, featuredOrder: null };
     claimed.set(slot, c.key);
     return { ...c, featuredOrder: slot };
@@ -148,7 +150,7 @@ function firstEmptyFeaturedSlot(categories: HeroOrbCategory[]): number | null {
       .map((c) => c.featuredOrder)
       .filter((n): n is number => n != null),
   );
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < HERO_FEATURED_SLOT_COUNT; i++) {
     if (!used.has(i)) return i;
   }
   return null;

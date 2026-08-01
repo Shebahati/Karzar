@@ -120,11 +120,13 @@ export interface HeroOrbCategory {
   heroImage: string;
   subtitle: string;
   ctaLabel: string;
-  /** 0–5 featured dock slots; null = expand-menu only */
+  /** 0–4 featured dock slots; null = expand-menu only */
   featuredOrder: number | null;
   slugHint: string;
   /** Live taxonomy id when synced from DB */
   categoryId?: number;
+  /** Non-L1 special dock member (e.g. discounts / تخفیف‌ها) */
+  special?: boolean;
 }
 
 export interface HeroCategoryDock {

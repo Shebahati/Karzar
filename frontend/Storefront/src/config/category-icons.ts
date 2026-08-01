@@ -5,7 +5,7 @@
 
 export const CATEGORY_ICON_DIR = "/category-icons";
 
-/** Slug → public URL for the 12 merchandising L1 icons (+ live DB slug aliases). */
+/** Slug → public URL for designed L1 icons (aliases cover live admin tree slugs). */
 export const CATEGORY_ICON_BY_SLUG: Record<string, string> = {
   "andaze-giri": `${CATEGORY_ICON_DIR}/andaze-giri.png`,
   "andaze-giri-daghigh": `${CATEGORY_ICON_DIR}/andaze-giri.png`,
@@ -26,6 +26,8 @@ export const CATEGORY_ICON_BY_SLUG: Record<string, string> = {
   "abzar-tarashkari": `${CATEGORY_ICON_DIR}/abzar-kargahi.png`,
   "roghan-ravankar": `${CATEGORY_ICON_DIR}/roghan-ravankar.png`,
   "lavazem-janebi": `${CATEGORY_ICON_DIR}/roghan-ravankar.png`,
+  takhfif: `${CATEGORY_ICON_DIR}/takhfif.png`,
+  discounts: `${CATEGORY_ICON_DIR}/takhfif.png`,
 };
 
 /** Persian L1 display name → icon URL (incl. common aliases / spelling variants). */
@@ -56,6 +58,9 @@ export const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "روغن و روانکار": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
   "روغن و زوانکار": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
   "لوازم جانبی صنعتی": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
+  تخفیف‌ها: CATEGORY_ICON_BY_SLUG.takhfif!,
+  "تخفیف ها": CATEGORY_ICON_BY_SLUG.takhfif!,
+  تخفیف: CATEGORY_ICON_BY_SLUG.takhfif!,
 };
 
 export function normalizeCategoryIconName(name: string): string {
@@ -92,11 +97,17 @@ export function resolveCategoryIconUrl(node: {
 }): string | null {
   if (isCategoryIconUrl(node.icon)) return node.icon!.trim();
   if (node.slug) {
-    const bySlug = CATEGORY_ICON_BY_SLUG[normalizeCategoryIconName(node.slug)];
+    const slugKey = normalizeCategoryIconName(node.slug).replace(/\s+/g, "-");
+    const bySlug =
+      CATEGORY_ICON_BY_SLUG[normalizeCategoryIconName(node.slug)] ??
+      CATEGORY_ICON_BY_SLUG[slugKey] ??
+      CATEGORY_ICON_BY_SLUG[node.slug.trim()];
     if (bySlug) return bySlug;
   }
   if (node.name) {
-    const byName = CATEGORY_ICON_BY_NAME[normalizeCategoryIconName(node.name)];
+    const normalized = normalizeCategoryIconName(node.name);
+    const byName =
+      CATEGORY_ICON_BY_NAME[normalized] ?? CATEGORY_ICON_BY_NAME[node.name.trim()];
     if (byName) return byName;
   }
   // Prefer image_url only when it looks like our small icon asset (not a full card photo).

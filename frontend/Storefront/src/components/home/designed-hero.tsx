@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "react-iconly";
@@ -37,7 +45,7 @@ function Layer({
   y: number;
   className?: string;
   style?: CSSProperties;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className={cn("absolute z-20", className)} style={{ insetInlineStart: `${x}%`, top: `${y}%`, ...style }}>
@@ -98,7 +106,7 @@ function SlideCanvas({
   return (
     <div
       className={cn(
-        "absolute inset-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] will-change-transform",
+        "absolute inset-0 transition-[opacity,transform] duration-300 ease-out will-change-transform",
         blurred && "scale-[1.015] opacity-40",
       )}
       data-mobile-preset={isMobile ? mobilePreset ?? undefined : undefined}
@@ -315,18 +323,17 @@ export function DesignedHero({
     [pack.slides],
   );
 
-  const dockCategories = pack.categoryDock?.categories;
-  const hasPublishedDock = Boolean(dockCategories?.length);
+  const hasPublishedDock = Boolean(pack.categoryDock?.categories?.length);
 
   const orbDefs = useMemo(() => {
-    // Admin-published dock is authoritative for membership + featuredOrder 0–5.
-    if (dockCategories?.length) {
-      return orbsFromPublishedDock(dockCategories, roots);
+    // Admin-published dock is authoritative for membership + featuredOrder 0–4.
+    if (pack.categoryDock?.categories?.length) {
+      return orbsFromPublishedDock(pack.categoryDock.categories, roots);
     }
     const live = orbsFromRoots(roots, null);
     if (live.length) return live;
     return HERO_ORB_CATEGORIES;
-  }, [roots, dockCategories]);
+  }, [roots, pack.categoryDock?.categories]);
 
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -398,12 +405,12 @@ export function DesignedHero({
   if (!slide) return null;
 
   const featuredRaw = featuredOrbs(orbDefs as typeof HERO_ORB_CATEGORIES);
-  // When pack ships a dock, honor featuredOrder exactly (no silent first-6 fallback).
+  // When pack ships a dock, honor featuredOrder exactly (no silent first-5 fallback).
   const featured = featuredRaw.length
     ? featuredRaw
     : hasPublishedDock
       ? []
-      : (orbDefs as typeof HERO_ORB_CATEGORIES).slice(0, 6);
+      : (orbDefs as typeof HERO_ORB_CATEGORIES).slice(0, 5);
   const orbActive = (() => {
     const key = slide.config.linkedOrbKey;
     if (key) {

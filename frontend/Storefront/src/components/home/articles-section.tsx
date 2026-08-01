@@ -1,64 +1,46 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { TimeCircle } from "react-iconly";
-import { SafeImage } from "@/components/ui/safe-image";
+import { useMemo } from "react";
+import { ArticleCard, ArticleCardSkeleton } from "@/components/blog/article-card";
 import { useArticles } from "@/features/catalog/queries";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatNumber } from "@/lib/utils";
+import {
+  sortArticlesByNewest,
+  sortArticlesByViews,
+} from "@/lib/articles";
+
+const HOME_COUNT = 3;
 
 export function ArticlesSection() {
   const { data, isLoading } = useArticles();
 
+  const articles = useMemo(() => {
+    const list = data ?? [];
+    const byViews = sortArticlesByViews(list);
+    if (byViews) return byViews.slice(0, HOME_COUNT);
+    return sortArticlesByNewest(list).slice(0, HOME_COUNT);
+  }, [data]);
+
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 rounded-2xl" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: HOME_COUNT }).map((_, i) => (
+          <ArticleCardSkeleton key={i} />
         ))}
       </div>
     );
   }
 
+  if (articles.length === 0) return null;
+
   return (
-    <div className="grid gap-5 sm:grid-cols-3">
-      {data?.map((article, i) => (
-        <motion.article
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+      {articles.map((article, i) => (
+        <ArticleCard
           key={article.id}
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.45, delay: i * 0.08 }}
-        >
-          <Link
-            href={`/blog/${article.slug}`}
-            className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card shadow-soft transition-shadow hover:shadow-elevated"
-          >
-            <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
-              <SafeImage
-                src={article.cover_image}
-                alt={article.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                fallback={<div className="absolute inset-0 bg-muted/60" />}
-              />
-            </div>
-            <div className="flex flex-1 flex-col p-5">
-              <h3 className="line-clamp-2 text-base font-bold leading-7 text-foreground transition-colors group-hover:text-primary">
-                {article.title}
-              </h3>
-              <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-muted-foreground">
-                {article.excerpt}
-              </p>
-              <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <TimeCircle size="small" set="light" />
-                {formatNumber(article.reading_minutes)} دقیقه مطالعه
-              </div>
-            </div>
-          </Link>
-        </motion.article>
+          article={article}
+          index={i}
+          priority={i < 2}
+        />
       ))}
     </div>
   );

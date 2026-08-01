@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Bag, Home } from "react-iconly";
+import { ArrowRight, Bag, Download, Home } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyOrders } from "@/features/orders/queries";
+import { downloadAccountOrderDocument } from "@/services/order-invoice";
 import { isLoggedIn } from "@/lib/api-client";
 import { cn, formatNumber } from "@/lib/utils";
+import type { OrderSummary } from "@/types/order";
 
 type OrdersTab = "purchase" | "inquiry";
 
@@ -23,6 +25,28 @@ export function MyOrdersView() {
   const tab = resolveTab(searchParams.get("mode"));
   const { data, isPending, isError } = useMyOrders({ limit: 50 });
   const authed = isLoggedIn();
+  const [busyCode, setBusyCode] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const handleDownload = async (order: OrderSummary) => {
+    setDownloadError(null);
+    setBusyCode(order.tracking_code);
+    try {
+      await downloadAccountOrderDocument(
+        order,
+        order.mode === "inquiry" ? "proforma" : "invoice",
+      );
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "";
+      setDownloadError(
+        code === "POPUP_BLOCKED"
+          ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
+          : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
+      );
+    } finally {
+      setBusyCode(null);
+    }
+  };
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -128,51 +152,79 @@ export function MyOrdersView() {
           </div>
         )}
 
+        {downloadError && (
+          <p className="mb-4 text-sm text-destructive" role="alert">
+            {downloadError}
+          </p>
+        )}
+
         {rows.length > 0 && (
           <ul className="divide-y divide-border rounded-xl bg-card shadow-soft">
-            {rows.map((order) => (
-              <li key={order.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
-                <div>
-                  <p className="font-medium text-foreground tnum" dir="ltr">
-                    {order.tracking_code}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(order.created_at).toLocaleDateString("fa-IR")}
-                  </p>
-                </div>
-                <div className="text-end">
-                  <div className="flex flex-wrap justify-end gap-1.5">
-                    <span className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-                      {order.status_label}
-                    </span>
-                    {order.mode === "purchase" && (
-                      <span
-                        className={
-                          order.status === "pending_payment"
-                            ? "rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive"
-                            : "rounded-md bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
-                        }
-                      >
-                        {order.status === "pending_payment" ? "پرداخت‌نشده" : "پرداخت‌شده"}
+            {rows.map((order) => {
+              const busy = busyCode === order.tracking_code;
+              const docLabel =
+                order.mode === "inquiry" ? "دانلود پیش‌فاکتور" : "دانلود فاکتور";
+              return (
+                <li
+                  key={order.id}
+                  className="flex flex-wrap items-center justify-between gap-4 p-5"
+                >
+                  <div>
+                    <p className="font-medium text-foreground tnum" dir="ltr">
+                      {order.tracking_code}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {new Date(order.created_at).toLocaleDateString("fa-IR")}
+                    </p>
+                  </div>
+                  <div className="text-end">
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      <span className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+                        {order.status_label}
                       </span>
+                      {order.mode === "purchase" && (
+                        <span
+                          className={
+                            order.status === "pending_payment"
+                              ? "rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive"
+                              : "rounded-md bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
+                          }
+                        >
+                          {order.status === "pending_payment"
+                            ? "پرداخت‌نشده"
+                            : "پرداخت‌شده"}
+                        </span>
+                      )}
+                    </div>
+                    {order.estimated_total && (
+                      <p className="mt-1 text-sm text-muted-foreground tnum">
+                        {formatNumber(order.estimated_total)} تومان
+                      </p>
                     )}
                   </div>
-                  {order.estimated_total && (
-                    <p className="mt-1 text-sm text-muted-foreground tnum">
-                      {formatNumber(order.estimated_total)} تومان
-                    </p>
-                  )}
-                </div>
-                <Link
-                  href={`/account/orders/${encodeURIComponent(order.tracking_code)}`}
-                  className="w-full sm:w-auto"
-                >
-                  <Button variant="soft" size="sm" className="w-full sm:w-auto">
-                    جزئیات
-                  </Button>
-                </Link>
-              </li>
-            ))}
+                  <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-1 sm:flex-none"
+                      disabled={busy}
+                      onClick={() => void handleDownload(order)}
+                    >
+                      <Download set="bold" size="small" />
+                      {busy ? "در حال ساخت…" : docLabel}
+                    </Button>
+                    <Link
+                      href={`/account/orders/${encodeURIComponent(order.tracking_code)}`}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Button variant="soft" size="sm" className="w-full">
+                        جزئیات
+                      </Button>
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

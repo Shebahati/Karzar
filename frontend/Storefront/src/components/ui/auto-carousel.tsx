@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type DragEvent as ReactDragEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -21,6 +22,12 @@ const DRAG_THRESHOLD = 6;
  * Horizontal carousel with optional autoplay, chevrons, and drag-to-slide.
  * User interaction / hover pauses autoplay; resumes after a short idle.
  * Click-through after a drag is suppressed so card links stay intentional.
+ *
+ * Drag notes:
+ * - Do NOT put Tailwind `scroll-smooth` on the track — CSS smooth scrolling
+ *   fights per-frame `scrollLeft` writes and makes mouse-drag feel dead.
+ * - Snap is disabled while actively dragging for the same reason.
+ * - Touch uses native overflow pan; mouse/pen use pointer drag.
  */
 export function AutoCarousel({
   children,
@@ -51,6 +58,7 @@ export function AutoCarousel({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const items = Children.toArray(children);
 
@@ -105,7 +113,7 @@ export function AutoCarousel({
   }, [updateEdges, items.length]);
 
   useEffect(() => {
-    if (!autoPlay || !motionSafe || paused || hoverPaused) return;
+    if (!autoPlay || !motionSafe || paused || hoverPaused || isDragging) return;
     const el = trackRef.current;
     if (!el) return;
 
@@ -125,7 +133,7 @@ export function AutoCarousel({
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [autoPlay, motionSafe, paused, hoverPaused, intervalMs]);
+  }, [autoPlay, motionSafe, paused, hoverPaused, isDragging, intervalMs]);
 
   useEffect(
     () => () => {
@@ -141,6 +149,8 @@ export function AutoCarousel({
     if (e.button !== 0) return;
     const el = trackRef.current;
     if (!el) return;
+    // A prior drag can set suppress without a following click — never leave it sticky.
+    suppressClickRef.current = false;
     dragRef.current = {
       pointerId: e.pointerId,
       startX: e.clientX,
@@ -148,7 +158,7 @@ export function AutoCarousel({
       moved: false,
       dragging: true,
     };
-    el.setPointerCapture(e.pointerId);
+    // Capture only after the drag threshold so card link clicks stay reliable.
   };
 
   const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -157,8 +167,19 @@ export function AutoCarousel({
     if (!drag?.dragging || !el || drag.pointerId !== e.pointerId) return;
     const dx = e.clientX - drag.startX;
     if (!drag.moved && Math.abs(dx) < DRAG_THRESHOLD) return;
-    drag.moved = true;
+    if (!drag.moved) {
+      drag.moved = true;
+      setIsDragging(true);
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+    // Keep the grab 1:1 — preventDefault stops link/image selection quirks.
+    e.preventDefault();
     // scrollLeft delta matches pointer delta in both LTR and RTL (Chromium).
+    // Decreasing scrollLeft → visual left in both models (see scroll-edges.ts).
     el.scrollLeft = drag.startScroll - dx;
   };
 
@@ -168,9 +189,11 @@ export function AutoCarousel({
     if (!drag || drag.pointerId !== e.pointerId) return;
     if (drag.moved) suppressClickRef.current = true;
     dragRef.current = null;
+    setIsDragging(false);
     if (el?.hasPointerCapture(e.pointerId)) {
       el.releasePointerCapture(e.pointerId);
     }
+    updateEdges();
   };
 
   const onClickCapture = (e: ReactMouseEvent<HTMLDivElement>) => {
@@ -178,6 +201,11 @@ export function AutoCarousel({
     suppressClickRef.current = false;
     e.preventDefault();
     e.stopPropagation();
+  };
+
+  /** Block native HTML5 image/link drag which steals the pointer gesture. */
+  const onDragStart = (e: ReactDragEvent<HTMLDivElement>) => {
+    e.preventDefault();
   };
 
   const showChevrons = showControls && hasOverflow && motionSafe;
@@ -196,12 +224,18 @@ export function AutoCarousel({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClickCapture={onClickCapture}
+        onDragStart={onDragStart}
         className={cn(
-          "no-scrollbar flex snap-x snap-mandatory overflow-x-auto scroll-smooth",
+          // No `scroll-smooth` here — it breaks mouse-drag scrollLeft updates.
+          // Chevron / autoplay pass behavior:"smooth" via the Scroll API instead.
+          "no-scrollbar flex overflow-x-auto overscroll-x-contain",
           "touch-pan-x select-none cursor-grab active:cursor-grabbing",
+          // Snap only when idle; mandatory snap fights live drag.
+          isDragging ? "snap-none" : "snap-x snap-mandatory",
           gapClass,
           trackClassName ?? "pb-1",
         )}
+        style={isDragging ? { scrollSnapType: "none" } : undefined}
       >
         {items.map((child, i) => (
           <div key={i} className={cn("snap-start shrink-0", itemClassName)}>

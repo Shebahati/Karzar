@@ -2,17 +2,10 @@
 
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { ProductListParams, ProductSort } from "@/types/product";
-
-const SORTS: ProductSort[] = [
-  "newest",
-  "price_asc",
-  "price_desc",
-  "discount_desc",
-  "stock_first",
-  "name_asc",
-  "name_desc",
-];
+import {
+  isApiProductSort,
+  type ProductListParams,
+} from "@/types/product";
 
 const SPEC_PREFIX = "spec_";
 
@@ -114,9 +107,7 @@ export function useCatalogParams() {
       min_price: num("min_price"),
       max_price: num("max_price"),
       in_stock: sp.get("in_stock") === "1" || undefined,
-      sort: sortRaw && SORTS.includes(sortRaw as ProductSort)
-        ? (sortRaw as ProductSort)
-        : undefined,
+      sort: sortRaw && isApiProductSort(sortRaw) ? sortRaw : undefined,
       spec_filters: Object.keys(spec_filters).length ? spec_filters : undefined,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,6 +135,7 @@ export function useCatalogParams() {
         next.delete("category_id");
         next.delete("category_slug");
         if (patch.category == null || patch.category === "") {
+          next.delete("category");
           // Spec filters are category-scoped — clear when category is cleared.
           const toDelete: string[] = [];
           next.forEach((_, key) => {
@@ -195,8 +187,60 @@ export function useCatalogParams() {
   );
 
   const clearAll = useCallback(() => {
-    router.replace(pathname, { scroll: false });
+    // Drop the entire query string so category/brand/spec never linger.
+    router.replace(pathname.split("?")[0] || pathname, { scroll: false });
   }, [router, pathname]);
+
+  const clearCategory = useCallback(() => {
+    setParams({ category: null, roots: null });
+  }, [setParams]);
+
+  /**
+   * Leave a locked category hub (`/categories/{slug}`) for free PLP filtering.
+   * Preserves non-category facets when `preserveFacets` is true.
+   */
+  const unlockToCatalog = useCallback(
+    (opts?: { preserveFacets?: boolean }) => {
+      if (!opts?.preserveFacets) {
+        router.replace("/catalog", { scroll: false });
+        return;
+      }
+      const next = new URLSearchParams(sp.toString());
+      next.delete("category");
+      next.delete("category_id");
+      next.delete("category_slug");
+      next.delete("roots");
+      const qs = next.toString();
+      router.replace(qs ? `/catalog?${qs}` : "/catalog", { scroll: false });
+    },
+    [router, sp],
+  );
+
+  /**
+   * Apply category filter. On hub pages (`lockedCategoryId`), navigate to
+   * `/catalog?category=<id>` so the path lock cannot overwrite L2/L3 or clear.
+   */
+  const applyCategory = useCallback(
+    (id: number | null, opts?: { lockedCategoryId?: number | null }) => {
+      const locked = opts?.lockedCategoryId;
+      if (id == null) {
+        if (locked != null) unlockToCatalog({ preserveFacets: true });
+        else setParams({ category: null, roots: null });
+        return;
+      }
+      if (locked != null) {
+        const next = new URLSearchParams(sp.toString());
+        next.delete("category_id");
+        next.delete("category_slug");
+        next.delete("roots");
+        next.set("category", String(id));
+        router.replace(`/catalog?${next.toString()}`, { scroll: false });
+        return;
+      }
+      setParams({ category: id, roots: null });
+    },
+    [unlockToCatalog, setParams, sp, router],
+  );
 
   const activeCount = useMemo(() => {
     let n = 0;
@@ -221,6 +265,9 @@ export function useCatalogParams() {
     toggleBrand,
     toggleCountry,
     clearAll,
+    clearCategory,
+    unlockToCatalog,
+    applyCategory,
     activeCount,
     raw: sp,
     categorySlug,

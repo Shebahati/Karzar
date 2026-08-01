@@ -14,7 +14,7 @@ const ROUTE_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/catalog/products/deleted", title: "محصولات حذف‌شده" },
   { prefix: "/catalog/products", title: "مدیریت محصولات" },
   { prefix: "/catalog/categories", title: "دسته‌بندی‌ها" },
-  { prefix: "/cms/nav-groups", title: "گروه‌های مگامنو" },
+  { prefix: "/cms/nav-groups", title: "دسته‌بندی‌ها" },
   { prefix: "/cms/hero-design", title: "طراحی هیرو" },
   { prefix: "/cms/hero-slides", title: "طراحی هیرو" },
   { prefix: "/cms/articles", title: "مقالات" },

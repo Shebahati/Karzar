@@ -41,7 +41,7 @@ export function AccordionFilter({
         </span>
         <span
           className={cn(
-            "grid h-8 w-8 place-items-center rounded-lg bg-secondary text-steel transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+            "grid h-8 w-8 place-items-center rounded-lg bg-secondary text-steel transition-transform duration-300 ease-out",
             open && "rotate-180",
           )}
           aria-hidden

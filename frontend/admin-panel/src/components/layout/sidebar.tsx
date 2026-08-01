@@ -83,7 +83,7 @@ export function Sidebar() {
     <>
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-40 hidden flex-col bg-background shadow-lg transition-all duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] lg:flex",
+          "fixed inset-y-0 start-0 z-40 hidden flex-col bg-background shadow-lg transition-all duration-500 ease-out lg:flex",
           isCollapsed ? "w-[90px]" : "w-72"
         )}
       >

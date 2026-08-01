@@ -21,11 +21,16 @@ export function PriceRangeSlider({
   const id = useId();
   const [lo, setLo] = useState(minValue);
   const [hi, setHi] = useState(maxValue);
+  // Refs so mouseup/touchend commit the value just written in onChange (not stale state).
+  const loRef = useRef(minValue);
+  const hiRef = useRef(maxValue);
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLo(minValue);
     setHi(maxValue);
+    loRef.current = minValue;
+    hiRef.current = maxValue;
   }, [minValue, maxValue]);
 
   const pct = useCallback(
@@ -34,6 +39,8 @@ export function PriceRangeSlider({
   );
 
   const clamp = (v: number) => Math.min(absoluteMax, Math.max(absoluteMin, v));
+
+  const commit = () => onCommit(loRef.current, hiRef.current);
 
   return (
     <div className="space-y-4">
@@ -54,11 +61,12 @@ export function PriceRangeSlider({
           step={100_000}
           value={lo}
           onChange={(e) => {
-            const next = clamp(Number(e.target.value));
-            setLo(Math.min(next, hi - 100_000));
+            const next = Math.min(clamp(Number(e.target.value)), hiRef.current - 100_000);
+            loRef.current = next;
+            setLo(next);
           }}
-          onMouseUp={() => onCommit(lo, hi)}
-          onTouchEnd={() => onCommit(lo, hi)}
+          onMouseUp={commit}
+          onTouchEnd={commit}
           className="pointer-events-none absolute inset-0 z-20 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-steel [&::-webkit-slider-thumb]:shadow-card"
         />
         <input
@@ -69,11 +77,12 @@ export function PriceRangeSlider({
           step={100_000}
           value={hi}
           onChange={(e) => {
-            const next = clamp(Number(e.target.value));
-            setHi(Math.max(next, lo + 100_000));
+            const next = Math.max(clamp(Number(e.target.value)), loRef.current + 100_000);
+            hiRef.current = next;
+            setHi(next);
           }}
-          onMouseUp={() => onCommit(lo, hi)}
-          onTouchEnd={() => onCommit(lo, hi)}
+          onMouseUp={commit}
+          onTouchEnd={commit}
           className="pointer-events-none absolute inset-0 z-30 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-card"
         />
       </div>
@@ -85,9 +94,19 @@ export function PriceRangeSlider({
           value={toPersianDigits(String(lo))}
           onChange={(e) => {
             const n = Number(toEnglishDigits(e.target.value).replace(/[^\d]/g, "") || "0");
-            setLo(clamp(n));
+            const next = clamp(n);
+            loRef.current = next;
+            setLo(next);
           }}
-          onBlur={() => onCommit(Math.min(lo, hi), Math.max(lo, hi))}
+          onBlur={() => {
+            const a = Math.min(loRef.current, hiRef.current);
+            const b = Math.max(loRef.current, hiRef.current);
+            loRef.current = a;
+            hiRef.current = b;
+            setLo(a);
+            setHi(b);
+            onCommit(a, b);
+          }}
           className="h-11 w-full rounded-xl bg-input px-3 text-sm outline-none focus:ring-2 focus:ring-steel/20 tnum"
         />
         <span className="shrink-0 text-sm text-steel">تا</span>
@@ -97,9 +116,19 @@ export function PriceRangeSlider({
           value={toPersianDigits(String(hi))}
           onChange={(e) => {
             const n = Number(toEnglishDigits(e.target.value).replace(/[^\d]/g, "") || "0");
-            setHi(clamp(n));
+            const next = clamp(n);
+            hiRef.current = next;
+            setHi(next);
           }}
-          onBlur={() => onCommit(Math.min(lo, hi), Math.max(lo, hi))}
+          onBlur={() => {
+            const a = Math.min(loRef.current, hiRef.current);
+            const b = Math.max(loRef.current, hiRef.current);
+            loRef.current = a;
+            hiRef.current = b;
+            setLo(a);
+            setHi(b);
+            onCommit(a, b);
+          }}
           className="h-11 w-full rounded-xl bg-input px-3 text-sm outline-none focus:ring-2 focus:ring-steel/20 tnum"
         />
       </div>

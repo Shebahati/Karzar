@@ -88,7 +88,7 @@ export function ProductCard({
       href={productPath(product)}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card",
-        "transition-[box-shadow,transform] duration-[350ms] ease-out",
+        "transition-[box-shadow,transform] duration-300 ease-out",
         "hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-20px_rgba(94,95,94,0.45)]",
         className,
       )}
@@ -104,7 +104,7 @@ export function ProductCard({
               alt={product.name}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-opacity duration-[350ms] ease-out group-hover:opacity-0"
+              className="object-cover transition-opacity duration-300 ease-out group-hover:opacity-0"
               fallback={<ProductPlaceholder name={product.name} sku={product.sku} />}
               {...imageProps}
             />
@@ -114,7 +114,7 @@ export function ProductCard({
               aria-hidden
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover opacity-0 transition-opacity duration-[350ms] ease-out group-hover:opacity-100"
+              className="object-cover opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
               loading="lazy"
               quality={CONTENT_IMAGE_QUALITY}
               fallback={null}
@@ -126,7 +126,7 @@ export function ProductCard({
             alt={product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-[350ms] ease-out will-change-transform group-hover:scale-[1.07]"
+            className="object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-[1.07]"
             fallback={<ProductPlaceholder name={product.name} sku={product.sku} />}
             {...imageProps}
           />
@@ -183,7 +183,7 @@ export function ProductCard({
           ) : null}
         </div>
 
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-semibold leading-5 text-[#1a1a1a] transition-colors duration-[350ms] group-hover:text-[#D02327] sm:min-h-[2.75rem] sm:text-sm sm:leading-6">
+        <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-semibold leading-5 text-[#1a1a1a] transition-colors duration-300 group-hover:text-[#D02327] sm:min-h-[2.75rem] sm:text-sm sm:leading-6">
           {product.name}
         </h3>
 
@@ -216,7 +216,7 @@ export function ProductCard({
             disabled={outOfStock}
             aria-label={hasPrice ? "افزودن به سبد خرید" : "افزودن به استعلام"}
             className={cn(
-              "grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-[transform,background-color] duration-[350ms] ease-out",
+              "grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-[transform,background-color] duration-300 ease-out",
               "active:scale-95 disabled:pointer-events-none disabled:opacity-35",
               hasPrice
                 ? "bg-[#D02327] text-white"

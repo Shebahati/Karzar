@@ -19,11 +19,12 @@ import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import type { SpecFilterOptions } from "@/types/spec-filter";
 import type { NavGroupApiRow } from "@/config/nav-groups";
-import type {
-  ProductDetail,
-  ProductListParams,
-  ProductListResponse,
-  ProductSummary,
+import {
+  isApiProductSort,
+  type ProductDetail,
+  type ProductListParams,
+  type ProductListResponse,
+  type ProductSummary,
 } from "@/types/product";
 
 /** Fill missing L1 icon URLs from the designed asset map (live API often omits them). */
@@ -68,11 +69,15 @@ export const catalogService = {
   async listProducts(params: ProductListParams = {}): Promise<ProductListResponse> {
     if (env.USE_MOCK) return (await getMockApi()).listProducts(params);
 
-    const { spec_filters, brand_ids, countries, ...rest } = params;
+    const { spec_filters, brand_ids, countries, sort, ...rest } = params;
     const searchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(rest)) {
       if (value == null || value === "") continue;
       searchParams.set(key, String(value));
+    }
+    // Only forward OpenAPI-allowed `sort` keys (avoids 422 Invalid sort key).
+    if (sort && isApiProductSort(sort)) {
+      searchParams.set("sort", sort);
     }
     // FastAPI list query: brand_id=1&brand_id=2 (also accepts comma-separated).
     for (const id of brand_ids ?? []) {
@@ -126,23 +131,40 @@ export const catalogService = {
 
   async listArticles(): Promise<Article[]> {
     if (env.USE_MOCK) return (await getMockApi()).listArticles();
-    const { data } = await apiClient.get<{ data: Article[] }>("/blog/");
-    return data.data;
+    try {
+      const { data } = await apiClient.get<{ data: Article[] }>("/blog/");
+      const live = data.data ?? [];
+      // Live SoT when populated; empty DB → preview mocks so designs stay testable.
+      if (live.length > 0) return live;
+    } catch {
+      /* fall through to mock preview */
+    }
+    return (await getMockApi()).listArticles();
   },
 
   async getArticle(slug: string): Promise<BlogPost> {
     if (env.USE_MOCK) return (await getMockApi()).getArticle(slug);
-    const { data } = await apiClient.get<BlogPost>(`/blog/${slug}`);
-    return data;
+    try {
+      const { data } = await apiClient.get<BlogPost>(`/blog/${slug}`);
+      return data;
+    } catch {
+      // Preview slugs (and empty-CMS local) resolve from mock posts only.
+      return (await getMockApi()).getArticle(slug);
+    }
   },
 
   async getProductsByIds(ids: number[]): Promise<ProductSummary[]> {
     if (!ids.length) return [];
     if (env.USE_MOCK) return (await getMockApi()).getProductsByIds(ids);
-    const { data } = await apiClient.get<{ data: ProductSummary[] }>("/products/", {
-      params: { ids: ids.join(",") },
+    const { data } = await apiClient.get<ProductListResponse>("/products/", {
+      params: {
+        ids: ids.join(","),
+        // Default list limit is 100 — without this, long id lists truncate silently.
+        limit: Math.min(Math.max(ids.length, 1), 1000),
+        skip: 0,
+      },
     });
-    return data.data;
+    return data.data ?? [];
   },
 
   async listHeroSlides(): Promise<HeroSlide[]> {

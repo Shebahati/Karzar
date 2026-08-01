@@ -18,6 +18,10 @@ export interface Article {
   cover_image: string;
   published_at: string;
   reading_minutes: number;
+  /** Present on full BlogPost / mock teasers; live `/blog/` teaser may omit. */
+  tags?: string[];
+  /** Not in current OpenAPI/DB — render only when the payload includes it. */
+  views?: number;
 }
 
 /** SEO override block — stripped from visible body, used in generateMetadata. */

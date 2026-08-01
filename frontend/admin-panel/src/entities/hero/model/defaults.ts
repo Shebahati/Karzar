@@ -1,3 +1,10 @@
+import {
+  DISCOUNTS_CATALOG_HREF,
+  DISCOUNTS_ORB_KEY,
+  DISCOUNTS_SPECIAL,
+  FINAL_L1_CATEGORIES,
+} from "@/config/final-l1-categories";
+import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import type {
   HeroAnimationPreset,
   HeroBadgeKind,
@@ -78,142 +85,51 @@ export function createId(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Featured power slots on the storefront dock (RTL: 0 = rightmost). */
+export const HERO_FEATURED_SLOT_COUNT = 5;
+
+export { DISCOUNTS_ORB_KEY, DISCOUNTS_CATALOG_HREF };
+
+export function isSpecialDockOrb(orb: Pick<HeroOrbCategory, "key" | "special" | "slugHint">): boolean {
+  return (
+    Boolean(orb.special) ||
+    orb.key === DISCOUNTS_ORB_KEY ||
+    orb.key === "takhfif" ||
+    orb.slugHint === "takhfif"
+  );
+}
+
+export function createDiscountsOrb(prev?: Partial<HeroOrbCategory>): HeroOrbCategory {
+  return {
+    key: DISCOUNTS_ORB_KEY,
+    name: DISCOUNTS_SPECIAL.name,
+    icon: CATEGORY_ICON_BY_SLUG[DISCOUNTS_SPECIAL.iconSlug] ?? "/category-icons/takhfif.png",
+    productCount: prev?.productCount ?? 0,
+    heroImage: prev?.heroImage || DISCOUNTS_SPECIAL.heroImage,
+    subtitle: prev?.subtitle || DISCOUNTS_SPECIAL.subtitle,
+    ctaLabel: prev?.ctaLabel || DISCOUNTS_SPECIAL.ctaLabel,
+    featuredOrder: prev?.featuredOrder !== undefined ? prev.featuredOrder : DISCOUNTS_SPECIAL.featuredOrder,
+    slugHint: DISCOUNTS_SPECIAL.slug,
+    special: true,
+  };
+}
+
+function orbFromFinalL1(cat: (typeof FINAL_L1_CATEGORIES)[number]): HeroOrbCategory {
+  return {
+    key: cat.key,
+    name: cat.name,
+    icon: CATEGORY_ICON_BY_SLUG[cat.iconSlug] ?? `/category-icons/${cat.slug}.png`,
+    productCount: 0,
+    heroImage: cat.heroImage,
+    subtitle: cat.subtitle,
+    ctaLabel: cat.ctaLabel,
+    featuredOrder: cat.featuredOrder,
+    slugHint: cat.slug,
+  };
+}
+
 export const DEFAULT_CATEGORY_DOCK: HeroCategoryDock = {
-  categories: [
-    {
-      key: "metrology",
-      name: "اندازه‌گیری",
-      icon: "/category-icons/andaze-giri.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-metrology-left.jpg",
-      subtitle:
-        "کولیس، میکرومتر و گیج‌های صنعتی — دقت قابل‌اعتماد برای کنترل کیفیت خط تولید",
-      ctaLabel: "ورود",
-      featuredOrder: 0,
-      slugHint: "andaze-giri",
-    },
-    {
-      key: "insert-tools",
-      name: "ابزار اینسرتی",
-      icon: "/category-icons/abzar-inserti.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
-      ctaLabel: "ورود",
-      featuredOrder: 1,
-      slugHint: "abzar-inserti",
-    },
-    {
-      key: "inserts",
-      name: "اینسرت",
-      icon: "/category-icons/insert.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "اینسرت‌های کاربیدی و پوشش‌دار برای سطوح برش متنوع",
-      ctaLabel: "ورود",
-      featuredOrder: 2,
-      slugHint: "insert",
-    },
-    {
-      key: "endmills",
-      name: "فرز انگشتی",
-      icon: "/category-icons/farz-angoshti.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "فرز انگشتی و ابزارهای پروفایل برای ماشین‌کاری دقیق قطعه",
-      ctaLabel: "ورود",
-      featuredOrder: 3,
-      slugHint: "farz-angoshti",
-    },
-    {
-      key: "taps",
-      name: "قلاویز",
-      icon: "/category-icons/ghalaviz.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "قلاویز دستی و ماشینی برای رزوه‌کاری استاندارد صنعتی",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "ghalaviz",
-    },
-    {
-      key: "toolholders",
-      name: "ابزار گیر",
-      icon: "/category-icons/abzar-gir.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-holding-left.jpg",
-      subtitle: "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "abzar-gir",
-    },
-    {
-      key: "workholding",
-      name: "ابزار گیرشی",
-      icon: "/category-icons/abzar-gireshi.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-holding-left.jpg",
-      subtitle: "گیره‌ها و سیستم‌های فیکسچر برای نگهداشت ایمن قطعه کار",
-      ctaLabel: "ورود",
-      featuredOrder: 4,
-      slugHint: "abzar-gireshi",
-    },
-    {
-      key: "industrial-machines",
-      name: "دستگاه‌های صنعتی",
-      icon: "/category-icons/dastgah-sanati.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-machines-left.jpg",
-      subtitle: "ماشین‌ها و تجهیزات صنعتی برای تجهیز کارگاه و خط تولید",
-      ctaLabel: "ورود",
-      featuredOrder: 5,
-      slugHint: "dastgah-sanati",
-    },
-    {
-      key: "heli-coil",
-      name: "هلی کویل",
-      icon: "/category-icons/heli-coil.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "فنر، قلاویز و کیت‌های هلی‌کویل برای ترمیم رزوه",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "heli-coil",
-    },
-    {
-      key: "drills",
-      name: "مته",
-      icon: "/category-icons/mete.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-cutting-left.jpg",
-      subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "mete",
-    },
-    {
-      key: "workshop-tools",
-      name: "ابزار کارگاهی : دریل عادی",
-      icon: "/category-icons/abzar-kargahi.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-holding-left.jpg",
-      subtitle: "ابزار کارگاهی و دریل عادی برای کار روزمره کارگاه",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "abzar-kargahi",
-    },
-    {
-      key: "lubricants",
-      name: "روغن و روانکار",
-      icon: "/category-icons/roghan-ravankar.png",
-      productCount: 0,
-      heroImage: "/images/hero/hero-accessories-left.jpg",
-      subtitle: "روغن برش و روانکار صنعتی برای طول عمر ابزار و کیفیت سطح",
-      ctaLabel: "ورود",
-      featuredOrder: null,
-      slugHint: "roghan-ravankar",
-    },
-  ],
+  categories: [createDiscountsOrb(), ...FINAL_L1_CATEGORIES.map(orbFromFinalL1)],
 };
 
 export function featuredDockCategories(
@@ -222,7 +138,7 @@ export function featuredDockCategories(
   return [...dock.categories]
     .filter((c) => c.featuredOrder != null)
     .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
-    .slice(0, 6);
+    .slice(0, HERO_FEATURED_SLOT_COUNT);
 }
 
 type TreeRootLike = {
@@ -311,6 +227,7 @@ function orbFromRoot(
 
 /**
  * Full rebuild: every L1 root becomes a dock member (used when dock is empty / first sync).
+ * Always prepends the special discounts orb.
  */
 export function categoryDockFromRoots(
   roots: TreeRootLike[],
@@ -318,7 +235,10 @@ export function categoryDockFromRoots(
 ): HeroCategoryDock {
   const l1 = roots.filter((r) => r.parent_id == null);
   if (!l1.length) return previous;
-  return { categories: l1.map((root) => orbFromRoot(root, previous)) };
+  const prevDiscount = previous.categories.find((c) => isSpecialDockOrb(c));
+  return {
+    categories: [createDiscountsOrb(prevDiscount), ...l1.map((root) => orbFromRoot(root, previous))],
+  };
 }
 
 export interface DockSyncResult {
@@ -330,9 +250,30 @@ export interface DockSyncResult {
   removed: number;
 }
 
+function ensureDiscountsOrb(categories: HeroOrbCategory[]): HeroOrbCategory[] {
+  const idx = categories.findIndex((c) => isSpecialDockOrb(c));
+  if (idx >= 0) {
+    const prev = categories[idx]!;
+    const next = {
+      ...createDiscountsOrb(prev),
+      featuredOrder: prev.featuredOrder,
+      heroImage: prev.heroImage || createDiscountsOrb().heroImage,
+      subtitle: prev.subtitle || createDiscountsOrb().subtitle,
+      ctaLabel: prev.ctaLabel || createDiscountsOrb().ctaLabel,
+      icon: prev.icon || createDiscountsOrb().icon,
+      name: prev.name || "تخفیف‌ها",
+      special: true as const,
+      key: DISCOUNTS_ORB_KEY,
+    };
+    return categories.map((c, i) => (i === idx ? next : c));
+  }
+  return [createDiscountsOrb(), ...categories];
+}
+
 /**
  * Smart sync: refresh dock members from live L1, drop deleted cats, keep order/featured.
  * Optionally append new L1 roots that are not yet in the dock (`appendNew`).
+ * Special discounts orb is never wiped even without an L1 match.
  */
 export function syncDockWithRoots(
   roots: TreeRootLike[],
@@ -362,6 +303,18 @@ export function syncDockWithRoots(
 
   const kept: HeroOrbCategory[] = [];
   for (const orb of previous.categories) {
+    if (isSpecialDockOrb(orb)) {
+      kept.push({
+        ...createDiscountsOrb(orb),
+        featuredOrder: orb.featuredOrder,
+        heroImage: orb.heroImage || createDiscountsOrb().heroImage,
+        subtitle: orb.subtitle || createDiscountsOrb().subtitle,
+        ctaLabel: orb.ctaLabel || createDiscountsOrb().ctaLabel,
+        icon: orb.icon || createDiscountsOrb().icon,
+        name: orb.name || "تخفیف‌ها",
+      });
+      continue;
+    }
     const root = findRootForOrb(orb, byId, l1);
     if (!root) {
       removed += 1;
@@ -410,21 +363,22 @@ export function syncDockWithRoots(
   );
 
   let added = 0;
-  let categories = kept;
+  let categories = ensureDiscountsOrb(kept);
   if (options.appendNew && available.length) {
     const extras = available.map((root) => {
       const orb = orbFromRoot(root, previous);
       return { ...orb, featuredOrder: null as number | null };
     });
-    categories = [...kept, ...extras];
+    categories = [...categories, ...extras];
     added = extras.length;
   }
 
-  // Preserve sparse featured slots 0–5 (do not collapse gaps).
+  // Preserve sparse featured slots 0–4 (do not collapse gaps).
+  const maxSlot = HERO_FEATURED_SLOT_COUNT - 1;
   const claimed = new Map<number, string>();
   categories = categories.map((c) => {
     if (c.featuredOrder == null) return { ...c, featuredOrder: null };
-    const slot = Math.max(0, Math.min(5, Math.floor(c.featuredOrder)));
+    const slot = Math.max(0, Math.min(maxSlot, Math.floor(c.featuredOrder)));
     if (claimed.has(slot)) return { ...c, featuredOrder: null };
     claimed.set(slot, c.key);
     return { ...c, featuredOrder: slot };
@@ -449,6 +403,9 @@ export function orbFromTreeRoot(
 
 export function configFromOrb(orb: HeroOrbCategory): HeroBuilderConfig {
   const base = createDefaultConfig();
+  const primaryHref = isSpecialDockOrb(orb)
+    ? DISCOUNTS_CATALOG_HREF
+    : `/catalog?q=${encodeURIComponent(orb.name)}`;
   return {
     ...base,
     linkedOrbKey: orb.key,
@@ -483,7 +440,7 @@ export function configFromOrb(orb: HeroOrbCategory): HeroBuilderConfig {
         position: { x: 5, y: 58 },
         action: {
           type: "href",
-          value: `/catalog?q=${encodeURIComponent(orb.name)}`,
+          value: primaryHref,
         },
         stylePreset: "primary",
         sizePreset: "lg",
@@ -501,7 +458,19 @@ export function configFromOrb(orb: HeroOrbCategory): HeroBuilderConfig {
         sizePreset: "md",
       },
     ],
-    badges: [],
+    badges: isSpecialDockOrb(orb)
+      ? [
+          {
+            id: createId("badge"),
+            kind: "discount",
+            style: "pill",
+            label: "تخفیف ویژه",
+            meta: "پرتخفیف",
+            position: { x: 5, y: 14 },
+            animated: true,
+          },
+        ]
+      : [],
   };
 }
 

@@ -106,21 +106,31 @@ export interface ProductDetail {
   description: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
-  specifications: ProductSpecifications;
+  /** Live API may omit/null this; PDP must null-guard. */
+  specifications: ProductSpecifications | null;
   created_at: string;
   updated_at: string;
 }
 
 export type ProductListResponse = PaginatedResponse<ProductSummary>;
 
-export type ProductSort =
-  | "newest"
-  | "price_asc"
-  | "price_desc"
-  | "discount_desc"
-  | "stock_first"
-  | "name_asc"
-  | "name_desc";
+/**
+ * Live `GET /api/v1/products/` `sort` values (OpenAPI / 422 details).
+ * Do not invent keys — unsupported values return VALIDATION_FAILED.
+ */
+export const API_PRODUCT_SORTS = [
+  "newest",
+  "price_asc",
+  "price_desc",
+  "name_asc",
+  "name_desc",
+] as const;
+
+export type ProductSort = (typeof API_PRODUCT_SORTS)[number];
+
+export function isApiProductSort(value: string): value is ProductSort {
+  return (API_PRODUCT_SORTS as readonly string[]).includes(value);
+}
 
 export interface ProductListParams {
   skip?: number;

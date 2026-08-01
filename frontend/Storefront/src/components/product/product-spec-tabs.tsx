@@ -17,13 +17,13 @@ export function ProductSpecTabs({
   description,
   shortDescription,
 }: {
-  specifications: ProductSpecifications;
+  specifications: ProductSpecifications | null | undefined;
   description: string | null;
   shortDescription?: string | null;
 }) {
-  const tech = specifications.technical_specs ?? [];
-  const dims = specifications.dimensions ?? [];
-  const features = Object.entries(specifications.features ?? {});
+  const tech = specifications?.technical_specs ?? [];
+  const dims = specifications?.dimensions ?? [];
+  const features = Object.entries(specifications?.features ?? {});
   const editorial = filterEditorialDescription(
     description,
     specifications,

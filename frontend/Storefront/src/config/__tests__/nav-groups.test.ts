@@ -27,7 +27,7 @@ describe("nav-groups", () => {
     const groups = buildNavGroups(roots);
     expect(groups[0]?.id).toBe("metrology");
     expect(groups[0]?.highlight).toBe(true);
-    expect(groups[0]?.roots.map((r) => r.id)).toEqual([56, 87, 81]);
+    expect(groups[0]?.roots.map((r) => r.id)).toEqual([56, 81, 87]);
     expect(groups.some((g) => g.roots.some((r) => r.id === 99))).toBe(false);
     const cutting = groups.find((g) => g.id === "cutting");
     expect(cutting?.roots.map((r) => r.id).sort()).toEqual([3, 5]);
@@ -63,7 +63,7 @@ describe("nav-groups", () => {
 
   it("flattens groups into ordered visible roots", () => {
     const ordered = orderedVisibleRoots(roots);
-    expect(ordered.map((r) => r.id)).toEqual([56, 87, 81, 3, 5, 1, 9]);
+    expect(ordered.map((r) => r.id)).toEqual([56, 81, 87, 3, 5, 1, 9]);
     expect(ordered[0]?.name).toBe("اندازه گیری دقیق");
     expect(isMetrologyRoot(ordered[0]!)).toBe(true);
     expect(isMetrologyRoot(ordered[3]!)).toBe(false);

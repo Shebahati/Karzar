@@ -408,7 +408,7 @@ export function HeroPreview({
                   </div>
                   <span
                     className={cn(
-                      "mt-1 max-w-[3.2rem] truncate text-center text-[7px] font-semibold text-white",
+                      "mt-1 max-w-[3.2rem] min-h-[2.75em] line-clamp-2 text-center text-[7px] font-semibold leading-snug text-white",
                       !selected && "opacity-40",
                     )}
                   >
@@ -421,7 +421,9 @@ export function HeroPreview({
               <div className="grid h-9 w-9 place-items-center rounded-full bg-[#D02327] text-white shadow-[0_8px_20px_rgba(208,35,39,0.35)]">
                 <DockIcon name="Category" size={14} />
               </div>
-              <span className="mt-1 text-[7px] font-semibold text-white/90">همه</span>
+              <span className="mt-1 min-h-[2.75em] text-center text-[7px] font-semibold leading-snug text-white/90">
+                همه
+              </span>
             </div>
           </div>
         </div>

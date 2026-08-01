@@ -44,12 +44,6 @@ import type {
 } from "@/types/order";
 import type { CategorySpecTemplate } from "@/types/spec-template";
 import type {
-  KnowledgeEdge,
-  KnowledgeEdgeListParams,
-  KnowledgeEdgeListResponse,
-  ProductNeighborhood,
-} from "@/types/knowledge";
-import type {
   BulkStockAdjustItem,
   BulkStockAdjustResponse,
   ProductChangeLogEntry,
@@ -68,8 +62,19 @@ import type {
   StockUnit,
 } from "@/types/product";
 import type { AuditLogEntry, AuditLogListParams, AuditLogListResponse } from "@/types/audit";
+import type {
+  KnowledgeEdge,
+  KnowledgeEdgeListParams,
+  KnowledgeEdgeListResponse,
+  ProductNeighborhood,
+} from "@/types/knowledge";
 
 import { MOCK_ADMIN_CREDENTIALS } from "@/lib/mock-credentials";
+import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
+import {
+  FINAL_L1_CATEGORIES,
+  FINAL_L1_MOCK_IDS,
+} from "@/config/final-l1-categories";
 
 const STATIC_ADMIN_PIN = "84729101";
 
@@ -82,135 +87,25 @@ function nowIso(): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Seed data                                                                 */
+/*  Seed data — L1 roots from FINAL_L1_CATEGORIES only                        */
 /* -------------------------------------------------------------------------- */
 
-const categories: CategoryTreeNode[] = [
-  {
-    id: 1,
-    name: "اندازه‌گیری",
+const categories: CategoryTreeNode[] = FINAL_L1_CATEGORIES.map((c) => {
+  const icon =
+    CATEGORY_ICON_BY_SLUG[c.iconSlug] ??
+    CATEGORY_ICON_BY_SLUG[c.slug] ??
+    `/category-icons/${c.slug}.png`;
+  return {
+    id: FINAL_L1_MOCK_IDS[c.key]!,
+    name: c.name,
     parent_id: null,
-    slug: "andaze-giri",
-    icon: "/category-icons/andaze-giri.png",
-    image_url: "/category-icons/andaze-giri.png",
+    slug: c.slug,
+    icon,
+    image_url: icon,
     product_count: 0,
     subcategories: [],
-  },
-  {
-    id: 2,
-    name: "ابزار اینسرتی",
-    parent_id: null,
-    slug: "abzar-inserti",
-    icon: "/category-icons/abzar-inserti.png",
-    image_url: "/category-icons/abzar-inserti.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 3,
-    name: "اینسرت",
-    parent_id: null,
-    slug: "insert",
-    icon: "/category-icons/insert.png",
-    image_url: "/category-icons/insert.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 4,
-    name: "فرز انگشتی",
-    parent_id: null,
-    slug: "farz-angoshti",
-    icon: "/category-icons/farz-angoshti.png",
-    image_url: "/category-icons/farz-angoshti.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 5,
-    name: "قلاویز",
-    parent_id: null,
-    slug: "ghalaviz",
-    icon: "/category-icons/ghalaviz.png",
-    image_url: "/category-icons/ghalaviz.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 6,
-    name: "ابزار گیر",
-    parent_id: null,
-    slug: "abzar-gir",
-    icon: "/category-icons/abzar-gir.png",
-    image_url: "/category-icons/abzar-gir.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 7,
-    name: "ابزار گیرشی",
-    parent_id: null,
-    slug: "abzar-gireshi",
-    icon: "/category-icons/abzar-gireshi.png",
-    image_url: "/category-icons/abzar-gireshi.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 8,
-    name: "دستگاه‌های صنعتی",
-    parent_id: null,
-    slug: "dastgah-sanati",
-    icon: "/category-icons/dastgah-sanati.png",
-    image_url: "/category-icons/dastgah-sanati.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 9,
-    name: "هلی کویل",
-    parent_id: null,
-    slug: "heli-coil",
-    icon: "/category-icons/heli-coil.png",
-    image_url: "/category-icons/heli-coil.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 10,
-    name: "مته",
-    parent_id: null,
-    slug: "mete",
-    icon: "/category-icons/mete.png",
-    image_url: "/category-icons/mete.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 11,
-    name: "ابزار کارگاهی : دریل عادی",
-    parent_id: null,
-    slug: "abzar-kargahi",
-    icon: "/category-icons/abzar-kargahi.png",
-    image_url: "/category-icons/abzar-kargahi.png",
-    product_count: 0,
-    subcategories: [],
-  },
-  {
-    id: 12,
-    name: "روغن و روانکار",
-    parent_id: null,
-    slug: "roghan-ravankar",
-    icon: "/category-icons/roghan-ravankar.png",
-    image_url: "/category-icons/roghan-ravankar.png",
-    product_count: 0,
-    subcategories: [],
-  },
-];
-
-(function expandAdminCategoryTree() {
-  // Keep mock taxonomy aligned with live L1 hero set — no extra hardcoded roots.
-})();
+  };
+});
 
 const brands: Brand[] = [
   { id: 1, name: "سندویک کرومانت", country: "سوئد" },
@@ -669,7 +564,7 @@ const products: MockProduct[] = [
     id: 1,
     sku: "CNMG-120408",
     name: "الماس تراشکاری CNMG 120408 روکش CVD",
-    category_id: 8,
+    category_id: 3,
     brand_id: 1,
     base_price: "1850000.00",
     stock_quantity: "120.00",
@@ -686,7 +581,7 @@ const products: MockProduct[] = [
     id: 2,
     sku: "DCMT-11T304",
     name: "الماس تراشکاری DCMT 11T304 پرداختکاری",
-    category_id: 8,
+    category_id: 3,
     brand_id: 2,
     base_price: "1320000.00",
     stock_quantity: "3.00",
@@ -702,7 +597,7 @@ const products: MockProduct[] = [
     id: 3,
     sku: "EMILL-D10-Z4",
     name: "تیغ فرز انگشتی کارباید قطر ۱۰ چهار پر",
-    category_id: 9,
+    category_id: 4,
     brand_id: 4,
     base_price: "4200000.00",
     stock_quantity: "42.00",
@@ -735,7 +630,7 @@ const products: MockProduct[] = [
     id: 5,
     sku: "CALIPER-150-DIG",
     name: "کولیس دیجیتال ۱۵۰ میلی‌متر ضدآب",
-    category_id: 4,
+    category_id: 1,
     brand_id: 3,
     base_price: "5600000.00",
     stock_quantity: "18.00",
@@ -752,7 +647,7 @@ const products: MockProduct[] = [
     id: 6,
     sku: "BORBAR-S16Q",
     name: "بار تراش داخل‌تراش S16Q-SCLCR09",
-    category_id: 13,
+    category_id: 2,
     brand_id: 1,
     base_price: "8900000.00",
     stock_quantity: "7.00",

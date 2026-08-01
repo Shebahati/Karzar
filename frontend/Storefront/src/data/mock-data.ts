@@ -10,6 +10,10 @@ import type { Brand, Category } from "@/types/category";
 import type { ProductDetail, ProductSummary } from "@/types/product";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
+import {
+  FINAL_L1_CATEGORIES,
+  FINAL_L1_MOCK_IDS,
+} from "@/config/final-l1-categories";
 import { VERNIER_CALIPER_ARTICLE } from "@/data/articles/how-to-read-vernier-caliper";
 import { blogArticleToPost, listBlogArticles } from "@/lib/blog-articles";
 import {
@@ -23,23 +27,19 @@ const IMG = (seed: string) =>
 
 /* -------------------------------------------------------------------------- */
 /*  Categories (flat list with parent_id; tree is derived).                   */
+/*  L1 roots = FINAL_L1_CATEGORIES only (no extra mock L1).                   */
 /* -------------------------------------------------------------------------- */
-const BASE_CATEGORIES: Category[] = [
-  // Layer 1 — designed 12 roots (icons under /category-icons)
-  { id: 1, name: "اندازه‌گیری", slug: "andaze-giri", parent_id: null },
-  { id: 2, name: "ابزار اینسرتی", slug: "abzar-inserti", parent_id: null },
-  { id: 3, name: "اینسرت", slug: "insert", parent_id: null },
-  { id: 4, name: "فرز انگشتی", slug: "farz-angoshti", parent_id: null },
-  { id: 5, name: "قلاویز", slug: "ghalaviz", parent_id: null },
-  { id: 6, name: "ابزار گیر", slug: "abzar-gir", parent_id: null },
-  { id: 7, name: "ابزار گیرشی", slug: "abzar-gireshi", parent_id: null },
-  { id: 8, name: "دستگاه‌های صنعتی", slug: "dastgah-sanati", parent_id: null },
-  { id: 9, name: "هلی کویل", slug: "heli-coil", parent_id: null },
-  { id: 10, name: "مته", slug: "mete", parent_id: null },
-  { id: 11, name: "ابزار کارگاهی : دریل عادی", slug: "abzar-kargahi", parent_id: null },
-  { id: 12, name: "روغن و روانکار", slug: "roghan-ravankar", parent_id: null },
+const L1_FROM_CONFIG: Category[] = FINAL_L1_CATEGORIES.map((c) => ({
+  id: FINAL_L1_MOCK_IDS[c.key]!,
+  name: c.name,
+  slug: c.slug,
+  parent_id: null,
+}));
 
-  // Layer 2
+const BASE_CATEGORIES: Category[] = [
+  ...L1_FROM_CONFIG,
+
+  // Layer 2 — one filter branch per L1
   { id: 101, name: "کولیس و میکرومتر", slug: "kolis-mikrometr", parent_id: 1 },
   { id: 102, name: "هلدر اینسرتی", slug: "holder-inserti", parent_id: 2 },
   { id: 103, name: "اینسرت تراشکاری", slug: "insert-tarashkari", parent_id: 3 },
@@ -71,20 +71,12 @@ const BASE_CATEGORIES: Category[] = [
 
 export const CATEGORIES = expandCategories(BASE_CATEGORIES);
 
-const BASE_CATEGORY_ICONS: Record<number, string> = {
-  1: CATEGORY_ICON_BY_SLUG["andaze-giri"]!,
-  2: CATEGORY_ICON_BY_SLUG["abzar-inserti"]!,
-  3: CATEGORY_ICON_BY_SLUG.insert!,
-  4: CATEGORY_ICON_BY_SLUG["farz-angoshti"]!,
-  5: CATEGORY_ICON_BY_SLUG.ghalaviz!,
-  6: CATEGORY_ICON_BY_SLUG["abzar-gir"]!,
-  7: CATEGORY_ICON_BY_SLUG["abzar-gireshi"]!,
-  8: CATEGORY_ICON_BY_SLUG["dastgah-sanati"]!,
-  9: CATEGORY_ICON_BY_SLUG["heli-coil"]!,
-  10: CATEGORY_ICON_BY_SLUG.mete!,
-  11: CATEGORY_ICON_BY_SLUG["abzar-kargahi"]!,
-  12: CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
-};
+const BASE_CATEGORY_ICONS: Record<number, string> = Object.fromEntries(
+  FINAL_L1_CATEGORIES.map((c) => [
+    FINAL_L1_MOCK_IDS[c.key]!,
+    CATEGORY_ICON_BY_SLUG[c.iconSlug] ?? CATEGORY_ICON_BY_SLUG[c.slug]!,
+  ]),
+);
 
 export const CATEGORY_ICONS = expandCategoryIcons(BASE_CATEGORY_ICONS, CATEGORIES);
 
@@ -112,7 +104,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 1,
     sku: "BSH-GSB-13RE",
     name: "دریل چکشی بوش مدل GSB 13 RE",
-    category_id: 1008,
+    category_id: 1012,
     brand_id: 1,
     base_price: "4850000",
     original_price: "5400000",
@@ -159,7 +151,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 2,
     sku: "MKT-DDF485",
     name: "دریل شارژی ماکیتا مدل DDF485",
-    category_id: 1001,
+    category_id: 1012,
     brand_id: 2,
     base_price: null,
     original_price: null,
@@ -204,7 +196,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 3,
     sku: "RNX-3110",
     name: "مینی فرز رونیکس مدل 3110",
-    category_id: 1007,
+    category_id: 1005,
     brand_id: 3,
     base_price: "2150000",
     original_price: null,
@@ -241,7 +233,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 4,
     sku: "BSH-GWS-900",
     name: "فرز انگشتی بوش مدل GWS 900",
-    category_id: 1007,
+    category_id: 1005,
     brand_id: 1,
     base_price: "3100000",
     original_price: "3650000",
@@ -274,7 +266,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 5,
     sku: "STN-FR-250",
     name: "آچار فرانسه استنلی ۲۵۰ میلی‌متر",
-    category_id: 1011,
+    category_id: 1012,
     brand_id: 5,
     base_price: "780000",
     original_price: null,
@@ -310,7 +302,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 6,
     sku: "RNX-RH-110",
     name: "آچار رینگی رونیکس سری کامل",
-    category_id: 1011,
+    category_id: 1012,
     brand_id: 3,
     base_price: "1450000",
     original_price: "1700000",
@@ -343,7 +335,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 7,
     sku: "GRP-MEC-150",
     name: "گیره مکانیک ۱۵۰ میلی‌متر",
-    category_id: 1011,
+    category_id: 1008,
     brand_id: null,
     base_price: null,
     original_price: null,
