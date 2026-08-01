@@ -42,8 +42,9 @@ export const NAV_GROUPS: NavGroupDef[] = [
     highlight: true,
     rootMatchers: [
       "اندازه گیری دقیق",
-      "CNC اندازه گیری",
       "اندازه گیری آزمایشگاهی",
+      "اندازه گیری فرز CNC",
+      "CNC اندازه گیری",
       "اندازه گیری",
       "اندازه‌گیری",
       "andaze",
@@ -54,9 +55,10 @@ export const NAV_GROUPS: NavGroupDef[] = [
     id: "cutting",
     label: "براده‌برداری",
     rootMatchers: [
-      "اینسرت",
       "ابزار اینسرتی",
+      "اینسرت",
       "ابزار انگشتی",
+      "فرز انگشتی",
       "انگشتی",
       "مته",
       "قلاویز",
@@ -66,7 +68,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     id: "holding",
     label: "ابزارگیری و گیرش",
-    rootMatchers: ["ابزارگیر", "ابزار گیرشی"],
+    rootMatchers: ["ابزارگیر", "ابزار گیر", "ابزار گیرشی"],
   },
   {
     id: "machines",
@@ -76,7 +78,13 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     id: "accessories",
     label: "لوازم جانبی",
-    rootMatchers: ["لوازم جانبی صنعتی", "لوازم جانبی"],
+    rootMatchers: [
+      "لوازم جانبی صنعتی",
+      "لوازم جانبی",
+      "روغن و روانکار",
+      "هلی کویل",
+      "ابزار کارگاهی",
+    ],
   },
 ];
 
@@ -198,7 +206,7 @@ function matcherRank(root: CategoryLike, matchers: string[]): number {
 
 /**
  * Flat L1 roots in merchandising order (Metrology first), empty nodes removed.
- * Shared by home carousel, catalog root multi-select, mobile category sheet,
+ * Shared by home carousel, catalog root carousel, mobile category sheet,
  * and catalog filter L1 when no carousel root is selected.
  */
 export function orderedVisibleRoots<T extends CategoryLike>(
@@ -206,6 +214,34 @@ export function orderedVisibleRoots<T extends CategoryLike>(
   groups: NavGroupDef[] = NAV_GROUPS,
 ): T[] {
   return buildNavGroups(roots, groups).flatMap((group) => group.roots);
+}
+
+/**
+ * All taxonomy L1 roots in merchandising order — includes empty categories.
+ * Use for hero dock, home orbs, and shop carousel so surfaces match the DB.
+ */
+export function orderedTaxonomyRoots<T extends CategoryLike>(
+  roots: T[],
+  groups: NavGroupDef[] = NAV_GROUPS,
+): T[] {
+  const assigned = new Set<number>();
+  const ordered: T[] = [];
+
+  for (const group of groups) {
+    const matched = rootsForGroup(roots, group);
+    for (const root of matched) {
+      if (assigned.has(root.id)) continue;
+      assigned.add(root.id);
+      ordered.push(root);
+    }
+  }
+
+  for (const root of roots) {
+    if (assigned.has(root.id)) continue;
+    ordered.push(root);
+  }
+
+  return ordered;
 }
 
 /**

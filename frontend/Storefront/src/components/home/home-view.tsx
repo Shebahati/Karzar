@@ -3,20 +3,18 @@
 import { useMemo } from "react";
 import { Container } from "@/components/ui/container";
 import { Hero } from "@/components/home/hero";
-import { CategoryGrid } from "@/components/home/category-grid";
+import { CategoryOrbsGrid } from "@/components/home/category-orbs-grid";
+import { MobileCategorySection } from "@/components/home/mobile-category-section";
 import { ProductCarousel } from "@/components/home/product-carousel";
 import { BrandStrip } from "@/components/home/brand-strip";
-import { ArticlesSection } from "@/components/home/articles-section";
 import { WhyKarzar } from "@/components/home/why-karzar";
 import { FeatureStrip } from "@/components/home/feature-strip";
+import { HomeContactSection } from "@/components/home/home-contact-section";
 import { SectionHeading } from "@/components/home/section-heading";
 import { useProducts } from "@/features/catalog/queries";
+import type { Brand, CategoryTreeNode } from "@/types/category";
 import type { ProductSummary } from "@/types/product";
 
-/**
- * Rank "bestsellers" from live catalog data until BE exposes sort=bestsellers.
- * Prefers available, discounted, then newer items — all from real product rows.
- */
 function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
   return [...products]
     .filter((p) => p.availability !== false)
@@ -31,7 +29,13 @@ function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
 }
 
 /** Client island for the home page — hydrated from RSC prefetch. */
-export function HomeView() {
+export function HomeView({
+  initialBrands = [],
+  initialCategoryTree = [],
+}: {
+  initialBrands?: Brand[];
+  initialCategoryTree?: CategoryTreeNode[];
+}) {
   const catalog = useProducts({ limit: 48, sort: "newest" });
   const products = catalog.data?.data;
 
@@ -46,64 +50,86 @@ export function HomeView() {
   );
 
   return (
-    <div className="pb-10 lg:pb-16">
-      {/* Full-bleed hero — outside Container; section rhythm lives in .home-stack */}
-      <Hero />
+    <div>
+      {/* Mobile: compact hero + normal flow. md+: sticky snap + full viewport */}
+      <div className="hero-snap relative h-[62dvh] md:sticky md:top-0 md:z-0 md:h-[100dvh]">
+        <Hero />
+      </div>
 
-      <Container className="home-stack">
-        <section aria-labelledby="home-categories-heading">
-          <SectionHeading
-            id="home-categories-heading"
-            title="دسته‌بندی محصولات"
-            subtitle="مسیر سریع به دسته‌های اصلی کاتالوگ — اندازه‌گیری در ابتدا"
-            href="/catalog"
-            hrefLabel="همه محصولات"
-          />
-          <CategoryGrid />
-        </section>
+      <div className="home-snap relative mt-5 bg-background pb-10 md:z-10 md:-mt-1 md:rounded-t-[2.25rem] md:pb-16 md:shadow-[0_-28px_80px_rgba(0,0,0,0.38)]">
+        <div
+          aria-hidden
+          className="mx-auto mb-2 mt-3 hidden h-1.5 w-12 rounded-full bg-border/80 md:mt-4 md:block"
+        />
+        <Container className="home-stack pt-3 md:pt-6">
+          <MobileCategorySection initialTree={initialCategoryTree} />
 
-        <FeatureStrip />
+          {(catalog.isLoading || deals.length > 0) && (
+            <section>
+              <SectionHeading
+                title="پرتخفیف‌ها"
+                subtitle="بهترین تخفیف‌های ابزار صنعتی — اسلاید خودکار"
+                href="/catalog?sort=discount_desc"
+                hrefLabel="همه محصولات پرتخفیف"
+              />
+              <ProductCarousel
+                products={deals}
+                isLoading={catalog.isLoading}
+                variant="deal"
+                autoPlay
+              />
+            </section>
+          )}
 
-        <section>
-          <SectionHeading
-            title="پرفروش‌ترین محصولات"
-            subtitle="انتخاب سریع از موجودی زنده کاتالوگ"
-            href="/catalog?sort=newest"
-          />
-          <ProductCarousel
-            products={bestsellers}
-            isLoading={catalog.isLoading}
-            variant="featured"
-          />
-        </section>
-
-        <section>
-          <SectionHeading title="برندهای معتبر" subtitle="نمایندگی رسمی برترین برندها" />
-          <BrandStrip />
-        </section>
-
-        {(catalog.isLoading || deals.length > 0) && (
           <section>
             <SectionHeading
-              title="پیشنهادهای تخفیف‌دار"
-              subtitle="قیمت ویژه روی ابزارهای منتخب"
+              title="پرفروش‌ها"
+              subtitle="انتخاب سریع از موجودی زنده کاتالوگ"
               href="/catalog?sort=newest"
             />
-            <ProductCarousel products={deals} isLoading={catalog.isLoading} variant="deal" />
+            <ProductCarousel
+              products={bestsellers}
+              isLoading={catalog.isLoading}
+              variant="featured"
+              autoPlay
+            />
           </section>
-        )}
 
-        <WhyKarzar />
+          <FeatureStrip />
 
-        <section>
-          <SectionHeading
-            title="مجله کارزار"
-            subtitle="راهنماها و مقالات تخصصی"
-            href="/blog"
-          />
-          <ArticlesSection />
-        </section>
-      </Container>
+          <WhyKarzar />
+
+          <section>
+            <SectionHeading title="برندهای معتبر" subtitle="نمایندگی رسمی برترین برندها" />
+            <BrandStrip initialBrands={initialBrands} />
+          </section>
+
+          <section
+            aria-labelledby="home-orbs-heading-lg"
+            className="relative hidden overflow-hidden md:block"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-x-8 -top-6 bottom-0 -z-10"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-[#F8F8F8] via-transparent to-transparent" />
+              <div className="absolute -start-20 top-4 h-48 w-48 rounded-full bg-primary/[0.04] blur-3xl" />
+              <div className="absolute -end-16 top-20 h-40 w-40 rounded-full bg-[#5E5F5E]/[0.05] blur-3xl" />
+            </div>
+
+            <SectionHeading
+              id="home-orbs-heading-lg"
+              title="دسته‌بندی محصولات"
+              subtitle="مسیر سریع به دسته‌های اصلی فروشگاه"
+              href="/catalog"
+              hrefLabel="همه محصولات"
+            />
+            <CategoryOrbsGrid maxItems={12} initialTree={initialCategoryTree} />
+          </section>
+
+          <HomeContactSection />
+        </Container>
+      </div>
     </div>
   );
 }

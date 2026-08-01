@@ -101,12 +101,7 @@ export function matchCmsSlideToGroup(
 
 
 function pickHref(roots: HeroCategoryNode[]): string {
-  if (roots.length === 1) return categoryHref(roots[0]);
-  if (roots.length > 1) {
-    // Multi-root group → catalog with roots filter (OR).
-    const ids = roots.map((r) => r.id).join(",");
-    return `/catalog?roots=${ids}`;
-  }
+  if (roots.length >= 1) return categoryHref(roots[0]);
   return "/catalog";
 }
 
@@ -140,7 +135,7 @@ export function buildHeroSlidesFromNavGroups(
       cta_label,
       cta_href,
       image,
-      accent: cms?.accent?.trim() || "#C22026",
+      accent: cms?.accent?.trim() || "#D02327",
     };
   });
 }

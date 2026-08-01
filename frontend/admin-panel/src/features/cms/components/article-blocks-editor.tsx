@@ -117,7 +117,7 @@ export function ArticleBlocksEditor({ blocks, onChange, disabled, errors }: Arti
       ))}
 
       <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={addBlock}>
-        <Plus set="bold" size={16} primaryColor="#C22026" />
+        <Plus set="bold" size={16} primaryColor="#D02327" />
         افزودن بلاک
       </Button>
     </div>

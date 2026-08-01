@@ -1,7 +1,7 @@
 /**
  * Single source of truth for KarZar Tools storefront contact / map identity.
  * Street address matches existing contact + footer copy.
- * External map links are intentionally excluded from customer-facing content.
+ * Map + routing: Neshan (نشان) place embed and directions.
  */
 
 export const STORE_NAME = "KarZar Tools";
@@ -14,16 +14,25 @@ export const STORE_ADDRESS_FA =
 export const STORE_ADDRESS_LOCALITY = "تهران";
 export const STORE_ADDRESS_COUNTRY = "IR";
 
-/** Internal contact anchor for storefront address access. */
-export const STORE_MAPS_URL = "/contact#store-address";
-
-/** Local map placeholder asset (no third-party embeds). */
-export const STORE_MAPS_EMBED_URL = "/images/placeholders/store-location-map.svg";
+/** Neshan place id for storefront location. */
+export const STORE_NESHAN_PLACE_ID = "vbvELT2xOtSQ";
 
 export const STORE_GEO = {
-  latitude: 35.6873,
-  longitude: 51.40428,
+  latitude: 35.6869844,
+  longitude: 51.4044884,
 } as const;
+
+/** Public Neshan place page (schema hasMap + address links). */
+export const STORE_MAPS_URL = `https://neshan.org/maps/places/${STORE_NESHAN_PLACE_ID}`;
+
+/**
+ * Neshan routing from current location → store.
+ * Web primary (`target=_blank`). Native deep-link pattern: `nshn:lat,lng`.
+ */
+export const STORE_NESHAN_DIRECTIONS_URL = `https://neshan.org/maps#/dir/currentLocation/${STORE_GEO.latitude},${STORE_GEO.longitude}`;
+
+/** Neshan iframe embed src. */
+export const STORE_NESHAN_EMBED_URL = `https://neshan.org/maps/iframe/places/${STORE_NESHAN_PLACE_ID}/${STORE_GEO.latitude}/${STORE_GEO.longitude}`;
 
 /** Already published on contact + footer — not invented for this change. */
 export const STORE_PHONE_DISPLAY = "09912480087";

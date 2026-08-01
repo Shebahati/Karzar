@@ -139,7 +139,7 @@ export function ProductImagesSection({ productId }: { productId: number }) {
             dragOver ? "border-primary bg-accent/60" : "border-border bg-muted/30 hover:border-primary/40",
           )}
         >
-          <Upload set="bulk" size={32} primaryColor="#C22026" />
+          <Upload set="bulk" size={32} primaryColor="#D02327" />
           <p className="mt-3 text-sm font-bold text-foreground">
             {uploading ? "در حال آپلود…" : "فایل را بکشید و رها کنید یا کلیک کنید"}
           </p>

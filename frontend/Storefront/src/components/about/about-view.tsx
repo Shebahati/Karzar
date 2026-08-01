@@ -108,7 +108,7 @@ export function AboutView() {
               className="rounded-2xl bg-card p-6 text-center shadow-soft"
             >
               <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-accent text-primary">
-                <Icon set="bold" primaryColor="#C22026" />
+                <Icon set="bold" primaryColor="#D02327" />
               </span>
               <p className="mt-4 text-2xl font-bold text-foreground tnum">
                 {formatNumber(value)}

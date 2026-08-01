@@ -9,6 +9,7 @@
 import type { Brand, Category } from "@/types/category";
 import type { ProductDetail, ProductSummary } from "@/types/product";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
+import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import { VERNIER_CALIPER_ARTICLE } from "@/data/articles/how-to-read-vernier-caliper";
 import { blogArticleToPost, listBlogArticles } from "@/lib/blog-articles";
 import {
@@ -17,56 +18,72 @@ import {
   expandProducts,
 } from "./mock-catalog-generator";
 
-const IMG = (_seed: string) =>
-  `/images/placeholders/karzar-editorial.svg`;
+const IMG = (seed: string) =>
+  `/images/placeholders/karzar-editorial.svg?v=${encodeURIComponent(seed)}`;
 
 /* -------------------------------------------------------------------------- */
 /*  Categories (flat list with parent_id; tree is derived).                   */
 /* -------------------------------------------------------------------------- */
 const BASE_CATEGORIES: Category[] = [
-  // Layer 1
-  { id: 1, name: "ابزار برقی", parent_id: null },
-  { id: 2, name: "ابزار دستی", parent_id: null },
-  { id: 3, name: "ابزار اندازه‌گیری", parent_id: null },
-  { id: 4, name: "تجهیزات کارگاهی", parent_id: null },
+  // Layer 1 — designed 12 roots (icons under /category-icons)
+  { id: 1, name: "اندازه‌گیری", slug: "andaze-giri", parent_id: null },
+  { id: 2, name: "ابزار اینسرتی", slug: "abzar-inserti", parent_id: null },
+  { id: 3, name: "اینسرت", slug: "insert", parent_id: null },
+  { id: 4, name: "فرز انگشتی", slug: "farz-angoshti", parent_id: null },
+  { id: 5, name: "قلاویز", slug: "ghalaviz", parent_id: null },
+  { id: 6, name: "ابزار گیر", slug: "abzar-gir", parent_id: null },
+  { id: 7, name: "ابزار گیرشی", slug: "abzar-gireshi", parent_id: null },
+  { id: 8, name: "دستگاه‌های صنعتی", slug: "dastgah-sanati", parent_id: null },
+  { id: 9, name: "هلی کویل", slug: "heli-coil", parent_id: null },
+  { id: 10, name: "مته", slug: "mete", parent_id: null },
+  { id: 11, name: "ابزار کارگاهی : دریل عادی", slug: "abzar-kargahi", parent_id: null },
+  { id: 12, name: "روغن و روانکار", slug: "roghan-ravankar", parent_id: null },
 
-  // Layer 2 — under ابزار برقی
-  { id: 10, name: "دریل و دریل شارژی", parent_id: 1 },
-  { id: 11, name: "فرز و سنگ", parent_id: 1 },
-  // Layer 2 — under ابزار دستی
-  { id: 20, name: "آچار", parent_id: 2 },
-  { id: 21, name: "انبر و گیره", parent_id: 2 },
-  // Layer 2 — under ابزار اندازه‌گیری
-  { id: 30, name: "کولیس و میکرومتر", parent_id: 3 },
-  // Layer 2 — under تجهیزات کارگاهی
-  { id: 40, name: "میز و گیره کارگاهی", parent_id: 4 },
+  // Layer 2
+  { id: 101, name: "کولیس و میکرومتر", slug: "kolis-mikrometr", parent_id: 1 },
+  { id: 102, name: "هلدر اینسرتی", slug: "holder-inserti", parent_id: 2 },
+  { id: 103, name: "اینسرت تراشکاری", slug: "insert-tarashkari", parent_id: 3 },
+  { id: 104, name: "فرز کاربید", slug: "farz-carbide", parent_id: 4 },
+  { id: 105, name: "قلاویز ماشینی", slug: "ghalaviz-mashini", parent_id: 5 },
+  { id: 106, name: "هولدر ابزار", slug: "holder-abzar", parent_id: 6 },
+  { id: 107, name: "گیره و فیکسچر", slug: "gire-fixture", parent_id: 7 },
+  { id: 108, name: "ماشین‌ابزار", slug: "mashin-abzar", parent_id: 8 },
+  { id: 109, name: "فنر و کیت هلی‌کویل", slug: "heli-coil-kit", parent_id: 9 },
+  { id: 110, name: "مته HSS", slug: "mete-hss", parent_id: 10 },
+  { id: 111, name: "دریل کارگاهی", slug: "drill-kargahi", parent_id: 11 },
+  { id: 112, name: "روغن برش", slug: "roghan-boresh", parent_id: 12 },
 
-  // Layer 3 (leaf, selectable) — under دریل
-  { id: 100, name: "دریل چکشی", parent_id: 10 },
-  { id: 101, name: "دریل شارژی", parent_id: 10 },
-  // Layer 3 — under فرز
-  { id: 110, name: "مینی فرز", parent_id: 11 },
-  { id: 111, name: "فرز انگشتی", parent_id: 11 },
-  // Layer 3 — under آچار
-  { id: 200, name: "آچار فرانسه", parent_id: 20 },
-  { id: 201, name: "آچار رینگی", parent_id: 20 },
-  // Layer 3 — under انبر و گیره
-  { id: 210, name: "گیره مکانیک", parent_id: 21 },
-  { id: 211, name: "انبردست", parent_id: 21 },
-  // Layer 3 — under کولیس
-  { id: 300, name: "کولیس دیجیتال", parent_id: 30 },
-  { id: 301, name: "میکرومتر", parent_id: 30 },
-  // Layer 3 — under میز کارگاهی
-  { id: 400, name: "گیره رومیزی", parent_id: 40 },
+  // Layer 3 (leaf)
+  { id: 1001, name: "کولیس دیجیتال", slug: "انواع-کولیس", parent_id: 101 },
+  { id: 1002, name: "میکرومتر", slug: "انواع-میکرومتر", parent_id: 101 },
+  { id: 1003, name: "هلدر استاندارد", slug: "holder-standard", parent_id: 102 },
+  { id: 1004, name: "اینسرت کاربید", slug: "اینسرت-تراش-cnc", parent_id: 103 },
+  { id: 1005, name: "فرز ۴ پره", slug: "انگشتی-سرتخت-کارباید", parent_id: 104 },
+  { id: 1006, name: "قلاویز دستی", slug: "قلاویز-دستی", parent_id: 105 },
+  { id: 1007, name: "کولت ER", slug: "collet-er", parent_id: 106 },
+  { id: 1008, name: "گیره ماشین", slug: "gire-mashin", parent_id: 107 },
+  { id: 1009, name: "دستگاه تراش", slug: "dastgah-tarash", parent_id: 108 },
+  { id: 1010, name: "کیت هلی‌کویل", slug: "kit-heli-coil", parent_id: 109 },
+  { id: 1011, name: "مته کبالت", slug: "مته-کارباید(الماس)", parent_id: 110 },
+  { id: 1012, name: "دریل معمولی", slug: "drill-adi", parent_id: 111 },
+  { id: 1013, name: "روانکار صنعتی", slug: "ravanKar", parent_id: 112 },
 ];
 
 export const CATEGORIES = expandCategories(BASE_CATEGORIES);
 
 const BASE_CATEGORY_ICONS: Record<number, string> = {
-  1: "Activity",
-  2: "Setting",
-  3: "Filter2",
-  4: "Work",
+  1: CATEGORY_ICON_BY_SLUG["andaze-giri"]!,
+  2: CATEGORY_ICON_BY_SLUG["abzar-inserti"]!,
+  3: CATEGORY_ICON_BY_SLUG.insert!,
+  4: CATEGORY_ICON_BY_SLUG["farz-angoshti"]!,
+  5: CATEGORY_ICON_BY_SLUG.ghalaviz!,
+  6: CATEGORY_ICON_BY_SLUG["abzar-gir"]!,
+  7: CATEGORY_ICON_BY_SLUG["abzar-gireshi"]!,
+  8: CATEGORY_ICON_BY_SLUG["dastgah-sanati"]!,
+  9: CATEGORY_ICON_BY_SLUG["heli-coil"]!,
+  10: CATEGORY_ICON_BY_SLUG.mete!,
+  11: CATEGORY_ICON_BY_SLUG["abzar-kargahi"]!,
+  12: CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
 };
 
 export const CATEGORY_ICONS = expandCategoryIcons(BASE_CATEGORY_ICONS, CATEGORIES);
@@ -95,7 +112,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 1,
     sku: "BSH-GSB-13RE",
     name: "دریل چکشی بوش مدل GSB 13 RE",
-    category_id: 100,
+    category_id: 1008,
     brand_id: 1,
     base_price: "4850000",
     original_price: "5400000",
@@ -142,7 +159,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 2,
     sku: "MKT-DDF485",
     name: "دریل شارژی ماکیتا مدل DDF485",
-    category_id: 101,
+    category_id: 1001,
     brand_id: 2,
     base_price: null,
     original_price: null,
@@ -187,7 +204,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 3,
     sku: "RNX-3110",
     name: "مینی فرز رونیکس مدل 3110",
-    category_id: 110,
+    category_id: 1007,
     brand_id: 3,
     base_price: "2150000",
     original_price: null,
@@ -224,7 +241,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 4,
     sku: "BSH-GWS-900",
     name: "فرز انگشتی بوش مدل GWS 900",
-    category_id: 111,
+    category_id: 1007,
     brand_id: 1,
     base_price: "3100000",
     original_price: "3650000",
@@ -257,7 +274,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 5,
     sku: "STN-FR-250",
     name: "آچار فرانسه استنلی ۲۵۰ میلی‌متر",
-    category_id: 200,
+    category_id: 1011,
     brand_id: 5,
     base_price: "780000",
     original_price: null,
@@ -293,7 +310,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 6,
     sku: "RNX-RH-110",
     name: "آچار رینگی رونیکس سری کامل",
-    category_id: 201,
+    category_id: 1011,
     brand_id: 3,
     base_price: "1450000",
     original_price: "1700000",
@@ -326,7 +343,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 7,
     sku: "GRP-MEC-150",
     name: "گیره مکانیک ۱۵۰ میلی‌متر",
-    category_id: 210,
+    category_id: 1011,
     brand_id: null,
     base_price: null,
     original_price: null,
@@ -363,7 +380,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 8,
     sku: "MTY-CAL-150D",
     name: "کولیس دیجیتال میتوتویو ۱۵۰ میلی‌متر",
-    category_id: 300,
+    category_id: 1001,
     brand_id: 4,
     base_price: "8900000",
     original_price: null,
@@ -401,7 +418,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 9,
     sku: "MTY-MIC-25",
     name: "میکرومتر میتوتویو ۲۵-۰ میلی‌متر",
-    category_id: 301,
+    category_id: 1002,
     brand_id: 4,
     base_price: "6200000",
     original_price: "6900000",
@@ -434,7 +451,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 10,
     sku: "MKT-9555",
     name: "فرز ماکیتا مدل 9555NB",
-    category_id: 110,
+    category_id: 1007,
     brand_id: 2,
     base_price: "3950000",
     original_price: null,
@@ -467,7 +484,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 11,
     sku: "RNX-PLR-180",
     name: "انبردست رونیکس ۱۸۰ میلی‌متر",
-    category_id: 211,
+    category_id: 1010,
     brand_id: 3,
     base_price: "420000",
     original_price: null,
@@ -497,7 +514,7 @@ const BASE_PRODUCTS: RawProduct[] = [
     id: 12,
     sku: "TBL-VISE-200",
     name: "گیره رومیزی صنعتی ۲۰۰ میلی‌متر",
-    category_id: 400,
+    category_id: 1013,
     brand_id: null,
     base_price: null,
     original_price: null,
@@ -743,6 +760,6 @@ export const HERO_SLIDES: HeroSlide[] = [
     cta_label: "مشاهده اندازه‌گیری",
     cta_href: "/catalog",
     image: "/images/hero/hero-metrology-left.jpg",
-    accent: "#C22026",
+    accent: "#D02327",
   },
 ];

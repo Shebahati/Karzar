@@ -24,7 +24,7 @@ interface StatCardProps {
 }
 
 const TONE_STYLES: Record<NonNullable<StatCardProps["tone"]>, { bg: string; color: string }> = {
-  primary: { bg: "bg-accent", color: "#C22026" },
+  primary: { bg: "bg-accent", color: "#D02327" },
   success: { bg: "bg-success/12", color: "#2E9E5B" },
   warning: { bg: "bg-warning/15", color: "#B45309" },
   neutral: { bg: "bg-secondary", color: "#4F4F4F" },
@@ -227,7 +227,7 @@ export default function DashboardPage() {
           <CardContent className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Buy set="bulk" size={20} primaryColor="#C22026" />
+                <Buy set="bulk" size={20} primaryColor="#D02327" />
                 <h3 className="text-sm font-bold text-foreground">سفارش‌های در انتظار پردازش</h3>
               </div>
               <Button asChild variant="ghost" size="sm">
@@ -242,7 +242,7 @@ export default function DashboardPage() {
           <CardContent className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Ticket set="bulk" size={20} primaryColor="#C22026" />
+                <Ticket set="bulk" size={20} primaryColor="#D02327" />
                 <h3 className="text-sm font-bold text-foreground">استعلام‌های باز</h3>
               </div>
               <Button asChild variant="ghost" size="sm">
@@ -262,7 +262,7 @@ export default function DashboardPage() {
         <CardContent className="p-6">
           <div className="mb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Danger set="bulk" size={22} primaryColor="#C22026" />
+              <Danger set="bulk" size={22} primaryColor="#D02327" />
               <h3 className="text-base font-bold text-foreground">کالاهای نیازمند توجه در انبار</h3>
             </div>
             <Button asChild variant="ghost" size="sm">

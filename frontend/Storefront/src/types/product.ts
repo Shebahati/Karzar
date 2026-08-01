@@ -60,6 +60,11 @@ export interface ProductSummary {
   name: string;
   short_description?: string | null;
   thumbnail: string | null;
+  /**
+   * PLP hover swap: list API returns at most primary + one extra image.
+   * Mock data may include a fuller gallery; ProductCard only needs two URLs.
+   */
+  images?: ProductImage[];
   base_price: string | null;
   stock_status: string;
   availability: boolean;

@@ -68,13 +68,13 @@ const config: Config = {
         },
         // Raw brand palette for accents, charts, and decorative surfaces.
         karzar: {
-          DEFAULT: "#C22026",
+          DEFAULT: "#D02327",
           50: "#FCEAEB",
           100: "#F7C9CB",
           200: "#EE9295",
           300: "#E45A5F",
           400: "#D63A40",
-          500: "#C22026",
+          500: "#D02327",
           600: "#A41A1F",
           700: "#7E1418",
           800: "#590E11",

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Delete, Edit, Location, Plus, Star } from "react-iconly";
+import { ArrowRight, Delete, Edit, Location, Plus, Star } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Field, fieldInputClass, fieldTextareaClass } from "@/components/ui/field";
@@ -97,8 +97,9 @@ export function AccountAddressesView() {
     <Container className="py-8 lg:py-12">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <Link href="/account" className="text-sm text-primary">
-            ← حساب کاربری
+          <Link href="/account" className="inline-flex items-center gap-1 text-sm text-primary">
+            <ArrowRight size="small" set="light" primaryColor="#D02327" />
+            حساب کاربری
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-foreground">آدرس‌های من</h1>
           <p className="mt-1 text-sm text-steel">

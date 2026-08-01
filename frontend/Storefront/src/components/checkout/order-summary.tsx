@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { formatToman } from "@/lib/utils";
 import type { CartLine } from "@/store/cart-store";
 
@@ -26,19 +26,18 @@ export function OrderSummary({
         {lines.map((line) => (
           <li key={line.product.id} className="flex items-center gap-3">
             <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-accent">
-              {line.product.thumbnail ? (
-                <Image
-                  src={line.product.thumbnail}
-                  alt={line.product.name}
-                  fill
-                  sizes="56px"
-                  className="object-contain p-1"
-                />
-              ) : (
-                <span className="grid h-full w-full place-items-center text-sm font-medium">
-                  {(line.product.name || "ک").slice(0, 1)}
-                </span>
-              )}
+              <SafeImage
+                src={line.product.thumbnail ?? ""}
+                alt={line.product.name}
+                fill
+                sizes="56px"
+                className="object-contain p-1"
+                fallback={
+                  <span className="grid h-full w-full place-items-center text-sm font-medium">
+                    {(line.product.name || "ک").slice(0, 1)}
+                  </span>
+                }
+              />
               <span className="absolute -top-1 -start-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-medium text-primary-foreground tnum">
                 {line.quantity}
               </span>

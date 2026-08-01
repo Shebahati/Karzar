@@ -26,7 +26,7 @@ function ReportStat({ label, value, icon: Icon, loading, hint }: ReportStatProps
     <Card>
       <CardContent className="flex items-start gap-3 p-5 sm:gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent">
-          <Icon set="bulk" size={24} primaryColor="#C22026" />
+          <Icon set="bulk" size={24} primaryColor="#D02327" />
         </div>
         <div className="min-w-0 flex-1 overflow-visible">
           <p className="text-sm leading-snug text-muted-foreground">{label}</p>

@@ -46,11 +46,13 @@ export function MobileCategoryMenu({ open, onClose }: MobileCategoryMenuProps) {
   useEffect(() => {
     if (!open) {
       setStack([]);
+      document.body.style.overflow = "";
       return;
     }
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow || "";
     };
   }, [open]);
 

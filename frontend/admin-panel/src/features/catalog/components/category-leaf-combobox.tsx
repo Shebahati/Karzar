@@ -96,7 +96,7 @@ export function CategoryLeafCombobox({
                       </span>
                     </div>
                     {isSelected && (
-                      <TickSquare set="bold" size={16} primaryColor="#C22026" />
+                      <TickSquare set="bold" size={16} primaryColor="#D02327" />
                     )}
                   </CommandItem>
                 );

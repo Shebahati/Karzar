@@ -48,10 +48,10 @@ test.describe("checkout smoke (mock)", () => {
     await phoneInput.fill("09123456789");
     await page.getByRole("button", { name: /دریافت کد/i }).click();
 
-    // OTP — mock code 11111
+    // OTP — mock code 111111 (SEC-20 / OTP_LENGTH=6)
     const otpInput = page.locator('input[inputmode="numeric"]').first();
     await expect(otpInput).toBeVisible({ timeout: 15_000 });
-    await otpInput.fill("11111");
+    await otpInput.fill("111111");
     await page.getByRole("button", { name: /تأیید و ادامه/i }).click();
 
     // Shipping (purchase)

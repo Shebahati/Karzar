@@ -84,7 +84,7 @@ export function StepUpDialog({
     <Dialog open={open} onOpenChange={(next) => (!submitting ? onOpenChange(next) : undefined)}>
       <DialogContent className="max-w-md">
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-primary">
-          <ShieldDone set="bulk" size={30} primaryColor="#C22026" />
+          <ShieldDone set="bulk" size={30} primaryColor="#D02327" />
         </div>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

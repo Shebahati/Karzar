@@ -49,7 +49,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#C22026",
+  themeColor: "#D02327",
   viewportFit: "cover",
 };
 
@@ -62,6 +62,7 @@ export default async function RootLayout({
     <html
       lang="fa"
       dir="rtl"
+      data-scroll-behavior="smooth"
       className={cn("h-full", iranYekan.variable)}
     >
       <head>

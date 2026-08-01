@@ -1,4 +1,5 @@
 import type { Category, CategoryFlat, CategoryTreeNode } from "@/types/category";
+import { resolveCategoryIconUrl } from "@/config/category-icons";
 import { CATEGORY_ICONS } from "@/data/mock-data";
 
 /** Mirror admin/backend: products attach to leaf depth 2 or 3 (not L1). */
@@ -43,7 +44,18 @@ export function enrichCategories(categories: Category[]): CategoryFlat[] {
       is_selectable: isSelectableProductCategory(depth, is_leaf),
       breadcrumb,
       ancestor_ids,
-      icon: c.parent_id == null ? CATEGORY_ICONS[c.id] : undefined,
+      icon:
+        c.parent_id == null
+          ? (CATEGORY_ICONS[c.id] ??
+            resolveCategoryIconUrl({ name: c.name, slug: c.slug }) ??
+            undefined)
+          : undefined,
+      image_url:
+        c.parent_id == null
+          ? (CATEGORY_ICONS[c.id] ??
+            resolveCategoryIconUrl({ name: c.name, slug: c.slug }) ??
+            null)
+          : undefined,
     };
   });
 }
@@ -52,9 +64,16 @@ export function enrichCategories(categories: Category[]): CategoryFlat[] {
 export function buildCategoryTree(categories: Category[]): CategoryTreeNode[] {
   const nodes = new Map<number, CategoryTreeNode>();
   for (const c of categories) {
+    const icon =
+      c.parent_id == null
+        ? (CATEGORY_ICONS[c.id] ??
+          resolveCategoryIconUrl({ name: c.name, slug: c.slug }) ??
+          undefined)
+        : undefined;
     nodes.set(c.id, {
       ...c,
-      icon: c.parent_id == null ? CATEGORY_ICONS[c.id] : undefined,
+      icon,
+      image_url: c.parent_id == null ? (icon ?? null) : undefined,
       subcategories: [],
     });
   }

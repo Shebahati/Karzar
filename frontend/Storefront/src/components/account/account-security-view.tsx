@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ArrowRight } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth";
 import { ApiError, isLoggedIn } from "@/lib/api-client";
+import { OTP_LENGTH } from "@/lib/otp";
 import { toEnglishDigits } from "@/lib/utils";
 
 function authErrorMessage(err: unknown, fallback: string): string {
@@ -53,8 +55,9 @@ export function AccountSecurityView() {
 
   return (
     <Container className="max-w-lg py-8 lg:py-12">
-      <Link href={authed ? "/account" : "/login"} className="text-sm text-primary">
-        ← {authed ? "حساب کاربری" : "ورود"}
+      <Link href={authed ? "/account" : "/login"} className="inline-flex items-center gap-1 text-sm text-primary">
+        <ArrowRight size="small" set="light" primaryColor="#D02327" />
+        {authed ? "حساب کاربری" : "ورود"}
       </Link>
       <h1 className="mt-2 text-2xl font-bold text-foreground">امنیت حساب</h1>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -189,7 +192,7 @@ function PasswordResetBlock() {
             <input
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="کد ۵ رقمی"
+              placeholder="کد ۶ رقمی"
               className="h-11 w-full rounded-lg bg-input px-4 text-sm tnum outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
@@ -203,7 +206,7 @@ function PasswordResetBlock() {
             />
             <Button
               type="button"
-              disabled={pending || password.length < 8 || toEnglishDigits(code).length < 4}
+                disabled={pending || password.length < 8 || toEnglishDigits(code).length < OTP_LENGTH}
               onClick={() => {
                 setErr(null);
                 setPending(true);

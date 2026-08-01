@@ -58,7 +58,7 @@ export function ComingSoon({ title, description, icon }: ComingSoonProps) {
       <Card>
         <CardContent className="flex flex-col items-center gap-5 px-6 py-20 text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-accent">
-            <Icon set="bulk" size={42} primaryColor="#C22026" />
+            <Icon set="bulk" size={42} primaryColor="#D02327" />
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-lg font-bold text-foreground">این بخش در حال توسعه است</h3>

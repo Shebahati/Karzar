@@ -172,7 +172,7 @@ export function AuditLogsContent() {
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
-              <Danger set="bulk" size={44} primaryColor="#C22026" />
+              <Danger set="bulk" size={44} primaryColor="#D02327" />
               <p className="text-sm font-bold text-foreground">
                 {error instanceof ApiError ? error.message : "خطا در دریافت گزارش ممیزی"}
               </p>

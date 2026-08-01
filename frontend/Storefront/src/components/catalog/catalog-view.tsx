@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Filter } from "react-iconly";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CloseSquare, Filter } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
@@ -16,60 +16,82 @@ import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
 import { formatNumber, toPersianDigits } from "@/lib/utils";
 import { useFeatureLabel } from "@/lib/feature-labels";
+import type { CategoryTreeNode } from "@/types/category";
 import type { ProductListParams, ProductSummary } from "@/types/product";
-import type { CategoryFlat } from "@/types/category";
 
 const PAGE_SIZE = 24;
+/** Auto-fetch next pages on scroll this many times after the first page; then show a button. */
+const AUTO_LOAD_PAGES = 5;
 const FILTERS_PANEL_ID = "catalog-filters-panel";
-
-function productMatchesRoots(
-  product: ProductSummary,
-  rootIds: number[],
-  categories: CategoryFlat[] | undefined,
-): boolean {
-  if (rootIds.length === 0) return true;
-  const rootSet = new Set(rootIds);
-  const cat = product.category;
-  if (!cat) return false;
-  if (rootSet.has(cat.id)) return true;
-  const ancestors = cat.ancestor_ids;
-  if (ancestors?.some((id) => rootSet.has(id))) return true;
-  // Fallback: look up flat category when product payload lacks ancestor_ids.
-  const flat = categories?.find((c) => c.id === cat.id);
-  if (!flat) return false;
-  if (rootSet.has(flat.id)) return true;
-  if (flat.parent_id != null && rootSet.has(flat.parent_id)) return true;
-  return (flat.ancestor_ids ?? []).some((id) => rootSet.has(id));
-}
 
 export function CatalogView({
   lockedCategoryId,
   lockedBrandId,
+  initialTree = [],
 }: {
   lockedCategoryId?: number;
   lockedBrandId?: number;
+  /** RSC prefetch seed for root category carousel hydration. */
+  initialTree?: CategoryTreeNode[];
 } = {}) {
   const { params, activeCount, categorySlug, brandSlug, setParams, setSpecFilter, clearAll, raw } =
     useCatalogParams();
-  const selectedRoots = useMemo(() => parseIdList(raw.get("roots")), [raw]);
-  const [resolvedParams, setResolvedParams] = useState<ProductListParams>(params);
+  /** Slug→id fills only when URL has slug without numeric id yet. */
+  const [slugOverrides, setSlugOverrides] = useState<{
+    category_id?: number;
+    brand_ids?: number[];
+  }>({});
   const [slugError, setSlugError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [accumulated, setAccumulated] = useState<ProductSummary[]>([]);
   const filterDrawerOpen = useUiStore((s) => s.filterDrawerOpen);
   const setDrawer = useUiStore((s) => s.setFilterDrawerOpen);
 
-  /** Multi-root OR filter with no leaf category → client-side product filter. */
-  const multiRootClientFilter =
-    lockedCategoryId == null &&
-    lockedBrandId == null &&
-    selectedRoots.length > 1 &&
-    params.category_id == null;
+  // URL + locks drive the product query synchronously (no effect lag → empty PLP).
+  const resolvedParams = useMemo<ProductListParams>(() => {
+    const next: ProductListParams = { ...params };
+    if (lockedCategoryId != null) next.category_id = lockedCategoryId;
+    else if (next.category_id == null && slugOverrides.category_id != null) {
+      next.category_id = slugOverrides.category_id;
+    }
+    if (lockedBrandId != null) next.brand_ids = [lockedBrandId];
+    else if (!(next.brand_ids?.length) && slugOverrides.brand_ids?.length) {
+      next.brand_ids = slugOverrides.brand_ids;
+    }
+    return next;
+  }, [params, lockedCategoryId, lockedBrandId, slugOverrides]);
+
+  const filterKey = useMemo(
+    () =>
+      JSON.stringify({
+        category_id: resolvedParams.category_id ?? null,
+        brand_ids: resolvedParams.brand_ids ?? [],
+        countries: resolvedParams.countries ?? [],
+        search: resolvedParams.search ?? null,
+        min_price: resolvedParams.min_price ?? null,
+        max_price: resolvedParams.max_price ?? null,
+        in_stock: resolvedParams.in_stock ?? null,
+        sort: resolvedParams.sort ?? null,
+        spec_filters: resolvedParams.spec_filters ?? null,
+      }),
+    [resolvedParams],
+  );
+
+  // Migrate legacy multi-root `roots` URLs → single `category`.
+  useEffect(() => {
+    if (lockedCategoryId != null) return;
+    const legacyRoots = parseIdList(raw.get("roots"));
+    if (legacyRoots.length === 0) return;
+    setParams({
+      category: params.category_id ?? legacyRoots[0],
+      roots: null,
+    });
+  }, [lockedCategoryId, raw, params.category_id, setParams]);
 
   useEffect(() => {
     setPage(1);
     setAccumulated([]);
-  }, [resolvedParams, multiRootClientFilter, selectedRoots]);
+  }, [filterKey]);
 
   useEffect(() => {
     if (lockedCategoryId == null) return;
@@ -89,17 +111,13 @@ export function CatalogView({
   useEffect(() => {
     let cancelled = false;
     async function resolveSlugs() {
-      const next: ProductListParams = {
-        ...params,
-        ...(lockedCategoryId != null ? { category_id: lockedCategoryId } : {}),
-        ...(lockedBrandId != null ? { brand_ids: [lockedBrandId] } : {}),
-      };
       const errors: string[] = [];
+      const overrides: { category_id?: number; brand_ids?: number[] } = {};
       try {
         if (categorySlug && !params.category_id && lockedCategoryId == null) {
           try {
             const cat = await catalogService.getCategoryBySlug(categorySlug);
-            next.category_id = cat.id;
+            overrides.category_id = cat.id;
             if (!cancelled) setParams({ category: cat.id, category_slug: null });
           } catch {
             errors.push(`دسته «${categorySlug}» یافت نشد`);
@@ -112,33 +130,16 @@ export function CatalogView({
         ) {
           try {
             const brand = await catalogService.getBrandBySlug(brandSlug);
-            next.brand_ids = [brand.id];
+            overrides.brand_ids = [brand.id];
             if (!cancelled) setParams({ brand: brand.id, brand_slug: null });
           } catch {
             errors.push(`برند «${brandSlug}» یافت نشد`);
           }
         }
-
-        // Roots without a leaf category: single root → category_id; multiple → leave unset.
-        if (
-          lockedCategoryId == null &&
-          !next.category_id &&
-          !categorySlug &&
-          selectedRoots.length === 1
-        ) {
-          next.category_id = selectedRoots[0];
-        }
-        if (
-          lockedCategoryId == null &&
-          selectedRoots.length > 1 &&
-          params.category_id == null
-        ) {
-          next.category_id = undefined;
-        }
       } finally {
         if (!cancelled) {
           setSlugError(errors.length ? errors.join(" — ") : null);
-          setResolvedParams(next);
+          setSlugOverrides(overrides);
         }
       }
     }
@@ -147,13 +148,13 @@ export function CatalogView({
       cancelled = true;
     };
   }, [
-    params,
+    params.category_id,
+    params.brand_ids,
     categorySlug,
     brandSlug,
     setParams,
     lockedCategoryId,
     lockedBrandId,
-    selectedRoots,
   ]);
 
   const queryParams = useMemo(
@@ -170,24 +171,46 @@ export function CatalogView({
   const { data: brands } = useBrands();
 
   useEffect(() => {
-    if (!data?.data) return;
+    if (!data?.data || isPlaceholderData) return;
     setAccumulated((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
-  }, [data, page]);
+  }, [data, page, isPlaceholderData]);
 
-  const displayProducts = useMemo(() => {
-    if (!multiRootClientFilter) return accumulated;
-    return accumulated.filter((p) =>
-      productMatchesRoots(p, selectedRoots, categories),
-    );
-  }, [accumulated, multiRootClientFilter, selectedRoots, categories]);
-
-  const total = multiRootClientFilter
-    ? displayProducts.length
-    : (data?.meta.total_count ?? 0);
+  // Prefer live page-1 data so we never flash EmptyState while accumulated is still clearing.
+  const displayProducts =
+    page === 1 && data?.data && !isPlaceholderData ? data.data : accumulated;
+  const total = data?.meta.total_count ?? 0;
   const shown = displayProducts.length;
-  const hasMore = multiRootClientFilter
-    ? (data?.meta.total_count ?? 0) > accumulated.length
-    : shown < (data?.meta.total_count ?? 0);
+  const hasMore = !isPlaceholderData && shown < total;
+  /** Pages already loaded beyond the first (page 1 → 0 auto-loads used). */
+  const autoLoadsUsed = Math.max(0, page - 1);
+  const canAutoLoad = hasMore && autoLoadsUsed < AUTO_LOAD_PAGES;
+  const needsManualNext = hasMore && autoLoadsUsed >= AUTO_LOAD_PAGES;
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const showFilterSkeleton =
+    (isLoading || isPlaceholderData || (isFetching && page === 1 && shown === 0)) &&
+    page === 1;
+  const showEmpty =
+    !showFilterSkeleton && !isFetching && !isPlaceholderData && total === 0;
+
+  const loadNextPage = useCallback(() => {
+    if (isFetching || !hasMore) return;
+    setPage((p) => p + 1);
+  }, [hasMore, isFetching]);
+
+  useEffect(() => {
+    if (!canAutoLoad || showFilterSkeleton || shown === 0) return;
+    const node = loadMoreRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) loadNextPage();
+      },
+      { root: null, rootMargin: "280px 0px", threshold: 0 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [canAutoLoad, loadNextPage, showFilterSkeleton, shown]);
+
   const activeCategory = resolvedParams.category_id
     ? categories?.find((c) => c.id === resolvedParams.category_id)
     : undefined;
@@ -213,7 +236,6 @@ export function CatalogView({
     params.min_price == null &&
     params.max_price == null &&
     !params.in_stock;
-  const showFilterSkeleton = (isLoading || isPlaceholderData) && page === 1;
 
   const chips: { key: string; label: string; clear: () => void }[] = [];
   if (params.search) {
@@ -227,7 +249,7 @@ export function CatalogView({
     chips.push({
       key: "category",
       label: activeCategoryName ?? `دسته #${resolvedParams.category_id}`,
-      clear: () => setParams({ category: null }),
+      clear: () => setParams({ category: null, roots: null }),
     });
   }
   for (const brandId of selectedBrandIds) {
@@ -280,8 +302,12 @@ export function CatalogView({
   return (
     <Container className="py-6 lg:py-10">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        {lockedCategoryId == null ? (
+          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        ) : (
+          <h1 className="sr-only">{title}</h1>
+        )}
+        <p className={`text-sm text-muted-foreground ${lockedCategoryId == null ? "mt-1" : ""}`}>
           {showFilterSkeleton
             ? "در حال بارگذاری…"
             : `${formatNumber(total)} محصول یافت شد`}
@@ -311,9 +337,10 @@ export function CatalogView({
               type="button"
               onClick={chip.clear}
               aria-label={`حذف فیلتر ${chip.label}`}
-              className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
             >
-              {chip.label} ×
+              {chip.label}
+              <CloseSquare size={14} set="bold" primaryColor="#D02327" aria-hidden />
             </button>
           ))}
           {specEntries.map(([path, value]) => (
@@ -336,7 +363,7 @@ export function CatalogView({
 
       {lockedCategoryId == null && lockedBrandId == null && (
         <div className="mb-6">
-          <RootCategoryCarousel />
+          <RootCategoryCarousel initialTree={initialTree} />
         </div>
       )}
 
@@ -383,7 +410,7 @@ export function CatalogView({
                 <ProductCardSkeleton key={i} />
               ))}
             </div>
-          ) : total === 0 ? (
+          ) : showEmpty ? (
             <EmptyState
               onClear={clearAll}
               hasActiveFilters={activeCount > 0}
@@ -404,19 +431,28 @@ export function CatalogView({
                   />
                 ))}
               </div>
-              {hasMore && (
+              {canAutoLoad && shown > 0 ? (
+                <div
+                  ref={loadMoreRef}
+                  className="mt-8 flex h-12 items-center justify-center"
+                  aria-hidden={!isFetching}
+                >
+                  {isFetching ? (
+                    <p className="text-sm text-muted-foreground">در حال بارگذاری…</p>
+                  ) : null}
+                </div>
+              ) : null}
+              {needsManualNext && shown > 0 ? (
                 <div className="mt-8 flex justify-center">
                   <Button
                     variant="outline"
                     disabled={isFetching}
-                    onClick={() => setPage((p) => p + 1)}
+                    onClick={loadNextPage}
                   >
-                    {isFetching
-                      ? "در حال بارگذاری…"
-                    : `بارگذاری بیشتر (${formatNumber(shown)} از ${formatNumber(total)})`}
+                    {isFetching ? "در حال بارگذاری…" : "ادامه محصولات"}
                   </Button>
                 </div>
-              )}
+              ) : null}
             </>
           )}
         </div>
@@ -444,9 +480,10 @@ function SpecChip({
       type="button"
       onClick={onClear}
       aria-label={`حذف فیلتر ${text}`}
-      className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
     >
-      {text} ×
+      {text}
+      <CloseSquare size={14} set="bold" primaryColor="#D02327" aria-hidden />
     </button>
   );
 }
@@ -478,7 +515,7 @@ function EmptyState({
       role="status"
     >
       <div className="grid h-16 w-16 place-items-center rounded-xl bg-accent text-primary">
-        <Filter set="bold" primaryColor="#C22026" />
+        <Filter set="bold" primaryColor="#D02327" />
       </div>
       <p className="mt-4 font-medium text-foreground">{title}</p>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{detail}</p>

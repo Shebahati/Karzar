@@ -69,7 +69,7 @@ export default function QuotesPage() {
 
       <div className="rounded-xl bg-white p-4 shadow-sm">
         <div className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
-          <Filter set="light" size={18} primaryColor="#C22026" />
+          <Filter set="light" size={18} primaryColor="#D02327" />
           فیلتر
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

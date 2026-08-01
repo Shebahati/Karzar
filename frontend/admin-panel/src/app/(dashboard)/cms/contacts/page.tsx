@@ -36,9 +36,11 @@ export default function ContactSubmissionsPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#4F4F4F]">پیام‌های تماس با ما</h2>
+        <h2 className="text-2xl font-bold text-[#4F4F4F]">پیام‌ها و تیکت‌ها</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {data ? `${data.meta.total_count.toLocaleString("fa-IR")} پیام` : "پیام‌های ارسالی از فرم تماس با ما"}
+          {data
+            ? `${data.meta.total_count.toLocaleString("fa-IR")} پیام`
+            : "پیام‌ها و تیکت‌های فرم تماس صفحه اصلی، صفحه تماس، و درخواست‌های قابلیت‌های کارزار (تأمین، B2B، مشاوره)"}
         </p>
       </div>
 

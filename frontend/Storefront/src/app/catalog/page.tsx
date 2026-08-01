@@ -9,6 +9,7 @@ import { catalogKeys } from "@/features/catalog/keys";
 import { NOINDEX_FOLLOW, isFacetedSearchParams } from "@/lib/crawl-hygiene";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
+import type { CategoryTreeNode } from "@/types/category";
 
 const DEFAULT_PLP = { limit: 24, skip: 0 } as const;
 
@@ -75,15 +76,28 @@ export default async function CatalogPage({
   const sp = await searchParams;
   await maybeRedirectCategoryIdToHub(sp);
 
+  const categoryRaw = firstParam(sp.category) ?? firstParam(sp.category_id);
+  const categoryId = categoryRaw != null ? Number(categoryRaw) : undefined;
+  const plpParams = {
+    ...DEFAULT_PLP,
+    ...(Number.isFinite(categoryId) && categoryId! > 0
+      ? { category_id: categoryId }
+      : {}),
+  };
+
   const queryClient = getQueryClient();
   await Promise.all([
     queryClient.prefetchQuery({
-      queryKey: catalogKeys.products(DEFAULT_PLP),
-      queryFn: () => catalogService.listProducts({ ...DEFAULT_PLP }),
+      queryKey: catalogKeys.products(plpParams),
+      queryFn: () => catalogService.listProducts({ ...plpParams }),
     }),
     queryClient.prefetchQuery({
       queryKey: catalogKeys.categoriesFlat(),
       queryFn: () => catalogService.listCategoriesFlat(),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: catalogKeys.categoriesTree(),
+      queryFn: () => catalogService.listCategoriesTree(),
     }),
     queryClient.prefetchQuery({
       queryKey: catalogKeys.brands(),
@@ -91,10 +105,14 @@ export default async function CatalogPage({
     }),
   ]);
 
+  // Prop seed so carousel SSR matches client even if Provider QueryClient differs.
+  const initialTree =
+    queryClient.getQueryData<CategoryTreeNode[]>(catalogKeys.categoriesTree()) ?? [];
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<CatalogFallback />}>
-        <CatalogView />
+        <CatalogView initialTree={initialTree} />
       </Suspense>
     </HydrationBoundary>
   );

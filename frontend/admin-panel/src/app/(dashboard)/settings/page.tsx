@@ -64,7 +64,7 @@ export default function SettingsPage() {
       <Card>
         <CardContent className="flex flex-col gap-6 p-6">
           <div className="flex items-center gap-2 text-sm font-bold text-foreground">
-            <Setting set="bulk" size={20} primaryColor="#C22026" />
+            <Setting set="bulk" size={20} primaryColor="#D02327" />
             اطلاعات فروشگاه
           </div>
 
@@ -115,7 +115,7 @@ export default function SettingsPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10">
-                  <Lock set="bulk" size={20} primaryColor="#C22026" />
+                  <Lock set="bulk" size={20} primaryColor="#D02327" />
                 </span>
                 <div>
                   <p className="text-sm font-bold text-foreground">ورود نیازمند رمز عبور</p>

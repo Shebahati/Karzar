@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import * as Icons from "react-iconly";
+import { ChevronLeft } from "react-iconly";
 import { useCategoryTree, useNavGroupDefs } from "@/features/catalog/queries";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   categoryHref,
   isMetrologyRoot,
   NAV_GROUPS,
-  orderedVisibleRoots,
+  orderedTaxonomyRoots,
 } from "@/config/nav-groups";
 import { CONTENT_IMAGE_QUALITY } from "@/lib/cwv";
 import { resolveCategoryImage } from "@/lib/category-images";
@@ -63,7 +64,7 @@ function CategoryTile({
           )}
         >
           {imageUrl ? (
-            <Image
+            <SafeImage
               src={imageUrl}
               alt=""
               fill
@@ -71,6 +72,11 @@ function CategoryTile({
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
               unoptimized={imageUrl.startsWith("http")}
+              fallback={
+                <span className="grid h-full w-full place-items-center">
+                  <CategoryIcon name={node.icon} />
+                </span>
+              }
             />
           ) : (
             <span className="grid h-full w-full place-items-center">
@@ -92,8 +98,9 @@ function CategoryTile({
           </span>
           <span className="flex items-center justify-between gap-2 text-xs text-steel">
             <span>{formatNumber(node.product_count ?? 0)} محصول</span>
-            <span className="font-bold text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              ورود ←
+            <span className="flex items-center gap-0.5 font-bold text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              ورود
+              <ChevronLeft size="small" set="light" primaryColor="#D02327" />
             </span>
           </span>
         </span>
@@ -106,7 +113,7 @@ function CategoryTile({
 export function CategoryGrid() {
   const { data, isLoading } = useCategoryTree();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
-  const roots = useMemo(() => orderedVisibleRoots(data ?? [], navDefs), [data, navDefs]);
+  const roots = useMemo(() => orderedTaxonomyRoots(data ?? [], navDefs), [data, navDefs]);
 
   if (isLoading) {
     return (

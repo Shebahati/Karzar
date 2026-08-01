@@ -50,7 +50,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 31%;
 
-    --primary: 358 72% 44%;
+    --primary: 359 71% 48%; /* #D02327 */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 94%;
@@ -75,7 +75,7 @@
 
     --border: 0 0% 91%;
     --input: 0 0% 96%;
-    --ring: 358 72% 44%;
+    --ring: 359 71% 48%;
 
     --radius: 0.75rem;
 
@@ -129,3 +129,59 @@
     @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Hero Design Builder — preview animations & badge micro-motions            */
+/* -------------------------------------------------------------------------- */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hero-slide-in {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes hero-zoom-soft {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes hero-badge-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+  50% { transform: scale(1.04); box-shadow: 0 10px 28px rgba(208,35,39,0.28); }
+}
+@keyframes hero-badge-shimmer {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.18); }
+  100% { filter: brightness(1); }
+}
+@keyframes hero-badge-float {
+  0%, 100% { transform: translateY(0) rotate(-12deg); }
+  50% { transform: translateY(-6px) rotate(-12deg); }
+}
+@keyframes hero-stagger-item {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-anim-fade-up > * { animation: hero-fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-fade-in > * { animation: hero-fade-in 650ms ease both; }
+.hero-anim-slide-in > * { animation: hero-slide-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-zoom-soft > * { animation: hero-zoom-soft 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-float > * { animation: hero-float 3.6s ease-in-out infinite; }
+.hero-anim-stagger-up .hero-stagger-1 { animation: hero-stagger-item 650ms 40ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-stagger-up .hero-stagger-2 { animation: hero-stagger-item 650ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-stagger-up .hero-stagger-3 { animation: hero-stagger-item 650ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-stagger-up .hero-stagger-4 { animation: hero-stagger-item 650ms 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.hero-badge-pulse { animation: hero-badge-pulse 2.4s ease-in-out infinite; }
+.hero-badge-shimmer { animation: hero-badge-shimmer 2.2s ease-in-out infinite; }
+.hero-badge-float { animation: hero-badge-float 3s ease-in-out infinite; }
+

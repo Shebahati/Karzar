@@ -21,10 +21,8 @@ export function buildPdpTrustItems(opts: {
   const items: PdpTrustItem[] = [
     {
       key: "authenticity",
-      title: "ضمانت اصالت کالا",
-      desc: opts.isOriginal
-        ? "کالای اصلی از مسیر نمایندگی رسمی"
-        : "عرضه از مسیر نمایندگی‌های رسمی",
+      title: "ضمانت اصالت",
+      desc: opts.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
       Icon: ShieldDone,
     },
   ];
@@ -33,7 +31,7 @@ export function buildPdpTrustItems(opts: {
     items.push({
       key: "warranty",
       title: opts.warrantyText.trim(),
-      desc: "مطابق شرایط گارانتی محصول",
+      desc: "شرایط گارانتی",
       Icon: Document,
     });
   }
@@ -41,14 +39,14 @@ export function buildPdpTrustItems(opts: {
   items.push(
     {
       key: "return",
-      title: "۷ روز ضمانت بازگشت",
-      desc: "در صورت وجود شرایط مرجوعی",
+      title: "۷ روز بازگشت",
+      desc: "شرایط مرجوعی",
       Icon: Swap,
     },
     {
       key: "shipping",
       title: "ارسال مطمئن",
-      desc: "بسته‌بندی استاندارد به سراسر کشور",
+      desc: "سراسر کشور",
       Icon: Send,
     },
   );
@@ -71,22 +69,41 @@ export function ProductTrustStrip({
     <aside
       aria-label="اعتماد خرید"
       className={cn(
-        "overflow-hidden rounded-2xl border border-border/55 bg-gradient-to-l from-secondary/80 via-card to-card",
+        "relative overflow-hidden rounded-xl bg-gradient-to-l from-karzar-50/80 via-secondary/50 to-transparent",
         className,
       )}
     >
-      <ul className="grid gap-px bg-border/40 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map(({ key, title, desc, Icon }) => (
+      {/* Brand red accent rail */}
+      <span
+        aria-hidden
+        className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-karzar-500"
+      />
+
+      <ul
+        className={cn(
+          "grid gap-0 ps-3",
+          items.length >= 4
+            ? "sm:grid-cols-2 lg:grid-cols-4"
+            : "sm:grid-cols-3",
+        )}
+      >
+        {items.map(({ key, title, desc, Icon }, i) => (
           <li
             key={key}
-            className="flex items-start gap-3 bg-card/95 px-4 py-3.5 sm:px-4 sm:py-4"
+            className={cn(
+              "group relative flex items-center gap-2.5 px-3 py-2.5",
+              i > 0 &&
+                "sm:before:absolute sm:before:inset-y-2 sm:before:start-0 sm:before:w-px sm:before:bg-steel/15",
+            )}
           >
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent text-primary">
-              <Icon set="bold" primaryColor="#C22026" />
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-karzar-500/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-karzar-500/18">
+              <Icon set="bold" size="small" primaryColor="#D02327" />
             </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold leading-6 text-foreground">{title}</p>
-              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{desc}</p>
+            <div className="min-w-0 leading-tight">
+              <p className="text-[13px] font-bold tracking-tight text-foreground">
+                {title}
+              </p>
+              <p className="mt-0.5 text-[11px] font-medium text-steel">{desc}</p>
             </div>
           </li>
         ))}

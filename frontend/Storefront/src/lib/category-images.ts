@@ -23,9 +23,11 @@ export const CATEGORY_IMAGE_BY_ID: Record<number, string> = {
 
 export const CATEGORY_IMAGE_BY_NAME: Record<string, string> = {
   ابزارگیر: CATEGORY_IMAGE_BY_ID[1],
+  "ابزار گیر": CATEGORY_IMAGE_BY_ID[1],
   "ابزار اینسرتی": CATEGORY_IMAGE_BY_ID[2],
   اینسرت: CATEGORY_IMAGE_BY_ID[165],
   "ابزار انگشتی": CATEGORY_IMAGE_BY_ID[4],
+  "فرز انگشتی": CATEGORY_IMAGE_BY_ID[4],
   مته: CATEGORY_IMAGE_BY_ID[5],
   قلاویز: CATEGORY_IMAGE_BY_ID[6],
   "ابزار گیرشی": CATEGORY_IMAGE_BY_ID[8],
@@ -33,20 +35,26 @@ export const CATEGORY_IMAGE_BY_NAME: Record<string, string> = {
   "دستگاه های صنعتی": CATEGORY_IMAGE_BY_ID[9],
   "اندازه گیری دقیق": CATEGORY_IMAGE_BY_ID[56],
   "اندازه‌گیری دقیق": CATEGORY_IMAGE_BY_ID[56],
+  اندازه‌گیری: CATEGORY_IMAGE_BY_ID[56],
+  "اندازه گیری": CATEGORY_IMAGE_BY_ID[56],
   "CNC اندازه گیری": CATEGORY_IMAGE_BY_ID[81],
   "اندازه گیری فرز CNC": CATEGORY_IMAGE_BY_ID[81],
   "اندازه گیری آزمایشگاهی": CATEGORY_IMAGE_BY_ID[87],
   "لوازم جانبی صنعتی": CATEGORY_IMAGE_BY_ID[154],
+  "روغن و روانکار": CATEGORY_IMAGE_BY_ID[154],
+  "هلی کویل": CATEGORY_IMAGE_BY_ID[186],
   "فنر هلی کویل": CATEGORY_IMAGE_BY_ID[186],
   "قلاویز هلی کویل": CATEGORY_IMAGE_BY_ID[187],
   "کیت کامل هلی کویل": CATEGORY_IMAGE_BY_ID[188],
+  "ابزار کارگاهی : دریل عادی": CATEGORY_IMAGE_BY_ID[5],
+  "ابزار کارگاهی": CATEGORY_IMAGE_BY_ID[5],
 };
 
 export function normalizeCategoryName(name: string): string {
   return name.trim().replace(/\u200c/g, "").replace(/ي/g, "ی").replace(/ك/g, "ک");
 }
 
-/** Resolve tile image: curated id → curated name → API image_url. */
+/** Resolve tile image: curated id → curated name → API image_url (skip tiny icon assets). */
 export function resolveCategoryImage(node: {
   id: number;
   name: string;
@@ -55,5 +63,7 @@ export function resolveCategoryImage(node: {
   if (CATEGORY_IMAGE_BY_ID[node.id]) return CATEGORY_IMAGE_BY_ID[node.id];
   const byName = CATEGORY_IMAGE_BY_NAME[normalizeCategoryName(node.name)];
   if (byName) return byName;
-  return node.image_url ?? null;
+  const url = node.image_url ?? null;
+  if (url && url.includes("/category-icons/")) return null;
+  return url;
 }

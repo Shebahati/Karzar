@@ -4,6 +4,7 @@ import { NAV_GROUPS, navGroupsFromApi } from "@/config/nav-groups";
 import { catalogKeys } from "@/features/catalog/keys";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
+import type { Brand, CategoryTreeNode } from "@/types/category";
 
 const DISCOUNT_PARAMS = { limit: 12, sort: "newest" as const };
 const NEWEST_PARAMS = { limit: 10, sort: "newest" as const };
@@ -46,9 +47,15 @@ export default async function HomePage() {
     }),
   ]);
 
+  // Pass brands/tree as props so BrandStrip / CategoryOrbsGrid SSR markup matches
+  // client first paint even when the Provider QueryClient is a separate server instance.
+  const initialBrands = queryClient.getQueryData<Brand[]>(catalogKeys.brands()) ?? [];
+  const initialCategoryTree =
+    queryClient.getQueryData<CategoryTreeNode[]>(catalogKeys.categoriesTree()) ?? [];
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <HomeView />
+      <HomeView initialBrands={initialBrands} initialCategoryTree={initialCategoryTree} />
     </HydrationBoundary>
   );
 }

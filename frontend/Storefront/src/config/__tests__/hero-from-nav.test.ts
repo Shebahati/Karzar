@@ -61,8 +61,8 @@ describe("hero-from-nav", () => {
     // Curated hero art wins over category packshots (full-bleed RTL composition).
     expect(slides[0].image).toBe("/images/hero/hero-metrology-left.jpg");
     expect(slides[0].cta_href).toBe("/categories/andaze-giri-7");
-    // Multi-root cutting group → catalog roots filter
-    expect(slides[1].cta_href).toBe("/catalog?roots=3,5");
+    // Multi-root cutting group → first root category page (single-select catalog)
+    expect(slides[1].cta_href).toBe("/categories/insert-3");
     expect(slides[1].image).toBe("/images/hero/hero-cutting-left.jpg");
     expect(slides[3].image).toBe("/images/hero/hero-machines-left.jpg");
   });
@@ -76,7 +76,7 @@ describe("hero-from-nav", () => {
         cta_label: "شروع خرید",
         cta_href: "/categories/andaze-giri-7",
         image: "/images/hero/cms-metrology.jpg",
-        accent: "#C22026",
+        accent: "#D02327",
       },
     ];
     const slides = buildHeroSlidesFromNavGroups(roots, NAV_GROUPS, cms);
@@ -97,7 +97,7 @@ describe("hero-from-nav", () => {
           cta_label: "y",
           cta_href: "/catalog",
           image: "/a.jpg",
-          accent: "#C22026",
+          accent: "#D02327",
         },
       ],
       "cutting",

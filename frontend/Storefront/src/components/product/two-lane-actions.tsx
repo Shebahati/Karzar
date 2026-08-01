@@ -60,7 +60,7 @@ export function TwoLaneActions({
               type="button"
               aria-label="کاهش"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="touch-target rounded-md bg-white text-lg text-foreground shadow-soft"
+              className="touch-target grid place-items-center rounded-md bg-white text-lg font-medium leading-none text-foreground shadow-soft"
             >
               −
             </button>
@@ -69,9 +69,9 @@ export function TwoLaneActions({
               type="button"
               aria-label="افزایش"
               onClick={() => setQty((q) => q + 1)}
-              className="touch-target rounded-md bg-white text-foreground shadow-soft"
+              className="touch-target grid place-items-center rounded-md bg-white text-foreground shadow-soft"
             >
-              <Plus size="small" set="bold" />
+              <Plus size="small" set="bold" primaryColor="#5E5F5E" />
             </button>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Call, Location, Message, ShieldDone } from "react-iconly";
 import { Logo } from "@/components/layout/logo";
+import { NeshanDirectionsButton } from "@/components/contact/neshan-directions-button";
 import { Container } from "@/components/ui/container";
 import {
   STORE_ADDRESS_FA,
@@ -23,41 +24,39 @@ const COLUMNS = [
     ],
   },
   {
-    title: "خدمات مشتریان",
+    title: "خدمات",
     links: [
       { label: "تماس با ما", href: "/contact" },
-      { label: "قوانین استفاده", href: "/terms" },
-      { label: "حریم خصوصی", href: "/privacy" },
       { label: "استعلام قیمت", href: "/quote" },
       { label: "سبد خرید", href: "/cart" },
+      { label: "قوانین", href: "/terms" },
+      { label: "حریم خصوصی", href: "/privacy" },
     ],
   },
 ];
 
-const TRUST = [
-  { icon: ShieldDone, label: "ضمانت اصالت کالا" },
-  { icon: Call, label: "پشتیبانی تخصصی" },
-  { icon: Message, label: "مشاوره خرید" },
-];
-
 export function SiteFooter() {
   return (
-    <footer className="mt-20 bg-white pt-14 shadow-[0_-1px_0_rgba(16,24,40,0.04)]">
-      <Container>
-        <div className="grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <Logo variant="slogan" height={48} />
-            <p className="mt-4 max-w-sm text-sm leading-7 text-steel">
-              کارزار، مرجع تخصصی خرید ابزارآلات صنعتی و تراشکاری از معتبرترین
-              برندهای جهان با ضمانت اصالت و پشتیبانی حرفه‌ای.
+    <footer className="relative mt-16 overflow-hidden bg-[#141615] text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(208,35,39,0.22),transparent_50%),radial-gradient(ellipse_60%_50%_at_0%_100%,rgba(94,95,94,0.2),transparent_45%)]"
+      />
+
+      <Container className="relative pt-14 sm:pt-16">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Logo variant="slogan" height={43} tone="onDark" />
+            <p className="mt-5 max-w-md text-sm leading-7 text-white/60">
+              مرجع تخصصی ابزارآلات صنعتی و تراشکاری — اصالت، تأمین سریع و پشتیبانی کارگاهی.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              {TRUST.map(({ icon: Icon, label }) => (
+              {["ضمانت اصالت", "ارسال سراسری", "مشاوره تخصصی"].map((label) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-bold text-steel"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80"
                 >
-                  <Icon size="small" set="bold" primaryColor="#5E5F5E" />
+                  <ShieldDone size="small" set="bold" primaryColor="#D02327" />
                   {label}
                 </span>
               ))}
@@ -66,13 +65,13 @@ export function SiteFooter() {
 
           {COLUMNS.map((col) => (
             <div key={col.title} className="lg:col-span-2">
-              <h3 className="text-sm font-bold text-foreground">{col.title}</h3>
+              <h3 className="text-sm font-black tracking-tight text-white">{col.title}</h3>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      className="text-sm text-white/55 transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -82,53 +81,54 @@ export function SiteFooter() {
             </div>
           ))}
 
-          <div className="lg:col-span-4">
-            <h3 className="text-sm font-bold text-foreground">ارتباط با ما</h3>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2.5">
-                <Call size="small" set="light" />
+          <div className="lg:col-span-3">
+            <h3 className="text-sm font-black tracking-tight text-white">ارتباط</h3>
+            <ul className="mt-4 space-y-3 text-sm text-white/60">
+              <li>
                 <a
                   href={`tel:${STORE_PHONE_E164}`}
-                  className="transition-colors hover:text-primary tnum"
+                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
                   dir="ltr"
                 >
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-primary">
+                    <Call size="small" set="bold" />
+                  </span>
                   {STORE_PHONE_DISPLAY}
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Message size="small" set="light" />
+              <li>
                 <a
                   href={`mailto:${STORE_EMAIL}`}
-                  className="transition-colors hover:text-primary"
+                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
                   dir="ltr"
                 >
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-white/8">
+                    <Message size="small" set="light" />
+                  </span>
                   {STORE_EMAIL}
                 </a>
               </li>
-              <li className="flex items-start gap-2.5">
-                <Location size="small" set="light" />
+              <li>
                 <a
                   href={STORE_MAPS_URL}
-                  className="transition-colors hover:text-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-start gap-2.5 transition-colors hover:text-white"
                 >
-                  {STORE_ADDRESS_FA}
+                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
+                    <Location size="small" set="light" />
+                  </span>
+                  <span className="leading-6">{STORE_ADDRESS_FA}</span>
                 </a>
               </li>
-              <li className="flex items-start gap-2.5 pt-1">
-                <span
-                  className="inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-lg border border-border/70 bg-secondary px-3 text-[10px] font-bold text-muted-foreground"
-                  title="نماد اعتماد الکترونیکی"
-                >
-                  نماد اعتماد
-                </span>
-              </li>
             </ul>
+            <NeshanDirectionsButton tone="dark" className="mt-5 w-full sm:w-auto" />
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} فروشگاه کارزار. تمامی حقوق محفوظ است.</p>
-          <p>تأمین تخصصی ابزار برای صنعتگران ایران</p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row">
+          <p>© {new Date().getFullYear()} کارزار · تمامی حقوق محفوظ است</p>
+          <p className="font-bold text-white/55">تأمین تخصصی ابزار برای صنعتگران ایران</p>
         </div>
       </Container>
     </footer>

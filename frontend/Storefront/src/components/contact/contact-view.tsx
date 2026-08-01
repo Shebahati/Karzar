@@ -3,17 +3,17 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Call, Location, Message, Send, TickSquare } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Field, fieldInputClass, fieldTextareaClass } from "@/components/ui/field";
+import { NeshanDirectionsButton } from "@/components/contact/neshan-directions-button";
+import { NeshanMapEmbed } from "@/components/contact/neshan-map-embed";
 import { contactSchema, type ContactValues } from "@/lib/validation";
 import { useSubmitContact } from "@/features/checkout/queries";
 import {
   STORE_ADDRESS_FA,
   STORE_EMAIL,
-  STORE_MAPS_EMBED_URL,
   STORE_MAPS_URL,
   STORE_PHONE_DISPLAY,
   STORE_PHONE_E164,
@@ -37,6 +37,7 @@ const DETAILS = [
     label: "نشانی",
     value: STORE_ADDRESS_FA,
     href: STORE_MAPS_URL,
+    external: true,
   },
 ];
 
@@ -136,7 +137,7 @@ export function ContactView() {
             )}
           </motion.div>
 
-          {/* Details + map */}
+          {/* Details */}
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -145,10 +146,13 @@ export function ContactView() {
             className="space-y-4"
           >
             <div id="store-address" className="grid gap-3 scroll-mt-24">
-              {DETAILS.map(({ Icon, label, value, href }) => (
+              {DETAILS.map(({ Icon, label, value, href, external }) => (
                 <a
                   key={label}
                   href={href}
+                  {...(external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-soft transition-shadow hover:shadow-card"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent text-primary">
@@ -164,26 +168,32 @@ export function ContactView() {
               ))}
             </div>
 
-            <div className="overflow-hidden rounded-2xl shadow-card">
-              <Image
-                title="موقعیت فروشگاه کارزار"
-                src={STORE_MAPS_EMBED_URL}
-                alt="نمای محل فروشگاه کارزار"
-                width={1200}
-                height={600}
-                className="h-64 w-full object-cover"
-              />
-            </div>
-            <p className="text-center text-xs text-muted-foreground">
-              <a
-                href={STORE_MAPS_URL}
-                className="font-medium text-primary underline-offset-2 hover:underline"
-              >
-                مشاهده جزئیات نشانی
-              </a>
-            </p>
+            <NeshanDirectionsButton className="w-full" size="lg" />
           </motion.div>
         </div>
+
+        {/* Full-width Neshan map */}
+        <motion.section
+          aria-labelledby="store-map-heading"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          className="mt-8 space-y-4 sm:mt-10"
+        >
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 id="store-map-heading" className="text-lg font-bold text-foreground">
+                موقعیت فروشگاه روی نقشه نشان
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                پاساژ فجر، پلاک ۱۰۸ — مسیر را با نشان باز کنید.
+              </p>
+            </div>
+            <NeshanDirectionsButton className="shrink-0" />
+          </div>
+          <NeshanMapEmbed className="w-full" />
+        </motion.section>
       </Container>
     </div>
   );

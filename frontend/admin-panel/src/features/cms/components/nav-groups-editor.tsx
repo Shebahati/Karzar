@@ -349,7 +349,7 @@ export function NavGroupsEditor({ embedded = false }: NavGroupsEditorProps) {
                         aria-label="حذف گروه"
                         onClick={() => removeGroup(group.clientKey)}
                       >
-                        <Delete set="bold" size={18} primaryColor="#C22026" />
+                        <Delete set="bold" size={18} primaryColor="#D02327" />
                       </Button>
                     </div>
                   </div>
@@ -498,7 +498,7 @@ export function NavGroupsEditor({ embedded = false }: NavGroupsEditorProps) {
           <Card className="h-fit border-transparent shadow-sm lg:sticky lg:top-4">
             <CardContent className="flex flex-col gap-4 p-5">
               <div className="flex items-center gap-2">
-                <Category set="bold" size={22} primaryColor="#C22026" />
+                <Category set="bold" size={22} primaryColor="#D02327" />
                 <h3 className="text-base font-bold text-[#4F4F4F]">پیش‌نمایش مگامنو</h3>
               </div>
               <p className="text-xs text-muted-foreground">
