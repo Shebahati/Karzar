@@ -10,7 +10,9 @@
 | `.github/workflows/` | CI + Deploy Staging / Production |
 
 - **Repo:** [Shebahati/Karzar](https://github.com/Shebahati/Karzar)
+- **Frontend collaborator charter (required):** [docs/FRONTEND_COLLABORATOR_CHARTER.md](docs/FRONTEND_COLLABORATOR_CHARTER.md)
 - **Frontend collaborator deploy guide (FA):** [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md)
+- **Owner GitHub access checklist (invite + branch protection):** [docs/OWNER_GITHUB_FRONTEND_ACCESS.md](docs/OWNER_GITHUB_FRONTEND_ACCESS.md)
 - **Frontend app README:** [frontend/README.md](frontend/README.md)
 
 Push/merge to `main` that touches `frontend/**` (or backend deploy paths) triggers **Deploy Staging** on the self-hosted VPS runner (sources are packaged on `ubuntu-latest` first). **Deploy Production** is manual-only (`workflow_dispatch` + typed confirm + Environment approval) because production is not on a separate host yet — see [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md).

@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-01
+- [x] **Frontend collaborator gates (self-merge)** — charter + handoff paste for `@mhrbzandi-Designer`; Collaborator Scope Gate (allowlist + lockfile freeze); Owner checklist = Write + **0 approvals** + Code Owners review **Off** + required CI checks; no Owner PR review. Agent cannot invite/protect via API.
 - [x] **KB-001 operator residual CLOSED (agent Category A, full catalog)** — seed 1064 products from `all_products.csv` + `projections/sync` → **2132** knowledge edges (1065 category + 1065 brand + 2 article). Report: `aods/reports/tasks/GOV-2026-08-01-operator-kb001-local-sync.md`.
 - [x] **Day-5 Admin read-only Knowledge views** — admin `/knowledge` edges browser + product-edit neighborhood card (KB-001 three freeze edges). Mock support. No Facts/publish/dual-write.
 - [x] **Day-5 Classification map INSIZE v0** — Git `MAPPING-TABLE` `docs/architecture/specs/seeds/classification-map-insize-v0-metrology.json` (brand_id=3 → taxonomy v0 closed labels). Offline sample coverage. No Facts / no `PRODUCT_CLASSIFIED_AS` projector. Readiness §5 complete for one-brand maps.

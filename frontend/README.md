@@ -21,7 +21,8 @@ Karzar/
 
 **API base URL:** set `NEXT_PUBLIC_API_BASE_URL` (staging: `https://api.karzartools.com/api/v1`).
 
-**Deploy / collaborator workflow:** see [`docs/COLLABORATOR_DEPLOY.md`](../docs/COLLABORATOR_DEPLOY.md) (push → GitHub Actions → VPS).
+**Collaborator charter (required):** [`docs/FRONTEND_COLLABORATOR_CHARTER.md`](../docs/FRONTEND_COLLABORATOR_CHARTER.md)  
+**Deploy workflow:** [`docs/COLLABORATOR_DEPLOY.md`](../docs/COLLABORATOR_DEPLOY.md) (PR → merge → manual Deploy Staging; staging = live VPS).
 
 ---
 

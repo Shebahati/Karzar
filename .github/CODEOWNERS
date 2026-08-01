@@ -1,10 +1,21 @@
-# Default owners — required reviews for protected branches.
+# Ownership notifications for Owner. Do NOT list the FE collaborator here —
+# GitHub auto-requests reviews from CODEOWNERS on matching paths, which would
+# force collaborator review on Owner/ops PRs (e.g. charter #185).
+# FE self-merge policy: branch protection must keep "Require review from Code
+# Owners" OFF; safety is Collaborator Scope Gate + Frontend CI.
+# FE rules live in docs/FRONTEND_COLLABORATOR_CHARTER.md
+
 * @Shebahati
 
-# Frontend (collaborator may propose; owner remains required reviewer via CODEOWNERS)
-/frontend/ @Shebahati @mhrbzandi-Designer
-/docs/COLLABORATOR_DEPLOY.md @Shebahati @mhrbzandi-Designer
-
-# Deploy / CI / secrets surface — owner only
-/.github/ @Shebahati
+/app/ @Shebahati
+/alembic/ @Shebahati
+/tests/ @Shebahati
+/openapi/ @Shebahati
+/docs/architecture/ @Shebahati
+/aods/ @Shebahati
 /deploy/ @Shebahati
+/.github/ @Shebahati
+/scripts/ @Shebahati
+/frontend/ @Shebahati
+/requirements.txt @Shebahati
+/requirements-dev.txt @Shebahati

@@ -2,6 +2,12 @@
 
 ریپوی یکپارچه: [Shebahati/Karzar](https://github.com/Shebahati/Karzar)
 
+**منشور الزامی کار فرانت (محدوده، اسناد ممنوع، قرمزهای Knowledge):**  
+[`FRONTEND_COLLABORATOR_CHARTER.md`](./FRONTEND_COLLABORATOR_CHARTER.md)
+
+**چک‌لیست Owner برای دعوت + Branch protection:**  
+[`OWNER_GITHUB_FRONTEND_ACCESS.md`](./OWNER_GITHUB_FRONTEND_ACCESS.md)
+
 ```
 Karzar/
   app/                 # بک‌اند FastAPI
@@ -52,14 +58,19 @@ Karzar/
 
 ## کار روزمره طراح فرانت
 
+1. منشور را بخوانید: [`FRONTEND_COLLABORATOR_CHARTER.md`](./FRONTEND_COLLABORATOR_CHARTER.md)
+2. فقط `frontend/Storefront/**` یا `frontend/admin-panel/**` را تغییر دهید (نه `package.json` / lockfile؛ scope-gate رد می‌کند).
+3. PR → CI سبز (`storefront` / `admin-panel` / `Collaborator Scope Gate`) → **خودت Squash-merge** (بدون منتظر Approve Owner).
+4. سپس Deploy Staging دستی + smoke (زیر).
+
 ```bash
 git clone https://github.com/Shebahati/Karzar.git
 cd Karzar/frontend/Storefront   # یا admin-panel
-# ... ویرایش ...
+# ... ویرایش فقط در allowlist ...
 git checkout -b feature/ui-...
 git add -A && git commit -m "feat(ui): ..."
 git push -u origin HEAD
-# PR به main → بعد از merge، در صورت نیاز Actions → Deploy Staging → Run workflow (دستی؛ CR-011 B)
+# PR به main → CI سبز → خودت squash-merge → Actions → Deploy Staging → Run workflow (دستی؛ CR-011 B) → smoke
 ```
 
 هرگز این‌ها را commit نکنید: `.env`، `.env.local`، `.deploy-secrets`، کلید SSH.
