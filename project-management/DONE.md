@@ -2,6 +2,7 @@
 
 Move completed task IDs here with date + PR.
 
+- [x] Admin read-only Knowledge views (Day-5 readiness §6) — 2026-08-01 — #183
 - [x] Classification map INSIZE v0 (Day-5 readiness §5) — 2026-08-01 — #181
 - [x] KB-001 wave-1 content graph seed (Day-3) — 2026-08-01 — #176 → `main`
 - [x] Knowledge Foundation Day-2 Board Accept (D23 / UD-06 A + ADR-013/014) — 2026-08-01 — #174 → `main`

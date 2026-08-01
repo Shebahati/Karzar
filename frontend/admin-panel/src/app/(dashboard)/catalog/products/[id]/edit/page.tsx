@@ -24,6 +24,7 @@ import { CategoryLeafCombobox } from "@/features/catalog/components/category-lea
 import { ProductImagesSection } from "@/features/catalog/components/product-images-section";
 import { ProductStockSection } from "@/features/catalog/components/product-stock-section";
 import { ProductChangeLogSection } from "@/features/catalog/components/product-change-log-section";
+import { ProductKnowledgeSection } from "@/features/knowledge/components/product-knowledge-section";
 import { ProductSpecificationsForm } from "@/features/catalog/components/product-specifications-form";
 import {
   createProductFormSchema,
@@ -327,6 +328,8 @@ export default function EditProductPage() {
           />
 
           <ProductImagesSection productId={productId} />
+
+          <ProductKnowledgeSection productId={productId} />
 
           <ProductChangeLogSection productId={productId} />
         </div>

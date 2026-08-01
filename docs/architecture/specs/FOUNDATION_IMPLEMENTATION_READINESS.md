@@ -154,7 +154,7 @@ These are **identified explicitly** so engineering does not invent them mid-IMPL
 3. KB-001: project Article↔Product↔Category edges (registry freeze subset)  
 4. Git Property Dictionary v0 (metrology) + mapping tables — **no dual-write**  
 5. ~~Taxonomy seed load (draft nodes) + classification maps for one brand~~ **Done** Day-4 taxonomy Git seed + INSIZE classify map (`classification-map-insize-v0-metrology.json`; no CLASSIFIED_AS projector yet)  
-6. Admin read-only Knowledge views → then assert/publish Facts  
+6. ~~Admin read-only Knowledge views~~ **Done** (admin `/knowledge` edges browser + product edit neighborhood; KB-001 three edges only) → then assert/publish Facts (still gated)  
 7. PDP consume published Facts behind flag  
 8. Only then RFC for dual-write / broader hubs  
 

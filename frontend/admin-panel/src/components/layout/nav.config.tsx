@@ -73,6 +73,12 @@ export const navSections: NavSection[] = [
         matchPrefix: true,
       },
       {
+        label: "دانش محصول",
+        href: "/knowledge",
+        icon: Category as IconlyIcon,
+        matchPrefix: true,
+      },
+      {
         label: "اسناد (به‌زودی)",
         href: "/documents",
         icon: Document as IconlyIcon,

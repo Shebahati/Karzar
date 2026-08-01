@@ -44,6 +44,8 @@ curl -X POST http://127.0.0.1:8000/api/v1/knowledge/projections/sync \
 curl "http://127.0.0.1:8000/api/v1/knowledge/edges?edge_type=PRODUCT_BELONGS_TO_CATEGORY&limit=5"
 ```
 
+Admin read-only UI (after sync): `/knowledge` edges browser · product edit → «گراف دانش».
+
 ### Validation
 
 - `tests/test_property_dictionary_v0.py` — dictionary seed fields  

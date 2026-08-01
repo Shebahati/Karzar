@@ -11,6 +11,7 @@
 - [x] **Property Dictionary v0 (metrology)** — Day-4 Git seed (no dual-write)
 - [x] **Taxonomy v0 (metrology)** — Day-4 Git seed + L1 bridge (no second DAG)
 - [x] **Classification map INSIZE v0** — Day-5 Git MAPPING-TABLE (no CLASSIFIED_AS projector)
+- [x] **Admin read-only Knowledge views** — Day-5 admin `/knowledge` + product neighborhood (no Facts)
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003

@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "med",
-      "notes": "Day-3 CLOSED 2026-08-01: wave-1 AC met (#176). Day-4 Property Dictionary + Taxonomy v0 Git seeds. Day-5 INSIZE classification map Git MAPPING-TABLE (no PRODUCT_CLASSIFIED_AS projector; Day-2 three-edge freeze). Operator residual: local alembic upgrade + admin sync. Dual-write/RAG still gated."
+      "notes": "Day-3 CLOSED 2026-08-01: wave-1 AC met (#176). Day-4 Property Dictionary + Taxonomy v0 Git seeds. Day-5 INSIZE classify map + admin read-only Knowledge UI (/knowledge + product neighborhood). No PRODUCT_CLASSIFIED_AS / Facts publish / dual-write. Operator residual: local alembic upgrade + admin sync."
     },
     {
       "id": "REL-001",
