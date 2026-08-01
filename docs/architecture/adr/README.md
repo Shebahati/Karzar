@@ -1,7 +1,7 @@
 # Architecture Decision Records (ADR)
 
 **Parent:** [`../karzar-knowledge-platform-master-architecture.md`](../karzar-knowledge-platform-master-architecture.md)  
-**Status of this pack:** Mixed — **ADR-010 and ADR-012 Accepted** (Wave-1 ۱۴۰۵/۰۵/۰۷ · Mohammad Shebahati); other ADR IDs are reserved Board intent but **not present** in this repository (`CR-009`/`CR-010`)  
+**Status of this pack:** Mixed — **ADR-010, ADR-012** Accepted (Wave-1 ۱۴۰۵/۰۵/۰۷); **ADR-013, ADR-014** Accepted (Knowledge Foundation Day-2 ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati). Reserved ADR-001…009/011 remain **not present** — do not invent (`CR-009`/`CR-010`)  
 **Baseline:** `karzar_db` · Tag `KARZAR-BASELINE-20260728`  
 **Canon:** Binding criteria index [`../CANON-LOCK.md`](../CANON-LOCK.md) (Consistency Canon C0–C10 text is **not in this repo** until promoted)
 
@@ -47,6 +47,8 @@ Silent status upgrades in PRs without Board minute are **non-compliant**.
 |----|-------|--------|-------------|-------|
 | [ADR-010](./ADR-010-seo-url-contract.md) | SEO URL Contract | **Accepted** | **1** | Cite for URL / PDP / Brand Hub / JSON-LD |
 | [ADR-012](./ADR-012-ingestion-boundary-local-vs-production.md) | Ingestion Boundary | **Accepted** | All writes | Cite for enrichment / importers |
+| [ADR-013](./ADR-013-knowledge-edge-fact-storage.md) | Knowledge Edge/Fact Storage | **Accepted** | KB / knowledge | Postgres overlay; no graph engine in KB-001 |
+| [ADR-014](./ADR-014-product-knowledge-entity-identity.md) | PKE Identity | **Accepted** | KB / knowledge | Wave-1 PKE join = `products.id` |
 
 ## 4b. Reserved IDs — **not in this repository** (do not cite / invent)
 
@@ -79,7 +81,7 @@ Until Board promotes a file into `docs/architecture/adr/`, agents MUST NOT inven
 
 ## 6. How implementation MUST cite ADRs
 
-PRs that touch URLs, SEO, or Brand Hub MUST cite **ADR-010**. Enrichment / importer / catalog write paths MUST cite **ADR-012**. Do not cite reserved IDs from §4b until those files exist in this repo.
+PRs that touch URLs, SEO, or Brand Hub MUST cite **ADR-010**. Enrichment / importer / catalog write paths MUST cite **ADR-012**. Knowledge edge/Fact storage MUST cite **ADR-013**. PKE identity / product↔knowledge joins MUST cite **ADR-014**. Do not cite reserved IDs from §4b until those files exist in this repo.
 
 ---
 

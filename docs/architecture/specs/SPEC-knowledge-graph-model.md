@@ -1,7 +1,7 @@
 ---
 id: SPEC-knowledge-graph-model
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
@@ -15,7 +15,7 @@ pack: docs/architecture/specs/README.md
 
 # SPEC — Knowledge Graph Model
 
-**Status:** Proposed (not binding merge criteria until Architecture Board Accepts)  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Document type:** Knowledge architecture specification  
 **Non-goals:** Replacing Postgres commerce SoR with a graph DB for cart/orders · generative RAG · inventing Evidence corpus · schema DDL
 

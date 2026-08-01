@@ -1,7 +1,7 @@
 ---
 id: SPEC-industrial-taxonomy-model
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
@@ -14,7 +14,7 @@ pack: docs/architecture/specs/README.md
 
 # SPEC — Industrial Taxonomy Model
 
-**Status:** Proposed (not binding merge criteria until Architecture Board Accepts)  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Document type:** Information Architecture / Domain taxonomy specification  
 **Non-goals:** Replacing commerce `categories` table · shipping Tool Class hubs in EPIC 1 · unbounded facet indexation · schema DDL
 

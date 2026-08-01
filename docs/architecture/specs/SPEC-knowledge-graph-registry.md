@@ -1,7 +1,7 @@
 ---
 id: SPEC-knowledge-graph-registry
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/specs/SPEC-knowledge-graph-model.md
@@ -12,7 +12,7 @@ task_id: KB-001
 
 # SPEC — Knowledge Graph Registry
 
-**Status:** Proposed  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Purpose:** Official relation vocabulary for KarzarTools knowledge edges  
 **Rule:** Production writers MUST only emit types listed here (or later registry versions). Free-string edge types are forbidden.
 

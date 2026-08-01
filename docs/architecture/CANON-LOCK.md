@@ -45,6 +45,36 @@
 
 ---
 
+## Board Acceptance (Knowledge Foundation — Day 2)
+
+| Field | Value |
+|-------|-------|
+| **Accepted on** | ۱۴۰۵/۰۵/۱۰ (2026-08-01) — ۱۰ مرداد ۱۴۰۵ |
+| **Board** | Architecture Board |
+| **Signed** | محمد شباهتی / Mohammad Shebahati |
+| **Minute** | [`../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`](../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md) |
+| **Scope** | Accept core knowledge SPEC pack + ADR-013/014; freeze KB-001 to three projection edges; defer dual-write / RAG / UD-01/04/07; OI-KF-04 supersede Phase1–3 for living path |
+
+## 1c. Accepted — Knowledge Foundation (binding criteria)
+
+| Document | Path | Status | Since | Signed | Mandatory for |
+|----------|------|--------|-------|--------|----------------|
+| Knowledge Foundation Specs Pack (index) | [`specs/README.md`](./specs/README.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Knowledge / KB-001 planning & IMPL citation |
+| Product Knowledge Entity Model | [`specs/SPEC-product-knowledge-entity-model.md`](./specs/SPEC-product-knowledge-entity-model.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Commerce vs PKE separation; identity hooks |
+| Industrial Taxonomy Model | [`specs/SPEC-industrial-taxonomy-model.md`](./specs/SPEC-industrial-taxonomy-model.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Multi-dim taxonomy; **no** second Category DAG |
+| Knowledge Graph Model | [`specs/SPEC-knowledge-graph-model.md`](./specs/SPEC-knowledge-graph-model.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Overlay nodes/edges/provenance |
+| Product Import & Enrichment Playbook | [`specs/SPEC-product-import-enrichment-playbook.md`](./specs/SPEC-product-import-enrichment-playbook.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Enrichment stages; AI limits (with ADR-012) |
+| Domain Model | [`specs/SPEC-domain-model.md`](./specs/SPEC-domain-model.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Logical ER commerce+knowledge |
+| Property Dictionary System | [`specs/SPEC-property-dictionary-system.md`](./specs/SPEC-property-dictionary-system.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Definitions/templates/Facts; dual-write still gated |
+| Knowledge Graph Registry | [`specs/SPEC-knowledge-graph-registry.md`](./specs/SPEC-knowledge-graph-registry.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Official relation vocabulary; KB-001 edge freeze |
+| Data Transformation Architecture | [`specs/SPEC-data-transformation-architecture.md`](./specs/SPEC-data-transformation-architecture.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Mapping/provenance/rollback mechanics |
+| ADR-013 — Knowledge Edge/Fact Storage | [`adr/ADR-013-knowledge-edge-fact-storage.md`](./adr/ADR-013-knowledge-edge-fact-storage.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Postgres overlay storage for edges/Facts |
+| ADR-014 — PKE Identity | [`adr/ADR-014-product-knowledge-entity-identity.md`](./adr/ADR-014-product-knowledge-entity-identity.md) | **Accepted** | ۱۴۰۵/۰۵/۱۰ | Mohammad Shebahati | Wave-1 PKE join = `products.id` |
+
+**Board policy from the same minute (not separate docs):** UD-03 metrology-first dictionary seed; UD-08 never auto-publish customer-facing FA AI prose; KB-001 freeze = `PRODUCT_BELONGS_TO_CATEGORY`, `PRODUCT_BRANDED_AS`, `ARTICLE_EXPLAINS_PRODUCT` only.
+
+---
+
 ## Board Acceptance (AODS process system)
 
 | Field | Value |
@@ -90,15 +120,17 @@ concrete files into this repository and adds Accepted/Binding rows above.
 
 | Area | Path / IDs | In this repo? | Note |
 |------|------------|---------------|------|
-| ADR-001 … ADR-009, ADR-011 | `docs/architecture/adr/` | **No** (only 010, 012 + README present) | Not citeable until promoted |
+| ADR-001 … ADR-009, ADR-011 | `docs/architecture/adr/` | **No** (010, 012, **013**, **014** + README present) | Reserved historical IDs still not citeable/inventable; wave-1 knowledge storage/identity = ADR-013/014 |
 | RFC-001, 002, 003, 006, 007 | `docs/architecture/rfc/` | **No** (only 004, 005 + index/template) | Not citeable until promoted |
-| Domain, KG, PIM, Property Gov, Data Gov, DQ | respective packs | **No** | Not citeable until promoted |
+| Reserved packs `domain/` / `pim/` / `knowledge-graph/` | respective dirs | **No** (UD-07 deferred) | Living Accepted path = `docs/architecture/specs/` core pack (§1c) |
+| Taxonomy master seed / audit / target / readiness / FA summary | `docs/architecture/specs/` (named files) | **Yes** | Remain **Proposed / REFERENCE** — not merge criteria alone |
+| Phase1–3 knowledge docs | `docs/KNOWLEDGE_PLATFORM_PHASE*.md` | **Yes** | **HISTORICAL** after OI-KF-04 — do not use as living SoT |
 | Enterprise AI | `docs/architecture/ai/` | **No** | Generative blocked until pack exists + Gate C |
 | Enterprise Search | `docs/architecture/search/` | **No** | Not citeable until promoted |
 | Repo Governance v2 | `docs/governance/repository/` | **No** | Not citeable until promoted |
 | Enterprise Roadmap | `docs/roadmap/enterprise/` | **No** | Not citeable until promoted |
-| Dual-write enablement | RFC-001/003 path | **No** | **Deferred** — separate Board gate |
-| Generative RAG | ADR-009 Gates A–D | **No** | **Deferred / blocked** while Evidence≈0 |
+| Dual-write enablement | RFC-001/003 path | **No** | **Deferred** — separate Board gate (Day-2 minute) |
+| Generative RAG | ADR-009 Gates A–D | **No** | **Deferred / blocked** while Evidence≈0 (Day-2 minute) |
 
 ---
 

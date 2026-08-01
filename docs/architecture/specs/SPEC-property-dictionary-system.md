@@ -1,7 +1,7 @@
 ---
 id: SPEC-property-dictionary-system
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
@@ -14,7 +14,7 @@ task_id: KB-001
 
 # SPEC — Property Dictionary System
 
-**Status:** Proposed  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Purpose:** Governed technical specification system (Property → Template → Fact)  
 **Non-goals:** Enabling JSONB dual-write · dropping JSONB · AI inventing values · DDL in this PR
 

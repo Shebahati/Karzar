@@ -1,7 +1,7 @@
 ---
 id: SPEC-product-import-enrichment-playbook
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/data-ingestion-policy.md
@@ -16,7 +16,7 @@ pack: docs/architecture/specs/README.md
 
 # SPEC — Product Import & Enrichment Playbook
 
-**Status:** Proposed (not binding merge criteria until Architecture Board Accepts)  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Document type:** Data pipeline / PIM operations specification  
 **Non-goals:** Implementing importer code in this PR · authorizing production writes · weakening ADR-012 · inventing technical specs via AI
 

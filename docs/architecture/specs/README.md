@@ -1,12 +1,13 @@
 # Knowledge Foundation Specs Pack
 
-**Status:** Proposed (not Canon Lock merge criteria until Architecture Board Accepts)  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Date:** 2026-07-30  
 **Parents:** [`../karzar-knowledge-platform-master-architecture.md`](../karzar-knowledge-platform-master-architecture.md) · [`../CANON-LOCK.md`](../CANON-LOCK.md)  
 **PMO:** prerequisite foundation for `KB-001` (content graph seed)  
-**Non-goals:** Code, migrations, Canon Lock upgrades, MASTER_* documents, parallel authority systems
+**Board minute:** [`../../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`](../../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md)  
+**Non-goals:** Code/migrations in *this* pack PR · MASTER_* documents · parallel authority systems · dual-write / RAG (still Board-gated)
 
-This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation** that Canon Lock §3 lists as not yet promoted (`docs/architecture/domain/`, `knowledge-graph/`, `pim/` historically reserved and absent). Specs live here under `docs/architecture/specs/` so they can be cited without inventing those reserved pack paths.
+This pack is the **living Accepted knowledge foundation** under `docs/architecture/specs/` (UD-07: reserved `domain/` / `knowledge-graph/` / `pim/` paths remain deferred). Core SPECs below are Canon Lock §1c merge criteria; seed/audit/target/readiness/FA summary remain Proposed/REFERENCE.
 
 ---
 
@@ -34,7 +35,7 @@ This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation**
 2. **Category tree** remains the **commerce merchandising** taxonomy (depth ≤ 3); megamenu stays presentation over L1 (**D1**).
 3. **ADR-010 / RFC-004 / RFC-005** URL and Brand Hub contracts — knowledge work MUST NOT invent alternate PDP/hub URL classes.
 4. **Ingestion policy + ADR-012** — enrichment never defaults to production API.
-5. **Canon Lock / AODS** — these SPECs are Proposed; only Board may Accept and add Canon Lock rows.
+5. **Canon Lock / AODS** — core SPECs in this pack are **Accepted** (Day-2 · ۱۴۰۵/۰۵/۱۰); further status upgrades still require Board + minute + Canon Lock rows.
 6. **JSONB operational** until Property/Facts dual-write is Board-gated (Bible P6) — specs here define the **target governed model**, not a big-bang drop.
 
 ### 0.3 What is missing
@@ -101,7 +102,7 @@ This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation**
 
 ---
 
-## 2. Architectural decision summary (Proposed)
+## 2. Architectural decision summary (Accepted — Day 2)
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
@@ -155,28 +156,31 @@ This pack lands the **missing Domain / Taxonomy / KG / PIM-pipeline foundation**
 
 ---
 
-## 4. Unresolved decisions requiring human / Board approval
+## 4. Board decisions (Day 2 · 2026-08-01) + remaining opens
 
-| ID | Question | Why blocked |
+| ID | Question | Disposition |
 |----|----------|-------------|
-| **UD-01** | Migrate existing `brands` into Brand-only vs split Manufacturer rows? | Affects data model + Brand Hub content |
-| **UD-02** | Stable ID scheme for Knowledge Entity: UUID vs `PKE-{n}` vs reuse `products.id`? | Identity before intelligence (Bible P3) |
-| **UD-03** | First Property Dictionary seed scope (metrology only vs all L1 domains)? | P5 FA/EN mapping effort |
-| **UD-04** | When may Tool Class / Application hubs become indexable URLs? | ADR-010 §8 facet risk; IA defers Tool Class past EPIC 1 |
-| **UD-05** | Graph storage: pure relational edge tables vs hybrid (Postgres + optional graph engine later)? | Phase 2 says overlay; scale to millions of edges |
-| **UD-06** | Accept these four SPECs into Canon Lock Wave-2? | Only Board + minute + Canon Lock row |
-| **UD-07** | Relationship of this pack to reserved `domain/` / `pim/` / `knowledge-graph/` paths | CF-SPEC-04 |
-| **UD-08** | Medium-risk AI drafts: auto-publish knowledge *prose* with banner, or always human approve? | Playbook proposes always review for FA customer-facing |
+| **UD-06** | Accept core SPEC pack into Canon Lock? | **CLOSED — A** Accepted (core pack §1c); seed/audit/target/readiness/FA summary stay Proposed |
+| **UD-05** | Graph storage | **CLOSED — A** → **ADR-013** Postgres tables only for wave-1 |
+| **UD-02** | PKE identity | **CLOSED — A** → **ADR-014** `products.id` 1:1 wave-1 |
+| **UD-03** | Dictionary seed scope | **CLOSED — A** Metrology first |
+| **UD-08** | AI FA prose auto-publish | **CLOSED — A** Never auto-publish customer-facing FA AI prose |
+| **OI-KF-04** | Phase1–3 vs specs pack | **CLOSED — A** Specs pack is living path; Phase docs HISTORICAL |
+| **KB-001 freeze** | Wave-1 edges | **CLOSED — Yes** `PRODUCT_BELONGS_TO_CATEGORY`, `PRODUCT_BRANDED_AS`, `ARTICLE_EXPLAINS_PRODUCT` |
+| **UD-01** | Manufacturer ≠ Brand migration | **OPEN — Deferred** after KB-001 edge slice |
+| **UD-04** | Tool Class / Application indexable hubs | **OPEN — Deferred** (ADR-010 facet risk) |
+| **UD-07** | Promote into reserved `domain/` / `pim/` / `knowledge-graph/` | **OPEN — Deferred** (keep `specs/`) |
+| Dual-write / RAG | JSONB↔Facts; generative RAG | **OPEN — Deferred / Blocked** |
 
 ---
 
-## 5. Recommended implementation sequence (after Accept)
+## 5. Recommended implementation sequence (post-Accept)
 
-1. **Board Accept** this pack (UD-06) — add Canon Lock rows; do not implement first.  
-2. **ADR drafts** for Manufacturer entity, Property Dictionary, Graph edge storage (fill missing ADR-002/003/004 intent **in-repo**, without inventing absent historical ADR text).  
-3. **Property Dictionary v0** for one flagship family (Calipers) + FA/EN aliases — dual-write still gated.  
-4. **Taxonomy seed** for Measurement domain dimensions (nodes only; commerce Category unchanged).  
-5. **Graph edge tables** + projectors from SoR (Brand, Category, Article soft links → typed edges).  
+1. ~~**Board Accept** this pack (UD-06)~~ **Done** Day-2 minute + Canon Lock §1c.  
+2. ~~**ADR** storage + PKE identity~~ **Done** ADR-013 / ADR-014. Manufacturer / Property dual-write ADRs still future.  
+3. **KB-001 IMPL** — three frozen projection edges + queryable read + tests (cite SPECs + ADR-013/014).  
+4. **Property Dictionary v0** metrology (Calipers) + FA/EN aliases — dual-write still gated.  
+5. **Taxonomy seed** (Proposed seed SPEC) for Measurement — commerce Category unchanged.  
 6. **Import playbook tooling** — entity resolution + classification job interfaces wrapping existing scripts.  
 7. **KB-001** content graph seed — now implementable without inventing a second merchandising taxonomy.  
 8. **Knowledge content modules** on PDP / Brand Hub (honest empty slots until filled).  
