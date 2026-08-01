@@ -23,6 +23,8 @@ Karzar/
 
 **Collaborator charter (required):** [`docs/FRONTEND_COLLABORATOR_CHARTER.md`](../docs/FRONTEND_COLLABORATOR_CHARTER.md)  
 **Owner GitHub access checklist:** [`docs/OWNER_GITHUB_FRONTEND_ACCESS.md`](../docs/OWNER_GITHUB_FRONTEND_ACCESS.md)  
+**Last FE redesign on main:** [#187](https://github.com/Shebahati/Karzar/pull/187) (Deploy Staging = Actions click).
+
 **Deploy workflow:** [`docs/COLLABORATOR_DEPLOY.md`](../docs/COLLABORATOR_DEPLOY.md) (PR → merge → manual Deploy Staging; staging = live VPS).
 
 ---
