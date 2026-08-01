@@ -6,7 +6,7 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 10% | P2 | 30h | Sprint 04 — **eligible to start**
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 35% | P2 | 30h | Sprint 04 — **eligible to start**
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
@@ -18,7 +18,7 @@ Statuses mirrored from `exports/tasks.json`.
     - [ ] No DAG categories
   - Definition of Done:
     - [ ] KNOWLEDGE_BASE_PROGRESS
-  - Notes: Historical deferral at checkpoint close (2026-07-28) per D7/RELEASE_PLAN. D22 (2026-07-30): 2026-09-23 date gate lifted — eligible to start. Phase-1 graph slice still needs SPEC before IMPL.
+  - Notes: Foundation SPECs (#167) + architecture completion pack Proposed 2026-07-30; graph IMPL not started; Board Accept UD-06 open.
 
 ## in_progress
 - [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 75% | P1 | 20h | Sprint 02
