@@ -1129,8 +1129,8 @@ documents:
     rank: 99
     status: draft
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Day-4 taxonomy v0 metrology Git seed. Bridge L1 56/81/87 → dom.measurement. No second Category DAG. Flip on_main after merge."
+    on_main: true
+    notes: "Day-4 taxonomy v0 metrology Git seed. Bridge L1 56/81/87 → dom.measurement. No second Category DAG."
 
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
