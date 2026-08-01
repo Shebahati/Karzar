@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **Day-4 Taxonomy v0 (metrology)** — Git seed `docs/architecture/specs/seeds/taxonomy-v0-metrology.json` (Measurement domain/families/types + apps + L1 bridge 56/81/87). No second Category DAG; hubs not indexable (UD-04).
 - [x] **Day-4 Property Dictionary v0 (metrology)** — Git-first seed `docs/architecture/specs/seeds/property-dictionary-v0-metrology.json` (definitions + caliper template + legacy aliases). UD-03 A. No Facts/dual-write.
 - [x] **KB-001 Day-3 CLOSED** — wave-1 AC done (#176); offline sync proof PASS; operator local Alembic residual documented in seeds README / day3-close.
 - [x] **KB-001 wave-1 IMPL (Day-3)** — `knowledge_edges` overlay (ADR-013) + projector from SoR soft-links + `GET /api/v1/knowledge/edges` + product neighborhood + admin `POST .../projections/sync`. Freeze: three edge types only. Tests + OpenAPI snapshot. Progress 45%→70% (`in_progress`).

@@ -1123,6 +1123,15 @@ documents:
     on_main: true
     notes: "Seeds index + KB-001 operator residual checklist."
 
+  - id: SEED-TAXONOMY-V0-METROLOGY
+    path: docs/architecture/specs/seeds/taxonomy-v0-metrology.json
+    class: PROPOSED
+    rank: 99
+    status: draft
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Day-4 taxonomy v0 metrology Git seed. Bridge L1 56/81/87 → dom.measurement. No second Category DAG. Flip on_main after merge."
+
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md

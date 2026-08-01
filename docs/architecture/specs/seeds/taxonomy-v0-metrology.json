@@ -1,0 +1,349 @@
+{
+  "seed_id": "taxonomy-v0-metrology",
+  "version": "0.1.0",
+  "status": "draft",
+  "scope": "metrology",
+  "ud_03": "A",
+  "replaces_commerce_categories": false,
+  "indexable_knowledge_hubs": false,
+  "ud_04": "deferred",
+  "governing_specs": [
+    "docs/architecture/specs/SPEC-industrial-taxonomy-model.md",
+    "docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md"
+  ],
+  "property_dictionary_seed": "docs/architecture/specs/seeds/property-dictionary-v0-metrology.json",
+  "notes": "Git-first knowledge taxonomy slice for Measurement/Metrology. MUST NOT create a second storefront Category DAG (CF-SPEC-01 / KB-001). Domain/Family/Type hubs not indexable until UD-04.",
+  "dimensions": ["domain", "family", "application", "industry", "technical"],
+  "nodes": [
+    {
+      "concept_id": "dom.root",
+      "dimension": "domain",
+      "name_fa": "ابزار صنعتی",
+      "name_en": "Industrial Tools",
+      "slug": "industrial-tools",
+      "parent": null,
+      "status": "active",
+      "synonyms": [],
+      "description": "Root pillar for industrial knowledge domains",
+      "related_templates": []
+    },
+    {
+      "concept_id": "dom.measurement",
+      "dimension": "domain",
+      "name_fa": "اندازه‌گیری",
+      "name_en": "Measurement",
+      "slug": "measurement",
+      "parent": "dom.root",
+      "status": "active",
+      "synonyms": ["metrology", "اندازه‌گیری دقیق"],
+      "description": "Dimensional and related metrology",
+      "related_templates": ["caliper", "micrometer"]
+    },
+    {
+      "concept_id": "fam.dim",
+      "dimension": "family",
+      "name_fa": "اندازه‌گیری ابعادی",
+      "name_en": "Dimensional Measurement",
+      "slug": "dimensional-measurement",
+      "parent": "dom.measurement",
+      "status": "active",
+      "synonyms": [],
+      "description": "Linear/geometric dimensional tools",
+      "related_templates": []
+    },
+    {
+      "concept_id": "fam.calipers",
+      "dimension": "family",
+      "name_fa": "کولیس",
+      "name_en": "Calipers",
+      "slug": "calipers",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": ["کولیس ورنیه", "vernier"],
+      "description": "Caliper family",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "type.caliper.vernier",
+      "dimension": "family",
+      "name_fa": "کولیس ورنیه",
+      "name_en": "Vernier Caliper",
+      "slug": "vernier-caliper",
+      "parent": "fam.calipers",
+      "status": "active",
+      "synonyms": [],
+      "description": "Scale vernier",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "type.caliper.dial",
+      "dimension": "family",
+      "name_fa": "کولیس ساعتی",
+      "name_en": "Dial Caliper",
+      "slug": "dial-caliper",
+      "parent": "fam.calipers",
+      "status": "active",
+      "synonyms": [],
+      "description": "Dial display",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "type.caliper.digital",
+      "dimension": "family",
+      "name_fa": "کولیس دیجیتال",
+      "name_en": "Digital Caliper",
+      "slug": "digital-caliper",
+      "parent": "fam.calipers",
+      "status": "active",
+      "synonyms": ["digimatic"],
+      "description": "Electronic display",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "fam.micrometers",
+      "dimension": "family",
+      "name_fa": "میکرومتر",
+      "name_en": "Micrometers",
+      "slug": "micrometers",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": ["micrometer"],
+      "description": "Micrometer family",
+      "related_templates": ["micrometer"]
+    },
+    {
+      "concept_id": "type.micrometer.outside",
+      "dimension": "family",
+      "name_fa": "میکرومتر خارجی",
+      "name_en": "Outside Micrometer",
+      "slug": "outside-micrometer",
+      "parent": "fam.micrometers",
+      "status": "active",
+      "synonyms": [],
+      "description": "External measurement",
+      "related_templates": ["micrometer"]
+    },
+    {
+      "concept_id": "fam.height_gauges",
+      "dimension": "family",
+      "name_fa": "ارتفاع‌سنج",
+      "name_en": "Height Gauges",
+      "slug": "height-gauges",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": [],
+      "description": "Height measurement",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "fam.indicators",
+      "dimension": "family",
+      "name_fa": "اندیکاتور",
+      "name_en": "Indicators",
+      "slug": "indicators",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": ["dial indicator", "شیطانک"],
+      "description": "Dial/test indicators",
+      "related_templates": ["measurement_indicator"]
+    },
+    {
+      "concept_id": "fam.gauge_blocks",
+      "dimension": "family",
+      "name_fa": "گیج بلوک",
+      "name_en": "Gauge Blocks",
+      "slug": "gauge-blocks",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": ["gage block", "راپورتر"],
+      "description": "Reference blocks",
+      "related_templates": ["industrial_default"]
+    },
+    {
+      "concept_id": "fam.depth",
+      "dimension": "family",
+      "name_fa": "عمق‌سنج",
+      "name_en": "Depth Gauges",
+      "slug": "depth-gauges",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": [],
+      "description": "Depth measurement",
+      "related_templates": ["caliper"]
+    },
+    {
+      "concept_id": "fam.bore",
+      "dimension": "family",
+      "name_fa": "بورگیج",
+      "name_en": "Bore Gauges",
+      "slug": "bore-gauges",
+      "parent": "fam.dim",
+      "status": "active",
+      "synonyms": ["سیلندر"],
+      "description": "Internal diameter",
+      "related_templates": ["micrometer"]
+    },
+    {
+      "concept_id": "app.root",
+      "dimension": "application",
+      "name_fa": "کاربردها",
+      "name_en": "Applications",
+      "slug": "applications",
+      "parent": null,
+      "status": "active",
+      "synonyms": [],
+      "description": "Application root (cross-cutting)",
+      "related_templates": []
+    },
+    {
+      "concept_id": "app.qc",
+      "dimension": "application",
+      "name_fa": "کنترل کیفیت",
+      "name_en": "Quality Control",
+      "slug": "quality-control",
+      "parent": "app.root",
+      "status": "active",
+      "synonyms": ["QC"],
+      "description": "Incoming/final QC",
+      "related_templates": []
+    },
+    {
+      "concept_id": "app.cnc_insp",
+      "dimension": "application",
+      "name_fa": "بازرسی CNC",
+      "name_en": "CNC Inspection",
+      "slug": "cnc-inspection",
+      "parent": "app.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "In-process machining inspection",
+      "related_templates": []
+    },
+    {
+      "concept_id": "app.workshop",
+      "dimension": "application",
+      "name_fa": "اندازه‌گیری کارگاهی",
+      "name_en": "Workshop Measurement",
+      "slug": "workshop-measurement",
+      "parent": "app.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "Bench/shop floor measurement",
+      "related_templates": []
+    },
+    {
+      "concept_id": "app.calibration",
+      "dimension": "application",
+      "name_fa": "کالیبراسیون",
+      "name_en": "Calibration Lab",
+      "slug": "calibration-lab",
+      "parent": "app.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "Lab calibration",
+      "related_templates": []
+    },
+    {
+      "concept_id": "ind.root",
+      "dimension": "industry",
+      "name_fa": "صنایع",
+      "name_en": "Industries",
+      "slug": "industries",
+      "parent": null,
+      "status": "active",
+      "synonyms": [],
+      "description": "Industry root (cross-cutting)",
+      "related_templates": []
+    },
+    {
+      "concept_id": "ind.automotive",
+      "dimension": "industry",
+      "name_fa": "خودرو",
+      "name_en": "Automotive",
+      "slug": "automotive",
+      "parent": "ind.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "Auto manufacturing/QC",
+      "related_templates": []
+    },
+    {
+      "concept_id": "ind.aerospace",
+      "dimension": "industry",
+      "name_fa": "هوافضا",
+      "name_en": "Aerospace",
+      "slug": "aerospace",
+      "parent": "ind.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "Aerospace metrology contexts",
+      "related_templates": []
+    },
+    {
+      "concept_id": "ind.machine_mfg",
+      "dimension": "industry",
+      "name_fa": "ماشین‌سازی",
+      "name_en": "Machine Manufacturing",
+      "slug": "machine-manufacturing",
+      "parent": "ind.root",
+      "status": "active",
+      "synonyms": [],
+      "description": "Machine builders",
+      "related_templates": []
+    },
+    {
+      "concept_id": "tech.root",
+      "dimension": "technical",
+      "name_fa": "طبقه فنی",
+      "name_en": "Technical Class",
+      "slug": "technical",
+      "parent": null,
+      "status": "active",
+      "synonyms": [],
+      "description": "Technical classification root — prefer Properties for filterable attrs when Definitions exist",
+      "related_templates": []
+    },
+    {
+      "concept_id": "tech.accuracy_class",
+      "dimension": "technical",
+      "name_fa": "کلاس دقت",
+      "name_en": "Accuracy Class",
+      "slug": "accuracy-class",
+      "parent": "tech.root",
+      "status": "draft",
+      "synonyms": [],
+      "description": "Bind to Property enums later; not an indexable hub",
+      "related_templates": []
+    }
+  ],
+  "commerce_category_bridge": {
+    "rule": "Assignment bridge only — does not duplicate or replace commerce categories tree",
+    "source": "scripts/seed_categories.py + SPEC-industrial-taxonomy-master-seed §9",
+    "mappings": [
+      {
+        "commerce_l1_id": 56,
+        "commerce_l1_name_fa": "اندازه گیری دقیق",
+        "knowledge_domain": "dom.measurement",
+        "notes": "Primary metrology merchandising L1"
+      },
+      {
+        "commerce_l1_id": 81,
+        "commerce_l1_name_fa": "CNC اندازه گیری",
+        "knowledge_domain": "dom.measurement",
+        "notes": "CNC measurement merchandising L1 → same knowledge domain"
+      },
+      {
+        "commerce_l1_id": 87,
+        "commerce_l1_name_fa": "اندازه گیری آزمایشگاهی",
+        "knowledge_domain": "dom.measurement",
+        "notes": "Lab measurement merchandising L1 → same knowledge domain (TX-Q1 open: collapse vs keep separate commerce roots)"
+      }
+    ]
+  },
+  "seo": {
+    "commerce_category_hubs": "indexable via existing /categories/{slug}",
+    "knowledge_domain_family_type": "not indexable until UD-04",
+    "application_industry": "not indexable until UD-04",
+    "draft_nodes": "never public"
+  }
+}
