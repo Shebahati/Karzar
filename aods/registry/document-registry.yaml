@@ -110,8 +110,8 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Accepted Day-2 2026-08-01 (UD-05 A). Postgres overlay edges/Facts; no graph engine for KB-001. Flip on_main after merge."
+    on_main: true
+    notes: "Accepted Day-2 2026-08-01 (UD-05 A). Postgres overlay edges/Facts; no graph engine for KB-001."
 
   - id: ADR-014
     path: docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
@@ -119,16 +119,16 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Accepted Day-2 2026-08-01 (UD-02 A). Wave-1 PKE join = products.id. Flip on_main after merge."
+    on_main: true
+    notes: "Accepted Day-2 2026-08-01 (UD-02 A). Wave-1 PKE join = products.id."
   - id: BOARD-MINUTE-KF-ACCEPT-2026-08-01
     path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
     class: CANON
     rank: 1
     status: accepted
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Day-2 Board minute — knowledge foundation Accept + ballot. Flip on_main after merge."
+    on_main: true
+    notes: "Day-2 Board minute — knowledge foundation Accept + ballot."
 
 
 
