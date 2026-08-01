@@ -47,7 +47,7 @@
 - [x] Backend EPIC-1 brand meta — **BE-002** done (#126); see `BACKEND_PROGRESS.md`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). CAT-002: local Category A apply 2026-07-30 applied=126 (`in_progress` 75%; QA ≥200 open). KB-001: **done** Day-3 (#176). Day-4: Property Dictionary + Taxonomy v0 metrology Git seeds. Day-5: INSIZE classification map + admin read-only Knowledge views (no Facts/CLASSIFIED_AS projector). FE collaborator gates landed (charter + scope-gate CI); Owner must still invite `mhrbzandi-Designer` + set branch protection per `docs/OWNER_GITHUB_FRONTEND_ACCESS.md`.
+See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). CAT-002: local Category A apply 2026-07-30 applied=126 (`in_progress` 75%; QA ≥200 open). KB-001: **done** Day-3 (#176). Day-4: Property Dictionary + Taxonomy v0 metrology Git seeds. Day-5: INSIZE classification map + admin read-only Knowledge views (no Facts/CLASSIFIED_AS projector). FE collaborator gates landed (#185); registry on_main (#188); FE redesign #187 on main — **Deploy Staging pending** (Actions click; agent 403). Owner invite/protection checklist: `docs/OWNER_GITHUB_FRONTEND_ACCESS.md`.
 
 ## Process governance (AODS-001)
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).
