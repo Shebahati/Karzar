@@ -11,11 +11,13 @@
 | **PR to merge** | https://github.com/Shebahati/Karzar/pull/168 |
 | **PR to close (not merge)** | https://github.com/Shebahati/Karzar/pull/167 (superseded; CONFLICTING) |
 | **Preflight** | MERGEABLE · CLEAN · CI green (aods/lint/test/paths) |
-| **Agent limit** | Cursor cloud tools cannot press GitHub Merge; Owner executes merge in UI |
+| **Execution** | Cursor merged via `gh pr ready` + `gh pr merge` after CI green |
+| **Result** | **MERGED** #168 @ 2026-08-01T09:42:51Z · merge commit `7d7883ad01da3e76b0dbdc41f2f6104d75e46e83` |
+| **#167** | Closed as superseded |
 
 ## Post-merge checklist (next in session)
 
-1. Verify `docs/architecture/specs/` on `main`
-2. Close #167 as superseded
-3. Flip registry SPEC rows `on_main: true`
-4. Proceed Day-1 Topic 2: post-merge verify + Board agenda for Day 2
+1. [x] Verify `docs/architecture/specs/` on `main`
+2. [x] Close #167 as superseded
+3. [ ] Flip registry SPEC rows `on_main: true` (this follow-up PR)
+4. [ ] Proceed Day-1 Topic 2: post-merge verify + Board agenda for Day 2

@@ -948,8 +948,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06). Flip on_main after merge."
+    on_main: true
+    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06)."
 
   - id: SPEC-PKE-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
@@ -957,8 +957,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs. Flip on_main after merge."
+    on_main: true
+    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs."
 
   - id: SPEC-TAXONOMY-MODEL
     path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
@@ -966,8 +966,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001). Flip on_main after merge."
+    on_main: true
+    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001)."
 
   - id: SPEC-KG-MODEL
     path: docs/architecture/specs/SPEC-knowledge-graph-model.md
@@ -975,8 +975,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL. Flip on_main after merge."
+    on_main: true
+    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL."
 
   - id: SPEC-IMPORT-PLAYBOOK
     path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
@@ -984,8 +984,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-DATA-ENG
-    on_main: false
-    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012. Flip on_main after merge."
+    on_main: true
+    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012."
 
   - id: SPEC-FULL-AUDIT
     path: docs/architecture/specs/FULL_PLATFORM_ARCHITECTURE_AUDIT.md
@@ -993,8 +993,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Full platform as-built audit for knowledge completion pack. Flip on_main after merge."
+    on_main: true
+    notes: "Full platform as-built audit for knowledge completion pack."
 
   - id: SPEC-FOUNDATION-REVIEW
     path: docs/architecture/specs/FOUNDATION_ARCHITECTURE_REVIEW.md
@@ -1002,8 +1002,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Review of foundation SPECs vs repository. Flip on_main after merge."
+    on_main: true
+    notes: "Review of foundation SPECs vs repository."
 
   - id: SPEC-DOMAIN-MODEL
     path: docs/architecture/specs/SPEC-domain-model.md
@@ -1011,8 +1011,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Logical domain ER commerce+knowledge. Flip on_main after merge."
+    on_main: true
+    notes: "Logical domain ER commerce+knowledge."
 
   - id: SPEC-PROPERTY-DICTIONARY
     path: docs/architecture/specs/SPEC-property-dictionary-system.md
@@ -1020,8 +1020,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Property Definition/Template/Fact system. Dual-write still gated. Flip on_main after merge."
+    on_main: true
+    notes: "Property Definition/Template/Fact system. Dual-write still gated."
 
   - id: SPEC-TAXONOMY-SEED
     path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
@@ -1029,8 +1029,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Concrete taxonomy seed; does not replace commerce categories. Flip on_main after merge."
+    on_main: true
+    notes: "Concrete taxonomy seed; does not replace commerce categories."
 
   - id: SPEC-KG-REGISTRY
     path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
@@ -1038,8 +1038,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Official KG relation vocabulary. Flip on_main after merge."
+    on_main: true
+    notes: "Official KG relation vocabulary."
 
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
@@ -1047,8 +1047,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-DATA-ENG
-    on_main: false
-    notes: "Supplier→production transform mechanics. Flip on_main after merge."
+    on_main: true
+    notes: "Supplier→production transform mechanics."
 
   - id: SPEC-KP-TARGET-ARCH
     path: docs/architecture/specs/KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md
@@ -1056,8 +1056,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Target blueprint connecting commerce/knowledge/SEO/AI. Flip on_main after merge."
+    on_main: true
+    notes: "Target blueprint connecting commerce/knowledge/SEO/AI."
 
   - id: SPEC-IMPL-READINESS
     path: docs/architecture/specs/FOUNDATION_IMPLEMENTATION_READINESS.md
@@ -1065,8 +1065,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Implementation readiness gates for KB engineering. Flip on_main after merge."
+    on_main: true
+    notes: "Implementation readiness gates for KB engineering."
 
   - id: SPEC-PACK-SUMMARY-FA
     path: docs/architecture/specs/KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md
@@ -1074,8 +1074,8 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Persian executive summary of knowledge foundation + completion pack. Flip on_main after merge."
+    on_main: true
+    notes: "Persian executive summary of knowledge foundation + completion pack."
 
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
