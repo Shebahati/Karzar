@@ -2,6 +2,7 @@
 
 Move completed task IDs here with date + PR.
 
+- [x] Classification map INSIZE v0 (Day-5 readiness §5) — 2026-08-01 — (PR pending)
 - [x] KB-001 wave-1 content graph seed (Day-3) — 2026-08-01 — #176 → `main`
 - [x] Knowledge Foundation Day-2 Board Accept (D23 / UD-06 A + ADR-013/014) — 2026-08-01 — #174 → `main`
 - [x] Homepage IA waves (hero/categories/why) — 2026-07 — PRs #76–#85 area

@@ -1,0 +1,299 @@
+{
+  "map_id": "classification-map-insize-v0-metrology",
+  "artifact_type": "MAPPING-TABLE",
+  "mapping_kind": "taxonomy_classify",
+  "version": "0.1.0",
+  "status": "draft",
+  "scope": "metrology",
+  "ud_03": "A",
+  "brand": {
+    "name": "INSIZE",
+    "name_fa": "اینسایز",
+    "brand_id": 3,
+    "slug_hint": "insize",
+    "source": "scripts/seed_brands.py"
+  },
+  "taxonomy_seed": "docs/architecture/specs/seeds/taxonomy-v0-metrology.json",
+  "property_dictionary_seed": "docs/architecture/specs/seeds/property-dictionary-v0-metrology.json",
+  "sample_source": "data/imports/insize_products.csv",
+  "governing_specs": [
+    "docs/architecture/specs/SPEC-data-transformation-architecture.md",
+    "docs/architecture/specs/SPEC-product-import-enrichment-playbook.md",
+    "docs/architecture/specs/SPEC-industrial-taxonomy-model.md",
+    "docs/architecture/specs/SPEC-knowledge-graph-registry.md",
+    "docs/architecture/specs/FOUNDATION_IMPLEMENTATION_READINESS.md"
+  ],
+  "replaces_commerce_categories": false,
+  "writes_facts": false,
+  "dual_write": "forbidden",
+  "projects_classified_as_edges": false,
+  "notes": "Git-first Taxonomy classify map for one brand (INSIZE). Closed label set = taxonomy-v0-metrology concept_ids only. Does not replace commerce categories. Does not write Facts or project PRODUCT_CLASSIFIED_AS (KB-001 Day-2 freeze remains three edges until Board reopens).",
+  "match_order": [
+    "name_any + commerce_category",
+    "commerce_category",
+    "fallback_unclassified"
+  ],
+  "assignment_shape": {
+    "domain": "required when classified or partial",
+    "family": "optional; null = unclassified at family",
+    "type": "optional primary Product Type; null allowed for partial",
+    "type_role": "primary when type set",
+    "applications": "optional multi",
+    "template": "optional Property Dictionary template key",
+    "classification_status": "classified | partial | unclassified_pending_taxonomy"
+  },
+  "rules": [
+    {
+      "rule_id": "insize.caliper.digital",
+      "priority": 10,
+      "when": {
+        "commerce_category_ids": [57],
+        "name_any": ["دیجیتال", "digital"]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.calipers",
+        "type": "type.caliper.digital",
+        "type_role": "primary",
+        "applications": ["app.qc", "app.workshop"],
+        "template": "caliper",
+        "classification_status": "classified"
+      },
+      "auto_apply": true,
+      "confidence": "high",
+      "notes": "Commerce L2 انواع کولیس + digital cue → closed digital caliper type"
+    },
+    {
+      "rule_id": "insize.caliper.vernier",
+      "priority": 11,
+      "when": {
+        "commerce_category_ids": [57],
+        "name_any": ["ورنیه", "vernier"]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.calipers",
+        "type": "type.caliper.vernier",
+        "type_role": "primary",
+        "applications": ["app.workshop"],
+        "template": "caliper",
+        "classification_status": "classified"
+      },
+      "auto_apply": true,
+      "confidence": "high"
+    },
+    {
+      "rule_id": "insize.caliper.dial",
+      "priority": 12,
+      "when": {
+        "commerce_category_ids": [57],
+        "name_any": ["عقربه‌ای", "عقربه", "dial"]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.calipers",
+        "type": "type.caliper.dial",
+        "type_role": "primary",
+        "applications": ["app.workshop"],
+        "template": "caliper",
+        "classification_status": "classified"
+      },
+      "auto_apply": true,
+      "confidence": "high"
+    },
+    {
+      "rule_id": "insize.caliper.family",
+      "priority": 20,
+      "when": {
+        "commerce_category_ids": [57]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.calipers",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.workshop"],
+        "template": "caliper",
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "medium",
+      "notes": "Family hit without type cue — steward may refine type later; do not invent vernier/dial/digital"
+    },
+    {
+      "rule_id": "insize.micrometer.outside",
+      "priority": 30,
+      "when": {
+        "commerce_category_ids": [58],
+        "name_any": ["خارج", "outside"]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.micrometers",
+        "type": "type.micrometer.outside",
+        "type_role": "primary",
+        "applications": ["app.qc", "app.cnc_insp"],
+        "template": null,
+        "classification_status": "classified"
+      },
+      "auto_apply": true,
+      "confidence": "high",
+      "notes": "Only outside type exists in taxonomy v0; inside/depth stay family-only. No micrometer Property Dictionary template in v0 yet."
+    },
+    {
+      "rule_id": "insize.micrometer.family",
+      "priority": 40,
+      "when": {
+        "commerce_category_ids": [58]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.micrometers",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.qc"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "medium",
+      "notes": "Covers inside/depth micrometers until taxonomy adds types — no invented concept_id"
+    },
+    {
+      "rule_id": "insize.indicator",
+      "priority": 50,
+      "when": {
+        "commerce_category_ids": [59, 60]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.indicators",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.qc", "app.cnc_insp"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "high",
+      "notes": "ساعت اندیکاتور / ساعت شیطانکی → indicators family (no type nodes in v0)"
+    },
+    {
+      "rule_id": "insize.depth",
+      "priority": 60,
+      "when": {
+        "commerce_category_ids": [67]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.depth",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.workshop", "app.qc"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "high"
+    },
+    {
+      "rule_id": "insize.gauge_blocks",
+      "priority": 70,
+      "when": {
+        "commerce_category_ids": [66]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.gauge_blocks",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.calibration", "app.qc"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "high"
+    },
+    {
+      "rule_id": "insize.bore",
+      "priority": 80,
+      "when": {
+        "commerce_category_ids": [63]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.bore",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.qc", "app.cnc_insp"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "high"
+    },
+    {
+      "rule_id": "insize.height_gauge.keyword",
+      "priority": 90,
+      "when": {
+        "name_any": ["ارتفاع سنج", "height gauge", "height-gauge"]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": "fam.height_gauges",
+        "type": null,
+        "type_role": null,
+        "applications": ["app.qc"],
+        "template": null,
+        "classification_status": "partial"
+      },
+      "auto_apply": true,
+      "confidence": "medium",
+      "notes": "No dedicated commerce L2 in INSIZE sample CSV; keyword stewardship rule"
+    },
+    {
+      "rule_id": "insize.measurement.domain_only",
+      "priority": 800,
+      "when": {
+        "commerce_category_ids": [62, 68, 71, 72, 75, 76, 77, 91]
+      },
+      "assign": {
+        "domain": "dom.measurement",
+        "family": null,
+        "type": null,
+        "type_role": null,
+        "applications": [],
+        "template": null,
+        "classification_status": "unclassified_pending_taxonomy"
+      },
+      "auto_apply": false,
+      "confidence": "low",
+      "notes": "Merchandising under measurement L1 but family not in taxonomy v0 closed set (gauge misc, levels, rulers, angles, tape, hardness, …). Quarantine family/type per playbook §4.5."
+    },
+    {
+      "rule_id": "insize.fallback.unclassified",
+      "priority": 900,
+      "when": {
+        "always": true
+      },
+      "assign": {
+        "domain": null,
+        "family": null,
+        "type": null,
+        "type_role": null,
+        "applications": [],
+        "template": null,
+        "classification_status": "unclassified_pending_taxonomy"
+      },
+      "auto_apply": false,
+      "confidence": "low",
+      "notes": "Unknown → unclassified; MUST NOT invent Taxonomy nodes at runtime"
+    }
+  ],
+  "commerce_bridge_context": {
+    "l1_ids": [56, 81, 87],
+    "primary_l1_for_sample": 56,
+    "sample_l2_mapped_to_families": [57, 58, 59, 60, 63, 66, 67],
+    "sample_l2_domain_only": [62, 68, 71, 72, 75, 76, 77, 91]
+  }
+}

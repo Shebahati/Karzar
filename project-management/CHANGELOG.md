@@ -1,5 +1,8 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-01
+- [x] **Day-5 Classification map INSIZE v0** — Git `MAPPING-TABLE` `docs/architecture/specs/seeds/classification-map-insize-v0-metrology.json` (brand_id=3 → taxonomy v0 closed labels). Offline sample coverage. No Facts / no `PRODUCT_CLASSIFIED_AS` projector. Readiness §5 complete for one-brand maps.
+
 ## 2026-07-30
 - [x] **Day-4 Taxonomy v0 (metrology)** — Git seed `docs/architecture/specs/seeds/taxonomy-v0-metrology.json` (Measurement domain/families/types + apps + L1 bridge 56/81/87). No second Category DAG; hubs not indexable (UD-04).
 - [x] **Day-4 Property Dictionary v0 (metrology)** — Git-first seed `docs/architecture/specs/seeds/property-dictionary-v0-metrology.json` (definitions + caliper template + legacy aliases). UD-03 A. No Facts/dual-write.

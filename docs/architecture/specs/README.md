@@ -106,6 +106,7 @@ This pack is the **living Accepted knowledge foundation** under `docs/architectu
 |------|------|-------|
 | Property Dictionary v0 (metrology) | [`seeds/property-dictionary-v0-metrology.json`](./seeds/property-dictionary-v0-metrology.json) | UD-03 A · Day-4 · **no** dual-write |
 | Taxonomy v0 (metrology) | [`seeds/taxonomy-v0-metrology.json`](./seeds/taxonomy-v0-metrology.json) | UD-03 A · Day-4 · bridge only · **no** second Category DAG |
+| Classification map INSIZE v0 | [`seeds/classification-map-insize-v0-metrology.json`](./seeds/classification-map-insize-v0-metrology.json) | Readiness §5 · one brand · Git `MAPPING-TABLE` · **no** CLASSIFIED_AS projection |
 | Seeds README | [`seeds/README.md`](./seeds/README.md) | Operator checklist + rules |
 
 ---
