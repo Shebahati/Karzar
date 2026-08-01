@@ -1111,8 +1111,8 @@ documents:
     rank: 99
     status: draft
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Day-4 Property Dictionary v0 metrology Git seed (UD-03 A). No dual-write. Flip on_main after merge."
+    on_main: true
+    notes: "Day-4 Property Dictionary v0 metrology Git seed (UD-03 A). No dual-write."
 
   - id: SEED-PROPERTY-DICT-README
     path: docs/architecture/specs/seeds/README.md
@@ -1120,8 +1120,8 @@ documents:
     rank: 99
     status: draft
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Seeds index + KB-001 operator residual checklist. Flip on_main after merge."
+    on_main: true
+    notes: "Seeds index + KB-001 operator residual checklist."
 
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
