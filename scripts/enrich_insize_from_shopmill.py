@@ -19,7 +19,9 @@ Specs policy:
   - Locked measurement technical_specs keys (EN canonical): range, accuracy,
     resolution, material, standard, battery_type
   - ALL other factual shopmill attributes preserved under source_attributes
-  - Merge fill-empty; conflict → keep existing (never silent overwrite)
+  - Merge fill-empty; conflict → keep existing (never silent overwrite),
+    except known corrupt values like ``0/01`` (slash-decimal) when shopmill has a
+    well-formed replacement — then replace with an explicit merge note.
   - Never invent values; never treat country-of-origin as material
 
 Usage:
@@ -262,8 +264,15 @@ def count_forbidden_in_obj(obj: Any) -> list[str]:
 
 
 def _load_admin_creds() -> tuple[str, str]:
-    phone = os.getenv("INITIAL_SUPER_ADMIN_PHONE")
-    password = os.getenv("INITIAL_SUPER_ADMIN_PASSWORD")
+    # Prefer explicit KARZAR_ADMIN_* (Category B / operator override), then local INITIAL_*.
+    phone = (
+        os.getenv("KARZAR_ADMIN_PHONE")
+        or os.getenv("INITIAL_SUPER_ADMIN_PHONE")
+    )
+    password = (
+        os.getenv("KARZAR_ADMIN_PASSWORD")
+        or os.getenv("INITIAL_SUPER_ADMIN_PASSWORD")
+    )
     secrets = _ROOT / ".deploy-secrets"
     if not secrets.exists():
         alt = _ROOT.parent / "backend" / ".deploy-secrets"
@@ -276,7 +285,9 @@ def _load_admin_creds() -> tuple[str, str]:
             if line.startswith("INITIAL_SUPER_ADMIN_PASSWORD=") and not password:
                 password = line.split("=", 1)[1].strip()
     if not phone or not password:
-        raise RuntimeError("missing admin creds (env or .deploy-secrets)")
+        raise RuntimeError(
+            "missing admin creds (KARZAR_ADMIN_* / INITIAL_SUPER_ADMIN_* / .deploy-secrets)"
+        )
     return phone, password
 
 
@@ -403,15 +414,49 @@ def sku_base(sku: str) -> str:
     return m.group(1) if m else s
 
 
+def is_corrupt_slash_decimal(val: str) -> bool:
+    """True for values like ``0/01`` / ``0/02mm`` (broken decimal), not real ± tolerances.
+
+    Persian catalog exports sometimes store ``0.01`` as ``0/01``. Those must not be
+    treated as authoritative accuracy/resolution when a well-formed OEM value exists.
+    """
+    v = _clean(val)
+    if not v or "±" in v or "+-" in v:
+        return False
+    return bool(re.fullmatch(r"\d+/\d+(?:\.\d+)?(?:\s*[a-zA-Zμµ°]+)?", v))
+
+
+# Boundary-aware: do not treat ``0.02/0.03mm`` mid-tokens as corrupt ``02/0.03``.
+# Allow a trailing sentence period after ``0/01.``
+_CORRUPT_SLASH_TOKEN_RE = re.compile(
+    r"(?<![\d.])(\d+/\d+(?!\.\d)(?:\s*[a-zA-Zμµ°]+)?)"
+)
+
+
+def text_has_corrupt_slash_decimal(text: str | None) -> bool:
+    """True when marketing text embeds a corrupt slash-decimal token (e.g. دقت 0/01)."""
+    if not text:
+        return False
+    # Normalize Persian digits so ۰/۰۱ matches the ASCII detector.
+    trans = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+    normalized = text.translate(trans)
+    for match in _CORRUPT_SLASH_TOKEN_RE.finditer(normalized):
+        if is_corrupt_slash_decimal(match.group(1)):
+            return True
+    return False
+
+
 def looks_like_accuracy(val: str) -> bool:
     v = _clean(val)
     if not v:
         return False
+    if is_corrupt_slash_decimal(v):
+        return False
     if "±" in v or "+-" in v or v.startswith("±") or v.startswith("+"):
         return True
-    # shopmill often uses ±0.03mm already; bare 0.03mm alone is ambiguous — accept if
-    # labeled as accuracy upstream (caller decides). Here: require ± or slash form.
-    if "/" in v and re.search(r"\d", v):
+    # Compound tolerance forms e.g. 0.02/0.03mm with ± already handled above; bare
+    # slash-decimals are corrupt (see is_corrupt_slash_decimal), not accuracy.
+    if re.search(r"\d+\.\d+", v) and ("mm" in v.casefold() or "µm" in v or "μm" in v):
         return True
     return False
 
@@ -575,8 +620,15 @@ def merge_specifications(
         prior = _clean(prior_tech.get(key))
         if incoming:
             if prior and _norm_spec_val(prior) != _norm_spec_val(incoming):
-                notes.append(f"keep_existing_{key}:{prior}|shopmill:{incoming}")
-                merged_tech[key] = prior
+                # Replace only when prior is a known corrupt slash-decimal and incoming
+                # is not. Never silent-overwrite arbitrary conflicts.
+                if is_corrupt_slash_decimal(prior) and not is_corrupt_slash_decimal(incoming):
+                    notes.append(f"replace_malformed_{key}:{prior}|shopmill:{incoming}")
+                    merged_tech[key] = incoming
+                    filled[key] = incoming
+                else:
+                    notes.append(f"keep_existing_{key}:{prior}|shopmill:{incoming}")
+                    merged_tech[key] = prior
             else:
                 merged_tech[key] = incoming
                 if not prior or _norm_spec_val(prior) != _norm_spec_val(incoming):
@@ -667,6 +719,14 @@ def merge_specifications(
     return result, notes, filled
 
 
+def _safe_tech_fact(val: str | None) -> str:
+    """Return a tech value safe for customer-facing short/meta copy (no corrupt 0/01)."""
+    v = _clean(val)
+    if not v or is_corrupt_slash_decimal(v):
+        return ""
+    return v
+
+
 def persian_short_description(
     *,
     name: str,
@@ -680,12 +740,15 @@ def persian_short_description(
     lead = cat or "ابزار اندازه‌گیری"
     parts = [f"{lead} برند {brand}"]
     facts: list[str] = []
-    if tech.get("range"):
-        facts.append(f"بازه {tech['range']}")
-    if tech.get("resolution"):
-        facts.append(f"تفکیک‌پذیری {tech['resolution']}")
-    if tech.get("accuracy"):
-        facts.append(f"دقت {tech['accuracy']}")
+    range_v = _safe_tech_fact(tech.get("range"))
+    resolution_v = _safe_tech_fact(tech.get("resolution"))
+    accuracy_v = _safe_tech_fact(tech.get("accuracy"))
+    if range_v:
+        facts.append(f"بازه {range_v}")
+    if resolution_v:
+        facts.append(f"تفکیک‌پذیری {resolution_v}")
+    if accuracy_v:
+        facts.append(f"دقت {accuracy_v}")
     if facts:
         parts.append("؛ ".join(facts[:3]))
     if sku:
@@ -774,11 +837,13 @@ def build_payload(
     meta_desc = product.get("meta_description")
 
     new_short = None
-    if (
+    short_needs_refresh = (
         not short
         or is_stub_description(short, product_name=name)
         or _has_customer_facing_external_domain(short)
-    ):
+        or text_has_corrupt_slash_decimal(short)
+    )
+    if short_needs_refresh:
         new_short = persian_short_description(
             name=name,
             brand_name=brand_name,
@@ -804,6 +869,8 @@ def build_payload(
         not (meta_desc or "").strip()
         or is_stub_description(meta_desc, product_name=name)
         or _has_customer_facing_external_domain(meta_desc)
+        or text_has_corrupt_slash_decimal(meta_desc)
+        or (new_short and text_has_corrupt_slash_decimal(short))
     ):
         new_meta_desc = meta_description_for(new_short or short, name, sku)
 
