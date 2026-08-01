@@ -266,7 +266,7 @@
         "content"
       ],
       "risk": "med",
-      "notes": "2026-07-30 local Category A APPLY PASS after API stack repair. API: http://127.0.0.1:8000/api/v1. Applied 126 / errors 0; match: already_complete=735 matched=126 skipped_no_specs=6 unmatched=5; catalog_insize=872; zero_price_writes=true; fields=description,meta_*,short_description,specifications. Stack fix: stopped wrong Project=backend lathe_api (bind-mount Website/backend); compose up from Karzar-clean/Karzar (mount=repo root); ALTER ROLE password to match .env (SCRAM vs trust); aligned local INITIAL_SUPER_ADMIN password hash for apply login. No prod/staging write; no HC-09. AC ≥200 SKU QA spot-check still open."
+      "notes": "2026-07-30 local Category A APPLY PASS after API stack repair. API: http://127.0.0.1:8000/api/v1. Applied 126 / errors 0; match: already_complete=735 matched=126 skipped_no_specs=6 unmatched=5; catalog_insize=872; zero_price_writes=true; fields=description,meta_*,short_description,specifications. Stack fix: stopped wrong Project=backend lathe_api (bind-mount Website/backend); compose up from Karzar-clean/Karzar (mount=repo root); ALTER ROLE password to match .env (SCRAM vs trust); aligned local INITIAL_SUPER_ADMIN password hash for apply login. No prod/staging write; no HC-09. AC ≥200 SKU QA spot-check still open. 2026-08-01 Wave A residual#1: rewrote 43 cat57 INSIZE short/meta clearing دقت 0/01 (Category B, 43/43). Next: model-like ranges, display_type, OEM-only empties."
     },
     {
       "id": "CAT-003",
