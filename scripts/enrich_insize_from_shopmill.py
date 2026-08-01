@@ -19,7 +19,9 @@ Specs policy:
   - Locked measurement technical_specs keys (EN canonical): range, accuracy,
     resolution, material, standard, battery_type
   - ALL other factual shopmill attributes preserved under source_attributes
-  - Merge fill-empty; conflict → keep existing (never silent overwrite)
+  - Merge fill-empty; conflict → keep existing (never silent overwrite),
+    except known corrupt values like ``0/01`` (slash-decimal) when shopmill has a
+    well-formed replacement — then replace with an explicit merge note.
   - Never invent values; never treat country-of-origin as material
 
 Usage:
@@ -403,15 +405,29 @@ def sku_base(sku: str) -> str:
     return m.group(1) if m else s
 
 
+def is_corrupt_slash_decimal(val: str) -> bool:
+    """True for values like ``0/01`` / ``0/02mm`` (broken decimal), not real ± tolerances.
+
+    Persian catalog exports sometimes store ``0.01`` as ``0/01``. Those must not be
+    treated as authoritative accuracy/resolution when a well-formed OEM value exists.
+    """
+    v = _clean(val)
+    if not v or "±" in v or "+-" in v:
+        return False
+    return bool(re.fullmatch(r"\d+/\d+(?:\.\d+)?(?:\s*[a-zA-Zμµ°]+)?", v))
+
+
 def looks_like_accuracy(val: str) -> bool:
     v = _clean(val)
     if not v:
         return False
+    if is_corrupt_slash_decimal(v):
+        return False
     if "±" in v or "+-" in v or v.startswith("±") or v.startswith("+"):
         return True
-    # shopmill often uses ±0.03mm already; bare 0.03mm alone is ambiguous — accept if
-    # labeled as accuracy upstream (caller decides). Here: require ± or slash form.
-    if "/" in v and re.search(r"\d", v):
+    # Compound tolerance forms e.g. 0.02/0.03mm with ± already handled above; bare
+    # slash-decimals are corrupt (see is_corrupt_slash_decimal), not accuracy.
+    if re.search(r"\d+\.\d+", v) and ("mm" in v.casefold() or "µm" in v or "μm" in v):
         return True
     return False
 
@@ -575,8 +591,15 @@ def merge_specifications(
         prior = _clean(prior_tech.get(key))
         if incoming:
             if prior and _norm_spec_val(prior) != _norm_spec_val(incoming):
-                notes.append(f"keep_existing_{key}:{prior}|shopmill:{incoming}")
-                merged_tech[key] = prior
+                # Replace only when prior is a known corrupt slash-decimal and incoming
+                # is not. Never silent-overwrite arbitrary conflicts.
+                if is_corrupt_slash_decimal(prior) and not is_corrupt_slash_decimal(incoming):
+                    notes.append(f"replace_malformed_{key}:{prior}|shopmill:{incoming}")
+                    merged_tech[key] = incoming
+                    filled[key] = incoming
+                else:
+                    notes.append(f"keep_existing_{key}:{prior}|shopmill:{incoming}")
+                    merged_tech[key] = prior
             else:
                 merged_tech[key] = incoming
                 if not prior or _norm_spec_val(prior) != _norm_spec_val(incoming):

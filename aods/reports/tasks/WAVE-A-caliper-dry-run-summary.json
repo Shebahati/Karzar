@@ -1,0 +1,183 @@
+{
+  "api": "http://127.0.0.1:8000/api/v1",
+  "source": "shopmilltools.com",
+  "brand_id": 3,
+  "shopmill_rows": 874,
+  "catalog_insize": 337,
+  "match_counts": {
+    "matched": 330,
+    "skipped_no_specs": 2,
+    "unmatched": 5
+  },
+  "matched": 330,
+  "payloads": 330,
+  "enriched_would_write": 330,
+  "skipped": {
+    "unmatched": 5,
+    "ambiguous": 0,
+    "skipped_no_specs": 2,
+    "already_complete": 0
+  },
+  "apply": false,
+  "applied": 0,
+  "apply_errors": 0,
+  "fields_written": [
+    "description",
+    "meta_description",
+    "meta_title",
+    "short_description",
+    "specifications"
+  ],
+  "commerce_policy": {
+    "forbidden_keys": [
+      "availability",
+      "base_price",
+      "currency",
+      "discount",
+      "discount_percent",
+      "hesabfa_stock",
+      "is_available",
+      "list_price",
+      "low_stock",
+      "original_price",
+      "price",
+      "sale_price",
+      "stock",
+      "stock_quantity",
+      "stock_status",
+      "stock_unit",
+      "tax_percent",
+      "warehouse_quantity",
+      "weight_grams"
+    ],
+    "allowed_put_keys": [
+      "description",
+      "meta_description",
+      "meta_title",
+      "short_description",
+      "specifications"
+    ],
+    "export_forbidden_count": 0,
+    "payload_forbidden_count": 0,
+    "zero_price_writes": true
+  },
+  "samples": [
+    {
+      "sku": "0110-1125",
+      "payload_keys": [
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "attr:ابعاد": "213*54*36mm",
+        "attr:دقت اندازه گیری دما": "±2درجه سانتی گراد",
+        "attr:وزن": "172g",
+        "attr:رابط": "خروجی بلوتوث 4.0 برای اتصال به گوشی یا کامپیوتر",
+        "attr:کشور سازنده": "چین",
+        "attr:منبع تغذیه": "9V"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-23911/insize-anemometer-model-0110-1125/"
+    },
+    {
+      "sku": "1103-150",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "accuracy": "±0.03mm",
+        "resolution": "0.01mm",
+        "standard": "منطبق با DIN 862 و دارای گواهی تست DKD یا NIST (بسته به توزیع‌کننده)",
+        "features.buttons_list": "on,of,mm,inch",
+        "attr:جنس بدنه": "فولاد ضد زنگ",
+        "attr:کشور سازنده": "چین",
+        "attr:نوع کولیس": "دیجیتال",
+        "attr:منبع تغذیه": "CR2032",
+        "attr:عملکرد دکمه ها": "on/of،mm/inch،ORIGIN،ZERO/ABS"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-23935/insize-digital-calipers-absolute-system-model-1103-150/"
+    },
+    {
+      "sku": "1103-200",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "accuracy": "±0.03mm",
+        "resolution": "0.01mm",
+        "standard": "منطبق با DIN 862 و دارای گواهی تست DKD یا NIST (بسته به توزیع‌کننده)",
+        "features.buttons_list": "on,of,mm,inch",
+        "attr:نوع کولیس": "دیجیتال",
+        "attr:کشور سازنده": "چین",
+        "attr:جنس بدنه": "فولاد ضد زنگ",
+        "attr:منبع تغذیه": "CR2032",
+        "attr:عملکرد دکمه ها": "on/of،mm/inch،ORIGIN،ZERO/ABS"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-23941/insize-digital-calipers-absolute-system-model-1103-200/"
+    },
+    {
+      "sku": "1103-300",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "accuracy": "±0.03mm",
+        "resolution": "0.01mm",
+        "standard": "منطبق با DIN 862 و دارای گواهی تست DKD یا NIST (بسته به توزیع‌کننده)",
+        "features.buttons_list": "on,of,mm,inch",
+        "attr:نوع کولیس": "دیجیتال",
+        "attr:کشور سازنده": "چین",
+        "attr:جنس بدنه": "فولاد ضد زنگ",
+        "attr:منبع تغذیه": "CR2032",
+        "attr:عملکرد دکمه ها": "on/of،mm/inch،ORIGIN،ZERO/ABS"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-23947/insize-digital-calipers-absolute-system-model-1103-300/"
+    },
+    {
+      "sku": "1106-301",
+      "payload_keys": [
+        "description",
+        "meta_description",
+        "meta_title",
+        "short_description",
+        "specifications"
+      ],
+      "filled": {
+        "accuracy": "±0.05mm",
+        "resolution": "0.01mm",
+        "standard": "DIN862",
+        "features.buttons_list": "on,of,ZERO,mm",
+        "attr:عملکرد دکمه ها": "on/of،ZERO،mm/inch،ABS،data preset",
+        "attr:کشور سازنده": "چین",
+        "attr:جنس بدنه": "فولاد ضد زنگ با کیفیت بالا",
+        "attr:منبع تغذیه": "CR2032",
+        "attr:نوع صفحه نمایش": "دیجیتال",
+        "attr:طول محصول": "420mm",
+        "attr:a": "18mm",
+        "attr:c": "24mm",
+        "attr:d": "100mm",
+        "attr:e": "20mm"
+      },
+      "source_url": "https://shopmilltools.com/product/sm-23972/insize-digital-calipers-model-1106-301/"
+    }
+  ],
+  "paths": {
+    "crawl_jsonl": "/workspace/data/imports/insize/shopmill/shopmill_insize.jsonl",
+    "site_export": "/workspace/data/imports/insize/shopmill/site_export.jsonl",
+    "match_report": "/workspace/data/imports/insize/shopmill/match_report.csv",
+    "dry_run_payloads": "/workspace/data/imports/insize/shopmill/dry_run_payloads.jsonl"
+  }
+}

@@ -1,0 +1,616 @@
+{
+  "source_audit": "data/exports/catalog-audit-2026-08-01/L1-56-اندازه-گیری-دقیق.xlsx",
+  "pd_seed": "docs/architecture/specs/seeds/property-dictionary-v0-metrology.json",
+  "caliper_category_id": 57,
+  "caliper_category_name_fa": "انواع کولیس",
+  "counts": {
+    "cat57_products": 446,
+    "insize_cat57": 158,
+    "template_gap_rows_cat57": 7328,
+    "template_gap_rows_insize": 2391,
+    "pd_gap_rows_cat57": 3167,
+    "pd_gap_rows_insize": 1011
+  },
+  "brand_mix_cat57": {
+    "ASIMETO | آسیمتو": 74,
+    "INSIZE | اینسایز": 158,
+    "Dasqua | داسکوا": 102,
+    "Vogel | وگل": 1,
+    "Mitutoyo | میتوتویو": 50,
+    "Groz | گروز": 3,
+    "ASTPOWER | ای اس تی پاور": 4,
+    "(none)": 4,
+    "Chumpower | چام‌پاور": 2,
+    "TERMA | ترما": 48
+  },
+  "template_gap_rollup_cat57": [
+    {
+      "section": "features",
+      "key": "buttons_list",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "dimensions",
+      "key": "L",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "dimensions",
+      "key": "a",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "dimensions",
+      "key": "b",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "dimensions",
+      "key": "c",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "dimensions",
+      "key": "d",
+      "gap_type": "missing_key",
+      "count": 446
+    },
+    {
+      "section": "features",
+      "key": "has_buttons",
+      "gap_type": "missing_key",
+      "count": 288
+    },
+    {
+      "section": "features",
+      "key": "has_certification",
+      "gap_type": "missing_key",
+      "count": 288
+    },
+    {
+      "section": "features",
+      "key": "certification_text",
+      "gap_type": "missing_key",
+      "count": 288
+    },
+    {
+      "section": "features",
+      "key": "data_output",
+      "gap_type": "empty_value",
+      "count": 288
+    },
+    {
+      "section": "features",
+      "key": "auto_power_off",
+      "gap_type": "empty_value",
+      "count": 288
+    },
+    {
+      "section": "technical_specs",
+      "key": "battery_type",
+      "gap_type": "missing_key",
+      "count": 285
+    },
+    {
+      "section": "features",
+      "key": "waterproof",
+      "gap_type": "empty_value",
+      "count": 284
+    },
+    {
+      "section": "technical_specs",
+      "key": "standard",
+      "gap_type": "missing_key",
+      "count": 281
+    },
+    {
+      "section": "technical_specs",
+      "key": "material",
+      "gap_type": "missing_key",
+      "count": 247
+    },
+    {
+      "section": "technical_specs",
+      "key": "accuracy",
+      "gap_type": "missing_key",
+      "count": 217
+    },
+    {
+      "section": "technical_specs",
+      "key": "range",
+      "gap_type": "missing_key",
+      "count": 208
+    },
+    {
+      "section": "technical_specs",
+      "key": "resolution",
+      "gap_type": "missing_key",
+      "count": 174
+    },
+    {
+      "section": "features",
+      "key": "waterproof",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "data_output",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "auto_power_off",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "has_certification",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "certification_text",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "technical_specs",
+      "key": "resolution",
+      "gap_type": "empty_value",
+      "count": 130
+    },
+    {
+      "section": "technical_specs",
+      "key": "battery_type",
+      "gap_type": "empty_value",
+      "count": 130
+    },
+    {
+      "section": "features",
+      "key": "has_buttons",
+      "gap_type": "empty_value",
+      "count": 116
+    },
+    {
+      "section": "technical_specs",
+      "key": "range",
+      "gap_type": "empty_value",
+      "count": 88
+    },
+    {
+      "section": "technical_specs",
+      "key": "material",
+      "gap_type": "empty_value",
+      "count": 88
+    },
+    {
+      "section": "technical_specs",
+      "key": "accuracy",
+      "gap_type": "empty_value",
+      "count": 87
+    },
+    {
+      "section": "technical_specs",
+      "key": "standard",
+      "gap_type": "empty_value",
+      "count": 87
+    }
+  ],
+  "template_gap_rollup_insize": [
+    {
+      "section": "features",
+      "key": "data_output",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "auto_power_off",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "buttons_list",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "has_certification",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "certification_text",
+      "gap_type": "empty_value",
+      "count": 158
+    },
+    {
+      "section": "dimensions",
+      "key": "L",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "dimensions",
+      "key": "a",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "dimensions",
+      "key": "b",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "dimensions",
+      "key": "c",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "dimensions",
+      "key": "d",
+      "gap_type": "missing_key",
+      "count": 158
+    },
+    {
+      "section": "features",
+      "key": "waterproof",
+      "gap_type": "empty_value",
+      "count": 154
+    },
+    {
+      "section": "technical_specs",
+      "key": "battery_type",
+      "gap_type": "missing_key",
+      "count": 127
+    },
+    {
+      "section": "technical_specs",
+      "key": "standard",
+      "gap_type": "missing_key",
+      "count": 123
+    },
+    {
+      "section": "features",
+      "key": "has_buttons",
+      "gap_type": "empty_value",
+      "count": 116
+    },
+    {
+      "section": "technical_specs",
+      "key": "material",
+      "gap_type": "missing_key",
+      "count": 89
+    },
+    {
+      "section": "technical_specs",
+      "key": "resolution",
+      "gap_type": "missing_key",
+      "count": 84
+    },
+    {
+      "section": "technical_specs",
+      "key": "accuracy",
+      "gap_type": "missing_key",
+      "count": 66
+    },
+    {
+      "section": "technical_specs",
+      "key": "range",
+      "gap_type": "missing_key",
+      "count": 52
+    }
+  ],
+  "pd_gap_rollup_cat57": [
+    {
+      "pd_key": "display_type",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 446
+    },
+    {
+      "pd_key": "data_output",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 446
+    },
+    {
+      "pd_key": "protection_rating",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 442
+    },
+    {
+      "pd_key": "battery_type",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 415
+    },
+    {
+      "pd_key": "standard_ref",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 368
+    },
+    {
+      "pd_key": "material",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 335
+    },
+    {
+      "pd_key": "resolution",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 304
+    },
+    {
+      "pd_key": "accuracy",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 214
+    },
+    {
+      "pd_key": "measurement_range",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 197
+    }
+  ],
+  "pd_gap_rollup_insize": [
+    {
+      "pd_key": "display_type",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 158
+    },
+    {
+      "pd_key": "data_output",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 158
+    },
+    {
+      "pd_key": "protection_rating",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 154
+    },
+    {
+      "pd_key": "battery_type",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 127
+    },
+    {
+      "pd_key": "standard_ref",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 123
+    },
+    {
+      "pd_key": "material",
+      "gap_type": "missing_recommended",
+      "required": false,
+      "count": 89
+    },
+    {
+      "pd_key": "resolution",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 84
+    },
+    {
+      "pd_key": "accuracy",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 66
+    },
+    {
+      "pd_key": "measurement_range",
+      "gap_type": "missing_required_caliper_template",
+      "required": true,
+      "count": 52
+    }
+  ],
+  "alignment": [
+    {
+      "definition_id": "def.measurement_range",
+      "pd_key": "measurement_range",
+      "label_fa": "بازه اندازه‌گیری",
+      "required_in_tpl_caliper": true,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "range"
+        }
+      ],
+      "aliases": [
+        "range",
+        "بازه",
+        "بازه اندازه‌گیری",
+        "measuring_range",
+        "measurement range"
+      ],
+      "enricher_writes_as": "technical_specs.range"
+    },
+    {
+      "definition_id": "def.resolution",
+      "pd_key": "resolution",
+      "label_fa": "تفکیک‌پذیری",
+      "required_in_tpl_caliper": true,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "resolution"
+        }
+      ],
+      "aliases": [
+        "resolution",
+        "تفکیک",
+        "تفکیک‌پذیری",
+        "readability"
+      ],
+      "enricher_writes_as": "technical_specs.resolution"
+    },
+    {
+      "definition_id": "def.accuracy",
+      "pd_key": "accuracy",
+      "label_fa": "دقت",
+      "required_in_tpl_caliper": true,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "accuracy"
+        }
+      ],
+      "aliases": [
+        "accuracy",
+        "دقت",
+        "tolerance",
+        "خطا"
+      ],
+      "enricher_writes_as": "technical_specs.accuracy"
+    },
+    {
+      "definition_id": "def.display_type",
+      "pd_key": "display_type",
+      "label_fa": "نوع نمایش",
+      "required_in_tpl_caliper": true,
+      "legacy_as_built_keys": [],
+      "aliases": [
+        "display_type",
+        "display",
+        "نوع نمایش",
+        "type"
+      ],
+      "enricher_writes_as": "(NOT written by enrich_insize_from_shopmill today)",
+      "gap_note": "Required by PD v0 but absent from legacy_key_map and enricher allowlist — blocker for auto-fill"
+    },
+    {
+      "definition_id": "def.data_output",
+      "pd_key": "data_output",
+      "label_fa": "خروجی داده",
+      "required_in_tpl_caliper": false,
+      "legacy_as_built_keys": [
+        {
+          "section": "features",
+          "key": "data_output"
+        }
+      ],
+      "aliases": [
+        "data_output",
+        "خروجی داده",
+        "spc_output",
+        "data output"
+      ],
+      "enricher_writes_as": "features.data_output"
+    },
+    {
+      "definition_id": "def.protection_rating",
+      "pd_key": "protection_rating",
+      "label_fa": "درجه حفاظت",
+      "required_in_tpl_caliper": false,
+      "legacy_as_built_keys": [
+        {
+          "section": "features",
+          "key": "waterproof"
+        }
+      ],
+      "aliases": [
+        "protection_rating",
+        "ip_rating",
+        "IP",
+        "درجه حفاظت",
+        "waterproof"
+      ],
+      "enricher_writes_as": "features.waterproof (legacy map → def.protection_rating)"
+    },
+    {
+      "definition_id": "def.material",
+      "pd_key": "material",
+      "label_fa": "جنس",
+      "required_in_tpl_caliper": false,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "material"
+        }
+      ],
+      "aliases": [
+        "material",
+        "جنس",
+        "body_material"
+      ],
+      "enricher_writes_as": "technical_specs.material"
+    },
+    {
+      "definition_id": "def.standard_ref",
+      "pd_key": "standard_ref",
+      "label_fa": "استاندارد مرجع",
+      "required_in_tpl_caliper": false,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "standard"
+        }
+      ],
+      "aliases": [
+        "standard_ref",
+        "standard",
+        "استاندارد",
+        "استاندارد مرجع"
+      ],
+      "enricher_writes_as": "technical_specs.standard"
+    },
+    {
+      "definition_id": "def.battery_type",
+      "pd_key": "battery_type",
+      "label_fa": "نوع باتری",
+      "required_in_tpl_caliper": false,
+      "legacy_as_built_keys": [
+        {
+          "section": "technical_specs",
+          "key": "battery_type"
+        }
+      ],
+      "aliases": [
+        "battery_type",
+        "battery",
+        "نوع باتری"
+      ],
+      "enricher_writes_as": "technical_specs.battery_type"
+    }
+  ],
+  "wave_a_priority_keys": {
+    "fill_via_enricher_now": [
+      "measurement_range→range",
+      "accuracy→accuracy",
+      "resolution→resolution"
+    ],
+    "recommended_via_enricher": [
+      "material",
+      "standard_ref→standard",
+      "battery_type",
+      "data_output",
+      "protection_rating←waterproof"
+    ],
+    "needs_enricher_or_map_extension": [
+      "display_type"
+    ]
+  }
+}

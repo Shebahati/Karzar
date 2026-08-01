@@ -1,0 +1,24 @@
+{
+  "destination": "http://127.0.0.1:8000/api/v1",
+  "apply": false,
+  "zero_price_writes": true,
+  "payload_forbidden_count": 0,
+  "shopmill_rows": 874,
+  "catalog_insize": 337,
+  "matched": 330,
+  "payloads": 330,
+  "live_insize_cat57_skus": 158,
+  "live_cat57_payloads": 71,
+  "live_cat57_key_fills": {
+    "range": 71,
+    "accuracy": 64,
+    "resolution": 58
+  },
+  "replace_malformed_accuracy": 58,
+  "keep_existing_bad_slash_accuracy": 0,
+  "still_slash_accuracy_in_payload": 0,
+  "all_three_core": 58,
+  "enricher_fix": "replace_malformed slash-decimal when shopmill well-formed",
+  "display_type_blocker": true,
+  "live_skus_missing_locally": 87
+}

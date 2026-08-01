@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-01
+- [x] **Wave A Week-1 (caliper)** — gap queue from L1-56 cat57; PD↔as-built↔enricher alignment; local Category A INSIZE shopmill dry-run (330 payloads, zero_price_writes); enricher fix to replace corrupt `0/01` accuracy when OEM ± present; **no live apply**. Report `aods/reports/tasks/GOV-2026-08-01-wave-a-caliper.md`.
 - [x] **Frontend collaborator gates (self-merge)** — charter + handoff paste for `@mhrbzandi-Designer`; Collaborator Scope Gate (allowlist + lockfile freeze); Owner checklist = Write + **0 approvals** + Code Owners review **Off** + required CI checks; no Owner PR review. Agent cannot invite/protect via API.
 - [x] **KB-001 operator residual CLOSED (agent Category A, full catalog)** — seed 1064 products from `all_products.csv` + `projections/sync` → **2132** knowledge edges (1065 category + 1065 brand + 2 article). Report: `aods/reports/tasks/GOV-2026-08-01-operator-kb001-local-sync.md`.
 - [x] **Day-5 Admin read-only Knowledge views** — admin `/knowledge` edges browser + product-edit neighborhood card (KB-001 three freeze edges). Mock support. No Facts/publish/dual-write.
