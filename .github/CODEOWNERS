@@ -1,13 +1,17 @@
-# Default — Owner required on protected branches (Require review from Code Owners).
+# Ownership / notifications. With Owner policy "FE self-merge", do NOT enable
+# "Require review from Code Owners" on main — that would block the collaborator
+# from merging their own frontend PRs. Safety is Collaborator Scope Gate + Frontend CI.
+
+# Default notification owner
 * @Shebahati
 
-# Frontend collaborator may propose; Owner remains co-owner so non-author approval is still needed.
-/frontend/ @Shebahati @mhrbzandi-Designer
-/docs/COLLABORATOR_DEPLOY.md @Shebahati @mhrbzandi-Designer
-/docs/FRONTEND_COLLABORATOR_CHARTER.md @Shebahati @mhrbzandi-Designer
-/docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md @Shebahati @mhrbzandi-Designer
+# Frontend collaborator primary owner (notifications)
+/frontend/ @mhrbzandi-Designer @Shebahati
+/docs/COLLABORATOR_DEPLOY.md @mhrbzandi-Designer @Shebahati
+/docs/FRONTEND_COLLABORATOR_CHARTER.md @mhrbzandi-Designer @Shebahati
+/docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md @mhrbzandi-Designer @Shebahati
 
-# Backend, contract, Canon, ops — Owner only (collaborator scope-gate also blocks these actors).
+# Backend, contract, Canon, ops — Owner
 /app/ @Shebahati
 /alembic/ @Shebahati
 /tests/ @Shebahati

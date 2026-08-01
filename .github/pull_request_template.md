@@ -33,12 +33,13 @@ Baseline:
 - [ ] Canon Lock checked — relevant Accepted/Binding rows cited above
 
 ## Frontend collaborator (if author is FE Write collaborator)
-<!-- docs/FRONTEND_COLLABORATOR_CHARTER.md -->
-- [ ] Paths limited to frontend allowlist (or Owner-led cross-stack PR)
+<!-- docs/FRONTEND_COLLABORATOR_CHARTER.md — self-merge allowed when CI green; no Owner review required -->
+- [ ] Paths limited to frontend allowlist (no `package.json` / lockfile; no backend/Canon/OpenAPI)
 - [ ] Did **not** use quarantined docs (`frontend/AI_CONTEXT.md`, `BACKEND_NON_COMPLIANCE`, `FRONTEND_IMPLEMENTATION_GUIDE`)
 - [ ] No Facts assert/publish, dual-write, RAG, Taxonomy/Dictionary editors, `PRODUCT_CLASSIFIED_AS`
 - [ ] OpenAPI / as-built: no invented API fields
 - [ ] Local: `tsc --noEmit` + lint + test in touched app
+- [ ] After merge: Deploy Staging + smoke www/admin/api `/ready` (staging = live VPS)
 
 ## Architecture triggers (tick if applicable)
 - [ ] Product meaning / Facts / Properties → Domain + ADR cited

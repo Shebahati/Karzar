@@ -47,11 +47,18 @@ jobs:
 
           forbidden=0
           for path in "${CHANGED[@]}"; do
+            # Dependency lock: FE must not bump packages without Owner.
+            case "$path" in
+              frontend/*/package.json|frontend/*/package-lock.json|frontend/**/package.json|frontend/**/package-lock.json)
+                echo "::error file=${path}::Dependency files are Owner-only. Ask @Shebahati before changing package.json / lockfile."
+                forbidden=1
+                continue
+                ;;
+            esac
             case "$path" in
               frontend/Storefront/*|frontend/admin-panel/*) ;;
               frontend/README.md|frontend/FRONTEND_CHANGES.md|frontend/INTEGRATION_RUNTIME_NOTES.md|frontend/LOCAL_STACK_ACCESS.md) ;;
-              docs/COLLABORATOR_DEPLOY.md|docs/FRONTEND_COLLABORATOR_CHARTER.md) ;;
-              .github/pull_request_template.md) ;;
+              docs/COLLABORATOR_DEPLOY.md|docs/FRONTEND_COLLABORATOR_CHARTER.md|docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md) ;;
               *)
                 echo "::error file=${path}::Path outside frontend collaborator allowlist. Ask Owner (@Shebahati) or open a separate Owner-led PR."
                 forbidden=1
@@ -61,7 +68,7 @@ jobs:
 
           if [ "$forbidden" -ne 0 ]; then
             echo "Collaborator Scope Gate FAILED for actor=$ACTOR"
-            echo "Allowed roots: frontend/Storefront, frontend/admin-panel, limited frontend docs, COLLABORATOR_DEPLOY + charter."
+            echo "Allowed: frontend app sources (not package.json/lock) + limited frontend docs + charter/handoff/deploy guide."
             exit 1
           fi
           echo "Collaborator Scope Gate OK — all paths allowlisted."

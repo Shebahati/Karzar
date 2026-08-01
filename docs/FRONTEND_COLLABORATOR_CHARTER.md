@@ -10,15 +10,17 @@
 
 ## 1. نقش و دسترسی
 
+**سیاست Owner (2026-08-01):** همکار فرانت **بدون ریویو Owner** merge و Deploy Staging می‌کند. ایمنی = Scope Gate + Frontend CI + smoke اجباری بعد از دیپلوی.
+
 | کار | مجاز؟ | شرط |
 |-----|--------|-----|
 | Branch + PR روی فرانت | بله | پیشوند `feature/*` \| `fix/*` \| `hotfix/*` \| `chore/*` |
-| Merge به `main` | بله (بعد از گیت‌ها) | CI سبز + حداقل یک approve از **کسی غیر از نویسنده** (معمولاً `@Shebahati`) + بدون مسیر ممنوع |
-| Deploy Staging | بله | فقط بعد از merge؛ Actions → **Deploy Staging** → Run workflow روی `main` |
+| Merge به `main` | بله — **بدون Approve Owner** | همهٔ status checkهای اجباری سبز + فقط مسیر allowlist + up-to-date با `main` |
+| Deploy Staging | بله | فقط بعد از merge؛ Actions → **Deploy Staging** → Run workflow روی `main` → سپس smoke |
 | Deploy Production | خیر | فقط Owner (`confirm` + Environment `production`) |
-| تغییر بک‌اند / DB / OpenAPI / Canon | خیر | PR جدا با Owner؛ scope-gate قرمز می‌شود |
+| تغییر بک‌اند / DB / OpenAPI / Canon / lockfile | خیر | PR جدا با Owner؛ scope-gate قرمز می‌شود |
 
-**هشدار محیط:** Staging = همان VPS زنده (`karzartools.com`). هر Deploy Staging روی سایت عمومی اثر دارد.
+**هشدار محیط:** Staging = همان VPS زنده (`karzartools.com`). هر Deploy Staging روی سایت عمومی اثر دارد. مسئولیت smoke بعد از دیپلوی با همکار فرانت است.
 
 ---
 
@@ -26,20 +28,13 @@
 
 ### مجاز بدون هماهنگی جدا
 
-- `frontend/Storefront/**`
-- `frontend/admin-panel/**`
+- `frontend/Storefront/**` و `frontend/admin-panel/**` به‌جز فایل‌های قفل‌شدهٔ زیر
 - `frontend/README.md`, `frontend/FRONTEND_CHANGES.md`, `frontend/INTEGRATION_RUNTIME_NOTES.md`, `frontend/LOCAL_STACK_ACCESS.md`
-- به‌روزرسانی جزئی لینک در `docs/COLLABORATOR_DEPLOY.md` فقط اگر Owner خواست
 
 ### ممنوع (scope-gate برای actor غیر از Owner fail می‌کند)
 
-- `app/**`, `alembic/**`, `tests/**` (بک‌اند)
-- `openapi/**`
-- `docs/architecture/**` (شامل Canon Lock، ADR، SPEC، seeds)
-- `aods/**`
-- `.github/workflows/**` به‌جز وقتی Owner تغییر می‌دهد
-- `deploy/**`, `requirements*.txt`, `scripts/**` (به‌جز موارد صریح Owner)
-- افزودن/حذف/ارتقای dependency در `package.json` / lockfile بدون تأیید کتبی Owner
+- هر مسیر بیرون از allowlist بالا (از جمله `app/**`, `alembic/**`, `openapi/**`, `docs/architecture/**`, `aods/**`, `.github/**`, `deploy/**`, `scripts/**`)
+- **حتی داخل فرانت:** `package.json` و `package-lock.json` (dependency فقط با Owner)
 
 اگر برای UI به فیلد API نیاز دارید که در OpenAPI نیست: **UI را جعل نکنید** — از Owner/بک‌اند بخواهید.
 
@@ -94,31 +89,33 @@
    npm ci && npx tsc --noEmit && npm run lint && npm test
 5. commit واضح · push · PR به main
 6. قالب PR را کامل کنید (Canon citations + rollback + test plan)
-7. منتظر CI: Frontend CI + Collaborator Scope Gate
-8. Approve از Owner (غیرنویسنده)
-9. Squash-merge (ترجیح ریپو)
-10. Actions → Deploy Staging → Run workflow (branch: main)
-11. Smoke:
+7. منتظر CI سبز: Frontend CI + Collaborator Scope Gate (+ e2e اگر required باشد)
+8. **بدون منتظر Owner:** Squash-merge
+9. Actions → Deploy Staging → Run workflow (branch: main)
+10. Smoke فوری:
     https://www.karzartools.com/
     https://admin.karzartools.com/
     https://api.karzartools.com/ready
+    + صفحهٔ تغییرکرده (دسکتاپ/موبایل). اگر شکست: revert یا hotfix + Deploy دوباره.
 ```
 
 هرگز commit نکنید: `.env`, `.env.local`, `.deploy-secrets`, کلید SSH، توکن.
 
 ---
 
-## 6. چک‌لیست خوداظهاری قبل از درخواست review
+## 6. چک‌لیست خوداظهاری قبل از merge (بدون Owner review)
 
 - [ ] یک concern در این PR
-- [ ] فقط مسیرهای allowlist
+- [ ] فقط مسیرهای allowlist — بدون `package.json` / lockfile
 - [ ] OpenAPI/as-built نقض نشده
 - [ ] اسناد ممنوع استناد نشده
 - [ ] بدون Facts / dual-write / RAG / taxonomy editor
 - [ ] URL/SEO در صورت تغییر: ADR-010 + RFC-004/005 در بدنهٔ PR
 - [ ] typecheck + lint + test محلی سبز
+- [ ] CI روی PR سبز
 - [ ] rollback نوشته شده
 - [ ] secret نیست
+- [ ] بعد از merge: Deploy Staging + smoke برنامه‌ریزی شده
 
 ---
 
