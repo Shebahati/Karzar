@@ -33,7 +33,7 @@ https://github.com/Shebahati/Karzar/settings/branches → rule for `main`:
 | Allow deletions | **Off** |
 | Allow specified actors to bypass required pull requests | **Off** (or only you for break-glass) |
 
-CODEOWNERS remains for **notifications / ownership clarity**; it must **not** be a required review gate while this policy is active.
+CODEOWNERS lists **Owner only** (do not add the FE collaborator — GitHub would auto-request their review on matching files). Keep Code Owners review **Off**.
 
 Non-Owner PRs that touch backend/Canon/OpenAPI still fail **Collaborator Scope Gate**. Package.json / lockfile changes by FE also fail that gate.
 

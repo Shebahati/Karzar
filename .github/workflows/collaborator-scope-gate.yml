@@ -30,13 +30,13 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          OWNER_ACTORS="Shebahati dependabot[bot] github-actions[bot]"
-          for allowed in $OWNER_ACTORS; do
-            if [ "$ACTOR" = "$allowed" ]; then
+          # Owner human + automation that opens Owner-led PRs (Cursor Cloud, Dependabot).
+          case "$ACTOR" in
+            Shebahati|dependabot[bot]|github-actions[bot]|cursor[bot]|cursoragent)
               echo "Actor '$ACTOR' is exempt from collaborator scope gate."
               exit 0
-            fi
-          done
+              ;;
+          esac
 
           echo "Actor '$ACTOR' is subject to frontend allowlist."
           mapfile -t CHANGED < <(git diff --name-only "$BASE_SHA...$HEAD_SHA")
