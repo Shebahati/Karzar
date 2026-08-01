@@ -1,0 +1,232 @@
+{
+  "pilot_size": 20,
+  "applied_ok": 20,
+  "apply_errors": 0,
+  "category_57_after": 20,
+  "accuracy_with_plusminus": 20,
+  "accuracy_still_slash_corrupt": 0,
+  "zero_price_writes": true,
+  "destination": "https://api.karzartools.com/api/v1",
+  "products": [
+    {
+      "sku": "1103-150",
+      "id": 1772,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-150mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1103-150"
+    },
+    {
+      "sku": "1103-200",
+      "id": 1773,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-200mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1103-200"
+    },
+    {
+      "sku": "1103-300",
+      "id": 1774,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-300mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1103-300"
+    },
+    {
+      "sku": "1106-301",
+      "id": 1775,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.05mm",
+      "after_range": "0-301mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-301"
+    },
+    {
+      "sku": "1106-302",
+      "id": 1776,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.05mm",
+      "after_range": "0-302mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-302"
+    },
+    {
+      "sku": "1106-501",
+      "id": 1777,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.05mm",
+      "after_range": "0-501mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-501"
+    },
+    {
+      "sku": "1106-502",
+      "id": 1778,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.06mm",
+      "after_range": "0-502mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-502"
+    },
+    {
+      "sku": "1106-503",
+      "id": 1779,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.06mm",
+      "after_range": "0-503mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-503"
+    },
+    {
+      "sku": "1106-505",
+      "id": 1780,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.08",
+      "after_range": "0-505mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-505"
+    },
+    {
+      "sku": "1106-601",
+      "id": 1781,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.05mm",
+      "after_range": "0-601mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-601"
+    },
+    {
+      "sku": "1106-602",
+      "id": 1782,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.06mm",
+      "after_range": "0-602mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-602"
+    },
+    {
+      "sku": "1106-603",
+      "id": 1783,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.06mm",
+      "after_range": "0-603mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-603"
+    },
+    {
+      "sku": "1106-802",
+      "id": 1784,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.07mm",
+      "after_range": "0-802mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1106-802"
+    },
+    {
+      "sku": "1108-200",
+      "id": 1786,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-200mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1108-200"
+    },
+    {
+      "sku": "1108-300",
+      "id": 1787,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-300mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1108-300"
+    },
+    {
+      "sku": "1114-150",
+      "id": 1789,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.02mm",
+      "after_range": "0-150mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1114-150"
+    },
+    {
+      "sku": "1114-200",
+      "id": 1790,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.02mm",
+      "after_range": "0-200mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1114-200"
+    },
+    {
+      "sku": "1114-300",
+      "id": 1791,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.02mm",
+      "after_range": "0-300mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1114-300"
+    },
+    {
+      "sku": "1115-150",
+      "id": 1792,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-150mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1115-150"
+    },
+    {
+      "sku": "1115-300",
+      "id": 1794,
+      "cat": 57,
+      "before_accuracy": "0/01",
+      "after_accuracy": "±0.03mm",
+      "after_range": "0-300mm",
+      "after_resolution": "0.01mm",
+      "base_price_present": true,
+      "storefront_url": "https://www.karzartools.com/product/1115-300"
+    }
+  ]
+}

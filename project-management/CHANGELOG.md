@@ -1,6 +1,9 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-01
+- [x] **Wave A all INSIZE calipers (live Category B)** — 158/158 cat57 processed (64 PUT + 94 already_complete); 0 unmatched; corrupt `0/01` cleared; verify report. Residual: empty accuracy without OEM (66), range QA, display_type.
+- [x] **Wave A caliper pilot 20 (live Category B)** — Owner-authorized; 20/20 INSIZE cat57 SKUs applied on `api.karzartools.com`; accuracy `0/01`→OEM `±…`; zero_price_writes; verify JSON + report.
+- [x] **Wave A Week-1 (caliper)** — gap queue from L1-56 cat57; PD↔as-built↔enricher alignment; local Category A INSIZE shopmill dry-run (330 payloads, zero_price_writes); enricher fix to replace corrupt `0/01` accuracy when OEM ± present. Report `aods/reports/tasks/GOV-2026-08-01-wave-a-caliper.md`.
 - [x] **Frontend collaborator gates (self-merge)** — charter + handoff paste for `@mhrbzandi-Designer`; Collaborator Scope Gate (allowlist + lockfile freeze); Owner checklist = Write + **0 approvals** + Code Owners review **Off** + required CI checks; no Owner PR review. Agent cannot invite/protect via API.
 - [x] **KB-001 operator residual CLOSED (agent Category A, full catalog)** — seed 1064 products from `all_products.csv` + `projections/sync` → **2132** knowledge edges (1065 category + 1065 brand + 2 article). Report: `aods/reports/tasks/GOV-2026-08-01-operator-kb001-local-sync.md`.
 - [x] **Day-5 Admin read-only Knowledge views** — admin `/knowledge` edges browser + product-edit neighborhood card (KB-001 three freeze edges). Mock support. No Facts/publish/dual-write.
