@@ -264,8 +264,15 @@ def count_forbidden_in_obj(obj: Any) -> list[str]:
 
 
 def _load_admin_creds() -> tuple[str, str]:
-    phone = os.getenv("INITIAL_SUPER_ADMIN_PHONE")
-    password = os.getenv("INITIAL_SUPER_ADMIN_PASSWORD")
+    # Prefer explicit KARZAR_ADMIN_* (Category B / operator override), then local INITIAL_*.
+    phone = (
+        os.getenv("KARZAR_ADMIN_PHONE")
+        or os.getenv("INITIAL_SUPER_ADMIN_PHONE")
+    )
+    password = (
+        os.getenv("KARZAR_ADMIN_PASSWORD")
+        or os.getenv("INITIAL_SUPER_ADMIN_PASSWORD")
+    )
     secrets = _ROOT / ".deploy-secrets"
     if not secrets.exists():
         alt = _ROOT.parent / "backend" / ".deploy-secrets"
@@ -278,7 +285,9 @@ def _load_admin_creds() -> tuple[str, str]:
             if line.startswith("INITIAL_SUPER_ADMIN_PASSWORD=") and not password:
                 password = line.split("=", 1)[1].strip()
     if not phone or not password:
-        raise RuntimeError("missing admin creds (env or .deploy-secrets)")
+        raise RuntimeError(
+            "missing admin creds (KARZAR_ADMIN_* / INITIAL_SUPER_ADMIN_* / .deploy-secrets)"
+        )
     return phone, password
 
 
