@@ -100,6 +100,13 @@ This pack is the **living Accepted knowledge foundation** under `docs/architectu
 | Foundation Implementation Readiness | [`FOUNDATION_IMPLEMENTATION_READINESS.md`](./FOUNDATION_IMPLEMENTATION_READINESS.md) | What engineering may/may not build yet |
 | خلاصه اجرایی فارسی | [`KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md`](./KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md) | One-page precise FA summary of the full pack |
 
+### 1.3 Seeds (Git-first; not Canon alone)
+
+| Seed | Path | Notes |
+|------|------|-------|
+| Property Dictionary v0 (metrology) | [`seeds/property-dictionary-v0-metrology.json`](./seeds/property-dictionary-v0-metrology.json) | UD-03 A · Day-4 · **no** dual-write |
+| Seeds README | [`seeds/README.md`](./seeds/README.md) | Operator checklist + rules |
+
 ---
 
 ## 2. Architectural decision summary (Accepted — Day 2)
