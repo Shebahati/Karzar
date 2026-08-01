@@ -1,0 +1,284 @@
+{
+  "dictionary_id": "property-dictionary-v0-metrology",
+  "version": "0.1.0",
+  "status": "draft",
+  "scope": "metrology",
+  "ud_03": "A",
+  "dual_write": "forbidden",
+  "governing_spec": "docs/architecture/specs/SPEC-property-dictionary-system.md",
+  "board_parents": [
+    "docs/architecture/CANON-LOCK.md#1c",
+    "aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md"
+  ],
+  "notes": "Git-first seed only. No Facts DDL. No JSONB dual-write. Maps legacy measurement template keys toward governed Definitions.",
+  "units": [
+    {
+      "dimension": "length",
+      "canonical": "mm",
+      "aliases": ["mm", "میلی‌متر", "millimeter", "millimetre"]
+    },
+    {
+      "dimension": "dimensionless",
+      "canonical": "1",
+      "aliases": ["1", "none", "-"]
+    }
+  ],
+  "definitions": [
+    {
+      "definition_id": "def.measurement_range",
+      "key": "measurement_range",
+      "data_type": "range",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Measurement range",
+      "label_fa": "بازه اندازه‌گیری",
+      "description_en": "Minimum and maximum measurable extent for the instrument.",
+      "description_fa": "حداقل و حداکثر گستره قابل اندازه‌گیری ابزار.",
+      "validation": {
+        "type": "range",
+        "min_inclusive": true,
+        "max_inclusive": true,
+        "require_min_le_max": true
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": [
+        "range",
+        "بازه",
+        "بازه اندازه‌گیری",
+        "measuring_range",
+        "measurement range"
+      ]
+    },
+    {
+      "definition_id": "def.resolution",
+      "key": "resolution",
+      "data_type": "number",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Resolution",
+      "label_fa": "تفکیک‌پذیری",
+      "description_en": "Smallest distinguishable increment displayed or indicated.",
+      "description_fa": "کوچک‌ترین گام قابل تشخیص نمایش یا نشانه‌گذاری.",
+      "validation": {
+        "type": "number",
+        "exclusive_min": 0
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["resolution", "تفکیک", "تفکیک‌پذیری", "readability"]
+    },
+    {
+      "definition_id": "def.accuracy",
+      "key": "accuracy",
+      "data_type": "quantity",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Accuracy",
+      "label_fa": "دقت",
+      "description_en": "Instrument accuracy; often carries a ± qualifier. Metrology-critical — Evidence SHOULD precede publish.",
+      "description_fa": "دقت ابزار؛ معمولاً با علامت ±. برای انتشار مشتری Evidence توصیه می‌شود.",
+      "validation": {
+        "type": "quantity",
+        "allow_qualifier": ["±", "+", "-", "approx", "max"]
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["accuracy", "دقت", "tolerance", "خطا"]
+    },
+    {
+      "definition_id": "def.display_type",
+      "key": "display_type",
+      "data_type": "enum",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "Display type",
+      "label_fa": "نوع نمایش",
+      "description_en": "How the reading is presented to the user.",
+      "description_fa": "نحوه نمایش قرائت به کاربر.",
+      "validation": {
+        "type": "enum"
+      },
+      "enum_values": [
+        {"code": "vernier", "label_en": "Vernier", "label_fa": "ورنیه"},
+        {"code": "dial", "label_en": "Dial", "label_fa": "عقربه‌ای"},
+        {"code": "digital", "label_en": "Digital", "label_fa": "دیجیتال"}
+      ],
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["display_type", "display", "نوع نمایش", "type"]
+    },
+    {
+      "definition_id": "def.data_output",
+      "key": "data_output",
+      "data_type": "boolean",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "Data output",
+      "label_fa": "خروجی داده",
+      "description_en": "Whether the instrument exposes a data/output interface.",
+      "description_fa": "آیا ابزار خروجی داده دارد.",
+      "validation": {
+        "type": "boolean"
+      },
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["data_output", "خروجی داده", "spc_output", "data output"]
+    },
+    {
+      "definition_id": "def.protection_rating",
+      "key": "protection_rating",
+      "data_type": "enum",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "IP rating",
+      "label_fa": "درجه حفاظت",
+      "description_en": "Ingress protection rating when specified by OEM.",
+      "description_fa": "درجه حفاظت در برابر نفوذ در صورت اعلام سازنده.",
+      "validation": {
+        "type": "enum"
+      },
+      "enum_values": [
+        {"code": "IP40", "label_en": "IP40", "label_fa": "IP40"},
+        {"code": "IP54", "label_en": "IP54", "label_fa": "IP54"},
+        {"code": "IP65", "label_en": "IP65", "label_fa": "IP65"},
+        {"code": "IP67", "label_en": "IP67", "label_fa": "IP67"}
+      ],
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["protection_rating", "ip_rating", "IP", "درجه حفاظت", "waterproof"]
+    },
+    {
+      "definition_id": "def.material",
+      "key": "material",
+      "data_type": "string",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "Material",
+      "label_fa": "جنس",
+      "description_en": "Primary construction material (steward may later tighten to enum).",
+      "description_fa": "جنس اصلی ساخت (ممکن است بعداً به enum بسته شود).",
+      "validation": {
+        "type": "string",
+        "max_length": 120
+      },
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["material", "جنس", "body_material"]
+    },
+    {
+      "definition_id": "def.standard_ref",
+      "key": "standard_ref",
+      "data_type": "string",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "Reference standard",
+      "label_fa": "استاندارد مرجع",
+      "description_en": "Free-text standard code transitional; prefer Standard graph node later.",
+      "description_fa": "کد استاندارد متنی موقت؛ ترجیح بعدی گره Standard در گراف.",
+      "validation": {
+        "type": "string",
+        "max_length": 80
+      },
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["standard_ref", "standard", "استاندارد", "استاندارد مرجع"]
+    },
+    {
+      "definition_id": "def.battery_type",
+      "key": "battery_type",
+      "data_type": "enum",
+      "unit_dimension": null,
+      "default_unit": null,
+      "label_en": "Battery type",
+      "label_fa": "نوع باتری",
+      "description_en": "Common digital-caliper battery codes from as-built measurement template.",
+      "description_fa": "کدهای رایج باتری کولیس دیجیتال از قالب measurement فعلی.",
+      "validation": {
+        "type": "enum"
+      },
+      "enum_values": [
+        {"code": "CR2032", "label_en": "CR2032", "label_fa": "CR2032"},
+        {"code": "SR44", "label_en": "SR44", "label_fa": "SR44"},
+        {"code": "LR44", "label_en": "LR44", "label_fa": "LR44"}
+      ],
+      "comparable": false,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": ["battery_type", "battery", "نوع باتری"]
+    }
+  ],
+  "templates": [
+    {
+      "template_id": "tpl.caliper",
+      "key": "caliper",
+      "label_en": "Caliper",
+      "label_fa": "کولیس",
+      "applies_to_node_ids": ["fam.calipers", "type.caliper.digital", "type.caliper.vernier", "type.caliper.dial"],
+      "strangler_legacy_key": "measurement",
+      "version": "0.1.0",
+      "status": "draft",
+      "properties": [
+        {"definition_id": "def.measurement_range", "required": true, "sort_order": 10, "group": "metrology"},
+        {"definition_id": "def.resolution", "required": true, "sort_order": 20, "group": "metrology"},
+        {"definition_id": "def.accuracy", "required": true, "sort_order": 30, "group": "metrology"},
+        {"definition_id": "def.display_type", "required": true, "sort_order": 40, "group": "identity"},
+        {"definition_id": "def.data_output", "required": false, "sort_order": 50, "group": "features"},
+        {"definition_id": "def.protection_rating", "required": false, "sort_order": 60, "group": "features"},
+        {"definition_id": "def.material", "required": false, "sort_order": 70, "group": "construction"},
+        {"definition_id": "def.standard_ref", "required": false, "sort_order": 80, "group": "compliance"},
+        {"definition_id": "def.battery_type", "required": false, "sort_order": 90, "group": "features"}
+      ]
+    }
+  ],
+  "legacy_key_map": {
+    "comment": "As-built technical_specs / features keys from measurement template → definition_id",
+    "technical_specs": {
+      "range": "def.measurement_range",
+      "accuracy": "def.accuracy",
+      "resolution": "def.resolution",
+      "material": "def.material",
+      "standard": "def.standard_ref",
+      "battery_type": "def.battery_type"
+    },
+    "features": {
+      "data_output": "def.data_output",
+      "waterproof": "def.protection_rating"
+    }
+  }
+}

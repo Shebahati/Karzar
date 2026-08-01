@@ -6,7 +6,7 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `in_progress` 70% | P2 | 30h | Sprint 04 — wave-1 edges+read+sync landed (Day-3)
+- [x] **KB-001** Knowledge platform phase-1 content graph seed — `done` 100% | P2 | 30h | Sprint 04 — Day-3 CLOSED (#176); operator Alembic residual only
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003

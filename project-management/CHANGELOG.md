@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **Day-4 Property Dictionary v0 (metrology)** — Git-first seed `docs/architecture/specs/seeds/property-dictionary-v0-metrology.json` (definitions + caliper template + legacy aliases). UD-03 A. No Facts/dual-write.
+- [x] **KB-001 Day-3 CLOSED** — wave-1 AC done (#176); offline sync proof PASS; operator local Alembic residual documented in seeds README / day3-close.
 - [x] **KB-001 wave-1 IMPL (Day-3)** — `knowledge_edges` overlay (ADR-013) + projector from SoR soft-links + `GET /api/v1/knowledge/edges` + product neighborhood + admin `POST .../projections/sync`. Freeze: three edge types only. Tests + OpenAPI snapshot. Progress 45%→70% (`in_progress`).
 - [x] **Day-2 Board Accept — Knowledge Foundation** (2026-08-01 / ۱۴۰۵/۰۵/۱۰) — UD-06 A core SPEC pack + ADR-013 (Postgres edges/Facts) + ADR-014 (`products.id` PKE) Accepted into Canon Lock §1c; UD-03 metrology-first; UD-08 no AI FA auto-publish; OI-KF-04 Phase1–3 HISTORICAL; KB-001 freeze three projection edges. Minute: `aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`. KB-001 progress 35%→45%. No code/migrations.
 - [x] **Day-1 practical week CLOSED** — Topic 1 merge (#168) · Topic 2 agenda+ballot vote A (#172/#173) · Owner order Day-2 now.

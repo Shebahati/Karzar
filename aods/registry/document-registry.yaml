@@ -1105,6 +1105,24 @@ documents:
     on_main: true
     notes: "Persian executive summary of knowledge foundation + completion pack."
 
+  - id: SEED-PROPERTY-DICT-V0-METROLOGY
+    path: docs/architecture/specs/seeds/property-dictionary-v0-metrology.json
+    class: PROPOSED
+    rank: 99
+    status: draft
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Day-4 Property Dictionary v0 metrology Git seed (UD-03 A). No dual-write. Flip on_main after merge."
+
+  - id: SEED-PROPERTY-DICT-README
+    path: docs/architecture/specs/seeds/README.md
+    class: PROPOSED
+    rank: 99
+    status: draft
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Seeds index + KB-001 operator residual checklist. Flip on_main after merge."
+
   # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md

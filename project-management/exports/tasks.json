@@ -539,8 +539,8 @@
       "dod": [
         "KNOWLEDGE_BASE_PROGRESS"
       ],
-      "status": "in_progress",
-      "progress": 70,
+      "status": "done",
+      "progress": 100,
       "sprint": "04",
       "week": 7,
       "day": 1,
@@ -548,8 +548,8 @@
       "tags": [
         "knowledge"
       ],
-      "risk": "high",
-      "notes": "Day-3 2026-08-01: wave-1 IMPL — knowledge_edges table + projector + GET /knowledge/edges + neighborhood + admin sync. Freeze 3 edges only. Dual-write/RAG still gated."
+      "risk": "med",
+      "notes": "Day-3 CLOSED 2026-08-01: wave-1 AC met (#176). Graph queryable; no second Category DAG. Operator residual: local alembic upgrade + admin sync on Category A stack. Day-4 starts Property Dictionary v0 (separate). Dual-write/RAG still gated."
     },
     {
       "id": "REL-001",
