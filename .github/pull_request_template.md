@@ -32,6 +32,14 @@ Baseline:
 - [ ] DoD checklist for PR type completed (`docs/development/standards/definition-of-done.md`)
 - [ ] Canon Lock checked — relevant Accepted/Binding rows cited above
 
+## Frontend collaborator (if author is FE Write collaborator)
+<!-- docs/FRONTEND_COLLABORATOR_CHARTER.md -->
+- [ ] Paths limited to frontend allowlist (or Owner-led cross-stack PR)
+- [ ] Did **not** use quarantined docs (`frontend/AI_CONTEXT.md`, `BACKEND_NON_COMPLIANCE`, `FRONTEND_IMPLEMENTATION_GUIDE`)
+- [ ] No Facts assert/publish, dual-write, RAG, Taxonomy/Dictionary editors, `PRODUCT_CLASSIFIED_AS`
+- [ ] OpenAPI / as-built: no invented API fields
+- [ ] Local: `tsc --noEmit` + lint + test in touched app
+
 ## Architecture triggers (tick if applicable)
 - [ ] Product meaning / Facts / Properties → Domain + ADR cited
 - [ ] URLs / SEO → ADR-010 + RFC-004/005 + IA cited

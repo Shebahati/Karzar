@@ -1,10 +1,22 @@
-# Default owners — required reviews for protected branches.
+# Default — Owner required on protected branches (Require review from Code Owners).
 * @Shebahati
 
-# Frontend (collaborator may propose; owner remains required reviewer via CODEOWNERS)
+# Frontend collaborator may propose; Owner remains co-owner so non-author approval is still needed.
 /frontend/ @Shebahati @mhrbzandi-Designer
 /docs/COLLABORATOR_DEPLOY.md @Shebahati @mhrbzandi-Designer
+/docs/FRONTEND_COLLABORATOR_CHARTER.md @Shebahati @mhrbzandi-Designer
+/docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md @Shebahati @mhrbzandi-Designer
 
-# Deploy / CI / secrets surface — owner only
-/.github/ @Shebahati
+# Backend, contract, Canon, ops — Owner only (collaborator scope-gate also blocks these actors).
+/app/ @Shebahati
+/alembic/ @Shebahati
+/tests/ @Shebahati
+/openapi/ @Shebahati
+/docs/architecture/ @Shebahati
+/aods/ @Shebahati
 /deploy/ @Shebahati
+/.github/ @Shebahati
+/scripts/ @Shebahati
+/requirements.txt @Shebahati
+/requirements-dev.txt @Shebahati
+/docs/OWNER_GITHUB_FRONTEND_ACCESS.md @Shebahati

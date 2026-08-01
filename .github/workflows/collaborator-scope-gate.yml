@@ -1,0 +1,67 @@
+name: Collaborator Scope Gate
+
+# Fail PRs from non-Owner actors that touch paths outside the frontend allowlist.
+# Owner (@Shebahati) and bots are not blocked. Aligns with docs/FRONTEND_COLLABORATOR_CHARTER.md.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: collaborator-scope-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scope:
+    name: Collaborator Scope Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce frontend allowlist for non-Owner actors
+        env:
+          ACTOR: ${{ github.actor }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          OWNER_ACTORS="Shebahati dependabot[bot] github-actions[bot]"
+          for allowed in $OWNER_ACTORS; do
+            if [ "$ACTOR" = "$allowed" ]; then
+              echo "Actor '$ACTOR' is exempt from collaborator scope gate."
+              exit 0
+            fi
+          done
+
+          echo "Actor '$ACTOR' is subject to frontend allowlist."
+          mapfile -t CHANGED < <(git diff --name-only "$BASE_SHA...$HEAD_SHA")
+          if [ ${#CHANGED[@]} -eq 0 ]; then
+            echo "No file changes detected."
+            exit 0
+          fi
+
+          forbidden=0
+          for path in "${CHANGED[@]}"; do
+            case "$path" in
+              frontend/Storefront/*|frontend/admin-panel/*) ;;
+              frontend/README.md|frontend/FRONTEND_CHANGES.md|frontend/INTEGRATION_RUNTIME_NOTES.md|frontend/LOCAL_STACK_ACCESS.md) ;;
+              docs/COLLABORATOR_DEPLOY.md|docs/FRONTEND_COLLABORATOR_CHARTER.md) ;;
+              .github/pull_request_template.md) ;;
+              *)
+                echo "::error file=${path}::Path outside frontend collaborator allowlist. Ask Owner (@Shebahati) or open a separate Owner-led PR."
+                forbidden=1
+                ;;
+            esac
+          done
+
+          if [ "$forbidden" -ne 0 ]; then
+            echo "Collaborator Scope Gate FAILED for actor=$ACTOR"
+            echo "Allowed roots: frontend/Storefront, frontend/admin-panel, limited frontend docs, COLLABORATOR_DEPLOY + charter."
+            exit 1
+          fi
+          echo "Collaborator Scope Gate OK — all paths allowlisted."
