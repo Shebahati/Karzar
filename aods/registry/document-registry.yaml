@@ -495,7 +495,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DEVOPS
-    on_main: false
+    on_main: true
     notes: "FE Write collaborator allowlist + self-merge policy; not Canon Accept."
 
   - id: FRONTEND-COLLABORATOR-HANDOFF-FA
@@ -504,7 +504,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DEVOPS
-    on_main: false
+    on_main: true
     notes: "Paste-ready FA handoff for mhrbzandi-Designer."
 
   - id: OWNER-GITHUB-FRONTEND-ACCESS
@@ -513,7 +513,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DEVOPS
-    on_main: false
+    on_main: true
     notes: "Owner-only GitHub UI checklist (invite + branch protection). Agent API cannot apply."
 
   - id: STAGING-DEPLOY
