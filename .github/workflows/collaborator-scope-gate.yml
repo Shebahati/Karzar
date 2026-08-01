@@ -31,8 +31,9 @@ jobs:
         run: |
           set -euo pipefail
           # Owner human + automation that opens Owner-led PRs (Cursor Cloud, Dependabot).
+          # Note: bash `case` treats [ ] as a character class — escape literal [bot] suffixes.
           case "$ACTOR" in
-            Shebahati|dependabot[bot]|github-actions[bot]|cursor[bot]|cursoragent)
+            Shebahati|dependabot\[bot\]|github-actions\[bot\]|cursor\[bot\]|cursoragent)
               echo "Actor '$ACTOR' is exempt from collaborator scope gate."
               exit 0
               ;;
