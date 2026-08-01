@@ -489,6 +489,33 @@ documents:
     on_main: true
     notes: "Honest about staging==production. Production deploy = dispatch + typed confirm + environment approval."
 
+  - id: FRONTEND-COLLABORATOR-CHARTER
+    path: docs/FRONTEND_COLLABORATOR_CHARTER.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DEVOPS
+    on_main: false
+    notes: "FE Write collaborator allowlist + self-merge policy; not Canon Accept."
+
+  - id: FRONTEND-COLLABORATOR-HANDOFF-FA
+    path: docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DEVOPS
+    on_main: false
+    notes: "Paste-ready FA handoff for mhrbzandi-Designer."
+
+  - id: OWNER-GITHUB-FRONTEND-ACCESS
+    path: docs/OWNER_GITHUB_FRONTEND_ACCESS.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DEVOPS
+    on_main: false
+    notes: "Owner-only GitHub UI checklist (invite + branch protection). Agent API cannot apply."
+
   - id: STAGING-DEPLOY
     path: deploy/staging/STAGING_DEPLOY.md
     class: POLICY
