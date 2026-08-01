@@ -20,6 +20,7 @@ from app.db.models.content import (
     OtpPurpose,
     ProductComment,
 )
+from app.db.models.knowledge import KnowledgeEdge
 from app.db.models.hesabfa import (
     HesabfaContactMapping,
     HesabfaInvoiceRecord,
@@ -59,6 +60,7 @@ __all__ = [
     "User",
     "UserRole",
     "Article",
+    "KnowledgeEdge",
     "HeroSlide",
     "MegamenuNavGroup",
     "ContactSubmission",

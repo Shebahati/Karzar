@@ -7,7 +7,7 @@
 - [x] Defer KB, REL-001 checkpoint
 
 ## Tasks
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 45% | P2 | 30h | Sprint 04 — **Canon Accepted** Day-2 2026-08-01; IMPL freeze = 3 projection edges
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `in_progress` 70% | P2 | 30h | Sprint 04 — Day-3 wave-1 edges IMPL (3-type freeze)
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
