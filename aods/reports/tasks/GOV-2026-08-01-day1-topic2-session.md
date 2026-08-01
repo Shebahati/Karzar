@@ -34,3 +34,14 @@ Includes UD-06/05/02/03/08, defer bundle, OI-KF-04, KB-001 scope freeze, recomme
 - [x] Board agenda drafted for Owner
 - [ ] Owner acknowledges agenda (A/B edits) or accepts as-is for Day 2
 - [ ] Day 1 Topic 3 (optional): anything else on Day-1 list, else close Day 1
+
+
+## D. Owner vote on Topic 2 (2026-08-01)
+
+| Field | Value |
+|-------|-------|
+| **Vote** | **A** — accept Day-2 Board agenda + recommended ballot as drafted |
+| **Attendees** | Mohammad Shebahati · Cursor |
+| **Agenda PR** | #172 merged |
+
+Day-1 Topic 2 **CLOSED**. Next: Day-2 Board execution (or parallel CAT-002 / caliper enrichment ops under ADR-012).
