@@ -1,0 +1,88 @@
+{
+  "destination": "https://api.karzartools.com/api/v1",
+  "inventory_count": 158,
+  "match_status": {
+    "already_complete": 94,
+    "matched": 64
+  },
+  "skipped_summary": {
+    "unmatched": 0,
+    "ambiguous": 0,
+    "skipped_no_specs": 0,
+    "already_complete": 94
+  },
+  "payloads": 64,
+  "applied": 64,
+  "apply_errors": 0,
+  "zero_price_writes": true,
+  "verify": {
+    "category_57": 158,
+    "accuracy_plusminus": 81,
+    "accuracy_slash_corrupt": 1,
+    "accuracy_empty": 66,
+    "has_range": 106,
+    "has_resolution": 74,
+    "changed_from_slash_to_plusminus": 34
+  },
+  "unmatched_skus": [],
+  "skipped_no_specs_skus": [],
+  "matched_no_payload_count": 0,
+  "samples": [
+    {
+      "sku": "1108-150",
+      "before": "0/01",
+      "after": "0.02mm",
+      "range": "0-150mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1111-100",
+      "before": "0/01",
+      "after": "0.02mm",
+      "range": "0-100mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1120-150",
+      "before": "0/01",
+      "after": "±0.04",
+      "range": "0-150mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1120-300",
+      "before": "0/01",
+      "after": "±0.05mm",
+      "range": "0-300mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1120-500",
+      "before": "0/01",
+      "after": "±0.07mm",
+      "range": "0-500mm",
+      "resolution": "0.01mm / .0005 inch"
+    },
+    {
+      "sku": "1121-150",
+      "before": "0/01",
+      "after": "±0.04mm",
+      "range": "0-150mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1122-300",
+      "before": "0/01",
+      "after": "±0.04mm",
+      "range": "0-300mm",
+      "resolution": "0.01mm"
+    },
+    {
+      "sku": "1123-150",
+      "before": "0/01",
+      "after": "0.05mm",
+      "range": "0-150mm",
+      "resolution": "0.01mm"
+    }
+  ]
+}
