@@ -6,6 +6,7 @@
 - [x] **Property Dictionary v0 (metrology)** — Git seed landed Day-4; dual-write still gated
 - [x] **Taxonomy v0 (metrology)** — Git seed + commerce L1 bridge; no second Category DAG
 - [x] **Classification map INSIZE v0** — Git MAPPING-TABLE for brand_id=3; closed taxonomy labels; no CLASSIFIED_AS edges yet
+- [x] **Admin read-only Knowledge views** — `/knowledge` + product neighborhood; Facts publish still gated
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
@@ -24,3 +25,4 @@
 - [x] 2026-07-30 foundation SPECs (Proposed) — [#167](https://github.com/Shebahati/Karzar/pull/167)
 - [x] 2026-07-30 architecture completion pack (Proposed) — [#168](https://github.com/Shebahati/Karzar/pull/168)
 - [x] 2026-08-01 Day-5 INSIZE classification map (Git MAPPING-TABLE) — [#181](https://github.com/Shebahati/Karzar/pull/181)
+- [x] 2026-08-01 Day-5 Admin read-only Knowledge views — PR pending

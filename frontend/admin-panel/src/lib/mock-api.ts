@@ -44,6 +44,12 @@ import type {
 } from "@/types/order";
 import type { CategorySpecTemplate } from "@/types/spec-template";
 import type {
+  KnowledgeEdge,
+  KnowledgeEdgeListParams,
+  KnowledgeEdgeListResponse,
+  ProductNeighborhood,
+} from "@/types/knowledge";
+import type {
   BulkStockAdjustItem,
   BulkStockAdjustResponse,
   ProductChangeLogEntry,
@@ -900,6 +906,66 @@ const MOCK_SPEC_TEMPLATE: CategorySpecTemplate = {
     ],
   },
 };
+
+/** KB-001 freeze edges projected from mock catalog soft-links (read-only admin). */
+let nextKnowledgeEdgeId = 1;
+const knowledgeEdges: KnowledgeEdge[] = [];
+
+function pushMockEdge(
+  edge: Omit<KnowledgeEdge, "id" | "recorded_at" | "recorder" | "confidence" | "attributes"> &
+    Partial<Pick<KnowledgeEdge, "confidence" | "attributes">>,
+): void {
+  knowledgeEdges.push({
+    ...edge,
+    id: nextKnowledgeEdgeId++,
+    recorded_at: nowIso(),
+    recorder: "mock-projector",
+    confidence: edge.confidence ?? null,
+    attributes: edge.attributes ?? {},
+  });
+}
+
+for (const product of products) {
+  if (product.category_id != null) {
+    pushMockEdge({
+      edge_type: "PRODUCT_BELONGS_TO_CATEGORY",
+      from_node_type: "product",
+      from_node_id: product.id,
+      to_node_type: "category",
+      to_node_id: product.category_id,
+      status: "asserted",
+      source_kind: "projection",
+      source_ref: "products.category_id",
+    });
+  }
+  if (product.brand_id != null) {
+    pushMockEdge({
+      edge_type: "PRODUCT_BRANDED_AS",
+      from_node_type: "product",
+      from_node_id: product.id,
+      to_node_type: "brand",
+      to_node_id: product.brand_id,
+      status: "asserted",
+      source_kind: "projection",
+      source_ref: "products.brand_id",
+    });
+  }
+}
+
+for (const article of articles) {
+  for (const productId of article.related_product_ids ?? []) {
+    pushMockEdge({
+      edge_type: "ARTICLE_EXPLAINS_PRODUCT",
+      from_node_type: "article",
+      from_node_id: article.id,
+      to_node_type: "product",
+      to_node_id: productId,
+      status: "asserted",
+      source_kind: "projection",
+      source_ref: "articles.related_product_ids",
+    });
+  }
+}
 
 export const mockApi = {
   async listProducts(params: ProductListParams = {}): Promise<ProductListResponse> {
@@ -1761,6 +1827,60 @@ export const mockApi = {
       refresh_token: "mock-admin-refresh-token",
       token_type: "bearer",
       expires_in: 3600,
+    });
+  },
+
+  async listKnowledgeEdges(
+    params: KnowledgeEdgeListParams = {},
+  ): Promise<KnowledgeEdgeListResponse> {
+    const {
+      edge_type,
+      from_type,
+      from_id,
+      to_type,
+      to_id,
+      status,
+      skip = 0,
+      limit = 100,
+    } = params;
+    let filtered = knowledgeEdges.filter((edge) =>
+      status ? edge.status === status : edge.status === "asserted" || edge.status === "published",
+    );
+    if (edge_type) filtered = filtered.filter((e) => e.edge_type === edge_type);
+    if (from_type) filtered = filtered.filter((e) => e.from_node_type === from_type);
+    if (from_id != null) filtered = filtered.filter((e) => e.from_node_id === from_id);
+    if (to_type) filtered = filtered.filter((e) => e.to_node_type === to_type);
+    if (to_id != null) filtered = filtered.filter((e) => e.to_node_id === to_id);
+    const total = filtered.length;
+    return delay({ items: filtered.slice(skip, skip + limit), total });
+  },
+
+  async getProductNeighborhood(productId: number): Promise<ProductNeighborhood> {
+    const visible = knowledgeEdges.filter(
+      (e) => e.status === "asserted" || e.status === "published",
+    );
+    return delay({
+      product_id: productId,
+      belongs_to_category:
+        visible.find(
+          (e) =>
+            e.edge_type === "PRODUCT_BELONGS_TO_CATEGORY" &&
+            e.from_node_type === "product" &&
+            e.from_node_id === productId,
+        ) ?? null,
+      branded_as:
+        visible.find(
+          (e) =>
+            e.edge_type === "PRODUCT_BRANDED_AS" &&
+            e.from_node_type === "product" &&
+            e.from_node_id === productId,
+        ) ?? null,
+      explained_by_articles: visible.filter(
+        (e) =>
+          e.edge_type === "ARTICLE_EXPLAINS_PRODUCT" &&
+          e.to_node_type === "product" &&
+          e.to_node_id === productId,
+      ),
     });
   },
 };

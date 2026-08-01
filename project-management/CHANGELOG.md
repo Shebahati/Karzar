@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-01
+- [x] **Day-5 Admin read-only Knowledge views** — admin `/knowledge` edges browser + product-edit neighborhood card (KB-001 three freeze edges). Mock support. No Facts/publish/dual-write.
 - [x] **Day-5 Classification map INSIZE v0** — Git `MAPPING-TABLE` `docs/architecture/specs/seeds/classification-map-insize-v0-metrology.json` (brand_id=3 → taxonomy v0 closed labels). Offline sample coverage. No Facts / no `PRODUCT_CLASSIFIED_AS` projector. Readiness §5 complete for one-brand maps.
 
 ## 2026-07-30
