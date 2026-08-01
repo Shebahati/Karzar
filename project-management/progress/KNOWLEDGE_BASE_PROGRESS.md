@@ -26,3 +26,4 @@
 - [x] 2026-07-30 architecture completion pack (Proposed) — [#168](https://github.com/Shebahati/Karzar/pull/168)
 - [x] 2026-08-01 Day-5 INSIZE classification map (Git MAPPING-TABLE) — [#181](https://github.com/Shebahati/Karzar/pull/181)
 - [x] 2026-08-01 Day-5 Admin read-only Knowledge views — [#183](https://github.com/Shebahati/Karzar/pull/183)
+- [x] 2026-08-01 KB-001 local alembic+sync proof (Category A agent) — report GOV-2026-08-01-operator-kb001-local-sync
