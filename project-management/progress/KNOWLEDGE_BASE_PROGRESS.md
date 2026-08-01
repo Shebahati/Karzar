@@ -23,4 +23,4 @@
 - [ ] Add links to PRs / GSC / Lighthouse here as you go
 - [x] 2026-07-30 foundation SPECs (Proposed) — [#167](https://github.com/Shebahati/Karzar/pull/167)
 - [x] 2026-07-30 architecture completion pack (Proposed) — [#168](https://github.com/Shebahati/Karzar/pull/168)
-- [x] 2026-08-01 Day-5 INSIZE classification map (Git MAPPING-TABLE) — PR pending
+- [x] 2026-08-01 Day-5 INSIZE classification map (Git MAPPING-TABLE) — [#181](https://github.com/Shebahati/Karzar/pull/181)
