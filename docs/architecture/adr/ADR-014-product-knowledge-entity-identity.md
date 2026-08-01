@@ -10,7 +10,7 @@ Accepted
 | **Accepted on** | ۱۴۰۵/۰۵/۱۰ (2026-08-01) |
 | **Board** | Architecture Board |
 | **Signed** | محمد شباهتی / Mohammad Shebahati |
-| **Minute** | [`../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`](../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md) |
+| **Minute** | [`../../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`](../../../aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md) |
 | **Ballot** | UD-02 **A** |
 | **Scope** | Wave-1 Product Knowledge Entity (PKE) stable link identity = commerce `products.id` (1:1). |
 
