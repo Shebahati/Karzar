@@ -3,7 +3,7 @@ import {
   DISCOUNTS_ORB_KEY,
   DISCOUNTS_SPECIAL,
   FINAL_L1_CATEGORIES,
-} from "@/config/final-l1-categories";
+} from "@/config/l1-categories";
 import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import type {
   HeroAnimationPreset,

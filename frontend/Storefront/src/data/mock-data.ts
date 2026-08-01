@@ -13,7 +13,7 @@ import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import {
   FINAL_L1_CATEGORIES,
   FINAL_L1_MOCK_IDS,
-} from "@/config/final-l1-categories";
+} from "@/config/l1-categories";
 import { VERNIER_CALIPER_ARTICLE } from "@/data/articles/how-to-read-vernier-caliper";
 import { blogArticleToPost, listBlogArticles } from "@/lib/blog-articles";
 import {

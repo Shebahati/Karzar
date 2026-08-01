@@ -1,5 +1,5 @@
 /**
- * Finalized L1 taxonomy — keep in sync with Storefront/src/config/final-l1-categories.ts.
+ * Finalized L1 taxonomy — keep in sync with Storefront/src/config/l1-categories.ts.
  * تخفیف‌ها is dock-only (not an L1). Featured slots 1–4 after discounts @ 0.
  */
 

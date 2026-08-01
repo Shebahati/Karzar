@@ -17,7 +17,7 @@ import type {
   MobileComposePreset,
   TextAlign,
 } from "./types";
-import { DISCOUNTS_CATALOG_HREF, DISCOUNTS_ORB_KEY } from "@/config/final-l1-categories";
+import { DISCOUNTS_CATALOG_HREF, DISCOUNTS_ORB_KEY } from "@/config/l1-categories";
 import { buttonStyleCss } from "./presets";
 
 function createId(prefix: string): string {

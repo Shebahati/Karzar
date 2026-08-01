@@ -1,6 +1,6 @@
 /**
  * Hero category dock — marketing overlay + live L1 tree helpers.
- * Canonical L1 list: `final-l1-categories.ts`. This file maps marketing + live tree.
+ * Canonical L1 list: `l1-categories.ts`. This file maps marketing + live tree.
  * Special dock member `discounts` (تخفیف‌ها) is not an L1 DB category.
  */
 
@@ -14,7 +14,7 @@ import {
   DISCOUNTS_ORB_KEY,
   DISCOUNTS_SPECIAL,
   FINAL_L1_CATEGORIES,
-} from "@/config/final-l1-categories";
+} from "@/config/l1-categories";
 
 export { DISCOUNTS_CATALOG_HREF, DISCOUNTS_ORB_KEY };
 

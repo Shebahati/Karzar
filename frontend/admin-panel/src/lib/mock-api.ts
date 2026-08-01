@@ -74,7 +74,7 @@ import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import {
   FINAL_L1_CATEGORIES,
   FINAL_L1_MOCK_IDS,
-} from "@/config/final-l1-categories";
+} from "@/config/l1-categories";
 
 const STATIC_ADMIN_PIN = "84729101";
 
