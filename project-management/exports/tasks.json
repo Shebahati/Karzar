@@ -539,8 +539,8 @@
       "dod": [
         "KNOWLEDGE_BASE_PROGRESS"
       ],
-      "status": "todo",
-      "progress": 45,
+      "status": "in_progress",
+      "progress": 70,
       "sprint": "04",
       "week": 7,
       "day": 1,
@@ -549,7 +549,7 @@
         "knowledge"
       ],
       "risk": "high",
-      "notes": "Historical: DEFERRED at checkpoint close (2026-07-28). D22 eligible. SPECs Proposed then Accepted Day-2 2026-08-01 (UD-06 A) + ADR-013/014. Canon Lock §1c. KB-001 freeze: PRODUCT_BELONGS_TO_CATEGORY, PRODUCT_BRANDED_AS, ARTICLE_EXPLAINS_PRODUCT only. Graph IMPL not started; dual-write/RAG still gated."
+      "notes": "Day-3 2026-08-01: wave-1 IMPL — knowledge_edges table + projector + GET /knowledge/edges + neighborhood + admin sync. Freeze 3 edges only. Dual-write/RAG still gated."
     },
     {
       "id": "REL-001",

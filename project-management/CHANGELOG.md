@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **KB-001 wave-1 IMPL (Day-3)** — `knowledge_edges` overlay (ADR-013) + projector from SoR soft-links + `GET /api/v1/knowledge/edges` + product neighborhood + admin `POST .../projections/sync`. Freeze: three edge types only. Tests + OpenAPI snapshot. Progress 45%→70% (`in_progress`).
 - [x] **Day-2 Board Accept — Knowledge Foundation** (2026-08-01 / ۱۴۰۵/۰۵/۱۰) — UD-06 A core SPEC pack + ADR-013 (Postgres edges/Facts) + ADR-014 (`products.id` PKE) Accepted into Canon Lock §1c; UD-03 metrology-first; UD-08 no AI FA auto-publish; OI-KF-04 Phase1–3 HISTORICAL; KB-001 freeze three projection edges. Minute: `aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`. KB-001 progress 35%→45%. No code/migrations.
 - [x] **Day-1 practical week CLOSED** — Topic 1 merge (#168) · Topic 2 agenda+ballot vote A (#172/#173) · Owner order Day-2 now.
 - [x] **KB-001 architecture completion pack (Proposed)** — audit, foundation review, domain model, property dictionary, taxonomy master seed, KG registry, data transformation, target architecture, implementation readiness under `docs/architecture/specs/`. No code/migrations. Extends foundation SPECs; Board Accept still open (UD-06).

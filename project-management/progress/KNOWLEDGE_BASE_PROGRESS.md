@@ -2,7 +2,7 @@
 
 **Rollup:** 35%
 
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 45% | P2 | 30h | Sprint 04 — **Canon Accepted** (Day-2); IMPL = 3 projection edges + read path
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `in_progress` 70% | P2 | 30h | Sprint 04 — Day-3: `knowledge_edges` + projector + read APIs + tests
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003
