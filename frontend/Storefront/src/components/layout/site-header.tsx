@@ -120,8 +120,8 @@ export function SiteHeader() {
                     megaOpen
                       ? "bg-primary text-white"
                       : overHero
-                        ? "text-white/90 hover:bg-white/15 hover:text-white"
-                        : "text-foreground/85 hover:bg-white/80 hover:text-foreground",
+                        ? "text-white/90 hover-fine:bg-white/15 hover-fine:text-white"
+                        : "text-foreground/85 hover-fine:bg-steel/[0.08] hover-fine:text-foreground",
                   )}
                 >
                   <Category size="small" set="bold" />
@@ -140,10 +140,10 @@ export function SiteHeader() {
                         overHero
                           ? active
                             ? "bg-white/15 text-white"
-                            : "text-white/80 hover:bg-white/12 hover:text-white"
+                            : "text-white/80 hover-fine:bg-white/12 hover-fine:text-white"
                           : active
                             ? "text-primary"
-                            : "text-foreground/75 hover:bg-white/80 hover:text-foreground",
+                            : "text-foreground/75 hover-fine:bg-steel/[0.08] hover-fine:text-foreground",
                       )}
                     >
                       {link.label}
@@ -161,10 +161,10 @@ export function SiteHeader() {
                   setSpotlightOpen(true);
                 }}
                 className={cn(
-                  "me-1 flex h-9 items-center gap-2 rounded-full px-3 text-[13px] transition-all",
+                  "me-1 flex h-9 items-center gap-2 rounded-full px-3 text-[13px] transition-[background-color,color,box-shadow] duration-200",
                   overHero
-                    ? "bg-black/40 text-white/75 shadow-[0_8px_28px_rgba(0,0,0,0.28)] backdrop-blur-xl hover:bg-black/50 hover:text-white"
-                    : "bg-white/80 text-steel shadow-soft backdrop-blur-md hover:bg-white hover:text-foreground",
+                    ? "bg-black/40 text-white/75 shadow-[0_8px_28px_rgba(0,0,0,0.28)] backdrop-blur-xl hover-fine:bg-black/50 hover-fine:text-white"
+                    : "bg-white/80 text-steel shadow-btn-rest backdrop-blur-md hover-fine:bg-karzar-50 hover-fine:text-foreground hover-fine:shadow-btn-soft",
                 )}
                 aria-label="جستجو"
               >
@@ -188,10 +188,10 @@ export function SiteHeader() {
                 <Link
                   href="/account"
                   className={cn(
-                    "ms-1 inline-flex max-w-[150px] items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold backdrop-blur-md transition-colors",
+                    "ms-1 inline-flex max-w-[150px] items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold backdrop-blur-md transition-[background-color,color,box-shadow] duration-200",
                     overHero
-                      ? "bg-black/40 text-white hover:bg-black/50"
-                      : "bg-white/75 text-foreground hover:bg-white",
+                      ? "bg-black/40 text-white hover-fine:bg-black/50"
+                      : "bg-white/75 text-foreground hover-fine:bg-karzar-50 hover-fine:shadow-btn-soft",
                   )}
                 >
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-[11px] text-white">
@@ -205,10 +205,10 @@ export function SiteHeader() {
                     variant="soft"
                     size="sm"
                     className={cn(
-                      "gap-1.5 rounded-full shadow-none",
+                      "gap-1.5 rounded-full shadow-none ring-0",
                       overHero
-                        ? "bg-black/40 text-white hover:bg-black/50 hover:text-white"
-                        : "bg-white/75",
+                        ? "bg-black/40 text-white hover-fine:bg-black/55 hover-fine:text-white hover-fine:shadow-none hover-fine:translate-y-0"
+                        : "bg-white/80",
                     )}
                   >
                     <User size="small" set="bold" />
@@ -226,10 +226,10 @@ export function SiteHeader() {
               type="button"
               onClick={() => setSpotlightOpen(true)}
               className={cn(
-                "ms-2 flex h-10 flex-1 items-center gap-2 rounded-full px-3.5 text-start text-sm transition-colors",
+                "ms-2 flex h-10 flex-1 items-center gap-2 rounded-full px-3.5 text-start text-sm transition-[background-color,color] duration-200",
                 overHero
                   ? "bg-black/40 text-white/70 shadow-[0_6px_20px_rgba(0,0,0,0.28)] backdrop-blur-xl"
-                  : "bg-white/80 text-steel shadow-soft backdrop-blur-md",
+                  : "bg-white/80 text-steel shadow-btn-rest backdrop-blur-md active:bg-karzar-50",
               )}
               aria-label="جستجو"
             >
@@ -240,8 +240,10 @@ export function SiteHeader() {
               <Link
                 href={mounted && hasToken ? "/account" : "/login?next=/account"}
                 className={cn(
-                  "touch-target grid place-items-center rounded-full",
-                  overHero ? "text-white hover:bg-white/15" : "text-steel hover:bg-white/60",
+                  "touch-target grid place-items-center rounded-full transition-colors duration-200",
+                  overHero
+                    ? "text-white active:bg-white/15"
+                    : "text-steel active:bg-steel/[0.1]",
                 )}
                 aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
               >
@@ -281,10 +283,10 @@ function HeaderIcon({
       href={href}
       aria-label={label}
       className={cn(
-        "relative grid h-10 w-10 place-items-center rounded-full transition-colors",
+        "relative grid h-10 w-10 place-items-center rounded-full transition-colors duration-200",
         onDark
-          ? "text-white hover:bg-white/15 hover:text-white"
-          : "text-steel hover:bg-white/70 hover:text-foreground",
+          ? "text-white hover-fine:bg-white/15 hover-fine:text-white active:bg-white/15"
+          : "text-steel hover-fine:bg-steel/[0.1] hover-fine:text-foreground active:bg-steel/[0.1]",
       )}
     >
       {children}

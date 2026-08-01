@@ -107,6 +107,7 @@ export interface DesignedHeroPack {
       featuredOrder: number | null;
       slugHint: string;
       categoryId?: number;
+      special?: boolean;
     }>;
   };
 }

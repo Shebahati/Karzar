@@ -12,7 +12,8 @@ import { categoryHref, NAV_GROUPS, orderedTaxonomyRoots } from "@/config/nav-gro
 import { cn, formatNumber } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 
-const MAX_L1 = 12;
+/** Live L1 count is API-driven; skeleton placeholder count only. */
+const SKELETON_L1 = 13;
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -129,10 +130,7 @@ export function MobileCategorySection({
     () => (data?.length ? data : initialTree) ?? [],
     [data, initialTree],
   );
-  const roots = useMemo(() => {
-    const all = orderedTaxonomyRoots(tree, navDefs);
-    return all.slice(0, MAX_L1);
-  }, [tree, navDefs]);
+  const roots = useMemo(() => orderedTaxonomyRoots(tree, navDefs), [tree, navDefs]);
 
   const waiting = isLoading && tree.length === 0;
 
@@ -177,7 +175,7 @@ export function MobileCategorySection({
 
       {waiting ? (
         <div className="grid grid-cols-2 gap-2.5">
-          {Array.from({ length: MAX_L1 }).map((_, i) => (
+          {Array.from({ length: SKELETON_L1 }).map((_, i) => (
             <TileSkeleton key={i} />
           ))}
         </div>

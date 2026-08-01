@@ -69,14 +69,13 @@ export function ProductTrustStrip({
     <aside
       aria-label="اعتماد خرید"
       className={cn(
-        "relative overflow-hidden rounded-xl bg-gradient-to-l from-karzar-50/80 via-secondary/50 to-transparent",
+        "relative overflow-hidden rounded-[1.1rem] bg-gradient-to-l from-[#D02327]/[0.06] via-secondary/40 to-transparent",
         className,
       )}
     >
-      {/* Brand red accent rail */}
       <span
         aria-hidden
-        className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-karzar-500"
+        className="absolute inset-y-2.5 start-0 w-[3px] rounded-full bg-[#D02327]"
       />
 
       <ul
@@ -96,7 +95,7 @@ export function ProductTrustStrip({
                 "sm:before:absolute sm:before:inset-y-2 sm:before:start-0 sm:before:w-px sm:before:bg-steel/15",
             )}
           >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-karzar-500/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-karzar-500/18">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#D02327]/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-[#D02327]/18">
               <Icon set="bold" size="small" primaryColor="#D02327" />
             </span>
             <div className="min-w-0 leading-tight">

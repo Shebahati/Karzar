@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CloseSquare, Filter } from "react-iconly";
+import { Filter } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
@@ -10,14 +10,17 @@ import { SortSelect } from "@/components/catalog/sort-select";
 import { MobileFilterDrawer } from "@/components/catalog/mobile-filter-drawer";
 import { RootCategoryCarousel } from "@/components/catalog/root-category-carousel";
 import { parseIdList, useCatalogParams } from "@/components/catalog/use-catalog-params";
-import { useBrands, useFlatCategories, useProducts } from "@/features/catalog/queries";
+import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
 import { formatNumber, toPersianDigits } from "@/lib/utils";
-import { useFeatureLabel } from "@/lib/feature-labels";
 import type { CategoryTreeNode } from "@/types/category";
-import type { ProductListParams, ProductSummary } from "@/types/product";
+import {
+  isApiProductSort,
+  type ProductListParams,
+  type ProductSummary,
+} from "@/types/product";
 
 const PAGE_SIZE = 24;
 /** Auto-fetch next pages on scroll this many times after the first page; then show a button. */
@@ -34,7 +37,7 @@ export function CatalogView({
   /** RSC prefetch seed for root category carousel hydration. */
   initialTree?: CategoryTreeNode[];
 } = {}) {
-  const { params, activeCount, categorySlug, brandSlug, setParams, setSpecFilter, clearAll, raw } =
+  const { params, activeCount, categorySlug, brandSlug, setParams, clearAll, unlockToCatalog, raw } =
     useCatalogParams();
   /** Slug→id fills only when URL has slug without numeric id yet. */
   const [slugOverrides, setSlugOverrides] = useState<{
@@ -47,12 +50,15 @@ export function CatalogView({
   const filterDrawerOpen = useUiStore((s) => s.filterDrawerOpen);
   const setDrawer = useUiStore((s) => s.setFilterDrawerOpen);
 
-  // URL + locks drive the product query synchronously (no effect lag → empty PLP).
+  // URL wins over hub lock so L2/L3 drill-down and clear actually change the PLP.
+  // Hub lock is only the default when the URL has no category.
   const resolvedParams = useMemo<ProductListParams>(() => {
     const next: ProductListParams = { ...params };
-    if (lockedCategoryId != null) next.category_id = lockedCategoryId;
-    else if (next.category_id == null && slugOverrides.category_id != null) {
-      next.category_id = slugOverrides.category_id;
+    if (next.category_id == null) {
+      if (lockedCategoryId != null) next.category_id = lockedCategoryId;
+      else if (slugOverrides.category_id != null) {
+        next.category_id = slugOverrides.category_id;
+      }
     }
     if (lockedBrandId != null) next.brand_ids = [lockedBrandId];
     else if (!(next.brand_ids?.length) && slugOverrides.brand_ids?.length) {
@@ -88,17 +94,20 @@ export function CatalogView({
     });
   }, [lockedCategoryId, raw, params.category_id, setParams]);
 
+  // Drop legacy sort keys the live API rejects (e.g. discount_desc, stock_first).
+  useEffect(() => {
+    const sortRaw = raw.get("sort");
+    if (!sortRaw || isApiProductSort(sortRaw)) return;
+    setParams({ sort: null });
+  }, [raw, setParams]);
+
   useEffect(() => {
     setPage(1);
     setAccumulated([]);
   }, [filterKey]);
 
-  useEffect(() => {
-    if (lockedCategoryId == null) return;
-    if (params.category_id !== lockedCategoryId) {
-      setParams({ category: lockedCategoryId });
-    }
-  }, [lockedCategoryId, params.category_id, setParams]);
+  // Do NOT force-rewrite URL back to lockedCategoryId — that made clear + L2/L3
+  // selection appear broken on hub pages (selection written, then immediately overwritten).
 
   useEffect(() => {
     if (lockedBrandId == null) return;
@@ -107,6 +116,14 @@ export function CatalogView({
       setParams({ brand: lockedBrandId });
     }
   }, [lockedBrandId, params.brand_ids, setParams]);
+
+  const clearAllFilters = useCallback(() => {
+    if (lockedCategoryId != null) {
+      unlockToCatalog({ preserveFacets: false });
+      return;
+    }
+    clearAll();
+  }, [lockedCategoryId, unlockToCatalog, clearAll]);
 
   useEffect(() => {
     let cancelled = false;
@@ -168,7 +185,6 @@ export function CatalogView({
   const { data, isLoading, isFetching, isPlaceholderData, isError, refetch } =
     useProducts(queryParams);
   const { data: categories } = useFlatCategories();
-  const { data: brands } = useBrands();
 
   useEffect(() => {
     if (!data?.data || isPlaceholderData) return;
@@ -215,89 +231,10 @@ export function CatalogView({
     ? categories?.find((c) => c.id === resolvedParams.category_id)
     : undefined;
   const activeCategoryName = activeCategory?.name;
-  const selectedBrandIds = resolvedParams.brand_ids ?? [];
-  const selectedCountries = params.countries ?? [];
-  const activeBrandName =
-    selectedBrandIds.length === 1
-      ? brands?.find((b) => b.id === selectedBrandIds[0])?.name
-      : selectedBrandIds.length > 1
-        ? `${selectedBrandIds.length} برند`
-        : undefined;
+  // Keep shop H1 stable — category context lives in carousel + filter panel.
   const title = params.search
     ? `نتایج «${params.search}»`
-    : activeCategoryName ?? activeBrandName ?? "فروشگاه ابزار";
-  const onlyCategoryFilter =
-    lockedCategoryId == null &&
-    lockedBrandId == null &&
-    activeCategory?.slug &&
-    !params.search &&
-    !selectedBrandIds.length &&
-    !selectedCountries.length &&
-    params.min_price == null &&
-    params.max_price == null &&
-    !params.in_stock;
-
-  const chips: { key: string; label: string; clear: () => void }[] = [];
-  if (params.search) {
-    chips.push({
-      key: "search",
-      label: `جستجو: ${params.search}`,
-      clear: () => setParams({ search: null }),
-    });
-  }
-  if (resolvedParams.category_id != null) {
-    chips.push({
-      key: "category",
-      label: activeCategoryName ?? `دسته #${resolvedParams.category_id}`,
-      clear: () => setParams({ category: null, roots: null }),
-    });
-  }
-  for (const brandId of selectedBrandIds) {
-    const name = brands?.find((b) => b.id === brandId)?.name ?? `برند #${brandId}`;
-    chips.push({
-      key: `brand-${brandId}`,
-      label: name,
-      clear: () => {
-        if (lockedBrandId != null) return;
-        const next = selectedBrandIds.filter((id) => id !== brandId);
-        setParams({ brand: next.length ? next.join(",") : null });
-      },
-    });
-  }
-  for (const country of selectedCountries) {
-    const countryValid = !brands || brands.some((b) => b.country === country);
-    if (!countryValid) continue;
-    chips.push({
-      key: `country-${country}`,
-      label: country,
-      clear: () => {
-        const next = selectedCountries.filter((c) => c !== country);
-        setParams({ country: next.length ? next.join(",") : null });
-      },
-    });
-  }
-  if (params.in_stock) {
-    chips.push({
-      key: "stock",
-      label: "فقط موجود",
-      clear: () => setParams({ in_stock: null }),
-    });
-  }
-  if (params.min_price != null || params.max_price != null) {
-    const minLabel =
-      params.min_price != null ? formatNumber(params.min_price) : "…";
-    const maxLabel =
-      params.max_price != null ? formatNumber(params.max_price) : "…";
-    chips.push({
-      key: "price",
-      label: `قیمت ${minLabel} تا ${maxLabel}`,
-      clear: () => setParams({ min_price: null, max_price: null }),
-    });
-  }
-
-  const specEntries = params.spec_filters
-    ? Object.entries(params.spec_filters)
-    : [];
+    : "فروشگاه ابزار";
 
   return (
     <Container className="py-6 lg:py-10">
@@ -312,54 +249,12 @@ export function CatalogView({
             ? "در حال بارگذاری…"
             : `${formatNumber(total)} محصول یافت شد`}
         </p>
-        {onlyCategoryFilter && activeCategory?.slug ? (
-          <p className="mt-2 text-xs">
-            <a
-              href={`/categories/${activeCategory.slug}`}
-              className="font-bold text-primary hover:underline"
-            >
-              صفحهٔ اختصاصی این دسته
-            </a>
-          </p>
-        ) : null}
         {slugError && (
           <p className="mt-2 text-xs text-destructive" role="status">
             {slugError}
           </p>
         )}
       </header>
-
-      {(chips.length > 0 || specEntries.length > 0) && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          {chips.map((chip) => (
-            <button
-              key={chip.key}
-              type="button"
-              onClick={chip.clear}
-              aria-label={`حذف فیلتر ${chip.label}`}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
-            >
-              {chip.label}
-              <CloseSquare size={14} set="bold" primaryColor="#D02327" aria-hidden />
-            </button>
-          ))}
-          {specEntries.map(([path, value]) => (
-            <SpecChip
-              key={`spec:${path}`}
-              path={path}
-              value={value}
-              onClear={() => setSpecFilter(path, null)}
-            />
-          ))}
-          <button
-            type="button"
-            onClick={clearAll}
-            className="inline-flex min-h-11 items-center text-xs font-medium text-primary"
-          >
-            حذف همه فیلترها
-          </button>
-        </div>
-      )}
 
       {lockedCategoryId == null && lockedBrandId == null && (
         <div className="mb-6">
@@ -370,7 +265,7 @@ export function CatalogView({
       <div className="flex gap-6">
         <aside className="hidden w-72 shrink-0 lg:block" id={FILTERS_PANEL_ID}>
           <div className="sticky top-32">
-            <FilterPanel />
+            <FilterPanel lockedCategoryId={lockedCategoryId} />
           </div>
         </aside>
 
@@ -400,6 +295,9 @@ export function CatalogView({
           {isError ? (
             <div className="grid place-items-center rounded-xl bg-card py-16 text-center shadow-soft">
               <p className="font-medium text-foreground">بارگذاری محصولات ناموفق بود</p>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                مرتب‌سازی یا فیلتر را تغییر دهید و دوباره تلاش کنید.
+              </p>
               <Button className="mt-4" onClick={() => void refetch()}>
                 تلاش مجدد
               </Button>
@@ -412,8 +310,8 @@ export function CatalogView({
             </div>
           ) : showEmpty ? (
             <EmptyState
-              onClear={clearAll}
-              hasActiveFilters={activeCount > 0}
+              onClear={clearAllFilters}
+              hasActiveFilters={activeCount > 0 || lockedCategoryId != null}
               categoryName={activeCategoryName}
             />
           ) : (
@@ -458,33 +356,11 @@ export function CatalogView({
         </div>
       </div>
 
-      <MobileFilterDrawer productCount={total} />
+      <MobileFilterDrawer
+        productCount={total}
+        lockedCategoryId={lockedCategoryId}
+      />
     </Container>
-  );
-}
-
-function SpecChip({
-  path,
-  value,
-  onClear,
-}: {
-  path: string;
-  value: string;
-  onClear: () => void;
-}) {
-  const keyName = path.includes(".") ? path.split(".").pop()! : path;
-  const label = useFeatureLabel(keyName);
-  const text = `${label}: ${value}`;
-  return (
-    <button
-      type="button"
-      onClick={onClear}
-      aria-label={`حذف فیلتر ${text}`}
-      className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-xs font-medium text-accent-foreground"
-    >
-      {text}
-      <CloseSquare size={14} set="bold" primaryColor="#D02327" aria-hidden />
-    </button>
   );
 }
 

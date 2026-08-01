@@ -56,7 +56,7 @@ export function ProductPlaceholder({
           className={cn(
             "grid h-[3.25rem] w-[3.25rem] place-items-center rounded-full",
             "bg-white/70 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset]",
-            "transition-transform duration-[350ms] ease-out group-hover:scale-105",
+            "transition-transform duration-300 ease-out group-hover:scale-105",
           )}
         >
           <Image2

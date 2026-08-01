@@ -60,20 +60,24 @@ export function ProductAccessoriesSlot({ product }: { product: ProductDetail }) 
   const isEmpty = !hasProductCards && !hasLabelsOnly;
 
   return (
-    <section className="mt-12" aria-labelledby="pdp-accessories-heading">
+    <section className="mt-16 sm:mt-20" aria-labelledby="pdp-accessories-heading">
       <h2
         id="pdp-accessories-heading"
-        className="mb-4 text-lg font-bold text-foreground sm:text-xl"
+        className="mb-5 flex items-center gap-2.5 text-lg font-bold text-foreground sm:text-xl"
       >
+        <span className="h-6 w-1.5 rounded-full bg-primary" aria-hidden />
         لوازم جانبی پیشنهادی
       </h2>
       {isEmpty ? (
-        <p className="rounded-2xl border border-dashed border-border/70 bg-card/50 px-4 py-6 text-sm leading-7 text-muted-foreground" role="status">
+        <p
+          className="rounded-2xl border border-dashed border-steel/20 bg-secondary/30 px-4 py-7 text-sm leading-7 text-muted-foreground"
+          role="status"
+        >
           لوازم جانبی ثبت‌شده‌ای برای این محصول نیست.
         </p>
       ) : null}
       {hasLabelsOnly ? (
-        <ul className="list-inside list-disc space-y-2 rounded-2xl border border-border/60 bg-card px-4 py-4 text-sm text-foreground">
+        <ul className="list-inside list-disc space-y-2 rounded-2xl bg-secondary/40 px-4 py-4 text-sm text-foreground">
           {labels.map((label) => (
             <li key={label}>{label}</li>
           ))}

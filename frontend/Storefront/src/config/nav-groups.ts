@@ -1,17 +1,14 @@
 /**
- * Merchandising display groups over taxonomy roots.
+ * Category helpers shared by storefront browse surfaces.
  *
- * Locked IA (docs/constitution + category plan):
- * - Commerce SoR = product-type tree, depth ≤ 3, products on depth-2/3 leaves
+ * Locked IA:
+ * - Commerce SoR = product-type tree, depth ≤ 3
  * - Brand / country = facets (not categories)
- * - Top nav megamenu = these merchandising groups (API-backed; this file is fallback)
- * - Browse surfaces (home, catalog carousel, mobile sheet) = ordered L1 type roots
- * - PLP filter = same product tree (drill-down), not a third taxonomy
+ * - **All category UIs (megamenu, home, catalog, mobile) = live L1 from GET /categories/tree**
+ *   via `orderedTaxonomyRoots` — no separate megamenu grouping in admin.
  *
- * Order is intentional: Metrology first.
- *
- * Runtime config: GET /nav-groups/ → map to NavGroupDef via `navGroupsFromApi`.
- * If the API returns empty/unavailable, callers keep using `NAV_GROUPS` below.
+ * `NAV_GROUPS` / `buildNavGroups` remain only as legacy fallback for older tests;
+ * megamenu no longer consumes them.
  */
 
 export interface NavGroupDef {
@@ -55,9 +52,10 @@ export const NAV_GROUPS: NavGroupDef[] = [
     id: "cutting",
     label: "براده‌برداری",
     rootMatchers: [
-      "ابزار اینسرتی",
-      "اینسرت",
       "ابزار انگشتی",
+      "ابزار اینسرتی",
+      "ابزار تراشکاری",
+      "اینسرت",
       "فرز انگشتی",
       "انگشتی",
       "مته",
@@ -78,13 +76,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     id: "accessories",
     label: "لوازم جانبی",
-    rootMatchers: [
-      "لوازم جانبی صنعتی",
-      "لوازم جانبی",
-      "روغن و روانکار",
-      "هلی کویل",
-      "ابزار کارگاهی",
-    ],
+    rootMatchers: ["لوازم جانبی صنعتی", "لوازم جانبی", "روغن و روانکار"],
   },
 ];
 
@@ -217,31 +209,19 @@ export function orderedVisibleRoots<T extends CategoryLike>(
 }
 
 /**
- * All taxonomy L1 roots in merchandising order — includes empty categories.
- * Use for hero dock, home orbs, and shop carousel so surfaces match the DB.
+ * All taxonomy L1 roots in **API / tree order** — includes empty categories.
+ *
+ * Browse surfaces (shop carousel, home orbs, hero live roots) must match the
+ * admin «درخت دسته‌بندی» exactly. Do NOT reorder by NAV_GROUPS here — that
+ * grouping is megamenu-only (`buildNavGroups` / `orderedVisibleRoots`).
+ *
+ * `_groups` kept for call-site compatibility; intentionally unused.
  */
 export function orderedTaxonomyRoots<T extends CategoryLike>(
   roots: T[],
-  groups: NavGroupDef[] = NAV_GROUPS,
+  _groups?: NavGroupDef[],
 ): T[] {
-  const assigned = new Set<number>();
-  const ordered: T[] = [];
-
-  for (const group of groups) {
-    const matched = rootsForGroup(roots, group);
-    for (const root of matched) {
-      if (assigned.has(root.id)) continue;
-      assigned.add(root.id);
-      ordered.push(root);
-    }
-  }
-
-  for (const root of roots) {
-    if (assigned.has(root.id)) continue;
-    ordered.push(root);
-  }
-
-  return ordered;
+  return roots.slice();
 }
 
 /**

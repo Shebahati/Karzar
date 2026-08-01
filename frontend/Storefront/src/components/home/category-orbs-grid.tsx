@@ -13,7 +13,8 @@ import { cn, formatNumber } from "@/lib/utils";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import type { CategoryTreeNode } from "@/types/category";
 
-const DEFAULT_MAX = 12;
+/** null = show every L1 root from the live tree (no artificial cap). */
+const DEFAULT_MAX: number | null = null;
 
 function CategoryOrb({
   node,
@@ -171,8 +172,8 @@ export function CategoryOrbsGrid({
   selectedIds?: number[];
   onToggle?: (node: CategoryTreeNode) => void;
   className?: string;
-  /** Cap L1 roots (default 12) */
-  maxItems?: number;
+  /** Cap L1 roots; null/undefined = all live roots */
+  maxItems?: number | null;
   /** Force column count; default responsive 3 / 4 */
   columns?: 2 | 3 | 4;
   /** RSC prefetch seed — keeps first paint stable across hydrate. */
@@ -198,7 +199,7 @@ export function CategoryOrbsGrid({
           ? "grid-cols-4 gap-4 sm:gap-5"
           : "grid-cols-3 gap-4 sm:gap-5 lg:grid-cols-4 lg:gap-5";
 
-  const skeletonCount = maxItems ?? 12;
+  const skeletonCount = maxItems ?? 13;
   // Only shimmer when we have neither query data nor RSC seed (true cold load).
   const waiting = isLoading && tree.length === 0;
 

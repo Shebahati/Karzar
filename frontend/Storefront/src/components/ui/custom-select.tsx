@@ -112,7 +112,7 @@ export function CustomSelect({
       >
         <span className="truncate">{selected?.label ?? placeholder}</span>
         <span className={cn(
-          "shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+          "shrink-0 transition-transform duration-300 ease-out",
           open && "rotate-180",
         )}>
           <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />

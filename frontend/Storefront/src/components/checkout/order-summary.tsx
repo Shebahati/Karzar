@@ -1,7 +1,7 @@
 "use client";
 
 import { SafeImage } from "@/components/ui/safe-image";
-import { formatToman } from "@/lib/utils";
+import { formatToman, toPersianDigits } from "@/lib/utils";
 import type { CartLine } from "@/store/cart-store";
 
 export function OrderSummary({
@@ -33,20 +33,26 @@ export function OrderSummary({
                 sizes="56px"
                 className="object-contain p-1"
                 fallback={
-                  <span className="grid h-full w-full place-items-center text-sm font-medium">
+                  <span className="grid h-full w-full place-items-center text-sm font-medium text-[#5E5F5E]">
                     {(line.product.name || "ک").slice(0, 1)}
                   </span>
                 }
               />
-              <span className="absolute -top-1 -start-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-medium text-primary-foreground tnum">
-                {line.quantity}
-              </span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="line-clamp-1 text-sm font-bold text-foreground">
-                {line.product.name}
-              </p>
-              <p className="text-xs text-muted-foreground tnum">
+              <div className="flex items-start justify-between gap-2">
+                <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
+                  {line.product.name}
+                </p>
+                <span
+                  className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-[#D02327]/10 px-1.5 py-0.5 text-[11px] font-bold text-[#D02327] tnum"
+                  aria-label={`تعداد ${toPersianDigits(line.quantity)}`}
+                >
+                  <span aria-hidden>×</span>
+                  {toPersianDigits(line.quantity)}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-[#5E5F5E] tnum">
                 {line.product.base_price
                   ? formatToman(Number(line.product.base_price) * line.quantity)
                   : "استعلام قیمت"}
@@ -58,7 +64,7 @@ export function OrderSummary({
 
       {!isInquiry && (
         <div className="mt-5 space-y-2 border-t border-border/60 pt-4 text-sm">
-          <div className="flex items-center justify-between text-muted-foreground">
+          <div className="flex items-center justify-between text-[#5E5F5E]">
             <span>جمع کل</span>
             <span className="tnum">{formatToman(total)}</span>
           </div>

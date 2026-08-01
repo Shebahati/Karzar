@@ -10,8 +10,9 @@ import { BrandStrip } from "@/components/home/brand-strip";
 import { WhyKarzar } from "@/components/home/why-karzar";
 import { FeatureStrip } from "@/components/home/feature-strip";
 import { HomeContactSection } from "@/components/home/home-contact-section";
+import { ArticlesSection } from "@/components/home/articles-section";
 import { SectionHeading } from "@/components/home/section-heading";
-import { useProducts } from "@/features/catalog/queries";
+import { useArticles, useProducts } from "@/features/catalog/queries";
 import type { Brand, CategoryTreeNode } from "@/types/category";
 import type { ProductSummary } from "@/types/product";
 
@@ -37,7 +38,10 @@ export function HomeView({
   initialCategoryTree?: CategoryTreeNode[];
 }) {
   const catalog = useProducts({ limit: 48, sort: "newest" });
+  const articlesQuery = useArticles();
   const products = catalog.data?.data;
+  const hasArticles =
+    articlesQuery.isLoading || (articlesQuery.data?.length ?? 0) > 0;
 
   const bestsellers = useMemo(() => rankBestsellers(products ?? []), [products]);
   const deals = useMemo(
@@ -69,7 +73,7 @@ export function HomeView({
               <SectionHeading
                 title="پرتخفیف‌ها"
                 subtitle="بهترین تخفیف‌های ابزار صنعتی — اسلاید خودکار"
-                href="/catalog?sort=discount_desc"
+                href="/catalog"
                 hrefLabel="همه محصولات پرتخفیف"
               />
               <ProductCarousel
@@ -104,6 +108,19 @@ export function HomeView({
             <BrandStrip initialBrands={initialBrands} />
           </section>
 
+          {hasArticles ? (
+            <section aria-labelledby="home-articles-heading">
+              <SectionHeading
+                id="home-articles-heading"
+                title="مقالات پر بازدید"
+                subtitle="راهنماها و نکات فنی پرمخاطب مجله کارزار"
+                href="/blog"
+                hrefLabel="همه مقالات"
+              />
+              <ArticlesSection />
+            </section>
+          ) : null}
+
           <section
             aria-labelledby="home-orbs-heading-lg"
             className="relative hidden overflow-hidden md:block"
@@ -124,7 +141,7 @@ export function HomeView({
               href="/catalog"
               hrefLabel="همه محصولات"
             />
-            <CategoryOrbsGrid maxItems={12} initialTree={initialCategoryTree} />
+            <CategoryOrbsGrid maxItems={null} initialTree={initialCategoryTree} />
           </section>
 
           <HomeContactSection />

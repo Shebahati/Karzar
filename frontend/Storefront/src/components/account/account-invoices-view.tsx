@@ -8,8 +8,7 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyOrders } from "@/features/orders/queries";
-import { orderService } from "@/services/orders";
-import { downloadOrderPdf } from "@/lib/invoice-pdf";
+import { downloadAccountOrderDocument } from "@/services/order-invoice";
 import { isLoggedIn } from "@/lib/api-client";
 import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
 import type { OrderSummary } from "@/types/order";
@@ -38,16 +37,17 @@ export function AccountInvoicesView() {
     setError(null);
     setBusyCode(order.tracking_code);
     try {
-      const tracking = await orderService.track(order.tracking_code);
-      await downloadOrderPdf(
-        {
-          ...tracking,
-          estimated_total: tracking.estimated_total ?? order.estimated_total,
-        },
+      await downloadAccountOrderDocument(
+        order,
         order.mode === "inquiry" ? "proforma" : "invoice",
       );
-    } catch {
-      setError("دانلود فایل ناموفق بود. دوباره تلاش کنید.");
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "";
+      setError(
+        code === "POPUP_BLOCKED"
+          ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
+          : "دانلود فایل ناموفق بود. دوباره تلاش کنید.",
+      );
     } finally {
       setBusyCode(null);
     }
@@ -96,7 +96,7 @@ export function AccountInvoicesView() {
         )}
 
         {rows.map((order) => {
-          const kind = order.mode === "inquiry" ? "پیش‌فاکتور" : "فاکتور";
+          const kind = order.mode === "inquiry" ? "پیش‌فاکتور" : "فاکتور خرید";
           const busy = busyCode === order.tracking_code;
           return (
             <article

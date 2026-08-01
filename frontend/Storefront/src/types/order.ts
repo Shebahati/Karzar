@@ -14,6 +14,7 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+/** Aligns with OpenAPI `OrderSummary` from `GET /orders/me`. */
 export interface OrderSummary {
   id: number;
   tracking_code: string;
@@ -22,6 +23,13 @@ export interface OrderSummary {
   mode: "purchase" | "inquiry";
   estimated_total: string | null;
   created_at: string;
+  /** Present on live `/orders/me`; optional for older mocks. */
+  payment_status?: string | null;
+  payment_status_label?: string | null;
+  customer_full_name?: string;
+  customer_phone?: string;
+  company_name?: string | null;
+  updated_at?: string;
 }
 
 export interface OrderLineItem {
@@ -34,7 +42,6 @@ export interface OrderLineItem {
 
 export interface OrderDetail extends OrderSummary {
   customer_name: string;
-  customer_phone: string;
   shipping_address: string | null;
   note: string | null;
   payment_status: string | null;

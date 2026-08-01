@@ -11,7 +11,13 @@ import { useMotionSafe } from "@/lib/use-motion-safe";
 import { useUiStore } from "@/store/ui-store";
 import { formatNumber } from "@/lib/utils";
 
-export function MobileFilterDrawer({ productCount = 0 }: { productCount?: number }) {
+export function MobileFilterDrawer({
+  productCount = 0,
+  lockedCategoryId,
+}: {
+  productCount?: number;
+  lockedCategoryId?: number;
+}) {
   const open = useUiStore((s) => s.filterDrawerOpen);
   const setOpen = useUiStore((s) => s.setFilterDrawerOpen);
   const motionSafe = useMotionSafe();
@@ -73,7 +79,11 @@ export function MobileFilterDrawer({ productCount = 0 }: { productCount?: number
             <div className="flex-1 overflow-y-auto p-4">
               {/* Quick chips keep apply path ≤3 taps; accordion for full IA. */}
               <QuickFilterBar />
-              <FilterPanel notifyOnChange={false} mobileDefaults />
+              <FilterPanel
+                notifyOnChange={false}
+                mobileDefaults
+                lockedCategoryId={lockedCategoryId}
+              />
             </div>
             <div className="border-t border-border/60 bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft">
               <Button className="w-full" onClick={() => setOpen(false)}>

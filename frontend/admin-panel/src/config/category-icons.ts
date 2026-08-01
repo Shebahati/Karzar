@@ -25,6 +25,8 @@ export const CATEGORY_ICON_BY_SLUG: Record<string, string> = {
   "abzar-tarashkari": `${CATEGORY_ICON_DIR}/abzar-kargahi.png`,
   "roghan-ravankar": `${CATEGORY_ICON_DIR}/roghan-ravankar.png`,
   "lavazem-janebi": `${CATEGORY_ICON_DIR}/roghan-ravankar.png`,
+  takhfif: `${CATEGORY_ICON_DIR}/takhfif.png`,
+  discounts: `${CATEGORY_ICON_DIR}/takhfif.png`,
 };
 
 export const CATEGORY_ICON_BY_NAME: Record<string, string> = {
@@ -54,6 +56,9 @@ export const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "روغن و روانکار": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
   "روغن و زوانکار": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
   "لوازم جانبی صنعتی": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,
+  تخفیف‌ها: CATEGORY_ICON_BY_SLUG.takhfif!,
+  "تخفیف ها": CATEGORY_ICON_BY_SLUG.takhfif!,
+  تخفیف: CATEGORY_ICON_BY_SLUG.takhfif!,
 };
 
 export function normalizeCategoryIconName(name: string): string {
@@ -86,11 +91,17 @@ export function resolveCategoryIconUrl(node: {
 }): string | null {
   if (isCategoryIconUrl(node.icon)) return node.icon!.trim();
   if (node.slug) {
-    const bySlug = CATEGORY_ICON_BY_SLUG[normalizeCategoryIconName(node.slug)];
+    const slugKey = normalizeCategoryIconName(node.slug).replace(/\s+/g, "-");
+    const bySlug =
+      CATEGORY_ICON_BY_SLUG[normalizeCategoryIconName(node.slug)] ??
+      CATEGORY_ICON_BY_SLUG[slugKey] ??
+      CATEGORY_ICON_BY_SLUG[node.slug.trim()];
     if (bySlug) return bySlug;
   }
   if (node.name) {
-    const byName = CATEGORY_ICON_BY_NAME[normalizeCategoryIconName(node.name)];
+    const normalized = normalizeCategoryIconName(node.name);
+    const byName =
+      CATEGORY_ICON_BY_NAME[normalized] ?? CATEGORY_ICON_BY_NAME[node.name.trim()];
     if (byName) return byName;
   }
   if (isCategoryIconUrl(node.image_url) && node.image_url!.includes("/category-icons/")) {

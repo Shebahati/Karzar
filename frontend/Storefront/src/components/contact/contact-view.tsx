@@ -168,32 +168,35 @@ export function ContactView() {
               ))}
             </div>
 
-            <NeshanDirectionsButton className="w-full" size="lg" />
+            {/* Compact Neshan location — no giant card */}
+            <section
+              aria-labelledby="store-map-heading"
+              className="overflow-hidden rounded-2xl border border-[#5E5F5E]/12 bg-card"
+            >
+              <div className="flex flex-col gap-3 border-b border-[#5E5F5E]/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                    />
+                    <h2
+                      id="store-map-heading"
+                      className="text-sm font-bold text-foreground"
+                    >
+                      موقعیت فروشگاه روی نقشه نشان
+                    </h2>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-[#5E5F5E]">
+                    پاساژ فجر، پلاک ۱۰۸ — مسیر را با نشان باز کنید.
+                  </p>
+                </div>
+                <NeshanDirectionsButton size="sm" className="w-full sm:w-auto" />
+              </div>
+              <NeshanMapEmbed className="rounded-none ring-0" />
+            </section>
           </motion.div>
         </div>
-
-        {/* Full-width Neshan map */}
-        <motion.section
-          aria-labelledby="store-map-heading"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45 }}
-          className="mt-8 space-y-4 sm:mt-10"
-        >
-          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h2 id="store-map-heading" className="text-lg font-bold text-foreground">
-                موقعیت فروشگاه روی نقشه نشان
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                پاساژ فجر، پلاک ۱۰۸ — مسیر را با نشان باز کنید.
-              </p>
-            </div>
-            <NeshanDirectionsButton className="shrink-0" />
-          </div>
-          <NeshanMapEmbed className="w-full" />
-        </motion.section>
       </Container>
     </div>
   );

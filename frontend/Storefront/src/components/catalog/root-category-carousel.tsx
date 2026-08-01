@@ -306,10 +306,7 @@ export function RootCategoryCarousel({
   return (
     <div className="min-w-0 w-full">
       <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
-          <p className="text-[11px] text-steel">یک دسته را انتخاب کنید</p>
-        </div>
+        <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
         {lockedCategoryId == null && activeRootId != null && (
           <button
             type="button"

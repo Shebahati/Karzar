@@ -226,7 +226,7 @@ export function Hero() {
             exit={{ opacity: 0 }}
             transition={{ duration: slideMs, ease: easePremium }}
             className={cn(
-              "absolute inset-0 transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+              "absolute inset-0 transition-transform duration-300 ease-out",
               menuOpen && "scale-[1.015]",
             )}
           >
@@ -272,7 +272,7 @@ export function Hero() {
 
         <div
           className={cn(
-            "relative z-10 flex h-full flex-col justify-center px-5 pb-36 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] sm:px-10 lg:px-16",
+            "relative z-10 flex h-full flex-col justify-center px-5 pb-36 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-300 ease-out sm:px-10 lg:px-16",
             menuOpen && "pointer-events-none translate-y-1 opacity-35",
           )}
         >
@@ -321,7 +321,7 @@ export function Hero() {
                     <Button
                       size="lg"
                       variant="soft"
-                      className="w-full border border-white/30 bg-white/10 text-white hover:bg-white/20 sm:w-auto"
+                      className="w-full border border-white/30 bg-white/10 text-white shadow-none ring-white/20 hover-fine:bg-white/20 hover-fine:text-white hover-fine:shadow-none hover-fine:ring-white/30 hover-fine:translate-y-0 sm:w-auto"
                     >
                       مشاهده فروشگاه
                     </Button>

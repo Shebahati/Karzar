@@ -147,7 +147,7 @@ export function HeroBuilderShell() {
                     (c) => c.featuredOrder != null,
                   ).length;
                   toast.success(
-                    `منتشر شد · ${featuredCount}/۶ داک هیرو${result.cms ? ` · CMS: ${result.cms.updated} به‌روز / ${result.cms.created} جدید` : ""}`,
+                    `منتشر شد · ${featuredCount}/۵ داک هیرو${result.cms ? ` · CMS: ${result.cms.updated} به‌روز / ${result.cms.created} جدید` : ""}`,
                   );
                 } else {
                   toast.error(result.detail ?? "انتشار فایل ناموفق بود");

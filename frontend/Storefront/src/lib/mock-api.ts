@@ -22,6 +22,10 @@ import {
   HERO_SLIDES,
   PRODUCTS,
 } from "@/data/mock-data";
+import {
+  getMockArticlePost,
+  listMockArticleTeasers,
+} from "@/data/mock-articles-preview";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
 import type {
@@ -277,17 +281,6 @@ export const mockApi = {
       case "price_desc":
         items = [...items].sort((a, b) => priceOf(b.base_price) - priceOf(a.base_price));
         break;
-      case "discount_desc":
-        items = [...items].sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0));
-        break;
-      case "stock_first":
-        items = [...items].sort((a, b) => {
-          const aStock = a.availability ? 1 : 0;
-          const bStock = b.availability ? 1 : 0;
-          if (bStock !== aStock) return bStock - aStock;
-          return b.id - a.id;
-        });
-        break;
       case "name_asc":
         items = [...items].sort((a, b) => a.name.localeCompare(b.name, "fa"));
         break;
@@ -359,22 +352,14 @@ export const mockApi = {
 
   async listArticles(): Promise<Article[]> {
     await sleep(env.MOCK_LATENCY_MS);
-    // Teasers are derived from the blog posts to keep a single source of truth.
-    return BLOG_POSTS.map(
-      ({ id, slug, title, excerpt, cover_image, published_at, reading_minutes }) => ({
-        id,
-        slug,
-        title,
-        excerpt,
-        cover_image,
-        published_at,
-        reading_minutes,
-      }),
-    );
+    // Preview set includes tags + views for category rails and «پربازدید».
+    return listMockArticleTeasers();
   },
 
   async getArticle(slug: string): Promise<BlogPost> {
     await sleep(env.MOCK_LATENCY_MS);
+    const preview = getMockArticlePost(slug);
+    if (preview) return preview;
     const post = BLOG_POSTS.find((p) => p.slug === slug);
     if (!post) throw new Error("مقاله یافت نشد.");
     return post;
@@ -541,6 +526,13 @@ export const mockApi = {
         mode: o.mode,
         estimated_total: o.estimated_total,
         created_at: o.created_at,
+        updated_at: o.created_at,
+        payment_status: o.status === "pending_payment" ? "pending" : "paid",
+        payment_status_label:
+          o.status === "pending_payment" ? "در انتظار پرداخت" : "پرداخت شده",
+        customer_full_name: o.customer_name,
+        customer_phone: o.customer_phone,
+        company_name: null,
       })),
       meta: {
         total_count: all.length,

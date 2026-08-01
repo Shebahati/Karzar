@@ -1,31 +1,80 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { ArrowRight } from "react-iconly";
+import { useMemo, useState } from "react";
+import { ArrowRight, Download } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderTimeline } from "@/components/orders/order-timeline";
-import { useOrderTracking } from "@/features/orders/queries";
+import { useOrderTracking, useMyOrders } from "@/features/orders/queries";
 import { useProductsByIds } from "@/features/catalog/queries";
+import { downloadOrderDocumentFromTracking } from "@/services/order-invoice";
 import { formatNumber, formatToman } from "@/lib/utils";
 
 export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
   const { data, isPending, isError, refetch } = useOrderTracking(trackingCode);
+  const { data: ordersData } = useMyOrders({ limit: 50 });
+  const [busy, setBusy] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
   const productIds = useMemo(
     () => (data?.items ?? []).map((item) => item.product_id),
     [data?.items],
   );
   const productsQuery = useProductsByIds(productIds);
   const productsById = useMemo(() => {
-    const map = new Map<number, { name: string; thumbnail: string | null; base_price: string | null }>();
+    const map = new Map<
+      number,
+      { name: string; thumbnail: string | null; base_price: string | null; sku: string }
+    >();
     for (const p of productsQuery.data ?? []) {
-      map.set(p.id, { name: p.name, thumbnail: p.thumbnail, base_price: p.base_price });
+      map.set(p.id, {
+        name: p.name,
+        thumbnail: p.thumbnail,
+        base_price: p.base_price,
+        sku: p.sku,
+      });
     }
     return map;
   }, [productsQuery.data]);
+
+  const summary = useMemo(
+    () => ordersData?.data.find((o) => o.tracking_code === trackingCode) ?? null,
+    [ordersData?.data, trackingCode],
+  );
+
+  const handleDownload = async () => {
+    if (!data || busy) return;
+    setDownloadError(null);
+    setBusy(true);
+    try {
+      const products = Object.fromEntries(
+        [...productsById.entries()].map(([id, p]) => [
+          id,
+          { name: p.name, sku: p.sku },
+        ]),
+      );
+      await downloadOrderDocumentFromTracking(data, {
+        summary,
+        products,
+        kind: data.mode === "inquiry" ? "proforma" : "invoice",
+      });
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "";
+      setDownloadError(
+        code === "POPUP_BLOCKED"
+          ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
+          : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const downloadLabel =
+    data?.mode === "inquiry" ? "دانلود پیش‌فاکتور" : "دانلود فاکتور";
 
   return (
     <Container className="py-8 lg:py-12">
@@ -140,7 +189,21 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
             </div>
           ) : null}
 
+          {downloadError && (
+            <p className="text-sm text-destructive" role="alert">
+              {downloadError}
+            </p>
+          )}
+
           <div className="flex flex-wrap gap-3">
+            <Button
+              className="gap-2"
+              disabled={busy}
+              onClick={() => void handleDownload()}
+            >
+              <Download set="bold" size="small" />
+              {busy ? "در حال ساخت…" : downloadLabel}
+            </Button>
             <Link href="/catalog">
               <Button variant="outline">ادامه خرید</Button>
             </Link>

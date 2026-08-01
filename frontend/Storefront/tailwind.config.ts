@@ -124,6 +124,11 @@ const config: Config = {
         floating: "0 16px 48px rgba(16, 24, 40, 0.16)",
         "primary-glow": "0 8px 24px rgba(194, 32, 38, 0.16)",
         glass: "0 8px 32px rgba(94, 95, 94, 0.12)",
+        /** Button rest / hover — brand-tinted, no white bloom */
+        "btn-rest": "0 1px 2px rgba(94, 95, 94, 0.06)",
+        "btn-primary": "0 6px 16px -6px rgba(208, 35, 39, 0.42)",
+        "btn-soft": "0 6px 14px -8px rgba(208, 35, 39, 0.28)",
+        "btn-steel": "0 4px 12px -6px rgba(94, 95, 94, 0.2)",
       },
       keyframes: {
         "accordion-down": {
@@ -154,7 +159,21 @@ const config: Config = {
       },
     },
   },
-  plugins: [animate, logical],
+  plugins: [
+    animate,
+    logical,
+    /** Real pointer hover only — avoids sticky “glow” after tap on touch devices */
+    function hoverFineVariant({
+      addVariant,
+    }: {
+      addVariant: (name: string, definition: string) => void;
+    }) {
+      addVariant(
+        "hover-fine",
+        "@media (hover: hover) and (pointer: fine) { &:hover }",
+      );
+    },
+  ],
 };
 
 export default config;

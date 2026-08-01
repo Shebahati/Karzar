@@ -21,8 +21,6 @@ import {
   useUpdateCategory,
 } from "@/features/catalog/queries";
 import { enrichFlatCategories } from "@/features/catalog/utils/category-tree";
-import { NavGroupsEditor } from "@/features/cms/components/nav-groups-editor";
-import { useNavGroups } from "@/features/cms/queries";
 import { ApiError } from "@/lib/api-client";
 import type { CategoryFlat } from "@/types/category";
 
@@ -37,18 +35,6 @@ type FormMode = {
 export function CategoriesContent() {
   const { data: rawCategories = [], isPending } = useFlatCategories();
   const categories = useMemo(() => enrichFlatCategories(rawCategories), [rawCategories]);
-  const { data: navGroupsData } = useNavGroups();
-
-  const rootGroupLabels = useMemo(() => {
-    const map = new Map<number, string>();
-    for (const group of navGroupsData?.data ?? []) {
-      if (!group.is_enabled) continue;
-      for (const rootId of group.root_category_ids) {
-        if (!map.has(rootId)) map.set(rootId, group.label);
-      }
-    }
-    return map;
-  }, [navGroupsData]);
 
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
@@ -117,9 +103,9 @@ export function CategoriesContent() {
             <Category set="bulk" size={26} primaryColor="#D02327" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#4F4F4F]">دسته‌بندی و مگامنو</h2>
+            <h2 className="text-2xl font-bold text-[#4F4F4F]">درخت دسته‌بندی</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              درخت محصول، نمایش مگامنو، و گروه‌های فروشگاه — همه در یک صفحه
+              لایه ۱ تا ۳ — تنها منبع حقیقت دسته‌ها برای فروشگاه و مگامنو
             </p>
           </div>
         </div>
@@ -129,24 +115,11 @@ export function CategoriesContent() {
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-border/40 bg-gradient-to-l from-accent/40 to-white px-5 py-4 text-sm leading-relaxed text-[#4F4F4F] shadow-sm">
-        <p className="font-bold">راهنمای نمایش مگامنو</p>
-        <ul className="mt-2 list-disc space-y-1 pe-5 text-muted-foreground">
-          <li>
-            اگر لایهٔ سوم ندارید، در ویرایش لایهٔ ۲ گزینهٔ «نمایش به‌صورت برگ» را روشن کنید تا مثل لینک محصول دیده شود.
-          </li>
-          <li>
-            فرزند تنها با نام «عمومی» به‌صورت خودکار در مگامنو جمع می‌شود؛ می‌توانید همان والد را برگ کنید یا فرزند را پنهان کنید.
-          </li>
-          <li>پررنگ بودن متن را روی هر گره با حالت خودکار / همیشه پررنگ / معمولی تنظیم کنید.</li>
-        </ul>
-      </div>
-
       <section className="space-y-3">
         <div>
-          <h3 className="text-lg font-bold text-[#4F4F4F]">درخت دسته‌بندی</h3>
+          <h3 className="text-lg font-bold text-[#4F4F4F]">مدیریت لایه‌ها</h3>
           <p className="text-sm text-muted-foreground">
-            لایه ۱ تا ۳ را مدیریت کنید. نشان‌های بنفش/نیلی وضعیت مگامنو را نشان می‌دهند.
+            دسته‌های لایه ۱ همان ریشه‌های نمایش در مگامنو، هوم و فروشگاه هستند.
           </p>
         </div>
         {isPending ? (
@@ -160,7 +133,6 @@ export function CategoriesContent() {
             categories={categories}
             layer1Id={layer1Id}
             layer2Id={layer2Id}
-            rootGroupLabels={rootGroupLabels}
             onSelectLayer1={(id) => {
               setLayer1Id(id);
               setLayer2Id(null);
@@ -173,16 +145,6 @@ export function CategoriesContent() {
             onDelete={setDeleteTarget}
           />
         )}
-      </section>
-
-      <section className="space-y-3 border-t border-border/40 pt-8">
-        <div>
-          <h3 className="text-lg font-bold text-[#4F4F4F]">گروه‌های مگامنو فروشگاه</h3>
-          <p className="text-sm text-muted-foreground">
-            ریشه‌های لایه ۱ را به گروه‌های نمایشی (اندازه‌گیری، براده‌برداری، …) وصل کنید.
-          </p>
-        </div>
-        <NavGroupsEditor embedded />
       </section>
 
       <BrandsManagementModal open={brandsOpen} onOpenChange={setBrandsOpen} />
