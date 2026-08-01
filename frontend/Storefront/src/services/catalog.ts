@@ -9,6 +9,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { getMockApi } from "@/lib/get-mock-api";
+import { encodeSlugPathSegment } from "@/lib/product-url";
 import { env } from "@/config/env";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
@@ -76,8 +77,9 @@ export const catalogService = {
 
   async getProductBySlug(slug: string): Promise<ProductDetail> {
     if (env.USE_MOCK) return (await getMockApi()).getProductBySlug(slug);
+    // Decode-once then encode-once: Next may hand a pre-encoded Unicode param.
     const { data } = await apiClient.get<ProductDetail>(
-      `/products/slug/${encodeURIComponent(slug.trim())}`,
+      `/products/slug/${encodeSlugPathSegment(slug)}`,
     );
     return data;
   },

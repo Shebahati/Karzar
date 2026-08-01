@@ -15,7 +15,7 @@
   - Definition of Done:
     - [x] PROJECT_STATUS updated
   - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
-- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `todo` 15% | P1 | 20h | Sprint 02 — **eligible to start**
+- [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 75% | P1 | 20h | Sprint 02
   - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.
   - [x] Dependencies: CAT-001
@@ -24,10 +24,10 @@
   - [ ] Tags: insize, content
   - Acceptance Criteria:
     - [ ] ≥200 SKUs content QA
-    - [ ] price_fields_written=none
+    - [x] price_fields_written=none (dry-run commerce_policy.zero_price_writes=true; apply not run)
   - Definition of Done:
     - [ ] SEO_PROGRESS note
-  - Notes: Historical deferral at checkpoint close (2026-07-28); #90 kept open; #74 closed. Schedule unblock 2026-07-30: 2026-09-23 date gate lifted — eligible to start. HC-09/ADR-012 before catalog write.
+  - Notes: 2026-07-30 Strategy C-as-A dry-run: 861 payloads under `data/imports/insize/shopmill/`; apply HALTED (local API down). No staging/prod.
 
 - [x] **BE-001** Catalog API readiness for SEO fields — `done` 100% | P1 | 10h | Sprint 00
   - Owner: unassigned | Week 1 Day 4 | Risk: low

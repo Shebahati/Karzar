@@ -9,14 +9,18 @@ import {
   resolveMetaDescription,
   resolveMetaTitle,
 } from "@/lib/product-seo";
-import { isNumericProductParam, productPath } from "@/lib/product-url";
+import {
+  isNumericProductParam,
+  productPath,
+  safeDecodeURIComponent,
+} from "@/lib/product-url";
 import { catalogService } from "@/services/catalog";
 import type { ProductDetail } from "@/types/product";
 
 type Props = { params: Promise<{ slug: string }> };
 
 async function resolveProduct(param: string): Promise<ProductDetail> {
-  const key = param.trim();
+  const key = safeDecodeURIComponent(param.trim());
   if (!key) throw new Error("missing");
 
   if (isNumericProductParam(key)) {
@@ -27,7 +31,8 @@ async function resolveProduct(param: string): Promise<ProductDetail> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug: param } = await params;
+  const { slug: rawParam } = await params;
+  const param = safeDecodeURIComponent(rawParam);
   try {
     const product = await resolveProduct(param);
     const title = resolveMetaTitle(product.meta_title, product.name);
@@ -50,7 +55,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { slug: param } = await params;
+  const { slug: rawParam } = await params;
+  const param = safeDecodeURIComponent(rawParam);
   const queryClient = getQueryClient();
 
   let product: ProductDetail;
