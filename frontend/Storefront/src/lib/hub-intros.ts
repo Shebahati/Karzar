@@ -28,36 +28,25 @@ const DATA = introsJson as HubIntrosFile;
 const BY_SLUG = new Map(DATA.hubs.map((hub) => [hub.slug, hub]));
 
 /**
- * Live L1 categories + older Persian path segments → intros.json hub keys (latin L1).
+ * Live L1 latin slugs / alternate path segments → intros.json hub keys (Persian).
+ * intros.json still uses Persian hub slugs; map live taxonomy slugs onto them.
  */
 const SLUG_ALIASES: Record<string, string> = {
-  "اندازه-گیری-دقیق": "andaze-giri-daghigh",
-  "اندازه-گیری-آزمایشگاهی": "andaze-giri-azmayeshgahi",
-  "اندازه-گیری-فرز-cnc": "andaze-giri-cnc",
-  "cnc-اندازه-گیری": "andaze-giri-cnc",
-  "ابزار-اینسرتی": "abzar-inserti",
-  اینسرت: "insert",
-  "ابزار-انگشتی": "abzar-angoshti",
-  مته: "mete",
-  قلاویز: "ghalaviz",
-  ابزارگیر: "abzargir",
-  "ابزار-گیرشی": "abzar-gireshi",
-  "دستگاههای-صنعتی": "dastgah-sanati",
-  "دستگاه‌های-صنعتی": "dastgah-sanati",
-  "لوازم-جانبی-صنعتی": "lavazem-janebi",
-  // latin keys also resolve if intros still used Persian (defensive)
-  "andaze-giri-daghigh": "andaze-giri-daghigh",
-  "andaze-giri-azmayeshgahi": "andaze-giri-azmayeshgahi",
-  "andaze-giri-cnc": "andaze-giri-cnc",
-  "abzar-inserti": "abzar-inserti",
-  insert: "insert",
-  "abzar-angoshti": "abzar-angoshti",
-  mete: "mete",
-  ghalaviz: "ghalaviz",
-  abzargir: "abzargir",
-  "abzar-gireshi": "abzar-gireshi",
-  "dastgah-sanati": "dastgah-sanati",
-  "lavazem-janebi": "lavazem-janebi",
+  "andaze-giri-daghigh": "اندازه-گیری-دقیق",
+  "andaze-giri-azmayeshgahi": "اندازه-گیری-آزمایشگاهی",
+  "andaze-giri-cnc": "اندازه-گیری-فرز-cnc",
+  "abzar-inserti": "ابزار-اینسرتی",
+  insert: "اینسرت",
+  "abzar-angoshti": "ابزار-انگشتی",
+  mete: "مته",
+  ghalaviz: "قلاویز",
+  abzargir: "ابزارگیر",
+  "abzar-gireshi": "ابزار-گیرشی",
+  "dastgah-sanati": "دستگاه‌های-صنعتی",
+  "lavazem-janebi": "لوازم-جانبی-صنعتی",
+  // older / alternate Persian path segments
+  "اندازه-گیری-فرز-cnc": "اندازه-گیری-فرز-cnc",
+  "cnc-اندازه-گیری": "اندازه-گیری-فرز-cnc",
 };
 
 /** Count whitespace-separated tokens (Persian/Latin). */
