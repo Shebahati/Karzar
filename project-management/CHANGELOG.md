@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-07-30
+- [x] **Day-2 Board Accept — Knowledge Foundation** (2026-08-01 / ۱۴۰۵/۰۵/۱۰) — UD-06 A core SPEC pack + ADR-013 (Postgres edges/Facts) + ADR-014 (`products.id` PKE) Accepted into Canon Lock §1c; UD-03 metrology-first; UD-08 no AI FA auto-publish; OI-KF-04 Phase1–3 HISTORICAL; KB-001 freeze three projection edges. Minute: `aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md`. KB-001 progress 35%→45%. No code/migrations.
+- [x] **Day-1 practical week CLOSED** — Topic 1 merge (#168) · Topic 2 agenda+ballot vote A (#172/#173) · Owner order Day-2 now.
 - [x] **KB-001 architecture completion pack (Proposed)** — audit, foundation review, domain model, property dictionary, taxonomy master seed, KG registry, data transformation, target architecture, implementation readiness under `docs/architecture/specs/`. No code/migrations. Extends foundation SPECs; Board Accept still open (UD-06).
 - [x] **KB-001 foundation SPECs (Proposed)** — landed `docs/architecture/specs/` pack: Product Knowledge Entity, Industrial Taxonomy, Knowledge Graph, Import & Enrichment Playbook + pack README (analysis, decisions, UD list, sequence). No code/migrations. Not Canon Lock until Board Accept (UD-06). KB-001 progress 10%→20%.
 - [x] **CAT-002 local Category A apply** — repaired `lathe_api` (wrong Website/backend bind-mount + SCRAM password mismatch); `curl /ready` OK; dry-run then `--apply --apply-confirm` on `http://127.0.0.1:8000/api/v1`: **applied=126 err=0**; already_complete=735; unmatched=5; `zero_price_writes=true`. No staging/prod; AC ≥200 SKU QA still open. Task → `in_progress` 75%.

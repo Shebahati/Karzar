@@ -1,7 +1,7 @@
 ---
 id: SPEC-domain-model
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/specs/SPEC-product-knowledge-entity-model.md
@@ -13,7 +13,7 @@ task_id: KB-001
 
 # SPEC — Domain Model
 
-**Status:** Proposed  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Purpose:** Complete logical entity architecture for KarzarTools commerce + knowledge layers  
 **Non-goals:** DDL · ORM changes · inventing missing historical ADRs · second commerce Category tree
 

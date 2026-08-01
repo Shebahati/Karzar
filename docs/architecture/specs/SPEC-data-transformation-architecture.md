@@ -1,7 +1,7 @@
 ---
 id: SPEC-data-transformation-architecture
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
@@ -14,7 +14,7 @@ task_id: KB-001
 
 # SPEC — Data Transformation Architecture
 
-**Status:** Proposed  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Purpose:** Mechanical architecture for supplier → production knowledge+commerce transforms  
 **Extends:** Import & Enrichment Playbook (stages) + binding ingestion policy  
 **Non-goals:** Script rewrites in this PR · production write authorization · weakening ADR-012

@@ -13,9 +13,10 @@ task_id: KB-001
 
 # Foundation Implementation Readiness
 
-**Status:** Proposed  
+**Status:** Proposed (REFERENCE readiness checklist — updated after Day-2 Accept)  
 **Question:** After the Knowledge Foundation + this completion pack, can engineering **safely** implement each layer?  
-**Answer shape:** Ready / Ready with gates / Not ready — with explicit missing items.
+**Answer shape:** Ready / Ready with gates / Not ready — with explicit missing items.  
+**Day-2 update (2026-08-01):** Core SPECs + ADR-013/014 **Accepted** (Canon Lock §1c). This readiness file itself remains Proposed/REFERENCE.
 
 ---
 
@@ -23,16 +24,16 @@ task_id: KB-001
 
 | Workstream | Ready to implement? | Gate |
 |------------|---------------------|------|
-| Logical architecture / planning | **Yes** | Treat docs as Proposed until Board Accept |
-| Database models (knowledge tables) | **Ready with gates** | Board Accept SPECs (UD-06) + storage ADR (UD-05) + no dual-write without Property gate |
+| Logical architecture / planning | **Yes** | Cite Accepted core SPECs (Canon §1c) |
+| Database models (knowledge tables) | **Ready with gates** | Cite ADR-013/014; Alembic PR; **no** dual-write without separate Board gate |
 | API layer (`/knowledge/*`) | **Ready with gates** | Same + OpenAPI additive contract RFC |
-| Admin knowledge management | **Ready with gates** | Property steward roles; UD-01 Manufacturer |
+| Admin knowledge management | **Ready with gates** | Property steward roles; UD-01 Manufacturer still deferred |
 | Import pipeline formalization | **Ready with gates** | Keep ADR-012; maps in Git; no prod Category A |
-| AI agents (enrichment assist) | **Partial** | Allow suggest/draft only; Evidence≈0 blocks generative RAG |
-| SEO entity pages (new hubs) | **Not ready** for Type/Application hubs | UD-04 + thin-content policy; EPIC-1 hubs already shippable/shipped |
-| KB-001 graph seed (minimal) | **Ready with gates** | Registry subset + edge storage decision; no second Category DAG |
+| AI agents (enrichment assist) | **Partial** | Suggest/draft only; UD-08 no FA auto-publish; Evidence≈0 blocks generative RAG |
+| SEO entity pages (new hubs) | **Not ready** for Type/Application hubs | UD-04 deferred; EPIC-1 hubs already shippable/shipped |
+| KB-001 graph seed (minimal) | **Ready** | Freeze: three projection edges only; no second Category DAG |
 
-**Bottom line:** Engineering may **plan and spike behind feature flags** using these SPECs, but **must not** treat them as Canon Lock merge criteria until Board Accept. Schema PRs need explicit ADR/RFC Accepted for storage choices.
+**Bottom line:** Core knowledge SPECs are **Accepted** merge criteria. Schema PRs must cite ADR-013/014. Dual-write and RAG remain Board-gated.
 
 ---
 
@@ -129,16 +130,18 @@ task_id: KB-001
 
 | Gap | Severity | Notes |
 |-----|----------|-------|
-| Accepted storage ADR for edges/Facts | **Blocker for DDL** | UD-05 |
-| Board Accept of SPEC pack | **Blocker for Canon citations** | UD-06 |
-| Manufacturer migration decision | High | UD-01 |
-| PKE ID scheme | High | UD-02 |
-| Property Dictionary v0 seed data file | Medium | UD-03 — SPEC exists, data file not authored |
-| Knowledge hub URL RFC | Medium | UD-04 |
+| ~~Accepted storage ADR for edges/Facts~~ | **Closed** | ADR-013 Accepted Day-2 |
+| ~~Board Accept of SPEC pack~~ | **Closed** | UD-06 A · Canon §1c |
+| ~~PKE ID scheme~~ | **Closed** | ADR-014 Accepted Day-2 |
+| Manufacturer migration decision | High | UD-01 deferred |
+| Property Dictionary v0 seed data file | Medium | UD-03 metrology-first — SPEC Accepted; data file not authored |
+| Knowledge hub URL RFC | Medium | UD-04 deferred |
 | OpenAPI knowledge contract RFC | Medium | Before public API |
 | Admin UX SPECs | Medium | Before large admin build |
 | Search architecture pack | Low near-term | Phase 2 FTS first; enterprise search pack absent |
 | Evidence corpus plan at scale | High for AI | PDFs historically empty |
+| Dual-write JSONB↔Facts | High | Separate Board gate |
+| Generative RAG | Blocked | Evidence≈0 |
 
 These are **identified explicitly** so engineering does not invent them mid-IMPL.
 
@@ -146,9 +149,9 @@ These are **identified explicitly** so engineering does not invent them mid-IMPL
 
 ## 5. Safe implementation sequence (planning)
 
-1. Board review / Accept SPECs (UD-06) → Canon Lock rows  
-2. ADR: edge + Fact storage (UD-05); ADR: Manufacturer (UD-01); ADR: PKE id (UD-02)  
-3. KB-001: project Article↔Product↔Category edges (registry subset)  
+1. ~~Board review / Accept SPECs (UD-06) → Canon Lock rows~~ **Done** Day-2  
+2. ~~ADR: edge + Fact storage (UD-05); ADR: PKE id (UD-02)~~ **Done** ADR-013/014 · Manufacturer (UD-01) still deferred  
+3. KB-001: project Article↔Product↔Category edges (registry freeze subset)  
 4. Git Property Dictionary v0 (metrology) + mapping tables — **no dual-write**  
 5. Taxonomy seed load (draft nodes) + classification maps for one brand  
 6. Admin read-only Knowledge views → then assert/publish Facts  
@@ -162,8 +165,8 @@ These are **identified explicitly** so engineering does not invent them mid-IMPL
 | ID | Decision |
 |----|----------|
 | **RD-1** | Completion pack closes *logical* foundation gaps for planning |
-| **RD-2** | Coding knowledge DDL without UD-05/UD-06 is **non-compliant** with architecture-first process |
-| **RD-3** | Script-stage formalization under ADR-012 may proceed as Category A local work citing playbook/transform SPECs as Proposed guidance — not as Canon — until Accept |
+| **RD-2** | Knowledge DDL without citing Accepted SPECs + ADR-013/014 is **non-compliant** |
+| **RD-3** | Script-stage formalization under ADR-012 may proceed as Category A local work citing Accepted playbook/transform SPECs |
 | **RD-4** | No second commerce taxonomy in any IMPL |
 
 ---
@@ -183,9 +186,9 @@ This readiness review does **not** authorize:
 
 | Question | Answer |
 |----------|--------|
-| Database models? | **After** Board Accept + storage/identity ADRs |
-| API layer? | **After** those + additive OpenAPI RFC |
-| Admin KM? | **After** Dictionary seed + roles + UD-01 |
+| Database models? | **Yes with gates** — cite ADR-013/014 + Alembic; KB-001 three edges first |
+| API layer? | **After** additive OpenAPI RFC (may follow first edge read path) |
+| Admin KM? | **After** Dictionary seed + roles; UD-01 still deferred |
 | Import pipeline? | **Yes** to formalize locally under ADR-012; platform jobs later |
-| AI agents? | **Assist only**; no invent; no RAG yet |
+| AI agents? | **Assist only**; no invent; no FA auto-publish; no RAG yet |
 | SEO pages? | **Enhance existing hubs/PDP**; new knowledge hubs blocked on UD-04 |

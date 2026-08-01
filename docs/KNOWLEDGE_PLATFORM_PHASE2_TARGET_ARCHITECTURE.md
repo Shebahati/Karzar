@@ -1,5 +1,8 @@
 # KarzarTools — Phase 2 Target Architecture Design
 
+
+> **Supersession (OI-KF-04 · Board Day-2 · 2026-08-01 / ۱۴۰۵/۰۵/۱۰):** This Phase document is **HISTORICAL / orientation** only. The living knowledge-architecture path is `docs/architecture/specs/` (core pack **Accepted** — see `aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md` and Canon Lock §1c). Do **not** use this file as merge criteria or as SoT against Accepted SPECs/ADRs.
+
 **Status:** Complete — Phase 3 roadmap published  
 **Date:** 2026-07-22  
 **Depends on:** [KNOWLEDGE_PLATFORM_PHASE1_ARCHITECTURE_AUDIT.md](./KNOWLEDGE_PLATFORM_PHASE1_ARCHITECTURE_AUDIT.md)  

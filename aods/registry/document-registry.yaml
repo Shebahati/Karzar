@@ -104,6 +104,33 @@ documents:
     on_main: true
     citation_required_for: [CT-DATA]
     notes: "Inviolable per cross-cutting rule R4. Violated by 18 scripts — see CR-004."
+  - id: ADR-013
+    path: docs/architecture/adr/ADR-013-knowledge-edge-fact-storage.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Accepted Day-2 2026-08-01 (UD-05 A). Postgres overlay edges/Facts; no graph engine for KB-001. Flip on_main after merge."
+
+  - id: ADR-014
+    path: docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Accepted Day-2 2026-08-01 (UD-02 A). Wave-1 PKE join = products.id. Flip on_main after merge."
+  - id: BOARD-MINUTE-KF-ACCEPT-2026-08-01
+    path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
+    class: CANON
+    rank: 1
+    status: accepted
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Day-2 Board minute — knowledge foundation Accept + ballot. Flip on_main after merge."
+
+
 
   - id: RFC-004
     path: docs/architecture/rfc/RFC-004-slug-migration-and-redirects.md
@@ -912,80 +939,81 @@ documents:
     on_main: true
 
   # =========================================================================
-  # PROPOSED — design context only; may not authorise work
+  # HISTORICAL / PROPOSED / ACCEPTED-SPEC rows (see class+status per row)
+  # Former Phase docs HISTORICAL (OI-KF-04); core SPECs Accepted Day-2; seed/audit remain PROPOSED
   # =========================================================================
 
   - id: KP-PHASE1
     path: docs/KNOWLEDGE_PLATFORM_PHASE1_ARCHITECTURE_AUDIT.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: HISTORICAL
+    rank: 10
+    status: historical
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Design only. KB-001 deferred past 2026-09-22."
+    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Design only. KB-001 deferred past 2026-09-22."
 
   - id: KP-PHASE2
     path: docs/KNOWLEDGE_PLATFORM_PHASE2_TARGET_ARCHITECTURE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: HISTORICAL
+    rank: 10
+    status: historical
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Modules M0-M11, additive /api/v1/knowledge/*. Not implemented — no app/knowledge/ directory exists."
+    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Modules M0-M11, additive /api/v1/knowledge/*. Not implemented — no app/knowledge/ directory exists."
 
   - id: KP-PHASE3
     path: docs/KNOWLEDGE_PLATFORM_PHASE3_IMPLEMENTATION_ROADMAP.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: HISTORICAL
+    rank: 10
+    status: historical
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Slices I0-I15; I0 never started. Says pause image import — conflicts with CATALOG-IMAGES-PLAN (CR-019)."
+    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Slices I0-I15; I0 never started. Says pause image import — conflicts with CATALOG-IMAGES-PLAN (CR-019)."
 
   - id: SPEC-PACK-README
     path: docs/architecture/specs/README.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Knowledge foundation pack index + Phase-1 repo analysis. Not Canon Lock until Board Accept (UD-06)."
+    notes: "Accepted Day-2 2026-08-01 (UD-06 A). Canon Lock §1c pack index."
 
   - id: SPEC-PKE-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Commerce vs Knowledge Entity separation; identity; governed specs; content modules. Interim for reserved domain/pim packs."
+    notes: "Accepted Day-2. Commerce vs PKE; cite with ADR-014."
 
   - id: SPEC-TAXONOMY-MODEL
     path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Multi-dimensional industrial taxonomy; preserves single commerce Category tree (CF-SPEC-01 / KB-001)."
+    notes: "Accepted Day-2. Multi-dim taxonomy; preserves single commerce Category tree."
 
   - id: SPEC-KG-MODEL
     path: docs/architecture/specs/SPEC-knowledge-graph-model.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "KG overlay nodes/edges/provenance. Prerequisite design for KB-001 IMPL."
+    notes: "Accepted Day-2. KG overlay; cite with ADR-013."
 
   - id: SPEC-IMPORT-PLAYBOOK
     path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-DATA-ENG
     on_main: true
-    notes: "Raw→production pipeline stages; AI allow/deny; review tiers. Does not weaken ADR-012."
+    notes: "Accepted Day-2. Pipeline stages; does not weaken ADR-012; UD-08 no AI FA auto-publish."
 
   - id: SPEC-FULL-AUDIT
     path: docs/architecture/specs/FULL_PLATFORM_ARCHITECTURE_AUDIT.md
@@ -1007,21 +1035,21 @@ documents:
 
   - id: SPEC-DOMAIN-MODEL
     path: docs/architecture/specs/SPEC-domain-model.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Logical domain ER commerce+knowledge."
+    notes: "Accepted Day-2. Logical domain ER commerce+knowledge."
 
   - id: SPEC-PROPERTY-DICTIONARY
     path: docs/architecture/specs/SPEC-property-dictionary-system.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Property Definition/Template/Fact system. Dual-write still gated."
+    notes: "Accepted Day-2. Property system; dual-write gated; UD-03 metrology-first."
 
   - id: SPEC-TAXONOMY-SEED
     path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
@@ -1034,21 +1062,21 @@ documents:
 
   - id: SPEC-KG-REGISTRY
     path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Official KG relation vocabulary."
+    notes: "Accepted Day-2. Relation vocabulary; KB-001 freeze three edges."
 
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-DATA-ENG
     on_main: true
-    notes: "Supplier→production transform mechanics."
+    notes: "Accepted Day-2. Supplier→production transform mechanics."
 
   - id: SPEC-KP-TARGET-ARCH
     path: docs/architecture/specs/KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md

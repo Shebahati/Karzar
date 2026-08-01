@@ -47,7 +47,7 @@
 - [x] Backend EPIC-1 brand meta — **BE-002** done (#126); see `BACKEND_PROGRESS.md`
 
 ## Active sprint
-See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). CAT-002 / KB-001: **eligible to start** (2026-09-23 date gate lifted 2026-07-30). CAT-002 local Category A apply 2026-07-30: applied=126 (`in_progress` 75%; QA open).
+See `sprints/SPRINT_04.md` (checkpoint freeze) and `sprints/SPRINT_05.md` (EPIC-1 Board wave post-checkpoint). Checkpoint PMO: **operationally complete**. Sprint 05 EPIC-1 Board wave: **complete** (SEO-005…009, BE-002, FE-002). CAT-002 / KB-001: **eligible to start** (2026-09-23 date gate lifted 2026-07-30). CAT-002 local Category A apply 2026-07-30: applied=126 (`in_progress` 75%; QA open). KB-001: foundation **Accepted** Day-2 2026-08-01 (D23); IMPL not started (3-edge freeze).
 
 ## Process governance (AODS-001)
 Repository process is governed by `aods/` — **Accepted 1.0.0** (۸ مرداد ۱۴۰۵ / 2026-07-30, Mohammad Shebahati).

@@ -6,7 +6,7 @@ Statuses mirrored from `exports/tasks.json`.
 - [ ] _(empty)_
 
 ## todo
-- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 35% | P2 | 30h | Sprint 04 — **eligible to start**
+- [ ] **KB-001** Knowledge platform phase-1 content graph seed — `todo` 45% | P2 | 30h | Sprint 04 — **Canon Accepted**; IMPL eligible (3-edge freeze)
   - Owner: PMO | Week 7 Day 1 | Risk: high
   - [ ] Description: Link articles↔products↔categories; avoid second taxonomy.
   - [x] Dependencies: SEO-003

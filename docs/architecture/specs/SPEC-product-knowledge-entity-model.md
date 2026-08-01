@@ -1,7 +1,7 @@
 ---
 id: SPEC-product-knowledge-entity-model
 version: 0.1.0
-status: Proposed
+status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
@@ -14,7 +14,7 @@ pack: docs/architecture/specs/README.md
 
 # SPEC — Product Knowledge Entity Model
 
-**Status:** Proposed (not binding merge criteria until Architecture Board Accepts)  
+**Status:** **Accepted** (Architecture Board · ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati · Day-2 minute)  
 **Document type:** Domain / PIM specification  
 **Non-goals:** Schema DDL · migrations · API implementation · Canon Lock self-Accept · inventing missing ADR-001…009 text
 
