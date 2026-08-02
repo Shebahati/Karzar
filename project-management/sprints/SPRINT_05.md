@@ -8,6 +8,9 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [x] **KB-PT-01A** Close PT-W1 deletion-integrity and populated-migration evidence gaps — `done` 100% | P0 | Sprint 05 — included in PR #195
+- [x] **KB-PT-01** PT-W1 Product Type runtime core — `done` 100% | P0 | Sprint 05 — migration `e6f7a8b9c0d1`; merged PR #195 @ `0fc3503`
+- [x] **KB-PT-00B** Board Hybrid clarification — `done` 100% | P0 | Sprint 05 — PR #194
 - [x] **SEO-005** EPIC-1.1–1.2 PDP slug + 301 — `done` 100% | P1 | Sprint 05 — #127
 - [x] **SEO-006** EPIC-1.3 Cards/breadcrumbs/sitemap slug — `done` 100% | P1 | Sprint 05
 - [x] **SEO-007** EPIC-1.4 JSON-LD slug `@id` — `done` 100% | P1 | Sprint 05
