@@ -1,22 +1,24 @@
 ---
 id: SPEC-master-knowledge-base-remediation
-version: 0.3.0
+version: 0.4.1
 status: Proposed
 date: 2026-08-02
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
   - docs/architecture/adr/ADR-013-knowledge-edge-fact-storage.md
   - docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
+  - docs/architecture/adr/ADR-015-product-type-engineering-classification.md
+  - docs/architecture/specs/SPEC-canonical-product-type-model.md
   - docs/architecture/specs/SPEC-knowledge-graph-model.md
   - docs/architecture/specs/SPEC-knowledge-graph-registry.md
   - docs/architecture/specs/SPEC-product-knowledge-entity-model.md
   - docs/architecture/specs/SPEC-property-dictionary-system.md
   - docs/architecture/specs/SPEC-industrial-taxonomy-model.md
-owner: Platform Architect + Knowledge Architect (author) · Owner implementation approval recorded 2026-08-02
-task_id: KB-REMEDIATION-00C
+owner: Platform Architect + Knowledge Architect (author) · Owner implementation approval recorded 2026-08-02 · Product Type architecture amendment KB-PT-00 · Final owner-review corrections KB-PT-00A
+task_id: KB-PT-00A
 pack: docs/architecture/specs/README.md
-amends: KB-REMEDIATION-00B (v0.3.0 contract) — owner implementation approval (not Board Accept)
-owner_implementation_approval: Approved for Prompts 01-14
+amends: KB-PT-00 (v0.4.0) — final owner-review corrections (11A sequencing, Board gate); not Board Accept
+owner_implementation_approval: Approved for Prompts 01-14 subject to Product Type gates in §12.1
 owner_implementation_approval_date: "2026-08-02"
 owner_implementation_approver: Mohammad Shebahati
 architecture_board_acceptance: not_granted
@@ -25,10 +27,10 @@ canonical_authority: not_accepted_canon
 
 # SPEC — Master Knowledge Base Remediation Architecture Contract
 
-**Status:** **Proposed** (document lifecycle) — **owner implementation approval recorded** for Prompts 01–14
+**Status:** **Proposed** (document lifecycle) — **owner implementation approval recorded** for Prompts 01–14, **subject to the Product Type gate in §12.1**
 **Document type:** Implementation contract (Plane B)
-**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification remains **PROPOSED**; `on_main` remains **false** until this file is present on `main`. Owner implementation approval authorizes Prompts 01–14 execution after the contract merges — it does **not** upgrade Canon.
-**Non-goals of this SPEC file:** Code · Alembic · tests · frontend · editing Accepted ADRs · dual-write authorization · graph database introduction · inventing a parallel public product ID.
+**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification remains **PROPOSED**. Path is present on `main` as of PR #192 (`on_main=true`); **v0.4.x branch amendments (KB-PT-00 / KB-PT-00A) are not yet merged**. Owner implementation approval authorizes Prompts 01–14 execution **except** where §12.1 gates apply — it does **not** upgrade Canon.
+**Non-goals of this SPEC file:** Code · Alembic · tests · frontend · editing Accepted ADRs · dual-write authorization · graph database introduction · inventing a parallel public product ID · claiming Board acceptance of Product Type.
 
 ---
 
@@ -62,6 +64,40 @@ Define the **single implementation contract** for remediating the KB-001 knowled
 3. **`products.id` is the Wave-1 Product Knowledge Entity identity.** No parallel public product ID namespace (ADR-014 Decision 1–2).
 4. **Never weaken** authentication, authorization, publication-state filtering, provenance, auditability, or DB integrity to make tests pass.
 5. **No dual-write** of `products.specifications` JSONB ↔ Facts until a **separate** Board-approved migration/import task (Bible P5–P6 · ADR-013 Decision 4 · SPEC-property-dictionary PD-R7).
+6. **Product Type (owner direction, Proposed):** engineering classification source of truth is Product Type (ADR-015 Proposed · SPEC-canonical-product-type-model), not Category. Category remains commerce navigation. See §0.4 historical decision log and §12.1 gate.
+
+---
+
+## 0.4 Historical decision log — Product Type architecture amendment (KB-PT-00 / v0.4.0)
+
+Preserves prior 00 / 00A / 00B / 00C history (task reports). New normative decisions recorded here:
+
+| # | Decision |
+|---|----------|
+| 1 | Product Type becomes first-class engineering classification. |
+| 2 | Category remains commerce navigation. |
+| 3 | `products.id` remains PKE identity (ADR-014). |
+| 4 | `products.product_type_id` is initially nullable. |
+| 5 | Readout (digital/dial/vernier) is orthogonal to Product Type. |
+| 6 | Product Type Definition is versioned (`draft` / `active` / `retired`). |
+| 7 | Attribute membership uses `required` / `optional` / `conditional` / `forbidden`. |
+| 8 | No bulk legacy JSONB migration is authorized by this remediation pack. |
+| 9 | No JSONB↔Facts dual-write is authorized. |
+| 10 | Prompt sequencing is changed before Property/Facts implementation (§12.1). |
+
+Authoritative detail: `docs/architecture/specs/SPEC-canonical-product-type-model.md` · `docs/architecture/adr/ADR-015-product-type-engineering-classification.md`.
+
+### 0.5 Final owner-review corrections (KB-PT-00A / v0.4.1)
+
+Preserves §0.4. Additional normative corrections:
+
+| # | Correction |
+|---|------------|
+| 1 | Prompt **11A** = Property Definitions + aliases + Units only; **before** PT-W2 Attribute Membership |
+| 2 | Prompt 11A **MUST NOT** create `knowledge_spec_templates` / `knowledge_template_properties` |
+| 3 | Prompt 12/13 remain blocked until PT-W2 Definition/membership ownership is implemented and approved |
+| 4 | Architecture Board clarification of Hybrid vs `PRODUCT_CLASSIFIED_AS` is **mandatory** before KB-PT-01 runtime |
+| 5 | PT-W1 has no readout persistence, no Product Type catalogue seed, no assignment backfill |
 
 ---
 
@@ -843,15 +879,37 @@ Read-only Day-5 browser is the baseline; remediation extends it — does not rem
 
 ## 10. Runtime property dictionary, units, Facts, evidence, taxonomy
 
+### 10.0 Product Type precondition (normative — KB-PT-00 / 00A)
+
+Runtime Property Dictionary / Facts work in this section **MUST NOT** introduce Category-owned future templates as the permanent applicability owner. Applicability, requiredness, and validation ownership ultimately derive from **Product Type Definition** (`SPEC-canonical-product-type-model.md`) after PT-W2.
+
+Corrected insertion order (§12.1 / SPEC-canonical §15):
+
+1. Board clarification minute (hard gate before KB-PT-01)
+2. PT-W1 Product Type core + nullable FK
+3. **Prompt 11A** Property Definitions + aliases + Units
+4. **PT-W2** Product Type Definitions + Attribute Memberships
+5. Prompts 12–13 (Facts; Evidence + taxonomy)
+
 ### 10.1 Scope
 
-Runtime tables are **in-contract** for Prompts 11–13. They remain Postgres overlay tables (ADR-013). Git seeds (`docs/architecture/specs/seeds/…`) stay authoring SoT until import tasks load them.
+Runtime tables for Prompt **11A** and later remain Postgres overlay tables (ADR-013). Git seeds (`docs/architecture/specs/seeds/…`) stay authoring SoT until import tasks load them.
 
-### 10.2 Property dictionary (runtime)
+### 10.2 Property dictionary (runtime) — Prompt 11A scope
 
-Tables (logical names): `knowledge_property_definitions`, `knowledge_property_aliases`, `knowledge_spec_templates`, `knowledge_template_properties`.
+**Prompt 11A MUST create only:**
 
-Fields follow SPEC-property-dictionary-system §3–§4. Status: `draft|active|deprecated`.
+| Table | In 11A? |
+|-------|---------|
+| `knowledge_property_definitions` | **Yes** |
+| `knowledge_property_aliases` | **Yes** |
+| `knowledge_units` | **Yes** (see §10.3) |
+| `knowledge_spec_templates` | **No** — forbidden as Prompt 11A / Category-owned permanent deliverable |
+| `knowledge_template_properties` | **No** — forbidden as Prompt 11A / Category-owned permanent deliverable |
+
+Fields for definitions/aliases follow SPEC-property-dictionary-system §3–§4. Status: `draft|active|deprecated`.
+
+Product Type Definition and Attribute Membership tables belong to **PT-W2** after Property Definitions exist — not to Prompt 11A.
 
 ### 10.3 Units
 
@@ -911,9 +969,13 @@ Do **not** number code-only steps as Alembic migrations. Two label spaces:
 | W7 | 08 | Provenance columns + `knowledge_edge_events` + Review API + transition service + tests — **Alembic A2** |
 | W8 | 09 | Storefront PKE consumption |
 | W9 | 10 | Admin stewardship UI only (labels, filters, review UI, event history presentation) |
-| W10 | 11 | Property dictionary + units — **Alembic A3** |
-| W11 | 12 | Facts + revisions — **Alembic A4** |
-| W12 | 13 | Evidence + taxonomy + classification — **Alembic A5** |
+| **Board clarification** | — | Architecture Board minute (or equivalent Canon amendment) for Hybrid primary FK vs `PRODUCT_CLASSIFIED_AS` — **hard gate before KB-PT-01** |
+| **PT-W1** | **KB-PT-01** | Product Type core table + nullable `products.product_type_id` only (no seed, no readout, no membership) |
+| **W10 / 11A** | **11A** | Property definitions + aliases + units — **Alembic A3** — **no** `knowledge_spec_templates` / `knowledge_template_properties` |
+| **PT-W2** | **KB-PT-02** (name indicative) | Product Type Definitions + Attribute Memberships (requires 11A) |
+| **PT-W3…PT-W4** | KB-PT follow-ons | Assignment/ambiguity; read-only JSONB validation |
+| W11 | 12 | Facts + revisions — **Alembic A4** — blocked until PT-W2 ownership approved (§12.1) |
+| W12 | 13 | Evidence + taxonomy + classification — **Alembic A5** — blocked until PT-W2 ownership approved; Product Type primary; CLASSIFIED_AS secondary |
 | W13 | 14 | Hardening / evidence pack |
 
 **Alembic revisions (A)** — DDL only, in this exact order:
@@ -922,11 +984,13 @@ Do **not** number code-only steps as Alembic migrations. Two label spaces:
 |---------|--------|--------|----------|
 | **A1** | 05 | `knowledge_projection_jobs` (UUID PK, `is_full_catalog` CHECK, partial unique active-full index, `cancel_requested_at`) | Drop table / index |
 | **A2** | 08 | Provenance columns on `knowledge_edges` (§11.2) + FK `projection_run_id` → jobs + `knowledge_edge_events` | Downgrade per §11.2; drop events |
-| **A3** | 11 | Property dictionary + units tables | Drop tables; Git seeds remain |
-| **A4** | 12 | Facts + revisions | Drop tables |
+| **A3** | **11A** | Property definitions + aliases + units tables **only** (after PT-W1 merged + §12.1 Prompt 11A gate) | Drop those tables; Git seeds remain |
+| **A4** | 12 | Facts + revisions (after PT-W2 Definition/membership ownership approved) | Drop tables |
 | **A5** | 13 | Evidence artifacts/links; taxonomy nodes + classification assignments | Drop tables; never drop `categories` |
 
-**Ordering reason:** Jobs (**A1**) before provenance FK (**A2**). Review API, provenance columns, and events land together in Prompt **08** / **A2** so steward mutations never write missing columns/tables. Admin UI (Prompt 10) has no DDL.
+**Product Type Alembic (PT):** PT-W1 (`product_types` + nullable FK) MUST land **before** A3. PT-W2 (Definition/membership) MUST land **after** A3 / 11A and **before** A4. Exact PT revision IDs are owned by KB-PT implementation prompts — not invented here.
+
+**Ordering reason:** Jobs (**A1**) before provenance FK (**A2**). Review API, provenance columns, and events land together in Prompt **08** / **A2**. Admin UI (Prompt 10) has no DDL. **Board clarification → PT-W1 → 11A (A3) → PT-W2 → 12 (A4) → 13 (A5)** so membership never precedes Property Definitions and templates are not Category-owned by default.
 
 Each Alembic revision MUST be alone-reviewable; no big-bang.
 
@@ -1012,7 +1076,7 @@ Exact DDL names may vary; the access patterns above are mandatory.
 
 ## 12. Implementation sequence (Prompts 01–14)
 
-This pack’s execution order. Prompt 00 / 00A / 00B = this contract. Later prompts MUST NOT invent contradictory behavior. Waves **W*** and Alembic **A*** (§11.1) share this order.
+This pack’s execution order. Prompt 00 / 00A / 00B / 00C = this contract through owner approval. **KB-PT-00 / KB-PT-00A** amend sequencing for Product Type. Later prompts MUST NOT invent contradictory behavior. Waves **W*** and Alembic **A*** (§11.1) share this order. Prompt numbers **01–14 are not renumbered**; Product Type work is inserted as **KB-PT-*** / **PT-W*** waves. Prompt **11** is scoped as **11A** below without renumbering the pack.
 
 | Prompt | Title | Primary deliverable | Alembic |
 |--------|-------|---------------------|---------|
@@ -1026,10 +1090,40 @@ This pack’s execution order. Prompt 00 / 00A / 00B = this contract. Later prom
 | **08** | Provenance + events + Review API | Provenance columns; `knowledge_edge_events`; backend `POST .../review`; status-transition service; audit/event tests; backfill §11.2 | **A2** |
 | **09** | Storefront PKE consumption | Wire `ProductKnowledgeRail` to public read-model; honest empty | — |
 | **10** | Admin stewardship UI | Pagination/status filters, resolved labels, evidence display, review UI, event-history presentation (**no** new DDL) | — |
-| **11** | Runtime property dictionary + units | Tables + admin read/seed import **without** JSONB dual-write | **A3** |
-| **12** | Facts + revisions | Fact tables, statuses (`asserted` \| `published` \| `rejected` \| `deprecated`), revision history, publish gates | **A4** |
-| **13** | Evidence + taxonomy + classification | Artifacts/links; taxonomy nodes; CLASSIFIED_AS assignments (no second Category DAG) | **A5** |
-| **14** | Hardening & matrices | Observability; record hardware/dataset/cache/benchmark evidence; optionally promote perf gates; security/test matrix closeout; compatibility checklist | — |
+| **Board clarification** | Hybrid vs CLASSIFIED_AS | Architecture Board minute / Canon amendment — **before KB-PT-01** | — |
+| **KB-PT-01** | PT-W1 Product Type core | `product_types` + nullable `products.product_type_id` only | **PT-W1** |
+| **11A** | Runtime property definitions + aliases + units | Tables + admin read/seed import **without** JSONB dual-write; **no** `knowledge_spec_templates` / `knowledge_template_properties` — **§12.1 Prompt 11A gate** | **A3** |
+| **KB-PT-02…** | PT-W2+ | Definitions + Attribute Memberships; then assignment/ambiguity; read-only JSONB validation | **PT-W2…** |
+| **12** | Facts + revisions | Fact tables, statuses, revision history, publish gates — **§12.1 Prompt 12/13 gate** | **A4** |
+| **13** | Evidence + taxonomy + classification | Artifacts/links; taxonomy nodes; CLASSIFIED_AS (no second Category DAG); Product Type remains primary class (ADR-015 Hybrid) — inherits Prompt 12/13 gate | **A5** |
+| **14** | Hardening & matrices | Observability; evidence pack; optional perf gates; security/test matrix closeout | — |
+
+### 12.1 Product Type gates (normative — KB-PT-00A)
+
+Prompts **01–10** MAY remain executable when they do not depend on Product Type and MUST NOT silently introduce Category-owned **future** templates as the permanent engineering applicability owner.
+
+#### Prompt 11A gate
+
+**Prompt 11A** (Property Definitions + aliases + Units) may start only after **all** of:
+
+1. Canonical Product Type SPEC is **owner-reviewed**;
+2. ADR-015 is **owner-reviewed**;
+3. **PT-W1** runtime model is **merged**;
+4. Property ownership boundaries are **approved**.
+
+Prompt 11A **does not** require PT-W2 membership tables to exist.
+
+Prompt 11A **MUST NOT** create permanent Category-owned `knowledge_spec_templates` or `knowledge_template_properties`.
+
+#### Prompt 12 / 13 gate
+
+Prompts **12** and **13** remain **blocked** until PT-W2 Definition/membership ownership is **implemented and approved**.
+
+#### KB-PT-01 governance block
+
+Before KB-PT-01 changes runtime schema, an Architecture Board minute (or equivalent repository-approved Canon amendment) **MUST** clarify the Hybrid model per ADR-015. Owner implementation direction alone is insufficient to supersede Accepted Canon. Until that minute exists, **KB-PT-01 is governance-blocked**.
+
+This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **KB-PT-*** / **PT-W***; Prompt 11 is referred to as **11A** for narrowed scope.
 
 **Stop condition:** If a prompt requires editing a path outside its allowlist, stop and report — do not expand scope silently.
 
@@ -1063,6 +1157,11 @@ This pack’s execution order. Prompt 00 / 00A / 00B = this contract. Later prom
 | **MKB-R14** | Job terminals include `succeeded_with_errors` and `cancelled`; checkpoint/retry documented |
 | **MKB-R15** | Performance numbers are targets until Prompt 14 evidence pack |
 | **MKB-R16** | Category/brand: P/R may asserted→published iff §2.5; articles: never P/R auto-publish |
+| **MKB-R17** | Product Type is engineering classification SoT (Proposed ADR-015); Category remains commerce-only |
+| **MKB-R18** | Prompt 11A creates definitions/aliases/units only; forbids Category-owned `knowledge_spec_templates` / `knowledge_template_properties` |
+| **MKB-R19** | Prompt 11A may start after SPEC+ADR owner review, PT-W1 merged, property ownership approved — does **not** require PT-W2 |
+| **MKB-R20** | Prompts 12–13 blocked until PT-W2 Definition/membership ownership implemented and approved |
+| **MKB-R21** | KB-PT-01 governance-blocked until Architecture Board Hybrid clarification minute exists |
 
 ### 13.1 Acceptance criteria (falsifiable)
 
@@ -1083,6 +1182,11 @@ This pack’s execution order. Prompt 00 / 00A / 00B = this contract. Later prom
 15. Given a `queued` job, when `POST .../jobs/{id}/cancel` is called by a super-admin, then status becomes `cancelled`.
 16. Given a terminal job (`succeeded` / `succeeded_with_errors` / `failed` / `cancelled`), when cancel is posted, then the API returns HTTP 409 with `INVALID_JOB_TRANSITION`.
 17. Given a category/brand edge and a public product, when projector runs, then `asserted` → `published` is allowed; given an article edge, when projector runs, then `asserted` → `published` never occurs.
+18. Given §12.1 Prompt 11A gate unmet, when Prompt 11A implementation is attempted, then work MUST halt rather than create Category-owned permanent property-template ownership.
+19. Given Product Type architecture, when PKE identity is inspected, then `products.id` remains the Wave-1 join key and is not replaced by Product Type.
+20. Given Prompt 11A completes, when schema is inspected, then `knowledge_spec_templates` and `knowledge_template_properties` are absent from Prompt 11A deliverables.
+21. Given no Architecture Board Hybrid clarification minute, when KB-PT-01 runtime schema work is attempted, then work is governance-blocked.
+22. Given PT-W2 Definition/membership ownership is not yet implemented and approved, when Prompt 12 or 13 is attempted, then work MUST halt.
 
 ---
 
@@ -1091,14 +1195,15 @@ This pack’s execution order. Prompt 00 / 00A / 00B = this contract. Later prom
 | Field | Value |
 |-------|-------|
 | Document lifecycle status | **Proposed** |
-| Version | **0.3.0** |
-| Owner implementation approval | **Approved for Prompts 01–14** (2026-08-02) — approver: Mohammad Shebahati (repository owner / Architecture Board signatory per `aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`) |
+| Version | **0.4.1** |
+| Owner implementation approval | **Approved for Prompts 01–14** (2026-08-02) — subject to Product Type gates §12.1 — approver: Mohammad Shebahati |
+| Product Type architecture amendment | **KB-PT-00** (v0.4.0) + **KB-PT-00A** (v0.4.1 final owner-review corrections) |
 | Architecture Board acceptance | **Not granted** |
 | Canonical authority | **Not Accepted Canon** — MUST NOT be treated as binding Canon until a Board minute + Canon Lock row |
 | AODS registry class/status | **PROPOSED** / `proposed` (`SPEC-MASTER-KB-REMEDIATION`) |
-| Registry `on_main` | **false** until this path exists on `main` via normal merge |
-| Next gate | Human commit → PR → merge contract to `main` → fresh Prompt 01 branch from updated `main` |
-| Supersedes | None for Canon. Supersedes SPEC v0.2.0 contradictory clauses via 00B; records owner implementation approval via 00C. |
+| Registry `on_main` | **true** (path on `main` via PR #192); **v0.4.x branch changes not yet merged** |
+| Next gate | Owner review → Architecture Board Hybrid clarification → KB-PT-01 (PT-W1) → Prompt 11A → PT-W2 → Prompts 12–13 |
+| Supersedes | None for Canon. Supersedes SPEC v0.4.0 contradictory sequencing via KB-PT-00A; preserves 00/00A/00B/00C and KB-PT-00 history. |
 
 ---
 

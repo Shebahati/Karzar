@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-02
+- [x] **KB-PT-00A** — Final owner-review corrections to Canonical Product Type contract (SPEC v0.1.1, ADR-015 Proposed amendment, Master KB v0.4.1): 11A→PT-W2 sequencing; Board clarification mandatory before KB-PT-01; PT-W1 no readout/seed/backfill. Lifecycle **Proposed**; Board Accept **not** granted; runtime still blocked. GENERATED CSV/printable untouched.
+- [x] **KB-PT-00** — Canonical Product Type architecture contract: `SPEC-canonical-product-type-model` v0.1.0→v0.1.1 + Proposed **ADR-015** (Hybrid FK) + Master KB remediation **v0.4.0→v0.4.1**. Lifecycle **Proposed**; Board Accept **not** granted; no runtime changes. Branch `docs/kb-pt-00-canonical-product-type-contract`. GENERATED CSV/printable untouched (no in-repo generator).
 - [x] **KB-REMEDIATION-00C** — Owner implementation approval for `SPEC-master-knowledge-base-remediation` **v0.3.0** (Prompts 01–14). Lifecycle remains **Proposed**; Architecture Board acceptance **not** granted; registry **PROPOSED** / `on_main=false`. Closed 00B (done/100). Authored `tasks.json` updated. GENERATED CSV/printable left untouched — no official in-repo generator (documented follow-up). Prompt 01 must wait for human commit/PR/merge then a fresh branch from `main`.
 - [x] **KB-REMEDIATION-00B** — Final SPEC contradictions resolved; registry row `SPEC-MASTER-KB-REMEDIATION`; PMO task rows 00/00A/00B.
 - [x] **KB-REMEDIATION-00A / 00** — Remediation architecture contract authored and owner-review-amended on `feat/master-kb-remediation` (branch-local until PR).
