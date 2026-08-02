@@ -2,6 +2,10 @@
 
 Move completed task IDs here with date + PR.
 
+- [x] KB-REMEDIATION-00C Finalize pre-Prompt-01 governance readiness — 2026-08-02 — (PR pending; branch `feat/master-kb-remediation`)
+- [x] KB-REMEDIATION-00B Final architecture contradictions + registry/PMO — 2026-08-02 — (PR pending)
+- [x] KB-REMEDIATION-00A Owner-review SPEC amendments — 2026-08-02 — (PR pending)
+- [x] KB-REMEDIATION-00 Architecture contract SPEC v0.1.0→v0.3.0 — 2026-08-02 — (PR pending; **Proposed**, owner implementation approval for Prompts 01–14; **not** Board-Accepted)
 - [x] Admin read-only Knowledge views (Day-5 readiness §6) — 2026-08-01 — #183
 - [x] Classification map INSIZE v0 (Day-5 readiness §5) — 2026-08-01 — #181
 - [x] KB-001 wave-1 content graph seed (Day-3) — 2026-08-01 — #176 → `main`

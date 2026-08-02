@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-30",
+  "as_of": "2026-08-02",
   "deadline": "2026-09-22",
   "tasks": [
     {
@@ -1053,6 +1053,181 @@
       ],
       "risk": "low",
       "notes": "Registered under CR-013 (was SEO-001 follow-up). #101 → main @1e8cd9b; evidence frontend/Storefront/src/lib/json-ld.ts buildOrganizationNode LocalBusiness+hasMap+geo. Later FE-003 redirected customer-facing map href to internal /contact#store-address (no third-party embed)."
+    },
+    {
+      "id": "KB-REMEDIATION-00",
+      "title": "Master KB remediation architecture contract (Prompt 00)",
+      "description": "Author Proposed SPEC-master-knowledge-base-remediation architecture contract for KB remediation Prompts 01–14. Documentation/audit only; not Board-Accepted.",
+      "priority": "P2",
+      "severity": "high",
+      "hours": 6,
+      "deps": [
+        "KB-001"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-REMEDIATION-00-ARCHITECTURE-CONTRACT.md"
+      ],
+      "modules": [
+        "knowledge",
+        "docs"
+      ],
+      "ac": [
+        "SPEC Proposed with public/admin boundary, publication, projection, provenance, no dual-write",
+        "Task record created; Board acceptance not claimed"
+      ],
+      "dod": [
+        "SPEC + task record on feature branch",
+        "Owner review started"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 1,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "architecture",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "2026-08-02: SPEC v0.1.0 created on feat/master-kb-remediation. Amended by 00A/00B."
+    },
+    {
+      "id": "KB-REMEDIATION-00A",
+      "title": "Owner-review amendments to KB remediation SPEC",
+      "description": "Remove owner-review ambiguities in SPEC v0.1.0→v0.2.0 (auth, sync scope, transitions, jobs, provenance naming, indexes, perf reclass).",
+      "priority": "P2",
+      "severity": "high",
+      "hours": 4,
+      "deps": [
+        "KB-REMEDIATION-00"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-REMEDIATION-00-ARCHITECTURE-CONTRACT.md"
+      ],
+      "modules": [
+        "knowledge",
+        "docs"
+      ],
+      "ac": [
+        "Nineteen owner-review amendments recorded",
+        "Status remains Proposed — owner review required"
+      ],
+      "dod": [
+        "Task record Owner-review amendments section",
+        "Non-mutating AODS checks reported"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 1,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "architecture",
+        "aods"
+      ],
+      "risk": "low",
+      "notes": "2026-08-02: SPEC v0.2.0. Registry/PMO registration deferred to 00B."
+    },
+    {
+      "id": "KB-REMEDIATION-00B",
+      "title": "Final KB remediation SPEC corrections + registry/PMO",
+      "description": "Resolve Review/provenance/events sequencing, type-specific transitions, missing vs non-public, job cancel/UUID/is_full_catalog, migration labels; register SPEC; author PMO rows.",
+      "priority": "P2",
+      "severity": "high",
+      "hours": 4,
+      "deps": [
+        "KB-REMEDIATION-00A"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-REMEDIATION-00-ARCHITECTURE-CONTRACT.md",
+        "aods/registry/document-registry.yaml",
+        "project-management/exports/tasks.json"
+      ],
+      "modules": [
+        "knowledge",
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "Review API deferred to Prompt 08 with events+provenance",
+        "SPEC registered PROPOSED; tasks.json rows present",
+        "Status remains Proposed — owner review required"
+      ],
+      "dod": [
+        "Final owner-review corrections section in task record",
+        "registry + links + pmo gates pass for allowlisted changes"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 1,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "architecture",
+        "aods",
+        "pmo"
+      ],
+      "risk": "low",
+      "notes": "2026-08-02: SPEC v0.3.0 owner-reviewed. links/registry/pmo/naming passed. Final architecture contradictions resolved. Approved for Prompt 01 implementation (owner implementation approval only — not Board-Accepted). Branch-local until human commit/push/PR/merge."
+    },
+    {
+      "id": "KB-REMEDIATION-00C",
+      "title": "Finalize pre-Prompt-01 governance readiness",
+      "description": "Record owner implementation approval for SPEC v0.3.0 without Board Accept; close 00B; sync authored PMO; document GENERATED-export generator blocker; produce Prompt 01 readiness report.",
+      "priority": "P0",
+      "severity": "med",
+      "hours": 2,
+      "deps": [
+        "KB-REMEDIATION-00B"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-REMEDIATION-00-ARCHITECTURE-CONTRACT.md",
+        "aods/registry/document-registry.yaml",
+        "project-management/**"
+      ],
+      "modules": [
+        "knowledge",
+        "ops"
+      ],
+      "ac": [
+        "Owner implementation approval recorded without Board-Acceptance claim",
+        "KB-REMEDIATION-00B closed at done / 100",
+        "Official PMO mirrors regenerated or exact generator blocker reported",
+        "Registry remains PROPOSED and on_main=false",
+        "Required AODS gates pass",
+        "No application/runtime files changed",
+        "Prompt 01 readiness report completed"
+      ],
+      "dod": [
+        "Authored PMO source updated",
+        "Generated PMO artifacts synchronized using the official generator, or generator absence documented",
+        "Validation evidence recorded",
+        "Human next steps explicitly listed"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 1,
+      "owner": "pmo",
+      "tags": [
+        "knowledge",
+        "governance",
+        "aods",
+        "pmo"
+      ],
+      "risk": "low",
+      "notes": "2026-08-02: Owner implementation approval for Prompts 01-14 recorded on SPEC v0.3.0. Not Board-Accepted. Registry PROPOSED on_main=false. No official PMO CSV/printable generator in-repo — GENERATED exports left untouched (blocker documented)."
     }
   ]
 }
