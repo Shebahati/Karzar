@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from app.db.models.content import ProductComment
+    from app.db.models.product_type import ProductType
 
 from sqlalchemy import (
     Boolean,
@@ -134,6 +135,7 @@ class Product(Base):
     __table_args__ = (
         Index("ix_products_category_id", "category_id"),
         Index("ix_products_brand_id", "brand_id"),
+        Index("ix_products_product_type_id", "product_type_id"),
         Index("ix_products_active_list", "is_active", "deleted_at"),
         CheckConstraint("stock_quantity >= 0", name="ck_products_stock_non_negative"),
         Index(
@@ -158,6 +160,8 @@ class Product(Base):
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     brand_id: Mapped[int | None] = mapped_column(ForeignKey("brands.id"))
+    # ADR-015 Hybrid PT-W1: nullable primary engineering classification (RESTRICT delete).
+    product_type_id: Mapped[int | None] = mapped_column(ForeignKey("product_types.id"))
 
     base_price: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     # Deprecated for sellable UX: warehouse counts live in Hesabfa only.
@@ -193,6 +197,9 @@ class Product(Base):
 
     category: Mapped[Optional["Category"]] = relationship("Category", back_populates="products")
     brand: Mapped[Optional["Brand"]] = relationship("Brand", back_populates="products")
+    product_type: Mapped[Optional["ProductType"]] = relationship(
+        "ProductType", back_populates="products"
+    )
     images: Mapped[list["ProductImage"]] = relationship(
         "ProductImage", back_populates="product", cascade="all, delete-orphan"
     )

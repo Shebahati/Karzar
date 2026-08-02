@@ -2,7 +2,9 @@
 
 Move completed task IDs here with date + PR.
 
-- [x] KB-PT-00B Record Board clarification for Hybrid Product Type architecture — 2026-08-02 — Option A Accepted (`AB-ADR-015-2026-08-02`); branch `docs/adr-015-board-clarification`
+- [x] KB-PT-01A Close PT-W1 deletion-integrity + populated-migration evidence — 2026-08-02 — branch `feat/kb-pt-01-runtime-core` (awaiting human commit/PR)
+- [x] KB-PT-01 Introduce Product Type runtime core + nullable Product FK — 2026-08-02 — branch `feat/kb-pt-01-runtime-core` (awaiting human commit/PR; HC-08 before apply)
+- [x] KB-PT-00B Record Board clarification for Hybrid Product Type architecture — 2026-08-02 — Option A Accepted (`AB-ADR-015-2026-08-02`); PR #194 → `main`
 - [x] KB-PT-00A Resolve final owner-review blockers in Canonical Product Type contract — 2026-08-02 — (branch `docs/kb-pt-00-canonical-product-type-contract`; **Proposed**; Board clarification still required; runtime blocked)
 - [x] KB-PT-00 Establish Canonical Product Type architecture — 2026-08-02 — (branch `docs/kb-pt-00-canonical-product-type-contract`; **Proposed**; Board Accept not granted; no runtime)
 - [x] KB-REMEDIATION-00C Finalize pre-Prompt-01 governance readiness — 2026-08-02 — (PR #192 merged to main)

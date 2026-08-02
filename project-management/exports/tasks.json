@@ -1382,7 +1382,107 @@
         "product-type"
       ],
       "risk": "high",
-      "notes": "2026-08-02: Board Option A recorded (AB-ADR-015-2026-08-02). Minute Accepted; ADR-015 Accepted; Canon Lock + taxonomy §7.1 updated; KB-PT-01 unblocked after merge. Branch docs/adr-015-board-clarification."
+      "notes": "2026-08-02: Board Option A recorded (AB-ADR-015-2026-08-02). Minute Accepted; ADR-015 Accepted; Canon Lock + taxonomy §7.1 updated; KB-PT-01 unblocked after merge. Branch docs/adr-015-board-clarification. PR #194 merged."
+    },
+    {
+      "id": "KB-PT-01",
+      "title": "Introduce Product Type runtime core and nullable Product assignment FK",
+      "description": "PT-W1: product_types table + nullable products.product_type_id with restrictive FK. Schema/model/tests only. No Definition, membership, seed, backfill, readout, taxonomy, public API, or dual-write.",
+      "priority": "P0",
+      "complexity": "high",
+      "hours": 6,
+      "deps": [
+        "KB-PT-00B"
+      ],
+      "files": [
+        "app/db/models/product_type.py",
+        "app/db/models/product.py",
+        "app/db/models/__init__.py",
+        "alembic/versions/e6f7a8b9c0d1_product_types_pt_w1.py",
+        "tests/test_product_type_pt_w1.py",
+        "aods/reports/tasks/KB-PT-01-PRODUCT-TYPE-RUNTIME-CORE.md"
+      ],
+      "modules": [
+        "knowledge",
+        "catalog",
+        "ops"
+      ],
+      "ac": [
+        "product_types exists independent of Category",
+        "products.product_type_id nullable indexed RESTRICT/NO ACTION FK",
+        "code and slug uniqueness enforced",
+        "lifecycle draft|active|retired via CHECK",
+        "existing products remain valid with NULL product_type_id",
+        "no seed, backfill, readout, Definition, membership, taxonomy, public API"
+      ],
+      "dod": [
+        "Alembic upgrade/downgrade/upgrade proven",
+        "Focused tests pass",
+        "AODS links/registry/pmo/naming pass",
+        "Task report recorded"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "product-type",
+        "alembic",
+        "aods"
+      ],
+      "risk": "high",
+      "notes": "2026-08-02: Implemented on feat/kb-pt-01-runtime-core. Migration e6f7a8b9c0d1; Integer PK; String+CHECK status. Integrity gaps closed by KB-PT-01A (passive_deletes=all + populated migration evidence). Awaiting human commit/PR; HC-08 before apply."
+    },
+    {
+      "id": "KB-PT-01A",
+      "title": "Close PT-W1 deletion-integrity and populated-migration evidence gaps",
+      "description": "Set ProductType.products passive_deletes=all; add loaded-collection deletion regression; prove populated pre-migration Product+JSONB survival across upgrade/downgrade/upgrade. No new capabilities.",
+      "priority": "P0",
+      "complexity": "med",
+      "hours": 2,
+      "deps": [
+        "KB-PT-01"
+      ],
+      "files": [
+        "app/db/models/product_type.py",
+        "tests/test_product_type_pt_w1.py",
+        "aods/reports/tasks/KB-PT-01-PRODUCT-TYPE-RUNTIME-CORE.md"
+      ],
+      "modules": [
+        "knowledge",
+        "catalog",
+        "ops"
+      ],
+      "ac": [
+        "Loaded ProductType.products delete raises IntegrityError and preserves product_type_id",
+        "Unloaded deletion test retained",
+        "Populated parent-revision Product survives PT-W1 with NULL product_type_id and unchanged JSONB",
+        "Downgrade/upgrade preserves Product and specifications",
+        "No cascade/SET NULL/seed/API/frontend"
+      ],
+      "dod": [
+        "18+ PT-W1 tests pass including loaded-collection regression",
+        "Disposable Postgres evidence recorded in task report",
+        "AODS gates pass"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "product-type",
+        "alembic",
+        "aods",
+        "integrity"
+      ],
+      "risk": "med",
+      "notes": "2026-08-02: passive_deletes=all; loaded selectinload deletion test; populated migration Product ID=1 SKU=PTW1A-PRE-001 specs md5 b372e4aa4ae597be4300451a8fce2fc2 preserved."
     }
   ]
 }
