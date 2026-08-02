@@ -1,11 +1,17 @@
-"""CRUD helpers for knowledge_edges overlay (KB-001)."""
+"""CRUD helpers for knowledge_edges overlay (KB-001) + Property Dictionary (11A)."""
 
 from __future__ import annotations
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models.knowledge import KB001_EDGE_TYPES, KnowledgeEdge
+from app.db.models.knowledge import (
+    KB001_EDGE_TYPES,
+    KnowledgeEdge,
+    KnowledgePropertyAlias,
+    KnowledgePropertyDefinition,
+    KnowledgeUnit,
+)
 
 
 def _visible_statuses() -> tuple[str, ...]:
@@ -122,3 +128,165 @@ async def get_edge_by_identity(
         )
     )
     return result.scalars().first()
+
+
+async def list_units(
+    db: AsyncSession,
+    *,
+    dimension: str | None = None,
+    status: str | None = None,
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[KnowledgeUnit], int]:
+    stmt: Select[tuple[KnowledgeUnit]] = select(KnowledgeUnit)
+    count_stmt = select(func.count()).select_from(KnowledgeUnit)
+
+    def apply_filters(query):
+        if dimension is not None:
+            query = query.where(KnowledgeUnit.dimension == dimension)
+        if status is not None:
+            query = query.where(KnowledgeUnit.status == status)
+        if q:
+            like = f"%{q}%"
+            query = query.where(
+                or_(
+                    KnowledgeUnit.canonical_code.ilike(like),
+                    KnowledgeUnit.label_en.ilike(like),
+                    KnowledgeUnit.label_fa.ilike(like),
+                )
+            )
+        return query
+
+    stmt = apply_filters(stmt).order_by(KnowledgeUnit.id).offset(skip).limit(limit)
+    count_stmt = apply_filters(count_stmt)
+    rows = (await db.execute(stmt)).scalars().all()
+    total = int((await db.execute(count_stmt)).scalar_one())
+    return list(rows), total
+
+
+async def get_unit_by_id(db: AsyncSession, unit_id: int) -> KnowledgeUnit | None:
+    return (
+        await db.execute(select(KnowledgeUnit).where(KnowledgeUnit.id == unit_id))
+    ).scalar_one_or_none()
+
+
+async def list_property_definitions(
+    db: AsyncSession,
+    *,
+    status: str | None = None,
+    data_type: str | None = None,
+    unit_dimension: str | None = None,
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[KnowledgePropertyDefinition], int]:
+    stmt: Select[tuple[KnowledgePropertyDefinition]] = select(
+        KnowledgePropertyDefinition
+    )
+    count_stmt = select(func.count()).select_from(KnowledgePropertyDefinition)
+
+    def apply_filters(query):
+        if status is not None:
+            query = query.where(KnowledgePropertyDefinition.status == status)
+        if data_type is not None:
+            query = query.where(KnowledgePropertyDefinition.data_type == data_type)
+        if unit_dimension is not None:
+            query = query.where(
+                KnowledgePropertyDefinition.unit_dimension == unit_dimension
+            )
+        if q:
+            like = f"%{q}%"
+            query = query.where(
+                or_(
+                    KnowledgePropertyDefinition.key.ilike(like),
+                    KnowledgePropertyDefinition.definition_id.ilike(like),
+                    KnowledgePropertyDefinition.label_en.ilike(like),
+                    KnowledgePropertyDefinition.label_fa.ilike(like),
+                )
+            )
+        return query
+
+    stmt = (
+        apply_filters(stmt)
+        .order_by(KnowledgePropertyDefinition.id)
+        .offset(skip)
+        .limit(limit)
+    )
+    count_stmt = apply_filters(count_stmt)
+    rows = (await db.execute(stmt)).scalars().all()
+    total = int((await db.execute(count_stmt)).scalar_one())
+    return list(rows), total
+
+
+async def get_property_definition_by_id(
+    db: AsyncSession, definition_pk: int
+) -> KnowledgePropertyDefinition | None:
+    return (
+        await db.execute(
+            select(KnowledgePropertyDefinition).where(
+                KnowledgePropertyDefinition.id == definition_pk
+            )
+        )
+    ).scalar_one_or_none()
+
+
+async def get_property_definition_by_definition_id(
+    db: AsyncSession, definition_id: str
+) -> KnowledgePropertyDefinition | None:
+    return (
+        await db.execute(
+            select(KnowledgePropertyDefinition).where(
+                KnowledgePropertyDefinition.definition_id == definition_id
+            )
+        )
+    ).scalar_one_or_none()
+
+
+async def list_aliases_for_definition(
+    db: AsyncSession, definition_id: str
+) -> list[KnowledgePropertyAlias]:
+    rows = (
+        await db.execute(
+            select(KnowledgePropertyAlias)
+            .where(KnowledgePropertyAlias.definition_id == definition_id)
+            .order_by(KnowledgePropertyAlias.id)
+        )
+    ).scalars().all()
+    return list(rows)
+
+
+async def list_property_aliases(
+    db: AsyncSession,
+    *,
+    definition_id: str | None = None,
+    status: str | None = None,
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[KnowledgePropertyAlias], int]:
+    stmt: Select[tuple[KnowledgePropertyAlias]] = select(KnowledgePropertyAlias)
+    count_stmt = select(func.count()).select_from(KnowledgePropertyAlias)
+
+    def apply_filters(query):
+        if definition_id is not None:
+            query = query.where(KnowledgePropertyAlias.definition_id == definition_id)
+        if status is not None:
+            query = query.where(KnowledgePropertyAlias.status == status)
+        if q:
+            like = f"%{q}%"
+            query = query.where(
+                or_(
+                    KnowledgePropertyAlias.alias.ilike(like),
+                    KnowledgePropertyAlias.alias_normalized.ilike(like),
+                )
+            )
+        return query
+
+    stmt = (
+        apply_filters(stmt).order_by(KnowledgePropertyAlias.id).offset(skip).limit(limit)
+    )
+    count_stmt = apply_filters(count_stmt)
+    rows = (await db.execute(stmt)).scalars().all()
+    total = int((await db.execute(count_stmt)).scalar_one())
+    return list(rows), total

@@ -1483,6 +1483,61 @@
       ],
       "risk": "med",
       "notes": "2026-08-02: passive_deletes=all; loaded selectinload deletion test; populated migration Product ID=1 SKU=PTW1A-PRE-001 specs md5 b372e4aa4ae597be4300451a8fce2fc2 preserved."
+    },
+    {
+      "id": "KB-REMEDIATION-11A",
+      "title": "Property Dictionary runtime — Units + Definitions + Aliases (Prompt 11A / A3)",
+      "description": "Create knowledge_units, knowledge_property_definitions, knowledge_property_aliases; idempotent Git-seed CLI import; super-admin read API. No templates tables, Facts, PT membership, JSONB dual-write, or Storefront UI.",
+      "priority": "P0",
+      "complexity": "high",
+      "hours": 8,
+      "deps": [
+        "KB-PT-01",
+        "KB-PT-01A"
+      ],
+      "files": [
+        "app/db/models/knowledge.py",
+        "app/db/models/__init__.py",
+        "app/schemas/knowledge.py",
+        "app/crud/knowledge.py",
+        "app/services/property_dictionary_service.py",
+        "app/api/endpoints/knowledge.py",
+        "alembic/versions/f7a8b9c0d1e2_knowledge_property_dictionary_11a.py",
+        "scripts/seed_property_dictionary.py",
+        "tests/test_property_dictionary_runtime.py",
+        "aods/reports/tasks/KB-REMEDIATION-11A-PROPERTY-DICTIONARY-UNITS.md"
+      ],
+      "modules": [
+        "knowledge",
+        "ops"
+      ],
+      "ac": [
+        "Three overlay tables only; no knowledge_spec_templates / knowledge_template_properties",
+        "Migration creates empty tables; no seed INSERT; upgrade/downgrade/upgrade proven on populated DB",
+        "Idempotent CLI import from property-dictionary-v0-metrology.json (2 units / 9 defs / 36 aliases)",
+        "Super-admin GET dictionary endpoints; no HTTP import/write",
+        "Import does not mutate Product specifications / product_type_id"
+      ],
+      "dod": [
+        "Focused runtime + v0 seed tests pass",
+        "Disposable Postgres evidence in task report",
+        "AODS validate gates pass",
+        "PMO task authored and synced"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "property-dictionary",
+        "alembic",
+        "aods"
+      ],
+      "risk": "high",
+      "notes": "2026-08-02: Implemented on feat/kb-remediation-11a-property-dictionary. Migration f7a8b9c0d1e2; CLI import; admin GET. Evidence: Product id=1 specs_md5 83c29e840214532544141b2569110ba7 preserved; import 2/9/36 then idempotent. Awaiting human commit/PR; HC-08 before apply."
     }
   ]
 }

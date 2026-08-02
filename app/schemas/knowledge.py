@@ -60,3 +60,90 @@ class ProjectionSyncResponse(BaseModel):
     articles_scanned: int
     edges_upserted: int
     edges_deprecated: int
+
+
+# --- Prompt 11A Property Dictionary (admin read) ---
+
+DictionaryStatus = Literal["draft", "active", "deprecated"]
+PropertyDataType = Literal[
+    "boolean",
+    "integer",
+    "number",
+    "quantity",
+    "range",
+    "enum",
+    "string",
+    "string_array",
+    "ref_standard",
+    "ref_document",
+]
+UnitDimension = Literal["length", "angle", "mass", "dimensionless", "hardness"]
+
+
+class KnowledgeUnitResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    dimension: UnitDimension
+    canonical_code: str
+    aliases: list[Any] = Field(default_factory=list)
+    conversion_table_version: str | None = None
+    label_en: str | None = None
+    label_fa: str | None = None
+    status: DictionaryStatus
+    seed_version: str | None = None
+    seed_checksum: str | None = None
+
+
+class KnowledgeUnitListResponse(BaseModel):
+    items: list[KnowledgeUnitResponse]
+    total: int
+
+
+class KnowledgePropertyAliasResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    definition_id: str
+    alias: str
+    alias_normalized: str
+    source_kind: str
+    language: str | None = None
+    status: DictionaryStatus
+
+
+class KnowledgePropertyDefinitionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    definition_id: str
+    key: str
+    data_type: PropertyDataType
+    unit_dimension: str | None = None
+    default_unit: str | None = None
+    label_en: str
+    label_fa: str
+    description_en: str | None = None
+    description_fa: str | None = None
+    validation: dict[str, Any] = Field(default_factory=dict)
+    enum_values: list[Any] | None = None
+    comparable: bool
+    filterable: bool
+    customer_facing: bool
+    version: str
+    status: DictionaryStatus
+    steward: str | None = None
+    supersedes_definition_id: str | None = None
+    seed_version: str | None = None
+    seed_checksum: str | None = None
+    aliases: list[KnowledgePropertyAliasResponse] = Field(default_factory=list)
+
+
+class KnowledgePropertyDefinitionListResponse(BaseModel):
+    items: list[KnowledgePropertyDefinitionResponse]
+    total: int
+
+
+class KnowledgePropertyAliasListResponse(BaseModel):
+    items: list[KnowledgePropertyAliasResponse]
+    total: int

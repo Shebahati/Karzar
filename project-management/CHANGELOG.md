@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-02
+- [x] **KB-REMEDIATION-11A** — Property Dictionary runtime (A3): `knowledge_units` + `knowledge_property_definitions` + `knowledge_property_aliases`; migration `f7a8b9c0d1e2`; CLI import; super-admin GET. No templates/Facts/dual-write. Branch `feat/kb-remediation-11a-property-dictionary` (awaiting human commit/PR; HC-08 before apply).
 - [x] **KB-PT-01A** — Close PT-W1 integrity gaps: `passive_deletes="all"`; loaded-collection deletion regression; populated pre-migration Product+JSONB evidence (up/down/up). Same branch `feat/kb-pt-01-runtime-core`.
 - [x] **KB-PT-01** — PT-W1 Product Type runtime core: `product_types` + nullable `products.product_type_id` (RESTRICT/NO ACTION). Migration `e6f7a8b9c0d1`. No seed/backfill/API/Definition. Branch `feat/kb-pt-01-runtime-core` (awaiting human commit/PR).
 - [x] **KB-PT-00B** — Architecture Board **Option A** Accept Hybrid Product Type clarification (`AB-ADR-015-2026-08-02`). Minute Accepted; ADR-015 → Accepted Canon; taxonomy §7.1; Canon Lock §1d; Master KB KB-PT-01 unblocked after merge. Signed Mohammad Shebahati.

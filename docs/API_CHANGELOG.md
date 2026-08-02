@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 
+### 2026-08-02 — KB-REMEDIATION-11A Property Dictionary admin read (CR-012)
+
+- Regenerated committed `openapi/v1.json` from `app.openapi()` (paths → 90).
+- Adds super-admin-only GETs under `/api/v1/knowledge/dictionary/{units,properties,aliases}` (Prompt 11A). No HTTP import/write routes.
+- Import remains CLI: `scripts/seed_property_dictionary.py`.
+
 ### 2026-07-30 — CR-022 availability semantics (docs)
 
 - **Binding model:** site inventory is **binary** (`is_available` / storefront `availability`). Warehouse counts live only in Hesabfa (`README.md`, `docs/HESABFA.md`, `app/crud/product.py`). Closes AODS `CR-022` Option A (**D19**).
