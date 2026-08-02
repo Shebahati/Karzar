@@ -1,7 +1,7 @@
 # Architecture Decision Records (ADR)
 
 **Parent:** [`../karzar-knowledge-platform-master-architecture.md`](../karzar-knowledge-platform-master-architecture.md)  
-**Status of this pack:** Mixed — **ADR-010, ADR-012** Accepted (Wave-1 ۱۴۰۵/۰۵/۰۷); **ADR-013, ADR-014** Accepted (Knowledge Foundation Day-2 ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati). Reserved ADR-001…009/011 remain **not present** — do not invent (`CR-009`/`CR-010`)  
+**Status of this pack:** Mixed — **ADR-010, ADR-012** Accepted (Wave-1 ۱۴۰۵/۰۵/۰۷); **ADR-013, ADR-014** Accepted (Knowledge Foundation Day-2 ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati); **ADR-015** Proposed (Product Type engineering classification · KB-PT-00). Reserved ADR-001…009/011 remain **not present** — do not invent (`CR-009`/`CR-010`)
 **Baseline:** `karzar_db` · Tag `KARZAR-BASELINE-20260728`  
 **Canon:** Binding criteria index [`../CANON-LOCK.md`](../CANON-LOCK.md) (Consistency Canon C0–C10 text is **not in this repo** until promoted)
 
@@ -49,6 +49,7 @@ Silent status upgrades in PRs without Board minute are **non-compliant**.
 | [ADR-012](./ADR-012-ingestion-boundary-local-vs-production.md) | Ingestion Boundary | **Accepted** | All writes | Cite for enrichment / importers |
 | [ADR-013](./ADR-013-knowledge-edge-fact-storage.md) | Knowledge Edge/Fact Storage | **Accepted** | KB / knowledge | Postgres overlay; no graph engine in KB-001 |
 | [ADR-014](./ADR-014-product-knowledge-entity-identity.md) | PKE Identity | **Accepted** | KB / knowledge | Wave-1 PKE join = `products.id` |
+| [ADR-015](./ADR-015-product-type-engineering-classification.md) | Product Type engineering classification | **Proposed** | KB / Product Type | Owner direction recorded; Board Accept not granted; Hybrid FK + taxonomy participation |
 
 ## 4b. Reserved IDs — **not in this repository** (do not cite / invent)
 

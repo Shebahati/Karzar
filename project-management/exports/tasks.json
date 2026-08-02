@@ -1227,7 +1227,111 @@
         "pmo"
       ],
       "risk": "low",
-      "notes": "2026-08-02: Owner implementation approval for Prompts 01-14 recorded on SPEC v0.3.0. Not Board-Accepted. Registry PROPOSED on_main=false. No official PMO CSV/printable generator in-repo — GENERATED exports left untouched (blocker documented)."
+      "notes": "2026-08-02: Owner implementation approval for Prompts 01-14 recorded on SPEC v0.3.0. Not Board-Accepted. Registry PROPOSED on_main=false at authorship; path later on main via PR #192. No official PMO CSV/printable generator in-repo — GENERATED exports left untouched (blocker documented). Sequencing later amended by KB-PT-00 (v0.4.0 Product Type gate)."
+    },
+    {
+      "id": "KB-PT-00",
+      "title": "Establish Canonical Product Type architecture",
+      "description": "Author Proposed SPEC-canonical-product-type-model + Proposed ADR-015 + Master KB v0.4.0 sequencing amendment. Architecture/governance/planning only; no runtime, Alembic, dual-write, bulk JSONB migration, or Board Accept claim.",
+      "priority": "P0",
+      "complexity": "high",
+      "hours": 6,
+      "deps": [
+        "KB-REMEDIATION-00C"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-canonical-product-type-model.md",
+        "docs/architecture/adr/ADR-015-product-type-engineering-classification.md",
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-PT-00-CANONICAL-PRODUCT-TYPE-CONTRACT.md",
+        "aods/registry/document-registry.yaml",
+        "project-management/exports/tasks.json"
+      ],
+      "modules": [
+        "knowledge",
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "Product Type boundary defined (Category ≠ Product Type; readout orthogonal)",
+        "Proposed ADR-015 created with Hybrid model",
+        "Master KB sequencing amended with Prompt 11 gate",
+        "Registry green (PROPOSED; new docs on_main=false)",
+        "PMO green",
+        "No runtime paths changed",
+        "Owner review remains required; Board acceptance not claimed"
+      ],
+      "dod": [
+        "SPEC + ADR + Master KB amendment + task report on feature branch",
+        "registry + links + pmo + naming gates pass",
+        "No app/frontend/alembic/tests changes"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "architecture",
+        "aods",
+        "product-type"
+      ],
+      "risk": "med",
+      "notes": "2026-08-02: Contract authored on docs/kb-pt-00-canonical-product-type-contract. SPEC v0.1.0 + ADR-015 Proposed + Master KB v0.4.0. Amended by KB-PT-00A to SPEC v0.1.1 / Master KB v0.4.1 (sequencing + Board gate). Owner review required. No commit/push/PR by agent. KB-PT-01 governance-blocked pending Board clarification."
+    },
+    {
+      "id": "KB-PT-00A",
+      "title": "Resolve final owner-review blockers in Canonical Product Type contract",
+      "description": "Correct Product Type sequencing (11A before PT-W2 membership), mandate Board clarification before KB-PT-01, close readout/seed/hierarchy/admin ambiguities. Docs/governance/PMO only; no runtime; no Board Accept claim.",
+      "priority": "P0",
+      "complexity": "high",
+      "hours": 3,
+      "deps": [
+        "KB-PT-00"
+      ],
+      "files": [
+        "docs/architecture/specs/SPEC-canonical-product-type-model.md",
+        "docs/architecture/adr/ADR-015-product-type-engineering-classification.md",
+        "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
+        "aods/reports/tasks/KB-PT-00A-OWNER-REVIEW-CORRECTIONS.md",
+        "aods/registry/document-registry.yaml",
+        "project-management/exports/tasks.json"
+      ],
+      "modules": [
+        "knowledge",
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "Prompt 11A precedes PT-W2 Attribute Membership",
+        "knowledge_spec_templates not a Prompt 11A deliverable",
+        "Board clarification mandatory before KB-PT-01",
+        "PT-W1 has no readout persistence, seed, or assignment backfill",
+        "Hierarchy examples non-duplicative",
+        "Proposed / not Board-Accepted statuses remain truthful",
+        "No runtime paths changed"
+      ],
+      "dod": [
+        "SPEC v0.1.1 + ADR-015 amendment + Master KB v0.4.1",
+        "KB-PT-00 report final-corrections section + KB-PT-00A task record",
+        "registry + links + pmo + naming gates pass"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "architecture",
+        "aods",
+        "product-type"
+      ],
+      "risk": "med",
+      "notes": "2026-08-02: Final owner-review corrections on docs/kb-pt-00-canonical-product-type-contract. Runtime still blocked pending Board Hybrid clarification. GENERATED PMO exports untouched."
     }
   ]
 }

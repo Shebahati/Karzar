@@ -1102,8 +1102,26 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "KB remediation architecture contract v0.4.1 (branch). Lifecycle Proposed; not Board-Accepted; not Accepted Canon. Path on main via PR #192 (v0.3.0); v0.4.x KB-PT-00/00A amendments not yet merged. Owner approval for Prompts 01-14 subject to §12.1 gates. Prompt 11A = definitions/aliases/units only."
+
+  - id: SPEC-CANONICAL-PRODUCT-TYPE
+    path: docs/architecture/specs/SPEC-canonical-product-type-model.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
     on_main: false
-    notes: "KB remediation architecture contract v0.3.0. Lifecycle Proposed; not Board-Accepted; not Accepted Canon. Owner implementation approval 2026-08-02 (Mohammad Shebahati) for Prompts 01-14 only. Tasks KB-REMEDIATION-00/00A/00B/00C. on_main false until merged."
+    notes: "Canonical Product Type Model v0.1.1. Owner direction + KB-PT-00A corrections; Board acceptance not granted; not Accepted Canon. KB-PT-01 governance-blocked pending Board Hybrid clarification. on_main false until merged."
+
+  - id: ADR-015
+    path: docs/architecture/adr/ADR-015-product-type-engineering-classification.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "Proposed ADR-015 Hybrid Product Type FK. Status remains Proposed. Board Accept not granted. KB-PT-00A: Board clarification mandatory before KB-PT-01. on_main false until merged."
 
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
