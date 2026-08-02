@@ -8,6 +8,7 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [x] **KB-REMEDIATION-11A** Property Dictionary runtime (Units + Definitions + Aliases) — `done` 100% | P0 | Sprint 05 — migration `f7a8b9c0d1e2`; awaiting human commit/PR
 - [x] **KB-PT-01A** Close PT-W1 deletion-integrity and populated-migration evidence gaps — `done` 100% | P0 | Sprint 05 — included in PR #195
 - [x] **KB-PT-01** PT-W1 Product Type runtime core — `done` 100% | P0 | Sprint 05 — migration `e6f7a8b9c0d1`; merged PR #195 @ `0fc3503`
 - [x] **KB-PT-00B** Board Hybrid clarification — `done` 100% | P0 | Sprint 05 — PR #194

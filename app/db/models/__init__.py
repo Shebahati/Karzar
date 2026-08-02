@@ -25,7 +25,12 @@ from app.db.models.hesabfa import (
     HesabfaInvoiceRecord,
     HesabfaItemMapping,
 )
-from app.db.models.knowledge import KnowledgeEdge
+from app.db.models.knowledge import (
+    KnowledgeEdge,
+    KnowledgePropertyAlias,
+    KnowledgePropertyDefinition,
+    KnowledgeUnit,
+)
 from app.db.models.platform import (
     AdminAuditLog,
     Cart,
@@ -64,6 +69,9 @@ __all__ = [
     "UserRole",
     "Article",
     "KnowledgeEdge",
+    "KnowledgeUnit",
+    "KnowledgePropertyDefinition",
+    "KnowledgePropertyAlias",
     "HeroSlide",
     "MegamenuNavGroup",
     "ContactSubmission",

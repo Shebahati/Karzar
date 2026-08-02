@@ -9,6 +9,7 @@
 - [x] **KB-PT-00B** — Board Option A Hybrid clarification Accepted (`AB-ADR-015-2026-08-02`); ADR-015 Canon; KB-PT-01 may start after merge
 - [x] **KB-PT-01** — PT-W1 runtime core: `product_types` + nullable `products.product_type_id` (`e6f7a8b9c0d1`). No seed/backfill/API. Awaiting human commit/PR.
 - [x] **KB-PT-01A** — Integrity gaps closed: `passive_deletes="all"`; loaded-collection delete regression; populated migration Product+JSONB evidence.
+- [x] **KB-REMEDIATION-11A** — Property Dictionary runtime A3: units + definitions + aliases (`f7a8b9c0d1e2`); CLI import; admin GET. No templates. Awaiting human commit/PR.
 - [x] **Property Dictionary v0 (metrology)** — Git seed landed Day-4; dual-write still gated
 - [x] **Taxonomy v0 (metrology)** — Git seed + commerce L1 bridge; no second Category DAG
 - [x] **Classification map INSIZE v0** — Git MAPPING-TABLE for brand_id=3; closed taxonomy labels; no CLASSIFIED_AS edges yet
@@ -39,3 +40,4 @@
 - [x] 2026-08-02 KB-PT-00B Board Option A Hybrid clarification Accepted (`AB-ADR-015-2026-08-02`); ADR-015 + Canon Lock; KB-PT-01 unblocked after merge
 - [x] 2026-08-02 KB-PT-01 PT-W1 Product Type runtime core (`product_types` + nullable FK; migration `e6f7a8b9c0d1`) — branch `feat/kb-pt-01-runtime-core`; awaiting human commit/PR
 - [x] 2026-08-02 KB-PT-01A integrity gaps closed (`passive_deletes="all"` + populated migration evidence) — same branch
+- [x] 2026-08-02 KB-REMEDIATION-11A Property Dictionary runtime (`f7a8b9c0d1e2`; 2/9/36 import; admin GET) — branch `feat/kb-remediation-11a-property-dictionary`; awaiting human commit/PR
