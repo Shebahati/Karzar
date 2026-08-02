@@ -45,6 +45,7 @@ from app.db.models.product import (
     StockMovementType,
     StockUnitEnum,
 )
+from app.db.models.product_type import ProductType, ProductTypeStatus
 from app.db.models.user import User, UserRole
 
 __all__ = [
@@ -52,6 +53,8 @@ __all__ = [
     "Category",
     "Brand",
     "Product",
+    "ProductType",
+    "ProductTypeStatus",
     "ProductImage",
     "ProductComment",
     "StockUnitEnum",

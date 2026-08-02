@@ -36,6 +36,8 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: 2026-07-30 Strategy C-as-A dry-run 861 payloads under `data/imports/insize/shopmill/`; local API down — apply not run. No staging/prod; no HC-09.
 
 ## done
+- [x] **KB-PT-01A** Close PT-W1 integrity gaps — `done` 100% | P0 | Sprint 05 — passive_deletes=all + populated migration evidence
+- [x] **KB-PT-01** Introduce Product Type runtime core + nullable Product FK — `done` 100% | P0 | Sprint 05 — migration `e6f7a8b9c0d1`; awaiting human commit/PR
 - [x] **KB-PT-00B** Record Board clarification for Hybrid Product Type architecture — `done` 100% | P0 | Sprint 05 — Option A Accepted (AB-ADR-015-2026-08-02); ADR-015 Canon; KB-PT-01 may start after merge
 - [x] **KB-PT-00A** Resolve final owner-review blockers — `done` 100% | P0 | Sprint 05 — SPEC v0.1.1; Master KB v0.4.1; Board gate before KB-PT-01
 - [x] **KB-PT-00** Establish Canonical Product Type architecture — `done` 100% | P0 | Sprint 05 — SPEC + ADR-015 Proposed; Master KB v0.4.x; no runtime

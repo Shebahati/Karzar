@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-02
+- [x] **KB-PT-01A** — Close PT-W1 integrity gaps: `passive_deletes="all"`; loaded-collection deletion regression; populated pre-migration Product+JSONB evidence (up/down/up). Same branch `feat/kb-pt-01-runtime-core`.
+- [x] **KB-PT-01** — PT-W1 Product Type runtime core: `product_types` + nullable `products.product_type_id` (RESTRICT/NO ACTION). Migration `e6f7a8b9c0d1`. No seed/backfill/API/Definition. Branch `feat/kb-pt-01-runtime-core` (awaiting human commit/PR).
 - [x] **KB-PT-00B** — Architecture Board **Option A** Accept Hybrid Product Type clarification (`AB-ADR-015-2026-08-02`). Minute Accepted; ADR-015 → Accepted Canon; taxonomy §7.1; Canon Lock §1d; Master KB KB-PT-01 unblocked after merge. Signed Mohammad Shebahati.
 - [x] **KB-PT-00A** — Final owner-review corrections to Canonical Product Type contract (SPEC v0.1.1, ADR-015 Proposed amendment, Master KB v0.4.1): 11A→PT-W2 sequencing; Board clarification mandatory before KB-PT-01; PT-W1 no readout/seed/backfill. Lifecycle **Proposed**; Board Accept **not** granted; runtime still blocked. GENERATED CSV/printable untouched.
 - [x] **KB-PT-00** — Canonical Product Type architecture contract: `SPEC-canonical-product-type-model` v0.1.0→v0.1.1 + Proposed **ADR-015** (Hybrid FK) + Master KB remediation **v0.4.0→v0.4.1**. Lifecycle **Proposed**; Board Accept **not** granted; no runtime changes. Branch `docs/kb-pt-00-canonical-product-type-contract`. GENERATED CSV/printable untouched (no in-repo generator).

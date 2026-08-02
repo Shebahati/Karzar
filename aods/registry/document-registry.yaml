@@ -1121,7 +1121,7 @@ documents:
     status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Accepted 2026-08-02 / ۱۴۰۵/۰۵/۱۱ (AB-ADR-015-2026-08-02 Option A). Hybrid primary products.product_type_id; PRODUCT_CLASSIFIED_AS secondary. Path on main via PR #193; Accepted content on branch until merged."
+    notes: "Accepted 2026-08-02 / ۱۴۰۵/۰۵/۱۱ (AB-ADR-015-2026-08-02 Option A). Hybrid primary products.product_type_id; PRODUCT_CLASSIFIED_AS secondary."
 
   - id: BOARD-MINUTE-ADR-015-HYBRID-PT
     path: aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md
@@ -1129,8 +1129,8 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-BOARD
-    on_main: false
-    notes: "Accepted Board minute AB-ADR-015-2026-08-02 Option A. Signed Mohammad Shebahati. Task KB-PT-00B. on_main false until merged."
+    on_main: true
+    notes: "Accepted Board minute AB-ADR-015-2026-08-02 Option A. Signed Mohammad Shebahati. Task KB-PT-00B. Merged via PR #194."
 
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
