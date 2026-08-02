@@ -75,6 +75,29 @@
 
 ---
 
+## Board Acceptance (ADR-015 Hybrid Product Type Clarification)
+
+| Field | Value |
+|-------|-------|
+| **Accepted on** | ۱۴۰۵/۰۵/۱۱ (2026-08-02) — ۱۱ مرداد ۱۴۰۵ |
+| **Board** | Karzar Architecture Board |
+| **Signed** | محمد شباهتی / Mohammad Shebahati |
+| **Minute** | [`../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md`](../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md) |
+| **Meeting** | `AB-ADR-015-2026-08-02` |
+| **Ballot** | Option **A** — Accept Hybrid clarification |
+| **Scope** | Primary Wave-1 Product Type = nullable `products.product_type_id`; `PRODUCT_CLASSIFIED_AS` secondary/multi-dimensional; same Product Type identity; PKE = `products.id`; Category commerce-only; no graph DB; no dual-write; no bulk JSONB migration; Prompt 13 owns taxonomy bridge |
+
+## 1d. Accepted — Product Type engineering classification
+
+| Document | Path | Status | Since | Signed | Mandatory for |
+|----------|------|--------|-------|--------|----------------|
+| ADR-015 — Product Type engineering classification | [`adr/ADR-015-product-type-engineering-classification.md`](./adr/ADR-015-product-type-engineering-classification.md) | **Accepted** | ۱۴۰۵/۰۵/۱۱ | Mohammad Shebahati | Product Type runtime (KB-PT-01+); Hybrid FK vs taxonomy; engineering classification SoT |
+| Board minute — ADR-015 Hybrid clarification | [`../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md`](../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md) | **Accepted** | ۱۴۰۵/۰۵/۱۱ | Mohammad Shebahati | Evidence for ADR-015 Accept; KB-PT-01 unblock |
+
+**Note:** `SPEC-canonical-product-type-model.md` remains **Proposed** implementation contract under Accepted ADR-015 (not itself Canon until separately Accepted if Board requires).
+
+---
+
 ## Board Acceptance (AODS process system)
 
 | Field | Value |

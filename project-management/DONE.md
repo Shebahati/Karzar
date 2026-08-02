@@ -2,6 +2,7 @@
 
 Move completed task IDs here with date + PR.
 
+- [x] KB-PT-00B Record Board clarification for Hybrid Product Type architecture — 2026-08-02 — Option A Accepted (`AB-ADR-015-2026-08-02`); branch `docs/adr-015-board-clarification`
 - [x] KB-PT-00A Resolve final owner-review blockers in Canonical Product Type contract — 2026-08-02 — (branch `docs/kb-pt-00-canonical-product-type-contract`; **Proposed**; Board clarification still required; runtime blocked)
 - [x] KB-PT-00 Establish Canonical Product Type architecture — 2026-08-02 — (branch `docs/kb-pt-00-canonical-product-type-contract`; **Proposed**; Board Accept not granted; no runtime)
 - [x] KB-REMEDIATION-00C Finalize pre-Prompt-01 governance readiness — 2026-08-02 — (PR #192 merged to main)

@@ -1022,7 +1022,7 @@ documents:
     status: accepted
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "Accepted Day-2. Multi-dim taxonomy; preserves single commerce Category tree."
+    notes: "Accepted Day-2. Multi-dim taxonomy; preserves single commerce Category tree. Amended v0.1.1 §7.1 Hybrid primary Product Type FK (Board minute AB-ADR-015-2026-08-02 Option A)."
 
   - id: SPEC-KG-MODEL
     path: docs/architecture/specs/SPEC-knowledge-graph-model.md
@@ -1103,7 +1103,7 @@ documents:
     status: proposed
     owner_role: R-SYS-ARCH
     on_main: true
-    notes: "KB remediation architecture contract v0.4.1 (branch). Lifecycle Proposed; not Board-Accepted; not Accepted Canon. Path on main via PR #192 (v0.3.0); v0.4.x KB-PT-00/00A amendments not yet merged. Owner approval for Prompts 01-14 subject to §12.1 gates. Prompt 11A = definitions/aliases/units only."
+    notes: "KB remediation architecture contract v0.4.1 on main (PR #193). Lifecycle Proposed; not Board-Accepted. Owner approval for Prompts 01-14 subject to §12.1. KB-PT-01 blocked pending Board Hybrid clarification minute."
 
   - id: SPEC-CANONICAL-PRODUCT-TYPE
     path: docs/architecture/specs/SPEC-canonical-product-type-model.md
@@ -1111,17 +1111,26 @@ documents:
     rank: 99
     status: proposed
     owner_role: R-SYS-ARCH
-    on_main: false
-    notes: "Canonical Product Type Model v0.1.1. Owner direction + KB-PT-00A corrections; Board acceptance not granted; not Accepted Canon. KB-PT-01 governance-blocked pending Board Hybrid clarification. on_main false until merged."
+    on_main: true
+    notes: "Canonical Product Type Model v0.1.1 on main (PR #193). Remains Proposed implementation contract under Accepted ADR-015. KB-PT-01 unblocked after Board minute AB-ADR-015-2026-08-02."
 
   - id: ADR-015
     path: docs/architecture/adr/ADR-015-product-type-engineering-classification.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
+    class: CANON
+    rank: 2
+    status: accepted
     owner_role: R-SYS-ARCH
+    on_main: true
+    notes: "Accepted 2026-08-02 / ۱۴۰۵/۰۵/۱۱ (AB-ADR-015-2026-08-02 Option A). Hybrid primary products.product_type_id; PRODUCT_CLASSIFIED_AS secondary. Path on main via PR #193; Accepted content on branch until merged."
+
+  - id: BOARD-MINUTE-ADR-015-HYBRID-PT
+    path: aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md
+    class: CANON
+    rank: 1
+    status: accepted
+    owner_role: R-BOARD
     on_main: false
-    notes: "Proposed ADR-015 Hybrid Product Type FK. Status remains Proposed. Board Accept not granted. KB-PT-00A: Board clarification mandatory before KB-PT-01. on_main false until merged."
+    notes: "Accepted Board minute AB-ADR-015-2026-08-02 Option A. Signed Mohammad Shebahati. Task KB-PT-00B. on_main false until merged."
 
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md

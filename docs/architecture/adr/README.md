@@ -1,8 +1,8 @@
 # Architecture Decision Records (ADR)
 
-**Parent:** [`../karzar-knowledge-platform-master-architecture.md`](../karzar-knowledge-platform-master-architecture.md)  
-**Status of this pack:** Mixed — **ADR-010, ADR-012** Accepted (Wave-1 ۱۴۰۵/۰۵/۰۷); **ADR-013, ADR-014** Accepted (Knowledge Foundation Day-2 ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati); **ADR-015** Proposed (Product Type engineering classification · KB-PT-00). Reserved ADR-001…009/011 remain **not present** — do not invent (`CR-009`/`CR-010`)
-**Baseline:** `karzar_db` · Tag `KARZAR-BASELINE-20260728`  
+**Parent:** [`../karzar-knowledge-platform-master-architecture.md`](../karzar-knowledge-platform-master-architecture.md)
+**Status of this pack:** Mixed — **ADR-010, ADR-012** Accepted (Wave-1 ۱۴۰۵/۰۵/۰۷); **ADR-013, ADR-014** Accepted (Knowledge Foundation Day-2 ۱۴۰۵/۰۵/۱۰ · Mohammad Shebahati); **ADR-015** Accepted (Hybrid Product Type clarification · AB-ADR-015-2026-08-02 Option A · ۱۴۰۵/۰۵/۱۱). Reserved ADR-001…009/011 remain **not present** — do not invent (`CR-009`/`CR-010`)
+**Baseline:** `karzar_db` · Tag `KARZAR-BASELINE-20260728`
 **Canon:** Binding criteria index [`../CANON-LOCK.md`](../CANON-LOCK.md) (Consistency Canon C0–C10 text is **not in this repo** until promoted)
 
 ---
@@ -49,7 +49,7 @@ Silent status upgrades in PRs without Board minute are **non-compliant**.
 | [ADR-012](./ADR-012-ingestion-boundary-local-vs-production.md) | Ingestion Boundary | **Accepted** | All writes | Cite for enrichment / importers |
 | [ADR-013](./ADR-013-knowledge-edge-fact-storage.md) | Knowledge Edge/Fact Storage | **Accepted** | KB / knowledge | Postgres overlay; no graph engine in KB-001 |
 | [ADR-014](./ADR-014-product-knowledge-entity-identity.md) | PKE Identity | **Accepted** | KB / knowledge | Wave-1 PKE join = `products.id` |
-| [ADR-015](./ADR-015-product-type-engineering-classification.md) | Product Type engineering classification | **Proposed** | KB / Product Type | Owner direction recorded; Board Accept not granted; Hybrid FK + taxonomy participation |
+| [ADR-015](./ADR-015-product-type-engineering-classification.md) | Product Type engineering classification | **Accepted** | KB / Product Type | Hybrid primary FK; CLASSIFIED_AS secondary; minute AB-ADR-015-2026-08-02 Option A |
 
 ## 4b. Reserved IDs — **not in this repository** (do not cite / invent)
 
@@ -72,10 +72,10 @@ Until Board promotes a file into `docs/architecture/adr/`, agents MUST NOT inven
 
 ## 5. Contribution rules
 
-1. One decision per ADR.  
-2. ≥2 considered options + explicit Decision using MUST/SHOULD/MAY.  
-3. MUST NOT order schema migration by ADR alone (RFC + Alembic PR).  
-4. MUST NOT weaken ADR-012.  
+1. One decision per ADR.
+2. ≥2 considered options + explicit Decision using MUST/SHOULD/MAY.
+3. MUST NOT order schema migration by ADR alone (RFC + Alembic PR).
+4. MUST NOT weaken ADR-012.
 5. Supersede with a new ADR ID rather than rewriting Accepted history silently.
 
 ---
@@ -88,5 +88,5 @@ PRs that touch URLs, SEO, or Brand Hub MUST cite **ADR-010**. Enrichment / impor
 
 ## 7. Open questions (pack-level)
 
-1. Board calendar for promoting reserved ADR-001…009/011 into this repository.  
+1. Board calendar for promoting reserved ADR-001…009/011 into this repository.
 2. Where Consistency Canon C0–C10 will live once promoted (inline in Canon Lock vs dedicated prompt pack).

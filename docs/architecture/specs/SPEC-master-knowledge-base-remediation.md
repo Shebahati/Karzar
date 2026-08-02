@@ -29,7 +29,7 @@ canonical_authority: not_accepted_canon
 
 **Status:** **Proposed** (document lifecycle) — **owner implementation approval recorded** for Prompts 01–14, **subject to the Product Type gate in §12.1**
 **Document type:** Implementation contract (Plane B)
-**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification remains **PROPOSED**. Path is present on `main` as of PR #192 (`on_main=true`); **v0.4.x branch amendments (KB-PT-00 / KB-PT-00A) are not yet merged**. Owner implementation approval authorizes Prompts 01–14 execution **except** where §12.1 gates apply — it does **not** upgrade Canon.
+**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification remains **PROPOSED**. Path is present on `main` as of PR #192 (`on_main=true`); v0.4.1 Product Type sequencing is on `main` via PR #193. Owner implementation approval authorizes Prompts 01–14 execution **except** where §12.1 gates apply — it does **not** upgrade Canon.
 **Non-goals of this SPEC file:** Code · Alembic · tests · frontend · editing Accepted ADRs · dual-write authorization · graph database introduction · inventing a parallel public product ID · claiming Board acceptance of Product Type.
 
 ---
@@ -64,7 +64,7 @@ Define the **single implementation contract** for remediating the KB-001 knowled
 3. **`products.id` is the Wave-1 Product Knowledge Entity identity.** No parallel public product ID namespace (ADR-014 Decision 1–2).
 4. **Never weaken** authentication, authorization, publication-state filtering, provenance, auditability, or DB integrity to make tests pass.
 5. **No dual-write** of `products.specifications` JSONB ↔ Facts until a **separate** Board-approved migration/import task (Bible P5–P6 · ADR-013 Decision 4 · SPEC-property-dictionary PD-R7).
-6. **Product Type (owner direction, Proposed):** engineering classification source of truth is Product Type (ADR-015 Proposed · SPEC-canonical-product-type-model), not Category. Category remains commerce navigation. See §0.4 historical decision log and §12.1 gate.
+6. **Product Type (Accepted ADR-015 Hybrid):** engineering classification source of truth is Product Type (ADR-015 **Accepted** · SPEC-canonical-product-type-model remains Proposed). Category remains commerce navigation. See §0.4 historical decision log and §12.1 gate.
 
 ---
 
@@ -1119,9 +1119,16 @@ Prompt 11A **MUST NOT** create permanent Category-owned `knowledge_spec_template
 
 Prompts **12** and **13** remain **blocked** until PT-W2 Definition/membership ownership is **implemented and approved**.
 
-#### KB-PT-01 governance block
+#### KB-PT-01 governance gate (updated KB-PT-00B)
 
-Before KB-PT-01 changes runtime schema, an Architecture Board minute (or equivalent repository-approved Canon amendment) **MUST** clarify the Hybrid model per ADR-015. Owner implementation direction alone is insufficient to supersede Accepted Canon. Until that minute exists, **KB-PT-01 is governance-blocked**.
+Architecture Board minute `AB-ADR-015-2026-08-02` **Accepted Option A** (Hybrid clarification). ADR-015 is **Accepted** Canon. Required Canon Lock row and Industrial Taxonomy §7.1 narrow amendment are recorded with this gate update.
+
+**KB-PT-01 is the next allowed implementation wave** (Product Type core table + nullable `products.product_type_id` only), subject to normal allowlist/Alembic/PR process.
+
+Still true:
+
+- Prompt 11A / PT-W2 / Prompts 12–13 remain gated as above;
+- no graph DB; no dual-write; no bulk JSONB migration; no Category→Type auto-assign; no assignment backfill.
 
 This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **KB-PT-*** / **PT-W***; Prompt 11 is referred to as **11A** for narrowed scope.
 
@@ -1157,11 +1164,11 @@ This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **K
 | **MKB-R14** | Job terminals include `succeeded_with_errors` and `cancelled`; checkpoint/retry documented |
 | **MKB-R15** | Performance numbers are targets until Prompt 14 evidence pack |
 | **MKB-R16** | Category/brand: P/R may asserted→published iff §2.5; articles: never P/R auto-publish |
-| **MKB-R17** | Product Type is engineering classification SoT (Proposed ADR-015); Category remains commerce-only |
+| **MKB-R17** | Product Type is engineering classification SoT (Accepted ADR-015 Hybrid); Category remains commerce-only |
 | **MKB-R18** | Prompt 11A creates definitions/aliases/units only; forbids Category-owned `knowledge_spec_templates` / `knowledge_template_properties` |
 | **MKB-R19** | Prompt 11A may start after SPEC+ADR owner review, PT-W1 merged, property ownership approved — does **not** require PT-W2 |
 | **MKB-R20** | Prompts 12–13 blocked until PT-W2 Definition/membership ownership implemented and approved |
-| **MKB-R21** | KB-PT-01 governance-blocked until Architecture Board Hybrid clarification minute exists |
+| **MKB-R21** | KB-PT-01 unblocked after Accepted Board minute AB-ADR-015-2026-08-02 (Option A) + Canon/Taxonomy amendments |
 
 ### 13.1 Acceptance criteria (falsifiable)
 
@@ -1185,7 +1192,7 @@ This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **K
 18. Given §12.1 Prompt 11A gate unmet, when Prompt 11A implementation is attempted, then work MUST halt rather than create Category-owned permanent property-template ownership.
 19. Given Product Type architecture, when PKE identity is inspected, then `products.id` remains the Wave-1 join key and is not replaced by Product Type.
 20. Given Prompt 11A completes, when schema is inspected, then `knowledge_spec_templates` and `knowledge_template_properties` are absent from Prompt 11A deliverables.
-21. Given no Architecture Board Hybrid clarification minute, when KB-PT-01 runtime schema work is attempted, then work is governance-blocked.
+21. Given Accepted Board minute AB-ADR-015-2026-08-02 (Option A) is on `main` with ADR-015 Accepted and taxonomy §7.1 recorded, when KB-PT-01 is started within PT-W1 scope, then the governance block is satisfied (runtime still requires normal PR/Alembic process).
 22. Given PT-W2 Definition/membership ownership is not yet implemented and approved, when Prompt 12 or 13 is attempted, then work MUST halt.
 
 ---
@@ -1201,9 +1208,10 @@ This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **K
 | Architecture Board acceptance | **Not granted** |
 | Canonical authority | **Not Accepted Canon** — MUST NOT be treated as binding Canon until a Board minute + Canon Lock row |
 | AODS registry class/status | **PROPOSED** / `proposed` (`SPEC-MASTER-KB-REMEDIATION`) |
-| Registry `on_main` | **true** (path on `main` via PR #192); **v0.4.x branch changes not yet merged** |
-| Next gate | Owner review → Architecture Board Hybrid clarification → KB-PT-01 (PT-W1) → Prompt 11A → PT-W2 → Prompts 12–13 |
+| Registry `on_main` | **true** (path on `main` via PR #192; v0.4.1 content on `main` via PR #193) |
+| Next gate | **KB-PT-01** (PT-W1) after this Board Accept merges → Prompt 11A → PT-W2 → Prompts 12–13 |
 | Supersedes | None for Canon. Supersedes SPEC v0.4.0 contradictory sequencing via KB-PT-00A; preserves 00/00A/00B/00C and KB-PT-00 history. |
+| KB-PT-00B | Board minute **Accepted** Option A (`AB-ADR-015-2026-08-02`); **KB-PT-01 may start** after merge |
 
 ---
 
