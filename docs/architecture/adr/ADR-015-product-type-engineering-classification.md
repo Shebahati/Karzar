@@ -1,18 +1,26 @@
 # ADR-015 — Product Type as the Engineering Classification Source of Truth
 
 ## Status
-Proposed
+Accepted
 
-**Architecture Board acceptance:** not granted  
-**Owner implementation direction:** recorded 2026-08-02 (KB-PT-00); final owner-review corrections KB-PT-00A  
-**Canonical authority:** not Accepted Canon  
-**KB-PT-01:** **governance-blocked** until Architecture Board minute (or equivalent repository-approved Canon amendment) clarifies the Hybrid model (§ Board clarification mandatory)
+### Board Acceptance (ADR-015 Hybrid Clarification)
+
+| Field | Value |
+|-------|-------|
+| **Accepted on** | ۱۴۰۵/۰۵/۱۱ (2026-08-02) |
+| **Board** | Karzar Architecture Board |
+| **Signed** | محمد شباهتی / Mohammad Shebahati |
+| **Minute** | [`../../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md`](../../../aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md) |
+| **Meeting** | `AB-ADR-015-2026-08-02` |
+| **Ballot** | Option **A** — Accept Hybrid clarification |
+| **Conditions** | None beyond the normative constraints recorded in the minute |
+| **Scope** | Wave-1 primary engineering classification = nullable `products.product_type_id`; `PRODUCT_CLASSIFIED_AS` remains secondary/multi-dimensional taxonomy mechanism; no duplicate Product Type identities; PKE = `products.id`; Category commerce-only; no graph DB; no dual-write; no bulk JSONB migration; no Category→Type auto-assign; no assignment backfill; Prompt 13 owns taxonomy bridge. |
 
 ## Date
 2026-08-02
 
 ## Deciders
-Repository owner / Platform Architect (implementation direction) · Architecture Board (acceptance pending; clarification mandatory before runtime)
+Architecture Board (Mohammad Shebahati) · Platform Architect / Knowledge Architect (prior Proposed authorship)
 
 ## Context
 
@@ -94,19 +102,8 @@ Introduce `product_types` + nullable `products.product_type_id`, without taxonom
 9. **No graph database.** PostgreSQL remains system of record (ADR-013).
 10. **No JSONB↔Facts dual-write** and **no bulk legacy JSONB→Facts migration** are authorized by this ADR (ADR-013 Decision 4 preserved).
 11. **Product Type deletion MUST NOT silently orphan products**; prefer lifecycle retirement + restrictive FK delete behavior.
-12. This ADR status is **Proposed**. It MUST NOT be treated as Board-Accepted Canon until an Architecture Board minute and Canon Lock update.
-13. **Mandatory Board clarification before runtime (KB-PT-00A):** Owner implementation direction alone is **insufficient** to supersede Accepted Canon taxonomy wording centered on `PRODUCT_CLASSIFIED_AS`. Before **KB-PT-01** changes runtime schema, an Architecture Board minute (or equivalent repository-approved Canon amendment) **MUST** clarify the Hybrid model. Until that minute exists, **KB-PT-01 is governance-blocked**. This ADR does **not** create, sign, or claim that minute.
-
-### Board clarification MUST state (when issued)
-
-1. `products.product_type_id` is the **primary** Wave-1 engineering classification;
-2. `PRODUCT_CLASSIFIED_AS` remains the **secondary/multi-dimensional** taxonomy mechanism;
-3. `products.id` remains PKE identity;
-4. Category remains commerce-only;
-5. no graph database;
-6. no JSONB↔Facts dual-write.
-
-Exact one-to-one Product Type ↔ taxonomy-node bridge shape is part of that clarification and MUST NOT be invented by implementation agents.
+12. This ADR status is **Accepted** per Board minute `AB-ADR-015-2026-08-02` (Option A). Implementation still requires normal Alembic/PR process; this ADR alone does not ship migrations.
+13. **KB-PT-01 is unblocked** for Product Type core table + nullable Product FK after this minute is present on `main`. Later waves remain gated per Master KB §12.1 and SPEC-canonical-product-type-model §15.
 
 ## Consequences
 
@@ -119,24 +116,23 @@ Exact one-to-one Product Type ↔ taxonomy-node bridge shape is part of that cla
 
 ### Negative / residual
 
-- Accepted taxonomy SPEC wording that centers classification on `PRODUCT_CLASSIFIED_AS` **explicitly conflicts with or is extended by** this Proposed Hybrid primary FK — Board clarification is **mandatory**, not optional
 - As-built Category template filters must strangler over multiple waves
 - Additional admin stewardship surfaces (assignment, ambiguity queue, definition activation)
-- KB-PT-01 remains blocked until the minute exists
+- Exact Product Type ↔ taxonomy-node bridge schema remains for Prompt 13 (must preserve same-identity rule)
 
 ## Migration
 
-Follow `SPEC-canonical-product-type-model.md` §15 corrected sequence:
+Follow `SPEC-canonical-product-type-model.md` §15 corrected sequence. Board clarification minute `AB-ADR-015-2026-08-02` is **recorded** (Option A).
 
-1. PT-W0 contract
-2. **Board clarification minute** (hard gate before PT-W1 / KB-PT-01)
-3. PT-W1 Product Type core + nullable FK only (no readout persistence; no seed; no assignment backfill)
-4. KB-REMEDIATION-11A Property Definitions + aliases + Units only (no Category-owned templates)
+1. PT-W0 contract — done
+2. Board clarification minute — **Accepted** (this ADR)
+3. **KB-PT-01 / PT-W1** Product Type core + nullable FK only (next implementation wave)
+4. KB-REMEDIATION-11A Property Definitions + aliases + Units only
 5. PT-W2 Definitions + Attribute Memberships
 6. PT-W3 assignment + ambiguity
 7. PT-W4 read-only JSONB validation
 8. KB-REMEDIATION-12 Facts
-9. KB-REMEDIATION-13 Evidence + taxonomy + CLASSIFIED_AS
+9. KB-REMEDIATION-13 Evidence + taxonomy + CLASSIFIED_AS (bridge without duplicate identities)
 10. PT-W6 pilot → PT-W7 optional cutover
 
 Legacy JSONB remains until a separately approved Phase 3 cutover task.
@@ -177,20 +173,27 @@ This ADR MUST NOT be interpreted as authorizing writers that update JSONB and Fa
 
 ## Open questions
 
-1. **Mandatory:** Board clarification minute for Hybrid primary FK vs Accepted `PRODUCT_CLASSIFIED_AS`-centric wording (blocks KB-PT-01 until resolved)
-2. Specialty Caliper activation boundary after pilot evidence
-3. Readout persistence shape in PT-W2+ (explicitly **not** a PT-W1/KB-PT-01 decision)
+1. Specialty Caliper activation boundary after pilot evidence
+2. Readout persistence shape in PT-W2+ (explicitly **not** a PT-W1/KB-PT-01 decision)
+3. Exact one-to-one Product Type ↔ taxonomy-node bridge schema — deferred to Prompt 13; must obey same-identity / no-duplicate rules from this Accepted clarification
+
+**Closed by Board minute AB-ADR-015-2026-08-02 (Option A):** Hybrid primary FK vs secondary `PRODUCT_CLASSIFIED_AS`; PKE identity; Category boundary; no graph DB; no dual-write; no bulk JSONB migration; no Category→Type auto-assign; no assignment backfill.
 
 **Closed by KB-PT-00A:** whether Board clarification is optional (it is not); PT-W1 readout persistence guess; early-wave admin role (super-admin until Steward ADR).
 
 ## Related
 
+- Board minute: `aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md` (**Accepted**)
 - `SPEC-canonical-product-type-model.md` (Proposed v0.1.1)
-- `SPEC-master-knowledge-base-remediation.md` (Proposed; Product Type sequencing amendment v0.4.1)
+- `SPEC-master-knowledge-base-remediation.md` (Proposed; Product Type sequencing amendment v0.4.1+)
 - ADR-013 · ADR-014
 - `SPEC-industrial-taxonomy-model.md` · `SPEC-property-dictionary-system.md` · `SPEC-product-knowledge-entity-model.md`
-- Tasks KB-PT-00 · KB-PT-00A
+- Tasks KB-PT-00 · KB-PT-00A · KB-PT-00B
 
 ### Amendment note (KB-PT-00A)
 
-Dated 2026-08-02. Status remains **Proposed**. No Board Accept claimed. Adds mandatory Board clarification gate, corrected Property/membership sequencing, and PT-W1 scope limits. Does not rewrite Accepted Canon documents.
+Dated 2026-08-02. Status was **Proposed**. Added mandatory Board clarification gate, corrected Property/membership sequencing, and PT-W1 scope limits.
+
+### Amendment note (KB-PT-00B)
+
+Dated 2026-08-02. Board minute completed with human-supplied fields. Status **Accepted** (Option A). Canon Lock row required. KB-PT-01 unblocked after merge to `main`.

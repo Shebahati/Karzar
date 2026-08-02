@@ -17,17 +17,15 @@ owner: Platform Architect + Knowledge Architect (author) · Owner implementation
 task_id: KB-PT-00A
 pack: docs/architecture/specs/README.md
 amends: KB-PT-00 (v0.1.0)
-architecture_board_acceptance: not_granted
-canonical_authority: not_accepted_canon
-owner_implementation_direction: recorded
-kb_pt_01_governance_block: mandatory_board_clarification_required
+kb_pt_01_governance_block: cleared_by_board_minute_AB-ADR-015-2026-08-02
+architecture_board_acceptance: adr_015_hybrid_option_a_granted
 ---
 
 # SPEC — Canonical Product Type Model
 
-**Status:** **Proposed** — owner implementation direction recorded; Architecture Board acceptance **not** granted  
-**Document type:** Architecture / governance / sequencing contract (Plane B)  
-**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification MUST remain **PROPOSED**; `on_main` remains **false** until merged.  
+**Status:** **Proposed** — owner implementation direction recorded; governed by **Accepted** ADR-015 (Hybrid clarification AB-ADR-015-2026-08-02 Option A); this SPEC itself is **not** Accepted Canon
+**Document type:** Architecture / governance / sequencing contract (Plane B)
+**Authority:** This SPEC remains **Proposed** (implementation contract). ADR-015 Hybrid clarification is **Accepted** Canon. AODS registry classification for this SPEC MUST remain **PROPOSED**. Path is on `main` via PR #193.
 **Non-goals of this SPEC file:** Database models · Alembic · runtime backend/frontend/tests · seeding Product Types · assigning products · migrating specifications · JSONB↔Facts dual-write · Board Accept claim.
 
 ---
@@ -303,9 +301,9 @@ products.product_type_id  →  product_types.id   (nullable FK, Wave 1)
 
 ### 6.4 Minimum PT-W1 runtime contract (KB-PT-01 scope)
 
-KB-PT-01 **MAY** proceed only after the mandatory Board clarification in ADR-015 / §20. Until that minute exists, KB-PT-01 is **governance-blocked**.
+Board clarification **Accepted** (`AB-ADR-015-2026-08-02` Option A). KB-PT-01 **MAY** start after this amendment branch merges to `main` (Product Type core table + nullable FK only).
 
-When unblocked, KB-PT-01 creates **only**:
+KB-PT-01 creates **only**:
 
 #### `product_types`
 
@@ -348,7 +346,7 @@ Until an Accepted ADR introduces Knowledge Steward:
 | Aggregate root | Product Type is the primary first-class aggregate root |
 | Prompt 13 | Later introduces governed taxonomy linkage for secondary/multi-dimensional classification |
 | Identity rule | Future linkage **MUST** avoid duplicate independent Product Type identities |
-| Bridge shape | Exact one-to-one bridge shape requires the **mandatory Board clarification** (ADR-015); owner direction alone cannot invent it |
+| Bridge shape | Exact one-to-one bridge shape deferred to **Prompt 13**; must preserve same Product Type identity / no-duplicate rules from Accepted Hybrid clarification (`AB-ADR-015-2026-08-02`) |
 
 ---
 
@@ -601,10 +599,10 @@ As-built PLP filters currently derive from Category templates + JSONB paths. Tha
 8. **Given** Phase 0–1 policy, **when** Product Type architecture and assignments are introduced, **then** `products.specifications` JSONB is not mutated by Product Type writers.
 9. **Given** resolution `0.01` and accuracy `±0.02` evidence, **when** mapping candidates are produced, **then** systems MUST keep accuracy and resolution as distinct properties and MUST NOT treat legacy `دقت=0.01` as verified accuracy without evidence.
 10. **Given** Product Type assignment, **when** any knowledge join is made, **then** PKE identity remains `products.id` (ADR-014) and Product Type does not replace it.
-11. **Given** this SPEC and ADR-015, **when** status is inspected, **then** both remain Proposed and Architecture Board acceptance is not claimed.
+11. **Given** this SPEC, **when** status is inspected, **then** the SPEC remains Proposed while ADR-015 is Accepted under minute AB-ADR-015-2026-08-02 Option A.
 12. **Given** Prompt 11A prerequisites unmet, **when** Property Dictionary runtime work is attempted, **then** work MUST halt per Master KB §12.1.
 13. **Given** Prompt 11A executes, **when** deliverables are inspected, **then** `knowledge_spec_templates` and `knowledge_template_properties` are absent from Prompt 11A scope.
-14. **Given** no Architecture Board clarification minute for Hybrid vs `PRODUCT_CLASSIFIED_AS`, **when** KB-PT-01 runtime schema work is attempted, **then** work is governance-blocked.
+14. **Given** Accepted Board minute AB-ADR-015-2026-08-02 (Option A) and ADR-015 Accepted on `main`, **when** KB-PT-01 is attempted within PT-W1 scope, **then** the Hybrid clarification governance block is satisfied.
 15. **Given** hierarchy examples, **when** Tool Family and Product Family labels are inspected, **then** they are non-duplicative (Sliding Measuring Instruments ≠ Calipers) unless an explicit taxonomy decision says otherwise.
 
 ---
@@ -615,17 +613,19 @@ As-built PLP filters currently derive from Category templates + JSONB paths. Tha
 |-----------|--------------|
 | ADR-013 | Postgres remains SoR; no graph DB; no dual-write authorization |
 | ADR-014 | `products.id` remains PKE identity; Product Type classifies, does not replace |
-| SPEC-industrial-taxonomy-model | Category remains single commerce tree; Hybrid primary FK **extends/conflicts** with CLASSIFIED_AS-centric wording — **Board clarification mandatory** before KB-PT-01 (ADR-015) |
+| SPEC-industrial-taxonomy-model | Category remains single commerce tree; Hybrid primary FK Accepted via ADR-015 / taxonomy §7.1; CLASSIFIED_AS secondary |
 | SPEC-property-dictionary-system | Attribute Registry owns canonical properties (Prompt 11A); Product Type Definition owns membership/applicability (PT-W2) |
-| SPEC-master-knowledge-base-remediation | Amended for 11A→PT-W2→12/13 sequencing (§12.1) |
+| SPEC-master-knowledge-base-remediation | Amended for 11A→PT-W2→12/13 sequencing (§12.1); KB-PT-01 unblocked after Board Accept |
 
 ---
 
-## 20. Open questions (remaining after KB-PT-00A)
+## 20. Open questions (remaining after Board Accept)
 
-1. **Board clarification content (mandatory before KB-PT-01):** exact minute wording for Hybrid primary FK vs secondary `PRODUCT_CLASSIFIED_AS`, including the one-to-one bridge shape — **owner direction alone is insufficient** to supersede Accepted Canon.
-2. **Specialty Caliper activation boundary:** closed criteria after pilot evidence + steward review (candidate remains inactive until then).
-3. **Readout persistence shape (PT-W2+ only):** column vs association table — deliberately **not** decided in PT-W1/KB-PT-01.
+1. **Specialty Caliper activation boundary:** closed criteria after pilot evidence + steward review (candidate remains inactive until then).
+2. **Readout persistence shape (PT-W2+ only):** column vs association table — deliberately **not** decided in PT-W1/KB-PT-01.
+3. **Exact taxonomy bridge schema:** Prompt 13; must preserve same Product Type identity (Board Option A).
+
+**Closed by Board minute AB-ADR-015-2026-08-02:** Hybrid primary FK vs secondary CLASSIFIED_AS; PKE; Category; no graph/dual-write/bulk JSONB/auto-assign/backfill.
 
 **Closed by KB-PT-00A:** PT-W1 readout ambiguity; Admin role for early waves (super-admin); hierarchy example duplication; Prompt 11 vs membership ordering.
 
@@ -638,11 +638,12 @@ As-built PLP filters currently derive from Category templates + JSONB paths. Tha
 | Document lifecycle status | **Proposed** |
 | Version | **0.1.1** |
 | Owner implementation direction | Recorded 2026-08-02 (KB-PT-00); final owner-review corrections KB-PT-00A |
-| Architecture Board acceptance | **Not granted** |
-| Canonical authority | **Not Accepted Canon** |
-| KB-PT-01 status | **Governance-blocked** until Architecture Board minute (or equivalent repository-approved Canon amendment) clarifies Hybrid model |
-| Next documentation/governance step | Owner review + Board clarification |
-| Next implementation wave (after Board clarification) | **KB-PT-01** — Product Type core table + nullable Product FK only |
+| Architecture Board acceptance | **Granted for ADR-015 Hybrid clarification** (minute AB-ADR-015-2026-08-02 Option A) — this SPEC remains **Proposed** implementation contract |
+| Canonical authority | **Not Accepted Canon** as a SPEC (governed by Accepted ADR-015) |
+| KB-PT-01 status | **May start** after Board minute + ADR-015 Accept are on `main` (PT-W1 scope only) |
+| Board minute | `aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md` (**Accepted**) |
+| Next documentation/governance step | Merge acceptance branch; then **KB-PT-01** |
+| Next implementation wave | **KB-PT-01** — Product Type core table + nullable Product FK only |
 
 ---
 

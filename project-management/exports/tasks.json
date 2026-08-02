@@ -1331,7 +1331,58 @@
         "product-type"
       ],
       "risk": "med",
-      "notes": "2026-08-02: Final owner-review corrections on docs/kb-pt-00-canonical-product-type-contract. Runtime still blocked pending Board Hybrid clarification. GENERATED PMO exports untouched."
+      "notes": "2026-08-02: Final owner-review corrections on docs/kb-pt-00-canonical-product-type-contract. Runtime still blocked pending Board Hybrid clarification. GENERATED PMO exports untouched. PR #193 merged."
+    },
+    {
+      "id": "KB-PT-00B",
+      "title": "Record Board clarification for Hybrid Product Type architecture",
+      "description": "Draft and register Architecture Board clarification minute for ADR-015 Hybrid primary FK vs Accepted PRODUCT_CLASSIFIED_AS taxonomy. Governance/docs only. Human Board fields required; do not fabricate approval. done/100 only after valid Board decision recorded.",
+      "priority": "P0",
+      "complexity": "high",
+      "hours": 2,
+      "deps": [
+        "KB-PT-00A"
+      ],
+      "files": [
+        "aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md",
+        "docs/architecture/adr/ADR-015-product-type-engineering-classification.md",
+        "aods/reports/tasks/KB-PT-00B-BOARD-CLARIFICATION.md",
+        "aods/registry/document-registry.yaml",
+        "project-management/exports/tasks.json"
+      ],
+      "modules": [
+        "knowledge",
+        "docs",
+        "ops"
+      ],
+      "ac": [
+        "Board minute Accepted with human fields (Option A, AB-ADR-015-2026-08-02)",
+        "ADR-015 Accepted Canon with Board Acceptance block",
+        "CANON-LOCK §1d records ADR-015 + minute",
+        "KB-PT-01 unblocked after merge (no fabricated fields)",
+        "Industrial Taxonomy §7.1 Hybrid FK amendment recorded",
+        "No runtime paths changed"
+      ],
+      "dod": [
+        "Minute Accepted and registered CANON/accepted on_main=false until merge",
+        "Human Board fields recorded exactly as supplied",
+        "Validation gates pass"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "Platform Architect",
+      "tags": [
+        "knowledge",
+        "governance",
+        "aods",
+        "board",
+        "product-type"
+      ],
+      "risk": "high",
+      "notes": "2026-08-02: Board Option A recorded (AB-ADR-015-2026-08-02). Minute Accepted; ADR-015 Accepted; Canon Lock + taxonomy §7.1 updated; KB-PT-01 unblocked after merge. Branch docs/adr-015-board-clarification."
     }
   ]
 }

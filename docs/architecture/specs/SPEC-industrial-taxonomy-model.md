@@ -1,15 +1,17 @@
 ---
 id: SPEC-industrial-taxonomy-model
-version: 0.1.0
+version: 0.1.1
 status: Accepted
 date: 2026-07-30
 governing_parents:
   - docs/architecture/karzar-knowledge-platform-master-architecture.md
   - docs/architecture/information-architecture/karzar-information-architecture.md
   - docs/architecture/adr/ADR-010-seo-url-contract.md
+  - docs/architecture/adr/ADR-015-product-type-engineering-classification.md
 owner: Information Architect + Domain Architect
 task_id: KB-001
 pack: docs/architecture/specs/README.md
+amends: Board minute AB-ADR-015-2026-08-02 (Hybrid primary Product Type FK clarification)
 ---
 
 # SPEC — Industrial Taxonomy Model
@@ -324,6 +326,20 @@ If Board authorizes Application hubs:
 | Technical classes | 0..N | MAY |
 
 Import pipeline **MUST** assign commerce Category before production write (as-built constraint) and **SHOULD** assign Domain/Family in the same job when rules exist (Playbook Classification stage).
+
+### 7.1 Hybrid primary Product Type FK (Board clarification AB-ADR-015-2026-08-02)
+
+Architecture Board Option **A** (Accepted 2026-08-02 / ۱۴۰۵/۰۵/۱۱) clarifies Wave-1 primary Product Type materialization:
+
+1. One **primary** Product Type **MAY** be materialized as a direct nullable Product FK (`products.product_type_id`) for Wave 1 (ADR-015).
+2. Secondary / multi-dimensional classifications remain governed taxonomy assignments (`PRODUCT_CLASSIFIED_AS` / assignment tables).
+3. The primary FK is **not** a substitute for the complete multi-dimensional taxonomy.
+4. Taxonomy linkage **MUST** resolve to the same Product Type identity as the primary FK.
+5. Duplicate Product Type node/entity identities are **forbidden**.
+6. Exact bridge schema belongs to Prompt 13 and **MUST** preserve these constraints.
+7. Product Type assignment remains **independent** of Commerce Category (Category remains commerce-only; no automatic Category→Type assignment).
+
+Historical Day-2 wording that projects primary type solely via `PRODUCT_CLASSIFIED_AS` is **clarified** by this Hybrid rule: CLASSIFIED_AS remains the secondary/multi-dimensional mechanism; the primary Wave-1 engineering classification is the Product Type FK when present.
 
 ---
 
