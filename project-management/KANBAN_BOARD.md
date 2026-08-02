@@ -36,6 +36,10 @@ Statuses mirrored from `exports/tasks.json`.
   - Notes: 2026-07-30 Strategy C-as-A dry-run 861 payloads under `data/imports/insize/shopmill/`; local API down — apply not run. No staging/prod; no HC-09.
 
 ## done
+- [x] **KB-REMEDIATION-00C** Finalize pre-Prompt-01 governance readiness — `done` 100% | P0 | Sprint 05 — owner implementation approval for SPEC v0.3.0; not Board-Accepted
+- [x] **KB-REMEDIATION-00B** Final SPEC contradictions + registry — `done` 100% | P2 | Sprint 05
+- [x] **KB-REMEDIATION-00A** Owner-review SPEC amendments — `done` 100% | P2 | Sprint 05
+- [x] **KB-REMEDIATION-00** Architecture contract — `done` 100% | P2 | Sprint 05 — SPEC v0.3.0 Proposed
 - [x] **FE-003** Remove non-Karzar website references from storefront content/images — `done` 100% | P0 | 6h | Sprint 04
   - Owner: unassigned | Week 4 Day 2 | Risk: med
   - [x] Description: Purge external website mentions; local assets; remove external footer/contact website links. (CR-013; was CONTENT-URL-001.)

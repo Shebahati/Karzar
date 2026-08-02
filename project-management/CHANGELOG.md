@@ -1,5 +1,10 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-02
+- [x] **KB-REMEDIATION-00C** — Owner implementation approval for `SPEC-master-knowledge-base-remediation` **v0.3.0** (Prompts 01–14). Lifecycle remains **Proposed**; Architecture Board acceptance **not** granted; registry **PROPOSED** / `on_main=false`. Closed 00B (done/100). Authored `tasks.json` updated. GENERATED CSV/printable left untouched — no official in-repo generator (documented follow-up). Prompt 01 must wait for human commit/PR/merge then a fresh branch from `main`.
+- [x] **KB-REMEDIATION-00B** — Final SPEC contradictions resolved; registry row `SPEC-MASTER-KB-REMEDIATION`; PMO task rows 00/00A/00B.
+- [x] **KB-REMEDIATION-00A / 00** — Remediation architecture contract authored and owner-review-amended on `feat/master-kb-remediation` (branch-local until PR).
+
 ## 2026-08-01
 - [x] **Wave A short_desc 0/01 fix (43 INSIZE cat57)** — live Category B rewrite of stale `short_description`/`meta_description`; enricher detects corrupt slash-decimals in marketing text. Verify 0 remaining. PR #190.
 - [x] **FE storefront redesign merged (#187)** — L1 category icons + hero dock + OTP length 6; aods unblock via #188 (`on_main` for FE collaborator docs). **Deploy Staging** still needs Owner/FE Actions click (agent 403). No Production.

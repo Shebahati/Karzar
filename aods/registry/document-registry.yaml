@@ -1096,6 +1096,15 @@ documents:
     on_main: true
     notes: "Accepted Day-2. Relation vocabulary; KB-001 freeze three edges."
 
+  - id: SPEC-MASTER-KB-REMEDIATION
+    path: docs/architecture/specs/SPEC-master-knowledge-base-remediation.md
+    class: PROPOSED
+    rank: 99
+    status: proposed
+    owner_role: R-SYS-ARCH
+    on_main: false
+    notes: "KB remediation architecture contract v0.3.0. Lifecycle Proposed; not Board-Accepted; not Accepted Canon. Owner implementation approval 2026-08-02 (Mohammad Shebahati) for Prompts 01-14 only. Tasks KB-REMEDIATION-00/00A/00B/00C. on_main false until merged."
+
   - id: SPEC-DATA-TRANSFORM
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
     class: CANON

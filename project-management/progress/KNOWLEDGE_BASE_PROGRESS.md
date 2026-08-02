@@ -1,8 +1,9 @@
 # Knowledge Base Progress
 
-**Rollup:** 35%
+**Rollup:** 40%
 
 - [x] **KB-001** Knowledge platform phase-1 content graph seed — `done` 100% | P2 | 30h | Sprint 04 — Day-3 CLOSED (#176)
+- [x] **KB-REMEDIATION-00 / 00A / 00B / 00C** — Master KB remediation architecture contract **v0.3.0** Proposed; owner implementation approval 2026-08-02 for Prompts 01–14 (**not** Board-Accepted); registry PROPOSED / `on_main=false`; Prompt 01 blocked until contract PR merges to `main`
 - [x] **Property Dictionary v0 (metrology)** — Git seed landed Day-4; dual-write still gated
 - [x] **Taxonomy v0 (metrology)** — Git seed + commerce L1 bridge; no second Category DAG
 - [x] **Classification map INSIZE v0** — Git MAPPING-TABLE for brand_id=3; closed taxonomy labels; no CLASSIFIED_AS edges yet
@@ -27,3 +28,4 @@
 - [x] 2026-08-01 Day-5 INSIZE classification map (Git MAPPING-TABLE) — [#181](https://github.com/Shebahati/Karzar/pull/181)
 - [x] 2026-08-01 Day-5 Admin read-only Knowledge views — [#183](https://github.com/Shebahati/Karzar/pull/183)
 - [x] 2026-08-01 KB-001 local alembic+full-catalog sync proof (1064 products → 2132 edges) — report GOV-2026-08-01-operator-kb001-local-sync / #184
+- [x] 2026-08-02 KB remediation contract v0.3.0 + owner implementation approval (00–00C) — branch `feat/master-kb-remediation`; Board Accept not granted
