@@ -329,7 +329,7 @@ async def import_property_dictionary(
         for unit in data["units"]:
             counters["units_scanned"] += 1
             payload = _unit_payload(unit, seed_version=seed_version, seed_checksum=checksum)
-            existing = (
+            unit_row = (
                 await db.execute(
                     select(KnowledgeUnit).where(
                         KnowledgeUnit.dimension == payload["dimension"],
@@ -337,14 +337,14 @@ async def import_property_dictionary(
                     )
                 )
             ).scalar_one_or_none()
-            if existing is None:
+            if unit_row is None:
                 db.add(KnowledgeUnit(**payload))
                 counters["units_created"] += 1
-            elif _row_matches(existing, payload, unit_fields):
+            elif _row_matches(unit_row, payload, unit_fields):
                 counters["units_unchanged"] += 1
             else:
                 for field, value in payload.items():
-                    setattr(existing, field, value)
+                    setattr(unit_row, field, value)
                 counters["units_updated"] += 1
 
         await db.flush()
@@ -354,7 +354,7 @@ async def import_property_dictionary(
             payload = _definition_payload(
                 defn, seed_version=seed_version, seed_checksum=checksum
             )
-            existing = (
+            def_row = (
                 await db.execute(
                     select(KnowledgePropertyDefinition).where(
                         KnowledgePropertyDefinition.definition_id
@@ -362,21 +362,21 @@ async def import_property_dictionary(
                     )
                 )
             ).scalar_one_or_none()
-            if existing is None:
+            if def_row is None:
                 db.add(KnowledgePropertyDefinition(**payload))
                 counters["properties_created"] += 1
-            elif _row_matches(existing, payload, def_fields):
+            elif _row_matches(def_row, payload, def_fields):
                 counters["properties_unchanged"] += 1
             else:
                 # Never rename stable identity keys via display-driven update path.
-                if existing.key != payload["key"]:
+                if def_row.key != payload["key"]:
                     raise PropertyDictionaryImportError(
                         f"refusing to rename key for {payload['definition_id']}"
                     )
                 for field, value in payload.items():
                     if field == "key":
                         continue
-                    setattr(existing, field, value)
+                    setattr(def_row, field, value)
                 counters["properties_updated"] += 1
 
         await db.flush()
@@ -394,31 +394,31 @@ async def import_property_dictionary(
                     "language": None,
                     "status": "active",
                 }
-                existing = (
+                alias_row = (
                     await db.execute(
                         select(KnowledgePropertyAlias).where(
                             KnowledgePropertyAlias.alias_normalized == norm
                         )
                     )
                 ).scalar_one_or_none()
-                if existing is None:
+                if alias_row is None:
                     db.add(KnowledgePropertyAlias(**payload))
                     counters["aliases_created"] += 1
                 elif (
-                    existing.definition_id == definition_id
-                    and existing.alias == alias
-                    and existing.source_kind == "seed_inline"
-                    and existing.status == "active"
+                    alias_row.definition_id == definition_id
+                    and alias_row.alias == alias
+                    and alias_row.source_kind == "seed_inline"
+                    and alias_row.status == "active"
                 ):
                     counters["aliases_unchanged"] += 1
-                elif existing.definition_id != definition_id:
+                elif alias_row.definition_id != definition_id:
                     raise PropertyDictionaryImportError(
-                        f"alias '{alias}' already bound to {existing.definition_id}"
+                        f"alias '{alias}' already bound to {alias_row.definition_id}"
                     )
                 else:
-                    existing.alias = alias
-                    existing.source_kind = "seed_inline"
-                    existing.status = "active"
+                    alias_row.alias = alias
+                    alias_row.source_kind = "seed_inline"
+                    alias_row.status = "active"
                     counters["aliases_updated"] += 1
 
         # Missing seed rows: report only (no hard-delete / no auto-deprecate).
