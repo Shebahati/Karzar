@@ -38,7 +38,7 @@ No runtime · no Alembic · no `app/**`/`frontend/**`/`tests/**`/seeds/deploy ·
 2. `docs/architecture/adr/ADR-015-product-type-engineering-classification.md`
 3. `docs/architecture/specs/SPEC-master-knowledge-base-remediation.md`
 4. `aods/reports/tasks/KB-PT-00-CANONICAL-PRODUCT-TYPE-CONTRACT.md` (append final-corrections section)
-5. `aods/reports/tasks/KB-PT-00A-FINAL-OWNER-REVIEW-CORRECTIONS.md` (this file)
+5. `aods/reports/tasks/KB-PT-00A-OWNER-REVIEW-CORRECTIONS.md` (this file)
 6. `aods/registry/document-registry.yaml`
 7. `project-management/exports/tasks.json`
 8. `project-management/CHANGELOG.md`

@@ -188,7 +188,7 @@ Docs-only: discard branch or supersede Proposed docs. No schema/runtime to roll 
 
 ## Final owner-review corrections (KB-PT-00A)
 
-Appended 2026-08-02. Does not rewrite the historical KB-PT-00 body above. Detail: `aods/reports/tasks/KB-PT-00A-FINAL-OWNER-REVIEW-CORRECTIONS.md`.
+Appended 2026-08-02. Does not rewrite the historical KB-PT-00 body above. Detail: `aods/reports/tasks/KB-PT-00A-OWNER-REVIEW-CORRECTIONS.md`.
 
 | # | Correction applied |
 |---|--------------------|

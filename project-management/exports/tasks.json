@@ -1295,7 +1295,7 @@
         "docs/architecture/specs/SPEC-canonical-product-type-model.md",
         "docs/architecture/adr/ADR-015-product-type-engineering-classification.md",
         "docs/architecture/specs/SPEC-master-knowledge-base-remediation.md",
-        "aods/reports/tasks/KB-PT-00A-FINAL-OWNER-REVIEW-CORRECTIONS.md",
+        "aods/reports/tasks/KB-PT-00A-OWNER-REVIEW-CORRECTIONS.md",
         "aods/registry/document-registry.yaml",
         "project-management/exports/tasks.json"
       ],
