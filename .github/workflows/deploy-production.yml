@@ -56,7 +56,7 @@ jobs:
     if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
     steps:
       - name: Download deploy artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: production-src-${{ github.sha }}
           path: ${{ runner.temp }}/production-src
