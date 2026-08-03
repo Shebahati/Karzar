@@ -483,6 +483,17 @@ documents:
       @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b; live TOSAG parser validation pending;
       not production-approved; no ProductImage/DB integration.
 
+  - id: EXISTING-IMAGE-AUDIT
+    path: docs/EXISTING_IMAGE_AUDIT.md
+    class: POLICY
+    rank: 6
+    status: draft
+    owner_role: R-BE-ARCH
+    on_main: false
+    notes: >-
+      IMG-02A-01 read-only Product/ProductImage/storage inventory; no mutations;
+      remote URLs unverified; no watermark/suitability classification.
+
   - id: HESABFA
     path: docs/HESABFA.md
     class: POLICY
