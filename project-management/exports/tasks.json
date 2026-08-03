@@ -2001,6 +2001,55 @@
       ],
       "risk": "med",
       "notes": "CR-008 Option C. Merged PR #203 @ 023047b8cd0c82b48428f0c5037121e9f0471b24. Pilot 001 and human review complete externally. 100 assets / 465 assignments. 52 watermark assets. 41 replacement assignments queued. 1 manual-review assignment queued. Replacement execution not started. No DB/ProductImage/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
+    },
+    {
+      "id": "IMG-02A-02-BATCH-002",
+      "title": "Sequential Existing Image Human Review Batch 002",
+      "description": "Generalize Pilot 001 tooling into sequential deterministic batches; package Batch 002 = 100 previously unselected unique local assets; no DB/storage mutation.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "IMG-02A-02"
+      ],
+      "files": [
+        "scripts/build_existing_image_review_batches.py",
+        "scripts/image_review/",
+        "tests/test_existing_image_review_batches.py",
+        "docs/EXISTING_IMAGE_HUMAN_REVIEW.md",
+        "aods/reports/tasks/IMG-02A-02-BATCH-002-EXISTING-IMAGE-HUMAN-REVIEW.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Pilot 001 selection contract unchanged",
+        "Exactly 100 Pilot Asset IDs excluded",
+        "Batch 002 = 100 new unique local assets with zero Pilot overlap",
+        "All assignments for selected assets retained",
+        "Offline review.html URL/path contract closed",
+        "Zero DB/network/storage mutations"
+      ],
+      "dod": [
+        "Focused unit tests + PYTHONHASHSEED loop",
+        "IMG-02A-01 and IMG-01 regression suites",
+        "AODS links/registry/pmo/naming/ingestion-boundary",
+        "PR #205; Batch 002 outputs external; human review complete; schema batch identity corrected"
+      ],
+      "status": "in_progress",
+      "progress": 90,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "review",
+        "read-only"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Parent IMG-02A-02 remains done/100. Batch 002 packaging + human review complete externally and validated (100/212). Watermark distributor=36; REPLACE_REQUIRED=17; MANUAL_REVIEW=1; rights all review_required. Schema batch_id_default corrected. Corrected ZIP SHA-256 6d15fc266d5b22ceba343e0ad50bcfa4df192245571383f6091631984cf70a60 (old 1112f104…). Selection/preview/thumb stable. Decisions not applied; replacement not started; no DB/ProductImage/storage mutation. Raw outputs external."
     }
   ]
 }

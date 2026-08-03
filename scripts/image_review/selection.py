@@ -1,8 +1,9 @@
-"""Canonical asset grouping and deterministic Pilot 001 selection."""
+"""Canonical asset grouping and deterministic sequential batch selection."""
 
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 from typing import Any
 
 from .contracts import (
@@ -111,7 +112,8 @@ def _shared_ordered(assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
     )
 
 
-def _singleton_brand_round_robin(assets: list[dict[str, Any]], *, limit: int) -> list[dict[str, Any]]:
+def _singleton_brand_round_robin_full(assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Full deterministic brand round-robin over all singleton assets (no early restart)."""
     singletons = [a for a in assets if int(a["product_count"]) == 1]
     by_brand: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for a in singletons:
@@ -122,7 +124,7 @@ def _singleton_brand_round_robin(assets: list[dict[str, Any]], *, limit: int) ->
     brand_names = sorted(by_brand.keys())
     selected: list[dict[str, Any]] = []
     indices = {b: 0 for b in brand_names}
-    while len(selected) < limit and brand_names:
+    while brand_names:
         progressed = False
         remaining_brands: list[str] = []
         for brand in brand_names:
@@ -134,29 +136,47 @@ def _singleton_brand_round_robin(assets: list[dict[str, Any]], *, limit: int) ->
                 progressed = True
                 if indices[brand] < len(bucket):
                     remaining_brands.append(brand)
-                if len(selected) >= limit:
-                    break
-            # exhausted brands are dropped from next round
         brand_names = remaining_brands if progressed else []
         if not progressed:
             break
     return selected
 
 
-def select_pilot_assets(
+def select_review_batch_assets(
     assets: list[dict[str, Any]],
     *,
+    excluded_asset_ids: Iterable[str] = (),
     shared_count: int = PILOT_SHARED_COUNT,
     singleton_count: int = PILOT_SINGLETON_COUNT,
-    total: int = PILOT_UNIQUE_ASSETS,
+    total: int | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Deterministic Pilot 001 selection. Returns (selected_assets, selection_meta)."""
-    if total != shared_count + singleton_count:
-        raise ReviewError("selection", "pilot total must equal shared+singleton quotas")
+    """
+    Deterministic sequential batch selection after prior-batch exclusions.
 
-    shared_pool = _shared_ordered(assets)
-    singleton_selected = _singleton_brand_round_robin(assets, limit=singleton_count)
-    shared_selected = shared_pool[:shared_count]
+    Canonical shared/singleton pools are built on the full inventory, then prior
+    Asset IDs are removed, then the next window of quotas is taken (fallback fills
+    shortfalls in SHA-256 ascending order among remaining eligible assets).
+    """
+    want_total = shared_count + singleton_count if total is None else total
+    if want_total != shared_count + singleton_count:
+        raise ReviewError("selection", "batch total must equal shared+singleton quotas")
+
+    excluded = {str(x).lower() for x in excluded_asset_ids}
+    source_unique = len(assets)
+    eligible_assets = [a for a in assets if str(a["sha256"]).lower() not in excluded]
+    eligible_before = len(eligible_assets)
+
+    shared_pool = [
+        a for a in _shared_ordered(assets) if str(a["sha256"]).lower() not in excluded
+    ]
+    singleton_pool = [
+        a
+        for a in _singleton_brand_round_robin_full(assets)
+        if str(a["sha256"]).lower() not in excluded
+    ]
+
+    shared_selected = list(shared_pool[:shared_count])
+    singleton_selected = list(singleton_pool[:singleton_count])
 
     fallback_used = False
     fallback_from: list[str] = []
@@ -166,11 +186,10 @@ def select_pilot_assets(
         need = shared_count - len(shared_selected)
         taken = {a["sha256"] for a in shared_selected} | {a["sha256"] for a in singleton_selected}
         fillers = sorted(
-            [a for a in assets if a["sha256"] not in taken],
+            [a for a in eligible_assets if a["sha256"] not in taken],
             key=lambda a: str(a["sha256"]),
         )
-        extra = fillers[:need]
-        shared_selected.extend(extra)
+        shared_selected.extend(fillers[:need])
         fallback_from.append("shared")
 
     if len(singleton_selected) < singleton_count:
@@ -178,20 +197,20 @@ def select_pilot_assets(
         need = singleton_count - len(singleton_selected)
         taken = {a["sha256"] for a in shared_selected} | {a["sha256"] for a in singleton_selected}
         fillers = sorted(
-            [a for a in assets if a["sha256"] not in taken],
+            [a for a in eligible_assets if a["sha256"] not in taken],
             key=lambda a: str(a["sha256"]),
         )
-        extra = fillers[:need]
-        singleton_selected.extend(extra)
+        singleton_selected.extend(fillers[:need])
         fallback_from.append("singleton")
 
-    # annotate segments
     selected: list[dict[str, Any]] = []
     seen: set[str] = set()
     for rank, asset in enumerate(shared_selected, start=1):
         sha = asset["sha256"]
         if sha in seen:
             raise ReviewError("selection", f"duplicate asset selection: {sha}")
+        if sha in excluded:
+            raise ReviewError("selection", f"selected excluded prior asset: {sha}")
         seen.add(sha)
         row = dict(asset)
         row["selection_segment"] = "shared"
@@ -201,20 +220,23 @@ def select_pilot_assets(
         sha = asset["sha256"]
         if sha in seen:
             raise ReviewError("selection", f"duplicate asset selection: {sha}")
+        if sha in excluded:
+            raise ReviewError("selection", f"selected excluded prior asset: {sha}")
         seen.add(sha)
         row = dict(asset)
         row["selection_segment"] = "singleton"
         row["selection_rank"] = rank
         selected.append(row)
 
-    if len(selected) != total:
+    if len(selected) != want_total:
         raise ReviewError(
             "selection",
-            f"pilot must contain exactly {total} unique assets, got {len(selected)}",
+            f"batch must contain exactly {want_total} unique assets, got {len(selected)}",
         )
-    if len({a["sha256"] for a in selected}) != total:
-        raise ReviewError("selection", "duplicate asset IDs in pilot selection")
+    if len({a["sha256"] for a in selected}) != want_total:
+        raise ReviewError("selection", "duplicate asset IDs in batch selection")
 
+    remaining_after = eligible_before - len(selected)
     meta = {
         "shared_requested": shared_count,
         "singleton_requested": singleton_count,
@@ -223,8 +245,30 @@ def select_pilot_assets(
         "fallback_used": fallback_used,
         "fallback_from": fallback_from,
         "selected_asset_ids": [a["sha256"] for a in selected],
+        "source_unique_assets": source_unique,
+        "excluded_prior_asset_count": len(excluded),
+        "eligible_assets_before_selection": eligible_before,
+        "remaining_unique_assets_after_selection": remaining_after,
+        "prior_overlap_count": 0,
     }
     return selected, meta
+
+
+def select_pilot_assets(
+    assets: list[dict[str, Any]],
+    *,
+    shared_count: int = PILOT_SHARED_COUNT,
+    singleton_count: int = PILOT_SINGLETON_COUNT,
+    total: int = PILOT_UNIQUE_ASSETS,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Backward-compatible Pilot 001 selection (no prior-batch exclusions)."""
+    return select_review_batch_assets(
+        assets,
+        excluded_asset_ids=(),
+        shared_count=shared_count,
+        singleton_count=singleton_count,
+        total=total,
+    )
 
 
 def assignments_for_assets(selected: list[dict[str, Any]]) -> list[dict[str, Any]]:
