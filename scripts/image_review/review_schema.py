@@ -11,7 +11,6 @@ from .contracts import (
     ASSIGNMENT_REVIEW_TEMPLATE_FIELDS,
     BACKGROUND_STATUS_VALUES,
     CROP_STATUS_VALUES,
-    PILOT_BATCH_ID,
     QUALITY_STATUS_VALUES,
     REVIEW_SCHEMA_VERSION,
     RIGHTS_STATUS_VALUES,
@@ -20,10 +19,10 @@ from .contracts import (
 )
 
 
-def review_schema_document() -> dict[str, Any]:
+def review_schema_document(batch_id: str) -> dict[str, Any]:
     return {
         "review_schema_version": REVIEW_SCHEMA_VERSION,
-        "batch_id_default": PILOT_BATCH_ID,
+        "batch_id_default": batch_id,
         "asset_level": {
             "watermark_status": list(WATERMARK_STATUS_VALUES),
             "quality_status": list(QUALITY_STATUS_VALUES),

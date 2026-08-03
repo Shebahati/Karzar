@@ -583,7 +583,7 @@ def test_html_payload_strips_urls_and_paths():
         batch_id="IMG-02A-02-PILOT-001",
         assets=assets,
         assignments=assignments,
-        schema=review_schema_document(),
+        schema=review_schema_document("IMG-02A-02-PILOT-001"),
     )
     assert_html_offline_contract(html)
     assert "http://" not in html and "https://" not in html
@@ -898,3 +898,123 @@ def test_fallback_after_exclusions_deterministic(tmp_path: Path):
         assets, excluded_asset_ids=(), shared_count=2, singleton_count=1, total=3
     )
     assert meta["selected_asset_ids"] == m2["selected_asset_ids"]
+
+
+def test_review_schema_batch_id_defaults_for_pilot_and_batch_002():
+    from scripts.image_review.review_schema import review_schema_document
+
+    pilot = review_schema_document("IMG-02A-02-PILOT-001")
+    batch = review_schema_document("IMG-02A-02-BATCH-002")
+    assert pilot["batch_id_default"] == "IMG-02A-02-PILOT-001"
+    assert batch["batch_id_default"] == "IMG-02A-02-BATCH-002"
+    assert pilot["review_schema_version"] == batch["review_schema_version"] == 1
+
+
+def test_html_schema_batch_id_matches_top_level(tmp_path: Path):
+    from scripts.image_review.html_review import build_review_html
+    from scripts.image_review.review_schema import review_schema_document
+
+    batch_id = "IMG-02A-02-BATCH-002"
+    schema = review_schema_document(batch_id)
+    html = build_review_html(
+        batch_id=batch_id,
+        assets=[
+            {
+                "asset_id": "a" * 64,
+                "sha256": "a" * 64,
+                "preview_filename": "x.jpg",
+                "thumb_filename": "x.jpg",
+                "product_count": 1,
+                "brands": ["Brand"],
+                "width": 10,
+                "height": 10,
+                "byte_size": 1,
+                "reference_count": 1,
+                "low_resolution_candidate": False,
+                "extreme_aspect_candidate": False,
+                "transparent_background_candidate": False,
+                "busy_or_nonuniform_border_candidate": False,
+                "selection_segment": "singleton",
+                "megapixels": 0.1,
+                "aspect_ratio": 1.0,
+            }
+        ],
+        assignments=[
+            {
+                "assignment_id": f"{'a'*64}:1:1",
+                "asset_id": "a" * 64,
+                "image_id": 1,
+                "product_id": 1,
+                "sku": "S",
+                "product_name": "P",
+                "brand_name": "Brand",
+                "category_name": "C",
+                "is_primary": True,
+                "display_order": 0,
+            }
+        ],
+        schema=schema,
+    )
+    assert f'"batch_id": "{batch_id}"' in html or f'"batch_id":"{batch_id}"' in html.replace(" ", "")
+    assert schema["batch_id_default"] == batch_id
+    # schema is embedded in DATA payload
+    assert "IMG-02A-02-BATCH-002" in html
+    assert "IMG-02A-02-PILOT-001" not in html
+
+
+def test_batch_002_templates_use_batch_id(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+    from scripts.image_review.review_schema import review_schema_document
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=2, singleton=2)
+    out = tmp_path / "out"
+    out.mkdir()
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        task_id="IMG-02A-02-BATCH-002",
+        batch_id="IMG-02A-02-BATCH-002",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=sh,
+        singleton_count=si,
+    )
+    schema = json.loads((out / "review-schema.json").read_text(encoding="utf-8"))
+    assert schema == review_schema_document("IMG-02A-02-BATCH-002")
+    assert schema["batch_id_default"] == "IMG-02A-02-BATCH-002"
+    asset_csv = (out / "asset-review-template.csv").read_text(encoding="utf-8")
+    asg_csv = (out / "assignment-review-template.csv").read_text(encoding="utf-8")
+    assert "IMG-02A-02-BATCH-002" in asset_csv
+    assert "IMG-02A-02-BATCH-002" in asg_csv
+    assert "IMG-02A-02-PILOT-001" not in asset_csv
+    html = (out / "review.html").read_text(encoding="utf-8")
+    assert '"batch_id_default": "IMG-02A-02-BATCH-002"' in html or "IMG-02A-02-BATCH-002" in html
+
+
+def test_batch_002_human_review_external_if_present():
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    review = Path("/var/tmp/karzar-image-review/img02a02-batch-002-human-review")
+    batch = Path("/var/tmp/karzar-image-review/img02a02-batch-002-pkg")
+    if not review.is_dir() or not batch.is_dir():
+        pytest.skip("external Batch 002 review artifacts not present")
+    agg = validate_human_review_bundle(
+        review,
+        batch_dir=batch,
+        expected_asset_count=100,
+        expected_assignment_count=212,
+        expected_batch_id="IMG-02A-02-BATCH-002",
+    )
+    assert agg["assets_reviewed"] == 100
+    assert agg["assignments_reviewed"] == 212
+    assert agg["watermark"]["distributor_or_retailer"] == 36
+    assert agg["assignment_decisions"]["REPLACE_REQUIRED"] == 17
+    assert agg["assignment_decisions"]["MANUAL_REVIEW"] == 1
+    assert agg["replace_required_assignments"] == 17
+    assert agg["manual_review_assignments"] == 1
+    # no unreviewed leftovers already enforced by validator
+    state = json.loads((review / "review-state.json").read_text(encoding="utf-8"))
+    assert len(state["assets"]) == 100
+    assert len(state["assignments"]) == 212

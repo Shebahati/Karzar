@@ -2037,10 +2037,10 @@
         "Focused unit tests + PYTHONHASHSEED loop",
         "IMG-02A-01 and IMG-01 regression suites",
         "AODS links/registry/pmo/naming/ingestion-boundary",
-        "Draft PR; Batch 002 outputs external; human review pending"
+        "PR #205; Batch 002 outputs external; human review complete; schema batch identity corrected"
       ],
       "status": "in_progress",
-      "progress": 70,
+      "progress": 90,
       "sprint": "05",
       "tags": [
         "images",
@@ -2049,7 +2049,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Parent IMG-02A-02 remains done/100. Batch 002 packaging complete externally: excluded 100 Pilot assets; eligible 514; selected 100 (50/50); assignments 212; remaining 414; overlap 0; fallback false; ZIP SHA-256 1112f104c6d4746f9388caad5699ab03e9a9caeda4b9397d6db601db07192702. Human review pending. No replacement execution. No DB/ProductImage/storage mutation. Raw outputs under /var/tmp/karzar-image-review/ (not committed)."
+      "notes": "CR-008 Option C. Parent IMG-02A-02 remains done/100. Batch 002 packaging + human review complete externally and validated (100/212). Watermark distributor=36; REPLACE_REQUIRED=17; MANUAL_REVIEW=1; rights all review_required. Schema batch_id_default corrected. Corrected ZIP SHA-256 6d15fc266d5b22ceba343e0ad50bcfa4df192245571383f6091631984cf70a60 (old 1112f104…). Selection/preview/thumb stable. Decisions not applied; replacement not started; no DB/ProductImage/storage mutation. Raw outputs external."
     }
   ]
 }

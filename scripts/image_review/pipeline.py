@@ -161,7 +161,7 @@ def build_review_batch_package(
                     f"missing assignments for asset {asset['sha256']}: {got} != {expected_ids}",
                 )
 
-        schema = review_schema_document()
+        schema = review_schema_document(batch_id)
         derivative_records: list[dict[str, Any]] = []
         manifest_assets: list[dict[str, Any]] = []
 
