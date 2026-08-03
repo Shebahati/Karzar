@@ -1896,7 +1896,7 @@
         "Raw inventory outputs not committed"
       ],
       "status": "in_progress",
-      "progress": 80,
+      "progress": 95,
       "sprint": "05",
       "tags": [
         "images",
@@ -1905,7 +1905,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Inventories current state only; no watermark/suitability; no ProductImage/DB/storage mutations. R1 boundary hardening complete; authoritative VPS run still BLOCKED."
+      "notes": "CR-008 Option C. Authoritative run complete 2026-08-03 on VPS lathe_api / karzar_staging (transaction_read_only=on). total_products=5918 products_with_image_rows=1194 valid_local=1193 exact_dup_groups=188. Raw outputs external under /var/tmp/karzar-image-audit/img02a01-20260803T121056Z. PR #201 Ready for Review; keep in_progress until merge. No mutations; network_requests=0."
     },
     {
       "id": "IMG-02A-01-R1",
@@ -1942,8 +1942,8 @@
         "AODS validation gates PASS",
         "Authoritative run BLOCKED documented"
       ],
-      "status": "in_progress",
-      "progress": 90,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "tags": [
         "images",
@@ -1953,7 +1953,7 @@
         "security"
       ],
       "risk": "low",
-      "notes": "R1 corrections on feat/existing-image-audit. No mutations; no remote probes; authoritative counts not substituted."
+      "notes": "CR-008 Option C. Boundary hardening complete @ 8a20594; authoritative inventory completed subsequently. See IMG-02A-01 evidence."
     }
   ]
 }

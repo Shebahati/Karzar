@@ -42,3 +42,7 @@ storage mutations = 0 (by design; no run performed)
 - PYTHONHASHSEED 0–9: passed
 - `tests/test_image_discovery*.py`: 110 passed
 - ruff + aods_validate gates: PASS
+
+## Authoritative run disposition
+
+Authoritative inventory completed 2026-08-03 after VPS access via the established host. See parent task record for aggregate counts. Raw outputs remain under `/var/tmp/karzar-image-audit/img02a01-20260803T121056Z` on the VPS and are not committed.

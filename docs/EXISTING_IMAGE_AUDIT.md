@@ -1,8 +1,9 @@
 # Existing Image Audit (IMG-02A-01)
 
-**Task:** IMG-02A-01 — Canonical Existing Product Image Inventory  
-**R1:** IMG-02A-01-R1 — pre-authoritative boundary hardening (see task record)  
-**Status:** tooling Draft / not production-approved  
+**Task:** IMG-02A-01 — Canonical Existing Product Image Inventory
+**R1:** IMG-02A-01-R1 — pre-authoritative boundary hardening (see task record)
+**Status:** tooling Ready for Review (PR #201) / not production-approved
+**Authoritative run:** complete 2026-08-03T12:11Z (`karzar_staging`, `transaction_read_only=on`)
 **Mutations:** none (database, ProductImage, and storage are read-only)
 
 ## Purpose
@@ -89,6 +90,29 @@ checksums.sha256
 ```
 
 `summary.json` includes `storage_modified=false` and `storage_mutations=0`. Raw inventory rows must not be committed to Git.
+
+
+## Authoritative inventory evidence (aggregate only)
+
+Executed inside authoritative app container against PostgreSQL with `transaction_read_only=on`. Raw CSV/JSON remain on the VPS under `/var/tmp/karzar-image-audit/img02a01-20260803T121056Z` (not in Git).
+
+| Metric | Value |
+|--------|------:|
+| total_products | 5918 |
+| products_with_image_rows | 1194 |
+| total_product_images | 1194 |
+| valid_local_image_rows | 1193 |
+| external_remote_rows | 1 |
+| missing_local_file_rows | 0 |
+| decode_failed_rows | 0 |
+| exact_duplicate_sha_groups | 188 |
+| cross_product_duplicate_sha_groups | 188 |
+| unreferenced_storage_files | 0 |
+| network_requests_performed | 0 |
+| database_modified | false |
+| storage_mutations | 0 |
+
+`checksums.sha256` digest: `4a2669e1da514b59198e37f3b761a179f0e626c174232043a63612db8581e48d` (all member hashes verified).
 
 ## Related
 

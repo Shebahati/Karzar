@@ -8,8 +8,8 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
-- [ ] **IMG-02A-01** Canonical Existing Product Image Inventory — `in_progress` 80% | P1 | Sprint 05 — read-only; R1 boundary hardening; Draft PR; no mutations
-- [ ] **IMG-02A-01-R1** Close pre-authoritative boundary blockers — `in_progress` 90% | P1 | Sprint 05 — URL/storage/SQL/publish hardening; authoritative run still blocked
+- [ ] **IMG-02A-01** Canonical Existing Product Image Inventory — `in_progress` 95% | P1 | Sprint 05 — authoritative run complete; PR #201 Ready for Review; await merge
+- [x] **IMG-02A-01-R1** Close pre-authoritative boundary blockers — `done` 100% | P1 | Sprint 05 — boundaries closed; authoritative run complete
 - [x] **IMG-01E-R1** Resume manifest identity contract — `done` 100% | P1 | Sprint 05 — merged PR #198 @ f10cfff; live TOSAG pending; not production-approved; no ProductImage/DB
 - [x] **IMG-01E** Harden structured evidence + output roots — `done` 100% | P1 | Sprint 05 — merged PR #198; live TOSAG still pending; not production-approved
 - [x] **IMG-01D** Close five final image-pipeline blockers — `done` 100% | P1 | Sprint 05 — merged PR #198 @ f10cfff
