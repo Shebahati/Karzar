@@ -21,16 +21,33 @@ from sqlalchemy.sql import Select
 
 from .contracts import AuditError, ImageRow, ProductRow
 
-# Reject mutating / DDL statements while allowing SELECT and read-only txn setup.
 _WRITE_DDL_RE = re.compile(
     r"(?is)\b(?:"
     r"INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|TRUNCATE|"
     r"GRANT|REVOKE|COPY|VACUUM|REINDEX"
     r")\b"
 )
-_ALLOWED_SETUP_RE = re.compile(
-    r"(?is)^\s*(?:SET\s+TRANSACTION\s+READ\s+ONLY|SHOW\s+transaction_read_only)\s*;?\s*$"
+_ALLOWED_SETUP_EXACT = frozenset(
+    {
+        "SET TRANSACTION READ ONLY",
+        "SHOW TRANSACTION_READ_ONLY",
+    }
 )
+_SQLITE_PRAGMA_ALLOWLIST = frozenset(
+    {
+        "PRAGMA query_only",
+        "PRAGMA query_only=ON",
+        "PRAGMA query_only=OFF",
+        "PRAGMA table_info(products)",
+        "PRAGMA table_info(product_images)",
+    }
+)
+
+
+def _normalize_sql_for_guard(statement: str) -> str:
+    stripped = (statement or "").strip()
+    no_line_comments = re.sub(r"--[^\n]*", " ", stripped)
+    return re.sub(r"\s+", " ", no_line_comments).strip().rstrip(";")
 
 
 def assert_readonly_sql(statement: str) -> None:
@@ -38,20 +55,32 @@ def assert_readonly_sql(statement: str) -> None:
     stripped = (statement or "").strip()
     if not stripped:
         raise AuditError("sql_guard", "empty SQL rejected")
-    if _ALLOWED_SETUP_RE.match(stripped):
+    normalized = _normalize_sql_for_guard(stripped)
+    upper = normalized.upper()
+    if upper in _ALLOWED_SETUP_EXACT or normalized in {
+        "SET TRANSACTION READ ONLY",
+        "SHOW transaction_read_only",
+    }:
         return
-    # Strip single-line SQL comments for guard scanning
+    if upper == "SET TRANSACTION READ WRITE":
+        raise AuditError("sql_guard", "SET TRANSACTION READ WRITE rejected")
+    if upper.startswith("SET TRANSACTION"):
+        raise AuditError("sql_guard", f"non-allowlisted SET TRANSACTION rejected: {stripped[:120]}")
+    if upper.startswith("SHOW") and upper != "SHOW TRANSACTION_READ_ONLY":
+        raise AuditError("sql_guard", f"non-allowlisted SHOW rejected: {stripped[:120]}")
+    if upper.startswith("PRAGMA"):
+        if normalized in _SQLITE_PRAGMA_ALLOWLIST:
+            return
+        if "=" in normalized.split("(", 1)[0]:
+            raise AuditError("sql_guard", f"PRAGMA assignment rejected: {stripped[:120]}")
+        raise AuditError("sql_guard", f"non-allowlisted PRAGMA rejected: {stripped[:120]}")
     no_line_comments = re.sub(r"--[^\n]*", " ", stripped)
     if _WRITE_DDL_RE.search(no_line_comments):
         raise AuditError("sql_guard", f"mutating/DDL SQL rejected: {stripped[:120]}")
-    upper = no_line_comments.lstrip().upper()
     if not (
         upper.startswith("SELECT")
         or upper.startswith("WITH")
         or upper.startswith("EXPLAIN")
-        or upper.startswith("SHOW")
-        or upper.startswith("SET TRANSACTION")
-        or upper.startswith("PRAGMA")  # SQLite introspection in tests
     ):
         raise AuditError("sql_guard", f"non-SELECT SQL rejected: {stripped[:120]}")
 
@@ -66,7 +95,6 @@ def sanitize_database_url_for_engine(url: str) -> str:
     if raw.startswith("postgres://"):
         return "postgresql+asyncpg://" + raw[len("postgres://") :]
     if raw.startswith("sqlite://") and not raw.startswith("sqlite+"):
-        # Prefer aiosqlite for AsyncEngine
         return "sqlite+aiosqlite://" + raw[len("sqlite://") :]
     return raw
 
@@ -127,7 +155,6 @@ async def open_readonly_session(database_url: str) -> AsyncIterator[ReadOnlyDbCo
     dialect = engine.dialect.name
     txn_flag = "off"
     try:
-        # Begin an explicit transaction (SQLAlchemy 2 style)
         await session.connection()
         if dialect == "postgresql":
             await session.execute(text("SET TRANSACTION READ ONLY"))
@@ -140,7 +167,6 @@ async def open_readonly_session(database_url: str) -> AsyncIterator[ReadOnlyDbCo
                     f"PostgreSQL transaction_read_only must be on, got {txn_flag!r}",
                 )
         else:
-            # SQLite (tests): no SET TRANSACTION READ ONLY; guard still active
             txn_flag = "sqlite-test"
 
         ctx = ReadOnlyDbContext(
@@ -247,4 +273,3 @@ def sync_assert_readonly_sql_for_tests(statement: str) -> None:
 def sync_guard_rejects_on_session(session: Session, statement: str) -> None:
     """Execute via sync Session to exercise the same guard string check."""
     assert_readonly_sql(statement)
-    # Do not actually execute mutating SQL in tests — guard alone is the proof.

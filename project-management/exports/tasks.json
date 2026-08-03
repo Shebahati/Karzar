@@ -1896,7 +1896,7 @@
         "Raw inventory outputs not committed"
       ],
       "status": "in_progress",
-      "progress": 70,
+      "progress": 80,
       "sprint": "05",
       "tags": [
         "images",
@@ -1905,7 +1905,55 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Inventories current state only; no watermark/suitability; no ProductImage/DB/storage mutations. Authoritative VPS run required for measured counts."
+      "notes": "CR-008 Option C. Inventories current state only; no watermark/suitability; no ProductImage/DB/storage mutations. R1 boundary hardening complete; authoritative VPS run still BLOCKED."
+    },
+    {
+      "id": "IMG-02A-01-R1",
+      "title": "Close pre-authoritative boundary blockers (existing image audit)",
+      "description": "Harden IMG-02A-01 boundaries: exact URL marker, storage-index file meta, SQL guard, atomic publish, coverage/duplicate semantics, --no-storage-scan.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 4,
+      "deps": [
+        "IMG-02A-01"
+      ],
+      "files": [
+        "scripts/audit_existing_product_images.py",
+        "scripts/image_audit/",
+        "tests/test_existing_image_audit.py",
+        "docs/EXISTING_IMAGE_AUDIT.md",
+        "aods/reports/tasks/IMG-02A-01-R1-CLOSE-PRE-AUTHORITATIVE-BLOCKERS.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Exact /static/uploads/products/ marker with HTTP(S) internal mapping",
+        "storage_index-only file meta; no FS fallback on miss",
+        "PostgreSQL-only CLI; exact SQL allowlist",
+        "Staged atomic publish with streamed checksums",
+        "--no-storage-scan local_unverified semantics"
+      ],
+      "dod": [
+        "43 unit tests + PYTHONHASHSEED loop",
+        "AODS validation gates PASS",
+        "Authoritative run BLOCKED documented"
+      ],
+      "status": "in_progress",
+      "progress": 90,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "audit",
+        "read-only",
+        "security"
+      ],
+      "risk": "low",
+      "notes": "R1 corrections on feat/existing-image-audit. No mutations; no remote probes; authoritative counts not substituted."
     }
   ]
 }

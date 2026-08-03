@@ -64,7 +64,6 @@ def _resolve_database_url(cli_value: str | None) -> str:
         val = os.environ.get(key)
         if val:
             return val.strip()
-    # Compose from POSTGRES_* if present (without printing secrets)
     user = os.environ.get("POSTGRES_USER")
     password = os.environ.get("POSTGRES_PASSWORD")
     host = os.environ.get("POSTGRES_SERVER")
@@ -83,18 +82,26 @@ async def _amain(argv: list[str] | None = None) -> int:
     storage_root = args.storage_root or (REPO_ROOT.joinpath(*DEFAULT_STORAGE_REL))
     if not storage_root.is_absolute():
         raise AuditError("path", "storage-root must be absolute")
-    assert_real_directory_no_symlink(storage_root, label="storage-root")
-    output_dir = prepare_output_dir(args.output_dir, repository_root=REPO_ROOT)
+    storage_scan = not bool(args.no_storage_scan)
+    if storage_scan:
+        assert_real_directory_no_symlink(storage_root, label="storage-root")
+    output_dir = prepare_output_dir(
+        args.output_dir,
+        repository_root=REPO_ROOT,
+        storage_root=storage_root,
+    )
 
     database_url = _resolve_database_url(args.database_url)
     async with open_readonly_session(database_url) as db:
-        # Safe identity print (no DSN/password)
         print(f"database_name={db.database_name}")
         print(f"database_user={db.database_user}")
         print(f"transaction_read_only={db.transaction_read_only}")
         print(f"storage_root={storage_root}")
         print(f"output_dir={output_dir}")
-        if db.dialect == "postgresql" and db.transaction_read_only != "on":
+        print(f"storage_scan={storage_scan}")
+        if db.dialect != "postgresql":
+            raise AuditError("database", "operational runs require PostgreSQL dialect")
+        if db.transaction_read_only != "on":
             raise AuditError("database", "refusing to continue without transaction_read_only=on")
 
         summary = await run_inventory(
@@ -102,7 +109,7 @@ async def _amain(argv: list[str] | None = None) -> int:
             storage_root=storage_root,
             output_dir=output_dir,
             include_deleted_products=bool(args.include_deleted_products),
-            storage_scan=not bool(args.no_storage_scan),
+            storage_scan=storage_scan,
             repository_root=REPO_ROOT,
         )
 
@@ -110,6 +117,7 @@ async def _amain(argv: list[str] | None = None) -> int:
     print(f"total_product_images={summary['total_product_images']}")
     print(f"network_requests_performed={summary['network_requests_performed']}")
     print(f"database_modified={summary['database_modified']}")
+    print(f"storage_modified={summary['storage_modified']}")
     return 0
 
 

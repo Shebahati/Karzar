@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
 
 from .contracts import (
     PRIOR_REFERENCE_SNAPSHOT,
@@ -16,7 +16,7 @@ from .contracts import (
     StorageEntry,
 )
 from .database import ReadOnlyDbContext, fetch_product_images, fetch_products
-from .output import write_checksums, write_csv, write_json
+from .output import publish_inventory_outputs, write_csv, write_json
 from .storage import (
     classify_image_url,
     file_meta_for_mapped_path,
@@ -86,10 +86,19 @@ def _utc_now() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _normalize_url_for_dup(url: str) -> str:
-    parts = urlsplit((url or "").strip())
-    path = parts.path or ""
-    return urlunsplit(("", "", path, "", "")).lower()
+def _dup_key_for_image(img: ImageRow, *, storage_root: Path) -> str:
+    cls = classify_image_url(img.image_url, storage_root=storage_root)
+    if cls.url_kind in {"external_http", "external_https"}:
+        parts = urlsplit((img.image_url or "").strip())
+        scheme = (parts.scheme or "").lower()
+        host = (parts.hostname or "").lower()
+        port = parts.port
+        port_str = "" if port is None else str(port)
+        path = parts.path or ""
+        return f"ext:{scheme}|{host}|{port_str}|{path}"
+    if cls.mapped_relative_path:
+        return f"int:{cls.mapped_relative_path}"
+    return f"other:{(img.image_url or '').strip().lower()}"
 
 
 def _is_valid_local_image(row: dict[str, Any]) -> bool:
@@ -105,6 +114,44 @@ def _is_remote(row: dict[str, Any]) -> bool:
     return row.get("audit_status") == "remote_unverified"
 
 
+def _audit_status_for_row(
+    *,
+    cls,
+    meta,
+    storage_scan: bool,
+    reason_codes: list[str],
+) -> str:
+    if not storage_scan and cls.url_kind.startswith("internal") and cls.mapped_relative_path:
+        reason_codes.append("storage_scan_skipped")
+        reason_codes.append("local_unverified")
+        return "local_unverified"
+    if cls.url_kind in {"external_http", "external_https"}:
+        return "remote_unverified"
+    if cls.url_kind in {"empty_url", "malformed_url", "unsupported_scheme"}:
+        return "invalid_url"
+    if cls.mapped_relative_path is None and cls.url_kind.startswith("internal"):
+        return "unsafe_or_unmapped_path"
+    if meta.local_entry_status == "symlink_rejected":
+        reason_codes.append("symlink_rejected")
+        return "symlink_target"
+    if meta.local_entry_status == "non_regular_rejected":
+        reason_codes.append("non_regular_rejected")
+        return "non_regular_local_target"
+    if meta.local_entry_status == "decode_failed":
+        reason_codes.append("decode_failed")
+        return "decode_failed"
+    if meta.local_entry_status == "regular_non_image":
+        reason_codes.append("regular_non_image")
+        return "non_image_local_file"
+    if meta.local_entry_status == "path_rejected":
+        reason_codes.append("path_rejected")
+        return "unsafe_or_unmapped_path"
+    if meta.local_exists is False:
+        reason_codes.append("missing_local_file")
+        return "missing_local_file"
+    return "ok"
+
+
 async def run_inventory(
     *,
     db: ReadOnlyDbContext,
@@ -118,12 +165,15 @@ async def run_inventory(
     observed = started
 
     products = await fetch_products(db.session, include_deleted=include_deleted_products)
+    all_products = await fetch_products(db.session, include_deleted=True)
+    all_product_ids = {p.product_id for p in all_products}
     images = await fetch_product_images(db.session)
     product_by_id = {p.product_id: p for p in products}
 
     images_by_product: dict[int, list[ImageRow]] = defaultdict(list)
     for img in images:
-        images_by_product[img.product_id].append(img)
+        if img.product_id in all_product_ids:
+            images_by_product[img.product_id].append(img)
 
     storage_entries: list[StorageEntry] = []
     storage_index: dict[str, StorageEntry] = {}
@@ -133,52 +183,45 @@ async def run_inventory(
 
     inventory_rows: list[dict[str, Any]] = []
     for img in images:
+        if img.product_id in all_product_ids and img.product_id not in product_by_id:
+            continue
         product = product_by_id.get(img.product_id)
         cls = classify_image_url(img.image_url, storage_root=storage_root)
-        meta = file_meta_for_mapped_path(
-            storage_root,
-            cls.mapped_relative_path,
-            storage_index=storage_index if storage_scan else None,
-        )
-
         reason_codes = list(cls.reason_codes)
-        audit_status = "ok"
+
         if cls.url_kind in {"external_http", "external_https"}:
-            audit_status = "remote_unverified"
-            meta = type(meta)(
-                local_exists=None,
-                local_relative_path=None,
-                local_entry_status=None,
-                byte_size=None,
-                sha256=None,
-                detected_format=None,
-                mime_type=None,
-                width=None,
-                height=None,
-                decode_status=None,
+            meta = file_meta_for_mapped_path(
+                storage_root,
+                None,
+                storage_index=None,
+                allow_filesystem_fallback=False,
             )
-        elif cls.url_kind in {"empty_url", "malformed_url", "unsupported_scheme"}:
-            audit_status = "invalid_url"
-        elif cls.mapped_relative_path is None and cls.url_kind.startswith("internal"):
-            audit_status = "unsafe_or_unmapped_path"
-        elif meta.local_exists is False:
-            audit_status = "missing_local_file"
-            reason_codes.append("missing_local_file")
-        elif meta.local_entry_status == "symlink_rejected":
-            audit_status = "symlink_target"
-            reason_codes.append("symlink_rejected")
-        elif meta.local_entry_status == "non_regular_rejected":
-            audit_status = "non_regular_local_target"
-            reason_codes.append("non_regular_rejected")
-        elif meta.local_entry_status == "decode_failed":
-            audit_status = "decode_failed"
-            reason_codes.append("decode_failed")
-        elif meta.local_entry_status == "regular_non_image":
-            audit_status = "non_image_local_file"
-            reason_codes.append("regular_non_image")
-        elif meta.local_entry_status == "path_rejected":
-            audit_status = "unsafe_or_unmapped_path"
-            reason_codes.extend(meta.local_entry_status and ["path_rejected"] or [])
+            audit_status = "remote_unverified"
+        elif not storage_scan:
+            meta = file_meta_for_mapped_path(
+                storage_root,
+                cls.mapped_relative_path,
+                storage_index=None,
+                allow_filesystem_fallback=False,
+            )
+            audit_status = _audit_status_for_row(
+                cls=cls,
+                meta=meta,
+                storage_scan=storage_scan,
+                reason_codes=reason_codes,
+            )
+        else:
+            meta = file_meta_for_mapped_path(
+                storage_root,
+                cls.mapped_relative_path,
+                storage_index=storage_index,
+            )
+            audit_status = _audit_status_for_row(
+                cls=cls,
+                meta=meta,
+                storage_scan=storage_scan,
+                reason_codes=reason_codes,
+            )
 
         siblings = images_by_product.get(img.product_id, [])
         primary_count = sum(1 for s in siblings if s.is_primary)
@@ -225,7 +268,6 @@ async def run_inventory(
             }
         )
 
-    # Exact SHA groups for validated local images
     sha_to_image_ids: dict[str, list[int]] = defaultdict(list)
     sha_to_paths: dict[str, set[str]] = defaultdict(set)
     sha_to_products: dict[str, set[int]] = defaultdict(set)
@@ -239,7 +281,6 @@ async def run_inventory(
             sha_to_products[sha].add(int(row["product_id"]))
             sha_to_brands[sha].add(row.get("_brand_id"))
 
-    # Also include physical storage paths for SHA groups
     for e in storage_entries:
         if e.status == "regular_image" and e.sha256:
             sha_to_paths[e.sha256].add(e.relative_path)
@@ -289,7 +330,6 @@ async def run_inventory(
             }
         )
 
-    # Coverage
     coverage_rows: list[dict[str, Any]] = []
     inv_by_product: dict[int, list[dict[str, Any]]] = defaultdict(list)
     for row in inventory_rows:
@@ -345,10 +385,15 @@ async def run_inventory(
 
     coverage_rows.sort(key=lambda r: int(r["product_id"]))
 
-    # Anomalies
-    anomaly_rows = _detect_anomalies(products, images, inventory_rows, product_by_id)
+    anomaly_rows = _detect_anomalies(
+        products,
+        images,
+        inventory_rows,
+        product_by_id,
+        all_product_ids=all_product_ids,
+        storage_root=storage_root,
+    )
 
-    # Unreferenced / rejected storage
     referenced_paths = {
         str(r["mapped_local_relative_path"])
         for r in inventory_rows
@@ -407,7 +452,6 @@ async def run_inventory(
     ]
     multi_image = [c for c in coverage_rows if c["total_image_rows"] > 1]
 
-    # Strip internal keys before write
     public_inventory = []
     for row in inventory_rows:
         pub = {k: row.get(k) for k in INVENTORY_FIELDS}
@@ -418,7 +462,12 @@ async def run_inventory(
     non_deleted = [p for p in products if not p.deleted_at]
     active = [p for p in non_deleted if p.is_active]
     available = [p for p in non_deleted if p.is_available]
-    products_with_images = {int(r["product_id"]) for r in inventory_rows}
+    selected_product_ids = {p.product_id for p in products}
+    products_with_images = {
+        int(r["product_id"])
+        for r in inventory_rows
+        if int(r["product_id"]) in selected_product_ids
+    }
     products_without_primary = sum(
         1 for c in coverage_rows if c["total_image_rows"] > 0 and c["primary_image_rows"] == 0
     )
@@ -428,15 +477,16 @@ async def run_inventory(
         "task_id": TASK_ID,
         "started_at_utc": started,
         "completed_at_utc": completed,
-        "database_read_only": db.transaction_read_only in {"on", "sqlite-test"},
+        "database_read_only": db.dialect == "postgresql" and db.transaction_read_only == "on",
         "database_name": db.database_name,
         "storage_root": str(storage_root),
         "storage_scan_completed": storage_scan,
+        "storage_scan_skipped": not storage_scan,
         "total_products": len(products),
         "non_deleted_products": len(non_deleted),
         "active_products": len(active),
         "available_products": len(available),
-        "total_product_images": len(images),
+        "total_product_images": len(inventory_rows),
         "products_with_image_rows": len(products_with_images),
         "products_without_image_rows": len(products) - len(products_with_images),
         "products_with_multiple_images": len(multi_image),
@@ -450,6 +500,9 @@ async def run_inventory(
         "valid_local_image_rows": sum(1 for r in public_inventory if _is_valid_local_image(r)),
         "missing_local_file_rows": sum(
             1 for r in public_inventory if r["audit_status"] == "missing_local_file"
+        ),
+        "local_unverified_rows": sum(
+            1 for r in public_inventory if r["audit_status"] == "local_unverified"
         ),
         "decode_failed_rows": sum(1 for r in public_inventory if r["audit_status"] == "decode_failed"),
         "unique_local_asset_sha256s": len(sha_to_paths),
@@ -465,6 +518,8 @@ async def run_inventory(
         "rejected_storage_entries": len(rejected_storage),
         "repository_modified_by_run": False,
         "database_modified": False,
+        "storage_modified": False,
+        "storage_mutations": 0,
         "network_requests_performed": 0,
         "prior_reference_snapshot": PRIOR_REFERENCE_SNAPSHOT,
         "current_delta": {
@@ -486,59 +541,13 @@ async def run_inventory(
         "output_dir": str(output_dir),
         "include_deleted_products": include_deleted_products,
         "storage_scan": storage_scan,
+        "storage_scan_skipped": not storage_scan,
         "repository_root": str(repository_root),
         "network_requests_performed": 0,
         "database_modified": False,
+        "storage_modified": False,
+        "storage_mutations": 0,
     }
-
-    # Writes
-    write_csv(output_dir / "inventory.csv", INVENTORY_FIELDS, public_inventory)
-    write_json(output_dir / "inventory.json", public_inventory)
-    write_csv(output_dir / "product-coverage.csv", COVERAGE_FIELDS, coverage_rows)
-    write_json(output_dir / "product-coverage.json", coverage_rows)
-    write_json(output_dir / "summary.json", summary)
-    write_json(output_dir / "run-metadata.json", run_metadata)
-    write_csv(output_dir / "broken-or-unavailable.csv", INVENTORY_FIELDS, [
-        {k: r.get(k) for k in INVENTORY_FIELDS} for r in broken
-    ])
-    write_csv(output_dir / "remote-unverified.csv", INVENTORY_FIELDS, [
-        {k: r.get(k) for k in INVENTORY_FIELDS} for r in remote_rows
-    ])
-    anom_fields = ["anomaly_type", "product_id", "image_id", "detail"]
-    write_csv(output_dir / "database-anomalies.csv", anom_fields, anomaly_rows)
-    dup_fields = [
-        "exact_sha_group",
-        "sha256",
-        "physical_path_count",
-        "physical_paths",
-        "product_image_row_count",
-        "image_ids",
-        "product_ids",
-        "brand_ids",
-        "same_path_multi_reference",
-        "duplicate_physical_files",
-        "cross_product",
-        "cross_brand",
-        "review_status",
-    ]
-    write_csv(output_dir / "duplicate-exact-sha.csv", dup_fields, duplicate_rows)
-    write_csv(output_dir / "products-without-valid-image.csv", COVERAGE_FIELDS, without_valid)
-    write_csv(output_dir / "products-with-multiple-images.csv", COVERAGE_FIELDS, multi_image)
-    unref_fields = [
-        "relative_path",
-        "byte_size",
-        "sha256",
-        "format",
-        "mime_type",
-        "width",
-        "height",
-        "decode_status",
-        "reference_count",
-        "review_status",
-    ]
-    write_csv(output_dir / "unreferenced-storage-assets.csv", unref_fields, unreferenced)
-    rej_fields = ["relative_path", "status", "reason_codes", "review_status"]
-    write_csv(output_dir / "rejected-storage-entries.csv", rej_fields, rejected_storage)
 
     checksum_names = [
         "inventory.csv",
@@ -556,7 +565,65 @@ async def run_inventory(
         "unreferenced-storage-assets.csv",
         "rejected-storage-entries.csv",
     ]
-    write_checksums(output_dir, checksum_names)
+
+    def _write_all(staging: Path) -> None:
+        write_csv(staging / "inventory.csv", INVENTORY_FIELDS, public_inventory)
+        write_json(staging / "inventory.json", public_inventory)
+        write_csv(staging / "product-coverage.csv", COVERAGE_FIELDS, coverage_rows)
+        write_json(staging / "product-coverage.json", coverage_rows)
+        write_json(staging / "summary.json", summary)
+        write_json(staging / "run-metadata.json", run_metadata)
+        write_csv(
+            staging / "broken-or-unavailable.csv",
+            INVENTORY_FIELDS,
+            [{k: r.get(k) for k in INVENTORY_FIELDS} for r in broken],
+        )
+        write_csv(
+            staging / "remote-unverified.csv",
+            INVENTORY_FIELDS,
+            [{k: r.get(k) for k in INVENTORY_FIELDS} for r in remote_rows],
+        )
+        anom_fields = ["anomaly_type", "product_id", "image_id", "detail"]
+        write_csv(staging / "database-anomalies.csv", anom_fields, anomaly_rows)
+        dup_fields = [
+            "exact_sha_group",
+            "sha256",
+            "physical_path_count",
+            "physical_paths",
+            "product_image_row_count",
+            "image_ids",
+            "product_ids",
+            "brand_ids",
+            "same_path_multi_reference",
+            "duplicate_physical_files",
+            "cross_product",
+            "cross_brand",
+            "review_status",
+        ]
+        write_csv(staging / "duplicate-exact-sha.csv", dup_fields, duplicate_rows)
+        write_csv(staging / "products-without-valid-image.csv", COVERAGE_FIELDS, without_valid)
+        write_csv(staging / "products-with-multiple-images.csv", COVERAGE_FIELDS, multi_image)
+        unref_fields = [
+            "relative_path",
+            "byte_size",
+            "sha256",
+            "format",
+            "mime_type",
+            "width",
+            "height",
+            "decode_status",
+            "reference_count",
+            "review_status",
+        ]
+        write_csv(staging / "unreferenced-storage-assets.csv", unref_fields, unreferenced)
+        rej_fields = ["relative_path", "status", "reason_codes", "review_status"]
+        write_csv(staging / "rejected-storage-entries.csv", rej_fields, rejected_storage)
+
+    publish_inventory_outputs(
+        output_dir,
+        writers=[_write_all],
+        checksum_names=checksum_names,
+    )
     return summary
 
 
@@ -587,10 +654,16 @@ def _detect_anomalies(
     images: list[ImageRow],
     inventory_rows: list[dict[str, Any]],
     product_by_id: dict[int, ProductRow],
+    *,
+    all_product_ids: set[int],
+    storage_root: Path,
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
+    inventory_image_ids = {int(r["image_id"]) for r in inventory_rows}
     for img in images:
-        if img.product_id not in product_by_id:
+        if img.image_id not in inventory_image_ids:
+            continue
+        if img.product_id not in all_product_ids:
             out.append(
                 {
                     "anomaly_type": "product_image_missing_product",
@@ -620,7 +693,8 @@ def _detect_anomalies(
 
     by_product: dict[int, list[ImageRow]] = defaultdict(list)
     for img in images:
-        by_product[img.product_id].append(img)
+        if img.image_id in inventory_image_ids:
+            by_product[img.product_id].append(img)
     for pid, imgs in by_product.items():
         primaries = [i for i in imgs if i.is_primary]
         if len(primaries) > 1:
@@ -642,10 +716,11 @@ def _detect_anomalies(
                 }
             )
 
-    # Duplicate product_id + normalized URL
     seen: dict[tuple[int, str], int] = {}
     for img in images:
-        key = (img.product_id, _normalize_url_for_dup(img.image_url))
+        if img.image_id not in inventory_image_ids:
+            continue
+        key = (img.product_id, _dup_key_for_image(img, storage_root=storage_root))
         if key in seen:
             out.append(
                 {

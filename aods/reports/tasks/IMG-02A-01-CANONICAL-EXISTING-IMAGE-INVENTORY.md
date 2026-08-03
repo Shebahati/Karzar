@@ -62,8 +62,22 @@ storage mutations = 0 (by design; no run performed)
 
 ## Local validation (implementation)
 
-- `tests/test_existing_image_audit.py`: 25 passed
+- `tests/test_existing_image_audit.py`: 43 passed (25 baseline + 18 R1 boundary tests)
 - PYTHONHASHSEED 0–9: passed
 - IMG-01 regression `tests/test_image_discovery*.py`: 110 passed
 - ruff: passed on audit paths
 - aods_validate links/registry/pmo/naming/ingestion-boundary: PASS
+
+## R1 notes (IMG-02A-01-R1)
+
+Boundary hardening landed on branch `feat/existing-image-audit` before authoritative run:
+
+- Exact `/static/uploads/products/` marker; HTTP(S)+marker → internal static
+- storage_index-only file meta with rejected-ancestor propagation
+- output/storage disjointness; staged atomic publish
+- PostgreSQL-only CLI; tightened SQL guard
+- `--no-storage-scan` → `local_unverified` (not missing/valid)
+- Duplicate keys: external scheme+host+port+path; internal mapped path
+- Coverage counts scoped to selected product inventory
+
+Authoritative run remains **BLOCKED** (no VPS / authoritative DB from implementation environment).
