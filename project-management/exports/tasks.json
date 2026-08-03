@@ -1954,6 +1954,53 @@
       ],
       "risk": "low",
       "notes": "CR-008 Option C. Boundary hardening complete @ 8a20594; authoritative inventory completed subsequently. Merged PR #201 @ 58401eb28fe346d2f00a0679d90c6763a5000250. Read-only audit only; no ProductImage/DB/storage mutations; no watermark/suitability. Historical: AUTHORITATIVE RUN BLOCKED during early R1 (no VPS access); later completed. See IMG-02A-01 evidence."
+    },
+    {
+      "id": "IMG-02A-02",
+      "title": "Existing Image Human Review Batches and Pilot 001",
+      "description": "Deterministic offline human-review packages from IMG-02A-01 inventory; Pilot 001 = 100 unique local assets; asset vs assignment decisions; no DB/storage mutation.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 10,
+      "deps": [
+        "IMG-02A-01"
+      ],
+      "files": [
+        "scripts/build_existing_image_review_batches.py",
+        "scripts/image_review/",
+        "tests/test_existing_image_review_batches.py",
+        "docs/EXISTING_IMAGE_HUMAN_REVIEW.md",
+        "aods/reports/tasks/IMG-02A-02-EXISTING-IMAGE-HUMAN-REVIEW-BATCHES.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Verified IMG-02A-01 checksum manifest before inventory use",
+        "Pilot 001 contains exactly 100 unique local SHA assets",
+        "Asset-level and assignment-level schemas remain separate",
+        "Offline review.html with no external network dependency",
+        "Zero DB/network/storage mutations during pilot generation"
+      ],
+      "dod": [
+        "Focused unit tests + PYTHONHASHSEED loop",
+        "AODS links/registry/pmo/naming/ingestion-boundary",
+        "Draft PR; pilot outputs external; human review pending"
+      ],
+      "status": "in_progress",
+      "progress": 90,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "review",
+        "read-only"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. PR #203. Pilot + human review complete externally (100/465). Aggregates: ShopMill watermark assets=52; REPLACE_REQUIRED assignments=41; MANUAL_REVIEW=1; rights all review_required. review.html offline URL/path contract closed. No image decision applied; replacement not started; no DB/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
     }
   ]
 }
