@@ -8,6 +8,7 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [ ] **IMG-02A-02-BATCH-002** Sequential Existing Image Human Review Batch 002 — `in_progress` 70% | P1 | Sprint 05 — packaging complete; 100 new assets / 212 assignments; 0 Pilot overlap; human review pending; no replacements applied; no DB/storage mutation
 - [x] **IMG-02A-02** Existing Image Human Review Batches and Pilot 001 — `done` 100% | P1 | Sprint 05 — merged PR #203 @ `023047b8…`; Pilot 001 tooling + review complete; 41 replacements and 1 manual review remain queued; no replacements applied; no DB/storage mutation
 - [x] **IMG-02A-01** Canonical Existing Product Image Inventory — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; read-only audit only; authoritative inventory complete; no watermark/suitability; no database/ProductImage/storage mutation
 - [x] **IMG-02A-01-R1** Close pre-authoritative boundary blockers — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; boundaries closed; read-only audit only; no watermark/suitability; no database/ProductImage/storage mutation

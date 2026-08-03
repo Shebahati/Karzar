@@ -1,9 +1,10 @@
-"""Orchestrate Pilot 001 human-review package generation."""
+"""Orchestrate offline human-review package generation (Pilot + sequential batches)."""
 
 from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,8 @@ from .contracts import (
     AUTHORITATIVE_CHECKSUMS_DIGEST,
     EXPECTED_SOURCE_SUMMARY,
     PILOT_BATCH_ID,
+    PILOT_SHARED_COUNT,
+    PILOT_SINGLETON_COUNT,
     REVIEW_SCHEMA_VERSION,
     TASK_ID,
     ReviewError,
@@ -28,6 +31,7 @@ from .output import (
     write_json,
 )
 from .previews import generate_derivatives
+from .prior_batches import load_prior_batch_exclusions
 from .review_schema import (
     ASSET_TEMPLATE_FIELDS,
     ASSIGNMENT_TEMPLATE_FIELDS,
@@ -35,7 +39,7 @@ from .review_schema import (
     assignment_review_template_rows,
     review_schema_document,
 )
-from .selection import assignments_for_assets, group_assets, select_pilot_assets
+from .selection import assignments_for_assets, group_assets, select_review_batch_assets
 from .source_inventory import assert_storage_root, load_verified_source
 
 REVIEW_GUIDE_FA = """# راهنمای بازبینی انسانی تصاویر موجود (IMG-02A-02)
@@ -84,25 +88,28 @@ def _wrap_audit(fn, *args, **kwargs):  # type: ignore[no-untyped-def]
         raise ReviewError(e.code, str(e).split(": ", 1)[-1]) from e
 
 
-def build_pilot_package(
+def build_review_batch_package(
     source_dir: Path,
     storage_root: Path,
     output_dir: Path,
     repository_root: Path,
     *,
+    task_id: str = TASK_ID,
     batch_id: str = PILOT_BATCH_ID,
     expected_checksums_digest: str = AUTHORITATIVE_CHECKSUMS_DIGEST,
     expected_summary: dict[str, Any] | None = None,
-    shared_count: int | None = None,
-    singleton_count: int | None = None,
+    shared_count: int = PILOT_SHARED_COUNT,
+    singleton_count: int = PILOT_SINGLETON_COUNT,
+    prior_batch_dirs: Sequence[Path] | None = None,
     zip_path: Path | None = None,
     network_guard: Any | None = None,
 ) -> dict[str, Any]:
-    """Build Pilot package. On failure, output_dir is left empty."""
+    """Build a deterministic offline review package. On failure, output_dir is left empty."""
     if network_guard is not None:
         network_guard()
 
     summary_expect = EXPECTED_SOURCE_SUMMARY if expected_summary is None else expected_summary
+    prior_dirs = list(prior_batch_dirs or [])
     try:
         _wrap_audit(
             prepare_review_output_dir,
@@ -117,16 +124,32 @@ def build_pilot_package(
             expected_summary=summary_expect,
         )
         assets, remote_deferred = group_assets(rows)
-        sel_kwargs: dict[str, Any] = {}
-        if shared_count is not None and singleton_count is not None:
-            sel_kwargs = {
-                "shared_count": shared_count,
-                "singleton_count": singleton_count,
-                "total": shared_count + singleton_count,
-            }
-        selected, selection_meta = select_pilot_assets(assets, **sel_kwargs)
+        known_ids = {str(a["sha256"]).lower() for a in assets}
+
+        prior_evidence = load_prior_batch_exclusions(
+            prior_dirs,
+            repository_root=repository_root,
+            storage_root=storage_root,
+            output_dir=output_dir,
+            known_source_asset_ids=known_ids,
+        )
+        excluded_ids = prior_evidence["excluded_asset_ids"]
+
+        selected, selection_meta = select_review_batch_assets(
+            assets,
+            excluded_asset_ids=excluded_ids,
+            shared_count=shared_count,
+            singleton_count=singleton_count,
+            total=shared_count + singleton_count,
+        )
+        overlap = sorted(set(selection_meta["selected_asset_ids"]) & set(excluded_ids))
+        if overlap:
+            raise ReviewError("selection", f"prior-batch overlap detected: {overlap[0]}")
+        selection_meta["prior_overlap_count"] = 0
+        selection_meta["prior_batch_ids"] = list(prior_evidence["prior_batch_ids"])
+        selection_meta["prior_batch_count"] = prior_evidence["prior_batch_count"]
+
         assignments = assignments_for_assets(selected)
-        # ensure every selected assignment retained
         for asset in selected:
             expected_ids = sorted(int(i) for i in asset["image_ids"])
             got = sorted(
@@ -178,10 +201,24 @@ def build_pilot_package(
             write_json(
                 staging / "batch-metadata.json",
                 {
-                    "task_id": TASK_ID,
+                    "task_id": task_id,
                     "batch_id": batch_id,
                     "review_schema_version": REVIEW_SCHEMA_VERSION,
-                    "pilot_unique_assets": len(manifest_assets),
+                    "source_unique_assets": selection_meta["source_unique_assets"],
+                    "prior_batch_ids": selection_meta["prior_batch_ids"],
+                    "prior_batch_count": selection_meta["prior_batch_count"],
+                    "excluded_prior_asset_count": selection_meta["excluded_prior_asset_count"],
+                    "eligible_assets_before_selection": selection_meta[
+                        "eligible_assets_before_selection"
+                    ],
+                    "selected_unique_assets": len(manifest_assets),
+                    "shared_assets_selected": selection_meta["shared_selected"],
+                    "singleton_assets_selected": selection_meta["singleton_selected"],
+                    "assignment_rows": len(assignments),
+                    "remaining_unique_assets_after_selection": selection_meta[
+                        "remaining_unique_assets_after_selection"
+                    ],
+                    "fallback_used": selection_meta["fallback_used"],
                     "selection": selection_meta,
                 },
             )
@@ -194,6 +231,26 @@ def build_pilot_package(
                     "source_summary": {
                         k: source_summary.get(k) for k in summary_expect.keys()
                     },
+                },
+            )
+            write_json(
+                staging / "prior-batch-evidence.json",
+                {
+                    "prior_batch_ids": prior_evidence["prior_batch_ids"],
+                    "prior_batch_count": prior_evidence["prior_batch_count"],
+                    "excluded_prior_asset_count": prior_evidence["excluded_prior_asset_count"],
+                    "prior_batches": [
+                        {
+                            "batch_id": r["batch_id"],
+                            "task_id": r.get("task_id"),
+                            "selected_unique_assets": r["selected_unique_assets"],
+                            "batch_dir": r["batch_dir"],
+                            # Asset IDs intentionally omitted from Git-facing aggregates;
+                            # present only in the external package for operator audit.
+                            "asset_id_count": len(r["asset_ids"]),
+                        }
+                        for r in prior_evidence["prior_batches"]
+                    ],
                 },
             )
             write_csv(staging / "asset-manifest.csv", ASSET_MANIFEST_FIELDS, manifest_assets)
@@ -229,13 +286,23 @@ def build_pilot_package(
                 {b for a in manifest_assets for b in (a.get("brands") or []) if b}
             )
             summary = {
-                "task_id": TASK_ID,
+                "task_id": task_id,
                 "batch_id": batch_id,
                 "review_schema_version": REVIEW_SCHEMA_VERSION,
+                "source_unique_assets": selection_meta["source_unique_assets"],
+                "prior_batch_ids": selection_meta["prior_batch_ids"],
+                "prior_batch_count": selection_meta["prior_batch_count"],
+                "excluded_prior_asset_count": selection_meta["excluded_prior_asset_count"],
+                "eligible_assets_before_selection": selection_meta[
+                    "eligible_assets_before_selection"
+                ],
                 "selected_unique_assets": len(manifest_assets),
                 "shared_assets_selected": selection_meta["shared_selected"],
                 "singleton_assets_selected": selection_meta["singleton_selected"],
                 "assignment_rows": len(assignments),
+                "remaining_unique_assets_after_selection": selection_meta[
+                    "remaining_unique_assets_after_selection"
+                ],
                 "brands_represented": brands,
                 "brands_represented_count": len(brands),
                 "low_resolution_candidates": sum(
@@ -261,6 +328,7 @@ def build_pilot_package(
                 "source_storage_modified": False,
                 "source_storage_mutations": 0,
                 "product_images_modified": False,
+                "repository_modified_by_batch_run": False,
                 "repository_modified_by_pilot_run": False,
                 "fallback_used": selection_meta["fallback_used"],
                 "selected_asset_ids": [a["asset_id"] for a in manifest_assets],
@@ -279,11 +347,12 @@ def build_pilot_package(
         result["output_dir"] = str(output_dir)
         if zip_path is not None:
             zip_digest = create_pilot_zip(output_dir, zip_path)
+            result["batch_zip_path"] = str(zip_path)
+            result["batch_zip_sha256"] = zip_digest
             result["pilot_zip_path"] = str(zip_path)
             result["pilot_zip_sha256"] = zip_digest
         return result
     except Exception:
-        # publish_review_outputs already clears on failure; ensure empty if prepare failed mid-way
         if output_dir.exists():
             for child in list(output_dir.iterdir()):
                 if child.is_dir():
@@ -291,6 +360,40 @@ def build_pilot_package(
                 else:
                     child.unlink(missing_ok=True)
         raise
+
+
+def build_pilot_package(
+    source_dir: Path,
+    storage_root: Path,
+    output_dir: Path,
+    repository_root: Path,
+    *,
+    batch_id: str = PILOT_BATCH_ID,
+    expected_checksums_digest: str = AUTHORITATIVE_CHECKSUMS_DIGEST,
+    expected_summary: dict[str, Any] | None = None,
+    shared_count: int | None = None,
+    singleton_count: int | None = None,
+    zip_path: Path | None = None,
+    network_guard: Any | None = None,
+    task_id: str = TASK_ID,
+    prior_batch_dirs: Sequence[Path] | None = None,
+) -> dict[str, Any]:
+    """Backward-compatible entrypoint; defaults preserve Pilot 001 selection."""
+    return build_review_batch_package(
+        source_dir,
+        storage_root,
+        output_dir,
+        repository_root,
+        task_id=task_id,
+        batch_id=batch_id,
+        expected_checksums_digest=expected_checksums_digest,
+        expected_summary=expected_summary,
+        shared_count=PILOT_SHARED_COUNT if shared_count is None else shared_count,
+        singleton_count=PILOT_SINGLETON_COUNT if singleton_count is None else singleton_count,
+        prior_batch_dirs=prior_batch_dirs,
+        zip_path=zip_path,
+        network_guard=network_guard,
+    )
 
 
 def semantic_compare_summaries(a: dict[str, Any], b: dict[str, Any]) -> None:
@@ -302,7 +405,12 @@ def semantic_compare_summaries(a: dict[str, Any], b: dict[str, Any]) -> None:
         "preview_sha256_map",
         "thumb_sha256_map",
         "selected_unique_assets",
+        "excluded_prior_asset_count",
+        "eligible_assets_before_selection",
+        "remaining_unique_assets_after_selection",
+        "prior_batch_ids",
     )
     for key in keys:
-        if a.get(key) != b.get(key):
-            raise ReviewError("determinism", f"semantic mismatch on {key}")
+        if key in a or key in b:
+            if a.get(key) != b.get(key):
+                raise ReviewError("determinism", f"semantic mismatch on {key}")

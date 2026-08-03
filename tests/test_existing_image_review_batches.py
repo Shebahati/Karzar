@@ -606,3 +606,295 @@ def test_human_review_identity_against_external_pilot_if_present():
     assert agg["assignments_reviewed"] == 465
     assert agg["watermark"]["distributor_or_retailer"] == 52
     assert agg["assignment_decisions"]["REPLACE_REQUIRED"] == 41
+
+
+def _build_prior_package(tmp: Path, *, shared: int, singleton: int, batch_id: str):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    world = tmp / "world"
+    world.mkdir(parents=True, exist_ok=True)
+    source, storage, digest, summary, sh, si = _make_mini_world(
+        world, shared=shared, singleton=singleton
+    )
+    out = tmp / "prior-out"
+    out.mkdir(parents=True, exist_ok=True)
+    result = build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        task_id="IMG-02A-02",
+        batch_id=batch_id,
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=sh,
+        singleton_count=si,
+    )
+    return source, storage, digest, summary, sh, si, out, result
+
+
+def test_pilot_selection_unchanged_with_full_round_robin(tmp_path: Path):
+    source, storage, digest, summary, shared, singleton = _make_mini_world(
+        tmp_path, shared=5, singleton=8
+    )
+    from scripts.image_review.selection import select_review_batch_assets
+    from scripts.image_review.source_inventory import load_verified_source
+
+    _, _, rows = load_verified_source(
+        source, expected_checksums_digest=digest, expected_summary=summary
+    )
+    assets, _ = group_assets(rows)
+    pilot, meta = select_pilot_assets(assets, shared_count=2, singleton_count=2, total=4)
+    generic, meta2 = select_review_batch_assets(
+        assets, excluded_asset_ids=(), shared_count=2, singleton_count=2, total=4
+    )
+    assert meta["selected_asset_ids"] == meta2["selected_asset_ids"]
+    assert [a["sha256"] for a in pilot] == [a["sha256"] for a in generic]
+
+
+def test_batch_002_excludes_prior_and_continues_windows(tmp_path: Path):
+    from scripts.image_review.selection import (
+        _shared_ordered,
+        _singleton_brand_round_robin_full,
+        select_review_batch_assets,
+    )
+    from scripts.image_review.source_inventory import load_verified_source
+
+    source, storage, digest, summary, shared, singleton = _make_mini_world(
+        tmp_path, shared=4, singleton=6
+    )
+    _, _, rows = load_verified_source(
+        source, expected_checksums_digest=digest, expected_summary=summary
+    )
+    assets, _ = group_assets(rows)
+    _pilot, pmeta = select_review_batch_assets(
+        assets, excluded_asset_ids=(), shared_count=2, singleton_count=2, total=4
+    )
+    batch2, bmeta = select_review_batch_assets(
+        assets,
+        excluded_asset_ids=pmeta["selected_asset_ids"],
+        shared_count=2,
+        singleton_count=2,
+        total=4,
+    )
+    overlap = set(pmeta["selected_asset_ids"]) & set(bmeta["selected_asset_ids"])
+    assert overlap == set()
+    assert bmeta["excluded_prior_asset_count"] == 4
+    assert bmeta["eligible_assets_before_selection"] == len(assets) - 4
+    assert bmeta["remaining_unique_assets_after_selection"] == len(assets) - 8
+    shared_full = [a["sha256"] for a in _shared_ordered(assets)]
+    assert [a["sha256"] for a in batch2 if a["selection_segment"] == "shared"] == shared_full[2:4]
+    singleton_full = [a["sha256"] for a in _singleton_brand_round_robin_full(assets)]
+    assert [a["sha256"] for a in batch2 if a["selection_segment"] == "singleton"] == singleton_full[
+        2:4
+    ]
+
+
+def test_prior_batch_checksum_accepted_and_used(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    world = tmp_path / "world"
+    world.mkdir(parents=True, exist_ok=True)
+    source, storage, digest, summary, sh, si = _make_mini_world(
+        world, shared=4, singleton=4
+    )
+    prior_dir = tmp_path / "prior"
+    prior_dir.mkdir()
+    prior = build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=prior_dir,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-PILOT-001",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=2,
+        singleton_count=2,
+    )
+    out = tmp_path / "batch2"
+    out.mkdir()
+    result = build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        task_id="IMG-02A-02-BATCH-002",
+        batch_id="IMG-02A-02-BATCH-002",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=2,
+        singleton_count=2,
+        prior_batch_dirs=[prior_dir],
+    )
+    assert result["excluded_prior_asset_count"] == 4
+    assert result["eligible_assets_before_selection"] == 4
+    assert result["selected_unique_assets"] == 4
+    assert result["remaining_unique_assets_after_selection"] == 0
+    assert set(result["selected_asset_ids"]).isdisjoint(set(prior["selected_asset_ids"]))
+    assert (out / "prior-batch-evidence.json").is_file()
+    assert "http://" not in (out / "review.html").read_text(encoding="utf-8")
+
+
+def test_prior_batch_checksum_mismatch_rejected(tmp_path: Path):
+    from scripts.image_review.prior_batches import verify_prior_batch_checksums
+
+    _, _, _, _, _, _, prior_out, _ = _build_prior_package(
+        tmp_path, shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    target = prior_out / "summary.json"
+    target.write_text(target.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(ReviewError, match="checksum mismatch"):
+        verify_prior_batch_checksums(prior_out)
+
+
+def test_prior_batch_symlink_root_rejected(tmp_path: Path):
+    from scripts.image_review.prior_batches import load_prior_batch_asset_ids
+
+    _, storage, _, _, _, _, prior_out, _ = _build_prior_package(
+        tmp_path / "base", shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    linked = tmp_path / "linked-prior"
+    linked.symlink_to(prior_out)
+    with pytest.raises(ReviewError):
+        load_prior_batch_asset_ids(
+            linked,
+            repository_root=REPO,
+            storage_root=storage,
+        )
+
+
+def test_prior_summary_manifest_mismatch_rejected(tmp_path: Path):
+    from scripts.image_review.output import write_checksums
+    from scripts.image_review.prior_batches import load_prior_batch_asset_ids
+
+    _, storage, _, _, _, _, prior_out, _ = _build_prior_package(
+        tmp_path / "base", shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    summary = json.loads((prior_out / "summary.json").read_text(encoding="utf-8"))
+    summary["selected_asset_ids"] = summary["selected_asset_ids"][:-1]
+    (prior_out / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    write_checksums(prior_out)
+    with pytest.raises(ReviewError, match="summary/manifest"):
+        load_prior_batch_asset_ids(
+            prior_out,
+            repository_root=REPO,
+            storage_root=storage,
+        )
+
+
+def test_prior_duplicate_asset_inside_batch_rejected(tmp_path: Path):
+    from scripts.image_review.output import write_checksums
+    from scripts.image_review.prior_batches import load_prior_batch_asset_ids
+
+    _, storage, _, _, _, _, prior_out, _ = _build_prior_package(
+        tmp_path / "base", shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    manifest = json.loads((prior_out / "asset-manifest.json").read_text(encoding="utf-8"))
+    manifest.append(dict(manifest[0]))
+    (prior_out / "asset-manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    write_checksums(prior_out)
+    with pytest.raises(ReviewError, match="duplicate Asset ID inside"):
+        load_prior_batch_asset_ids(
+            prior_out,
+            repository_root=REPO,
+            storage_root=storage,
+        )
+
+
+def test_prior_duplicate_across_batches_rejected(tmp_path: Path):
+    import shutil
+
+    from scripts.image_review.pipeline import build_review_batch_package
+    from scripts.image_review.prior_batches import load_prior_batch_exclusions
+
+    world = tmp_path / "world"
+    world.mkdir(parents=True, exist_ok=True)
+    source, storage, digest, summary, sh, si = _make_mini_world(
+        world, shared=3, singleton=3
+    )
+    p1 = tmp_path / "p1"
+    p2 = tmp_path / "p2"
+    p1.mkdir()
+    p2.mkdir()
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=p1,
+        repository_root=REPO,
+        batch_id="BATCH-A",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=2,
+        singleton_count=2,
+    )
+    shutil.copytree(p1, p2, dirs_exist_ok=True)
+    with pytest.raises(ReviewError, match="across prior batches"):
+        load_prior_batch_exclusions(
+            [p1, p2],
+            repository_root=REPO,
+            storage_root=storage,
+        )
+
+
+def test_unknown_and_malformed_prior_asset_rejected(tmp_path: Path):
+    from scripts.image_review.output import write_checksums
+    from scripts.image_review.prior_batches import load_prior_batch_asset_ids
+
+    _, storage, _, _, _, _, prior_out, _ = _build_prior_package(
+        tmp_path / "base", shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    # malformed
+    summary = json.loads((prior_out / "summary.json").read_text(encoding="utf-8"))
+    summary["selected_asset_ids"][0] = "not-a-sha"
+    (prior_out / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    write_checksums(prior_out)
+    with pytest.raises(ReviewError, match="malformed prior Asset SHA"):
+        load_prior_batch_asset_ids(
+            prior_out,
+            repository_root=REPO,
+            storage_root=storage,
+        )
+
+    # rebuild clean then unknown
+    _, storage2, _, _, _, _, prior2, _ = _build_prior_package(
+        tmp_path / "base2", shared=2, singleton=2, batch_id="IMG-02A-02-PILOT-001"
+    )
+    known = {"0" * 64}
+    with pytest.raises(ReviewError, match="unknown prior Asset ID"):
+        load_prior_batch_asset_ids(
+            prior2,
+            repository_root=REPO,
+            storage_root=storage2,
+            known_source_asset_ids=known,
+        )
+
+
+def test_fallback_after_exclusions_deterministic(tmp_path: Path):
+    from scripts.image_review.selection import select_review_batch_assets
+    from scripts.image_review.source_inventory import load_verified_source
+
+    source, storage, digest, summary, shared, singleton = _make_mini_world(
+        tmp_path, shared=1, singleton=3
+    )
+    _, _, rows = load_verified_source(
+        source, expected_checksums_digest=digest, expected_summary=summary
+    )
+    assets, _ = group_assets(rows)
+    selected, meta = select_review_batch_assets(
+        assets, excluded_asset_ids=(), shared_count=2, singleton_count=1, total=3
+    )
+    assert meta["fallback_used"] is True
+    assert len(selected) == 3
+    _a2, m2 = select_review_batch_assets(
+        assets, excluded_asset_ids=(), shared_count=2, singleton_count=1, total=3
+    )
+    assert meta["selected_asset_ids"] == m2["selected_asset_ids"]

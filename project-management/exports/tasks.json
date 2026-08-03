@@ -2001,6 +2001,55 @@
       ],
       "risk": "med",
       "notes": "CR-008 Option C. Merged PR #203 @ 023047b8cd0c82b48428f0c5037121e9f0471b24. Pilot 001 and human review complete externally. 100 assets / 465 assignments. 52 watermark assets. 41 replacement assignments queued. 1 manual-review assignment queued. Replacement execution not started. No DB/ProductImage/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
+    },
+    {
+      "id": "IMG-02A-02-BATCH-002",
+      "title": "Sequential Existing Image Human Review Batch 002",
+      "description": "Generalize Pilot 001 tooling into sequential deterministic batches; package Batch 002 = 100 previously unselected unique local assets; no DB/storage mutation.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "IMG-02A-02"
+      ],
+      "files": [
+        "scripts/build_existing_image_review_batches.py",
+        "scripts/image_review/",
+        "tests/test_existing_image_review_batches.py",
+        "docs/EXISTING_IMAGE_HUMAN_REVIEW.md",
+        "aods/reports/tasks/IMG-02A-02-BATCH-002-EXISTING-IMAGE-HUMAN-REVIEW.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Pilot 001 selection contract unchanged",
+        "Exactly 100 Pilot Asset IDs excluded",
+        "Batch 002 = 100 new unique local assets with zero Pilot overlap",
+        "All assignments for selected assets retained",
+        "Offline review.html URL/path contract closed",
+        "Zero DB/network/storage mutations"
+      ],
+      "dod": [
+        "Focused unit tests + PYTHONHASHSEED loop",
+        "IMG-02A-01 and IMG-01 regression suites",
+        "AODS links/registry/pmo/naming/ingestion-boundary",
+        "Draft PR; Batch 002 outputs external; human review pending"
+      ],
+      "status": "in_progress",
+      "progress": 70,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "review",
+        "read-only"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Parent IMG-02A-02 remains done/100. Batch 002 packaging complete externally: excluded 100 Pilot assets; eligible 514; selected 100 (50/50); assignments 212; remaining 414; overlap 0; fallback false; ZIP SHA-256 1112f104c6d4746f9388caad5699ab03e9a9caeda4b9397d6db601db07192702. Human review pending. No replacement execution. No DB/ProductImage/storage mutation. Raw outputs under /var/tmp/karzar-image-review/ (not committed)."
     }
   ]
 }
