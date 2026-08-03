@@ -1,8 +1,8 @@
 # Existing Image Human Review (IMG-02A-02)
 
-**Task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001  
-**Implementation status:** tooling Draft (open PR) / human review pending  
-**Operational mode:** offline package generation only  
+**Task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001
+**Implementation status:** tooling open (PR #203) / human review complete
+**Operational mode:** offline package generation + human review evidence (external)
 **Production mutation capability:** none
 
 ## Purpose
@@ -13,17 +13,42 @@ Build a deterministic, offline human-review package from the immutable IMG-02A-0
 - select Pilot 001 (exactly 100 unique local assets);
 - generate review previews/thumbnails **outside** Git and source storage;
 - provide separate **asset-level** and **assignment-level** review forms;
-- ship a self-contained `review.html` with no network dependency.
+- ship a self-contained `review.html` with **no** `http://`, `https://`, `image_url`, or `source_relative_path` in the browser payload.
+
+## Current status (while PR open)
+
+```text
+status: in_progress
+progress: 90
+Pilot generation: complete
+Pilot human review: complete
+review evidence: external, validated, not committed
+image decisions applied: none
+replacement execution: not started
+```
+
+Validated human-review aggregates (Pilot 001 only — **not** representative of all 1193 local images):
+
+```text
+assets reviewed: 100
+assignments reviewed: 465
+watermark: distributor_or_retailer 52 / none_visible 48
+asset decisions: KEEP 19, KEEP_AS_SECONDARY 20, PREFER_REPLACEMENT 52, REPLACE_REQUIRED 8, MANUAL_REVIEW 1
+assignment suitability: exact_or_likely_exact 47, family_shared_plausible 376, likely_mismatch 41, insufficient_context 1
+assignment decisions: KEEP 19, KEEP_AS_SECONDARY 203, PREFER_REPLACEMENT 201, REPLACE_REQUIRED 41, MANUAL_REVIEW 1
+ShopMill-visible watermark assets: 52
+assignments requiring replacement: 41
+manual-review assignments: 1
+rights: all review_required (no cleared_by_owner)
+```
 
 ## Non-goals
 
 - Database access or `ProductImage` writes
-- Storage cleanup/replacement
+- Storage cleanup/replacement execution
 - Remote HTTP/DNS/HEAD/GET or TOSAG
-- OCR / automatic watermark verdicts / automatic product-match verdicts
-- Discovery for products without images
-- Deployment
-- Committing images, previews, raw inventory, or the Pilot ZIP to Git
+- OCR / automatic watermark verdicts
+- Committing images, previews, raw inventory, review CSVs, review-state, or ZIP to Git
 
 ## Authoritative input
 
@@ -31,8 +56,6 @@ Build a deterministic, offline human-review package from the immutable IMG-02A-0
 source: /var/tmp/karzar-image-audit/img02a01-20260803T121056Z
 checksums.sha256 digest: 4a2669e1da514b59198e37f3b761a179f0e626c174232043a63612db8581e48d
 ```
-
-The CLI verifies the checksum manifest and the fixed summary aggregates before any inventory read. It does **not** re-query the database.
 
 ## Command
 
@@ -44,23 +67,6 @@ python scripts/build_existing_image_review_batches.py \
   --zip-path /absolute/path/IMG-02A-02-pilot-001.zip
 ```
 
-Storage must be opened read-only (`O_RDONLY|O_NOFOLLOW`). Output must be empty, outside the repository, and disjoint from storage.
-
-## Two-level review
-
-| Level | Unit | Decides |
-|-------|------|---------|
-| Asset | unique SHA-256 | watermark visibility, quality, background, crop, replacement priority, rights-review state |
-| Assignment | ProductImage link | exact product fit vs family-shared vs mismatch |
-
-Defaults: `rights_status=review_required`. Never auto-set `cleared_by_owner`. Watermark pre-screen is `not_run` (human-only).
-
-## Pilot 001
-
-- ID: `IMG-02A-02-PILOT-001`
-- 50 shared assets (`product_count > 1`) + 50 singleton assets (brand round-robin)
-- Remote inventory rows are deferred (`remote-deferred.csv`), not reviewed in Pilot 001
-
 ## Boundary claims
 
 ```text
@@ -69,5 +75,3 @@ database_accessed = false
 source_storage_mutations = 0
 product_images_modified = false
 ```
-
-Pilot generation complete ≠ human decisions applied.

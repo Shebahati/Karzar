@@ -6,6 +6,112 @@ import html
 import json
 from typing import Any
 
+from .contracts import ReviewError
+
+# Browser payload must not embed storage paths or absolute URLs (offline contract).
+_HTML_ASSET_KEYS = (
+    "asset_id",
+    "sha256",
+    "byte_size",
+    "mime_type",
+    "detected_format",
+    "width",
+    "height",
+    "reference_count",
+    "product_count",
+    "brand_count",
+    "image_ids",
+    "product_ids",
+    "brands",
+    "is_exact_duplicate_group",
+    "is_cross_product_shared",
+    "is_cross_brand_shared",
+    "selection_segment",
+    "selection_rank",
+    "preview_filename",
+    "thumb_filename",
+    "watermark_prescreen",
+    "watermark_review_required",
+    "min_dimension",
+    "max_dimension",
+    "megapixels",
+    "aspect_ratio",
+    "alpha_present",
+    "border_lightness_mean",
+    "border_uniformity_score",
+    "sharpness_score",
+    "low_resolution_candidate",
+    "extreme_aspect_candidate",
+    "transparent_background_candidate",
+    "busy_or_nonuniform_border_candidate",
+)
+
+_HTML_ASSIGNMENT_KEYS = (
+    "assignment_id",
+    "asset_id",
+    "image_id",
+    "product_id",
+    "sku",
+    "product_slug",
+    "product_name",
+    "brand_id",
+    "brand_name",
+    "category_id",
+    "category_name",
+    "is_primary",
+    "display_order",
+)
+
+_FORBIDDEN_HTML_KEYS = frozenset(
+    {"image_url", "source_relative_path", "mapped_local_relative_path"}
+)
+
+
+def _strip_urlish(value: Any) -> Any:
+    if isinstance(value, str):
+        low = value.lower()
+        if "http://" in low or "https://" in low or low.startswith("//"):
+            return ""
+        return value
+    if isinstance(value, list):
+        return [_strip_urlish(v) for v in value]
+    if isinstance(value, dict):
+        return {
+            k: _strip_urlish(v)
+            for k, v in value.items()
+            if k not in _FORBIDDEN_HTML_KEYS
+        }
+    return value
+
+
+def html_safe_assets(assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for asset in assets:
+        row = {k: asset.get(k) for k in _HTML_ASSET_KEYS if k in asset}
+        out.append(_strip_urlish(row))
+    return out
+
+
+def html_safe_assignments(assignments: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for asg in assignments:
+        row = {k: asg.get(k) for k in _HTML_ASSIGNMENT_KEYS if k in asg}
+        out.append(_strip_urlish(row))
+    return out
+
+
+def assert_html_offline_contract(html_text: str) -> None:
+    """Fail closed if the offline HTML embeds network or storage URL fields."""
+    lowered = html_text.lower()
+    if "http://" in lowered or "https://" in lowered:
+        raise ReviewError("html", "review.html must not contain http(s) URL strings")
+    if "//api" in lowered:
+        raise ReviewError("html", "review.html must not contain //api host references")
+    if '"image_url"' in html_text or "'image_url'" in html_text:
+        raise ReviewError("html", "review.html must not embed image_url fields")
+    if '"source_relative_path"' in html_text or "'source_relative_path'" in html_text:
+        raise ReviewError("html", "review.html must not embed source_relative_path fields")
+
 
 def _opt(values: list[str], selected: str) -> str:
     parts = []
@@ -23,11 +129,13 @@ def build_review_html(
     schema: dict[str, Any],
 ) -> str:
     """Build a single-file offline review UI with embedded JSON payload."""
+    safe_assets = html_safe_assets(assets)
+    safe_assignments = html_safe_assignments(assignments)
     payload = {
         "review_schema_version": schema["review_schema_version"],
         "batch_id": batch_id,
-        "assets": assets,
-        "assignments": assignments,
+        "assets": safe_assets,
+        "assignments": safe_assignments,
         "schema": schema,
     }
     payload_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))

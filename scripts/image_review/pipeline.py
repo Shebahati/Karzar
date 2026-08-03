@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -20,7 +19,7 @@ from .contracts import (
     TASK_ID,
     ReviewError,
 )
-from .html_review import build_review_html
+from .html_review import assert_html_offline_contract, build_review_html
 from .output import (
     create_pilot_zip,
     prepare_review_output_dir,
@@ -219,15 +218,7 @@ def build_pilot_package(
                 assignments=assignments,
                 schema=schema,
             )
-            # offline boundary: no external script/link/img hosts (data may mention https URLs)
-            if re.search(
-                r"""<(script|link|img|iframe)\b[^>]*(src|href)\s*=\s*['"]https?://""",
-                html,
-                flags=re.IGNORECASE,
-            ):
-                raise ReviewError("html", "external network resource reference forbidden")
-            if "googleapis" in html.lower() or "cdn.jsdelivr" in html.lower():
-                raise ReviewError("html", "CDN reference forbidden")
+            assert_html_offline_contract(html)
             (staging / "review.html").write_text(html, encoding="utf-8")
             write_csv(
                 staging / "remote-deferred.csv",

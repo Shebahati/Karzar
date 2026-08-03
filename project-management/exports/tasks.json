@@ -1991,7 +1991,7 @@
         "Draft PR; pilot outputs external; human review pending"
       ],
       "status": "in_progress",
-      "progress": 70,
+      "progress": 90,
       "sprint": "05",
       "tags": [
         "images",
@@ -2000,7 +2000,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Authoritative Pilot 001 generated on VPS (network none, storage RO). 100 unique assets (50 shared + 50 singleton); 465 assignments; 6 brands; ZIP sha256 11b55eee567029ca2382dbecae6d7bb9170dbafc19b8465c53b470bb859f08d9 under /var/tmp/karzar-image-review/. Human review pending. No image decision applied. No database or storage mutation."
+      "notes": "CR-008 Option C. PR #203. Pilot + human review complete externally (100/465). Aggregates: ShopMill watermark assets=52; REPLACE_REQUIRED assignments=41; MANUAL_REVIEW=1; rights all review_required. review.html offline URL/path contract closed. No image decision applied; replacement not started; no DB/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
     }
   ]
 }

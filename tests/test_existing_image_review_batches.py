@@ -314,13 +314,25 @@ def test_pilot_package_happy_path_and_html_boundaries(tmp_path: Path):
     assert result["network_requests_performed"] == 0
     assert (out / "review.html").exists()
     html = (out / "review.html").read_text(encoding="utf-8")
+    assert "http://" not in html
+    assert "https://" not in html
+    assert "image_url" not in html
+    assert "source_relative_path" not in html
+    assert "<script src=" not in html.lower()
     assert "googleapis" not in html.lower()
     assert "cdn.jsdelivr" not in html.lower()
-    assert "<script src=\"http" not in html.lower()
     assert "review_schema_version" in html
     for asset_id in result["selected_asset_ids"]:
         assert asset_id in html
-    assert "assignment_id" in html or "assignment" in html.lower()
+    assign_ids = [
+        line.split(",")[0]
+        for line in (out / "assignment-manifest.csv").read_text(encoding="utf-8").splitlines()[1:]
+        if line.strip()
+    ]
+    # assignment_id is first column
+    for aid in assign_ids:
+        assert aid in html
+    assert "assignment_id" in html
     # templates default rights
     asset_csv = (out / "asset-review-template.csv").read_text(encoding="utf-8")
     assert "review_required" in asset_csv
@@ -515,3 +527,82 @@ def test_output_inside_storage_rejected(tmp_path: Path):
             shared_count=shared,
             singleton_count=singleton,
         )
+
+
+def test_html_payload_strips_urls_and_paths():
+    from scripts.image_review.html_review import (
+        assert_html_offline_contract,
+        build_review_html,
+        html_safe_assets,
+        html_safe_assignments,
+    )
+    from scripts.image_review.review_schema import review_schema_document
+
+    assets = [
+        {
+            "asset_id": "abc",
+            "sha256": "abc",
+            "source_relative_path": "brand/x.jpg",
+            "preview_filename": "abc.jpg",
+            "thumb_filename": "abc.jpg",
+            "product_count": 1,
+            "brands": ["Brand"],
+            "width": 10,
+            "height": 10,
+            "byte_size": 1,
+            "reference_count": 1,
+            "low_resolution_candidate": False,
+            "extreme_aspect_candidate": False,
+            "transparent_background_candidate": False,
+            "busy_or_nonuniform_border_candidate": False,
+            "selection_segment": "singleton",
+            "megapixels": 0.1,
+            "aspect_ratio": 1.0,
+        }
+    ]
+    assignments = [
+        {
+            "assignment_id": "abc:1:1",
+            "asset_id": "abc",
+            "image_id": 1,
+            "product_id": 1,
+            "sku": "S",
+            "product_name": "P",
+            "brand_name": "Brand",
+            "category_name": "C",
+            "image_url": "https://api.karzartools.com/static/uploads/products/x.jpg",
+            "is_primary": True,
+            "display_order": 0,
+        }
+    ]
+    safe_a = html_safe_assets(assets)
+    safe_b = html_safe_assignments(assignments)
+    assert "source_relative_path" not in safe_a[0]
+    assert "image_url" not in safe_b[0]
+    html = build_review_html(
+        batch_id="IMG-02A-02-PILOT-001",
+        assets=assets,
+        assignments=assignments,
+        schema=review_schema_document(),
+    )
+    assert_html_offline_contract(html)
+    assert "http://" not in html and "https://" not in html
+    assert "image_url" not in html
+    assert "source_relative_path" not in html
+    assert "abc" in html and "abc:1:1" in html
+
+
+def test_human_review_identity_against_external_pilot_if_present():
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    review = Path("/var/tmp/karzar-image-review/img02a02-pilot-001-human-review")
+    pilot = Path(
+        "/home/moahmmad/Projects/Karzar-image-review/IMG-02A-02-pilot-001/img02a02-pilot-001"
+    )
+    if not review.is_dir() or not pilot.is_dir():
+        pytest.skip("external pilot/human-review artifacts not present")
+    agg = validate_human_review_bundle(review, pilot_dir=pilot)
+    assert agg["assets_reviewed"] == 100
+    assert agg["assignments_reviewed"] == 465
+    assert agg["watermark"]["distributor_or_retailer"] == 52
+    assert agg["assignment_decisions"]["REPLACE_REQUIRED"] == 41
