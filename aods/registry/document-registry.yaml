@@ -502,13 +502,17 @@ documents:
     path: docs/EXISTING_IMAGE_HUMAN_REVIEW.md
     class: POLICY
     rank: 6
-    status: draft
+    status: current
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     notes: >-
-      IMG-02A-02 offline human-review batches + Pilot 001; asset vs assignment
-      decisions separate; no DB/ProductImage/storage mutation; no network;
-      watermark/suitability human-only; pilot outputs external to Git.
+      IMG-02A-02 merged in PR #203; merge commit
+      023047b8cd0c82b48428f0c5037121e9f0471b24; Pilot 001 packaging and human
+      review complete; 100 unique assets and 465 assignments reviewed; 52
+      visible ShopMill distributor/retailer watermarks; 41 assignments queued
+      for replacement; 1 assignment queued for manual review; rights remain
+      review_required; no replacement execution; no DB/ProductImage/storage
+      mutation; raw Pilot and human-review evidence remain external to Git.
 
   - id: HESABFA
     path: docs/HESABFA.md

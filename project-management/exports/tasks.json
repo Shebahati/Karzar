@@ -1988,10 +1988,10 @@
       "dod": [
         "Focused unit tests + PYTHONHASHSEED loop",
         "AODS links/registry/pmo/naming/ingestion-boundary",
-        "Draft PR; pilot outputs external; human review pending"
+        "Merged PR #203; pilot outputs external; human review complete"
       ],
-      "status": "in_progress",
-      "progress": 90,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "tags": [
         "images",
@@ -2000,7 +2000,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. PR #203. Pilot + human review complete externally (100/465). Aggregates: ShopMill watermark assets=52; REPLACE_REQUIRED assignments=41; MANUAL_REVIEW=1; rights all review_required. review.html offline URL/path contract closed. No image decision applied; replacement not started; no DB/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
+      "notes": "CR-008 Option C. Merged PR #203 @ 023047b8cd0c82b48428f0c5037121e9f0471b24. Pilot 001 and human review complete externally. 100 assets / 465 assignments. 52 watermark assets. 41 replacement assignments queued. 1 manual-review assignment queued. Replacement execution not started. No DB/ProductImage/storage mutation. Raw review evidence under /var/tmp/karzar-image-review/ (not committed)."
     }
   ]
 }

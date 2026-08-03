@@ -1,7 +1,9 @@
 # Existing Image Human Review (IMG-02A-02)
 
 **Task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001
-**Implementation status:** tooling open (PR #203) / human review complete
+**Implementation status:** merged to main
+**Merged PR:** #203
+**Merge commit:** `023047b8cd0c82b48428f0c5037121e9f0471b24`
 **Operational mode:** offline package generation + human review evidence (external)
 **Production mutation capability:** none
 
@@ -15,17 +17,21 @@ Build a deterministic, offline human-review package from the immutable IMG-02A-0
 - provide separate **asset-level** and **assignment-level** review forms;
 - ship a self-contained `review.html` with **no** `http://`, `https://`, `image_url`, or `source_relative_path` in the browser payload.
 
-## Current status (while PR open)
+## Current status
 
 ```text
-status: in_progress
-progress: 90
+IMG-02A-02 status: done
+progress: 100
 Pilot generation: complete
 Pilot human review: complete
 review evidence: external, validated, not committed
 image decisions applied: none
 replacement execution: not started
 ```
+
+“done” applies only to governed batch tooling, Pilot 001 packaging,
+and Pilot 001 human review.
+It does not mean the 41 replacements were sourced or applied.
 
 Validated human-review aggregates (Pilot 001 only — **not** representative of all 1193 local images):
 
@@ -40,6 +46,7 @@ ShopMill-visible watermark assets: 52
 assignments requiring replacement: 41
 manual-review assignments: 1
 rights: all review_required (no cleared_by_owner)
+corrected Pilot ZIP SHA-256: fc7a1206556c01dbe0fe73dea66bbde042fec06cf556c4c61bbfdd0094e9d300
 ```
 
 ## Non-goals
@@ -49,6 +56,7 @@ rights: all review_required (no cleared_by_owner)
 - Remote HTTP/DNS/HEAD/GET or TOSAG
 - OCR / automatic watermark verdicts
 - Committing images, previews, raw inventory, review CSVs, review-state, or ZIP to Git
+- Inferring legal rights clearance from `review_required`
 
 ## Authoritative input
 
