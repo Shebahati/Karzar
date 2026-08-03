@@ -498,6 +498,18 @@ documents:
       no watermark or suitability classification; read-only audit only
       (not a production mutation tool).
 
+  - id: EXISTING-IMAGE-HUMAN-REVIEW
+    path: docs/EXISTING_IMAGE_HUMAN_REVIEW.md
+    class: POLICY
+    rank: 6
+    status: draft
+    owner_role: R-BE-ARCH
+    on_main: false
+    notes: >-
+      IMG-02A-02 offline human-review batches + Pilot 001; asset vs assignment
+      decisions separate; no DB/ProductImage/storage mutation; no network;
+      watermark/suitability human-only; pilot outputs external to Git.
+
   - id: HESABFA
     path: docs/HESABFA.md
     class: POLICY

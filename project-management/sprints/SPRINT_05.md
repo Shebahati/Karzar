@@ -8,6 +8,7 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [ ] **IMG-02A-02** Existing Image Human Review Batches and Pilot 001 — `in_progress` 70% | P1 | Sprint 05 — pilot packaging; human review pending; no DB/storage mutation; no auto watermark verdict
 - [x] **IMG-02A-01** Canonical Existing Product Image Inventory — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; read-only audit only; authoritative inventory complete; no watermark/suitability; no database/ProductImage/storage mutation
 - [x] **IMG-02A-01-R1** Close pre-authoritative boundary blockers — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; boundaries closed; read-only audit only; no watermark/suitability; no database/ProductImage/storage mutation
 - [x] **IMG-01E-R1** Resume manifest identity contract — `done` 100% | P1 | Sprint 05 — merged PR #198 @ f10cfff; live TOSAG pending; not production-approved; no ProductImage/DB

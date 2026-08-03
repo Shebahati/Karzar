@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-03
+- [x] **IMG-02A-02** — Existing image human-review batches + Pilot 001 packaging (`in_progress` 70%). Offline asset/assignment review; no DB/ProductImage/storage mutation; no network; human review pending; pilot outputs external.
 - [x] **IMG-02A-01 / IMG-02A-01-R1** — Canonical existing image inventory **merged** in PR #201 @ `58401eb28fe346d2f00a0679d90c6763a5000250`. Authoritative PostgreSQL read-only run completed (`karzar_staging`, `transaction_read_only=on`): 5918 products; 1194 ProductImage rows; 1193 valid local images; 1 remote-unverified; 0 missing/decode failures; 188 exact cross-product duplicate groups; 0 cross-brand duplicate groups; 0 unreferenced files; **zero mutations**. Raw outputs external (not in Git). Read-only audit only; no watermark/suitability classification.
 - [x] **IMG-02A-01** — (historical pre-merge) Authoritative read-only inventory complete on VPS; aggregates in task report; raw outputs external. PR #201 Ready for Review → later merged.
 - [x] **IMG-02A-01-R1** — (historical) Pre-authoritative boundary hardening (43 tests). Branch `feat/existing-image-audit`.
