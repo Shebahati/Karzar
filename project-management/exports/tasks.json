@@ -1858,6 +1858,102 @@
       ],
       "risk": "low",
       "notes": "CR-008 Option C. Narrow Resume identity-contract correction on feat/image-discovery-pipeline. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
+    },
+    {
+      "id": "IMG-02A-01",
+      "title": "Canonical Existing Product Image Inventory",
+      "description": "Read-only Product/ProductImage + local storage inventory with SHA-256, anomalies, duplicates, unreferenced files; no mutations or remote fetches.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "IMG-01E-R1"
+      ],
+      "files": [
+        "scripts/audit_existing_product_images.py",
+        "scripts/image_audit/",
+        "tests/test_existing_image_audit.py",
+        "docs/EXISTING_IMAGE_AUDIT.md",
+        "aods/reports/tasks/IMG-02A-01-CANONICAL-EXISTING-IMAGE-INVENTORY.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Read-only DB inventory with SET TRANSACTION READ ONLY proof on PostgreSQL",
+        "Safe local static URL mapping and storage scan (no symlink follow)",
+        "Deterministic CSV/JSON/summary/checksum outputs outside Git",
+        "Exact-byte duplicate and unreferenced storage reports",
+        "No network image requests; remote URLs marked remote_unverified"
+      ],
+      "dod": [
+        "Focused unit tests + PYTHONHASHSEED loop",
+        "AODS links/registry/pmo/naming/ingestion-boundary",
+        "Draft PR; authoritative VPS run or AUTHORITATIVE RUN BLOCKED",
+        "Raw inventory outputs not committed"
+      ],
+      "status": "in_progress",
+      "progress": 95,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "audit",
+        "read-only"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Authoritative run complete 2026-08-03 on VPS lathe_api / karzar_staging (transaction_read_only=on). total_products=5918 products_with_image_rows=1194 valid_local=1193 exact_dup_groups=188. Raw outputs external under /var/tmp/karzar-image-audit/img02a01-20260803T121056Z. PR #201 Ready for Review; keep in_progress until merge. No mutations; network_requests=0."
+    },
+    {
+      "id": "IMG-02A-01-R1",
+      "title": "Close pre-authoritative boundary blockers (existing image audit)",
+      "description": "Harden IMG-02A-01 boundaries: exact URL marker, storage-index file meta, SQL guard, atomic publish, coverage/duplicate semantics, --no-storage-scan.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 4,
+      "deps": [
+        "IMG-02A-01"
+      ],
+      "files": [
+        "scripts/audit_existing_product_images.py",
+        "scripts/image_audit/",
+        "tests/test_existing_image_audit.py",
+        "docs/EXISTING_IMAGE_AUDIT.md",
+        "aods/reports/tasks/IMG-02A-01-R1-CLOSE-PRE-AUTHORITATIVE-BLOCKERS.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "Exact /static/uploads/products/ marker with HTTP(S) internal mapping",
+        "storage_index-only file meta; no FS fallback on miss",
+        "PostgreSQL-only CLI; exact SQL allowlist",
+        "Staged atomic publish with streamed checksums",
+        "--no-storage-scan local_unverified semantics"
+      ],
+      "dod": [
+        "43 unit tests + PYTHONHASHSEED loop",
+        "AODS validation gates PASS",
+        "Authoritative run BLOCKED documented"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "audit",
+        "read-only",
+        "security"
+      ],
+      "risk": "low",
+      "notes": "CR-008 Option C. Boundary hardening complete @ 8a20594; authoritative inventory completed subsequently. See IMG-02A-01 evidence."
     }
   ]
 }

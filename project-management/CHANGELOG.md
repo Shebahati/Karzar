@@ -1,6 +1,8 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-03
+- [x] **IMG-02A-01** — Authoritative read-only inventory complete on VPS (`karzar_staging`, `transaction_read_only=on`). Aggregates in task report; raw outputs external. PR #201 Ready for Review. No mutations.
+- [x] **IMG-02A-01-R1** — Pre-authoritative boundary hardening (43 tests). Branch `feat/existing-image-audit`.
 - [x] **IMG-01 → IMG-01E-R1** — Governed multi-brand image discovery pipeline **merged** in PR #198 @ `f10cfff3ace2a00ef3a7403d5408e79e0b9b395b` (implementation head `fe227b4`). Final local suite **110 passed**; offline 100-SKU asset/state regression passed. **No** database/ProductImage apply; **not** production-approved; live TOSAG parser validation **pending**.
 - [x] **IMG-01E-R1** — Resume identity contract (`validate_source_manifest_row`); merged via PR #198.
 - [x] **IMG-01E** — Four hardening items; merged via PR #198.
