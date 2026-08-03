@@ -1,6 +1,11 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-02
+- [ ] **IMG-01D** — Close five final image-pipeline blockers (structural parser / allow-replace / manifest contract / no-follow / duplicate physical). Branch `feat/image-discovery-pipeline`. **Draft — awaiting final human review** (no commit yet).
+- [ ] **IMG-01C** — Final targeted image-pipeline corrections (path/integrity/dedupe/URL safety). Branch `feat/image-discovery-pipeline`. **Draft — awaiting final human review** (no commit yet).
+- [ ] **IMG-01B** — Close image-pipeline human-review blockers (identity/FS/provenance/consolidation/run-state/transport). Branch `feat/image-discovery-pipeline`. **Draft — awaiting second human review** (no commit yet).
+- [ ] **IMG-01A** — Generic multi-brand image-discovery engine + `insize_tosag` adapter (refactor before first commit). Branch `feat/image-discovery-pipeline`. External pilot preserved. **Draft — awaiting human review** (no commit yet).
+- [ ] **IMG-01** — INSIZE image discovery + 100-SKU external pilot (candidate validation). Registered CR-008 C; implementation reshaped by IMG-01A.
 - [x] **KB-REMEDIATION-11A** — Property Dictionary runtime (A3): `knowledge_units` + `knowledge_property_definitions` + `knowledge_property_aliases`; migration `f7a8b9c0d1e2`; CLI import; super-admin GET. No templates/Facts/dual-write. Branch `feat/kb-remediation-11a-property-dictionary` (awaiting human commit/PR; HC-08 before apply).
 - [x] **KB-PT-01A** — Close PT-W1 integrity gaps: `passive_deletes="all"`; loaded-collection deletion regression; populated pre-migration Product+JSONB evidence (up/down/up). Same branch `feat/kb-pt-01-runtime-core`.
 - [x] **KB-PT-01** — PT-W1 Product Type runtime core: `product_types` + nullable `products.product_type_id` (RESTRICT/NO ACTION). Migration `e6f7a8b9c0d1`. No seed/backfill/API/Definition. Branch `feat/kb-pt-01-runtime-core` (awaiting human commit/PR).

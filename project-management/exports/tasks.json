@@ -1538,6 +1538,234 @@
       ],
       "risk": "high",
       "notes": "2026-08-02: Implemented on feat/kb-remediation-11a-property-dictionary. Migration f7a8b9c0d1e2; CLI import; admin GET. Evidence: Product id=1 specs_md5 83c29e840214532544141b2569110ba7 preserved; import 2/9/36 then idempotent. Awaiting human commit/PR; HC-08 before apply."
+    },
+    {
+      "id": "IMG-01",
+      "title": "INSIZE image discovery pipeline + 100-SKU external pilot",
+      "description": "Governed candidate-validation tooling for INSIZE/TOSAG product images; external-only assets; no ProductImage/DB writes.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 16,
+      "deps": [],
+      "files": [
+        "scripts/discover_product_images.py",
+        "scripts/image_discovery/**",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "CLI validates governed CSV candidates without DB access",
+        "External 100-SKU pilot accepted with review_required rights",
+        "Unit tests pass without live network"
+      ],
+      "dod": [
+        "Human review of code + pilot",
+        "No pilot binaries committed"
+      ],
+      "status": "in_progress",
+      "progress": 85,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "insize",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "Registered under CR-008 Option C. External pilot at /home/moahmmad/Projects/Karzar-image-pilot/insize-100/. Superseded implementation shape by IMG-01A refactor before first commit."
+    },
+    {
+      "id": "IMG-01A",
+      "title": "Generic multi-brand image-discovery engine + INSIZE adapter",
+      "description": "Refactor IMG-01 into brand-agnostic engine with insize_tosag adapter; harden matching/transport/validation/run-state/consolidation before first commit.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 20,
+      "deps": [
+        "IMG-01"
+      ],
+      "files": [
+        "scripts/discover_product_images.py",
+        "scripts/image_discovery/**",
+        "tests/test_image_discovery*.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md",
+        "aods/reports/tasks/IMG-01*.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Generic engine has no hard-coded INSIZE/TOSAG business logic",
+        "INSIZE adapter owns page-subject matching with evidence fields",
+        "PYTHONHASHSEED 0..9 pytest suite passes",
+        "100-SKU resume regression stable without DB access"
+      ],
+      "dod": [
+        "Human review before commit/PR",
+        "Draft docs status awaiting human review"
+      ],
+      "status": "in_progress",
+      "progress": 90,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "multi-brand",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. IMG-01B closed review blockers; stop before commit."
+    },
+    {
+      "id": "IMG-01B",
+      "title": "Close image-pipeline human-review blockers before first commit",
+      "description": "Identity, FS safety, provenance, consolidation integrity, cross-brand duplicates, run-state, atomic I/O, TOSAG subject evidence, bounded transport, concurrency, CLI — before first commit.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 16,
+      "deps": [
+        "IMG-01A"
+      ],
+      "files": [
+        "scripts/discover_product_images.py",
+        "scripts/image_discovery/**",
+        "tests/test_image_discovery*.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md",
+        "aods/reports/tasks/IMG-01B*.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Global candidate identity + cross-brand same-SKU isolation",
+        "Safe paths; provenance; consolidation SHA/conflict handling",
+        "Referenced-asset run-state; atomic writes; bounded transport",
+        "TOSAG subject evidence fixtures; 37+ tests; 100-SKU resume stable"
+      ],
+      "dod": [
+        "Second human review before commit/PR",
+        "No DB / ProductImage / Alembic"
+      ],
+      "status": "in_progress",
+      "progress": 95,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "multi-brand",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. External regression /tmp/insize-100-img01b (copy of insize-100). Stop before commit."
+    },
+    {
+      "id": "IMG-01C",
+      "title": "Final targeted image-pipeline corrections before first commit",
+      "description": "Path containment, duplicate semantics, fail-closed integrity, CSV dedupe, provenance, atomic conflict summary, contact-sheet URL safety, high-reuse signal, honest TOSAG limitation.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "IMG-01B"
+      ],
+      "files": [
+        "scripts/image_discovery/**",
+        "tests/test_image_discovery*.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md",
+        "aods/reports/tasks/IMG-01C*.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Manifest asset path resolver blocks escape/symlink/absolute",
+        "Content fingerprint excludes batch provenance; multi-origin provenance retained",
+        "Consolidate fail-closed on non-empty output and integrity errors",
+        "CSV dedupe before roles; contact-sheet URL scheme safety; high-reuse CSV"
+      ],
+      "dod": [
+        "Final human review before commit/PR",
+        "Offline 100-SKU asset/state regression only (not live parser)"
+      ],
+      "status": "in_progress",
+      "progress": 95,
+      "sprint": "05",
+      "week": 8,
+      "day": 2,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "security",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit."
+    },
+    {
+      "id": "IMG-01D",
+      "title": "Close five final image-pipeline blockers before first commit",
+      "description": "Structural HTML subject parser; coherent --allow-replace recognition; source manifest SHA/candidate_id contract; no-follow asset scans; duplicate physical reporting.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 10,
+      "deps": [
+        "IMG-01C"
+      ],
+      "files": [
+        "scripts/image_discovery/**",
+        "tests/test_image_discovery*.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md",
+        "aods/reports/tasks/IMG-01D*.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Nested unrelated regions cannot leak SKU into subject_html",
+        "allow-replace requires coherent prior output; stale reported not deleted",
+        "Empty/invalid SHA and candidate_id fail closed as integrity_failure",
+        "Asset scans never follow symlinks; duplicate physical paths reported"
+      ],
+      "dod": [
+        "Final human review before commit/PR",
+        "Offline 100-SKU asset/state regression only (not live parser)"
+      ],
+      "status": "in_progress",
+      "progress": 95,
+      "sprint": "05",
+      "week": 8,
+      "day": 3,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "security",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit."
     }
   ]
 }
