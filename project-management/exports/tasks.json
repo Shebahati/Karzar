@@ -1811,7 +1811,52 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Four Draft PR #198 hardening items closed on feat/image-discovery-pipeline."
+      "notes": "CR-008 Option C. Four hardening items closed; follow-up IMG-01E-R1 enforces resume identity contract."
+    },
+    {
+      "id": "IMG-01E-R1",
+      "title": "Enforce shared manifest identity contract on Resume/prior recognition",
+      "description": "Call validate_source_manifest_row on every prior manifest row during recognize_prior_discovery_output and load_previous_manifest; same policy as Consolidation.",
+      "priority": "P1",
+      "complexity": "low",
+      "hours": 2,
+      "deps": [
+        "IMG-01E"
+      ],
+      "files": [
+        "scripts/image_discovery/consolidation.py",
+        "scripts/image_discovery/output.py",
+        "tests/test_image_discovery_img01e.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Prior recognition rejects missing/malformed/mismatched candidate_id and other contract errors",
+        "Resume uses the same validate_source_manifest_row as Consolidation",
+        "Coherent correctly-generated prior still resumes"
+      ],
+      "dod": [
+        "Tests + PYTHONHASHSEED + AODS + offline 100-SKU dual-resume",
+        "Commit pushed; PR #198 Ready for Review (not merged)"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 3,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "security",
+        "aods"
+      ],
+      "risk": "low",
+      "notes": "CR-008 Option C. Narrow Resume identity-contract correction on feat/image-discovery-pipeline."
     }
   ]
 }

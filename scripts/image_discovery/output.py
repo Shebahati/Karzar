@@ -211,7 +211,22 @@ def load_previous_manifest(out: Path, *, resume: bool) -> dict[str, dict[str, An
     data = load_json_object(path, missing_ok=False, corrupt_code="corrupt_previous_manifest")
     if not isinstance(data, list):
         raise DiscoveryError("state", "corrupt_previous_manifest", "manifest.json root must be a list")
-    return {str(r.get("candidate_id") or ""): r for r in data if r.get("candidate_id")}
+    from .contracts import validate_source_manifest_row
+
+    out_map: dict[str, dict[str, Any]] = {}
+    for row in data:
+        if not isinstance(row, dict):
+            raise DiscoveryError("state", "manifest_row_not_object", "manifest row must be an object")
+        code = validate_source_manifest_row(row)
+        if code:
+            raise DiscoveryError(
+                "state",
+                code,
+                f"prior manifest identity contract failed: {code}",
+            )
+        cid = str(row.get("candidate_id") or "").strip()
+        out_map[cid] = row
+    return out_map
 
 
 def load_run_state(out: Path, *, resume: bool) -> dict[str, Any]:

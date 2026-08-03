@@ -8,6 +8,7 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [x] **IMG-01E-R1** Resume manifest identity contract — `done` 100% | P1 | Sprint 05 — shared validate_source_manifest_row; PR #198 Ready for Review
 - [x] **IMG-01E** Harden structured evidence + output roots — `done` 100% | P1 | Sprint 05 — Draft PR #198; four hardening items closed; live TOSAG still pending
 - [x] **IMG-01D** Close five final image-pipeline blockers — `done` 100% | P1 | Sprint 05 — Draft PR #198 @ 0aecf9d
 - [x] **IMG-01C** Final targeted image-pipeline corrections — `done` 100% | P1 | Sprint 05 — Draft PR #198

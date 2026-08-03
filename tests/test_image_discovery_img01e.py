@@ -24,6 +24,10 @@ from image_discovery.consolidation import (  # noqa: E402
     consolidate_batches,
     recognize_prior_discovery_output,
 )
+from image_discovery.contracts import (  # noqa: E402
+    build_product_identity,
+    make_candidate_id,
+)
 from image_discovery.core import enforce_run_output_policy, run_discovery  # noqa: E402
 from image_discovery.output import compare_runs, file_sha256  # noqa: E402
 from image_discovery.paths import (  # noqa: E402
@@ -114,17 +118,24 @@ def external_out(tmp_path: Path) -> Path:
 
 
 def _row(*, sku: str, sha: str, path: str) -> dict[str, Any]:
-    cid = "cid:" + hashlib.sha256(f"{sku}:{sha}".encode()).hexdigest()
+    _, product_key, basis = build_product_identity(product_id="", brand="INSIZE", sku=sku)
+    sck = hashlib.sha256(path.encode()).hexdigest()
+    cid = make_candidate_id(
+        source_adapter="insize_tosag",
+        product_key=product_key,
+        source_candidate_key=sck,
+        image_role="primary",
+    )
     return {
         "candidate_id": cid,
         "sku": sku,
         "product_name": sku,
         "brand": "INSIZE",
         "product_id": "",
-        "product_key": f"brand_sku:insize:{sku.lower()}",
-        "identity_basis": "brand_sku",
+        "product_key": product_key,
+        "identity_basis": basis,
         "source_adapter": "insize_tosag",
-        "source_candidate_key": hashlib.sha256(path.encode()).hexdigest(),
+        "source_candidate_key": sck,
         "image_role": "primary",
         "source_rank": 1,
         "display_order_candidate": 1,
@@ -475,6 +486,40 @@ def test_resume_accepts_coherent_same_adapter(external_out: Path) -> None:
     enforce_run_output_policy(
         external_out, adapter_name="insize_tosag", resume=True, force_refetch=False
     )
+
+
+def _mutate_prior_row(out: Path, **fields: Any) -> None:
+    path = out / "manifests" / "manifest.json"
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    rows[0].update(fields)
+    path.write_text(json.dumps(rows), encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("fields", "expected"),
+    [
+        ({"candidate_id": ""}, "missing_candidate_id"),
+        ({"candidate_id": "not-a-cid"}, "invalid_candidate_id"),
+        ({"candidate_id": "cid:" + ("a" * 64)}, "candidate_id_mismatch"),
+        ({"source_candidate_key": ""}, "missing_source_candidate_key"),
+        ({"sha256": ""}, "missing_manifest_sha256"),
+        ({"sha256": "ZZZZ"}, "invalid_manifest_sha256"),
+    ],
+)
+def test_resume_rejects_manifest_identity_contract(
+    external_out: Path,
+    fields: dict[str, Any],
+    expected: str,
+) -> None:
+    _coherent_prior(external_out)
+    _mutate_prior_row(external_out, **fields)
+    ok, reason, _ = recognize_prior_discovery_output(external_out)
+    assert ok is False
+    assert reason == expected
+    with pytest.raises(SystemExit, match=expected):
+        enforce_run_output_policy(
+            external_out, adapter_name="insize_tosag", resume=True, force_refetch=False
+        )
 
 
 def test_force_refetch_rejects_unrelated_shell(external_out: Path) -> None:

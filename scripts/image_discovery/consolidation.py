@@ -197,6 +197,10 @@ def recognize_prior_discovery_output(out: Path) -> tuple[bool, str, list[dict[st
     for row in manifest:
         if not isinstance(row, dict):
             return False, "manifest_row_not_object", []
+        # Same identity contract as Consolidation — no separate Resume policy
+        code = validate_source_manifest_row(row)
+        if code:
+            return False, code, []
         rel = str(row.get("local_asset_path") or "")
         sha = normalize_sha256(str(row.get("sha256") or ""))
         try:

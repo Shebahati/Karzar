@@ -25,3 +25,7 @@ Close the four hardening items declared on Draft PR #198 without expanding scope
 ## Validation honesty
 
 Offline 100-SKU asset/state resume on a **copy** of the preserved external pilot is not live TOSAG parser proof.
+
+## IMG-01E-R1 (Resume identity contract)
+
+Prior-output recognition and `load_previous_manifest` now call the shared `validate_source_manifest_row` on every Manifest row (same contract as Consolidation). Invalid `candidate_id` / identity / SHA / role rows reject the prior before Resume proceeds.

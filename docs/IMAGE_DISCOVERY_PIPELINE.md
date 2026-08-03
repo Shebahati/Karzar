@@ -65,7 +65,7 @@ candidate discovery → candidate validation → asset materialization → human
 
 - New run (no `--resume` / `--force-refetch`): `--output-dir` must be **absent or completely empty**.
 - Arbitrary non-empty shells (`notes.txt`, unrelated `summary.json`, assets-only, partial pipeline, unknown files) fail closed.
-- `--resume` requires a coherent governed prior output, same `source_adapter`, valid referenced assets, no unknown files, no symlink roots.
+- `--resume` requires a coherent governed prior output, same `source_adapter`, valid referenced assets, **source-manifest identity contract** (`validate_source_manifest_row` on every row — same as Consolidation), no unknown files, no symlink roots.
 - `--force-refetch` still requires a coherent prior when the directory is non-empty (does not overwrite unrelated shells).
 
 **`--allow-replace` policy (IMG-01D):**

@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-03
+- [x] **IMG-01E-R1** — Resume/prior-output recognition enforces shared `validate_source_manifest_row` identity contract (same as Consolidation). Draft PR #198 → Ready for Review (not merged).
 - [x] **IMG-01E** — Four Draft PR #198 hardening items: region-isolated meta/JSON-LD; atomic Product JSON-LD; no-follow symlinked governed/batch roots; governed run/resume/force-refetch output policy. Offline 100-SKU copy regression only; live TOSAG still pending. Not Ready for Review / not production-approved.
 - [x] **IMG-01 → IMG-01D** — Governed multi-brand discovery pipeline committed on `feat/image-discovery-pipeline` @ `0aecf9d`; Draft PR #198.
 
