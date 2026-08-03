@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from html.parser import HTMLParser
-from typing import Any
+from typing import Any, Literal
 
 # Tags that are always unrelated regions (entire subtree suppressed from subject).
 _UNRELATED_TAGS = frozenset({"footer", "nav", "aside", "header"})
@@ -53,6 +53,8 @@ _VOID = frozenset(
 
 _TAG_RE = re.compile(r"<[^>]+>")
 
+Region = Literal["subject", "unrelated"]
+
 
 def _attrs_dict(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
     return {k.lower(): (v or "") for k, v in attrs}
@@ -72,7 +74,6 @@ def _element_starts_unrelated(tag: str, attrs: dict[str, str]) -> bool:
         return True
     blob = _attr_blob(attrs)
     if not blob:
-        # data-related / data-crosssell as bare attribute names
         for k in attrs:
             kl = k.casefold()
             if kl in {"data-related", "data-crosssell"} or "related" in kl or "crosssell" in kl:
@@ -92,11 +93,11 @@ def _fmt_start(tag: str, attrs: list[tuple[str, str | None]]) -> str:
 
 
 class PageSubjectParser(HTMLParser):
-    """Stack-based subject/unrelated split; nested closings never end an outer unrelated block early."""
+    """Stack-based subject/unrelated split; Meta/JSON-LD keep structural origin."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.stack: list[tuple[str, bool]] = []  # (tag, started_unrelated_here)
+        self.stack: list[tuple[str, bool]] = []
         self.suppress_depth = 0
         self.subject_chunks: list[str] = []
         self.unrelated_chunks: list[str] = []
@@ -104,11 +105,27 @@ class PageSubjectParser(HTMLParser):
         self._in_script = False
         self._script_type = ""
         self._script_buf: list[str] = []
+        self._script_origin: Region = "subject"
         self.headings: list[str] = []
         self._in_heading: str | None = None
         self._heading_buf: list[str] = []
-        self.json_ld_products: list[dict[str, Any]] = []
-        self.meta_fields: dict[str, str] = {}
+        # Region-aware structured evidence
+        self.subject_meta: dict[str, str] = {}
+        self.unrelated_meta: dict[str, str] = {}
+        self.subject_json_ld_products: list[dict[str, Any]] = []
+        self.unrelated_json_ld_products: list[dict[str, Any]] = []
+        # Evidence records: {"kind": "meta"|"jsonld_product", "origin": Region, ...}
+        self.structured_evidence: list[dict[str, Any]] = []
+
+    @property
+    def meta_fields(self) -> dict[str, str]:
+        """Subject-region meta only (never unrelated)."""
+        return self.subject_meta
+
+    @property
+    def json_ld_products(self) -> list[dict[str, Any]]:
+        """Subject-region Product JSON-LD only (never unrelated)."""
+        return self.subject_json_ld_products
 
     def _emit(self, text: str) -> None:
         if self._in_script:
@@ -129,13 +146,26 @@ class PageSubjectParser(HTMLParser):
 
         if t == "meta":
             name = (ad.get("property") or ad.get("name") or "").lower()
-            content = ad.get("content") or ""
+            content = (ad.get("content") or "").strip()
+            origin: Region = "unrelated" if self.suppress_depth > 0 else "subject"
             if name:
-                self.meta_fields[name] = content.strip()
+                if origin == "subject":
+                    self.subject_meta[name] = content
+                else:
+                    self.unrelated_meta[name] = content
+                self.structured_evidence.append(
+                    {
+                        "kind": "meta",
+                        "origin": origin,
+                        "name": name,
+                        "content": content,
+                    }
+                )
             self._emit(start_html)
             return
 
         if t == "script":
+            self._script_origin = "unrelated" if self.suppress_depth > 0 else "subject"
             self._in_script = True
             self._script_type = (ad.get("type") or "").lower()
             self._script_buf = []
@@ -146,7 +176,6 @@ class PageSubjectParser(HTMLParser):
             return
 
         if t == "style":
-            # Always suppress style subtrees from page-subject evidence
             if self.suppress_depth > 0:
                 self.suppress_depth += 1
                 started_here = False
@@ -183,11 +212,12 @@ class PageSubjectParser(HTMLParser):
         if t == "script" and self._in_script:
             raw = "".join(self._script_buf)
             if "ld+json" in self._script_type:
-                self._ingest_json_ld(raw)
+                self._ingest_json_ld(raw, origin=self._script_origin)
             self.script_chunks.append(end_html)
             self._in_script = False
             self._script_type = ""
             self._script_buf = []
+            self._script_origin = "subject"
             self._pop_tag(t)
             return
 
@@ -202,7 +232,6 @@ class PageSubjectParser(HTMLParser):
         self._pop_tag(t)
 
     def _pop_tag(self, tag: str) -> None:
-        """Pop stack until ``tag``; only the matching open reduces suppress_depth correctly."""
         if tag in _VOID:
             return
         idx = None
@@ -211,14 +240,12 @@ class PageSubjectParser(HTMLParser):
                 idx = i
                 break
         if idx is None:
-            # Malformed: ignore unmatched close for suppress accounting
             return
-        # Pop nested opens above the match first (recoverable HTML)
         while len(self.stack) > idx + 1:
-            _t, started = self.stack.pop()
+            self.stack.pop()
             if self.suppress_depth > 0:
                 self.suppress_depth -= 1
-        _t, started = self.stack.pop()
+        self.stack.pop()
         if self.suppress_depth > 0:
             self.suppress_depth -= 1
 
@@ -231,7 +258,7 @@ class PageSubjectParser(HTMLParser):
     def handle_charref(self, name: str) -> None:
         self._emit(f"&#{name};")
 
-    def _ingest_json_ld(self, raw: str) -> None:
+    def _ingest_json_ld(self, raw: str, *, origin: Region) -> None:
         try:
             node = json.loads(raw.strip())
         except Exception:
@@ -239,10 +266,23 @@ class PageSubjectParser(HTMLParser):
 
         def walk(obj: object) -> None:
             if isinstance(obj, dict):
-                t = str(obj.get("@type") or "")
-                types = t if isinstance(t, str) else " ".join(str(x) for x in t)
+                t = obj.get("@type") or ""
+                if isinstance(t, list):
+                    types = " ".join(str(x) for x in t)
+                else:
+                    types = str(t)
                 if "Product" in types:
-                    self.json_ld_products.append(obj)
+                    if origin == "subject":
+                        self.subject_json_ld_products.append(obj)
+                    else:
+                        self.unrelated_json_ld_products.append(obj)
+                    self.structured_evidence.append(
+                        {
+                            "kind": "jsonld_product",
+                            "origin": origin,
+                            "product": obj,
+                        }
+                    )
                 for v in obj.values():
                     walk(v)
             elif isinstance(obj, list):
@@ -267,7 +307,6 @@ def parse_page_subject(page_html: str) -> PageSubjectParser:
         parser.feed(page_html or "")
         parser.close()
     except Exception:
-        # Recoverable: return whatever was collected
         pass
     return parser
 

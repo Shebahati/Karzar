@@ -40,22 +40,65 @@ def _json_ld_brand_name(prod: dict[str, Any]) -> str:
     return str(brand or "")
 
 
-def _json_ld_consistent_products(products: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Only Product nodes whose brand/SKU fields are internally non-contradictory placeholders.
+def _json_ld_sku_fields(prod: dict[str, Any]) -> list[str]:
+    return [str(prod.get(f) or "") for f in ("sku", "mpn", "productID")]
 
-    Consistency rule: if both brand and a SKU-like field are present, both must be non-empty
-    strings (Product subject). Conflicting multi-brand bags are excluded by caller checks.
+
+def _product_fingerprint(prod: dict[str, Any]) -> str:
+    brand = _json_ld_brand_name(prod).strip().casefold()
+    skus = "|".join(sorted(s.strip().casefold() for s in _json_ld_sku_fields(prod) if s.strip()))
+    return f"{brand}::{skus}"
+
+
+def _select_atomic_json_ld_product(
+    products: list[dict[str, Any]],
+    sku: str,
+) -> tuple[str, dict[str, Any] | None]:
+    """Select one internally consistent Product for automatic structured acceptance.
+
+    Never combine Brand from one object with SKU from another.
+    Returns (status, product) where status is:
+      ok | none | ambiguous | cross_object_mix
     """
-    out: list[dict[str, Any]] = []
+    if not products:
+        return "none", None
+
+    consistent: list[dict[str, Any]] = []
+    brand_only_insize: list[dict[str, Any]] = []
+    sku_only_match: list[dict[str, Any]] = []
+    other: list[dict[str, Any]] = []
+
     for prod in products:
-        brand = _json_ld_brand_name(prod).strip()
-        skus = [str(prod.get(f) or "").strip() for f in ("sku", "mpn", "productID")]
-        skus = [s for s in skus if s]
-        # Require Product-typed node already filtered; drop empty shells
-        if not brand and not skus:
-            continue
-        out.append(prod)
-    return out
+        brand = _json_ld_brand_name(prod)
+        has_insize = bool(brand and re.search(r"\binsize\b", brand, re.IGNORECASE))
+        has_sku = any(_sku_token_present(sf, sku) for sf in _json_ld_sku_fields(prod))
+        if has_insize and has_sku:
+            consistent.append(prod)
+        elif has_insize and not has_sku:
+            brand_only_insize.append(prod)
+        elif has_sku and not has_insize:
+            sku_only_match.append(prod)
+        else:
+            other.append(prod)
+
+    if brand_only_insize and sku_only_match and not consistent:
+        return "cross_object_mix", None
+
+    if consistent:
+        fps = {_product_fingerprint(p) for p in consistent}
+        if len(fps) > 1:
+            return "ambiguous", None
+        winner = consistent[0]
+        winner_fp = _product_fingerprint(winner)
+        # Distinct sibling Product nodes (e.g. other SKU) make structured evidence ambiguous
+        for p in brand_only_insize + sku_only_match + other:
+            if _product_fingerprint(p) != winner_fp:
+                return "ambiguous", None
+        return "ok", winner
+
+    if len(products) > 1:
+        return "ambiguous", None
+    return "none", None
 
 
 def _manufacturer_in_subject(
@@ -64,7 +107,7 @@ def _manufacturer_in_subject(
     *,
     headings: list[str],
     meta: dict[str, str],
-    products: list[dict[str, Any]],
+    atomic_product: dict[str, Any] | None,
 ) -> tuple[bool, str]:
     labeled = re.search(
         r"(?:manufacturer|brand|hersteller|marke)\s*[:：]\s*</?(?:[^>]+>)?\s*([^<\n]{0,80})",
@@ -92,8 +135,9 @@ def _manufacturer_in_subject(
         if key in meta and re.search(r"\binsize\b", meta[key], re.IGNORECASE):
             return True, f"meta:{key}:{meta[key][:80]}"
 
-    for prod in _json_ld_consistent_products(products):
-        brand_name = _json_ld_brand_name(prod)
+    # JSON-LD brand only from the selected atomic Product (never cross-object)
+    if atomic_product is not None:
+        brand_name = _json_ld_brand_name(atomic_product)
         if re.search(r"\binsize\b", brand_name, re.IGNORECASE):
             return True, f"jsonld_brand:{brand_name[:80]}"
 
@@ -109,7 +153,8 @@ def _sku_in_subject(
     *,
     headings: list[str],
     meta: dict[str, str],
-    products: list[dict[str, Any]],
+    atomic_product: dict[str, Any] | None,
+    json_ld_status: str,
     scripts_text: str,
 ) -> tuple[bool, str]:
     heading = _extract_heading(subject_html, headings)
@@ -141,14 +186,13 @@ def _sku_in_subject(
         ):
             return True, f"meta:{key}:{sku}"
 
-    for prod in _json_ld_consistent_products(products):
-        brand_name = _json_ld_brand_name(prod)
-        # Brand/SKU evidence must be internally consistent for the Product subject
-        sku_fields = [str(prod.get(f) or "") for f in ("sku", "mpn", "productID")]
-        if any(_sku_token_present(sf, sku) for sf in sku_fields):
-            if brand_name and not re.search(r"\binsize\b", brand_name, re.IGNORECASE):
-                continue  # inconsistent Product subject for INSIZE adapter
-            return True, f"jsonld_sku:{sku}"
+    if atomic_product is not None and json_ld_status == "ok":
+        return True, f"jsonld_atomic:{sku}"
+
+    if json_ld_status == "cross_object_mix":
+        return False, "jsonld_cross_object_mix"
+    if json_ld_status == "ambiguous":
+        return False, "jsonld_ambiguous_products"
 
     if _sku_token_present(subject_text, sku):
         return False, f"weak_body_sku_only:{sku}"
@@ -279,15 +323,17 @@ class InsizeTosagAdapter(SourceAdapter):
         unrelated_text = _text(unrelated_html)
         scripts_text = _text(scripts_html)
         headings = list(parsed.headings)
-        meta = dict(parsed.meta_fields)
-        products = list(parsed.json_ld_products)
+        # Subject-region meta/JSON-LD only — unrelated structured evidence never auto-accepts
+        meta = dict(parsed.subject_meta)
+        subject_products = list(parsed.subject_json_ld_products)
+        json_ld_status, atomic_product = _select_atomic_json_ld_product(subject_products, sku)
 
         mfg_ok, mfg_ev = _manufacturer_in_subject(
             subject_html,
             subject_text,
             headings=headings,
             meta=meta,
-            products=products,
+            atomic_product=atomic_product if json_ld_status == "ok" else None,
         )
         heading = _extract_heading(subject_html, headings)
         if not mfg_ok:
@@ -330,7 +376,8 @@ class InsizeTosagAdapter(SourceAdapter):
             sku,
             headings=headings,
             meta=meta,
-            products=products,
+            atomic_product=atomic_product,
+            json_ld_status=json_ld_status,
             scripts_text=scripts_text,
         )
         if not sku_ok:
@@ -344,6 +391,16 @@ class InsizeTosagAdapter(SourceAdapter):
                     reason_code="exact_sku_not_confirmed",
                     reason_detail="SKU only as weak body/script evidence — not accepted as exact",
                     weak_review_only=True,
+                )
+            if sku_ev in {"jsonld_cross_object_mix", "jsonld_ambiguous_products"}:
+                return PageEvidence(
+                    True,
+                    False,
+                    mfg_ev,
+                    sku_ev,
+                    heading,
+                    reason_code="exact_sku_not_confirmed",
+                    reason_detail=sku_ev,
                 )
             if _sku_token_present(unrelated_text, sku) and not _sku_token_present(subject_text, sku):
                 return PageEvidence(

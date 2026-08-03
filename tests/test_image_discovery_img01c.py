@@ -244,29 +244,21 @@ def test_resume_rejects_asset_path_escape(external_out: Path, tmp_path: Path) ->
     man = json.loads((external_out / "manifests" / "manifest.json").read_text())
     man[0]["local_asset_path"] = "assets/../secret.jpg"
     (external_out / "manifests" / "manifest.json").write_text(json.dumps(man), encoding="utf-8")
-    summary = run_discovery(
-        adapter=InsizeTosagAdapter(),
-        products_csv=None,
-        candidates_csv=cand,
-        output_dir=external_out,
-        repo_root=REPO_ROOT,
-        concurrency=1,
-        delay=0,
-        resume=True,
-        fetcher=fetcher,
-        min_bytes=100,
-        min_dim=50,
-    )
-    # escape causes resume path to fail closed into reject (or re-fetch if network); must not read outside
-    assert summary["accepted_rows"] + summary["rejected_rows"] == 1
-    if summary["rejected_rows"]:
-        rej = list(csv.DictReader((external_out / "manifests" / "rejected.csv").open(encoding="utf-8")))
-        assert rej[0]["reason_code"] in {
-            "asset_path_escape",
-            "missing_source_asset",
-            "detail_fetch_failed",
-            "unexpected_error",
-        }
+    # IMG-01E: resume refuses a non-coherent prior (path escape) before any asset I/O
+    with pytest.raises(SystemExit, match="coherent|refused|escape|symlink"):
+        run_discovery(
+            adapter=InsizeTosagAdapter(),
+            products_csv=None,
+            candidates_csv=cand,
+            output_dir=external_out,
+            repo_root=REPO_ROOT,
+            concurrency=1,
+            delay=0,
+            resume=True,
+            fetcher=fetcher,
+            min_bytes=100,
+            min_dim=50,
+        )
 
 
 def test_exact_duplicate_across_batches_deduplicates(tmp_path: Path) -> None:

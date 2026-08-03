@@ -1,6 +1,6 @@
 # IMAGE Discovery Pipeline
 
-**Status:** Draft — IMG-01D five final blockers closed; awaiting final human review before first commit  
+**Status:** Draft — IMG-01E four hardening items closed on Draft PR #198; live TOSAG parser regression still pending; not production-approved
 **Scope:** Generic multi-brand engine + INSIZE/TOSAG adapter (`insize_tosag`)  
 **Non-goals:** DB writes, `ProductImage` insert, Alembic, staging/prod apply, cropping, commercial-rights clearance
 
@@ -10,15 +10,15 @@
 |-------|------|
 | `scripts/discover_product_images.py` | CLI (`run`, `consolidate`) + numeric flag validation |
 | `scripts/image_discovery/contracts.py` | Manifest fields, global `candidate_id` / `product_key` identity, source-manifest contract |
-| `scripts/image_discovery/paths.py` | Filesystem-safe path segments; **no-follow** local asset scans |
+| `scripts/image_discovery/paths.py` | Safe path segments; **no-follow** asset scans; governed/batch root symlink rejection |
 | `scripts/image_discovery/atomic.py` | Atomic writes + corrupt JSON refuse-overwrite |
-| `scripts/image_discovery/core.py` | Orchestration, single-flight URL cache, resume |
+| `scripts/image_discovery/core.py` | Orchestration, single-flight URL cache, resume, **run output policy** |
 | `scripts/image_discovery/transport.py` | HTTP allowlist, redirects, bounded reads, scheme/port |
 | `scripts/image_discovery/quality.py` | Signature + structural verify, dimensions, presentation flags |
 | `scripts/image_discovery/output.py` | Manifests, semantic hash, contact sheet, referenced-asset run-state |
 | `scripts/image_discovery/consolidation.py` | Cross-batch integrity, conflicts, coherent `--allow-replace` recognition |
-| `scripts/image_discovery/sources/html_subject.py` | Structural `HTMLParser` page-subject / unrelated boundary |
-| `scripts/image_discovery/sources/insize_tosag.py` | INSIZE identity, TOSAG hosts, governed page-subject matching |
+| `scripts/image_discovery/sources/html_subject.py` | Structural `HTMLParser` subject/unrelated boundary + region-tagged meta/JSON-LD |
+| `scripts/image_discovery/sources/insize_tosag.py` | INSIZE identity, TOSAG hosts, atomic structured acceptance |
 
 The generic engine must not hard-code INSIZE/TOSAG business rules. New brands get new adapters under `sources/`.
 
@@ -37,7 +37,7 @@ The generic engine must not hard-code INSIZE/TOSAG business rules. New brands ge
 candidate discovery → candidate validation → asset materialization → human review
 ```
 
-**Currently implemented for INSIZE:** governed CSV **candidate validation** against public TOSAG detail pages (not open-web crawl / catalogue scrape). Page-subject boundaries use a stack-based `html.parser.HTMLParser` (not regex nesting). Future adapters may implement discovery from official sites while reusing the same engine.
+**Currently implemented for INSIZE:** governed CSV **candidate validation** against public TOSAG detail pages (not open-web crawl / catalogue scrape). Page-subject boundaries use a stack-based `html.parser.HTMLParser` (not regex nesting). Meta and JSON-LD evidence carry DOM-region origin; unrelated regions never auto-confirm. Product JSON-LD acceptance is **atomic** (one Product object with compatible Brand + requested SKU/MPN/productID). Future adapters may implement discovery from official sites while reusing the same engine.
 
 ## Command
 
@@ -61,6 +61,13 @@ candidate discovery → candidate validation → asset materialization → human
   --allow-replace
 ```
 
+**Run output policy (IMG-01E):**
+
+- New run (no `--resume` / `--force-refetch`): `--output-dir` must be **absent or completely empty**.
+- Arbitrary non-empty shells (`notes.txt`, unrelated `summary.json`, assets-only, partial pipeline, unknown files) fail closed.
+- `--resume` requires a coherent governed prior output, same `source_adapter`, valid referenced assets, no unknown files, no symlink roots.
+- `--force-refetch` still requires a coherent prior when the directory is non-empty (does not overwrite unrelated shells).
+
 **`--allow-replace` policy (IMG-01D):**
 
 - Every **non-empty** Output requires explicit handling (`--allow-replace` or a new empty directory).
@@ -68,7 +75,7 @@ candidate discovery → candidate validation → asset materialization → human
 - Unknown top-level or nested files fail closed.
 - Stale governed assets are inventoried in `manifests/preexisting-stale-files.csv` and **not** deleted; replacement is refused until the operator archives or chooses a new empty Output.
 - Missing Manifest identity or SHA evidence fails closed (`status=integrity_failure`).
-- **No symlink is followed** during any asset operation (`lstat` / no-follow iterators).
+- **No symlink is followed** during any asset or root operation (`lstat` / no-follow iterators). Symlinked output/batch roots are rejected.
 
 Legacy shim: `scripts/discover_insize_product_images.py` → forwards to `run --source insize_tosag`.
 
@@ -82,7 +89,7 @@ IMG-01 pilots use `--max-images-per-product 1` (primary coverage only).
 
 ## Safety
 
-- Absolute `--output-dir` outside the Git repository
+- Absolute `--output-dir` outside the Git repository (must not itself be a symlink)
 - Host allowlist per adapter (INSIZE: `www.tosag.ch` only); HTTPS default; unexpected ports rejected
 - Bounded HTTP body reads (`response_too_large`)
 - Cross-host redirects rejected
@@ -91,6 +98,7 @@ IMG-01 pilots use `--max-images-per-product 1` (primary coverage only).
 - Rights always `review_required` / `pending_human_review`
 - Asset filenames use safe segments + short SHA suffix; full SHA-256 remains the integrity key
 - Symlinks / non-regular files under `assets/` fail closed (`unexpected_asset_symlink` / `unexpected_non_regular_asset`)
+- Symlinked governed roots (`assets/`, `manifests/`, `review/`, `logs/`, metadata files, batch roots) fail closed (`unexpected_governed_symlink`)
 - Duplicate physical files with the same SHA are reported in `manifests/duplicate-physical-assets.csv` (not auto-deleted)
 
 ## Classification
@@ -114,10 +122,12 @@ Same-brand SHAs shared by more than `HIGH_REUSE_SKU_THRESHOLD` (default **8**) S
 
 `provenance_batch`, `provenance_manifest`, `provenance_source_adapter` on accepted and rejected rows. Consolidation records every Batch occurrence in `candidate-provenance.*`.
 
-## Validation scope honesty (IMG-01C / IMG-01D)
+## Validation scope honesty (IMG-01C / IMG-01D / IMG-01E)
 
 | Kind | Status |
 |------|--------|
 | Asset/state offline 100-SKU resume regression | Proven (copy of external pilot; no live network) |
 | Structural page-subject Parser fixture tests | Local HTML fixtures only — **not** live-site proof |
+| Region-isolated meta/JSON-LD + atomic Product tests | Local HTML fixtures only — **not** live-site proof |
+| Symlink-root / run-output policy tests | Local tmp fixtures |
 | Live current TOSAG page-parser regression | **Pending** network availability — offline resume does **not** prove hardened parser behavior against the live site |

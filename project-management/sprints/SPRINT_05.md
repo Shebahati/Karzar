@@ -8,11 +8,12 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
-- [ ] **IMG-01D** Close five final image-pipeline blockers — `in_progress` 95% | P1 | Sprint 05 — branch `feat/image-discovery-pipeline`; final review pending; no commit yet
-- [ ] **IMG-01C** Final targeted image-pipeline corrections — `in_progress` 95% | P1 | Sprint 05 — branch `feat/image-discovery-pipeline`; final review pending; no commit yet
-- [ ] **IMG-01B** Close image-pipeline human-review blockers — `in_progress` 95% | P1 | Sprint 05 — branch `feat/image-discovery-pipeline`; second review pending; no commit yet
-- [ ] **IMG-01A** Generic multi-brand image-discovery engine + INSIZE adapter — `in_progress` 90% | P1 | Sprint 05 — branch `feat/image-discovery-pipeline`; Draft awaiting human review; no commit yet
-- [ ] **IMG-01** INSIZE image discovery pipeline + 100-SKU external pilot — `in_progress` 85% | P1 | Sprint 05 — external `/Karzar-image-pilot/insize-100/`; CR-008 C
+- [x] **IMG-01E** Harden structured evidence + output roots — `done` 100% | P1 | Sprint 05 — Draft PR #198; four hardening items closed; live TOSAG still pending
+- [x] **IMG-01D** Close five final image-pipeline blockers — `done` 100% | P1 | Sprint 05 — Draft PR #198 @ 0aecf9d
+- [x] **IMG-01C** Final targeted image-pipeline corrections — `done` 100% | P1 | Sprint 05 — Draft PR #198
+- [x] **IMG-01B** Close image-pipeline human-review blockers — `done` 100% | P1 | Sprint 05 — Draft PR #198
+- [x] **IMG-01A** Generic multi-brand image-discovery engine + INSIZE adapter — `done` 100% | P1 | Sprint 05 — Draft PR #198
+- [x] **IMG-01** INSIZE image discovery pipeline + 100-SKU external pilot — `done` 100% | P1 | Sprint 05 — external pilot preserved; offline regression only
 - [x] **KB-REMEDIATION-11A** Property Dictionary runtime (Units + Definitions + Aliases) — `done` 100% | P0 | Sprint 05 — migration `f7a8b9c0d1e2`; awaiting human commit/PR
 - [x] **KB-PT-01A** Close PT-W1 deletion-integrity and populated-migration evidence gaps — `done` 100% | P0 | Sprint 05 — included in PR #195
 - [x] **KB-PT-01** PT-W1 Product Type runtime core — `done` 100% | P0 | Sprint 05 — migration `e6f7a8b9c0d1`; merged PR #195 @ `0fc3503`

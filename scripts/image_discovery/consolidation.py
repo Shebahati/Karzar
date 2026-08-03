@@ -26,6 +26,8 @@ from .output import (
     write_summary_and_state,
 )
 from .paths import (
+    assert_batch_roots_nofollow,
+    assert_run_output_roots_nofollow,
     assert_under_assets,
     inspect_local_asset_nofollow,
     inventory_assets_by_sha,
@@ -119,9 +121,15 @@ def recognize_prior_discovery_output(out: Path) -> tuple[bool, str, list[dict[st
 
     A coherent prior output requires manifests/manifest.json + summary.json + assets/,
     valid JSON shapes, pipeline identity, safe referenced assets, and no unknown files.
+    Symlinked governed roots are never followed.
     """
-    if not out.exists():
+    if not out.exists(follow_symlinks=False) and not out.is_symlink():
         return False, "output_missing", []
+
+    try:
+        assert_run_output_roots_nofollow(out, require_existing_root=True)
+    except DiscoveryError as e:
+        return False, e.reason_code, []
 
     children = list(out.iterdir())
     if not children:
@@ -137,6 +145,8 @@ def recognize_prior_discovery_output(out: Path) -> tuple[bool, str, list[dict[st
     assets = out / "assets"
     if not man_path.is_file() or not sum_path.is_file() or not assets.is_dir():
         return False, "incomplete_signature", []
+    if man_path.is_symlink() or sum_path.is_symlink() or assets.is_symlink():
+        return False, "unexpected_governed_symlink", []
 
     try:
         manifest = json.loads(man_path.read_text(encoding="utf-8"))
@@ -223,9 +233,17 @@ def recognize_prior_discovery_output(out: Path) -> tuple[bool, str, list[dict[st
 
 def _reject_nonempty_without_replace(out: Path, *, allow_replace: bool) -> list[dict[str, str]]:
     """Fail closed: any non-empty output without coherent --allow-replace is rejected."""
-    if not out.exists():
+    if not out.exists(follow_symlinks=False) and not out.is_symlink():
         return []
-    children = list(out.iterdir())
+    try:
+        assert_run_output_roots_nofollow(out)
+    except DiscoveryError as e:
+        raise SystemExit(
+            f"ERROR: consolidate --output-dir rejected ({e.reason_code}: {e.reason_detail})"
+        ) from e
+    if out.is_symlink():
+        raise SystemExit("ERROR: consolidate --output-dir must not be a symlink")
+    children = list(out.iterdir()) if out.is_dir() else []
     if not children:
         return []
     top_names = sorted(p.name for p in children)
@@ -335,11 +353,34 @@ def consolidate_batches(
     provenance_occurrences: list[dict[str, Any]] = []
     seen: dict[str, dict[str, Any]] = {}
 
-    batch_dirs = sorted(p for p in inp.iterdir() if p.is_dir())
+    batch_dirs = sorted(p for p in inp.iterdir())
     for batch in batch_dirs:
-        man_path = batch / "manifests" / "manifest.json"
-        if not man_path.exists():
+        if batch.is_symlink():
+            raise DiscoveryError(
+                "consolidate",
+                "unexpected_governed_symlink",
+                f"batch directory is a symlink: {batch.name}",
+            )
+        if not batch.is_dir():
             continue
+        man_path = batch / "manifests" / "manifest.json"
+        manifests_dir = batch / "manifests"
+        if manifests_dir.is_symlink() or man_path.is_symlink():
+            raise DiscoveryError(
+                "consolidate",
+                "unexpected_governed_symlink",
+                f"batch manifests root is a symlink: {batch.name}",
+            )
+        if not man_path.exists(follow_symlinks=False):
+            continue
+        try:
+            assert_batch_roots_nofollow(batch)
+        except DiscoveryError as e:
+            raise DiscoveryError(
+                "consolidate",
+                e.reason_code,
+                f"batch {batch.name}: {e.reason_detail}",
+            ) from e
         try:
             rows = json.loads(man_path.read_text(encoding="utf-8"))
         except Exception as e:

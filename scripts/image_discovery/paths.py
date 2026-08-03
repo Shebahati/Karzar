@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import stat as stat_mod
 import unicodedata
 from pathlib import Path
 
@@ -92,6 +93,118 @@ def assert_under_assets(assets_dir: Path, destination: Path) -> Path:
     return dest
 
 
+def assert_path_not_symlink(
+    path: Path,
+    *,
+    label: str = "",
+    code: str = "unexpected_governed_symlink",
+) -> None:
+    """Reject an existing path when ``lstat`` reports a symlink (never follow)."""
+    if not path.exists(follow_symlinks=False) and not path.is_symlink():
+        return
+    try:
+        st = path.lstat()
+    except OSError as e:
+        raise DiscoveryError("fs", code, f"lstat failed: {label or path}") from e
+    if stat_mod.S_ISLNK(st.st_mode):
+        raise DiscoveryError(
+            "fs",
+            code,
+            f"symlink rejected (no-follow): {label or path.name}",
+        )
+
+
+def assert_governed_directory(
+    path: Path,
+    *,
+    label: str = "",
+    must_exist: bool = False,
+    code: str = "unexpected_governed_symlink",
+) -> Path:
+    """Ensure path is absent, or an existing real directory (not a symlink)."""
+    if not path.exists(follow_symlinks=False) and not path.is_symlink():
+        if must_exist:
+            raise DiscoveryError("fs", "missing_governed_directory", f"missing {label or path}")
+        return path
+    assert_path_not_symlink(path, label=label or str(path), code=code)
+    try:
+        st = path.lstat()
+    except OSError as e:
+        raise DiscoveryError("fs", code, f"lstat failed: {label or path}") from e
+    if not stat_mod.S_ISDIR(st.st_mode):
+        raise DiscoveryError(
+            "fs",
+            "unexpected_non_directory",
+            f"not a directory: {label or path.name}",
+        )
+    return path
+
+
+def assert_governed_file(
+    path: Path,
+    *,
+    label: str = "",
+    must_exist: bool = False,
+    code: str = "unexpected_governed_symlink",
+) -> Path:
+    """Ensure path is absent, or an existing real file (not a symlink)."""
+    if not path.exists(follow_symlinks=False) and not path.is_symlink():
+        if must_exist:
+            raise DiscoveryError("fs", "missing_governed_file", f"missing {label or path}")
+        return path
+    assert_path_not_symlink(path, label=label or str(path), code=code)
+    try:
+        st = path.lstat()
+    except OSError as e:
+        raise DiscoveryError("fs", code, f"lstat failed: {label or path}") from e
+    if not stat_mod.S_ISREG(st.st_mode):
+        raise DiscoveryError(
+            "fs",
+            "unexpected_non_regular_asset",
+            f"not a regular file: {label or path.name}",
+        )
+    return path
+
+
+def assert_run_output_roots_nofollow(out: Path, *, require_existing_root: bool = False) -> None:
+    """Reject symlinked governed run roots and metadata files before any I/O.
+
+    Checks (when present): output root, assets/, manifests/, review/, logs/,
+    summary.json, run-state.json, manifests/manifest.json.
+    """
+    if out.exists(follow_symlinks=False) or out.is_symlink():
+        assert_path_not_symlink(out, label="output root")
+        if require_existing_root:
+            assert_governed_directory(out, label="output root", must_exist=True)
+        elif out.exists(follow_symlinks=False):
+            assert_governed_directory(out, label="output root")
+    elif require_existing_root:
+        raise DiscoveryError("fs", "missing_governed_directory", "missing output root")
+
+    for name in ("assets", "manifests", "review", "logs"):
+        p = out / name
+        if p.exists(follow_symlinks=False) or p.is_symlink():
+            assert_governed_directory(p, label=name)
+
+    for rel in ("summary.json", "manifests/run-state.json", "manifests/manifest.json"):
+        p = out / rel
+        if p.exists(follow_symlinks=False) or p.is_symlink():
+            assert_governed_file(p, label=rel)
+
+
+def assert_batch_roots_nofollow(batch: Path) -> None:
+    """Reject symlinked batch directory roots and batch metadata before reads."""
+    assert_governed_directory(batch, label=f"batch:{batch.name}", must_exist=True)
+    for name in ("assets", "manifests", "review", "logs"):
+        p = batch / name
+        if p.exists(follow_symlinks=False) or p.is_symlink():
+            assert_governed_directory(p, label=f"batch:{batch.name}/{name}")
+    for rel in ("summary.json", "manifests/run-state.json", "manifests/manifest.json"):
+        p = batch / rel
+        if p.exists(follow_symlinks=False) or p.is_symlink():
+            assert_governed_file(p, label=f"batch:{batch.name}/{rel}")
+
+
 def resolve_manifest_asset_path(
     *,
     assets_root: Path,
@@ -134,8 +247,6 @@ def inspect_local_asset_nofollow(
 
     Never call ``open`` / ``read_bytes`` / hashing before this check succeeds.
     """
-    import stat as stat_mod
-
     root = assets_root.resolve()
     # Lexical containment only — never Path.resolve() (follows symlinks).
     try:
@@ -202,10 +313,14 @@ def inspect_local_asset_nofollow(
 
 def iter_local_asset_files(assets_dir: Path, *, fail_closed: bool = True) -> list[Path]:
     """List regular files directly under assets/ using lstat (never follow symlinks)."""
-    import stat as stat_mod
-
     if not assets_dir.exists():
         return []
+    if assets_dir.is_symlink():
+        raise DiscoveryError(
+            "fs",
+            "unexpected_governed_symlink",
+            "symlink rejected (no-follow): assets",
+        )
     if not assets_dir.is_dir():
         raise DiscoveryError("fs", "unexpected_non_regular_asset", f"assets is not a directory: {assets_dir}")
 

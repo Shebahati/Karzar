@@ -22,6 +22,7 @@ from .output import (
     write_summary_and_state,
 )
 from .paths import (
+    assert_run_output_roots_nofollow,
     assert_under_assets,
     inspect_local_asset_nofollow,
     inventory_assets_by_sha,
@@ -62,6 +63,10 @@ def assert_no_forbidden_imports_in_tree(root: Path) -> None:
 def validate_output_dir(output_dir: Path, repo_root: Path) -> Path:
     if not output_dir.is_absolute():
         raise SystemExit("ERROR: --output-dir must be an absolute path outside the repository")
+    # Do not follow symlinks when checking repo containment of the path string;
+    # still reject output that resolves inside the repo after a non-symlink resolve of parents.
+    if output_dir.is_symlink():
+        raise SystemExit("ERROR: --output-dir must not be a symlink")
     resolved = output_dir.resolve()
     try:
         resolved.relative_to(repo_root.resolve())
@@ -69,6 +74,73 @@ def validate_output_dir(output_dir: Path, repo_root: Path) -> Path:
     except ValueError:
         pass
     return resolved
+
+
+def enforce_run_output_policy(
+    out: Path,
+    *,
+    adapter_name: str,
+    resume: bool,
+    force_refetch: bool,
+) -> None:
+    """Governed output policy for ``run`` mode (IMG-01E).
+
+    - New run (no resume, no force-refetch): output absent or completely empty.
+    - ``--resume``: coherent prior + same adapter + no symlink roots.
+    - ``--force-refetch``: if non-empty, must still be a coherent prior + same adapter.
+    """
+    from .consolidation import recognize_prior_discovery_output
+
+    try:
+        assert_run_output_roots_nofollow(out)
+    except DiscoveryError as e:
+        raise SystemExit(f"ERROR: governed output root rejected ({e.reason_code}: {e.reason_detail})") from e
+
+    exists = out.exists(follow_symlinks=False) or out.is_symlink()
+    children = list(out.iterdir()) if exists and out.is_dir() and not out.is_symlink() else []
+    empty = (not exists) or (not children)
+
+    if empty:
+        if resume:
+            raise SystemExit(
+                "ERROR: --resume requires a coherent governed prior output "
+                "(output directory is absent or empty)"
+            )
+        return
+
+    # Non-empty: new runs without resume/force-refetch are forbidden
+    if not resume and not force_refetch:
+        names = sorted(p.name for p in children)
+        raise SystemExit(
+            "ERROR: --output-dir is non-empty; for a new run use an absent or empty directory, "
+            "or pass --resume / --force-refetch only for a coherent governed prior output "
+            f"(found: {', '.join(names[:12])}{'…' if len(names) > 12 else ''})"
+        )
+
+    ok, reason, stale = recognize_prior_discovery_output(out)
+    if not ok:
+        raise SystemExit(
+            "ERROR: --resume/--force-refetch refused — output is not a coherent governed "
+            f"image-discovery directory ({reason})"
+        )
+    if reason == "recognized_with_stale_assets" and stale:
+        # Resume may proceed with stale unreferenced files inventoried later; do not block
+        # solely on stale extras — but unknown files already failed recognition.
+        pass
+
+    # Same adapter identity
+    try:
+        summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+    except Exception as e:
+        raise SystemExit("ERROR: cannot read summary.json for adapter identity check") from e
+    prior_adapter = str(summary.get("source_adapter") or "").strip()
+    if prior_adapter and prior_adapter != adapter_name:
+        raise SystemExit(
+            f"ERROR: adapter mismatch — prior output source_adapter={prior_adapter!r} "
+            f"but this run uses {adapter_name!r}"
+        )
+    if not prior_adapter:
+        raise SystemExit("ERROR: prior summary.json missing source_adapter")
 
 
 class _SingleFlight:
@@ -134,9 +206,19 @@ def run_discovery(
         raise SystemExit("ERROR: --offset must be >= 0")
 
     out = validate_output_dir(output_dir, repo_root)
+    enforce_run_output_policy(
+        out,
+        adapter_name=adapter.name,
+        resume=resume,
+        force_refetch=force_refetch,
+    )
     out.mkdir(parents=True, exist_ok=True)
     for sub in ("assets", "manifests", "review", "logs"):
         (out / sub).mkdir(exist_ok=True)
+    try:
+        assert_run_output_roots_nofollow(out)
+    except DiscoveryError as e:
+        raise SystemExit(f"ERROR: governed output root rejected ({e.reason_code}: {e.reason_detail})") from e
 
     batch_name = provenance_batch or out.name
     provenance_manifest = "manifests/manifest.json"

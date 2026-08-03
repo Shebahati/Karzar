@@ -1566,11 +1566,11 @@
         "Human review of code + pilot",
         "No pilot binaries committed"
       ],
-      "status": "in_progress",
-      "progress": 85,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 8,
-      "day": 2,
+      "day": 3,
       "owner": "agent",
       "tags": [
         "images",
@@ -1579,7 +1579,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "Registered under CR-008 Option C. External pilot at /home/moahmmad/Projects/Karzar-image-pilot/insize-100/. Superseded implementation shape by IMG-01A refactor before first commit."
+      "notes": "Registered under CR-008 Option C. External pilot at /home/moahmmad/Projects/Karzar-image-pilot/insize-100/. Superseded implementation shape by IMG-01A refactor before first commit. Landed Draft PR #198."
     },
     {
       "id": "IMG-01A",
@@ -1613,11 +1613,11 @@
         "Human review before commit/PR",
         "Draft docs status awaiting human review"
       ],
-      "status": "in_progress",
-      "progress": 90,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 8,
-      "day": 2,
+      "day": 3,
       "owner": "agent",
       "tags": [
         "images",
@@ -1626,7 +1626,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. IMG-01B closed review blockers; stop before commit."
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. IMG-01B closed review blockers; stop before commit. Landed Draft PR #198."
     },
     {
       "id": "IMG-01B",
@@ -1660,11 +1660,11 @@
         "Second human review before commit/PR",
         "No DB / ProductImage / Alembic"
       ],
-      "status": "in_progress",
-      "progress": 95,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 8,
-      "day": 2,
+      "day": 3,
       "owner": "agent",
       "tags": [
         "images",
@@ -1673,7 +1673,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. External regression /tmp/insize-100-img01b (copy of insize-100). Stop before commit."
+      "notes": "CR-008 Option C. External regression /tmp/insize-100-img01b (copy of insize-100). Stop before commit. Landed Draft PR #198."
     },
     {
       "id": "IMG-01C",
@@ -1706,11 +1706,11 @@
         "Final human review before commit/PR",
         "Offline 100-SKU asset/state regression only (not live parser)"
       ],
-      "status": "in_progress",
-      "progress": 95,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 8,
-      "day": 2,
+      "day": 3,
       "owner": "agent",
       "tags": [
         "images",
@@ -1719,7 +1719,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit."
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit. Landed Draft PR #198."
     },
     {
       "id": "IMG-01D",
@@ -1752,8 +1752,8 @@
         "Final human review before commit/PR",
         "Offline 100-SKU asset/state regression only (not live parser)"
       ],
-      "status": "in_progress",
-      "progress": 95,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": 8,
       "day": 3,
@@ -1765,7 +1765,53 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit."
+      "notes": "CR-008 Option C. Landed in Draft PR #198 @ 0aecf9d; live TOSAG parser still pending."
+    },
+    {
+      "id": "IMG-01E",
+      "title": "Harden structured evidence and governed output roots",
+      "description": "Isolate meta/JSON-LD by DOM region; atomic Product JSON-LD; reject symlinked governed/batch roots; run/resume/force-refetch output policy.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 8,
+      "deps": [
+        "IMG-01D"
+      ],
+      "files": [
+        "scripts/image_discovery/**",
+        "tests/test_image_discovery*.py",
+        "docs/IMAGE_DISCOVERY_PIPELINE.md",
+        "aods/reports/tasks/IMG-01E*.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops"
+      ],
+      "ac": [
+        "Unrelated-region meta/JSON-LD never auto-confirms product subject",
+        "Brand+SKU never combined across Product JSON-LD objects",
+        "Symlinked governed/batch roots rejected before open/hash",
+        "New run requires empty/absent output; resume/force-refetch require coherent prior + same adapter"
+      ],
+      "dod": [
+        "Tests + PYTHONHASHSEED 0-9 + AODS gates + offline 100-SKU copy regression",
+        "Commit pushed to Draft PR #198 (not Ready for Review; not merged)"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": 8,
+      "day": 3,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "security",
+        "aods"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Four Draft PR #198 hardening items closed on feat/image-discovery-pipeline."
     }
   ]
 }
