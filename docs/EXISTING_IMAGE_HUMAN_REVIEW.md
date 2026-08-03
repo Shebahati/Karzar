@@ -2,7 +2,9 @@
 
 **Parent task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001 (`done` / 100)
 **Child task:** IMG-02A-02-BATCH-002 — Sequential Existing Image Human Review Batch 002
-**Implementation status:** Batch 002 packaging + human review complete (PR open) / decisions not applied
+**Implementation status:** Batch 002 packaging + human review complete / decisions not applied
+**Merged PR:** #205
+**Merge commit:** `1f391c0a3591c09888d12fbd5ec6d4ef8085de82`
 **Operational mode:** offline package generation + external human review
 **Production mutation capability:** none
 
@@ -23,18 +25,36 @@ Build deterministic, offline human-review packages from the immutable IMG-02A-01
 IMG-02A-02 (parent): done / 100
 Pilot 001 packaging: complete
 Pilot 001 human review: complete
-IMG-02A-02-BATCH-002: in_progress / 90
+IMG-02A-02-BATCH-002: done / 100
+Merged PR: #205
+Merge commit: 1f391c0a3591c09888d12fbd5ec6d4ef8085de82
 Batch 002 packaging: complete
 Batch 002 human review: complete
-review evidence: external, validated, not committed
-schema batch identity defect: corrected
-image decisions applied: none
+decisions applied: none
 replacement execution: not started
+review evidence: external, validated, not committed
+schema batch identity correction: complete
 ```
 
-“done” on the parent covers governed batch tooling, Pilot 001 packaging, and Pilot 001
-human review only. Batch 002 remains `in_progress` until PR #205 merges. Packaging and
-human review do **not** apply decisions or replacements.
+“done” on Batch 002 means packaging, human review integration, schema correction and merge
+are complete. It does **not** mean any image replacement was sourced, approved or applied.
+58 cumulative replacements and 2 cumulative manual-review assignments remain queued only.
+Rights remain `review_required`.
+
+### Next-stage policy (remainder)
+
+```text
+The remaining 414 unique Assets will not be processed as additional 100-Asset implementation cycles.
+
+They will be packaged in one governed remainder task:
+
+IMG-02A-02-REMAINDER-ALL
+
+The review UI may paginate or lazily render smaller visual pages,
+but it remains one package, one task and one human-review integration cycle.
+```
+
+The remainder package does **not** exist yet; it is policy for a later task only.
 
 ### Pilot 001 (historical / complete)
 
@@ -48,7 +68,7 @@ rights: all review_required (no cleared_by_owner)
 corrected Pilot ZIP SHA-256: fc7a1206556c01dbe0fe73dea66bbde042fec06cf556c4c61bbfdd0094e9d300
 ```
 
-### Batch 002 (packaging + human review complete; decisions not applied)
+### Batch 002 (complete; decisions not applied)
 
 ```text
 source unique assets: 614
@@ -64,6 +84,7 @@ fallback_used: false
 preview/thumbnail counts: 100 / 100
 old Batch 002 ZIP SHA-256: 1112f104c6d4746f9388caad5699ab03e9a9caeda4b9397d6db601db07192702
 corrected Batch 002 ZIP SHA-256: 6d15fc266d5b22ceba343e0ad50bcfa4df192245571383f6091631984cf70a60
+human-review ZIP SHA-256: 3402f341ec6b0f5ca9e50a0abd069191bfc1ebb28656728bd3adafd7697d7bc5
 ```
 
 Validated Batch 002 human-review aggregates (deterministic batch only — **not** representative of all 1193 local images):
