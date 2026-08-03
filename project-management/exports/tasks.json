@@ -1563,7 +1563,7 @@
         "Unit tests pass without live network"
       ],
       "dod": [
-        "Human review of code + pilot",
+        "Merged via PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b",
         "No pilot binaries committed"
       ],
       "status": "done",
@@ -1579,7 +1579,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "Registered under CR-008 Option C. External pilot at /home/moahmmad/Projects/Karzar-image-pilot/insize-100/. Superseded implementation shape by IMG-01A refactor before first commit. Landed Draft PR #198."
+      "notes": "Registered under CR-008 Option C. External pilot at /home/moahmmad/Projects/Karzar-image-pilot/insize-100/. Superseded implementation shape by IMG-01A refactor before first commit. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01A",
@@ -1611,7 +1611,8 @@
       ],
       "dod": [
         "Human review before commit/PR",
-        "Draft docs status awaiting human review"
+        "Operator docs synced post-merge; production not approved",
+        "Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b"
       ],
       "status": "done",
       "progress": 100,
@@ -1626,7 +1627,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. IMG-01B closed review blockers; stop before commit. Landed Draft PR #198."
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. IMG-01B closed review blockers; Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01B",
@@ -1657,7 +1658,7 @@
         "TOSAG subject evidence fixtures; 37+ tests; 100-SKU resume stable"
       ],
       "dod": [
-        "Second human review before commit/PR",
+        "Merged via PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b",
         "No DB / ProductImage / Alembic"
       ],
       "status": "done",
@@ -1673,7 +1674,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. External regression /tmp/insize-100-img01b (copy of insize-100). Stop before commit. Landed Draft PR #198."
+      "notes": "CR-008 Option C. External regression /tmp/insize-100-img01b (copy of insize-100). Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01C",
@@ -1703,7 +1704,7 @@
         "CSV dedupe before roles; contact-sheet URL scheme safety; high-reuse CSV"
       ],
       "dod": [
-        "Final human review before commit/PR",
+        "Merged via PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b",
         "Offline 100-SKU asset/state regression only (not live parser)"
       ],
       "status": "done",
@@ -1719,7 +1720,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Stop before commit. Landed Draft PR #198."
+      "notes": "CR-008 Option C. Branch feat/image-discovery-pipeline. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01D",
@@ -1749,7 +1750,7 @@
         "Asset scans never follow symlinks; duplicate physical paths reported"
       ],
       "dod": [
-        "Final human review before commit/PR",
+        "Merged via PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b",
         "Offline 100-SKU asset/state regression only (not live parser)"
       ],
       "status": "done",
@@ -1765,7 +1766,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Landed in Draft PR #198 @ 0aecf9d; live TOSAG parser still pending."
+      "notes": "CR-008 Option C. Landed in @ 0aecf9d; live TOSAG parser still pending. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01E",
@@ -1796,7 +1797,7 @@
       ],
       "dod": [
         "Tests + PYTHONHASHSEED 0-9 + AODS gates + offline 100-SKU copy regression",
-        "Commit pushed to Draft PR #198 (not Ready for Review; not merged)"
+        "Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b"
       ],
       "status": "done",
       "progress": 100,
@@ -1811,7 +1812,7 @@
         "aods"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Four hardening items closed; follow-up IMG-01E-R1 enforces resume identity contract."
+      "notes": "CR-008 Option C. Four hardening items closed; follow-up IMG-01E-R1 enforces resume identity contract. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     },
     {
       "id": "IMG-01E-R1",
@@ -1841,7 +1842,7 @@
       ],
       "dod": [
         "Tests + PYTHONHASHSEED + AODS + offline 100-SKU dual-resume",
-        "Commit pushed; PR #198 Ready for Review (not merged)"
+        "Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b"
       ],
       "status": "done",
       "progress": 100,
@@ -1856,7 +1857,7 @@
         "aods"
       ],
       "risk": "low",
-      "notes": "CR-008 Option C. Narrow Resume identity-contract correction on feat/image-discovery-pipeline."
+      "notes": "CR-008 Option C. Narrow Resume identity-contract correction on feat/image-discovery-pipeline. Merged PR #198 @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b (2026-08-03T09:26:07Z). Live TOSAG parser validation pending; not production-approved; no database/ProductImage integration."
     }
   ]
 }

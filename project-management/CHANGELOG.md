@@ -1,15 +1,16 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-03
-- [x] **IMG-01E-R1** — Resume/prior-output recognition enforces shared `validate_source_manifest_row` identity contract (same as Consolidation). Draft PR #198 → Ready for Review (not merged).
-- [x] **IMG-01E** — Four Draft PR #198 hardening items: region-isolated meta/JSON-LD; atomic Product JSON-LD; no-follow symlinked governed/batch roots; governed run/resume/force-refetch output policy. Offline 100-SKU copy regression only; live TOSAG still pending. Not Ready for Review / not production-approved.
-- [x] **IMG-01 → IMG-01D** — Governed multi-brand discovery pipeline committed on `feat/image-discovery-pipeline` @ `0aecf9d`; Draft PR #198.
+- [x] **IMG-01 → IMG-01E-R1** — Governed multi-brand image discovery pipeline **merged** in PR #198 @ `f10cfff3ace2a00ef3a7403d5408e79e0b9b395b` (implementation head `fe227b4`). Final local suite **110 passed**; offline 100-SKU asset/state regression passed. **No** database/ProductImage apply; **not** production-approved; live TOSAG parser validation **pending**.
+- [x] **IMG-01E-R1** — Resume identity contract (`validate_source_manifest_row`); merged via PR #198.
+- [x] **IMG-01E** — Four hardening items; merged via PR #198.
+- [x] **IMG-01 → IMG-01D** — Pipeline chain merged via PR #198 @ `f10cfff`.
 
 ## 2026-08-02
-- [x] **IMG-01D** — Close five final image-pipeline blockers (structural parser / allow-replace / manifest contract / no-follow / duplicate physical). Branch `feat/image-discovery-pipeline`. Landed Draft PR #198.
-- [x] **IMG-01C** — Final targeted image-pipeline corrections (path/integrity/dedupe/URL safety). Branch `feat/image-discovery-pipeline`. Landed Draft PR #198.
-- [x] **IMG-01B** — Close image-pipeline human-review blockers (identity/FS/provenance/consolidation/run-state/transport). Branch `feat/image-discovery-pipeline`. Landed Draft PR #198.
-- [x] **IMG-01A** — Generic multi-brand image-discovery engine + `insize_tosag` adapter (refactor before first commit). Branch `feat/image-discovery-pipeline`. External pilot preserved. Landed Draft PR #198.
+- [x] **IMG-01D** — Close five final image-pipeline blockers (structural parser / allow-replace / manifest contract / no-follow / duplicate physical). Branch `feat/image-discovery-pipeline` (historical). Later merged in PR #198 @ `f10cfff`.
+- [x] **IMG-01C** — Final targeted image-pipeline corrections (path/integrity/dedupe/URL safety). Branch `feat/image-discovery-pipeline` (historical). Later merged in PR #198 @ `f10cfff`.
+- [x] **IMG-01B** — Close image-pipeline human-review blockers (identity/FS/provenance/consolidation/run-state/transport). Branch `feat/image-discovery-pipeline` (historical). Later merged in PR #198 @ `f10cfff`.
+- [x] **IMG-01A** — Generic multi-brand image-discovery engine + `insize_tosag` adapter (refactor before first commit). Branch `feat/image-discovery-pipeline`. External pilot preserved. Later merged in PR #198 @ `f10cfff`.
 - [x] **IMG-01** — INSIZE image discovery + 100-SKU external pilot (candidate validation). Registered CR-008 C; implementation reshaped by IMG-01A.
 - [x] **KB-REMEDIATION-11A** — Property Dictionary runtime (A3): `knowledge_units` + `knowledge_property_definitions` + `knowledge_property_aliases`; migration `f7a8b9c0d1e2`; CLI import; super-admin GET. No templates/Facts/dual-write. Branch `feat/kb-remediation-11a-property-dictionary` (awaiting human commit/PR; HC-08 before apply).
 - [x] **KB-PT-01A** — Close PT-W1 integrity gaps: `passive_deletes="all"`; loaded-collection deletion regression; populated pre-migration Product+JSONB evidence (up/down/up). Same branch `feat/kb-pt-01-runtime-core`.
