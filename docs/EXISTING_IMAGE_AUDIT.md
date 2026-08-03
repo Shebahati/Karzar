@@ -2,9 +2,13 @@
 
 **Task:** IMG-02A-01 — Canonical Existing Product Image Inventory
 **R1:** IMG-02A-01-R1 — pre-authoritative boundary hardening (see task record)
-**Status:** tooling Ready for Review (PR #201) / not production-approved
-**Authoritative run:** complete 2026-08-03T12:11Z (`karzar_staging`, `transaction_read_only=on`)
-**Mutations:** none (database, ProductImage, and storage are read-only)
+**Implementation status:** merged to main
+**Merged PR:** #201
+**Merge commit:** `58401eb28fe346d2f00a0679d90c6763a5000250`
+**Authoritative inventory status:** complete (2026-08-03T12:11Z, `karzar_staging`, `transaction_read_only=on`)
+**Operational mode:** read-only audit
+**Production mutation capability:** none
+**Limitations (binding):** no ProductImage writes; no database writes; no storage mutations; no remote image requests; no watermark/suitability classification
 
 ## Purpose
 
@@ -107,6 +111,7 @@ Executed inside authoritative app container against PostgreSQL with `transaction
 | decode_failed_rows | 0 |
 | exact_duplicate_sha_groups | 188 |
 | cross_product_duplicate_sha_groups | 188 |
+| cross_brand_duplicate_sha_groups | 0 |
 | unreferenced_storage_files | 0 |
 | network_requests_performed | 0 |
 | database_modified | false |

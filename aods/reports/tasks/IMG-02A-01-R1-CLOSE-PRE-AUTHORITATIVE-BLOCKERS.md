@@ -6,8 +6,14 @@
 | Title | Close pre-authoritative boundary blockers (existing image audit) |
 | Parent | IMG-02A-01 |
 | Change class | C2 |
-| Branch | `feat/existing-image-audit` |
-| Status | in_progress |
+| Branch | `feat/existing-image-audit` (historical) |
+| Status | done |
+| Progress | 100 |
+| Merged PR | #201 |
+| Merge commit | `58401eb28fe346d2f00a0679d90c6763a5000250` |
+| Authoritative inventory | complete |
+| Database mutation | none |
+| Storage mutation | none |
 
 ## Goal
 
@@ -26,14 +32,37 @@ Harden IMG-02A-01 read-only inventory boundaries before an authoritative VPS run
 9. **Atomic publish** — stage outside output; publish after streamed checksums; failure leaves output empty.
 10. **Pillow bomb** — `DecompressionBombWarning`/`Error` → isolated `decode_failed`.
 
-## Evidence (authoritative run)
+## Chronology (preserved)
+
+### Historical — access initially blocked during implementation
+
+At R1 close (implementation head `8a20594`), the authoritative VPS inventory could not yet be executed from the implementation environment. That state was recorded as:
 
 ```text
+# HISTORICAL (pre-VPS access) — not current state
 authoritative run status: AUTHORITATIVE RUN BLOCKED
 blocker: no VPS SSH / authoritative DATABASE_URL from this environment
 network request count = 0 (by design; no run performed)
 database writes = 0 (by design; no run performed)
 storage mutations = 0 (by design; no run performed)
+```
+
+Do not treat the block above as the live disposition.
+
+### Current — authoritative run completed successfully
+
+After VPS access was established, the authoritative inventory completed 2026-08-03 against `karzar_staging` with `transaction_read_only=on`. Aggregate counts live in the parent task record. Raw outputs remain under `/var/tmp/karzar-image-audit/img02a01-20260803T121056Z` on the VPS and are not committed. PR #201 merged to `main` @ `58401eb28fe346d2f00a0679d90c6763a5000250`.
+
+## Final disposition (current)
+
+```text
+status: done
+progress: 100
+merged PR: #201
+merge commit: 58401eb28fe346d2f00a0679d90c6763a5000250
+authoritative inventory: complete
+database mutation: none
+storage mutation: none
 ```
 
 ## Local validation
@@ -42,7 +71,3 @@ storage mutations = 0 (by design; no run performed)
 - PYTHONHASHSEED 0–9: passed
 - `tests/test_image_discovery*.py`: 110 passed
 - ruff + aods_validate gates: PASS
-
-## Authoritative run disposition
-
-Authoritative inventory completed 2026-08-03 after VPS access via the established host. See parent task record for aggregate counts. Raw outputs remain under `/var/tmp/karzar-image-audit/img02a01-20260803T121056Z` on the VPS and are not committed.
