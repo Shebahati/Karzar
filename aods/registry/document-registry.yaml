@@ -477,8 +477,8 @@ documents:
     rank: 6
     status: draft
     owner_role: R-BE-ARCH
-    on_main: false
-    notes: "IMG-01..IMG-01E governed image discovery operator policy; Draft PR #198; not production-approved."
+    on_main: true
+    notes: "IMG-01..IMG-01E governed image discovery operator policy; merged PR #198 @ f10cfff; live TOSAG still pending; not production-approved."
 
   - id: HESABFA
     path: docs/HESABFA.md
