@@ -1892,11 +1892,11 @@
       "dod": [
         "Focused unit tests + PYTHONHASHSEED loop",
         "AODS links/registry/pmo/naming/ingestion-boundary",
-        "Draft PR; authoritative VPS run or AUTHORITATIVE RUN BLOCKED",
+        "Merged PR #201 @ 58401eb28fe346d2f00a0679d90c6763a5000250",
         "Raw inventory outputs not committed"
       ],
-      "status": "in_progress",
-      "progress": 95,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "tags": [
         "images",
@@ -1905,7 +1905,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Authoritative run complete 2026-08-03 on VPS lathe_api / karzar_staging (transaction_read_only=on). total_products=5918 products_with_image_rows=1194 valid_local=1193 exact_dup_groups=188. Raw outputs external under /var/tmp/karzar-image-audit/img02a01-20260803T121056Z. PR #201 Ready for Review; keep in_progress until merge. No mutations; network_requests=0."
+      "notes": "CR-008 Option C. Authoritative run complete 2026-08-03 on VPS lathe_api / karzar_staging (transaction_read_only=on). total_products=5918 products_with_image_rows=1194 valid_local=1193 exact_dup_groups=188 cross_brand_dup_groups=0. Raw outputs external under /var/tmp/karzar-image-audit/img02a01-20260803T121056Z. Merged PR #201 @ 58401eb28fe346d2f00a0679d90c6763a5000250. Read-only audit only; no ProductImage/DB/storage mutations; no watermark/suitability; network_requests=0."
     },
     {
       "id": "IMG-02A-01-R1",
@@ -1940,7 +1940,7 @@
       "dod": [
         "43 unit tests + PYTHONHASHSEED loop",
         "AODS validation gates PASS",
-        "Authoritative run BLOCKED documented"
+        "Merged PR #201 @ 58401eb28fe346d2f00a0679d90c6763a5000250"
       ],
       "status": "done",
       "progress": 100,
@@ -1953,7 +1953,7 @@
         "security"
       ],
       "risk": "low",
-      "notes": "CR-008 Option C. Boundary hardening complete @ 8a20594; authoritative inventory completed subsequently. See IMG-02A-01 evidence."
+      "notes": "CR-008 Option C. Boundary hardening complete @ 8a20594; authoritative inventory completed subsequently. Merged PR #201 @ 58401eb28fe346d2f00a0679d90c6763a5000250. Read-only audit only; no ProductImage/DB/storage mutations; no watermark/suitability. Historical: AUTHORITATIVE RUN BLOCKED during early R1 (no VPS access); later completed. See IMG-02A-01 evidence."
     }
   ]
 }

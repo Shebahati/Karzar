@@ -487,12 +487,16 @@ documents:
     path: docs/EXISTING_IMAGE_AUDIT.md
     class: POLICY
     rank: 6
-    status: draft
+    status: current
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     notes: >-
-      IMG-02A-01 read-only Product/ProductImage/storage inventory; no mutations;
-      remote URLs unverified; no watermark/suitability classification.
+      IMG-02A-01 and IMG-02A-01-R1 merged in PR #201;
+      merge commit: 58401eb28fe346d2f00a0679d90c6763a5000250;
+      authoritative inventory completed against karzar_staging;
+      transaction_read_only=on; zero database/storage mutations;
+      no watermark or suitability classification; read-only audit only
+      (not a production mutation tool).
 
   - id: HESABFA
     path: docs/HESABFA.md

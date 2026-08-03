@@ -8,9 +8,15 @@
 | Role | R-BE-ARCH / KNOW |
 | Prompt | `aods/70-prompts/know/KNOW-catalog-ingest.prompt.md` |
 | Base commit | `306271e66742cddc075c32fd1713adcf9c4992c3` |
-| Implementation head | `8a2059459a4d6d6798bb82b27793b1d26225f41f` |
-| Branch | `feat/existing-image-audit` |
-| Status | in_progress (PR #201 — Ready for Review after evidence commit) |
+| Implementation head | `b4fb0d4e1a280dd493ed4d481e4b13f6db2887a6` |
+| Branch | `feat/existing-image-audit` (historical) |
+| Status | done |
+| Progress | 100 |
+| Merged PR | #201 |
+| Merge commit | `58401eb28fe346d2f00a0679d90c6763a5000250` |
+| Authoritative inventory | complete |
+| Database mutation | none |
+| Storage mutation | none |
 
 ## Goal
 
@@ -31,11 +37,31 @@ Create a canonical, reproducible, read-only inventory of current Product / Produ
 - Tests: `tests/test_existing_image_audit.py`
 - Operator doc: `docs/EXISTING_IMAGE_AUDIT.md`
 
+## Chronology (preserved)
+
+1. Implementation + R1 boundary hardening on `feat/existing-image-audit`.
+2. Authoritative VPS inventory 2026-08-03 (aggregates below).
+3. Evidence commit `b4fb0d4`; PR #201 Ready for Review.
+4. Merged to `main` via PR #201 @ `58401eb28fe346d2f00a0679d90c6763a5000250` (2026-08-03T12:35:28Z).
+
+## Final disposition (current)
+
+```text
+status: done
+progress: 100
+merged PR: #201
+merge commit: 58401eb28fe346d2f00a0679d90c6763a5000250
+authoritative inventory: complete
+database mutation: none
+storage mutation: none
+```
+
 ## Evidence (authoritative run)
 
 ```text
 authoritative run = complete
 implementation commit: 8a2059459a4d6d6798bb82b27793b1d26225f41f
+evidence commit (PR head): b4fb0d4e1a280dd493ed4d481e4b13f6db2887a6
 branch: feat/existing-image-audit
 execution host: VPS srv5944957438 (authoritative app container lathe_api)
 dialect: postgresql
