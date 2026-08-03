@@ -1,8 +1,24 @@
 # IMAGE Discovery Pipeline
 
-**Status:** Draft — IMG-01E four hardening items closed on Draft PR #198; live TOSAG parser regression still pending; not production-approved
-**Scope:** Generic multi-brand engine + INSIZE/TOSAG adapter (`insize_tosag`)  
+**Implementation status:** merged to `main` (PR #198)
+**Production status:** not approved
+**Offline 100-SKU asset/state regression:** passed (copy of preserved external pilot; no live network)
+**Live current TOSAG parser regression:** pending
+**Database / ProductImage integration:** not implemented
+
+**Scope:** Generic multi-brand engine + INSIZE/TOSAG adapter (`insize_tosag`)
 **Non-goals:** DB writes, `ProductImage` insert, Alembic, staging/prod apply, cropping, commercial-rights clearance
+
+### Merge record
+
+```text
+Merged PR: #198
+Merge commit: f10cfff3ace2a00ef3a7403d5408e79e0b9b395b
+Final implementation head: fe227b4f03c110d81f468f8a760d4ccf6fb23092
+Final local test suite before merge: 110 passed
+```
+
+This tool is **not** production-ready. Live TOSAG parser validation remains pending. No ProductImage or database apply is in scope for the merged tooling.
 
 ## Architecture
 
@@ -83,8 +99,8 @@ Legacy shim: `scripts/discover_insize_product_images.py` → forwards to `run --
 
 ## Multi-image contract
 
-Fields: `image_role`, `source_rank`, `display_order_candidate`, `source_image_index`, `candidate_id`, plus identity/provenance fields.  
-Roles include `primary`, `alternate`, `detail`, …  
+Fields: `image_role`, `source_rank`, `display_order_candidate`, `source_image_index`, `candidate_id`, plus identity/provenance fields.
+Roles include `primary`, `alternate`, `detail`, …
 IMG-01 pilots use `--max-images-per-product 1` (primary coverage only).
 
 ## Safety
@@ -122,7 +138,7 @@ Same-brand SHAs shared by more than `HIGH_REUSE_SKU_THRESHOLD` (default **8**) S
 
 `provenance_batch`, `provenance_manifest`, `provenance_source_adapter` on accepted and rejected rows. Consolidation records every Batch occurrence in `candidate-provenance.*`.
 
-## Validation scope honesty (IMG-01C / IMG-01D / IMG-01E)
+## Validation scope honesty
 
 | Kind | Status |
 |------|--------|
@@ -131,3 +147,4 @@ Same-brand SHAs shared by more than `HIGH_REUSE_SKU_THRESHOLD` (default **8**) S
 | Region-isolated meta/JSON-LD + atomic Product tests | Local HTML fixtures only — **not** live-site proof |
 | Symlink-root / run-output policy tests | Local tmp fixtures |
 | Live current TOSAG page-parser regression | **Pending** network availability — offline resume does **not** prove hardened parser behavior against the live site |
+| Production / ProductImage apply | **Not implemented / not approved** |

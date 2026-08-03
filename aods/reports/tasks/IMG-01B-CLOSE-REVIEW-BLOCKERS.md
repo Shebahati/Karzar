@@ -1,9 +1,19 @@
 # IMG-01B — Close human-review blockers before first commit
 
-**Status:** Draft — implementation complete; awaiting second human review  
-**Branch:** `feat/image-discovery-pipeline`  
-**Date:** 2026-08-02  
+**Status:** Draft at authorship (historical) — implementation later merged; see Final disposition
+**Branch:** `feat/image-discovery-pipeline`
+**Date:** 2026-08-02
 **Non-goals honored:** no commit/push/PR; no DB/Alembic; no Product/ProductImage; `insize-100` original not overwritten
+
+
+## Final disposition
+
+```text
+Final disposition: merged in PR #198
+Merge commit: f10cfff3ace2a00ef3a7403d5408e79e0b9b395b
+Production execution: not approved
+Live TOSAG parser validation: pending
+```
 
 ## Summary
 

@@ -1,13 +1,23 @@
 # IMG-01 — INSIZE Image Discovery Pipeline
 
-**Node:** IMG-01  
-**Archetype:** KNOW  
-**Prompt:** `aods/70-prompts/know/KNOW-catalog-ingest.prompt.md`  
-**Change class:** C1  
-**Task ID:** IMG-01 (CR-008 Option C)  
-**Branch:** `feat/image-discovery-pipeline`  
-**Status:** Draft — implementation complete, awaiting human review  
+**Node:** IMG-01
+**Archetype:** KNOW
+**Prompt:** `aods/70-prompts/know/KNOW-catalog-ingest.prompt.md`
+**Change class:** C1
+**Task ID:** IMG-01 (CR-008 Option C)
+**Branch:** `feat/image-discovery-pipeline`
+**Status:** Draft at authorship (historical) — implementation later merged; see Final disposition
 **Date:** 2026-08-02
+
+
+## Final disposition
+
+```text
+Final disposition: merged in PR #198
+Merge commit: f10cfff3ace2a00ef3a7403d5408e79e0b9b395b
+Production execution: not approved
+Live TOSAG parser validation: pending
+```
 
 ## Goal
 

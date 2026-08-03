@@ -1,12 +1,21 @@
 # IMG-01E — Harden structured evidence and output roots
 
-**Status:** done (Draft PR #198 follow-up commit)  
-**Branch:** `feat/image-discovery-pipeline`  
+**Status:** done (implementation complete on feature branch; see Final disposition)
+**Branch:** `feat/image-discovery-pipeline`
 **Depends:** IMG-01D
+
+## Final disposition
+
+```text
+Final disposition: merged in PR #198
+Merge commit: f10cfff3ace2a00ef3a7403d5408e79e0b9b395b
+Production execution: not approved
+Live TOSAG parser validation: pending
+```
 
 ## Goal
 
-Close the four hardening items declared on Draft PR #198 without expanding scope.
+Close the four hardening items declared against PR #198 (historical Draft at authorship) without expanding scope.
 
 ## Delivered
 
@@ -19,8 +28,9 @@ Close the four hardening items declared on Draft PR #198 without expanding scope
 
 - No DB / Alembic / ProductImage
 - No live TOSAG downloads in this task
-- No Ready-for-Review / merge of #198
 - No pilot binaries in Git
+
+*(Historical note: while this report was authored, Ready-for-Review / merge of #198 had not yet occurred; see Final disposition above.)*
 
 ## Validation honesty
 

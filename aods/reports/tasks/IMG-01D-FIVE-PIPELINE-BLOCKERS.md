@@ -6,7 +6,17 @@
 | Title | Close five independently reproduced blockers before first commit |
 | Change class | C1 |
 | Branch | `feat/image-discovery-pipeline` |
-| Outcome | COMPLETE — ready for final human review; **not** merged/Accepted; **no commit** by agent |
+| Outcome | COMPLETE at authorship (historical: ready for review / no agent commit); **Final disposition: merged PR #198 @ f10cfff** |
+
+
+## Final disposition
+
+```text
+Final disposition: merged in PR #198
+Merge commit: f10cfff3ace2a00ef3a7403d5408e79e0b9b395b
+Production execution: not approved
+Live TOSAG parser validation: pending
+```
 
 ## Independently reproduced defects
 
