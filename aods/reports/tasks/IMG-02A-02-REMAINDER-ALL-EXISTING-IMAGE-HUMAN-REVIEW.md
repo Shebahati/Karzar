@@ -8,9 +8,11 @@
 | Batch ID | IMG-02A-02-REMAINDER-ALL |
 | Parent | IMG-02A-02 (`done` / 100 — not reopened) |
 | Dependency | IMG-02A-02-BATCH-002 (`done` / 100) |
-| Status | in_progress |
-| Progress | 90 |
-| Draft PR | #207 |
+| Status | done |
+| Progress | 100 |
+| Merged PR | #207 |
+| Implementation head | `c236e0cb4fd087a5d4cf9c8ef259bd27f010ce83` |
+| Merge commit | `5ea3f54edb2dcf83f374ea34bec9073973ce8f2f` |
 | Packaging | complete |
 | Human review | complete |
 | Human-review evidence | external and validated |
@@ -21,7 +23,7 @@
 
 Package all remaining existing-image assets after Pilot 001 and Batch 002 into one
 governed offline human-review package; validate and integrate completed human-review
-evidence into PR #207. No image decisions or replacements applied.
+evidence; merge via PR #207. No image decisions or replacements applied.
 
 ## Non-goals honored
 
@@ -29,10 +31,36 @@ evidence into PR #207. No image decisions or replacements applied.
 - No ProductImage writes / database access
 - No source-storage mutation
 - No network image requests
-- No deploy / merge
+- No deploy
 - No modification of Pilot 001 or Batch 002 human decisions
 - No commit of raw review CSV/JSON/ZIP, previews, or thumbnails
 - No legal rights clearance
+- IMG-02B not started
+
+## Final disposition
+
+```text
+Status: done
+Progress: 100
+Merged PR: #207
+Implementation head: c236e0cb4fd087a5d4cf9c8ef259bd27f010ce83
+Merge commit: 5ea3f54edb2dcf83f374ea34bec9073973ce8f2f
+Packaging: complete
+Human review: complete
+Human-review evidence: external and validated
+Decisions applied: none
+Replacement execution: not started
+database mutation: none
+ProductImage mutation: none
+storage mutation: none
+network mutation: none
+```
+
+“done / 100” means the governed package, complete human-review coverage,
+evidence validation, implementation merge and PMO closure are complete.
+
+It does not mean any replacement image was sourced, approved or applied.
+It does not mean rights were cleared.
 
 ## Authoritative source + prior proof
 
@@ -72,11 +100,8 @@ brands represented: 6
 ## Output evidence (external only)
 
 ```text
-output dir run-1: /var/tmp/karzar-image-review/img02a02-remainder-all
-output dir run-2: /var/tmp/karzar-image-review/img02a02-remainder-all-run2
-zip path: /var/tmp/karzar-image-review/IMG-02A-02-REMAINDER-ALL.zip
-copied zip: /home/moahmmad/Projects/Karzar-image-review/IMG-02A-02-REMAINDER-ALL.zip
-zip sha256: 48d3466db5ac40356dafd1dbc83ec9edf16ba8d401981d035f35a00d220df960
+source package SHA-256:
+48d3466db5ac40356dafd1dbc83ec9edf16ba8d401981d035f35a00d220df960
 zip bytes: 62309721
 preview/thumbnails: 414 / 414
 remote-deferred rows: 1
@@ -84,29 +109,28 @@ pre-screen counts: low_resolution=71, extreme_aspect=2, transparent_background=7
 semantic second-run stability: true
 offline html/url contract: pass
 prior-batch evidence path sanitization: pass (basename only)
+raw evidence committed: no
 ```
 
 ## Human-review evidence (external only)
 
 ```text
-human-review zip: /home/moahmmad/Projects/Karzar-image-review/IMG-02A-02-REMAINDER-ALL-human-review.zip
-outer SHA-256: 9e40733a7bd9eece40c2cb3b84732b7dae664ef87ec3c1d4b5ef2f09e2262b87
-extract dir: /var/tmp/karzar-image-review/human-review/img02a02-remainder-all
-internal checksum items: 10
-internal checksum failures: 0
+human-review ZIP SHA-256:
+9e40733a7bd9eece40c2cb3b84732b7dae664ef87ec3c1d4b5ef2f09e2262b87
+human-review internal checksum items: 10
+human-review checksum failures: 0
 Asset review coverage: 414 / 414
 Assignment review coverage: 516 / 516
 review-state import-compatible with Remainder-All review.html: yes
 rights_status: all review_required (cleared_by_owner = 0)
 UNREVIEWED: 0
+raw evidence committed: no
 ```
-
-Raw package and human-review evidence remain outside Git. Only aggregates are recorded here.
 
 ## Remainder-All Asset aggregates (authoritative)
 
 ```text
-Assets reviewed: 414
+Remainder-All Assets reviewed: 414 / 414
 
 watermark_status:
   distributor_or_retailer: 75
@@ -142,7 +166,9 @@ Absence of a watermark does not imply legal clearance.
 ## Remainder-All Assignment aggregates (authoritative)
 
 ```text
-Assignments reviewed: 516
+Remainder-All Assignments reviewed: 516 / 516
+Remainder-All REPLACE_REQUIRED Assignments: 30
+Remainder-All MANUAL_REVIEW Assignments: 0
 
 suitability_status:
   exact_or_likely_exact: 323
@@ -219,24 +245,25 @@ ISH-SDM, ISH-STAC, ISH-STD, 1120-500, 2342-202, 2372-360, 3101-300,
 3108-100, 3260-25SA, 4860-212, 4922-150, 6511-241, 6511-24, HDT-LP200B, HDT-LP200
 ```
 
-No replacements have been sourced, approved, or applied in this node.
+No replacements have been sourced, approved, or applied.
 
 ## Cumulative program disposition
 
 ```text
-unique Assets reviewed cumulatively: 614 / 614
-Assignments reviewed cumulatively: 1193 / 1193
-unique Assets remaining: 0
+Cumulative unique Assets reviewed: 614 / 614
+Cumulative Assignments reviewed: 1193 / 1193
+Remaining unique Assets: 0
+Cumulative REPLACE_REQUIRED Assignments: 88
+Cumulative MANUAL_REVIEW Assignments: 2
+Rights cleared: 0
 
 Pilot 001 REPLACE_REQUIRED Assignments: 41
 Batch 002 REPLACE_REQUIRED Assignments: 17
 Remainder-All REPLACE_REQUIRED Assignments: 30
-cumulative REPLACE_REQUIRED Assignments: 88
 
 Pilot 001 MANUAL_REVIEW Assignments: 1
 Batch 002 MANUAL_REVIEW Assignments: 1
 Remainder-All MANUAL_REVIEW Assignments: 0
-cumulative MANUAL_REVIEW Assignments: 2
 ```
 
 Human review coverage of all existing validated local image Assets is complete.
@@ -257,20 +284,20 @@ source_storage_mutations: 0
 repository_raw_review_evidence_tracked: 0
 ```
 
-## PR disposition (while open)
+## Historical (pre-merge) PR disposition
 
-```text
-Draft/Ready PR: #207
-branch: feat/existing-image-review-remainder-all
-task status while PR open: in_progress / 90
-do not mark done/100 before PR #207 merges
-do not create another remainder task
-```
+While PR #207 was open the task was intentionally held at `in_progress` / `90`.
+That open-state wording is historical only and no longer current.
 
 ## Outstanding later work
 
-- replacement-source discovery for the cumulative queues (88 REPLACE_REQUIRED + 2 MANUAL_REVIEW)
+- source discovery for products without images
+- replacement-source discovery for 88 queued Assignments
+- resolution of 2 manual-review Assignments
 - owner approval
 - staging application
 - production application
-- legal rights clearance (separate from visual review)
+- legal rights clearance where required
+
+Next governed implementation stage is **IMG-02B — Existing Source Paths**
+(initial brands: Dasqua, INSIZE, SAN OU). IMG-02B is **not** started.

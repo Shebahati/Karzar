@@ -1,11 +1,10 @@
 # Existing Image Human Review (IMG-02A-02)
 
 **Parent task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001 (`done` / 100)
-**Child tasks:** IMG-02A-02-BATCH-002 (closed) + IMG-02A-02-REMAINDER-ALL (open until PR #207 merges)
-**Implementation status:** remainder-all packaging complete / human review complete (external, validated) / decisions not applied
-**Merged PR:** #205 (Batch 002)
-**Merge commit:** `1f391c0a3591c09888d12fbd5ec6d4ef8085de82` (Batch 002)
-**Open PR:** #207 (Remainder-All)
+**Child tasks:** IMG-02A-02-BATCH-002 (`done` / 100) + IMG-02A-02-REMAINDER-ALL (`done` / 100)
+**Implementation status:** existing-image human-review stage complete / decisions not applied / replacement stage not complete
+**Merged PR (Batch 002):** #205 @ `1f391c0a3591c09888d12fbd5ec6d4ef8085de82`
+**Merged PR (Remainder-All):** #207 @ `5ea3f54edb2dcf83f374ea34bec9073973ce8f2f`
 **Operational mode:** offline package generation + external human review
 **Production mutation capability:** none
 
@@ -23,31 +22,58 @@ Build deterministic, offline human-review packages from the immutable IMG-02A-01
 ## Current status
 
 ```text
-IMG-02A-02 (parent): done / 100
-Pilot 001 packaging: complete
-Pilot 001 human review: complete
+IMG-02A-02: done / 100
 IMG-02A-02-BATCH-002: done / 100
-IMG-02A-02-REMAINDER-ALL: in_progress / 90
+IMG-02A-02-REMAINDER-ALL: done / 100
+
+Remainder-All merged PR: #207
+Remainder-All merge commit: 5ea3f54edb2dcf83f374ea34bec9073973ce8f2f
 Batch 002 merged PR: #205 @ 1f391c0a3591c09888d12fbd5ec6d4ef8085de82
-remainder-all packaging: complete
-remainder-all human review: complete
-human-review evidence: external and validated
-Asset coverage: 414 / 414
-Assignment coverage: 516 / 516
-remaining Assets: 0
+
+Existing validated local image review coverage:
+Assets: 614 / 614
+Assignments: 1193 / 1193
+Remaining Assets: 0
+
 decisions applied: none
 replacement execution: not started
+rights cleared: 0
 schema batch identity correction: complete
 ```
 
-“done” on Batch 002 means packaging, human review integration, schema correction and merge
-are complete. It does **not** mean any image replacement was sourced, approved or applied.
+The existing-image human-review stage is complete.
 
-Human review coverage of all existing validated local image Assets is complete (614 / 614).
-The 88 cumulative replacement decisions and 2 cumulative manual-review decisions are queues only.
-No replacement has been sourced, approved or applied. Rights remain `review_required`.
+The replacement stage is not complete:
+88 replacement-required Assignments and
+2 manual-review Assignments remain queued.
 
-### Remainder-all package + human review (current)
+No image decision has been applied to ProductImage or storage.
+
+“done / 100” on Remainder-All means the governed package, complete human-review coverage,
+evidence validation, implementation merge and PMO closure are complete.
+It does not mean any replacement image was sourced, approved or applied.
+It does not mean rights were cleared.
+
+### Next stage boundary (not started)
+
+```text
+Next governed implementation stage:
+IMG-02B — Existing Source Paths
+
+Initial brands:
+- Dasqua
+- INSIZE
+- SAN OU
+
+IMG-02B will cover:
+- products currently missing images
+- queued replacement Assignments for those brands
+- cleaner replacements for third-party-watermarked images where available
+```
+
+IMG-02B is **not** started.
+
+### Remainder-all package + human review (complete)
 
 ```text
 task_id/batch_id: IMG-02A-02-REMAINDER-ALL
@@ -209,6 +235,7 @@ No replacement has been sourced, approved or applied. The replacement program is
 - Committing images, previews, raw inventory, review CSVs, review-state, or ZIP to Git
 - Inferring legal rights clearance from `review_required`
 - Executing Pilot, Batch 002, or Remainder-All replacement queues in this phase
+- Starting IMG-02B without a separate governed node
 
 ## Authoritative input
 
