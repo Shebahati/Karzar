@@ -103,6 +103,23 @@ Generated outputs remain external:
 /home/moahmmad/Projects/Karzar-image-source-paths/IMG-02B-01
 ```
 
+R2 fail-closed hardening (semantics unchanged; accepted Artifact outer SHA
+`fc771c8ee63768ba95bf686b129301f2c729f396d9ae8ba25c24e7cdf90bf28f`):
+
+```text
+/var/tmp/karzar-image-source-paths/img02b-01-r2-run1
+/var/tmp/karzar-image-source-paths/img02b-01-r2-run2
+/home/moahmmad/Projects/Karzar-image-source-paths/IMG-02B-01-R2
+```
+
+Hardening contract:
+
+- inventory `total_image_rows` / `has_any_image_row` contradictions fail closed
+- output directory must be absent or completely empty (no `--allow-nonempty-output`)
+- `--copy-final-to` refuses any existing destination (no recursive delete)
+- human-review ZIP extract rejects basename collisions, nested residual paths,
+  absolute/`..`/symlink members, and non-empty extract destinations
+
 ## Source-path contracts (future discovery)
 
 ### Dasqua
@@ -146,8 +163,11 @@ python scripts/build_image_source_worklists.py \
   --extract-root /absolute/empty/external/extract-dir \
   --output-dir /absolute/empty/external/output-dir \
   --compare-with /absolute/path/to/prior-output-dir \
-  --copy-final-to /absolute/external/IMG-02B-01
+  --copy-final-to /absolute/absent/external/IMG-02B-01-R2
 ```
+
+`--output-dir` and `--extract-root` children must be absent or empty.
+`--copy-final-to` must not already exist.
 
 ## Planned later nodes (not started; no PMO tasks yet)
 

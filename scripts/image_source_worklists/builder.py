@@ -19,9 +19,74 @@ from .contracts import (
 
 
 def _as_bool(value: str | bool | None) -> bool:
+    """Lenient boolean for active/available flags only."""
     if isinstance(value, bool):
         return value
     return str(value or "").strip().lower() in {"1", "true", "yes", "y"}
+
+
+def parse_strict_bool(value: str | bool | None, *, field: str, product: dict[str, str]) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value if value is not None else "").strip().casefold()
+    if text == "true":
+        return True
+    if text == "false":
+        return False
+    raise WorklistError(
+        "inventory",
+        "invalid boolean for "
+        f"{field} product_id={product.get('product_id')} sku={product.get('sku')!r} "
+        f"value={value!r}",
+    )
+
+
+def parse_nonneg_int(value: str | int | None, *, field: str, product: dict[str, str]) -> int:
+    raw = "" if value is None else str(value).strip()
+    if raw.startswith("-"):
+        raise WorklistError(
+            "inventory",
+            "negative integer for "
+            f"{field} product_id={product.get('product_id')} sku={product.get('sku')!r} "
+            f"value={value!r}",
+        )
+    if raw == "" or not raw.isdigit():
+        raise WorklistError(
+            "inventory",
+            "invalid non-negative integer for "
+            f"{field} product_id={product.get('product_id')} sku={product.get('sku')!r} "
+            f"value={value!r}",
+        )
+    return int(raw)
+
+
+def validate_image_presence(product: dict[str, str]) -> tuple[int, bool]:
+    """Fail closed when total_image_rows and has_any_image_row contradict."""
+    total = parse_nonneg_int(
+        product.get("total_image_rows"),
+        field="total_image_rows",
+        product=product,
+    )
+    has_any = parse_strict_bool(
+        product.get("has_any_image_row"),
+        field="has_any_image_row",
+        product=product,
+    )
+    if (total == 0) != (has_any is False):
+        raise WorklistError(
+            "inventory",
+            "contradictory image-presence evidence "
+            f"product_id={product.get('product_id')} sku={product.get('sku')!r} "
+            f"total_image_rows={total} has_any_image_row={has_any}",
+        )
+    if (total > 0) != (has_any is True):
+        raise WorklistError(
+            "inventory",
+            "contradictory image-presence evidence "
+            f"product_id={product.get('product_id')} sku={product.get('sku')!r} "
+            f"total_image_rows={total} has_any_image_row={has_any}",
+        )
+    return total, has_any
 
 
 def _missing_priority(product: dict[str, str]) -> str:
@@ -113,7 +178,6 @@ def _merge_candidates(candidates: list[dict[str, Any]]) -> tuple[list[dict[str, 
         out["work_reasons"] = reasons
         if any(g.get("has_third_party_watermark") == "true" for g in group):
             out["has_third_party_watermark"] = "true"
-        # Prefer richer identity fields from higher-signal work types when present
         for g in sorted(group, key=lambda x: WORK_TYPE_PRECEDENCE[x["work_type"]]):
             for field in (
                 "current_image_id",
@@ -177,17 +241,19 @@ def build_worklists(
         "manual_skipped_other_brand": 0,
     }
 
+    # Fail closed on contradictory presence evidence for every non-deleted product.
+    presence_by_id: dict[str, tuple[int, bool]] = {}
+    for product in inventory["products"]:
+        presence_by_id[product["product_id"]] = validate_image_presence(product)
+
     # missing_image
     for product in inventory["products"]:
         brand_key = normalize_brand(product.get("brand"))
         if brand_key is None:
             continue
-        if _as_bool(product.get("has_any_image_row")):
+        _total, has_any = presence_by_id[product["product_id"]]
+        if has_any:
             continue
-        if (product.get("total_image_rows") or "0") not in {"0", ""}:
-            # fail closed on contradictory presence evidence
-            if not _as_bool(product.get("has_any_image_row")):
-                pass
         item = _candidate(
             product=product,
             brand_key=brand_key,

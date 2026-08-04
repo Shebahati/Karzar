@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 import stat
 from pathlib import Path
 from typing import Any
@@ -32,13 +33,18 @@ def _assert_external_output(path: Path, repo_root: Path) -> Path:
     return path
 
 
-def _ensure_empty_or_governed(path: Path, *, allow_nonempty: bool) -> None:
-    path.mkdir(parents=True, exist_ok=True)
-    if path.is_symlink():
-        raise WorklistError("output", "output-dir must not be a symlink")
-    children = list(path.iterdir())
-    if children and not allow_nonempty:
-        raise WorklistError("output", f"output-dir is not empty: {path}")
+def _ensure_absent_or_empty(path: Path) -> None:
+    """Output dir must be absent or completely empty. Never delete existing files."""
+    if path.exists():
+        if path.is_symlink():
+            raise WorklistError("output", f"output-dir must not be a symlink: {path}")
+        if not path.is_dir():
+            raise WorklistError("output", f"output-dir is not a directory: {path}")
+        children = list(path.iterdir())
+        if children:
+            raise WorklistError("output", f"output-dir is not empty: {path}")
+        return
+    path.mkdir(parents=True, exist_ok=False)
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -56,10 +62,9 @@ def write_worklist_outputs(
     inventory: dict[str, Any],
     review_data: dict[str, Any],
     built: dict[str, Any],
-    allow_nonempty: bool = False,
 ) -> dict[str, Any]:
     out = _assert_external_output(output_dir, repo_root)
-    _ensure_empty_or_governed(out, allow_nonempty=allow_nonempty)
+    _ensure_absent_or_empty(out)
 
     work_items = built["work_items"]
     manual_hold = built["manual_hold_items"]
@@ -210,6 +215,49 @@ Generated externally; do not commit these files to Git.
         "checksums_digest": sha256_file(out / "checksums.sha256"),
         "work_item_total": len(work_items),
     }
+
+
+def _assert_path_outside_repo(path: Path, repo_root: Path, *, label: str) -> None:
+    repo_resolved = repo_root.resolve()
+    probe = path
+    while not probe.exists() and probe.parent != probe:
+        probe = probe.parent
+    if probe.exists():
+        candidate = probe.resolve() / path.relative_to(probe)
+    else:
+        candidate = path
+    try:
+        candidate.resolve().relative_to(repo_resolved)
+        raise WorklistError("output", f"{label} must be outside repository: {path}")
+    except ValueError:
+        return
+
+
+def copy_final_outputs(source_dir: Path, dest: Path, *, repo_root: Path) -> Path:
+    """Copy governed outputs to a fresh absolute external destination (never delete)."""
+    if not dest.is_absolute():
+        raise WorklistError("output", "copy-final-to must be absolute")
+    if dest.is_symlink():
+        raise WorklistError("output", f"copy-final-to must not be a symlink: {dest}")
+    _assert_path_outside_repo(dest, repo_root, label="copy-final-to")
+
+    if dest.exists():
+        raise WorklistError("output", f"copy-final-to already exists: {dest}")
+
+    parent = dest.parent
+    if not parent.exists():
+        parent.mkdir(parents=True, exist_ok=True)
+    if parent.is_symlink():
+        raise WorklistError("output", f"copy-final-to parent must not be a symlink: {parent}")
+    if not parent.is_dir():
+        raise WorklistError("output", f"copy-final-to parent is not a directory: {parent}")
+
+    # Destination must still be absent after parent creation (never overwrite/delete).
+    if dest.exists() or dest.is_symlink():
+        raise WorklistError("output", f"copy-final-to already exists: {dest}")
+
+    shutil.copytree(source_dir, dest, symlinks=False)
+    return dest
 
 
 def semantic_fingerprint(output_dir: Path) -> dict[str, Any]:

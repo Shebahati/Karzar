@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import sys
 from pathlib import Path
 
@@ -23,6 +22,7 @@ from scripts.image_source_worklists.inputs import (  # noqa: E402
     load_review_bundles,
 )
 from scripts.image_source_worklists.output import (  # noqa: E402
+    copy_final_outputs,
     semantic_fingerprint,
     write_worklist_outputs,
 )
@@ -70,12 +70,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--copy-final-to",
         type=Path,
         default=None,
-        help="Optional absolute external directory to copy final outputs into",
-    )
-    p.add_argument(
-        "--allow-nonempty-output",
-        action="store_true",
-        help="Permit writing into a non-empty output directory (governed reuse only)",
+        help="Optional absolute absent external directory to copy final outputs into",
     )
     return p
 
@@ -98,7 +93,6 @@ def main(argv: list[str] | None = None) -> int:
             inventory=inventory,
             review_data=review_data,
             built=built,
-            allow_nonempty=args.allow_nonempty_output,
         )
         payload = {
             "ok": True,
@@ -116,14 +110,11 @@ def main(argv: list[str] | None = None) -> int:
             if not stable:
                 raise WorklistError("determinism", "semantic second-run mismatch")
         if args.copy_final_to is not None:
-            dest = args.copy_final_to
-            if not dest.is_absolute():
-                raise WorklistError("output", "copy-final-to must be absolute")
-            if dest.resolve() == REPO_ROOT.resolve() or str(dest).startswith(str(REPO_ROOT)):
-                raise WorklistError("output", "copy-final-to must be outside repository")
-            if dest.exists():
-                shutil.rmtree(dest)
-            shutil.copytree(args.output_dir, dest)
+            dest = copy_final_outputs(
+                args.output_dir,
+                args.copy_final_to,
+                repo_root=REPO_ROOT,
+            )
             payload["final_copy"] = str(dest)
         print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
         return 0

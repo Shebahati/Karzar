@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from .contracts import (
@@ -17,6 +17,11 @@ from .contracts import (
     normalize_brand,
     sha256_file,
 )
+
+_S_IFMT = 0o170000
+_S_IFREG = 0o100000
+_S_IFLNK = 0o120000
+_S_IFDIR = 0o040000
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -53,27 +58,113 @@ def _verify_checksums_file(directory: Path) -> int:
     return items
 
 
+def _zip_mode(info: zipfile.ZipInfo) -> int:
+    return (info.external_attr >> 16) & _S_IFMT
+
+
+def _is_zip_dir(info: zipfile.ZipInfo) -> bool:
+    name = info.filename
+    if name.endswith("/") or info.is_dir():
+        return True
+    mode = _zip_mode(info)
+    return mode == _S_IFDIR
+
+
+def _assert_extract_destination(dest_dir: Path) -> None:
+    """Destination must be absent or completely empty. Never clear existing files."""
+    if dest_dir.is_symlink():
+        raise WorklistError("review", f"extract destination must not be a symlink: {dest_dir}")
+    if dest_dir.exists():
+        if not dest_dir.is_dir():
+            raise WorklistError("review", f"extract destination is not a directory: {dest_dir}")
+        if list(dest_dir.iterdir()):
+            raise WorklistError("review", f"extract destination is not empty: {dest_dir}")
+        return
+    dest_dir.mkdir(parents=True, exist_ok=False)
+
+
 def extract_review_zip(zip_path: Path, dest_dir: Path) -> Path:
-    """Safely extract a human-review ZIP into dest_dir (flat files)."""
+    """Safely extract a human-review ZIP into dest_dir as flat basenames only."""
     if not zip_path.is_file() or zip_path.is_symlink():
         raise WorklistError("review", f"review ZIP missing: {zip_path}")
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    for child in list(dest_dir.iterdir()):
-        if child.is_file() and not child.is_symlink():
-            child.unlink()
+    _assert_extract_destination(dest_dir)
+
     with zipfile.ZipFile(zip_path) as zf:
-        names = zf.namelist()
+        infos = list(zf.infolist())
+        names = [info.filename for info in infos]
         if len(names) != len(set(names)):
             raise WorklistError("review", f"duplicate ZIP members: {zip_path.name}")
-        for info in zf.infolist():
-            name = info.filename
-            if name.startswith("/") or ".." in Path(name).parts:
-                raise WorklistError("review", f"unsafe ZIP path: {name}")
-            if (info.external_attr >> 16) & 0o170000 == 0o120000:
-                raise WorklistError("review", f"ZIP symlink forbidden: {name}")
-            if info.is_dir():
+
+        file_members: list[tuple[zipfile.ZipInfo, PurePosixPath]] = []
+        for info in infos:
+            name = info.filename.replace("\\", "/")
+            if name.startswith("/") or name.startswith("\\"):
+                raise WorklistError("review", f"absolute ZIP path forbidden: {info.filename}")
+            pure = PurePosixPath(name)
+            if ".." in pure.parts:
+                raise WorklistError("review", f"path traversal forbidden: {info.filename}")
+            mode = _zip_mode(info)
+            if mode == _S_IFLNK or ((info.external_attr >> 16) & 0o170000) == 0o120000:
+                raise WorklistError("review", f"ZIP symlink forbidden: {info.filename}")
+            if _is_zip_dir(info):
                 continue
-            target = dest_dir / Path(name).name
+            if mode and mode not in (_S_IFREG, 0):
+                raise WorklistError(
+                    "review", f"non-regular ZIP member forbidden: {info.filename}"
+                )
+            if pure.name == "" or pure.name in {".", ".."}:
+                raise WorklistError("review", f"unsafe ZIP path: {info.filename}")
+            file_members.append((info, pure))
+
+        if not file_members:
+            raise WorklistError("review", f"ZIP has no file members: {zip_path.name}")
+
+        parts_list = [list(path.parts) for _, path in file_members]
+        if all(len(parts) == 1 for parts in parts_list):
+            strip_root: str | None = None
+        else:
+            if not all(len(parts) >= 2 for parts in parts_list):
+                raise WorklistError(
+                    "review",
+                    f"mixed flat and nested ZIP members: {zip_path.name}",
+                )
+            roots = {parts[0] for parts in parts_list}
+            if len(roots) != 1:
+                raise WorklistError(
+                    "review",
+                    f"multiple top-level ZIP roots: {sorted(roots)}",
+                )
+            strip_root = next(iter(roots))
+
+        destinations: list[tuple[zipfile.ZipInfo, str]] = []
+        seen_basenames: set[str] = set()
+        for info, path in file_members:
+            parts = list(path.parts)
+            if strip_root is not None:
+                if parts[0] != strip_root:
+                    raise WorklistError("review", f"ZIP root mismatch: {info.filename}")
+                parts = parts[1:]
+            if len(parts) != 1:
+                raise WorklistError(
+                    "review",
+                    f"nested residual ZIP path forbidden: {info.filename}",
+                )
+            basename = parts[0]
+            if basename in seen_basenames:
+                raise WorklistError(
+                    "review",
+                    f"duplicate destination basename: {basename}",
+                )
+            seen_basenames.add(basename)
+            destinations.append((info, basename))
+
+        for info, basename in destinations:
+            target = dest_dir / basename
+            if target.exists() or target.is_symlink():
+                raise WorklistError(
+                    "review",
+                    f"refusing to overwrite extract member: {basename}",
+                )
             target.write_bytes(zf.read(info.filename))
     return dest_dir
 

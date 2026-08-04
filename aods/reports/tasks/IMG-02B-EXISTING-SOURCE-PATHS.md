@@ -98,7 +98,24 @@ semantic_second_run_stable: true
 run-1: /var/tmp/karzar-image-source-paths/img02b-01-run1
 run-2: /var/tmp/karzar-image-source-paths/img02b-01-run2
 final: /home/moahmmad/Projects/Karzar-image-source-paths/IMG-02B-01
+accepted Artifact ZIP outer SHA-256:
+  fc771c8ee63768ba95bf686b129301f2c729f396d9ae8ba25c24e7cdf90bf28f
 ```
+
+R2 fail-closed hardening runs (accepted 1204-product semantics unchanged):
+
+```text
+r2-run1: /var/tmp/karzar-image-source-paths/img02b-01-r2-run1
+r2-run2: /var/tmp/karzar-image-source-paths/img02b-01-r2-run2
+r2-final: /home/moahmmad/Projects/Karzar-image-source-paths/IMG-02B-01-R2
+```
+
+R2 hardening recorded:
+
+- inventory contradictions rejected
+- arbitrary non-empty output reuse removed
+- copy-final recursive deletion removed
+- ZIP basename collisions rejected
 
 Raw worklists remain outside Git.
 
@@ -139,3 +156,17 @@ IMG-02B-05 — Consolidated Candidate Human Review
 
 No live crawling, downloads, DB/ProductImage/storage access, replacement execution,
 manual-review resolution, rights clearance, deploy, or legacy importer execution.
+
+## R2 status
+
+```text
+R2 fail-closed output and extraction hardening complete
+accepted 1204-product Artifact semantics unchanged
+arbitrary non-empty output reuse removed
+copy-final recursive deletion removed
+inventory contradictions rejected
+ZIP basename collisions rejected
+live discovery = not started
+images downloaded = 0
+replacements applied = 0
+```
