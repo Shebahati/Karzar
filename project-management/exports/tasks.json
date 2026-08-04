@@ -2097,7 +2097,55 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Merged PR #207 @ 5ea3f54edb2dcf83f374ea34bec9073973ce8f2f. All-remaining package and human review complete. 414 / 414 Remainder-All Assets reviewed. 516 / 516 Remainder-All Assignments reviewed. 614 / 614 cumulative unique Assets reviewed. 1193 / 1193 cumulative Assignments reviewed. Remaining unique Assets: 0. 30 Remainder-All replacement-required Assignments. 88 cumulative replacement-required Assignments queued. 2 cumulative manual-review Assignments queued. Rights cleared: 0. No replacement execution. No database, ProductImage, source-storage or network mutation. Raw package and human-review evidence remain external. Next stage: IMG-02B, not started."
+      "notes": "CR-008 Option C. Merged PR #207 @ 5ea3f54edb2dcf83f374ea34bec9073973ce8f2f. All-remaining package and human review complete. 414 / 414 Remainder-All Assets reviewed. 516 / 516 Remainder-All Assignments reviewed. 614 / 614 cumulative unique Assets reviewed. 1193 / 1193 cumulative Assignments reviewed. Remaining unique Assets: 0. 30 Remainder-All replacement-required Assignments. 88 cumulative replacement-required Assignments queued. 2 cumulative manual-review Assignments queued. Rights cleared: 0. No replacement execution. No database, ProductImage, source-storage or network mutation. Raw package and human-review evidence remain external. Next stage IMG-02B started (source worklists)."
+    },
+    {
+      "id": "IMG-02B",
+      "title": "Existing Source Paths",
+      "description": "Governed source-discovery worklists and later live adapters for Dasqua, INSIZE and SAN OU: products without images, brand-matching REPLACE_REQUIRED assignments, watermark cleaner candidates, and manual-review holds.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 16,
+      "deps": [
+        "IMG-02A-02-REMAINDER-ALL"
+      ],
+      "files": [
+        "scripts/build_image_source_worklists.py",
+        "scripts/image_source_worklists/",
+        "tests/test_image_source_worklists.py",
+        "docs/IMAGE_SOURCE_PATHS.md",
+        "aods/reports/tasks/IMG-02B-EXISTING-SOURCE-PATHS.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "deterministic worklists for Dasqua, INSIZE and SAN OU",
+        "includes missing-image, replace_required, watermark_cleaner and manual_hold queues",
+        "uses authoritative IMG-02A-01 inventory and all three human-review bundles",
+        "no network/DB/ProductImage/storage mutation in worklist phase",
+        "generated worklists remain outside Git"
+      ],
+      "dod": [
+        "Focused worklist tests + PYTHONHASHSEED 0..9 in Python 3.12 container",
+        "IMG-02A-01 / IMG-02A-02 / IMG-01 regression suites",
+        "AODS links/registry/pmo/naming/ingestion-boundary pass",
+        "Draft PR opened; live discovery not started"
+      ],
+      "status": "in_progress",
+      "progress": 20,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "review",
+        "read-only"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. Phase IMG-02B-01 deterministic source worklists complete externally. Work items=1204; missing_image=1122 (dasqua 674 / insize 229 / san_ou 219); replace_required=63 (7/34/22); watermark_cleaner=18 (7/0/17); manual_review_hold=1 (dasqua). Cumulative review inputs 614/1193/88/2 validated. semantic_second_run_stable=true. R2 fail-closed output and extraction hardening complete; accepted 1204-product Artifact semantics unchanged; arbitrary non-empty output reuse removed; copy-final recursive deletion removed; inventory contradictions rejected; ZIP basename collisions rejected. Live discovery=not started. Image downloads=0. Replacements applied=0. Rights cleared=0. No DB/ProductImage/storage/network mutation. Raw worklists external only. Planned later nodes IMG-02B-02..05 not started."
     }
   ]
 }
