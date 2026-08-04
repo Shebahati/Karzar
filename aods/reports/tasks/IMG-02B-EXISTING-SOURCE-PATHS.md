@@ -53,19 +53,40 @@ cumulative review: 614 Assets / 1193 Assignments / 88 REPLACE_REQUIRED / 2 MANUA
 ## Authoritative worklist aggregates (external)
 
 ```text
+candidate evidence before product-level precedence:
+  missing_image: 1122
+  replace_required: 63
+  watermark_cleaner: 24
+  manual_review_hold: 1
+  total candidate reasons: 1210
+
+product-level primary work types after precedence:
+  missing_image: 1122
+  replace_required: 63
+  watermark_cleaner: 18
+  manual_review_hold: 1
+  total unique products: 1204
+
+multi-reason product merges: 6
 work_item_total: 1204
-by_brand: dasqua 688 / insize 263 / san_ou 253
-by_work_type:
-  missing_image 1122
-  replace_required 63
-  watermark_cleaner 18
-  manual_review_hold 1
+
+by_brand (primary work items): dasqua 688 / insize 263 / san_ou 253
 by_priority: P0 892 / P1 312 / P2 0
 missing_image_by_brand: dasqua 674 / insize 229 / san_ou 219
 replace_required_by_brand: dasqua 7 / insize 34 / san_ou 22
-watermark_cleaner_by_brand: dasqua 7 / san_ou 17 / insize 0
+watermark cleaner evidence before precedence by brand:
+  Dasqua: 7
+  INSIZE: 0
+  SAN OU: 17
+  total: 24
+watermark_cleaner primary work_type after precedence: 18
 manual_review_hold_by_brand: dasqua 1
-dedupe: input 1210 → unique 1204; multi-reason merges 6
+
+Six watermark-cleaner reasons belong to products whose primary work type is
+replace_required or another higher-precedence type. Their watermark evidence
+is preserved in work_reasons and has_third_party_watermark, while the primary
+work_type total remains 18.
+
 unmatched_rows: 0
 ambiguous_rows: 0
 semantic_second_run_stable: true

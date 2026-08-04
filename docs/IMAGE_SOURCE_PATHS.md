@@ -58,17 +58,42 @@ Pilot human-review bundle.
 ## Current worklist aggregates
 
 ```text
+candidate evidence before product-level precedence:
+  missing_image: 1122
+  replace_required: 63
+  watermark_cleaner: 24
+  manual_review_hold: 1
+  total candidate reasons: 1210
+
+product-level primary work types after precedence:
+  missing_image: 1122
+  replace_required: 63
+  watermark_cleaner: 18
+  manual_review_hold: 1
+  total unique products: 1204
+
+multi-reason product merges: 6
 work items: 1204
 Dasqua / INSIZE / SAN OU: 688 / 263 / 253
 missing_image: 1122 (674 / 229 / 219)
 replace_required: 63 (7 / 34 / 22)
-watermark_cleaner: 18 (7 / 0 / 17)
+watermark cleaner evidence before precedence by brand:
+  Dasqua: 7
+  INSIZE: 0
+  SAN OU: 17
+  total: 24
+watermark_cleaner primary work_type after precedence: 18
 manual_review_hold: 1 (Dasqua only; ASTPOWER manual hold excluded as non-target brand)
 priority: P0 892 / P1 312 / P2 0
 unmatched: 0
 ambiguous: 0
 semantic_second_run_stable: true
 ```
+
+Six watermark-cleaner reasons belong to products whose primary work type is
+replace_required or another higher-precedence type. Their watermark evidence
+is preserved in `work_reasons` and `has_third_party_watermark`, while the primary
+`work_type` total remains 18.
 
 Generated outputs remain external:
 
