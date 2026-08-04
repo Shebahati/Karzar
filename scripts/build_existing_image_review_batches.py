@@ -45,6 +45,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--shared-count", type=int, default=PILOT_SHARED_COUNT)
     p.add_argument("--singleton-count", type=int, default=PILOT_SINGLETON_COUNT)
     p.add_argument(
+        "--all-remaining",
+        action="store_true",
+        help="Select all eligible assets after prior exclusions (mutually exclusive with quotas).",
+    )
+    p.add_argument(
         "--expected-checksums-digest",
         default=AUTHORITATIVE_CHECKSUMS_DIGEST,
         help="SHA-256 of source checksums.sha256",
@@ -62,6 +67,13 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     try:
+        if args.all_remaining and (
+            args.shared_count != PILOT_SHARED_COUNT or args.singleton_count != PILOT_SINGLETON_COUNT
+        ):
+            raise ReviewError(
+                "selection",
+                "--all-remaining cannot be combined with explicit shared/singleton quotas",
+            )
         result = build_review_batch_package(
             source_dir=args.source_dir,
             storage_root=args.storage_root,
@@ -74,6 +86,7 @@ def main(argv: list[str] | None = None) -> int:
             singleton_count=args.singleton_count,
             prior_batch_dirs=list(args.prior_batch_dir),
             zip_path=args.zip_path,
+            all_remaining=args.all_remaining,
         )
         if args.compare_with_summary is not None:
             prior = json.loads(args.compare_with_summary.read_text(encoding="utf-8"))

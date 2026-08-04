@@ -15,7 +15,11 @@ from scripts.image_audit.output import write_checksums
 from scripts.image_review.contracts import ReviewError
 from scripts.image_review.pipeline import build_pilot_package, semantic_compare_summaries
 from scripts.image_review.prescreen import compute_prescreen
-from scripts.image_review.selection import group_assets, select_pilot_assets
+from scripts.image_review.selection import (
+    group_assets,
+    select_all_remaining_assets,
+    select_pilot_assets,
+)
 from scripts.image_review.source_inventory import verify_checksum_manifest
 
 REPO = Path(__file__).resolve().parents[1]
@@ -1018,3 +1022,128 @@ def test_batch_002_human_review_external_if_present():
     state = json.loads((review / "review-state.json").read_text(encoding="utf-8"))
     assert len(state["assets"]) == 100
     assert len(state["assignments"]) == 212
+
+
+def test_all_remaining_selects_every_eligible_asset(tmp_path: Path):
+    from scripts.image_review.source_inventory import load_verified_source
+
+    source, storage, digest, summary, _, _ = _make_mini_world(tmp_path, shared=4, singleton=6)
+    _, _, rows = load_verified_source(
+        source, expected_checksums_digest=digest, expected_summary=summary
+    )
+    assets, _ = group_assets(rows)
+    pilot, pm = select_pilot_assets(assets, shared_count=2, singleton_count=2, total=4)
+    batch2, bm = select_pilot_assets(
+        [a for a in assets if a["sha256"] not in set(pm["selected_asset_ids"])],
+        shared_count=2,
+        singleton_count=2,
+        total=4,
+    )
+    excluded = set(pm["selected_asset_ids"]) | {a["sha256"] for a in batch2}
+    selected, meta = select_all_remaining_assets(assets, excluded_asset_ids=excluded)
+    assert meta["selection_mode"] == "all_remaining"
+    assert meta["fallback_used"] is False
+    assert meta["excluded_prior_asset_count"] == 8
+    assert meta["eligible_assets_before_selection"] == len(assets) - 8
+    assert meta["remaining_unique_assets_after_selection"] == 0
+    assert len(selected) == len(assets) - 8
+    assert len({a["sha256"] for a in selected}) == len(selected)
+
+
+def test_all_remaining_requires_prior_batches(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=2, singleton=2)
+    out = tmp_path / "out"
+    out.mkdir()
+    with pytest.raises(ReviewError, match="requires at least one prior-batch"):
+        build_review_batch_package(
+            source_dir=source,
+            storage_root=storage,
+            output_dir=out,
+            repository_root=REPO,
+            expected_checksums_digest=digest,
+            expected_summary=summary,
+            shared_count=sh,
+            singleton_count=si,
+            all_remaining=True,
+        )
+
+
+def test_cli_rejects_all_remaining_with_explicit_quotas():
+    from scripts.build_existing_image_review_batches import main
+
+    rc = main(
+        [
+            "--source-dir",
+            "/tmp/none",
+            "--storage-root",
+            "/tmp/none",
+            "--output-dir",
+            "/tmp/none",
+            "--all-remaining",
+            "--shared-count",
+            "51",
+        ]
+    )
+    assert rc == 2
+
+
+def test_prior_batch_evidence_path_sanitized(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    world = tmp_path / "w"
+    world.mkdir(parents=True, exist_ok=True)
+    source, storage, digest, summary, _, _ = _make_mini_world(world, shared=3, singleton=3)
+    prior = tmp_path / "prior"
+    out = tmp_path / "out"
+    prior.mkdir(parents=True)
+    out.mkdir(parents=True)
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=prior,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-PILOT-001",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=1,
+        singleton_count=1,
+    )
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=2,
+        singleton_count=2,
+        prior_batch_dirs=[prior],
+    )
+    ev = json.loads((out / "prior-batch-evidence.json").read_text(encoding="utf-8"))
+    assert ev["prior_batches"][0]["batch_dir"] == prior.name
+    assert "/" not in ev["prior_batches"][0]["batch_dir"]
+
+
+def test_html_includes_pagination_and_search_controls(tmp_path: Path):
+    source, storage, digest, summary, shared, singleton = _make_mini_world(tmp_path)
+    out = tmp_path / "out"
+    out.mkdir()
+    build_pilot_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=shared,
+        singleton_count=singleton,
+    )
+    html = (out / "review.html").read_text(encoding="utf-8")
+    assert "fSearch" in html
+    assert "fPageSize" in html
+    assert "btnPrevPage" in html
+    assert "btnNextPage" in html
+    assert "btnNextUnreviewed" in html

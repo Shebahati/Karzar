@@ -39,7 +39,12 @@ from .review_schema import (
     assignment_review_template_rows,
     review_schema_document,
 )
-from .selection import assignments_for_assets, group_assets, select_review_batch_assets
+from .selection import (
+    assignments_for_assets,
+    group_assets,
+    select_all_remaining_assets,
+    select_review_batch_assets,
+)
 from .source_inventory import assert_storage_root, load_verified_source
 
 REVIEW_GUIDE_FA = """# راهنمای بازبینی انسانی تصاویر موجود (IMG-02A-02)
@@ -103,6 +108,7 @@ def build_review_batch_package(
     prior_batch_dirs: Sequence[Path] | None = None,
     zip_path: Path | None = None,
     network_guard: Any | None = None,
+    all_remaining: bool = False,
 ) -> dict[str, Any]:
     """Build a deterministic offline review package. On failure, output_dir is left empty."""
     if network_guard is not None:
@@ -135,13 +141,24 @@ def build_review_batch_package(
         )
         excluded_ids = prior_evidence["excluded_asset_ids"]
 
-        selected, selection_meta = select_review_batch_assets(
-            assets,
-            excluded_asset_ids=excluded_ids,
-            shared_count=shared_count,
-            singleton_count=singleton_count,
-            total=shared_count + singleton_count,
-        )
+        if all_remaining:
+            if not prior_dirs:
+                raise ReviewError(
+                    "selection",
+                    "all_remaining mode requires at least one prior-batch exclusion package",
+                )
+            selected, selection_meta = select_all_remaining_assets(
+                assets,
+                excluded_asset_ids=excluded_ids,
+            )
+        else:
+            selected, selection_meta = select_review_batch_assets(
+                assets,
+                excluded_asset_ids=excluded_ids,
+                shared_count=shared_count,
+                singleton_count=singleton_count,
+                total=shared_count + singleton_count,
+            )
         overlap = sorted(set(selection_meta["selected_asset_ids"]) & set(excluded_ids))
         if overlap:
             raise ReviewError("selection", f"prior-batch overlap detected: {overlap[0]}")
@@ -150,6 +167,10 @@ def build_review_batch_package(
         selection_meta["prior_batch_count"] = prior_evidence["prior_batch_count"]
 
         assignments = assignments_for_assets(selected)
+        if len(assignments) != len({a["assignment_id"] for a in assignments}):
+            raise ReviewError("selection", "duplicate assignment IDs in flattened output")
+        if len({a["asset_id"] for a in assignments}) != len(selected):
+            raise ReviewError("selection", "missing selected-asset assignments")
         for asset in selected:
             expected_ids = sorted(int(i) for i in asset["image_ids"])
             got = sorted(
@@ -204,6 +225,7 @@ def build_review_batch_package(
                     "task_id": task_id,
                     "batch_id": batch_id,
                     "review_schema_version": REVIEW_SCHEMA_VERSION,
+                    "selection_mode": selection_meta["selection_mode"],
                     "source_unique_assets": selection_meta["source_unique_assets"],
                     "prior_batch_ids": selection_meta["prior_batch_ids"],
                     "prior_batch_count": selection_meta["prior_batch_count"],
@@ -218,6 +240,7 @@ def build_review_batch_package(
                     "remaining_unique_assets_after_selection": selection_meta[
                         "remaining_unique_assets_after_selection"
                     ],
+                    "prior_overlap_count": selection_meta["prior_overlap_count"],
                     "fallback_used": selection_meta["fallback_used"],
                     "selection": selection_meta,
                 },
@@ -289,6 +312,7 @@ def build_review_batch_package(
                 "task_id": task_id,
                 "batch_id": batch_id,
                 "review_schema_version": REVIEW_SCHEMA_VERSION,
+                "selection_mode": selection_meta["selection_mode"],
                 "source_unique_assets": selection_meta["source_unique_assets"],
                 "prior_batch_ids": selection_meta["prior_batch_ids"],
                 "prior_batch_count": selection_meta["prior_batch_count"],
@@ -303,6 +327,7 @@ def build_review_batch_package(
                 "remaining_unique_assets_after_selection": selection_meta[
                     "remaining_unique_assets_after_selection"
                 ],
+                "prior_overlap_count": selection_meta["prior_overlap_count"],
                 "brands_represented": brands,
                 "brands_represented_count": len(brands),
                 "low_resolution_candidates": sum(

@@ -1,10 +1,10 @@
 # Existing Image Human Review (IMG-02A-02)
 
 **Parent task:** IMG-02A-02 — Existing Image Human Review Batches and Pilot 001 (`done` / 100)
-**Child task:** IMG-02A-02-BATCH-002 — Sequential Existing Image Human Review Batch 002
-**Implementation status:** Batch 002 packaging + human review complete / decisions not applied
-**Merged PR:** #205
-**Merge commit:** `1f391c0a3591c09888d12fbd5ec6d4ef8085de82`
+**Child tasks:** IMG-02A-02-BATCH-002 (closed) + IMG-02A-02-REMAINDER-ALL (open)
+**Implementation status:** remainder-all packaging complete / human review pending / decisions not applied
+**Merged PR:** #205 (Batch 002)
+**Merge commit:** `1f391c0a3591c09888d12fbd5ec6d4ef8085de82` (Batch 002)
 **Operational mode:** offline package generation + external human review
 **Production mutation capability:** none
 
@@ -26,10 +26,10 @@ IMG-02A-02 (parent): done / 100
 Pilot 001 packaging: complete
 Pilot 001 human review: complete
 IMG-02A-02-BATCH-002: done / 100
-Merged PR: #205
-Merge commit: 1f391c0a3591c09888d12fbd5ec6d4ef8085de82
-Batch 002 packaging: complete
-Batch 002 human review: complete
+IMG-02A-02-REMAINDER-ALL: in_progress / 70
+Batch 002 merged PR: #205 @ 1f391c0a3591c09888d12fbd5ec6d4ef8085de82
+remainder-all packaging: complete
+remainder-all human review: pending
 decisions applied: none
 replacement execution: not started
 review evidence: external, validated, not committed
@@ -41,20 +41,32 @@ are complete. It does **not** mean any image replacement was sourced, approved o
 58 cumulative replacements and 2 cumulative manual-review assignments remain queued only.
 Rights remain `review_required`.
 
-### Next-stage policy (remainder)
+### Remainder-all package (current)
 
 ```text
-The remaining 414 unique Assets will not be processed as additional 100-Asset implementation cycles.
-
-They will be packaged in one governed remainder task:
-
-IMG-02A-02-REMAINDER-ALL
-
-The review UI may paginate or lazily render smaller visual pages,
-but it remains one package, one task and one human-review integration cycle.
+task_id/batch_id: IMG-02A-02-REMAINDER-ALL
+selection_mode: all_remaining
+source unique assets: 614
+prior reviewed assets excluded: 200
+eligible before selection: 414
+selected unique assets: 414
+shared/singleton split: 88 / 326
+assignments retained: 516
+remaining unique assets after selection: 0
+prior overlap: 0
+brands represented: 6
+pre-screen aggregate counts: low_resolution=71, extreme_aspect=2, transparent_background=73, busy_border=3
+preview/thumbnail counts: 414 / 414
+remote-deferred rows: 1
+semantic second-run stability: true
+ZIP SHA-256: 48d3466db5ac40356dafd1dbc83ec9edf16ba8d401981d035f35a00d220df960
+ZIP bytes: 62309721
+human review: pending
+decisions applied: none
+replacement execution: not started
 ```
 
-The remainder package does **not** exist yet; it is policy for a later task only.
+The remainder package exists externally and remains pending human visual review before any downstream decision integration.
 
 ### Pilot 001 (historical / complete)
 
@@ -177,6 +189,21 @@ python scripts/build_existing_image_review_batches.py \
   --prior-batch-dir /absolute/path/to/verified-pilot-package \
   --shared-count 50 \
   --singleton-count 50
+```
+
+Remainder-all:
+
+```bash
+python scripts/build_existing_image_review_batches.py \
+  --source-dir /absolute/path/to/img02a01-20260803T121056Z \
+  --storage-root /absolute/path/to/data/uploads/products \
+  --output-dir /absolute/empty/path/outside/repo/img02a02-remainder-all \
+  --zip-path /absolute/path/IMG-02A-02-REMAINDER-ALL.zip \
+  --task-id IMG-02A-02-REMAINDER-ALL \
+  --batch-id IMG-02A-02-REMAINDER-ALL \
+  --prior-batch-dir /absolute/path/to/verified-pilot-package \
+  --prior-batch-dir /absolute/path/to/verified-batch-002-package \
+  --all-remaining
 ```
 
 ## Boundary claims

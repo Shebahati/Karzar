@@ -216,7 +216,7 @@ def load_prior_batch_asset_ids(
         "review_schema_version": REVIEW_SCHEMA_VERSION,
         "selected_unique_assets": len(manifest_ids),
         "asset_ids": list(manifest_ids),
-        "batch_dir": str(batch_dir),
+        "batch_dir": batch_dir.name,
     }
 
 
