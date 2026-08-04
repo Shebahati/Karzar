@@ -520,14 +520,12 @@ documents:
     rank: 6
     status: current
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     notes: >-
-      IMG-02B governed source-path and worklist policy introduced in PR #209.
-      Initial brands: Dasqua, INSIZE and SAN OU. Deterministic external worklists
-      cover products without images, replacement-required assignments,
-      third-party-watermark cleaner candidates and held manual-review items.
-      Live discovery, image download, ProductImage apply and rights clearance
-      remain not started. on_main flips to true only after PR #209 merges.
+      IMG-02B-01 merged in PR #209; merge commit:
+      e8f8f5285904616350015db73d2912c70ce0f71a. 1204 governed product work
+      items. Live discovery not started. Image downloads 0. ProductImage apply
+      not started. Rights clearance not started.
 
   - id: HESABFA
     path: docs/HESABFA.md
