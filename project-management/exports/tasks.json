@@ -2085,10 +2085,10 @@
         "Focused image-review tests + PYTHONHASHSEED 0..9 in Python 3.12 container",
         "IMG-02A-01 and IMG-01 regression suites in Python 3.12 container",
         "AODS links/registry/pmo/naming/ingestion-boundary pass",
-        "Draft PR opened; human review pending; no decisions/replacements applied"
+        "PR #207 open; packaging complete; human review complete externally and validated; no decisions/replacements applied"
       ],
       "status": "in_progress",
-      "progress": 70,
+      "progress": 90,
       "sprint": "05",
       "tags": [
         "images",
@@ -2097,7 +2097,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Remainder package built externally with explicit --all-remaining mode. Source unique assets=614; prior assets excluded=200; selected assets=414; assignments=516; remaining=0; prior overlap=0; shared/singleton=88/326; brands=6; previews/thumbs=414/414; remote-deferred=1; semantic second run stable=true; ZIP sha256=48d3466db5ac40356dafd1dbc83ec9edf16ba8d401981d035f35a00d220df960; bytes=62309721. Human review pending. Decisions applied=none. No DB/ProductImage/storage/network mutation. Raw outputs external only."
+      "notes": "CR-008 Option C. Packaging complete; human review complete externally and validated. Asset coverage=414/414; Assignment coverage=516/516; remaining Assets=0; ShopMill-watermarked Assets=75; REPLACE_REQUIRED Assignments=30; MANUAL_REVIEW Assignments=0; cumulative Assets=614/614; cumulative Assignments=1193/1193; cumulative REPLACE_REQUIRED=88; cumulative MANUAL_REVIEW=2; rights cleared=0. Package ZIP sha256=48d3466db5ac40356dafd1dbc83ec9edf16ba8d401981d035f35a00d220df960; human-review ZIP sha256=9e40733a7bd9eece40c2cb3b84732b7dae664ef87ec3c1d4b5ef2f09e2262b87. Decisions applied=none. Replacement execution=not started. No DB/ProductImage/storage/network mutation. Raw evidence external only. Do not mark done/100 before PR #207 merges."
     }
   ]
 }

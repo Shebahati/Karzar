@@ -8,9 +8,10 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
-- [ ] **IMG-02A-02-REMAINDER-ALL** All Remaining Existing Image Assets Review Package — `in_progress` 70% | P1 | Sprint 05 — explicit `--all-remaining` mode packaged all remaining 414 unique local Assets / 516 assignments with zero prior overlap and zero remaining assets; human review pending; no decisions/replacements applied; no DB/storage/network mutation
-- [x] **IMG-02A-02-BATCH-002** Sequential Existing Image Human Review Batch 002 — `done` 100% | P1 | Sprint 05 — merged PR #205 @ `1f391c0a…`; Batch 002 tooling, packaging and human review complete; 17 replacements and 1 manual review remain queued; no image decisions applied; 414 unique Assets remain for one remainder-all package
+- [ ] **IMG-02A-02-REMAINDER-ALL** All Remaining Existing Image Assets Review Package — `in_progress` 90% | P1 | Sprint 05 — packaging + external human review validated (414/414 Assets, 516/516 Assignments); 75 ShopMill-watermarked Assets; 30 REPLACE_REQUIRED / 0 MANUAL_REVIEW; cumulative 614/614 Assets and 1193/1193 Assignments reviewed; 88 REPLACE_REQUIRED + 2 MANUAL_REVIEW queued only; PR #207; no decisions/replacements applied; no DB/storage/network mutation
+- [x] **IMG-02A-02-BATCH-002** Sequential Existing Image Human Review Batch 002 — `done` 100% | P1 | Sprint 05 — merged PR #205 @ `1f391c0a…`; Batch 002 tooling, packaging and human review complete; 17 replacements and 1 manual review remain queued; no image decisions applied
 - [x] **IMG-02A-02** Existing Image Human Review Batches and Pilot 001 — `done` 100% | P1 | Sprint 05 — merged PR #203 @ `023047b8…`; Pilot 001 tooling + review complete; 41 replacements and 1 manual review remain queued; no replacements applied; no DB/storage mutation
+
 - [x] **IMG-02A-01** Canonical Existing Product Image Inventory — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; read-only audit only; authoritative inventory complete; no watermark/suitability; no database/ProductImage/storage mutation
 - [x] **IMG-02A-01-R1** Close pre-authoritative boundary blockers — `done` 100% | P1 | Sprint 05 — merged PR #201 @ 58401eb; boundaries closed; read-only audit only; no watermark/suitability; no database/ProductImage/storage mutation
 - [x] **IMG-01E-R1** Resume manifest identity contract — `done` 100% | P1 | Sprint 05 — merged PR #198 @ f10cfff; live TOSAG pending; not production-approved; no ProductImage/DB
