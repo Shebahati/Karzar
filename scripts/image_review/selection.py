@@ -238,6 +238,7 @@ def select_review_batch_assets(
 
     remaining_after = eligible_before - len(selected)
     meta = {
+        "selection_mode": "quota",
         "shared_requested": shared_count,
         "singleton_requested": singleton_count,
         "shared_selected": sum(1 for a in selected if a["selection_segment"] == "shared"),
@@ -252,6 +253,72 @@ def select_review_batch_assets(
         "prior_overlap_count": 0,
     }
     return selected, meta
+
+
+def select_all_remaining_assets(
+    assets: list[dict[str, Any]],
+    *,
+    excluded_asset_ids: Iterable[str] = (),
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Select every eligible asset after prior-batch exclusions."""
+    excluded = {str(x).lower() for x in excluded_asset_ids}
+    source_unique = len(assets)
+    eligible_assets = [a for a in assets if str(a["sha256"]).lower() not in excluded]
+    eligible_before = len(eligible_assets)
+
+    shared_selected = [
+        a for a in _shared_ordered(assets) if str(a["sha256"]).lower() not in excluded
+    ]
+    singleton_selected = [
+        a
+        for a in _singleton_brand_round_robin_full(assets)
+        if str(a["sha256"]).lower() not in excluded
+    ]
+
+    selected: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for rank, asset in enumerate(shared_selected, start=1):
+        sha = asset["sha256"]
+        if sha in seen:
+            raise ReviewError("selection", f"duplicate asset selection: {sha}")
+        seen.add(sha)
+        row = dict(asset)
+        row["selection_segment"] = "shared"
+        row["selection_rank"] = rank
+        selected.append(row)
+    for rank, asset in enumerate(singleton_selected, start=1):
+        sha = asset["sha256"]
+        if sha in seen:
+            raise ReviewError("selection", f"duplicate asset selection: {sha}")
+        seen.add(sha)
+        row = dict(asset)
+        row["selection_segment"] = "singleton"
+        row["selection_rank"] = rank
+        selected.append(row)
+
+    if len(seen) != len(selected):
+        raise ReviewError("selection", "duplicate selected Asset IDs")
+    if len(selected) != eligible_before:
+        raise ReviewError(
+            "selection",
+            f"all_remaining mismatch: selected={len(selected)} eligible={eligible_before}",
+        )
+
+    return selected, {
+        "selection_mode": "all_remaining",
+        "shared_requested": len(shared_selected),
+        "singleton_requested": len(singleton_selected),
+        "shared_selected": len(shared_selected),
+        "singleton_selected": len(singleton_selected),
+        "fallback_used": False,
+        "fallback_from": [],
+        "selected_asset_ids": [a["sha256"] for a in selected],
+        "source_unique_assets": source_unique,
+        "excluded_prior_asset_count": len(excluded),
+        "eligible_assets_before_selection": eligible_before,
+        "remaining_unique_assets_after_selection": 0,
+        "prior_overlap_count": 0,
+    }
 
 
 def select_pilot_assets(

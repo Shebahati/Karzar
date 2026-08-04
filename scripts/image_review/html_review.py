@@ -174,6 +174,7 @@ main {{ padding:1rem 1.25rem 2rem; }}
 .filters select, .filters input {{ width:100%; margin-top:.2rem; padding:.35rem; }}
 .list button {{ display:block; width:100%; text-align:right; margin:.25rem 0; padding:.45rem .5rem; border:1px solid var(--line); background:#fff; border-radius:6px; cursor:pointer; }}
 .list button.active {{ border-color:var(--accent); background:#ccfbf1; }}
+.page-meta {{ font-size:.8rem; color:var(--muted); margin:.5rem 0; }}
 .card {{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:1rem; margin-bottom:1rem; }}
 .meta {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.5rem; font-size:.85rem; }}
 .meta div {{ background:#fafaf9; padding:.4rem .5rem; border-radius:6px; }}
@@ -221,13 +222,29 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
       <label>برند
         <select id="fBrand"><option value="all">همه</option></select>
       </label>
+      <label>جستجو
+        <input id="fSearch" type="text" placeholder="Asset/SKU/نام/برند/دسته"/>
+      </label>
+      <label>اندازه صفحه
+        <select id="fPageSize">
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
     </div>
+    <div class="toolbar">
+      <button type="button" id="btnPrevPage">صفحه قبل</button>
+      <button type="button" id="btnNextPage">صفحه بعد</button>
+    </div>
+    <div class="page-meta" id="pageMeta"></div>
     <div class="list" id="assetList"></div>
   </aside>
   <main>
     <div class="toolbar">
       <button type="button" id="btnPrev">قبلی</button>
       <button type="button" id="btnNext">بعدی</button>
+      <button type="button" id="btnNextUnreviewed">بعدیِ بازبینی‌نشده</button>
       <button type="button" id="btnExportAsset">خروجی asset-review.csv</button>
       <button type="button" id="btnExportAsg">خروجی assignment-review.csv</button>
       <button type="button" id="btnExportState">خروجی review-state.json</button>
@@ -246,6 +263,8 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
   let state = loadState();
   let filteredIds = DATA.assets.map(a => a.asset_id);
   let idx = 0;
+  let page = 0;
+  let pageSize = 25;
 
   function loadState() {{
     try {{
@@ -291,6 +310,7 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
     const wm = document.getElementById('fWm').value;
     const dec = document.getElementById('fDec').value;
     const brand = document.getElementById('fBrand').value;
+    const q = (document.getElementById('fSearch').value || '').trim().toLowerCase();
     filteredIds = DATA.assets.filter(a => {{
       if (sh === 'shared' && !a.is_cross_product_shared) return false;
       if (sh === 'singleton' && a.is_cross_product_shared) return false;
@@ -301,9 +321,20 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
       if (brand !== 'all' && !(a.brands || []).includes(brand)) return false;
       if (u === 'unreviewed' && isAssetReviewed(a.asset_id)) return false;
       if (u === 'reviewed' && !isAssetReviewed(a.asset_id)) return false;
+      if (q) {{
+        const hay = [
+          a.asset_id,
+          ...(a.brands || []),
+          ...DATA.assignments.filter(x => x.asset_id === a.asset_id).map(x =>
+            [x.sku, x.product_name, x.brand_name, x.category_name].join(' ')
+          ),
+        ].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }}
       return true;
     }}).map(a => a.asset_id);
     if (idx >= filteredIds.length) idx = 0;
+    page = 0;
     renderList();
     renderDetail();
   }}
@@ -311,7 +342,14 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
   function renderList() {{
     const box = document.getElementById('assetList');
     box.innerHTML = '';
-    filteredIds.forEach((id, i) => {{
+    pageSize = Number(document.getElementById('fPageSize').value || '25');
+    const totalPages = Math.max(1, Math.ceil(filteredIds.length / pageSize));
+    if (page >= totalPages) page = totalPages - 1;
+    const start = page * pageSize;
+    const end = start + pageSize;
+    const pageIds = filteredIds.slice(start, end);
+    pageIds.forEach((id, offset) => {{
+      const i = start + offset;
       const a = DATA.assets.find(x => x.asset_id === id);
       const b = document.createElement('button');
       b.type = 'button';
@@ -320,6 +358,10 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
       b.onclick = () => {{ idx = i; renderList(); renderDetail(); }};
       box.appendChild(b);
     }});
+    const reviewedAssets = DATA.assets.filter(a => isAssetReviewed(a.asset_id)).length;
+    const reviewedAssignments = Object.values(state.assignments).filter(x => x.assignment_decision !== 'UNREVIEWED' || (x.assignment_notes || '').trim() !== '' || x.suitability_status !== 'unreviewed').length;
+    document.getElementById('pageMeta').textContent =
+      `صفحه ${{page+1}} از ${{totalPages}} | فیلترشده: ${{filteredIds.length}} | دارایی بازبینی‌شده: ${{reviewedAssets}}/${{DATA.assets.length}} | انتساب بازبینی‌شده: ${{reviewedAssignments}}/${{DATA.assignments.length}}`;
   }}
 
   function selectOpts(values, current) {{
@@ -451,6 +493,16 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
 
   document.getElementById('btnPrev').onclick = () => {{ if (!filteredIds.length) return; idx = (idx - 1 + filteredIds.length) % filteredIds.length; renderList(); renderDetail(); }};
   document.getElementById('btnNext').onclick = () => {{ if (!filteredIds.length) return; idx = (idx + 1) % filteredIds.length; renderList(); renderDetail(); }};
+  document.getElementById('btnNextUnreviewed').onclick = () => {{
+    if (!filteredIds.length) return;
+    for (let i = 1; i <= filteredIds.length; i++) {{
+      const j = (idx + i) % filteredIds.length;
+      if (!isAssetReviewed(filteredIds[j])) {{ idx = j; break; }}
+    }}
+    renderList(); renderDetail();
+  }};
+  document.getElementById('btnPrevPage').onclick = () => {{ page = Math.max(0, page - 1); renderList(); }};
+  document.getElementById('btnNextPage').onclick = () => {{ page = page + 1; renderList(); }};
   document.getElementById('btnExportAsset').onclick = exportAssetCsv;
   document.getElementById('btnExportAsg').onclick = exportAsgCsv;
   document.getElementById('btnExportState').onclick = () => download('review-state.json', JSON.stringify(state, null, 2), 'application/json');
@@ -469,7 +521,8 @@ th, td {{ border-bottom:1px solid var(--line); padding:.4rem; text-align:right; 
     }};
     reader.readAsText(file, 'utf-8');
   }};
-  ['fUnreviewed','fShare','fLow','fWm','fDec','fBrand'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+  ['fUnreviewed','fShare','fLow','fWm','fDec','fBrand','fPageSize'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+  document.getElementById('fSearch').addEventListener('input', applyFilters);
   applyFilters();
 }})();
 </script>

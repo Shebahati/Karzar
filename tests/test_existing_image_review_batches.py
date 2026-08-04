@@ -15,7 +15,11 @@ from scripts.image_audit.output import write_checksums
 from scripts.image_review.contracts import ReviewError
 from scripts.image_review.pipeline import build_pilot_package, semantic_compare_summaries
 from scripts.image_review.prescreen import compute_prescreen
-from scripts.image_review.selection import group_assets, select_pilot_assets
+from scripts.image_review.selection import (
+    group_assets,
+    select_all_remaining_assets,
+    select_pilot_assets,
+)
 from scripts.image_review.source_inventory import verify_checksum_manifest
 
 REPO = Path(__file__).resolve().parents[1]
@@ -1018,3 +1022,416 @@ def test_batch_002_human_review_external_if_present():
     state = json.loads((review / "review-state.json").read_text(encoding="utf-8"))
     assert len(state["assets"]) == 100
     assert len(state["assignments"]) == 212
+
+
+def test_all_remaining_selects_every_eligible_asset(tmp_path: Path):
+    from scripts.image_review.source_inventory import load_verified_source
+
+    source, storage, digest, summary, _, _ = _make_mini_world(tmp_path, shared=4, singleton=6)
+    _, _, rows = load_verified_source(
+        source, expected_checksums_digest=digest, expected_summary=summary
+    )
+    assets, _ = group_assets(rows)
+    pilot, pm = select_pilot_assets(assets, shared_count=2, singleton_count=2, total=4)
+    batch2, bm = select_pilot_assets(
+        [a for a in assets if a["sha256"] not in set(pm["selected_asset_ids"])],
+        shared_count=2,
+        singleton_count=2,
+        total=4,
+    )
+    excluded = set(pm["selected_asset_ids"]) | {a["sha256"] for a in batch2}
+    selected, meta = select_all_remaining_assets(assets, excluded_asset_ids=excluded)
+    assert meta["selection_mode"] == "all_remaining"
+    assert meta["fallback_used"] is False
+    assert meta["excluded_prior_asset_count"] == 8
+    assert meta["eligible_assets_before_selection"] == len(assets) - 8
+    assert meta["remaining_unique_assets_after_selection"] == 0
+    assert len(selected) == len(assets) - 8
+    assert len({a["sha256"] for a in selected}) == len(selected)
+
+
+def test_all_remaining_requires_prior_batches(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=2, singleton=2)
+    out = tmp_path / "out"
+    out.mkdir()
+    with pytest.raises(ReviewError, match="requires at least one prior-batch"):
+        build_review_batch_package(
+            source_dir=source,
+            storage_root=storage,
+            output_dir=out,
+            repository_root=REPO,
+            expected_checksums_digest=digest,
+            expected_summary=summary,
+            shared_count=sh,
+            singleton_count=si,
+            all_remaining=True,
+        )
+
+
+def test_cli_rejects_all_remaining_with_explicit_quotas():
+    from scripts.build_existing_image_review_batches import main
+
+    rc = main(
+        [
+            "--source-dir",
+            "/tmp/none",
+            "--storage-root",
+            "/tmp/none",
+            "--output-dir",
+            "/tmp/none",
+            "--all-remaining",
+            "--shared-count",
+            "51",
+        ]
+    )
+    assert rc == 2
+
+
+def test_prior_batch_evidence_path_sanitized(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+
+    world = tmp_path / "w"
+    world.mkdir(parents=True, exist_ok=True)
+    source, storage, digest, summary, _, _ = _make_mini_world(world, shared=3, singleton=3)
+    prior = tmp_path / "prior"
+    out = tmp_path / "out"
+    prior.mkdir(parents=True)
+    out.mkdir(parents=True)
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=prior,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-PILOT-001",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=1,
+        singleton_count=1,
+    )
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=2,
+        singleton_count=2,
+        prior_batch_dirs=[prior],
+    )
+    ev = json.loads((out / "prior-batch-evidence.json").read_text(encoding="utf-8"))
+    assert ev["prior_batches"][0]["batch_dir"] == prior.name
+    assert "/" not in ev["prior_batches"][0]["batch_dir"]
+
+
+def test_html_includes_pagination_and_search_controls(tmp_path: Path):
+    source, storage, digest, summary, shared, singleton = _make_mini_world(tmp_path)
+    out = tmp_path / "out"
+    out.mkdir()
+    build_pilot_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=out,
+        repository_root=REPO,
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=shared,
+        singleton_count=singleton,
+    )
+    html = (out / "review.html").read_text(encoding="utf-8")
+    assert "fSearch" in html
+    assert "fPageSize" in html
+    assert "btnPrevPage" in html
+    assert "btnNextPage" in html
+    assert "btnNextUnreviewed" in html
+
+
+def _write_completed_review_bundle(
+    review_dir: Path,
+    *,
+    package_dir: Path,
+    batch_id: str,
+    mutate: dict | None = None,
+) -> None:
+    """Synthetic completed review evidence matching a generated package (no owner rows)."""
+    import csv
+
+    review_dir.mkdir(parents=True, exist_ok=True)
+    assets = list(csv.DictReader((package_dir / "asset-manifest.csv").open(encoding="utf-8")))
+    asgs = list(
+        csv.DictReader((package_dir / "assignment-manifest.csv").open(encoding="utf-8"))
+    )
+    asset_rows = []
+    state_assets = {}
+    for i, a in enumerate(assets):
+        row = {
+            "review_schema_version": "1",
+            "batch_id": batch_id,
+            "asset_id": a["asset_id"],
+            "watermark_status": "distributor_or_retailer" if i == 0 else "none_visible",
+            "quality_status": "good",
+            "background_status": "clean_white",
+            "crop_status": "good",
+            "asset_decision": "REPLACE_REQUIRED" if i == 0 else "KEEP",
+            "rights_status": "review_required",
+            "asset_notes": "",
+        }
+        asset_rows.append(row)
+        state_assets[a["asset_id"]] = dict(row)
+        state_assets[a["asset_id"]].pop("review_schema_version", None)
+        state_assets[a["asset_id"]].pop("batch_id", None)
+    asg_rows = []
+    state_asgs = {}
+    for i, x in enumerate(asgs):
+        row = {
+            "review_schema_version": "1",
+            "batch_id": batch_id,
+            "assignment_id": x["assignment_id"],
+            "asset_id": x["asset_id"],
+            "image_id": x["image_id"],
+            "product_id": x["product_id"],
+            "suitability_status": "exact_or_likely_exact",
+            "assignment_decision": "REPLACE_REQUIRED" if i == 0 else "KEEP",
+            "assignment_notes": "",
+        }
+        asg_rows.append(row)
+        state_asgs[x["assignment_id"]] = {
+            "suitability_status": row["suitability_status"],
+            "assignment_decision": row["assignment_decision"],
+            "assignment_notes": "",
+            "assignment_id": x["assignment_id"],
+            "asset_id": x["asset_id"],
+            "image_id": int(x["image_id"]),
+            "product_id": int(x["product_id"]),
+        }
+    if mutate:
+        mutate(asset_rows, asg_rows, state_assets, state_asgs)
+    with (review_dir / "asset-review.csv").open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(asset_rows[0].keys()))
+        w.writeheader()
+        w.writerows(asset_rows)
+    with (review_dir / "assignment-review.csv").open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(asg_rows[0].keys()))
+        w.writeheader()
+        w.writerows(asg_rows)
+    state = {
+        "review_schema_version": 1,
+        "batch_id": batch_id,
+        "assets": state_assets,
+        "assignments": state_asgs,
+    }
+    (review_dir / "review-state.json").write_text(
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def test_review_evidence_accepts_exact_coverage(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=2, singleton=2)
+    pkg = tmp_path / "pkg"
+    review = tmp_path / "review"
+    pkg.mkdir()
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=pkg,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=sh,
+        singleton_count=si,
+    )
+    _write_completed_review_bundle(
+        review, package_dir=pkg, batch_id="IMG-02A-02-REMAINDER-ALL"
+    )
+    agg = validate_human_review_bundle(
+        review,
+        batch_dir=pkg,
+        expected_asset_count=sh + si,
+        expected_assignment_count=json.loads((pkg / "summary.json").read_text())[
+            "assignment_rows"
+        ],
+        expected_batch_id="IMG-02A-02-REMAINDER-ALL",
+    )
+    expected_asg = json.loads((pkg / "summary.json").read_text())["assignment_rows"]
+    assert agg["assets_reviewed"] == sh + si
+    assert agg["assignments_reviewed"] == expected_asg
+    assert agg["replace_required_assets"] == 1
+    assert agg["replace_required_assignments"] == 1
+    assert agg["manual_review_assignments"] == 0
+    assert agg["rights_review_required"] == sh + si
+    assert agg["cleared_by_owner"] == 0
+
+
+def test_review_evidence_rejects_foreign_batch_and_schema(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=1, singleton=1)
+    pkg = tmp_path / "pkg"
+    pkg.mkdir()
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=pkg,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=sh,
+        singleton_count=si,
+    )
+    review = tmp_path / "review"
+    _write_completed_review_bundle(
+        review, package_dir=pkg, batch_id="IMG-02A-02-BATCH-002"
+    )
+    with pytest.raises(ReviewError, match="batch_id"):
+        validate_human_review_bundle(
+            review,
+            batch_dir=pkg,
+            expected_batch_id="IMG-02A-02-REMAINDER-ALL",
+        )
+
+    def bump_schema(ar, asr, sa, sas):
+        ar[0]["review_schema_version"] = "2"
+
+    review2 = tmp_path / "review2"
+    _write_completed_review_bundle(
+        review2,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=bump_schema,
+    )
+    with pytest.raises(ReviewError, match="schema"):
+        validate_human_review_bundle(
+            review2,
+            batch_dir=pkg,
+            expected_batch_id="IMG-02A-02-REMAINDER-ALL",
+        )
+
+
+def test_review_evidence_rejects_unreviewed_rights_and_drift(tmp_path: Path):
+    from scripts.image_review.pipeline import build_review_batch_package
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    source, storage, digest, summary, sh, si = _make_mini_world(tmp_path, shared=1, singleton=1)
+    pkg = tmp_path / "pkg"
+    pkg.mkdir()
+    build_review_batch_package(
+        source_dir=source,
+        storage_root=storage,
+        output_dir=pkg,
+        repository_root=REPO,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        expected_checksums_digest=digest,
+        expected_summary=summary,
+        shared_count=sh,
+        singleton_count=si,
+    )
+
+    def set_unreviewed(ar, asr, sa, sas):
+        ar[0]["asset_decision"] = "UNREVIEWED"
+        sa[ar[0]["asset_id"]]["asset_decision"] = "UNREVIEWED"
+
+    review = tmp_path / "r1"
+    _write_completed_review_bundle(
+        review,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=set_unreviewed,
+    )
+    with pytest.raises(ReviewError, match="UNREVIEWED"):
+        validate_human_review_bundle(
+            review, batch_dir=pkg, expected_batch_id="IMG-02A-02-REMAINDER-ALL"
+        )
+
+    def set_cleared(ar, asr, sa, sas):
+        ar[0]["rights_status"] = "cleared_by_owner"
+        sa[ar[0]["asset_id"]]["rights_status"] = "cleared_by_owner"
+
+    review2 = tmp_path / "r2"
+    _write_completed_review_bundle(
+        review2,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=set_cleared,
+    )
+    with pytest.raises(ReviewError, match="review_required"):
+        validate_human_review_bundle(
+            review2, batch_dir=pkg, expected_batch_id="IMG-02A-02-REMAINDER-ALL"
+        )
+
+    def drift_image(ar, asr, sa, sas):
+        asr[0]["image_id"] = "999999"
+
+    review3 = tmp_path / "r3"
+    _write_completed_review_bundle(
+        review3,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=drift_image,
+    )
+    with pytest.raises(ReviewError, match="image_id"):
+        validate_human_review_bundle(
+            review3, batch_dir=pkg, expected_batch_id="IMG-02A-02-REMAINDER-ALL"
+        )
+
+    def drift_product(ar, asr, sa, sas):
+        asr[0]["product_id"] = "999999"
+
+    review3b = tmp_path / "r3b"
+    _write_completed_review_bundle(
+        review3b,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=drift_product,
+    )
+    with pytest.raises(ReviewError, match="product_id"):
+        validate_human_review_bundle(
+            review3b, batch_dir=pkg, expected_batch_id="IMG-02A-02-REMAINDER-ALL"
+        )
+
+    def drift_state(ar, asr, sa, sas):
+        sa[ar[0]["asset_id"]]["asset_decision"] = "KEEP_AS_SECONDARY"
+
+    review4 = tmp_path / "r4"
+    _write_completed_review_bundle(
+        review4,
+        package_dir=pkg,
+        batch_id="IMG-02A-02-REMAINDER-ALL",
+        mutate=drift_state,
+    )
+    with pytest.raises(ReviewError, match="state/CSV mismatch"):
+        validate_human_review_bundle(
+            review4, batch_dir=pkg, expected_batch_id="IMG-02A-02-REMAINDER-ALL"
+        )
+
+
+def test_remainder_all_human_review_external_if_present():
+    from scripts.image_review.review_evidence import validate_human_review_bundle
+
+    review = Path("/var/tmp/karzar-image-review/human-review/img02a02-remainder-all")
+    batch = Path("/var/tmp/karzar-image-review/img02a02-remainder-all-pkg")
+    if not review.is_dir() or not batch.is_dir():
+        pytest.skip("external Remainder-All review artifacts not present")
+    agg = validate_human_review_bundle(
+        review,
+        batch_dir=batch,
+        expected_asset_count=414,
+        expected_assignment_count=516,
+        expected_batch_id="IMG-02A-02-REMAINDER-ALL",
+    )
+    assert agg["assets_reviewed"] == 414
+    assert agg["assignments_reviewed"] == 516
+    assert agg["watermark"]["distributor_or_retailer"] == 75
+    assert agg["replace_required_assets"] == 11
+    assert agg["replace_required_assignments"] == 30
+    assert agg["manual_review_assignments"] == 0
+    assert agg["cleared_by_owner"] == 0
+    assert agg["rights_review_required"] == 414

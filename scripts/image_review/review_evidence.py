@@ -152,17 +152,29 @@ def validate_human_review_bundle(
         "assignments_reviewed": asg_count,
         "watermark": dict(Counter(r["watermark_status"] for r in assets)),
         "asset_decisions": dict(Counter(r["asset_decision"] for r in assets)),
+        "quality": dict(Counter(r["quality_status"] for r in assets)),
+        "background": dict(Counter(r["background_status"] for r in assets)),
+        "crop": dict(Counter(r["crop_status"] for r in assets)),
         "assignment_suitability": dict(
             Counter(r["suitability_status"] for r in assignments)
         ),
         "assignment_decisions": dict(
             Counter(r["assignment_decision"] for r in assignments)
         ),
+        "replace_required_assets": sum(
+            1 for r in assets if r.get("asset_decision") == "REPLACE_REQUIRED"
+        ),
         "replace_required_assignments": sum(
             1 for r in assignments if r.get("assignment_decision") == "REPLACE_REQUIRED"
         ),
         "manual_review_assignments": sum(
             1 for r in assignments if r.get("assignment_decision") == "MANUAL_REVIEW"
+        ),
+        "rights_review_required": sum(
+            1 for r in assets if r.get("rights_status") == "review_required"
+        ),
+        "cleared_by_owner": sum(
+            1 for r in assets if r.get("rights_status") == "cleared_by_owner"
         ),
     }
     return aggregates
