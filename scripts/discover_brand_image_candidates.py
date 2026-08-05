@@ -30,6 +30,7 @@ from image_candidate_discovery import (  # noqa: E402
 from image_candidate_discovery.consolidate import consolidate_lane_outputs  # noqa: E402
 from image_candidate_discovery.core import run_lane_candidate_discovery  # noqa: E402
 from image_candidate_discovery.reconcile_insize import (  # noqa: E402
+    apply_insize_reconciliation,
     reconcile_insize_candidate_runs,
     write_insize_reconcile_report,
 )
@@ -86,6 +87,20 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Optional brand=download-dir from discover_product_images",
     )
     cons.add_argument(
+        "--accepted-manifest",
+        action="append",
+        default=[],
+        metavar="BRAND=PATH",
+        help="Optional brand=stable-materialized-manifest.csv override",
+    )
+    cons.add_argument(
+        "--drift-review-csv",
+        action="append",
+        default=[],
+        type=Path,
+        help="Optional source-drift-review.csv to fold into governed manual queue",
+    )
+    cons.add_argument(
         "--output-dir",
         required=True,
         type=Path,
@@ -115,6 +130,16 @@ def _build_parser() -> argparse.ArgumentParser:
     rec.add_argument("--materialization-dir", type=Path, default=None)
     rec.add_argument("--requested", type=int, default=263)
     rec.add_argument("--output-json", required=True, type=Path)
+
+    apply = sub.add_parser(
+        "apply-insize-reconciliation",
+        help="Apply effective INSIZE drift quarantine outputs (no network)",
+    )
+    apply.add_argument("--first-run-dir", required=True, type=Path)
+    apply.add_argument("--second-run-dir", required=True, type=Path)
+    apply.add_argument("--materialization-dir", required=True, type=Path)
+    apply.add_argument("--output-dir", required=True, type=Path)
+    apply.add_argument("--requested", type=int, default=263)
     return p
 
 
@@ -187,6 +212,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
 def _cmd_consolidate(args: argparse.Namespace) -> int:
     lane_dirs = _parse_brand_paths(args.lane_dir)
     download_dirs = _parse_brand_paths(args.download_dir) if args.download_dir else None
+    accepted_manifest_by_brand = (
+        _parse_brand_paths(args.accepted_manifest) if args.accepted_manifest else None
+    )
     print(
         json.dumps(
             {
@@ -198,6 +226,12 @@ def _cmd_consolidate(args: argparse.Namespace) -> int:
                     if download_dirs
                     else None
                 ),
+                "accepted_manifest_by_brand": (
+                    {k: str(v) for k, v in sorted(accepted_manifest_by_brand.items())}
+                    if accepted_manifest_by_brand
+                    else None
+                ),
+                "drift_review_csvs": [str(p) for p in (args.drift_review_csv or [])],
                 "output_dir": str(args.output_dir),
             },
             ensure_ascii=False,
@@ -210,11 +244,15 @@ def _cmd_consolidate(args: argparse.Namespace) -> int:
             download_dirs=download_dirs,
             output_dir=args.output_dir,
             repo_root=REPO_ROOT,
+            accepted_manifest_by_brand=accepted_manifest_by_brand,
+            drift_review_csvs=list(args.drift_review_csv or []),
         )
-    except CandidateDiscoveryError as exc:
+    except (CandidateDiscoveryError, ValueError) as exc:
+        stage = getattr(exc, "stage", "consolidate")
+        message = getattr(exc, "message", str(exc))
         print(
             json.dumps(
-                {"ok": False, "stage": exc.stage, "error": exc.message},
+                {"ok": False, "stage": stage, "error": message},
                 ensure_ascii=False,
             ),
             file=sys.stderr,
@@ -299,6 +337,46 @@ def _cmd_reconcile_insize(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_apply_insize_reconciliation(args: argparse.Namespace) -> int:
+    try:
+        result = apply_insize_reconciliation(
+            first_run_dir=args.first_run_dir,
+            second_run_dir=args.second_run_dir,
+            materialization_dir=args.materialization_dir,
+            output_dir=args.output_dir,
+            repo_root=REPO_ROOT,
+            requested=args.requested,
+        )
+    except CandidateDiscoveryError as exc:
+        print(
+            json.dumps(
+                {"ok": False, "stage": exc.stage, "error": exc.message},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 2
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "output_dir": result["output_dir"],
+                "checksums_digest": result["checksums_digest"],
+                "stable_candidates": result["stable_candidates"],
+                "source_drift_rows": result["source_drift_rows"],
+                "stable_materialized_rows": result["stable_materialized_rows"],
+                "materialized_source_drift_rows": result[
+                    "materialized_source_drift_rows"
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     known = {
@@ -306,6 +384,7 @@ def main(argv: list[str] | None = None) -> int:
         "consolidate",
         "calibrate-sanou",
         "reconcile-insize",
+        "apply-insize-reconciliation",
         "-h",
         "--help",
     }
@@ -320,6 +399,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_calibrate_sanou(args)
     if args.command == "reconcile-insize":
         return _cmd_reconcile_insize(args)
+    if args.command == "apply-insize-reconciliation":
+        return _cmd_apply_insize_reconciliation(args)
     _build_parser().print_help()
     return 2
 

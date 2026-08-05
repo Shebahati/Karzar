@@ -389,14 +389,20 @@ def discover_dasqua_candidates(
                 {
                     "lane_id": spec["lane_id"],
                     "product_id": product_id,
+                    "product_key": item.get("product_key") or f"product_id:{product_id}",
                     "sku": sku,
                     "product_name": product_name,
+                    "work_type": item.get("work_type") or "",
+                    "work_reasons": item.get("work_reasons") or "",
+                    "priority": item.get("priority") or "",
                     "reason_code": "ambiguous_official_product",
                     "reason_detail": (
                         "multiple detail pages, images, or family-only evidence "
                         f"for exact item code related to {sku}"
                     ),
                     "source_detail_url": "",
+                    "discovery_status": "manual_review",
+                    "eligible_for_automatic_discovery": "false",
                     "notes": f"family_code:{family_code(sku)}",
                 }
             )

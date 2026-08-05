@@ -15,6 +15,10 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from image_candidate_discovery import CandidateDiscoveryError  # noqa: E402
+from image_candidate_discovery.consolidate import (  # noqa: E402
+    MANUAL_FIELDS,
+    consolidate_lane_outputs,
+)
 from image_candidate_discovery.core import run_lane_candidate_discovery  # noqa: E402
 from image_candidate_discovery.output import assert_external_output  # noqa: E402
 from image_candidate_discovery.providers.dasqua_official import (  # noqa: E402
@@ -38,6 +42,7 @@ from image_candidate_discovery.providers.sanou_official import (  # noqa: E402
     extract_model_tokens,
 )
 from image_candidate_discovery.reconcile_insize import (  # noqa: E402
+    apply_insize_reconciliation,
     reconcile_insize_candidate_runs,
 )
 from image_candidate_discovery.sanou_calibrate import (  # noqa: E402
@@ -462,6 +467,9 @@ def test_dasqua_majority_vote_removed_and_family_collision():
                 "sku": "1804-1405",
                 "product_name": "caliper",
                 "product_key": "product_id:1",
+                "work_type": "replace_required",
+                "work_reasons": "replace_required:IMG-02A-02-BATCH-002",
+                "priority": "P0",
             }
         ],
         fetcher=fetcher,
@@ -469,6 +477,13 @@ def test_dasqua_majority_vote_removed_and_family_collision():
     )
     assert result["candidates"] == []
     assert any(m["reason_code"] == "ambiguous_official_product" for m in result["manual"])
+    man = next(m for m in result["manual"] if m["reason_code"] == "ambiguous_official_product")
+    assert man["discovery_status"] == "manual_review"
+    assert man["eligible_for_automatic_discovery"] == "false"
+    assert man["product_key"] == "product_id:1"
+    assert man["work_type"] == "replace_required"
+    assert man["work_reasons"] == "replace_required:IMG-02A-02-BATCH-002"
+    assert man["priority"] == "P0"
 
 
 def test_dasqua_adapter_consistency_rejects_family_html():
@@ -961,3 +976,472 @@ def test_started_at_finished_at_clock_injection(tmp_path: Path):
     assert result["manual_count"] == 1
     man = list(csv.DictReader((out / "manual-review.csv").open(encoding="utf-8")))
     assert man[0]["reason_code"] == "model_token_not_found"
+
+
+def _write_mini_insize_partition(tmp_path: Path) -> dict[str, Path]:
+    """Build a deterministic 49=42+7 / 30=28+2 / 19=14+5 fixture family."""
+    import json
+
+    cand_fields = [
+        "schema_version",
+        "task_id",
+        "lane_id",
+        "product_id",
+        "product_key",
+        "sku",
+        "product_name",
+        "brand_key",
+        "work_type",
+        "work_reasons",
+        "priority",
+        "source_adapter",
+        "source_class",
+        "source_detail_url",
+        "source_image_url",
+        "source_image_index",
+        "candidate_discovery_method",
+        "candidate_match_basis",
+        "manufacturer_evidence",
+        "sku_evidence",
+        "confidence",
+        "rights_status",
+        "apply_status",
+        "discovery_status",
+        "notes",
+    ]
+
+    def cand(pid: int, sku: str, detail: str, image: str) -> dict[str, str]:
+        return {
+            "schema_version": "1",
+            "task_id": "IMG-02B",
+            "lane_id": "IMG-02B-03",
+            "product_id": str(pid),
+            "product_key": f"product_id:{pid}",
+            "sku": sku,
+            "product_name": f"name-{sku}",
+            "brand_key": "insize",
+            "work_type": "missing_image",
+            "work_reasons": "missing_image",
+            "priority": "P0",
+            "source_adapter": "insize_tosag",
+            "source_class": "authorized_distributor_candidate",
+            "source_detail_url": detail,
+            "source_image_url": image,
+            "source_image_index": "0",
+            "candidate_discovery_method": "tosag_search",
+            "candidate_match_basis": "exact_sku",
+            "manufacturer_evidence": "insize",
+            "sku_evidence": sku,
+            "confidence": "very_high",
+            "rights_status": "review_required",
+            "apply_status": "not_started",
+            "discovery_status": "candidate_ready",
+            "notes": "",
+        }
+
+    first = [
+        cand(i, f"S-{i}", f"https://www.tosag.ch/d{i}", f"https://www.tosag.ch/i{i}.jpg")
+        for i in range(1, 50)
+    ]
+    second = [
+        cand(i, f"S-{i}", f"https://www.tosag.ch/d{i}", f"https://www.tosag.ch/i{i}.jpg")
+        for i in range(1, 43)
+    ] + [
+        cand(
+            49,
+            "S-49",
+            "https://www.tosag.ch/d49-new",
+            "https://www.tosag.ch/i49-new.jpg",
+        )
+    ]
+    man_fields = [
+        "candidate_id",
+        "product_id",
+        "product_key",
+        "sku",
+        "product_name",
+        "brand",
+        "sha256",
+        "local_asset_path",
+        "rights_status",
+        "review_status",
+        "notes",
+    ]
+    rej_fields = [
+        "candidate_id",
+        "product_id",
+        "product_key",
+        "sku",
+        "product_name",
+        "brand",
+        "reason_code",
+        "reason_detail",
+    ]
+    accepted = []
+    for i in list(range(1, 29)) + [43, 49]:
+        accepted.append(
+            {
+                "candidate_id": f"c{i}",
+                "product_id": str(i),
+                "product_key": f"product_id:{i}",
+                "sku": f"S-{i}",
+                "product_name": f"name-S-{i}",
+                "brand": "INSIZE",
+                "sha256": f"{i:064x}"[:64],
+                "local_asset_path": f"assets/S-{i}.jpg",
+                "rights_status": "review_required",
+                "review_status": "queued",
+                "notes": "",
+            }
+        )
+    rejected = []
+    for i in list(range(29, 43)) + [44, 45, 46, 47, 48]:
+        rejected.append(
+            {
+                "candidate_id": f"c{i}",
+                "product_id": str(i),
+                "product_key": f"product_id:{i}",
+                "sku": f"S-{i}",
+                "product_name": f"name-S-{i}",
+                "brand": "INSIZE",
+                "reason_code": "exact_sku_not_confirmed",
+                "reason_detail": "x",
+            }
+        )
+
+    r1 = tmp_path / "first"
+    r2 = tmp_path / "second"
+    mat = tmp_path / "mat"
+    r1.mkdir()
+    r2.mkdir()
+    (mat / "manifests").mkdir(parents=True)
+    for path, rows in ((r1 / "candidate-input.csv", first), (r2 / "candidate-input.csv", second)):
+        with path.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=cand_fields)
+            w.writeheader()
+            for row in rows:
+                w.writerow(row)
+    with (mat / "manifests" / "manifest.csv").open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=man_fields)
+        w.writeheader()
+        for row in accepted:
+            w.writerow(row)
+    with (mat / "manifests" / "rejected.csv").open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=rej_fields)
+        w.writeheader()
+        for row in rejected:
+            w.writerow(row)
+    (r1 / "summary.json").write_text(
+        json.dumps(
+            {
+                "started_at": "2026-08-04T00:00:00+00:00",
+                "finished_at": "2026-08-04T00:00:00.000192+00:00",
+                "elapsed_seconds": 0.000192,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return {"first": r1, "second": r2, "mat": mat}
+
+
+def test_apply_insize_reconciliation_partitions_and_quarantines(tmp_path: Path):
+    import json
+
+    paths = _write_mini_insize_partition(tmp_path)
+    out = tmp_path / "effective"
+    result = apply_insize_reconciliation(
+        first_run_dir=paths["first"],
+        second_run_dir=paths["second"],
+        materialization_dir=paths["mat"],
+        output_dir=out,
+        repo_root=REPO,
+        requested=263,
+    )
+    assert result["stable_candidates"] == 42
+    assert result["source_drift_rows"] == 7
+    assert result["stable_materialized_rows"] == 28
+    assert result["materialized_source_drift_rows"] == 2
+
+    stable = list(csv.DictReader((out / "stable-candidates.csv").open(encoding="utf-8")))
+    drift = list(csv.DictReader((out / "source-drift-review.csv").open(encoding="utf-8")))
+    stab_mat = list(
+        csv.DictReader((out / "stable-materialized-manifest.csv").open(encoding="utf-8"))
+    )
+    stab_rej = list(
+        csv.DictReader((out / "stable-materialization-rejected.csv").open(encoding="utf-8"))
+    )
+    assert len(stable) == 42
+    assert len(drift) == 7
+    assert len(stab_mat) == 28
+    assert len(stab_rej) == 14
+    assert {r["product_id"] for r in stable}.isdisjoint({r["product_id"] for r in drift})
+    assert all(r["discovery_status"] == "source_drift_review" for r in drift)
+    assert all(r["eligible_for_automatic_discovery"] == "false" for r in drift)
+    assert all(r["review_status"] == "source_drift_review" for r in drift)
+    assert {r["product_id"] for r in stab_mat}.isdisjoint({r["product_id"] for r in drift})
+    assert sum(1 for r in drift if r["materialized"] == "true") == 2
+    assert all(r["asset_sha256"] for r in drift if r["materialized"] == "true")
+
+    summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+    assert summary["coverage"]["stable_candidate_discovery_coverage_pct"] == round(
+        100.0 * 42 / 263, 2
+    )
+    assert summary["coverage"]["stable_validated_materialization_coverage_pct"] == round(
+        100.0 * 28 / 263, 2
+    )
+    assert summary["coverage"]["raw_pre_quarantine_materialization_coverage_pct"] == round(
+        100.0 * 30 / 263, 2
+    )
+    assert summary["timing"]["timing_status"] == "legacy_unreliable"
+    assert summary["timing"]["timing_used_for_governance"] is False
+    assert (out / "checksums.sha256").is_file()
+    out2 = tmp_path / "effective2"
+    apply_insize_reconciliation(
+        first_run_dir=paths["first"],
+        second_run_dir=paths["second"],
+        materialization_dir=paths["mat"],
+        output_dir=out2,
+        repo_root=REPO,
+        requested=263,
+    )
+    assert (out / "checksums.sha256").read_text() == (out2 / "checksums.sha256").read_text()
+
+
+def test_consolidate_full_manual_schema_and_governed_review_count(tmp_path: Path):
+    import json
+
+    def lane(brand: str, lane_id: str, manuals: list[dict[str, str]], cands: int = 0) -> Path:
+        d = tmp_path / f"lane-{brand}"
+        d.mkdir()
+        (d / "summary.json").write_text(
+            json.dumps({"requested": 10, "lane_id": lane_id, "brand_key": brand}) + "\n",
+            encoding="utf-8",
+        )
+        fields = [
+            "schema_version",
+            "task_id",
+            "lane_id",
+            "product_id",
+            "product_key",
+            "sku",
+            "product_name",
+            "brand_key",
+            "work_type",
+            "work_reasons",
+            "priority",
+            "source_adapter",
+            "source_class",
+            "source_detail_url",
+            "source_image_url",
+            "source_image_index",
+            "candidate_discovery_method",
+            "candidate_match_basis",
+            "manufacturer_evidence",
+            "sku_evidence",
+            "confidence",
+            "rights_status",
+            "apply_status",
+            "discovery_status",
+            "notes",
+        ]
+        with (d / "candidate-input.csv").open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=fields)
+            w.writeheader()
+            for i in range(cands):
+                w.writerow(
+                    {
+                        "schema_version": "1",
+                        "task_id": "IMG-02B",
+                        "lane_id": lane_id,
+                        "product_id": str(1000 + i),
+                        "product_key": f"product_id:{1000 + i}",
+                        "sku": f"{brand}-{i}",
+                        "product_name": "x",
+                        "brand_key": brand,
+                        "work_type": "missing_image",
+                        "work_reasons": "missing_image",
+                        "priority": "P0",
+                        "source_adapter": "x",
+                        "source_class": "x",
+                        "source_detail_url": "https://example.com/d",
+                        "source_image_url": "https://example.com/i.jpg",
+                        "source_image_index": "0",
+                        "candidate_discovery_method": "x",
+                        "candidate_match_basis": "x",
+                        "manufacturer_evidence": "x",
+                        "sku_evidence": "x",
+                        "confidence": "high",
+                        "rights_status": "review_required",
+                        "apply_status": "not_started",
+                        "discovery_status": "candidate_ready",
+                        "notes": "",
+                    }
+                )
+        with (d / "rejected-candidates.csv").open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "lane_id",
+                    "product_id",
+                    "sku",
+                    "product_name",
+                    "reason_code",
+                    "reason_detail",
+                    "notes",
+                ],
+            )
+            w.writeheader()
+        with (d / "manual-review.csv").open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=MANUAL_FIELDS)
+            w.writeheader()
+            for row in manuals:
+                w.writerow({k: row.get(k, "") for k in MANUAL_FIELDS})
+        return d
+
+    dasqua = lane(
+        "dasqua",
+        "IMG-02B-02",
+        [
+            {
+                "lane_id": "IMG-02B-02",
+                "product_id": "1176",
+                "product_key": "product_id:1176",
+                "sku": "1804-1405",
+                "product_name": "gauge",
+                "work_type": "replace_required",
+                "work_reasons": "replace_required:IMG-02A-02-BATCH-002",
+                "priority": "P0",
+                "reason_code": "ambiguous_official_product",
+                "reason_detail": "family",
+                "source_detail_url": "",
+                "discovery_status": "manual_review",
+                "eligible_for_automatic_discovery": "false",
+                "notes": "",
+            }
+        ],
+    )
+    sanou_manuals = [
+        {
+            "lane_id": "IMG-02B-04",
+            "product_id": str(2000 + i),
+            "product_key": f"product_id:{2000 + i}",
+            "sku": f"SO-{i}",
+            "product_name": "tokenless",
+            "work_type": "missing_image",
+            "work_reasons": "missing_image",
+            "priority": "P0",
+            "reason_code": "model_token_not_found",
+            "reason_detail": "no token",
+            "source_detail_url": "",
+            "discovery_status": "manual_review",
+            "eligible_for_automatic_discovery": "false",
+            "notes": "",
+        }
+        for i in range(38)
+    ]
+    sanou = lane("san_ou", "IMG-02B-04", sanou_manuals)
+    insize = lane("insize", "IMG-02B-03", [], cands=0)
+
+    stab = tmp_path / "stable-manifest.csv"
+    with stab.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["product_id", "sku", "sha256", "brand"])
+        w.writeheader()
+        for i in range(1, 29):
+            w.writerow(
+                {
+                    "product_id": str(i),
+                    "sku": f"S-{i}",
+                    "sha256": f"{i:064x}"[:64],
+                    "brand": "INSIZE",
+                }
+            )
+    drift = tmp_path / "source-drift-review.csv"
+    with drift.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(
+            f,
+            fieldnames=[
+                "product_id",
+                "product_key",
+                "sku",
+                "product_name",
+                "work_type",
+                "work_reasons",
+                "priority",
+                "lane_id",
+                "drift_type",
+                "first_detail_url",
+                "second_detail_url",
+                "first_image_url",
+                "second_image_url",
+                "materialized",
+                "local_asset_path",
+                "asset_sha256",
+                "review_status",
+                "discovery_status",
+                "eligible_for_automatic_discovery",
+                "rights_status",
+                "apply_status",
+                "reason_code",
+                "reason_detail",
+                "notes",
+            ],
+        )
+        w.writeheader()
+        for i in range(43, 50):
+            w.writerow(
+                {
+                    "product_id": str(i),
+                    "product_key": f"product_id:{i}",
+                    "sku": f"S-{i}",
+                    "product_name": f"n-{i}",
+                    "work_type": "missing_image",
+                    "work_reasons": "missing_image",
+                    "priority": "P0",
+                    "lane_id": "IMG-02B-03",
+                    "drift_type": "removed_in_second_run",
+                    "first_detail_url": "https://www.tosag.ch/d",
+                    "second_detail_url": "",
+                    "first_image_url": "https://www.tosag.ch/i.jpg",
+                    "second_image_url": "",
+                    "materialized": "false",
+                    "local_asset_path": "",
+                    "asset_sha256": "",
+                    "review_status": "source_drift_review",
+                    "discovery_status": "source_drift_review",
+                    "eligible_for_automatic_discovery": "false",
+                    "rights_status": "review_required",
+                    "apply_status": "not_started",
+                    "reason_code": "source_drift_review",
+                    "reason_detail": "drift",
+                    "notes": "",
+                }
+            )
+
+    out = tmp_path / "cons"
+    result = consolidate_lane_outputs(
+        lane_dirs={"dasqua": dasqua, "insize": insize, "san_ou": sanou},
+        download_dirs=None,
+        output_dir=out,
+        repo_root=REPO,
+        accepted_manifest_by_brand={"insize": stab},
+        drift_review_csvs=[drift],
+    )
+    accepted = list(csv.DictReader((out / "all-accepted-manifest.csv").open(encoding="utf-8")))
+    manual = list(csv.DictReader((out / "all-manual-review.csv").open(encoding="utf-8")))
+    assert len(accepted) == 28
+    assert len(manual) == 46
+    assert list(manual[0].keys()) == MANUAL_FIELDS
+    assert all(r["eligible_for_automatic_discovery"] == "false" for r in manual)
+    das = next(r for r in manual if r["product_id"] == "1176")
+    assert das["product_key"] == "product_id:1176"
+    assert das["work_type"] == "replace_required"
+    assert das["work_reasons"] == "replace_required:IMG-02A-02-BATCH-002"
+    assert das["priority"] == "P0"
+    assert das["reason_code"] == "ambiguous_official_product"
+    assert (out / "all-source-drift-review.csv").is_file()
+    summary = result["summary"]
+    assert summary["totals"]["stable_accepted_or_materialized"] == 28
+    assert summary["totals"]["ordinary_manual_review"] == 39
+    assert summary["totals"]["source_drift_review"] == 7
+    assert summary["totals"]["combined_governed_review"] == 46

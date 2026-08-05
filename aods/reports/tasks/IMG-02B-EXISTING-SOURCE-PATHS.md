@@ -9,9 +9,9 @@
 | Node | IMG-02B-01-SOURCE-WORKLISTS |
 | Status | in_progress |
 | Progress | 40 |
-| Phase completed | IMG-02B-01 worklists; R1 source-gap recalibration complete |
+| Phase completed | IMG-02B-01 worklists; R1 source-gap recalibration; R2 effective drift quarantine |
 | Live discovery | started but incomplete — Dasqua/SAN OU calibration_failed; INSIZE partial |
-| Image downloads | 18 unique external assets, INSIZE only |
+| Image downloads | 18 unique external assets packaged (INSIZE; drift evidence retained) |
 | Replacements applied | 0 |
 
 ## Scope
@@ -163,8 +163,9 @@ IMG-02B-03 INSIZE:
   first candidate run = 49
   second candidate run = 48
   stable intersection = 42; source drift = 7
-  validated/materialized rows = 30
-  unique assets = 18
+  raw validated/materialized rows = 30 (pre-quarantine historical)
+  stable materialized rows = 28; unique assets packaged = 18
+  R2 effective quarantine applied (not report-only)
   complete = false
 
 IMG-02B-04 SAN OU:
@@ -186,15 +187,20 @@ Lane outputs:
   /var/tmp/karzar-image-discovery/img02b-sanou
 
 Downloads (partial):
-  /var/tmp/karzar-image-discovery/img02b-insize-dl  (18 unique assets, 30 materialized rows)
+  /var/tmp/karzar-image-discovery/img02b-insize-dl  (18 unique assets, 30 raw materialized rows)
   /var/tmp/karzar-image-discovery/img02b-dasqua-dl  (0 materialized — family_page_ambiguous)
 
-Consolidated:
-  /var/tmp/karzar-image-discovery/img02b-consolidated
-  checksums digest: dbdebc40a71eb4adcfbbc129908e2600e020ef3ede2f4f9d30c97b9ab32f9153
+R2 effective INSIZE quarantine:
+  /var/tmp/karzar-image-discovery/r2-build/insize-effective
+  stable candidates 42; drift 7; stable materialized 28; drift materialized 2
 
-Final review root:
-  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B
+Consolidated (R2):
+  /var/tmp/karzar-image-discovery/r2-build/consolidated
+  stable accepted 28; ordinary manual 39; source drift 7; governed review 46
+
+Final review roots:
+  R1 (immutable): /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B
+  R2: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2
 ```
 
 ### Lane counts (candidate stage — pre-R1 evidence)
@@ -202,7 +208,7 @@ Final review root:
 | Lane | Requested | Discovered candidates | Rejected | Manual | Notes |
 |---|---:|---:|---:|---:|---|
 | IMG-02B-02 Dasqua | 687 | 2 | 685 | 0 | calibration_failed; 0 materialized (family_page_ambiguous); majority-vote/family collapse under R1 fix |
-| IMG-02B-03 INSIZE | 263 | 49 (1st) / 48 (2nd) | 214 | 0 | partial; source drift; 30 materialized / 18 unique assets |
+| IMG-02B-03 INSIZE | 263 | 49 (1st) / 48 (2nd) | 214 | 0 | partial; R2 quarantines 7 drift; stable mat 28 / packaged 18 |
 | IMG-02B-04 SAN OU | 253 | 0 | 215 (pre-R1) + 38 misclassified | 0 (pre-R1) | calibration_failed; R1: 38 tokenless → manual_review |
 
 Cross-brand duplicate assets: 0.
@@ -218,12 +224,16 @@ Dasqua bounded calib (25 products, --limit):
   prior candidate↔adapter mismatches = 2 (family_page_ambiguous)
   majority vote removed; exact SKU identity; observed CDN hosts only
 
-INSIZE reconcile:
+INSIZE reconcile (R1 report → R2 effective):
   first_run = 49; second_run = 48; stable_intersection = 42
   source_drift_count = 7
-  materialized_rows = 30; unique_assets = 18
-  candidate_discovery_coverage = 15.97% (42/263)
-  validated_materialization_coverage = 11.41% (30/263)
+  raw materialized_rows = 30; unique_assets = 18
+  R2 stable discovery coverage = 15.97% (42/263)
+  R2 stable materialization coverage = 10.65% (28/263)
+  raw pre-quarantine materialization = 11.41% (30/263) historical only
+  drift product_ids = 1798, 1810, 1862, 1865, 1943, 3473, 3825
+  materialized drift retained = 1798, 3825
+  timing_status = legacy_unreliable
 
 SAN OU classification (do not conflate levels):
   site-shape calibration outcome = parser_drift
@@ -236,14 +246,16 @@ SAN OU classification (do not conflate levels):
   discovered_candidates = 0; no full 215 re-crawl after parser_drift
 
 IMG-02B-05 = not started
-Artifact: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
+R1 Artifact (immutable): /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
   SHA-256: d922ebf4dc22db393c60f2657cc7370d2fa4c678ce340d3f3479fce1f0c6a201
+R2 Artifact: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2.zip
+  SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
 ```
 
 ### Resume / drift
 
 - INSIZE **materialization** resume on `img02b-insize-dl`: semantic_manifest_stable=true, asset_set_stable=true, unchanged_rows=30, reused_existing_assets=18.
-- INSIZE **candidate** re-discovery: source drift (49→48; e.g. SKU 1120-500 remapped) — R1 reconciles both runs; do not silently prefer first run.
+- INSIZE **candidate** re-discovery: source drift (49→48; e.g. SKU 1120-500 remapped) — R2 applies effective quarantine; do not silently prefer first run.
 - SAN OU pre-R1 `model_token_not_found` (38) was wrongly rejected; R1 reclassifies as manual_review with `eligible_for_automatic_discovery=false`.
 
 ### Safety (discovery phase)
@@ -276,8 +288,12 @@ outside Git.
 R2 fail-closed output and extraction hardening complete (IMG-02B-01)
 Parallel discovery code on feat/img02b-parallel-source-discovery (Draft #211)
 R1 source-gap recalibration complete — overall live discovery still incomplete
+R2 INSIZE drift quarantine effective — progress remains 40
 IMG-02B = in_progress / 40
-images downloaded = 18 unique external assets (INSIZE only)
+Dasqua = calibration_failed
+INSIZE = partial
+SAN OU = calibration_failed
+images downloaded = 18 unique external assets packaged (INSIZE; drift evidence retained)
 Dasqua unique assets = 0; SAN OU unique assets = 0
 replacements applied = 0
 IMG-02B-05 = not started

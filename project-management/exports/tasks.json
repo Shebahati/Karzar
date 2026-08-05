@@ -2145,7 +2145,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R1 source-gap recalibration complete on Draft #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed (R1 calib 25→0 discovered/0 materialized); INSIZE partial (49→48 drift; 30 materialized/18 unique); SAN OU calibration_failed (site-shape parser_drift; 38 model_token_not_found manual; 215 source_unavailable — not product_not_published). IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
+      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R2 drift quarantine on Draft #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed; INSIZE partial with effective quarantine (49=42+7; stable mat 28/263=10.65%; raw pre-quarantine 30/18); SAN OU calibration_failed (38 model_token_not_found manual + 215 source_unavailable). Governed review 46=1+38+7. External R2 Artifact IMG-02B-R2.zip; R1 ZIP immutable. IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
     }
   ]
 }
