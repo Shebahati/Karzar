@@ -36,6 +36,19 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run ≤20 live probes against known allowed hosts (ops only; CI must not)",
     )
+
+    r1 = sub.add_parser(
+        "discover-batch-001-r1",
+        help="R1 real-source onboarding + bulk discovery (ops only; external outputs)",
+    )
+    r1.add_argument("--worklist-csv", type=Path, required=True)
+    r1.add_argument("--r2-seed", type=Path, required=True)
+    r1.add_argument("--output-dir", type=Path, required=True)
+    r1.add_argument("--work-root", type=Path, required=True, help="External cache/work root")
+    r1.add_argument("--zip-path", type=Path, default=None)
+    r1.add_argument("--delay", type=float, default=0.8)
+    r1.add_argument("--relation-cap", type=int, default=400)
+    r1.add_argument("--calibration-limit", type=int, default=20)
     return p
 
 
@@ -90,6 +103,54 @@ def main(argv: list[str] | None = None) -> int:
                     ],
                     "enabled_source_count": result["calibration"]["enabled_source_count"],
                     "disabled_sources": result["calibration"]["disabled_sources"],
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.command == "discover-batch-001-r1":
+        from image_multisource.r1_ops import package_review_zip, run_r1_bulk
+
+        try:
+            result = run_r1_bulk(
+                worklist_csv=args.worklist_csv,
+                r2_seed=args.r2_seed,
+                output_dir=args.output_dir,
+                repo_root=REPO_ROOT,
+                work_root=args.work_root,
+                delay=args.delay,
+                relation_cap=args.relation_cap,
+                calibration_limit=args.calibration_limit,
+            )
+            zip_info = None
+            if args.zip_path is not None:
+                sha = package_review_zip(Path(result["output_dir"]), args.zip_path)
+                zip_info = {
+                    "zip_path": str(args.zip_path),
+                    "sha256": sha,
+                    "size_bytes": args.zip_path.stat().st_size,
+                }
+        except MultisourceError as exc:
+            print(
+                json.dumps(
+                    {"ok": False, "stage": exc.stage, "error": exc.message},
+                    ensure_ascii=False,
+                ),
+                file=sys.stderr,
+            )
+            return 2
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "output_dir": result["output_dir"],
+                    "checksums_digest": result["checksums_digest"],
+                    "enabled_sources": result["enabled_sources"],
+                    "summary": result["summary"],
+                    "zip": zip_info,
                 },
                 ensure_ascii=False,
                 indent=2,

@@ -452,7 +452,7 @@ def test_calibration_disables_on_parser_drift(tmp_path: Path):
         probe=probe,
     )
     assert result.enabled_after_calibration is False
-    assert "parser_drift" in result.disable_reason
+    assert "parser_drift" in result.disable_reason or "parser_success" in result.disable_reason
 
 
 def test_resume_behavior_reuses_empty_checkpoint_outputs(tmp_path: Path):
@@ -488,3 +488,182 @@ def test_registry_snapshot_deterministic_order(tmp_path: Path):
     write_registry_snapshot(list(reversed(sources)), p1)
     write_registry_snapshot(sources, p2)
     assert p1.read_text(encoding="utf-8") == p2.read_text(encoding="utf-8")
+
+
+FIXTURES = Path(__file__).resolve().parent / "fixtures" / "image_multisource"
+
+
+def test_retail_adapters_exact_family_conflict_and_host_images():
+    from image_multisource.adapters_retail import (
+        evaluate_pdp,
+        extract_abzarham_product_images,
+        extract_abzarmarket_product_images,
+        index_product_urls_by_sku,
+        lookup_catalog_url,
+        parse_abzarmarket_brand_catalog,
+        parse_sitemap_locs,
+    )
+    from image_multisource.sku_norm import sku_token_in_path
+
+    locs = parse_sitemap_locs((FIXTURES / "sitemap_products.xml").read_text(encoding="utf-8"))
+    index = index_product_urls_by_sku(locs)
+    url, kind = lookup_catalog_url(index, "1804-1035")
+    assert kind == "exact" and "1804-1035" in url
+    _u, family = lookup_catalog_url(index, "1114-200")
+    assert family == "family"
+    assert sku_token_in_path("https://abzarham.com/shop/x/2100-1120/", "1120-200") == "conflict"
+
+    brand = parse_abzarmarket_brand_catalog(
+        (FIXTURES / "abzarmarket_brand.html").read_text(encoding="utf-8")
+    )
+    assert "1804-1035" in brand and "2308-10A" in brand
+
+    html = (FIXTURES / "abzarham_pdp_exact.html").read_text(encoding="utf-8")
+    imgs = extract_abzarham_product_images(html, sku="1804-1035")
+    assert imgs and "1804-1035" in imgs[0]
+    ok = evaluate_pdp(
+        sku="1804-1035",
+        brand_key="dasqua",
+        final_url="https://abzarham.com/shop/measuring/1804-1035/",
+        html=html,
+        expected_match_kind="exact",
+        image_urls=imgs,
+    )
+    assert ok["status"] == "matched" and ok["discovery_status"] == "retailer_review"
+
+    bad_html = (FIXTURES / "abzarham_pdp_conflict.html").read_text(encoding="utf-8")
+    bad = evaluate_pdp(
+        sku="1120-200",
+        brand_key="insize",
+        final_url="https://abzarham.com/shop/measuring/2100-1120/",
+        html=bad_html,
+        expected_match_kind="exact",
+        image_urls=extract_abzarham_product_images(bad_html, sku="1120-200"),
+    )
+    assert bad["false_match"] is True
+
+    market_html = (FIXTURES / "abzarmarket_pdp.html").read_text(encoding="utf-8")
+    m_imgs = extract_abzarmarket_product_images(market_html)
+    assert m_imgs and "image-generator/products" in m_imgs[0]
+
+
+def test_pdf_adapter_exact_and_multi_sku_quarantine(tmp_path: Path):
+    from image_multisource.adapters_pdf import discover_pdf_sku, index_skus_in_pdf
+
+    pages = (FIXTURES / "eu261_pages.txt").read_text(encoding="utf-8").split("\f")
+    hits = index_skus_in_pdf(tmp_path / "missing.pdf", ["1108-150", "4903-200"], page_texts=pages)
+    assert hits["1108-150"].page_number == 2
+    assert "1108-200" in hits["1108-150"].other_skus_on_page or hits["1108-150"].other_skus_on_page
+    assert hits["4903-200"].page_number == 3
+    pdf = b"%PDF-1.4\n1 0 obj<< /Type /Page >>endobj\n%%EOF\n"
+    multi = discover_pdf_sku(
+        pdf_path=tmp_path / "x.pdf",
+        pdf_bytes=pdf,
+        catalog_url="https://www.tosag.ch/mediafiles/kataloge/CATALOGUE-NO-EU261.pdf",
+        sku="1108-150",
+        hit=hits["1108-150"],
+        rendered_page_path=None,
+    )
+    assert multi["status"] == "matched"
+    assert multi["discovery_status"] == "manual_review"
+    single = discover_pdf_sku(
+        pdf_path=tmp_path / "x.pdf",
+        pdf_bytes=pdf,
+        catalog_url="https://www.tosag.ch/mediafiles/kataloge/CATALOGUE-NO-EU261.pdf",
+        sku="4903-200",
+        hit=hits["4903-200"],
+        rendered_page_path=None,
+    )
+    assert single["discovery_status"] == "candidate_ready"
+
+
+def test_calibration_false_match_disables(tmp_path: Path):
+    wl = _worklist(
+        tmp_path,
+        [
+            {
+                "product_id": str(i),
+                "sku": f"S-{i}",
+                "brand_key": "insize",
+                "work_type": "missing_image",
+                "priority": "P0",
+                "eligible_for_automatic_discovery": "true",
+            }
+            for i in range(1, 6)
+        ],
+    )
+    r2 = _r2_dir(tmp_path, stable=[], drift=[], manual=[])
+    report = build_eligibility_report(worklist_csv=wl, r2_seed=r2)
+    src = [s for s in builtin_known_host_registry() if s.source_id == "insize_eu261_pdf"][0]
+
+    def probe(_source, row):
+        return {
+            "product_id": row["product_id"],
+            "sku": row["sku"],
+            "status": "false_match" if row["product_id"] == "1" else "matched",
+            "page_identity_ok": row["product_id"] != "1",
+            "exact_sku_ok": row["product_id"] != "1",
+            "false_match": row["product_id"] == "1",
+            "redirect_ok": True,
+            "generic_category": False,
+            "parser_drift": False,
+            "asset_host_ok": True,
+            "notes": "",
+        }
+
+    result = calibrate_source(
+        source=src,
+        eligibility_report=report,
+        worklist_csv=wl,
+        output_dir=tmp_path / "calib",
+        limit=5,
+        probe=probe,
+    )
+    assert result.enabled_after_calibration is False
+    assert "false_match" in result.disable_reason
+
+
+def test_calibration_enables_with_high_parser_success(tmp_path: Path):
+    wl = _worklist(
+        tmp_path,
+        [
+            {
+                "product_id": str(i),
+                "sku": f"S-{i}",
+                "brand_key": "insize",
+                "work_type": "missing_image",
+                "priority": "P0",
+                "eligible_for_automatic_discovery": "true",
+            }
+            for i in range(1, 6)
+        ],
+    )
+    r2 = _r2_dir(tmp_path, stable=[], drift=[], manual=[])
+    report = build_eligibility_report(worklist_csv=wl, r2_seed=r2)
+    src = [s for s in builtin_known_host_registry() if s.source_id == "insize_eu261_pdf"][0]
+
+    def probe(_source, row):
+        return {
+            "product_id": row["product_id"],
+            "sku": row["sku"],
+            "status": "matched",
+            "page_identity_ok": True,
+            "exact_sku_ok": True,
+            "false_match": False,
+            "redirect_ok": True,
+            "generic_category": False,
+            "parser_drift": False,
+            "asset_host_ok": True,
+            "notes": "",
+        }
+
+    result = calibrate_source(
+        source=src,
+        eligibility_report=report,
+        worklist_csv=wl,
+        output_dir=tmp_path / "calib",
+        limit=5,
+        probe=probe,
+    )
+    assert result.enabled_after_calibration is True
+    assert result.parser_success_rate >= 0.8

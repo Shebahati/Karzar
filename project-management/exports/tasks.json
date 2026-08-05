@@ -2184,7 +2184,7 @@
         "Draft PR for batch-001 foundation + calibration"
       ],
       "status": "in_progress",
-      "progress": 20,
+      "progress": 60,
       "sprint": "05",
       "tags": [
         "images",
@@ -2193,7 +2193,7 @@
         "multisource"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02C-01 foundation + known-host calibration on feature/img02c-multisource-batch-001. Remaining eligible 1129. Enabled sources after calibration 0 (systematic_sku_mismatch / unknown). Bulk discovery not started. IMG-02B preserved in_progress/40. External outputs under /var/tmp/karzar-image-multisource/batch-001 and IMG-02C-01.zip. Zero DB/ProductImage mutations."
+      "notes": "CR-008 Option C. IMG-02C-01 R1 on feature/img02c-multisource-batch-001 (Draft #212). Researched ≥9 sources; enabled insize_eu261_pdf (S2), abzarham_sitemap (S5), abzarmarket_brand_catalog (S5). Bulk: 1129 attempted, 202 relations (3 stable / 140 retailer_review / 59 manual_review), 138 unique images. Artifact IMG-02C-01-R1.zip. IMG-02B preserved in_progress/40. Zero DB/ProductImage mutations."
     }
   ]
 }

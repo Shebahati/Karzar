@@ -132,8 +132,8 @@ def load_registry(path: Path) -> list[SourceDeclaration]:
     return sort_sources(sources)
 
 
-def builtin_known_host_registry() -> list[SourceDeclaration]:
-    """Known hosts only (Dasqua / TOSAG / SAN OU). Enabled flags start false until calibration."""
+def builtin_r1_registry() -> list[SourceDeclaration]:
+    """R1 researched sources + prior known-host disabled entries."""
     raw = [
         {
             "source_id": "dasqua_official",
@@ -147,31 +147,14 @@ def builtin_known_host_registry() -> list[SourceDeclaration]:
             ],
             "country": "CN",
             "authorization_status": "official",
-            "authorization_evidence": "IMG-02B official manufacturer adapter path",
-            "robots_status": "unknown_pending_calibration",
+            "authorization_evidence": "https://www.dasquatools.com/",
+            "robots_status": "allow",
             "discovery_method": "official_product_page",
             "exact_sku_supported": True,
             "catalog_pdf_supported": False,
             "enabled": False,
             "rights_status": "review_required",
-            "notes": "IMG-02B calibration_failed; require fresh ≤20 calibration before enable",
-        },
-        {
-            "source_id": "insize_tosag",
-            "source_class": "S3",
-            "brand_keys": ["insize"],
-            "allowed_page_hosts": ["www.tosag.ch", "tosag.ch"],
-            "allowed_asset_hosts": ["www.tosag.ch", "tosag.ch"],
-            "country": "CH",
-            "authorization_status": "authorized_candidate",
-            "authorization_evidence": "IMG-01/IMG-02B TOSAG authorized-distributor candidate",
-            "robots_status": "unknown_pending_calibration",
-            "discovery_method": "authorized_distributor_search",
-            "exact_sku_supported": True,
-            "catalog_pdf_supported": False,
-            "enabled": False,
-            "rights_status": "review_required",
-            "notes": "Do not redownload IMG-02B-R2 stable seed assets unnecessarily",
+            "notes": "IMG-02B/02C homepage calib failed; sitemap exact overlap with remaining worklist≈0",
         },
         {
             "source_id": "sanou_official",
@@ -189,14 +172,152 @@ def builtin_known_host_registry() -> list[SourceDeclaration]:
             ],
             "country": "CN",
             "authorization_status": "official",
-            "authorization_evidence": "IMG-02B official manufacturer adapter path",
-            "robots_status": "unknown_pending_calibration",
+            "authorization_evidence": "https://en.sanouchuck.com/",
+            "robots_status": "allow",
             "discovery_method": "official_product_page",
             "exact_sku_supported": True,
             "catalog_pdf_supported": False,
             "enabled": False,
             "rights_status": "review_required",
-            "notes": "IMG-02B site-shape parser_drift; require fresh ≤20 calibration before enable",
+            "notes": "No SKU search/PDP mapping for SO-* worklist; remain disabled",
+        },
+        {
+            "source_id": "insize_official_web",
+            "source_class": "S1",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["www.insize.com", "insize.com"],
+            "allowed_asset_hosts": ["www.insize.com", "insize.com"],
+            "country": "CN",
+            "authorization_status": "official",
+            "authorization_evidence": "https://www.insize.com/",
+            "robots_status": "allow",
+            "discovery_method": "official_search",
+            "exact_sku_supported": False,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "Search returns SKU text but no stable HTML PDP anchors (JS-heavy)",
+        },
+        {
+            "source_id": "insize_eu261_pdf",
+            "source_class": "S2",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["www.tosag.ch", "tosag.ch"],
+            "allowed_asset_hosts": ["www.tosag.ch", "tosag.ch"],
+            "country": "CH",
+            "authorization_status": "authorized_candidate",
+            "authorization_evidence": (
+                "https://www.tosag.ch/mediafiles/kataloge/CATALOGUE-NO-EU261.pdf"
+            ),
+            "robots_status": "allow",
+            "discovery_method": "official_catalog_pdf",
+            "exact_sku_supported": True,
+            "catalog_pdf_supported": True,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "INSIZE EU261 official catalogue hosted by TOSAG; calibrate via exact PDF pages",
+        },
+        {
+            "source_id": "insize_tosag",
+            "source_class": "S3",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["www.tosag.ch", "tosag.ch"],
+            "allowed_asset_hosts": ["www.tosag.ch", "tosag.ch"],
+            "country": "CH",
+            "authorization_status": "authorized_candidate",
+            "authorization_evidence": "https://www.tosag.ch/",
+            "robots_status": "allow",
+            "discovery_method": "authorized_distributor_search",
+            "exact_sku_supported": True,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "HTML search frequently HTTP 500 in R1 probes; PDF path preferred",
+        },
+        {
+            "source_id": "willrich_insize",
+            "source_class": "S4",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["willrich.com", "www.willrich.com"],
+            "allowed_asset_hosts": ["willrich.com", "www.willrich.com"],
+            "country": "US",
+            "authorization_status": "specialist_retailer",
+            "authorization_evidence": "https://willrich.com/?s=1108-150",
+            "robots_status": "unknown_pending_calibration",
+            "discovery_method": "retailer_search",
+            "exact_sku_supported": False,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "Search mentions SKU but no stable product PDP links extracted",
+        },
+        {
+            "source_id": "phase2plus_insize",
+            "source_class": "S4",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["phase2plus.com", "www.phase2plus.com"],
+            "allowed_asset_hosts": ["phase2plus.com", "www.phase2plus.com"],
+            "country": "US",
+            "authorization_status": "specialist_retailer",
+            "authorization_evidence": "https://phase2plus.com/?s=1108-150",
+            "robots_status": "unknown_pending_calibration",
+            "discovery_method": "retailer_search",
+            "exact_sku_supported": False,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "SKU present on search HTML; direct PDP URLs 404 — disabled",
+        },
+        {
+            "source_id": "abzarham_sitemap",
+            "source_class": "S5",
+            "brand_keys": ["dasqua", "insize"],
+            "allowed_page_hosts": ["abzarham.com", "www.abzarham.com"],
+            "allowed_asset_hosts": ["abzarham.com", "www.abzarham.com"],
+            "country": "IR",
+            "authorization_status": "iranian_supplier",
+            "authorization_evidence": "https://abzarham.com/pa_brand-sitemap.xml",
+            "robots_status": "allow",
+            "discovery_method": "product_sitemap_exact_sku",
+            "exact_sku_supported": True,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "Robots disallow /?s=*; discovery via product-sitemap only",
+        },
+        {
+            "source_id": "abzarmarket_brand_catalog",
+            "source_class": "S5",
+            "brand_keys": ["dasqua", "insize"],
+            "allowed_page_hosts": ["abzarmarket.com", "www.abzarmarket.com"],
+            "allowed_asset_hosts": ["abzarmarket.com", "www.abzarmarket.com"],
+            "country": "IR",
+            "authorization_status": "iranian_supplier",
+            "authorization_evidence": "https://abzarmarket.com/brand/dasqua",
+            "robots_status": "allow",
+            "discovery_method": "brand_catalog_exact_sku",
+            "exact_sku_supported": True,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "Brand catalog pages /brand/{dasqua,insize}; search paths disallowed",
+        },
+        {
+            "source_id": "abzarreza_search",
+            "source_class": "S5",
+            "brand_keys": ["insize"],
+            "allowed_page_hosts": ["abzarreza.com", "www.abzarreza.com"],
+            "allowed_asset_hosts": ["abzarreza.com", "www.abzarreza.com"],
+            "country": "IR",
+            "authorization_status": "unknown",
+            "authorization_evidence": "",
+            "robots_status": "not_checked",
+            "discovery_method": "site_search",
+            "exact_sku_supported": False,
+            "catalog_pdf_supported": False,
+            "enabled": False,
+            "rights_status": "review_required",
+            "notes": "Search returns unrelated 150mm products; unknown auth + false-match risk",
         },
         {
             "source_id": "example_unknown_disabled",
@@ -219,6 +340,11 @@ def builtin_known_host_registry() -> list[SourceDeclaration]:
     return sort_sources(parse_source(row) for row in raw)
 
 
+def builtin_known_host_registry() -> list[SourceDeclaration]:
+    """Backward-compatible alias used by foundation tests; now returns R1 registry."""
+    return builtin_r1_registry()
+
+
 def write_registry_snapshot(sources: list[SourceDeclaration], path: Path) -> None:
     payload = {
         "schema_version": 1,
@@ -236,10 +362,6 @@ def prefer_higher_priority(
     existing_class: str,
     challenger_class: str,
 ) -> bool:
-    """Return True if challenger may displace existing evidence by source class only.
-
-    Lower-priority sources must not displace valid higher-priority evidence.
-    """
     if existing_class not in SOURCE_CLASS_ORDER or challenger_class not in SOURCE_CLASS_ORDER:
         raise MultisourceError("registry", "invalid class for priority comparison")
     return SOURCE_CLASS_ORDER.index(challenger_class) < SOURCE_CLASS_ORDER.index(
