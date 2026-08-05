@@ -56,6 +56,7 @@ def load_worklist_rows(
     *,
     brand_key: str,
     filename: str,
+    include_ineligible: bool = False,
 ) -> list[dict[str, str]]:
     verify_worklist_checksums(worklist_root)
     path = worklist_root / filename
@@ -70,9 +71,12 @@ def load_worklist_rows(
                 "worklist",
                 f"brand_key mismatch in {filename}: {row.get('brand_key')!r}",
             )
-        if (row.get("eligible_for_automatic_discovery") or "").strip().casefold() != "true":
-            continue
         if (row.get("work_type") or "").strip() == "manual_review_hold":
+            continue
+        eligible = (
+            (row.get("eligible_for_automatic_discovery") or "").strip().casefold() == "true"
+        )
+        if not eligible and not include_ineligible:
             continue
         out.append(row)
     out.sort(

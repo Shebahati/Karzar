@@ -81,11 +81,17 @@ def write_lane_outputs(
         [
             "lane_id",
             "product_id",
+            "product_key",
             "sku",
             "product_name",
+            "work_type",
+            "work_reasons",
+            "priority",
             "reason_code",
             "reason_detail",
             "source_detail_url",
+            "discovery_status",
+            "eligible_for_automatic_discovery",
             "notes",
         ],
     )

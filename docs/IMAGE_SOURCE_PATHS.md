@@ -1,7 +1,8 @@
 # Image Source Paths (IMG-02B)
 
-**Task:** IMG-02B — Existing Source Paths (`in_progress` / 20)
-**Phase completed:** deterministic source worklist (IMG-02B-01)
+**Task:** IMG-02B — Existing Source Paths (`in_progress` / 40)
+**Phase completed:** deterministic source worklist (IMG-02B-01); live discovery R1 recalibration (not complete)
+**Lane status:** Dasqua `calibration_failed`; INSIZE `partial` (source drift); SAN OU `calibration_failed`; IMG-02B-05 not started
 **Live discovery:** not started
 **Image downloads:** 0
 **Replacements applied:** 0

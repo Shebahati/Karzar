@@ -57,15 +57,13 @@ LANE_SPECS: dict[str, dict[str, str]] = {
     },
 }
 
-# Dasqua product HTML lives on dasquatools.com; official product images are
-# served from GlobalSo CDNs referenced by those pages (legacy importer evidence:
-# scripts/import_dasqua_images_from_official.py extract_image).
-_DASQUA_CDN_HOSTS = frozenset(
-    {"cdn.globalso.com", *[f"ecdn{i}.globalso.com" for i in range(1, 16)]}
-)
+# Dasqua page hosts for crawls. Observed GlobalSo CDN hosts are asset-only and
+# are NOT included in the discovery fetcher allowlist (no GlobalSo redirect/crawl).
+DASQUA_PAGE_HOSTS = frozenset({"www.dasquatools.com", "dasquatools.com"})
+DASQUA_OBSERVED_ASSET_HOSTS = frozenset({"cdn.globalso.com", "ecdn6.globalso.com"})
 
 ALLOWED_HOSTS: dict[str, frozenset[str]] = {
-    "dasqua": frozenset({"www.dasquatools.com", "dasquatools.com"}) | _DASQUA_CDN_HOSTS,
+    "dasqua": DASQUA_PAGE_HOSTS,
     "insize": frozenset({"www.tosag.ch", "tosag.ch"}),
     "san_ou": frozenset({"www.sanouchuck.com", "sanouchuck.com", "en.sanouchuck.com"}),
 }

@@ -8,9 +8,9 @@
 | Title | Existing Source Paths |
 | Node | IMG-02B-01-SOURCE-WORKLISTS |
 | Status | in_progress |
-| Progress | 70 |
-| Phase completed | parallel live candidate discovery (IMG-02B-02..04) |
-| Live discovery | complete (candidate stage; partial downloads) |
+| Progress | 40 |
+| Phase completed | IMG-02B-01 worklists; live discovery recalibration in progress (R1) |
+| Live discovery | not complete — Dasqua/SAN OU calibration_failed; INSIZE partial |
 | Image downloads | 18 unique assets (INSIZE lane) |
 | Replacements applied | 0 |
 
@@ -145,7 +145,34 @@ rights_cleared = 0
 
 ## Parallel live discovery (IMG-02B-02..04) — external only
 
-Branch: `feat/img02b-parallel-source-discovery` (Draft PR; not merged).
+Branch: `feat/img02b-parallel-source-discovery` (Draft PR #211; not merged).
+Status correction (R1): live results do **not** constitute three completed lanes.
+
+```text
+IMG-02B-02 Dasqua:
+  status = calibration_failed
+  discovered candidates = 2
+  validated/materialized rows = 0
+  complete = false
+
+IMG-02B-03 INSIZE:
+  status = partial
+  first candidate run = 49
+  second candidate run = 48
+  validated/materialized rows = 30
+  unique assets = 18
+  source drift unresolved
+  complete = false
+
+IMG-02B-04 SAN OU:
+  status = calibration_failed
+  discovered candidates = 0
+  complete = false
+
+IMG-02B status = in_progress
+IMG-02B progress = 40
+IMG-02B-05 = not started
+```
 
 ```text
 Lane outputs:
@@ -154,8 +181,8 @@ Lane outputs:
   /var/tmp/karzar-image-discovery/img02b-sanou
 
 Downloads (partial):
-  /var/tmp/karzar-image-discovery/img02b-insize-dl  (18 unique assets, 30 accepted rows)
-  /var/tmp/karzar-image-discovery/img02b-dasqua-dl  (0 accepted — family_page_ambiguous)
+  /var/tmp/karzar-image-discovery/img02b-insize-dl  (18 unique assets, 30 materialized rows)
+  /var/tmp/karzar-image-discovery/img02b-dasqua-dl  (0 materialized — family_page_ambiguous)
 
 Consolidated:
   /var/tmp/karzar-image-discovery/img02b-consolidated
@@ -165,20 +192,52 @@ Final review root:
   /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B
 ```
 
-### Lane counts (candidate stage)
+### Lane counts (candidate stage — pre-R1 evidence)
 
-| Lane | Requested | Accepted candidates | Rejected | Manual | Notes |
+| Lane | Requested | Discovered candidates | Rejected | Manual | Notes |
 |---|---:|---:|---:|---:|---|
-| IMG-02B-02 Dasqua | 687 | 2 | 685 | 0 | 2918 sitemap URLs crawled; 54 unique item codes indexed; GlobalSo CDN allowlisted |
-| IMG-02B-03 INSIZE | 263 | 49 | 214 | 0 | parser_drift=0; TOSAG subject-parser fix applied for materialization |
-| IMG-02B-04 SAN OU | 253 | 0 | 253 | 0 | 215 official_page_not_found; 38 model_token_not_found |
+| IMG-02B-02 Dasqua | 687 | 2 | 685 | 0 | calibration_failed; 0 materialized (family_page_ambiguous); majority-vote/family collapse under R1 fix |
+| IMG-02B-03 INSIZE | 263 | 49 (1st) / 48 (2nd) | 214 | 0 | partial; source drift; 30 materialized / 18 unique assets |
+| IMG-02B-04 SAN OU | 253 | 0 | 215 (pre-R1) + 38 misclassified | 0 (pre-R1) | calibration_failed; R1: 38 tokenless → manual_review |
 
 Cross-brand duplicate assets: 0.
+
+### R1 recalibration evidence (2026-08-05)
+
+```text
+Dasqua bounded calib (25 products, --limit):
+  discovered_candidates = 0
+  validated_candidate_rows = 0
+  manual_review = 1 (ambiguous_official_product)
+  rejected = 24
+  prior candidate↔adapter mismatches = 2 (family_page_ambiguous)
+  majority vote removed; exact SKU identity; observed CDN hosts only
+
+INSIZE reconcile:
+  first_run = 49; second_run = 48; stable_intersection = 42
+  source_drift_count = 7
+  materialized_rows = 30; unique_assets = 18
+  candidate_discovery_coverage = 15.97% (42/263)
+  validated_materialization_coverage = 11.41% (30/263)
+
+SAN OU site-shape:
+  governed_outcome = parser_drift
+  proven_product_detail_shape = true (productshow.aspx exists)
+  model evidence on detail samples = 0; no full 215 re-crawl
+  R1 lane (fail-closed, no guessed matrix):
+    manual_review = 38 (model_token_not_found)
+    rejected = 215 (source_unavailable)
+    discovered_candidates = 0
+
+IMG-02B-05 = not started
+Artifact: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
+```
 
 ### Resume / drift
 
 - INSIZE **materialization** resume on `img02b-insize-dl`: semantic_manifest_stable=true, asset_set_stable=true, unchanged_rows=30, reused_existing_assets=18.
-- INSIZE **candidate** re-discovery into fresh dir: source drift (49→48 rows; e.g. SKU 1120-500 remapped) — reported separately; authoritative lane artifact is first run under `img02b-insize`.
+- INSIZE **candidate** re-discovery: source drift (49→48; e.g. SKU 1120-500 remapped) — R1 reconciles both runs; do not silently prefer first run.
+- SAN OU pre-R1 `model_token_not_found` (38) was wrongly rejected; R1 reclassifies as manual_review with `eligible_for_automatic_discovery=false`.
 
 ### Safety (discovery phase)
 
@@ -204,12 +263,13 @@ No DB/ProductImage/storage mutation, replacement execution, manual-review resolu
 rights clearance, deploy, or legacy importer execution. Raw discovery artifacts remain
 outside Git.
 
-## R2 status
+## R2 / R1 status
 
 ```text
 R2 fail-closed output and extraction hardening complete (IMG-02B-01)
-Parallel discovery code + fixture tests on feat/img02b-parallel-source-discovery
-live discovery complete for three lanes; IMG-02B not done (awaiting IMG-02B-05)
+Parallel discovery code on feat/img02b-parallel-source-discovery (Draft #211)
+R1 recalibration in progress — lanes not complete; progress=40
 images downloaded = 18 unique (INSIZE only)
 replacements applied = 0
+IMG-02B-05 = not started
 ```

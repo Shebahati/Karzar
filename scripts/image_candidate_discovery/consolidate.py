@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import TASK_ID, CandidateDiscoveryError
+from . import TASK_ID
 from .output import assert_external_output, ensure_absent_or_empty, write_csv
 from .worklists import sha256_file
 

@@ -251,15 +251,25 @@ def _resolve_one(
                 "product_id": product_id,
                 "sku": sku,
                 "product_name": product_name,
+                "product_key": item.get("product_key") or f"product_id:{product_id}",
+                "work_type": item.get("work_type") or "",
+                "work_reasons": item.get("work_reasons") or "",
+                "priority": item.get("priority") or "",
                 "reason_code": code,
                 "reason_detail": detail,
                 "source_detail_url": detail_url,
+                "discovery_status": "manual_review",
+                "eligible_for_automatic_discovery": "false",
                 "notes": f"models:{','.join(models)}",
             },
         )
 
     if not models:
-        return reject("model_token_not_found", "no extractable SAN OU model token in name/sku")
+        return manual_row(
+            "model_token_not_found",
+            "no extractable SAN OU model token in name/sku; "
+            "eligible_for_automatic_discovery=false",
+        )
 
     page_hits: list[dict[str, str]] = []
     catalog_only: list[dict[str, str]] = []
@@ -405,8 +415,17 @@ def _resolve_one(
 
     if successful_searches == 0 and fetch_errors:
         return reject(
-            "official_page_fetch_failed",
-            "could not fetch SAN OU official search/product pages",
+            "source_unavailable",
+            "could not fetch SAN OU official search/product pages "
+            "(not product-level official_page_not_found)",
+        )
+    if successful_searches > 0 and not page_hits and not catalog_only:
+        # HTML returned but no product-detail/catalog shape — site/parser mismatch,
+        # not a product-level "page not found".
+        return reject(
+            "parser_drift",
+            "official search/index responses returned without a parseable product "
+            "detail or catalog shape (not product-level official_page_not_found)",
         )
     return reject(
         "official_page_not_found",
@@ -478,11 +497,22 @@ def discover_sanou_candidates(
         "manual": manual,
         "stats": {
             "requested": len(work_items),
+            "discovered_candidates": len(candidates),
+            "validated_candidate_rows": len(candidates),
             "accepted_candidates": len(candidates),
             "rejected": len(rejected),
             "manual_review": len(manual),
+            "model_token_not_found": sum(
+                1 for m in manual if m.get("reason_code") == "model_token_not_found"
+            ),
             "official_catalog_only": sum(
                 1 for m in manual if m.get("reason_code") == "official_catalog_only"
+            ),
+            "source_unavailable": sum(
+                1 for r in rejected if r.get("reason_code") == "source_unavailable"
+            ),
+            "parser_drift": sum(
+                1 for r in rejected if r.get("reason_code") == "parser_drift"
             ),
         },
     }

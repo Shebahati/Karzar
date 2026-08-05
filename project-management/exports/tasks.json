@@ -2136,7 +2136,7 @@
         "Draft PR opened; live discovery not started"
       ],
       "status": "in_progress",
-      "progress": 70,
+      "progress": 40,
       "sprint": "05",
       "tags": [
         "images",
@@ -2145,7 +2145,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). Parallel live discovery IMG-02B-02..04 on feat/img02b-parallel-source-discovery: Dasqua 2/687 candidates; INSIZE 49/263 candidates + 18 unique downloads (30 accepted rows); SAN OU 0/253 (search/index gap). Consolidated external root /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B. INSIZE materialization resume stable; candidate re-run showed TOSAG source drift. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations. Next: IMG-02B-05 human review."
+      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R1 recalibration on Draft #211: progress=40; Dasqua calibration_failed (2 discovered/0 materialized); INSIZE partial (49→48 drift; 30 materialized/18 unique); SAN OU calibration_failed (0 candidates; 38 model_token_not_found→manual). IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
     }
   ]
 }
