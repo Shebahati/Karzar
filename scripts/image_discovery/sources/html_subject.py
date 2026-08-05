@@ -72,15 +72,32 @@ def _element_starts_unrelated(tag: str, attrs: dict[str, str]) -> bool:
     t = tag.lower()
     if t in _UNRELATED_TAGS:
         return True
-    blob = _attr_blob(attrs)
-    if not blob:
-        for k in attrs:
-            kl = k.casefold()
-            if kl in {"data-related", "data-crosssell"} or "related" in kl or "crosssell" in kl:
-                return True
-        return False
+    classes = [c for c in attrs.get("class", "").casefold().split() if c]
+    id_ = attrs.get("id", "").casefold()
+    id_parts = [p for p in re.split(r"[\s_-]+", id_) if p]
+    data_blob = " ".join(
+        f"{k} {v}" for k, v in attrs.items() if k.startswith("data-")
+    ).casefold()
+    short_tokens = frozenset({"nav", "header", "footer", "aside"})
     for tok in _UNRELATED_TOKENS:
-        if tok.casefold() in blob:
+        tl = tok.casefold()
+        if tl in short_tokens:
+            class_hit = any(c == tl or c.startswith(tl + "-") or c.startswith(tl + "_") for c in classes)
+            id_hit = tl in id_parts
+        else:
+            # Longer tokens: allow compound classes like related-products.
+            class_hit = any(
+                c == tl or c.startswith(tl + "-") or c.startswith(tl + "_") or tl in c
+                for c in classes
+            )
+            id_hit = tl in id_parts or tl in id_
+        if class_hit or id_hit:
+            return True
+        if tl in data_blob.split() or f"data-{tl}" in data_blob:
+            return True
+    for k in attrs:
+        kl = k.casefold()
+        if kl in {"data-related", "data-crosssell"} or "related" in kl or "crosssell" in kl:
             return True
     return False
 
@@ -98,7 +115,6 @@ class PageSubjectParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.stack: list[tuple[str, bool]] = []
-        self.suppress_depth = 0
         self.subject_chunks: list[str] = []
         self.unrelated_chunks: list[str] = []
         self.script_chunks: list[str] = []
@@ -117,6 +133,10 @@ class PageSubjectParser(HTMLParser):
         # Evidence records: {"kind": "meta"|"jsonld_product", "origin": Region, ...}
         self.structured_evidence: list[dict[str, Any]] = []
 
+    def _suppressed(self) -> bool:
+        """True while an unrelated-root element remains on the open-tag stack."""
+        return any(started for _tag, started in self.stack)
+
     @property
     def meta_fields(self) -> dict[str, str]:
         """Subject-region meta only (never unrelated)."""
@@ -132,7 +152,7 @@ class PageSubjectParser(HTMLParser):
             self._script_buf.append(text)
             self.script_chunks.append(text)
             return
-        if self.suppress_depth > 0:
+        if self._suppressed():
             self.unrelated_chunks.append(text)
         else:
             self.subject_chunks.append(text)
@@ -143,11 +163,12 @@ class PageSubjectParser(HTMLParser):
         t = tag.lower()
         ad = _attrs_dict(attrs)
         start_html = _fmt_start(t, attrs)
+        already = self._suppressed()
 
         if t == "meta":
             name = (ad.get("property") or ad.get("name") or "").lower()
             content = (ad.get("content") or "").strip()
-            origin: Region = "unrelated" if self.suppress_depth > 0 else "subject"
+            origin: Region = "unrelated" if already else "subject"
             if name:
                 if origin == "subject":
                     self.subject_meta[name] = content
@@ -165,41 +186,28 @@ class PageSubjectParser(HTMLParser):
             return
 
         if t == "script":
-            self._script_origin = "unrelated" if self.suppress_depth > 0 else "subject"
+            self._script_origin = "unrelated" if already else "subject"
             self._in_script = True
             self._script_type = (ad.get("type") or "").lower()
             self._script_buf = []
             self.script_chunks.append(start_html)
-            if self.suppress_depth > 0:
-                self.suppress_depth += 1
             self.stack.append((t, False))
             return
 
         if t == "style":
-            if self.suppress_depth > 0:
-                self.suppress_depth += 1
-                started_here = False
-            else:
-                self.suppress_depth = 1
-                started_here = True
+            # Style bodies are never product-subject evidence.
+            started_here = not already
             self.stack.append((t, started_here))
             self._emit(start_html)
             return
 
         starts_unrelated = _element_starts_unrelated(t, ad)
-        if self.suppress_depth > 0:
-            self.suppress_depth += 1
-            started_here = False
-        elif starts_unrelated:
-            self.suppress_depth = 1
-            started_here = True
-        else:
-            started_here = False
+        started_here = (not already) and starts_unrelated
 
         if t not in _VOID:
             self.stack.append((t, started_here))
 
-        if t in {"h1", "h2"} and self.suppress_depth == 0:
+        if t in {"h1", "h2"} and not self._suppressed():
             self._in_heading = t
             self._heading_buf = []
 
@@ -241,13 +249,8 @@ class PageSubjectParser(HTMLParser):
                 break
         if idx is None:
             return
-        while len(self.stack) > idx + 1:
-            self.stack.pop()
-            if self.suppress_depth > 0:
-                self.suppress_depth -= 1
-        self.stack.pop()
-        if self.suppress_depth > 0:
-            self.suppress_depth -= 1
+        # Drop the matched frame and any unclosed descendants (messy HTML).
+        del self.stack[idx:]
 
     def handle_data(self, data: str) -> None:
         self._emit(data)

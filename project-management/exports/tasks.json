@@ -2136,7 +2136,7 @@
         "Draft PR opened; live discovery not started"
       ],
       "status": "in_progress",
-      "progress": 20,
+      "progress": 70,
       "sprint": "05",
       "tags": [
         "images",
@@ -2145,7 +2145,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. Phase IMG-02B-01 deterministic source worklists complete externally. Work items=1204; missing_image=1122 (dasqua 674 / insize 229 / san_ou 219); replace_required=63 (7/34/22); watermark_cleaner=18 (7/0/17); manual_review_hold=1 (dasqua). Cumulative review inputs 614/1193/88/2 validated. semantic_second_run_stable=true. R2 fail-closed output and extraction hardening complete; accepted 1204-product Artifact semantics unchanged; arbitrary non-empty output reuse removed; copy-final recursive deletion removed; inventory contradictions rejected; ZIP basename collisions rejected. Live discovery=not started. Image downloads=0. Replacements applied=0. Rights cleared=0. No DB/ProductImage/storage/network mutation. Raw worklists external only. Planned later nodes IMG-02B-02..05 not started."
+      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). Parallel live discovery IMG-02B-02..04 on feat/img02b-parallel-source-discovery: Dasqua 2/687 candidates; INSIZE 49/263 candidates + 18 unique downloads (30 accepted rows); SAN OU 0/253 (search/index gap). Consolidated external root /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B. INSIZE materialization resume stable; candidate re-run showed TOSAG source drift. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations. Next: IMG-02B-05 human review."
     }
   ]
 }
