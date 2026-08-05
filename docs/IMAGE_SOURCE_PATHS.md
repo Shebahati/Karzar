@@ -231,3 +231,19 @@ R2 Artifact:
   /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2.zip
   SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
 ```
+
+## IMG-02C — Multisource expansion (started)
+
+```text
+TASK_ID = IMG-02C
+NODE = IMG-02C-01-MULTISOURCE-BATCH-001
+status = in_progress
+progress = 20
+remaining_eligible = 1129 (derived from IMG-02B worklists − R2 exclusions)
+enabled_sources_after_calibration = 0
+bulk discovery = not started
+IMG-02B status preserved (in_progress / 40; IMG-02B-05 not started)
+
+working root: /var/tmp/karzar-image-multisource/batch-001
+review root:  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01
+```

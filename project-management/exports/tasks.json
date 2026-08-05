@@ -2145,7 +2145,55 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R2 drift quarantine on Draft #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed; INSIZE partial with effective quarantine (49=42+7; stable mat 28/263=10.65%; raw pre-quarantine 30/18); SAN OU calibration_failed (38 model_token_not_found manual + 215 source_unavailable). Governed review 46=1+38+7. External R2 Artifact IMG-02B-R2.zip; R1 ZIP immutable. IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
+      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R2 drift quarantine merged via #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed; INSIZE partial with effective quarantine; SAN OU calibration_failed. Governed review 46. External R2 Artifact IMG-02B-R2.zip. IMG-02B-05 not started. IMG-02C multisource expansion started separately. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
+    },
+    {
+      "id": "IMG-02C",
+      "title": "Multisource Image Discovery Expansion",
+      "description": "Governed multisource image-discovery batches beyond official-only IMG-02B runs: typed source registry (S1–S5), eligibility from IMG-02B worklists minus R2 seed exclusions, per-source calibration gates, exact SKU/model matching, PDF/catalog provenance, quality/dedupe, and external candidate packages for a future combined human review.",
+      "priority": "P1",
+      "complexity": "med",
+      "hours": 20,
+      "deps": [
+        "IMG-02B"
+      ],
+      "files": [
+        "scripts/discover_multisource_product_images.py",
+        "scripts/image_multisource/",
+        "tests/test_image_multisource.py",
+        "docs/IMAGE_SOURCE_PATHS.md",
+        "aods/reports/tasks/IMG-02C-MULTISOURCE-BATCH-001.md"
+      ],
+      "modules": [
+        "catalog",
+        "scripts",
+        "ops",
+        "aods"
+      ],
+      "ac": [
+        "typed deterministic source registry with unknown-auth disabled",
+        "eligibility derived from IMG-02B worklists excluding R2 stable/drift/manual",
+        "per-source calibration ≤20 before enable",
+        "exact SKU/model match contract; retailer default quarantine",
+        "external-only outputs; no DB/ProductImage/storage mutation"
+      ],
+      "dod": [
+        "Focused fixture tests + PYTHONHASHSEED 0..9",
+        "IMG-02B regression suite green",
+        "AODS validate PASS",
+        "Draft PR for batch-001 foundation + calibration"
+      ],
+      "status": "in_progress",
+      "progress": 20,
+      "sprint": "05",
+      "tags": [
+        "images",
+        "catalog",
+        "review",
+        "multisource"
+      ],
+      "risk": "med",
+      "notes": "CR-008 Option C. IMG-02C-01 foundation + known-host calibration on feature/img02c-multisource-batch-001. Remaining eligible 1129. Enabled sources after calibration 0 (systematic_sku_mismatch / unknown). Bulk discovery not started. IMG-02B preserved in_progress/40. External outputs under /var/tmp/karzar-image-multisource/batch-001 and IMG-02C-01.zip. Zero DB/ProductImage mutations."
     }
   ]
 }
