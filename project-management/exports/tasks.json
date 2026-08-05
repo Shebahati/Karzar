@@ -2133,7 +2133,7 @@
         "Focused worklist tests + PYTHONHASHSEED 0..9 in Python 3.12 container",
         "IMG-02A-01 / IMG-02A-02 / IMG-01 regression suites",
         "AODS links/registry/pmo/naming/ingestion-boundary pass",
-        "Draft PR opened; live discovery not started"
+        "Draft PR opened; live discovery started but incomplete (progress 40)"
       ],
       "status": "in_progress",
       "progress": 40,
@@ -2145,7 +2145,7 @@
         "read-only"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R1 recalibration on Draft #211: progress=40; Dasqua calibration_failed (2 discovered/0 materialized); INSIZE partial (49→48 drift; 30 materialized/18 unique); SAN OU calibration_failed (0 candidates; 38 model_token_not_found→manual). IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
+      "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R1 source-gap recalibration complete on Draft #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed (R1 calib 25→0 discovered/0 materialized); INSIZE partial (49→48 drift; 30 materialized/18 unique); SAN OU calibration_failed (site-shape parser_drift; 38 model_token_not_found manual; 215 source_unavailable — not product_not_published). IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
     }
   ]
 }

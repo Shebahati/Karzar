@@ -9,9 +9,9 @@
 | Node | IMG-02B-01-SOURCE-WORKLISTS |
 | Status | in_progress |
 | Progress | 40 |
-| Phase completed | IMG-02B-01 worklists; live discovery recalibration in progress (R1) |
-| Live discovery | not complete — Dasqua/SAN OU calibration_failed; INSIZE partial |
-| Image downloads | 18 unique assets (INSIZE lane) |
+| Phase completed | IMG-02B-01 worklists; R1 source-gap recalibration complete |
+| Live discovery | started but incomplete — Dasqua/SAN OU calibration_failed; INSIZE partial |
+| Image downloads | 18 unique external assets, INSIZE only |
 | Replacements applied | 0 |
 
 ## Scope
@@ -151,22 +151,27 @@ Status correction (R1): live results do **not** constitute three completed lanes
 ```text
 IMG-02B-02 Dasqua:
   status = calibration_failed
-  discovered candidates = 2
+  eligible total = 687
+  R1 bounded calibration = 25
+  discovered = 0 (post-R1 calib; prior pre-R1 candidates = 2, not validated)
   validated/materialized rows = 0
+  manual = 1; rejected = 24 (R1 calib)
   complete = false
 
 IMG-02B-03 INSIZE:
   status = partial
   first candidate run = 49
   second candidate run = 48
+  stable intersection = 42; source drift = 7
   validated/materialized rows = 30
   unique assets = 18
-  source drift unresolved
   complete = false
 
 IMG-02B-04 SAN OU:
   status = calibration_failed
+  total = 253; model-bearing = 215; tokenless manual = 38
   discovered candidates = 0
+  site-shape = parser_drift; lane source_unavailable = 215
   complete = false
 
 IMG-02B status = in_progress
@@ -220,17 +225,19 @@ INSIZE reconcile:
   candidate_discovery_coverage = 15.97% (42/263)
   validated_materialization_coverage = 11.41% (30/263)
 
-SAN OU site-shape:
-  governed_outcome = parser_drift
-  proven_product_detail_shape = true (productshow.aspx exists)
-  model evidence on detail samples = 0; no full 215 re-crawl
-  R1 lane (fail-closed, no guessed matrix):
-    manual_review = 38 (model_token_not_found)
-    rejected = 215 (source_unavailable)
-    discovered_candidates = 0
+SAN OU classification (do not conflate levels):
+  site-shape calibration outcome = parser_drift
+    (productshow.aspx shape exists; sample models not evidenced on detail pages)
+  product-lane classification:
+    model_token_not_found = 38 manual-review rows
+    source_unavailable = 215 model-bearing rows
+  The 215 rows are source_unavailable because no governed model-to-detail-page
+  mapping was proven — not confirmed product_not_published.
+  discovered_candidates = 0; no full 215 re-crawl after parser_drift
 
 IMG-02B-05 = not started
 Artifact: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
+  SHA-256: d922ebf4dc22db393c60f2657cc7370d2fa4c678ce340d3f3479fce1f0c6a201
 ```
 
 ### Resume / drift
@@ -268,8 +275,10 @@ outside Git.
 ```text
 R2 fail-closed output and extraction hardening complete (IMG-02B-01)
 Parallel discovery code on feat/img02b-parallel-source-discovery (Draft #211)
-R1 recalibration in progress — lanes not complete; progress=40
-images downloaded = 18 unique (INSIZE only)
+R1 source-gap recalibration complete — overall live discovery still incomplete
+IMG-02B = in_progress / 40
+images downloaded = 18 unique external assets (INSIZE only)
+Dasqua unique assets = 0; SAN OU unique assets = 0
 replacements applied = 0
 IMG-02B-05 = not started
 ```

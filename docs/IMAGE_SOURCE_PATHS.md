@@ -1,10 +1,10 @@
 # Image Source Paths (IMG-02B)
 
 **Task:** IMG-02B — Existing Source Paths (`in_progress` / 40)
-**Phase completed:** deterministic source worklist (IMG-02B-01); live discovery R1 recalibration (not complete)
-**Lane status:** Dasqua `calibration_failed`; INSIZE `partial` (source drift); SAN OU `calibration_failed`; IMG-02B-05 not started
-**Live discovery:** not started
-**Image downloads:** 0
+**Phase completed:** IMG-02B-01 deterministic worklists; R1 source-gap recalibration complete
+**Lane status:** Dasqua `calibration_failed`; INSIZE `partial` with reconciled source drift; SAN OU `calibration_failed`; IMG-02B-05 not started
+**Live discovery:** started but incomplete — official-source coverage is partial
+**Image downloads:** 18 unique external assets, INSIZE only
 **Replacements applied:** 0
 
 ## Purpose
@@ -170,16 +170,29 @@ python scripts/build_image_source_worklists.py \
 `--output-dir` and `--extract-root` children must be absent or empty.
 `--copy-final-to` must not already exist.
 
-## Planned later nodes (not started; no PMO tasks yet)
+## Planned later nodes
 
 ```text
-IMG-02B-02 — Dasqua Official Discovery
-IMG-02B-03 — INSIZE TOSAG Live Validation and Discovery
-IMG-02B-04 — SAN OU Official Discovery
-IMG-02B-05 — Consolidated Candidate Human Review
+IMG-02B-02 — Dasqua Official Discovery (started; calibration_failed; incomplete)
+IMG-02B-03 — INSIZE TOSAG Live Validation and Discovery (started; partial; incomplete)
+IMG-02B-04 — SAN OU Official Discovery (started; calibration_failed; incomplete)
+IMG-02B-05 — Consolidated Candidate Human Review (not started)
 ```
 
-## Boundary claims
+### SAN OU classification (R1)
+
+```text
+site-shape calibration outcome = parser_drift
+product-lane classification:
+  model_token_not_found = 38 manual-review rows
+  source_unavailable = 215 model-bearing rows
+```
+
+`parser_drift` is a site-level calibration finding. The 215 model-bearing rows are
+classified `source_unavailable` because no governed model-to-detail-page mapping was
+proven — not confirmed `product_not_published`.
+
+## Boundary claims (IMG-02B-01 worklist phase)
 
 ```text
 network_requests_performed = 0
@@ -191,3 +204,6 @@ images_downloaded = 0
 replacement_execution = false
 rights_cleared = 0
 ```
+
+Live-discovery external downloads (post-worklist; not in Git): **18** unique assets
+(INSIZE only). Dasqua and SAN OU unique assets = 0. Replacements applied = 0.

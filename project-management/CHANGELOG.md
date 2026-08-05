@@ -1,5 +1,8 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-05
+- [x] **IMG-02B** — R1.1 status alignment on Draft #211: progress **40**; R1 source-gap recalibration **complete** as classification; overall live discovery still incomplete. Dasqua/SAN OU `calibration_failed`; INSIZE `partial` (49→48 drift; 30 materialized / 18 unique). SAN OU: site-shape `parser_drift`; lane 38 `model_token_not_found` manual + 215 `source_unavailable` (not `product_not_published`). IMG-02B-05 not started. Artifact ZIP external. Zero DB/ProductImage mutations.
+
 ## 2026-08-04
 - [x] **IMG-02B** — R1 status correction: progress **40** (not complete). Dasqua `calibration_failed` (2 discovered / 0 materialized); INSIZE `partial` (49→48 drift; 30 materialized / 18 unique); SAN OU `calibration_failed` (0 candidates; 38 tokenless → manual). Draft PR #211 retained. IMG-02B-05 not started. Zero DB/ProductImage mutations.
 - [x] **IMG-02B** — Parallel live candidate discovery (IMG-02B-02..04) on `feat/img02b-parallel-source-discovery` (superseded completeness claim by R1). Dasqua 2/687, INSIZE 49/263 candidates (18 unique downloads), SAN OU 0/253. External roots under `/var/tmp/karzar-image-discovery/` and `/home/moahmmad/Projects/Karzar-image-discovery/IMG-02B`. rights_status=review_required; no DB/ProductImage mutations.
