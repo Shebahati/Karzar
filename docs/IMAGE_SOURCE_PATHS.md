@@ -1,9 +1,10 @@
 # Image Source Paths (IMG-02B)
 
-**Task:** IMG-02B — Existing Source Paths (`in_progress` / 20)
-**Phase completed:** deterministic source worklist (IMG-02B-01)
-**Live discovery:** not started
-**Image downloads:** 0
+**Task:** IMG-02B — Existing Source Paths (`in_progress` / 40)
+**Phase completed:** IMG-02B-01 worklists; R1 source-gap recalibration; R2 effective drift quarantine
+**Lane status:** Dasqua `calibration_failed`; INSIZE `partial` (stable 28 materialized after quarantine); SAN OU `calibration_failed`; IMG-02B-05 not started
+**Live discovery:** started but incomplete — official-source coverage is partial
+**Image downloads:** 18 unique external assets packaged (INSIZE only; drift evidence retained)
 **Replacements applied:** 0
 
 ## Purpose
@@ -169,16 +170,29 @@ python scripts/build_image_source_worklists.py \
 `--output-dir` and `--extract-root` children must be absent or empty.
 `--copy-final-to` must not already exist.
 
-## Planned later nodes (not started; no PMO tasks yet)
+## Planned later nodes
 
 ```text
-IMG-02B-02 — Dasqua Official Discovery
-IMG-02B-03 — INSIZE TOSAG Live Validation and Discovery
-IMG-02B-04 — SAN OU Official Discovery
-IMG-02B-05 — Consolidated Candidate Human Review
+IMG-02B-02 — Dasqua Official Discovery (started; calibration_failed; incomplete)
+IMG-02B-03 — INSIZE TOSAG Live Validation and Discovery (started; partial; incomplete)
+IMG-02B-04 — SAN OU Official Discovery (started; calibration_failed; incomplete)
+IMG-02B-05 — Consolidated Candidate Human Review (not started)
 ```
 
-## Boundary claims
+### SAN OU classification (R1)
+
+```text
+site-shape calibration outcome = parser_drift
+product-lane classification:
+  model_token_not_found = 38 manual-review rows
+  source_unavailable = 215 model-bearing rows
+```
+
+`parser_drift` is a site-level calibration finding. The 215 model-bearing rows are
+classified `source_unavailable` because no governed model-to-detail-page mapping was
+proven — not confirmed `product_not_published`.
+
+## Boundary claims (IMG-02B-01 worklist phase)
 
 ```text
 network_requests_performed = 0
@@ -189,4 +203,31 @@ source_storage_mutations = 0
 images_downloaded = 0
 replacement_execution = false
 rights_cleared = 0
+```
+
+Live-discovery external downloads (post-worklist; not in Git): **18** unique assets
+(INSIZE only). Dasqua and SAN OU unique assets = 0. Replacements applied = 0.
+
+### R2 INSIZE drift quarantine (effective)
+
+```text
+candidates: 49 = 42 stable + 7 drift
+materialization: 30 = 28 stable + 2 drift
+non-materialized: 19 = 14 stable + 5 drift
+stable discovery coverage: 42/263 = 15.97%
+stable materialization coverage: 28/263 = 10.65%
+raw pre-quarantine materialization (historical only): 30/263 = 11.41%
+drift product_ids: 1798, 1810, 1862, 1865, 1943, 3473, 3825
+materialized drift (bytes retained): 1798, 3825
+governed review queue: 46 = 1 Dasqua + 38 SAN OU + 7 INSIZE drift
+ordinary manual review: 39
+timing_status: legacy_unreliable
+
+R1 Artifact (immutable):
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
+  SHA-256: d922ebf4dc22db393c60f2657cc7370d2fa4c678ce340d3f3479fce1f0c6a201
+
+R2 Artifact:
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2.zip
+  SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
 ```

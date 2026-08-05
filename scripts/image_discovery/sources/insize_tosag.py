@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-import csv
 import html as html_lib
 import re
 from pathlib import Path
 from typing import Any
 
-from ..contracts import ImageCandidate, PageEvidence, derive_source_candidate_key
+from ..contracts import ImageCandidate, PageEvidence
 from .base import SourceAdapter
+from .candidate_loader import load_candidates_from_csv
 from .html_subject import parse_page_subject, text_of
 
 _ALLOWED = frozenset({"www.tosag.ch"})
@@ -119,6 +119,24 @@ def _manufacturer_in_subject(
         if re.search(r"\binsize\b", val, re.IGNORECASE):
             return True, f"labeled_brand_field:{val[:80]}"
 
+    # TOSAG: <strong>Manufacturers:</strong> … <span itemprop="name">Insize</span>
+    mfr_block = re.search(
+        r"(?:manufacturers?|brand|hersteller|marke)\s*[:：]\s*</strong>\s*"
+        r"(?:<[^>]+>\s*)*?<span[^>]*itemprop=[\"']name[\"'][^>]*>\s*([^<]+)",
+        subject_html,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if mfr_block and re.search(r"\binsize\b", mfr_block.group(1), re.IGNORECASE):
+        return True, f"labeled_itemprop_name:{_text(mfr_block.group(1))[:80]}"
+
+    brand_span = re.search(
+        r'itemprop=["\']brand["\'][^>]*>.*?itemprop=["\']name["\'][^>]*>\s*([^<]+)',
+        subject_html,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if brand_span and re.search(r"\binsize\b", brand_span.group(1), re.IGNORECASE):
+        return True, f"schema_brand_name:{_text(brand_span.group(1))[:80]}"
+
     dt = re.search(
         r"<dt[^>]*>\s*(?:manufacturer|brand|hersteller|marke)\s*</dt>\s*<dd[^>]*>\s*([^<]+)",
         subject_html,
@@ -180,6 +198,15 @@ def _sku_in_subject(
     ):
         return True, f"table_cell:{sku}"
 
+    # TOSAG variation anchors in subject only: "1120-500 - Digital Inside Groove…"
+    # Do not use a bare body occurrence (related/nav text is filtered by subject split).
+    if re.search(
+        rf"<a\b[^>]*>\s*{re.escape(sku)}\s*[-–:]",
+        subject_html,
+        re.IGNORECASE,
+    ):
+        return True, f"variation_anchor_label:{sku}"
+
     for key, val in meta.items():
         if _sku_token_present(val, sku) and any(
             x in key for x in ("sku", "mpn", "product:retailer_item_id", "product_id")
@@ -223,96 +250,19 @@ class InsizeTosagAdapter(SourceAdapter):
         offset: int,
         max_images_per_product: int,
     ) -> list[ImageCandidate]:
-        if max_images_per_product <= 0:
-            raise SystemExit("ERROR: --max-images-per-product must be > 0")
         if candidates_csv is None:
             raise SystemExit("insize_tosag requires --candidates-csv")
-        product_skus: set[str] | None = None
-        if products_csv is not None:
-            product_skus = set()
-            with products_csv.open(newline="", encoding="utf-8-sig") as f:
-                for row in csv.DictReader(f):
-                    s = (row.get("sku") or "").strip()
-                    if s:
-                        product_skus.add(s)
-
-        filters = set(sku_filters or [])
-        by_sku: dict[str, list[ImageCandidate]] = {}
-        seen_source: dict[str, set[tuple[str, str]]] = {}
-        with candidates_csv.open(newline="", encoding="utf-8-sig") as f:
-            for row in csv.DictReader(f):
-                sku = self.normalize_sku(row.get("sku") or "")
-                if not sku:
-                    continue
-                if filters and sku not in filters:
-                    continue
-                if product_skus is not None and sku not in product_skus:
-                    continue
-                detail = (row.get("detail_url") or "").strip()
-                image = (row.get("image_url") or "").strip()
-                if not detail or not image:
-                    continue
-                # Deduplicate exact detail/image pairs before role assignment
-                key = (detail, image)
-                if key in seen_source.setdefault(sku, set()):
-                    continue
-                seen_source[sku].add(key)
-                product_id = (row.get("product_id") or "").strip()
-                cand = ImageCandidate(
-                    sku=sku,
-                    product_name=(row.get("product_name") or "").strip(),
-                    brand=(row.get("brand") or self.brand).strip() or self.brand,
-                    detail_url=detail,
-                    image_url=image,
-                    source_adapter=self.name,
-                    confidence=(row.get("confidence") or "very_high").strip() or "very_high",
-                    image_role="primary",
-                    source_rank=1,
-                    display_order_candidate=1,
-                    # Index assigned after dedupe; identity key uses detail|image only (index=0)
-                    source_image_index=0,
-                    product_id=product_id,
-                )
-                # Stable source identity independent of duplicate-row presence
-                cand.source_candidate_key = derive_source_candidate_key(
-                    detail_url=detail,
-                    image_url=image,
-                    source_image_index=0,
-                )
-                by_sku.setdefault(sku, []).append(cand)
-
-        ordered_skus: list[str] = []
-        seen: set[str] = set()
-        with candidates_csv.open(newline="", encoding="utf-8-sig") as f:
-            for row in csv.DictReader(f):
-                sku = self.normalize_sku(row.get("sku") or "")
-                if sku in by_sku and sku not in seen:
-                    ordered_skus.append(sku)
-                    seen.add(sku)
-
-        if offset:
-            ordered_skus = ordered_skus[offset:]
-        if limit is not None:
-            ordered_skus = ordered_skus[:limit]
-
-        out: list[ImageCandidate] = []
-        for sku in ordered_skus:
-            # max-images applies after dedupe
-            cands = by_sku[sku][:max_images_per_product]
-            for i, c in enumerate(cands):
-                c.source_image_index = i
-                c.display_order_candidate = i + 1
-                c.source_rank = i + 1
-                c.image_role = "primary" if i == 0 else "alternate"
-                # Keep source_candidate_key from detail|image (stable); role changes candidate_id
-                c.source_candidate_key = derive_source_candidate_key(
-                    detail_url=c.detail_url,
-                    image_url=c.image_url,
-                    source_image_index=0,
-                )
-                c.ensure_identity()
-                out.append(c)
-        return out
+        return load_candidates_from_csv(
+            adapter_name=self.name,
+            brand=self.brand,
+            candidates_csv=candidates_csv,
+            products_csv=products_csv,
+            sku_filters=sku_filters,
+            limit=limit,
+            offset=offset,
+            max_images_per_product=max_images_per_product,
+            normalize_sku=self.normalize_sku,
+        )
 
     def validate_page(self, *, sku: str, page_html: str, detail_url: str) -> PageEvidence:
         parsed = parse_page_subject(page_html)

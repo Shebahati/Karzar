@@ -8,10 +8,10 @@
 | Title | Existing Source Paths |
 | Node | IMG-02B-01-SOURCE-WORKLISTS |
 | Status | in_progress |
-| Progress | 20 |
-| Phase completed | deterministic source worklist |
-| Live discovery | not started |
-| Image downloads | 0 |
+| Progress | 40 |
+| Phase completed | IMG-02B-01 worklists; R1 source-gap recalibration; R2 effective drift quarantine |
+| Live discovery | started but incomplete — Dasqua/SAN OU calibration_failed; INSIZE partial |
+| Image downloads | 18 unique external assets packaged (INSIZE; drift evidence retained) |
 | Replacements applied | 0 |
 
 ## Scope
@@ -143,30 +143,158 @@ replacement_execution = false
 rights_cleared = 0
 ```
 
-## Planned later nodes (not created / not started)
+## Parallel live discovery (IMG-02B-02..04) — external only
+
+Branch: `feat/img02b-parallel-source-discovery` (Draft PR #211; not merged).
+Status correction (R1): live results do **not** constitute three completed lanes.
 
 ```text
-IMG-02B-02 — Dasqua Official Discovery
-IMG-02B-03 — INSIZE TOSAG Live Validation and Discovery
-IMG-02B-04 — SAN OU Official Discovery
+IMG-02B-02 Dasqua:
+  status = calibration_failed
+  eligible total = 687
+  R1 bounded calibration = 25
+  discovered = 0 (post-R1 calib; prior pre-R1 candidates = 2, not validated)
+  validated/materialized rows = 0
+  manual = 1; rejected = 24 (R1 calib)
+  complete = false
+
+IMG-02B-03 INSIZE:
+  status = partial
+  first candidate run = 49
+  second candidate run = 48
+  stable intersection = 42; source drift = 7
+  raw validated/materialized rows = 30 (pre-quarantine historical)
+  stable materialized rows = 28; unique assets packaged = 18
+  R2 effective quarantine applied (not report-only)
+  complete = false
+
+IMG-02B-04 SAN OU:
+  status = calibration_failed
+  total = 253; model-bearing = 215; tokenless manual = 38
+  discovered candidates = 0
+  site-shape = parser_drift; lane source_unavailable = 215
+  complete = false
+
+IMG-02B status = in_progress
+IMG-02B progress = 40
+IMG-02B-05 = not started
+```
+
+```text
+Lane outputs:
+  /var/tmp/karzar-image-discovery/img02b-dasqua
+  /var/tmp/karzar-image-discovery/img02b-insize
+  /var/tmp/karzar-image-discovery/img02b-sanou
+
+Downloads (partial):
+  /var/tmp/karzar-image-discovery/img02b-insize-dl  (18 unique assets, 30 raw materialized rows)
+  /var/tmp/karzar-image-discovery/img02b-dasqua-dl  (0 materialized — family_page_ambiguous)
+
+R2 effective INSIZE quarantine:
+  /var/tmp/karzar-image-discovery/r2-build/insize-effective
+  stable candidates 42; drift 7; stable materialized 28; drift materialized 2
+
+Consolidated (R2):
+  /var/tmp/karzar-image-discovery/r2-build/consolidated
+  stable accepted 28; ordinary manual 39; source drift 7; governed review 46
+
+Final review roots:
+  R1 (immutable): /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B
+  R2: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2
+```
+
+### Lane counts (candidate stage — pre-R1 evidence)
+
+| Lane | Requested | Discovered candidates | Rejected | Manual | Notes |
+|---|---:|---:|---:|---:|---|
+| IMG-02B-02 Dasqua | 687 | 2 | 685 | 0 | calibration_failed; 0 materialized (family_page_ambiguous); majority-vote/family collapse under R1 fix |
+| IMG-02B-03 INSIZE | 263 | 49 (1st) / 48 (2nd) | 214 | 0 | partial; R2 quarantines 7 drift; stable mat 28 / packaged 18 |
+| IMG-02B-04 SAN OU | 253 | 0 | 215 (pre-R1) + 38 misclassified | 0 (pre-R1) | calibration_failed; R1: 38 tokenless → manual_review |
+
+Cross-brand duplicate assets: 0.
+
+### R1 recalibration evidence (2026-08-05)
+
+```text
+Dasqua bounded calib (25 products, --limit):
+  discovered_candidates = 0
+  validated_candidate_rows = 0
+  manual_review = 1 (ambiguous_official_product)
+  rejected = 24
+  prior candidate↔adapter mismatches = 2 (family_page_ambiguous)
+  majority vote removed; exact SKU identity; observed CDN hosts only
+
+INSIZE reconcile (R1 report → R2 effective):
+  first_run = 49; second_run = 48; stable_intersection = 42
+  source_drift_count = 7
+  raw materialized_rows = 30; unique_assets = 18
+  R2 stable discovery coverage = 15.97% (42/263)
+  R2 stable materialization coverage = 10.65% (28/263)
+  raw pre-quarantine materialization = 11.41% (30/263) historical only
+  drift product_ids = 1798, 1810, 1862, 1865, 1943, 3473, 3825
+  materialized drift retained = 1798, 3825
+  timing_status = legacy_unreliable
+
+SAN OU classification (do not conflate levels):
+  site-shape calibration outcome = parser_drift
+    (productshow.aspx shape exists; sample models not evidenced on detail pages)
+  product-lane classification:
+    model_token_not_found = 38 manual-review rows
+    source_unavailable = 215 model-bearing rows
+  The 215 rows are source_unavailable because no governed model-to-detail-page
+  mapping was proven — not confirmed product_not_published.
+  discovered_candidates = 0; no full 215 re-crawl after parser_drift
+
+IMG-02B-05 = not started
+R1 Artifact (immutable): /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B.zip
+  SHA-256: d922ebf4dc22db393c60f2657cc7370d2fa4c678ce340d3f3479fce1f0c6a201
+R2 Artifact: /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2.zip
+  SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
+```
+
+### Resume / drift
+
+- INSIZE **materialization** resume on `img02b-insize-dl`: semantic_manifest_stable=true, asset_set_stable=true, unchanged_rows=30, reused_existing_assets=18.
+- INSIZE **candidate** re-discovery: source drift (49→48; e.g. SKU 1120-500 remapped) — R2 applies effective quarantine; do not silently prefer first run.
+- SAN OU pre-R1 `model_token_not_found` (38) was wrongly rejected; R1 reclassifies as manual_review with `eligible_for_automatic_discovery=false`.
+
+### Safety (discovery phase)
+
+```text
+database_accessed = false
+ProductImage_modified = false
+application_storage_mutations = 0
+replacement_execution = false
+rights_cleared = 0
+rights_status = review_required
+apply_status = not_started
+```
+
+## Planned later nodes (not started)
+
+```text
 IMG-02B-05 — Consolidated Candidate Human Review
 ```
 
-## Non-goals honored
+## Non-goals honored (cumulative)
 
-No live crawling, downloads, DB/ProductImage/storage access, replacement execution,
-manual-review resolution, rights clearance, deploy, or legacy importer execution.
+No DB/ProductImage/storage mutation, replacement execution, manual-review resolution,
+rights clearance, deploy, or legacy importer execution. Raw discovery artifacts remain
+outside Git.
 
-## R2 status
+## R2 / R1 status
 
 ```text
-R2 fail-closed output and extraction hardening complete
-accepted 1204-product Artifact semantics unchanged
-arbitrary non-empty output reuse removed
-copy-final recursive deletion removed
-inventory contradictions rejected
-ZIP basename collisions rejected
-live discovery = not started
-images downloaded = 0
+R2 fail-closed output and extraction hardening complete (IMG-02B-01)
+Parallel discovery code on feat/img02b-parallel-source-discovery (Draft #211)
+R1 source-gap recalibration complete — overall live discovery still incomplete
+R2 INSIZE drift quarantine effective — progress remains 40
+IMG-02B = in_progress / 40
+Dasqua = calibration_failed
+INSIZE = partial
+SAN OU = calibration_failed
+images downloaded = 18 unique external assets packaged (INSIZE; drift evidence retained)
+Dasqua unique assets = 0; SAN OU unique assets = 0
 replacements applied = 0
+IMG-02B-05 = not started
 ```
