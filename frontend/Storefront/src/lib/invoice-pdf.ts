@@ -846,7 +846,7 @@ export async function downloadOrderPdf(
  *
  * Opens a print-ready HTML page with IRANYekanX so Persian encodes correctly.
  * Live API only exposes admin `POST /orders/{id}/quote` after an inquiry order
- * exists — until a public preview ships, this labelled «پیش‌فاکتور نمونه» is local.
+ * exists — until a public preview ships, this is a local cart preview document.
  */
 export async function downloadCartSampleProforma(
   lines: CartProformaLineInput[],
@@ -885,21 +885,20 @@ export async function downloadCartSampleProforma(
   await openPrintableDocument({
     kind: "sample",
     title: "پیش‌فاکتور",
-    badge: "نمونه",
     refLabel: "شماره مرجع",
     refCode: sampleCode,
     dateLabel: formatPersianDate(stamp),
     buyerName,
     buyerPhone: displayOrBlank(buyer.phone),
     buyerAddress: "—",
-    modeLabel: "پیش‌نمایش نمونه",
+    modeLabel: "پیش‌فاکتور",
     lines: mapped,
     subtotal: hasPriced ? subtotal : null,
     taxLabel: "محاسبه نشده",
     grandLabel: "مبلغ تقریبی کل",
     estimatedTotal: hasPriced ? subtotal : null,
     footerNote:
-      "این پیش‌فاکتور نمونه فقط برای پیش‌نمایش اقلام سبد خرید است؛ سند رسمی، مالیاتی یا تعهدآور نیست و بدون پرداخت صادر شده است. قیمت‌ها تقریبی‌اند و ممکن است پس از استعلام نهایی تغییر کنند.",
-    fileHint: `پیش‌فاکتور نمونه ${fa(stamp.toISOString().slice(0, 10))}`,
+      "این پیش‌فاکتور برای پیش‌نمایش اقلام سبد خرید است؛ سند رسمی، مالیاتی یا تعهدآور نیست و بدون پرداخت صادر شده است. قیمت‌ها تقریبی‌اند و ممکن است پس از استعلام نهایی تغییر کنند.",
+    fileHint: `پیش‌فاکتور ${fa(stamp.toISOString().slice(0, 10))}`,
   });
 }
