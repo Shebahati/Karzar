@@ -598,7 +598,10 @@ export function WhyKarzar() {
             {/* Capability rail — compact on mobile (title only); no entrance stagger on max-lg */}
             <div className="flex flex-col gap-1.5 lg:gap-2" role="tablist" aria-label="قابلیت‌های کارزار">
               {CAPABILITIES.map((cap, i) => {
-                const selected = cap.id === activeId;
+                // Desktop: active tab gets the white highlight (auto-advance / click).
+                // Mobile: equal-weight rail — no rotating active/white state.
+                const selected = isDesktop && cap.id === activeId;
+                const modalActive = !isDesktop && modalOpen && cap.id === activeId;
                 const tabProps = {
                   type: "button" as const,
                   role: "tab" as const,
@@ -606,34 +609,32 @@ export function WhyKarzar() {
                   "aria-controls": isDesktop
                     ? `why-karzar-panel-${cap.id}`
                     : `why-karzar-modal-${cap.id}`,
-                  "aria-selected": selected,
-                  "aria-expanded": !isDesktop ? (modalOpen && selected) : undefined,
-                  tabIndex: selected ? 0 : -1,
+                  "aria-selected": isDesktop ? selected : modalActive,
+                  "aria-expanded": !isDesktop ? modalActive : undefined,
+                  tabIndex: isDesktop ? (selected ? 0 : -1) : 0,
                   onClick: () => selectCapability(cap.id),
                   className: cn(
-                    "group relative flex items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-start transition-colors duration-200 sm:gap-4 sm:px-4 sm:py-3.5 lg:gap-5 lg:px-5 lg:py-5 lg:transition-all lg:duration-300",
-                    selected
-                      ? "bg-white text-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
-                      : "bg-white/[0.04] text-white hover:bg-white/[0.08]",
+                    "group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-white/[0.04] px-3.5 py-3 text-start text-white transition-colors duration-200 hover:bg-white/[0.08] sm:gap-4 sm:px-4 sm:py-3.5 lg:gap-5 lg:px-5 lg:py-5 lg:transition-all lg:duration-300",
+                    // White “active” chip is desktop-only (lg+); mobile stays equal-weight.
+                    selected &&
+                      "lg:bg-white lg:text-[#121212] lg:shadow-[0_20px_50px_rgba(0,0,0,0.35)] lg:hover:bg-white",
                   ),
                 };
                 const tabInner = (
                   <>
                     <span
                       className={cn(
-                        "font-black tabular-nums tracking-tight",
-                        selected ? "text-[#D02327]" : "text-white/35",
+                        "font-black tabular-nums tracking-tight text-white/35",
                         "text-base sm:text-lg lg:text-xl",
+                        selected && "lg:text-[#D02327]",
                       )}
                     >
                       {cap.index}
                     </span>
                     <span
                       className={cn(
-                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl lg:h-11 lg:w-11 lg:transition-transform lg:duration-300 lg:group-hover:scale-105",
-                        selected
-                          ? "bg-[#D02327] text-white"
-                          : "bg-white/10 text-white",
+                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-white lg:h-11 lg:w-11 lg:transition-transform lg:duration-300 lg:group-hover:scale-105",
+                        selected && "lg:bg-[#D02327] lg:text-white",
                       )}
                     >
                       <cap.Icon set="bold" />
@@ -641,16 +642,16 @@ export function WhyKarzar() {
                     <span className="min-w-0 flex-1">
                       <span
                         className={cn(
-                          "block text-[15px] font-black leading-[1.45] tracking-tight sm:text-base lg:text-lg lg:leading-[1.5]",
-                          selected ? "text-[#121212]" : "text-white",
+                          "block text-[15px] font-black leading-[1.45] tracking-tight text-white sm:text-base lg:text-lg lg:leading-[1.5]",
+                          selected && "lg:text-[#121212]",
                         )}
                       >
                         {cap.title}
                       </span>
                       <span
                         className={cn(
-                          "mt-1.5 hidden text-[13px] leading-6 lg:block",
-                          selected ? "text-[#5E5F5E]" : "text-white/50",
+                          "mt-1.5 hidden text-[13px] leading-6 text-white/50 lg:block",
+                          selected && "lg:text-[#5E5F5E]",
                         )}
                       >
                         {cap.teaser}

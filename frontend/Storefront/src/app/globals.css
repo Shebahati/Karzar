@@ -96,6 +96,7 @@
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+    overscroll-behavior-x: none;
   }
 
   body {
@@ -104,6 +105,7 @@
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+    overscroll-behavior-x: none;
   }
 
   /* Fallback when overflow: clip is unsupported (older WebKit). */
@@ -111,6 +113,18 @@
     html,
     body {
       overflow-x: hidden;
+    }
+  }
+
+  /*
+   * Phones/tablets: document only accepts vertical pans.
+   * Intentional rails (.h-scroll / touch-manipulation) override so carousels
+   * and chip strips still swipe horizontally inside their boxes.
+   */
+  @media (max-width: 1023px) {
+    html,
+    body {
+      touch-action: pan-y;
     }
   }
 
@@ -140,9 +154,12 @@
 }
 
 @layer components {
-  /** Fixed bar sitting just above the mobile bottom nav. */
+  /**
+   * Fixed bar sitting just above the mobile bottom nav (~3.75rem chrome
+   * + safe-area). z-[60] clears page chrome; nav stays z-[70] underneath.
+   */
   .mobile-dock {
-    @apply fixed inset-x-0 z-40 border-t border-border/50 bg-card shadow-elevated lg:hidden;
+    @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl lg:hidden;
     bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
   }
 
@@ -196,6 +213,22 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /**
+   * Contained horizontal scroll track (carousels, chip rails, galleries).
+   * overscroll-x:contain stops the gesture from dragging the page sideways.
+   * touch-manipulation restores pan-x + pan-y inside the track under the
+   * document-level pan-y lock.
+   */
+  .h-scroll {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
   }
 
   .shimmer {
@@ -314,6 +347,65 @@
   .hero-anim-stagger-up .hero-stagger-3,
   .hero-anim-stagger-up .hero-stagger-4 {
     animation: none !important;
+  }
+}
+
+/* Mobile hero slide change — soft crossfade + micro-drift (no Framer / Ken Burns). */
+@keyframes hero-mobile-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--hero-mx, 6px), 0, 0) scale(1.02);
+  }
+  35% {
+    opacity: 0.42;
+  }
+  70% {
+    opacity: 0.88;
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+@keyframes hero-mobile-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  45% {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--hero-mx-exit, -4px), 0, 0) scale(0.985);
+  }
+}
+.hero-mobile-enter {
+  animation: hero-mobile-enter 480ms cubic-bezier(0.33, 0.0, 0.2, 1) both;
+  transform-origin: center center;
+  will-change: opacity, transform;
+}
+.hero-mobile-exit {
+  animation: hero-mobile-exit 440ms cubic-bezier(0.4, 0.0, 0.2, 1) both;
+  transform-origin: center center;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+.hero-mobile-enter[data-dir="1"],
+.hero-mobile-exit[data-dir="-1"] {
+  --hero-mx: -6px;
+  --hero-mx-exit: 4px;
+}
+.hero-mobile-enter[data-dir="-1"],
+.hero-mobile-exit[data-dir="1"] {
+  --hero-mx: 6px;
+  --hero-mx-exit: -4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mobile-enter,
+  .hero-mobile-exit {
+    animation: none !important;
+    will-change: auto;
   }
 }
 

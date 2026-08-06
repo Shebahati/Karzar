@@ -31,7 +31,7 @@ export function QuickFilterBar() {
     <div className="mb-4 space-y-2" dir="rtl">
       <p className="text-[11px] font-bold text-muted-foreground">فیلتر سریع</p>
       <div
-        className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="h-scroll no-scrollbar flex gap-2 pb-1"
         role="group"
         aria-label="فیلتر سریع"
       >

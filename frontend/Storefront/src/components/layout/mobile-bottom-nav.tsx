@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Buy, Call, Category, Home, User } from "react-iconly";
+import { Buy, Call, Category, Document, Home } from "react-iconly";
 import { cn, formatNumber } from "@/lib/utils";
-import { useMe } from "@/features/auth/queries";
-import { isLoggedIn } from "@/lib/api-client";
 import { selectCartCount, useCartStore } from "@/store/cart-store";
 
 /** Glassmorphism bottom navigation for mobile/tablet viewports. */
@@ -14,17 +12,15 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const cartCount = useCartStore(selectCartCount);
-  const { data: me } = useMe(mounted && isLoggedIn());
 
   useEffect(() => setMounted(true), []);
-
-  const accountHref = mounted && isLoggedIn() ? "/account" : "/login?next=/account";
-  const accountLabel = me?.full_name?.split(" ")[0] ?? "حساب";
 
   const productsActive =
     pathname === "/categories" ||
     pathname.startsWith("/categories/") ||
     pathname.startsWith("/catalog");
+
+  const blogActive = pathname === "/blog" || pathname.startsWith("/blog/");
 
   return (
     <nav className="glass-strong fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom)] lg:hidden">
@@ -50,10 +46,10 @@ export function MobileBottomNav() {
           active={pathname.startsWith("/contact")}
         />
         <NavItem
-          href={accountHref}
-          label={accountLabel}
-          Icon={User}
-          active={pathname.startsWith("/account") || pathname === "/login"}
+          href="/blog"
+          label="مقالات"
+          Icon={Document}
+          active={blogActive}
         />
       </ul>
     </nav>

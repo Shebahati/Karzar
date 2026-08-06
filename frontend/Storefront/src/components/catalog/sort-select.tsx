@@ -1,6 +1,7 @@
 "use client";
 
 import { useCatalogParams } from "@/components/catalog/use-catalog-params";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { cn, formatNumber } from "@/lib/utils";
 import type { ProductSort } from "@/types/product";
 
@@ -37,6 +38,29 @@ function SortLinesIcon({ className }: { className?: string }) {
   );
 }
 
+function ProductCount({
+  totalCount,
+  isLoading,
+  className,
+}: {
+  totalCount?: number;
+  isLoading?: boolean;
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn("shrink-0 whitespace-nowrap text-sm text-[#9ca3af] tnum", className)}
+      aria-live="polite"
+    >
+      {isLoading
+        ? "…"
+        : totalCount != null
+          ? `${formatNumber(totalCount)} کالا`
+          : null}
+    </p>
+  );
+}
+
 export function SortSelect({
   totalCount,
   isLoading,
@@ -52,55 +76,64 @@ export function SortSelect({
       : "newest";
 
   return (
-    <div
-      className="flex w-full min-w-0 items-center justify-between gap-4"
-      dir="rtl"
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
-        <span className="inline-flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground">
-          <SortLinesIcon className="text-muted-foreground" />
-          <span className="whitespace-nowrap font-medium">مرتب‌سازی:</span>
-        </span>
-
-        <div
-          className="no-scrollbar flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto sm:gap-5"
-          role="radiogroup"
-          aria-label="مرتب‌سازی محصولات"
-        >
-          {SORT_OPTIONS.map((opt) => {
-            const active = value === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                onClick={() => setParams({ sort: opt.value })}
-                className={cn(
-                  "shrink-0 whitespace-nowrap px-1 py-2.5 text-sm transition-colors",
-                  "min-h-11 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                  active
-                    ? "border-b-2 border-primary font-semibold text-primary"
-                    : "border-b-2 border-transparent text-[#6b7280] hover:text-foreground",
-                )}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+    <div dir="rtl">
+      {/* Mobile: compact content-width select beside «N کالا» (not full-bleed). */}
+      <div className="flex items-center justify-between gap-3 lg:hidden">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="inline-flex shrink-0 items-center text-sm text-steel">
+            <SortLinesIcon className="text-steel" />
+            <span className="sr-only">مرتب‌سازی</span>
+          </span>
+          <CustomSelect
+            aria-label="مرتب‌سازی محصولات"
+            value={value}
+            onValueChange={(sort) => setParams({ sort })}
+            options={SORT_OPTIONS}
+            className="min-w-0 max-w-[11.5rem] sm:max-w-[13.5rem]"
+          />
         </div>
+        <ProductCount totalCount={totalCount} isLoading={isLoading} />
       </div>
 
-      <p
-        className="shrink-0 whitespace-nowrap text-sm text-[#9ca3af] tnum"
-        aria-live="polite"
-      >
-        {isLoading
-          ? "…"
-          : totalCount != null
-            ? `${formatNumber(totalCount)} کالا`
-            : null}
-      </p>
+      {/* Desktop: Digikala-style horizontal sort bar */}
+      <div className="hidden w-full min-w-0 items-center justify-between gap-4 lg:flex">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground">
+            <SortLinesIcon className="text-muted-foreground" />
+            <span className="whitespace-nowrap font-medium">مرتب‌سازی:</span>
+          </span>
+
+          <div
+            className="no-scrollbar h-scroll flex min-w-0 flex-1 items-stretch gap-3 sm:gap-5"
+            role="radiogroup"
+            aria-label="مرتب‌سازی محصولات"
+          >
+            {SORT_OPTIONS.map((opt) => {
+              const active = value === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setParams({ sort: opt.value })}
+                  className={cn(
+                    "shrink-0 whitespace-nowrap px-1 py-2.5 text-sm transition-colors",
+                    "min-h-11 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                    active
+                      ? "border-b-2 border-primary font-semibold text-primary"
+                      : "border-b-2 border-transparent text-[#6b7280] hover:text-foreground",
+                  )}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <ProductCount totalCount={totalCount} isLoading={isLoading} />
+      </div>
     </div>
   );
 }

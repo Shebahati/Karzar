@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Call, ChevronLeft } from "react-iconly";
+import { Call, ChevronLeft, Star } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +26,7 @@ import { ProductKnowledgeRail } from "@/components/product/product-knowledge-rai
 import { SectionHeading } from "@/components/home/section-heading";
 import {
   useBrands,
+  useComments,
   useFlatCategories,
   useProduct,
 } from "@/features/catalog/queries";
@@ -35,7 +36,7 @@ import {
   hasRenderableSpecs,
   pickKeySpecTeasers,
 } from "@/lib/pdp-description";
-import { cn, formatToman } from "@/lib/utils";
+import { cn, formatNumber, formatToman } from "@/lib/utils";
 import type { ProductDetail } from "@/types/product";
 
 const easePremium = [0.22, 1, 0.36, 1] as const;
@@ -108,10 +109,6 @@ export function ProductDetailView({ id }: { id: number }) {
       ),
     );
 
-  const fadeUp = reducedMotion
-    ? undefined
-    : { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 } };
-
   const buyCardProps = {
     product,
     brandLogoUrl,
@@ -120,10 +117,10 @@ export function ProductDetailView({ id }: { id: number }) {
   } as const;
 
   return (
-    <div className="relative pb-36 lg:pb-14">
+    <div className="relative pb-28 lg:pb-14">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(48svh,420px)]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(48svh,420px)] max-lg:hidden"
         style={{
           background: `
             radial-gradient(42% 50% at 92% 0%, rgba(208,35,39,0.055), transparent 68%),
@@ -136,7 +133,7 @@ export function ProductDetailView({ id }: { id: number }) {
       <Container className="pt-3 sm:pt-5 lg:pt-6 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
         <nav
           aria-label="مسیر صفحه"
-          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-5 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
+          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-5 max-lg:mb-2.5 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
         >
           <Link href="/" className="transition-colors hover:text-primary">
             خانه
@@ -170,82 +167,182 @@ export function ProductDetailView({ id }: { id: number }) {
             gallery 1.08fr | info 1fr | buy minmax(248px,0.76fr)
           Explicit 2 rows so buy can row-span-2 and stick through lower sections
           without the broken nested shell (1fr|0.76fr) that inflated the card.
+
+          Mobile: sticky gallery under a soft overlapping sheet (parallax feel).
+          Wrapper is `lg:contents` so desktop children still join this grid.
         */}
         <div
           aria-label="معرفی محصول"
           className={cn(
-            "grid items-start gap-6 sm:gap-8",
+            "grid items-start gap-6 sm:gap-8 max-lg:gap-0",
             "lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)_minmax(248px,0.76fr)]",
             "lg:grid-rows-[auto_1fr]",
             "lg:gap-x-10 xl:gap-x-14 lg:gap-y-0",
-            "[@media(max-height:800px)]:gap-5 [@media(max-height:800px)]:lg:gap-x-8",
+            "[@media(max-height:800px)]:lg:gap-x-8",
           )}
         >
-          <motion.div
-            className="min-w-0"
-            {...(fadeUp ?? {})}
-            transition={{ duration: 0.55, ease: easePremium }}
-          >
-            <ProductGallery images={product.images} alt={product.name} />
-          </motion.div>
+          <div className="max-lg:relative lg:contents">
+            {/* Opacity-only motion: transform would break position:sticky. */}
+            <motion.div
+              className={cn(
+                "min-w-0 -mx-5 sm:-mx-6 lg:mx-0",
+                "max-lg:sticky max-lg:top-0 max-lg:z-0",
+              )}
+              initial={reducedMotion ? undefined : { opacity: 0 }}
+              animate={reducedMotion ? undefined : { opacity: 1 }}
+              transition={{ duration: 0.55, ease: easePremium }}
+            >
+              <ProductGallery images={product.images} alt={product.name} />
+            </motion.div>
 
-          <motion.div
-            className="flex min-w-0 flex-col"
-            {...(fadeUp ?? {})}
-            transition={{
-              duration: 0.6,
-              ease: easePremium,
-              delay: reducedMotion ? 0 : 0.04,
-            }}
-          >
-            <h1 className="text-balance text-[1.3rem] font-bold leading-[1.5] tracking-tight text-foreground sm:text-[1.55rem] sm:leading-[1.45] lg:text-[1.45rem] xl:text-[1.65rem] [@media(max-height:800px)]:text-[1.2rem] [@media(max-height:800px)]:sm:text-[1.35rem]">
+            <motion.div
+              className={cn(
+                "flex min-w-0 flex-col",
+                /* Mobile sheet: full-bleed soft plane sliding over sticky gallery */
+                "relative z-[1] -mt-6 -mx-5 px-5 sm:-mx-6 sm:px-6",
+                "rounded-t-[1.35rem] bg-white pt-4 pb-1",
+                "shadow-[0_-12px_40px_-24px_rgba(94,95,94,0.35)]",
+                /* Desktop: restore flat column (Container owns gutters) */
+                "lg:z-auto lg:mt-0 lg:mx-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none",
+              )}
+              initial={
+                reducedMotion ? undefined : { opacity: 0, y: 14 }
+              }
+              animate={
+                reducedMotion ? undefined : { opacity: 1, y: 0 }
+              }
+              transition={{
+                duration: 0.6,
+                ease: easePremium,
+                delay: reducedMotion ? 0 : 0.04,
+              }}
+            >
+            {/* Sheet grab affordance — mobile only */}
+            <span
+              aria-hidden
+              className="mx-auto mb-4 h-1 w-9 shrink-0 rounded-full bg-steel/20 lg:hidden"
+            />
+
+            {product.discount_percent && product.discount_percent > 0 ? (
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-xl bg-[#D02327]/[0.07] px-3 py-2.5 lg:hidden">
+                <span className="text-[12px] font-bold text-primary">
+                  فروش ویژه
+                </span>
+                <span className="rounded-md bg-[#D02327] px-2 py-0.5 text-[11px] font-bold text-white tnum">
+                  ٪{formatNumber(product.discount_percent)} تخفیف
+                </span>
+              </div>
+            ) : null}
+
+            {product.brand ? (
+              <p className="mb-2 text-[11px] font-semibold tracking-wide text-steel lg:hidden">
+                {product.brand.name}
+                {product.category ? (
+                  <span className="font-medium text-muted-foreground">
+                    {" "}
+                    · {product.category.name}
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
+
+            <h1
+              className={cn(
+                "text-balance font-bold tracking-tight text-foreground",
+                /* Mobile: tighter, clearer hierarchy */
+                "text-[1.22rem] leading-[1.45]",
+                "sm:text-[1.55rem] sm:leading-[1.45]",
+                /* Desktop unchanged */
+                "lg:text-[1.45rem] xl:text-[1.65rem]",
+                "[@media(max-height:800px)]:text-[1.2rem] [@media(max-height:800px)]:sm:text-[1.35rem]",
+              )}
+            >
               {product.name}
             </h1>
 
             {product.short_description ? (
-              <p className="mt-2.5 text-sm leading-7 text-foreground/80 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:line-clamp-2 [@media(max-height:800px)]:leading-6">
+              <p className="mt-2.5 text-sm leading-7 text-foreground/80 max-lg:mt-2 max-lg:line-clamp-3 max-lg:leading-6 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:line-clamp-2 [@media(max-height:800px)]:leading-6">
                 {product.short_description}
               </p>
             ) : null}
 
-            <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm [@media(max-height:800px)]:mt-2.5">
-              <span className="rounded-md bg-secondary/65 px-2 py-0.5 text-[11px] text-muted-foreground">
+            {/* Meta: desktop SKU→stock; mobile stock first via order */}
+            <div
+              className={cn(
+                "mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm",
+                "max-lg:mt-3 max-lg:gap-x-2.5 max-lg:gap-y-1.5",
+                "[@media(max-height:800px)]:mt-2.5",
+              )}
+            >
+              <span
+                className={cn(
+                  "rounded-md bg-secondary/65 px-2 py-0.5 text-[11px] text-muted-foreground",
+                  "max-lg:order-2 max-lg:rounded-none max-lg:bg-transparent max-lg:px-0 max-lg:py-0 max-lg:text-[12px]",
+                )}
+              >
                 کد کالا:{" "}
-                <span className="font-semibold text-foreground tnum" dir="ltr">
+                <span
+                  className="font-semibold text-foreground tnum max-lg:font-medium"
+                  dir="ltr"
+                >
                   {product.sku}
                 </span>
               </span>
-              <StockBadge
-                status={product.stock_status}
-                available={product.availability}
-              />
+              <span className="max-lg:order-1">
+                <StockBadge
+                  status={product.stock_status}
+                  available={product.availability}
+                />
+              </span>
             </div>
+
+            <MobileSocialProof productId={product.id} />
 
             {keySpecs.length > 0 ? (
               <div
                 className={cn(
                   "mt-5 rounded-xl bg-secondary/45 p-3.5 sm:p-4",
                   "ring-1 ring-steel/[0.06]",
+                  /* Mobile: airier sheet block, aligned with content edges */
+                  "max-lg:mt-6 max-lg:rounded-2xl max-lg:bg-secondary/40 max-lg:p-4 max-lg:pt-3.5",
+                  "max-lg:ring-steel/[0.05]",
                   "[@media(max-height:800px)]:mt-3.5 [@media(max-height:800px)]:p-3",
                 )}
               >
-                <h2 className="text-[11px] font-bold tracking-[0.06em] text-steel">
+                <h2
+                  className={cn(
+                    "text-[11px] font-bold tracking-[0.06em] text-steel",
+                    "max-lg:text-[12px] max-lg:tracking-[0.04em] max-lg:text-foreground/70",
+                  )}
+                >
                   ویژگی‌های کلیدی
                 </h2>
-                <ul className="mt-2.5 space-y-0 divide-y divide-steel/[0.07] [@media(max-height:720px)]:[&_li:nth-child(n+3)]:hidden">
+                <ul
+                  className={cn(
+                    "mt-2.5 space-y-0 divide-y divide-steel/[0.07]",
+                    "max-lg:mt-3.5",
+                    "[@media(max-height:720px)]:[&_li:nth-child(n+3)]:hidden",
+                  )}
+                >
                   {keySpecs.map((spec) => (
                     <li
                       key={`${spec.key}-${spec.value}`}
-                      className="grid grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-3 py-2 text-[13px] first:pt-0 last:pb-0 [@media(max-height:800px)]:py-1.5"
+                      className={cn(
+                        "grid grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-3 py-2 text-[13px]",
+                        "first:pt-0 last:pb-0",
+                        /* Mobile: label | value with clear gap, no red dots */
+                        "max-lg:grid-cols-[minmax(0,1fr)_minmax(0,auto)] max-lg:items-baseline max-lg:gap-x-5 max-lg:py-2.5",
+                        "[@media(max-height:800px)]:py-1.5",
+                      )}
                     >
-                      <span className="flex items-start gap-2 font-medium text-steel">
+                      <span className="flex items-start gap-2 font-medium text-steel max-lg:gap-0 max-lg:text-[13px] max-lg:leading-snug">
                         <span
                           aria-hidden
-                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D02327]"
+                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D02327] max-lg:hidden"
                         />
                         {spec.key}
                       </span>
-                      <span className="text-end font-semibold tracking-tight text-foreground">
+                      <span className="text-end font-semibold tracking-tight text-foreground max-lg:ps-2 max-lg:text-[13px] max-lg:leading-snug">
                         {spec.value}
                       </span>
                     </li>
@@ -254,7 +351,10 @@ export function ProductDetailView({ id }: { id: number }) {
                 {showSpecSection ? (
                   <a
                     href="#pdp-specs-heading"
-                    className="mt-2.5 inline-block text-xs font-bold text-primary underline-offset-4 transition hover:underline"
+                    className={cn(
+                      "mt-2.5 inline-block text-xs font-bold text-primary underline-offset-4 transition hover:underline",
+                      "max-lg:mt-3.5 max-lg:border-t max-lg:border-steel/[0.08] max-lg:pt-3",
+                    )}
                   >
                     مشاهده مشخصات کامل
                   </a>
@@ -272,6 +372,7 @@ export function ProductDetailView({ id }: { id: number }) {
                 "hover-fine:bg-white hover-fine:text-primary hover-fine:ring-primary/20",
                 "hover-fine:shadow-[0_10px_28px_-22px_rgba(208,35,39,0.35)]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+                "max-lg:mt-5",
                 "[@media(max-height:800px)]:mt-3.5",
               )}
             >
@@ -291,80 +392,116 @@ export function ProductDetailView({ id }: { id: number }) {
 
             <ProductPdfCta
               product={product}
-              className="mt-4 [@media(max-height:800px)]:mt-3"
+              className="mt-4 max-lg:mt-3.5 [@media(max-height:800px)]:mt-3"
             />
-          </motion.div>
+            </motion.div>
 
-          {/* Desktop sticky buy — spans both explicit rows (hero + lower).
-              Opacity-only motion: transform would break position:sticky. */}
-          <motion.aside
-            aria-label="خرید محصول"
-            className="hidden min-w-0 self-start lg:sticky lg:top-24 lg:z-[1] lg:col-start-3 lg:row-span-2 lg:block [@media(max-height:800px)]:lg:top-20"
-            initial={reducedMotion ? undefined : { opacity: 0 }}
-            animate={reducedMotion ? undefined : { opacity: 1 }}
-            transition={{
-              duration: 0.55,
-              ease: easePremium,
-              delay: reducedMotion ? 0 : 0.08,
-            }}
-          >
-            <PdpBuyCard {...buyCardProps} />
-          </motion.aside>
+            {/* Desktop sticky buy — spans both explicit rows (hero + lower).
+                Opacity-only motion: transform would break position:sticky. */}
+            <motion.aside
+              aria-label="خرید محصول"
+              className="hidden min-w-0 self-start lg:sticky lg:top-24 lg:z-[1] lg:col-start-3 lg:row-span-2 lg:block [@media(max-height:800px)]:lg:top-20"
+              initial={reducedMotion ? undefined : { opacity: 0 }}
+              animate={reducedMotion ? undefined : { opacity: 1 }}
+              transition={{
+                duration: 0.55,
+                ease: easePremium,
+                delay: reducedMotion ? 0 : 0.08,
+              }}
+            >
+              <PdpBuyCard {...buyCardProps} />
+            </motion.aside>
 
-          {/* Mobile / tablet: buy card in document flow after hero info */}
-          <div className="lg:hidden">
-            <PdpBuyCard {...buyCardProps} />
-          </div>
+            {/* Mobile / tablet: buy card continues soft sheet over sticky gallery */}
+            <div
+              className={cn(
+                "relative z-[1] lg:hidden",
+                "-mx-5 bg-white px-5 pb-6 pt-4 sm:-mx-6 sm:px-6",
+              )}
+            >
+              <PdpBuyCard {...buyCardProps} />
+            </div>
 
-          {/* Lower sections share gallery+info width; buy column stays reserved */}
-          <div className="min-w-0 lg:col-span-2">
-            <PdpAssistStrip className="mt-6 sm:mt-8 [@media(max-height:800px)]:mt-5" />
+            {/* Lower sections share gallery+info width; buy column stays reserved */}
+            <div
+              className={cn(
+                "relative z-[1] min-w-0 lg:col-span-2",
+                /* Mobile: opaque plane so sticky gallery stays covered while scrolling */
+                "max-lg:-mx-5 max-lg:bg-background max-lg:px-5 max-lg:pb-2 sm:max-lg:-mx-6 sm:max-lg:px-6",
+                "lg:mx-0 lg:bg-transparent lg:px-0 lg:pb-0",
+              )}
+            >
+              <PdpAssistStrip className="mt-7 sm:mt-8 max-lg:mt-5 [@media(max-height:800px)]:mt-5" />
 
-            {showSpecSection ? (
+              {showSpecSection ? (
+                <section
+                  className="mt-12 sm:mt-20 max-lg:mt-10"
+                  aria-labelledby="pdp-specs-heading"
+                >
+                  <SectionHeading
+                    id="pdp-specs-heading"
+                    title="مشخصات فنی"
+                    subtitle="جدول مشخصات منبع اصلی است؛ توضیحات تحریریه جداگانه نمایش داده می‌شود"
+                  />
+                  <ProductSpecTabs
+                    specifications={product.specifications}
+                    description={product.description}
+                    shortDescription={product.short_description}
+                  />
+                </section>
+              ) : null}
+
+              <section className="mt-12 sm:mt-20 max-lg:mt-10">
+                <SectionHeading title="محصولات مرتبط" />
+                <RelatedProducts productId={product.id} />
+              </section>
+
+              <ProductKnowledgeRail productId={product.id} />
+
               <section
-                className="mt-16 sm:mt-20"
-                aria-labelledby="pdp-specs-heading"
+                className="mt-12 sm:mt-20 max-lg:mt-10"
+                aria-labelledby="pdp-reviews-heading"
               >
                 <SectionHeading
-                  id="pdp-specs-heading"
-                  title="مشخصات فنی"
-                  subtitle="جدول مشخصات منبع اصلی است؛ توضیحات تحریریه جداگانه نمایش داده می‌شود"
+                  id="pdp-reviews-heading"
+                  title="دیدگاه کاربران"
+                  subtitle="تجربهٔ واقعی خریداران — کوتاه و خوانا"
                 />
-                <ProductSpecTabs
-                  specifications={product.specifications}
-                  description={product.description}
-                  shortDescription={product.short_description}
-                />
+                <ProductComments productId={product.id} />
               </section>
-            ) : null}
 
-            <section className="mt-16 sm:mt-20">
-              <SectionHeading title="محصولات مرتبط" />
-              <RelatedProducts productId={product.id} />
-            </section>
-
-            <ProductKnowledgeRail productId={product.id} />
-
-            <section
-              className="mt-16 sm:mt-20"
-              aria-labelledby="pdp-reviews-heading"
-            >
-              <SectionHeading
-                id="pdp-reviews-heading"
-                title="دیدگاه کاربران"
-                subtitle="تجربهٔ واقعی خریداران — کوتاه و خوانا"
-              />
-              <ProductComments productId={product.id} />
-            </section>
-
-            <div className="pb-4">
-              <ProductAccessoriesSlot product={product} />
+              <div className="pb-4">
+                <ProductAccessoriesSlot product={product} />
+              </div>
             </div>
           </div>
         </div>
 
         <MobileStickyBuyBar product={product} />
       </Container>
+    </div>
+  );
+}
+
+function MobileSocialProof({ productId }: { productId: number }) {
+  const { data } = useComments(productId);
+  if (!data?.length) return null;
+
+  const avg =
+    data.reduce((sum, c) => sum + (c.rating ?? 0), 0) / data.length;
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 lg:hidden">
+      <span className="inline-flex items-center gap-1 rounded-full bg-secondary/70 px-2.5 py-1 text-[12px] font-bold text-foreground ring-1 ring-steel/[0.08]">
+        <Star set="bold" size="small" primaryColor="#E5A100" />
+        <span className="tnum">{avg.toFixed(1)}</span>
+      </span>
+      <a
+        href="#pdp-reviews-heading"
+        className="rounded-full bg-secondary/55 px-2.5 py-1 text-[12px] font-semibold text-steel ring-1 ring-steel/[0.08] transition-colors hover:text-primary"
+      >
+        <span className="tnum">{formatNumber(data.length)}</span> دیدگاه
+      </a>
     </div>
   );
 }
@@ -387,6 +524,8 @@ function PdpBuyCard({
         "px-3.5 sm:min-h-[23.5rem] sm:px-4",
         "ring-1 ring-steel/[0.09]",
         "shadow-[0_20px_48px_-28px_rgba(94,95,94,0.42)]",
+        /* Mobile: softer, less towering — sticky bar owns the primary CTA chrome */
+        "max-lg:min-h-0 max-lg:rounded-2xl max-lg:shadow-[0_12px_32px_-24px_rgba(94,95,94,0.35)]",
         "[@media(max-height:800px)]:min-h-0",
       )}
     >

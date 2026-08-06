@@ -11,12 +11,13 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, CloseSquare, Scan } from "react-iconly";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { lazyImageProps, lcpImageProps } from "@/lib/cwv";
 import { toSafeNextImageSrc } from "@/lib/image-remote-patterns";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { cn } from "@/lib/utils";
 import type { ProductImage } from "@/types/product";
 
@@ -49,6 +50,7 @@ export function ProductGallery({
     list.findIndex((i) => i.id === activeId),
   );
   const current = list[activeIndex] ?? list[0];
+  const reducedMotion = useReducedMotion();
 
   const [lightbox, setLightbox] = useState(false);
   const [zoom, setZoom] = useState(false);
@@ -124,8 +126,10 @@ export function ProductGallery({
     return (
       <div
         className={cn(
-          "relative mx-auto aspect-square overflow-hidden rounded-2xl bg-[#E9E8E7]",
-          "w-[min(100%,var(--pdp-gallery-budget))] max-h-[var(--pdp-gallery-budget)]",
+          "relative mx-auto aspect-square overflow-hidden bg-[#E9E8E7]",
+          /* Mobile: full-bleed square; desktop keeps budgeted rounded stage */
+          "w-full max-lg:max-w-none max-lg:rounded-none",
+          "lg:w-[min(100%,var(--pdp-gallery-budget))] lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
           "[@media(max-height:800px)]:[--pdp-gallery-budget:min(26rem,calc(100svh-7.75rem),calc(100dvh-7.75rem))]",
         )}
         style={
@@ -144,7 +148,8 @@ export function ProductGallery({
     <div
       className={cn(
         "flex flex-col gap-2.5 sm:gap-3",
-        "[@media(max-height:800px)]:gap-1.5",
+        "max-lg:gap-0",
+        "[@media(max-height:800px)]:gap-1.5 [@media(max-height:800px)]:max-lg:gap-0",
       )}
       style={
         {
@@ -154,8 +159,10 @@ export function ProductGallery({
     >
       <div
         className={cn(
-          "relative mx-auto min-w-0",
-          "w-[min(100%,var(--pdp-gallery-budget))] max-w-full",
+          "relative mx-auto min-w-0 w-full max-w-full",
+          /* Mobile full-bleed; desktop budgeted stage unchanged */
+          "max-lg:w-full",
+          "lg:w-[min(100%,var(--pdp-gallery-budget))]",
           "[@media(max-height:800px)]:[--pdp-gallery-budget:var(--pdp-gallery-budget-short)]",
         )}
         style={
@@ -168,11 +175,14 @@ export function ProductGallery({
           ref={stageRef}
           role="button"
           tabIndex={0}
-          aria-label={`${alt} — بزرگ‌نمایی یا نمایش تمام‌صفحه`}
+          aria-label={`${alt} — نمایش گالری تصاویر`}
           className={cn(
-            "group relative aspect-square w-full max-h-[var(--pdp-gallery-budget)] overflow-hidden rounded-2xl",
+            "group relative aspect-square w-full overflow-hidden touch-pan-y",
+            "max-lg:max-h-none max-lg:rounded-none",
+            "lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
             "bg-gradient-to-b from-muted/40 to-muted/20 outline-none",
-            "ring-1 ring-steel/[0.07] shadow-[0_16px_36px_-26px_rgba(94,95,94,0.38)]",
+            "max-lg:ring-0 max-lg:shadow-none",
+            "lg:ring-1 lg:ring-steel/[0.07] lg:shadow-[0_16px_36px_-26px_rgba(94,95,94,0.38)]",
             "focus-visible:ring-2 focus-visible:ring-[#D02327]/35",
             zoom ? "cursor-zoom-out" : "cursor-zoom-in",
           )}
@@ -222,6 +232,7 @@ export function ProductGallery({
             const start = swipeRef.current;
             swipeRef.current = null;
             if (!start || e.pointerType === "mouse") return;
+            if ((e.target as HTMLElement).closest("button")) return;
 
             if (start.moved && multi) {
               const dx = e.clientX - start.x;
@@ -237,13 +248,8 @@ export function ProductGallery({
               return;
             }
 
-            // Tap to toggle zoom on touch
-            if (!zoom) {
-              updateOrigin(e.clientX, e.clientY);
-              setZoom(true);
-            } else {
-              setZoom(false);
-            }
+            // Tap opens lightbox (zoom lives inside the viewer)
+            openLightbox();
           }}
           onPointerCancel={() => {
             swipeRef.current = null;
@@ -264,28 +270,33 @@ export function ProductGallery({
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={current.id}
-              initial={{ opacity: 0.4 }}
+              initial={reducedMotion ? false : { opacity: 0.4 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0.4 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              exit={reducedMotion ? undefined : { opacity: 0.4 }}
+              transition={{
+                duration: reducedMotion ? 0.01 : 0.28,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="absolute inset-0"
             >
               <div
-                className="absolute inset-0 will-change-transform"
+                className="absolute inset-0"
                 style={{
                   transformOrigin: `${origin.x}% ${origin.y}%`,
                   transform: zoom ? "scale(1.9)" : "scale(1)",
-                  transition: zoom
-                    ? "transform 70ms linear"
-                    : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  transition: reducedMotion
+                    ? "none"
+                    : zoom
+                      ? "transform 70ms linear"
+                      : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
                 }}
               >
                 <SafeImage
                   src={current.url}
                   alt={alt}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 34vw"
-                  className="object-contain p-3 sm:p-4 select-none"
+                  sizes="(max-width: 1023px) 100vw, (max-width: 1024px) 50vw, 34vw"
+                  className="object-contain p-6 select-none lg:p-4"
                   draggable={false}
                   fallback={<ProductPlaceholder name={alt} />}
                   {...lcpImageProps()}
@@ -327,17 +338,29 @@ export function ProductGallery({
               openLightbox();
             }}
             className={cn(
-              "absolute bottom-3 start-3 z-10 grid h-9 w-9 place-items-center rounded-full",
+              "absolute start-3 z-10 grid h-9 w-9 place-items-center rounded-full",
+              /* Mobile: sit above overlapping content sheet (~28px higher) */
+              "bottom-3 max-lg:bottom-10",
               "bg-white/75 text-steel shadow-soft backdrop-blur-md transition-all duration-300",
               "hover:bg-white hover:text-karzar-500",
-              "opacity-90 sm:opacity-0 sm:group-hover:opacity-100",
+              /* Mobile: dark glass chip to match counter; desktop hover reveal */
+              "max-lg:bg-foreground/70 max-lg:text-white max-lg:opacity-100",
+              "lg:opacity-0 lg:group-hover:opacity-100",
             )}
           >
             <Scan set="bold" size="small" primaryColor="currentColor" />
           </button>
 
           {multi && (
-            <span className="pointer-events-none absolute bottom-3 end-3 z-10 rounded-full bg-white/75 px-2.5 py-1 text-[11px] font-bold tabular-nums text-steel backdrop-blur-md">
+            <span
+              className={cn(
+                "pointer-events-none absolute end-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold tabular-nums backdrop-blur-md",
+                /* Mobile: match scan chip — clear of soft sheet overlap */
+                "bottom-3 max-lg:bottom-10",
+                "max-lg:bg-foreground/75 max-lg:text-white",
+                "lg:bg-white/75 lg:text-steel",
+              )}
+            >
               {activeIndex + 1} / {list.length}
             </span>
           )}
@@ -348,7 +371,11 @@ export function ProductGallery({
         <div
           role="tablist"
           aria-label="تصاویر محصول"
-          className="flex justify-center gap-2 overflow-x-auto px-0.5 py-1.5 no-scrollbar sm:gap-2.5"
+          className={cn(
+            "justify-center gap-2 h-scroll no-scrollbar px-0.5 py-1.5 sm:gap-2.5",
+            /* Mobile: swipe + counter only; thumbs return at lg (desktop) */
+            "hidden lg:flex",
+          )}
         >
           {list.map((img, i) => {
             const selected = activeId === img.id;
@@ -455,12 +482,16 @@ function GalleryLightbox({
 }) {
   const current = list[activeIndex]!;
   const multi = list.length > 1;
+  const reducedMotion = useReducedMotion();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const swipeRef = useRef<{ x: number; y: number; moved: boolean } | null>(
     null,
   );
   const [lbZoom, setLbZoom] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
   const frameRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, true, onClose);
 
   const handlePrev = () => {
     setLbZoom(false);
@@ -484,8 +515,12 @@ function GalleryLightbox({
     });
   };
 
+  const fadeMs = reducedMotion ? 0.01 : 0.22;
+  const crossfadeMs = reducedMotion ? 0.01 : 0.26;
+
   return (
     <motion.div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`گالری تصاویر — ${alt}`}
@@ -493,7 +528,7 @@ function GalleryLightbox({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
+      transition={{ duration: fadeMs }}
     >
       <button
         type="button"
@@ -541,7 +576,7 @@ function GalleryLightbox({
         <div
           ref={frameRef}
           className={cn(
-            "relative mx-auto aspect-square h-auto w-full max-h-[min(78dvh,820px)] max-w-5xl overflow-hidden rounded-2xl",
+            "relative mx-auto aspect-square h-auto w-full max-h-[min(78dvh,820px)] max-w-5xl overflow-hidden rounded-2xl touch-manipulation",
             "bg-white/55 shadow-floating ring-1 ring-white/50 backdrop-blur-2xl",
             "supports-[backdrop-filter]:bg-white/40",
             lbZoom ? "cursor-zoom-out" : "cursor-zoom-in",
@@ -588,20 +623,22 @@ function GalleryLightbox({
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={current.id}
-              initial={{ opacity: 0 }}
+              initial={reducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: crossfadeMs, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0"
             >
               <div
-                className="absolute inset-0 will-change-transform"
+                className="absolute inset-0"
                 style={{
                   transformOrigin: `${origin.x}% ${origin.y}%`,
                   transform: lbZoom ? "scale(2.15)" : "scale(1)",
-                  transition: lbZoom
-                    ? "transform 70ms linear"
-                    : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  transition: reducedMotion
+                    ? "none"
+                    : lbZoom
+                      ? "transform 70ms linear"
+                      : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
                 }}
               >
                 <SafeImage
@@ -621,7 +658,7 @@ function GalleryLightbox({
       </div>
 
       {multi && (
-        <div className="relative z-10 flex justify-center gap-2 overflow-x-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-1 no-scrollbar">
+        <div className="relative z-10 flex justify-center gap-2 h-scroll no-scrollbar px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-1">
           {list.map((img, i) => {
             const selected = i === activeIndex;
             return (

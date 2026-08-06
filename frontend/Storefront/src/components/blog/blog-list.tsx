@@ -146,7 +146,7 @@ function MagazineCategoryTabs({
       <div
         role="tablist"
         aria-label="موضوعات مجله"
-        className="relative flex gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative no-scrollbar h-scroll flex gap-1 pb-1"
       >
         <div className="flex min-w-full gap-1 border-b border-[#5E5F5E]/12 sm:flex-wrap sm:overflow-visible">
           {groups.map((group) => {

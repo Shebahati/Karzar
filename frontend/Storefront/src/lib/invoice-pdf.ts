@@ -20,6 +20,12 @@ export interface CartProformaLineInput {
   unitPrice: string | null;
 }
 
+/** Buyer identity for sample cart proforma (from account `full_name`). */
+export interface CartProformaBuyer {
+  fullName: string;
+  phone?: string | null;
+}
+
 /** Catalog enrichment for order line labels (not inventing API fields). */
 export interface InvoiceProductHint {
   name?: string;
@@ -598,7 +604,7 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
         <div class="party">
           <h3>خریدار</h3>
           <div class="party-body">
-            <p><span class="label">نام</span><span class="value">${escapeHtml(model.buyerName)}</span></p>
+            <p><span class="label">نام مشتری</span><span class="value">${escapeHtml(model.buyerName)}</span></p>
             ${companyRow}
             <p><span class="label">تلفن</span><span class="value tnum">${escapeHtml(model.buyerPhone)}</span></p>
             <p><span class="label">آدرس</span><span class="value">${escapeHtml(model.buyerAddress)}</span></p>
@@ -844,9 +850,15 @@ export async function downloadOrderPdf(
  */
 export async function downloadCartSampleProforma(
   lines: CartProformaLineInput[],
+  buyer: CartProformaBuyer,
 ): Promise<void> {
   if (lines.length === 0) {
     throw new Error("EMPTY_CART");
+  }
+
+  const buyerName = buyer.fullName.trim();
+  if (!buyerName) {
+    throw new Error("MISSING_BUYER_NAME");
   }
 
   const stamp = new Date();
@@ -877,8 +889,8 @@ export async function downloadCartSampleProforma(
     refLabel: "شماره مرجع",
     refCode: sampleCode,
     dateLabel: formatPersianDate(stamp),
-    buyerName: "پیش‌نمایش سبد خرید",
-    buyerPhone: "—",
+    buyerName,
+    buyerPhone: displayOrBlank(buyer.phone),
     buyerAddress: "—",
     modeLabel: "پیش‌نمایش نمونه",
     lines: mapped,

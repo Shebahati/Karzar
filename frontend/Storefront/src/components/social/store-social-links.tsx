@@ -87,7 +87,7 @@ export function StoreSocialLinks({
       aria-label={labelledBy ? undefined : "شبکه‌های اجتماعی کارزار"}
       className={cn(
         variant === "pills"
-          ? "grid min-w-0 grid-cols-3 gap-2 [@media(max-height:760px)]:gap-1.5"
+          ? "grid min-w-0 grid-cols-3 gap-2"
           : "flex min-w-0 items-center gap-2",
         className,
       )}
@@ -100,7 +100,7 @@ export function StoreSocialLinks({
         const iconWrap = cn(
           "grid shrink-0 place-items-center transition-colors",
           variant === "pills"
-            ? "h-9 w-9 rounded-xl [@media(max-height:640px)]:h-8 [@media(max-height:640px)]:w-8"
+            ? "h-9 w-9 rounded-xl"
             : "h-10 w-10 rounded-full",
           live
             ? isDark
@@ -116,7 +116,6 @@ export function StoreSocialLinks({
           variant === "pills"
             ? cn(
                 "min-w-0 gap-2 overflow-hidden rounded-2xl px-2.5 py-2.5 text-xs font-bold sm:px-3",
-                "[@media(max-height:760px)]:rounded-xl [@media(max-height:760px)]:py-2",
                 live
                   ? isDark
                     ? "bg-white/5 text-white hover:bg-white/10"
@@ -146,7 +145,6 @@ export function StoreSocialLinks({
                   <span
                     className={cn(
                       "mt-0.5 block text-[10px] font-medium",
-                      "[@media(max-height:720px)]:hidden",
                       isDark ? "text-white/35" : "text-[#5E5F5E]/70",
                     )}
                   >

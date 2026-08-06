@@ -96,7 +96,7 @@ function CategoryOrbButton({
       </span>
       <span
         className={cn(
-          "mt-2.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:text-xs",
+          "mt-1.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:mt-2.5 sm:text-xs",
           active
             ? "font-black text-foreground group-hover:text-foreground"
             : "font-bold text-foreground/85 group-hover:text-foreground",
@@ -303,9 +303,9 @@ export function RootCategoryCarousel({
   // Only shimmer when neither RSC seed nor query data is available.
   if (!roots.length && isLoading) {
     return (
-      <div className="flex gap-4 overflow-x-auto pe-2 pt-3 pb-4">
+      <div className="flex gap-3 h-scroll no-scrollbar pe-2 pt-2 pb-3 sm:gap-4 sm:pt-3 sm:pb-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex w-[5.5rem] shrink-0 flex-col items-center gap-2.5 sm:w-[6.25rem]">
+          <div key={i} className="flex w-[5.5rem] shrink-0 flex-col items-center gap-2 sm:w-[6.25rem] sm:gap-2.5">
             <Skeleton className="h-[4.25rem] w-[4.25rem] rounded-full sm:h-[4.75rem] sm:w-[4.75rem]" />
             <Skeleton className="h-3 w-14 rounded-full" />
           </div>
@@ -318,7 +318,7 @@ export function RootCategoryCarousel({
 
   return (
     <div className="min-w-0 w-full">
-      <div className="mb-3 flex items-end justify-between gap-3">
+      <div className="mb-1.5 flex items-end justify-between gap-3 sm:mb-3">
         <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
         {lockedCategoryId == null && activeRootId != null && (
           <button
@@ -348,7 +348,7 @@ export function RootCategoryCarousel({
           onPointerCancel={endDrag}
           onClickCapture={onClickCapture}
           className={cn(
-            "no-scrollbar flex w-full min-w-0 gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-1 pt-3 pb-5 sm:gap-4",
+            "no-scrollbar h-scroll flex w-full min-w-0 gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-1 pt-2 pb-3 sm:gap-4 sm:pt-3 sm:pb-5",
             // touch-manipulation: allow vertical page scroll + horizontal rail pan.
             // Avoid touch-pan-x alone (traps vertical gestures on mobile).
             "md:snap-x md:snap-mandatory touch-manipulation select-none",

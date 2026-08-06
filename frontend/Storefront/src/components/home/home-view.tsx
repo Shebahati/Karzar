@@ -67,13 +67,13 @@ export function HomeView({
   );
 
   return (
-    <div>
+    <div className="overflow-x-clip">
       {/* Mobile: compact hero. md+: sticky under scrolling sheet (no page scroll-snap). */}
-      <div className="relative h-[62dvh] md:sticky md:top-0 md:z-0 md:h-[100dvh]">
+      <div className="relative h-[62dvh] max-w-full overflow-x-clip md:sticky md:top-0 md:z-0 md:h-[100dvh]">
         <Hero />
       </div>
 
-      <div className="relative mt-5 bg-background pb-10 md:z-10 md:-mt-1 md:rounded-t-[2.25rem] md:pb-16 md:shadow-[0_-28px_80px_rgba(0,0,0,0.38)]">
+      <div className="relative mt-5 max-w-full overflow-x-clip bg-background pb-10 md:z-10 md:-mt-1 md:rounded-t-[2.25rem] md:pb-16 md:shadow-[0_-28px_80px_rgba(0,0,0,0.38)]">
         <div
           aria-hidden
           className="mx-auto mb-2 mt-3 hidden h-1.5 w-12 rounded-full bg-border/80 md:mt-4 md:block"

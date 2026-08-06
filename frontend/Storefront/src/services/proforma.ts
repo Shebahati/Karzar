@@ -12,6 +12,7 @@
  */
 import {
   downloadCartSampleProforma,
+  type CartProformaBuyer,
   type CartProformaLineInput,
 } from "@/lib/invoice-pdf";
 import type { CartLine } from "@/store/cart-store";
@@ -26,8 +27,11 @@ export function cartLinesToProformaInput(lines: CartLine[]): CartProformaLineInp
   }));
 }
 
-/** Open sample (or future live) cart proforma — caller enforces login. */
-export async function downloadGuestCartProforma(lines: CartLine[]): Promise<void> {
+/** Open sample (or future live) cart proforma — caller enforces login + customer name. */
+export async function downloadGuestCartProforma(
+  lines: CartLine[],
+  buyer: CartProformaBuyer,
+): Promise<void> {
   // Future: try live public preview when documented in OpenAPI, then fall back.
-  await downloadCartSampleProforma(cartLinesToProformaInput(lines));
+  await downloadCartSampleProforma(cartLinesToProformaInput(lines), buyer);
 }

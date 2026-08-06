@@ -179,7 +179,7 @@ export function normalizeHeroSlides(
   mobilePreset: HeroDesignProject["mobilePreset"] = "balanced",
 ): HeroSlideDraft[] {
   const sorted = [...(slides ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
-  const kept: HeroSlideDraft[] = sorted.slice(0, HERO_SLIDE_SLOT_COUNT).map((slide, i) => ({
+  const kept = sorted.slice(0, HERO_SLIDE_SLOT_COUNT).map((slide, i) => ({
     ...slide,
     sortOrder: i + 1,
     mobilePreset: slide.mobilePreset ?? mobilePreset,

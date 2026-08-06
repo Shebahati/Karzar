@@ -8,8 +8,8 @@ type NeshanMapEmbedProps = {
 };
 
 /**
- * Compact Neshan place iframe — height scales with viewport so short
- * monitors keep the map in the first scroll without a tall aspect box.
+ * Soft Neshan place iframe — readable height, never hidden by contact layout.
+ * Gently shorter on short monitors; still clearly a map, not a stub.
  */
 export function NeshanMapEmbed({
   className,
@@ -18,17 +18,15 @@ export function NeshanMapEmbed({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl bg-[#f4f4f4] ring-1 ring-inset ring-[#5E5F5E]/12",
+        "relative overflow-hidden rounded-xl bg-muted ring-1 ring-inset ring-border/60",
         className,
       )}
     >
       <div
         className={cn(
           "relative w-full",
-          /* Prefer svh (stable) with dvh fallthrough via min(); clamp keeps a readable map */
-          "h-[clamp(5.25rem,min(16svh,18dvh),10.5rem)]",
-          "[@media(max-height:760px)]:h-[clamp(4.5rem,12svh,7.5rem)]",
-          "[@media(max-height:640px)]:h-[clamp(4rem,10svh,6.25rem)]",
+          "h-[11.5rem] sm:h-[13rem]",
+          "[@media(max-height:720px)]:h-[9.5rem]",
         )}
       >
         <iframe
