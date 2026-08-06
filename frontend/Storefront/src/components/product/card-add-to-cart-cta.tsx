@@ -258,7 +258,7 @@ export function CardAddToCartCta({
         aria-labelledby={labelId}
         data-card-cta-open={isExpanded ? "" : undefined}
         className={cn(
-          "absolute inset-0 z-10 flex items-end",
+          "absolute inset-0 z-20 flex items-end",
           !isExpanded && "pointer-events-none",
           className,
         )}
@@ -273,12 +273,14 @@ export function CardAddToCartCta({
         <div
           className={cn(
             "relative ms-auto flex items-center overflow-hidden",
-            "transition-[width,max-width,height,border-radius,background-color,box-shadow,opacity]",
+            /* Size/shape animate; bg snaps so red never bleeds under cream */
+            "transition-[width,max-width,height,border-radius,box-shadow,opacity]",
             shellMotion,
             isExpanded
               ? cn(
                   "h-full w-full max-w-full rounded-xl",
-                  "bg-[#FAFAF9]/97",
+                  /* Opaque solid — matches card cream/white; no alpha wash */
+                  "bg-[#FAFAF9]",
                   "ring-1 ring-[#5E5F5E]/[0.08]",
                   "shadow-[0_6px_20px_-14px_rgba(94,95,94,0.35)]",
                 )
@@ -291,7 +293,7 @@ export function CardAddToCartCta({
                 ),
           )}
         >
-          {/* Idle — cart affordance */}
+          {/* Idle — cart affordance (hidden hard while open so red cannot show through) */}
           <button
             type="button"
             onClick={(e) => {
@@ -307,8 +309,8 @@ export function CardAddToCartCta({
               "transition-[opacity,transform]",
               contentMotion,
               isExpanded
-                ? "pointer-events-none scale-75 opacity-0"
-                : "scale-100 opacity-100",
+                ? "pointer-events-none invisible scale-75 opacity-0"
+                : "visible scale-100 opacity-100",
               "hover:bg-[#b81e23] active:scale-95",
               "disabled:pointer-events-none disabled:opacity-35",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
@@ -317,10 +319,10 @@ export function CardAddToCartCta({
             <Buy size="small" set="bold" primaryColor="currentColor" />
           </button>
 
-          {/* Expanded — soft qty panel / success */}
+          {/* Expanded — soft qty panel / success on opaque shell */}
           <div
             className={cn(
-              "flex h-full w-full items-center",
+              "flex h-full w-full items-center bg-[#FAFAF9]",
               "transition-[opacity,transform]",
               contentMotion,
               isExpanded

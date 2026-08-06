@@ -248,7 +248,7 @@ export function ProductCard({
             {product.name}
           </h3>
 
-          <div className="relative mt-auto min-h-9 pt-1 has-[[data-card-cta-open]]:[&_[data-card-price]]:opacity-0">
+          <div className="relative mt-auto min-h-9 pt-1 has-[[data-card-cta-open]]:[&_[data-card-price]]:invisible has-[[data-card-cta-open]]:[&_[data-card-price]]:opacity-0">
             <div className="flex items-end justify-between gap-3">
               <div
                 data-card-price
