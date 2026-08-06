@@ -153,6 +153,8 @@ export interface HeroSlideDraft {
   name: string;
   sortOrder: number;
   isActive: boolean;
+  /** Empty hex slot awaiting content — still counts toward the fixed 6. */
+  isPlaceholder?: boolean;
   /** Linked CMS slide id when synced */
   cmsId?: number;
   /** Per-slide mobile composition — overrides project.mobilePreset when set */

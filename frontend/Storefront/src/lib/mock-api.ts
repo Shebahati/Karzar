@@ -36,6 +36,7 @@ import type { ContactValues } from "@/lib/validation";
 import { buildOrderTimeline } from "@/lib/order-timeline";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { CategoryBrief, ProductDetail, ProductListParams, ProductListResponse, ProductSummary } from "@/types/product";
+import { productHasDiscount } from "@/types/product";
 import type {
   MeResponse,
   OtpRequestPayload,
@@ -228,6 +229,12 @@ export const mockApi = {
       items = items.filter((p) => p.availability && Number(p.stock_quantity) > 0);
     } else if (params.in_stock === false) {
       items = items.filter((p) => !p.availability || Number(p.stock_quantity) <= 0);
+    }
+    if (params.on_sale === true) {
+      items = items.filter((p) => productHasDiscount(p));
+      items = [...items].sort(
+        (a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0),
+      );
     }
     if (params.search) {
       const q = params.search.trim().toLowerCase();

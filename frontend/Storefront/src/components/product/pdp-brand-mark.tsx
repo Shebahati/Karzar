@@ -40,7 +40,7 @@ export function PdpBrandMark({
       href={href}
       className={cn(
         "group inline-flex max-w-full items-center outline-none",
-        quiet ? "gap-2.5" : "gap-3",
+        quiet ? "gap-2" : "gap-3",
         "focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2",
         className,
       )}
@@ -51,7 +51,7 @@ export function PdpBrandMark({
           "relative grid shrink-0 place-items-center overflow-hidden bg-white",
           "ring-1 ring-steel/10 transition-transform duration-300 group-hover:scale-[1.02]",
           quiet
-            ? "h-9 w-9 rounded-lg shadow-none sm:h-10 sm:w-10"
+            ? "h-8 w-8 rounded-md shadow-none"
             : "h-12 w-12 rounded-xl shadow-[0_6px_18px_rgba(94,95,94,0.12)] sm:h-14 sm:w-14",
         )}
       >
@@ -60,14 +60,14 @@ export function PdpBrandMark({
             src={resolved}
             alt=""
             fill
-            sizes={quiet ? "40px" : "56px"}
-            className={cn("object-contain", quiet ? "p-1.5" : "p-2.5")}
+            sizes={quiet ? "32px" : "56px"}
+            className={cn("object-contain", quiet ? "p-1" : "p-2.5")}
             unoptimized={isSvg}
             fallback={
               <span
                 className={cn(
                   "font-bold text-steel/35",
-                  quiet ? "text-sm" : "text-lg",
+                  quiet ? "text-xs" : "text-lg",
                 )}
               >
                 {initial}
@@ -78,7 +78,7 @@ export function PdpBrandMark({
           <span
             className={cn(
               "font-bold text-steel/35",
-              quiet ? "text-sm" : "text-lg",
+              quiet ? "text-xs" : "text-lg",
             )}
           >
             {initial}
@@ -88,8 +88,10 @@ export function PdpBrandMark({
       <span className="min-w-0 text-start">
         {quiet ? (
           <>
-            <span className="block text-[11px] font-medium text-steel/80">برند</span>
-            <span className="mt-0.5 block truncate text-sm font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+            <span className="block text-[10px] font-medium leading-none text-steel/75">
+              برند
+            </span>
+            <span className="mt-1 block truncate text-[13px] font-semibold leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
               {brand.name}
               {brand.country ? (
                 <span className="font-medium text-steel"> · {brand.country}</span>

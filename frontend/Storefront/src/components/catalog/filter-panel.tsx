@@ -21,8 +21,8 @@ export function FilterPanel({
   onApplied,
   /** When true, each change notifies parent (legacy). Prefer false + footer CTA on mobile. */
   notifyOnChange = false,
-  /** Mobile drawer: open high-traffic sections so filters need fewer taps. */
-  mobileDefaults = false,
+  /** Kept for callers; accordion sections always start collapsed. */
+  mobileDefaults: _mobileDefaults = false,
   /** Hub pages lock a category in the path — clear must leave the hub. */
   lockedCategoryId,
 }: {
@@ -88,15 +88,6 @@ export function FilterPanel({
 
   const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
   const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
-  const openBrand =
-    mobileDefaults || selectedBrandIds.length > 0;
-  const openCountry = selectedCountries.length > 0;
-  const openPrice =
-    params.min_price != null || params.max_price != null;
-  const openStock = Boolean(params.in_stock);
-  const openSpecs = Boolean(
-    params.spec_filters && Object.keys(params.spec_filters).length > 0,
-  );
 
   /** URL `category` → product list API `category_id` (incl. L1/L2/L3; API expands subtree). */
   const selectCategory = (id: number | null) => {
@@ -144,7 +135,7 @@ export function FilterPanel({
             : "می‌توانید چند برند را همزمان انتخاب کنید"
         }
         badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
-        defaultOpen={openBrand}
+        defaultOpen={false}
       >
         {(brands?.length ?? 0) > 6 && (
           <div className="relative mb-3">
@@ -233,7 +224,7 @@ export function FilterPanel({
               ? toPersianDigits(selectedCountries.length)
               : undefined
           }
-          defaultOpen={openCountry}
+          defaultOpen={false}
         >
           {selectedCountries.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -291,7 +282,7 @@ export function FilterPanel({
         </AccordionFilter>
       )}
 
-      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={openPrice}>
+      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={false}>
         <PriceRangeSlider
           minValue={priceMin}
           maxValue={priceMax}
@@ -307,7 +298,7 @@ export function FilterPanel({
         />
       </AccordionFilter>
 
-      <AccordionFilter title="موجودی" defaultOpen={openStock}>
+      <AccordionFilter title="موجودی" defaultOpen={false}>
         <Checkbox
           id="in-stock-only"
           checked={params.in_stock ?? false}
@@ -318,13 +309,23 @@ export function FilterPanel({
           label="فقط کالاهای موجود"
           className="min-h-11"
         />
+        <Checkbox
+          id="on-sale-only"
+          checked={params.on_sale ?? false}
+          onCheckedChange={(checked) => {
+            setParams({ on_sale: checked ? "1" : null });
+            notify();
+          }}
+          label="فقط کالاهای تخفیف‌دار"
+          className="min-h-11"
+        />
       </AccordionFilter>
 
       {specOptions && Object.keys(specOptions.technical_specs).length > 0 && (
         <AccordionFilter
           title="مشخصات فنی"
           hint="بر اساس دستهٔ انتخاب‌شده"
-          defaultOpen={openSpecs}
+          defaultOpen={false}
         >
           {Object.entries(specOptions.technical_specs).map(([key, values]) => (
             <SpecFilterRow
@@ -484,7 +485,7 @@ function SpecFilterRow({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={`جستجو در ${label}…`}
             aria-label={`جستجو در ${label}`}
-            className="h-10 w-full rounded-xl bg-input ps-9 pe-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+            className="h-11 w-full rounded-xl bg-input ps-9 pe-3 text-base outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
       )}

@@ -78,23 +78,28 @@ function CategoryOrbButton({
     >
       <span
         className={cn(
-          "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full transition-all duration-300 ease-out sm:h-[4.75rem] sm:w-[4.75rem]",
+          "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full",
+          "text-steel transition-[transform,background-color,box-shadow,ring-color,filter] duration-300 ease-out",
+          "group-hover:scale-[1.04] group-hover:brightness-[1.03] group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]",
+          "sm:h-[4.75rem] sm:w-[4.75rem]",
           active
-            ? "scale-[1.08] bg-primary text-white shadow-[0_12px_32px_rgba(208,35,39,0.38)] ring-4 ring-primary/15"
-            : "bg-[#F5F5F5] text-steel shadow-[0_6px_20px_rgba(0,0,0,0.05)] group-hover:bg-primary/10 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.14)]",
+            ? "scale-[1.05] bg-steel/15 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-2 ring-steel/25 group-hover:bg-steel/20 group-hover:ring-steel/35"
+            : "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-black/[0.06] group-hover:ring-steel/15",
         )}
       >
         <CategoryVisualIcon
           icon={resolveCategoryIconUrl(node) ?? node.icon}
           size={32}
           overflowTop
-          color={active ? "#FFFFFF" : "#5E5F5E"}
+          color="#5E5F5E"
         />
       </span>
       <span
         className={cn(
           "mt-2.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:text-xs",
-          active ? "font-black text-primary" : "font-bold text-foreground/85 group-hover:text-foreground",
+          active
+            ? "font-black text-foreground group-hover:text-foreground"
+            : "font-bold text-foreground/85 group-hover:text-foreground",
         )}
       >
         {node.name}
@@ -102,7 +107,7 @@ function CategoryOrbButton({
       <span
         className={cn(
           "mt-0.5 text-[10px] transition-colors duration-300",
-          active ? "font-bold text-primary/75" : "font-medium text-steel",
+          active ? "font-bold text-steel" : "font-medium text-steel/80 group-hover:text-steel",
         )}
       >
         {formatNumber(node.product_count ?? 0)} محصول
@@ -192,15 +197,23 @@ export function RootCategoryCarousel({
     };
   }, [updateEdges, roots.length]);
 
-  // Scroll the URL/locked selected orb into view once per active root.
+  // Scroll the URL/locked selected orb into the track only (never document scroll).
   useEffect(() => {
     if (activeRootId == null || !roots.length) return;
     if (didScrollToActive.current === activeRootId) return;
     const btn = orbRefs.current.get(activeRootId);
-    if (!btn) return;
+    const track = trackRef.current;
+    if (!btn || !track) return;
     didScrollToActive.current = activeRootId;
     requestAnimationFrame(() => {
-      btn.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      const trackBox = track.getBoundingClientRect();
+      const btnBox = btn.getBoundingClientRect();
+      const btnCenter = (btnBox.left + btnBox.right) / 2;
+      const trackCenter = (trackBox.left + trackBox.right) / 2;
+      const delta = btnCenter - trackCenter;
+      if (Math.abs(delta) >= 1) {
+        track.scrollBy({ left: delta, behavior: "smooth" });
+      }
       updateEdges();
     });
   }, [activeRootId, roots.length, updateEdges]);
@@ -335,8 +348,10 @@ export function RootCategoryCarousel({
           onPointerCancel={endDrag}
           onClickCapture={onClickCapture}
           className={cn(
-            "no-scrollbar flex w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-1 pt-3 pb-5 sm:gap-4",
-            "snap-x snap-mandatory touch-pan-x select-none",
+            "no-scrollbar flex w-full min-w-0 gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-1 pt-3 pb-5 sm:gap-4",
+            // touch-manipulation: allow vertical page scroll + horizontal rail pan.
+            // Avoid touch-pan-x alone (traps vertical gestures on mobile).
+            "md:snap-x md:snap-mandatory touch-manipulation select-none",
             "cursor-grab active:cursor-grabbing",
           )}
         >

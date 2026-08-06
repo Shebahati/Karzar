@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Call, Location, Message, ShieldDone } from "react-iconly";
 import { Logo } from "@/components/layout/logo";
 import { NeshanDirectionsButton } from "@/components/contact/neshan-directions-button";
+import { StoreSocialLinks } from "@/components/social/store-social-links";
 import { Container } from "@/components/ui/container";
 import {
   STORE_ADDRESS_FA,
@@ -61,6 +62,20 @@ export function SiteFooter() {
                 </span>
               ))}
             </div>
+            <div className="mt-7">
+              <p
+                id="footer-social-heading"
+                className="text-xs font-bold tracking-tight text-white/45"
+              >
+                شبکه‌های اجتماعی
+              </p>
+              <StoreSocialLinks
+                tone="dark"
+                variant="icons"
+                labelledBy="footer-social-heading"
+                className="mt-3"
+              />
+            </div>
           </div>
 
           {COLUMNS.map((col) => (
@@ -83,29 +98,31 @@ export function SiteFooter() {
 
           <div className="lg:col-span-3">
             <h3 className="text-sm font-black tracking-tight text-white">ارتباط</h3>
-            <ul className="mt-4 space-y-3 text-sm text-white/60">
+            <ul className="mt-4 space-y-3.5 text-sm text-white/60">
               <li>
                 <a
                   href={`tel:${STORE_PHONE_E164}`}
-                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
-                  dir="ltr"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-primary">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/20 text-primary">
                     <Call size="small" set="bold" />
                   </span>
-                  {STORE_PHONE_DISPLAY}
+                  <span dir="ltr" className="min-w-0 tabular-nums tracking-wide">
+                    {STORE_PHONE_DISPLAY}
+                  </span>
                 </a>
               </li>
               <li>
                 <a
                   href={`mailto:${STORE_EMAIL}`}
-                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
-                  dir="ltr"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-white/8">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
                     <Message size="small" set="light" />
                   </span>
-                  {STORE_EMAIL}
+                  <span dir="ltr" className="min-w-0 break-all">
+                    {STORE_EMAIL}
+                  </span>
                 </a>
               </li>
               <li>
@@ -113,12 +130,14 @@ export function SiteFooter() {
                   href={STORE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-start gap-2.5 transition-colors hover:text-white"
+                  className="flex items-start gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
                     <Location size="small" set="light" />
                   </span>
-                  <span className="leading-6">{STORE_ADDRESS_FA}</span>
+                  <span className="min-w-0 flex-1 leading-6 text-pretty">
+                    {STORE_ADDRESS_FA}
+                  </span>
                 </a>
               </li>
             </ul>

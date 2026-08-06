@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Calendar, Show, TimeCircle } from "react-iconly";
 import { SafeImage } from "@/components/ui/safe-image";
 import { articleCategory } from "@/lib/articles";
+import { useMotionSafe } from "@/lib/use-motion-safe";
 import { cn, formatNumber } from "@/lib/utils";
 import type { Article } from "@/types/content";
 
@@ -45,6 +46,7 @@ export function ArticleCard({
   const hasViews = typeof article.views === "number" && Number.isFinite(article.views);
   const dateLabel = article.published_at ? faDate(article.published_at) : "";
   const href = `/blog/${article.slug}`;
+  const motionSafe = useMotionSafe();
 
   const meta = (
     <div
@@ -115,14 +117,7 @@ export function ArticleCard({
   );
 
   if (variant === "featured") {
-    return (
-      <motion.article
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.45, delay: 0.04 }}
-        className={cn("h-full", className)}
-      >
+    const featuredInner = (
         <Link
           href={href}
           className="group relative flex h-full min-h-[200px] flex-col overflow-hidden rounded-[1.15rem] bg-card sm:min-h-[220px] lg:min-h-[248px]"
@@ -190,19 +185,29 @@ export function ArticleCard({
             </div>
           </div>
         </Link>
+    );
+
+    if (!motionSafe) {
+      return (
+        <article className={cn("h-full", className)}>{featuredInner}</article>
+      );
+    }
+
+    return (
+      <motion.article
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.45, delay: 0.04 }}
+        className={cn("h-full", className)}
+      >
+        {featuredInner}
       </motion.article>
     );
   }
 
   if (variant === "side") {
-    return (
-      <motion.article
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
-        className={cn("h-full", className)}
-      >
+    const sideInner = (
         <Link
           href={href}
           className={cn(
@@ -231,6 +236,21 @@ export function ArticleCard({
             {body}
           </div>
         </Link>
+    );
+
+    if (!motionSafe) {
+      return <article className={cn("h-full", className)}>{sideInner}</article>;
+    }
+
+    return (
+      <motion.article
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
+        className={cn("h-full", className)}
+      >
+        {sideInner}
       </motion.article>
     );
   }
@@ -242,14 +262,7 @@ export function ArticleCard({
         ? "aspect-[16/9]"
         : "aspect-[16/9]";
 
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
-      className={cn("h-full", className)}
-    >
+  const defaultInner = (
       <Link
         href={href}
         className={cn(
@@ -294,6 +307,21 @@ export function ArticleCard({
           {body}
         </div>
       </Link>
+  );
+
+  if (!motionSafe) {
+    return <article className={cn("h-full", className)}>{defaultInner}</article>;
+  }
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
+      className={cn("h-full", className)}
+    >
+      {defaultInner}
     </motion.article>
   );
 }

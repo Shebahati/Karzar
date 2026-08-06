@@ -88,7 +88,11 @@ function ShippingForm({
 }) {
   const addresses = useAddressStore((s) => s.addresses);
   const getDefault = useAddressStore((s) => s.getDefault);
-  const loggedIn = typeof window !== "undefined" && isLoggedIn();
+  // Match SSR (guest) until mount — avoids hydration mismatch on auth read.
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
   const canUseSaved = loggedIn && addresses.length > 0;
 
   const [mode, setMode] = useState<AddressMode>(canUseSaved ? "saved" : "new");

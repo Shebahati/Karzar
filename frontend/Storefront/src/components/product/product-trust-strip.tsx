@@ -1,6 +1,6 @@
 "use client";
 
-import { Document, Send, ShieldDone, Swap } from "react-iconly";
+import { Call, Document, Send, ShieldDone, Swap, Wallet } from "react-iconly";
 import { cn } from "@/lib/utils";
 
 export type PdpTrustItem = {
@@ -11,8 +11,9 @@ export type PdpTrustItem = {
 };
 
 /**
- * Trust cues aligned with homepage / footer brand claims.
+ * Trust cues for the sticky buy card (authenticity / warranty / return).
  * Does not invent certifications — product warranty is optional SoT copy only.
+ * Shipping / support / payment live on PdpAssistStrip below the hero.
  */
 export function buildPdpTrustItems(opts: {
   warrantyText?: string | null;
@@ -36,38 +37,50 @@ export function buildPdpTrustItems(opts: {
     });
   }
 
-  items.push(
-    {
-      key: "return",
-      title: "۷ روز بازگشت",
-      desc: "شرایط مرجوعی",
-      Icon: Swap,
-    },
-    {
-      key: "shipping",
-      title: "ارسال مطمئن",
-      desc: "سراسر کشور",
-      Icon: Send,
-    },
-  );
+  items.push({
+    key: "return",
+    title: "۷ روز بازگشت",
+    desc: "شرایط مرجوعی",
+    Icon: Swap,
+  });
 
   return items;
 }
 
-export function ProductTrustStrip({
-  warrantyText,
-  isOriginal = false,
+/** Soft service cues below the hero — not a second copy of buy-card guarantees. */
+const ASSIST_ITEMS: PdpTrustItem[] = [
+  {
+    key: "shipping",
+    title: "ارسال سریع",
+    desc: "پوشش سراسر کشور",
+    Icon: Send,
+  },
+  {
+    key: "support",
+    title: "پشتیبانی کارگاهی",
+    desc: "پاسخگویی ۹ تا ۱۹",
+    Icon: Call,
+  },
+  {
+    key: "payment",
+    title: "پرداخت امن",
+    desc: "درگاه رسمی بانکی",
+    Icon: Wallet,
+  },
+];
+
+function SoftCueStrip({
+  items,
+  label,
   className,
 }: {
-  warrantyText?: string | null;
-  isOriginal?: boolean;
+  items: PdpTrustItem[];
+  label: string;
   className?: string;
 }) {
-  const items = buildPdpTrustItems({ warrantyText, isOriginal });
-
   return (
     <aside
-      aria-label="اعتماد خرید"
+      aria-label={label}
       className={cn(
         "relative overflow-hidden rounded-[1.1rem] bg-gradient-to-l from-[#D02327]/[0.06] via-secondary/40 to-transparent",
         className,
@@ -108,5 +121,35 @@ export function ProductTrustStrip({
         ))}
       </ul>
     </aside>
+  );
+}
+
+/** @deprecated Prefer buy-card trust rows; kept for tests / rare reuse. */
+export function ProductTrustStrip({
+  warrantyText,
+  isOriginal = false,
+  className,
+}: {
+  warrantyText?: string | null;
+  isOriginal?: boolean;
+  className?: string;
+}) {
+  return (
+    <SoftCueStrip
+      label="اعتماد خرید"
+      className={className}
+      items={buildPdpTrustItems({ warrantyText, isOriginal })}
+    />
+  );
+}
+
+/** Below-hero strip: delivery / support / payment — complements buy-card guarantees. */
+export function PdpAssistStrip({ className }: { className?: string }) {
+  return (
+    <SoftCueStrip
+      label="خدمات خرید"
+      className={className}
+      items={ASSIST_ITEMS}
+    />
   );
 }

@@ -88,7 +88,209 @@ export function createId(prefix: string): string {
 /** Featured power slots on the storefront dock (RTL: 0 = rightmost). */
 export const HERO_FEATURED_SLOT_COUNT = 5;
 
+/** Fixed carousel length — publish requires exactly this many filled slides. */
+export const HERO_SLIDE_SLOT_COUNT = 6;
+
 export { DISCOUNTS_ORB_KEY, DISCOUNTS_CATALOG_HREF };
+
+export type HeroProjectIssue = {
+  code:
+    | "slide_count"
+    | "slide_empty"
+    | "dock_featured"
+    | "dock_collision"
+    | "duplicate_link";
+  message: string;
+};
+
+/** Clamp + dedupe featuredOrder into sparse slots 0..(FEATURED-1). */
+export function densifyFeaturedOrders(
+  categories: HeroOrbCategory[],
+): HeroOrbCategory[] {
+  const claimed = new Map<number, string>();
+  const maxSlot = HERO_FEATURED_SLOT_COUNT - 1;
+  return categories.map((c) => {
+    if (c.featuredOrder == null) return { ...c, featuredOrder: null };
+    const slot = Math.max(0, Math.min(maxSlot, Math.floor(c.featuredOrder)));
+    if (claimed.has(slot)) return { ...c, featuredOrder: null };
+    claimed.set(slot, c.key);
+    return { ...c, featuredOrder: slot };
+  });
+}
+
+export function firstEmptyFeaturedSlot(
+  categories: HeroOrbCategory[],
+): number | null {
+  const used = new Set(
+    categories
+      .map((c) => c.featuredOrder)
+      .filter((n): n is number => n != null),
+  );
+  for (let i = 0; i < HERO_FEATURED_SLOT_COUNT; i++) {
+    if (!used.has(i)) return i;
+  }
+  return null;
+}
+
+/** One slide ↔ one orb key. Later duplicates lose the link. */
+export function dedupeSlideOrbLinks(slides: HeroSlideDraft[]): HeroSlideDraft[] {
+  const seen = new Set<string>();
+  return slides.map((slide) => {
+    const key = slide.config.linkedOrbKey;
+    if (!key || slide.isPlaceholder) return slide;
+    if (seen.has(key)) {
+      return {
+        ...slide,
+        config: { ...slide.config, linkedOrbKey: null },
+      };
+    }
+    seen.add(key);
+    return slide;
+  });
+}
+
+export function createEmptySlideSlot(slotIndex: number): HeroSlideDraft {
+  return {
+    id: createId("slide"),
+    name: `اسلات ${slotIndex + 1}`,
+    sortOrder: slotIndex + 1,
+    isActive: false,
+    isPlaceholder: true,
+    mobilePreset: "balanced",
+    config: createDefaultConfig(),
+  };
+}
+
+export function isSlideFilled(slide: HeroSlideDraft): boolean {
+  if (slide.isPlaceholder) return false;
+  const title = slide.config.typography.title?.trim();
+  const hasBg =
+    slide.config.background.mode === "color" ||
+    Boolean(slide.config.background.imageUrl?.trim());
+  return Boolean(title) && hasBg;
+}
+
+/**
+ * Always exactly 6 slots. Keep stable ids when possible.
+ * Truncate overflow by sortOrder; pad empties; dedupe orb links.
+ */
+export function normalizeHeroSlides(
+  slides: HeroSlideDraft[] | undefined,
+  mobilePreset: HeroDesignProject["mobilePreset"] = "balanced",
+): HeroSlideDraft[] {
+  const sorted = [...(slides ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const kept: HeroSlideDraft[] = sorted.slice(0, HERO_SLIDE_SLOT_COUNT).map((slide, i) => ({
+    ...slide,
+    sortOrder: i + 1,
+    mobilePreset: slide.mobilePreset ?? mobilePreset,
+    isPlaceholder: slide.isPlaceholder === true ? true : false,
+    config: {
+      ...slide.config,
+      linkedOrbKey: slide.isPlaceholder ? null : (slide.config.linkedOrbKey ?? null),
+    },
+  }));
+  while (kept.length < HERO_SLIDE_SLOT_COUNT) {
+    kept.push(createEmptySlideSlot(kept.length));
+  }
+  return dedupeSlideOrbLinks(kept);
+}
+
+export function normalizeHeroProject(project: HeroDesignProject): HeroDesignProject {
+  const dockCats = densifyFeaturedOrders(
+    project.categoryDock?.categories ?? DEFAULT_CATEGORY_DOCK.categories,
+  );
+  // Discounts stay featured at slot 0 when present.
+  const withDiscounts = dockCats.map((c) => {
+    if (!isSpecialDockOrb(c)) return c;
+    return {
+      ...c,
+      featuredOrder: c.featuredOrder == null ? 0 : c.featuredOrder,
+      special: true as const,
+      key: DISCOUNTS_ORB_KEY,
+    };
+  });
+  const slides = normalizeHeroSlides(project.slides, project.mobilePreset);
+  const activeSlideId = slides.some((s) => s.id === project.activeSlideId)
+    ? project.activeSlideId
+    : slides[0]!.id;
+  return {
+    ...project,
+    activeSlideId,
+    slides,
+    categoryDock: { categories: withDiscounts },
+    mobilePreset: project.mobilePreset ?? "balanced",
+  };
+}
+
+/** Persian validation for publish / UI banners. */
+export function validateHeroProject(project: HeroDesignProject): HeroProjectIssue[] {
+  const issues: HeroProjectIssue[] = [];
+  const slides = normalizeHeroSlides(project.slides, project.mobilePreset);
+  const filled = slides.filter(isSlideFilled);
+
+  if (slides.length !== HERO_SLIDE_SLOT_COUNT) {
+    issues.push({
+      code: "slide_count",
+      message: `هیرو باید دقیقاً ${HERO_SLIDE_SLOT_COUNT} اسلاید داشته باشد (الان ${slides.length}).`,
+    });
+  }
+  if (filled.length < HERO_SLIDE_SLOT_COUNT) {
+    issues.push({
+      code: "slide_empty",
+      message: `${HERO_SLIDE_SLOT_COUNT - filled.length} اسلات اسلاید خالی است — هر ۶ اسلات را پر کنید.`,
+    });
+  }
+
+  const dock = project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
+  const featured = featuredDockCategories(dock);
+  if (featured.length < HERO_FEATURED_SLOT_COUNT) {
+    issues.push({
+      code: "dock_featured",
+      message: `داک پاور ناقص است (${featured.length}/${HERO_FEATURED_SLOT_COUNT}).`,
+    });
+  }
+
+  const orders = dock.categories
+    .map((c) => c.featuredOrder)
+    .filter((n): n is number => n != null);
+  if (new Set(orders).size !== orders.length) {
+    issues.push({
+      code: "dock_collision",
+      message: "دو دسته روی یک اسلات پاور نشسته‌اند — ترتیب داک را اصلاح کنید.",
+    });
+  }
+
+  const keys = slides
+    .map((s) => s.config.linkedOrbKey)
+    .filter((k): k is string => Boolean(k));
+  if (new Set(keys).size !== keys.length) {
+    issues.push({
+      code: "duplicate_link",
+      message: "چند اسلاید به یک دسته وصل شده‌اند — هر دسته فقط یک اسلاید.",
+    });
+  }
+
+  return issues;
+}
+
+/** Find featured dock index for a slide via stable orb key (never array index). */
+export function featuredIndexForSlide(
+  slide: HeroSlideDraft | undefined,
+  dock: HeroCategoryDock = DEFAULT_CATEGORY_DOCK,
+): number {
+  const key = slide?.config.linkedOrbKey;
+  if (!key) return -1;
+  const featured = featuredDockCategories(dock);
+  return featured.findIndex((o) => o.key === key);
+}
+
+/** Resolve slide id linked to an orb key. */
+export function slideIdForOrbKey(
+  slides: HeroSlideDraft[],
+  orbKey: string,
+): string | null {
+  return slides.find((s) => !s.isPlaceholder && s.config.linkedOrbKey === orbKey)?.id ?? null;
+}
 
 export function isSpecialDockOrb(orb: Pick<HeroOrbCategory, "key" | "special" | "slugHint">): boolean {
   return (
@@ -550,10 +752,11 @@ export function createDefaultConfig(): HeroBuilderConfig {
 
 export function createSlide(partial?: Partial<HeroSlideDraft>): HeroSlideDraft {
   return {
-    id: createId("slide"),
+    id: partial?.id ?? createId("slide"),
     name: partial?.name ?? "اسلاید جدید",
     sortOrder: partial?.sortOrder ?? 1,
     isActive: partial?.isActive ?? true,
+    isPlaceholder: partial?.isPlaceholder ?? false,
     cmsId: partial?.cmsId,
     mobilePreset: partial?.mobilePreset,
     config: partial?.config ?? createDefaultConfig(),
@@ -563,7 +766,7 @@ export function createSlide(partial?: Partial<HeroSlideDraft>): HeroSlideDraft {
 export function createDefaultProject(): HeroDesignProject {
   const dock = structuredClone(DEFAULT_CATEGORY_DOCK);
   const slides = curatedSlidesFromDock(dock.categories);
-  return {
+  return normalizeHeroProject({
     version: 1,
     activeSlideId: slides[0]!.id,
     slides,
@@ -573,7 +776,7 @@ export function createDefaultProject(): HeroDesignProject {
     gridSize: 4,
     previewDevice: "desktop",
     mobilePreset: "balanced",
-  };
+  });
 }
 
 export const DEFAULT_HERO_CONFIG = createDefaultConfig();

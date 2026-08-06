@@ -9,19 +9,29 @@ export {
   HERO_BADGE_KINDS,
   HERO_BADGE_STYLES,
   HERO_FEATURED_SLOT_COUNT,
+  HERO_SLIDE_SLOT_COUNT,
   configFromOrb,
   createDefaultConfig,
   createDefaultProject,
   createDiscountsOrb,
+  createEmptySlideSlot,
   createId,
   createSlide,
   categoryDockFromRoots,
+  densifyFeaturedOrders,
   featuredDockCategories,
+  featuredIndexForSlide,
+  firstEmptyFeaturedSlot,
+  isSlideFilled,
   isSpecialDockOrb,
+  normalizeHeroProject,
+  normalizeHeroSlides,
   orbFromTreeRoot,
+  slideIdForOrbKey,
   syncDockWithRoots,
+  validateHeroProject,
 } from "./model/defaults";
-export type { DockSyncResult } from "./model/defaults";
+export type { DockSyncResult, HeroProjectIssue } from "./model/defaults";
 export { CURATED_HERO_SEEDS, curatedSlidesFromDock, configFromCuratedSeed } from "./model/curated-slides";
 export {
   DS_BUTTON_SIZES,

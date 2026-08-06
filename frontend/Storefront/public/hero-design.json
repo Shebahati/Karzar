@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "publishedAt": "2026-08-01T22:04:38.694Z",
+  "publishedAt": "2026-08-06T01:30:00.000Z",
   "mobilePreset": "balanced",
   "categoryDock": {
     "categories": [
@@ -160,34 +160,31 @@
       "config": {
         "version": 1,
         "minHeight": 760,
-        "animation": "float",
+        "animation": "fade-up",
         "linkedOrbKey": "discounts",
         "background": {
           "mode": "image",
           "imageUrl": "/images/hero/hero-accessories-left.jpg",
           "color": "#121212",
-          "focal": "left 38%"
+          "focal": "left 40%"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(80,8,12,0.15)",
-          "gradientTo": "rgba(12,8,8,0.92)",
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(28,10,10,0.2)",
+          "gradientTo": "rgba(8,6,6,0.88)",
           "gradientAngle": 105,
           "opacity": 1
         },
         "typography": {
           "title": "تخفیف‌های ویژه کارزار",
-          "subtitle": "پیشنهادهای پرتخفیف ابزار صنعتی — قیمت رقابتی برای تجهیز کارگاه و خط تولید",
+          "subtitle": "ابزار صنعتی منتخب با قیمت رقابتی برای تجهیز کارگاه و خط تولید",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
+          "subtitleColor": "rgba(255,255,255,0.88)",
           "titleSize": 46,
-          "subtitleSize": 15,
+          "subtitleSize": 16,
           "align": "start",
-          "position": {
-            "x": 6,
-            "y": 22
-          },
+          "position": { "x": 6, "y": 28 },
           "maxWidth": 420
         },
         "buttons": [
@@ -198,70 +195,18 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": {
-              "x": 6,
-              "y": 56
-            },
-            "action": {
-              "type": "href",
-              "value": "/catalog"
-            },
+            "position": { "x": 6, "y": 58 },
+            "action": { "type": "href", "value": "/catalog" },
             "stylePreset": "primary",
             "sizePreset": "lg"
-          },
-          {
-            "id": "btn_discounts_s",
-            "label": "کاتالوگ کامل",
-            "variant": "outline",
-            "bgColor": "transparent",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 6,
-              "y": 68
-            },
-            "action": {
-              "type": "href",
-              "value": "/catalog"
-            },
-            "stylePreset": "on-dark-outline",
-            "sizePreset": "md"
           }
         ],
-        "badges": [
-          {
-            "id": "badge_discounts_0",
-            "kind": "discount",
-            "style": "ribbon",
-            "label": "پرتخفیف",
-            "meta": "تا ۲۵٪",
-            "position": {
-              "x": 6,
-              "y": 12
-            },
-            "animated": true
-          },
-          {
-            "id": "badge_discounts_1",
-            "kind": "flash_sale",
-            "style": "stamp",
-            "label": "محدود زمانی",
-            "meta": "این هفته",
-            "position": {
-              "x": 28,
-              "y": 12
-            },
-            "animated": true
-          }
-        ],
+        "badges": [],
         "carousel": {
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
+          "position": { "x": 52, "y": 56 },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -280,35 +225,32 @@
       "config": {
         "version": 1,
         "minHeight": 720,
-        "animation": "fade-up",
+        "animation": "fade-in",
         "linkedOrbKey": "metrology",
         "background": {
           "mode": "image",
           "imageUrl": "/images/hero/hero-metrology-left.jpg",
-          "color": "#121212",
-          "focal": "left 42%"
+          "color": "#0e1012",
+          "focal": "center left"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.06)",
-          "gradientTo": "rgba(12,12,12,0.84)",
-          "gradientAngle": 90,
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(10,12,16,0.1)",
+          "gradientTo": "rgba(8,10,12,0.86)",
+          "gradientAngle": 255,
           "opacity": 1
         },
         "typography": {
           "title": "اندازه‌گیری دقیق",
-          "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+          "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 42,
+          "subtitleColor": "rgba(255,255,255,0.86)",
+          "titleSize": 44,
           "subtitleSize": 16,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 24
-          },
-          "maxWidth": 440
+          "align": "end",
+          "position": { "x": 48, "y": 30 },
+          "maxWidth": 400
         },
         "buttons": [
           {
@@ -318,171 +260,18 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 54
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/andaze-giri"
-            },
+            "position": { "x": 62, "y": 58 },
+            "action": { "type": "href", "value": "/categories/andaze-giri" },
             "stylePreset": "primary",
             "sizePreset": "lg"
-          },
-          {
-            "id": "btn_metrology_s",
-            "label": "استعلام قیمت",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 66
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "md"
           }
         ],
-        "badges": [
-          {
-            "id": "badge_metrology_0",
-            "kind": "trust",
-            "style": "chip",
-            "label": "اصالت کالا",
-            "meta": "گارانتی",
-            "position": {
-              "x": 5,
-              "y": 14
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": true,
-          "categorySlug": "andaze-giri",
-          "categoryLabel": "منتخب مترولوژی",
-          "position": {
-            "x": 52,
-            "y": 54
-          },
-          "maxItems": 4,
-          "previewTitles": [
-            "کولیس دیجیتال",
-            "میکرومتر بیرونی",
-            "ساعت اندیکاتور",
-            "بلوک سنجه"
-          ],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_insert-tools",
-      "name": "ابزار اینسرتی",
-      "sortOrder": 3,
-      "isActive": true,
-      "mobilePreset": "media-focus",
-      "config": {
-        "version": 1,
-        "minHeight": 710,
-        "animation": "slide-in",
-        "linkedOrbKey": "insert-tools",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-cutting-left.jpg",
-          "color": "#121212",
-          "focal": "left 48%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.2)",
-          "gradientTo": "rgba(12,12,12,0.8)",
-          "gradientAngle": 108,
-          "opacity": 0.96
-        },
-        "typography": {
-          "title": "ابزار اینسرتی پایدار",
-          "subtitle": "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 40,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 6,
-            "y": 28
-          },
-          "maxWidth": 400
-        },
-        "buttons": [
-          {
-            "id": "btn_insert-tools_p",
-            "label": "مشاهده ابزار اینسرتی",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 6,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-inserti"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "lg"
-          },
-          {
-            "id": "btn_insert-tools_s",
-            "label": "استعلام موجودی",
-            "variant": "outline",
-            "bgColor": "transparent",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 6,
-              "y": 70
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-outline",
-            "sizePreset": "md"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_insert-tools_0",
-            "kind": "new_arrival",
-            "style": "ribbon",
-            "label": "براده‌برداری",
-            "meta": "هلدر",
-            "position": {
-              "x": 6,
-              "y": 15
-            },
-            "animated": true
-          }
-        ],
+        "badges": [],
         "carousel": {
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
+          "position": { "x": 52, "y": 56 },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -495,7 +284,7 @@
     {
       "id": "slide_inserts",
       "name": "اینسرت",
-      "sortOrder": 4,
+      "sortOrder": 3,
       "isActive": true,
       "mobilePreset": "media-focus",
       "config": {
@@ -507,29 +296,26 @@
           "mode": "image",
           "imageUrl": "/images/hero/hero-cutting-left.jpg",
           "color": "#121212",
-          "focal": "center left"
+          "focal": "center"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(20,10,8,0.12)",
-          "gradientTo": "rgba(8,8,10,0.88)",
-          "gradientAngle": 78,
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(12,12,12,0.45)",
+          "gradientTo": "rgba(12,12,12,0.78)",
+          "gradientAngle": 180,
           "opacity": 1
         },
         "typography": {
           "title": "اینسرت کاربیدی",
-          "subtitle": "اینسرت‌های پوشش‌دار برای سطوح برش متنوع — تعویض سریع، عمر طولانی، کیفیت ثابت",
+          "subtitle": "پوشش‌های صنعتی برای سطوح برش متنوع — عمر طولانی، کیفیت ثابت",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 40,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 4,
-            "y": 30
-          },
-          "maxWidth": 400
+          "subtitleColor": "rgba(255,255,255,0.88)",
+          "titleSize": 44,
+          "subtitleSize": 16,
+          "align": "center",
+          "position": { "x": 24, "y": 32 },
+          "maxWidth": 440
         },
         "buttons": [
           {
@@ -538,256 +324,11 @@
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
-            "borderRadius": 999,
-            "position": {
-              "x": 4,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/insert"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "pill"
-          },
-          {
-            "id": "btn_inserts_s",
-            "label": "هلدر اینسرتی",
-            "variant": "solid",
-            "bgColor": "#FCEAEB",
-            "textColor": "#D02327",
             "borderRadius": 12,
-            "position": {
-              "x": 22,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-inserti"
-            },
-            "stylePreset": "soft",
-            "sizePreset": "sm"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_inserts_0",
-            "kind": "campaign",
-            "style": "pill",
-            "label": "انتخاب صنعتی",
-            "meta": "CVD / PVD",
-            "position": {
-              "x": 4,
-              "y": 18
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": true,
-          "categorySlug": "insert",
-          "categoryLabel": "پرفروش اینسرت",
-          "position": {
-            "x": 48,
-            "y": 58
-          },
-          "maxItems": 4,
-          "previewTitles": [
-            "CNMG 120408",
-            "DCMT 11T304",
-            "VNMG 160408",
-            "APKT 1604"
-          ],
-          "stylePreset": "cards-elevated",
-          "layoutPreset": "row-compact",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_endmills",
-      "name": "فرز انگشتی",
-      "sortOrder": 5,
-      "isActive": true,
-      "mobilePreset": "balanced",
-      "config": {
-        "version": 1,
-        "minHeight": 720,
-        "animation": "stagger-up",
-        "linkedOrbKey": "endmills",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-cutting-left.jpg",
-          "color": "#121212",
-          "focal": "left 44%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.04)",
-          "gradientTo": "rgba(12,12,12,0.9)",
-          "gradientAngle": 92,
-          "opacity": 0.98
-        },
-        "typography": {
-          "title": "فرز انگشتی دقیق",
-          "subtitle": "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 42,
-          "subtitleSize": 16,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 26
-          },
-          "maxWidth": 460
-        },
-        "buttons": [
-          {
-            "id": "btn_endmills_p",
-            "label": "مشاهده فرز انگشتی",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/farz-angoshti"
-            },
+            "position": { "x": 38, "y": 58 },
+            "action": { "type": "href", "value": "/categories/insert" },
             "stylePreset": "primary",
             "sizePreset": "lg"
-          },
-          {
-            "id": "btn_endmills_s",
-            "label": "استعلام موجودی",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 22,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "md"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_endmills_0",
-            "kind": "campaign",
-            "style": "pill",
-            "label": "ماشین‌کاری",
-            "meta": "۴۹۱",
-            "position": {
-              "x": 5,
-              "y": 14
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": false,
-          "categorySlug": "",
-          "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
-          "maxItems": 4,
-          "previewTitles": [],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_taps",
-      "name": "قلاویز",
-      "sortOrder": 6,
-      "isActive": true,
-      "mobilePreset": "dock-first",
-      "config": {
-        "version": 1,
-        "minHeight": 690,
-        "animation": "fade-in",
-        "linkedOrbKey": "taps",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-cutting-left.jpg",
-          "color": "#121212",
-          "focal": "left 36%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,18,28,0.22)",
-          "gradientTo": "rgba(12,12,12,0.84)",
-          "gradientAngle": 118,
-          "opacity": 0.94
-        },
-        "typography": {
-          "title": "قلاویز صنعتی",
-          "subtitle": "قلاویز دستی و ماشینی برای رزوه‌کاری استاندارد صنعتی",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 38,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 8,
-            "y": 30
-          },
-          "maxWidth": 360
-        },
-        "buttons": [
-          {
-            "id": "btn_taps_p",
-            "label": "مشاهده قلاویز",
-            "variant": "solid",
-            "bgColor": "#FCEAEB",
-            "textColor": "#D02327",
-            "borderRadius": 12,
-            "position": {
-              "x": 8,
-              "y": 60
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/ghalaviz"
-            },
-            "stylePreset": "soft",
-            "sizePreset": "lg"
-          },
-          {
-            "id": "btn_taps_s",
-            "label": "کاتالوگ",
-            "variant": "outline",
-            "bgColor": "transparent",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 8,
-              "y": 72
-            },
-            "action": {
-              "type": "href",
-              "value": "/catalog"
-            },
-            "stylePreset": "on-dark-outline",
-            "sizePreset": "md"
           }
         ],
         "badges": [],
@@ -795,118 +336,7 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
-          "maxItems": 4,
-          "previewTitles": [],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_toolholders",
-      "name": "ابزار گیر",
-      "sortOrder": 7,
-      "isActive": true,
-      "mobilePreset": "media-focus",
-      "config": {
-        "version": 1,
-        "minHeight": 730,
-        "animation": "float",
-        "linkedOrbKey": "toolholders",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-holding-left.jpg",
-          "color": "#121212",
-          "focal": "left 50%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.28)",
-          "gradientTo": "rgba(12,12,12,0.76)",
-          "gradientAngle": 68,
-          "opacity": 1
-        },
-        "typography": {
-          "title": "ابزارگیر دقیق",
-          "subtitle": "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 40,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 18
-          },
-          "maxWidth": 400
-        },
-        "buttons": [
-          {
-            "id": "btn_toolholders_p",
-            "label": "مشاهده ابزار گیر",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 52
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-gir"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "md"
-          },
-          {
-            "id": "btn_toolholders_s",
-            "label": "استعلام",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 63
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "sm"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_toolholders_0",
-            "kind": "trust",
-            "style": "banner",
-            "label": "پایداری اسپیندل",
-            "meta": "هولدر",
-            "position": {
-              "x": 5,
-              "y": 10
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": false,
-          "categorySlug": "",
-          "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
+          "position": { "x": 52, "y": 56 },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -919,7 +349,7 @@
     {
       "id": "slide_workholding",
       "name": "ابزار گیرشی",
-      "sortOrder": 8,
+      "sortOrder": 4,
       "isActive": true,
       "mobilePreset": "dock-first",
       "config": {
@@ -930,99 +360,52 @@
         "background": {
           "mode": "image",
           "imageUrl": "/images/hero/hero-holding-left.jpg",
-          "color": "#121212",
-          "focal": "left 48%"
+          "color": "#0c1014",
+          "focal": "left 46%"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,16,22,0.1)",
-          "gradientTo": "rgba(8,10,14,0.9)",
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(12,16,20,0.12)",
+          "gradientTo": "rgba(6,8,10,0.9)",
           "gradientAngle": 95,
           "opacity": 1
         },
         "typography": {
           "title": "ثابت‌کاری حرفه‌ای",
-          "subtitle": "گیره، فیکسچر و سیستم‌های نگه‌دارنده — ثبات بیشتر، لرزش کمتر، نتیجه تمیزتر",
+          "subtitle": "گیره، فیکسچر و سیستم‌های نگه‌دارنده برای ماشین‌کاری پایدار",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
+          "subtitleColor": "rgba(255,255,255,0.86)",
           "titleSize": 44,
           "subtitleSize": 16,
           "align": "start",
-          "position": {
-            "x": 8,
-            "y": 28
-          },
-          "maxWidth": 480
+          "position": { "x": 6, "y": 26 },
+          "maxWidth": 400
         },
         "buttons": [
           {
             "id": "btn_workholding_p",
             "label": "مشاهده ابزار گیرشی",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 8,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-gireshi"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "lg"
-          },
-          {
-            "id": "btn_workholding_s",
-            "label": "مشاوره فنی",
             "variant": "outline",
             "bgColor": "transparent",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": {
-              "x": 8,
-              "y": 70
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
+            "position": { "x": 6, "y": 56 },
+            "action": { "type": "href", "value": "/categories/abzar-gireshi" },
             "stylePreset": "on-dark-outline",
-            "sizePreset": "md"
+            "sizePreset": "lg"
           }
         ],
-        "badges": [
-          {
-            "id": "badge_workholding_0",
-            "kind": "free_shipping",
-            "style": "banner",
-            "label": "ارسال رایگان",
-            "meta": "تهران",
-            "position": {
-              "x": 8,
-              "y": 16
-            },
-            "animated": true
-          }
-        ],
+        "badges": [],
         "carousel": {
-          "enabled": true,
-          "categorySlug": "abzar-gireshi",
-          "categoryLabel": "فیکسچر منتخب",
-          "position": {
-            "x": 55,
-            "y": 62
-          },
-          "maxItems": 3,
-          "previewTitles": [
-            "گیره ماشین",
-            "پلیت گیرشی",
-            "کلمپ هیدرولیک"
-          ],
-          "stylePreset": "strip-minimal",
-          "layoutPreset": "row-large",
+          "enabled": false,
+          "categorySlug": "",
+          "categoryLabel": "",
+          "position": { "x": 52, "y": 56 },
+          "maxItems": 4,
+          "previewTitles": [],
+          "stylePreset": "rail-soft",
+          "layoutPreset": "row-comfortable",
           "productIds": [],
           "categoryId": null
         }
@@ -1031,41 +414,38 @@
     {
       "id": "slide_industrial-machines",
       "name": "دستگاه‌های صنعتی",
-      "sortOrder": 9,
+      "sortOrder": 5,
       "isActive": true,
       "mobilePreset": "media-focus",
       "config": {
         "version": 1,
         "minHeight": 780,
-        "animation": "stagger-up",
+        "animation": "fade-up",
         "linkedOrbKey": "industrial-machines",
         "background": {
           "mode": "image",
           "imageUrl": "/images/hero/hero-machines-left.jpg",
-          "color": "#121212",
-          "focal": "left 35%"
+          "color": "#080a0e",
+          "focal": "left 34%"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(8,12,20,0.2)",
-          "gradientTo": "rgba(4,6,12,0.94)",
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(8,10,14,0.18)",
+          "gradientTo": "rgba(4,5,8,0.92)",
           "gradientAngle": 112,
           "opacity": 1
         },
         "typography": {
           "title": "ظرفیت کارگاه را بالا ببرید",
-          "subtitle": "ماشین‌ها و تجهیزات صنعتی برای ارتقای خط تولید — انتخاب تخصصی با پشتیبانی کارزار",
+          "subtitle": "ماشین‌ها و تجهیزات صنعتی با انتخاب تخصصی و پشتیبانی کارزار",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
+          "subtitleColor": "rgba(255,255,255,0.88)",
           "titleSize": 48,
-          "subtitleSize": 17,
+          "subtitleSize": 16,
           "align": "start",
-          "position": {
-            "x": 5,
-            "y": 20
-          },
-          "maxWidth": 500
+          "position": { "x": 6, "y": 24 },
+          "maxWidth": 460
         },
         "buttons": [
           {
@@ -1075,78 +455,21 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 52
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/dastgah-sanati"
-            },
+            "position": { "x": 6, "y": 56 },
+            "action": { "type": "href", "value": "/categories/dastgah-sanati" },
             "stylePreset": "primary",
             "sizePreset": "lg"
-          },
-          {
-            "id": "btn_industrial-machines_s",
-            "label": "درخواست مشاوره",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 999,
-            "position": {
-              "x": 5,
-              "y": 64
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "pill"
           }
         ],
-        "badges": [
-          {
-            "id": "badge_industrial-machines_0",
-            "kind": "new_arrival",
-            "style": "pill",
-            "label": "تجهیز کارگاه",
-            "meta": "صنعتی",
-            "position": {
-              "x": 5,
-              "y": 10
-            },
-            "animated": true
-          },
-          {
-            "id": "badge_industrial-machines_1",
-            "kind": "trust",
-            "style": "chip",
-            "label": "پشتیبانی فنی",
-            "meta": "کارزار",
-            "position": {
-              "x": 26,
-              "y": 10
-            },
-            "animated": true
-          }
-        ],
+        "badges": [],
         "carousel": {
-          "enabled": true,
-          "categorySlug": "dastgah-sanati",
-          "categoryLabel": "ماشین‌ابزار",
-          "position": {
-            "x": 50,
-            "y": 52
-          },
+          "enabled": false,
+          "categorySlug": "",
+          "categoryLabel": "",
+          "position": { "x": 52, "y": 56 },
           "maxItems": 4,
-          "previewTitles": [
-            "تراش CNC",
-            "فرز عمودی",
-            "دریل ستونی",
-            "اره نواری"
-          ],
-          "stylePreset": "spotlight",
+          "previewTitles": [],
+          "stylePreset": "rail-soft",
           "layoutPreset": "row-comfortable",
           "productIds": [],
           "categoryId": null
@@ -1154,433 +477,61 @@
       }
     },
     {
-      "id": "slide_heli-coil",
-      "name": "هلی کویل",
-      "sortOrder": 10,
+      "id": "slide_insert-tools",
+      "name": "ابزار اینسرتی",
+      "sortOrder": 6,
       "isActive": true,
       "mobilePreset": "copy-focus",
       "config": {
         "version": 1,
-        "minHeight": 700,
-        "animation": "fade-up",
-        "linkedOrbKey": "heli-coil",
+        "minHeight": 710,
+        "animation": "fade-in",
+        "linkedOrbKey": "insert-tools",
         "background": {
           "mode": "image",
           "imageUrl": "/images/hero/hero-cutting-left.jpg",
-          "color": "#121212",
+          "color": "#141414",
           "focal": "right 42%"
         },
         "overlay": {
           "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(40,18,12,0.24)",
-          "gradientTo": "rgba(12,12,12,0.8)",
-          "gradientAngle": 122,
-          "opacity": 0.95
-        },
-        "typography": {
-          "title": "ترمیم رزوه هلی‌کویل",
-          "subtitle": "فنر، قلاویز و کیت‌های هلی‌کویل برای ترمیم رزوه",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 36,
-          "subtitleSize": 14,
-          "align": "start",
-          "position": {
-            "x": 7,
-            "y": 32
-          },
-          "maxWidth": 340
-        },
-        "buttons": [
-          {
-            "id": "btn_heli-coil_p",
-            "label": "مشاهده هلی کویل",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 7,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/heli-coil"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "md"
-          },
-          {
-            "id": "btn_heli-coil_s",
-            "label": "استعلام",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 7,
-              "y": 69
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "sm"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_heli-coil_0",
-            "kind": "limited",
-            "style": "ribbon",
-            "label": "ترمیم رزوه",
-            "meta": "کیت",
-            "position": {
-              "x": 7,
-              "y": 18
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": false,
-          "categorySlug": "",
-          "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
-          "maxItems": 4,
-          "previewTitles": [],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_drills",
-      "name": "مته",
-      "sortOrder": 11,
-      "isActive": true,
-      "mobilePreset": "balanced",
-      "config": {
-        "version": 1,
-        "minHeight": 720,
-        "animation": "zoom-soft",
-        "linkedOrbKey": "drills",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-cutting-left.jpg",
-          "color": "#121212",
-          "focal": "left 46%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.12)",
-          "gradientTo": "rgba(12,12,12,0.88)",
-          "gradientAngle": 84,
+          "solidColor": "rgba(12,12,12,0.7)",
+          "gradientFrom": "rgba(40,40,40,0.22)",
+          "gradientTo": "rgba(12,12,12,0.86)",
+          "gradientAngle": 70,
           "opacity": 1
         },
         "typography": {
-          "title": "مته‌های صنعتی",
-          "subtitle": "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
+          "title": "ابزار اینسرتی",
+          "subtitle": "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
           "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
+          "subtitleColor": "rgba(255,255,255,0.86)",
           "titleSize": 42,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 24
-          },
-          "maxWidth": 420
-        },
-        "buttons": [
-          {
-            "id": "btn_drills_p",
-            "label": "مشاهده مته",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 54
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/mete"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "lg"
-          },
-          {
-            "id": "btn_drills_s",
-            "label": "کاتالوگ",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 66
-            },
-            "action": {
-              "type": "href",
-              "value": "/catalog"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "md"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_drills_0",
-            "kind": "campaign",
-            "style": "chip",
-            "label": "سوراخ‌کاری",
-            "meta": "HSS",
-            "position": {
-              "x": 5,
-              "y": 13
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": true,
-          "categorySlug": "mete",
-          "categoryLabel": "مته‌های منتخب",
-          "position": {
-            "x": 51,
-            "y": 56
-          },
-          "maxItems": 4,
-          "previewTitles": [
-            "مته کبالت",
-            "مته کاربید",
-            "مته مرکز",
-            "مته پله‌ای"
-          ],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_workshop-tools",
-      "name": "ابزار کارگاهی : دریل عادی",
-      "sortOrder": 12,
-      "isActive": true,
-      "mobilePreset": "dock-first",
-      "config": {
-        "version": 1,
-        "minHeight": 700,
-        "animation": "fade-in",
-        "linkedOrbKey": "workshop-tools",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-holding-left.jpg",
-          "color": "#121212",
-          "focal": "left 55%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(12,12,12,0.32)",
-          "gradientTo": "rgba(12,12,12,0.74)",
-          "gradientAngle": 62,
-          "opacity": 0.92
-        },
-        "typography": {
-          "title": "ابزار کارگاهی",
-          "subtitle": "ابزار کارگاهی و دریل عادی برای کار روزمره کارگاه",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 38,
-          "subtitleSize": 15,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 28
-          },
+          "subtitleSize": 16,
+          "align": "end",
+          "position": { "x": 50, "y": 30 },
           "maxWidth": 380
         },
         "buttons": [
           {
-            "id": "btn_workshop-tools_p",
-            "label": "مشاهده ابزار کارگاهی",
+            "id": "btn_insert-tools_p",
+            "label": "مشاهده ابزار اینسرتی",
             "variant": "solid",
-            "bgColor": "#FCEAEB",
-            "textColor": "#D02327",
+            "bgColor": "#5E5F5E",
+            "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-kargahi"
-            },
+            "position": { "x": 58, "y": 58 },
+            "action": { "type": "href", "value": "/categories/abzar-inserti" },
             "stylePreset": "soft",
             "sizePreset": "lg"
-          },
-          {
-            "id": "btn_workshop-tools_s",
-            "label": "استعلام قیمت",
-            "variant": "outline",
-            "bgColor": "transparent",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 70
-            },
-            "action": {
-              "type": "href",
-              "value": "/quote"
-            },
-            "stylePreset": "on-dark-outline",
-            "sizePreset": "md"
           }
         ],
-        "badges": [
-          {
-            "id": "badge_workshop-tools_0",
-            "kind": "free_shipping",
-            "style": "pill",
-            "label": "کارگاه",
-            "meta": "روزمره",
-            "position": {
-              "x": 5,
-              "y": 16
-            },
-            "animated": true
-          }
-        ],
+        "badges": [],
         "carousel": {
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
-          "maxItems": 4,
-          "previewTitles": [],
-          "stylePreset": "rail-soft",
-          "layoutPreset": "row-comfortable",
-          "productIds": [],
-          "categoryId": null
-        }
-      }
-    },
-    {
-      "id": "slide_lubricants",
-      "name": "روغن و روانکار",
-      "sortOrder": 13,
-      "isActive": true,
-      "mobilePreset": "copy-focus",
-      "config": {
-        "version": 1,
-        "minHeight": 720,
-        "animation": "float",
-        "linkedOrbKey": "lubricants",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/hero-accessories-left.jpg",
-          "color": "#121212",
-          "focal": "left 40%"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.72)",
-          "gradientFrom": "rgba(22,28,18,0.16)",
-          "gradientTo": "rgba(10,12,10,0.9)",
-          "gradientAngle": 96,
-          "opacity": 1
-        },
-        "typography": {
-          "title": "روغن و روانکار",
-          "subtitle": "روغن برش و روانکار صنعتی برای طول عمر ابزار و کیفیت سطح",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 40,
-          "subtitleSize": 16,
-          "align": "start",
-          "position": {
-            "x": 5,
-            "y": 26
-          },
-          "maxWidth": 440
-        },
-        "buttons": [
-          {
-            "id": "btn_lubricants_p",
-            "label": "مشاهده روغن و روانکار",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 56
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/roghan-ravankar"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "lg"
-          },
-          {
-            "id": "btn_lubricants_s",
-            "label": "کاتالوگ",
-            "variant": "glass",
-            "bgColor": "rgba(255,255,255,0.12)",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 5,
-              "y": 68
-            },
-            "action": {
-              "type": "href",
-              "value": "/catalog"
-            },
-            "stylePreset": "on-dark-glass",
-            "sizePreset": "md"
-          }
-        ],
-        "badges": [
-          {
-            "id": "badge_lubricants_0",
-            "kind": "flash_sale",
-            "style": "chip",
-            "label": "عمر ابزار",
-            "meta": "برش",
-            "position": {
-              "x": 5,
-              "y": 14
-            },
-            "animated": true
-          }
-        ],
-        "carousel": {
-          "enabled": false,
-          "categorySlug": "",
-          "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 56
-          },
+          "position": { "x": 52, "y": 56 },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",

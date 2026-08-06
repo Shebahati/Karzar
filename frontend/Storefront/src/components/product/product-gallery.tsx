@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type MouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -106,68 +107,73 @@ export function ProductGallery({
     });
   };
 
+  /**
+   * First-viewport budget: keep the main stage fully visible under sticky header
+   * + crumbs. Cap with rem so tall monitors don’t inflate; shrink via svh/dvh
+   * on short / low-res screens. Thumbs sit under the stage (extra chrome when multi).
+   */
+  const multi = list.length > 1;
+  const galleryBudget = multi
+    ? "min(32rem, calc(100svh - 12.75rem), calc(100dvh - 12.75rem))"
+    : "min(32rem, calc(100svh - 9.25rem), calc(100dvh - 9.25rem))";
+  const galleryBudgetShort = multi
+    ? "min(26rem, calc(100svh - 10.5rem), calc(100dvh - 10.5rem))"
+    : "min(26rem, calc(100svh - 7.75rem), calc(100dvh - 7.75rem))";
+
   if (!list.length || !current) {
     return (
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#E9E8E7]">
+      <div
+        className={cn(
+          "relative mx-auto aspect-square overflow-hidden rounded-2xl bg-[#E9E8E7]",
+          "w-[min(100%,var(--pdp-gallery-budget))] max-h-[var(--pdp-gallery-budget)]",
+          "[@media(max-height:800px)]:[--pdp-gallery-budget:min(26rem,calc(100svh-7.75rem),calc(100dvh-7.75rem))]",
+        )}
+        style={
+          {
+            ["--pdp-gallery-budget"]:
+              "min(32rem, calc(100svh - 9.25rem), calc(100dvh - 9.25rem))",
+          } as CSSProperties
+        }
+      >
         <ProductPlaceholder name={alt} />
       </div>
     );
   }
 
-  const multi = list.length > 1;
-
   return (
-    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
-      {multi && (
-        <div
-          role="tablist"
-          aria-label="تصاویر محصول"
-          className="flex gap-2.5 overflow-x-auto pb-0.5 no-scrollbar sm:flex-col sm:overflow-visible"
-        >
-          {list.map((img, i) => {
-            const selected = activeId === img.id;
-            return (
-              <button
-                key={img.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-label={`تصویر ${i + 1}`}
-                onClick={() => {
-                  setActiveId(img.id);
-                  setZoom(false);
-                }}
-                className={cn(
-                  "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted/35 transition-all duration-300 sm:h-16 sm:w-16",
-                  selected
-                    ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-background"
-                    : "opacity-55 hover:opacity-100",
-                )}
-              >
-                <SafeImage
-                  src={img.url}
-                  alt=""
-                  fill
-                  sizes="64px"
-                  className="object-contain p-1"
-                  fallback={null}
-                  {...lazyImageProps()}
-                />
-              </button>
-            );
-          })}
-        </div>
+    <div
+      className={cn(
+        "flex flex-col gap-2.5 sm:gap-3",
+        "[@media(max-height:800px)]:gap-1.5",
       )}
-
-      <div className="relative min-w-0 flex-1">
+      style={
+        {
+          ["--pdp-gallery-budget"]: galleryBudget,
+        } as CSSProperties
+      }
+    >
+      <div
+        className={cn(
+          "relative mx-auto min-w-0",
+          "w-[min(100%,var(--pdp-gallery-budget))] max-w-full",
+          "[@media(max-height:800px)]:[--pdp-gallery-budget:var(--pdp-gallery-budget-short)]",
+        )}
+        style={
+          {
+            ["--pdp-gallery-budget-short"]: galleryBudgetShort,
+          } as CSSProperties
+        }
+      >
         <div
           ref={stageRef}
           role="button"
           tabIndex={0}
           aria-label={`${alt} — بزرگ‌نمایی یا نمایش تمام‌صفحه`}
           className={cn(
-            "group relative aspect-square overflow-hidden rounded-xl bg-muted/35 outline-none",
-            "focus-visible:ring-2 focus-visible:ring-karzar-500/40",
+            "group relative aspect-square w-full max-h-[var(--pdp-gallery-budget)] overflow-hidden rounded-2xl",
+            "bg-gradient-to-b from-muted/40 to-muted/20 outline-none",
+            "ring-1 ring-steel/[0.07] shadow-[0_16px_36px_-26px_rgba(94,95,94,0.38)]",
+            "focus-visible:ring-2 focus-visible:ring-[#D02327]/35",
             zoom ? "cursor-zoom-out" : "cursor-zoom-in",
           )}
           onMouseEnter={(e) => {
@@ -278,8 +284,8 @@ export function ProductGallery({
                   src={current.url}
                   alt={alt}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain p-4 select-none"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 34vw"
+                  className="object-contain p-3 sm:p-4 select-none"
                   draggable={false}
                   fallback={<ProductPlaceholder name={alt} />}
                   {...lcpImageProps()}
@@ -337,6 +343,48 @@ export function ProductGallery({
           )}
         </div>
       </div>
+
+      {multi && (
+        <div
+          role="tablist"
+          aria-label="تصاویر محصول"
+          className="flex justify-center gap-2 overflow-x-auto px-0.5 py-1.5 no-scrollbar sm:gap-2.5"
+        >
+          {list.map((img, i) => {
+            const selected = activeId === img.id;
+            return (
+              <button
+                key={img.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-label={`تصویر ${i + 1}`}
+                onClick={() => {
+                  setActiveId(img.id);
+                  setZoom(false);
+                }}
+                className={cn(
+                  "relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted/35 transition-all duration-300 sm:h-12 sm:w-12",
+                  "[@media(max-height:800px)]:h-10 [@media(max-height:800px)]:w-10",
+                  selected
+                    ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-background"
+                    : "opacity-55 hover:opacity-100",
+                )}
+              >
+                <SafeImage
+                  src={img.url}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  className="object-contain p-1"
+                  fallback={null}
+                  {...lazyImageProps()}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <AnimatePresence>
         {lightbox ? (

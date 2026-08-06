@@ -14,7 +14,7 @@ import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
-import { formatNumber, toPersianDigits } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import {
   isApiProductSort,
@@ -77,6 +77,7 @@ export function CatalogView({
         min_price: resolvedParams.min_price ?? null,
         max_price: resolvedParams.max_price ?? null,
         in_stock: resolvedParams.in_stock ?? null,
+        on_sale: resolvedParams.on_sale ?? null,
         sort: resolvedParams.sort ?? null,
         spec_filters: resolvedParams.spec_filters ?? null,
       }),
@@ -244,11 +245,11 @@ export function CatalogView({
         ) : (
           <h1 className="sr-only">{title}</h1>
         )}
-        <p className={`text-sm text-muted-foreground ${lockedCategoryId == null ? "mt-1" : ""}`}>
-          {showFilterSkeleton
-            ? "در حال بارگذاری…"
-            : `${formatNumber(total)} محصول یافت شد`}
-        </p>
+        {showFilterSkeleton ? (
+          <p className={`text-sm text-muted-foreground ${lockedCategoryId == null ? "mt-1" : ""}`}>
+            در حال بارگذاری…
+          </p>
+        ) : null}
         {slugError && (
           <p className="mt-2 text-xs text-destructive" role="status">
             {slugError}
@@ -263,14 +264,19 @@ export function CatalogView({
       )}
 
       <div className="flex gap-6">
-        <aside className="hidden w-72 shrink-0 lg:block" id={FILTERS_PANEL_ID}>
-          <div className="sticky top-32">
+        <aside
+          className="hidden w-72 shrink-0 self-start lg:block"
+          id={FILTERS_PANEL_ID}
+        >
+          {/* One primary scroll for the whole filter stack — sticky without
+              max-height leaves lower sections (brand/price/stock) unreachable. */}
+          <div className="no-scrollbar sticky top-32 max-h-[calc(100dvh-8.5rem)] overflow-y-auto overscroll-y-contain pe-1">
             <FilterPanel lockedCategoryId={lockedCategoryId} />
           </div>
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="mb-5 space-y-3">
             <button
               type="button"
               onClick={() => setDrawer(true)}
@@ -286,10 +292,10 @@ export function CatalogView({
                 </span>
               )}
             </button>
-            <span className="hidden text-sm text-muted-foreground lg:block">مرتب‌سازی بر اساس</span>
-            <div className="ms-auto">
-              <SortSelect />
-            </div>
+            <SortSelect
+              totalCount={total}
+              isLoading={showFilterSkeleton}
+            />
           </div>
 
           {isError ? (

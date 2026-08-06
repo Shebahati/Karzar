@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bag,
   Document,
@@ -27,21 +27,26 @@ function initialOf(name?: string | null, phone?: string | null): string {
 
 export function AccountHubView() {
   const router = useRouter();
-  const hasToken = typeof window !== "undefined" && isLoggedIn();
-  const { data: me, isLoading } = useMe(hasToken);
-  const { data: ordersData, isPending: ordersPending } = useMyOrders({ limit: 5 });
+  // Defer auth read until mount — avoids SSR/client hydration mismatch.
+  const [authReady, setAuthReady] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+  const { data: me, isLoading } = useMe(authReady && hasToken);
+  const { data: ordersData, isPending: ordersPending } = useMyOrders({
+    limit: 5,
+  });
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace("/login?next=/account");
-    }
+    const ok = isLoggedIn();
+    setHasToken(ok);
+    setAuthReady(true);
+    if (!ok) router.replace("/login?next=/account");
   }, [router]);
 
   const recent = useMemo(() => ordersData?.data.slice(0, 3) ?? [], [ordersData]);
   const displayName = me?.full_name || "کاربر کارزار";
   const phone = me?.phone;
 
-  if (!isLoggedIn()) {
+  if (!authReady || !hasToken) {
     return (
       <Container className="py-16">
         <p className="text-center text-sm text-steel">در حال هدایت به ورود…</p>

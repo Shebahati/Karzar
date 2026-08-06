@@ -5,8 +5,11 @@
  */
 
 export const DISCOUNTS_ORB_KEY = "discounts";
-/** Catalog entry for تخفیف‌ها dock — API has no discount sort key. */
-export const DISCOUNTS_CATALOG_HREF = "/catalog";
+/**
+ * Catalog entry for تخفیف‌ها dock / پرتخفیف‌ها CTA.
+ * `on_sale=1` is an FE filter (see ProductListParams.on_sale) — not a live API sort key.
+ */
+export const DISCOUNTS_CATALOG_HREF = "/catalog?on_sale=1";
 
 export interface FinalL1Category {
   /** Stable dock / marketing key */

@@ -27,9 +27,13 @@ function isOverlayExcludedOrb(orb: Pick<HeroOrbDef, "key" | "name" | "slugHint" 
 const springSoft = { type: "spring" as const, stiffness: 420, damping: 36, mass: 0.8 };
 const fadeQuick = { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] as const };
 
-/** Matches layout clearance for fixed MobileBottomNav (~4.75rem + safe area). */
-const MOBILE_NAV_CLEARANCE =
-  "pb-[calc(4.85rem+env(safe-area-inset-bottom,0px))] lg:pb-[max(0.65rem,env(safe-area-inset-bottom,0px))]";
+/**
+ * Dock bottom clearance: tablet keeps MobileBottomNav (~4.85rem) + ~20–30px lift;
+ * desktop (no bottom nav) sits ~30px higher than the old 0.65rem baseline via clamp.
+ * Phone dock is `hidden` — mobile categories live below the hero.
+ */
+const DOCK_BOTTOM_CLEARANCE =
+  "pb-[calc(4.85rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(4.85rem+clamp(1.15rem,2.2vw,1.875rem)+env(safe-area-inset-bottom,0px))] lg:pb-[calc(clamp(2.25rem,1.2vw+1.9rem,2.75rem)+env(safe-area-inset-bottom,0px))]";
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -60,45 +64,49 @@ function MaterialOrb({
   onClick?: () => void;
   accent?: boolean;
 }) {
-  // Dock md: base×1.4 then ×0.85 (net ~×1.19). Circle/icon/label/gaps share ratio.
+  // Dock md: prior net ~×1.19, then ×1.15 visibility pass. Circle/icon/label/gaps share ratio.
   const disc =
     size === "lg"
       ? "h-[4.75rem] w-[4.75rem] sm:h-[5.25rem] sm:w-[5.25rem]"
       : size === "sm"
-        ? "h-[3.27rem] w-[3.27rem]"
-        : "h-[4.165rem] w-[4.165rem] sm:h-[4.46rem] sm:w-[4.46rem]";
-  const iconSize = size === "lg" ? 34 : size === "sm" ? 29 : 36;
+        ? "h-[3.76rem] w-[3.76rem]"
+        : "h-[4.79rem] w-[4.79rem] sm:h-[5.13rem] sm:w-[5.13rem]";
+  const iconSize = size === "lg" ? 34 : size === "sm" ? 33 : 41;
   /** Another +30% on hero only (2.015 × 1.3 ≈ 2.62); circles stay the same. */
   const heroOverflowScale = 2.62;
   const resolvedIcon =
     resolveCategoryIconUrl({ name: orb.name, icon: orb.icon }) ?? orb.icon;
 
   const discClass = cn(
-    "relative flex items-center justify-center overflow-visible rounded-full transition-[transform,background-color,box-shadow,opacity] duration-300 ease-out will-change-transform",
+    "relative flex items-center justify-center overflow-visible rounded-full will-change-transform",
+    "transition-[transform,background-color,box-shadow,opacity] duration-[320ms] ease-out",
     disc,
     accent &&
-      "bg-[#D02327] shadow-[0_10px_28px_rgba(208,35,39,0.45)] group-hover:bg-[#b81e23] group-active:scale-[0.96]",
+      "bg-[#D02327] shadow-[0_10px_28px_rgba(208,35,39,0.45)] group-hover:scale-[1.04] group-hover:bg-[#c01f23] group-hover:shadow-[0_14px_32px_rgba(208,35,39,0.52)] group-active:scale-[0.96]",
     !accent &&
       selected &&
-      "scale-[1.08] bg-white/40 shadow-[0_10px_28px_rgba(0,0,0,0.28)] ring-2 ring-white/55",
+      "scale-[1.08] bg-white/55 shadow-[0_10px_28px_rgba(0,0,0,0.28)] group-hover:scale-[1.12] group-hover:bg-white/62 group-hover:shadow-[0_14px_34px_rgba(0,0,0,0.34)]",
     !accent &&
       !selected &&
       !dimmed &&
-      "bg-white/[0.26] shadow-[0_6px_18px_rgba(0,0,0,0.2)] ring-1 ring-white/30 group-hover:bg-white/[0.34] group-hover:scale-[1.04]",
-    !accent && dimmed && !selected && "bg-white/[0.18] opacity-75 ring-1 ring-white/20 scale-[0.96]",
+      "bg-white/[0.42] shadow-[0_6px_18px_rgba(0,0,0,0.2)] group-hover:scale-[1.05] group-hover:bg-white/[0.54] group-hover:shadow-[0_10px_26px_rgba(0,0,0,0.26)]",
+    !accent &&
+      dimmed &&
+      !selected &&
+      "scale-[0.98] bg-white/[0.34] opacity-[0.88] shadow-[0_5px_14px_rgba(0,0,0,0.16)] group-hover:scale-[1.04] group-hover:bg-white/[0.46] group-hover:opacity-100 group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.24)]",
   );
 
   // Fixed 2-line slot so short/long names keep orb discs on one baseline (nav items-end).
   const labelClass = cn(
-    "mt-3 max-w-[5.65rem] text-center text-[12px] font-semibold leading-snug tracking-tight sm:max-w-[6.55rem] sm:text-[13px]",
+    "mt-3.5 max-w-[6.5rem] text-center text-[14px] font-semibold leading-snug tracking-tight sm:max-w-[7.53rem] sm:text-[15px]",
     "line-clamp-2 min-h-[2.75em]", // 2 × leading-snug; ellipsis only past 2 lines
-    size === "sm" && "mt-2 max-w-[4.7rem] text-[10px] sm:max-w-[5.1rem] sm:text-[11px]",
+    size === "sm" && "mt-2.5 max-w-[5.4rem] text-[11.5px] sm:max-w-[5.87rem] sm:text-[12.5px]",
     size === "lg" && "mt-2.5 max-w-[4.75rem] text-[10px] sm:max-w-[5.5rem] sm:text-[11px]",
-    "transition-opacity duration-300",
-    accent && "text-white/95",
-    !accent && selected && "text-white",
-    !accent && !selected && !dimmed && "text-white/80",
-    !accent && dimmed && !selected && "text-white/55",
+    "transition-[opacity,color] duration-[320ms] ease-out",
+    accent && "text-white/95 group-hover:text-white",
+    !accent && selected && "text-white group-hover:text-white",
+    !accent && !selected && !dimmed && "text-white/92 group-hover:text-white",
+    !accent && dimmed && !selected && "text-white/90 group-hover:text-white",
   );
 
   const inner = (
@@ -144,7 +152,6 @@ function MaterialOrb({
 
 export function HeroCategoryOrbs({
   activeIndex,
-  onSelectFeatured,
   roots,
   defs = HERO_ORB_CATEGORIES,
   menuOpen,
@@ -153,8 +160,8 @@ export function HeroCategoryOrbs({
   dockFadeTall = false,
   respectFeaturedOnly = false,
 }: {
+  /** Passive highlight for the slide’s linked category — clicks navigate, never change slides. */
   activeIndex: number;
-  onSelectFeatured: (index: number) => void;
   roots: CategoryTreeNode[];
   defs?: HeroOrbDef[];
   menuOpen: boolean;
@@ -178,7 +185,7 @@ export function HeroCategoryOrbs({
       <div
         className={cn(
           "pointer-events-none absolute inset-x-0 bottom-0 z-40 hidden pt-28 md:block",
-          MOBILE_NAV_CLEARANCE,
+          DOCK_BOTTOM_CLEARANCE,
         )}
       >
         <div
@@ -192,22 +199,25 @@ export function HeroCategoryOrbs({
         <nav
           aria-label="دسته‌های پاور هیرو"
           className={cn(
-            // Gaps: prior +40% then ×0.85 together with orbs
-            "pointer-events-auto relative mx-auto flex max-w-5xl items-end justify-center overflow-visible gap-[1.49rem] px-4 pt-5 sm:gap-[1.7rem] sm:px-8",
-            dockScale === "lg" && "origin-bottom scale-105 gap-[1.7rem] sm:gap-[1.91rem]",
-            dockScale === "sm" && "origin-bottom scale-95 gap-[1.06rem] sm:gap-[1.28rem]",
+            // Gaps: prior +40% then ×0.85, then ×1.15 with orbs
+            "pointer-events-auto relative mx-auto flex max-w-5xl items-end justify-center overflow-visible gap-[1.71rem] px-4 pt-5 sm:gap-[1.96rem] sm:px-8",
+            dockScale === "lg" && "origin-bottom scale-105 gap-[1.96rem] sm:gap-[2.2rem]",
+            dockScale === "sm" && "origin-bottom scale-95 gap-[1.22rem] sm:gap-[1.47rem]",
           )}
         >
-          {featured.map((orb, i) => (
-            <MaterialOrb
-              key={orb.key}
-              orb={orb}
-              size={dockScale === "sm" ? "sm" : "md"}
-              selected={i === activeIndex}
-              dimmed={i !== activeIndex}
-              onClick={() => onSelectFeatured(i)}
-            />
-          ))}
+          {featured.map((orb, i) => {
+            const node = matchOrbToTreeNode(orb, roots);
+            return (
+              <MaterialOrb
+                key={orb.key}
+                orb={orb}
+                href={orbHref(orb, node)}
+                size={dockScale === "sm" ? "sm" : "md"}
+                selected={i === activeIndex}
+                dimmed={i !== activeIndex}
+              />
+            );
+          })}
           <MaterialOrb
             orb={{ name: "همه محصولات", icon: "Category" }}
             size={dockScale === "sm" ? "sm" : "md"}
@@ -230,7 +240,7 @@ export function HeroCategoryOrbs({
             <button
               type="button"
               aria-label="بستن منوی دسته‌بندی"
-              className="absolute inset-0 bg-black/50 supports-[backdrop-filter]:bg-black/40 supports-[backdrop-filter]:backdrop-blur-[10px]"
+              className="absolute inset-0 bg-black/55 supports-[backdrop-filter]:bg-black/50 md:supports-[backdrop-filter]:bg-black/40 md:supports-[backdrop-filter]:backdrop-blur-[10px]"
               onClick={() => onMenuOpenChange(false)}
             />
 

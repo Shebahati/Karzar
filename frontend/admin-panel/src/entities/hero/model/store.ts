@@ -10,14 +10,23 @@ import {
   configFromOrb,
   createDefaultConfig,
   createDefaultProject,
+  createEmptySlideSlot,
   createId,
   createSlide,
   categoryDockFromRoots,
   DEFAULT_CATEGORY_DOCK,
+  densifyFeaturedOrders,
   featuredDockCategories,
+  featuredIndexForSlide,
+  firstEmptyFeaturedSlot,
   HERO_FEATURED_SLOT_COUNT,
+  HERO_SLIDE_SLOT_COUNT,
+  isSlideFilled,
+  isSpecialDockOrb,
+  normalizeHeroProject,
   orbFromTreeRoot,
   syncDockWithRoots,
+  validateHeroProject,
   HERO_BADGE_KINDS,
 } from "./defaults";
 import type {
@@ -25,7 +34,6 @@ import type {
   HeroBadge,
   HeroBadgeKind,
   HeroBuilderConfig,
-  HeroButton,
   HeroDesignProject,
   HeroOrbCategory,
   HeroPosition,
@@ -101,7 +109,8 @@ function persist<T extends object>(
   };
 }
 
-const STORAGE_KEY = "karzar.admin.hero-builder.project.v3";
+/** Bump key so stale 13-slide local drafts remigrate through normalize. */
+const STORAGE_KEY = "karzar.admin.hero-builder.project.v4";
 
 type TreeRootLike = {
   id: number;
@@ -126,34 +135,13 @@ function withSlideConfig(
   return {
     ...project,
     slides: project.slides.map((s) =>
-      s.id === slideId ? { ...s, config: updater(s.config) } : s,
+      s.id === slideId ? { ...s, config: updater(s.config), isPlaceholder: false } : s,
     ),
   };
 }
 
-/** Keep featuredOrder as sparse slots 0–4 so empty slots stay empty. Dedup only. */
-function densifyFeatured(categories: HeroOrbCategory[]): HeroOrbCategory[] {
-  const claimed = new Map<number, string>();
-  const maxSlot = HERO_FEATURED_SLOT_COUNT - 1;
-  return categories.map((c) => {
-    if (c.featuredOrder == null) return { ...c, featuredOrder: null };
-    const slot = Math.max(0, Math.min(maxSlot, Math.floor(c.featuredOrder)));
-    if (claimed.has(slot)) return { ...c, featuredOrder: null };
-    claimed.set(slot, c.key);
-    return { ...c, featuredOrder: slot };
-  });
-}
-
-function firstEmptyFeaturedSlot(categories: HeroOrbCategory[]): number | null {
-  const used = new Set(
-    categories
-      .map((c) => c.featuredOrder)
-      .filter((n): n is number => n != null),
-  );
-  for (let i = 0; i < HERO_FEATURED_SLOT_COUNT; i++) {
-    if (!used.has(i)) return i;
-  }
-  return null;
+function clampFeaturedSlot(slot: number): number {
+  return Math.max(0, Math.min(HERO_FEATURED_SLOT_COUNT - 1, Math.floor(slot)));
 }
 
 interface HeroBuilderStore {
@@ -167,15 +155,22 @@ interface HeroBuilderStore {
 
   activeSlide: () => HeroSlideDraft | undefined;
   activeConfig: () => HeroBuilderConfig;
+  validationIssues: () => ReturnType<typeof validateHeroProject>;
+  canPublish: () => boolean;
+  featuredOrbIndexForActive: () => number;
 
   setPreviewDevice: (device: PreviewDevice) => void;
   setMobilePreset: (preset: MobileComposePreset) => void;
   setSlideMobilePreset: (slideId: string, preset: MobileComposePreset) => void;
   setGrid: (patch: Partial<Pick<HeroDesignProject, "showGrid" | "snapToGrid" | "gridSize">>) => void;
   selectSlide: (id: string) => void;
-  addSlide: () => void;
-  duplicateSlide: (id: string) => void;
+  /** Fill first empty hex slot — no-op at 6 filled. */
+  addSlide: () => boolean;
+  duplicateSlide: (id: string) => boolean;
+  /** Clear slot to placeholder (keeps fixed 6 + stable id). */
   removeSlide: (id: string) => void;
+  fillSlideFromOrb: (slideId: string, orb: HeroOrbCategory) => void;
+  fillSlideFromCurated: (slideId: string, config: HeroBuilderConfig, name: string) => void;
   renameSlide: (id: string, name: string) => void;
   setSlideActive: (id: string, isActive: boolean) => void;
   reorderSlide: (id: string, direction: -1 | 1) => void;
@@ -187,6 +182,7 @@ interface HeroBuilderStore {
   moveDockOrb: (key: string, direction: -1 | 1) => void;
   addOrbToDock: (root: TreeRootLike) => boolean;
   removeOrbFromDock: (key: string) => void;
+  /** Refresh content of slides already linked by orb key — never rebuild by index. */
   syncSlidesFromDock: () => void;
   syncCategoryDockFromRoots: (
     roots: TreeRootLike[],
@@ -209,7 +205,7 @@ interface HeroBuilderStore {
   setCarousel: (patch: Partial<HeroBuilderConfig["carousel"]>) => void;
 
   addButton: () => void;
-  updateButton: (id: string, patch: Partial<HeroButton>) => void;
+  updateButton: (id: string, patch: Partial<HeroButtonLoose>) => void;
   removeButton: (id: string) => void;
   addBadge: (kind?: HeroBadgeKind) => void;
   updateBadge: (id: string, patch: Partial<HeroBadge>) => void;
@@ -224,12 +220,20 @@ interface HeroBuilderStore {
   markClean: () => void;
 }
 
+type HeroButtonLoose = HeroBuilderConfig["buttons"][number];
+
 function pushHistory(state: Pick<HeroBuilderStore, "project" | "history">) {
   return {
     history: [...state.history.slice(-24), state.project],
     future: [] as HeroDesignProject[],
     dirty: true,
   };
+}
+
+function firstEmptySlot(slides: HeroSlideDraft[]): HeroSlideDraft | undefined {
+  return [...slides]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .find((s) => s.isPlaceholder || !isSlideFilled(s));
 }
 
 export const useHeroBuilderStore = create<HeroBuilderStore>()(
@@ -249,6 +253,16 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
 
       activeConfig: () => get().activeSlide()?.config ?? createDefaultConfig(),
 
+      validationIssues: () => validateHeroProject(get().project),
+
+      canPublish: () => validateHeroProject(get().project).length === 0,
+
+      featuredOrbIndexForActive: () => {
+        const { project } = get();
+        const slide = project.slides.find((s) => s.id === project.activeSlideId);
+        return featuredIndexForSlide(slide, project.categoryDock ?? DEFAULT_CATEGORY_DOCK);
+      },
+
       setPreviewDevice: (device) =>
         set((s) => ({ project: { ...s.project, previewDevice: device } })),
 
@@ -266,7 +280,6 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
             slides: s.project.slides.map((slide) =>
               slide.id === slideId ? { ...slide, mobilePreset } : slide,
             ),
-            // Keep project default in sync with active slide for convenience
             mobilePreset:
               slideId === s.project.activeSlideId ? mobilePreset : s.project.mobilePreset,
           },
@@ -281,55 +294,145 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
           selectedLayerId: "typography",
         })),
 
-      addSlide: () =>
+      addSlide: () => {
+        let ok = false;
         set((s) => {
+          const empty = firstEmptySlot(s.project.slides);
+          if (!empty) return s;
           const slide = createSlide({
-            name: `اسلاید ${s.project.slides.length + 1}`,
-            sortOrder: s.project.slides.length + 1,
+            id: empty.id,
+            name: `اسلاید ${empty.sortOrder}`,
+            sortOrder: empty.sortOrder,
             mobilePreset: s.project.mobilePreset ?? "balanced",
+            isActive: true,
+            isPlaceholder: false,
           });
+          ok = true;
           return {
             ...pushHistory(s),
             project: {
               ...s.project,
-              slides: [...s.project.slides, slide],
+              slides: s.project.slides.map((x) => (x.id === empty.id ? slide : x)),
               activeSlideId: slide.id,
             },
             selectedLayerId: "typography",
           };
-        }),
+        });
+        return ok;
+      },
 
-      duplicateSlide: (id) =>
+      duplicateSlide: (id) => {
+        let ok = false;
         set((s) => {
           const source = s.project.slides.find((x) => x.id === id);
-          if (!source) return s;
-          const slide = createSlide({
-            name: `${source.name} (کپی)`,
-            sortOrder: s.project.slides.length + 1,
-            mobilePreset: source.mobilePreset ?? s.project.mobilePreset,
-            config: structuredClone(source.config),
-          });
+          const empty = firstEmptySlot(s.project.slides.filter((x) => x.id !== id));
+          if (!source || source.isPlaceholder || !empty) return s;
+          const slide: HeroSlideDraft = {
+            ...createSlide({
+              id: empty.id,
+              name: `${source.name} (کپی)`,
+              sortOrder: empty.sortOrder,
+              mobilePreset: source.mobilePreset ?? s.project.mobilePreset,
+              config: structuredClone(source.config),
+              isActive: true,
+              isPlaceholder: false,
+            }),
+            config: {
+              ...structuredClone(source.config),
+              // Avoid duplicate orb binding — admin re-links explicitly.
+              linkedOrbKey: null,
+            },
+          };
+          ok = true;
           return {
             ...pushHistory(s),
             project: {
               ...s.project,
-              slides: [...s.project.slides, slide],
+              slides: s.project.slides.map((x) => (x.id === empty.id ? slide : x)),
               activeSlideId: slide.id,
+            },
+          };
+        });
+        return ok;
+      },
+
+      removeSlide: (id) =>
+        set((s) => {
+          const target = s.project.slides.find((x) => x.id === id);
+          if (!target) return s;
+          const cleared = createEmptySlideSlot(target.sortOrder - 1);
+          // Keep stable id so dock mappings / history don't scramble.
+          const slot: HeroSlideDraft = { ...cleared, id: target.id, sortOrder: target.sortOrder };
+          const slides = s.project.slides.map((x) => (x.id === id ? slot : x));
+          return {
+            ...pushHistory(s),
+            project: {
+              ...s.project,
+              slides,
+              activeSlideId:
+                s.project.activeSlideId === id
+                  ? slides.find((x) => isSlideFilled(x))?.id ?? slides[0]!.id
+                  : s.project.activeSlideId,
             },
           };
         }),
 
-      removeSlide: (id) =>
-        set((s) => {
-          if (s.project.slides.length <= 1) return s;
-          const slides = s.project.slides.filter((x) => x.id !== id);
-          const activeSlideId =
-            s.project.activeSlideId === id ? slides[0]!.id : s.project.activeSlideId;
-          return {
-            ...pushHistory(s),
-            project: { ...s.project, slides, activeSlideId },
-          };
-        }),
+      fillSlideFromOrb: (slideId, orb) =>
+        set((s) => ({
+          ...pushHistory(s),
+          project: {
+            ...s.project,
+            slides: s.project.slides.map((slide) => {
+              if (slide.id === slideId) {
+                return {
+                  ...slide,
+                  name: orb.name,
+                  isActive: true,
+                  isPlaceholder: false,
+                  config: configFromOrb(orb),
+                };
+              }
+              if (slide.config.linkedOrbKey === orb.key) {
+                return {
+                  ...slide,
+                  config: { ...slide.config, linkedOrbKey: null },
+                };
+              }
+              return slide;
+            }),
+            activeSlideId: slideId,
+          },
+        })),
+
+      fillSlideFromCurated: (slideId, config, name) =>
+        set((s) => ({
+          ...pushHistory(s),
+          project: {
+            ...s.project,
+            slides: s.project.slides.map((slide) => {
+              if (slide.id !== slideId) {
+                if (
+                  config.linkedOrbKey &&
+                  slide.config.linkedOrbKey === config.linkedOrbKey
+                ) {
+                  return {
+                    ...slide,
+                    config: { ...slide.config, linkedOrbKey: null },
+                  };
+                }
+                return slide;
+              }
+              return {
+                ...slide,
+                name,
+                isActive: true,
+                isPlaceholder: false,
+                config: structuredClone(config),
+              };
+            }),
+            activeSlideId: slideId,
+          },
+        })),
 
       renameSlide: (id, name) =>
         set((s) => ({
@@ -345,7 +448,9 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
           ...pushHistory(s),
           project: {
             ...s.project,
-            slides: s.project.slides.map((x) => (x.id === id ? { ...x, isActive } : x)),
+            slides: s.project.slides.map((x) =>
+              x.id === id && !x.isPlaceholder ? { ...x, isActive } : x,
+            ),
           },
         })),
 
@@ -385,21 +490,23 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
 
           let nextOrder = featuredOrder;
           if (featuredOrder != null) {
-            // Prefer an explicit slot; otherwise first empty 0–5.
             const empty = firstEmptyFeaturedSlot(
               dock.categories.filter((c) => c.key !== key),
             );
-            if (featuredOrder < 0 || featuredOrder > 5) {
+            if (
+              featuredOrder < 0 ||
+              featuredOrder >= HERO_FEATURED_SLOT_COUNT
+            ) {
               nextOrder = empty;
             } else if (
               dock.categories.some(
                 (c) => c.key !== key && c.featuredOrder === featuredOrder,
               )
             ) {
-              // Requested slot taken — use first empty if available.
               nextOrder = empty ?? featuredOrder;
             }
             if (nextOrder == null) return s;
+            nextOrder = clampFeaturedSlot(nextOrder);
           }
 
           let categories = dock.categories.map((c) => {
@@ -410,7 +517,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
             return c;
           });
 
-          categories = densifyFeatured(categories);
+          categories = densifyFeaturedOrders(categories);
           return {
             ...pushHistory(s),
             project: { ...s.project, categoryDock: { categories } },
@@ -421,8 +528,8 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         set((s) => {
           const dock = s.project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
           if (!dock.categories.some((c) => c.key === key)) return s;
-          const target = Math.max(0, Math.min(5, Math.floor(slot)));
-          const categories = densifyFeatured(
+          const target = clampFeaturedSlot(slot);
+          const categories = densifyFeaturedOrders(
             dock.categories.map((c) => {
               if (c.key === key) return { ...c, featuredOrder: target };
               if (c.featuredOrder === target) return { ...c, featuredOrder: null };
@@ -446,7 +553,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
           const b = featured[swap]!;
           const orderA = a.featuredOrder;
           const orderB = b.featuredOrder;
-          const categories = densifyFeatured(
+          const categories = densifyFeaturedOrders(
             dock.categories.map((c) => {
               if (c.key === a.key) return { ...c, featuredOrder: orderB };
               if (c.key === b.key) return { ...c, featuredOrder: orderA };
@@ -504,8 +611,8 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         set((s) => {
           const dock = s.project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
           const removed = dock.categories.find((c) => c.key === key);
-          if (!removed) return s;
-          const categories = densifyFeatured(
+          if (!removed || isSpecialDockOrb(removed)) return s;
+          const categories = densifyFeaturedOrders(
             dock.categories.filter((c) => c.key !== key),
           );
           const availableExtra: TreeRootLike | null =
@@ -521,7 +628,16 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
               : null;
           return {
             ...pushHistory(s),
-            project: { ...s.project, categoryDock: { categories } },
+            project: {
+              ...s.project,
+              categoryDock: { categories },
+              // Drop orphan slide↔orb links (id-stable slides keep their slot).
+              slides: s.project.slides.map((slide) =>
+                slide.config.linkedOrbKey === key
+                  ? { ...slide, config: { ...slide.config, linkedOrbKey: null } }
+                  : slide,
+              ),
+            },
             dockAvailable: availableExtra
               ? [...s.dockAvailable.filter((r) => r.id !== availableExtra.id), availableExtra]
               : s.dockAvailable,
@@ -531,45 +647,33 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
       syncSlidesFromDock: () =>
         set((s) => {
           const dock = s.project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
-          const featured = featuredDockCategories(dock);
-          const slides = featured.map((orb, i) => {
-            const existing = s.project.slides.find(
-              (sl) => sl.config.linkedOrbKey === orb.key,
-            );
-            if (existing) {
-              return {
-                ...existing,
-                name: orb.name,
-                sortOrder: i + 1,
-                config: {
-                  ...existing.config,
-                  linkedOrbKey: orb.key,
-                  background: {
-                    ...existing.config.background,
-                    imageUrl: orb.heroImage,
-                  },
-                  typography: {
-                    ...existing.config.typography,
-                    title: orb.name,
-                    subtitle: orb.subtitle,
-                  },
+          // Id-safe refresh: only update slides already linked to an orb key.
+          // Never rebuild the slide array from featuredOrder indices.
+          const slides = s.project.slides.map((slide) => {
+            const key = slide.config.linkedOrbKey;
+            if (!key || slide.isPlaceholder) return slide;
+            const orb = dock.categories.find((c) => c.key === key);
+            if (!orb) return slide;
+            return {
+              ...slide,
+              name: orb.name || slide.name,
+              config: {
+                ...slide.config,
+                linkedOrbKey: orb.key,
+                background: {
+                  ...slide.config.background,
+                  imageUrl: orb.heroImage || slide.config.background.imageUrl,
                 },
-              };
-            }
-            return createSlide({
-              name: orb.name,
-              sortOrder: i + 1,
-              mobilePreset: s.project.mobilePreset ?? "balanced",
-              config: configFromOrb(orb),
-            });
+                typography: {
+                  ...slide.config.typography,
+                  subtitle: orb.subtitle || slide.config.typography.subtitle,
+                },
+              },
+            };
           });
           return {
             ...pushHistory(s),
-            project: {
-              ...s.project,
-              slides,
-              activeSlideId: slides[0]?.id ?? s.project.activeSlideId,
-            },
+            project: { ...s.project, slides },
           };
         }),
 
@@ -577,7 +681,6 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         let result = { added: 0, updated: 0, removed: 0, available: 0 };
         set((s) => {
           const prev = s.project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
-          // First-time / empty → full seed; otherwise smart merge
           const synced =
             !prev.categories.length
               ? (() => {
@@ -601,6 +704,15 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
             available: synced.available.length,
           };
 
+          const validKeys = new Set(synced.dock.categories.map((c) => c.key));
+          const slides = s.project.slides.map((slide) => {
+            const key = slide.config.linkedOrbKey;
+            if (key && !validKeys.has(key)) {
+              return { ...slide, config: { ...slide.config, linkedOrbKey: null } };
+            }
+            return slide;
+          });
+
           const unchanged =
             synced.added === 0 &&
             synced.updated === 0 &&
@@ -614,7 +726,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
 
           return {
             ...pushHistory(s),
-            project: { ...s.project, categoryDock: synced.dock },
+            project: { ...s.project, categoryDock: synced.dock, slides },
             dockAvailable: synced.available,
           };
         });
@@ -630,6 +742,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
               if (slide.id === slideId) {
                 return {
                   ...slide,
+                  isPlaceholder: false,
                   config: { ...slide.config, linkedOrbKey: orbKey },
                 };
               }
@@ -834,7 +947,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         if (!history.length) return;
         const prev = history[history.length - 1]!;
         set({
-          project: prev,
+          project: normalizeHeroProject(prev),
           history: history.slice(0, -1),
           future: [project, ...future],
           dirty: true,
@@ -846,7 +959,7 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         if (!future.length) return;
         const next = future[0]!;
         set({
-          project: next,
+          project: normalizeHeroProject(next),
           future: future.slice(1),
           history: [...history, project],
           dirty: true,
@@ -862,22 +975,29 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         })),
 
       importProject: (project) =>
-        set({ project, dirty: false, history: [], future: [], selectedLayerId: "typography" }),
+        set({
+          project: normalizeHeroProject(project),
+          dirty: false,
+          history: [],
+          future: [],
+          selectedLayerId: "typography",
+        }),
 
       exportProjectJson: () => JSON.stringify(get().project, null, 2),
 
       toPublishedPack: (): PublishedHeroPack => {
-        const { project } = get();
+        const project = normalizeHeroProject(get().project);
         const dock = project.categoryDock ?? DEFAULT_CATEGORY_DOCK;
-        const categories = densifyFeatured(dock.categories);
+        const categories = densifyFeaturedOrders(dock.categories);
         return {
           version: 1,
           publishedAt: new Date().toISOString(),
           categoryDock: { categories },
           mobilePreset: project.mobilePreset ?? "balanced",
           slides: [...project.slides]
-            .filter((s) => s.isActive)
+            .filter((s) => !s.isPlaceholder && s.isActive && isSlideFilled(s))
             .sort((a, b) => a.sortOrder - b.sortOrder)
+            .slice(0, HERO_SLIDE_SLOT_COUNT)
             .map((s) => ({
               id: s.id,
               name: s.name,
@@ -899,16 +1019,13 @@ export const useHeroBuilderStore = create<HeroBuilderStore>()(
         if (!p?.project) return current;
         return {
           ...current,
-          project: {
+          project: normalizeHeroProject({
             ...createDefaultProject(),
             ...p.project,
             categoryDock: p.project.categoryDock ?? DEFAULT_CATEGORY_DOCK,
             mobilePreset: p.project.mobilePreset ?? "balanced",
-            slides: (p.project.slides ?? []).map((slide) => ({
-              ...slide,
-              mobilePreset: slide.mobilePreset ?? p.project?.mobilePreset ?? "balanced",
-            })),
-          },
+            slides: p.project.slides ?? [],
+          }),
         };
       },
     },

@@ -16,6 +16,7 @@ export function QuickFilterBar() {
   const { data: brands, isLoading } = useBrands();
   const selectedBrandIds = params.brand_ids ?? [];
   const inStock = Boolean(params.in_stock);
+  const onSale = Boolean(params.on_sale);
 
   const topBrands = useMemo(() => {
     const list = brands ?? [];
@@ -38,6 +39,11 @@ export function QuickFilterBar() {
           active={inStock}
           onClick={() => setParams({ in_stock: inStock ? null : "1" })}
           label="فقط موجود"
+        />
+        <QuickChip
+          active={onSale}
+          onClick={() => setParams({ on_sale: onSale ? null : "1" })}
+          label="تخفیف‌دار"
         />
         {isLoading ? (
           <span className="inline-flex min-h-10 items-center px-2 text-xs text-steel">
@@ -82,7 +88,7 @@ function QuickChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "inline-flex min-h-10 shrink-0 items-center rounded-xl px-3.5 text-xs font-bold transition-colors",
+        "inline-flex min-h-11 shrink-0 items-center rounded-xl px-3.5 text-xs font-bold transition-colors",
         active
           ? "bg-primary text-primary-foreground shadow-soft"
           : "bg-secondary text-secondary-foreground hover:bg-muted",
