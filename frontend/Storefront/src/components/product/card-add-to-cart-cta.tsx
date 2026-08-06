@@ -78,7 +78,9 @@ export function CardAddToCartCta({
   const [qty, setQty] = useState(1);
   const labelId = useId();
 
-  phaseRef.current = phase;
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   const clearTimers = useCallback(() => {
     if (fallbackTimerRef.current != null) {
@@ -124,7 +126,9 @@ export function CardAddToCartCta({
     commit(1);
   }, [commit]);
 
-  dismissImplRef.current = dismissWithoutConfirm;
+  useEffect(() => {
+    dismissImplRef.current = dismissWithoutConfirm;
+  }, [dismissWithoutConfirm]);
 
   const open = useCallback(() => {
     if (disabled) return;
