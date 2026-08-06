@@ -38,7 +38,7 @@ export function ProductKnowledgeRail({ productId }: { productId: number }) {
   if (!articles.length) return null;
 
   return (
-    <section className="mt-16 sm:mt-20" aria-labelledby="pdp-knowledge-heading">
+    <section className="mt-12 sm:mt-20" aria-labelledby="pdp-knowledge-heading">
       <SectionHeading
         id="pdp-knowledge-heading"
         title="دانش مرتبط"

@@ -76,10 +76,14 @@ export function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  /** Outgoing slide for mobile CSS crossfade (null = idle / reduced-motion). */
+  const [outgoing, setOutgoing] = useState<HeroSlide | null>(null);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
+  const outgoingTimer = useRef<number | null>(null);
+  const slideRef = useRef<HeroSlide | null>(null);
 
   const designedPack = designQuery.data;
   const hasDesigned =
@@ -119,13 +123,26 @@ export function Hero() {
     ? ((index % slides.length) + slides.length) % slides.length
     : 0;
 
+  useEffect(() => {
+    const s = slides[activeIndex];
+    if (s) slideRef.current = s;
+  }, [slides, activeIndex]);
+
   const go = useCallback(
     (next: number, dir: number) => {
       if (!slides.length) return;
+      if (isMobile && !reducedMotion && slideRef.current) {
+        setOutgoing(slideRef.current);
+        if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
+        outgoingTimer.current = window.setTimeout(() => {
+          setOutgoing(null);
+          outgoingTimer.current = null;
+        }, 520);
+      }
       setDirection(dir);
       setIndex(((next % slides.length) + slides.length) % slides.length);
     },
-    [slides.length],
+    [slides.length, isMobile, reducedMotion],
   );
 
   const goNext = useCallback(() => go(activeIndex + 1, 1), [go, activeIndex]);
@@ -138,6 +155,16 @@ export function Hero() {
     },
     [go, activeIndex],
   );
+
+  useEffect(() => {
+    return () => {
+      if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || reducedMotion) setOutgoing(null);
+  }, [isMobile, reducedMotion]);
 
   useEffect(() => {
     if (hasDesigned || isMobile || menuOpen || slides.length <= 1 || paused || reducedMotion) {
@@ -196,9 +223,9 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex]!;
-  const liteMotion = isMobile || reducedMotion;
-  const slideMs = liteMotion ? 0.12 : 0.85;
-  const textX = liteMotion ? 0 : direction * 28;
+  const softMobile = isMobile && !reducedMotion;
+  const slideMs = softMobile ? 0.34 : reducedMotion ? 0.12 : 0.85;
+  const textX = softMobile || reducedMotion ? 0 : direction * 28;
 
   const slideArrowClass = (side: "left" | "right") =>
     cn(
@@ -220,7 +247,7 @@ export function Hero() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو دسته‌بندی‌های کارزار"
-      className="group/hero relative h-[62dvh] w-full outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62dvh] w-full max-w-full overflow-x-clip outline-none md:h-[100dvh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -254,11 +281,11 @@ export function Hero() {
       }}
     >
       <div className="relative h-full w-full overflow-hidden">
-        {liteMotion ? (
+        {reducedMotion ? (
           <div
             key={slide.id}
             className={cn(
-              "absolute inset-0 transition-opacity duration-200",
+              "absolute inset-0",
               menuOpen && "opacity-40",
             )}
           >
@@ -280,6 +307,65 @@ export function Hero() {
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
             />
           </div>
+        ) : softMobile ? (
+          <>
+            {outgoing ? (
+              <div
+                key={`out-${outgoing.id}`}
+                className={cn(
+                  "hero-mobile-exit absolute inset-0 z-0",
+                  menuOpen && "opacity-40",
+                )}
+                data-dir={direction}
+                aria-hidden
+              >
+                <SafeImage
+                  src={outgoing.image}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover object-[left_42%]"
+                  fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+                  loading="lazy"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
+                />
+              </div>
+            ) : null}
+            <div
+              key={slide.id}
+              className={cn(
+                "absolute inset-0 z-[1]",
+                outgoing && "hero-mobile-enter",
+                menuOpen && "opacity-40",
+              )}
+              data-dir={direction}
+            >
+              <SafeImage
+                src={slide.image}
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-cover object-[left_42%]"
+                fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+                {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
+              />
+            </div>
+          </>
         ) : (
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
@@ -338,8 +424,52 @@ export function Hero() {
           )}
         >
           <div className="max-w-xl">
-            {liteMotion ? (
+            {reducedMotion ? (
               <div key={slide.id}>
+                <p
+                  className="text-sm font-bold tracking-wide text-white sm:text-base"
+                  style={{ textShadow: copyShadow }}
+                >
+                  کارزار
+                </p>
+                <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
+                <h1
+                  className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
+                  style={{ textShadow: copyShadow }}
+                >
+                  {slide.title}
+                </h1>
+                <p
+                  className="mt-3 max-w-lg text-sm leading-7 text-white/95 sm:mt-4 sm:text-base sm:leading-8"
+                  style={{ textShadow: copyShadow }}
+                >
+                  {slide.subtitle}
+                </p>
+
+                <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+                  <Link href={slide.cta_href} className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full gap-2 sm:w-auto">
+                      {slide.cta_label}
+                      <ArrowLeft set="bold" size="small" />
+                    </Button>
+                  </Link>
+                  <Link href="/catalog" className="w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="soft"
+                      className="w-full border border-white/30 bg-white/10 text-white shadow-none ring-white/20 hover-fine:bg-white/20 hover-fine:text-white hover-fine:shadow-none hover-fine:ring-white/30 hover-fine:translate-y-0 sm:w-auto"
+                    >
+                      مشاهده فروشگاه
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ) : softMobile ? (
+              <div
+                key={slide.id}
+                className={cn(outgoing && "hero-mobile-enter")}
+                data-dir={direction}
+              >
                 <p
                   className="text-sm font-bold tracking-wide text-white sm:text-base"
                   style={{ textShadow: copyShadow }}

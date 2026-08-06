@@ -25,11 +25,17 @@ export function FilterPanel({
   mobileDefaults: _mobileDefaults = false,
   /** Hub pages lock a category in the path — clear must leave the hub. */
   lockedCategoryId,
+  /**
+   * `sidebar`: sticky column with pinned «فیلترها» + explicit max-h scrollport.
+   * `stack` (default): plain flow for the mobile drawer (drawer owns overflow).
+   */
+  layout = "stack",
 }: {
   onApplied?: () => void;
   notifyOnChange?: boolean;
   mobileDefaults?: boolean;
   lockedCategoryId?: number;
+  layout?: "stack" | "sidebar";
 }) {
   const {
     params,
@@ -105,22 +111,31 @@ export function FilterPanel({
     notify();
   };
 
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2 px-0.5">
-        <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
-        {(activeCount > 0 || lockedCategoryId != null) && (
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
-          >
-            <CloseSquare size="small" set="light" />
-            حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
-          </button>
-        )}
-      </div>
+  const isSidebar = layout === "sidebar";
 
+  const header = (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-2 px-0.5",
+        isSidebar && "shrink-0 bg-background pb-3",
+      )}
+    >
+      <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
+      {(activeCount > 0 || lockedCategoryId != null) && (
+        <button
+          type="button"
+          onClick={handleClearAll}
+          className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
+        >
+          <CloseSquare size="small" set="light" />
+          حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
+        </button>
+      )}
+    </div>
+  );
+
+  const body = (
+    <>
       <CategoryTreeFilter
         activeId={effectiveCategoryId ?? null}
         onSelect={(id) => selectCategory(id)}
@@ -183,7 +198,8 @@ export function FilterPanel({
             </button>
           </div>
         )}
-        <div className="max-h-56 space-y-0.5 overflow-y-auto pe-1" role="group" aria-label="برندها">
+        {/* No nested overflow — sidebar/drawer is the sole vertical scroll. */}
+        <div className="space-y-0.5 pe-1" role="group" aria-label="برندها">
           {brandsLoading ? (
             <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری برندها…</p>
           ) : (
@@ -347,6 +363,43 @@ export function FilterPanel({
           ))}
         </AccordionFilter>
       )}
+    </>
+  );
+
+  if (isSidebar) {
+    // Sticky + max-h keep the column on-screen; scrollport uses explicit max-h
+    // (not flex-1 alone) so expanded accordions remain fully reachable.
+    return (
+      <div
+        className={cn(
+          "sticky top-24 z-[1] flex w-full flex-col overflow-hidden",
+          "max-h-[calc(100dvh-7rem)]",
+        )}
+      >
+        {header}
+        <div
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto overscroll-contain pe-1",
+            "max-h-[calc(100dvh-10.25rem)]",
+            "[scrollbar-gutter:stable]",
+            "[scrollbar-width:thin]",
+            "[scrollbar-color:rgba(94,95,94,0.4)_transparent]",
+            "[&::-webkit-scrollbar]:w-1.5",
+            "[&::-webkit-scrollbar-track]:bg-transparent",
+            "[&::-webkit-scrollbar-thumb]:rounded-full",
+            "[&::-webkit-scrollbar-thumb]:bg-steel/40",
+          )}
+        >
+          <div className="space-y-3">{body}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {header}
+      {body}
     </div>
   );
 }

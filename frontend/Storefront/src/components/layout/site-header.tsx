@@ -220,7 +220,7 @@ export function SiteHeader() {
                       "gap-1.5 rounded-full shadow-none ring-0",
                       overHero
                         ? "bg-black/40 text-white hover-fine:bg-black/55 hover-fine:text-white hover-fine:shadow-none hover-fine:translate-y-0"
-                        : "bg-white/80",
+                        : "bg-white/80 hover-fine:shadow-btn-soft",
                     )}
                   >
                     <User size="small" set="bold" />
@@ -248,20 +248,42 @@ export function SiteHeader() {
               <Search size="small" set="bold" />
               <span className="truncate">جستجوی ابزار…</span>
             </button>
-            <div className="flex items-center gap-0.5">
-              <Link
-                href={mounted && hasToken ? "/account" : "/login?next=/account"}
-                className={cn(
-                  "touch-target grid place-items-center rounded-full transition-colors duration-200",
-                  overHero
-                    ? "text-white active:bg-white/15"
-                    : "text-steel active:bg-steel/[0.1]",
-                )}
-                aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
-              >
-                <User set="bold" />
-              </Link>
-            </div>
+            <Link
+              href={mounted && hasToken ? "/account" : "/login?next=/account"}
+              className={cn(
+                "touch-target inline-flex shrink-0 items-center gap-1.5 rounded-full transition-[background-color,box-shadow,color] duration-200",
+                mounted && hasToken ? "py-1 pe-2.5 ps-1" : "px-2.5 py-1.5",
+                overHero
+                  ? "bg-black/45 text-white shadow-[0_6px_20px_rgba(0,0,0,0.28)] backdrop-blur-md active:bg-black/55"
+                  : "bg-white text-foreground shadow-btn-rest ring-1 ring-inset ring-steel/10 hover-fine:bg-karzar-50 hover-fine:shadow-btn-soft motion-safe:hover-fine:-translate-y-px active:bg-karzar-50 active:shadow-btn-soft",
+              )}
+              aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
+            >
+              {mounted && hasToken ? (
+                <>
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(208,35,39,0.28)]">
+                    {(displayName || "ک").slice(0, 1)}
+                  </span>
+                  <span className="max-w-[4.25rem] truncate text-xs font-bold">
+                    {displayName.split(" ")[0] || "حساب"}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span
+                    className={cn(
+                      "grid h-7 w-7 place-items-center rounded-full",
+                      overHero
+                        ? "bg-white/15 text-white"
+                        : "bg-primary/10 text-primary",
+                    )}
+                  >
+                    <User size="small" set="bold" />
+                  </span>
+                  <span className="text-xs font-bold">ورود</span>
+                </>
+              )}
+            </Link>
           </div>
 
           <MegaMenu

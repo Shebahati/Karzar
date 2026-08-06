@@ -19,6 +19,8 @@ import type {
 } from "@/types/auth";
 import { apiClient } from "@/lib/api-client";
 
+export const STOREFRONT_CUSTOMER_KEY = "karzar.storefront.customer";
+
 interface MeBackendResponse {
   id: number;
   phone_number: string;
@@ -26,6 +28,12 @@ interface MeBackendResponse {
   role?: string;
   is_b2b?: boolean;
   company_name?: string | null;
+}
+
+interface StoredCustomer {
+  id?: number;
+  phone?: string;
+  full_name?: string | null;
 }
 
 function mapMe(data: MeBackendResponse): MeResponse {
@@ -37,6 +45,31 @@ function mapMe(data: MeBackendResponse): MeResponse {
     is_b2b: data.is_b2b,
     company_name: data.company_name,
   };
+}
+
+function readStoredCustomer(): StoredCustomer | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STOREFRONT_CUSTOMER_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredCustomer;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredCustomer(customer: StoredCustomer): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STOREFRONT_CUSTOMER_KEY, JSON.stringify(customer));
+  window.dispatchEvent(new Event("karzar-auth-change"));
+}
+
+/** Prefer server name; if empty, keep a locally saved full_name (no storefront PATCH /auth/me yet). */
+function mergeLocalFullName(me: MeResponse): MeResponse {
+  if (me.full_name?.trim()) return me;
+  const local = readStoredCustomer()?.full_name?.trim();
+  if (!local) return me;
+  return { ...me, full_name: local };
 }
 
 async function syncCartAfterLogin(): Promise<string | null> {
@@ -76,6 +109,12 @@ export const authService = {
           })
         ).data;
 
+    const phone = result.customer.phone ?? payload.phone;
+    const prev = readStoredCustomer();
+    const serverName = result.customer.full_name?.trim() || null;
+    const keptLocal =
+      !serverName && prev?.phone === phone ? prev.full_name?.trim() || null : null;
+
     const normalized: OtpVerifyResponse = {
       access_token: result.access_token,
       refresh_token: result.refresh_token ?? "",
@@ -83,8 +122,8 @@ export const authService = {
       expires_in: result.expires_in ?? 1800,
       customer: {
         id: result.customer.id,
-        phone: result.customer.phone ?? payload.phone,
-        full_name: result.customer.full_name,
+        phone,
+        full_name: serverName ?? keptLocal,
       },
     };
 
@@ -95,11 +134,7 @@ export const authService = {
     );
 
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        "karzar.storefront.customer",
-        JSON.stringify(normalized.customer),
-      );
-      window.dispatchEvent(new Event("karzar-auth-change"));
+      writeStoredCustomer(normalized.customer);
     }
 
     let cart_sync_error: string | null = null;
@@ -113,7 +148,32 @@ export const authService = {
   async getMe(): Promise<MeResponse> {
     if (env.USE_MOCK) return (await getMockApi()).getMe();
     const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
-    return mapMe(data);
+    return mergeLocalFullName(mapMe(data));
+  },
+
+  /**
+   * Save customer `full_name` on the account session.
+   * OpenAPI has GET `/auth/me` only (no storefront profile PATCH) — mock updates
+   * in-memory session; live keeps name in local customer cache + me query until BE ships.
+   */
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    const trimmed = fullName.trim();
+    if (trimmed.length < 2) {
+      throw new Error("FULL_NAME_TOO_SHORT");
+    }
+
+    if (env.USE_MOCK) {
+      return (await getMockApi()).updateFullName(trimmed);
+    }
+
+    const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
+    const me = { ...mapMe(data), full_name: trimmed };
+    writeStoredCustomer({
+      id: me.id,
+      phone: me.phone,
+      full_name: trimmed,
+    });
+    return me;
   },
 
   async logout(): Promise<void> {
@@ -126,7 +186,7 @@ export const authService = {
     }
     setStoredToken(null);
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem("karzar.storefront.customer");
+      window.localStorage.removeItem(STOREFRONT_CUSTOMER_KEY);
       clearPendingPayment();
       window.dispatchEvent(new Event("karzar-auth-change"));
     }

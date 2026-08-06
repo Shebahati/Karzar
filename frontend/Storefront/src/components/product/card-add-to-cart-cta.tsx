@@ -9,14 +9,19 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { Buy, TickSquare } from "react-iconly";
-import { cn, formatNumber } from "@/lib/utils";
+import {
+  ADD_QTY_FALLBACK_MS,
+  SoftQtyConfirm,
+} from "@/components/product/soft-qty-confirm";
+import { useMotionSafe } from "@/lib/use-motion-safe";
+import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductSummary } from "@/types/product";
 
-/** Incomplete expand → add 1 unit after this delay (or sooner on dismiss). */
-export const CARD_ADD_FALLBACK_MS = 4000;
+/** @deprecated Prefer ADD_QTY_FALLBACK_MS — kept for any external imports. */
+export const CARD_ADD_FALLBACK_MS = ADD_QTY_FALLBACK_MS;
+
 const SUCCESS_MS = 1100;
-const MAX_QTY = 99;
 
 type Phase = "idle" | "open" | "success";
 
@@ -32,6 +37,7 @@ function releaseActive(dismiss: DismissFn) {
   if (activeDismiss === dismiss) activeDismiss = null;
 }
 
+/** True when the user prefers reduced motion (all viewports). */
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -45,9 +51,9 @@ function usePrefersReducedMotion(): boolean {
 }
 
 /**
- * Product-card-only add-to-cart CTA:
- * expand → qty stepper → confirm tick.
- * If the user abandons without confirming, adds 1 unit once.
+ * Product-card add-to-cart CTA:
+ * soft expand → qty stepper → confirm.
+ * Abandon without confirm → add 1 once.
  */
 export function CardAddToCartCta({
   product,
@@ -63,6 +69,7 @@ export function CardAddToCartCta({
 }) {
   const addToCart = useCartStore((s) => s.addToCart);
   const pathname = usePathname();
+  const motionSafe = useMotionSafe();
   const reducedMotion = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const committedRef = useRef(false);
@@ -70,13 +77,16 @@ export function CardAddToCartCta({
   const fallbackTimerRef = useRef<number | null>(null);
   const successTimerRef = useRef<number | null>(null);
   const dismissImplRef = useRef<DismissFn>(() => {});
-  /** Stable identity for single-active expander registry. */
   const dismissStable = useCallback(() => {
     dismissImplRef.current();
   }, []);
   const [phase, setPhase] = useState<Phase>("idle");
   const [qty, setQty] = useState(1);
   const labelId = useId();
+
+  const isOpen = phase === "open";
+  const isSuccess = phase === "success";
+  const isExpanded = isOpen || isSuccess;
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -112,7 +122,7 @@ export function CardAddToCartCta({
     (amount: number) => {
       if (committedRef.current) return;
       committedRef.current = true;
-      const n = Math.max(1, Math.min(MAX_QTY, amount));
+      const n = Math.max(1, Math.min(99, amount));
       addToCart(product, n);
       onAdded?.(n);
       finishSuccess();
@@ -122,7 +132,6 @@ export function CardAddToCartCta({
 
   const dismissWithoutConfirm = useCallback(() => {
     if (phaseRef.current !== "open") return;
-    // Fallback: one unit if the user never pressed confirm.
     commit(1);
   }, [commit]);
 
@@ -140,7 +149,7 @@ export function CardAddToCartCta({
     claimActive(dismissStable);
     fallbackTimerRef.current = window.setTimeout(() => {
       dismissStable();
-    }, CARD_ADD_FALLBACK_MS);
+    }, ADD_QTY_FALLBACK_MS);
   }, [clearTimers, disabled, dismissStable]);
 
   const confirm = useCallback(() => {
@@ -148,7 +157,6 @@ export function CardAddToCartCta({
     commit(qty);
   }, [commit, qty]);
 
-  // Pointer outside / Escape while open
   useEffect(() => {
     if (phase !== "open") return;
 
@@ -175,7 +183,6 @@ export function CardAddToCartCta({
     };
   }, [dismissWithoutConfirm, phase]);
 
-  // Scroll / carousel away
   useEffect(() => {
     if (phase !== "open") return;
     const el = rootRef.current;
@@ -193,7 +200,6 @@ export function CardAddToCartCta({
     return () => io.disconnect();
   }, [dismissWithoutConfirm, phase]);
 
-  // Route change while open
   const pathAtOpen = useRef(pathname);
   useEffect(() => {
     if (phase === "open") pathAtOpen.current = pathname;
@@ -208,7 +214,6 @@ export function CardAddToCartCta({
     return () => {
       clearTimers();
       releaseActive(dismissStable);
-      // Unmount mid-expand (navigate away): still add 1 if not confirmed.
       if (phaseRef.current === "open" && !committedRef.current) {
         committedRef.current = true;
         addToCart(product, 1);
@@ -224,129 +229,132 @@ export function CardAddToCartCta({
     e.stopPropagation();
   };
 
-  const motionClass = reducedMotion
-    ? "duration-150"
-    : "duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]";
+  /**
+   * Motion tiers:
+   * - reduced → near-instant
+   * - mobile → soft 240ms ease-out
+   * - desktop motionSafe → richer 320ms ease
+   */
+  const shellMotion = reducedMotion
+    ? "duration-0"
+    : motionSafe
+      ? "duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+      : "duration-[240ms] ease-out";
 
-  if (phase === "idle") {
-    return (
-      <div ref={rootRef} className={cn("shrink-0", className)}>
-        <button
-          type="button"
-          onClick={(e) => {
-            stop(e);
-            open();
-          }}
-          disabled={disabled}
-          aria-label="افزودن به سبد خرید"
-          aria-expanded={false}
-          className={cn(
-            "grid h-9 w-9 place-items-center rounded-lg bg-[#D02327] text-white",
-            "transition-[transform,background-color,box-shadow]",
-            motionClass,
-            "hover:bg-[#b81e23] hover:shadow-[0_8px_18px_-10px_rgba(208,35,39,0.55)]",
-            "active:scale-95 disabled:pointer-events-none disabled:opacity-35",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/40",
-          )}
-        >
-          <Buy size="small" set="bold" primaryColor="currentColor" />
-        </button>
-      </div>
-    );
-  }
+  const contentMotion = reducedMotion
+    ? "duration-75"
+    : motionSafe
+      ? "duration-[280ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+      : "duration-200 ease-out";
 
   return (
-    <div
-      ref={rootRef}
-      role="group"
-      aria-labelledby={labelId}
-      className={cn(
-        "absolute inset-0 z-10 flex min-h-9 items-center gap-0.5 rounded-xl",
-        "bg-[#F7F6F5] px-0.5 shadow-[0_8px_22px_-14px_rgba(94,95,94,0.45)]",
-        "ring-1 ring-[#5E5F5E]/10 md:bg-[#F7F6F5]/95 md:backdrop-blur-[6px]",
-        "transition-[opacity,transform]",
-        motionClass,
-        className,
-      )}
-      onClick={stop}
-      onKeyDown={(e) => e.stopPropagation()}
-      aria-expanded={phase === "open"}
-    >
-      <span id={labelId} className="sr-only">
-        انتخاب تعداد و تأیید افزودن به سبد
-      </span>
+    <>
+      {/* In-flow spacer so price row does not reflow on expand */}
+      <div className="pointer-events-none h-9 w-9 shrink-0" aria-hidden />
 
-      {phase === "success" ? (
+      <div
+        ref={rootRef}
+        role="group"
+        aria-labelledby={labelId}
+        data-card-cta-open={isExpanded ? "" : undefined}
+        className={cn(
+          "absolute inset-0 z-10 flex items-end",
+          !isExpanded && "pointer-events-none",
+          className,
+        )}
+        onClick={stop}
+        onKeyDown={(e) => e.stopPropagation()}
+        aria-expanded={isOpen}
+      >
+        <span id={labelId} className="sr-only">
+          انتخاب تعداد و تأیید افزودن به سبد
+        </span>
+
         <div
-          className="flex w-full items-center justify-center gap-1.5 text-[12px] font-bold text-[#1a7a4c]"
-          role="status"
-          aria-live="polite"
+          className={cn(
+            "relative ms-auto flex items-center overflow-hidden",
+            "transition-[width,max-width,height,border-radius,background-color,box-shadow,opacity]",
+            shellMotion,
+            isExpanded
+              ? cn(
+                  "h-full w-full max-w-full rounded-xl",
+                  "bg-[#FAFAF9]/97",
+                  "ring-1 ring-[#5E5F5E]/[0.08]",
+                  "shadow-[0_6px_20px_-14px_rgba(94,95,94,0.35)]",
+                )
+              : cn(
+                  "pointer-events-auto h-9 w-9 max-w-9 rounded-lg",
+                  "bg-[#D02327]",
+                  "shadow-[0_8px_18px_-12px_rgba(208,35,39,0.55)]",
+                  !reducedMotion &&
+                    "hover:shadow-[0_10px_22px_-12px_rgba(208,35,39,0.65)]",
+                ),
+          )}
         >
-          <TickSquare size="small" set="bold" primaryColor="currentColor" />
-          اضافه شد
-        </div>
-      ) : (
-        <>
+          {/* Idle — cart affordance */}
           <button
             type="button"
-            aria-label="کاهش تعداد"
             onClick={(e) => {
               stop(e);
-              setQty((q) => Math.max(1, q - 1));
+              open();
             }}
+            disabled={disabled || isExpanded}
+            aria-label="افزودن به سبد خرید"
+            aria-expanded={false}
+            tabIndex={isExpanded ? -1 : 0}
             className={cn(
-              "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[15px] font-medium text-[#5E5F5E]",
-              "transition-colors hover:bg-white hover:text-[#D02327]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/35",
-            )}
-          >
-            −
-          </button>
-
-          <span
-            className="min-w-[1.75rem] select-none text-center text-[13px] font-bold tabular-nums text-[#1a1a1a] tnum"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {formatNumber(qty)}
-          </span>
-
-          <button
-            type="button"
-            aria-label="افزایش تعداد"
-            onClick={(e) => {
-              stop(e);
-              setQty((q) => Math.min(MAX_QTY, q + 1));
-            }}
-            className={cn(
-              "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[16px] font-medium text-[#5E5F5E]",
-              "transition-colors hover:bg-white hover:text-[#D02327]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/35",
-            )}
-          >
-            +
-          </button>
-
-          <button
-            type="button"
-            aria-label="تأیید و افزودن به سبد خرید"
-            onClick={(e) => {
-              stop(e);
-              confirm();
-            }}
-            className={cn(
-              "ms-auto me-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg",
-              "bg-[#D02327] text-white shadow-[0_6px_14px_-8px_rgba(208,35,39,0.65)]",
-              "transition-[transform,background-color]",
-              motionClass,
+              "absolute inset-0 grid place-items-center text-white",
+              "transition-[opacity,transform]",
+              contentMotion,
+              isExpanded
+                ? "pointer-events-none scale-75 opacity-0"
+                : "scale-100 opacity-100",
               "hover:bg-[#b81e23] active:scale-95",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/45",
+              "disabled:pointer-events-none disabled:opacity-35",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
             )}
           >
-            <TickSquare size="small" set="bold" primaryColor="currentColor" />
+            <Buy size="small" set="bold" primaryColor="currentColor" />
           </button>
-        </>
-      )}
-    </div>
+
+          {/* Expanded — soft qty panel / success */}
+          <div
+            className={cn(
+              "flex h-full w-full items-center",
+              "transition-[opacity,transform]",
+              contentMotion,
+              isExpanded
+                ? "relative translate-x-0 opacity-100 delay-75"
+                : "pointer-events-none absolute inset-0 translate-x-1.5 opacity-0 delay-0 rtl:-translate-x-1.5",
+              reducedMotion && "delay-0",
+            )}
+            aria-hidden={!isExpanded}
+          >
+            {isSuccess ? (
+              <div
+                className="flex w-full items-center justify-center gap-1.5 text-[12px] font-bold text-[#1a7a4c]"
+                role="status"
+                aria-live="polite"
+              >
+                <TickSquare
+                  size="small"
+                  set="bold"
+                  primaryColor="currentColor"
+                />
+                اضافه شد
+              </div>
+            ) : (
+              <SoftQtyConfirm
+                qty={qty}
+                onChange={setQty}
+                onConfirm={confirm}
+                variant="card"
+                tabbable={isOpen}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

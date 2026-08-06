@@ -21,7 +21,7 @@ export function HubChildNav({
   if (browsable.length === 0) {
     if (childCategories.length === 0) return null;
     return (
-      <p className="mb-4 text-sm text-muted-foreground" dir="rtl" role="status">
+      <p className="mb-3 text-sm text-muted-foreground lg:mb-4" dir="rtl" role="status">
         زیر‌دسته‌ای با موجودی برای «{hubName}» نمایش داده نمی‌شود؛ محصولات همین شاخه را در
         فهرست زیر ببینید.
       </p>
@@ -29,9 +29,9 @@ export function HubChildNav({
   }
 
   return (
-    <nav aria-label="زیر‌دسته‌ها" className="mb-6" dir="rtl">
-      <p className="mb-2 text-xs font-bold text-muted-foreground">زیر‌دسته‌ها</p>
-      <ul className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible">
+    <nav aria-label="زیر‌دسته‌ها" className="mb-3 lg:mb-6" dir="rtl">
+      <p className="mb-1.5 text-xs font-bold text-muted-foreground lg:mb-2">زیر‌دسته‌ها</p>
+      <ul className="no-scrollbar h-scroll flex gap-2 pb-0.5 sm:flex-wrap sm:overflow-x-visible sm:overflow-y-visible sm:overscroll-x-auto sm:touch-auto lg:pb-1">
         {browsable.map((child) => (
           <li key={child.id} className="shrink-0">
             <Link

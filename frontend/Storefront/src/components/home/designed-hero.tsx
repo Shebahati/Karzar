@@ -290,8 +290,10 @@ function SlideCanvas({
               </div>
               <div
                 className={cn(
-                  "flex gap-2 overflow-x-auto pb-1",
-                  config.carousel.layoutPreset === "stack" && "flex-col",
+                  "flex gap-2 pb-1",
+                  config.carousel.layoutPreset === "stack"
+                    ? "flex-col"
+                    : "h-scroll",
                 )}
               >
                 {(config.carousel.previewTitles?.length
@@ -369,10 +371,18 @@ export function DesignedHero({
   const [internalMenu, setInternalMenu] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  /** Outgoing slide for mobile CSS crossfade (null = idle / reduced-motion). */
+  const [outgoing, setOutgoing] = useState<{
+    slide: DesignedHeroSlide;
+    preset: MobileComposePreset;
+  } | null>(null);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
+  const outgoingTimer = useRef<number | null>(null);
+  const slideRef = useRef<DesignedHeroSlide | null>(null);
+  const presetRef = useRef<MobileComposePreset>("balanced");
 
   const menuOpen = menuOpenProp ?? internalMenu;
   const setMenuOpen = onMenuOpenChange ?? setInternalMenu;
@@ -411,17 +421,47 @@ export function DesignedHero({
     "balanced"
   ) as MobileComposePreset;
 
+  useEffect(() => {
+    slideRef.current = slide ?? null;
+    presetRef.current = mobilePreset;
+  }, [slide, mobilePreset]);
+
+  const beginMobileCrossfade = useCallback(() => {
+    if (!isMobile || reducedMotion) return;
+    const current = slideRef.current;
+    if (!current) return;
+    setOutgoing({ slide: current, preset: presetRef.current });
+    if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
+    outgoingTimer.current = window.setTimeout(() => {
+      setOutgoing(null);
+      outgoingTimer.current = null;
+    }, 520);
+  }, [isMobile, reducedMotion]);
+
+  useEffect(() => {
+    return () => {
+      if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
+    };
+  }, []);
+
+  // Drop crossfade layer if we leave the soft-mobile path.
+  useEffect(() => {
+    if (!isMobile || reducedMotion) setOutgoing(null);
+  }, [isMobile, reducedMotion]);
+
   const goNext = useCallback(() => {
     if (!slideCount) return;
+    beginMobileCrossfade();
     setDirection(1);
     setIndex((i) => (i + 1) % slideCount);
-  }, [slideCount]);
+  }, [slideCount, beginMobileCrossfade]);
 
   const goPrev = useCallback(() => {
     if (!slideCount) return;
+    beginMobileCrossfade();
     setDirection(-1);
     setIndex((i) => (i - 1 + slideCount) % slideCount);
-  }, [slideCount]);
+  }, [slideCount, beginMobileCrossfade]);
 
   // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
   useEffect(() => {
@@ -434,8 +474,6 @@ export function DesignedHero({
   }, [isMobile, slideCount, paused, reducedMotion, menuOpen]);
 
   if (!slide) return null;
-
-  const liteMotion = isMobile || reducedMotion;
 
   const featuredRaw = featuredOrbs(orbDefs as typeof HERO_ORB_CATEGORIES);
   // When pack ships a dock, honor featuredOrder exactly (no silent first-5 fallback).
@@ -477,7 +515,7 @@ export function DesignedHero({
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو کارزار"
-      className="group/hero relative h-[62dvh] w-full outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62dvh] w-full max-w-full overflow-x-clip outline-none md:h-[100dvh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -506,8 +544,8 @@ export function DesignedHero({
       }}
     >
       <div className="relative h-full w-full overflow-hidden">
-        {liteMotion ? (
-          // Instant/CSS swap — no Framer layout work on weak phones.
+        {reducedMotion ? (
+          // Instant swap — accessibility / prefers-reduced-motion.
           <div key={slide.id} className="absolute inset-0">
             <SlideCanvas
               slide={slide}
@@ -518,6 +556,43 @@ export function DesignedHero({
               priority={activeIndex === 0}
             />
           </div>
+        ) : isMobile ? (
+          // Soft CSS crossfade — no Framer / Ken Burns on phones.
+          <>
+            {outgoing ? (
+              <div
+                key={`out-${outgoing.slide.id}`}
+                className="hero-mobile-exit absolute inset-0 z-0"
+                data-dir={direction}
+                aria-hidden
+              >
+                <SlideCanvas
+                  slide={outgoing.slide}
+                  reducedMotion
+                  blurred={menuOpen}
+                  mobilePreset={outgoing.preset}
+                  isMobile
+                />
+              </div>
+            ) : null}
+            <div
+              key={slide.id}
+              className={cn(
+                "absolute inset-0 z-[1]",
+                outgoing && "hero-mobile-enter",
+              )}
+              data-dir={direction}
+            >
+              <SlideCanvas
+                slide={slide}
+                reducedMotion
+                blurred={menuOpen}
+                mobilePreset={mobilePreset}
+                isMobile
+                priority={activeIndex === 0}
+              />
+            </div>
+          </>
         ) : (
           <AnimatePresence initial={false} custom={direction}>
             <motion.div

@@ -646,6 +646,28 @@ export const mockApi = {
     };
   },
 
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    await sleep(env.MOCK_LATENCY_MS);
+    const trimmed = fullName.trim();
+    mockSession.full_name = trimmed;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "karzar.storefront.customer",
+        JSON.stringify({
+          id: mockSession.id,
+          phone: mockSession.phone,
+          full_name: trimmed,
+        }),
+      );
+      window.dispatchEvent(new Event("karzar-auth-change"));
+    }
+    return {
+      id: mockSession.id,
+      phone: mockSession.phone,
+      full_name: trimmed,
+    };
+  },
+
   async submitContact(payload: ContactValues): Promise<{ ok: true; ticket: string }> {
     await sleep(env.MOCK_LATENCY_MS);
     void payload;

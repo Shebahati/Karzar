@@ -28,12 +28,12 @@ const springSoft = { type: "spring" as const, stiffness: 420, damping: 36, mass:
 const fadeQuick = { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] as const };
 
 /**
- * Dock bottom clearance: tablet keeps MobileBottomNav (~4.85rem) + ~20–30px lift;
- * desktop (no bottom nav) sits ~30px higher than the old 0.65rem baseline via clamp.
+ * Dock bottom clearance: tablet keeps MobileBottomNav (~4.85rem) + lift;
+ * desktop (no bottom nav) uses clamp baseline. +20px raises the dock vs prior sit.
  * Phone dock is `hidden` — mobile categories live below the hero.
  */
 const DOCK_BOTTOM_CLEARANCE =
-  "pb-[calc(4.85rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(4.85rem+clamp(1.15rem,2.2vw,1.875rem)+env(safe-area-inset-bottom,0px))] lg:pb-[calc(clamp(2.25rem,1.2vw+1.9rem,2.75rem)+env(safe-area-inset-bottom,0px))]";
+  "pb-[calc(4.85rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(4.85rem+clamp(1.15rem,2.2vw,1.875rem)+20px+env(safe-area-inset-bottom,0px))] lg:pb-[calc(clamp(2.25rem,1.2vw+1.9rem,2.75rem)+20px+env(safe-area-inset-bottom,0px))]";
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);

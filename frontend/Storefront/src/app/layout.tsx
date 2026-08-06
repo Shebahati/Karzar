@@ -64,7 +64,10 @@ export default async function RootLayout({
       lang="fa"
       dir="rtl"
       data-scroll-behavior="smooth"
-      className={cn("h-full w-full max-w-full overflow-x-clip", iranYekan.variable)}
+      className={cn(
+        "h-full w-full max-w-full overflow-x-clip overscroll-x-none",
+        iranYekan.variable,
+      )}
     >
       <head>
         {/* First-visit splash gate — sessionStorage; must run before paint (CSP nonce). */}
@@ -90,7 +93,7 @@ export default async function RootLayout({
           />
         </noscript>
       </head>
-      <body className="font-sans min-h-full w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
+      <body className="font-sans min-h-full w-full max-w-full overflow-x-clip overscroll-x-none bg-background text-foreground antialiased">
         <GoogleTagManagerNoscript />
         <a href="#main-content" className="skip-link">
           پرش به محتوای اصلی
@@ -100,11 +103,11 @@ export default async function RootLayout({
           <FirstVisitSplash />
           <SiteHeader />
           {/* Clearance for fixed mobile bottom nav (~4.5rem + iOS home indicator). */}
-          <div className="w-full max-w-full overflow-x-clip pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+          <div className="w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             <main
               id="main-content"
               tabIndex={-1}
-              className="min-h-[60vh] w-full max-w-full overflow-x-clip outline-none"
+              className="min-h-[60vh] w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none outline-none"
             >
               {children}
             </main>

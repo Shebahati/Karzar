@@ -114,7 +114,7 @@ function KeyValueTable({
   unit?: string;
 }) {
   return (
-    <div className="overflow-x-auto" dir="rtl">
+    <div className="h-scroll max-w-full" dir="rtl">
       <table className="w-full min-w-[280px] border-collapse text-sm">
         <caption className="sr-only">جدول مشخصات فنی</caption>
         <tbody>

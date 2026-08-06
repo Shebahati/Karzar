@@ -309,7 +309,7 @@ export function AutoCarousel({
           // container (CSS), so vertical wheel gets trapped and feels like page jumps.
           // touch-manipulation (pan-x + pan-y): NOT touch-pan-x alone — that blocks
           // vertical page scroll when the gesture starts on the track (mobile lock/skip).
-          "no-scrollbar flex w-full min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain",
+          "no-scrollbar h-scroll flex w-full min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain",
           "touch-manipulation select-none cursor-grab active:cursor-grabbing",
           // Snap only when idle; skip mandatory snap on mobile (coarse) — it fights
           // vertical scroll chaining and feels like the page “skips” past sections.

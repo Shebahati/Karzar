@@ -81,8 +81,8 @@ export function CategoriesIndexView() {
   const waiting = isLoading && tree.length === 0;
 
   return (
-    <div className="relative min-h-[60vh] overflow-hidden bg-background">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+    <div className="relative min-h-[60vh] overflow-x-clip overflow-y-visible bg-background">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#F7F7F7] via-background to-background" />
         <div className="absolute -start-24 top-10 h-56 w-56 rounded-full bg-primary/[0.05] blur-3xl" />
         <div className="absolute -end-16 top-40 h-44 w-44 rounded-full bg-[#5E5F5E]/[0.06] blur-3xl" />

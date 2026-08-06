@@ -136,11 +136,12 @@ const config: Config = {
         floating: "0 16px 48px rgba(16, 24, 40, 0.16)",
         "primary-glow": "0 8px 24px rgba(194, 32, 38, 0.16)",
         glass: "0 8px 32px rgba(94, 95, 94, 0.12)",
-        /** Button rest / hover — brand-tinted, no white bloom */
-        "btn-rest": "0 1px 2px rgba(94, 95, 94, 0.06)",
-        "btn-primary": "0 6px 16px -6px rgba(208, 35, 39, 0.42)",
-        "btn-soft": "0 6px 14px -8px rgba(208, 35, 39, 0.28)",
-        "btn-steel": "0 4px 12px -6px rgba(94, 95, 94, 0.2)",
+        /** Button rest / hover — soft brand-tinted elevation, no white bloom */
+        "btn-rest": "0 1px 2px rgba(94, 95, 94, 0.05)",
+        "btn-primary": "0 8px 20px -10px rgba(208, 35, 39, 0.3)",
+        "btn-soft": "0 8px 18px -10px rgba(208, 35, 39, 0.18)",
+        "btn-steel": "0 6px 14px -8px rgba(94, 95, 94, 0.14)",
+        "btn-ghost": "0 4px 12px -8px rgba(94, 95, 94, 0.1)",
       },
       keyframes: {
         "accordion-down": {

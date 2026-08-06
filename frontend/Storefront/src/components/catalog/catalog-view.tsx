@@ -237,11 +237,18 @@ export function CatalogView({
     ? `نتایج «${params.search}»`
     : "فروشگاه ابزار";
 
+  const headerHasVisibleContent =
+    lockedCategoryId == null || showFilterSkeleton || Boolean(slugError);
+
   return (
-    <Container className="py-6 lg:py-10">
-      <header className="mb-6">
+    <Container className="py-3 lg:py-10">
+      <header
+        className={
+          headerHasVisibleContent ? "mb-3 lg:mb-6" : "mb-0"
+        }
+      >
         {lockedCategoryId == null ? (
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-xl font-bold text-foreground lg:text-2xl">{title}</h1>
         ) : (
           <h1 className="sr-only">{title}</h1>
         )}
@@ -258,25 +265,26 @@ export function CatalogView({
       </header>
 
       {lockedCategoryId == null && lockedBrandId == null && (
-        <div className="mb-6">
+        <div className="mb-3 lg:mb-6">
           <RootCategoryCarousel initialTree={initialTree} />
         </div>
       )}
 
       <div className="flex gap-6">
+        {/*
+          Desktop filters: aside is only a width/self-start shell. Sticky +
+          viewport max-height + scroll live inside FilterPanel (sidebar layout)
+          so accordion expand never clips below the fold.
+        */}
         <aside
-          className="hidden w-72 shrink-0 self-start lg:block"
           id={FILTERS_PANEL_ID}
+          className="hidden w-72 shrink-0 self-start lg:block"
         >
-          {/* One primary scroll for the whole filter stack — sticky without
-              max-height leaves lower sections (brand/price/stock) unreachable. */}
-          <div className="no-scrollbar sticky top-32 max-h-[calc(100dvh-8.5rem)] overflow-y-auto overscroll-y-contain pe-1">
-            <FilterPanel lockedCategoryId={lockedCategoryId} />
-          </div>
+          <FilterPanel layout="sidebar" lockedCategoryId={lockedCategoryId} />
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-5 space-y-3">
+          <div className="mb-3 space-y-2.5 lg:mb-5 lg:space-y-3">
             <button
               type="button"
               onClick={() => setDrawer(true)}
