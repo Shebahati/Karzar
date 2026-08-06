@@ -130,10 +130,14 @@ export function ProductDetailView({ id }: { id: number }) {
         }}
       />
 
-      <Container className="pt-3 sm:pt-5 lg:pt-6 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
+      {/*
+        Mobile: Container px-0 so gallery/sheet are true full-bleed without -mx*
+        under global overflow-x-clip (RTL left-cut). Desktop keeps lg:px-8.
+      */}
+      <Container className="pt-3 sm:pt-5 lg:pt-6 max-lg:px-0 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
         <nav
           aria-label="مسیر صفحه"
-          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-5 max-lg:mb-2.5 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
+          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-5 max-lg:mb-2.5 max-lg:px-5 sm:max-lg:px-6 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
         >
           <Link href="/" className="transition-colors hover:text-primary">
             خانه
@@ -168,7 +172,8 @@ export function ProductDetailView({ id }: { id: number }) {
           Explicit 2 rows so buy can row-span-2 and stick through lower sections
           without the broken nested shell (1fr|0.76fr) that inflated the card.
 
-          Mobile: sticky gallery under a soft overlapping sheet (parallax feel).
+          Mobile: soft overlapping sheet over gallery (NO sticky — sticky +
+          overflow-x-clip created a viewport-tall runway / white void on prod).
           Wrapper is `lg:contents` so desktop children still join this grid.
         */}
         <div
@@ -182,12 +187,8 @@ export function ProductDetailView({ id }: { id: number }) {
           )}
         >
           <div className="max-lg:relative lg:contents">
-            {/* Opacity-only motion: transform would break position:sticky. */}
             <motion.div
-              className={cn(
-                "min-w-0 -mx-5 sm:-mx-6 lg:mx-0",
-                "max-lg:sticky max-lg:top-0 max-lg:z-0",
-              )}
+              className="min-w-0"
               initial={reducedMotion ? undefined : { opacity: 0 }}
               animate={reducedMotion ? undefined : { opacity: 1 }}
               transition={{ duration: 0.55, ease: easePremium }}
@@ -198,12 +199,12 @@ export function ProductDetailView({ id }: { id: number }) {
             <motion.div
               className={cn(
                 "flex min-w-0 flex-col",
-                /* Mobile sheet: full-bleed soft plane sliding over sticky gallery */
-                "relative z-[1] -mt-6 -mx-5 px-5 sm:-mx-6 sm:px-6",
+                /* Mobile sheet: soft plane overlapping gallery bottom (~24px) */
+                "relative z-[1] -mt-6 max-lg:px-5 sm:max-lg:px-6",
                 "rounded-t-[1.35rem] bg-white pt-4 pb-1",
                 "shadow-[0_-12px_40px_-24px_rgba(94,95,94,0.35)]",
                 /* Desktop: restore flat column (Container owns gutters) */
-                "lg:z-auto lg:mt-0 lg:mx-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none",
+                "lg:z-auto lg:mt-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none",
               )}
               initial={
                 reducedMotion ? undefined : { opacity: 0, y: 14 }
@@ -412,11 +413,11 @@ export function ProductDetailView({ id }: { id: number }) {
               <PdpBuyCard {...buyCardProps} />
             </motion.aside>
 
-            {/* Mobile / tablet: buy card continues soft sheet over sticky gallery */}
+            {/* Mobile / tablet: buy card continues soft sheet */}
             <div
               className={cn(
                 "relative z-[1] lg:hidden",
-                "-mx-5 bg-white px-5 pb-6 pt-4 sm:-mx-6 sm:px-6",
+                "bg-white px-5 pb-6 pt-4 sm:px-6",
               )}
             >
               <PdpBuyCard {...buyCardProps} />
@@ -426,9 +427,8 @@ export function ProductDetailView({ id }: { id: number }) {
             <div
               className={cn(
                 "relative z-[1] min-w-0 lg:col-span-2",
-                /* Mobile: opaque plane so sticky gallery stays covered while scrolling */
-                "max-lg:-mx-5 max-lg:bg-background max-lg:px-5 max-lg:pb-2 sm:max-lg:-mx-6 sm:max-lg:px-6",
-                "lg:mx-0 lg:bg-transparent lg:px-0 lg:pb-0",
+                "max-lg:bg-background max-lg:px-5 max-lg:pb-2 sm:max-lg:px-6",
+                "lg:bg-transparent lg:px-0 lg:pb-0",
               )}
             >
               <PdpAssistStrip className="mt-7 sm:mt-8 max-lg:mt-5 [@media(max-height:800px)]:mt-5" />
