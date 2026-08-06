@@ -6,7 +6,9 @@ import re
 from typing import Any
 from urllib.parse import unquote, urljoin
 
+from .image_identity import select_retail_product_images
 from .sku_norm import (
+    brand_aliases,
     exact_or_family_slug_match,
     normalize_sku,
     sku_token_in_path,
@@ -20,19 +22,44 @@ _HREF_PRODUCT_ABZ = re.compile(
     re.I,
 )
 _HREF_PRODUCT_REL = re.compile(r"""href=["'](/product/[^"']+)["']""", re.I)
-_IMG_ABZARMARKET = re.compile(
-    r"""(https?://abzarmarket\.com/image-generator/products/\d+\.(?:jpg|jpeg|png|webp))""",
-    re.I,
+_SKU_IN_SLUG_NUMERIC = re.compile(r"(?i)\d{3,5}-\d{1,5}[a-z0-9]*")
+_SKU_IN_SLUG_ALPHA = re.compile(
+    r"(?i)[a-z]{2,}[a-z0-9]*-(?:[a-z]{0,4}\d+[a-z0-9]*|\d+[a-z][a-z0-9]*)"
 )
-_IMG_ABZARHAM = re.compile(
-    r"""(https?://abzarham\.com/wp-content/uploads/[^"' \s>]+\.(?:jpg|jpeg|png|webp))""",
-    re.I,
-)
-_SKU_IN_SLUG = re.compile(r"(?i)(\d{3,5}-\d{2,5}[a-z0-9]*|SO-\d+)")
+_SKU_IN_SLUG_SO = re.compile(r"(?i)SO-\d+")
 
 
 def parse_sitemap_locs(xml_text: str) -> list[str]:
     return _LOC_RE.findall(xml_text or "")
+
+
+def _slug_sku_tokens(text: str) -> list[str]:
+    """Collect candidate SKU tokens without left-to-right overlap starvation."""
+    found: list[str] = []
+    found.extend(_SKU_IN_SLUG_NUMERIC.findall(text or ""))
+    found.extend(_SKU_IN_SLUG_ALPHA.findall(text or ""))
+    found.extend(_SKU_IN_SLUG_SO.findall(text or ""))
+    return found
+
+
+def _best_sku_token(tokens: list[str]) -> str | None:
+    if not tokens:
+        return None
+    scored: list[tuple[int, str]] = []
+    for raw in tokens:
+        t = raw.strip()
+        if not t:
+            continue
+        score = len(t)
+        if re.match(r"(?i)^\d{3,5}-\d{1,5}[a-z0-9]*$", t):
+            score += 100
+        elif re.match(r"(?i)^[a-z]{2,}[a-z0-9]*-", t):
+            score += 40
+        scored.append((score, t))
+    if not scored:
+        return None
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return scored[0][1]
 
 
 def index_product_urls_by_sku(urls: list[str]) -> dict[str, str]:
@@ -41,12 +68,11 @@ def index_product_urls_by_sku(urls: list[str]) -> dict[str, str]:
     for url in urls:
         path = unquote(url.split("?")[0]).rstrip("/")
         segment = path.split("/")[-1]
-        tokens = list(_SKU_IN_SLUG.findall(segment)) or list(_SKU_IN_SLUG.findall(path))
-        if not tokens:
+        tokens = _slug_sku_tokens(segment) or _slug_sku_tokens(path)
+        token = _best_sku_token(tokens)
+        if not token:
             continue
-        # Prefer the last sku-like token in the slug (usually the model code).
-        token = tokens[-1].upper()
-        out.setdefault(token, url)
+        out.setdefault(token.upper(), url)
     return out
 
 
@@ -58,7 +84,6 @@ def lookup_catalog_url(index: dict[str, str], sku: str) -> tuple[str, str]:
     if target in index:
         return index[target], "exact"
     base = strip_trailing_variant(target).upper()
-    # catalog may store variant letter
     for cat_sku, url in index.items():
         kind = exact_or_family_slug_match(cat_sku, target)
         if kind == "exact":
@@ -74,33 +99,48 @@ def parse_abzarmarket_brand_catalog(html: str, *, base: str = "https://abzarmark
     return index_product_urls_by_sku(links)
 
 
-def extract_abzarmarket_product_images(html: str) -> list[str]:
-    return list(dict.fromkeys(_IMG_ABZARMARKET.findall(html or "")))
+def extract_abzarmarket_product_images(
+    html: str,
+    *,
+    expected_brand: str,
+    expected_sku: str,
+    product_detail_url: str,
+) -> list[str]:
+    result = select_retail_product_images(
+        expected_brand=expected_brand,
+        expected_sku=expected_sku,
+        product_detail_url=product_detail_url,
+        product_page_html=html,
+        candidate_url_allowlist=("abzarmarket.com/image-generator/products/",),
+    )
+    return list(result["image_urls"])
 
 
-def extract_abzarham_product_images(html: str, *, sku: str) -> list[str]:
-    imgs = list(dict.fromkeys(_IMG_ABZARHAM.findall(html or "")))
-    sku_cf = normalize_sku(sku)
-    base = normalize_sku(strip_trailing_variant(sku))
-    preferred = [
-        u
-        for u in imgs
-        if sku_cf in u.casefold()
-        or (base and base in u.casefold())
-        or "insize" in u.casefold()
-        or "dasqua" in u.casefold()
-    ]
-    # Drop logos / icons
-    preferred = [
-        u
-        for u in preferred
-        if "logo" not in u.casefold() and "cropped-" not in u.casefold() and "icon" not in u.casefold()
-    ]
-    return preferred or [
-        u
-        for u in imgs
-        if "logo" not in u.casefold() and "cropped-" not in u.casefold()
-    ]
+def extract_abzarham_product_images(
+    html: str,
+    *,
+    expected_brand: str,
+    expected_sku: str,
+    product_detail_url: str,
+) -> list[str]:
+    result = select_retail_product_images(
+        expected_brand=expected_brand,
+        expected_sku=expected_sku,
+        product_detail_url=product_detail_url,
+        product_page_html=html,
+        candidate_url_allowlist=("abzarham.com/wp-content/uploads/",),
+    )
+    return list(result["image_urls"])
+
+
+# Back-compat thin wrappers used by older call sites / fixtures.
+def extract_abzarham_product_images_legacy(html: str, *, sku: str) -> list[str]:
+    return extract_abzarham_product_images(
+        html,
+        expected_brand="insize",
+        expected_sku=sku,
+        product_detail_url="",
+    )
 
 
 def evaluate_pdp(
@@ -110,27 +150,27 @@ def evaluate_pdp(
     final_url: str,
     html: str,
     expected_match_kind: str,
-    image_urls: list[str],
+    image_urls: list[str] | None = None,
 ) -> dict[str, Any]:
     """Strict PDP identity evaluation shared by retailer adapters."""
     path_kind = sku_token_in_path(final_url, sku)
-    brand_ok = brand_key.replace("_", " ").casefold() in (html or "").casefold() or (
-        brand_key.casefold() in (html or "").casefold()
-    )
-    # Persian/English brand aliases
-    aliases = {
-        "insize": ("insize", "اینسایز"),
-        "dasqua": ("dasqua", "داسکا", "داسکوا"),
-        "san_ou": ("san ou", "sanou", "san-ou", "سان او"),
-    }
-    for alias in aliases.get(brand_key.casefold(), ()):
-        if alias in (html or "").casefold():
+    brand_ok = False
+    for alias in brand_aliases(brand_key):
+        if alias and alias in (html or "").casefold():
             brand_ok = True
             break
 
     body_skus = skus_in_text(html)
     sku_cf = normalize_sku(sku)
     sku_in_body = sku_cf in body_skus or sku_cf in (html or "").casefold()
+
+    if image_urls is None:
+        image_urls = select_retail_product_images(
+            expected_brand=brand_key,
+            expected_sku=sku,
+            product_detail_url=final_url,
+            product_page_html=html,
+        )["image_urls"]
 
     if path_kind == "conflict":
         return {
@@ -199,6 +239,7 @@ def evaluate_pdp(
             "asset_host_ok": False,
             "final_url": final_url,
             "notes": "exact_sku_ok_but_no_bounded_product_image",
+            "reason_code": "image_identity_unproven",
         }
 
     return {

@@ -346,7 +346,12 @@ def probe_for_source(ctx: R1Context, source: SourceDeclaration):
                     # Do not fetch family as exact calibration success
                     status, final, data = fetch_url(url, delay=ctx.delay)
                     html = data.decode("utf-8", errors="replace")
-                    imgs = extract_abzarham_product_images(html, sku=sku)
+                    imgs = extract_abzarham_product_images(
+                        html,
+                        expected_brand=brand,
+                        expected_sku=sku,
+                        product_detail_url=final,
+                    )
                     ev = evaluate_pdp(
                         sku=sku,
                         brand_key=brand,
@@ -383,7 +388,12 @@ def probe_for_source(ctx: R1Context, source: SourceDeclaration):
                         "notes": "unapproved_redirect",
                     }
                 html = data.decode("utf-8", errors="replace")
-                imgs = extract_abzarham_product_images(html, sku=sku)
+                imgs = extract_abzarham_product_images(
+                    html,
+                    expected_brand=brand,
+                    expected_sku=sku,
+                    product_detail_url=final,
+                )
                 ev = evaluate_pdp(
                     sku=sku,
                     brand_key=brand,
@@ -424,7 +434,12 @@ def probe_for_source(ctx: R1Context, source: SourceDeclaration):
                         "notes": f"http_{status}",
                     }
                 html = data.decode("utf-8", errors="replace")
-                imgs = extract_abzarmarket_product_images(html)
+                imgs = extract_abzarmarket_product_images(
+                    html,
+                    expected_brand=brand,
+                    expected_sku=sku,
+                    product_detail_url=final,
+                )
                 ev = evaluate_pdp(
                     sku=sku,
                     brand_key=brand,

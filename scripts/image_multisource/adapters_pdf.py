@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +19,23 @@ class PdfSkuHit:
     page_number: int
     page_text: str
     other_skus_on_page: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ExactProductCropProvenance:
+    catalog_url: str
+    catalog_sha256: str
+    pdf_page_number: int
+    printed_page_number: str
+    bounding_box: str
+    crop_sha256: str
+    crop_width: int
+    crop_height: int
+    target_sku_text_box: str
+    product_block_identity: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 def pdf_tools_available() -> bool:
@@ -110,7 +127,6 @@ def render_pdf_page_jpeg(pdf_path: Path, page_number: int, dest_stem: Path, *, d
     )
     if proc.returncode != 0:
         raise MultisourceError("pdf", f"pdftoppm failed: {proc.stderr.strip()}")
-    # pdftoppm appends -NNN.jpg
     matches = sorted(dest_stem.parent.glob(f"{dest_stem.name}-*.jpg"))
     if not matches:
         raise MultisourceError("pdf", f"pdftoppm produced no jpeg for page {page_number}")
@@ -125,7 +141,9 @@ def discover_pdf_sku(
     sku: str,
     hit: PdfSkuHit | None,
     rendered_page_path: Path | None,
+    exact_crop: ExactProductCropProvenance | None = None,
 ) -> dict[str, Any]:
+    """PDF discovery. Whole-page renders are catalog_page_evidence only."""
     if hit is None:
         return {
             "status": "not_found",
@@ -134,6 +152,7 @@ def discover_pdf_sku(
             "page_identity_ok": False,
             "parser_drift": False,
             "notes": "sku absent from catalog text index",
+            "evidence_kind": "",
         }
     multi = bool(hit.other_skus_on_page)
     record = build_pdf_record(
@@ -159,11 +178,11 @@ def discover_pdf_sku(
             "parser_drift": False,
             "pdf_record": record.to_dict(),
             "notes": record.identity_status,
+            "evidence_kind": "",
         }
-    # Multi-SKU catalog pages stay in review (family block risk).
-    discovery_status = "manual_review" if multi else "candidate_ready"
-    match_basis = "exact_sku_official_catalog"
-    return {
+
+    detail = f"{catalog_url}#page={hit.page_number}"
+    base = {
         "status": "matched",
         "exact_sku_ok": True,
         "false_match": False,
@@ -171,19 +190,47 @@ def discover_pdf_sku(
         "parser_drift": False,
         "matched_page_number": hit.page_number,
         "multi_sku_page": multi,
-        "discovery_status": discovery_status,
-        "eligible_for_automatic_acceptance": "false" if multi else "true",
-        "match_basis": match_basis,
-        "source_detail_url": f"{catalog_url}#page={hit.page_number}",
-        "source_image_url": f"{catalog_url}#page={hit.page_number}",
-        "local_page_image": str(rendered_page_path) if rendered_page_path else "",
+        "multi_product_blocks": multi or True,  # fail-closed: page may have blocks outside wanted set
+        "source_detail_url": detail,
         "pdf_record": record.to_dict(),
         "pdf_sha256": sha256_bytes(pdf_bytes),
-        "notes": "multi_sku_catalog_page" if multi else "single_sku_catalog_page",
+        "local_page_image": str(rendered_page_path) if rendered_page_path else "",
+    }
+
+    if exact_crop is not None:
+        return {
+            **base,
+            "evidence_kind": "exact_product_image_crop",
+            "discovery_status": "candidate_ready",
+            "eligible_for_automatic_acceptance": "true",
+            "match_basis": "exact_sku_official_catalog",
+            "source_image_url": detail,
+            "crop_provenance": exact_crop.to_dict(),
+            "notes": "exact_product_image_crop",
+        }
+
+    # Whole-page render is review evidence only — never automatic product image.
+    return {
+        **base,
+        "evidence_kind": "catalog_page_evidence",
+        "discovery_status": "manual_review",
+        "eligible_for_automatic_acceptance": "false",
+        "match_basis": "catalog_page_evidence",
+        "source_image_url": detail,
+        "reason_code": "catalog_page_requires_product_crop",
+        "notes": "catalog_page_requires_product_crop",
     }
 
 
-_CODE_RE = re.compile(r"(?i)(?<![0-9])(\d{4}-\d{4}(?:-[a-z0-9]+)?)")
+_CODE_RE = re.compile(
+    r"(?ix)(?<![0-9A-Z])("
+    r"[A-Z]{2,}[A-Z0-9]*-(?:[A-Z]{0,4}\d+[A-Z0-9]*|\d+[A-Z][A-Z0-9]*)"
+    r"|"
+    r"\d{3,5}-(?:[A-Z]\d+[A-Z0-9]*|\d{1,5}[A-Z][A-Z0-9]*)"
+    r"|"
+    r"\d{3,5}-\d{1,5}"
+    r")(?![0-9A-Z])"
+)
 
 
 def index_dasqua_sitemap_urls(urls: list[str]) -> dict[str, str]:

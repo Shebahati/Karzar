@@ -49,6 +49,15 @@ def _build_parser() -> argparse.ArgumentParser:
     r1.add_argument("--delay", type=float, default=0.8)
     r1.add_argument("--relation-cap", type=int, default=400)
     r1.add_argument("--calibration-limit", type=int, default=20)
+
+    r2 = sub.add_parser(
+        "remediate-batch-001-r2",
+        help="R2 offline semantic remediation from immutable R1 Artifact (no live network)",
+    )
+    r2.add_argument("--r1-root", type=Path, required=True)
+    r2.add_argument("--r1-zip", type=Path, default=None)
+    r2.add_argument("--output-dir", type=Path, required=True)
+    r2.add_argument("--zip-path", type=Path, default=None)
     return p
 
 
@@ -150,6 +159,49 @@ def main(argv: list[str] | None = None) -> int:
                     "checksums_digest": result["checksums_digest"],
                     "enabled_sources": result["enabled_sources"],
                     "summary": result["summary"],
+                    "zip": zip_info,
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.command == "remediate-batch-001-r2":
+        from image_multisource.r2_remediate import package_review_zip, run_r2_remediation
+
+        try:
+            result = run_r2_remediation(
+                r1_root=args.r1_root,
+                output_dir=args.output_dir,
+                repo_root=REPO_ROOT,
+                r1_zip=args.r1_zip,
+            )
+            zip_info = None
+            if args.zip_path is not None:
+                sha = package_review_zip(Path(result["output_dir"]), args.zip_path)
+                zip_info = {
+                    "zip_path": str(args.zip_path),
+                    "sha256": sha,
+                    "size_bytes": args.zip_path.stat().st_size,
+                }
+        except MultisourceError as exc:
+            print(
+                json.dumps(
+                    {"ok": False, "stage": exc.stage, "error": exc.message},
+                    ensure_ascii=False,
+                ),
+                file=sys.stderr,
+            )
+            return 2
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "output_dir": result["output_dir"],
+                    "summary": result["summary"],
+                    "checksum": result["checksum"],
                     "zip": zip_info,
                 },
                 ensure_ascii=False,

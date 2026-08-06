@@ -2193,7 +2193,7 @@
         "multisource"
       ],
       "risk": "med",
-      "notes": "CR-008 Option C. IMG-02C-01 R1 on feature/img02c-multisource-batch-001 (Draft #212). Researched ≥9 sources; enabled insize_eu261_pdf (S2), abzarham_sitemap (S5), abzarmarket_brand_catalog (S5). Bulk: 1129 attempted, 202 relations (3 stable / 140 retailer_review / 59 manual_review), 138 unique images. Artifact IMG-02C-01-R1.zip. IMG-02B preserved in_progress/40. Zero DB/ProductImage mutations."
+      "notes": "CR-008 Option C. IMG-02C-01 R2 on feature/img02c-multisource-batch-001 (Draft #212). Progress remains 60. R1 Artifact immutable/validation-failed. R2 offline remediation: stable=0; retailer=112; manual=55; image_identity_conflicts=29; materialization_failed=6; unique assets=138; abzarham_sitemap bulk_degraded. IMG-02B preserved in_progress/40. Zero DB/ProductImage mutations."
     }
   ]
 }

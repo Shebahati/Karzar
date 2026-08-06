@@ -1,6 +1,7 @@
 # PMO / Product Changelog (living)
 
 ## 2026-08-05
+- [x] **IMG-02C** — R2 semantic correction (`in_progress` 60%): R1.zip immutable/validation-failed; R2 demotes false PDF stables, quarantines retail brand/SKU image conflicts, materialization-rejected accounting, SHA-deduped portable assets, full checksum coverage. External `IMG-02C-01-R2.zip`. IMG-02B preserved at 40.
 - [x] **IMG-02C** — R1 real-source onboarding + bulk Artifact (`in_progress` 60%): ≥9 sources researched; enabled `insize_eu261_pdf` (S2), `abzarham_sitemap` (S5), `abzarmarket_brand_catalog` (S5); 1129 attempted → 202 relations / 138 unique images. External `IMG-02C-01-R1.zip`. IMG-02B preserved at 40. Zero DB/ProductImage mutations.
 - [x] **IMG-02C** — Batch-001 foundation started (`in_progress` 20%): typed S1–S5 registry, eligibility from IMG-02B worklists − R2 exclusions (remaining 1129), ≤20 live known-host calibration (enabled sources 0). External outputs under `/var/tmp/karzar-image-multisource/batch-001` and `IMG-02C-01`. IMG-02B preserved at 40. Zero DB/ProductImage mutations.
 - [x] **IMG-02B** — R2 drift quarantine on Draft #211: progress **40**; INSIZE effective partition 49=42+7 / 30=28+2 / 19=14+5; stable coverage 42/263=15.97% and 28/263=10.65%; raw pre-quarantine mat 30/263=11.41% historical only; governed review 46; packaged 18 assets retained; R1 ZIP immutable; IMG-02B-R2 external. Dasqua/SAN OU still `calibration_failed`; IMG-02B-05 not started. Zero DB/ProductImage mutations.

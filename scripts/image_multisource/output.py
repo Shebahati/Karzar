@@ -61,3 +61,56 @@ def write_checksums(output_dir: Path, members: list[str]) -> str:
     lines = [f"{sha256_file(output_dir / name)}  {name}" for name in members]
     (output_dir / "checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return sha256_file(output_dir / "checksums.sha256")
+
+
+def list_packaged_payload_files(output_dir: Path) -> list[str]:
+    """Relative paths of every regular file under output_dir except checksums.sha256."""
+    out: list[str] = []
+    for path in sorted(output_dir.rglob("*")):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(output_dir).as_posix()
+        if rel == "checksums.sha256":
+            continue
+        out.append(rel)
+    return out
+
+
+def write_full_checksums(output_dir: Path) -> dict[str, Any]:
+    members = list_packaged_payload_files(output_dir)
+    digest = write_checksums(output_dir, members)
+    regular = len(members) + 1  # include checksums.sha256
+    return {
+        "checksums_digest": digest,
+        "checksum_entries": len(members),
+        "regular_file_count": regular,
+        "checksum_uncovered_files": 0,
+        "members": members,
+    }
+
+
+def verify_checksums(output_dir: Path) -> dict[str, Any]:
+    chk = output_dir / "checksums.sha256"
+    if not chk.is_file():
+        raise MultisourceError("output", "checksums.sha256 missing")
+    failures = 0
+    entries = 0
+    listed: set[str] = set()
+    for line in chk.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        sha, name = line.split("  ", 1)
+        entries += 1
+        listed.add(name)
+        path = output_dir / name
+        if not path.is_file() or sha256_file(path) != sha:
+            failures += 1
+    expected = set(list_packaged_payload_files(output_dir))
+    uncovered = sorted(expected - listed)
+    return {
+        "checksum_entries": entries,
+        "checksum_failures": failures,
+        "checksum_uncovered_files": len(uncovered),
+        "uncovered": uncovered,
+        "regular_file_count": len(expected) + 1,
+    }

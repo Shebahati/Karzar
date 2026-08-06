@@ -232,19 +232,17 @@ R2 Artifact:
   SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
 ```
 
-## IMG-02C — Multisource expansion (R1 bulk Artifact)
+## IMG-02C — Multisource expansion (R2 semantic correction)
 
 ```text
 TASK_ID = IMG-02C
-NODE = IMG-02C-01-R1-REAL-SOURCE-ONBOARDING-BULK
+NODE = IMG-02C-01-R2-PDF-RETAIL-ARTIFACT-INTEGRITY
 status = in_progress
 progress = 60
-remaining_eligible = 1129 (derived from IMG-02B worklists − R2 exclusions)
-enabled_sources = insize_eu261_pdf (S2), abzarham_sitemap (S5), abzarmarket_brand_catalog (S5)
-bulk discovery = complete (1129 attempted; 202 relations; 138 unique images)
+R1 Artifact = immutable / validation-failed
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R1.zip
+  SHA-256 f0d66c559225f91a17d49b2646af7e4021b8d75ee728a5d46f8feb0904aae350
+R2 Artifact = semantic correction complete
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R2.zip
 IMG-02B status preserved (in_progress / 40; IMG-02B-05 not started)
-
-working root: /var/tmp/karzar-image-multisource/r1
-review root:  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R1
-zip:          /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R1.zip
 ```

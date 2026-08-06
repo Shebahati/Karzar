@@ -519,7 +519,12 @@ def test_retail_adapters_exact_family_conflict_and_host_images():
     assert "1804-1035" in brand and "2308-10A" in brand
 
     html = (FIXTURES / "abzarham_pdp_exact.html").read_text(encoding="utf-8")
-    imgs = extract_abzarham_product_images(html, sku="1804-1035")
+    imgs = extract_abzarham_product_images(
+        html,
+        expected_brand="dasqua",
+        expected_sku="1804-1035",
+        product_detail_url="https://abzarham.com/shop/measuring/1804-1035/",
+    )
     assert imgs and "1804-1035" in imgs[0]
     ok = evaluate_pdp(
         sku="1804-1035",
@@ -538,13 +543,24 @@ def test_retail_adapters_exact_family_conflict_and_host_images():
         final_url="https://abzarham.com/shop/measuring/2100-1120/",
         html=bad_html,
         expected_match_kind="exact",
-        image_urls=extract_abzarham_product_images(bad_html, sku="1120-200"),
+        image_urls=extract_abzarham_product_images(
+            bad_html,
+            expected_brand="insize",
+            expected_sku="1120-200",
+            product_detail_url="https://abzarham.com/shop/measuring/2100-1120/",
+        ),
     )
     assert bad["false_match"] is True
 
     market_html = (FIXTURES / "abzarmarket_pdp.html").read_text(encoding="utf-8")
-    m_imgs = extract_abzarmarket_product_images(market_html)
-    assert m_imgs and "image-generator/products" in m_imgs[0]
+    # image-generator URLs lack SKU in filename — without gallery/json-ld tie, unproven
+    m_imgs = extract_abzarmarket_product_images(
+        market_html,
+        expected_brand="dasqua",
+        expected_sku="1804-1035",
+        product_detail_url="https://abzarmarket.com/product/dasqua-gauge-1804-1035",
+    )
+    assert m_imgs == []
 
 
 def test_pdf_adapter_exact_and_multi_sku_quarantine(tmp_path: Path):
@@ -566,6 +582,8 @@ def test_pdf_adapter_exact_and_multi_sku_quarantine(tmp_path: Path):
     )
     assert multi["status"] == "matched"
     assert multi["discovery_status"] == "manual_review"
+    assert multi["evidence_kind"] == "catalog_page_evidence"
+    assert multi["reason_code"] == "catalog_page_requires_product_crop"
     single = discover_pdf_sku(
         pdf_path=tmp_path / "x.pdf",
         pdf_bytes=pdf,
@@ -574,7 +592,10 @@ def test_pdf_adapter_exact_and_multi_sku_quarantine(tmp_path: Path):
         hit=hits["4903-200"],
         rendered_page_path=None,
     )
-    assert single["discovery_status"] == "candidate_ready"
+    # Whole page never automatic without exact crop provenance
+    assert single["discovery_status"] == "manual_review"
+    assert single["eligible_for_automatic_acceptance"] == "false"
+    assert single["evidence_kind"] == "catalog_page_evidence"
 
 
 def test_calibration_false_match_disables(tmp_path: Path):
@@ -667,3 +688,143 @@ def test_calibration_enables_with_high_parser_success(tmp_path: Path):
     )
     assert result.enabled_after_calibration is True
     assert result.parser_success_rate >= 0.8
+
+
+def test_catalog_code_tokenizer_positive_and_negative():
+    from image_multisource.sku_norm import (
+        extract_catalog_codes,
+        is_plausible_catalog_code,
+        skus_in_text,
+    )
+
+    text = (FIXTURES / "catalog_codes.txt").read_text(encoding="utf-8")
+    codes = {c.upper() for c in extract_catalog_codes(text)}
+    for token in [
+        "ISQ-RM30",
+        "ISQ-DRM31",
+        "ISO-1200FN",
+        "ISO-1000FN",
+        "2199-1",
+        "2170-1",
+        "5801-A55",
+        "DSW-A010",
+        "7600-6",
+    ]:
+        assert is_plausible_catalog_code(token), token
+        assert token.upper() in codes or token.casefold() in skus_in_text(text)
+    assert not is_plausible_catalog_code("0-150")
+    assert not is_plausible_catalog_code("6-80")
+    assert "0-150" not in {c.casefold() for c in extract_catalog_codes(text)}
+
+
+def test_whole_pdf_page_never_candidate_ready_without_crop(tmp_path: Path):
+    from image_multisource.adapters_pdf import (
+        ExactProductCropProvenance,
+        discover_pdf_sku,
+        index_skus_in_pdf,
+    )
+
+    pages = ["cover\fISQ-RM30 and ISO-1200FN together\fONLY 2199-1\f"]
+    # split properly
+    pages = "cover\fISQ-RM30 and ISO-1200FN together\fONLY 2199-1\f".split("\f")
+    hits = index_skus_in_pdf(
+        tmp_path / "x.pdf",
+        ["ISQ-RM30", "ISO-1200FN", "2199-1"],
+        page_texts=pages,
+    )
+    assert hits["isq-rm30"].other_skus_on_page  # multi detection
+    pdf = b"%PDF-1.4\n%%EOF\n"
+    no_crop = discover_pdf_sku(
+        pdf_path=tmp_path / "x.pdf",
+        pdf_bytes=pdf,
+        catalog_url="https://www.tosag.ch/c.pdf",
+        sku="2199-1",
+        hit=hits["2199-1"],
+        rendered_page_path=None,
+        exact_crop=None,
+    )
+    assert no_crop["discovery_status"] == "manual_review"
+    assert no_crop["reason_code"] == "catalog_page_requires_product_crop"
+    crop = ExactProductCropProvenance(
+        catalog_url="https://www.tosag.ch/c.pdf",
+        catalog_sha256="ab" * 32,
+        pdf_page_number=3,
+        printed_page_number="3",
+        bounding_box="1,2,3,4",
+        crop_sha256="cd" * 32,
+        crop_width=100,
+        crop_height=100,
+        target_sku_text_box="2199-1",
+        product_block_identity="block-1",
+    )
+    with_crop = discover_pdf_sku(
+        pdf_path=tmp_path / "x.pdf",
+        pdf_bytes=pdf,
+        catalog_url="https://www.tosag.ch/c.pdf",
+        sku="2199-1",
+        hit=hits["2199-1"],
+        rendered_page_path=None,
+        exact_crop=crop,
+    )
+    assert with_crop["discovery_status"] == "candidate_ready"
+    assert with_crop["evidence_kind"] == "exact_product_image_crop"
+    assert with_crop["crop_provenance"]["bounding_box"] == "1,2,3,4"
+
+
+def test_retail_image_identity_rejects_wrong_brand_and_scopes_gallery():
+    from image_multisource.image_identity import (
+        classify_filename_identity,
+        select_retail_product_images,
+    )
+
+    gallery = (FIXTURES / "abzarham_gallery_exact.html").read_text(encoding="utf-8")
+    ok = select_retail_product_images(
+        expected_brand="dasqua",
+        expected_sku="1804-1035",
+        product_detail_url="https://abzarham.com/p/1804-1035/",
+        product_page_html=gallery,
+        candidate_url_allowlist=("abzarham.com/wp-content/uploads/",),
+    )
+    assert ok["image_urls"]
+    assert "1804-1035" in ok["image_urls"][0]
+    assert all("insize-wrong" not in u for u in ok["image_urls"])
+
+    wrong = select_retail_product_images(
+        expected_brand="dasqua",
+        expected_sku="1031-2010",
+        product_detail_url="https://abzarham.com/p/1031-2010/",
+        product_page_html=(FIXTURES / "abzarham_wrong_brand.html").read_text(encoding="utf-8"),
+        candidate_url_allowlist=("abzarham.com/wp-content/uploads/",),
+    )
+    assert wrong["image_urls"] == []
+    assert any(r["reason"] == "conflicting_image_brand" for r in wrong["rejected"])
+
+    sig = classify_filename_identity(
+        expected_brand="dasqua",
+        expected_sku="1031-2010",
+        source_image_url="https://abzarham.com/wp-content/uploads/2176-300-Insize-min.jpg",
+    )
+    assert sig["reason_code"] == "conflicting_image_brand"
+
+
+def test_full_checksum_coverage_and_portable_paths(tmp_path: Path):
+    from image_multisource.output import (
+        verify_checksums,
+        write_full_checksums,
+        write_json,
+    )
+
+    out = tmp_path / "pkg"
+    out.mkdir()
+    (out / "assets").mkdir()
+    (out / "assets" / "a.jpg").write_bytes(b"jpeg-bytes-not-real-but-ok")
+    write_json(out / "summary.json", {"ok": True})
+    (out / "README.md").write_text("x\n", encoding="utf-8")
+    info = write_full_checksums(out)
+    ver = verify_checksums(out)
+    assert ver["checksum_failures"] == 0
+    assert ver["checksum_uncovered_files"] == 0
+    assert ver["checksum_entries"] == ver["regular_file_count"] - 1
+    assert info["checksum_entries"] == ver["checksum_entries"]
+    # portable path convention
+    assert (out / "assets" / "a.jpg").is_file()
