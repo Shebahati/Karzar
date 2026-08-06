@@ -123,6 +123,11 @@ export function Hero() {
     ? ((index % slides.length) + slides.length) % slides.length
     : 0;
 
+  useEffect(() => {
+    const s = slides[activeIndex];
+    if (s) slideRef.current = s;
+  }, [slides, activeIndex]);
+
   const go = useCallback(
     (next: number, dir: number) => {
       if (!slides.length) return;
@@ -218,7 +223,6 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex]!;
-  slideRef.current = slide;
   const softMobile = isMobile && !reducedMotion;
   const slideMs = softMobile ? 0.34 : reducedMotion ? 0.12 : 0.85;
   const textX = softMobile || reducedMotion ? 0 : direction * 28;

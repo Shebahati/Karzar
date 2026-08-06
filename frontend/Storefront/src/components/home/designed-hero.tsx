@@ -421,8 +421,10 @@ export function DesignedHero({
     "balanced"
   ) as MobileComposePreset;
 
-  slideRef.current = slide ?? null;
-  presetRef.current = mobilePreset;
+  useEffect(() => {
+    slideRef.current = slide ?? null;
+    presetRef.current = mobilePreset;
+  }, [slide, mobilePreset]);
 
   const beginMobileCrossfade = useCallback(() => {
     if (!isMobile || reducedMotion) return;
