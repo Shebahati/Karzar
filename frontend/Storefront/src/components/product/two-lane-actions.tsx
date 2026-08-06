@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Buy, Call, Document, Plus } from "react-iconly";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductDetail, ProductSummary } from "@/types/product";
 
@@ -11,6 +12,9 @@ import type { ProductDetail, ProductSummary } from "@/types/product";
  * Two-lane purchase:
  * - priced → add to cart
  * - price-less → add to inquiry/quote (no fake SMS success)
+ *
+ * Compact density: denser qty/CTA chrome for the sticky buy card,
+ * with clear vertical rhythm (not crushed).
  */
 export function TwoLaneActions({
   product,
@@ -51,27 +55,45 @@ export function TwoLaneActions({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3.5">
       {!outOfStock && (
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">تعداد</span>
-          <div className="flex items-center gap-1 rounded-lg bg-secondary p-1">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[12px] font-medium text-steel">تعداد</span>
+          <div
+            className={cn(
+              "inline-flex items-center gap-0.5 rounded-lg bg-secondary/70 p-0.5",
+              "ring-1 ring-steel/[0.1]",
+            )}
+          >
             <button
               type="button"
               aria-label="کاهش"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="touch-target grid place-items-center rounded-md bg-white text-lg font-medium leading-none text-foreground shadow-soft"
+              className={cn(
+                "grid h-8 w-8 place-items-center rounded-md bg-white",
+                "text-base font-medium leading-none text-foreground",
+                "shadow-[0_1px_2px_rgba(94,95,94,0.08)]",
+                "transition-colors hover:text-[#D02327]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+              )}
             >
               −
             </button>
-            <span className="min-w-10 text-center text-sm font-medium tnum">{qty}</span>
+            <span className="min-w-8 select-none text-center text-[13px] font-bold tabular-nums text-foreground tnum">
+              {qty}
+            </span>
             <button
               type="button"
               aria-label="افزایش"
               onClick={() => setQty((q) => q + 1)}
-              className="touch-target grid place-items-center rounded-md bg-white text-foreground shadow-soft"
+              className={cn(
+                "grid h-8 w-8 place-items-center rounded-md bg-white",
+                "text-foreground shadow-[0_1px_2px_rgba(94,95,94,0.08)]",
+                "transition-colors hover:text-[#D02327]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+              )}
             >
-              <Plus size="small" set="bold" primaryColor="#5E5F5E" />
+              <Plus size="small" set="bold" primaryColor="currentColor" />
             </button>
           </div>
         </div>
@@ -79,31 +101,40 @@ export function TwoLaneActions({
 
       {hasPrice ? (
         <Button
-          size="lg"
-          className="w-full"
+          size="md"
+          className={cn(
+            "h-11 w-full rounded-xl text-[13px] font-bold tracking-tight",
+            "shadow-[0_10px_24px_-14px_rgba(208,35,39,0.55)]",
+          )}
           disabled={outOfStock}
           onClick={() => handleAdd("cart")}
         >
-          <Buy set="bold" />
+          <Buy set="bold" size="small" />
           {outOfStock ? "ناموجود" : "افزودن به سبد خرید"}
         </Button>
       ) : (
         <Button
-          size="lg"
+          size="md"
           variant="outline"
-          className="w-full border-foreground/25 bg-card text-foreground hover:bg-secondary"
+          className={cn(
+            "h-11 w-full rounded-xl text-[13px] font-bold tracking-tight",
+            "border-steel/20 bg-white text-foreground",
+            "hover-fine:bg-secondary hover-fine:ring-steel/25",
+          )}
           disabled={outOfStock}
           onClick={() => handleAdd("quote")}
         >
-          <Document set="bold" />
+          <Document set="bold" size="small" />
           {outOfStock ? "ناموجود" : "افزودن به استعلام"}
         </Button>
       )}
 
       {justAdded && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-success/10 px-4 py-3 text-sm text-success">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-success/10 px-3 py-2.5 text-[12px] text-success">
           <span className="font-medium">
-            {justAdded === "cart" ? "به سبد خرید اضافه شد." : "به سبد استعلام اضافه شد."}
+            {justAdded === "cart"
+              ? "به سبد خرید اضافه شد."
+              : "به سبد استعلام اضافه شد."}
           </span>
           <Link
             href={justAdded === "cart" ? "/cart" : "/quote"}
@@ -115,10 +146,13 @@ export function TwoLaneActions({
       )}
 
       {!hasPrice && (
-        <p className="flex items-start gap-2 text-xs leading-6 text-muted-foreground">
+        <p className="flex items-start gap-1.5 text-[11px] leading-5 text-muted-foreground">
           <Call size="small" set="light" />
           برای مشاوره تخصصی از صفحه{" "}
-          <Link href="/contact" className="font-medium text-foreground underline-offset-2 hover:underline">
+          <Link
+            href="/contact"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
             تماس با ما
           </Link>{" "}
           پیام بگذارید.

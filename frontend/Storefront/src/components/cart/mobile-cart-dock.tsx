@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Document } from "react-iconly";
 import { Button } from "@/components/ui/button";
 import { CartProformaButton } from "@/components/cart/cart-proforma-button";
-import { formatToman } from "@/lib/utils";
+import { formatToman, toPersianDigits } from "@/lib/utils";
 import type { CartLine } from "@/store/cart-store";
 
 /** Sticky checkout CTA for cart/quote pages on phones. */
@@ -12,33 +12,43 @@ export function MobileCartDock({
   mode,
   total,
   itemCount,
+  unitCount,
   lines = [],
   checkoutDisabled = false,
 }: {
   mode: "cart" | "quote";
   total: number;
   itemCount: number;
+  /** Total units across lines (for richer summary). Falls back to itemCount. */
+  unitCount?: number;
   /** Cart lines for login-gated sample proforma (cart mode only). */
   lines?: CartLine[];
   /** When true, block checkout CTA (e.g. any OOS line). */
   checkoutDisabled?: boolean;
 }) {
   if (itemCount === 0) return null;
+  const units = unitCount ?? itemCount;
 
   return (
-    <div className="mobile-dock px-4 py-3">
-      <div className="mx-auto flex max-w-lg flex-col gap-2">
-        <div className="flex items-center gap-3">
+    <div className="mobile-dock overflow-x-clip px-4 py-3">
+      <div className="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-2">
+        <div className="flex min-w-0 items-center gap-3">
           <div className="min-w-0 flex-1">
             {mode === "cart" ? (
               <>
-                <p className="text-xs text-muted-foreground">مجموع</p>
-                <p className="text-base font-bold text-foreground tnum">{formatToman(total)}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  مجموع · {toPersianDigits(units)} قلم
+                </p>
+                <p className="truncate text-base font-bold text-foreground tnum">
+                  {formatToman(total)}
+                </p>
               </>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">اقلام استعلام</p>
-                <p className="text-base font-bold text-foreground tnum">{itemCount} قلم</p>
+                <p className="text-base font-bold text-foreground tnum">
+                  {toPersianDigits(itemCount)} قلم
+                </p>
               </>
             )}
           </div>
@@ -64,11 +74,7 @@ export function MobileCartDock({
           )}
         </div>
         {mode === "cart" && (
-          <CartProformaButton
-            lines={lines}
-            size="md"
-            showHint={false}
-          />
+          <CartProformaButton lines={lines} size="md" showHint={false} />
         )}
       </div>
     </div>

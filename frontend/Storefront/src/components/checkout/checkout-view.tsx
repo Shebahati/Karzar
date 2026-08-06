@@ -220,7 +220,7 @@ export function CheckoutView() {
   const submitting = submit.isPending || initPayment.isPending || paying;
 
   return (
-    <Container className="pt-8 pb-24 lg:py-12">
+    <Container className="pt-8 pb-36 lg:py-12">
       <h1 className="text-2xl font-bold text-foreground">
         {isInquiry ? "تکمیل استعلام قیمت" : "تکمیل خرید"}
       </h1>

@@ -38,3 +38,13 @@ export const STORE_NESHAN_EMBED_URL = `https://neshan.org/maps/iframe/places/${S
 export const STORE_PHONE_DISPLAY = "09912480087";
 export const STORE_PHONE_E164 = "+989912480087";
 export const STORE_EMAIL = "info@karzartools.com";
+
+/** Live Telegram support — @Karzar_support1 */
+export const STORE_TELEGRAM_URL = "https://t.me/Karzar_support1";
+
+/**
+ * WhatsApp / Instagram — UI placeholders until official URLs exist.
+ * Keep null so CTAs stay non-navigating (به‌زودی).
+ */
+export const STORE_WHATSAPP_URL: string | null = null;
+export const STORE_INSTAGRAM_URL: string | null = null;

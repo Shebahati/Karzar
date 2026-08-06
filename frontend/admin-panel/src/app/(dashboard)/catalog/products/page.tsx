@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Bag2, Delete, Edit, Filter, Plus, Swap, Search } from "react-iconly";
 import { toast } from "sonner";
 
@@ -56,6 +57,7 @@ function categoryHierarchy(product: ProductSummary): string {
 }
 
 export default function ProductsListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
@@ -376,63 +378,81 @@ export default function ProductsListPage() {
                 <span />
               </div>
               <ul className={`flex flex-col gap-1 ${isFetching ? "opacity-60" : ""}`}>
-                {products.map((product) => (
-                  <li
-                    key={product.id}
-                    className="grid grid-cols-1 items-center gap-2 rounded-lg px-4 py-3 transition-colors hover:bg-[#F7F7F7] md:grid-cols-[28px_1fr_1.2fr_120px_100px_88px] md:gap-4"
-                  >
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 cursor-pointer accent-primary"
-                      checked={selectedIds.has(product.id)}
-                      onChange={() => toggleSelected(product)}
-                      aria-label={`انتخاب ${product.name}`}
-                    />
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
-                        <Bag2 set="bulk" size={22} primaryColor="#D02327" />
+                {products.map((product) => {
+                  const editHref = `/catalog/products/${product.id}/edit`;
+                  return (
+                    <li
+                      key={product.id}
+                      role="link"
+                      tabIndex={0}
+                      aria-label={`ویرایش ${product.name}`}
+                      className="grid cursor-pointer grid-cols-1 items-center gap-2 rounded-lg px-4 py-3 transition-colors hover:bg-[#F7F7F7] md:grid-cols-[28px_1fr_1.2fr_120px_100px_88px] md:gap-4"
+                      onClick={() => router.push(editHref)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          router.push(editHref);
+                        }
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 cursor-pointer accent-primary"
+                        checked={selectedIds.has(product.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggleSelected(product)}
+                        aria-label={`انتخاب ${product.name}`}
+                      />
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
+                          <Bag2 set="bulk" size={22} primaryColor="#D02327" />
+                        </div>
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate text-sm font-bold text-[#4F4F4F]">
+                            {product.name}
+                          </span>
+                          <span dir="ltr" className="text-start text-xs text-muted-foreground">
+                            {product.sku}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex min-w-0 flex-col">
-                        <span className="truncate text-sm font-bold text-[#4F4F4F]">
-                          {product.name}
-                        </span>
-                        <span dir="ltr" className="text-start text-xs text-muted-foreground">
-                          {product.sku}
-                        </span>
+                      <span className="truncate text-sm text-muted-foreground" title={categoryHierarchy(product)}>
+                        {categoryHierarchy(product)}
+                      </span>
+                      <span className="text-sm font-bold text-foreground tnum">
+                        {formatToman(product.base_price)}
+                      </span>
+                      <span>
+                        <StockBadge status={product.stock_status} />
+                      </span>
+                      <div
+                        className="flex justify-end gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="icon"
+                          aria-label="ویرایش محصول"
+                        >
+                          <Link href={editHref}>
+                            <Edit set="light" size={20} primaryColor="currentColor" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="حذف محصول"
+                          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setTarget(product)}
+                        >
+                          <Delete set="light" size={20} primaryColor="currentColor" />
+                        </Button>
                       </div>
-                    </div>
-                    <span className="truncate text-sm text-muted-foreground" title={categoryHierarchy(product)}>
-                      {categoryHierarchy(product)}
-                    </span>
-                    <span className="text-sm font-bold text-foreground tnum">
-                      {formatToman(product.base_price)}
-                    </span>
-                    <span>
-                      <StockBadge status={product.stock_status} />
-                    </span>
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="icon"
-                        aria-label="ویرایش محصول"
-                      >
-                        <Link href={`/catalog/products/${product.id}/edit`}>
-                          <Edit set="light" size={20} primaryColor="currentColor" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="حذف محصول"
-                        className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => setTarget(product)}
-                      >
-                        <Delete set="light" size={20} primaryColor="currentColor" />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
 
               {meta && meta.total_count > meta.limit && (

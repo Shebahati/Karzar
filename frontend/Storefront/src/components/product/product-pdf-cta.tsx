@@ -1,16 +1,26 @@
 "use client";
 
 import { Document } from "react-iconly";
+import { cn } from "@/lib/utils";
 import type { ProductDetail } from "@/types/product";
 
 /** EPIC-1.7 / FE-002 — PDF catalog CTA; hide entirely when URL missing. */
-export function ProductPdfCta({ product }: { product: ProductDetail }) {
+export function ProductPdfCta({
+  product,
+  className,
+}: {
+  product: ProductDetail;
+  className?: string;
+}) {
   const url = product.pdf_catalog_url?.trim() || null;
   if (!url) return null;
 
   return (
     <section
-      className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary/50 px-4 py-3.5 sm:px-5"
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary/50 px-4 py-3.5 sm:px-5",
+        className,
+      )}
       aria-labelledby="pdp-pdf-heading"
     >
       <div className="min-w-0">

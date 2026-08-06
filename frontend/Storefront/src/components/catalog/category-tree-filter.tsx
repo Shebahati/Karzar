@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
-import { ChevronLeft, CloseSquare, Search } from "react-iconly";
+import { ChevronDown, ChevronLeft, CloseSquare, Search } from "react-iconly";
 import { useCategoryTree, useFlatCategories } from "@/features/catalog/queries";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import type { CategoryFlat, CategoryTreeNode } from "@/types/category";
@@ -76,14 +76,18 @@ export function CategoryTreeFilter({
   activeId,
   onSelect,
   onClear,
+  /** Section accordion — collapsed by default; user expands intentionally. */
+  defaultOpen = false,
 }: {
   activeId?: number | null;
   onSelect: (id: number) => void;
   onClear: () => void;
+  defaultOpen?: boolean;
 }) {
   const { data: tree = [], isLoading: treeLoading } = useCategoryTree();
   const { data: flat = [], isLoading: flatLoading } = useFlatCategories();
   const [query, setQuery] = useState("");
+  const [sectionOpen, setSectionOpen] = useState(defaultOpen);
 
   const byId = useMemo(() => new Map(flat.map((c) => [c.id, c])), [flat]);
 
@@ -247,25 +251,40 @@ export function CategoryTreeFilter({
     >
       <header className="border-b border-[#D02327]/10 bg-card/95 px-3.5 pb-3 pt-3.5">
         <div className="mb-2.5 flex items-start justify-between gap-2">
-          <div className="min-w-0">
+          <button
+            type="button"
+            aria-expanded={sectionOpen}
+            aria-controls="shop-category-filter-body"
+            onClick={() => setSectionOpen((v) => !v)}
+            className="min-w-0 flex-1 rounded-lg text-start outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/35"
+          >
             <div className="flex items-center gap-2">
               <span aria-hidden className="h-5 w-1 shrink-0 rounded-full bg-[#D02327]" />
-              <h3
+              <span
                 id="shop-category-filter-heading"
                 className="text-sm font-black tracking-tight text-foreground"
               >
                 دسته‌بندی
-              </h3>
+              </span>
               {activeId != null ? (
                 <span className="rounded-md bg-[#D02327] px-1.5 py-0.5 text-[10px] font-bold text-white">
                   {toPersianDigits(1)}
                 </span>
               ) : null}
+              <span
+                className={cn(
+                  "ms-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#5E5F5E]/[0.08] text-[#5E5F5E] transition-transform duration-300 ease-out",
+                  sectionOpen && "rotate-180",
+                )}
+                aria-hidden
+              >
+                <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />
+              </span>
             </div>
             <p className="mt-1 ps-3 text-[11px] leading-relaxed text-[#5E5F5E]">
               {selected?.name ? selected.name : "درخت دسته‌ها مطابق پنل ادمین"}
             </p>
-          </div>
+          </button>
           {activeId != null ? (
             <button
               type="button"
@@ -278,55 +297,58 @@ export function CategoryTreeFilter({
           ) : null}
         </div>
 
-        <div className="relative">
-          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-[#5E5F5E]/70">
-            <Search size="small" set="light" />
-          </span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="جستجوی دسته…"
-            aria-label="جستجوی دسته‌بندی"
-            className="h-11 w-full rounded-xl border border-[#5E5F5E]/12 bg-white ps-9 pe-3 text-sm text-foreground outline-none transition placeholder:text-[#5E5F5E]/45 focus:border-[#D02327]/35 focus:ring-2 focus:ring-[#D02327]/20"
-          />
-        </div>
+        {sectionOpen ? (
+          <div className="relative">
+            <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-[#5E5F5E]/70">
+              <Search size="small" set="light" />
+            </span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="جستجوی دسته…"
+              aria-label="جستجوی دسته‌بندی"
+              className="h-11 w-full rounded-xl border border-[#5E5F5E]/12 bg-white ps-9 pe-3 text-sm text-foreground outline-none transition placeholder:text-[#5E5F5E]/45 focus:border-[#D02327]/35 focus:ring-2 focus:ring-[#D02327]/20"
+            />
+          </div>
+        ) : null}
       </header>
 
-      <div className="px-2.5 pb-3 pt-2">
-        <button
-          type="button"
-          onClick={handleClear}
-          aria-pressed={activeId == null}
-          className={cn(
-            "mb-2 flex min-h-10 w-full items-center justify-between rounded-xl px-3 text-start text-[13px] font-bold transition-colors",
-            activeId == null
-              ? "bg-[#D02327] text-white shadow-[0_8px_18px_-10px_rgba(208,35,39,0.55)]"
-              : "bg-white text-[#5E5F5E] ring-1 ring-[#5E5F5E]/10 hover:ring-[#D02327]/25",
-          )}
-        >
-          <span>همه کالاها</span>
-          {activeId == null ? (
-            <span className="text-[10px] font-bold opacity-90">فعال</span>
-          ) : null}
-        </button>
+      <div
+        id="shop-category-filter-body"
+        hidden={!sectionOpen}
+        className="px-2.5 pb-3 pt-2"
+      >
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-pressed={activeId == null}
+            className={cn(
+              "mb-2 flex min-h-10 w-full items-center justify-between rounded-xl px-3 text-start text-[13px] font-bold transition-colors",
+              activeId == null
+                ? "bg-[#D02327] text-white shadow-[0_8px_18px_-10px_rgba(208,35,39,0.55)]"
+                : "bg-white text-[#5E5F5E] ring-1 ring-[#5E5F5E]/10 hover:ring-[#D02327]/25",
+            )}
+          >
+            <span>همه کالاها</span>
+            {activeId == null ? (
+              <span className="text-[10px] font-bold opacity-90">فعال</span>
+            ) : null}
+          </button>
 
-        <div
-          className="max-h-[min(22rem,50vh)] overflow-y-auto overscroll-contain pe-1"
-          role="tree"
-          aria-label="درخت دسته‌بندی محصولات"
-        >
-          {loading ? (
-            <p className="px-2 py-4 text-xs text-[#5E5F5E]">در حال بارگذاری…</p>
-          ) : visibleTree.length === 0 ? (
-            <p className="px-2 py-4 text-xs text-[#5E5F5E]">
-              {query.trim() ? "دسته‌ای یافت نشد." : "دسته‌ای موجود نیست."}
-            </p>
-          ) : (
-            <ul className="space-y-0.5" role="group">
-              {visibleTree.map((node) => renderNode(node, 0))}
-            </ul>
-          )}
-        </div>
+          {/* No nested overflow — sidebar is the sole vertical scroll for filters. */}
+          <div role="tree" aria-label="درخت دسته‌بندی محصولات">
+            {loading ? (
+              <p className="px-2 py-4 text-xs text-[#5E5F5E]">در حال بارگذاری…</p>
+            ) : visibleTree.length === 0 ? (
+              <p className="px-2 py-4 text-xs text-[#5E5F5E]">
+                {query.trim() ? "دسته‌ای یافت نشد." : "دسته‌ای موجود نیست."}
+              </p>
+            ) : (
+              <ul className="space-y-0.5" role="group">
+                {visibleTree.map((node) => renderNode(node, 0))}
+              </ul>
+            )}
+          </div>
       </div>
     </section>
   );

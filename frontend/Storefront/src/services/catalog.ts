@@ -21,6 +21,7 @@ import type { SpecFilterOptions } from "@/types/spec-filter";
 import type { NavGroupApiRow } from "@/config/nav-groups";
 import {
   isApiProductSort,
+  productHasDiscount,
   type ProductDetail,
   type ProductListParams,
   type ProductListResponse,
@@ -69,9 +70,17 @@ export const catalogService = {
   async listProducts(params: ProductListParams = {}): Promise<ProductListResponse> {
     if (env.USE_MOCK) return (await getMockApi()).listProducts(params);
 
-    const { spec_filters, brand_ids, countries, sort, ...rest } = params;
+    const { spec_filters, brand_ids, countries, sort, on_sale, ...rest } = params;
     const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(rest)) {
+
+    // Live API has no on_sale facet — over-fetch then filter client-side when needed.
+    const wantLimit = rest.limit ?? 12;
+    const wantSkip = rest.skip ?? 0;
+    const liveRest = on_sale
+      ? { ...rest, skip: 0, limit: Math.min(Math.max(wantLimit * 8, 120), 200) }
+      : rest;
+
+    for (const [key, value] of Object.entries(liveRest)) {
       if (value == null || value === "") continue;
       searchParams.set(key, String(value));
     }
@@ -95,7 +104,23 @@ export const catalogService = {
     const { data } = await apiClient.get<ProductListResponse>(
       `/products/?${searchParams.toString()}`.replace(/\?$/, ""),
     );
-    return data;
+
+    if (!on_sale) return data;
+
+    const discounted = (data.data ?? [])
+      .filter((p) => productHasDiscount(p))
+      .sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0));
+    const page = discounted.slice(wantSkip, wantSkip + wantLimit);
+    return {
+      data: page,
+      meta: {
+        total_count: discounted.length,
+        skip: wantSkip,
+        limit: wantLimit,
+        has_next: wantSkip + wantLimit < discounted.length,
+        has_prev: wantSkip > 0,
+      },
+    };
   },
 
   async getProduct(id: number): Promise<ProductDetail> {

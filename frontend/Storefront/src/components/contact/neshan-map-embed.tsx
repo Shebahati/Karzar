@@ -8,7 +8,8 @@ type NeshanMapEmbedProps = {
 };
 
 /**
- * Compact Neshan place iframe — light frame, modest height.
+ * Compact Neshan place iframe — height scales with viewport so short
+ * monitors keep the map in the first scroll without a tall aspect box.
  */
 export function NeshanMapEmbed({
   className,
@@ -21,7 +22,15 @@ export function NeshanMapEmbed({
         className,
       )}
     >
-      <div className="relative aspect-[2/1] w-full min-h-[140px] max-h-[200px]">
+      <div
+        className={cn(
+          "relative w-full",
+          /* Prefer svh (stable) with dvh fallthrough via min(); clamp keeps a readable map */
+          "h-[clamp(5.25rem,min(16svh,18dvh),10.5rem)]",
+          "[@media(max-height:760px)]:h-[clamp(4.5rem,12svh,7.5rem)]",
+          "[@media(max-height:640px)]:h-[clamp(4rem,10svh,6.25rem)]",
+        )}
+      >
         <iframe
           title={title}
           src={STORE_NESHAN_EMBED_URL}

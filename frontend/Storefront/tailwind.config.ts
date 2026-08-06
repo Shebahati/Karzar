@@ -95,6 +95,18 @@ const config: Config = {
         sans: ["var(--font-iranyekan)", "system-ui", "sans-serif"],
         iranyekan: ["var(--font-iranyekan)", "system-ui", "sans-serif"],
       },
+      opacity: {
+        15: "0.15",
+        35: "0.35",
+        45: "0.45",
+        55: "0.55",
+        65: "0.65",
+        80: "0.8",
+        82: "0.82",
+        85: "0.85",
+        92: "0.92",
+        95: "0.95",
+      },
       spacing: {
         13: "3.25rem",
         18: "4.5rem",

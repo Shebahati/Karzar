@@ -48,11 +48,13 @@ export default async function CatalogPage({
 
   const categoryRaw = firstParam(sp.category) ?? firstParam(sp.category_id);
   const categoryId = categoryRaw != null ? Number(categoryRaw) : undefined;
+  const onSale = firstParam(sp.on_sale) === "1";
   const plpParams = {
     ...DEFAULT_PLP,
     ...(Number.isFinite(categoryId) && categoryId! > 0
       ? { category_id: categoryId }
       : {}),
+    ...(onSale ? { on_sale: true as const } : {}),
   };
 
   const queryClient = getQueryClient();

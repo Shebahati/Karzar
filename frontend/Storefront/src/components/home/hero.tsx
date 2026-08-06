@@ -75,6 +75,9 @@ export function Hero() {
   const [paused, setPaused] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
+  const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
 
@@ -99,6 +102,14 @@ export function Hero() {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
@@ -129,13 +140,15 @@ export function Hero() {
   );
 
   useEffect(() => {
-    if (hasDesigned || menuOpen || slides.length <= 1 || paused || reducedMotion) return;
+    if (hasDesigned || isMobile || menuOpen || slides.length <= 1 || paused || reducedMotion) {
+      return;
+    }
     const t = window.setInterval(() => {
       setDirection(1);
       setIndex((i) => (i + 1) % slides.length);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [hasDesigned, menuOpen, slides.length, paused, reducedMotion]);
+  }, [hasDesigned, isMobile, menuOpen, slides.length, paused, reducedMotion]);
 
   useEffect(() => {
     if (hasDesigned) return;
@@ -183,8 +196,23 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex]!;
-  const slideMs = reducedMotion ? 0.18 : 0.85;
-  const textX = reducedMotion ? 0 : direction * 28;
+  const liteMotion = isMobile || reducedMotion;
+  const slideMs = liteMotion ? 0.12 : 0.85;
+  const textX = liteMotion ? 0 : direction * 28;
+
+  const slideArrowClass = (side: "left" | "right") =>
+    cn(
+      "pointer-events-auto absolute top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full",
+      "bg-black/35 text-white shadow-[0_8px_22px_rgba(0,0,0,0.24)]",
+      !isMobile && "backdrop-blur-md",
+      "transition-[opacity,background-color,box-shadow] duration-300 ease-out",
+      "hover-fine:bg-black/48 hover-fine:shadow-[0_10px_28px_rgba(0,0,0,0.32)]",
+      "active:bg-black/55",
+      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/55",
+      "opacity-40",
+      "[@media(hover:hover)_and_(pointer:fine)]:opacity-0",
+      arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
+    );
 
   return (
     <section
@@ -192,9 +220,18 @@ export function Hero() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو دسته‌بندی‌های کارزار"
-      className="relative h-[62dvh] w-full outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62dvh] w-full outline-none md:h-[100dvh]"
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={() => {
+        setPaused(false);
+        setArrowSide(null);
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const next = e.clientX - rect.left < rect.width / 2 ? "left" : "right";
+        setArrowSide((prev) => (prev === next ? prev : next));
+      }}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
@@ -217,48 +254,23 @@ export function Hero() {
       }}
     >
       <div className="relative h-full w-full overflow-hidden">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
+        {liteMotion ? (
+          <div
             key={slide.id}
-            custom={direction}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: menuOpen ? 0.42 : 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: slideMs, ease: easePremium }}
             className={cn(
-              "absolute inset-0 transition-transform duration-300 ease-out",
-              menuOpen && "scale-[1.015]",
+              "absolute inset-0 transition-opacity duration-200",
+              menuOpen && "opacity-40",
             )}
           >
-            <motion.div
-              className="absolute inset-0 origin-center will-change-transform"
-              initial={{
-                scale: reducedMotion ? 1 : 1.06,
-                x: reducedMotion ? 0 : direction * -18,
-              }}
-              animate={{
-                scale: reducedMotion ? 1 : 1.1,
-                x: 0,
-              }}
-              transition={
-                reducedMotion
-                  ? { duration: 0.18 }
-                  : {
-                      scale: { duration: AUTOPLAY_MS / 1000, ease: "linear" },
-                      x: { duration: slideMs, ease: easePremium },
-                    }
-              }
-            >
-              <SafeImage
-                src={slide.image}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover object-[left_42%]"
-                fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
-                {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
-              />
-            </motion.div>
+            <SafeImage
+              src={slide.image}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-[left_42%]"
+              fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+              {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
+            />
             <div
               aria-hidden
               className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
@@ -267,8 +279,57 @@ export function Hero() {
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
             />
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        ) : (
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={slide.id}
+              custom={direction}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: menuOpen ? 0.42 : 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: slideMs, ease: easePremium }}
+              className={cn(
+                "absolute inset-0 transition-transform duration-300 ease-out",
+                menuOpen && "scale-[1.015]",
+              )}
+            >
+              <motion.div
+                className="absolute inset-0 origin-center will-change-transform"
+                initial={{
+                  scale: 1.06,
+                  x: direction * -18,
+                }}
+                animate={{
+                  scale: 1.1,
+                  x: 0,
+                }}
+                transition={{
+                  scale: { duration: AUTOPLAY_MS / 1000, ease: "linear" },
+                  x: { duration: slideMs, ease: easePremium },
+                }}
+              >
+                <SafeImage
+                  src={slide.image}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover object-[left_42%]"
+                  fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+                  {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
+                />
+              </motion.div>
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
+              />
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         <div
           className={cn(
@@ -277,19 +338,8 @@ export function Hero() {
           )}
         >
           <div className="max-w-xl">
-            <AnimatePresence mode="wait" initial={false} custom={direction}>
-              <motion.div
-                key={slide.id}
-                custom={direction}
-                initial={{ opacity: 0, x: textX, y: reducedMotion ? 0 : 10 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                exit={{
-                  opacity: 0,
-                  x: reducedMotion ? 0 : direction * -18,
-                  y: reducedMotion ? 0 : -6,
-                }}
-                transition={{ duration: reducedMotion ? 0.15 : 0.55, ease: easePremium }}
-              >
+            {liteMotion ? (
+              <div key={slide.id}>
                 <p
                   className="text-sm font-bold tracking-wide text-white sm:text-base"
                   style={{ textShadow: copyShadow }}
@@ -327,8 +377,61 @@ export function Hero() {
                     </Button>
                   </Link>
                 </div>
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            ) : (
+              <AnimatePresence mode="wait" initial={false} custom={direction}>
+                <motion.div
+                  key={slide.id}
+                  custom={direction}
+                  initial={{ opacity: 0, x: textX, y: 10 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  exit={{
+                    opacity: 0,
+                    x: direction * -18,
+                    y: -6,
+                  }}
+                  transition={{ duration: 0.55, ease: easePremium }}
+                >
+                  <p
+                    className="text-sm font-bold tracking-wide text-white sm:text-base"
+                    style={{ textShadow: copyShadow }}
+                  >
+                    کارزار
+                  </p>
+                  <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
+                  <h1
+                    className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
+                    style={{ textShadow: copyShadow }}
+                  >
+                    {slide.title}
+                  </h1>
+                  <p
+                    className="mt-3 max-w-lg text-sm leading-7 text-white/95 sm:mt-4 sm:text-base sm:leading-8"
+                    style={{ textShadow: copyShadow }}
+                  >
+                    {slide.subtitle}
+                  </p>
+
+                  <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+                    <Link href={slide.cta_href} className="w-full sm:w-auto">
+                      <Button size="lg" className="w-full gap-2 sm:w-auto">
+                        {slide.cta_label}
+                        <ArrowLeft set="bold" size="small" />
+                      </Button>
+                    </Link>
+                    <Link href="/catalog" className="w-full sm:w-auto">
+                      <Button
+                        size="lg"
+                        variant="soft"
+                        className="w-full border border-white/30 bg-white/10 text-white shadow-none ring-white/20 hover-fine:bg-white/20 hover-fine:text-white hover-fine:shadow-none hover-fine:ring-white/30 hover-fine:translate-y-0 sm:w-auto"
+                      >
+                        مشاهده فروشگاه
+                      </Button>
+                    </Link>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            )}
           </div>
 
           {slides.length > 1 && !menuOpen ? (
@@ -352,36 +455,40 @@ export function Hero() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-2" dir="ltr">
-                <button
-                  type="button"
-                  aria-label="اسلاید بعدی"
-                  onClick={goNext}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-                >
-                  <ChevronLeft set="light" size="small" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="اسلاید قبلی"
-                  onClick={goPrev}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-                >
-                  <ChevronRight set="light" size="small" />
-                </button>
-              </div>
             </div>
           ) : null}
         </div>
 
-        <HeroCategoryOrbs
-          activeIndex={activeIndex}
-          onSelectFeatured={goTo}
-          roots={roots}
-          defs={orbsFromRoots(roots)}
-          menuOpen={menuOpen}
-          onMenuOpenChange={setMenuOpen}
-        />
+        {slides.length > 1 && !menuOpen ? (
+          <>
+            <button
+              type="button"
+              aria-label="اسلاید بعدی"
+              onClick={goNext}
+              className={cn(slideArrowClass("left"), "left-3 sm:left-5")}
+            >
+              <ChevronLeft set="light" size="small" />
+            </button>
+            <button
+              type="button"
+              aria-label="اسلاید قبلی"
+              onClick={goPrev}
+              className={cn(slideArrowClass("right"), "right-3 sm:right-5")}
+            >
+              <ChevronRight set="light" size="small" />
+            </button>
+          </>
+        ) : null}
+
+        {!isMobile ? (
+          <HeroCategoryOrbs
+            activeIndex={activeIndex}
+            roots={roots}
+            defs={orbsFromRoots(roots)}
+            menuOpen={menuOpen}
+            onMenuOpenChange={setMenuOpen}
+          />
+        ) : null}
 
         <span className="sr-only" aria-live="polite">
           {slide.title}

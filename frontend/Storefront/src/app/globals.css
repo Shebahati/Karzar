@@ -92,11 +92,26 @@
     /* Keep in-page anchors / focus clear of sticky header + bottom nav on phones. */
     scroll-padding-top: 5.5rem;
     scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    /* Mobile horizontal lock — never pan the page left/right. */
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02";
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  /* Fallback when overflow: clip is unsupported (older WebKit). */
+  @supports not (overflow-x: clip) {
+    html,
+    body {
+      overflow-x: hidden;
+    }
   }
 
   /* Persian digits for numeric UI; never force Latin tabular figures. */
@@ -127,7 +142,7 @@
 @layer components {
   /** Fixed bar sitting just above the mobile bottom nav. */
   .mobile-dock {
-    @apply fixed inset-x-0 z-40 border-t border-border/50 bg-card/95 shadow-elevated backdrop-blur-md lg:hidden;
+    @apply fixed inset-x-0 z-40 border-t border-border/50 bg-card shadow-elevated lg:hidden;
     bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
   }
 
@@ -137,11 +152,11 @@
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+    @apply bg-white/85 md:bg-white/70 md:backdrop-blur-xl md:backdrop-saturate-150;
   }
 
   .glass-strong {
-    @apply bg-white/85 backdrop-blur-2xl backdrop-saturate-150;
+    @apply bg-white/92 md:bg-white/85 md:backdrop-blur-2xl md:backdrop-saturate-150;
   }
 
   /** Homepage section stack — uses FE-001 CSS variables. */
@@ -244,25 +259,12 @@
   }
 }
 
-/* Home hero scroll-snap: desktop only — mobile uses normal document scroll */
-@media (min-width: 768px) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-  .hero-snap {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  .home-snap {
-    scroll-snap-align: start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-snap-type: none;
-  }
-}
+/*
+ * Home hero used to set `scroll-snap-type: y` on html (desktop) with
+ * scroll-snap-stop:always on the sticky hero. That fought native wheel
+ * scrolling — spontaneous snap jumps, especially with sticky + smooth
+ * scroll-behavior. Sticky overlay still works without page-level snap.
+ */
 
 /* Designed hero animations (admin builder presets) */
 @keyframes hero-fade-up {
@@ -299,3 +301,187 @@
 .hero-anim-stagger-up .hero-stagger-2 { animation: hero-stagger-item 650ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .hero-anim-stagger-up .hero-stagger-3 { animation: hero-stagger-item 650ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .hero-anim-stagger-up .hero-stagger-4 { animation: hero-stagger-item 650ms 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Kill continuous / entrance hero CSS on phones + reduced-motion. */
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .hero-anim-fade-up > *,
+  .hero-anim-fade-in > *,
+  .hero-anim-slide-in > *,
+  .hero-anim-zoom-soft > *,
+  .hero-anim-float > *,
+  .hero-anim-stagger-up .hero-stagger-1,
+  .hero-anim-stagger-up .hero-stagger-2,
+  .hero-anim-stagger-up .hero-stagger-3,
+  .hero-anim-stagger-up .hero-stagger-4 {
+    animation: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  First-visit splash — gated by html[data-karzar-splash] (head boot script) */
+/*  Boot veil is a CSS pseudo (not React DOM). Overlay is React-owned only.  */
+/* -------------------------------------------------------------------------- */
+html[data-karzar-splash] {
+  overflow: hidden;
+}
+
+/* Instant cover before React mounts FirstVisitSplash (avoids FOUC + removeChild). */
+html[data-karzar-splash] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: auto;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 58%),
+    linear-gradient(165deg, #f7f6f4 0%, #eef0f1 45%, #e6e8ea 100%);
+}
+
+.karzar-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+}
+
+.karzar-splash__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 58%),
+    linear-gradient(165deg, #f7f6f4 0%, #eef0f1 45%, #e6e8ea 100%);
+  transition: opacity 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.karzar-splash__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.125rem;
+  padding: 1.5rem;
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.karzar-splash--ready .karzar-splash__inner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.karzar-splash__logo {
+  width: min(220px, 58vw);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transform-origin: center center;
+}
+
+.karzar-splash--animate.karzar-splash--ready:not(.karzar-splash--exit) .karzar-splash__logo {
+  animation: karzar-splash-breathe 2.4s ease-in-out infinite;
+}
+
+.karzar-splash__accent {
+  display: block;
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+  background: #d02327;
+  opacity: 0.85;
+  transform: scaleX(0.35);
+  transform-origin: center;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+}
+
+.karzar-splash--ready .karzar-splash__accent {
+  transform: scaleX(1);
+}
+
+.karzar-splash__hairline {
+  display: block;
+  width: min(120px, 36vw);
+  height: 1px;
+  margin-top: 0.125rem;
+  border-radius: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(94, 95, 94, 0.28) 20%,
+    rgba(208, 35, 39, 0.45) 50%,
+    rgba(94, 95, 94, 0.28) 80%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0.7;
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1) 280ms;
+}
+
+.karzar-splash--ready .karzar-splash__hairline {
+  transform: scaleX(1);
+}
+
+.karzar-splash--exit {
+  pointer-events: none;
+}
+
+.karzar-splash--exit .karzar-splash__veil {
+  opacity: 0;
+}
+
+.karzar-splash--exit .karzar-splash__inner {
+  opacity: 0;
+  transform: translateY(-4px) scale(1.01);
+  transition-duration: 420ms;
+}
+
+.karzar-splash--reduced .karzar-splash__inner,
+.karzar-splash--reduced .karzar-splash__accent,
+.karzar-splash--reduced .karzar-splash__hairline,
+.karzar-splash--reduced .karzar-splash__veil {
+  transition-duration: 160ms;
+  transition-delay: 0ms;
+}
+
+.karzar-splash--reduced.karzar-splash--exit .karzar-splash__inner {
+  transform: none;
+}
+
+@keyframes karzar-splash-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.012);
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karzar-splash--animate.karzar-splash--ready:not(.karzar-splash--exit) .karzar-splash__logo {
+    animation: none;
+  }
+
+  .karzar-splash__inner,
+  .karzar-splash__accent,
+  .karzar-splash__hairline,
+  .karzar-splash__veil {
+    transition-duration: 160ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .karzar-splash--exit .karzar-splash__inner {
+    transform: none;
+  }
+}

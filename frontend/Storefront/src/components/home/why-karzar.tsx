@@ -334,6 +334,9 @@ function CapabilityDetailModal({
   const active = CAPABILITIES.find((c) => c.id === id)!;
   const titleId = useId();
   const handleEscape = useCallback(() => onClose(), [onClose]);
+  // Portal only after mount so SSR HTML matches (no document during RSC/SSR).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useFocusTrap(panelRef, open, handleEscape);
 
@@ -346,14 +349,14 @@ function CapabilityDetailModal({
     };
   }, [open]);
 
-  if (typeof document === "undefined") return null;
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {open ? (
         <motion.div
           key="why-karzar-capability-sheet"
-          className="fixed inset-0 z-[70] lg:hidden"
+          className="fixed inset-0 z-[80] lg:hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -362,7 +365,7 @@ function CapabilityDetailModal({
           <button
             type="button"
             aria-label="بستن پس‌زمینه"
-            className="absolute inset-0 bg-[#0e0f0f]/55 backdrop-blur-md supports-[backdrop-filter]:bg-[#0e0f0f]/40"
+            className="absolute inset-0 bg-[#0e0f0f]/72"
             onClick={onClose}
           />
 
@@ -392,7 +395,7 @@ function CapabilityDetailModal({
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute -end-10 -top-10 h-36 w-36 rounded-full bg-[#D02327]/30 blur-3xl"
+              className="pointer-events-none absolute -end-10 -top-10 hidden h-36 w-36 rounded-full bg-[#D02327]/30 blur-3xl sm:block"
             />
 
             <div className="relative flex shrink-0 flex-col border-b border-white/10 px-4 pb-4 pt-[max(0.5rem,env(safe-area-inset-top))]">
@@ -419,7 +422,7 @@ function CapabilityDetailModal({
                   type="button"
                   aria-label="بستن"
                   onClick={onClose}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/15"
+                  className="touch-target shrink-0 rounded-xl bg-white/10 text-white transition hover:bg-white/15"
                 >
                   <CloseSquare set="bold" size="small" primaryColor="currentColor" />
                 </button>
@@ -440,6 +443,23 @@ function CapabilityDetailModal({
 /**
  * Capability stage — desktop side-panel; mobile opens detail + form in a sheet.
  */
+function WhyKarzarHeading() {
+  return (
+    <>
+      <p className="text-[11px] font-black tracking-[0.28em] text-[#D02327]">کارزار</p>
+      <h2
+        id="why-karzar-heading"
+        className="mt-3 text-[1.55rem] font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem]"
+      >
+        ابزار صنعتی، خرید مطمئن
+      </h2>
+      <p className="mt-4 max-w-lg text-sm leading-7 text-white/65 sm:text-base">
+        از پیش‌فاکتور تا تأمین و مشاوره — هر قابلیت را ببینید و همان‌جا اقدام کنید.
+      </p>
+    </>
+  );
+}
+
 export function WhyKarzar() {
   const motionSafe = useMotionSafe();
   const [activeId, setActiveId] = useState<CardId>("proforma");
@@ -523,9 +543,9 @@ export function WhyKarzar() {
 
   useEffect(() => () => clearResumeTimer(), [clearResumeTimer]);
 
-  /** Auto-advance to next capability; paused while modal / forms are in use. */
+  /** Auto-advance desktop panel only — skip on mobile (sheet + no stage) and reduced motion. */
   useEffect(() => {
-    if (reduceMotion || formBusy || modalOpen) return;
+    if (reduceMotion || formBusy || modalOpen || !isDesktop) return;
 
     const timer = setTimeout(() => {
       setActiveId((current) => {
@@ -535,21 +555,21 @@ export function WhyKarzar() {
     }, AUTO_ADVANCE_MS);
 
     return () => clearTimeout(timer);
-  }, [activeId, formBusy, modalOpen, reduceMotion]);
+  }, [activeId, formBusy, modalOpen, reduceMotion, isDesktop]);
 
   return (
     <section
       aria-labelledby="why-karzar-heading"
       className="relative overflow-hidden rounded-[1.85rem] bg-[#0e0f0f] text-white"
     >
-      {/* Atmosphere */}
+      {/* Atmosphere — static gradients only (no scroll parallax / layout motion). */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_85%_-10%,rgba(208,35,39,0.38),transparent_55%),radial-gradient(ellipse_70%_50%_at_0%_100%,rgba(94,95,94,0.22),transparent_50%)]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.045]"
+        className="pointer-events-none absolute inset-0 opacity-[0.045] max-md:hidden"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -558,56 +578,47 @@ export function WhyKarzar() {
 
       <div className="relative px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-20">
         <div className="mx-auto max-w-6xl">
-          <motion.div
-            initial={motionSafe ? { opacity: 0, y: 18 } : false}
-            whileInView={motionSafe ? { opacity: 1, y: 0 } : undefined}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-2xl"
-          >
-            <p className="text-[11px] font-black tracking-[0.28em] text-[#D02327]">کارزار</p>
-            <h2
-              id="why-karzar-heading"
-              className="mt-3 text-[1.85rem] font-black leading-[1.25] tracking-tight text-white sm:text-4xl lg:text-[2.75rem]"
+          {motionSafe ? (
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-2xl"
             >
-              ابزار صنعتی
-              <br />
-              با مسیر مطمئن خرید
-            </h2>
-            <p className="mt-4 max-w-lg text-sm leading-7 text-white/65 sm:text-base">
-              از پیش‌فاکتور تا تأمین و مشاوره — هر قابلیت را ببینید و همان‌جا اقدام کنید.
-            </p>
-          </motion.div>
+              <WhyKarzarHeading />
+            </motion.div>
+          ) : (
+            <div className="max-w-2xl">
+              <WhyKarzarHeading />
+            </div>
+          )}
 
           <div className="mt-10 grid gap-3 lg:mt-14 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)] lg:gap-10 lg:items-start">
-            {/* Capability rail — compact on mobile (title only) */}
+            {/* Capability rail — compact on mobile (title only); no entrance stagger on max-lg */}
             <div className="flex flex-col gap-1.5 lg:gap-2" role="tablist" aria-label="قابلیت‌های کارزار">
               {CAPABILITIES.map((cap, i) => {
                 const selected = cap.id === activeId;
-                return (
-                  <motion.button
-                    key={cap.id}
-                    type="button"
-                    role="tab"
-                    id={`why-karzar-tab-${cap.id}`}
-                    aria-controls={
-                      isDesktop ? `why-karzar-panel-${cap.id}` : `why-karzar-modal-${cap.id}`
-                    }
-                    aria-selected={selected}
-                    aria-expanded={!isDesktop ? (modalOpen && selected) : undefined}
-                    tabIndex={selected ? 0 : -1}
-                    initial={motionSafe ? { opacity: 0, x: 16 } : false}
-                    whileInView={motionSafe ? { opacity: 1, x: 0 } : undefined}
-                    viewport={{ once: true, amount: 0.35 }}
-                    transition={{ duration: 0.4, delay: Math.min(0.06 * i, 0.24) }}
-                    onClick={() => selectCapability(cap.id)}
-                    className={cn(
-                      "group relative flex items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-start transition-all duration-300 sm:gap-4 sm:px-4 sm:py-3.5 lg:gap-5 lg:px-5 lg:py-5",
-                      selected
-                        ? "bg-white text-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
-                        : "bg-white/[0.04] text-white hover:bg-white/[0.08]",
-                    )}
-                  >
+                const tabProps = {
+                  type: "button" as const,
+                  role: "tab" as const,
+                  id: `why-karzar-tab-${cap.id}`,
+                  "aria-controls": isDesktop
+                    ? `why-karzar-panel-${cap.id}`
+                    : `why-karzar-modal-${cap.id}`,
+                  "aria-selected": selected,
+                  "aria-expanded": !isDesktop ? (modalOpen && selected) : undefined,
+                  tabIndex: selected ? 0 : -1,
+                  onClick: () => selectCapability(cap.id),
+                  className: cn(
+                    "group relative flex items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-start transition-colors duration-200 sm:gap-4 sm:px-4 sm:py-3.5 lg:gap-5 lg:px-5 lg:py-5 lg:transition-all lg:duration-300",
+                    selected
+                      ? "bg-white text-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
+                      : "bg-white/[0.04] text-white hover:bg-white/[0.08]",
+                  ),
+                };
+                const tabInner = (
+                  <>
                     <span
                       className={cn(
                         "font-black tabular-nums tracking-tight",
@@ -619,7 +630,7 @@ export function WhyKarzar() {
                     </span>
                     <span
                       className={cn(
-                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl transition-transform duration-300 group-hover:scale-105 lg:h-11 lg:w-11",
+                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl lg:h-11 lg:w-11 lg:transition-transform lg:duration-300 lg:group-hover:scale-105",
                         selected
                           ? "bg-[#D02327] text-white"
                           : "bg-white/10 text-white",
@@ -645,7 +656,24 @@ export function WhyKarzar() {
                         {cap.teaser}
                       </span>
                     </span>
+                  </>
+                );
+
+                return motionSafe ? (
+                  <motion.button
+                    key={cap.id}
+                    {...tabProps}
+                    initial={{ opacity: 0, x: 16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.35 }}
+                    transition={{ duration: 0.4, delay: Math.min(0.06 * i, 0.24) }}
+                  >
+                    {tabInner}
                   </motion.button>
+                ) : (
+                  <button key={cap.id} {...tabProps}>
+                    {tabInner}
+                  </button>
                 );
               })}
             </div>
@@ -668,7 +696,7 @@ export function WhyKarzar() {
             >
               <div
                 aria-hidden
-                className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#D02327]/25 blur-3xl"
+                className="pointer-events-none absolute -end-16 -top-16 hidden h-48 w-48 rounded-full bg-[#D02327]/25 blur-3xl lg:block"
               />
 
               {CAPABILITIES.map((cap) => {

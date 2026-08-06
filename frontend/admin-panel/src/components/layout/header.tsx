@@ -17,6 +17,7 @@ const ROUTE_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/cms/nav-groups", title: "دسته‌بندی‌ها" },
   { prefix: "/cms/hero-design", title: "طراحی هیرو" },
   { prefix: "/cms/hero-slides", title: "طراحی هیرو" },
+  { prefix: "/cms/home-layout", title: "مدیریت صفحه هوم" },
   { prefix: "/cms/articles", title: "مقالات" },
   { prefix: "/cms/comments", title: "نظرات محصولات" },
   { prefix: "/cms/contacts", title: "پیام‌های تماس" },

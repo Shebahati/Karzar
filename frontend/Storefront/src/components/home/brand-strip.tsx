@@ -28,29 +28,45 @@ function BrandCard({
     <Link
       href={href}
       className={cn(
-        "group relative block h-[150px] w-[180px] overflow-hidden rounded-[1.35rem] bg-[#F3F3F3] shadow-soft transition-all duration-400 sm:h-[170px] sm:w-[210px]",
-        "hover:-translate-y-1 hover:shadow-elevated",
+        "group relative flex h-[120px] w-[140px] flex-col overflow-hidden rounded-2xl sm:h-[132px] sm:w-[156px]",
+        "bg-white",
+        "ring-1 ring-inset ring-[#5E5F5E]/[0.08]",
+        "shadow-[0_1px_0_rgba(94,95,94,0.04),0_8px_20px_-14px_rgba(94,95,94,0.22)]",
+        "transition-[transform,box-shadow,ring-color] duration-300 ease-out",
+        "md:hover:-translate-y-0.5 md:hover:ring-[#D02327]/15",
+        "md:hover:shadow-[0_1px_0_rgba(94,95,94,0.05),0_14px_28px_-14px_rgba(208,35,39,0.12)]",
       )}
     >
-      <span className="absolute inset-0 bottom-10 grid place-items-center bg-white sm:bottom-11">
+      <span
+        className={cn(
+          "relative flex min-h-0 flex-1 items-center justify-center",
+          "bg-[linear-gradient(165deg,#FBFBFB_0%,#F5F5F5_55%,#F0F0F0_100%)]",
+          "px-3.5 py-3 sm:px-4 sm:py-3.5",
+        )}
+      >
         {resolvedLogo ? (
-          <SafeImage
-            src={resolvedLogo}
-            alt=""
-            fill
-            className="object-contain p-5 pb-2 transition-transform duration-500 group-hover:scale-105 sm:p-6 sm:pb-3"
-            sizes="210px"
-            unoptimized={isSvg}
-            fallback={<span className="text-4xl font-black text-steel/30">{initial}</span>}
-          />
+          <span className="relative h-full w-full">
+            <SafeImage
+              src={resolvedLogo}
+              alt=""
+              fill
+              className="object-contain object-center transition-transform duration-500 md:group-hover:scale-[1.04]"
+              sizes="156px"
+              unoptimized={isSvg}
+              fallback={
+                <span className="grid h-full place-items-center text-3xl font-black text-[#5E5F5E]/25">
+                  {initial}
+                </span>
+              }
+            />
+          </span>
         ) : (
-          <span className="text-4xl font-black text-steel/30">{initial}</span>
+          <span className="text-3xl font-black text-[#5E5F5E]/25">{initial}</span>
         )}
       </span>
 
-      {/* Glass name strip */}
-      <span className="absolute inset-x-0 bottom-0 border-t border-white/40 bg-white/55 px-3 py-2.5 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40">
-        <span className="block truncate text-center text-xs font-black tracking-tight text-foreground sm:text-sm">
+      <span className="shrink-0 border-t border-[#5E5F5E]/[0.06] bg-white px-2.5 py-2">
+        <span className="block truncate text-center text-[11px] font-bold tracking-tight text-[#5E5F5E] sm:text-xs">
           {name}
         </span>
       </span>
@@ -70,25 +86,31 @@ export function BrandStrip({ initialBrands = [] }: { initialBrands?: Brand[] }) 
 
   if (brands.length === 0) return null;
 
-  const loop = brands.length < 6 ? [...brands, ...brands, ...brands] : [...brands, ...brands];
+  // One pass is enough for manual scroll; avoid 2–3× DOM clones on mobile home.
+  const loop = brands.length < 5 ? [...brands, ...brands] : brands;
 
   return (
-    <AutoCarousel
-      autoPlay
-      intervalMs={2800}
-      itemClassName="w-auto"
-      gapClass="gap-3 sm:gap-4"
-      showControls
-    >
-      {loop.map((brand, i) => (
-        <BrandCard
-          key={`${brand.id}-${i}`}
-          id={brand.id}
-          name={brand.name}
-          logoUrl={brand.logo_url}
-          slug={brand.slug}
-        />
-      ))}
-    </AutoCarousel>
+    <div className="relative">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-2 -inset-x-1 rounded-3xl bg-[radial-gradient(120%_80%_at_50%_0%,rgba(208,35,39,0.035),transparent_55%)]"
+      />
+      <AutoCarousel
+        itemClassName="w-auto"
+        gapClass="gap-3 sm:gap-3.5"
+        showControls
+        trackClassName="px-0.5 pb-2"
+      >
+        {loop.map((brand, i) => (
+          <BrandCard
+            key={`${brand.id}-${i}`}
+            id={brand.id}
+            name={brand.name}
+            logoUrl={brand.logo_url}
+            slug={brand.slug}
+          />
+        ))}
+      </AutoCarousel>
+    </div>
   );
 }

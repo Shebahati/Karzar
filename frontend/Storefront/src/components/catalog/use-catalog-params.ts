@@ -14,8 +14,9 @@ const SPEC_PREFIX = "spec_";
  * - brand=1,2,3     (aliases: brand_id)
  * - country=آلمان,ژاپن
  * - category=12
- * - min_price / max_price / in_stock=1 / search / sort / spec_*
+ * - min_price / max_price / in_stock=1 / on_sale=1 / search / sort / spec_*
  * API calls expand brand/country to repeated FastAPI query params.
+ * `on_sale` is FE-only (mock + client filter); never sent as a live API key.
  */
 export const DEFAULT_MIN_PRICE = 0;
 export const DEFAULT_MAX_PRICE = 200_000_000;
@@ -32,6 +33,7 @@ const FILTER_KEYS = [
   "min_price",
   "max_price",
   "in_stock",
+  "on_sale",
   "search",
   "sort",
 ] as const;
@@ -107,6 +109,7 @@ export function useCatalogParams() {
       min_price: num("min_price"),
       max_price: num("max_price"),
       in_stock: sp.get("in_stock") === "1" || undefined,
+      on_sale: sp.get("on_sale") === "1" || undefined,
       sort: sortRaw && isApiProductSort(sortRaw) ? sortRaw : undefined,
       spec_filters: Object.keys(spec_filters).length ? spec_filters : undefined,
     };
@@ -251,6 +254,7 @@ export function useCatalogParams() {
     if (countries.length) n += countries.length;
     if (sp.get("min_price") || sp.get("max_price")) n += 1;
     if (sp.get("in_stock") === "1") n += 1;
+    if (sp.get("on_sale") === "1") n += 1;
     if (sp.get("search")) n += 1;
     sp.forEach((value, key) => {
       if (key.startsWith(SPEC_PREFIX) && value) n += 1;

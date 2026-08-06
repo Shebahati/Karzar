@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { FirstVisitSplash } from "@/components/layout/first-visit-splash";
 import {
   GoogleTagManagerHead,
   GoogleTagManagerNoscript,
@@ -63,9 +64,16 @@ export default async function RootLayout({
       lang="fa"
       dir="rtl"
       data-scroll-behavior="smooth"
-      className={cn("h-full", iranYekan.variable)}
+      className={cn("h-full w-full max-w-full overflow-x-clip", iranYekan.variable)}
     >
       <head>
+        {/* First-visit splash gate — sessionStorage; must run before paint (CSP nonce). */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k="karzar-splash-seen";if(sessionStorage.getItem(k))return;var h=document.documentElement;h.setAttribute("data-karzar-splash","");var done=0;function dismiss(){if(done)return;done=1;try{sessionStorage.setItem(k,"1")}catch(e){}h.removeAttribute("data-karzar-splash")}window.addEventListener("load",function(){setTimeout(dismiss,1000)},{once:true});setTimeout(dismiss,2800)}catch(e){}})();`,
+          }}
+        />
         {/* Analytics: set NEXT_PUBLIC_GA_MEASUREMENT_ID *or* NEXT_PUBLIC_GTM_ID — not both. */}
         <GoogleTagManagerHead nonce={nonce} />
         <GoogleAnalytics nonce={nonce} />
@@ -73,17 +81,31 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(sitewideJsonLd) }}
         />
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html:
+                "html[data-karzar-splash]{overflow:auto!important}html[data-karzar-splash] body::before{content:none!important;display:none!important}",
+            }}
+          />
+        </noscript>
       </head>
-      <body className="font-sans min-h-full bg-background text-foreground antialiased">
+      <body className="font-sans min-h-full w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
         <GoogleTagManagerNoscript />
         <a href="#main-content" className="skip-link">
           پرش به محتوای اصلی
         </a>
         <Providers>
+          {/* React-owned splash; CSS body::before bridges FOUC until mount. */}
+          <FirstVisitSplash />
           <SiteHeader />
           {/* Clearance for fixed mobile bottom nav (~4.5rem + iOS home indicator). */}
-          <div className="pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
-            <main id="main-content" tabIndex={-1} className="min-h-[60vh] outline-none">
+          <div className="w-full max-w-full overflow-x-clip pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="min-h-[60vh] w-full max-w-full overflow-x-clip outline-none"
+            >
               {children}
             </main>
             <SiteFooter />

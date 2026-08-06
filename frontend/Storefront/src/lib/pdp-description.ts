@@ -144,3 +144,39 @@ export function hasRenderableSpecs(
   const feats = Object.keys(specifications.features ?? {}).length;
   return tech + dims + feats > 0;
 }
+
+/**
+ * Compact key/value teasers for the PDP center column.
+ * Honest SoT only — empty when specs are missing.
+ */
+export function pickKeySpecTeasers(
+  specifications: ProductSpecifications | null | undefined,
+  limit = 5,
+): Array<{ key: string; value: string }> {
+  if (!specifications || limit <= 0) return [];
+  const items: Array<{ key: string; value: string }> = [];
+
+  const push = (key: string, value: string) => {
+    if (items.length >= limit) return;
+    const k = key.trim();
+    const v = String(value).trim();
+    if (!k || !v) return;
+    items.push({ key: k, value: v });
+  };
+
+  for (const item of specifications.technical_specs ?? []) {
+    push(item.key, item.value);
+  }
+  for (const item of specifications.dimensions ?? []) {
+    push(item.key, item.value);
+  }
+  for (const [key, value] of Object.entries(specifications.features ?? {})) {
+    if (typeof value === "boolean") {
+      if (value) push(key, "دارد");
+    } else if (typeof value === "string") {
+      push(key, value);
+    }
+  }
+
+  return items;
+}
