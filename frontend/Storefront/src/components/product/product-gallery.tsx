@@ -127,10 +127,10 @@ export function ProductGallery({
     return (
       <div
         className={cn(
-          "relative mx-auto aspect-square overflow-hidden bg-[#E9E8E7]",
-          /* Mobile: full-bleed square; desktop keeps budgeted rounded stage */
-          "w-full max-lg:max-w-none max-lg:rounded-none",
-          "lg:w-[min(100%,var(--pdp-gallery-budget))] lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
+          "relative mx-auto w-full min-w-0 max-w-full overflow-hidden bg-[#E9E8E7]",
+          /* Mobile: true square, capped under ~½ viewport (no tall void) */
+          "max-lg:aspect-square max-lg:max-h-[min(100vw,48svh)] max-lg:rounded-none",
+          "lg:aspect-square lg:w-[min(100%,var(--pdp-gallery-budget))] lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
           "[@media(max-height:800px)]:[--pdp-gallery-budget:min(26rem,calc(100svh-7.75rem),calc(100dvh-7.75rem))]",
         )}
         style={
@@ -148,7 +148,7 @@ export function ProductGallery({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2.5 sm:gap-3",
+        "flex w-full min-w-0 max-w-full flex-col gap-2.5 sm:gap-3",
         "max-lg:gap-0",
         "[@media(max-height:800px)]:gap-1.5 [@media(max-height:800px)]:max-lg:gap-0",
       )}
@@ -161,8 +161,6 @@ export function ProductGallery({
       <div
         className={cn(
           "relative mx-auto min-w-0 w-full max-w-full",
-          /* Mobile full-bleed; desktop budgeted stage unchanged */
-          "max-lg:w-full",
           "lg:w-[min(100%,var(--pdp-gallery-budget))]",
           "[@media(max-height:800px)]:[--pdp-gallery-budget:var(--pdp-gallery-budget-short)]",
         )}
@@ -178,9 +176,10 @@ export function ProductGallery({
           tabIndex={0}
           aria-label={`${alt} — نمایش گالری تصاویر`}
           className={cn(
-            "group relative aspect-square w-full overflow-hidden touch-pan-y",
-            "max-lg:max-h-none max-lg:rounded-none",
-            "lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
+            "group relative w-full min-w-0 max-w-full overflow-hidden touch-pan-y",
+            /* Mobile square ≤ ~½ viewport — sticky element height stays content-sized */
+            "max-lg:aspect-square max-lg:max-h-[min(100vw,48svh)] max-lg:rounded-none",
+            "lg:aspect-square lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
             "bg-gradient-to-b from-muted/40 to-muted/20 outline-none",
             "max-lg:ring-0 max-lg:shadow-none",
             "lg:ring-1 lg:ring-steel/[0.07] lg:shadow-[0_16px_36px_-26px_rgba(94,95,94,0.38)]",
@@ -339,12 +338,11 @@ export function ProductGallery({
               openLightbox();
             }}
             className={cn(
-              "absolute start-3 z-10 grid h-9 w-9 place-items-center rounded-full",
-              /* Mobile: sit above overlapping content sheet (~28px higher) */
-              "bottom-3 max-lg:bottom-10",
+              "absolute start-3 bottom-3 z-10 grid h-9 w-9 place-items-center rounded-full",
+              /* Clear soft-sheet −mt overlap while sticky */
+              "max-lg:bottom-8",
               "bg-white/75 text-steel shadow-soft backdrop-blur-md transition-all duration-300",
               "hover:bg-white hover:text-karzar-500",
-              /* Mobile: dark glass chip to match counter; desktop hover reveal */
               "max-lg:bg-foreground/70 max-lg:text-white max-lg:opacity-100",
               "lg:opacity-0 lg:group-hover:opacity-100",
             )}
@@ -355,9 +353,8 @@ export function ProductGallery({
           {multi && (
             <span
               className={cn(
-                "pointer-events-none absolute end-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold tabular-nums backdrop-blur-md",
-                /* Mobile: match scan chip — clear of soft sheet overlap */
-                "bottom-3 max-lg:bottom-10",
+                "pointer-events-none absolute end-3 bottom-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold tabular-nums backdrop-blur-md",
+                "max-lg:bottom-8",
                 "max-lg:bg-foreground/75 max-lg:text-white",
                 "lg:bg-white/75 lg:text-steel",
               )}

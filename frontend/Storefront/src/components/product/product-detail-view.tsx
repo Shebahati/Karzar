@@ -131,13 +131,14 @@ export function ProductDetailView({ id }: { id: number }) {
       />
 
       {/*
-        Mobile: Container px-0 so gallery/sheet are true full-bleed without -mx*
-        under global overflow-x-clip (RTL left-cut). Desktop keeps lg:px-8.
+        Mobile: zero inline padding so gallery/sheet are edge-to-edge without
+        ever using -mx* (those fight global overflow-x-clip and clip RTL left).
+        Desktop keeps Container lg:px-8.
       */}
       <Container className="pt-3 sm:pt-5 lg:pt-6 max-lg:px-0 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
         <nav
           aria-label="مسیر صفحه"
-          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-5 max-lg:mb-2.5 max-lg:px-5 sm:max-lg:px-6 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
+          className="mb-3 flex flex-wrap items-center gap-1.5 px-5 text-xs text-muted-foreground sm:mb-5 sm:px-6 max-lg:mb-2.5 lg:px-0 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
         >
           <Link href="/" className="transition-colors hover:text-primary">
             خانه
@@ -172,23 +173,30 @@ export function ProductDetailView({ id }: { id: number }) {
           Explicit 2 rows so buy can row-span-2 and stick through lower sections
           without the broken nested shell (1fr|0.76fr) that inflated the card.
 
-          Mobile: soft overlapping sheet over gallery (NO sticky — sticky +
-          overflow-x-clip created a viewport-tall runway / white void on prod).
-          Wrapper is `lg:contents` so desktop children still join this grid.
+          Mobile sticky parallax (correct pattern — no void / no RTL clip):
+            • Sticky applies ONLY to the gallery block (capped square height).
+            • Sheet/buy/lower are siblings that scroll over it (z-1, −mt overlap).
+            • Wrapper is the sticky containing block; it does NOT inflate gallery height.
+            • No −mx bleeds (padding instead) — safe under overflow-x-clip + RTL.
+          `lg:contents` keeps desktop children on the page grid.
         */}
         <div
           aria-label="معرفی محصول"
           className={cn(
-            "grid items-start gap-6 sm:gap-8 max-lg:gap-0",
+            "grid w-full min-w-0 max-w-full items-start gap-6 sm:gap-8 max-lg:gap-0",
             "lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)_minmax(248px,0.76fr)]",
             "lg:grid-rows-[auto_1fr]",
             "lg:gap-x-10 xl:gap-x-14 lg:gap-y-0",
             "[@media(max-height:800px)]:lg:gap-x-8",
           )}
         >
-          <div className="max-lg:relative lg:contents">
+          <div className="w-full min-w-0 max-w-full max-lg:relative lg:contents">
+            {/* Opacity-only: transform would break position:sticky. */}
             <motion.div
-              className="min-w-0"
+              className={cn(
+                "w-full min-w-0 max-w-full",
+                "max-lg:sticky max-lg:top-0 max-lg:z-0",
+              )}
               initial={reducedMotion ? undefined : { opacity: 0 }}
               animate={reducedMotion ? undefined : { opacity: 1 }}
               transition={{ duration: 0.55, ease: easePremium }}
@@ -198,22 +206,19 @@ export function ProductDetailView({ id }: { id: number }) {
 
             <motion.div
               className={cn(
-                "flex min-w-0 flex-col",
-                /* Mobile sheet: soft plane overlapping gallery bottom (~24px) */
-                "relative z-[1] -mt-6 max-lg:px-5 sm:max-lg:px-6",
-                "rounded-t-[1.35rem] bg-white pt-4 pb-1",
-                "shadow-[0_-12px_40px_-24px_rgba(94,95,94,0.35)]",
+                "flex w-full min-w-0 max-w-full flex-col",
+                /* Soft sheet slides over sticky gallery — padding gutters, never −mx */
+                "relative z-[1] max-lg:-mt-5 max-lg:px-5 max-lg:pt-4 max-lg:pb-1",
+                "max-lg:rounded-t-[1.35rem] max-lg:bg-white",
+                "max-lg:shadow-[0_-12px_40px_-24px_rgba(94,95,94,0.35)]",
+                "sm:max-lg:px-6",
                 /* Desktop: restore flat column (Container owns gutters) */
                 "lg:z-auto lg:mt-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none",
               )}
-              initial={
-                reducedMotion ? undefined : { opacity: 0, y: 14 }
-              }
-              animate={
-                reducedMotion ? undefined : { opacity: 1, y: 0 }
-              }
+              initial={reducedMotion ? undefined : { opacity: 0 }}
+              animate={reducedMotion ? undefined : { opacity: 1 }}
               transition={{
-                duration: 0.6,
+                duration: 0.55,
                 ease: easePremium,
                 delay: reducedMotion ? 0 : 0.04,
               }}
@@ -416,8 +421,7 @@ export function ProductDetailView({ id }: { id: number }) {
             {/* Mobile / tablet: buy card continues soft sheet */}
             <div
               className={cn(
-                "relative z-[1] lg:hidden",
-                "bg-white px-5 pb-6 pt-4 sm:px-6",
+                "relative z-[1] w-full min-w-0 max-w-full bg-white px-5 pb-6 pt-4 sm:px-6 lg:hidden",
               )}
             >
               <PdpBuyCard {...buyCardProps} />
@@ -426,7 +430,7 @@ export function ProductDetailView({ id }: { id: number }) {
             {/* Lower sections share gallery+info width; buy column stays reserved */}
             <div
               className={cn(
-                "relative z-[1] min-w-0 lg:col-span-2",
+                "relative z-[1] w-full min-w-0 max-w-full lg:col-span-2",
                 "max-lg:bg-background max-lg:px-5 max-lg:pb-2 sm:max-lg:px-6",
                 "lg:bg-transparent lg:px-0 lg:pb-0",
               )}
