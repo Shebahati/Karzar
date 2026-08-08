@@ -73,7 +73,7 @@ function CategoryOrbButton({
       onClick={() => onSelect(node)}
       className={cn(
         "group flex w-[5.5rem] shrink-0 snap-start flex-col items-center outline-none sm:w-[6.25rem]",
-        "focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-primary/40",
+        "focus-visible:rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/25",
       )}
     >
       <span
@@ -83,7 +83,7 @@ function CategoryOrbButton({
           "group-hover:scale-[1.04] group-hover:brightness-[1.03] group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]",
           "sm:h-[4.75rem] sm:w-[4.75rem]",
           active
-            ? "scale-[1.05] bg-primary/34 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-2 ring-primary/21 group-hover:bg-primary/38 group-hover:ring-primary/30"
+            ? "scale-[1.05] bg-primary/30 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-0 group-hover:bg-primary/35"
             : "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-black/[0.06] group-hover:ring-steel/15",
         )}
       >
