@@ -208,6 +208,8 @@ export function CatalogView({
     page === 1;
   const showEmpty =
     !showFilterSkeleton && !isFetching && !isPlaceholderData && total === 0;
+  /** Next-page fetch only — not initial PLP skeleton. */
+  const isLoadingMore = isFetching && page > 1 && !showFilterSkeleton;
 
   const loadNextPage = useCallback(() => {
     if (isFetching || !hasMore) return;
@@ -330,11 +332,7 @@ export function CatalogView({
             />
           ) : (
             <>
-              <div
-                className={`grid grid-cols-2 gap-4 transition-opacity sm:grid-cols-3 xl:grid-cols-4 ${
-                  isFetching && page > 1 ? "opacity-80" : "opacity-100"
-                }`}
-              >
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
                 {displayProducts.map((p, i) => (
                   <ProductCard
                     key={p.id}
@@ -346,22 +344,21 @@ export function CatalogView({
               {canAutoLoad && shown > 0 ? (
                 <div
                   ref={loadMoreRef}
-                  className="mt-8 flex h-12 items-center justify-center"
-                  aria-hidden={!isFetching}
+                  className="mt-8 flex min-h-12 items-center justify-center"
+                  aria-hidden={!isLoadingMore}
                 >
-                  {isFetching ? (
-                    <p className="text-sm text-muted-foreground">در حال بارگذاری…</p>
-                  ) : null}
+                  <CatalogNextPageLoader active={isLoadingMore} />
                 </div>
               ) : null}
               {needsManualNext && shown > 0 ? (
-                <div className="mt-8 flex justify-center">
+                <div className="mt-8 flex flex-col items-center gap-3">
+                  {isLoadingMore ? <CatalogNextPageLoader active /> : null}
                   <Button
                     variant="outline"
-                    disabled={isFetching}
+                    disabled={isLoadingMore}
                     onClick={loadNextPage}
                   >
-                    {isFetching ? "در حال بارگذاری…" : "ادامه محصولات"}
+                    ادامه محصولات
                   </Button>
                 </div>
               ) : null}
@@ -375,6 +372,29 @@ export function CatalogView({
         lockedCategoryId={lockedCategoryId}
       />
     </Container>
+  );
+}
+
+/** Soft footer cue while infinite-scroll / load-more appends the next page. */
+function CatalogNextPageLoader({ active }: { active: boolean }) {
+  if (!active) return null;
+  return (
+    <div
+      className="flex flex-col items-center gap-2.5"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span
+        className="size-[18px] animate-spin rounded-full border-[1.5px] border-primary/20 border-t-primary"
+        aria-hidden
+      />
+      <span
+        className="h-px w-10 animate-pulse rounded-full bg-primary/40"
+        aria-hidden
+      />
+      <span className="sr-only">در حال بارگذاری محصولات بیشتر</span>
+    </div>
   );
 }
 

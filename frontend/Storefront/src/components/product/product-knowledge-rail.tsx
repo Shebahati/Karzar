@@ -6,6 +6,8 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { listBlogArticles } from "@/lib/blog-articles";
 import type { Article } from "@/types/content";
 
+const PDP_COUNT = 3;
+
 /**
  * Read-only knowledge rail — articles that already assert a link to this product.
  * Hidden entirely when none exist (no invented content / empty spam).
@@ -20,7 +22,7 @@ export function ProductKnowledgeRail({ productId }: { productId: number }) {
           Array.isArray(a.related_product_ids) &&
           a.related_product_ids.includes(productId),
       )
-      .slice(0, 4)
+      .slice(0, PDP_COUNT)
       .map(
         (a, i): Article => ({
           id: 2000 + i,
@@ -46,12 +48,22 @@ export function ProductKnowledgeRail({ productId }: { productId: number }) {
         href="/blog"
         hrefLabel="مجله کارزار"
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Mobile: 3 compact horizontal cards stacked; desktop: larger grid */}
+      <div className="flex flex-col gap-2.5 md:hidden">
         {articles.map((article, index) => (
           <ArticleCard
             key={article.slug}
             article={article}
-            variant="rail"
+            variant="compact"
+            index={index}
+          />
+        ))}
+      </div>
+      <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article, index) => (
+          <ArticleCard
+            key={article.slug}
+            article={article}
             index={index}
           />
         ))}

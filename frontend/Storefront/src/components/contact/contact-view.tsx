@@ -89,10 +89,10 @@ export function ContactView() {
           transition={{ duration: 0.45 }}
           className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-none lg:text-start"
         >
-          <p className="text-[11px] font-bold tracking-[0.2em] text-primary">
+          <p className="text-[11px] font-bold tracking-normal text-primary">
             {STORE_NAME_FA}
           </p>
-          <h1 className="mt-2.5 text-2xl font-black tracking-tight text-foreground sm:text-[1.75rem]">
+          <h1 className="mt-2.5 text-2xl font-black tracking-normal text-foreground sm:text-[1.75rem]">
             تماس با ما
           </h1>
           <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-[15px] sm:leading-7">

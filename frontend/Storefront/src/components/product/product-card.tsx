@@ -63,7 +63,7 @@ export function ProductCard({
   className?: string;
   /** Mark above-the-fold PLP/home cards as LCP candidates. */
   priority?: boolean;
-  /** `deal` = soft white card for discounts strip (no image badge / quick-add). */
+  /** `deal` = soft white card for discounts strip. */
   variant?: "default" | "deal";
 }) {
   const isDeal = variant === "deal";
@@ -125,10 +125,7 @@ export function ProductCard({
               alt={product.name}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className={cn(
-                "object-cover transition-opacity duration-300 ease-out group-hover:opacity-0",
-                isDeal && "object-contain p-3",
-              )}
+              className="object-cover object-center transition-opacity duration-300 ease-out group-hover:opacity-0"
               fallback={<ProductPlaceholder name={product.name} sku={product.sku} />}
               {...imageProps}
             />
@@ -138,10 +135,7 @@ export function ProductCard({
               aria-hidden
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className={cn(
-                "object-cover opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100",
-                isDeal && "object-contain p-3",
-              )}
+              className="object-cover object-center opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
               loading="lazy"
               quality={CONTENT_IMAGE_QUALITY}
               fallback={null}
@@ -153,18 +147,23 @@ export function ProductCard({
             alt={product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className={cn(
-              "object-cover transition-transform duration-300 ease-out md:group-hover:scale-[1.07]",
-              isDeal && "object-contain p-3 md:group-hover:scale-[1.04]",
-            )}
+            className="object-cover object-center transition-transform duration-300 ease-out md:group-hover:scale-[1.07]"
             fallback={<ProductPlaceholder name={product.name} sku={product.sku} />}
             {...imageProps}
           />
         )}
 
-        {!isDeal && discount ? (
-          <span className="absolute start-3 top-3 rounded-md bg-[#D02327] px-2 py-1 text-[11px] font-bold text-white">
-            ٪{discount} تخفیف
+        {/* Deal: discount chip on media; default keeps image-corner badge too */}
+        {discount ? (
+          <span
+            className={cn(
+              "absolute start-3 top-3 font-bold text-white",
+              isDeal
+                ? "rounded-md bg-[#D02327] px-2 py-1 text-[11px] leading-none"
+                : "rounded-md bg-[#D02327] px-2 py-1 text-[11px]",
+            )}
+          >
+            ٪{formatNumber(discount)} تخفیف
           </span>
         ) : null}
 
@@ -176,49 +175,54 @@ export function ProductCard({
           </div>
         )}
 
-        {!isDeal && addedFlash && (
+        {addedFlash && (
           <div className="absolute inset-x-3 bottom-3 rounded-lg bg-success px-3 py-1.5 text-center text-[11px] font-bold text-success-foreground">
             {hasPrice ? "به سبد اضافه شد" : "به استعلام اضافه شد"}
           </div>
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer — always stacked: price (full width) → ATC (full width). Height stable; price never fights CTA. */}
       {isDeal ? (
         <div className="flex flex-1 flex-col gap-2 px-3 pb-3.5 pt-2.5 sm:px-3.5 sm:pb-4">
           <h3 className="line-clamp-2 min-h-[2.4rem] text-[12.5px] font-semibold leading-5 text-[#1a1a1a] transition-colors duration-300 group-hover:text-[#D02327] sm:min-h-[2.6rem] sm:text-[13px] sm:leading-5">
             {product.name}
           </h3>
 
-          <div className="mt-auto pt-0.5">
-            {hasPrice ? (
-              <>
-                <div className="flex items-center gap-2">
-                  {discount ? (
-                    <span className="inline-flex shrink-0 items-center rounded-full bg-[#D02327] px-2 py-0.5 text-[11px] font-bold leading-none text-white tnum">
-                      {formatNumber(discount)}٪
+          <div className="mt-auto flex flex-col gap-2.5 pt-0.5">
+            {/* Row 1 — price block, full width */}
+            <div className="w-full min-w-0">
+              {hasPrice ? (
+                <div className="flex flex-col gap-1">
+                  {product.original_price ? (
+                    <span className="block whitespace-nowrap text-[11px] font-medium text-[#D02327]/55 line-through tnum">
+                      {formatToman(product.original_price)}
                     </span>
                   ) : null}
-                  <span className="min-w-0 truncate text-[13px] font-bold leading-none tracking-tight text-[#1a1a1a] tnum sm:text-[14px]">
+                  <span className="block whitespace-nowrap text-[14px] font-bold leading-none tracking-tight text-[#1a1a1a] tnum sm:text-[15px]">
                     {formatToman(product.base_price)}
                   </span>
                 </div>
-                {product.original_price ? (
-                  <span className="mt-1 block text-[11px] text-[#5E5F5E]/55 line-through tnum">
-                    {formatToman(product.original_price)}
-                  </span>
-                ) : null}
-              </>
-            ) : (
-              <span className="block text-sm font-bold text-[#D02327]">استعلام قیمت</span>
-            )}
+              ) : (
+                <span className="block text-sm font-bold text-[#D02327]">استعلام قیمت</span>
+              )}
+            </div>
+
+            {/* Row 2 — ATC, full width / end-aligned */}
+            {hasPrice ? (
+              <CardAddToCartCta
+                product={product}
+                disabled={outOfStock}
+                onAdded={flashAdded}
+              />
+            ) : null}
           </div>
         </div>
       ) : (
         <div className="flex flex-1 flex-col gap-2 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4">
           <div className="flex items-center justify-between gap-2">
             {product.brand ? (
-              <span className="truncate text-[11px] font-medium tracking-wide text-[#5E5F5E]">
+              <span className="truncate text-[11px] font-medium tracking-normal text-[#5E5F5E]">
                 {product.brand.name}
               </span>
             ) : (
@@ -248,47 +252,46 @@ export function ProductCard({
             {product.name}
           </h3>
 
-          <div className="relative mt-auto min-h-9 pt-1 has-[[data-card-cta-open]]:[&_[data-card-price]]:invisible has-[[data-card-cta-open]]:[&_[data-card-price]]:opacity-0">
-            <div className="flex items-end justify-between gap-3">
-              <div
-                data-card-price
-                className="min-w-0 transition-opacity duration-[280ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-              >
-                {hasPrice ? (
-                  <>
-                    {product.original_price ? (
-                      <span className="block text-[11px] text-[#5E5F5E]/60 line-through tnum">
-                        {formatToman(product.original_price)}
-                      </span>
-                    ) : null}
-                    <span className="block text-[15px] font-bold leading-none tracking-tight text-[#1a1a1a] tnum sm:text-base">
-                      {formatToman(product.base_price)}
-                    </span>
-                  </>
-                ) : (
-                  <div>
-                    <span className="block text-[10px] font-medium text-[#5E5F5E]">
-                      بدون قیمت ثابت
-                    </span>
-                    <span className="mt-0.5 block text-sm font-bold text-[#D02327]">استعلام قیمت</span>
-                  </div>
-                )}
-              </div>
-
+          <div className="mt-auto flex flex-col gap-2.5 pt-1">
+            {/* Row 1 — price block, full width */}
+            <div className="w-full min-w-0">
               {hasPrice ? (
-                <CardAddToCartCta
-                  product={product}
-                  disabled={outOfStock}
-                  onAdded={flashAdded}
-                />
+                <div className="flex flex-col gap-1">
+                  {product.original_price ? (
+                    <span className="block whitespace-nowrap text-[11px] font-medium text-[#D02327]/55 line-through tnum">
+                      {formatToman(product.original_price)}
+                    </span>
+                  ) : null}
+                  <span className="block whitespace-nowrap text-[15px] font-bold leading-none tracking-tight text-[#1a1a1a] tnum sm:text-base">
+                    {formatToman(product.base_price)}
+                  </span>
+                </div>
               ) : (
+                <div>
+                  <span className="block text-[10px] font-medium text-[#5E5F5E]">
+                    بدون قیمت ثابت
+                  </span>
+                  <span className="mt-0.5 block text-sm font-bold text-[#D02327]">استعلام قیمت</span>
+                </div>
+              )}
+            </div>
+
+            {/* Row 2 — ATC / quote, full width / end-aligned */}
+            {hasPrice ? (
+              <CardAddToCartCta
+                product={product}
+                disabled={outOfStock}
+                onAdded={flashAdded}
+              />
+            ) : (
+              <div className="flex h-8 w-full items-center justify-end">
                 <button
                   type="button"
                   onClick={quickAddQuote}
                   disabled={outOfStock}
                   aria-label="افزودن به استعلام"
                   className={cn(
-                    "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#F3F3F3] text-[#5E5F5E]",
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F3F3F3] text-[#5E5F5E]",
                     "transition-[transform,background-color,color] duration-300 ease-out",
                     "hover:text-[#D02327] active:scale-95",
                     "disabled:pointer-events-none disabled:opacity-35",
@@ -297,8 +300,8 @@ export function ProductCard({
                 >
                   <Document size="small" set="bold" primaryColor="currentColor" />
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -329,9 +332,11 @@ export function ProductCardSkeleton({
         ) : null}
         <div className="h-4 w-full rounded bg-muted" />
         <div className="h-4 w-2/3 rounded bg-muted" />
-        <div className="flex items-end justify-between pt-1">
-          <div className="h-5 w-24 rounded bg-muted" />
-          {!isDeal ? <div className="h-9 w-9 rounded-lg bg-muted" /> : null}
+        <div className="space-y-2.5 pt-1">
+          <div className="h-5 w-28 rounded bg-muted" />
+          <div className="flex justify-end">
+            <div className="h-8 w-8 rounded-lg bg-muted" />
+          </div>
         </div>
       </div>
     </div>

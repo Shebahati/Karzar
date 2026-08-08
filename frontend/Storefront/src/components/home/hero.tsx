@@ -8,13 +8,26 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "react-iconly";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HeroCategoryOrbs } from "@/components/home/hero-category-orbs";
 import { DesignedHero } from "@/components/home/designed-hero";
+import {
+  HERO_SHEET_EASE,
+  HERO_SHEET_MS,
+  HERO_SHEET_MS_MOBILE,
+  HERO_SHEET_MS_REDUCED,
+  HERO_SHEET_UNDERLAY,
+  HERO_SWIPE_CONFIDENCE,
+  HERO_SWIPE_OFFSET,
+  heroSheetReducedVariants,
+  heroSheetTransition,
+  heroSheetVariants,
+  heroSwipePower,
+} from "@/components/home/hero-sheet-motion";
 import {
   featuredOrbs,
   matchOrbToTreeNode,
@@ -30,8 +43,6 @@ import type { HeroSlide } from "@/types/content";
 import type { CategoryTreeNode } from "@/types/category";
 
 const AUTOPLAY_MS = 5500;
-const SWIPE_THRESHOLD = 48;
-const easePremium = [0.22, 1, 0.36, 1] as const;
 
 const copyShadow =
   "0 1px 2px rgba(0,0,0,0.72), 0 2px 16px rgba(0,0,0,0.45)";
@@ -76,14 +87,9 @@ export function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  /** Outgoing slide for mobile CSS crossfade (null = idle / reduced-motion). */
-  const [outgoing, setOutgoing] = useState<HeroSlide | null>(null);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
-  const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
-  const outgoingTimer = useRef<number | null>(null);
-  const slideRef = useRef<HeroSlide | null>(null);
 
   const designedPack = designQuery.data;
   const hasDesigned =
@@ -123,26 +129,13 @@ export function Hero() {
     ? ((index % slides.length) + slides.length) % slides.length
     : 0;
 
-  useEffect(() => {
-    const s = slides[activeIndex];
-    if (s) slideRef.current = s;
-  }, [slides, activeIndex]);
-
   const go = useCallback(
     (next: number, dir: number) => {
       if (!slides.length) return;
-      if (isMobile && !reducedMotion && slideRef.current) {
-        setOutgoing(slideRef.current);
-        if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
-        outgoingTimer.current = window.setTimeout(() => {
-          setOutgoing(null);
-          outgoingTimer.current = null;
-        }, 520);
-      }
       setDirection(dir);
       setIndex(((next % slides.length) + slides.length) % slides.length);
     },
-    [slides.length, isMobile, reducedMotion],
+    [slides.length],
   );
 
   const goNext = useCallback(() => go(activeIndex + 1, 1), [go, activeIndex]);
@@ -156,15 +149,20 @@ export function Hero() {
     [go, activeIndex],
   );
 
-  useEffect(() => {
-    return () => {
-      if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isMobile || reducedMotion) setOutgoing(null);
-  }, [isMobile, reducedMotion]);
+  const onSheetDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (menuOpen || slides.length <= 1 || reducedMotion) return;
+      const { offset, velocity } = info;
+      const power = heroSwipePower(offset.x, velocity.x);
+      // Swipe left → next (RTL page-turn); swipe right → prev.
+      if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+        goNext();
+      } else if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+        goPrev();
+      }
+    },
+    [menuOpen, slides.length, reducedMotion, goNext, goPrev],
+  );
 
   useEffect(() => {
     if (hasDesigned || isMobile || menuOpen || slides.length <= 1 || paused || reducedMotion) {
@@ -203,7 +201,7 @@ export function Hero() {
 
   if (isLoading) {
     return (
-      <div className="relative h-[62dvh] w-full overflow-hidden bg-secondary md:h-[100dvh]">
+      <div className="relative h-[62svh] w-full overflow-hidden bg-secondary md:h-[100svh]">
         <Skeleton className="absolute inset-0 rounded-none" />
       </div>
     );
@@ -223,20 +221,25 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex]!;
-  const softMobile = isMobile && !reducedMotion;
-  const slideMs = softMobile ? 0.34 : reducedMotion ? 0.12 : 0.85;
-  const textX = softMobile || reducedMotion ? 0 : direction * 28;
+  const sheetDuration = reducedMotion
+    ? HERO_SHEET_MS_REDUCED
+    : isMobile
+      ? HERO_SHEET_MS_MOBILE
+      : HERO_SHEET_MS;
+  const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
+  const canDragSheet = isMobile && !reducedMotion && !menuOpen && slides.length > 1;
+  const textX = reducedMotion ? 0 : direction * 36;
 
   const slideArrowClass = (side: "left" | "right") =>
     cn(
-      "pointer-events-auto absolute top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full",
-      "bg-black/35 text-white shadow-[0_8px_22px_rgba(0,0,0,0.24)]",
+      "pointer-events-auto absolute top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full outline-none",
+      "bg-black/68 text-white shadow-[0_10px_28px_rgba(0,0,0,0.44)] ring-1 ring-primary",
       !isMobile && "backdrop-blur-md",
       "transition-[opacity,background-color,box-shadow] duration-300 ease-out",
-      "hover-fine:bg-black/48 hover-fine:shadow-[0_10px_28px_rgba(0,0,0,0.32)]",
-      "active:bg-black/55",
-      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/55",
-      "opacity-40",
+      "hover-fine:bg-black/78 hover-fine:shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover-fine:ring-primary/80",
+      "active:bg-black/82",
+      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      "opacity-75",
       "[@media(hover:hover)_and_(pointer:fine)]:opacity-0",
       arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
     );
@@ -247,7 +250,8 @@ export function Hero() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو دسته‌بندی‌های کارزار"
-      className="group/hero relative h-[62dvh] w-full max-w-full overflow-x-clip outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62svh] w-full max-w-full overflow-x-clip outline-none md:h-[100svh]"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -265,29 +269,42 @@ export function Hero() {
           setPaused(false);
         }
       }}
-      onTouchStart={(e) => {
-        touchStartX.current = e.changedTouches[0]?.clientX ?? null;
-        setPaused(true);
-      }}
-      onTouchEnd={(e) => {
-        const start = touchStartX.current;
-        touchStartX.current = null;
-        setPaused(false);
-        if (menuOpen || start == null) return;
-        const dx = (e.changedTouches[0]?.clientX ?? start) - start;
-        if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-        if (dx > 0) goNext();
-        else goPrev();
-      }}
     >
-      <div className="relative h-full w-full overflow-hidden">
-        {reducedMotion ? (
-          <div
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+      >
+        <AnimatePresence initial={false} custom={direction} mode="sync">
+          <motion.div
             key={slide.id}
+            custom={direction}
+            variants={sheetVariants}
+            initial="enter"
+            animate={{
+              x: 0,
+              opacity: menuOpen && !reducedMotion ? 0.42 : 1,
+              zIndex: 2,
+            }}
+            exit="exit"
+            transition={heroSheetTransition(sheetDuration)}
+            drag={canDragSheet ? "x" : false}
+            dragConstraints={canDragSheet ? { left: 0, right: 0 } : undefined}
+            dragElastic={canDragSheet ? 0.78 : 0}
+            dragMomentum={false}
+            onDragStart={() => setPaused(true)}
+            onDragEnd={(e, info) => {
+              setPaused(false);
+              onSheetDragEnd(e, info);
+            }}
             className={cn(
               "absolute inset-0",
-              menuOpen && "opacity-40",
+              canDragSheet && "cursor-grab touch-pan-y active:cursor-grabbing",
+              menuOpen && "scale-[1.015]",
             )}
+            style={{
+              willChange: reducedMotion ? undefined : "transform",
+              backgroundColor: HERO_SHEET_UNDERLAY,
+            }}
           >
             <SafeImage
               src={slide.image}
@@ -295,7 +312,9 @@ export function Hero() {
               fill
               sizes="100vw"
               className="object-cover object-[left_42%]"
-              fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+              fallback={
+                <div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />
+              }
               {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
             />
             <div
@@ -306,116 +325,8 @@ export function Hero() {
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
             />
-          </div>
-        ) : softMobile ? (
-          <>
-            {outgoing ? (
-              <div
-                key={`out-${outgoing.id}`}
-                className={cn(
-                  "hero-mobile-exit absolute inset-0 z-0",
-                  menuOpen && "opacity-40",
-                )}
-                data-dir={direction}
-                aria-hidden
-              >
-                <SafeImage
-                  src={outgoing.image}
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="object-cover object-[left_42%]"
-                  fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
-                  loading="lazy"
-                />
-                <div
-                  aria-hidden
-                  className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
-                />
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
-                />
-              </div>
-            ) : null}
-            <div
-              key={slide.id}
-              className={cn(
-                "absolute inset-0 z-[1]",
-                outgoing && "hero-mobile-enter",
-                menuOpen && "opacity-40",
-              )}
-              data-dir={direction}
-            >
-              <SafeImage
-                src={slide.image}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover object-[left_42%]"
-                fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
-                {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
-              />
-            </div>
-          </>
-        ) : (
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={slide.id}
-              custom={direction}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: menuOpen ? 0.42 : 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: slideMs, ease: easePremium }}
-              className={cn(
-                "absolute inset-0 transition-transform duration-300 ease-out",
-                menuOpen && "scale-[1.015]",
-              )}
-            >
-              <motion.div
-                className="absolute inset-0 origin-center will-change-transform"
-                initial={{
-                  scale: 1.06,
-                  x: direction * -18,
-                }}
-                animate={{
-                  scale: 1.1,
-                  x: 0,
-                }}
-                transition={{
-                  scale: { duration: AUTOPLAY_MS / 1000, ease: "linear" },
-                  x: { duration: slideMs, ease: easePremium },
-                }}
-              >
-                <SafeImage
-                  src={slide.image}
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="object-cover object-[left_42%]"
-                  fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
-                  {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
-                />
-              </motion.div>
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.22),transparent_42%)]"
-              />
-            </motion.div>
-          </AnimatePresence>
-        )}
+          </motion.div>
+        </AnimatePresence>
 
         <div
           className={cn(
@@ -424,54 +335,28 @@ export function Hero() {
           )}
         >
           <div className="max-w-xl">
-            {reducedMotion ? (
-              <div key={slide.id}>
-                <p
-                  className="text-sm font-bold tracking-wide text-white sm:text-base"
-                  style={{ textShadow: copyShadow }}
-                >
-                  کارزار
-                </p>
-                <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
-                <h1
-                  className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
-                  style={{ textShadow: copyShadow }}
-                >
-                  {slide.title}
-                </h1>
-                <p
-                  className="mt-3 max-w-lg text-sm leading-7 text-white/95 sm:mt-4 sm:text-base sm:leading-8"
-                  style={{ textShadow: copyShadow }}
-                >
-                  {slide.subtitle}
-                </p>
-
-                <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
-                  <Link href={slide.cta_href} className="w-full sm:w-auto">
-                    <Button size="lg" className="w-full gap-2 sm:w-auto">
-                      {slide.cta_label}
-                      <ArrowLeft set="bold" size="small" />
-                    </Button>
-                  </Link>
-                  <Link href="/catalog" className="w-full sm:w-auto">
-                    <Button
-                      size="lg"
-                      variant="soft"
-                      className="w-full border border-white/30 bg-white/10 text-white shadow-none ring-white/20 hover-fine:bg-white/20 hover-fine:text-white hover-fine:shadow-none hover-fine:ring-white/30 hover-fine:translate-y-0 sm:w-auto"
-                    >
-                      مشاهده فروشگاه
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : softMobile ? (
-              <div
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
+              <motion.div
                 key={slide.id}
-                className={cn(outgoing && "hero-mobile-enter")}
-                data-dir={direction}
+                custom={direction}
+                initial={
+                  reducedMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, x: textX, y: 8 }
+                }
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={
+                  reducedMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, x: direction * -24, y: -4 }
+                }
+                transition={{
+                  duration: reducedMotion ? HERO_SHEET_MS_REDUCED : 0.5,
+                  ease: HERO_SHEET_EASE,
+                }}
               >
                 <p
-                  className="text-sm font-bold tracking-wide text-white sm:text-base"
+                  className="text-sm font-bold tracking-normal text-white sm:text-base"
                   style={{ textShadow: copyShadow }}
                 >
                   کارزار
@@ -507,61 +392,8 @@ export function Hero() {
                     </Button>
                   </Link>
                 </div>
-              </div>
-            ) : (
-              <AnimatePresence mode="wait" initial={false} custom={direction}>
-                <motion.div
-                  key={slide.id}
-                  custom={direction}
-                  initial={{ opacity: 0, x: textX, y: 10 }}
-                  animate={{ opacity: 1, x: 0, y: 0 }}
-                  exit={{
-                    opacity: 0,
-                    x: direction * -18,
-                    y: -6,
-                  }}
-                  transition={{ duration: 0.55, ease: easePremium }}
-                >
-                  <p
-                    className="text-sm font-bold tracking-wide text-white sm:text-base"
-                    style={{ textShadow: copyShadow }}
-                  >
-                    کارزار
-                  </p>
-                  <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
-                  <h1
-                    className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
-                    style={{ textShadow: copyShadow }}
-                  >
-                    {slide.title}
-                  </h1>
-                  <p
-                    className="mt-3 max-w-lg text-sm leading-7 text-white/95 sm:mt-4 sm:text-base sm:leading-8"
-                    style={{ textShadow: copyShadow }}
-                  >
-                    {slide.subtitle}
-                  </p>
-
-                  <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
-                    <Link href={slide.cta_href} className="w-full sm:w-auto">
-                      <Button size="lg" className="w-full gap-2 sm:w-auto">
-                        {slide.cta_label}
-                        <ArrowLeft set="bold" size="small" />
-                      </Button>
-                    </Link>
-                    <Link href="/catalog" className="w-full sm:w-auto">
-                      <Button
-                        size="lg"
-                        variant="soft"
-                        className="w-full border border-white/30 bg-white/10 text-white shadow-none ring-white/20 hover-fine:bg-white/20 hover-fine:text-white hover-fine:shadow-none hover-fine:ring-white/30 hover-fine:translate-y-0 sm:w-auto"
-                      >
-                        مشاهده فروشگاه
-                      </Button>
-                    </Link>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            )}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {slides.length > 1 && !menuOpen ? (
@@ -597,7 +429,7 @@ export function Hero() {
               onClick={goNext}
               className={cn(slideArrowClass("left"), "left-3 sm:left-5")}
             >
-              <ChevronLeft set="light" size="small" />
+              <ChevronLeft set="bold" size={36} />
             </button>
             <button
               type="button"
@@ -605,7 +437,7 @@ export function Hero() {
               onClick={goPrev}
               className={cn(slideArrowClass("right"), "right-3 sm:right-5")}
             >
-              <ChevronRight set="light" size="small" />
+              <ChevronRight set="bold" size={36} />
             </button>
           </>
         ) : null}

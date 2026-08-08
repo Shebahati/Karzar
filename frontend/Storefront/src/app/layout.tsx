@@ -20,6 +20,15 @@ import { cn } from "@/lib/utils";
 const SITE_URL = getSiteUrl();
 const sitewideJsonLd = buildSitewideJsonLd();
 
+/** Square brand mark (white + red K). Do not regenerate a letter-«ک» PNG favicon. */
+const BRAND_ICON = {
+  url: "/icon.svg",
+  type: "image/svg+xml" as const,
+  width: 289,
+  height: 289,
+  alt: "کارزار",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -28,6 +37,10 @@ export const metadata: Metadata = {
   },
   description:
     "خرید آنلاین ابزارآلات صنعتی و تراشکاری از معتبرترین برندهای جهان با ضمانت اصالت کالا.",
+  icons: {
+    icon: [{ url: BRAND_ICON.url, type: BRAND_ICON.type }],
+    apple: [{ url: BRAND_ICON.url }],
+  },
   openGraph: {
     type: "website",
     locale: "fa_IR",
@@ -36,12 +49,21 @@ export const metadata: Metadata = {
     title: "کارزار | فروشگاه ابزار صنعتی",
     description:
       "خرید آنلاین ابزارآلات صنعتی و تراشکاری از معتبرترین برندهای جهان با ضمانت اصالت کالا.",
+    images: [
+      {
+        url: BRAND_ICON.url,
+        width: BRAND_ICON.width,
+        height: BRAND_ICON.height,
+        alt: BRAND_ICON.alt,
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "کارزار | فروشگاه ابزار صنعتی",
     description:
       "خرید آنلاین ابزارآلات صنعتی و تراشکاری از معتبرترین برندهای جهان با ضمانت اصالت کالا.",
+    images: [BRAND_ICON.url],
   },
   alternates: {
     canonical: SITE_URL,
@@ -70,9 +92,12 @@ export default async function RootLayout({
       )}
     >
       <head>
-        {/* First-visit splash gate — sessionStorage; must run before paint (CSP nonce). */}
+        {/* First-visit splash gate — sessionStorage; must run before paint (CSP nonce).
+            suppressHydrationWarning: browsers clear script[nonce] from the DOM IDL after
+            parse (getAttribute → ""), so React would otherwise warn prop≠DOM. */}
         <script
           nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var k="karzar-splash-seen";if(sessionStorage.getItem(k))return;var h=document.documentElement;h.setAttribute("data-karzar-splash","");var done=0;function dismiss(){if(done)return;done=1;try{sessionStorage.setItem(k,"1")}catch(e){}h.removeAttribute("data-karzar-splash")}window.addEventListener("load",function(){setTimeout(dismiss,1000)},{once:true});setTimeout(dismiss,2800)}catch(e){}})();`,
           }}
@@ -107,7 +132,7 @@ export default async function RootLayout({
             <main
               id="main-content"
               tabIndex={-1}
-              className="min-h-[60vh] w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none outline-none"
+              className="min-h-[60svh] w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none outline-none"
             >
               {children}
             </main>

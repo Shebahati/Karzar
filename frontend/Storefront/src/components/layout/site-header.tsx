@@ -86,7 +86,8 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,backdrop-filter] duration-300",
+          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background-color,box-shadow,backdrop-filter,color] duration-300",
+          /* Home: fixed overlay — never participates in document flow / height. */
           isHome ? "fixed inset-x-0 top-0" : "sticky top-0",
           scrolled
             ? "bg-white/[0.92] shadow-glass max-md:bg-white md:bg-white/70 md:backdrop-blur-xl"

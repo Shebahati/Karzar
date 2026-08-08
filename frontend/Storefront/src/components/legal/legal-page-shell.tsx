@@ -88,7 +88,7 @@ export function LegalPageShell({
             className="hidden lg:block"
           >
             <div className="sticky top-24 space-y-1">
-              <p className="mb-3 text-[11px] font-bold tracking-wide text-steel">
+              <p className="mb-3 text-[11px] font-bold tracking-normal text-steel">
                 فهرست مطالب
               </p>
               <ol className="space-y-0.5 border-s border-steel/15 ps-3">

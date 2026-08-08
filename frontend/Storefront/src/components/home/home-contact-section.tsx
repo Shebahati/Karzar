@@ -27,12 +27,12 @@ const darkTextareaClass =
 function ContactIntro() {
   return (
     <>
-      <p className="text-[11px] font-black tracking-[0.2em] text-[#D02327]">
+      <p className="text-[11px] font-black tracking-normal text-[#D02327]">
         کارزار · پشتیبانی
       </p>
       <h2
         id="home-contact-heading"
-        className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl"
+        className="mt-3 text-2xl font-black tracking-normal text-white sm:text-3xl"
       >
         تیکت و پشتیبانی
       </h2>

@@ -265,7 +265,7 @@ export function SpotlightSearch({ open, onClose, initialQuery = "" }: SpotlightS
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto overscroll-contain p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -274,7 +274,7 @@ export function SpotlightSearch({ open, onClose, initialQuery = "" }: SpotlightS
           <button
             type="button"
             aria-label="بستن جستجو"
-            className="absolute inset-0 bg-black/55 md:bg-black/45 md:backdrop-blur-xl md:supports-[backdrop-filter]:bg-black/35"
+            className="fixed inset-0 bg-black/55 md:bg-black/45 md:backdrop-blur-xl md:supports-[backdrop-filter]:bg-black/35"
             onClick={onClose}
           />
 
@@ -286,7 +286,7 @@ export function SpotlightSearch({ open, onClose, initialQuery = "" }: SpotlightS
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
-            className="relative z-10 flex max-h-[min(90dvh,720px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[1.35rem] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)] ring-1 ring-black/5 md:bg-white/82 md:ring-white/60 md:backdrop-blur-2xl md:supports-[backdrop-filter]:bg-white/70"
+            className="relative z-10 my-auto flex max-h-[min(calc(100dvh-1.5rem),680px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[1.35rem] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)] ring-1 ring-black/5 md:bg-white/82 md:ring-white/60 md:backdrop-blur-2xl md:supports-[backdrop-filter]:bg-white/70"
             onKeyDown={onKeyDown}
           >
             {/* Input row — Spotlight style */}

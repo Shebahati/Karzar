@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { Container } from "@/components/ui/container";
 import { Hero } from "@/components/home/hero";
 import { MobileCategorySection } from "@/components/home/mobile-category-section";
@@ -10,6 +10,10 @@ import { WhyKarzar } from "@/components/home/why-karzar";
 import { FeatureStrip } from "@/components/home/feature-strip";
 import { HomeContactSection } from "@/components/home/home-contact-section";
 import { ArticlesSection } from "@/components/home/articles-section";
+import {
+  MostViewedYesterdaySection,
+  rankYesterdayMostViewed,
+} from "@/components/home/most-viewed-yesterday-section";
 import { SectionHeading } from "@/components/home/section-heading";
 import { HomeCategoryCarousel } from "@/components/home/home-category-carousel";
 import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
@@ -57,6 +61,10 @@ export function HomeView({
     : initialCategoryTree;
 
   const bestsellers = useMemo(() => rankBestsellers(products ?? []), [products]);
+  const yesterdayMostViewed = useMemo(
+    () => rankYesterdayMostViewed(products ?? []),
+    [products],
+  );
   const deals = useMemo(
     () =>
       (products ?? [])
@@ -68,16 +76,33 @@ export function HomeView({
 
   return (
     <div className="overflow-x-clip">
-      {/* Mobile: compact hero. md+: sticky under scrolling sheet (no page scroll-snap). */}
-      <div className="relative h-[62dvh] max-w-full overflow-x-clip md:sticky md:top-0 md:z-0 md:h-[100dvh]">
+      {/*
+        ── Sticky hero + sheet overlay (DISABLED — restore quickly if needed) ──
+        Hero stayed fixed; home sections scrolled over it (md+). Re-enable by
+        swapping the two active wrappers below with this commented pair:
+
+        <div className="relative h-[62svh] max-w-full overflow-x-clip md:sticky md:top-0 md:z-0 md:h-[100svh]">
+          <Hero />
+        </div>
+        <div className="relative mt-5 max-w-full overflow-x-clip bg-background pb-10 md:z-10 md:-mt-1 md:rounded-t-[2.25rem] md:pb-16 md:shadow-[0_-28px_80px_rgba(0,0,0,0.38)]">
+          <div
+            aria-hidden
+            className="mx-auto mb-2 mt-3 hidden h-1.5 w-12 rounded-full bg-border/80 md:mt-4 md:block"
+          />
+          …Container + sections…
+        </div>
+      */}
+
+      {/*
+        svh (not dvh/vh): Android Chrome grows dvh ~40–56px when the URL bar
+        hides on first scroll — a 62dvh hero then reflows and the page jumps.
+        Small viewport units stay locked to the chrome-expanded size.
+      */}
+      <div className="relative h-[62svh] max-w-full overflow-x-clip [overflow-anchor:none] md:h-[100svh]">
         <Hero />
       </div>
 
-      <div className="relative mt-5 max-w-full overflow-x-clip bg-background pb-10 md:z-10 md:-mt-1 md:rounded-t-[2.25rem] md:pb-16 md:shadow-[0_-28px_80px_rgba(0,0,0,0.38)]">
-        <div
-          aria-hidden
-          className="mx-auto mb-2 mt-3 hidden h-1.5 w-12 rounded-full bg-border/80 md:mt-4 md:block"
-        />
+      <div className="relative mt-5 max-w-full overflow-x-clip bg-background pb-10 md:pb-16">
         <Container className="home-stack pt-3 md:pt-6">
           {/*
             Mobile: L1 categories first (not in hero). Desktop: categories stay in hero dock —
@@ -154,21 +179,25 @@ export function HomeView({
                   );
 
                 case "articles":
-                  if (!hasArticles) return null;
                   return (
-                    <section
-                      key={section.id}
-                      aria-labelledby="home-articles-heading"
-                    >
-                      <SectionHeading
-                        id="home-articles-heading"
-                        title="مقالات پر بازدید"
-                        subtitle="راهنماها و نکات فنی پرمخاطب مجله کارزار"
-                        href="/blog"
-                        hrefLabel="همه مقالات"
+                    <Fragment key={section.id}>
+                      {hasArticles ? (
+                        <section aria-labelledby="home-articles-heading">
+                          <SectionHeading
+                            id="home-articles-heading"
+                            title="مقالات پر بازدید"
+                            subtitle="راهنماها و نکات فنی پرمخاطب مجله کارزار"
+                            href="/blog"
+                            hrefLabel="همه مقالات"
+                          />
+                          <ArticlesSection />
+                        </section>
+                      ) : null}
+                      <MostViewedYesterdaySection
+                        products={yesterdayMostViewed}
+                        isLoading={catalog.isLoading}
                       />
-                      <ArticlesSection />
-                    </section>
+                    </Fragment>
                   );
 
                 case "contact":

@@ -50,7 +50,7 @@ export const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "دستگاه های صنعتی": CATEGORY_ICON_BY_SLUG["dastgah-sanati"]!,
   "هلی کویل": CATEGORY_ICON_BY_SLUG["heli-coil"]!,
   مته: CATEGORY_ICON_BY_SLUG.mete!,
-  "ابزار کارگاهی : دریل عادی": CATEGORY_ICON_BY_SLUG["abzar-kargahi"]!,
+  مته‌ها: CATEGORY_ICON_BY_SLUG.mete!,
   "ابزار کارگاهی": CATEGORY_ICON_BY_SLUG["abzar-kargahi"]!,
   "ابزار تراشکاری": CATEGORY_ICON_BY_SLUG["abzar-kargahi"]!,
   "روغن و روانکار": CATEGORY_ICON_BY_SLUG["roghan-ravankar"]!,

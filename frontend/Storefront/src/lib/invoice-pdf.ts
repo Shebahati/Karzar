@@ -1,15 +1,29 @@
 import type { OrderTracking } from "@/types/order";
-import { formatToman, toPersianDigits } from "@/lib/utils";
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { productLineSavings, productUnitSavings } from "@/types/product";
+import { formatNumber, toPersianDigits } from "@/lib/utils";
+import { rialAmountInWords } from "@/lib/persian-amount-words";
 import {
   STORE_ADDRESS_FA,
   STORE_EMAIL,
-  STORE_NAME_FA,
   STORE_PHONE_DISPLAY,
+  STORE_TELEGRAM_URL,
 } from "@/lib/store-location";
+
+/** Soft proforma payment details (transfer / receipt channels). */
+const PROFORMA_PAYEE_NAME = "امیرعلی هاشمی";
+const PROFORMA_NATIONAL_ID = "0021469059";
+const PROFORMA_CARD_NUMBER = "6219861949025067";
+const PROFORMA_BANK_NAME = "بانک سامان";
+const PROFORMA_IBAN = "IR830560611828005507529401";
 
 const BRAND_RED = "#D02327";
 const BRAND_STEEL = "#5E5F5E";
+/** Trade name on formal docs (matches storefront SEO / letterhead). */
+const COMPANY_TRADE_FA = "ابزار کارزار";
+/** Catalog amounts are toman; formal invoices show rial (×۱۰). */
+const TOMAN_TO_RIAL = 10;
+const LINE_UNIT_FA = "عدد";
+const PROFORMA_VALIDITY_HOURS = 24;
 
 /** Cart line shape for sample proforma — UI login-gated; no order required. */
 export interface CartProformaLineInput {
@@ -17,7 +31,11 @@ export interface CartProformaLineInput {
   name: string;
   sku: string;
   quantity: number;
+  /** Sale / charged unit price (toman). */
   unitPrice: string | null;
+  /** Compare-at / list unit price before discount (toman). */
+  originalPrice?: string | null;
+  discountPercent?: number | null;
 }
 
 /** Buyer identity for sample cart proforma (from account `full_name`). */
@@ -30,6 +48,9 @@ export interface CartProformaBuyer {
 export interface InvoiceProductHint {
   name?: string;
   sku?: string;
+  /** Compare-at unit price (toman) when catalog has a real discount. */
+  originalPrice?: string | null;
+  discountPercent?: number | null;
 }
 
 export type InvoiceDocKind = "invoice" | "proforma" | "sample";
@@ -59,8 +80,12 @@ function fa(value: string | number | null | undefined): string {
   return toPersianDigits(value ?? "");
 }
 
-function moneyFa(value: string | number | null | undefined): string {
-  return formatToman(value);
+/** Numeric amount for table cells (Persian digits + grouping, no currency word). */
+function moneyNumFa(value: number | string | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "—";
+  const numeric = typeof value === "string" ? Number(value) : value;
+  if (Number.isNaN(numeric)) return "—";
+  return formatNumber(numeric);
 }
 
 function displayOrBlank(value: string | null | undefined): string {
@@ -72,6 +97,11 @@ function lineTotalNum(qty: number, unit: string | null | undefined): number | nu
   if (unit == null || unit === "") return null;
   const n = Number(unit) * qty;
   return Number.isNaN(n) ? null : n;
+}
+
+function tomanToRial(toman: number | null): number | null {
+  if (toman == null || Number.isNaN(toman)) return null;
+  return Math.round(toman * TOMAN_TO_RIAL);
 }
 
 /** Persian (Jalali) calendar date with Persian digits. */
@@ -115,110 +145,191 @@ function productHint(
   return products[productId];
 }
 
+function buildPaymentDetailLines(
+  kind: InvoiceDocKind,
+  paymentStatusLabel?: string | null,
+): string[] {
+  const lines: string[] = [];
+
+  if (kind === "proforma" || kind === "sample") {
+    lines.push(
+      `مدت زمان اعتبار پیش‌فاکتور ${fa(PROFORMA_VALIDITY_HOURS)} ساعت می‌باشد.`,
+    );
+  }
+
+  if (paymentStatusLabel && paymentStatusLabel.trim()) {
+    lines.push(`وضعیت پرداخت: ${paymentStatusLabel.trim()}`);
+  }
+
+  if (kind === "invoice") {
+    lines.push("پرداخت از طریق درگاه رسمی بانکی کارزار انجام می‌شود.");
+  }
+
+  // Public support channel already in store-location — strip leading @ from ID.
+  if (STORE_TELEGRAM_URL) {
+    const handle = STORE_TELEGRAM_URL.replace(/^https?:\/\/t\.me\//i, "").replace(
+      /^@+/,
+      "",
+    );
+    if (handle) {
+      lines.push(
+        `در صورت واریز یا ارسال رسید پرداخت، از طریق تلگرام ${handle} با پشتیبانی هماهنگ کنید.`,
+      );
+    }
+  }
+
+  lines.push(`پشتیبانی: ${fa(STORE_PHONE_DISPLAY)} · ${STORE_EMAIL}`);
+  return lines;
+}
+
+function telegramHandlePlain(): string {
+  if (!STORE_TELEGRAM_URL) return "";
+  return STORE_TELEGRAM_URL.replace(/^https?:\/\/t\.me\//i, "").replace(/^@+/, "");
+}
+
+interface InvoiceLineModel {
+  name: string;
+  sku: string;
+  qty: number;
+  unitPriceRial: number | null;
+  amountRial: number | null;
+  discountRial: number;
+  totalRial: number | null;
+}
+
 interface InvoiceDocModel {
   kind: InvoiceDocKind;
   title: string;
-  badge?: string;
-  refLabel: string;
   refCode: string;
   dateLabel: string;
-  buyerName: string;
+  buyerLabel: string;
   buyerPhone: string;
-  buyerAddress: string;
-  companyName?: string;
-  statusLabel?: string;
-  modeLabel?: string;
-  paymentNote?: string;
-  lines: Array<{
-    sku: string;
-    name: string;
-    qty: number;
-    unitPrice: string | null;
-    lineTotal: number | null;
-  }>;
-  subtotal: number | null;
-  taxLabel: string;
-  grandLabel: string;
-  estimatedTotal: number | null;
+  buyerMobile: string;
+  paymentLines: string[];
+  /** Account balances — only when real data exists (never invent). */
+  previousBalanceRial: number | null;
+  balanceWithInvoiceRial: number | null;
+  lines: InvoiceLineModel[];
+  qtySum: number;
+  amountSumRial: number | null;
+  discountSumRial: number;
+  grandTotalRial: number | null;
+  amountInWords: string;
   footerNote: string;
   fileHint: string;
+}
+
+function renderDocHeader(model: InvoiceDocModel): string {
+  const logoUrl = absoluteAssetUrl(BRAND_LOGO_PATH);
+  return `
+    <header class="doc-header">
+      <div class="doc-meta">
+        <div><span class="k">شماره:</span> <strong class="tnum">${escapeHtml(fa(model.refCode))}</strong></div>
+        <div><span class="k">تاریخ:</span> <strong class="tnum">${escapeHtml(model.dateLabel)}</strong></div>
+      </div>
+      <div class="doc-titles">
+        <h1 class="doc-title">${escapeHtml(model.title)}</h1>
+        <p class="doc-company">${escapeHtml(COMPANY_TRADE_FA)}</p>
+      </div>
+      <div class="doc-logo">
+        <img
+          class="brand-logo"
+          src="${escapeHtml(logoUrl)}"
+          alt=""
+          width="200"
+          height="36"
+        />
+      </div>
+    </header>`;
+}
+
+function renderProformaPaymentBlock(): string {
+  const tg = telegramHandlePlain();
+  const channels = "واتساپ، تلگرام، بله، ایتا یا روبیکا";
+  return `
+    <section class="xfer-block" aria-label="اطلاعات پرداخت">
+      <p class="xfer-title">اطلاعات پرداخت</p>
+      <p class="xfer-hint">در وهله اول می‌توانید خریدتان را در سایت هم نهایی کنید</p>
+      <div class="xfer-grid">
+        <div class="xfer-cell">
+          <span class="k">کد ملی</span>
+          <span class="v tnum">${escapeHtml(fa(PROFORMA_NATIONAL_ID))}</span>
+          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
+        </div>
+        <div class="xfer-cell">
+          <span class="k">شماره کارت</span>
+          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_CARD_NUMBER))}</span>
+          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
+        </div>
+        <div class="xfer-cell">
+          <span class="k">بانک</span>
+          <span class="v">${escapeHtml(PROFORMA_BANK_NAME)}</span>
+        </div>
+        <div class="xfer-cell wide">
+          <span class="k">شبا / IBAN</span>
+          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_IBAN))}</span>
+        </div>
+      </div>
+      <p class="xfer-receipt">
+        لطفا پس از پرداخت، رسید را از طریق ${escapeHtml(channels)} ارسال فرمایید.${
+          tg ? ` · تلگرام پشتیبانی: <span class="tnum" dir="ltr">${escapeHtml(tg)}</span>` : ""
+        }
+      </p>
+    </section>`;
 }
 
 function buildDocumentHtml(model: InvoiceDocModel): string {
   const regular = absoluteFontUrl("IRANYekanX-Regular.woff2");
   const medium = absoluteFontUrl("IRANYekanX-Medium.woff2");
   const bold = absoluteFontUrl("IRANYekanX-Bold.woff2");
-  const logoUrl = absoluteAssetUrl(BRAND_LOGO_PATH);
 
-  /* Visual system is shared for invoice / proforma / sample —
-   * kind only drives title, labels, badge, and legal footer copy. */
   const isSample = model.kind === "sample";
-  const accent = BRAND_STEEL;
-  const grandBg = "#f5f5f5";
-  const grandFg = "#111";
+  const isProformaDoc = model.kind === "proforma" || model.kind === "sample";
 
   const rows =
     model.lines.length === 0
-      ? `<tr><td colspan="6" class="empty">آیتمی ثبت نشده است</td></tr>`
+      ? `<tr><td colspan="8" class="empty">آیتمی ثبت نشده است</td></tr>`
       : model.lines
           .map((line, i) => {
-            const sku = escapeHtml(fa(line.sku || "—"));
-            const name = escapeHtml(line.name || "—");
-            const qty = escapeHtml(fa(line.qty));
-            const unit = escapeHtml(moneyFa(line.unitPrice));
-            const total =
-              line.lineTotal == null
-                ? "—"
-                : escapeHtml(moneyFa(line.lineTotal));
+            const desc = line.sku
+              ? `${escapeHtml(line.name)}<span class="sku-sub tnum">${escapeHtml(fa(line.sku))}</span>`
+              : escapeHtml(line.name || "—");
             return `<tr>
-              <td class="c row-num">${escapeHtml(fa(i + 1))}</td>
-              <td class="sku tnum">${sku}</td>
-              <td class="name">${name}</td>
-              <td class="c tnum">${qty}</td>
-              <td class="num tnum">${unit}</td>
-              <td class="num tnum">${total}</td>
+              <td class="c row-num tnum">${escapeHtml(fa(i + 1))}</td>
+              <td class="name">${desc}</td>
+              <td class="c tnum">${escapeHtml(fa(line.qty))}</td>
+              <td class="c">${escapeHtml(LINE_UNIT_FA)}</td>
+              <td class="num tnum">${escapeHtml(moneyNumFa(line.unitPriceRial))}</td>
+              <td class="num tnum">${escapeHtml(moneyNumFa(line.amountRial))}</td>
+              <td class="num tnum">${escapeHtml(moneyNumFa(line.discountRial))}</td>
+              <td class="num tnum strong">${escapeHtml(moneyNumFa(line.totalRial))}</td>
             </tr>`;
           })
           .join("");
 
-  const badge = model.badge
-    ? `<span class="badge">${escapeHtml(model.badge)}</span>`
-    : "";
-
-  const companyRow =
-    model.companyName && model.companyName.trim()
-      ? `<p><span class="label">شرکت</span><span class="value">${escapeHtml(model.companyName)}</span></p>`
+  const balanceBlock =
+    model.previousBalanceRial != null || model.balanceWithInvoiceRial != null
+      ? `<div class="balance-lines">
+          ${
+            model.previousBalanceRial != null
+              ? `<p><span class="k">مانده حساب از قبل:</span> <strong class="tnum">${escapeHtml(moneyNumFa(model.previousBalanceRial))}</strong> ریال</p>`
+              : ""
+          }
+          ${
+            model.balanceWithInvoiceRial != null
+              ? `<p><span class="k">با احتساب فاکتور:</span> <strong class="tnum">${escapeHtml(moneyNumFa(model.balanceWithInvoiceRial))}</strong> ریال</p>`
+              : ""
+          }
+        </div>`
       : "";
 
-  const metaExtra = [
-    model.statusLabel
-      ? `<div class="meta-cell"><span class="meta-k">وضعیت سفارش</span><strong class="meta-v">${escapeHtml(model.statusLabel)}</strong></div>`
-      : "",
-    model.modeLabel
-      ? `<div class="meta-cell"><span class="meta-k">نوع سند</span><strong class="meta-v">${escapeHtml(model.modeLabel)}</strong></div>`
-      : "",
-  ].join("");
+  const paymentLinesHtml = model.paymentLines
+    .map((line) => `<li>${escapeHtml(line)}</li>`)
+    .join("");
 
-  const paymentBanner = model.paymentNote
-    ? `<div class="pay-note" role="note"><span>وضعیت پرداخت / یادداشت</span><strong>${escapeHtml(model.paymentNote)}</strong></div>`
+  const sampleBanner = isSample
+    ? `<div class="sample-banner" role="note">تعهد آور نیست</div>`
     : "";
-
-  const totalsBlock = `
-    <div class="totals-wrap">
-      <div class="totals">
-        <div class="total-row"><span>جمع جزء</span><strong class="tnum">${
-          model.subtotal == null || model.subtotal <= 0
-            ? "—"
-            : escapeHtml(moneyFa(model.subtotal))
-        }</strong></div>
-        <div class="total-row muted"><span>مالیات / عوارض</span><strong>${escapeHtml(model.taxLabel)}</strong></div>
-        <div class="total-row grand"><span>${escapeHtml(model.grandLabel)}</span><strong class="tnum">${
-          model.estimatedTotal == null || model.estimatedTotal <= 0
-            ? "—"
-            : escapeHtml(moneyFa(model.estimatedTotal))
-        }</strong></div>
-      </div>
-    </div>`;
 
   return `<!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -253,8 +364,8 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
       background: #ececec;
       color: #1a1a1a;
       font-family: "IRANYekanX", Tahoma, Arial, sans-serif;
-      font-size: 12px;
-      line-height: 1.75;
+      font-size: 11px;
+      line-height: 1.65;
       direction: rtl;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -282,79 +393,13 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
       font-weight: 700;
       cursor: pointer;
     }
-    .toolbar .print {
-      background: ${BRAND_RED};
-      color: #fff;
-    }
-    .toolbar .close {
-      background: #efefef;
-      color: ${BRAND_STEEL};
-    }
+    .toolbar .print { background: ${BRAND_RED}; color: #fff; }
+    .toolbar .close { background: #efefef; color: ${BRAND_STEEL}; }
     .toolbar .hint {
       color: ${BRAND_STEEL};
       font-size: 11px;
       max-width: 28rem;
       text-align: center;
-    }
-    .sheet {
-      position: relative;
-      width: 210mm;
-      min-height: 297mm;
-      margin: 18px auto;
-      background: #fff;
-      padding: 0 0 18mm;
-      box-shadow: 0 12px 40px rgba(0,0,0,.1);
-      overflow: hidden;
-    }
-    .sheet::before {
-      content: "";
-      display: block;
-      height: 5px;
-      background: linear-gradient(90deg, ${BRAND_RED} 0%, ${BRAND_RED} 62%, ${BRAND_STEEL} 62%, ${BRAND_STEEL} 100%);
-    }
-    .sheet-inner {
-      padding: 12mm 14mm 0;
-    }
-    .letterhead {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 14px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid #e8e8e8;
-    }
-    .brand-logo {
-      display: block;
-      width: auto;
-      height: 42px;
-      max-width: 240px;
-      object-fit: contain;
-    }
-    .doc-title {
-      color: #111;
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.3;
-      letter-spacing: -0.01em;
-    }
-    .doc-title-rule {
-      width: 48px;
-      height: 3px;
-      margin: -4px auto 0;
-      background: ${accent};
-      border-radius: 2px;
-    }
-    .badge {
-      display: inline-block;
-      margin-top: 2px;
-      padding: 3px 11px;
-      border: 1px solid ${isSample ? BRAND_RED : "#d0d0d0"};
-      border-radius: 3px;
-      background: ${isSample ? "#fdf2f2" : "#f6f6f6"};
-      color: ${isSample ? BRAND_RED : BRAND_STEEL};
-      font-size: 10.5px;
-      font-weight: 700;
     }
     .toolbar .fallback {
       flex: 1 1 100%;
@@ -365,181 +410,330 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
       display: none;
     }
     .toolbar.needs-fallback .fallback { display: block; }
-    .meta {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0;
-      margin: 18px 0 0;
-      border: 1px solid #e6e6e6;
-      border-radius: 4px;
+    .sheet {
+      position: relative;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 18px auto;
+      background:
+        linear-gradient(180deg, #fff 0%, #fafafa 100%);
+      padding: 0 0 14mm;
+      box-shadow: 0 12px 40px rgba(0,0,0,.1);
       overflow: hidden;
     }
-    .meta-cell {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      padding: 11px 14px;
-      border-bottom: 1px solid #ececec;
-      border-left: 1px solid #ececec;
-      background: #fafafa;
+    .sheet::before {
+      content: "";
+      display: block;
+      height: 4px;
+      background: linear-gradient(90deg, ${BRAND_RED} 0%, ${BRAND_RED} 58%, ${BRAND_STEEL} 58%, ${BRAND_STEEL} 100%);
     }
-    .meta-cell:nth-child(2n) { border-left: 0; }
-    .meta-cell:nth-last-child(-n+2) { border-bottom: 0; }
-    .meta-k {
+    .sheet-inner { padding: 9mm 11mm 0; }
+    .sample-banner {
+      margin-top: 14px;
+      padding: 7px 12px;
+      border: 1px solid #f0c4c5;
+      border-radius: 4px;
+      background: #fdf5f5;
+      color: ${BRAND_RED};
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .doc-header {
+      display: grid;
+      grid-template-columns: 1.15fr auto 1.15fr;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .doc-meta {
+      text-align: right;
+      font-size: 11px;
+      line-height: 1.85;
+    }
+    .doc-meta .k { color: ${BRAND_STEEL}; font-weight: 500; }
+    .doc-meta strong { color: #151515; font-weight: 700; }
+    .doc-titles { text-align: center; }
+    .doc-title {
+      color: #111;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .doc-company {
+      margin-top: 2px;
       color: ${BRAND_STEEL};
-      font-size: 10px;
-      font-weight: 500;
-    }
-    .meta-v {
-      color: #151515;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
     }
-    .parties {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin: 18px 0 20px;
+    /* Physical left: logo column is last in RTL grid */
+    .doc-logo { display: flex; justify-content: flex-end; }
+    .brand-logo {
+      display: block;
+      width: auto;
+      height: 34px;
+      max-width: 180px;
+      object-fit: contain;
     }
-    .party {
-      border: 1px solid #e4e4e4;
-      border-radius: 4px;
-      padding: 0;
+
+    .info-box {
+      border: 1px solid #cfcfcf;
+      border-radius: 3px;
+      margin-bottom: 8px;
       overflow: hidden;
       background: #fff;
     }
-    .party h3 {
-      margin: 0;
-      padding: 8px 14px;
-      background: ${BRAND_STEEL};
-      color: #fff;
+    .info-box.seller { border-color: #d8b0b1; }
+    .info-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid #e6e6e6;
+    }
+    .info-row:last-child { border-bottom: 0; }
+    .info-row.full { grid-template-columns: 1fr; }
+    .info-cell {
+      padding: 7px 10px;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      border-left: 1px solid #e6e6e6;
     }
-    .party.seller h3 { background: ${BRAND_RED}; }
-    .party-body { padding: 12px 14px 14px; }
-    .party p {
-      color: #222;
-      font-size: 11.5px;
-      margin: 5px 0;
-      display: flex;
-      gap: 8px;
-      align-items: baseline;
-    }
-    .party .label {
+    .info-cell:last-child { border-left: 0; }
+    .info-cell .k {
       color: ${BRAND_STEEL};
-      flex: 0 0 3.4rem;
-      font-size: 10.5px;
       font-weight: 500;
+      margin-left: 4px;
     }
-    .party .value { flex: 1; min-width: 0; }
+    .info-cell .v { color: #151515; font-weight: 600; }
+    .info-row.full .info-cell { padding: 7px 10px; }
+
     table.items {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      overflow: hidden;
+      border: 1px solid #cfcfcf;
+      margin-top: 4px;
     }
     table.items thead th {
-      background: ${accent};
-      color: #fff;
+      background: #e8e8e8;
+      color: #222;
       font-weight: 700;
-      font-size: 10.5px;
-      padding: 10px 8px;
+      font-size: 9.5px;
+      padding: 7px 4px;
       text-align: center;
-      letter-spacing: 0.01em;
+      border: 1px solid #cfcfcf;
+      line-height: 1.35;
     }
-    table.items thead th:nth-child(3) { text-align: right; }
     table.items tbody td {
-      border-bottom: 1px solid #ececec;
-      padding: 10px 8px;
-      vertical-align: top;
-      font-size: 11px;
+      border: 1px solid #d8d8d8;
+      padding: 6px 4px;
+      vertical-align: middle;
+      font-size: 10px;
       color: #1f1f1f;
     }
-    table.items tbody tr:last-child td { border-bottom: 0; }
-    table.items tbody tr:nth-child(even) td { background: #f9f9f9; }
-    td.c { text-align: center; width: 7%; }
-    td.row-num { color: ${BRAND_STEEL}; font-weight: 500; }
-    td.sku { text-align: center; width: 15%; word-break: break-all; color: ${BRAND_STEEL}; }
-    td.name { text-align: right; width: 38%; font-weight: 500; }
-    td.num { text-align: left; width: 17%; white-space: nowrap; }
+    table.items tbody tr:nth-child(even) td { background: #fafafa; }
+    td.c { text-align: center; }
+    td.row-num { width: 5%; color: ${BRAND_STEEL}; font-weight: 500; }
+    td.name { text-align: right; width: 34%; font-weight: 500; padding-right: 6px; }
+    td.name .sku-sub {
+      display: block;
+      color: ${BRAND_STEEL};
+      font-size: 9px;
+      font-weight: 400;
+      margin-top: 1px;
+    }
+    td.num { text-align: left; white-space: nowrap; direction: ltr; }
+    td.strong { font-weight: 700; }
     td.empty {
       text-align: center;
       color: ${BRAND_STEEL};
-      padding: 22px 8px;
+      padding: 18px 8px;
       background: #fafafa;
     }
     .tnum { font-variant-numeric: tabular-nums; }
-    .totals-wrap {
-      display: flex;
-      justify-content: flex-start;
-      margin-top: 16px;
+
+    .after-table {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+      margin-top: 0;
+      align-items: start;
     }
-    .totals {
-      width: min(300px, 100%);
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      overflow: hidden;
+    .sum-notes {
+      border: 1px solid #cfcfcf;
+      border-top: 0;
+      padding: 8px 10px;
+      background: #fff;
+      min-height: 72px;
+    }
+    .sum-notes p {
+      font-size: 10.5px;
+      margin: 4px 0;
+      color: #222;
+    }
+    .sum-notes .k { color: ${BRAND_STEEL}; font-weight: 500; }
+    .sum-notes .words { font-weight: 600; line-height: 1.7; }
+    .balance-lines { margin-top: 6px; }
+    .sum-table {
+      border: 1px solid #cfcfcf;
+      border-top: 0;
+      width: 100%;
+      border-collapse: collapse;
       background: #fff;
     }
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      padding: 9px 14px;
-      border-bottom: 1px solid #eee;
-      font-size: 11.5px;
+    .sum-table td {
+      border: 1px solid #d8d8d8;
+      padding: 6px 8px;
+      font-size: 10.5px;
     }
-    .total-row:last-child { border-bottom: 0; }
-    .total-row.muted { color: ${BRAND_STEEL}; background: #fafafa; }
-    .total-row.grand {
-      background: ${grandBg};
-      color: ${grandFg};
-      font-size: 13.5px;
+    .sum-table td.lab {
+      background: #f3f3f3;
+      color: ${BRAND_STEEL};
+      font-weight: 600;
+      text-align: center;
+      width: 38%;
+    }
+    .sum-table td.val {
+      text-align: left;
+      direction: ltr;
+      font-weight: 600;
+    }
+    .sum-table tr.grand td {
+      background: #f7f7f7;
       font-weight: 700;
-      padding: 12px 14px;
-      border-top: 2px solid ${accent};
-    }
-    .pay-note {
-      margin-top: 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      padding: 10px 14px;
-      border: 1px dashed #d8d8d8;
-      border-radius: 4px;
-      background: #fcfcfc;
       font-size: 11.5px;
+      border-top: 2px solid ${BRAND_RED};
     }
-    .pay-note span { color: ${BRAND_STEEL}; }
-    .pay-note strong { color: #151515; font-weight: 700; }
-    .footer {
+    .sum-table tr.grand td.lab { color: #111; background: #efefef; }
+
+    .section-break {
+      margin: 16px 0 14px;
+      border: 0;
+      border-top: 3px solid #222;
+    }
+
+    .pay-block {
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    .pay-block ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .pay-block li {
+      position: relative;
+      padding: 3px 0 3px 0;
+      font-size: 11px;
+      color: #222;
+      line-height: 1.75;
+    }
+    .pay-block li::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin-left: 8px;
+      border-radius: 50%;
+      background: ${BRAND_RED};
+      vertical-align: middle;
+    }
+
+    .signs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
       margin-top: 28px;
-      padding-top: 14px;
+      padding: 0 8px;
+    }
+    .sign {
+      text-align: center;
+      padding-top: 36px;
+      border-top: 1px solid #bbb;
+      color: ${BRAND_STEEL};
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 10px;
       border-top: 1px solid #e4e4e4;
     }
     .footer p {
       color: ${BRAND_STEEL};
-      font-size: 10.5px;
-      line-height: 1.85;
-    }
-    .footer .brand {
-      margin-top: 12px;
-      color: ${BRAND_RED};
-      font-weight: 700;
-      font-size: 12px;
-    }
-    .footer .contact {
-      margin-top: 4px;
       font-size: 10px;
-      color: #888;
+      line-height: 1.75;
     }
-    @page { size: A4; margin: 8mm; }
+
+    .xfer-block {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid #f0c4c5;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fffbfb 0%, #fdf5f5 100%);
+    }
+    .xfer-title {
+      color: ${BRAND_RED};
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .xfer-hint {
+      color: ${BRAND_STEEL};
+      font-size: 10.5px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+    .xfer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .xfer-cell {
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid #f3e0e0;
+    }
+    .xfer-cell.wide { grid-column: 1 / -1; }
+    .xfer-cell .k {
+      display: block;
+      color: ${BRAND_STEEL};
+      font-size: 9.5px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .xfer-cell .v {
+      display: block;
+      color: #151515;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .xfer-cell .sub {
+      display: block;
+      margin-top: 2px;
+      color: ${BRAND_STEEL};
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .xfer-receipt {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #f0c4c5;
+      color: #333;
+      font-size: 10.5px;
+      font-weight: 500;
+      line-height: 1.75;
+    }
+
+    @page { size: A4; margin: 7mm; }
     @media print {
       html, body { background: #fff !important; }
       .toolbar { display: none !important; }
@@ -549,8 +743,10 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
         box-shadow: none;
         width: auto;
         min-height: 0;
+        background: #fff;
       }
-      .sheet-inner { padding: 2mm 4mm 0; }
+      .sheet-inner { padding: 2mm 3mm 0; }
+      .section-break { break-before: avoid; }
     }
   </style>
 </head>
@@ -566,48 +762,44 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
   </div>
   <article class="sheet" dir="rtl" lang="fa">
     <div class="sheet-inner">
-      <header class="letterhead">
-        <img
-          class="brand-logo"
-          src="${escapeHtml(logoUrl)}"
-          alt=""
-          width="240"
-          height="38"
-        />
-        <h1 class="doc-title">${escapeHtml(model.title)}</h1>
-        <div class="doc-title-rule" aria-hidden="true"></div>
-        ${badge}
-      </header>
+      ${renderDocHeader(model)}
 
-      <section class="meta" aria-label="اطلاعات سند">
-        <div class="meta-cell">
-          <span class="meta-k">${escapeHtml(model.refLabel)}</span>
-          <strong class="meta-v tnum">${escapeHtml(fa(model.refCode))}</strong>
-        </div>
-        <div class="meta-cell">
-          <span class="meta-k">تاریخ</span>
-          <strong class="meta-v tnum">${escapeHtml(model.dateLabel)}</strong>
-        </div>
-        ${metaExtra}
-      </section>
-
-      <section class="parties">
-        <div class="party seller">
-          <h3>فروشنده</h3>
-          <div class="party-body">
-            <p><span class="label">نام</span><span class="value">${escapeHtml(STORE_NAME_FA)}</span></p>
-            <p><span class="label">آدرس</span><span class="value">${escapeHtml(STORE_ADDRESS_FA)}</span></p>
-            <p><span class="label">تلفن</span><span class="value tnum">${escapeHtml(fa(STORE_PHONE_DISPLAY))}</span></p>
-            <p><span class="label">ایمیل</span><span class="value">${escapeHtml(STORE_EMAIL)}</span></p>
+      <section class="info-box seller" aria-label="فروشنده">
+        <div class="info-row">
+          <div class="info-cell">
+            <span class="k">فروشنده:</span>
+            <span class="v">${escapeHtml(COMPANY_TRADE_FA)}</span>
+          </div>
+          <div class="info-cell">
+            <span class="k">تلفن:</span>
+            <span class="v tnum">${escapeHtml(fa(STORE_PHONE_DISPLAY))}</span>
+          </div>
+          <div class="info-cell">
+            <span class="k">کدپستی:</span>
+            <span class="v">—</span>
           </div>
         </div>
-        <div class="party">
-          <h3>خریدار</h3>
-          <div class="party-body">
-            <p><span class="label">نام مشتری</span><span class="value">${escapeHtml(model.buyerName)}</span></p>
-            ${companyRow}
-            <p><span class="label">تلفن</span><span class="value tnum">${escapeHtml(model.buyerPhone)}</span></p>
-            <p><span class="label">آدرس</span><span class="value">${escapeHtml(model.buyerAddress)}</span></p>
+        <div class="info-row full">
+          <div class="info-cell">
+            <span class="k">آدرس:</span>
+            <span class="v">${escapeHtml(STORE_ADDRESS_FA)}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-box" aria-label="خریدار">
+        <div class="info-row">
+          <div class="info-cell">
+            <span class="k">خریدار:</span>
+            <span class="v">${escapeHtml(model.buyerLabel)}</span>
+          </div>
+          <div class="info-cell">
+            <span class="k">تلفن:</span>
+            <span class="v tnum">${escapeHtml(model.buyerPhone)}</span>
+          </div>
+          <div class="info-cell">
+            <span class="k">موبایل:</span>
+            <span class="v tnum">${escapeHtml(model.buyerMobile)}</span>
           </div>
         </div>
       </section>
@@ -616,24 +808,62 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
         <thead>
           <tr>
             <th>ردیف</th>
-            <th>کد / SKU</th>
-            <th>شرح کالا</th>
+            <th>شرح</th>
             <th>تعداد</th>
-            <th>فی (تومان)</th>
-            <th>مبلغ ردیف</th>
+            <th>واحد</th>
+            <th>مبلغ واحد<br/>(ریال)</th>
+            <th>مبلغ<br/>(ریال)</th>
+            <th>تخفیف<br/>(ریال)</th>
+            <th>مبلغ کل<br/>(ریال)</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
 
-      ${totalsBlock}
-      ${paymentBanner}
+      <div class="after-table">
+        <div class="sum-notes">
+          <p class="words">
+            <span class="k">مبلغ کل به حروف:</span>
+            ${escapeHtml(model.amountInWords)}
+          </p>
+          ${balanceBlock}
+        </div>
+        <table class="sum-table" aria-label="جمع‌ها">
+          <tr>
+            <td class="lab">تعداد</td>
+            <td class="val tnum">${escapeHtml(fa(model.qtySum))}</td>
+          </tr>
+          <tr>
+            <td class="lab">مبلغ</td>
+            <td class="val tnum">${escapeHtml(moneyNumFa(model.amountSumRial))}</td>
+          </tr>
+          <tr>
+            <td class="lab">تخفیف</td>
+            <td class="val tnum">${escapeHtml(moneyNumFa(model.discountSumRial))}</td>
+          </tr>
+          <tr class="grand">
+            <td class="lab">مبلغ کل</td>
+            <td class="val tnum">${escapeHtml(moneyNumFa(model.grandTotalRial))}</td>
+          </tr>
+        </table>
+      </div>
+
+      <hr class="section-break" />
+
+      <section class="pay-block" aria-label="شرایط پرداخت">
+        <ul>${paymentLinesHtml}</ul>
+      </section>
+
+      <div class="signs">
+        <div class="sign">امضاء خریدار</div>
+        <div class="sign">امضاء فروشنده</div>
+      </div>
 
       <footer class="footer">
         <p>${escapeHtml(model.footerNote)}</p>
-        <p class="brand">${escapeHtml(STORE_NAME_FA)}</p>
-        <p class="contact tnum">${escapeHtml(fa(STORE_PHONE_DISPLAY))} · ${escapeHtml(STORE_EMAIL)}</p>
       </footer>
+      ${isProformaDoc ? renderProformaPaymentBlock() : ""}
+      ${sampleBanner}
     </div>
   </article>
 </body>
@@ -657,16 +887,19 @@ async function waitForPrintAssets(win: Window): Promise<void> {
     /* Tahoma fallback still readable */
   }
 
-  const logo = win.document.querySelector<HTMLImageElement>("img.brand-logo");
-  if (logo && !logo.complete) {
-    await waitWithTimeout(
-      new Promise<void>((resolve) => {
-        logo.addEventListener("load", () => resolve(), { once: true });
-        logo.addEventListener("error", () => resolve(), { once: true });
-      }),
-      2000,
-    );
-  }
+  const logos = win.document.querySelectorAll<HTMLImageElement>("img.brand-logo");
+  await Promise.all(
+    [...logos].map((logo) => {
+      if (logo.complete) return Promise.resolve();
+      return waitWithTimeout(
+        new Promise<void>((resolve) => {
+          logo.addEventListener("load", () => resolve(), { once: true });
+          logo.addEventListener("error", () => resolve(), { once: true });
+        }),
+        2000,
+      );
+    }),
+  );
 }
 
 function bindPrintToolbar(win: Window): void {
@@ -692,7 +925,6 @@ function bindPrintToolbar(win: Window): void {
     win.close();
   });
 
-  // Expose for opener-driven auto-print after fonts load.
   (win as Window & { __karzarPrint?: () => void }).__karzarPrint = triggerPrint;
 }
 
@@ -729,7 +961,6 @@ async function openPrintableDocument(model: InvoiceDocModel): Promise<void> {
 
   if (win.closed) return;
 
-  // Let layout settle after @font-face / logo paint, then auto-open print.
   await new Promise((resolve) => setTimeout(resolve, 350));
 
   if (win.closed) return;
@@ -746,6 +977,107 @@ async function openPrintableDocument(model: InvoiceDocModel): Promise<void> {
       /* ignore */
     }
   }
+}
+
+function mapPricedLines(
+  raw: Array<{
+    sku: string;
+    name: string;
+    qty: number;
+    /** Sale / charged unit price (toman). */
+    unitPrice: string | null;
+    originalPrice?: string | null;
+    discountPercent?: number | null;
+    lineTotal: number | null;
+  }>,
+): {
+  lines: InvoiceLineModel[];
+  qtySum: number;
+  amountSumRial: number | null;
+  discountSumRial: number;
+  hasPriced: boolean;
+} {
+  let qtySum = 0;
+  let amountSumRial = 0;
+  let discountSumRial = 0;
+  let hasPriced = false;
+
+  const lines = raw.map((line) => {
+    qtySum += line.qty;
+    const saleToman =
+      line.unitPrice != null && line.unitPrice !== ""
+        ? Number(line.unitPrice)
+        : null;
+    const saleOk = saleToman != null && !Number.isNaN(saleToman);
+
+    const unitSavingsToman = saleOk
+      ? productUnitSavings({
+          base_price: line.unitPrice,
+          original_price: line.originalPrice,
+          discount_percent: line.discountPercent,
+        })
+      : 0;
+    const discountToman = saleOk
+      ? productLineSavings(
+          {
+            base_price: line.unitPrice,
+            original_price: line.originalPrice,
+            discount_percent: line.discountPercent,
+          },
+          line.qty,
+        )
+      : 0;
+
+    // List/unit column: original when discounted, else sale.
+    const listToman =
+      saleOk && unitSavingsToman > 0 ? saleToman + unitSavingsToman : saleToman;
+
+    const saleLineToman =
+      line.lineTotal != null && !Number.isNaN(line.lineTotal)
+        ? line.lineTotal
+        : saleOk
+          ? saleToman * line.qty
+          : null;
+
+    const amountToman =
+      listToman != null && !Number.isNaN(listToman)
+        ? listToman * line.qty
+        : saleLineToman;
+
+    const unitPriceRial = tomanToRial(listToman);
+    const amountRial = tomanToRial(amountToman);
+    const discountRial = tomanToRial(discountToman) ?? 0;
+    const totalRial =
+      saleLineToman != null
+        ? tomanToRial(saleLineToman)
+        : amountRial == null
+          ? null
+          : amountRial - discountRial;
+
+    if (amountRial != null) {
+      hasPriced = true;
+      amountSumRial += amountRial;
+    }
+    discountSumRial += discountRial;
+
+    return {
+      name: line.name,
+      sku: line.sku,
+      qty: line.qty,
+      unitPriceRial,
+      amountRial,
+      discountRial,
+      totalRial,
+    };
+  });
+
+  return {
+    lines,
+    qtySum,
+    amountSumRial: hasPriced ? amountSumRial : null,
+    discountSumRial,
+    hasPriced,
+  };
 }
 
 /**
@@ -767,15 +1099,15 @@ export async function downloadOrderPdf(
     (tracking.mode === "inquiry" ? "proforma" : "invoice");
 
   const items = tracking.items ?? [];
-  let subtotal: number | null = 0;
+  let subtotalToman: number | null = 0;
   let hasPriced = false;
 
-  const lines = items.map((item) => {
+  const rawLines = items.map((item) => {
     const hint = productHint(options.products, item.product_id);
     const lt = lineTotalNum(item.quantity, item.unit_price);
     if (lt != null) {
       hasPriced = true;
-      subtotal = (subtotal ?? 0) + lt;
+      subtotalToman = (subtotalToman ?? 0) + lt;
     }
     return {
       sku: hint?.sku?.trim() || String(item.product_id),
@@ -784,59 +1116,73 @@ export async function downloadOrderPdf(
         `کالای شماره ${fa(item.product_id)}`,
       qty: item.quantity,
       unitPrice: item.unit_price,
+      originalPrice: hint?.originalPrice ?? null,
+      discountPercent: hint?.discountPercent ?? null,
       lineTotal: lt,
     };
   });
 
-  if (!hasPriced) subtotal = null;
+  if (!hasPriced) subtotalToman = null;
 
   const totalSource =
     options.estimatedTotal ?? tracking.estimated_total ?? null;
-  const estimated =
+  const estimatedToman =
     totalSource != null && totalSource !== ""
       ? Number(totalSource)
-      : subtotal;
+      : subtotalToman;
 
-  const paymentNote = displayOrBlank(options.paymentStatusLabel);
-  const hasPaymentNote =
-    options.paymentStatusLabel != null &&
-    options.paymentStatusLabel.trim() !== "";
+  const mapped = mapPricedLines(rawLines);
+  const saleSumRial =
+    mapped.hasPriced && mapped.amountSumRial != null
+      ? mapped.amountSumRial - mapped.discountSumRial
+      : null;
+  const grandToman =
+    estimatedToman != null && !Number.isNaN(estimatedToman)
+      ? estimatedToman
+      : saleSumRial != null
+        ? saleSumRial / TOMAN_TO_RIAL
+        : null;
+  const resolvedGrandRial = tomanToRial(grandToman) ?? saleSumRial;
+
+  const buyerName = displayOrBlank(options.buyerName);
+  const company = options.companyName?.trim();
+  const buyerLabel = company
+    ? company
+    : buyerName !== "—"
+      ? buyerName
+      : "—";
+  const phoneFa = options.buyerPhone
+    ? fa(options.buyerPhone)
+    : "—";
 
   await openPrintableDocument({
     kind,
-    title: kind === "proforma" ? "پیش‌فاکتور" : "فاکتور خرید",
-    badge: kind === "proforma" ? "استعلام" : undefined,
-    refLabel: kind === "invoice" ? "شماره فاکتور" : "شماره مرجع",
+    title: kind === "proforma" ? "پیش‌فاکتور" : "فاکتور",
     refCode: tracking.tracking_code,
     dateLabel: formatPersianDateShort(tracking.created_at),
-    buyerName: displayOrBlank(options.buyerName),
-    buyerPhone: displayOrBlank(
-      options.buyerPhone ? fa(options.buyerPhone) : options.buyerPhone,
-    ),
-    buyerAddress: displayOrBlank(options.buyerAddress),
-    companyName: options.companyName?.trim()
-      ? options.companyName.trim()
-      : undefined,
-    statusLabel:
-      tracking.status_label ||
-      ORDER_STATUS_LABELS[tracking.status] ||
-      tracking.status,
-    modeLabel: tracking.mode === "inquiry" ? "استعلام" : "خرید",
-    paymentNote: hasPaymentNote ? paymentNote : undefined,
-    lines,
-    subtotal,
-    taxLabel: "—",
-    grandLabel: kind === "invoice" ? "مبلغ کل" : "مبلغ تقریبی کل",
-    estimatedTotal:
-      estimated != null && !Number.isNaN(estimated) ? estimated : null,
+    buyerLabel,
+    buyerPhone: phoneFa,
+    buyerMobile: phoneFa,
+    paymentLines: buildPaymentDetailLines(kind, options.paymentStatusLabel),
+    previousBalanceRial: null,
+    balanceWithInvoiceRial: null,
+    lines: mapped.lines,
+    qtySum: mapped.qtySum,
+    amountSumRial: mapped.amountSumRial,
+    discountSumRial: mapped.discountSumRial,
+    grandTotalRial: resolvedGrandRial,
+    amountInWords:
+      resolvedGrandRial != null
+        ? rialAmountInWords(resolvedGrandRial)
+        : "—",
     footerNote:
       kind === "proforma"
         ? "این پیش‌فاکتور جنبه اطلاع‌رسانی دارد و فاکتور مالیاتی رسمی محسوب نمی‌شود."
-        : "از خرید شما سپاسگزاریم. این فاکتور خرید بر اساس اقلام ثبت‌شده سفارش صادر شده است. کارزار — فروشگاه ابزار صنعتی.",
+        : "از خرید شما سپاسگزاریم. این فاکتور بر اساس اقلام ثبت‌شده سفارش صادر شده است.",
     fileHint:
       kind === "proforma"
         ? `پیش‌فاکتور ${tracking.tracking_code}`
-        : `فاکتور خرید ${tracking.tracking_code}`,
+        : `فاکتور ${tracking.tracking_code}`,
   });
 }
 
@@ -864,41 +1210,48 @@ export async function downloadCartSampleProforma(
   const stamp = new Date();
   const sampleCode = `نمونه-${stamp.getTime().toString(36).toUpperCase()}`;
 
-  let subtotal = 0;
-  let hasPriced = false;
-
-  const mapped = lines.map((line) => {
+  const rawLines = lines.map((line) => {
     const lt = lineTotalNum(line.quantity, line.unitPrice);
-    if (lt != null) {
-      hasPriced = true;
-      subtotal += lt;
-    }
     return {
       sku: line.sku || String(line.productId),
       name: line.name,
       qty: line.quantity,
       unitPrice: line.unitPrice,
+      originalPrice: line.originalPrice ?? null,
+      discountPercent: line.discountPercent ?? null,
       lineTotal: lt,
     };
   });
 
+  const mapped = mapPricedLines(rawLines);
+  const grandTotalRial =
+    mapped.amountSumRial != null
+      ? mapped.amountSumRial - mapped.discountSumRial
+      : null;
+  const phoneFa = buyer.phone ? fa(buyer.phone) : "—";
+
   await openPrintableDocument({
     kind: "sample",
     title: "پیش‌فاکتور",
-    refLabel: "شماره مرجع",
     refCode: sampleCode,
     dateLabel: formatPersianDate(stamp),
-    buyerName,
-    buyerPhone: displayOrBlank(buyer.phone),
-    buyerAddress: "—",
-    modeLabel: "پیش‌فاکتور",
-    lines: mapped,
-    subtotal: hasPriced ? subtotal : null,
-    taxLabel: "محاسبه نشده",
-    grandLabel: "مبلغ تقریبی کل",
-    estimatedTotal: hasPriced ? subtotal : null,
+    buyerLabel: buyerName,
+    buyerPhone: phoneFa,
+    buyerMobile: phoneFa,
+    paymentLines: buildPaymentDetailLines("sample", null),
+    previousBalanceRial: null,
+    balanceWithInvoiceRial: null,
+    lines: mapped.lines,
+    qtySum: mapped.qtySum,
+    amountSumRial: mapped.amountSumRial,
+    discountSumRial: mapped.discountSumRial,
+    grandTotalRial,
+    amountInWords:
+      grandTotalRial != null
+        ? rialAmountInWords(grandTotalRial)
+        : "—",
     footerNote:
-      "این پیش‌فاکتور برای پیش‌نمایش اقلام سبد خرید است؛ سند رسمی، مالیاتی یا تعهدآور نیست و بدون پرداخت صادر شده است. قیمت‌ها تقریبی‌اند و ممکن است پس از استعلام نهایی تغییر کنند.",
+      "این پیش‌فاکتور برای پیش‌نمایش اقلام سبد خرید است؛ سند رسمی یا مالیاتی نیست و بدون پرداخت صادر شده است. قیمت‌ها تقریبی‌اند و ممکن است پس از استعلام نهایی تغییر کنند.",
     fileHint: `پیش‌فاکتور ${fa(stamp.toISOString().slice(0, 10))}`,
   });
 }

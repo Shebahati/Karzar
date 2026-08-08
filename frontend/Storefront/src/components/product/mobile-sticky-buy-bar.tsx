@@ -283,7 +283,7 @@ export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
               <>
                 {hasDiscount ? (
                   <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
-                    <span className="text-[11px] text-muted-foreground line-through tnum">
+                    <span className="text-[11px] font-medium text-[#D02327]/55 line-through tnum">
                       {formatNumber(product.original_price)}
                     </span>
                     <span className="rounded-md bg-[#D02327] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white tnum">

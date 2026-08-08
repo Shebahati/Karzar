@@ -165,7 +165,7 @@ export function AuthStep({
           <Field label="نام و نام خانوادگی" error={guestForm.formState.errors.full_name?.message}>
             <input
               {...guestForm.register("full_name")}
-              className="h-12 w-full rounded-xl bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+              className="h-12 w-full rounded-xl bg-input px-4 text-base outline-none focus:ring-2 focus:ring-ring/40"
               placeholder="مثال: رضا محمدی"
             />
           </Field>
@@ -173,7 +173,7 @@ export function AuthStep({
             <input
               {...guestForm.register("phone")}
               inputMode="tel"
-              className="h-12 w-full rounded-xl bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40 tnum"
+              className="h-12 w-full rounded-xl bg-input px-4 text-base outline-none focus:ring-2 focus:ring-ring/40 tnum"
               placeholder="۰۹XXXXXXXXX"
             />
           </Field>
@@ -250,7 +250,7 @@ function OtpLane({
                 onChange={(e) => setPhone(e.target.value)}
                 inputMode="tel"
                 autoFocus
-                className="h-12 w-full rounded-xl bg-input ps-11 pe-4 text-sm outline-none focus:ring-2 focus:ring-ring/40 tnum"
+                className="h-12 w-full rounded-xl bg-input ps-11 pe-4 text-base outline-none focus:ring-2 focus:ring-ring/40 tnum"
                 placeholder="۰۹XXXXXXXXX"
               />
             </div>

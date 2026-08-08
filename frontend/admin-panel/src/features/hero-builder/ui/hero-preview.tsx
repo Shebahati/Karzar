@@ -162,9 +162,9 @@ export function HeroPreview({
   gridSize,
   featuredOrbs = [],
   activeOrbIndex = 0,
-  onSelectOrb,
   lockDrag = false,
   mobilePreset = null,
+  onSelectOrb,
   onSelectLayer,
   onMoveLayer,
   className,
@@ -175,10 +175,10 @@ export function HeroPreview({
   gridSize?: number;
   featuredOrbs?: Array<{ key: string; name: string; icon: string }>;
   activeOrbIndex?: number;
-  onSelectOrb?: (orbKey: string) => void;
   lockDrag?: boolean;
   /** When set, layout is remapped into a distinct mobile composition */
   mobilePreset?: MobileComposePreset | null;
+  onSelectOrb?: (orbKey: string) => void;
   onSelectLayer?: (id: string) => void;
   onMoveLayer?: (
     kind: "typography" | "button" | "badge" | "carousel",

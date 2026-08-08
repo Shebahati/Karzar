@@ -9,10 +9,31 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useMotionValue,
+  type PanInfo,
+} from "framer-motion";
 import { ChevronLeft, ChevronRight } from "react-iconly";
 import { HeroCategoryOrbs } from "@/components/home/hero-category-orbs";
+import {
+  HERO_DRAG_SETTLE,
+  HERO_SHEET_EASE,
+  HERO_SHEET_MS,
+  HERO_SHEET_MS_MOBILE,
+  HERO_SHEET_MS_REDUCED,
+  HERO_SHEET_UNDERLAY,
+  HERO_SWIPE_CONFIDENCE,
+  HERO_SWIPE_OFFSET,
+  heroSheetReducedVariants,
+  heroSheetTransition,
+  heroSheetVariants,
+  heroSwipePower,
+} from "@/components/home/hero-sheet-motion";
 import {
   featuredOrbs,
   HERO_ORB_CATEGORIES,
@@ -27,10 +48,8 @@ import type { CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroConfig, DesignedHeroPack, DesignedHeroSlide } from "@/types/hero-design";
 
 const AUTOPLAY_MS = 5500;
-const SWIPE_THRESHOLD = 48;
 /** Hard cap — published pack + dock are designed around 6 slides / 5 featured orbs. */
 const MAX_ACTIVE_SLIDES = 6;
-const easePremium = [0.22, 1, 0.36, 1] as const;
 
 function overlayCss(config: DesignedHeroConfig): string {
   const o = config.overlay;
@@ -125,6 +144,7 @@ function SlideCanvas({
         !lite && "will-change-transform",
         blurred && "scale-[1.015] opacity-40",
       )}
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       data-mobile-preset={isMobile ? mobilePreset ?? undefined : undefined}
     >
       {config.background.mode === "color" || !bgSrc ? (
@@ -137,7 +157,7 @@ function SlideCanvas({
           sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
           className="object-cover"
           style={{ objectPosition: config.background.focal || "center" }}
-          fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
+          fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
           {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
         />
       )}
@@ -328,6 +348,193 @@ function SlideCanvas({
   );
 }
 
+/**
+ * Mobile sheet strip: prev | current | next, drag follows finger, then settle.
+ * Next = content moves left (ورق از راست به چپ).
+ */
+function MobileHeroSheet({
+  slides,
+  index,
+  menuOpen,
+  packPreset,
+  nudge,
+  onNudgeHandled,
+  onCommitNext,
+  onCommitPrev,
+  onDragPause,
+}: {
+  slides: DesignedHeroSlide[];
+  index: number;
+  menuOpen: boolean;
+  packPreset: MobileComposePreset;
+  nudge: "next" | "prev" | null;
+  onNudgeHandled: () => void;
+  onCommitNext: () => void;
+  onCommitPrev: () => void;
+  onDragPause: (paused: boolean) => void;
+}) {
+  const count = slides.length;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const widthRef = useRef(0);
+  const [width, setWidth] = useState(0);
+  const [locked, setLocked] = useState(false);
+  const x = useMotionValue(0);
+
+  const current = slides[index]!;
+  const prev = slides[(index - 1 + count) % count]!;
+  const next = slides[(index + 1) % count]!;
+  const currentPreset = (current.mobilePreset ?? packPreset) as MobileComposePreset;
+  const prevPreset = (prev.mobilePreset ?? packPreset) as MobileComposePreset;
+  const nextPreset = (next.mobilePreset ?? packPreset) as MobileComposePreset;
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth;
+      widthRef.current = w;
+      setWidth(w);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const settleTo = useCallback(
+    (target: number, commit: () => void) => {
+      const w = widthRef.current;
+      if (!w) {
+        commit();
+        x.set(0);
+        setLocked(false);
+        return;
+      }
+      setLocked(true);
+      animate(x, target, {
+        duration: HERO_SHEET_MS_MOBILE,
+        ease: HERO_SHEET_EASE,
+        onComplete: () => {
+          // Index + x reset must paint together — otherwise x→0 with stale
+          // panels flashes the previous slide (reads as a white/empty gap).
+          flushSync(() => {
+            commit();
+          });
+          x.set(0);
+          setLocked(false);
+        },
+      });
+    },
+    [x],
+  );
+
+  useEffect(() => {
+    if (!nudge || locked) return;
+    const w = widthRef.current;
+    if (nudge === "next") {
+      settleTo(-(w || 1), () => {
+        onCommitNext();
+        onNudgeHandled();
+      });
+    } else {
+      settleTo(w || 1, () => {
+        onCommitPrev();
+        onNudgeHandled();
+      });
+    }
+  }, [nudge, locked, settleTo, onCommitNext, onCommitPrev, onNudgeHandled]);
+
+  const onDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      onDragPause(false);
+      if (menuOpen || locked || count <= 1) {
+        animate(x, 0, HERO_DRAG_SETTLE);
+        return;
+      }
+      const w = widthRef.current || 1;
+      const { offset, velocity } = info;
+      const power = heroSwipePower(offset.x, velocity.x);
+      if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+        settleTo(-w, onCommitNext);
+      } else if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+        settleTo(w, onCommitPrev);
+      } else {
+        animate(x, 0, HERO_DRAG_SETTLE);
+      }
+    },
+    [menuOpen, locked, count, x, settleTo, onCommitNext, onCommitPrev, onDragPause],
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 overflow-hidden"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+    >
+      <motion.div
+        className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing"
+        style={{ x, willChange: "transform", backgroundColor: HERO_SHEET_UNDERLAY }}
+        drag={menuOpen || locked ? false : "x"}
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.78}
+        dragMomentum={false}
+        onDragStart={() => onDragPause(true)}
+        onDragEnd={onDragEnd}
+      >
+        {width > 0 ? (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{ transform: `translate3d(${-width}px,0,0)` }}
+              aria-hidden
+            >
+              <SlideCanvas
+                slide={prev}
+                reducedMotion
+                blurred={menuOpen}
+                mobilePreset={prevPreset}
+                isMobile
+              />
+            </div>
+            <div className="absolute inset-0">
+              <SlideCanvas
+                slide={current}
+                reducedMotion
+                blurred={menuOpen}
+                mobilePreset={currentPreset}
+                isMobile
+                priority={index === 0}
+              />
+            </div>
+            <div
+              className="absolute inset-0"
+              style={{ transform: `translate3d(${width}px,0,0)` }}
+              aria-hidden
+            >
+              <SlideCanvas
+                slide={next}
+                reducedMotion
+                blurred={menuOpen}
+                mobilePreset={nextPreset}
+                isMobile
+              />
+            </div>
+          </>
+        ) : (
+          <SlideCanvas
+            slide={current}
+            reducedMotion
+            blurred={menuOpen}
+            mobilePreset={currentPreset}
+            isMobile
+            priority={index === 0}
+          />
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 export function DesignedHero({
   pack,
   roots = [],
@@ -371,18 +578,10 @@ export function DesignedHero({
   const [internalMenu, setInternalMenu] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  /** Outgoing slide for mobile CSS crossfade (null = idle / reduced-motion). */
-  const [outgoing, setOutgoing] = useState<{
-    slide: DesignedHeroSlide;
-    preset: MobileComposePreset;
-  } | null>(null);
+  const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
-  const touchStartX = useRef<number | null>(null);
   const regionRef = useRef<HTMLElement>(null);
-  const outgoingTimer = useRef<number | null>(null);
-  const slideRef = useRef<DesignedHeroSlide | null>(null);
-  const presetRef = useRef<MobileComposePreset>("balanced");
 
   const menuOpen = menuOpenProp ?? internalMenu;
   const setMenuOpen = onMenuOpenChange ?? setInternalMenu;
@@ -421,47 +620,37 @@ export function DesignedHero({
     "balanced"
   ) as MobileComposePreset;
 
-  useEffect(() => {
-    slideRef.current = slide ?? null;
-    presetRef.current = mobilePreset;
-  }, [slide, mobilePreset]);
+  const packMobilePreset = (pack.mobilePreset ?? "balanced") as MobileComposePreset;
 
-  const beginMobileCrossfade = useCallback(() => {
-    if (!isMobile || reducedMotion) return;
-    const current = slideRef.current;
-    if (!current) return;
-    setOutgoing({ slide: current, preset: presetRef.current });
-    if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
-    outgoingTimer.current = window.setTimeout(() => {
-      setOutgoing(null);
-      outgoingTimer.current = null;
-    }, 520);
-  }, [isMobile, reducedMotion]);
+  const commitNext = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(1);
+    setIndex((i) => (i + 1) % slideCount);
+  }, [slideCount]);
 
-  useEffect(() => {
-    return () => {
-      if (outgoingTimer.current != null) window.clearTimeout(outgoingTimer.current);
-    };
-  }, []);
-
-  // Drop crossfade layer if we leave the soft-mobile path.
-  useEffect(() => {
-    if (!isMobile || reducedMotion) setOutgoing(null);
-  }, [isMobile, reducedMotion]);
+  const commitPrev = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(-1);
+    setIndex((i) => (i - 1 + slideCount) % slideCount);
+  }, [slideCount]);
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
-    beginMobileCrossfade();
-    setDirection(1);
-    setIndex((i) => (i + 1) % slideCount);
-  }, [slideCount, beginMobileCrossfade]);
+    if (isMobile && !reducedMotion) {
+      setSheetNudge((n) => n ?? "next");
+      return;
+    }
+    commitNext();
+  }, [slideCount, isMobile, reducedMotion, commitNext]);
 
   const goPrev = useCallback(() => {
     if (!slideCount) return;
-    beginMobileCrossfade();
-    setDirection(-1);
-    setIndex((i) => (i - 1 + slideCount) % slideCount);
-  }, [slideCount, beginMobileCrossfade]);
+    if (isMobile && !reducedMotion) {
+      setSheetNudge((n) => n ?? "prev");
+      return;
+    }
+    commitPrev();
+  }, [slideCount, isMobile, reducedMotion, commitPrev]);
 
   // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
   useEffect(() => {
@@ -495,19 +684,23 @@ export function DesignedHero({
 
   const slideArrowClass = (side: "left" | "right") =>
     cn(
-      "pointer-events-auto absolute top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full",
-      "bg-black/35 text-white shadow-[0_8px_22px_rgba(0,0,0,0.24)]",
+      "pointer-events-auto absolute top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full outline-none",
+      "bg-black/68 text-white shadow-[0_10px_28px_rgba(0,0,0,0.44)] ring-1 ring-primary",
       !isMobile && "backdrop-blur-md",
       "transition-[opacity,background-color,box-shadow] duration-300 ease-out",
-      "hover-fine:bg-black/48 hover-fine:shadow-[0_10px_28px_rgba(0,0,0,0.32)]",
-      "active:bg-black/55",
-      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/55",
-      // Touch / coarse: always slightly visible
-      "opacity-40",
+      "hover-fine:bg-black/78 hover-fine:shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover-fine:ring-primary/80",
+      "active:bg-black/82",
+      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      // Touch / coarse: always slightly visible (bolder than prior wash)
+      "opacity-75",
       // Fine pointer: hidden unless this visual half is hovered (or focused)
       "[@media(hover:hover)_and_(pointer:fine)]:opacity-0",
       arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
     );
+
+  const sheetDuration = reducedMotion ? HERO_SHEET_MS_REDUCED : HERO_SHEET_MS;
+  const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
+  const useMobileSheet = isMobile && !reducedMotion && slideCount > 1;
 
   return (
     <section
@@ -515,7 +708,8 @@ export function DesignedHero({
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو کارزار"
-      className="group/hero relative h-[62dvh] w-full max-w-full overflow-x-clip outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62svh] w-full max-w-full overflow-x-clip outline-none md:h-[100svh]"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -527,89 +721,45 @@ export function DesignedHero({
         const next = e.clientX - rect.left < rect.width / 2 ? "left" : "right";
         setArrowSide((prev) => (prev === next ? prev : next));
       }}
-      onTouchStart={(e) => {
-        touchStartX.current = e.changedTouches[0]?.clientX ?? null;
-        setPaused(true);
-      }}
-      onTouchEnd={(e) => {
-        const start = touchStartX.current;
-        touchStartX.current = null;
-        setPaused(false);
-        if (menuOpen || start == null) return;
-        const dx = (e.changedTouches[0]?.clientX ?? start) - start;
-        if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-        // Match L/R buttons: visual-left = next, visual-right = prev (RTL carousel).
-        if (dx < 0) goNext();
-        else goPrev();
-      }}
     >
-      <div className="relative h-full w-full overflow-hidden">
-        {reducedMotion ? (
-          // Instant swap — accessibility / prefers-reduced-motion.
-          <div key={slide.id} className="absolute inset-0">
-            <SlideCanvas
-              slide={slide}
-              reducedMotion
-              blurred={menuOpen}
-              mobilePreset={mobilePreset}
-              isMobile={isMobile}
-              priority={activeIndex === 0}
-            />
-          </div>
-        ) : isMobile ? (
-          // Soft CSS crossfade — no Framer / Ken Burns on phones.
-          <>
-            {outgoing ? (
-              <div
-                key={`out-${outgoing.slide.id}`}
-                className="hero-mobile-exit absolute inset-0 z-0"
-                data-dir={direction}
-                aria-hidden
-              >
-                <SlideCanvas
-                  slide={outgoing.slide}
-                  reducedMotion
-                  blurred={menuOpen}
-                  mobilePreset={outgoing.preset}
-                  isMobile
-                />
-              </div>
-            ) : null}
-            <div
-              key={slide.id}
-              className={cn(
-                "absolute inset-0 z-[1]",
-                outgoing && "hero-mobile-enter",
-              )}
-              data-dir={direction}
-            >
-              <SlideCanvas
-                slide={slide}
-                reducedMotion
-                blurred={menuOpen}
-                mobilePreset={mobilePreset}
-                isMobile
-                priority={activeIndex === 0}
-              />
-            </div>
-          </>
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+      >
+        {useMobileSheet ? (
+          <MobileHeroSheet
+            slides={slides}
+            index={activeIndex}
+            menuOpen={menuOpen}
+            packPreset={packMobilePreset}
+            nudge={sheetNudge}
+            onNudgeHandled={() => setSheetNudge(null)}
+            onCommitNext={commitNext}
+            onCommitPrev={commitPrev}
+            onDragPause={setPaused}
+          />
         ) : (
-          <AnimatePresence initial={false} custom={direction}>
+          <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
               key={slide.id}
               custom={direction}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.75, ease: easePremium }}
+              variants={sheetVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={heroSheetTransition(sheetDuration)}
               className="absolute inset-0"
+              style={{
+                willChange: reducedMotion ? undefined : "transform",
+                backgroundColor: HERO_SHEET_UNDERLAY,
+              }}
             >
               <SlideCanvas
                 slide={slide}
-                reducedMotion={false}
+                reducedMotion={reducedMotion || isMobile}
                 blurred={menuOpen}
                 mobilePreset={mobilePreset}
-                isMobile={false}
+                isMobile={isMobile}
                 priority={activeIndex === 0}
               />
             </motion.div>
@@ -625,7 +775,7 @@ export function DesignedHero({
               onClick={goNext}
               className={cn(slideArrowClass("left"), "left-3 sm:left-5")}
             >
-              <ChevronLeft set="light" size="small" />
+              <ChevronLeft set="bold" size={36} />
             </button>
             <button
               type="button"
@@ -633,7 +783,7 @@ export function DesignedHero({
               onClick={goPrev}
               className={cn(slideArrowClass("right"), "right-3 sm:right-5")}
             >
-              <ChevronRight set="light" size="small" />
+              <ChevronRight set="bold" size={36} />
             </button>
           </>
         ) : null}

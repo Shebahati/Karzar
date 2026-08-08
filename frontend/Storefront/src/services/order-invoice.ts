@@ -27,7 +27,15 @@ async function enrichProducts(
   try {
     const products = await catalogService.getProductsByIds(ids);
     return Object.fromEntries(
-      products.map((p) => [p.id, { name: p.name, sku: p.sku }]),
+      products.map((p) => [
+        p.id,
+        {
+          name: p.name,
+          sku: p.sku,
+          originalPrice: p.original_price ?? null,
+          discountPercent: p.discount_percent ?? null,
+        },
+      ]),
     );
   } catch {
     return {};

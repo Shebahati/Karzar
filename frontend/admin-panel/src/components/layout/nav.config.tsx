@@ -53,6 +53,23 @@ export const navSections: NavSection[] = [
     ],
   },
   {
+    title: "فروش و مالی",
+    items: [
+      {
+        label: "فاکتورساز",
+        href: "/finance/invoice-builder",
+        icon: Document as IconlyIcon,
+        matchPrefix: true,
+      },
+      {
+        label: "پیش‌فاکتورهای صادر شده",
+        href: "/finance/issued-proformas",
+        icon: Ticket as IconlyIcon,
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
     title: "محتوا (CMS)",
     items: [
       { label: "مقالات", href: "/cms/articles", icon: Document as IconlyIcon, matchPrefix: true },

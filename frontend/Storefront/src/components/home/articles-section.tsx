@@ -22,26 +22,48 @@ export function ArticlesSection() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: HOME_COUNT }).map((_, i) => (
-          <ArticleCardSkeleton key={i} />
-        ))}
-      </div>
+      <>
+        <div className="flex flex-col gap-2.5 md:hidden">
+          {Array.from({ length: HOME_COUNT }).map((_, i) => (
+            <ArticleCardSkeleton key={i} variant="compact" />
+          ))}
+        </div>
+        <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {Array.from({ length: HOME_COUNT }).map((_, i) => (
+            <ArticleCardSkeleton key={i} />
+          ))}
+        </div>
+      </>
     );
   }
 
   if (articles.length === 0) return null;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-      {articles.map((article, i) => (
-        <ArticleCard
-          key={article.id}
-          article={article}
-          index={i}
-          priority={i < 2}
-        />
-      ))}
-    </div>
+    <>
+      {/* Mobile: 3 compact horizontal cards, full width, stacked */}
+      <div className="flex flex-col gap-2.5 md:hidden">
+        {articles.map((article, i) => (
+          <ArticleCard
+            key={article.id}
+            article={article}
+            variant="compact"
+            index={i}
+            priority={i < 2}
+          />
+        ))}
+      </div>
+      {/* Desktop: larger grid cards */}
+      <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        {articles.map((article, i) => (
+          <ArticleCard
+            key={article.id}
+            article={article}
+            index={i}
+            priority={i < 2}
+          />
+        ))}
+      </div>
+    </>
   );
 }

@@ -127,7 +127,7 @@ export function MobileCategoryCard({
             className={cn(
               "mt-2 inline-flex max-w-full items-center gap-1 rounded-md",
               "bg-[#5E5F5E]/[0.07] px-2 py-[3px]",
-              "text-[10.5px] font-bold tabular-nums tracking-wide text-[#5E5F5E]/70",
+              "text-[10.5px] font-bold tabular-nums tracking-normal text-[#5E5F5E]/70",
               "ring-1 ring-inset ring-[#5E5F5E]/[0.06]",
               "transition-[background-color,color,ring-color] duration-200",
               "group-hover:bg-[#D02327]/[0.08] group-hover:text-[#D02327]/85 group-hover:ring-[#D02327]/15",
@@ -140,7 +140,7 @@ export function MobileCategoryCard({
             className={cn(
               "mt-2 inline-flex max-w-full items-center gap-1 rounded-md",
               "bg-[#5E5F5E]/[0.06] px-2 py-[3px]",
-              "text-[10.5px] font-bold tracking-wide text-[#5E5F5E]/55",
+              "text-[10.5px] font-bold tracking-normal text-[#5E5F5E]/55",
               "ring-1 ring-inset ring-[#5E5F5E]/[0.05]",
               "transition-[background-color,color,ring-color] duration-200",
               "group-hover:bg-[#D02327]/[0.07] group-hover:text-[#D02327]/80 group-hover:ring-[#D02327]/12",

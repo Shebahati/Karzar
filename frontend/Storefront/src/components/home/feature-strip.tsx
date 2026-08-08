@@ -19,7 +19,7 @@ const FEATURES = [
   {
     Icon: Call,
     title: "پشتیبانی دائم",
-    desc: "پاسخگویی ۹ تا ۱۹",
+    desc: "پاسخگویی ۹ تا ۱۸",
   },
   {
     Icon: Document,

@@ -23,6 +23,8 @@ const ROUTE_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/cms/contacts", title: "پیام‌های تماس" },
   { prefix: "/orders", title: "سفارش‌ها" },
   { prefix: "/quotes", title: "استعلام‌های قیمت" },
+  { prefix: "/finance/invoice-builder", title: "فاکتورساز" },
+  { prefix: "/finance/issued-proformas", title: "پیش‌فاکتورهای صادر شده" },
   { prefix: "/customers", title: "مشتریان" },
   { prefix: "/audit-logs", title: "گزارش ممیزی" },
   { prefix: "/reports", title: "گزارش‌ها" },

@@ -125,7 +125,7 @@ function MagazineCategoryTabs({
   const useRail = articles.length > 4;
 
   return (
-    <section aria-labelledby="magazine-topics-heading" className="space-y-6">
+    <section aria-labelledby="magazine-topics-heading" className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
@@ -227,12 +227,12 @@ function MagazineCategoryTabs({
                 </AutoCarousel>
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-3 lg:grid-cols-4">
                 {articles.map((article, i) => (
                   <ArticleCard
                     key={`${active.label}-${article.id}`}
                     article={article}
-                    variant="compact"
+                    variant="tile"
                     index={i}
                   />
                 ))}
@@ -306,15 +306,15 @@ export function BlogList() {
         }}
       />
 
-      <Container className="space-y-12 py-9 lg:space-y-14 lg:py-12">
+      <Container className="space-y-8 py-6 sm:space-y-10 sm:py-8 lg:space-y-14 lg:py-12">
         <header className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-[#D02327]/[0.08] px-3 py-1 text-xs font-bold text-[#D02327]">
             مجله کارزار
           </span>
-          <h1 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
+          <h1 className="mt-2.5 text-2xl font-bold text-foreground sm:mt-3 sm:text-4xl">
             دانش، راهنما و دنیای ابزار
           </h1>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#5E5F5E]">
+          <p className="mx-auto mt-1.5 max-w-md text-sm leading-6 text-[#5E5F5E] sm:mt-2">
             جدیدترین مقالات تخصصی برای انتخاب و نگهداری بهتر ابزارها
           </p>
         </header>
@@ -357,13 +357,14 @@ export function BlogList() {
                   ))}
                 </div>
               </div>
+              {/* Mobile: lead + 2 side only; bottom 3 from md+ */}
               {restNewest.length > 0 ? (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="hidden gap-2.5 md:grid md:grid-cols-2 lg:grid-cols-3 lg:gap-3">
                   {restNewest.map((article, i) => (
                     <ArticleCard
                       key={article.id}
                       article={article}
-                      variant="compact"
+                      variant="tile"
                       index={i + 2}
                     />
                   ))}
@@ -373,9 +374,12 @@ export function BlogList() {
           )}
         </section>
 
-        {/* B. Most viewed */}
+        {/* B. Most viewed — desktop only */}
         {!isLoading && mostViewed.length > 0 ? (
-          <section aria-labelledby="most-viewed-heading">
+          <section
+            aria-labelledby="most-viewed-heading"
+            className="hidden md:block"
+          >
             <SectionHeading
               id="most-viewed-heading"
               title="پربازدید"
@@ -412,7 +416,7 @@ export function BlogList() {
           <MagazineCategoryTabs groups={categoryGroups} />
         ) : null}
 
-        {/* D. All articles + pagination */}
+        {/* D. All articles + pagination — compact cards, denser grid */}
         <section id="all-articles" aria-labelledby="all-articles-heading" className="scroll-mt-28">
           <SectionHeading
             id="all-articles-heading"
@@ -424,9 +428,9 @@ export function BlogList() {
             }
           />
           {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <ArticleCardSkeleton key={i} />
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <ArticleCardSkeleton key={i} variant="tile" />
               ))}
             </div>
           ) : pageItems.length === 0 ? (
@@ -435,9 +439,14 @@ export function BlogList() {
             </p>
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {pageItems.map((article, i) => (
-                  <ArticleCard key={article.id} article={article} index={i} />
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    variant="tile"
+                    index={i}
+                  />
                 ))}
               </div>
               <ArticlesPagination
