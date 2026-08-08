@@ -296,7 +296,7 @@ export function ProductGallery({
                   alt={alt}
                   fill
                   sizes="(max-width: 1023px) 100vw, (max-width: 1024px) 50vw, 34vw"
-                  className="object-contain p-6 select-none lg:p-4"
+                  className="object-cover object-center select-none"
                   draggable={false}
                   fallback={<ProductPlaceholder name={alt} />}
                   {...lcpImageProps()}
@@ -401,7 +401,7 @@ export function ProductGallery({
                   alt=""
                   fill
                   sizes="64px"
-                  className="object-contain p-1"
+                  className="object-cover object-center"
                   fallback={null}
                   {...lazyImageProps()}
                 />
@@ -665,7 +665,7 @@ function GalleryLightbox({
                         alt={alt}
                         fill
                         sizes="100vw"
-                        className="object-contain p-4 sm:p-8 select-none"
+                        className="object-cover object-center select-none"
                         draggable={false}
                         fallback={<ProductPlaceholder name={alt} />}
                         {...lazyImageProps()}
@@ -699,7 +699,7 @@ function GalleryLightbox({
                         alt=""
                         fill
                         sizes="64px"
-                        className="object-contain p-1"
+                        className="object-cover object-center"
                         fallback={null}
                         {...lazyImageProps()}
                       />

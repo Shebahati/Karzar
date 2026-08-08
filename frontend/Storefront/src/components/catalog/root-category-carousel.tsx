@@ -83,7 +83,7 @@ function CategoryOrbButton({
           "group-hover:scale-[1.04] group-hover:brightness-[1.03] group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]",
           "sm:h-[4.75rem] sm:w-[4.75rem]",
           active
-            ? "scale-[1.05] bg-steel/15 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-2 ring-steel/25 group-hover:bg-steel/20 group-hover:ring-steel/35"
+            ? "scale-[1.05] bg-primary/34 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-2 ring-primary/21 group-hover:bg-primary/38 group-hover:ring-primary/30"
             : "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-black/[0.06] group-hover:ring-steel/15",
         )}
       >

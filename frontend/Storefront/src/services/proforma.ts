@@ -24,6 +24,8 @@ export function cartLinesToProformaInput(lines: CartLine[]): CartProformaLineInp
     sku: line.product.sku,
     quantity: line.quantity,
     unitPrice: line.product.base_price,
+    originalPrice: line.product.original_price ?? null,
+    discountPercent: line.product.discount_percent ?? null,
   }));
 }
 

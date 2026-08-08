@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Standard home section title row.
- * Discount / deal carousels use the composed lead promo in `ProductCarousel` instead —
+ * Discount / deal carousels: mobile header + desktop DealPromoLead live in `ProductCarousel` —
  * do not reintroduce badge / wash chrome here.
  */
 export function SectionHeading({

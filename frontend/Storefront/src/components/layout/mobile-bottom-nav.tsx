@@ -23,11 +23,11 @@ export function MobileBottomNav() {
   const blogActive = pathname === "/blog" || pathname.startsWith("/blog/");
 
   return (
-    <nav className="glass-strong fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom)] lg:hidden">
-      <ul className="mx-auto flex max-w-md items-stretch justify-between px-2">
+    <nav className="glass-strong fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom,0px)] lg:hidden">
+      <ul className="mx-auto flex h-[var(--mobile-bottom-nav-chrome)] max-w-md items-stretch justify-between px-2">
         <NavItem href="/" label="خانه" Icon={Home} active={pathname === "/"} />
         <NavItem
-          href="/categories"
+          href="/catalog"
           label="محصولات"
           Icon={Category}
           active={productsActive}
@@ -76,7 +76,7 @@ function NavItem({
       <Link
         href={href}
         className={cn(
-          "relative flex min-h-11 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition-colors",
+          "relative flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors",
           active ? "font-bold text-primary" : "text-muted-foreground",
         )}
       >

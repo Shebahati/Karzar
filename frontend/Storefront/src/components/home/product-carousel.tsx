@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
@@ -17,18 +18,68 @@ export type DealLeadPromo = {
   lede?: string;
 };
 
-/** Soft steel / warm red wash — Karzar industrial, not Digikala pink. */
-const DEAL_STRIP =
-  "bg-[linear-gradient(145deg,rgba(208,35,39,0.07)_0%,rgba(94,95,94,0.05)_38%,#F4F3F2_100%)]";
+/** Desktop (≥ md): Karzar steel strip behind پرتخفیف‌ها lead + deal cards. */
+const DEAL_STRIP_DESKTOP =
+  "md:mx-0 md:rounded-[2rem] md:border md:border-white/10 md:bg-[#5E5F5E] md:p-4 md:shadow-[0_16px_40px_-28px_rgba(0,0,0,0.35)]";
 
+/** Mobile (< md): full-bleed brand-red strip (breaks Container px-5 / sm:px-6). */
+const DEAL_STRIP_MOBILE =
+  "-mx-5 overflow-hidden bg-[#D02327] py-4 sm:-mx-6 md:overflow-hidden";
+
+/**
+ * Mobile-only header: icon beside title + existing «همه» CTA.
+ * Hidden from md up — desktop keeps DealPromoLead.
+ */
+function DealMobileHeader({
+  title,
+  href,
+  iconSrc,
+  hrefLabel = "همه",
+  headingId,
+}: DealLeadPromo & { headingId?: string }) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3 px-5 sm:px-6 md:hidden">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <span
+          className="grid h-[50px] w-[50px] shrink-0 place-items-center rounded-full bg-white/15 ring-1 ring-white/25"
+          aria-hidden
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- static public icon URL */}
+          <img
+            src={iconSrc}
+            alt=""
+            width={39}
+            height={39}
+            className="h-[34px] w-[34px] object-contain drop-shadow-sm"
+          />
+        </span>
+        <h2
+          id={headingId}
+          className="truncate text-[1.05rem] font-bold leading-snug tracking-tight text-white"
+        >
+          {title}
+        </h2>
+      </div>
+
+      <Link
+        href={href}
+        className="inline-flex shrink-0 items-center gap-0.5 text-[13px] font-bold text-white/95 transition-opacity hover:opacity-90"
+      >
+        {hrefLabel}
+        <ChevronLeft size="small" set="light" primaryColor="currentColor" />
+      </Link>
+    </div>
+  );
+}
+
+/** Desktop lead promo card — unchanged visual; hidden below md. */
 function DealPromoLead({
   title,
   href,
   iconSrc,
   hrefLabel = "مشاهده همه",
   lede,
-  headingId,
-}: DealLeadPromo & { headingId?: string }) {
+}: DealLeadPromo) {
   return (
     <Link
       href={href}
@@ -39,7 +90,7 @@ function DealPromoLead({
         "shadow-[0_14px_32px_-18px_rgba(208,35,39,0.55)]",
         "transition-[transform,box-shadow] duration-300 ease-out",
         "hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(208,35,39,0.65)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F3F2]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#5E5F5E]",
       )}
     >
       <span
@@ -47,12 +98,9 @@ function DealPromoLead({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_-5%,rgba(255,255,255,0.2),transparent_58%)]"
       />
 
-      <h2
-        id={headingId}
-        className="relative text-center text-[0.95rem] font-bold leading-snug tracking-tight sm:text-[1.05rem]"
-      >
+      <p className="relative text-center text-[0.95rem] font-bold leading-snug tracking-tight sm:text-[1.05rem]">
         {title}
-      </h2>
+      </p>
 
       <div className="relative flex flex-1 items-center justify-center py-2 sm:py-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- static public icon URL */}
@@ -102,6 +150,20 @@ function DealLeadSkeleton() {
   );
 }
 
+function DealStripShell({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn(DEAL_STRIP_MOBILE, DEAL_STRIP_DESKTOP, className)}>
+      {children}
+    </div>
+  );
+}
+
 export function ProductCarousel({
   products,
   isLoading,
@@ -116,7 +178,7 @@ export function ProductCarousel({
   variant?: "default" | "featured" | "deal";
   autoPlay?: boolean;
   intervalMs?: number;
-  /** Lead promo panel for deal carousel (RTL visual start — pinned). */
+  /** Lead promo panel for deal carousel (RTL visual start — pinned on desktop). */
   lead?: DealLeadPromo;
   headingId?: string;
 }) {
@@ -125,21 +187,21 @@ export function ProductCarousel({
     variant === "featured"
       ? "w-[230px] sm:w-[270px]"
       : variant === "deal"
-        ? "w-[168px] sm:w-[196px]"
+        ? "w-[167px] md:w-[196px]"
         : "w-[210px] sm:w-[250px]";
-  const leadWidth = "w-[118px] sm:w-[148px]";
+  const leadWidth = "w-[148px]";
 
   if (isLoading) {
-    if (isDeal) {
+    if (isDeal && lead) {
       return (
-        <div
-          className={cn(
-            "relative overflow-hidden rounded-[1.75rem] border border-[#5E5F5E]/10 p-3 sm:rounded-[2rem] sm:p-4",
-            DEAL_STRIP,
-          )}
-        >
-          <div className="flex items-stretch gap-3 overflow-hidden sm:gap-3.5">
-            <div className={cn("shrink-0", leadWidth)}>
+        <DealStripShell>
+          <DealMobileHeader
+            {...lead}
+            hrefLabel="همه"
+            headingId={headingId}
+          />
+          <div className="flex items-stretch gap-3 overflow-hidden px-5 sm:gap-3.5 sm:px-6 md:px-0">
+            <div className={cn("hidden shrink-0 md:block", leadWidth)}>
               <DealLeadSkeleton />
             </div>
             <div className="flex min-w-0 flex-1 gap-3 overflow-hidden sm:gap-3.5">
@@ -150,7 +212,7 @@ export function ProductCarousel({
               ))}
             </div>
           </div>
-        </div>
+        </DealStripShell>
       );
     }
 
@@ -177,17 +239,13 @@ export function ProductCarousel({
 
   if (isDeal && lead) {
     return (
-      <div
-        className={cn(
-          "relative overflow-hidden rounded-[1.75rem] border border-[#5E5F5E]/10 p-3 sm:rounded-[2rem] sm:p-4",
-          DEAL_STRIP,
-          "shadow-[0_16px_40px_-28px_rgba(94,95,94,0.35)]",
-        )}
-      >
-        {/* Lead pinned on RTL start (right); product row scrolls beside it */}
-        <div className="flex items-stretch gap-3 sm:gap-3.5">
-          <div className={cn("shrink-0 self-stretch", leadWidth)}>
-            <DealPromoLead {...lead} headingId={headingId} />
+      <DealStripShell>
+        <DealMobileHeader {...lead} hrefLabel="همه" headingId={headingId} />
+
+        {/* Lead pinned on RTL start (right) from md; mobile is header + product rail only */}
+        <div className="flex items-stretch gap-3 px-5 sm:gap-3.5 sm:px-6 md:px-0">
+          <div className={cn("hidden shrink-0 self-stretch md:block", leadWidth)}>
+            <DealPromoLead {...lead} />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -216,7 +274,7 @@ export function ProductCarousel({
             </AutoCarousel>
           </div>
         </div>
-      </div>
+      </DealStripShell>
     );
   }
 

@@ -307,7 +307,7 @@ export function CategoryTreeFilter({
               onChange={(e) => setQuery(e.target.value)}
               placeholder="جستجوی دسته…"
               aria-label="جستجوی دسته‌بندی"
-              className="h-11 w-full rounded-xl border border-[#5E5F5E]/12 bg-white ps-9 pe-3 text-sm text-foreground outline-none transition placeholder:text-[#5E5F5E]/45 focus:border-[#D02327]/35 focus:ring-2 focus:ring-[#D02327]/20"
+              className="h-11 w-full rounded-xl border border-[#5E5F5E]/12 bg-white ps-9 pe-3 text-base text-foreground outline-none transition placeholder:text-[#5E5F5E]/45 focus:border-[#D02327]/35 focus:ring-2 focus:ring-[#D02327]/20"
             />
           </div>
         ) : null}

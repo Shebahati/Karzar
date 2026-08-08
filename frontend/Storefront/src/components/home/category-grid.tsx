@@ -91,7 +91,7 @@ function CategoryTile({
 
         <span className="flex min-w-0 flex-1 flex-col gap-1 px-4 py-3.5 sm:px-5 sm:py-4">
           {highlight && (
-            <span className="text-[10px] font-bold tracking-[0.12em] text-primary">اولویت کارگاه</span>
+            <span className="text-[10px] font-bold tracking-normal text-primary">اولویت کارگاه</span>
           )}
           <span className="line-clamp-2 text-sm font-bold leading-6 text-foreground sm:text-base sm:leading-7">
             {node.name}

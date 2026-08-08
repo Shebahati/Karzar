@@ -11,44 +11,39 @@ export type PdpTrustItem = {
 };
 
 /**
- * Trust cues for the sticky buy card (authenticity / warranty / return).
- * Does not invent certifications — product warranty is optional SoT copy only.
- * Shipping / support / payment live on PdpAssistStrip below the hero.
+ * Buy-card trust: only real product warranty (warranty_text).
+ * Does not invent authenticity / return chips — those live on the shared strip.
+ */
+export function buildPdpBuyCardTrust(opts: {
+  warrantyText?: string | null;
+}): PdpTrustItem[] {
+  const text = opts.warrantyText?.trim();
+  if (!text) return [];
+  return [
+    {
+      key: "warranty",
+      title: text,
+      desc: "شرایط گارانتی",
+      Icon: Document,
+    },
+  ];
+}
+
+/**
+ * @deprecated Prefer buildPdpBuyCardTrust for the card and buildPdpStripTrustItems
+ * for the shared strip. Kept for tests / rare reuse.
  */
 export function buildPdpTrustItems(opts: {
   warrantyText?: string | null;
   isOriginal?: boolean;
 }): PdpTrustItem[] {
-  const items: PdpTrustItem[] = [
-    {
-      key: "authenticity",
-      title: "ضمانت اصالت",
-      desc: opts.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
-      Icon: ShieldDone,
-    },
+  return [
+    ...buildPdpStripTrustItems({ isOriginal: opts.isOriginal }),
+    ...buildPdpBuyCardTrust({ warrantyText: opts.warrantyText }),
   ];
-
-  if (opts.warrantyText?.trim()) {
-    items.push({
-      key: "warranty",
-      title: opts.warrantyText.trim(),
-      desc: "شرایط گارانتی",
-      Icon: Document,
-    });
-  }
-
-  items.push({
-    key: "return",
-    title: "۷ روز بازگشت",
-    desc: "شرایط مرجوعی",
-    Icon: Swap,
-  });
-
-  return items;
 }
 
-/** Soft service cues below the hero — not a second copy of buy-card guarantees. */
-const ASSIST_ITEMS: PdpTrustItem[] = [
+const SERVICE_ITEMS: PdpTrustItem[] = [
   {
     key: "shipping",
     title: "ارسال سریع",
@@ -58,7 +53,7 @@ const ASSIST_ITEMS: PdpTrustItem[] = [
   {
     key: "support",
     title: "پشتیبانی کارگاهی",
-    desc: "پاسخگویی ۹ تا ۱۹",
+    desc: "پاسخگویی ۹ تا ۱۸",
     Icon: Call,
   },
   {
@@ -68,6 +63,27 @@ const ASSIST_ITEMS: PdpTrustItem[] = [
     Icon: Wallet,
   },
 ];
+
+/** Shared strip: authenticity + return + delivery / support / payment. */
+export function buildPdpStripTrustItems(opts?: {
+  isOriginal?: boolean;
+}): PdpTrustItem[] {
+  return [
+    {
+      key: "authenticity",
+      title: "ضمانت اصالت",
+      desc: opts?.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
+      Icon: ShieldDone,
+    },
+    {
+      key: "return",
+      title: "۷ روز بازگشت",
+      desc: "شرایط مرجوعی",
+      Icon: Swap,
+    },
+    ...SERVICE_ITEMS,
+  ];
+}
 
 function SoftCueStrip({
   items,
@@ -82,32 +98,29 @@ function SoftCueStrip({
     <aside
       aria-label={label}
       className={cn(
-        "relative overflow-hidden rounded-[1.1rem] bg-gradient-to-l from-[#D02327]/[0.06] via-secondary/40 to-transparent",
+        "relative overflow-hidden rounded-[1.1rem]",
         className,
       )}
     >
-      <span
-        aria-hidden
-        className="absolute inset-y-2.5 start-0 w-[3px] rounded-full bg-[#D02327]"
-      />
-
       <ul
         className={cn(
-          "grid gap-0 ps-3",
-          items.length >= 4
-            ? "sm:grid-cols-2 lg:grid-cols-4"
-            : "sm:grid-cols-3",
+          "grid gap-0",
+          items.length >= 5
+            ? "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            : items.length >= 4
+              ? "sm:grid-cols-2 lg:grid-cols-4"
+              : "sm:grid-cols-3",
         )}
       >
-        {items.map(({ key, title, desc, Icon }, i) => (
+        {items.map(({ key, title, desc, Icon }) => (
           <li
             key={key}
-            className={cn(
-              "group relative flex items-center gap-2.5 px-3 py-2.5",
-              i > 0 &&
-                "sm:before:absolute sm:before:inset-y-2 sm:before:start-0 sm:before:w-px sm:before:bg-steel/15",
-            )}
+            className="group relative flex items-center gap-2.5 px-3 py-2.5 ps-4"
           >
+            <span
+              aria-hidden
+              className="absolute inset-y-2.5 start-0 w-[3px] rounded-full bg-[#D02327]"
+            />
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#D02327]/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-[#D02327]/18">
               <Icon set="bold" size="small" primaryColor="#D02327" />
             </span>
@@ -124,7 +137,7 @@ function SoftCueStrip({
   );
 }
 
-/** @deprecated Prefer buy-card trust rows; kept for tests / rare reuse. */
+/** @deprecated Prefer PdpAssistStrip; kept for tests / rare reuse. */
 export function ProductTrustStrip({
   warrantyText,
   isOriginal = false,
@@ -143,13 +156,19 @@ export function ProductTrustStrip({
   );
 }
 
-/** Below-hero strip: delivery / support / payment — complements buy-card guarantees. */
-export function PdpAssistStrip({ className }: { className?: string }) {
+/** Below-hero strip: authenticity / return + delivery / support / payment. */
+export function PdpAssistStrip({
+  isOriginal = false,
+  className,
+}: {
+  isOriginal?: boolean;
+  className?: string;
+}) {
   return (
     <SoftCueStrip
-      label="خدمات خرید"
+      label="خدمات و اعتماد خرید"
       className={className}
-      items={ASSIST_ITEMS}
+      items={buildPdpStripTrustItems({ isOriginal })}
     />
   );
 }

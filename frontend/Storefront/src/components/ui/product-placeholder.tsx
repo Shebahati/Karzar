@@ -72,7 +72,7 @@ export function ProductPlaceholder({
             aria-hidden
             className="h-px w-5 bg-[#D02327]/45"
           />
-          <span className="text-[11px] font-medium tracking-[0.18em] text-[#5E5F5E]/70">
+          <span className="text-[11px] font-medium tracking-normal text-[#5E5F5E]/70">
             بدون تصویر
           </span>
         </div>

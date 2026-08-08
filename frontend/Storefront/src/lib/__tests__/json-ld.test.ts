@@ -149,6 +149,12 @@ describe("buildSitewideJsonLd", () => {
     ]);
     const org = graph[0];
     expect(org).toMatchObject({
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icon.svg`,
+        width: 289,
+        height: 289,
+      },
       hasMap: "https://neshan.org/maps/places/vbvELT2xOtSQ",
       telephone: "+989912480087",
       email: "info@karzartools.com",

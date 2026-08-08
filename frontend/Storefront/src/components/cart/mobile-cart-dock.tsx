@@ -11,6 +11,7 @@ import type { CartLine } from "@/store/cart-store";
 export function MobileCartDock({
   mode,
   total,
+  totalSavings = 0,
   itemCount,
   unitCount,
   lines = [],
@@ -18,6 +19,8 @@ export function MobileCartDock({
 }: {
   mode: "cart" | "quote";
   total: number;
+  /** Sum of line discount savings; hidden when 0. */
+  totalSavings?: number;
   itemCount: number;
   /** Total units across lines (for richer summary). Falls back to itemCount. */
   unitCount?: number;
@@ -42,6 +45,11 @@ export function MobileCartDock({
                 <p className="truncate text-base font-bold text-foreground tnum">
                   {formatToman(total)}
                 </p>
+                {totalSavings > 0 && (
+                  <p className="mt-0.5 truncate text-[11px] font-medium text-[#D02327] tnum">
+                    سود شما از این خرید · {formatToman(totalSavings)}
+                  </p>
+                )}
               </>
             ) : (
               <>

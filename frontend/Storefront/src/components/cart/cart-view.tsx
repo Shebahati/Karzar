@@ -9,6 +9,7 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { cn, formatToman, toPersianDigits } from "@/lib/utils";
 import { productPath } from "@/lib/product-url";
 import { isLoggedIn } from "@/lib/api-client";
+import { productLineSavings } from "@/types/product";
 import { useCartStore, type CartLine } from "@/store/cart-store";
 import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
 import { CartProformaButton } from "@/components/cart/cart-proforma-button";
@@ -18,7 +19,7 @@ type Mode = "cart" | "quote";
 const TRUST_CUES = [
   { Icon: ShieldDone, title: "ضمانت اصالت", desc: "کالای اصلی" },
   { Icon: Send, title: "ارسال سراسر کشور", desc: "پس از تأیید سفارش" },
-  { Icon: Call, title: "پشتیبانی کارگاهی", desc: "۹ تا ۱۹" },
+  { Icon: Call, title: "پشتیبانی کارگاهی", desc: "۹ تا ۱۸" },
 ] as const;
 
 function stockIssue(line: CartLine): string | null {
@@ -85,6 +86,10 @@ export function CartView({ mode }: { mode: Mode }) {
     (sum, l) => sum + Number(l.product.base_price ?? 0) * l.quantity,
     0,
   );
+  const totalSavings =
+    mode === "cart"
+      ? lines.reduce((sum, l) => sum + productLineSavings(l.product, l.quantity), 0)
+      : 0;
 
   const stockWarnings = useMemo(
     () =>
@@ -196,8 +201,9 @@ export function CartView({ mode }: { mode: Mode }) {
               onClick={() => {
                 if (window.confirm("همه اقلام این سبد حذف شوند؟")) clear();
               }}
-              className="text-sm font-medium text-muted-foreground hover:text-destructive"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive"
             >
+              <Delete size="small" set="light" />
               خالی کردن
             </button>
           </div>
@@ -334,6 +340,14 @@ export function CartView({ mode }: { mode: Mode }) {
                       <dt className="text-[#5E5F5E]">جمع جزء</dt>
                       <dd className="font-medium text-foreground tnum">{formatToman(total)}</dd>
                     </div>
+                    {totalSavings > 0 && (
+                      <div className="flex items-center justify-between gap-3">
+                        <dt className="text-[#5E5F5E]">سود شما از این خرید</dt>
+                        <dd className="font-bold text-[#D02327] tnum">
+                          {formatToman(totalSavings)}
+                        </dd>
+                      </div>
+                    )}
                     <div className="flex items-start justify-between gap-3">
                       <dt className="text-[#5E5F5E]">هزینه ارسال</dt>
                       <dd className="max-w-[11rem] text-end text-xs leading-5 text-[#5E5F5E]">
@@ -383,6 +397,7 @@ export function CartView({ mode }: { mode: Mode }) {
         <MobileCartDock
           mode={mode}
           total={total}
+          totalSavings={totalSavings}
           itemCount={lines.length}
           unitCount={unitCount}
           lines={mode === "cart" ? lines : undefined}
@@ -408,6 +423,7 @@ function CartRow({
   const hasPrice = product.base_price != null;
   const unitPrice = hasPrice ? Number(product.base_price) : null;
   const lineTotal = unitPrice != null ? unitPrice * quantity : null;
+  const lineSavings = productLineSavings(product, quantity);
   const metaBits = [
     product.brand?.name,
     product.sku ? `کد ${toPersianDigits(product.sku)}` : null,
@@ -491,14 +507,21 @@ function CartRow({
               onDec={() => onQty(product.id, quantity - 1)}
               onInc={() => onQty(product.id, quantity + 1)}
             />
-            <span
-              className={cn(
-                "shrink-0 text-sm font-bold tnum",
-                hasPrice ? "text-foreground" : "text-primary",
+            <div className="min-w-0 shrink-0 text-end">
+              <span
+                className={cn(
+                  "block text-sm font-bold tnum",
+                  hasPrice ? "text-foreground" : "text-primary",
+                )}
+              >
+                {lineTotal != null ? formatToman(lineTotal) : "استعلام قیمت"}
+              </span>
+              {lineSavings > 0 && (
+                <span className="mt-0.5 block text-xs font-medium text-[#D02327] tnum">
+                  سود شما: {formatToman(lineSavings)}
+                </span>
               )}
-            >
-              {lineTotal != null ? formatToman(lineTotal) : "استعلام قیمت"}
-            </span>
+            </div>
           </div>
         </div>
       </div>
@@ -524,6 +547,11 @@ function CartRow({
           >
             {lineTotal != null ? formatToman(lineTotal) : "استعلام قیمت"}
           </p>
+          {lineSavings > 0 && (
+            <p className="mt-0.5 truncate text-[11px] font-medium text-[#D02327] tnum">
+              سود شما: {formatToman(lineSavings)}
+            </p>
+          )}
         </div>
       </div>
     </article>

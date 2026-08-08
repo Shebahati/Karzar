@@ -12,7 +12,8 @@ import { authService } from "@/services/auth";
 import { authKeys } from "@/features/auth/queries";
 import { toEnglishDigits } from "@/lib/utils";
 
-import { OTP_LENGTH } from "@/lib/otp";
+import { OTP_LENGTH, OTP_MOCK_CODE } from "@/lib/otp";
+import { env } from "@/config/env";
 
 type Step = "phone" | "otp";
 
@@ -219,6 +220,15 @@ export function LoginView() {
                   />
                 ))}
               </div>
+
+              {env.USE_MOCK && (
+                <p className="text-center text-xs text-muted-foreground">
+                  حالت ماک محلی: کد تست{" "}
+                  <span className="font-bold tnum" dir="ltr">
+                    {OTP_MOCK_CODE}
+                  </span>
+                </p>
+              )}
 
               {verifyOtp.isError && (
                 <p className="text-center text-sm text-destructive">

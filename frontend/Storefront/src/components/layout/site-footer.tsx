@@ -49,7 +49,7 @@ export function SiteFooter() {
           <div className="lg:col-span-5">
             <Logo variant="slogan" height={43} tone="onDark" />
             <p className="mt-5 max-w-md text-sm leading-7 text-white/60">
-              مرجع تخصصی ابزارآلات صنعتی و تراشکاری — اصالت، تأمین سریع و پشتیبانی کارگاهی.
+              مرجع تخصصی ابزارآلات صنعتی و تراشکاری.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {["ضمانت اصالت", "ارسال سراسری", "مشاوره تخصصی"].map((label) => (

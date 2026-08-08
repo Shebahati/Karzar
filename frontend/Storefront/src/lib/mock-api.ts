@@ -692,11 +692,15 @@ export const mockApi = {
       throw new Error("کد وارد شده صحیح نیست.");
     }
     mockSession.phone = payload.phone;
-    mockSession.full_name = mockSession.full_name ?? null;
+    mockSession.full_name = mockSession.full_name ?? "کاربر آزمایشی";
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "karzar.storefront.customer",
-        JSON.stringify({ phone: payload.phone, full_name: mockSession.full_name }),
+        JSON.stringify({
+          id: mockSession.id,
+          phone: payload.phone,
+          full_name: mockSession.full_name,
+        }),
       );
     }
     return {

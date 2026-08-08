@@ -5,11 +5,13 @@
  * - Commerce SoR = product-type tree, depth ≤ 3
  * - Brand / country = facets (not categories)
  * - **All category UIs (megamenu, home, catalog, mobile) = live L1 from GET /categories/tree**
- *   via `orderedTaxonomyRoots` — no separate megamenu grouping in admin.
+ *   via `orderedTaxonomyRoots` (sorted by FINAL_L1_CATEGORIES merchandising order).
  *
  * `NAV_GROUPS` / `buildNavGroups` remain only as legacy fallback for older tests;
  * megamenu no longer consumes them.
  */
+
+import { FINAL_L1_CATEGORIES } from "@/config/l1-categories";
 
 export interface NavGroupDef {
   id: string;
@@ -58,6 +60,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
       "اینسرت",
       "فرز انگشتی",
       "انگشتی",
+      "مته‌ها",
       "مته",
       "قلاویز",
       "insert",
@@ -209,19 +212,27 @@ export function orderedVisibleRoots<T extends CategoryLike>(
 }
 
 /**
- * All taxonomy L1 roots in **API / tree order** — includes empty categories.
- *
- * Browse surfaces (shop carousel, home orbs, hero live roots) must match the
- * admin «درخت دسته‌بندی» exactly. Do NOT reorder by NAV_GROUPS here — that
- * grouping is megamenu-only (`buildNavGroups` / `orderedVisibleRoots`).
- *
+ * All taxonomy L1 roots in **FINAL_L1_CATEGORIES merchandising order**.
+ * Unknown / unmatched roots keep relative order at the end.
  * `_groups` kept for call-site compatibility; intentionally unused.
  */
 export function orderedTaxonomyRoots<T extends CategoryLike>(
   roots: T[],
   _groups?: NavGroupDef[],
 ): T[] {
-  return roots.slice();
+  const rank = (root: CategoryLike): number => {
+    const idx = FINAL_L1_CATEGORIES.findIndex(
+      (c) =>
+        c.name === root.name ||
+        c.slug === root.slug ||
+        (c.aliases ?? []).some((a) => matchesRoot(root, a)),
+    );
+    return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+  };
+  return roots.slice().sort((a, b) => {
+    const diff = rank(a) - rank(b);
+    return diff !== 0 ? diff : a.id - b.id;
+  });
 }
 
 /**

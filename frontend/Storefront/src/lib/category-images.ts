@@ -29,6 +29,7 @@ export const CATEGORY_IMAGE_BY_NAME: Record<string, string> = {
   "ابزار انگشتی": CATEGORY_IMAGE_BY_ID[4],
   "فرز انگشتی": CATEGORY_IMAGE_BY_ID[4],
   مته: CATEGORY_IMAGE_BY_ID[5],
+  مته‌ها: CATEGORY_IMAGE_BY_ID[5],
   قلاویز: CATEGORY_IMAGE_BY_ID[6],
   "ابزار گیرشی": CATEGORY_IMAGE_BY_ID[8],
   "دستگاه‌های صنعتی": CATEGORY_IMAGE_BY_ID[9],
@@ -46,7 +47,6 @@ export const CATEGORY_IMAGE_BY_NAME: Record<string, string> = {
   "فنر هلی کویل": CATEGORY_IMAGE_BY_ID[186],
   "قلاویز هلی کویل": CATEGORY_IMAGE_BY_ID[187],
   "کیت کامل هلی کویل": CATEGORY_IMAGE_BY_ID[188],
-  "ابزار کارگاهی : دریل عادی": CATEGORY_IMAGE_BY_ID[5],
   "ابزار کارگاهی": CATEGORY_IMAGE_BY_ID[5],
 };
 

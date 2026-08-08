@@ -303,10 +303,10 @@ function PanelChrome({ id }: { id: CardId }) {
           <active.Icon set="bold" />
         </span>
         <div>
-          <p className="text-[11px] font-bold tracking-wide text-white/45">
+          <p className="text-[11px] font-bold tracking-normal text-white/45">
             {active.index} · قابلیت کارزار
           </p>
-          <h3 className="text-xl font-black leading-[1.45] tracking-tight text-white sm:text-2xl">
+          <h3 className="text-xl font-black leading-[1.45] tracking-normal text-white sm:text-2xl">
             {active.title}
           </h3>
         </div>
@@ -408,12 +408,12 @@ function CapabilityDetailModal({
                   <active.Icon set="bold" />
                 </span>
                 <div className="min-w-0 flex-1 pe-1">
-                  <p className="text-[11px] font-bold tracking-wide text-white/45">
+                  <p className="text-[11px] font-bold tracking-normal text-white/45">
                     {active.index} · قابلیت کارزار
                   </p>
                   <h3
                     id={titleId}
-                    className="text-lg font-black leading-[1.45] tracking-tight text-white"
+                    className="text-lg font-black leading-[1.45] tracking-normal text-white"
                   >
                     {active.title}
                   </h3>
@@ -446,10 +446,11 @@ function CapabilityDetailModal({
 function WhyKarzarHeading() {
   return (
     <>
-      <p className="text-[11px] font-black tracking-[0.28em] text-[#D02327]">کارزار</p>
+      {/* tracking-normal: letter-spacing breaks Arabic joining on Safari/WebKit */}
+      <p className="text-[11px] font-black tracking-normal text-[#D02327]">کارزار</p>
       <h2
         id="why-karzar-heading"
-        className="mt-3 text-[1.55rem] font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem]"
+        className="mt-3 text-[1.55rem] font-black leading-tight tracking-normal text-white sm:text-4xl lg:text-[2.75rem]"
       >
         ابزار صنعتی، خرید مطمئن
       </h2>
@@ -642,7 +643,7 @@ export function WhyKarzar() {
                     <span className="min-w-0 flex-1">
                       <span
                         className={cn(
-                          "block text-[15px] font-black leading-[1.45] tracking-tight text-white sm:text-base lg:text-lg lg:leading-[1.5]",
+                          "block text-[15px] font-black leading-[1.45] tracking-normal text-white sm:text-base lg:text-lg lg:leading-[1.5]",
                           selected && "lg:text-[#121212]",
                         )}
                       >

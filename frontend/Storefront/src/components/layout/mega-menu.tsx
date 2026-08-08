@@ -174,7 +174,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="جستجو در این دسته…"
                             aria-label="جستجو در منوی دسته‌بندی"
-                            className="h-10 w-full rounded-xl border border-steel/15 bg-[#F7F7F7] ps-9 pe-3 text-sm text-[#2a2a2a] outline-none placeholder:text-[#8a8a8a] focus:bg-white focus:ring-2 focus:ring-steel/25"
+                            className="h-10 w-full rounded-xl border border-steel/15 bg-[#F7F7F7] ps-9 pe-3 text-base text-[#2a2a2a] outline-none placeholder:text-[#8a8a8a] focus:bg-white focus:ring-2 focus:ring-steel/25"
                           />
                         </div>
                       </div>

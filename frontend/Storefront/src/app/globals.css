@@ -61,6 +61,12 @@
     --type-lede-lg: 0.875rem;
     --leading-lede: 1.5rem;
     --leading-lede-lg: 1.75rem;
+
+    /*
+     * Mobile bottom-nav tab row only (excludes safe-area).
+     * Keep in sync with MobileBottomNav — .mobile-dock sits flush on top.
+     */
+    --mobile-bottom-nav-chrome: 3.5rem;
   }
 
   @media (min-width: 640px) {
@@ -87,7 +93,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    scroll-behavior: smooth;
+    /* Prevent iOS Safari from inflating text unpredictably. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /*
+     * Smooth scroll only on fine pointers. On phones, smooth + URL-bar
+     * resize (dvh change) stacks into a jarring first-scroll jump.
+     */
+    scroll-behavior: auto;
     font-feature-settings: "ss01", "ss02";
     /* Keep in-page anchors / focus clear of sticky header + bottom nav on phones. */
     scroll-padding-top: 5.5rem;
@@ -97,6 +110,12 @@
     max-width: 100%;
     overflow-x: clip;
     overscroll-behavior-x: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -135,32 +154,63 @@
     font-variant-numeric: normal;
   }
 
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: hsl(0 0% 80%);
-    border-radius: 9999px;
-    border: 3px solid transparent;
-    background-clip: content-box;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(0 0% 70%);
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  /*
+   * Soft Karzar scrollbars — desktop / fine pointer only.
+   * Leaves mobile OS overlay bars alone. Applies to document + any
+   * overflow container (modals, drawers, .h-scroll, etc.). RTL-safe
+   * (no physical left/right). .no-scrollbar still wins via higher specificity.
+   *
+   * Note: Chromium honors scrollbar-color/width and ignores ::-webkit-* when
+   * both are set — keep the standard thumb opaque enough to read. Use
+   * any-pointer:fine so hybrid/touchscreen laptops still get the style.
+   */
+  @media (min-width: 768px) and (any-pointer: fine) {
+    html {
+      scrollbar-width: thin; /* Firefox + Chromium */
+      scrollbar-color: rgba(94, 95, 94, 0.5) transparent; /* thumb | track; inherits */
+    }
+
+    /* Explicit html + universal so the viewport bar and overflow panes both style. */
+    html::-webkit-scrollbar,
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    html::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    html::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(94, 95, 94, 0.5); /* steel #5E5F5E */
+      border-radius: 9999px;
+      /* 1px inset — keeps a slim pill without shrinking to near-invisible */
+      border: 1px solid transparent;
+      background-clip: content-box;
+    }
+    html::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(94, 95, 94, 0.68);
+    }
+    html::-webkit-scrollbar-thumb:active,
+    ::-webkit-scrollbar-thumb:active {
+      background-color: rgba(208, 35, 39, 0.5); /* brand red, sparingly */
+    }
+    html::-webkit-scrollbar-corner,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
   }
 }
 
 @layer components {
   /**
-   * Fixed bar sitting just above the mobile bottom nav (~3.75rem chrome
-   * + safe-area). z-[60] clears page chrome; nav stays z-[70] underneath.
+   * Fixed bar flush above the mobile bottom nav (tab chrome + safe-area).
+   * z-[60] clears page chrome; nav stays z-[70] underneath.
    */
   .mobile-dock {
     @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl lg:hidden;
-    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px));
   }
 
   /** Minimum comfortable touch target (Apple HIG ~44px). */
@@ -260,6 +310,15 @@
 }
 
 @layer utilities {
+  /**
+   * Arabic/Persian joining: non-zero letter-spacing gaps connecting forms
+   * on WebKit (Safari iOS) — use instead of tracking-* on FA headlines.
+   * Prefer tracking-normal; this utility documents the Safari constraint.
+   */
+  .tracking-arabic {
+    letter-spacing: normal;
+  }
+
   .bg-hero-glow {
     background:
       radial-gradient(55% 50% at 100% 0%, rgba(40, 48, 56, 0.06), transparent 70%),
@@ -294,9 +353,11 @@
 
 /*
  * Home hero used to set `scroll-snap-type: y` on html (desktop) with
- * scroll-snap-stop:always on the sticky hero. That fought native wheel
- * scrolling — spontaneous snap jumps, especially with sticky + smooth
- * scroll-behavior. Sticky overlay still works without page-level snap.
+ * scroll-snap-stop:always on a sticky hero. That fought native wheel
+ * scrolling. Sticky hero + sheet overlay was later disabled in
+ * `home-view.tsx` (commented restore block) in favor of normal scroll.
+ * Document-flow hero heights use svh (not dvh) so Android Chrome URL-bar
+ * hide does not reflow the first viewport (~40px jump).
  */
 
 /* Designed hero animations (admin builder presets) */
@@ -350,56 +411,48 @@
   }
 }
 
-/* Mobile hero slide change — soft crossfade + micro-drift (no Framer / Ken Burns). */
+/* Mobile hero slide change — directional sheet / page-turn (RTL next: enter right → exit left). */
 @keyframes hero-mobile-enter {
   from {
-    opacity: 0;
-    transform: translate3d(var(--hero-mx, 6px), 0, 0) scale(1.02);
-  }
-  35% {
-    opacity: 0.42;
-  }
-  70% {
-    opacity: 0.88;
+    opacity: 0.96;
+    transform: translate3d(var(--hero-mx, 100%), 0, 0);
   }
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 @keyframes hero-mobile-exit {
   from {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  45% {
-    opacity: 0.55;
+    transform: translate3d(0, 0, 0);
   }
   to {
-    opacity: 0;
-    transform: translate3d(var(--hero-mx-exit, -4px), 0, 0) scale(0.985);
+    opacity: 0.96;
+    transform: translate3d(var(--hero-mx-exit, -100%), 0, 0);
   }
 }
 .hero-mobile-enter {
-  animation: hero-mobile-enter 480ms cubic-bezier(0.33, 0.0, 0.2, 1) both;
-  transform-origin: center center;
-  will-change: opacity, transform;
+  animation: hero-mobile-enter 500ms cubic-bezier(0.4, 0.12, 0.2, 1) both;
+  will-change: transform, opacity;
 }
 .hero-mobile-exit {
-  animation: hero-mobile-exit 440ms cubic-bezier(0.4, 0.0, 0.2, 1) both;
-  transform-origin: center center;
+  animation: hero-mobile-exit 500ms cubic-bezier(0.4, 0.12, 0.2, 1) both;
   pointer-events: none;
-  will-change: opacity, transform;
+  will-change: transform, opacity;
 }
-.hero-mobile-enter[data-dir="1"],
-.hero-mobile-exit[data-dir="-1"] {
-  --hero-mx: -6px;
-  --hero-mx-exit: 4px;
+/* dir=1 next: enter from right, exit to left. dir=-1 prev: opposite. */
+.hero-mobile-enter[data-dir="1"] {
+  --hero-mx: 100%;
 }
-.hero-mobile-enter[data-dir="-1"],
 .hero-mobile-exit[data-dir="1"] {
-  --hero-mx: 6px;
-  --hero-mx-exit: -4px;
+  --hero-mx-exit: -100%;
+}
+.hero-mobile-enter[data-dir="-1"] {
+  --hero-mx: -100%;
+}
+.hero-mobile-exit[data-dir="-1"] {
+  --hero-mx-exit: 100%;
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-mobile-enter,
