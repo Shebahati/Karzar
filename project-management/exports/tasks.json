@@ -2146,6 +2146,99 @@
       ],
       "risk": "med",
       "notes": "CR-008 Option C. IMG-02B-01 worklists complete (PR #209/#210). R2 drift quarantine on Draft #211 (progress=40); overall discovery incomplete. Dasqua calibration_failed; INSIZE partial with effective quarantine (49=42+7; stable mat 28/263=10.65%; raw pre-quarantine 30/18); SAN OU calibration_failed (38 model_token_not_found manual + 215 source_unavailable). Governed review 46=1+38+7. External R2 Artifact IMG-02B-R2.zip; R1 ZIP immutable. IMG-02B-05 not started. rights_status=review_required; apply_status=not_started. Zero DB/ProductImage/app-storage mutations."
+    },
+    {
+      "id": "IMG-FAST-01",
+      "title": "Catalog-wide one-image coverage sprint",
+      "description": "Governed Fast Coverage program: one usable primary image per public storefront product. Baseline → existing-asset repair → internet discovery → apply gates. Does not reuse the 1204-product IMG-02B/02C pilot as catalog universe.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 80,
+      "deps": [
+        "IMG-02A-01"
+      ],
+      "files": [
+        "scripts/build_fast_image_coverage_baseline.py",
+        "scripts/fast_image_coverage_baseline/**",
+        "docs/FAST_IMAGE_COVERAGE.md",
+        "project-management/**"
+      ],
+      "modules": [
+        "images",
+        "catalog",
+        "ops"
+      ],
+      "ac": [
+        "Authoritative catalog universe from live public storefront API",
+        "Six-state mutually exclusive classification",
+        "existing_asset_repair separated from internet_discovery",
+        "External Artifact + ZIP with checksums"
+      ],
+      "dod": [
+        "IMG-FAST-01A baseline done",
+        "PMO progress updated",
+        "No ProductImage/DB/storage mutations in baseline"
+      ],
+      "status": "in_progress",
+      "progress": 10,
+      "sprint": "05",
+      "week": null,
+      "day": null,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "fast-coverage",
+        "baseline"
+      ],
+      "risk": "med",
+      "notes": "2026-08-08: opened with IMG-FAST-01A live storefront API baseline (authority supersedes direct prod DB requirement)."
+    },
+    {
+      "id": "IMG-FAST-01A",
+      "title": "Live storefront catalog baseline",
+      "description": "Read-only two-stage baseline against public storefront API: classify primary-image state for every listed product; emit Fast Coverage universes; zero mutations.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 16,
+      "deps": [
+        "IMG-FAST-01"
+      ],
+      "files": [
+        "scripts/build_fast_image_coverage_baseline.py",
+        "scripts/fast_image_coverage_baseline/**",
+        "tests/test_fast_image_coverage_baseline.py",
+        "aods/reports/tasks/IMG-FAST-01A-CATALOG-BASELINE.md",
+        "docs/FAST_IMAGE_COVERAGE.md"
+      ],
+      "modules": [
+        "images",
+        "scripts",
+        "docs"
+      ],
+      "ac": [
+        "catalog_total from API meta.total_count with unique ID reconciliation",
+        "Six-state exclusivity + universe math",
+        "Two-run semantic stability or drift report",
+        "Fixture-only CI tests; live scan external only"
+      ],
+      "dod": [
+        "External package + ZIP",
+        "Draft PR",
+        "IMG-FAST-01 progress 10; this task done/100"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": null,
+      "day": null,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "fast-coverage",
+        "baseline"
+      ],
+      "risk": "med",
+      "notes": "Authority: live public storefront API (api.karzartools.com). database_accessed=false. Placeholder policy: deterministic signatures only. priority_tier=unassigned."
     }
   ]
 }

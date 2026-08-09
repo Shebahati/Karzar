@@ -8,6 +8,8 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
+- [x] **IMG-FAST-01A** Live storefront catalog baseline — `done` 100% | P1 | Sprint 05 — public API six-state baseline; existing-asset repair separated from internet discovery; zero DB/ProductImage mutations
+- [ ] **IMG-FAST-01** Catalog-wide one-image coverage sprint — `in_progress` 10% | P1 | Sprint 05 — parent for Fast Coverage; 01A baseline complete; 01B not started
 - [ ] **IMG-02B** Existing Source Paths — `in_progress` 40% | P1 | Sprint 05 — worklists + R1 recalibration + R2 drift quarantine; overall discovery incomplete (Dasqua/SAN OU calibration_failed; INSIZE partial stable 28/16 + 18 packaged); IMG-02B-05 not started; zero DB/ProductImage/app mutations
 - [x] **IMG-02A-02-REMAINDER-ALL** All Remaining Existing Image Assets Review Package — `done` 100% | P1 | Sprint 05 — merged PR #207 @ `5ea3f54e…`; All 414 remainder Assets and 516 Assignments reviewed; existing-image coverage is now 614/614 Assets and 1193/1193 Assignments; 88 replacements and 2 manual reviews remain queued; zero decisions applied and zero runtime mutations
 - [x] **IMG-02A-02-BATCH-002** Sequential Existing Image Human Review Batch 002 — `done` 100% | P1 | Sprint 05 — merged PR #205 @ `1f391c0a…`; Batch 002 tooling, packaging and human review complete; 17 replacements and 1 manual review remain queued; no image decisions applied
