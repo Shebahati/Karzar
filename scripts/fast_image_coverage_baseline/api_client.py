@@ -8,9 +8,18 @@ from urllib.parse import quote
 from .contracts import BaselineError, DetailImage, ProductListItem, RunCounters
 from .http_transport import RateLimitedTransport
 
-DEFAULT_API_BASE = "https://api.karzartools.com"
 PRODUCT_LIST_PATH = "/api/v1/products/"
 PRODUCT_DETAIL_PATH = "/api/v1/products/{product_id}"
+
+
+def require_api_base(api_base: str | None) -> str:
+    """Fail closed: callers must pass an explicit non-empty API base (no defaults)."""
+    if api_base is None or not str(api_base).strip():
+        raise BaselineError(
+            "api",
+            "api_base is required; pass an explicit --api-base (no code default)",
+        )
+    return str(api_base).strip().rstrip("/")
 
 
 def brand_key_from_payload(brand: dict[str, Any] | None) -> str | None:
@@ -70,14 +79,14 @@ def parse_detail_images(payload: dict[str, Any]) -> list[DetailImage]:
 async def fetch_all_products(
     transport: RateLimitedTransport,
     *,
-    api_base: str = DEFAULT_API_BASE,
+    api_base: str,
     page_size: int = 1000,
     cache: dict[str, Any] | None = None,
 ) -> tuple[list[ProductListItem], int]:
     """Paginate public list until unique IDs match meta.total_count."""
+    base = require_api_base(api_base)
     if page_size < 1 or page_size > 1000:
         raise BaselineError("api", "page_size must be 1..1000")
-    base = api_base.rstrip("/")
     cache = cache if cache is not None else {}
     items: list[ProductListItem] = []
     seen: set[int] = set()
@@ -133,10 +142,10 @@ async def fetch_product_detail(
     transport: RateLimitedTransport,
     product_id: int,
     *,
-    api_base: str = DEFAULT_API_BASE,
+    api_base: str,
     cache: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    base = api_base.rstrip("/")
+    base = require_api_base(api_base)
     url = f"{base}{PRODUCT_DETAIL_PATH.format(product_id=product_id)}"
     cache = cache if cache is not None else {}
     if url in cache:

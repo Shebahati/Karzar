@@ -14,7 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.fast_image_coverage_baseline.api_client import DEFAULT_API_BASE  # noqa: E402
+from scripts.fast_image_coverage_baseline.api_client import require_api_base  # noqa: E402
 from scripts.fast_image_coverage_baseline.contracts import BaselineError  # noqa: E402
 from scripts.fast_image_coverage_baseline.output import (  # noqa: E402
     build_summary,
@@ -31,7 +31,14 @@ DEFAULT_ZIP = Path("/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A.z
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="IMG-FAST-01A live storefront image baseline")
-    p.add_argument("--api-base", default=DEFAULT_API_BASE)
+    p.add_argument(
+        "--api-base",
+        required=True,
+        help=(
+            "Explicit storefront API origin (scheme+host[+port]). Required. "
+            "No production/live default — set e.g. via KARZAR_FAST_COVERAGE_API_BASE."
+        ),
+    )
     p.add_argument("--package-dir", type=Path, default=DEFAULT_PACKAGE)
     p.add_argument("--zip-path", type=Path, default=DEFAULT_ZIP)
     p.add_argument(
@@ -52,6 +59,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 async def _amain(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
+    # Fail closed before any network activity.
+    api_base = require_api_base(args.api_base)
+
     work_root: Path = args.work_root
     work_root.mkdir(parents=True, exist_ok=True)
     # Unique sibling dirs so a killed mid-flight run can still be resumed separately.
@@ -62,7 +72,7 @@ async def _amain(argv: list[str] | None = None) -> int:
     run2_dir.mkdir(parents=True, exist_ok=False)
 
     common = dict(
-        api_base=args.api_base,
+        api_base=api_base,
         page_size=args.page_size,
         api_concurrency=args.api_concurrency,
         asset_concurrency=args.asset_concurrency,
@@ -122,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
     except BaselineError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
+    except SystemExit:
+        raise
 
 
 if __name__ == "__main__":

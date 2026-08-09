@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from .api_client import (
-    DEFAULT_API_BASE,
     fetch_all_products,
     fetch_product_detail,
     parse_detail_images,
+    require_api_base,
 )
 from .classify import classify_product
 from .contracts import (
@@ -95,7 +95,7 @@ async def _classify_one(
 async def run_scan(
     *,
     output_run_dir: Path,
-    api_base: str = DEFAULT_API_BASE,
+    api_base: str,
     page_size: int = 1000,
     api_concurrency: int = 4,
     asset_concurrency: int = 8,
@@ -105,6 +105,7 @@ async def run_scan(
     sync_fetch=None,
     resume: bool = True,
 ) -> ScanResult:
+    api_base = require_api_base(api_base)
     output_run_dir.mkdir(parents=True, exist_ok=True)
     progress_dir = output_run_dir / "cache"
     progress_dir.mkdir(parents=True, exist_ok=True)
@@ -199,8 +200,9 @@ async def run_scan(
                 "product_list_route": "/api/v1/products/",
                 "product_detail_route": "/api/v1/products/{product_id}",
                 "health_self_label_note": (
-                    "api.karzartools.com /health may self-label Staging; "
-                    "baseline uses public storefront exposure (operational debt)."
+                    "Public API /health may self-label Staging; "
+                    "baseline uses the explicitly supplied --api-base catalog "
+                    "(environment naming is operational debt)."
                 ),
             },
         )

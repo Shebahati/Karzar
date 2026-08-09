@@ -10,7 +10,11 @@ from pathlib import Path
 
 import pytest
 from PIL import Image
-from scripts.fast_image_coverage_baseline.api_client import fetch_all_products, parse_detail_images
+from scripts.fast_image_coverage_baseline.api_client import (
+    fetch_all_products,
+    parse_detail_images,
+    require_api_base,
+)
 from scripts.fast_image_coverage_baseline.classify import classify_product, reconcile_states
 from scripts.fast_image_coverage_baseline.contracts import (
     AssetValidation,
@@ -62,7 +66,7 @@ def _item(**kwargs) -> ProductListItem:
 
 def test_placeholder_exact_signature_only():
     assert mark_placeholder(
-        "https://api.karzartools.com/images/placeholders/karzar-editorial.svg",
+        "https://cdn.example/images/placeholders/karzar-editorial.svg",
         None,
     )
     assert mark_placeholder(
@@ -70,7 +74,7 @@ def test_placeholder_exact_signature_only():
         "6beb73e070a87c786ec339cb1d46943c726ba5e96866172690687e065b7b346f",
     )
     # small / plain image must NOT be placeholder by heuristics
-    assert not mark_placeholder("https://api.karzartools.com/static/uploads/products/1/a.jpg", None)
+    assert not mark_placeholder("https://cdn.example/static/uploads/products/1/a.jpg", None)
 
 
 def test_decode_unreadable():
@@ -167,7 +171,7 @@ def test_broken_only():
 
 
 def test_known_placeholder_only():
-    url = "https://api.karzartools.com/images/placeholders/karzar-editorial.svg"
+    url = "https://cdn.example/images/placeholders/karzar-editorial.svg"
     val = AssetValidation(
         url=url,
         normalized_url=url,
@@ -513,3 +517,66 @@ def test_zero_mutation_guards_in_summary(tmp_path: Path):
     write_artifact_package(pkg, scan, summary=summary, drift_rows=[])
     # package outside repo path not required in unit test; ensure no .git write
     assert not any(p.name.endswith(".pyc") for p in pkg.iterdir())
+
+
+def test_api_client_has_no_production_default():
+    import inspect
+
+    import scripts.fast_image_coverage_baseline.api_client as api_client
+
+    assert not hasattr(api_client, "DEFAULT_API_BASE")
+    src = Path(api_client.__file__).read_text(encoding="utf-8")
+    assert "karzartools.com" not in src
+    sig_list = inspect.signature(api_client.fetch_all_products)
+    assert sig_list.parameters["api_base"].default is inspect.Parameter.empty
+    sig_detail = inspect.signature(api_client.fetch_product_detail)
+    assert sig_detail.parameters["api_base"].default is inspect.Parameter.empty
+
+
+def test_require_api_base_fail_closed():
+    from scripts.fast_image_coverage_baseline.contracts import BaselineError
+
+    with pytest.raises(BaselineError):
+        require_api_base(None)
+    with pytest.raises(BaselineError):
+        require_api_base("")
+    with pytest.raises(BaselineError):
+        require_api_base("   ")
+    assert require_api_base("https://api.example/") == "https://api.example"
+
+
+def test_fetch_requires_explicit_api_base():
+    transport = RateLimitedTransport(counters=RunCounters(), sync_fetch=lambda m, u: HttpResponse(200, {}, b"{}", u))
+
+    async def _run() -> None:
+        with pytest.raises(TypeError):
+            await fetch_all_products(transport, page_size=1)  # type: ignore[call-arg]
+        from scripts.fast_image_coverage_baseline.api_client import fetch_product_detail
+
+        with pytest.raises(TypeError):
+            await fetch_product_detail(transport, 1)  # type: ignore[call-arg]
+        await transport.aclose()
+
+    asyncio.run(_run())
+
+
+def test_cli_requires_api_base_before_network(monkeypatch):
+    """Missing --api-base exits via argparse before any scan/network."""
+    from scripts import build_fast_image_coverage_baseline as cli
+
+    network_calls: list[str] = []
+
+    async def fake_run_scan(**kwargs):  # type: ignore[no-untyped-def]
+        network_calls.append("run_scan")
+        raise AssertionError("run_scan must not be reached without --api-base")
+
+    monkeypatch.setattr(cli, "run_scan", fake_run_scan)
+
+    with pytest.raises(SystemExit) as ei:
+        cli.main([])
+    assert ei.value.code == 2  # argparse error
+    assert network_calls == []
+
+    with pytest.raises(SystemExit) as ei2:
+        cli._build_parser().parse_args([])
+    assert ei2.value.code == 2

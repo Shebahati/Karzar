@@ -369,7 +369,7 @@ def write_artifact_package(
 
     readme = f"""# IMG-FAST-01A — Live storefront catalog image baseline
 
-Authority mode: **live public storefront API** (`api.karzartools.com` / `www.karzartools.com`).
+Authority mode: **live public storefront API** (explicit `--api-base`; no code default).
 
 This package is a **read-only baseline**. It does not discover, download-for-apply, or mutate ProductImage rows.
 

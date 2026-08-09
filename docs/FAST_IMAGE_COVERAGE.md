@@ -38,11 +38,26 @@ Ensure **one usable primary image per storefront product**.
 
 ## Authority
 
-Primary current-state authority is the **live public storefront API** serving `api.karzartools.com` / `www.karzartools.com`.
-
-The `/health` self-label may say “Staging”; that naming ambiguity is **operational debt** and does not disqualify the public catalog for this baseline.
+Primary current-state authority for the accepted IMG-FAST-01A baseline was the **public storefront catalog** reached via an **explicit** `--api-base` (the accepted run targeted the public storefront API host). Environment naming (e.g. `/health` self-label “Staging”) is operational debt and does not change read-only baseline semantics.
 
 Historical IMG-02A-01 inventory (`docs/EXISTING_IMAGE_AUDIT.md`, 2026-08-03) is **reference only** — never copied into current counts.
+
+This program plan **does not supersede ADR-012** and **does not authorize production writes**. IMG-FAST-01A is read-only GET validation only.
+
+## Environment selection (fail-closed)
+
+**No production/live API endpoint is a code default.**
+
+Operational runs **require** an explicit `--api-base`. The script will not choose localhost, staging, or any live host silently.
+
+```bash
+python scripts/build_fast_image_coverage_baseline.py \
+  --api-base "$KARZAR_FAST_COVERAGE_API_BASE" \
+  --package-dir /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A \
+  --zip-path /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A.zip
+```
+
+Missing `--api-base` exits before any network activity.
 
 ## Runtime contracts (origin/main)
 
@@ -50,11 +65,5 @@ Historical IMG-02A-01 inventory (`docs/EXISTING_IMAGE_AUDIT.md`, 2026-08-03) is 
 - Thumbnail / primary selection: `is_primary` else `images[0]`; order `(not is_primary, display_order, id)` (`app/utils/product_presenter.py`).
 
 ## Tooling
-
-```bash
-python scripts/build_fast_image_coverage_baseline.py \
-  --package-dir /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A \
-  --zip-path /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A.zip
-```
 
 CI tests (`tests/test_fast_image_coverage_baseline.py`) are **fixture-only** and perform zero live network calls.
