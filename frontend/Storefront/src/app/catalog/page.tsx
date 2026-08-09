@@ -27,7 +27,7 @@ export async function generateMetadata({
   const sp = await searchParams;
   const faceted = isFacetedSearchParams(sp);
   return {
-    title: "فروشگاه ابزار",
+    title: "فروشگاه",
     description: "مرور و فیلتر محصولات ابزار صنعتی و تراشکاری کارزار.",
     alternates: { canonical: "/catalog" },
     ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),

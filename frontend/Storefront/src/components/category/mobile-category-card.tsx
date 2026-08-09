@@ -115,25 +115,27 @@ export function MobileCategoryCard({
       <span className="relative min-w-0 flex-1 pe-0.5">
         <span
           className={cn(
-            "block text-[15px] font-black leading-[1.35] tracking-[-0.015em] text-[#1a1a1a]",
-            "line-clamp-2 transition-colors duration-200",
+            "block overflow-hidden text-[15px] font-black leading-[1.35] tracking-[-0.015em] text-[#1a1a1a]",
+            "line-clamp-2 break-words transition-colors duration-200",
             "group-hover:text-[#D02327]",
           )}
+          title={name}
         >
           {name}
         </span>
         {count != null ? (
           <span
             className={cn(
-              "mt-2 inline-flex max-w-full items-center gap-1 rounded-md",
+              "mt-2 inline-flex max-w-full items-center rounded-md",
               "bg-[#5E5F5E]/[0.07] px-2 py-[3px]",
               "text-[10.5px] font-bold tabular-nums tracking-normal text-[#5E5F5E]/70",
               "ring-1 ring-inset ring-[#5E5F5E]/[0.06]",
               "transition-[background-color,color,ring-color] duration-200",
               "group-hover:bg-[#D02327]/[0.08] group-hover:text-[#D02327]/85 group-hover:ring-[#D02327]/15",
             )}
+            aria-label={`${formatNumber(count)} محصول`}
           >
-            {formatNumber(count)} محصول
+            {formatNumber(count)}
           </span>
         ) : (
           <span
@@ -188,7 +190,7 @@ export function MobileCategoryCardSkeleton({
       <Skeleton className="h-[4.15rem] w-[4.15rem] shrink-0 rounded-full" />
       <div className="min-w-0 flex-1 space-y-2.5">
         <Skeleton className="h-4 w-[78%] rounded-md" />
-        <Skeleton className="h-5 w-[4.5rem] rounded-md" />
+        <Skeleton className="h-5 w-9 rounded-md" />
       </div>
     </div>
   );

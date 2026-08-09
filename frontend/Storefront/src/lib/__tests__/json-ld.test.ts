@@ -155,7 +155,7 @@ describe("buildSitewideJsonLd", () => {
         width: 289,
         height: 289,
       },
-      hasMap: "https://neshan.org/maps/places/vbvELT2xOtSQ",
+      hasMap: "https://neshan.org/maps/places/bf220a8c1cf5f0240b6587c9e6f98197",
       telephone: "+989912480087",
       email: "info@karzartools.com",
       address: {
@@ -165,8 +165,8 @@ describe("buildSitewideJsonLd", () => {
       },
       geo: {
         "@type": "GeoCoordinates",
-        latitude: 35.6869844,
-        longitude: 51.4044884,
+        latitude: 35.68701695469828,
+        longitude: 51.404487515344236,
       },
     });
     expect(org).not.toHaveProperty("openingHours");

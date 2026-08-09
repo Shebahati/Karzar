@@ -60,8 +60,7 @@ export function defaultHomeLayoutPack(): HomeLayoutPack {
         type: "category_carousel",
         enabled: true,
         title: "اندازه‌گیری",
-        subtitle:
-          "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+        subtitle: "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
         ctaLabel: "مشاهده اندازه‌گیری",
         categoryId: 0,
         categorySlug: "andaze-giri",
@@ -72,8 +71,7 @@ export function defaultHomeLayoutPack(): HomeLayoutPack {
         type: "category_carousel",
         enabled: true,
         title: "دستگاه‌های صنعتی",
-        subtitle:
-          "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه — انتخاب تخصصی، پشتیبانی کارزاری",
+        subtitle: "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
         ctaLabel: "مشاهده دستگاه‌ها",
         categoryId: 0,
         categorySlug: "dastgah-sanati",

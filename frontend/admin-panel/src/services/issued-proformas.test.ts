@@ -52,6 +52,7 @@ describe("issued-proformas line math", () => {
         phone: "",
         mobile: "",
         address: "",
+        postalCode: "",
         nationalId: "",
       },
       lines: [

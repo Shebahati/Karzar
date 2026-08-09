@@ -16,6 +16,7 @@ import type {
   OtpRequestResponse,
   OtpVerifyPayload,
   OtpVerifyResponse,
+  ProfileUpdatePayload,
 } from "@/types/auth";
 import { apiClient } from "@/lib/api-client";
 
@@ -34,6 +35,8 @@ interface StoredCustomer {
   id?: number;
   phone?: string;
   full_name?: string | null;
+  company_name?: string | null;
+  is_b2b?: boolean;
 }
 
 function mapMe(data: MeBackendResponse): MeResponse {
@@ -64,12 +67,22 @@ function writeStoredCustomer(customer: StoredCustomer): void {
   window.dispatchEvent(new Event("karzar-auth-change"));
 }
 
-/** Prefer server name; if empty, keep a locally saved full_name (no storefront PATCH /auth/me yet). */
-function mergeLocalFullName(me: MeResponse): MeResponse {
-  if (me.full_name?.trim()) return me;
-  const local = readStoredCustomer()?.full_name?.trim();
+/**
+ * Prefer server profile fields; fill gaps from local customer cache
+ * (no storefront PATCH /auth/me yet on live).
+ */
+function mergeLocalProfile(me: MeResponse): MeResponse {
+  const local = readStoredCustomer();
   if (!local) return me;
-  return { ...me, full_name: local };
+  const full_name = me.full_name?.trim() || local.full_name?.trim() || null;
+  const company_name =
+    me.company_name?.trim() || local.company_name?.trim() || null;
+  return {
+    ...me,
+    full_name,
+    company_name,
+    is_b2b: me.is_b2b ?? local.is_b2b,
+  };
 }
 
 async function syncCartAfterLogin(): Promise<string | null> {
@@ -148,32 +161,62 @@ export const authService = {
   async getMe(): Promise<MeResponse> {
     if (env.USE_MOCK) return (await getMockApi()).getMe();
     const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
-    return mergeLocalFullName(mapMe(data));
+    return mergeLocalProfile(mapMe(data));
   },
 
   /**
-   * Save customer `full_name` on the account session.
+   * Save profile fields on the account session.
    * OpenAPI has GET `/auth/me` only (no storefront profile PATCH) — mock updates
-   * in-memory session; live keeps name in local customer cache + me query until BE ships.
+   * in-memory session; live keeps fields in local customer cache + me query until BE ships.
    */
-  async updateFullName(fullName: string): Promise<MeResponse> {
-    const trimmed = fullName.trim();
+  async updateProfile(payload: ProfileUpdatePayload): Promise<MeResponse> {
+    const trimmed = payload.full_name.trim();
     if (trimmed.length < 2) {
       throw new Error("FULL_NAME_TOO_SHORT");
     }
+    const companyRaw = payload.company_name?.trim() ?? "";
+    if (companyRaw.length > 120) {
+      throw new Error("COMPANY_NAME_TOO_LONG");
+    }
+    const company_name = companyRaw || null;
 
     if (env.USE_MOCK) {
-      return (await getMockApi()).updateFullName(trimmed);
+      return (await getMockApi()).updateProfile({
+        full_name: trimmed,
+        company_name,
+      });
     }
 
     const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
-    const me = { ...mapMe(data), full_name: trimmed };
+    const me = mergeLocalProfile({
+      ...mapMe(data),
+      full_name: trimmed,
+      company_name,
+    });
     writeStoredCustomer({
       id: me.id,
       phone: me.phone,
       full_name: trimmed,
+      company_name,
+      is_b2b: me.is_b2b,
     });
     return me;
+  },
+
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    const localCompany = readStoredCustomer()?.company_name ?? null;
+    try {
+      const current = await this.getMe();
+      return this.updateProfile({
+        full_name: fullName,
+        company_name: current.company_name ?? localCompany,
+      });
+    } catch {
+      return this.updateProfile({
+        full_name: fullName,
+        company_name: localCompany,
+      });
+    }
   },
 
   async logout(): Promise<void> {

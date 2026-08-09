@@ -207,9 +207,11 @@
   /**
    * Fixed bar flush above the mobile bottom nav (tab chrome + safe-area).
    * z-[60] clears page chrome; nav stays z-[70] underneath.
+   * Desktop hide is unlayered below — `@apply lg:hidden` loses to utility
+   * `flex` on the same node (utilities layer beats components).
    */
   .mobile-dock {
-    @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl lg:hidden;
+    @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl;
     bottom: calc(var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px));
   }
 
@@ -306,6 +308,13 @@
       rgba(255, 255, 255, 0.5),
       transparent
     );
+  }
+}
+
+/* Unlayered so it beats utility `flex` on the same node (CSS cascade layers). */
+@media (min-width: 1024px) {
+  .mobile-dock {
+    display: none;
   }
 }
 

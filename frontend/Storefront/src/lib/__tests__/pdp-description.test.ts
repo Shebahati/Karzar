@@ -4,6 +4,8 @@ import {
   filterEditorialDescription,
   hasRenderableSpecs,
   normalizeSpecText,
+  parseEditorialBlocks,
+  stripDescriptionImages,
 } from "@/lib/pdp-description";
 import type { ProductSpecifications } from "@/types/product";
 
@@ -64,6 +66,64 @@ describe("filterEditorialDescription", () => {
   it("returns null when every line was a spec dump", () => {
     const long = ["بازه اندازه‌گیری: ۰–۱۵۰ mm", "دقت: ۰٫۰۱ mm"].join("\n");
     expect(filterEditorialDescription(long, sampleSpecs, null)).toBeNull();
+  });
+
+  it("preserves markdown image lines between prose", () => {
+    const long = [
+      "پاراگراف اول.",
+      "![نمای جانبی](https://cdn.example.com/side.jpg)",
+      "پاراگراف دوم.",
+    ].join("\n");
+    const result = filterEditorialDescription(long, sampleSpecs, null);
+    expect(result).toContain("![نمای جانبی](https://cdn.example.com/side.jpg)");
+    expect(result).toContain("پاراگراف اول");
+    expect(result).toContain("پاراگراف دوم");
+  });
+
+  it("keeps image-only description", () => {
+    const long = "![جزئیات](https://cdn.example.com/detail.png)";
+    expect(filterEditorialDescription(long, sampleSpecs, null)).toBe(long);
+  });
+});
+
+describe("parseEditorialBlocks", () => {
+  it("splits text and markdown/html images", () => {
+    const editorial = [
+      "متن بالا",
+      "![alt text](https://cdn.example.com/a.jpg)",
+      "متن میانی",
+      '<img src="https://cdn.example.com/b.jpg" alt="html alt" />',
+      "متن پایین",
+    ].join("\n");
+
+    expect(parseEditorialBlocks(editorial)).toEqual([
+      { type: "text", text: "متن بالا" },
+      {
+        type: "image",
+        src: "https://cdn.example.com/a.jpg",
+        alt: "alt text",
+      },
+      { type: "text", text: "متن میانی" },
+      {
+        type: "image",
+        src: "https://cdn.example.com/b.jpg",
+        alt: "html alt",
+      },
+      { type: "text", text: "متن پایین" },
+    ]);
+  });
+
+  it("rejects javascript: image sources", () => {
+    expect(parseEditorialBlocks("![x](javascript:alert(1))")).toEqual([
+      { type: "text", text: "![x](javascript:alert(1))" },
+    ]);
+  });
+});
+
+describe("stripDescriptionImages", () => {
+  it("removes image lines for SEO excerpts", () => {
+    const text = "سلام\n![a](https://x.com/a.jpg)\nدنیا";
+    expect(stripDescriptionImages(text)).toBe("سلام\nدنیا");
   });
 });
 

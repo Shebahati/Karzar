@@ -22,6 +22,7 @@ import { contactSchema, type ContactValues } from "@/lib/validation";
 import { useSubmitContact } from "@/features/checkout/queries";
 import {
   STORE_ADDRESS_FA,
+  STORE_ADDRESS_MAP_CAPTION_FA,
   STORE_EMAIL,
   STORE_MAPS_URL,
   STORE_NAME_FA,
@@ -166,7 +167,7 @@ export function ContactView() {
                     موقعیت روی نقشه
                   </h2>
                   <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                    پاساژ فجر، پلاک ۱۰۸ · نشان
+                    {STORE_ADDRESS_MAP_CAPTION_FA}
                   </p>
                 </div>
                 <NeshanDirectionsButton size="sm" className="w-full shrink-0 sm:w-auto" />

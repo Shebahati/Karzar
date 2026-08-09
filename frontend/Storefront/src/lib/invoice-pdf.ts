@@ -9,13 +9,6 @@ import {
   STORE_TELEGRAM_URL,
 } from "@/lib/store-location";
 
-/** Soft proforma payment details (transfer / receipt channels). */
-const PROFORMA_PAYEE_NAME = "امیرعلی هاشمی";
-const PROFORMA_NATIONAL_ID = "0021469059";
-const PROFORMA_CARD_NUMBER = "6219861949025067";
-const PROFORMA_BANK_NAME = "بانک سامان";
-const PROFORMA_IBAN = "IR830560611828005507529401";
-
 const BRAND_RED = "#D02327";
 const BRAND_STEEL = "#5E5F5E";
 /** Trade name on formal docs (matches storefront SEO / letterhead). */
@@ -25,7 +18,7 @@ const TOMAN_TO_RIAL = 10;
 const LINE_UNIT_FA = "عدد";
 const PROFORMA_VALIDITY_HOURS = 24;
 
-/** Cart line shape for sample proforma — UI login-gated; no order required. */
+/** Cart line shape for cart proforma — UI login-gated; no order required. */
 export interface CartProformaLineInput {
   productId: number;
   name: string;
@@ -38,10 +31,15 @@ export interface CartProformaLineInput {
   discountPercent?: number | null;
 }
 
-/** Buyer identity for sample cart proforma (from account `full_name`). */
+/** Buyer identity for cart proforma (from account + optional address book). */
 export interface CartProformaBuyer {
   fullName: string;
   phone?: string | null;
+  companyName?: string | null;
+  /** Street / city line — optional on cart proforma (blank slot if missing). */
+  address?: string | null;
+  /** Postal code — optional on cart proforma (blank slot if missing). */
+  postalCode?: string | null;
 }
 
 /** Catalog enrichment for order line labels (not inventing API fields). */
@@ -60,6 +58,7 @@ export interface DownloadOrderPdfOptions {
   buyerName?: string | null;
   buyerPhone?: string | null;
   buyerAddress?: string | null;
+  buyerPostalCode?: string | null;
   companyName?: string | null;
   paymentStatusLabel?: string | null;
   estimatedTotal?: string | null;
@@ -91,6 +90,11 @@ function moneyNumFa(value: number | string | null | undefined): string {
 function displayOrBlank(value: string | null | undefined): string {
   const t = (value ?? "").trim();
   return t || "—";
+}
+
+/** Empty string when missing — used for optional proforma address / postal slots. */
+function slotOrEmpty(value: string | null | undefined): string {
+  return (value ?? "").trim();
 }
 
 function lineTotalNum(qty: number, unit: string | null | undefined): number | null {
@@ -182,11 +186,6 @@ function buildPaymentDetailLines(
   return lines;
 }
 
-function telegramHandlePlain(): string {
-  if (!STORE_TELEGRAM_URL) return "";
-  return STORE_TELEGRAM_URL.replace(/^https?:\/\/t\.me\//i, "").replace(/^@+/, "");
-}
-
 interface InvoiceLineModel {
   name: string;
   sku: string;
@@ -205,6 +204,10 @@ interface InvoiceDocModel {
   buyerLabel: string;
   buyerPhone: string;
   buyerMobile: string;
+  /** Buyer street/city — may be blank on proforma/sample. */
+  buyerAddress: string;
+  /** Buyer postal code — may be blank on proforma/sample. */
+  buyerPostalCode: string;
   paymentLines: string[];
   /** Account balances — only when real data exists (never invent). */
   previousBalanceRial: number | null;
@@ -243,48 +246,12 @@ function renderDocHeader(model: InvoiceDocModel): string {
     </header>`;
 }
 
-function renderProformaPaymentBlock(): string {
-  const tg = telegramHandlePlain();
-  const channels = "واتساپ، تلگرام، بله، ایتا یا روبیکا";
-  return `
-    <section class="xfer-block" aria-label="اطلاعات پرداخت">
-      <p class="xfer-title">اطلاعات پرداخت</p>
-      <p class="xfer-hint">در وهله اول می‌توانید خریدتان را در سایت هم نهایی کنید</p>
-      <div class="xfer-grid">
-        <div class="xfer-cell">
-          <span class="k">کد ملی</span>
-          <span class="v tnum">${escapeHtml(fa(PROFORMA_NATIONAL_ID))}</span>
-          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
-        </div>
-        <div class="xfer-cell">
-          <span class="k">شماره کارت</span>
-          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_CARD_NUMBER))}</span>
-          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
-        </div>
-        <div class="xfer-cell">
-          <span class="k">بانک</span>
-          <span class="v">${escapeHtml(PROFORMA_BANK_NAME)}</span>
-        </div>
-        <div class="xfer-cell wide">
-          <span class="k">شبا / IBAN</span>
-          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_IBAN))}</span>
-        </div>
-      </div>
-      <p class="xfer-receipt">
-        لطفا پس از پرداخت، رسید را از طریق ${escapeHtml(channels)} ارسال فرمایید.${
-          tg ? ` · تلگرام پشتیبانی: <span class="tnum" dir="ltr">${escapeHtml(tg)}</span>` : ""
-        }
-      </p>
-    </section>`;
-}
-
 function buildDocumentHtml(model: InvoiceDocModel): string {
   const regular = absoluteFontUrl("IRANYekanX-Regular.woff2");
   const medium = absoluteFontUrl("IRANYekanX-Medium.woff2");
   const bold = absoluteFontUrl("IRANYekanX-Bold.woff2");
 
   const isSample = model.kind === "sample";
-  const isProformaDoc = model.kind === "proforma" || model.kind === "sample";
 
   const rows =
     model.lines.length === 0
@@ -297,8 +264,8 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
             return `<tr>
               <td class="c row-num tnum">${escapeHtml(fa(i + 1))}</td>
               <td class="name">${desc}</td>
-              <td class="c tnum">${escapeHtml(fa(line.qty))}</td>
-              <td class="c">${escapeHtml(LINE_UNIT_FA)}</td>
+              <td class="c qty tnum">${escapeHtml(fa(line.qty))}</td>
+              <td class="c unit">${escapeHtml(LINE_UNIT_FA)}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.unitPriceRial))}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.amountRial))}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.discountRial))}</td>
@@ -327,7 +294,8 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
     .map((line) => `<li>${escapeHtml(line)}</li>`)
     .join("");
 
-  const sampleBanner = isSample
+  const isProformaLike = model.kind === "proforma" || isSample;
+  const disclaimerBanner = isProformaLike
     ? `<div class="sample-banner" role="note">تعهد آور نیست</div>`
     : "";
 
@@ -535,8 +503,14 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
     }
     table.items tbody tr:nth-child(even) td { background: #fafafa; }
     td.c { text-align: center; }
-    td.row-num { width: 5%; color: ${BRAND_STEEL}; font-weight: 500; }
-    td.name { text-align: right; width: 34%; font-weight: 500; padding-right: 6px; }
+    /* Row / qty / unit match amount cols; شرح takes the rest */
+    col.col-row { width: 8%; }
+    col.col-name { width: 44%; }
+    col.col-qty { width: 8%; }
+    col.col-unit { width: 8%; }
+    col.col-amt { width: 8%; }
+    td.row-num { width: 8%; color: ${BRAND_STEEL}; font-weight: 500; }
+    td.name { text-align: right; width: 44%; font-weight: 500; padding-right: 6px; word-wrap: break-word; overflow-wrap: anywhere; }
     td.name .sku-sub {
       display: block;
       color: ${BRAND_STEEL};
@@ -544,7 +518,9 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
       font-weight: 400;
       margin-top: 1px;
     }
-    td.num { text-align: left; white-space: nowrap; direction: ltr; }
+    td.qty { width: 8%; }
+    td.unit { width: 8%; }
+    td.num { width: 8%; text-align: left; white-space: nowrap; direction: ltr; }
     td.strong { font-weight: 700; }
     td.empty {
       text-align: center;
@@ -564,17 +540,17 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
     .sum-notes {
       border: 1px solid #cfcfcf;
       border-top: 0;
-      padding: 8px 10px;
+      padding: 4px 10px;
       background: #fff;
-      min-height: 72px;
+      min-height: 36px;
     }
     .sum-notes p {
       font-size: 10.5px;
-      margin: 4px 0;
+      margin: 2px 0;
       color: #222;
     }
     .sum-notes .k { color: ${BRAND_STEEL}; font-weight: 500; }
-    .sum-notes .words { font-weight: 600; line-height: 1.7; }
+    .sum-notes .words { font-weight: 600; line-height: 1.35; }
     .balance-lines { margin-top: 6px; }
     .sum-table {
       border: 1px solid #cfcfcf;
@@ -652,8 +628,7 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
     }
     .sign {
       text-align: center;
-      padding-top: 36px;
-      border-top: 1px solid #bbb;
+      padding-top: 8px;
       color: ${BRAND_STEEL};
       font-size: 11px;
       font-weight: 600;
@@ -667,69 +642,6 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
     .footer p {
       color: ${BRAND_STEEL};
       font-size: 10px;
-      line-height: 1.75;
-    }
-
-    .xfer-block {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border: 1px solid #f0c4c5;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #fffbfb 0%, #fdf5f5 100%);
-    }
-    .xfer-title {
-      color: ${BRAND_RED};
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .xfer-hint {
-      color: ${BRAND_STEEL};
-      font-size: 10.5px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      line-height: 1.7;
-    }
-    .xfer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .xfer-cell {
-      padding: 8px 10px;
-      border-radius: 6px;
-      background: rgba(255,255,255,.85);
-      border: 1px solid #f3e0e0;
-    }
-    .xfer-cell.wide { grid-column: 1 / -1; }
-    .xfer-cell .k {
-      display: block;
-      color: ${BRAND_STEEL};
-      font-size: 9.5px;
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-    .xfer-cell .v {
-      display: block;
-      color: #151515;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-    .xfer-cell .sub {
-      display: block;
-      margin-top: 2px;
-      color: ${BRAND_STEEL};
-      font-size: 10px;
-      font-weight: 500;
-    }
-    .xfer-receipt {
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px dashed #f0c4c5;
-      color: #333;
-      font-size: 10.5px;
-      font-weight: 500;
       line-height: 1.75;
     }
 
@@ -802,9 +714,31 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
             <span class="v tnum">${escapeHtml(model.buyerMobile)}</span>
           </div>
         </div>
+        <div class="info-row">
+          <div class="info-cell">
+            <span class="k">کد پستی:</span>
+            <span class="v tnum">${escapeHtml(model.buyerPostalCode)}</span>
+          </div>
+        </div>
+        <div class="info-row full">
+          <div class="info-cell">
+            <span class="k">آدرس:</span>
+            <span class="v">${escapeHtml(model.buyerAddress)}</span>
+          </div>
+        </div>
       </section>
 
       <table class="items">
+        <colgroup>
+          <col class="col-row" />
+          <col class="col-name" />
+          <col class="col-qty" />
+          <col class="col-unit" />
+          <col class="col-amt" />
+          <col class="col-amt" />
+          <col class="col-amt" />
+          <col class="col-amt" />
+        </colgroup>
         <thead>
           <tr>
             <th>ردیف</th>
@@ -862,8 +796,7 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
       <footer class="footer">
         <p>${escapeHtml(model.footerNote)}</p>
       </footer>
-      ${isProformaDoc ? renderProformaPaymentBlock() : ""}
-      ${sampleBanner}
+      ${disclaimerBanner}
     </div>
   </article>
 </body>
@@ -1155,6 +1088,13 @@ export async function downloadOrderPdf(
     ? fa(options.buyerPhone)
     : "—";
 
+  const buyerAddress = slotOrEmpty(options.buyerAddress);
+  const buyerPostalRaw = slotOrEmpty(options.buyerPostalCode);
+  if (kind === "invoice" && (!buyerAddress || !buyerPostalRaw)) {
+    throw new Error("MISSING_BUYER_ADDRESS");
+  }
+  const buyerPostalCode = buyerPostalRaw ? fa(buyerPostalRaw) : "";
+
   await openPrintableDocument({
     kind,
     title: kind === "proforma" ? "پیش‌فاکتور" : "فاکتور",
@@ -1163,6 +1103,8 @@ export async function downloadOrderPdf(
     buyerLabel,
     buyerPhone: phoneFa,
     buyerMobile: phoneFa,
+    buyerAddress,
+    buyerPostalCode,
     paymentLines: buildPaymentDetailLines(kind, options.paymentStatusLabel),
     previousBalanceRial: null,
     balanceWithInvoiceRial: null,
@@ -1186,13 +1128,35 @@ export async function downloadOrderPdf(
   });
 }
 
+const CART_PROFORMA_SEQ_KEY = "karzar.storefront.cart-proforma-seq.v1";
+
+/**
+ * Next customer-facing cart proforma number (PF-00001…).
+ * Sequential in this browser; never prefixed with «نمونه».
+ */
+function nextCartProformaRefCode(): string {
+  let seq = 1;
+  if (typeof window !== "undefined") {
+    try {
+      const raw = window.localStorage.getItem(CART_PROFORMA_SEQ_KEY);
+      const parsed = raw ? Number.parseInt(raw, 10) : 0;
+      if (Number.isFinite(parsed) && parsed >= 0) seq = parsed + 1;
+      window.localStorage.setItem(CART_PROFORMA_SEQ_KEY, String(seq));
+    } catch {
+      seq = (Date.now() % 90000) + 10000;
+    }
+  }
+  return `PF-${String(seq).padStart(5, "0")}`;
+}
+
 /**
  * Client-side cart proforma from current lines (storefront login gate required).
- * No payment and no order creation — labelled sample until a live quote API exists.
+ * No payment and no order creation — local document with a real PF number until
+ * a public cart-quote API exists.
  *
  * Opens a print-ready HTML page with IRANYekanX so Persian encodes correctly.
  * Live API only exposes admin `POST /orders/{id}/quote` after an inquiry order
- * exists — until a public preview ships, this is a local cart preview document.
+ * exists — until a public preview ships, this is a local cart proforma document.
  */
 export async function downloadCartSampleProforma(
   lines: CartProformaLineInput[],
@@ -1208,7 +1172,7 @@ export async function downloadCartSampleProforma(
   }
 
   const stamp = new Date();
-  const sampleCode = `نمونه-${stamp.getTime().toString(36).toUpperCase()}`;
+  const refCode = nextCartProformaRefCode();
 
   const rawLines = lines.map((line) => {
     const lt = lineTotalNum(line.quantity, line.unitPrice);
@@ -1229,16 +1193,23 @@ export async function downloadCartSampleProforma(
       ? mapped.amountSumRial - mapped.discountSumRial
       : null;
   const phoneFa = buyer.phone ? fa(buyer.phone) : "—";
+  const company = buyer.companyName?.trim();
+  const buyerLabel = company || buyerName;
+  const buyerAddress = slotOrEmpty(buyer.address);
+  const buyerPostalRaw = slotOrEmpty(buyer.postalCode);
+  const buyerPostalCode = buyerPostalRaw ? fa(buyerPostalRaw) : "";
 
   await openPrintableDocument({
-    kind: "sample",
+    kind: "proforma",
     title: "پیش‌فاکتور",
-    refCode: sampleCode,
+    refCode,
     dateLabel: formatPersianDate(stamp),
-    buyerLabel: buyerName,
+    buyerLabel,
     buyerPhone: phoneFa,
     buyerMobile: phoneFa,
-    paymentLines: buildPaymentDetailLines("sample", null),
+    buyerAddress,
+    buyerPostalCode,
+    paymentLines: buildPaymentDetailLines("proforma", null),
     previousBalanceRial: null,
     balanceWithInvoiceRial: null,
     lines: mapped.lines,
@@ -1251,7 +1222,7 @@ export async function downloadCartSampleProforma(
         ? rialAmountInWords(grandTotalRial)
         : "—",
     footerNote:
-      "این پیش‌فاکتور برای پیش‌نمایش اقلام سبد خرید است؛ سند رسمی یا مالیاتی نیست و بدون پرداخت صادر شده است. قیمت‌ها تقریبی‌اند و ممکن است پس از استعلام نهایی تغییر کنند.",
-    fileHint: `پیش‌فاکتور ${fa(stamp.toISOString().slice(0, 10))}`,
+      "این پیش‌فاکتور جنبه اطلاع‌رسانی دارد و فاکتور مالیاتی رسمی محسوب نمی‌شود. قیمت‌ها ممکن است پس از استعلام نهایی تغییر کنند.",
+    fileHint: `پیش‌فاکتور ${refCode}`,
   });
 }

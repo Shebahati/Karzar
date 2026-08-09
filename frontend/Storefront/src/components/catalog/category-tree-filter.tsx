@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { ChevronDown, ChevronLeft, CloseSquare, Search } from "react-iconly";
+import {
+  FilterShowMoreButton,
+  useFilterShowMore,
+} from "@/components/catalog/filter-show-more";
 import { useCategoryTree, useFlatCategories } from "@/features/catalog/queries";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import type { CategoryFlat, CategoryTreeNode } from "@/types/category";
@@ -124,6 +128,14 @@ export function CategoryTreeFilter({
 
   const selected = activeId != null ? byId.get(activeId) : undefined;
   const loading = treeLoading || flatLoading;
+
+  // Root rows can be long; preview first 20 when browsing (search shows full matches).
+  const searching = Boolean(query.trim());
+  const rootShowMore = useFilterShowMore(visibleTree.length, query);
+  const displayedRoots = searching
+    ? visibleTree
+    : visibleTree.slice(0, rootShowMore.visibleCount);
+  const showRootMore = !searching && rootShowMore.canShowMore;
 
   const toggleExpand = (id: number) => {
     setExpanded((prev) => {
@@ -281,9 +293,11 @@ export function CategoryTreeFilter({
                 <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />
               </span>
             </div>
-            <p className="mt-1 ps-3 text-[11px] leading-relaxed text-[#5E5F5E]">
-              {selected?.name ? selected.name : "درخت دسته‌ها مطابق پنل ادمین"}
-            </p>
+            {selected?.name ? (
+              <p className="mt-1 ps-3 text-[11px] leading-relaxed text-[#5E5F5E]">
+                {selected.name}
+              </p>
+            ) : null}
           </button>
           {activeId != null ? (
             <button
@@ -335,7 +349,6 @@ export function CategoryTreeFilter({
             ) : null}
           </button>
 
-          {/* No nested overflow — sidebar is the sole vertical scroll for filters. */}
           <div role="tree" aria-label="درخت دسته‌بندی محصولات">
             {loading ? (
               <p className="px-2 py-4 text-xs text-[#5E5F5E]">در حال بارگذاری…</p>
@@ -344,9 +357,17 @@ export function CategoryTreeFilter({
                 {query.trim() ? "دسته‌ای یافت نشد." : "دسته‌ای موجود نیست."}
               </p>
             ) : (
-              <ul className="space-y-0.5" role="group">
-                {visibleTree.map((node) => renderNode(node, 0))}
-              </ul>
+              <>
+                <ul className="space-y-0.5" role="group">
+                  {displayedRoots.map((node) => renderNode(node, 0))}
+                </ul>
+                {showRootMore ? (
+                  <FilterShowMoreButton
+                    remaining={rootShowMore.remaining}
+                    onClick={rootShowMore.showMore}
+                  />
+                ) : null}
+              </>
             )}
           </div>
       </div>

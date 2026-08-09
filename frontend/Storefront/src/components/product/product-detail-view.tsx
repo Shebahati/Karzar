@@ -92,6 +92,11 @@ export function ProductDetailView({ id }: { id: number }) {
     crumbs.length > 0
       ? crumbs.map((c) => c.name)
       : (product.category?.breadcrumb ?? []);
+  const lastCrumb = crumbs.length > 0 ? crumbs[crumbs.length - 1]! : null;
+  const lastBreadcrumbName =
+    breadcrumbNames.length > 0
+      ? breadcrumbNames[breadcrumbNames.length - 1]!
+      : null;
 
   const brandLogoUrl = findBrandLogoUrl(product.brand, brands);
   const identityCategory =
@@ -141,18 +146,30 @@ export function ProductDetailView({ id }: { id: number }) {
       <Container className="pt-3 sm:pt-5 lg:pt-6 max-lg:px-0 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
         <nav
           aria-label="مسیر صفحه"
-          className="mb-3 flex flex-wrap items-center gap-1.5 px-5 text-xs text-muted-foreground sm:mb-5 sm:px-6 max-lg:mb-2.5 lg:px-0 [@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3"
+          className={cn(
+            "mb-3 flex w-full min-w-0 items-center gap-1.5 px-5 text-xs text-muted-foreground sm:mb-5 sm:px-6 max-lg:mb-2.5 lg:px-0",
+            /* Mobile: one line — collapse early/middle segments, keep last readable */
+            "max-lg:flex-nowrap max-lg:overflow-hidden",
+            "lg:flex-wrap",
+            "[@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3",
+          )}
         >
-          <Link href="/" className="transition-colors hover:text-primary">
+          <Link href="/" className="shrink-0 transition-colors hover:text-primary">
             خانه
           </Link>
-          <ChevronLeft size="small" set="light" />
-          <Link href="/catalog" className="transition-colors hover:text-primary">
+          <span className="inline-flex shrink-0">
+            <ChevronLeft size="small" set="light" />
+          </span>
+          <Link href="/catalog" className="shrink-0 transition-colors hover:text-primary">
             فروشگاه
           </Link>
-          {crumbs.length > 0
-            ? crumbs.map((crumb) => (
-                <span key={crumb.id} className="flex items-center gap-1.5">
+          {crumbs.length > 0 ? (
+            <>
+              {crumbs.slice(0, -1).map((crumb) => (
+                <span
+                  key={crumb.id}
+                  className="hidden items-center gap-1.5 lg:flex"
+                >
                   <ChevronLeft size="small" set="light" />
                   <Link
                     href={categoryHref(crumb)}
@@ -161,13 +178,60 @@ export function ProductDetailView({ id }: { id: number }) {
                     {crumb.name}
                   </Link>
                 </span>
-              ))
-            : breadcrumbNames.map((crumb) => (
-                <span key={crumb} className="flex items-center gap-1.5">
+              ))}
+              {crumbs.length > 1 ? (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 lg:hidden"
+                  aria-hidden
+                >
+                  <ChevronLeft size="small" set="light" />
+                  <span>…</span>
+                </span>
+              ) : null}
+              {lastCrumb ? (
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="inline-flex shrink-0">
+                    <ChevronLeft size="small" set="light" />
+                  </span>
+                  <Link
+                    href={categoryHref(lastCrumb)}
+                    className="min-w-0 truncate transition-colors hover:text-primary"
+                  >
+                    {lastCrumb.name}
+                  </Link>
+                </span>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {breadcrumbNames.slice(0, -1).map((crumb) => (
+                <span
+                  key={crumb}
+                  className="hidden items-center gap-1.5 lg:flex"
+                >
                   <ChevronLeft size="small" set="light" />
                   {crumb}
                 </span>
               ))}
+              {breadcrumbNames.length > 1 ? (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 lg:hidden"
+                  aria-hidden
+                >
+                  <ChevronLeft size="small" set="light" />
+                  <span>…</span>
+                </span>
+              ) : null}
+              {lastBreadcrumbName ? (
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="inline-flex shrink-0">
+                    <ChevronLeft size="small" set="light" />
+                  </span>
+                  <span className="min-w-0 truncate">{lastBreadcrumbName}</span>
+                </span>
+              ) : null}
+            </>
+          )}
         </nav>
 
         {/*
@@ -402,7 +466,7 @@ export function ProductDetailView({ id }: { id: number }) {
             }}
           >
             <div className="flex w-full min-w-0 flex-col gap-3.5 sm:gap-4">
-              {product.brand || identityCategory ? (
+              {product.brand ? (
                 <PdpBrandMark
                   brand={product.brand}
                   logoUrl={brandLogoUrl}
@@ -421,7 +485,7 @@ export function ProductDetailView({ id }: { id: number }) {
               "relative z-[1] flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8 lg:hidden",
             )}
           >
-            {product.brand || identityCategory ? (
+            {product.brand ? (
               <PdpBrandMark
                 brand={product.brand}
                 logoUrl={brandLogoUrl}
@@ -479,7 +543,7 @@ export function ProductDetailView({ id }: { id: number }) {
             <SectionHeading
               id="pdp-reviews-heading"
               title="دیدگاه کاربران"
-              subtitle="تجربهٔ واقعی خریداران — کوتاه و خوانا"
+              subtitle="تجربهٔ خریداران این محصول"
             />
             <ProductComments productId={product.id} />
           </section>

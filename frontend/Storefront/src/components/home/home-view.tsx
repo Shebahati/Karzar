@@ -141,7 +141,6 @@ export function HomeView({
                     <section key={section.id}>
                       <SectionHeading
                         title="پرفروش‌ها"
-                        subtitle="انتخاب سریع از موجودی زنده کاتالوگ"
                         href="/catalog?sort=newest"
                       />
                       <ProductCarousel
@@ -170,10 +169,7 @@ export function HomeView({
                 case "brands":
                   return (
                     <section key={section.id}>
-                      <SectionHeading
-                        title="برندهای معتبر"
-                        subtitle="نمایندگی رسمی برترین برندها"
-                      />
+                      <SectionHeading title="برندهای معتبر" />
                       <BrandStrip initialBrands={initialBrands} />
                     </section>
                   );

@@ -76,7 +76,7 @@ export function MobileFilterDrawer({
                 <CloseSquare set="light" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="no-scrollbar flex-1 overflow-y-auto p-4 [overscroll-behavior:auto]">
               {/* Quick chips keep apply path ≤3 taps; accordion for full IA. */}
               <QuickFilterBar />
               <FilterPanel

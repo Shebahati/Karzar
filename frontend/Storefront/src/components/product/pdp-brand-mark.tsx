@@ -31,6 +31,7 @@ const CAT_W = "w-16 sm:w-[4.5rem]";
  * `quiet`: sits directly above the sticky buy card; row stretches to 100% of
  * that column (brand flex-1 + category square). Names under marks only —
  * no «برند»/«دسته» captions. Category mark has no plate/bg/ring.
+ * Renders only when `brand` is present — category alone is never shown.
  */
 export function PdpBrandMark({
   brand,
@@ -52,10 +53,11 @@ export function PdpBrandMark({
   const reduced = useReducedMotion();
   const quiet = density === "quiet";
 
-  if (!brand && !category) return null;
+  /* Brand required — never show category-alone row (looks sparse). */
+  if (!brand) return null;
 
   if (quiet) {
-    const paired = Boolean(brand && category);
+    const paired = Boolean(category);
     const row = (
       <div
         className={cn(
@@ -66,12 +68,8 @@ export function PdpBrandMark({
           className,
         )}
       >
-        {brand ? (
-          <QuietBrandColumn brand={brand} logoUrl={logoUrl} paired={paired} />
-        ) : null}
-        {category ? (
-          <QuietCategoryColumn category={category} solo={!brand} />
-        ) : null}
+        <QuietBrandColumn brand={brand} logoUrl={logoUrl} paired={paired} />
+        {category ? <QuietCategoryColumn category={category} /> : null}
       </div>
     );
 
@@ -88,8 +86,6 @@ export function PdpBrandMark({
       </motion.div>
     );
   }
-
-  if (!brand) return null;
 
   return (
     <DefaultBrandRow
@@ -145,7 +141,7 @@ function QuietBrandColumn({
                 ? "(min-width: 1024px) 180px, 50vw"
                 : "(min-width: 1024px) 240px, 70vw"
             }
-            className="object-contain p-2.5 sm:p-3"
+            className="object-cover object-center"
             unoptimized={isSvg}
             fallback={
               <span className="text-base font-bold text-steel/35">{initial}</span>
@@ -167,13 +163,7 @@ function QuietBrandColumn({
   );
 }
 
-function QuietCategoryColumn({
-  category,
-  solo,
-}: {
-  category: IdentityCategory;
-  solo: boolean;
-}) {
+function QuietCategoryColumn({ category }: { category: IdentityCategory }) {
   const icon =
     resolveCategoryIconUrl({
       name: category.name,
@@ -189,7 +179,7 @@ function QuietCategoryColumn({
       href={categoryHref(category)}
       className={cn(
         "group flex shrink-0 flex-col items-center gap-2.5 sm:gap-3 outline-none",
-        solo ? "w-full max-w-[5.5rem]" : CAT_W,
+        CAT_W,
         "focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2",
       )}
       aria-label={`دسته ${category.name}`}
@@ -197,9 +187,8 @@ function QuietCategoryColumn({
       {/* Transparent frame only — no plate/bg/ring/border */}
       <span
         className={cn(
-          "relative grid shrink-0 place-items-center overflow-hidden",
+          "relative grid w-full shrink-0 place-items-center overflow-hidden",
           MARK_H,
-          solo ? "w-16 sm:w-[4.5rem]" : "w-full",
         )}
       >
         {fillUrl ? (

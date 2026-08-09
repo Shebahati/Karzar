@@ -19,7 +19,7 @@ type Mode = "cart" | "quote";
 const TRUST_CUES = [
   { Icon: ShieldDone, title: "ضمانت اصالت", desc: "کالای اصلی" },
   { Icon: Send, title: "ارسال سراسر کشور", desc: "پس از تأیید سفارش" },
-  { Icon: Call, title: "پشتیبانی کارگاهی", desc: "۹ تا ۱۸" },
+  { Icon: Call, title: "پشتیبانی", desc: "۹ تا ۱۸" },
 ] as const;
 
 function stockIssue(line: CartLine): string | null {
@@ -182,31 +182,16 @@ export function CartView({ mode }: { mode: Mode }) {
               <p className="mt-1 text-xs text-muted-foreground">در حال همگام‌سازی با سرور…</p>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
-            {isLoggedIn() && (
-              <button
-                type="button"
-                disabled={reconciling}
-                onClick={() => {
-                  setReconciling(true);
-                  void reconcileFromServer().finally(() => setReconciling(false));
-                }}
-                className="text-sm font-medium text-primary hover:underline disabled:opacity-50"
-              >
-                همگام‌سازی سبد
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                if (window.confirm("همه اقلام این سبد حذف شوند؟")) clear();
-              }}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive"
-            >
-              <Delete size="small" set="light" />
-              خالی کردن
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("همه اقلام این سبد حذف شوند؟")) clear();
+            }}
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive"
+          >
+            <Delete size="small" set="light" />
+            خالی کردن
+          </button>
         </header>
 
         {lastSyncError && (

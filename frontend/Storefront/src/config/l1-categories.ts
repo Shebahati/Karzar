@@ -65,7 +65,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     iconSlug: "andaze-giri",
     heroImage: "/images/hero/hero-metrology-left.jpg",
     subtitle:
-      "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+      "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
     ctaLabel: "مشاهده اندازه‌گیری",
     featuredOrder: 1,
     aliases: [
@@ -165,7 +165,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     iconSlug: "dastgah-sanati",
     heroImage: "/images/hero/hero-machines-left.jpg",
     subtitle:
-      "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه — انتخاب تخصصی، پشتیبانی کارزاری",
+      "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
     ctaLabel: "مشاهده دستگاه‌ها",
     featuredOrder: 4,
     aliases: ["دستگاه‌های صنعتی", "دستگاه های صنعتی"],

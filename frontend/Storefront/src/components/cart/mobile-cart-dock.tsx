@@ -82,7 +82,7 @@ export function MobileCartDock({
           )}
         </div>
         {mode === "cart" && (
-          <CartProformaButton lines={lines} size="md" showHint={false} />
+          <CartProformaButton lines={lines} size="md" />
         )}
       </div>
     </div>
