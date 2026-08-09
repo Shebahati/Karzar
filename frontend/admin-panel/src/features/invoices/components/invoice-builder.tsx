@@ -38,6 +38,7 @@ function emptyBuyer(): InvoiceBuyerInput {
     phone: "",
     mobile: "",
     address: "",
+    postalCode: "",
     nationalId: "",
   };
 }
@@ -113,6 +114,12 @@ export function InvoiceBuilder() {
       toast.error("نام خریدار یا شرکت را وارد کنید");
       return;
     }
+    if (kind === "invoice") {
+      if (!buyer.address.trim() || !(buyer.postalCode ?? "").trim()) {
+        toast.error("برای فاکتور، آدرس و کد پستی خریدار الزامی است");
+        return;
+      }
+    }
 
     const document: InvoiceDocumentPayload = {
       kind,
@@ -125,6 +132,7 @@ export function InvoiceBuilder() {
         phone: buyer.phone.trim(),
         mobile: buyer.mobile.trim(),
         address: buyer.address.trim(),
+        postalCode: (buyer.postalCode ?? "").trim(),
         nationalId: buyer.nationalId.trim(),
       },
       lines: validLines.map((l) => ({
@@ -155,6 +163,8 @@ export function InvoiceBuilder() {
       const code = err instanceof Error ? err.message : "";
       if (code === "POPUP_BLOCKED") {
         toast.error("پنجره پاپ‌آپ مسدود است — اجازه را در مرورگر فعال کنید");
+      } else if (code === "MISSING_BUYER_ADDRESS") {
+        toast.error("برای فاکتور، آدرس و کد پستی خریدار الزامی است");
       } else {
         toast.error("خطا در تولید سند");
       }
@@ -258,12 +268,24 @@ export function InvoiceBuilder() {
               />
             </div>
             <div className="space-y-1.5 md:col-span-2">
-              <Label>آدرس</Label>
+              <Label>آدرس{kind === "invoice" ? " *" : ""}</Label>
               <Textarea
                 value={buyer.address}
                 onChange={(e) => setBuyer((b) => ({ ...b, address: e.target.value }))}
                 rows={2}
                 placeholder="آدرس کامل خریدار"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>کد پستی{kind === "invoice" ? " *" : ""}</Label>
+              <Input
+                value={buyer.postalCode ?? ""}
+                onChange={(e) =>
+                  setBuyer((b) => ({ ...b, postalCode: e.target.value }))
+                }
+                dir="ltr"
+                className="text-start tnum"
+                placeholder="۱۰ رقم"
               />
             </div>
           </div>

@@ -2,10 +2,12 @@
 
 import { Buy } from "react-iconly";
 import { cn, formatNumber } from "@/lib/utils";
-import { useCartStore } from "@/store/cart-store";
+import {
+  CART_QTY_MAX,
+  useProductCartQty,
+} from "@/components/product/use-product-cart-qty";
 import type { ProductSummary } from "@/types/product";
 
-const QTY_MAX = 99;
 /** Expanded qty pill — lives in its own footer row; never fights price. */
 const EXPANDED_W = "w-[6.5rem]";
 
@@ -28,14 +30,8 @@ export function CardAddToCartCta({
   onAdded?: (qty: number) => void;
   className?: string;
 }) {
-  const qty = useCartStore(
-    (s) => s.cart.find((l) => l.product.id === product.id)?.quantity ?? 0,
-  );
-  const addToCart = useCartStore((s) => s.addToCart);
-  const setCartQuantity = useCartStore((s) => s.setCartQuantity);
-  const removeFromCart = useCartStore((s) => s.removeFromCart);
-
-  const expanded = qty > 0;
+  const { qty, inCart, addOne, increment, decrement, canIncrement } =
+    useProductCartQty(product);
 
   const stop = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -45,24 +41,20 @@ export function CardAddToCartCta({
   const onFirstAdd = (e: React.MouseEvent) => {
     stop(e);
     if (disabled) return;
-    addToCart(product, 1);
+    addOne();
     onAdded?.(1);
   };
 
   const onPlus = (e: React.MouseEvent) => {
     stop(e);
-    if (disabled || qty >= QTY_MAX) return;
-    addToCart(product, 1);
+    if (disabled || !canIncrement) return;
+    increment();
   };
 
   const onMinus = (e: React.MouseEvent) => {
     stop(e);
     if (disabled) return;
-    if (qty <= 1) {
-      removeFromCart(product.id);
-      return;
-    }
-    setCartQuantity(product.id, qty - 1);
+    decrement();
   };
 
   return (
@@ -78,7 +70,7 @@ export function CardAddToCartCta({
           "relative flex h-8 items-center overflow-hidden rounded-lg",
           "transition-[width,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           "motion-reduce:transition-none",
-          expanded
+          inCart
             ? cn(
                 EXPANDED_W,
                 "bg-white",
@@ -96,10 +88,10 @@ export function CardAddToCartCta({
         <button
           type="button"
           onClick={onFirstAdd}
-          disabled={disabled || expanded}
+          disabled={disabled || inCart}
           aria-label="افزودن به سبد خرید"
-          aria-expanded={expanded}
-          tabIndex={expanded ? -1 : 0}
+          aria-expanded={inCart}
+          tabIndex={inCart ? -1 : 0}
           className={cn(
             "absolute inset-0 grid place-items-center text-white",
             "transition-[opacity,transform] duration-200 ease-out",
@@ -107,7 +99,7 @@ export function CardAddToCartCta({
             "hover:bg-[#b81e23] active:scale-95",
             "disabled:pointer-events-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
-            expanded
+            inCart
               ? "pointer-events-none scale-75 opacity-0"
               : "scale-100 opacity-100",
           )}
@@ -121,15 +113,15 @@ export function CardAddToCartCta({
             "flex h-full w-full items-center justify-between px-0.5",
             "transition-opacity duration-200 ease-out",
             "motion-reduce:transition-none",
-            expanded ? "relative opacity-100" : "pointer-events-none absolute inset-0 opacity-0",
+            inCart ? "relative opacity-100" : "pointer-events-none absolute inset-0 opacity-0",
           )}
-          aria-hidden={!expanded}
+          aria-hidden={!inCart}
         >
           <button
             type="button"
             aria-label="کاهش تعداد"
             disabled={disabled}
-            tabIndex={expanded ? 0 : -1}
+            tabIndex={inCart ? 0 : -1}
             onClick={onMinus}
             className={cn(
               "grid h-7 w-7 shrink-0 place-items-center rounded-md",
@@ -154,8 +146,8 @@ export function CardAddToCartCta({
           <button
             type="button"
             aria-label="افزایش تعداد"
-            disabled={disabled || qty >= QTY_MAX}
-            tabIndex={expanded ? 0 : -1}
+            disabled={disabled || qty >= CART_QTY_MAX}
+            tabIndex={inCart ? 0 : -1}
             onClick={onPlus}
             className={cn(
               "grid h-7 w-7 shrink-0 place-items-center rounded-md",

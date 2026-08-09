@@ -1,6 +1,6 @@
 /**
  * Admin invoice / proforma PDF — adapted from Storefront `invoice-pdf.ts`.
- * Same visual system (header, seller/buyer, table, totals, proforma payment block).
+ * Same visual system (header, seller/buyer, table, totals).
  * Pure client-side HTML → browser print / Save as PDF. No backend writes.
  */
 
@@ -22,12 +22,6 @@ import type {
   InvoiceDocKind,
   InvoiceDocumentPayload,
 } from "@/types/invoice-doc";
-
-const PROFORMA_PAYEE_NAME = "امیرعلی هاشمی";
-const PROFORMA_NATIONAL_ID = "0021469059";
-const PROFORMA_CARD_NUMBER = "6219861949025067";
-const PROFORMA_BANK_NAME = "بانک سامان";
-const PROFORMA_IBAN = "IR830560611828005507529401";
 
 const BRAND_RED = "#D02327";
 const BRAND_STEEL = "#5E5F5E";
@@ -56,6 +50,7 @@ interface InvoiceDocModel {
   buyerPhone: string;
   buyerMobile: string;
   buyerAddress: string;
+  buyerPostalCode: string;
   buyerNationalId: string;
   paymentLines: string[];
   lines: InvoiceLineModel[];
@@ -91,6 +86,10 @@ function moneyNumFa(value: number | string | null | undefined): string {
 function displayOrBlank(value: string | null | undefined): string {
   const t = (value ?? "").trim();
   return t || "—";
+}
+
+function slotOrEmpty(value: string | null | undefined): string {
+  return (value ?? "").trim();
 }
 
 function tomanToRial(toman: number | null): number | null {
@@ -202,6 +201,13 @@ function payloadToModel(doc: InvoiceDocumentPayload): InvoiceDocModel {
     ? fa(doc.buyer.nationalId.trim())
     : "";
 
+  const buyerAddress = slotOrEmpty(doc.buyer.address);
+  const buyerPostalRaw = slotOrEmpty(doc.buyer.postalCode);
+  if (doc.kind === "invoice" && (!buyerAddress || !buyerPostalRaw)) {
+    throw new Error("MISSING_BUYER_ADDRESS");
+  }
+  const buyerPostalCode = buyerPostalRaw ? fa(buyerPostalRaw) : "";
+
   return {
     kind: doc.kind,
     title: doc.kind === "proforma" ? "پیش‌فاکتور" : "فاکتور",
@@ -210,7 +216,8 @@ function payloadToModel(doc: InvoiceDocumentPayload): InvoiceDocModel {
     buyerLabel,
     buyerPhone: phoneFa,
     buyerMobile: mobileFa,
-    buyerAddress: displayOrBlank(doc.buyer.address),
+    buyerAddress,
+    buyerPostalCode,
     buyerNationalId: nationalIdFa || "—",
     paymentLines: buildPaymentDetailLines(doc.kind),
     lines,
@@ -255,41 +262,6 @@ function renderDocHeader(
       </div>
       ${logoCell}
     </header>`;
-}
-
-function renderProformaPaymentBlock(): string {
-  const tg = telegramHandlePlain();
-  const channels = "واتساپ، تلگرام، بله، ایتا یا روبیکا";
-  return `
-    <section class="xfer-block" aria-label="اطلاعات پرداخت">
-      <p class="xfer-title">اطلاعات پرداخت</p>
-      <p class="xfer-hint">در وهله اول می‌توانید خریدتان را در سایت هم نهایی کنید</p>
-      <div class="xfer-grid">
-        <div class="xfer-cell">
-          <span class="k">کد ملی</span>
-          <span class="v tnum">${escapeHtml(fa(PROFORMA_NATIONAL_ID))}</span>
-          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
-        </div>
-        <div class="xfer-cell">
-          <span class="k">شماره کارت</span>
-          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_CARD_NUMBER))}</span>
-          <span class="sub">به نام ${escapeHtml(PROFORMA_PAYEE_NAME)}</span>
-        </div>
-        <div class="xfer-cell">
-          <span class="k">بانک</span>
-          <span class="v">${escapeHtml(PROFORMA_BANK_NAME)}</span>
-        </div>
-        <div class="xfer-cell wide">
-          <span class="k">شبا / IBAN</span>
-          <span class="v tnum" dir="ltr">${escapeHtml(fa(PROFORMA_IBAN))}</span>
-        </div>
-      </div>
-      <p class="xfer-receipt">
-        لطفا پس از پرداخت، رسید را از طریق ${escapeHtml(channels)} ارسال فرمایید.${
-          tg ? ` · تلگرام پشتیبانی: <span class="tnum" dir="ltr">${escapeHtml(tg)}</span>` : ""
-        }
-      </p>
-    </section>`;
 }
 
 function documentStyles(): string {
@@ -480,8 +452,15 @@ function documentStyles(): string {
     }
     table.items tbody tr:nth-child(even) td { background: #fafafa; }
     td.c { text-align: center; }
-    td.row-num { width: 5%; color: ${BRAND_STEEL}; font-weight: 500; }
-    td.name { text-align: right; width: 34%; font-weight: 500; padding-right: 6px; }
+    /* Column shares (old → new): row/qty ×0.2, unit ×0.5, amounts ×0.8; freed → شرح */
+    /* Row / qty / unit match amount cols; شرح takes the rest */
+    col.col-row { width: 8%; }
+    col.col-name { width: 44%; }
+    col.col-qty { width: 8%; }
+    col.col-unit { width: 8%; }
+    col.col-amt { width: 8%; }
+    td.row-num { width: 8%; color: ${BRAND_STEEL}; font-weight: 500; }
+    td.name { text-align: right; width: 44%; font-weight: 500; padding-right: 6px; word-wrap: break-word; overflow-wrap: anywhere; }
     td.name .sku-sub {
       display: block;
       color: ${BRAND_STEEL};
@@ -489,7 +468,9 @@ function documentStyles(): string {
       font-weight: 400;
       margin-top: 1px;
     }
-    td.num { text-align: left; white-space: nowrap; direction: ltr; }
+    td.qty { width: 8%; }
+    td.unit { width: 8%; }
+    td.num { width: 8%; text-align: left; white-space: nowrap; direction: ltr; }
     td.strong { font-weight: 700; }
     td.empty {
       text-align: center;
@@ -508,13 +489,13 @@ function documentStyles(): string {
     .sum-notes {
       border: 1px solid #cfcfcf;
       border-top: 0;
-      padding: 8px 10px;
+      padding: 4px 10px;
       background: #fff;
-      min-height: 72px;
+      min-height: 36px;
     }
-    .sum-notes p { font-size: 10.5px; margin: 4px 0; color: #222; }
+    .sum-notes p { font-size: 10.5px; margin: 2px 0; color: #222; }
     .sum-notes .k { color: ${BRAND_STEEL}; font-weight: 500; }
-    .sum-notes .words { font-weight: 600; line-height: 1.7; }
+    .sum-notes .words { font-weight: 600; line-height: 1.35; }
     .sum-table {
       border: 1px solid #cfcfcf;
       border-top: 0;
@@ -584,8 +565,7 @@ function documentStyles(): string {
     }
     .sign {
       text-align: center;
-      padding-top: 36px;
-      border-top: 1px solid #bbb;
+      padding-top: 8px;
       color: ${BRAND_STEEL};
       font-size: 11px;
       font-weight: 600;
@@ -598,67 +578,6 @@ function documentStyles(): string {
     .footer p {
       color: ${BRAND_STEEL};
       font-size: 10px;
-      line-height: 1.75;
-    }
-    .xfer-block {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border: 1px solid #f0c4c5;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #fffbfb 0%, #fdf5f5 100%);
-    }
-    .xfer-title {
-      color: ${BRAND_RED};
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .xfer-hint {
-      color: ${BRAND_STEEL};
-      font-size: 10.5px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      line-height: 1.7;
-    }
-    .xfer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .xfer-cell {
-      padding: 8px 10px;
-      border-radius: 6px;
-      background: rgba(255,255,255,.85);
-      border: 1px solid #f3e0e0;
-    }
-    .xfer-cell.wide { grid-column: 1 / -1; }
-    .xfer-cell .k {
-      display: block;
-      color: ${BRAND_STEEL};
-      font-size: 9.5px;
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-    .xfer-cell .v {
-      display: block;
-      color: #151515;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .xfer-cell .sub {
-      display: block;
-      margin-top: 2px;
-      color: ${BRAND_STEEL};
-      font-size: 10px;
-      font-weight: 500;
-    }
-    .xfer-receipt {
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px dashed #f0c4c5;
-      color: #333;
-      font-size: 10.5px;
-      font-weight: 500;
       line-height: 1.75;
     }
     @page { size: A4; margin: 7mm; }
@@ -679,7 +598,6 @@ function documentStyles(): string {
 }
 
 function buildSheetBody(model: InvoiceDocModel): string {
-  const isProformaDoc = model.kind === "proforma";
   const rows =
     model.lines.length === 0
       ? `<tr><td colspan="8" class="empty">آیتمی ثبت نشده است</td></tr>`
@@ -691,8 +609,8 @@ function buildSheetBody(model: InvoiceDocModel): string {
             return `<tr>
               <td class="c row-num tnum">${escapeHtml(fa(i + 1))}</td>
               <td class="name">${desc}</td>
-              <td class="c tnum">${escapeHtml(fa(line.qty))}</td>
-              <td class="c">${escapeHtml(LINE_UNIT_FA)}</td>
+              <td class="c qty tnum">${escapeHtml(fa(line.qty))}</td>
+              <td class="c unit">${escapeHtml(LINE_UNIT_FA)}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.unitPriceRial))}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.amountRial))}</td>
               <td class="num tnum">${escapeHtml(moneyNumFa(line.discountRial))}</td>
@@ -704,16 +622,6 @@ function buildSheetBody(model: InvoiceDocModel): string {
   const paymentLinesHtml = model.paymentLines
     .map((line) => `<li>${escapeHtml(line)}</li>`)
     .join("");
-
-  const addressRow =
-    model.buyerAddress && model.buyerAddress !== "—"
-      ? `<div class="info-row full">
-          <div class="info-cell">
-            <span class="k">آدرس:</span>
-            <span class="v">${escapeHtml(model.buyerAddress)}</span>
-          </div>
-        </div>`
-      : "";
 
   const nationalRow =
     model.buyerNationalId && model.buyerNationalId !== "—"
@@ -767,10 +675,31 @@ function buildSheetBody(model: InvoiceDocModel): string {
         </div>
       </div>
       ${nationalRow}
-      ${addressRow}
+      <div class="info-row">
+        <div class="info-cell">
+          <span class="k">کد پستی:</span>
+          <span class="v tnum">${escapeHtml(model.buyerPostalCode)}</span>
+        </div>
+      </div>
+      <div class="info-row full">
+        <div class="info-cell">
+          <span class="k">آدرس:</span>
+          <span class="v">${escapeHtml(model.buyerAddress)}</span>
+        </div>
+      </div>
     </section>
 
     <table class="items">
+      <colgroup>
+        <col class="col-row" />
+        <col class="col-name" />
+        <col class="col-qty" />
+        <col class="col-unit" />
+        <col class="col-amt" />
+        <col class="col-amt" />
+        <col class="col-amt" />
+        <col class="col-amt" />
+      </colgroup>
       <thead>
         <tr>
           <th>ردیف</th>
@@ -829,7 +758,6 @@ function buildSheetBody(model: InvoiceDocModel): string {
     <footer class="footer">
       <p>${escapeHtml(model.footerNote)}</p>
     </footer>
-    ${isProformaDoc ? renderProformaPaymentBlock() : ""}
   `;
 }
 

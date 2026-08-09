@@ -8,6 +8,10 @@ import { useBrands, useSpecFilterOptions } from "@/features/catalog/queries";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import { AccordionFilter } from "@/components/catalog/accordion-filter";
 import { CategoryTreeFilter } from "@/components/catalog/category-tree-filter";
+import {
+  FilterShowMoreButton,
+  useFilterShowMore,
+} from "@/components/catalog/filter-show-more";
 import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
 import {
   DEFAULT_MAX_PRICE,
@@ -91,6 +95,9 @@ export function FilterPanel({
         (b.country ?? "").toLowerCase().includes(q),
     );
   }, [brands, brandQuery]);
+
+  const brandShowMore = useFilterShowMore(filteredBrands.length, brandQuery);
+  const countryShowMore = useFilterShowMore(countries.length);
 
   const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
   const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
@@ -198,13 +205,12 @@ export function FilterPanel({
             </button>
           </div>
         )}
-        {/* No nested overflow — sidebar/drawer is the sole vertical scroll. */}
         <div className="space-y-0.5 pe-1" role="group" aria-label="برندها">
           {brandsLoading ? (
             <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری برندها…</p>
           ) : (
             <>
-              {filteredBrands.map((b) => {
+              {filteredBrands.slice(0, brandShowMore.visibleCount).map((b) => {
                 const active = selectedBrandIds.includes(b.id);
                 return (
                   <MultiSelectRow
@@ -219,6 +225,12 @@ export function FilterPanel({
                   />
                 );
               })}
+              {brandShowMore.canShowMore ? (
+                <FilterShowMoreButton
+                  remaining={brandShowMore.remaining}
+                  onClick={brandShowMore.showMore}
+                />
+              ) : null}
               {filteredBrands.length === 0 && (
                 <p className="px-2 py-3 text-xs text-steel">برندی یافت نشد.</p>
               )}
@@ -272,7 +284,7 @@ export function FilterPanel({
             </div>
           )}
           <div className="flex flex-wrap gap-2" role="group" aria-label="کشور سازنده">
-            {countries.map((country) => {
+            {countries.slice(0, countryShowMore.visibleCount).map((country) => {
               const active = selectedCountries.includes(country);
               return (
                 <button
@@ -295,6 +307,12 @@ export function FilterPanel({
               );
             })}
           </div>
+          {countryShowMore.canShowMore ? (
+            <FilterShowMoreButton
+              remaining={countryShowMore.remaining}
+              onClick={countryShowMore.showMore}
+            />
+          ) : null}
         </AccordionFilter>
       )}
 
@@ -369,25 +387,20 @@ export function FilterPanel({
   if (isSidebar) {
     // Sticky + max-h keep the column on-screen; scrollport uses explicit max-h
     // (not flex-1 alone) so expanded accordions remain fully reachable.
+    // overscroll-behavior:auto — chain to page when panel hits top/bottom (no contain).
     return (
       <div
         className={cn(
           "sticky top-24 z-[1] flex w-full flex-col overflow-hidden",
-          "max-h-[calc(100dvh-7rem)]",
+          "max-h-[calc(100dvh-5.5rem)]",
         )}
       >
         {header}
         <div
           className={cn(
-            "min-h-0 flex-1 overflow-y-auto overscroll-contain pe-1",
-            "max-h-[calc(100dvh-10.25rem)]",
-            "[scrollbar-gutter:stable]",
-            "[scrollbar-width:thin]",
-            "[scrollbar-color:rgba(94,95,94,0.4)_transparent]",
-            "[&::-webkit-scrollbar]:w-1.5",
-            "[&::-webkit-scrollbar-track]:bg-transparent",
-            "[&::-webkit-scrollbar-thumb]:rounded-full",
-            "[&::-webkit-scrollbar-thumb]:bg-steel/40",
+            "no-scrollbar min-h-0 flex-1 overflow-y-auto pe-1",
+            "max-h-[calc(100dvh-8.75rem)]",
+            "[overscroll-behavior:auto]",
           )}
         >
           <div className="space-y-3">{body}</div>
@@ -452,6 +465,8 @@ function SpecFilterRow({
     if (!q) return values;
     return values.filter((v) => v.toLowerCase().includes(q));
   }, [values, query, longList]);
+
+  const chipShowMore = useFilterShowMore(visible.length, query);
 
   if (booleanLike) {
     return (
@@ -557,7 +572,7 @@ function SpecFilterRow({
         >
           همه
         </button>
-        {visible.map((value) => (
+        {visible.slice(0, chipShowMore.visibleCount).map((value) => (
           <button
             key={value}
             type="button"
@@ -578,6 +593,12 @@ function SpecFilterRow({
           <p className="w-full px-1 py-2 text-xs text-steel">موردی یافت نشد.</p>
         )}
       </div>
+      {chipShowMore.canShowMore ? (
+        <FilterShowMoreButton
+          remaining={chipShowMore.remaining}
+          onClick={chipShowMore.showMore}
+        />
+      ) : null}
     </div>
   );
 }

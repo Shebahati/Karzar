@@ -7,6 +7,7 @@ import { getFeatureLabel } from "@/lib/feature-labels";
 import {
   filterEditorialDescription,
   hasRenderableSpecs,
+  parseEditorialBlocks,
 } from "@/lib/pdp-description";
 import type { ProductSpecifications } from "@/types/product";
 
@@ -29,6 +30,7 @@ export function ProductSpecTabs({
     specifications,
     shortDescription,
   );
+  const editorialBlocks = editorial ? parseEditorialBlocks(editorial) : [];
   const showSpecs = hasRenderableSpecs(specifications);
 
   const allTabs: { key: TabKey; label: string; count: number }[] = [
@@ -142,15 +144,41 @@ export function ProductSpecTabs({
               className="mt-4 h-px w-full bg-gradient-to-l from-[#D02327]/20 via-steel/15 to-transparent sm:mt-5"
             />
 
-            <p
+            <div
               className={cn(
-                "mt-4 whitespace-pre-line text-[13.5px] font-medium text-foreground/88 sm:mt-5 sm:text-[15px]",
+                "mt-4 space-y-4 text-[13.5px] font-medium text-foreground/88 sm:mt-5 sm:text-[15px]",
                 "leading-[1.95] sm:leading-[2.05]",
                 "max-w-[65ch]",
               )}
             >
-              {editorial}
-            </p>
+              {editorialBlocks.map((block, index) =>
+                block.type === "image" ? (
+                  <figure
+                    key={`img-${index}-${block.src}`}
+                    className="overflow-hidden rounded-xl bg-white/70 ring-1 ring-steel/[0.08]"
+                  >
+                    {/* Native img: description URLs may be any http(s) host */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={block.src}
+                      alt={block.alt}
+                      className="mx-auto max-h-[min(70vw,420px)] w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {block.alt && block.alt !== "تصویر محصول" ? (
+                      <figcaption className="border-t border-border/40 px-3 py-2 text-center text-[11px] font-medium text-steel sm:text-xs">
+                        {block.alt}
+                      </figcaption>
+                    ) : null}
+                  </figure>
+                ) : (
+                  <p key={`text-${index}`} className="whitespace-pre-line">
+                    {block.text}
+                  </p>
+                ),
+              )}
+            </div>
           </div>
         </article>
       ) : null}

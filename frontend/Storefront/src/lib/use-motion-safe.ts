@@ -41,6 +41,21 @@ export function useIsMobileMd(): boolean {
   return mobile;
 }
 
+/** True at the `lg` breakpoint and up (matches Tailwind `lg:` / catalog desktop shell). */
+export function useIsDesktopLg(): boolean {
+  const [desktop, setDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return desktop;
+}
+
 /**
  * True when fine-pointer hover is available — skip hover-swap dual images
  * and hover-only chrome on touch devices.

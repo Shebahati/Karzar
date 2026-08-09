@@ -1,6 +1,6 @@
 /**
  * Shared hero banner sheet / page-turn motion.
- * Next (dir=1): incoming from right, outgoing to left — «ورق خوردن از راست به چپ».
+ * Next (dir=1): incoming from left, outgoing to right — RTL «ورق خوردن» (next ←).
  * Ease is intentionally soft (less snappy) with a slightly longer settle.
  */
 export const HERO_SHEET_EASE = [0.4, 0.12, 0.2, 1] as const;
@@ -28,7 +28,7 @@ export const HERO_DRAG_SETTLE = {
  */
 export const heroSheetVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? "100%" : "-100%",
+    x: direction > 0 ? "-100%" : "100%",
     opacity: 1,
     zIndex: 2,
   }),
@@ -38,7 +38,7 @@ export const heroSheetVariants = {
     zIndex: 2,
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? "-100%" : "100%",
+    x: direction > 0 ? "100%" : "-100%",
     opacity: 1,
     zIndex: 1,
   }),

@@ -82,7 +82,7 @@ export function ProductCard({
 
   const flashAdded = () => {
     setAddedFlash(true);
-    window.setTimeout(() => setAddedFlash(false), 1800);
+    window.setTimeout(() => setAddedFlash(false), 3800);
   };
 
   const quickAddQuote = (e: React.MouseEvent) => {

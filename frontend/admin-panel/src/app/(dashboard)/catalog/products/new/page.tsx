@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryLeafCombobox } from "@/features/catalog/components/category-leaf-combobox";
+import { ProductDescriptionEditor } from "@/features/catalog/components/product-description-editor";
 import { ProductSpecificationsForm } from "@/features/catalog/components/product-specifications-form";
 import {
   createProductFormSchema,
@@ -182,15 +183,23 @@ export default function NewProductPage() {
                 label="توضیحات کامل"
                 htmlFor="description"
                 error={errors.description?.message}
+                hint="می‌توانید تصویر را با لینک بین متن درج کنید؛ آپلود فایل پس از ایجاد محصول"
                 className="sm:col-span-2"
               >
-                <textarea
-                  id="description"
-                  rows={5}
-                  className="w-full rounded-xl border border-input bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
-                  placeholder="توضیحات تکمیلی محصول برای نمایش در فروشگاه"
-                  aria-invalid={Boolean(errors.description)}
-                  {...register("description")}
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <ProductDescriptionEditor
+                      id="description"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      invalid={Boolean(errors.description)}
+                      rows={8}
+                      placeholder="توضیحات تکمیلی محصول برای نمایش در فروشگاه"
+                    />
+                  )}
                 />
               </Field>
 

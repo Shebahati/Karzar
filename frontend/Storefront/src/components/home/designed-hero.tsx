@@ -349,14 +349,16 @@ function SlideCanvas({
 }
 
 /**
- * Mobile sheet strip: prev | current | next, drag follows finger, then settle.
- * Next = content moves left (ورق از راست به چپ).
+ * Sheet strip: next | current | prev (RTL page-turn), drag follows pointer, then settle.
+ * Next = content moves right (ورق از چپ به راست).
+ * Mobile-only; desktop uses AnimatePresence sheet (arrows + autoplay, no drag).
  */
-function MobileHeroSheet({
+function HeroSheetStrip({
   slides,
   index,
   menuOpen,
   packPreset,
+  isMobile,
   nudge,
   onNudgeHandled,
   onCommitNext,
@@ -367,6 +369,7 @@ function MobileHeroSheet({
   index: number;
   menuOpen: boolean;
   packPreset: MobileComposePreset;
+  isMobile: boolean;
   nudge: "next" | "prev" | null;
   onNudgeHandled: () => void;
   onCommitNext: () => void;
@@ -386,6 +389,7 @@ function MobileHeroSheet({
   const currentPreset = (current.mobilePreset ?? packPreset) as MobileComposePreset;
   const prevPreset = (prev.mobilePreset ?? packPreset) as MobileComposePreset;
   const nextPreset = (next.mobilePreset ?? packPreset) as MobileComposePreset;
+  const settleMs = isMobile ? HERO_SHEET_MS_MOBILE : HERO_SHEET_MS;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -412,7 +416,7 @@ function MobileHeroSheet({
       }
       setLocked(true);
       animate(x, target, {
-        duration: HERO_SHEET_MS_MOBILE,
+        duration: settleMs,
         ease: HERO_SHEET_EASE,
         onComplete: () => {
           // Index + x reset must paint together — otherwise x→0 with stale
@@ -425,19 +429,20 @@ function MobileHeroSheet({
         },
       });
     },
-    [x],
+    [x, settleMs],
   );
 
   useEffect(() => {
     if (!nudge || locked) return;
     const w = widthRef.current;
+    // RTL next: drag/nudge content to the right (reveals next parked on the left).
     if (nudge === "next") {
-      settleTo(-(w || 1), () => {
+      settleTo(w || 1, () => {
         onCommitNext();
         onNudgeHandled();
       });
     } else {
-      settleTo(w || 1, () => {
+      settleTo(-(w || 1), () => {
         onCommitPrev();
         onNudgeHandled();
       });
@@ -454,10 +459,11 @@ function MobileHeroSheet({
       const w = widthRef.current || 1;
       const { offset, velocity } = info;
       const power = heroSwipePower(offset.x, velocity.x);
-      if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
-        settleTo(-w, onCommitNext);
-      } else if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
-        settleTo(w, onCommitPrev);
+      // Drag right → next; drag left → prev (RTL page-turn).
+      if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+        settleTo(w, onCommitNext);
+      } else if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+        settleTo(-w, onCommitPrev);
       } else {
         animate(x, 0, HERO_DRAG_SETTLE);
       }
@@ -489,20 +495,20 @@ function MobileHeroSheet({
               aria-hidden
             >
               <SlideCanvas
-                slide={prev}
-                reducedMotion
+                slide={next}
+                reducedMotion={isMobile}
                 blurred={menuOpen}
-                mobilePreset={prevPreset}
-                isMobile
+                mobilePreset={nextPreset}
+                isMobile={isMobile}
               />
             </div>
             <div className="absolute inset-0">
               <SlideCanvas
                 slide={current}
-                reducedMotion
+                reducedMotion={isMobile}
                 blurred={menuOpen}
                 mobilePreset={currentPreset}
-                isMobile
+                isMobile={isMobile}
                 priority={index === 0}
               />
             </div>
@@ -512,21 +518,21 @@ function MobileHeroSheet({
               aria-hidden
             >
               <SlideCanvas
-                slide={next}
-                reducedMotion
+                slide={prev}
+                reducedMotion={isMobile}
                 blurred={menuOpen}
-                mobilePreset={nextPreset}
-                isMobile
+                mobilePreset={prevPreset}
+                isMobile={isMobile}
               />
             </div>
           </>
         ) : (
           <SlideCanvas
             slide={current}
-            reducedMotion
+            reducedMotion={isMobile}
             blurred={menuOpen}
             mobilePreset={currentPreset}
-            isMobile
+            isMobile={isMobile}
             priority={index === 0}
           />
         )}
@@ -636,6 +642,7 @@ export function DesignedHero({
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
+    // Mobile strip: nudge-driven settle; desktop AnimatePresence: commit index.
     if (isMobile && !reducedMotion) {
       setSheetNudge((n) => n ?? "next");
       return;
@@ -656,11 +663,10 @@ export function DesignedHero({
   useEffect(() => {
     if (isMobile || slideCount <= 1 || paused || reducedMotion || menuOpen) return;
     const t = window.setInterval(() => {
-      setDirection(1);
-      setIndex((i) => (i + 1) % slideCount);
+      commitNext();
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [isMobile, slideCount, paused, reducedMotion, menuOpen]);
+  }, [isMobile, slideCount, paused, reducedMotion, menuOpen, commitNext]);
 
   if (!slide) return null;
 
@@ -700,7 +706,7 @@ export function DesignedHero({
 
   const sheetDuration = reducedMotion ? HERO_SHEET_MS_REDUCED : HERO_SHEET_MS;
   const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
-  const useMobileSheet = isMobile && !reducedMotion && slideCount > 1;
+  const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
 
   return (
     <section
@@ -726,12 +732,13 @@ export function DesignedHero({
         className="relative h-full w-full overflow-hidden"
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
-        {useMobileSheet ? (
-          <MobileHeroSheet
+        {useSheetStrip ? (
+          <HeroSheetStrip
             slides={slides}
             index={activeIndex}
             menuOpen={menuOpen}
             packPreset={packMobilePreset}
+            isMobile={isMobile}
             nudge={sheetNudge}
             onNudgeHandled={() => setSheetNudge(null)}
             onCommitNext={commitNext}

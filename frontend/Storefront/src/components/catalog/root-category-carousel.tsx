@@ -80,11 +80,13 @@ function CategoryOrbButton({
         className={cn(
           "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full",
           "text-steel transition-[transform,background-color,box-shadow,ring-color,filter] duration-300 ease-out",
-          "group-hover:scale-[1.04] group-hover:brightness-[1.03] group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]",
+          "group-hover:scale-[1.04] group-hover:brightness-[1.03]",
           "sm:h-[4.75rem] sm:w-[4.75rem]",
           active
-            ? "scale-[1.05] bg-primary/30 shadow-[0_8px_22px_rgba(0,0,0,0.07)] ring-0 group-hover:bg-primary/35"
-            : "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-black/[0.06] group-hover:ring-steel/15",
+            ? // Selected: keep gray fill; distinctive soft brand-red ring
+              "scale-[1.05] bg-[#F5F5F5] shadow-[0_8px_22px_rgba(208,35,39,0.12)] ring-2 ring-primary/55 group-hover:bg-[#F5F5F5] group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.16)] group-hover:ring-primary/70"
+            : // Idle: soft red tint at 20% on hover (not gray wash)
+              "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-primary/20 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.1)] group-hover:ring-primary/25",
         )}
       >
         <CategoryVisualIcon
@@ -318,9 +320,8 @@ export function RootCategoryCarousel({
 
   return (
     <div className="min-w-0 w-full">
-      <div className="mb-1.5 flex items-end justify-between gap-3 sm:mb-3">
-        <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
-        {lockedCategoryId == null && activeRootId != null && (
+      {lockedCategoryId == null && activeRootId != null && (
+        <div className="mb-1.5 flex items-end justify-end gap-3 sm:mb-3">
           <button
             type="button"
             className="text-xs font-bold text-primary transition-opacity hover:opacity-80"
@@ -328,8 +329,8 @@ export function RootCategoryCarousel({
           >
             پاک کردن
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/*
         Vertical padding lives on the scroll rail so scale + soft shadow of the
@@ -341,7 +342,7 @@ export function RootCategoryCarousel({
       <div className="relative min-w-0 w-full">
         <div
           ref={trackRef}
-          aria-label="دسته‌های اصلی"
+          aria-label="دسته‌ها"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}

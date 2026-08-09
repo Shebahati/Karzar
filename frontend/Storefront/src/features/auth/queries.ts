@@ -40,3 +40,17 @@ export function useUpdateFullName() {
     },
   });
 }
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    MeResponse,
+    Error,
+    { full_name: string; company_name?: string | null }
+  >({
+    mutationFn: (payload) => authService.updateProfile(payload),
+    onSuccess: (me) => {
+      queryClient.setQueryData(authKeys.me, me);
+    },
+  });
+}

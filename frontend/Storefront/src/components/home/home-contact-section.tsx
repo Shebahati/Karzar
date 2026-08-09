@@ -36,10 +36,6 @@ function ContactIntro() {
       >
         تیکت و پشتیبانی
       </h2>
-      <p className="mt-3 max-w-sm text-sm leading-7 text-white/70">
-        سوال، همکاری یا پشتیبانی — پیام بفرستید؛ با کد رهگیری پیگیری می‌کنید.
-        پیام‌ها در پنل ادمین کارزار ثبت می‌شوند.
-      </p>
 
       <a
         href={`tel:${STORE_PHONE_E164}`}

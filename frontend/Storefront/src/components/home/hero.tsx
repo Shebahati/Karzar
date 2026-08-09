@@ -154,10 +154,10 @@ export function Hero() {
       if (menuOpen || slides.length <= 1 || reducedMotion) return;
       const { offset, velocity } = info;
       const power = heroSwipePower(offset.x, velocity.x);
-      // Swipe left → next (RTL page-turn); swipe right → prev.
-      if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+      // Drag right → next; drag left → prev (RTL page-turn).
+      if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
         goNext();
-      } else if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+      } else if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
         goPrev();
       }
     },
@@ -228,7 +228,7 @@ export function Hero() {
       : HERO_SHEET_MS;
   const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
   const canDragSheet = isMobile && !reducedMotion && !menuOpen && slides.length > 1;
-  const textX = reducedMotion ? 0 : direction * 36;
+  const textX = reducedMotion ? 0 : direction * -36;
 
   const slideArrowClass = (side: "left" | "right") =>
     cn(
@@ -348,7 +348,7 @@ export function Hero() {
                 exit={
                   reducedMotion
                     ? { opacity: 0 }
-                    : { opacity: 0, x: direction * -24, y: -4 }
+                    : { opacity: 0, x: direction * 24, y: -4 }
                 }
                 transition={{
                   duration: reducedMotion ? HERO_SHEET_MS_REDUCED : 0.5,

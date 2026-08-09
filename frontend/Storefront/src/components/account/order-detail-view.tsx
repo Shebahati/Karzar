@@ -80,7 +80,9 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
       setDownloadError(
         code === "POPUP_BLOCKED"
           ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
-          : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
+          : code === "MISSING_BUYER_ADDRESS"
+            ? "برای صدور فاکتور، آدرس و کد پستی را در حساب کاربری تکمیل کنید."
+            : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
       );
     } finally {
       setBusy(false);

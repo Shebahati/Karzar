@@ -543,11 +543,16 @@ function GalleryLightbox({
           <button
             type="button"
             aria-label="بستن"
-            className="absolute inset-0 bg-[#0e0f0f]/72 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-[#0e0f0f]/86 backdrop-blur-[2px]"
             onClick={onClose}
           />
 
-          <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div
+            className="relative z-10 flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) onClose();
+            }}
+          >
             <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-steel shadow-soft">
               {activeIndex + 1} / {list.length}
             </span>
@@ -555,7 +560,7 @@ function GalleryLightbox({
               type="button"
               aria-label="بستن گالری"
               onClick={onClose}
-              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[1.65rem] leading-none text-steel shadow-card transition hover:bg-white hover:text-karzar-500"
+              className="grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-white text-[1.85rem] leading-none text-[#0e0f0f] shadow-[0_4px_20px_rgba(0,0,0,0.35)] ring-2 ring-black/25 transition hover:bg-white hover:text-karzar-500"
             >
               <span aria-hidden className="translate-y-[-1px]">
                 ×
@@ -563,8 +568,18 @@ function GalleryLightbox({
             </button>
           </div>
 
-          <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 pb-2 sm:gap-4 sm:px-8">
-            <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+          <div
+            className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 pb-2 sm:gap-4 sm:px-8"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) onClose();
+            }}
+          >
+            <div
+              className="relative flex min-h-0 w-full flex-1 items-center justify-center"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+              }}
+            >
               {multi && (
                 <>
                   <button

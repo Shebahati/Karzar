@@ -224,18 +224,12 @@ export function MostViewedYesterdaySection({
 
       <div className="relative px-4 py-6 sm:px-6 sm:py-7 md:px-8 md:py-8">
         <header className="mb-5 text-center sm:mb-6">
-          <p className="text-[11px] font-black tracking-normal text-[#D02327]">
-            کارزار · پربازدید
-          </p>
           <h2
             id="home-most-viewed-yesterday-heading"
-            className="mt-2 type-section text-foreground"
+            className="type-section text-foreground"
           >
             پربازدیدترین کالاهای روز گذشته
           </h2>
-          <p className="type-lede mx-auto mt-1.5 max-w-md text-muted-foreground">
-            انتخاب‌های داغ کاتالوگ — رتبه‌بندی از موجودی زنده فروشگاه
-          </p>
         </header>
 
         {/*

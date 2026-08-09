@@ -365,7 +365,7 @@ function CapabilityDetailModal({
           <button
             type="button"
             aria-label="بستن پس‌زمینه"
-            className="absolute inset-0 bg-[#0e0f0f]/72"
+            className="absolute inset-0 bg-[#0e0f0f]/55 backdrop-blur-md supports-[backdrop-filter]:bg-[#0e0f0f]/45"
             onClick={onClose}
           />
 
@@ -454,9 +454,6 @@ function WhyKarzarHeading() {
       >
         ابزار صنعتی، خرید مطمئن
       </h2>
-      <p className="mt-4 max-w-lg text-sm leading-7 text-white/65 sm:text-base">
-        از پیش‌فاکتور تا تأمین و مشاوره — هر قابلیت را ببینید و همان‌جا اقدام کنید.
-      </p>
     </>
   );
 }

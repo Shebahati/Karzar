@@ -109,6 +109,7 @@ function makeDemoRecords(): IssuedProformaRecord[] {
           phone: "02188776655",
           mobile: "09121234567",
           address: "تهران، خیابان انقلاب",
+          postalCode: "1136985631",
           nationalId: "",
         },
         lines: [
@@ -145,6 +146,7 @@ function makeDemoRecords(): IssuedProformaRecord[] {
           phone: "",
           mobile: "09351234567",
           address: "",
+          postalCode: "",
           nationalId: "",
         },
         lines: [

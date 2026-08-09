@@ -32,6 +32,8 @@ export interface InvoiceBuyerInput {
   phone: string;
   mobile: string;
   address: string;
+  /** Postal code — required on invoice PDFs; optional blank slot on proforma. */
+  postalCode?: string;
   nationalId: string;
 }
 

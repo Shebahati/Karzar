@@ -1,43 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
-import { Buy, Document, TickSquare } from "react-iconly";
+import { useId, useState } from "react";
+import { Buy, Document } from "react-iconly";
 import { Button } from "@/components/ui/button";
-import {
-  ADD_QTY_FALLBACK_MS,
-  SoftQtyConfirm,
-} from "@/components/product/soft-qty-confirm";
 import { cn, formatNumber } from "@/lib/utils";
+import {
+  CART_QTY_MAX,
+  toCartProductSummary,
+  useProductCartQty,
+  useProductQuoteQty,
+} from "@/components/product/use-product-cart-qty";
 import type { ProductDetail } from "@/types/product";
-import { useCartStore } from "@/store/cart-store";
-
-type CartPhase = "idle" | "open" | "success";
 
 /**
  * Fixed purchase bar for phones — sits above the mobile bottom nav.
- * Cart CTA soft-expands into qty + confirm; abandon → add 1.
- * Desktop is unaffected (lg:hidden via .mobile-dock).
+ * Cart CTA transforms in-place into − / qty / + (same pattern as product-card ATC).
+ * Qty is live from the cart store — no separate confirm strip above.
  */
 export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
-  const addToCart = useCartStore((s) => s.addToCart);
-  const addToQuote = useCartStore((s) => s.addToQuote);
+  const summary = toCartProductSummary(product);
+  const cart = useProductCartQty(summary);
+  const quote = useProductQuoteQty(summary);
   const [quoteFlash, setQuoteFlash] = useState(false);
-  const [phase, setPhase] = useState<CartPhase>("idle");
-  const [qty, setQty] = useState(1);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  const phaseRef = useRef<CartPhase>("idle");
-  const committedRef = useRef(false);
-  const fallbackTimerRef = useRef<number | null>(null);
-  const successTimerRef = useRef<number | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
   const labelId = useId();
 
   const hasPrice = product.base_price != null;
@@ -46,153 +31,18 @@ export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
     Boolean(product.discount_percent && product.discount_percent > 0) &&
     Boolean(product.original_price);
 
-  const isOpen = phase === "open";
-  const isSuccess = phase === "success";
-  const isExpanded = isOpen || isSuccess;
-
-  const summary = {
-    id: product.id,
-    sku: product.sku,
-    name: product.name,
-    thumbnail: product.thumbnail,
-    base_price: product.base_price,
-    original_price: product.original_price,
-    discount_percent: product.discount_percent,
-    stock_status: product.stock_status,
-    availability: product.availability,
-    is_original: product.is_original,
-    category: product.category,
-    brand: product.brand,
-  };
-
-  useEffect(() => {
-    phaseRef.current = phase;
-  }, [phase]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  const clearTimers = useCallback(() => {
-    if (fallbackTimerRef.current != null) {
-      window.clearTimeout(fallbackTimerRef.current);
-      fallbackTimerRef.current = null;
-    }
-    if (successTimerRef.current != null) {
-      window.clearTimeout(successTimerRef.current);
-      successTimerRef.current = null;
-    }
-  }, []);
-
-  const finishSuccess = useCallback(() => {
-    setPhase("success");
-    phaseRef.current = "success";
-    clearTimers();
-    const hold = reducedMotion ? 500 : 2200;
-    successTimerRef.current = window.setTimeout(() => {
-      setPhase("idle");
-      phaseRef.current = "idle";
-      setQty(1);
-      committedRef.current = false;
-      successTimerRef.current = null;
-    }, hold);
-  }, [clearTimers, reducedMotion]);
-
-  const commit = useCallback(
-    (amount: number) => {
-      if (committedRef.current) return;
-      committedRef.current = true;
-      const n = Math.max(1, Math.min(99, amount));
-      addToCart(summary, n);
-      finishSuccess();
-    },
-    // summary fields are stable per product mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addToCart, finishSuccess, product.id],
-  );
-
-  const dismissWithoutConfirm = useCallback(() => {
-    if (phaseRef.current !== "open") return;
-    commit(1);
-  }, [commit]);
-
-  const openQty = useCallback(() => {
-    if (outOfStock || !hasPrice) return;
-    clearTimers();
-    committedRef.current = false;
-    setQty(1);
-    setPhase("open");
-    phaseRef.current = "open";
-    fallbackTimerRef.current = window.setTimeout(() => {
-      dismissWithoutConfirm();
-    }, ADD_QTY_FALLBACK_MS);
-  }, [clearTimers, dismissWithoutConfirm, hasPrice, outOfStock]);
-
-  const confirm = useCallback(() => {
-    if (phaseRef.current !== "open") return;
-    commit(qty);
-  }, [commit, qty]);
-
-  // Outside tap / Escape while qty open
-  useEffect(() => {
-    if (phase !== "open") return;
-
-    const onPointerDown = (e: PointerEvent) => {
-      const el = rootRef.current;
-      if (!el) return;
-      if (e.target instanceof Node && !el.contains(e.target)) {
-        dismissWithoutConfirm();
-      }
-    };
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        dismissWithoutConfirm();
-      }
-    };
-
-    document.addEventListener("pointerdown", onPointerDown, true);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown, true);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [dismissWithoutConfirm, phase]);
-
-  useEffect(() => {
-    return () => {
-      clearTimers();
-      if (phaseRef.current === "open" && !committedRef.current) {
-        committedRef.current = true;
-        addToCart(summary, 1);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleQuote = () => {
     if (outOfStock) return;
-    addToQuote(summary, 1);
+    quote.addOne();
     setQuoteFlash(true);
     window.setTimeout(() => setQuoteFlash(false), 2500);
   };
 
-  const expandMotion = reducedMotion
-    ? "duration-0"
-    : "duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)]";
-
-  const fadeMotion = reducedMotion
-    ? "duration-75"
-    : "duration-[250ms] ease-out";
+  const inCart = hasPrice && cart.inCart;
+  const inQuote = !hasPrice && quote.inQuote;
 
   return (
     <div
-      ref={rootRef}
       className="mobile-dock"
       role="region"
       aria-label="خرید سریع محصول"
@@ -208,70 +58,9 @@ export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
         </p>
       ) : null}
 
-      {/* Soft qty strip — expands upward above the price row */}
-      {hasPrice ? (
-        <div
-          className={cn(
-            "grid transition-[grid-template-rows]",
-            expandMotion,
-          )}
-          style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
-          aria-hidden={!isExpanded}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <div
-              className={cn(
-                "border-b border-[#5E5F5E]/[0.06] bg-[#FAFAF9]/95 px-3.5 py-2.5 sm:px-4",
-                "transition-[opacity,transform]",
-                fadeMotion,
-                isExpanded
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-1 opacity-0",
-              )}
-            >
-              <div className="mx-auto max-w-lg">
-                {isSuccess ? (
-                  <Link
-                    href="/cart"
-                    className={cn(
-                      "flex h-10 items-center justify-center gap-1.5",
-                      "rounded-xl text-[13px] font-bold text-[#1a7a4c]",
-                      "bg-[#1a7a4c]/[0.08]",
-                    )}
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <TickSquare
-                      size="small"
-                      set="bold"
-                      primaryColor="currentColor"
-                    />
-                    اضافه شد — مشاهده سبد
-                  </Link>
-                ) : (
-                  <SoftQtyConfirm
-                    qty={qty}
-                    onChange={setQty}
-                    onConfirm={confirm}
-                    variant="dock"
-                    tabbable={isOpen}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <div className="px-3.5 py-2.5 sm:px-4">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <div
-            className={cn(
-              "min-w-0 flex-1 text-start transition-opacity",
-              fadeMotion,
-              isOpen && "opacity-55",
-            )}
-          >
+          <div className="min-w-0 flex-1 text-start">
             {quoteFlash ? (
               <Link
                 href="/quote"
@@ -306,22 +95,24 @@ export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
           </div>
 
           {hasPrice ? (
-            <Button
-              size="lg"
-              disabled={outOfStock || isExpanded}
-              aria-expanded={isOpen}
-              className={cn(
-                "h-11 min-w-[9.5rem] shrink-0 gap-1.5 rounded-xl px-3.5 text-[12.5px] font-bold tracking-tight sm:min-w-[11rem] sm:px-4 sm:text-[13px]",
-                "shadow-[0_12px_28px_-12px_rgba(208,35,39,0.65)]",
-                "active:scale-[0.98] transition-[transform,opacity]",
-                fadeMotion,
-                isExpanded && "pointer-events-none opacity-40",
-              )}
-              onClick={openQty}
-            >
-              <Buy set="bold" size="small" />
-              {outOfStock ? "ناموجود" : "افزودن به سبد خرید"}
-            </Button>
+            <DockCartCta
+              disabled={outOfStock}
+              qty={cart.qty}
+              inCart={inCart}
+              canIncrement={cart.canIncrement}
+              onAdd={cart.addOne}
+              onPlus={cart.increment}
+              onMinus={cart.decrement}
+            />
+          ) : inQuote ? (
+            <DockQtyStepper
+              qty={quote.qty}
+              disabled={outOfStock}
+              canIncrement={quote.canIncrement}
+              onPlus={quote.increment}
+              onMinus={quote.decrement}
+              ariaLabel="تعداد استعلام"
+            />
           ) : (
             <Button
               size="lg"
@@ -342,3 +133,189 @@ export function MobileStickyBuyBar({ product }: { product: ProductDetail }) {
     </div>
   );
 }
+
+function DockCartCta({
+  disabled,
+  qty,
+  inCart,
+  canIncrement,
+  onAdd,
+  onPlus,
+  onMinus,
+}: {
+  disabled: boolean;
+  qty: number;
+  inCart: boolean;
+  canIncrement: boolean;
+  onAdd: () => void;
+  onPlus: () => void;
+  onMinus: () => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="افزودن به سبد خرید"
+      className={cn(
+        "relative flex h-11 w-[9.5rem] shrink-0 items-center overflow-hidden rounded-xl sm:w-[11rem]",
+        "transition-[background-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "motion-reduce:transition-none",
+        inCart
+          ? cn(
+              "bg-white",
+              "ring-1 ring-[#D02327]/20",
+              "shadow-[0_8px_20px_-12px_rgba(94,95,94,0.45)]",
+            )
+          : cn(
+              "bg-[#D02327]",
+              "shadow-[0_12px_28px_-12px_rgba(208,35,39,0.65)]",
+            ),
+      )}
+    >
+      <button
+        type="button"
+        disabled={disabled || inCart}
+        aria-label="افزودن به سبد خرید"
+        aria-expanded={inCart}
+        tabIndex={inCart ? -1 : 0}
+        onClick={onAdd}
+        className={cn(
+          "absolute inset-0 inline-flex items-center justify-center gap-1.5 px-3.5",
+          "text-[12.5px] font-bold tracking-tight text-white sm:px-4 sm:text-[13px]",
+          "transition-[opacity,transform] duration-200 ease-out",
+          "motion-reduce:transition-none",
+          "hover:bg-[#b81e23] active:scale-[0.98]",
+          "disabled:pointer-events-none",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+          inCart
+            ? "pointer-events-none scale-95 opacity-0"
+            : "scale-100 opacity-100",
+        )}
+      >
+        <Buy set="bold" size="small" />
+        {disabled ? "ناموجود" : "افزودن به سبد خرید"}
+      </button>
+
+      <div
+        className={cn(
+          "flex h-full w-full items-center justify-between px-1",
+          "transition-opacity duration-200 ease-out",
+          "motion-reduce:transition-none",
+          inCart ? "relative opacity-100" : "pointer-events-none absolute inset-0 opacity-0",
+        )}
+        aria-hidden={!inCart}
+      >
+        <DockStepperButtons
+          qty={qty}
+          disabled={disabled}
+          canIncrement={canIncrement}
+          tabbable={inCart}
+          onPlus={onPlus}
+          onMinus={onMinus}
+        />
+      </div>
+    </div>
+  );
+}
+
+function DockQtyStepper({
+  qty,
+  disabled,
+  canIncrement,
+  onPlus,
+  onMinus,
+  ariaLabel,
+}: {
+  qty: number;
+  disabled: boolean;
+  canIncrement: boolean;
+  onPlus: () => void;
+  onMinus: () => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className={cn(
+        "flex h-11 w-[9.5rem] shrink-0 items-center justify-between rounded-xl bg-white px-1 sm:w-[11rem]",
+        "ring-1 ring-[#D02327]/20",
+        "shadow-[0_8px_20px_-12px_rgba(94,95,94,0.45)]",
+      )}
+    >
+      <DockStepperButtons
+        qty={qty}
+        disabled={disabled}
+        canIncrement={canIncrement}
+        tabbable
+        onPlus={onPlus}
+        onMinus={onMinus}
+      />
+    </div>
+  );
+}
+
+function DockStepperButtons({
+  qty,
+  disabled,
+  canIncrement,
+  tabbable,
+  onPlus,
+  onMinus,
+}: {
+  qty: number;
+  disabled: boolean;
+  canIncrement: boolean;
+  tabbable: boolean;
+  onPlus: () => void;
+  onMinus: () => void;
+}) {
+  const tab = tabbable ? 0 : -1;
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="کاهش تعداد"
+        disabled={disabled}
+        tabIndex={tab}
+        onClick={onMinus}
+        className={cn(
+          "grid h-9 w-9 shrink-0 place-items-center rounded-lg",
+          "text-[17px] font-medium leading-none text-[#5E5F5E]",
+          "transition-colors hover:bg-[#D02327]/[0.08] hover:text-[#D02327]",
+          "active:scale-95",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/30",
+          "disabled:opacity-35",
+        )}
+      >
+        −
+      </button>
+
+      <span
+        className="min-w-[1.5rem] select-none text-center text-[14px] font-bold tabular-nums text-[#1a1a1a] tnum"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {formatNumber(qty)}
+      </span>
+
+      <button
+        type="button"
+        aria-label="افزایش تعداد"
+        disabled={disabled || !canIncrement || qty >= CART_QTY_MAX}
+        tabIndex={tab}
+        onClick={onPlus}
+        className={cn(
+          "grid h-9 w-9 shrink-0 place-items-center rounded-lg",
+          "text-[17px] font-medium leading-none text-[#5E5F5E]",
+          "transition-colors hover:bg-[#D02327]/[0.08] hover:text-[#D02327]",
+          "active:scale-95",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/30",
+          "disabled:opacity-35",
+        )}
+      >
+        +
+      </button>
+    </>
+  );
+}
+

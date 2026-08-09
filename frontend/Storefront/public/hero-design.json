@@ -22,7 +22,7 @@
         "icon": "/category-icons/andaze-giri.png",
         "productCount": 0,
         "heroImage": "/images/hero/hero-metrology-left.jpg",
-        "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+        "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
         "ctaLabel": "مشاهده اندازه‌گیری",
         "featuredOrder": 1,
         "slugHint": "andaze-giri"
@@ -99,7 +99,7 @@
         "icon": "/category-icons/dastgah-sanati.png",
         "productCount": 0,
         "heroImage": "/images/hero/hero-machines-left.jpg",
-        "subtitle": "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه — انتخاب تخصصی، پشتیبانی کارزاری",
+        "subtitle": "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
         "ctaLabel": "مشاهده دستگاه‌ها",
         "featuredOrder": 4,
         "slugHint": "dastgah-sanati"
@@ -438,7 +438,7 @@
         },
         "typography": {
           "title": "ظرفیت کارگاه را بالا ببرید",
-          "subtitle": "ماشین‌ها و تجهیزات صنعتی با انتخاب تخصصی و پشتیبانی کارزار",
+          "subtitle": "ماشین‌ها و تجهیزات صنعتی",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.88)",
           "titleSize": 48,

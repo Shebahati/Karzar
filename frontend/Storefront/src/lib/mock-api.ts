@@ -129,6 +129,9 @@ function persistPayments() {
 const mockSession = {
   phone: "09121234567",
   full_name: "کاربر آزمایشی" as string | null,
+  company_name: null as string | null,
+  /** Flip to `true` locally to exercise corporate profile UI in mock mode. */
+  is_b2b: false,
   id: 1,
 };
 
@@ -643,13 +646,23 @@ export const mockApi = {
       id: mockSession.id,
       phone: mockSession.phone,
       full_name: mockSession.full_name,
+      company_name: mockSession.company_name,
+      is_b2b: mockSession.is_b2b,
     };
   },
 
-  async updateFullName(fullName: string): Promise<MeResponse> {
+  async updateProfile(payload: {
+    full_name: string;
+    company_name?: string | null;
+  }): Promise<MeResponse> {
     await sleep(env.MOCK_LATENCY_MS);
-    const trimmed = fullName.trim();
+    const trimmed = payload.full_name.trim();
+    const company =
+      payload.company_name === undefined
+        ? mockSession.company_name
+        : payload.company_name?.trim() || null;
     mockSession.full_name = trimmed;
+    mockSession.company_name = company;
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "karzar.storefront.customer",
@@ -657,6 +670,8 @@ export const mockApi = {
           id: mockSession.id,
           phone: mockSession.phone,
           full_name: trimmed,
+          company_name: company,
+          is_b2b: mockSession.is_b2b,
         }),
       );
       window.dispatchEvent(new Event("karzar-auth-change"));
@@ -665,7 +680,13 @@ export const mockApi = {
       id: mockSession.id,
       phone: mockSession.phone,
       full_name: trimmed,
+      company_name: company,
+      is_b2b: mockSession.is_b2b,
     };
+  },
+
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    return this.updateProfile({ full_name: fullName });
   },
 
   async submitContact(payload: ContactValues): Promise<{ ok: true; ticket: string }> {
