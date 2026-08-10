@@ -2286,7 +2286,7 @@
         "discovery"
       ],
       "risk": "med",
-      "notes": "2026-08-10: full run complete; green_exact=15 (WC source SSL timeouts in run env); external ZIP ad61fb55…; Draft PR pending."
+      "notes": "2026-08-10: full 4708-product run complete. Iranian WC sources SSL-timeout in this env; prior-reuse identity hits lacked durable assets. Honest queues: green_exact=0 yellow=0 unresolved=4708. Draft PR #223. External ZIP 260a6079…. Zero DB/ProductImage mutations."
     }
   ]
 }
