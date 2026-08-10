@@ -128,17 +128,17 @@ export function PaymentCallbackView() {
   }
 
   return (
-    <Container className="grid min-h-[70vh] place-items-center py-12">
+    <Container className="grid min-h-[70vh] w-full min-w-0 place-items-center overflow-x-clip py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-lg rounded-3xl bg-card p-8 text-center shadow-elevated sm:p-12"
+        className="w-full min-w-0 max-w-lg overflow-hidden rounded-3xl bg-card p-5 text-center shadow-elevated sm:p-8 md:p-12"
       >
         {state === "loading" && (
           <>
             <span className="mx-auto grid h-16 w-16 animate-pulse place-items-center rounded-full bg-secondary" />
-            <h1 className="mt-6 text-xl font-bold text-foreground">در حال تأیید پرداخت</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+            <h1 className="mt-6 break-words text-xl font-bold text-foreground">در حال تأیید پرداخت</h1>
+            <p className="mt-2 break-words text-sm text-muted-foreground">{message}</p>
           </>
         )}
 
@@ -147,12 +147,12 @@ export function PaymentCallbackView() {
             <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-success text-success-foreground">
               <TickSquare set="bold" size="large" />
             </span>
-            <h1 className="mt-6 text-xl font-bold text-foreground">پرداخت موفق</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+            <h1 className="mt-6 break-words text-xl font-bold text-foreground">پرداخت موفق</h1>
+            <p className="mt-2 break-words text-sm text-muted-foreground">{message}</p>
             {trackingCode && (
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 break-words text-sm text-muted-foreground">
                 کد پیگیری:{" "}
-                <span className="font-bold text-primary tnum">{trackingCode}</span>
+                <span className="break-all font-bold text-primary tnum">{trackingCode}</span>
               </p>
             )}
           </>
@@ -163,12 +163,12 @@ export function PaymentCallbackView() {
             <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-secondary text-foreground">
               <TickSquare set="bold" size="large" />
             </span>
-            <h1 className="mt-6 text-xl font-bold text-foreground">بازیابی تأیید پرداخت</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
-            <div className="mt-6 space-y-3 text-start">
+            <h1 className="mt-6 break-words text-xl font-bold text-foreground">بازیابی تأیید پرداخت</h1>
+            <p className="mt-2 break-words text-sm text-muted-foreground">{message}</p>
+            <div className="mt-6 min-w-0 space-y-3 text-start">
               <Input
                 dir="ltr"
-                className="text-start tnum"
+                className="max-w-full text-start tnum"
                 placeholder="کد پیگیری سفارش"
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value)}
@@ -196,11 +196,11 @@ export function PaymentCallbackView() {
             <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-destructive/10 text-destructive">
               <CloseSquare set="bold" size="large" />
             </span>
-            <h1 className="mt-6 text-xl font-bold text-foreground">پرداخت ناموفق</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <h1 className="mt-6 break-words text-xl font-bold text-foreground">پرداخت ناموفق</h1>
+            <p className="mt-2 break-words text-sm text-muted-foreground">{message}</p>
+            <div className="mt-8 flex min-w-0 flex-col gap-3 sm:flex-row">
               <Button
-                className="flex-1"
+                className="min-w-0 flex-1"
                 onClick={() => {
                   setState("need_tracking");
                   setMessage("کد پیگیری سفارش را وارد کنید تا در صورت امکان پرداخت تأیید شود.");
@@ -208,7 +208,11 @@ export function PaymentCallbackView() {
               >
                 بازیابی با کد پیگیری
               </Button>
-              <Button variant="soft" className="flex-1" onClick={() => router.push("/account/orders")}>
+              <Button
+                variant="soft"
+                className="min-w-0 flex-1"
+                onClick={() => router.push("/account/orders")}
+              >
                 سفارش‌های من
               </Button>
             </div>

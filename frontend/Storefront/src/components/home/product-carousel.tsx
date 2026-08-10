@@ -256,7 +256,7 @@ export function ProductCarousel({
               gapClass="gap-3 sm:gap-3.5"
               trackClassName="items-stretch pb-0.5"
               showControls={products.length > 2}
-              controls="end"
+              controls="both"
               controlClassName={cn(
                 "h-10 w-10 border-0 bg-white text-[#5E5F5E]",
                 "shadow-[0_6px_18px_-6px_rgba(94,95,94,0.45)]",

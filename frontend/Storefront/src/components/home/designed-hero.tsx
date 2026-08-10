@@ -140,8 +140,10 @@ function SlideCanvas({
   return (
     <div
       className={cn(
-        "absolute inset-0 transition-[opacity,transform] duration-300 ease-out",
-        !lite && "will-change-transform",
+        "absolute inset-0",
+        // Desktop only: opacity/transform transition for menu blur. Mobile strip
+        // drag is GPU x-transform — CSS transform transitions fight the finger.
+        !lite && "transition-[opacity,transform] duration-300 ease-out will-change-transform",
         blurred && "scale-[1.015] opacity-40",
       )}
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
@@ -352,6 +354,9 @@ function SlideCanvas({
  * Sheet strip: next | current | prev (RTL page-turn), drag follows pointer, then settle.
  * Next = content moves right (ورق از چپ به راست).
  * Mobile-only; desktop uses AnimatePresence sheet (arrows + autoplay, no drag).
+ *
+ * Android smoothness: 1:1 x tracking (±width, tiny elastic) + direction lock.
+ * Do NOT setState on drag start — that re-renders 3 SlideCanvases mid-gesture.
  */
 function HeroSheetStrip({
   slides,
@@ -363,7 +368,6 @@ function HeroSheetStrip({
   onNudgeHandled,
   onCommitNext,
   onCommitPrev,
-  onDragPause,
 }: {
   slides: DesignedHeroSlide[];
   index: number;
@@ -374,10 +378,10 @@ function HeroSheetStrip({
   onNudgeHandled: () => void;
   onCommitNext: () => void;
   onCommitPrev: () => void;
-  onDragPause: (paused: boolean) => void;
 }) {
   const count = slides.length;
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef(0);
   const [width, setWidth] = useState(0);
   const [locked, setLocked] = useState(false);
@@ -451,7 +455,8 @@ function HeroSheetStrip({
 
   const onDragEnd = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      onDragPause(false);
+      const track = trackRef.current;
+      if (track) track.style.touchAction = "pan-y";
       if (menuOpen || locked || count <= 1) {
         animate(x, 0, HERO_DRAG_SETTLE);
         return;
@@ -468,7 +473,7 @@ function HeroSheetStrip({
         animate(x, 0, HERO_DRAG_SETTLE);
       }
     },
-    [menuOpen, locked, count, x, settleTo, onCommitNext, onCommitPrev, onDragPause],
+    [menuOpen, locked, count, x, settleTo, onCommitNext, onCommitPrev],
   );
 
   return (
@@ -478,13 +483,27 @@ function HeroSheetStrip({
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
     >
       <motion.div
-        className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing"
-        style={{ x, willChange: "transform", backgroundColor: HERO_SHEET_UNDERLAY }}
-        drag={menuOpen || locked ? false : "x"}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.78}
+        ref={trackRef}
+        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        style={{
+          x,
+          willChange: "transform",
+          touchAction: "pan-y",
+          backgroundColor: HERO_SHEET_UNDERLAY,
+        }}
+        drag={menuOpen || locked || width <= 0 ? false : "x"}
+        dragDirectionLock
+        dragConstraints={
+          width > 0 ? { left: -width, right: width } : { left: 0, right: 0 }
+        }
+        dragElastic={0.06}
         dragMomentum={false}
-        onDragStart={() => onDragPause(true)}
+        onDirectionLock={(axis) => {
+          // Once horizontal intent is clear, stop Android Chrome from claiming
+          // the gesture for vertical scroll (reads as jump / hitch).
+          const track = trackRef.current;
+          if (track) track.style.touchAction = axis === "x" ? "none" : "pan-y";
+        }}
         onDragEnd={onDragEnd}
       >
         {width > 0 ? (
@@ -743,7 +762,6 @@ export function DesignedHero({
             onNudgeHandled={() => setSheetNudge(null)}
             onCommitNext={commitNext}
             onCommitPrev={commitPrev}
-            onDragPause={setPaused}
           />
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">

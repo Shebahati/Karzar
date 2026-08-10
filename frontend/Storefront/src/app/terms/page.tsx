@@ -15,7 +15,7 @@ export default function TermsPage() {
       title="قوانین استفاده"
       intro={TERMS_INTRO}
       sections={TERMS_SECTIONS}
-      sibling={{ label: "حریم خصوصی", href: "/privacy" }}
+      sibling={{ label: "سوالات متداول", href: "/faq" }}
     />
   );
 }

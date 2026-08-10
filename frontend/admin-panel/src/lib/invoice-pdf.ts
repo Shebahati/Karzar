@@ -26,10 +26,14 @@ import type {
 const BRAND_RED = "#D02327";
 const BRAND_STEEL = "#5E5F5E";
 const COMPANY_TRADE_FA = "ابزار کارزار";
+/** Seller postal code on formal invoice / proforma (fixed company value). */
+const SELLER_POSTAL_CODE = "1137617888";
 const TOMAN_TO_RIAL = 10;
 const LINE_UNIT_FA = "عدد";
 const PROFORMA_VALIDITY_HOURS = 24;
 const BRAND_LOGO_PATH = "/images/brand/logo.svg";
+/** Seller stamp / seal for signature block (public asset). */
+const SELLER_STAMP_PATH = "/images/brand/seller-stamp.png";
 
 interface InvoiceLineModel {
   name: string;
@@ -97,14 +101,19 @@ function tomanToRial(toman: number | null): number | null {
   return Math.round(toman * TOMAN_TO_RIAL);
 }
 
+/** Jalali date as YYYY/MM/DD with Persian digits (year left → day right). */
 function formatPersianDateShort(isoOrDate: string | Date): string {
   const date = typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
   if (Number.isNaN(date.getTime())) return fa(String(isoOrDate).slice(0, 10));
-  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+  const parts = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(date);
+  }).formatToParts(date);
+  const year = parts.find((p) => p.type === "year")?.value ?? "";
+  const month = parts.find((p) => p.type === "month")?.value ?? "";
+  const day = parts.find((p) => p.type === "day")?.value ?? "";
+  return `${year}/${month}/${day}`;
 }
 
 function absoluteAssetUrl(path: string): string {
@@ -292,7 +301,7 @@ function documentStyles(): string {
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      background: #ececec;
+      background: #ffffff;
       color: #1a1a1a;
       font-family: "IRANYekanX", Tahoma, Arial, sans-serif;
       font-size: 11px;
@@ -345,7 +354,7 @@ function documentStyles(): string {
       width: 210mm;
       min-height: 297mm;
       margin: 18px auto;
-      background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+      background: #ffffff;
       padding: 0 0 14mm;
       box-shadow: 0 12px 40px rgba(0,0,0,.1);
       overflow: hidden;
@@ -560,12 +569,36 @@ function documentStyles(): string {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      margin-top: 28px;
+      margin-top: 36px;
       padding: 0 8px;
     }
     .sign {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
-      padding-top: 8px;
+      color: ${BRAND_STEEL};
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .sign-space {
+      min-height: 176px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      background: #ffffff;
+    }
+    .seller-stamp {
+      max-height: 176px;
+      max-width: 280px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      background: #ffffff;
+    }
+    .sign-label {
       color: ${BRAND_STEEL};
       font-size: 11px;
       font-weight: 600;
@@ -582,7 +615,7 @@ function documentStyles(): string {
     }
     @page { size: A4; margin: 7mm; }
     @media print {
-      html, body { background: #fff !important; }
+      html, body { background: #ffffff !important; }
       .toolbar { display: none !important; }
       .sheet {
         margin: 0;
@@ -590,14 +623,17 @@ function documentStyles(): string {
         box-shadow: none;
         width: auto;
         min-height: 0;
-        background: #fff;
+        background: #ffffff !important;
       }
+      .sign-space,
+      .seller-stamp { background: #ffffff !important; }
       .sheet-inner { padding: 2mm 3mm 0; }
     }
   `;
 }
 
 function buildSheetBody(model: InvoiceDocModel): string {
+  const sellerStampUrl = absoluteAssetUrl(SELLER_STAMP_PATH);
   const rows =
     model.lines.length === 0
       ? `<tr><td colspan="8" class="empty">آیتمی ثبت نشده است</td></tr>`
@@ -648,7 +684,7 @@ function buildSheetBody(model: InvoiceDocModel): string {
         </div>
         <div class="info-cell">
           <span class="k">کدپستی:</span>
-          <span class="v">—</span>
+          <span class="v tnum">${escapeHtml(fa(SELLER_POSTAL_CODE))}</span>
         </div>
       </div>
       <div class="info-row full">
@@ -667,20 +703,14 @@ function buildSheetBody(model: InvoiceDocModel): string {
         </div>
         <div class="info-cell">
           <span class="k">تلفن:</span>
-          <span class="v tnum">${escapeHtml(model.buyerPhone)}</span>
-        </div>
-        <div class="info-cell">
-          <span class="k">موبایل:</span>
           <span class="v tnum">${escapeHtml(model.buyerMobile)}</span>
         </div>
-      </div>
-      ${nationalRow}
-      <div class="info-row">
         <div class="info-cell">
           <span class="k">کد پستی:</span>
           <span class="v tnum">${escapeHtml(model.buyerPostalCode)}</span>
         </div>
       </div>
+      ${nationalRow}
       <div class="info-row full">
         <div class="info-cell">
           <span class="k">آدرس:</span>
@@ -751,8 +781,20 @@ function buildSheetBody(model: InvoiceDocModel): string {
     </section>
 
     <div class="signs">
-      <div class="sign">امضاء خریدار</div>
-      <div class="sign">امضاء فروشنده</div>
+      <div class="sign">
+        <div class="sign-space" aria-hidden="true"></div>
+        <div class="sign-label">امضاء خریدار</div>
+      </div>
+      <div class="sign">
+        <div class="sign-space">
+          <img
+            class="seller-stamp"
+            src="${escapeHtml(sellerStampUrl)}"
+            alt=""
+          />
+        </div>
+        <div class="sign-label">مهر و امضای فروشنده</div>
+      </div>
     </div>
 
     <footer class="footer">
@@ -811,7 +853,9 @@ async function waitForPrintAssets(win: Window): Promise<void> {
   } catch {
     /* Tahoma fallback */
   }
-  const logos = win.document.querySelectorAll<HTMLImageElement>("img.brand-logo");
+  const logos = win.document.querySelectorAll<HTMLImageElement>(
+    "img.brand-logo, img.seller-stamp",
+  );
   await Promise.all(
     [...logos].map((logo) => {
       if (logo.complete) return Promise.resolve();

@@ -288,21 +288,22 @@ export function Hero() {
             exit="exit"
             transition={heroSheetTransition(sheetDuration)}
             drag={canDragSheet ? "x" : false}
+            dragDirectionLock={canDragSheet}
             dragConstraints={canDragSheet ? { left: 0, right: 0 } : undefined}
-            dragElastic={canDragSheet ? 0.78 : 0}
+            // Low elastic: high rubber-band (0.78) lag/jumps on Android Chrome.
+            dragElastic={canDragSheet ? 0.18 : 0}
             dragMomentum={false}
-            onDragStart={() => setPaused(true)}
             onDragEnd={(e, info) => {
-              setPaused(false);
               onSheetDragEnd(e, info);
             }}
             className={cn(
               "absolute inset-0",
-              canDragSheet && "cursor-grab touch-pan-y active:cursor-grabbing",
+              canDragSheet && "cursor-grab active:cursor-grabbing",
               menuOpen && "scale-[1.015]",
             )}
             style={{
               willChange: reducedMotion ? undefined : "transform",
+              touchAction: canDragSheet ? "pan-y" : undefined,
               backgroundColor: HERO_SHEET_UNDERLAY,
             }}
           >

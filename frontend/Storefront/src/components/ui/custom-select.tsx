@@ -15,6 +15,8 @@ interface CustomSelectProps {
   options: SelectOption[];
   placeholder?: string;
   className?: string;
+  /** Merged onto the closed trigger button (e.g. match a sibling chip). */
+  triggerClassName?: string;
   "aria-label"?: string;
 }
 
@@ -25,6 +27,7 @@ export function CustomSelect({
   options,
   placeholder = "انتخاب کنید",
   className,
+  triggerClassName,
   ...props
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
@@ -115,6 +118,7 @@ export function CustomSelect({
           "focus-visible:ring-2 focus-visible:ring-primary/35",
           "active:bg-karzar-50",
           open && "text-primary shadow-btn-soft ring-primary/22",
+          triggerClassName,
         )}
       >
         <span className="truncate">{selected?.label ?? placeholder}</span>

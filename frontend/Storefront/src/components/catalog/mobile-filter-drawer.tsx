@@ -14,9 +14,11 @@ import { formatNumber } from "@/lib/utils";
 export function MobileFilterDrawer({
   productCount = 0,
   lockedCategoryId,
+  priceSeedProducts = [],
 }: {
   productCount?: number;
   lockedCategoryId?: number;
+  priceSeedProducts?: { base_price: string | null }[];
 }) {
   const open = useUiStore((s) => s.filterDrawerOpen);
   const setOpen = useUiStore((s) => s.setFilterDrawerOpen);
@@ -83,6 +85,7 @@ export function MobileFilterDrawer({
                 notifyOnChange={false}
                 mobileDefaults
                 lockedCategoryId={lockedCategoryId}
+                priceSeedProducts={priceSeedProducts}
               />
             </div>
             <div className="border-t border-border/60 bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft">

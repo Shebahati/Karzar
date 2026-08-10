@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { cn, formatNumber, toEnglishDigits, toPersianDigits } from "@/lib/utils";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { cn, formatNumber, toEnglishDigits } from "@/lib/utils";
 import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/components/catalog/use-catalog-params";
+import { priceRangeStep } from "@/components/catalog/use-catalog-price-domain";
 
 /** Dual-thumb price range with synced numeric inputs. */
 export function PriceRangeSlider({
@@ -11,39 +12,64 @@ export function PriceRangeSlider({
   onCommit,
   absoluteMin = DEFAULT_MIN_PRICE,
   absoluteMax = DEFAULT_MAX_PRICE,
+  disabled = false,
 }: {
   minValue: number;
   maxValue: number;
   onCommit: (min: number, max: number) => void;
   absoluteMin?: number;
   absoluteMax?: number;
+  disabled?: boolean;
 }) {
   const id = useId();
-  const [lo, setLo] = useState(minValue);
-  const [hi, setHi] = useState(maxValue);
+  const span = Math.max(0, absoluteMax - absoluteMin);
+  const step = useMemo(
+    () => priceRangeStep(absoluteMin, absoluteMax),
+    [absoluteMin, absoluteMax],
+  );
+  const minGap = span <= 0 ? 0 : Math.min(step, span);
+
+  const clampPair = useCallback(
+    (a: number, b: number) => {
+      const lo = Math.min(absoluteMax, Math.max(absoluteMin, Math.min(a, b)));
+      const hi = Math.min(absoluteMax, Math.max(absoluteMin, Math.max(a, b)));
+      return { lo, hi };
+    },
+    [absoluteMin, absoluteMax],
+  );
+
+  const initial = clampPair(minValue, maxValue);
+  const [lo, setLo] = useState(initial.lo);
+  const [hi, setHi] = useState(initial.hi);
   // Refs so mouseup/touchend commit the value just written in onChange (not stale state).
-  const loRef = useRef(minValue);
-  const hiRef = useRef(maxValue);
+  const loRef = useRef(initial.lo);
+  const hiRef = useRef(initial.hi);
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setLo(minValue);
-    setHi(maxValue);
-    loRef.current = minValue;
-    hiRef.current = maxValue;
-  }, [minValue, maxValue]);
+    const next = clampPair(minValue, maxValue);
+    setLo(next.lo);
+    setHi(next.hi);
+    loRef.current = next.lo;
+    hiRef.current = next.hi;
+  }, [minValue, maxValue, clampPair]);
 
   const pct = useCallback(
-    (v: number) => ((v - absoluteMin) / (absoluteMax - absoluteMin)) * 100,
-    [absoluteMin, absoluteMax],
+    (v: number) => (span <= 0 ? 0 : ((v - absoluteMin) / span) * 100),
+    [absoluteMin, span],
   );
 
   const clamp = (v: number) => Math.min(absoluteMax, Math.max(absoluteMin, v));
 
   const commit = () => onCommit(loRef.current, hiRef.current);
 
+  const parseInput = (raw: string) => {
+    const n = Number(toEnglishDigits(raw).replace(/[^\d]/g, "") || "0");
+    return clamp(n);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", disabled && "pointer-events-none opacity-50")}>
       <div ref={trackRef} className="relative h-8 touch-none px-1">
         <div className="absolute inset-x-1 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-secondary" />
         <div
@@ -58,10 +84,14 @@ export function PriceRangeSlider({
           type="range"
           min={absoluteMin}
           max={absoluteMax}
-          step={100_000}
+          step={step}
           value={lo}
+          disabled={disabled || span <= 0}
           onChange={(e) => {
-            const next = Math.min(clamp(Number(e.target.value)), hiRef.current - 100_000);
+            const next = Math.min(
+              clamp(Number(e.target.value)),
+              hiRef.current - minGap,
+            );
             loRef.current = next;
             setLo(next);
           }}
@@ -74,10 +104,14 @@ export function PriceRangeSlider({
           type="range"
           min={absoluteMin}
           max={absoluteMax}
-          step={100_000}
+          step={step}
           value={hi}
+          disabled={disabled || span <= 0}
           onChange={(e) => {
-            const next = Math.max(clamp(Number(e.target.value)), loRef.current + 100_000);
+            const next = Math.max(
+              clamp(Number(e.target.value)),
+              loRef.current + minGap,
+            );
             hiRef.current = next;
             setHi(next);
           }}
@@ -91,10 +125,10 @@ export function PriceRangeSlider({
         <input
           id={`${id}-min`}
           inputMode="numeric"
-          value={toPersianDigits(String(lo))}
+          disabled={disabled}
+          value={formatNumber(lo)}
           onChange={(e) => {
-            const n = Number(toEnglishDigits(e.target.value).replace(/[^\d]/g, "") || "0");
-            const next = clamp(n);
+            const next = parseInput(e.target.value);
             loRef.current = next;
             setLo(next);
           }}
@@ -113,10 +147,10 @@ export function PriceRangeSlider({
         <input
           id={`${id}-max`}
           inputMode="numeric"
-          value={toPersianDigits(String(hi))}
+          disabled={disabled}
+          value={formatNumber(hi)}
           onChange={(e) => {
-            const n = Number(toEnglishDigits(e.target.value).replace(/[^\d]/g, "") || "0");
-            const next = clamp(n);
+            const next = parseInput(e.target.value);
             hiRef.current = next;
             setHi(next);
           }}

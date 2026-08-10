@@ -25,6 +25,40 @@ import type { ProductImage } from "@/types/product";
 type GalleryImage = ProductImage & { url: string };
 
 const SWIPE_THRESHOLD = 48;
+const LB_MIN_SCALE = 1;
+const LB_MAX_SCALE = 4;
+const LB_DOUBLE_TAP_SCALE = 2.5;
+const LB_DOUBLE_TAP_MS = 280;
+const LB_DESKTOP_SCALE = 2.15;
+
+type LbMobileZoom = { scale: number; x: number; y: number };
+
+function clampLbScale(scale: number) {
+  return Math.min(LB_MAX_SCALE, Math.max(LB_MIN_SCALE, scale));
+}
+
+function clampLbPan(
+  scale: number,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): { x: number; y: number } {
+  if (scale <= 1.01) return { x: 0, y: 0 };
+  const maxX = ((scale - 1) * width) / 2;
+  const maxY = ((scale - 1) * height) / 2;
+  return {
+    x: Math.min(maxX, Math.max(-maxX, x)),
+    y: Math.min(maxY, Math.max(-maxY, y)),
+  };
+}
+
+function pinchDistance(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+) {
+  return Math.hypot(b.x - a.x, b.y - a.y);
+}
 
 export function ProductGallery({
   images,
@@ -485,28 +519,132 @@ function GalleryLightbox({
   const swipeRef = useRef<{ x: number; y: number; moved: boolean } | null>(
     null,
   );
+  /** Desktop fine-pointer click zoom (unchanged UX). */
   const [lbZoom, setLbZoom] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
+  /**
+   * Mobile-only image-layer zoom/pan via CSS transform.
+   * Never enables document / viewport pinch-zoom.
+   */
+  const [mobileZoom, setMobileZoom] = useState<LbMobileZoom>({
+    scale: 1,
+    x: 0,
+    y: 0,
+  });
+  /** Gesture handlers read latest zoom without re-binding; writers update both. */
+  const mobileZoomRef = useRef(mobileZoom);
   const frameRef = useRef<HTMLDivElement>(null);
+  const pointersRef = useRef(
+    new Map<number, { x: number; y: number }>(),
+  );
+  const pinchRef = useRef<{
+    distance: number;
+    scale: number;
+    x: number;
+    y: number;
+    midX: number;
+    midY: number;
+  } | null>(null);
+  const panRef = useRef<{
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+  const lastTapRef = useRef<{ t: number; x: number; y: number } | null>(null);
+  const gestureMovedRef = useRef(false);
+  /** True while pinch/pan is live — disables CSS transition on the image layer. */
+  const [gestureLive, setGestureLive] = useState(false);
+  /** Keep translate+scale path mounted through zoom-out so CSS can interpolate. */
+  const [mobileLayer, setMobileLayer] = useState(false);
+  const mobileLayerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const clearMobileLayerTimer = useCallback(() => {
+    if (mobileLayerTimerRef.current != null) {
+      clearTimeout(mobileLayerTimerRef.current);
+      mobileLayerTimerRef.current = null;
+    }
+  }, []);
+
+  const resetMobileZoom = useCallback(() => {
+    const next = { scale: 1, x: 0, y: 0 };
+    mobileZoomRef.current = next;
+    setMobileZoom(next);
+    pinchRef.current = null;
+    panRef.current = null;
+    pointersRef.current.clear();
+    lastTapRef.current = null;
+    setGestureLive(false);
+    clearMobileLayerTimer();
+    setMobileLayer(false);
+  }, [clearMobileLayerTimer]);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(
+    () => () => {
+      clearMobileLayerTimer();
+    },
+    [clearMobileLayerTimer],
+  );
 
   useFocusTrap(dialogRef, open, onClose);
 
   useEffect(() => {
-    if (!open) setLbZoom(false);
-  }, [open]);
+    if (!open) {
+      setLbZoom(false);
+      resetMobileZoom();
+    }
+  }, [open, resetMobileZoom]);
+
+  useEffect(() => {
+    setLbZoom(false);
+    resetMobileZoom();
+  }, [activeIndex, resetMobileZoom]);
+
+  const applyMobileZoom = useCallback(
+    (next: LbMobileZoom) => {
+      const frame = frameRef.current;
+      const w = frame?.clientWidth ?? 1;
+      const h = frame?.clientHeight ?? 1;
+      const scale = clampLbScale(next.scale);
+      const pan =
+        scale <= 1.01
+          ? { x: 0, y: 0 }
+          : clampLbPan(scale, next.x, next.y, w, h);
+      const clamped = { scale: scale <= 1.01 ? 1 : scale, x: pan.x, y: pan.y };
+      mobileZoomRef.current = clamped;
+      setMobileZoom(clamped);
+      setLbZoom(false);
+      clearMobileLayerTimer();
+      if (clamped.scale > 1) {
+        setMobileLayer(true);
+      } else {
+        setMobileLayer(true);
+        mobileLayerTimerRef.current = setTimeout(() => {
+          setMobileLayer(false);
+          mobileLayerTimerRef.current = null;
+        }, 300);
+      }
+    },
+    [clearMobileLayerTimer],
+  );
 
   const handlePrev = () => {
     setLbZoom(false);
+    resetMobileZoom();
     onPrev();
   };
   const handleNext = () => {
     setLbZoom(false);
+    resetMobileZoom();
     onNext();
   };
   const handleSelect = (id: number) => {
     setLbZoom(false);
+    resetMobileZoom();
     onSelect(id);
   };
 
@@ -519,8 +657,259 @@ function GalleryLightbox({
     });
   };
 
+  const isFinePointer = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  const onFramePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && isFinePointer()) {
+      swipeRef.current = { x: e.clientX, y: e.clientY, moved: false };
+      return;
+    }
+
+    // Touch / pen — image-layer gestures only
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    gestureMovedRef.current = false;
+    swipeRef.current = { x: e.clientX, y: e.clientY, moved: false };
+
+    if (pointersRef.current.size === 2) {
+      const pts = [...pointersRef.current.values()];
+      const a = pts[0]!;
+      const b = pts[1]!;
+      const z = mobileZoomRef.current;
+      pinchRef.current = {
+        distance: Math.max(1, pinchDistance(a, b)),
+        scale: z.scale,
+        x: z.x,
+        y: z.y,
+        midX: (a.x + b.x) / 2,
+        midY: (a.y + b.y) / 2,
+      };
+      panRef.current = null;
+      setGestureLive(true);
+      setLbZoom(false);
+      return;
+    }
+
+    if (mobileZoomRef.current.scale > 1.01) {
+      panRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        originX: mobileZoomRef.current.x,
+        originY: mobileZoomRef.current.y,
+      };
+      setGestureLive(true);
+    }
+  };
+
+  const onFramePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && isFinePointer()) {
+      const start = swipeRef.current;
+      if (!start) return;
+      if (
+        Math.abs(e.clientX - start.x) > 8 ||
+        Math.abs(e.clientY - start.y) > 8
+      ) {
+        start.moved = true;
+      }
+      return;
+    }
+
+    if (!pointersRef.current.has(e.pointerId)) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    const start = swipeRef.current;
+    if (
+      start &&
+      (Math.abs(e.clientX - start.x) > 8 || Math.abs(e.clientY - start.y) > 8)
+    ) {
+      start.moved = true;
+      gestureMovedRef.current = true;
+    }
+
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      const pts = [...pointersRef.current.values()];
+      const a = pts[0]!;
+      const b = pts[1]!;
+      const dist = Math.max(1, pinchDistance(a, b));
+      const pinch = pinchRef.current;
+      const nextScale = clampLbScale(pinch.scale * (dist / pinch.distance));
+      const midX = (a.x + b.x) / 2;
+      const midY = (a.y + b.y) / 2;
+      const frame = frameRef.current;
+      if (!frame) return;
+      const rect = frame.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      // Anchor under pinch midpoint + follow mid-point drift
+      const nextX =
+        pinch.x +
+        (midX - pinch.midX) +
+        (pinch.midX - cx) * (1 - nextScale / Math.max(pinch.scale, 0.001));
+      const nextY =
+        pinch.y +
+        (midY - pinch.midY) +
+        (pinch.midY - cy) * (1 - nextScale / Math.max(pinch.scale, 0.001));
+      applyMobileZoom({ scale: nextScale, x: nextX, y: nextY });
+      return;
+    }
+
+    if (panRef.current && mobileZoomRef.current.scale > 1.01) {
+      const pan = panRef.current;
+      applyMobileZoom({
+        scale: mobileZoomRef.current.scale,
+        x: pan.originX + (e.clientX - pan.startX),
+        y: pan.originY + (e.clientY - pan.startY),
+      });
+    }
+  };
+
+  const endTouchPointer = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) {
+      pinchRef.current = null;
+      // Snap near-min back to rest
+      const z = mobileZoomRef.current;
+      if (z.scale < 1.05) {
+        applyMobileZoom({ scale: 1, x: 0, y: 0 });
+      } else {
+        applyMobileZoom(z);
+      }
+    }
+    if (pointersRef.current.size === 0) {
+      panRef.current = null;
+      setGestureLive(false);
+    } else if (
+      pointersRef.current.size === 1 &&
+      mobileZoomRef.current.scale > 1.01
+    ) {
+      const remaining = [...pointersRef.current.values()][0]!;
+      panRef.current = {
+        startX: remaining.x,
+        startY: remaining.y,
+        originX: mobileZoomRef.current.x,
+        originY: mobileZoomRef.current.y,
+      };
+      setGestureLive(true);
+    }
+  };
+
+  const onFramePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && isFinePointer()) {
+      const start = swipeRef.current;
+      swipeRef.current = null;
+      if (!start) return;
+
+      if (start.moved && multi) {
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+        if (
+          Math.abs(dx) >= SWIPE_THRESHOLD &&
+          Math.abs(dx) > Math.abs(dy)
+        ) {
+          if (dx > 0) handleNext();
+          else handlePrev();
+        }
+        return;
+      }
+
+      updateOrigin(e.clientX, e.clientY);
+      clearMobileLayerTimer();
+      setMobileLayer(false);
+      mobileZoomRef.current = { scale: 1, x: 0, y: 0 };
+      setMobileZoom({ scale: 1, x: 0, y: 0 });
+      setLbZoom((z) => !z);
+      return;
+    }
+
+    const start = swipeRef.current;
+    const wasPinching =
+      pinchRef.current != null || pointersRef.current.size > 1;
+    const moved = start?.moved || gestureMovedRef.current;
+    endTouchPointer(e);
+    swipeRef.current = null;
+
+    if (wasPinching) return;
+    if (pointersRef.current.size > 0) return;
+
+    // Swipe between images only when not zoomed
+    if (moved && multi && mobileZoomRef.current.scale <= 1.01) {
+      if (!start) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) handleNext();
+        else handlePrev();
+      }
+      lastTapRef.current = null;
+      return;
+    }
+
+    if (moved) return;
+
+    // Double-tap zoom in/out (touch only)
+    const now = Date.now();
+    const prev = lastTapRef.current;
+    if (
+      prev &&
+      now - prev.t <= LB_DOUBLE_TAP_MS &&
+      Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 36
+    ) {
+      lastTapRef.current = null;
+      const frame = frameRef.current;
+      if (!frame) return;
+      const rect = frame.getBoundingClientRect();
+      const z = mobileZoomRef.current;
+      if (z.scale > 1.05) {
+        applyMobileZoom({ scale: 1, x: 0, y: 0 });
+        setLbZoom(false);
+        return;
+      }
+      const target = LB_DOUBLE_TAP_SCALE;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const nextX = (cx - e.clientX) * (target - 1);
+      const nextY = (cy - e.clientY) * (target - 1);
+      applyMobileZoom({ scale: target, x: nextX, y: nextY });
+      setLbZoom(false);
+      return;
+    }
+
+    lastTapRef.current = { t: now, x: e.clientX, y: e.clientY };
+  };
+
+  const onFramePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && isFinePointer()) {
+      swipeRef.current = null;
+      return;
+    }
+    endTouchPointer(e);
+    swipeRef.current = null;
+  };
+
   const fadeMs = reducedMotion ? 0.01 : 0.22;
   const crossfadeMs = reducedMotion ? 0.01 : 0.26;
+  const mobileZoomed = mobileZoom.scale > 1.01;
+  const useMobileTransform = mobileLayer || mobileZoomed || gestureLive;
+  const imageTransform: CSSProperties = useMobileTransform
+    ? {
+        transformOrigin: "center center",
+        transform: `translate3d(${mobileZoom.x}px, ${mobileZoom.y}px, 0) scale(${mobileZoom.scale})`,
+        transition:
+          gestureLive || reducedMotion
+            ? "none"
+            : "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }
+    : {
+        transformOrigin: `${origin.x}% ${origin.y}%`,
+        transform: lbZoom ? `scale(${LB_DESKTOP_SCALE})` : "scale(1)",
+        transition: reducedMotion
+          ? "none"
+          : lbZoom
+            ? "transform 70ms linear"
+            : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+      };
 
   if (!mounted) return null;
 
@@ -547,24 +936,36 @@ function GalleryLightbox({
             onClick={onClose}
           />
 
+          {/* dir=ltr: close stays physical top-right under site-wide RTL */}
           <div
+            dir="ltr"
             className="relative z-10 flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]"
             onClick={(e) => {
               if (e.target === e.currentTarget) onClose();
             }}
           >
-            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-steel shadow-soft">
+            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-steel shadow-soft tabular-nums">
               {activeIndex + 1} / {list.length}
             </span>
             <button
               type="button"
               aria-label="بستن گالری"
               onClick={onClose}
-              className="grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-white text-[1.85rem] leading-none text-[#0e0f0f] shadow-[0_4px_20px_rgba(0,0,0,0.35)] ring-2 ring-black/25 transition hover:bg-white hover:text-karzar-500"
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white bg-white p-0 text-[#0e0f0f] shadow-[0_4px_20px_rgba(0,0,0,0.35)] ring-2 ring-black/25 transition hover:bg-white hover:text-karzar-500"
             >
-              <span aria-hidden className="translate-y-[-1px]">
-                ×
-              </span>
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                width={22}
+                height={22}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.25}
+                strokeLinecap="round"
+                className="block shrink-0"
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
             </button>
           </div>
 
@@ -580,7 +981,7 @@ function GalleryLightbox({
                 if (e.target === e.currentTarget) onClose();
               }}
             >
-              {multi && (
+              {multi && !mobileZoomed && (
                 <>
                   <button
                     type="button"
@@ -604,52 +1005,21 @@ function GalleryLightbox({
               <div
                 ref={frameRef}
                 className={cn(
-                  "relative mx-auto aspect-square h-auto w-full max-h-[min(68dvh,760px)] max-w-4xl overflow-hidden rounded-2xl touch-manipulation",
+                  "relative mx-auto aspect-square h-auto w-full max-h-[min(68dvh,760px)] max-w-4xl overflow-hidden rounded-2xl",
+                  /* touch-none: contain pinch/pan to this layer; no page zoom */
+                  "touch-none select-none",
                   "bg-white shadow-[0_24px_64px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/80",
-                  lbZoom ? "cursor-zoom-out" : "cursor-zoom-in",
+                  lbZoom || mobileZoomed ? "cursor-zoom-out" : "cursor-zoom-in",
                 )}
                 onMouseMove={(e) => {
-                  if (!lbZoom) return;
+                  if (!lbZoom || mobileZoomed) return;
+                  if (!isFinePointer()) return;
                   updateOrigin(e.clientX, e.clientY);
                 }}
-                onPointerDown={(e) => {
-                  swipeRef.current = {
-                    x: e.clientX,
-                    y: e.clientY,
-                    moved: false,
-                  };
-                }}
-                onPointerMove={(e) => {
-                  const start = swipeRef.current;
-                  if (!start) return;
-                  if (
-                    Math.abs(e.clientX - start.x) > 8 ||
-                    Math.abs(e.clientY - start.y) > 8
-                  ) {
-                    start.moved = true;
-                  }
-                }}
-                onPointerUp={(e) => {
-                  const start = swipeRef.current;
-                  swipeRef.current = null;
-                  if (!start) return;
-
-                  if (start.moved && multi) {
-                    const dx = e.clientX - start.x;
-                    const dy = e.clientY - start.y;
-                    if (
-                      Math.abs(dx) >= SWIPE_THRESHOLD &&
-                      Math.abs(dx) > Math.abs(dy)
-                    ) {
-                      if (dx > 0) handleNext();
-                      else handlePrev();
-                    }
-                    return;
-                  }
-
-                  updateOrigin(e.clientX, e.clientY);
-                  setLbZoom((z) => !z);
-                }}
+                onPointerDown={onFramePointerDown}
+                onPointerMove={onFramePointerMove}
+                onPointerUp={onFramePointerUp}
+                onPointerCancel={onFramePointerCancel}
               >
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
@@ -663,24 +1033,13 @@ function GalleryLightbox({
                     }}
                     className="absolute inset-0"
                   >
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        transformOrigin: `${origin.x}% ${origin.y}%`,
-                        transform: lbZoom ? "scale(2.15)" : "scale(1)",
-                        transition: reducedMotion
-                          ? "none"
-                          : lbZoom
-                            ? "transform 70ms linear"
-                            : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
-                      }}
-                    >
+                    <div className="absolute inset-0" style={imageTransform}>
                       <SafeImage
                         src={current.url}
                         alt={alt}
                         fill
                         sizes="100vw"
-                        className="object-cover object-center select-none"
+                        className="pointer-events-none object-cover object-center select-none"
                         draggable={false}
                         fallback={<ProductPlaceholder name={alt} />}
                         {...lazyImageProps()}

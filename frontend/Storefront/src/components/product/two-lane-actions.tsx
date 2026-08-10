@@ -63,7 +63,7 @@ export function TwoLaneActions({
 
           {cart.inCart ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-success/10 px-3 py-2.5 text-[12px] text-success">
-              <span className="font-medium">در سبد خرید است.</span>
+              <span className="font-medium">به سبد اضافه شد.</span>
               <Link
                 href="/cart"
                 className="font-bold underline-offset-2 hover:underline"

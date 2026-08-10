@@ -141,7 +141,7 @@ function QuietBrandColumn({
                 ? "(min-width: 1024px) 180px, 50vw"
                 : "(min-width: 1024px) 240px, 70vw"
             }
-            className="object-cover object-center"
+            className="object-contain object-center p-2.5 lg:object-cover lg:p-0"
             unoptimized={isSvg}
             fallback={
               <span className="text-base font-bold text-steel/35">{initial}</span>

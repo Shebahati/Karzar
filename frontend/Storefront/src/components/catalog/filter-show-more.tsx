@@ -6,6 +6,9 @@ import { cn, toPersianDigits } from "@/lib/utils";
 /** Initial visible rows/chips inside an open filter accordion (no panel max-height). */
 export const FILTER_OPTION_PREVIEW = 20;
 
+/** Brands accordion only — shorter preview before «نمایش بیشتر». */
+export const FILTER_BRAND_PREVIEW = 5;
+
 /** Collapse long filter option lists: first N, then «نمایش بیشتر» → all. */
 export function useFilterShowMore(
   total: number,

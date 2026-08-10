@@ -74,6 +74,8 @@ function CategoryOrbButton({
       className={cn(
         "group flex w-[5.5rem] shrink-0 snap-start flex-col items-center outline-none sm:w-[6.25rem]",
         "focus-visible:rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/25",
+        !active &&
+          "hover-fine:[&>span:first-of-type]:bg-karzar-50 hover-fine:[&>span:first-of-type]:text-foreground hover-fine:[&>span:first-of-type]:shadow-[0_8px_18px_-10px_rgba(208,35,39,0.10)]",
       )}
     >
       <span
@@ -85,8 +87,7 @@ function CategoryOrbButton({
           active
             ? // Selected: keep gray fill; distinctive soft brand-red ring
               "scale-[1.05] bg-[#F5F5F5] shadow-[0_8px_22px_rgba(208,35,39,0.12)] ring-2 ring-primary/55 group-hover:bg-[#F5F5F5] group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.16)] group-hover:ring-primary/70"
-            : // Idle: soft red tint at 20% on hover (not gray wash)
-              "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-primary/20 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.1)] group-hover:ring-primary/25",
+            : "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04]",
         )}
       >
         <CategoryVisualIcon

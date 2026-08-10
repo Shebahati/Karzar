@@ -25,7 +25,7 @@ export function OrderTimeline({
         </p>
       )}
 
-      <ol className="-mx-1 flex items-stretch gap-0 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
+      <ol className="flex min-w-0 max-w-full items-stretch gap-0 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
         {events.map((event, i) => {
           const complete = event.is_complete ?? i === 0;
           const current = event.is_current ?? false;

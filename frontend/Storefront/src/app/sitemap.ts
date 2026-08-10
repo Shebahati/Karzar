@@ -85,7 +85,7 @@ async function collectBrandEntries(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = getSiteUrl();
   const now = new Date();
-  const staticPaths = ["", "/catalog", "/blog", "/about", "/contact", "/terms", "/privacy"];
+  const staticPaths = ["", "/catalog", "/blog", "/about", "/contact", "/terms", "/faq"];
 
   const staticEntries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
     url: `${site}${path || "/"}`,

@@ -9,16 +9,17 @@ import { useFeatureLabel } from "@/lib/feature-labels";
 import { AccordionFilter } from "@/components/catalog/accordion-filter";
 import { CategoryTreeFilter } from "@/components/catalog/category-tree-filter";
 import {
+  FILTER_BRAND_PREVIEW,
   FilterShowMoreButton,
   useFilterShowMore,
 } from "@/components/catalog/filter-show-more";
 import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
+import { useCatalogPriceDomain } from "@/components/catalog/use-catalog-price-domain";
 import {
-  DEFAULT_MAX_PRICE,
-  DEFAULT_MIN_PRICE,
   encodeCountryList,
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
+import type { ProductListParams, ProductSummary } from "@/types/product";
 
 /** Shared filter UI rendered inside the desktop sidebar and the mobile drawer. */
 export function FilterPanel({
@@ -30,16 +31,19 @@ export function FilterPanel({
   /** Hub pages lock a category in the path — clear must leave the hub. */
   lockedCategoryId,
   /**
-   * `sidebar`: sticky column with pinned «فیلترها» + explicit max-h scrollport.
+   * `sidebar`: sticky column; filters grow with content (page scrolls).
    * `stack` (default): plain flow for the mobile drawer (drawer owns overflow).
    */
   layout = "stack",
+  /** Products currently shown on the PLP — folded into the price slider domain. */
+  priceSeedProducts = [],
 }: {
   onApplied?: () => void;
   notifyOnChange?: boolean;
   mobileDefaults?: boolean;
   lockedCategoryId?: number;
   layout?: "stack" | "sidebar";
+  priceSeedProducts?: Pick<ProductSummary, "base_price">[];
 }) {
   const {
     params,
@@ -96,11 +100,47 @@ export function FilterPanel({
     );
   }, [brands, brandQuery]);
 
-  const brandShowMore = useFilterShowMore(filteredBrands.length, brandQuery);
+  const brandShowMore = useFilterShowMore(
+    filteredBrands.length,
+    brandQuery,
+    FILTER_BRAND_PREVIEW,
+  );
   const countryShowMore = useFilterShowMore(countries.length);
 
-  const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
-  const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
+  const priceDomainParams = useMemo<ProductListParams>(() => {
+    const next: ProductListParams = {
+      category_id: effectiveCategoryId,
+      brand_ids: params.brand_ids,
+      countries: params.countries,
+      search: params.search,
+      in_stock: params.in_stock,
+      on_sale: params.on_sale,
+      spec_filters: params.spec_filters,
+    };
+    return next;
+  }, [
+    effectiveCategoryId,
+    params.brand_ids,
+    params.countries,
+    params.search,
+    params.in_stock,
+    params.on_sale,
+    params.spec_filters,
+  ]);
+
+  const { absoluteMin, absoluteMax } = useCatalogPriceDomain(
+    priceDomainParams,
+    priceSeedProducts,
+  );
+
+  const priceMin = Math.min(
+    absoluteMax,
+    Math.max(absoluteMin, params.min_price ?? absoluteMin),
+  );
+  const priceMax = Math.max(
+    priceMin,
+    Math.min(absoluteMax, params.max_price ?? absoluteMax),
+  );
 
   /** URL `category` → product list API `category_id` (incl. L1/L2/L3; API expands subtree). */
   const selectCategory = (id: number | null) => {
@@ -124,7 +164,7 @@ export function FilterPanel({
     <div
       className={cn(
         "flex items-center justify-between gap-2 px-0.5",
-        isSidebar && "shrink-0 bg-background pb-3",
+        isSidebar && "bg-background pb-3",
       )}
     >
       <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
@@ -154,7 +194,7 @@ export function FilterPanel({
         hint={
           selectedBrandIds.length > 0
             ? `${toPersianDigits(selectedBrandIds.length)} برند انتخاب شده`
-            : "می‌توانید چند برند را همزمان انتخاب کنید"
+            : undefined
         }
         badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
         defaultOpen={false}
@@ -245,7 +285,7 @@ export function FilterPanel({
           hint={
             selectedCountries.length > 0
               ? `${toPersianDigits(selectedCountries.length)} کشور انتخاب شده`
-              : "انتخاب چندتایی"
+              : undefined
           }
           badge={
             selectedCountries.length
@@ -320,9 +360,10 @@ export function FilterPanel({
         <PriceRangeSlider
           minValue={priceMin}
           maxValue={priceMax}
+          absoluteMin={absoluteMin}
+          absoluteMax={absoluteMax}
           onCommit={(min, max) => {
-            const isDefault =
-              min <= DEFAULT_MIN_PRICE && max >= DEFAULT_MAX_PRICE;
+            const isDefault = min <= absoluteMin && max >= absoluteMax;
             setParams({
               min_price: isDefault ? null : min,
               max_price: isDefault ? null : max,
@@ -385,26 +426,12 @@ export function FilterPanel({
   );
 
   if (isSidebar) {
-    // Sticky + max-h keep the column on-screen; scrollport uses explicit max-h
-    // (not flex-1 alone) so expanded accordions remain fully reachable.
-    // overscroll-behavior:auto — chain to page when panel hits top/bottom (no contain).
+    // Sticky while short; when accordions grow past the fold the page/column
+    // scrolls — no viewport max-height or inner overflow pane (that clipped).
     return (
-      <div
-        className={cn(
-          "sticky top-24 z-[1] flex w-full flex-col overflow-hidden",
-          "max-h-[calc(100dvh-5.5rem)]",
-        )}
-      >
+      <div className="sticky top-24 z-[1] w-full space-y-3 pe-1">
         {header}
-        <div
-          className={cn(
-            "no-scrollbar min-h-0 flex-1 overflow-y-auto pe-1",
-            "max-h-[calc(100dvh-8.75rem)]",
-            "[overscroll-behavior:auto]",
-          )}
-        >
-          <div className="space-y-3">{body}</div>
-        </div>
+        {body}
       </div>
     );
   }

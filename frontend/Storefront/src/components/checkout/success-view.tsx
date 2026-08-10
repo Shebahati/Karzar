@@ -22,12 +22,12 @@ export function SuccessView() {
   const { data: tracking, isPending, isError } = useOrderTracking(ref, Boolean(ref));
 
   return (
-    <Container className="grid min-h-[70vh] place-items-center py-12">
+    <Container className="grid min-h-[70vh] w-full min-w-0 place-items-center overflow-x-clip py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="w-full max-w-lg rounded-3xl bg-card p-8 text-center shadow-elevated sm:p-12"
+        className="w-full min-w-0 max-w-lg overflow-hidden rounded-3xl bg-card p-5 text-center shadow-elevated sm:p-8 md:p-12"
       >
         <motion.span
           initial={{ scale: 0 }}
@@ -38,10 +38,10 @@ export function SuccessView() {
           <TickSquare set="bold" size="xlarge" />
         </motion.span>
 
-        <h1 className="mt-6 text-2xl font-bold text-foreground">
+        <h1 className="mt-6 break-words text-xl font-bold text-foreground sm:text-2xl">
           {isInquiry ? "استعلام شما ثبت شد" : paid ? "پرداخت با موفقیت انجام شد" : "سفارش شما ثبت شد"}
         </h1>
-        <p className="mt-2 text-sm leading-7 text-muted-foreground">
+        <p className="mt-2 break-words text-sm leading-7 text-muted-foreground">
           {isInquiry
             ? "کارشناسان ما درخواست شما را بررسی کرده و در اسرع وقت پیش‌فاکتور را ارسال می‌کنند."
             : paid
@@ -49,10 +49,12 @@ export function SuccessView() {
               : "از خرید شما سپاسگزاریم. وضعیت را با کد پیگیری در حساب کاربری دنبال کنید."}
         </p>
 
-        <div className="mt-6 rounded-2xl bg-secondary p-5">
+        <div className="mt-6 min-w-0 rounded-2xl bg-secondary p-4 sm:p-5">
           <p className="text-xs text-muted-foreground">کد پیگیری</p>
-          <div className="mt-1 flex items-center justify-center gap-3">
-            <p className="text-2xl font-bold tracking-wider text-primary tnum">{toPersianDigits(ref)}</p>
+          <div className="mt-1 flex min-w-0 items-center justify-center gap-2 sm:gap-3">
+            <p className="min-w-0 break-all text-xl font-bold tracking-wider text-primary tnum sm:text-2xl">
+              {toPersianDigits(ref)}
+            </p>
             <button
               type="button"
               onClick={() => {
@@ -62,7 +64,7 @@ export function SuccessView() {
                 });
               }}
               aria-label="کپی کد پیگیری"
-              className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
             >
               <Paper size="small" set={copied ? "bold" : "light"} />
             </button>
@@ -70,7 +72,7 @@ export function SuccessView() {
           {copied && <p className="mt-1 text-xs text-success">کد پیگیری کپی شد.</p>}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-border p-5 text-start">
+        <div className="mt-6 min-w-0 overflow-hidden rounded-2xl border border-border p-4 text-start sm:p-5">
           <p className="text-sm font-bold text-foreground">وضعیت {isInquiry ? "استعلام" : "سفارش"}</p>
           {isPending && (
             <div className="mt-3 space-y-2">
@@ -79,29 +81,33 @@ export function SuccessView() {
             </div>
           )}
           {isError && (
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 break-words text-sm text-muted-foreground">
               اطلاعات وضعیت در حال حاضر در دسترس نیست.
             </p>
           )}
           {tracking && (
             <>
-              <p className="mt-2 text-sm font-bold text-primary">{tracking.status_label}</p>
+              <p className="mt-2 break-words text-sm font-bold text-primary">{tracking.status_label}</p>
               {tracking.postal_tracking_code && (
-                <p className="mt-2 text-xs text-muted-foreground">
+                <p className="mt-2 break-words text-xs text-muted-foreground">
                   کد رهگیری پست:{" "}
-                  <span className="font-bold text-foreground tnum">{tracking.postal_tracking_code}</span>
+                  <span className="break-all font-bold text-foreground tnum">
+                    {tracking.postal_tracking_code}
+                  </span>
                 </p>
               )}
-              <OrderTimeline
-                events={tracking.timeline}
-                estimated={Boolean(tracking.timeline_estimated)}
-              />
+              <div className="mt-3 min-w-0 max-w-full overflow-x-auto">
+                <OrderTimeline
+                  events={tracking.timeline}
+                  estimated={Boolean(tracking.timeline_estimated)}
+                />
+              </div>
             </>
           )}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link href="/" className="flex-1">
+        <div className="mt-8 flex min-w-0 flex-col gap-3 sm:flex-row">
+          <Link href="/" className="min-w-0 flex-1">
             <Button variant="soft" size="lg" className="w-full gap-2">
               <Home set="bold" />
               بازگشت به خانه
@@ -109,7 +115,7 @@ export function SuccessView() {
           </Link>
           <Link
             href={isInquiry ? `/account/orders/${encodeURIComponent(ref)}` : "/account/orders"}
-            className="flex-1"
+            className="min-w-0 flex-1"
           >
             <Button size="lg" className="w-full gap-2">
               {isInquiry ? <Document set="bold" /> : <Call set="bold" />}

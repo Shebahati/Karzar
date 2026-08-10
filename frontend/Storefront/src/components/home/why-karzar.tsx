@@ -654,7 +654,7 @@ export function WhyKarzar() {
                       >
                         {cap.teaser}
                       </span>
-                    </span>
+            </span>
                   </>
                 );
 
