@@ -1005,7 +1005,9 @@ function GalleryLightbox({
               <div
                 ref={frameRef}
                 className={cn(
+                  /* Mobile: keep prior flex fill; desktop: width = height budget so aspect-square stays square (w-full+max-h alone yields a wide rect + object-cover crop). */
                   "relative mx-auto aspect-square h-auto w-full max-h-[min(68dvh,760px)] max-w-4xl overflow-hidden rounded-2xl",
+                  "lg:w-[min(100%,min(68dvh,760px))] lg:max-w-[min(100%,min(68dvh,760px))]",
                   /* touch-none: contain pinch/pan to this layer; no page zoom */
                   "touch-none select-none",
                   "bg-white shadow-[0_24px_64px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/80",

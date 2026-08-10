@@ -5,13 +5,52 @@ import { ChevronDown } from "react-iconly";
 import { cn } from "@/lib/utils";
 import type { FaqCategory } from "@/components/legal/faq-content";
 
-/** Page-wide single-open FAQ accordion with subtle height/opacity open animation. */
+/** Multi-open FAQ accordion with expand/collapse-all and subtle open animation. */
 export function FaqAccordion({ categories }: { categories: FaqCategory[] }) {
   const baseId = useId();
-  const [openId, setOpenId] = useState<string | null>(null);
+  const allIds = categories.flatMap((c) => c.items.map((i) => i.id));
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set());
+
+  const allOpen = allIds.length > 0 && allIds.every((id) => openIds.has(id));
+
+  function toggleItem(id: string) {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setOpenIds(allOpen ? new Set() : new Set(allIds));
+  }
 
   return (
     <div className="space-y-8">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={toggleAll}
+          aria-expanded={allOpen}
+          aria-label={allOpen ? "بستن همه پرسش‌ها" : "باز کردن همه پرسش‌ها"}
+          className="group inline-flex items-center gap-2 rounded-xl bg-card/80 py-1.5 ps-3.5 pe-1.5 text-[12px] font-bold text-steel shadow-soft ring-1 ring-inset ring-border/50 transition-colors hover:text-foreground"
+        >
+          <span className="transition-colors group-hover:text-foreground">
+            {allOpen ? "بستن همه" : "باز کردن همه"}
+          </span>
+          <span
+            className={cn(
+              "grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#D02327] text-white transition-transform duration-300 ease-out group-hover:bg-[#B01E22]",
+              allOpen && "rotate-180",
+            )}
+            aria-hidden
+          >
+            <ChevronDown size="small" set="bold" primaryColor="currentColor" />
+          </span>
+        </button>
+      </div>
+
       {categories.map((category, ci) => (
         <section
           key={category.id}
@@ -32,7 +71,7 @@ export function FaqAccordion({ categories }: { categories: FaqCategory[] }) {
 
           <div className="space-y-3">
             {category.items.map((item, i) => {
-              const open = openId === item.id;
+              const open = openIds.has(item.id);
               const panelId = `${baseId}-panel-${item.id}`;
               const buttonId = `${baseId}-btn-${item.id}`;
 
@@ -48,9 +87,7 @@ export function FaqAccordion({ categories }: { categories: FaqCategory[] }) {
                       id={buttonId}
                       aria-expanded={open}
                       aria-controls={panelId}
-                      onClick={() =>
-                        setOpenId((prev) => (prev === item.id ? null : item.id))
-                      }
+                      onClick={() => toggleItem(item.id)}
                       className="flex w-full items-start gap-3 px-4 py-4 text-start sm:gap-3.5 sm:px-5 sm:py-5"
                     >
                       <span

@@ -472,25 +472,11 @@
 }
 
 /* -------------------------------------------------------------------------- */
-/*  First-visit splash — gated by html[data-karzar-splash] (head boot script) */
-/*  Boot veil is a CSS pseudo (not React DOM). Overlay is React-owned only.  */
+/*  First-visit splash — React overlay only (.karzar-splash).                */
+/*  Pre-hydrate FOUC: head boot injects style[data-karzar-splash-boot]       */
+/*  (body::before + overflow). Do NOT gate via html[data-*] — that attr was  */
+/*  set pre-hydrate and mismatched RootLayout.                               */
 /* -------------------------------------------------------------------------- */
-html[data-karzar-splash] {
-  overflow: hidden;
-}
-
-/* Instant cover before React mounts FirstVisitSplash (avoids FOUC + removeChild). */
-html[data-karzar-splash] body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  pointer-events: auto;
-  background:
-    radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 58%),
-    linear-gradient(165deg, #f7f6f4 0%, #eef0f1 45%, #e6e8ea 100%);
-}
-
 .karzar-splash {
   position: fixed;
   inset: 0;

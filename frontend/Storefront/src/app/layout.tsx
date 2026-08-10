@@ -92,14 +92,18 @@ export default async function RootLayout({
       )}
     >
       <head>
-        {/* First-visit splash gate — sessionStorage; must run before paint (CSP nonce).
+        {/* First-visit splash FOUC gate — sessionStorage; must run before paint (CSP nonce).
+            Injects a <style data-karzar-splash-boot> ONLY. Must NEVER set attrs on <html>
+            (React owns that node — pre-hydrate documentElement.setAttribute caused hydration
+            mismatch). Strips leftover data-karzar-splash from older builds. FirstVisitSplash
+            removes the boot style on dismiss; boot also self-dismisses (load+1s / 2.8s max).
             suppressHydrationWarning: browsers clear script[nonce] from the DOM IDL after
             parse (getAttribute → ""), so React would otherwise warn prop≠DOM. */}
         <script
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k="karzar-splash-seen";if(sessionStorage.getItem(k))return;var h=document.documentElement;h.setAttribute("data-karzar-splash","");var done=0;function dismiss(){if(done)return;done=1;try{sessionStorage.setItem(k,"1")}catch(e){}h.removeAttribute("data-karzar-splash")}window.addEventListener("load",function(){setTimeout(dismiss,1000)},{once:true});setTimeout(dismiss,2800)}catch(e){}})();`,
+            __html: `(function(){try{var h=document.documentElement;h.removeAttribute("data-karzar-splash");var k="karzar-splash-seen";if(sessionStorage.getItem(k))return;var s=document.createElement("style");s.setAttribute("data-karzar-splash-boot","");s.textContent='html{overflow:hidden!important}body::before{content:"";position:fixed;inset:0;z-index:10000;pointer-events:auto;background:radial-gradient(ellipse 90% 70% at 50% 42%,#fff 0%,transparent 58%),linear-gradient(165deg,#f7f6f4 0%,#eef0f1 45%,#e6e8ea 100%)}';(document.head||h).appendChild(s);var done=0;function dismiss(){if(done)return;done=1;h.removeAttribute("data-karzar-splash");if(s.parentNode)s.parentNode.removeChild(s)}window.addEventListener("load",function(){setTimeout(dismiss,1000)},{once:true});setTimeout(dismiss,2800)}catch(e){}})();`,
           }}
         />
         {/* Analytics: set NEXT_PUBLIC_GA_MEASUREMENT_ID *or* NEXT_PUBLIC_GTM_ID — not both. */}
@@ -109,14 +113,6 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(sitewideJsonLd) }}
         />
-        <noscript>
-          <style
-            dangerouslySetInnerHTML={{
-              __html:
-                "html[data-karzar-splash]{overflow:auto!important}html[data-karzar-splash] body::before{content:none!important;display:none!important}",
-            }}
-          />
-        </noscript>
       </head>
       <body className="font-sans min-h-full w-full max-w-full overflow-x-clip overscroll-x-none bg-background text-foreground antialiased">
         <GoogleTagManagerNoscript />
@@ -124,7 +120,7 @@ export default async function RootLayout({
           پرش به محتوای اصلی
         </a>
         <Providers>
-          {/* React-owned splash; CSS body::before bridges FOUC until mount. */}
+          {/* React-owned splash; head boot <style> bridges FOUC until overlay paints. */}
           <FirstVisitSplash />
           <SiteHeader />
           {/* Clearance for fixed mobile bottom nav (~4.5rem + iOS home indicator). */}
