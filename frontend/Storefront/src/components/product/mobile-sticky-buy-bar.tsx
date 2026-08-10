@@ -192,7 +192,7 @@ function DockCartCta({
         )}
       >
         <Buy set="bold" size="small" />
-        {disabled ? "ناموجود" : "افزودن به سبد خرید"}
+        {disabled ? "ناموجود" : "افزودن"}
       </button>
 
       <div
