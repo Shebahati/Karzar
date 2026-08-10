@@ -355,8 +355,11 @@ function SlideCanvas({
  * Next = content moves right (ورق از چپ به راست).
  * Mobile-only; desktop uses AnimatePresence sheet (arrows + autoplay, no drag).
  *
- * Android smoothness: 1:1 x tracking (±width, tiny elastic) + direction lock.
+ * Android smoothness: 1:1 x tracking (±width) + direction lock.
  * Do NOT setState on drag start — that re-renders 3 SlideCanvases mid-gesture.
+ * Do NOT setState / flip touch-action on drag end before settle owns `x` —
+ * Framer starts post-drag inertia before onDragEnd (postRender); killing that
+ * and continuing animate from the live motion value avoids the finger-lift hitch.
  */
 function HeroSheetStrip({
   slides,
@@ -383,7 +386,9 @@ function HeroSheetStrip({
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef(0);
+  const settlingRef = useRef(false);
   const [width, setWidth] = useState(0);
+  /** Disables drag after settle has started (deferred); also re-triggers nudge effect. */
   const [locked, setLocked] = useState(false);
   const x = useMotionValue(0);
 
@@ -394,6 +399,13 @@ function HeroSheetStrip({
   const prevPreset = (prev.mobilePreset ?? packPreset) as MobileComposePreset;
   const nextPreset = (next.mobilePreset ?? packPreset) as MobileComposePreset;
   const settleMs = isMobile ? HERO_SHEET_MS_MOBILE : HERO_SHEET_MS;
+
+  const restoreTrackInteraction = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.style.touchAction = "pan-y";
+    track.style.pointerEvents = "";
+  }, []);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -413,12 +425,19 @@ function HeroSheetStrip({
     (target: number, commit: () => void) => {
       const w = widthRef.current;
       if (!w) {
+        settlingRef.current = false;
         commit();
         x.set(0);
         setLocked(false);
+        restoreTrackInteraction();
         return;
       }
-      setLocked(true);
+      settlingRef.current = true;
+      // Block further input without a React re-render on this frame.
+      const track = trackRef.current;
+      if (track) track.style.pointerEvents = "none";
+      // Framer's drag `stop()` already started inertia on `x` before onDragEnd.
+      x.stop();
       animate(x, target, {
         duration: settleMs,
         ease: HERO_SHEET_EASE,
@@ -429,15 +448,22 @@ function HeroSheetStrip({
             commit();
           });
           x.set(0);
+          settlingRef.current = false;
           setLocked(false);
+          restoreTrackInteraction();
         },
       });
+      // Defer drag=false until after settle owns the motion value — synchronous
+      // setLocked here re-renders the strip and hitch-snaps on Android Chrome.
+      requestAnimationFrame(() => {
+        if (settlingRef.current) setLocked(true);
+      });
     },
-    [x, settleMs],
+    [x, settleMs, restoreTrackInteraction],
   );
 
   useEffect(() => {
-    if (!nudge || locked) return;
+    if (!nudge || locked || settlingRef.current) return;
     const w = widthRef.current;
     // RTL next: drag/nudge content to the right (reveals next parked on the left).
     if (nudge === "next") {
@@ -453,12 +479,23 @@ function HeroSheetStrip({
     }
   }, [nudge, locked, settleTo, onCommitNext, onCommitPrev, onNudgeHandled]);
 
+  const settleBack = useCallback(() => {
+    const track = trackRef.current;
+    if (track) track.style.pointerEvents = "none";
+    x.stop();
+    animate(x, 0, {
+      ...HERO_DRAG_SETTLE,
+      onComplete: restoreTrackInteraction,
+    });
+  }, [x, restoreTrackInteraction]);
+
   const onDragEnd = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      const track = trackRef.current;
-      if (track) track.style.touchAction = "pan-y";
+      if (settlingRef.current) return;
+      // Do not restore touch-action here — flipping pan-y on the release frame
+      // causes an Android compositor hitch; restore after settle completes.
       if (menuOpen || locked || count <= 1) {
-        animate(x, 0, HERO_DRAG_SETTLE);
+        settleBack();
         return;
       }
       const w = widthRef.current || 1;
@@ -470,10 +507,18 @@ function HeroSheetStrip({
       } else if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
         settleTo(-w, onCommitPrev);
       } else {
-        animate(x, 0, HERO_DRAG_SETTLE);
+        settleBack();
       }
     },
-    [menuOpen, locked, count, x, settleTo, onCommitNext, onCommitPrev],
+    [
+      menuOpen,
+      locked,
+      count,
+      settleBack,
+      settleTo,
+      onCommitNext,
+      onCommitPrev,
+    ],
   );
 
   return (
@@ -496,7 +541,9 @@ function HeroSheetStrip({
         dragConstraints={
           width > 0 ? { left: -width, right: width } : { left: 0, right: 0 }
         }
-        dragElastic={0.06}
+        // Zero elastic: any overshoot makes Framer's pre-onDragEnd inertia
+        // spring back toward the constraint for a frame (finger-lift hitch).
+        dragElastic={0}
         dragMomentum={false}
         onDirectionLock={(axis) => {
           // Once horizontal intent is clear, stop Android Chrome from claiming

@@ -10,22 +10,34 @@ export function AccordionFilter({
   hint,
   badge,
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
   children,
 }: {
   title: string;
   hint?: string;
   badge?: string;
   defaultOpen?: boolean;
+  /** Controlled open state (when set, internal state is ignored). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : uncontrolledOpen;
+
+  const setOpen = (next: boolean) => {
+    if (!controlled) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border/40 bg-card shadow-soft">
       <button
         type="button"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         className="flex w-full items-center gap-3 px-4 py-3.5 text-start"
       >
         <span className="min-w-0 flex-1">

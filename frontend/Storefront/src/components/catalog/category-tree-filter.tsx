@@ -82,16 +82,28 @@ export function CategoryTreeFilter({
   onClear,
   /** Section accordion — collapsed by default; user expands intentionally. */
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
 }: {
   activeId?: number | null;
   onSelect: (id: number) => void;
   onClear: () => void;
   defaultOpen?: boolean;
+  /** Controlled section open state (when set, internal state is ignored). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const { data: tree = [], isLoading: treeLoading } = useCategoryTree();
   const { data: flat = [], isLoading: flatLoading } = useFlatCategories();
   const [query, setQuery] = useState("");
-  const [sectionOpen, setSectionOpen] = useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const controlled = openProp !== undefined;
+  const sectionOpen = controlled ? openProp : uncontrolledOpen;
+  const setSectionOpen = (next: boolean | ((prev: boolean) => boolean)) => {
+    const value = typeof next === "function" ? next(sectionOpen) : next;
+    if (!controlled) setUncontrolledOpen(value);
+    onOpenChange?.(value);
+  };
 
   const byId = useMemo(() => new Map(flat.map((c) => [c.id, c])), [flat]);
 

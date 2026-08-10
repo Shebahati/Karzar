@@ -51,6 +51,8 @@ interface InvoiceDocModel {
   refCode: string;
   dateLabel: string;
   buyerLabel: string;
+  /** Optional company name — omitted from layout when empty. */
+  buyerCompany: string;
   buyerPhone: string;
   buyerMobile: string;
   buyerAddress: string;
@@ -191,13 +193,8 @@ function payloadToModel(doc: InvoiceDocumentPayload): InvoiceDocModel {
   const grandToman = documentGrandTotalToman(doc);
   const grandTotalRial = tomanToRial(grandToman);
 
-  const company = doc.buyer.companyName?.trim();
-  const buyerName = displayOrBlank(doc.buyer.fullName);
-  const buyerLabel = company
-    ? company
-    : buyerName !== "—"
-      ? buyerName
-      : "—";
+  const buyerLabel = displayOrBlank(doc.buyer.fullName);
+  const buyerCompany = doc.buyer.companyName?.trim() || "";
 
   const phoneFa = doc.buyer.phone?.trim()
     ? fa(doc.buyer.phone.trim())
@@ -223,6 +220,7 @@ function payloadToModel(doc: InvoiceDocumentPayload): InvoiceDocModel {
     refCode: doc.refCode,
     dateLabel: formatPersianDateShort(doc.createdAt),
     buyerLabel,
+    buyerCompany,
     buyerPhone: phoneFa,
     buyerMobile: mobileFa,
     buyerAddress,
@@ -669,6 +667,15 @@ function buildSheetBody(model: InvoiceDocModel): string {
         </div>`
       : "";
 
+  const companyRow = model.buyerCompany
+    ? `<div class="info-row full">
+          <div class="info-cell">
+            <span class="k">نام شرکت:</span>
+            <span class="v">${escapeHtml(model.buyerCompany)}</span>
+          </div>
+        </div>`
+    : "";
+
   return `
     ${renderDocHeader(model, { showLogo: true })}
 
@@ -710,6 +717,7 @@ function buildSheetBody(model: InvoiceDocModel): string {
           <span class="v tnum">${escapeHtml(model.buyerPostalCode)}</span>
         </div>
       </div>
+      ${companyRow}
       ${nationalRow}
       <div class="info-row full">
         <div class="info-cell">

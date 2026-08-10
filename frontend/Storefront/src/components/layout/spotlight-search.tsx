@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Category, Search, Buy } from "react-iconly";
+import { Category, CloseSquare, Search, Buy } from "react-iconly";
 import { SafeImage } from "@/components/ui/safe-image";
 import { CategoryVisualIcon } from "@/components/ui/category-visual-icon";
 import { useBrands, useCategoryTree, useProducts } from "@/features/catalog/queries";
@@ -289,13 +289,17 @@ export function SpotlightSearch({ open, onClose, initialQuery = "" }: SpotlightS
             className="relative z-10 my-auto flex max-h-[min(calc(100dvh-1.5rem),680px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[1.35rem] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)] ring-1 ring-black/5 md:bg-white/82 md:ring-white/60 md:backdrop-blur-2xl md:supports-[backdrop-filter]:bg-white/70"
             onKeyDown={onKeyDown}
           >
-            {/* Input row — Spotlight style */}
-            <div className="flex shrink-0 items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
-              <span className="text-steel/70">
+            {/* Input row — dir=ltr keeps close at physical top-right in RTL UI */}
+            <div
+              dir="ltr"
+              className="flex shrink-0 items-center gap-2 px-3 py-3.5 sm:gap-3 sm:px-5 sm:py-4"
+            >
+              <span className="text-steel/70" aria-hidden>
                 <Search set="light" size={22} />
               </span>
               <input
                 ref={inputRef}
+                dir="rtl"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="جستجوی ابزار، برند، کد کالا…"
@@ -311,11 +315,15 @@ export function SpotlightSearch({ open, onClose, initialQuery = "" }: SpotlightS
                 >
                   پاک
                 </button>
-              ) : (
-                <kbd className="hidden rounded-md bg-steel/8 px-2 py-1 text-[10px] font-bold text-steel/60 sm:inline">
-                  ESC
-                </kbd>
-              )}
+              ) : null}
+              <button
+                type="button"
+                aria-label="بستن"
+                onClick={onClose}
+                className="touch-target grid h-9 w-9 shrink-0 place-items-center rounded-xl text-steel/70 transition hover:bg-steel/10 hover:text-foreground"
+              >
+                <CloseSquare set="light" size="small" />
+              </button>
             </div>
 
             <div className="h-px shrink-0 bg-black/[0.06]" />

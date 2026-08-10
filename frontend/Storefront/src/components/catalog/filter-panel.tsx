@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CloseSquare, Search, TickSquare } from "react-iconly";
+import { ChevronDown, CloseSquare, Search, TickSquare } from "react-iconly";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import { useBrands, useSpecFilterOptions } from "@/features/catalog/queries";
@@ -20,6 +20,14 @@ import {
   useCatalogParams,
 } from "@/components/catalog/use-catalog-params";
 import type { ProductListParams, ProductSummary } from "@/types/product";
+
+type FilterAccordionKey =
+  | "category"
+  | "brand"
+  | "country"
+  | "price"
+  | "stock"
+  | "specs";
 
 /** Shared filter UI rendered inside the desktop sidebar and the mobile drawer. */
 export function FilterPanel({
@@ -61,9 +69,17 @@ export function FilterPanel({
   const { data: specOptions } = useSpecFilterOptions(effectiveCategoryId ?? 0);
 
   const [brandQuery, setBrandQuery] = useState("");
+  const [openSections, setOpenSections] = useState<
+    Partial<Record<FilterAccordionKey, boolean>>
+  >({});
 
   const notify = () => {
     if (notifyOnChange) onApplied?.();
+  };
+
+  const isSectionOpen = (key: FilterAccordionKey) => openSections[key] ?? false;
+  const setSectionOpen = (key: FilterAccordionKey, open: boolean) => {
+    setOpenSections((prev) => ({ ...prev, [key]: open }));
   };
 
   const selectedBrandIds = params.brand_ids ?? [];
@@ -160,24 +176,66 @@ export function FilterPanel({
 
   const isSidebar = layout === "sidebar";
 
+  const accordionKeys = useMemo((): FilterAccordionKey[] => {
+    const keys: FilterAccordionKey[] = ["category", "brand"];
+    if (countries.length > 0) keys.push("country");
+    keys.push("price", "stock");
+    if (specOptions && Object.keys(specOptions.technical_specs).length > 0) {
+      keys.push("specs");
+    }
+    return keys;
+  }, [countries.length, specOptions]);
+
+  const allAccordionsOpen = accordionKeys.every((key) => isSectionOpen(key));
+
+  const toggleAllAccordions = () => {
+    const next = !allAccordionsOpen;
+    setOpenSections((prev) => {
+      const updated = { ...prev };
+      for (const key of accordionKeys) updated[key] = next;
+      return updated;
+    });
+  };
+
   const header = (
     <div
       className={cn(
-        "flex items-center justify-between gap-2 px-0.5",
+        // End inset = AccordionFilter chrome: 1px card border + px-4 (was me-3.5 on the
+        // button — too weak / unreliable vs parent pe).
+        "flex items-center justify-between gap-2 ps-0.5 pe-[17px]",
         isSidebar && "bg-background pb-3",
       )}
     >
-      <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
-      {(activeCount > 0 || lockedCategoryId != null) && (
-        <button
-          type="button"
-          onClick={handleClearAll}
-          className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
+      <div className="flex min-w-0 items-center gap-1.5">
+        <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
+        {(activeCount > 0 || lockedCategoryId != null) && (
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
+          >
+            <CloseSquare size="small" set="light" />
+            حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
+          </button>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={toggleAllAccordions}
+        aria-expanded={allAccordionsOpen}
+        aria-label={allAccordionsOpen ? "بستن همه فیلترها" : "باز کردن همه فیلترها"}
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        <span
+          className={cn(
+            "grid place-items-center transition-transform duration-300 ease-out",
+            allAccordionsOpen && "rotate-180",
+          )}
+          aria-hidden
         >
-          <CloseSquare size="small" set="light" />
-          حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
-        </button>
-      )}
+          <ChevronDown size="small" set="bold" primaryColor="currentColor" />
+        </span>
+      </button>
     </div>
   );
 
@@ -187,6 +245,8 @@ export function FilterPanel({
         activeId={effectiveCategoryId ?? null}
         onSelect={(id) => selectCategory(id)}
         onClear={() => selectCategory(null)}
+        open={isSectionOpen("category")}
+        onOpenChange={(open) => setSectionOpen("category", open)}
       />
 
       <AccordionFilter
@@ -197,7 +257,8 @@ export function FilterPanel({
             : undefined
         }
         badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
-        defaultOpen={false}
+        open={isSectionOpen("brand")}
+        onOpenChange={(open) => setSectionOpen("brand", open)}
       >
         {(brands?.length ?? 0) > 6 && (
           <div className="relative mb-3">
@@ -292,7 +353,8 @@ export function FilterPanel({
               ? toPersianDigits(selectedCountries.length)
               : undefined
           }
-          defaultOpen={false}
+          open={isSectionOpen("country")}
+          onOpenChange={(open) => setSectionOpen("country", open)}
         >
           {selectedCountries.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -356,7 +418,12 @@ export function FilterPanel({
         </AccordionFilter>
       )}
 
-      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={false}>
+      <AccordionFilter
+        title="محدوده قیمت"
+        hint="تومان"
+        open={isSectionOpen("price")}
+        onOpenChange={(open) => setSectionOpen("price", open)}
+      >
         <PriceRangeSlider
           minValue={priceMin}
           maxValue={priceMax}
@@ -373,7 +440,11 @@ export function FilterPanel({
         />
       </AccordionFilter>
 
-      <AccordionFilter title="موجودی" defaultOpen={false}>
+      <AccordionFilter
+        title="موجودی"
+        open={isSectionOpen("stock")}
+        onOpenChange={(open) => setSectionOpen("stock", open)}
+      >
         <Checkbox
           id="in-stock-only"
           checked={params.in_stock ?? false}
@@ -400,7 +471,8 @@ export function FilterPanel({
         <AccordionFilter
           title="مشخصات فنی"
           hint="بر اساس دستهٔ انتخاب‌شده"
-          defaultOpen={false}
+          open={isSectionOpen("specs")}
+          onOpenChange={(open) => setSectionOpen("specs", open)}
         >
           {Object.entries(specOptions.technical_specs).map(([key, values]) => (
             <SpecFilterRow

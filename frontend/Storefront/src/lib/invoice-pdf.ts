@@ -201,6 +201,8 @@ interface InvoiceDocModel {
   refCode: string;
   dateLabel: string;
   buyerLabel: string;
+  /** Optional company name — omitted from layout when empty. */
+  buyerCompany: string;
   buyerPhone: string;
   buyerMobile: string;
   /** Buyer street/city — may be blank on proforma/sample. */
@@ -739,6 +741,16 @@ function buildDocumentHtml(model: InvoiceDocModel): string {
             <span class="v tnum">${escapeHtml(model.buyerPostalCode)}</span>
           </div>
         </div>
+        ${
+          model.buyerCompany
+            ? `<div class="info-row full">
+          <div class="info-cell">
+            <span class="k">نام شرکت:</span>
+            <span class="v">${escapeHtml(model.buyerCompany)}</span>
+          </div>
+        </div>`
+            : ""
+        }
         <div class="info-row full">
           <div class="info-cell">
             <span class="k">آدرس:</span>
@@ -1110,13 +1122,8 @@ export async function downloadOrderPdf(
         : null;
   const resolvedGrandRial = tomanToRial(grandToman) ?? saleSumRial;
 
-  const buyerName = displayOrBlank(options.buyerName);
-  const company = options.companyName?.trim();
-  const buyerLabel = company
-    ? company
-    : buyerName !== "—"
-      ? buyerName
-      : "—";
+  const buyerLabel = displayOrBlank(options.buyerName);
+  const buyerCompany = options.companyName?.trim() || "";
   const phoneFa = options.buyerPhone
     ? fa(options.buyerPhone)
     : "—";
@@ -1134,6 +1141,7 @@ export async function downloadOrderPdf(
     refCode: tracking.tracking_code,
     dateLabel: formatPersianDateShort(tracking.created_at),
     buyerLabel,
+    buyerCompany,
     buyerPhone: phoneFa,
     buyerMobile: phoneFa,
     buyerAddress,
@@ -1226,8 +1234,7 @@ export async function downloadCartSampleProforma(
       ? mapped.amountSumRial - mapped.discountSumRial
       : null;
   const phoneFa = buyer.phone ? fa(buyer.phone) : "—";
-  const company = buyer.companyName?.trim();
-  const buyerLabel = company || buyerName;
+  const buyerCompany = buyer.companyName?.trim() || "";
   const buyerAddress = slotOrEmpty(buyer.address);
   const buyerPostalRaw = slotOrEmpty(buyer.postalCode);
   const buyerPostalCode = buyerPostalRaw ? fa(buyerPostalRaw) : "";
@@ -1237,7 +1244,8 @@ export async function downloadCartSampleProforma(
     title: "پیش‌فاکتور",
     refCode,
     dateLabel: formatPersianDateShort(stamp),
-    buyerLabel,
+    buyerLabel: buyerName,
+    buyerCompany,
     buyerPhone: phoneFa,
     buyerMobile: phoneFa,
     buyerAddress,
