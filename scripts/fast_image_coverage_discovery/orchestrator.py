@@ -134,10 +134,14 @@ def run_discovery(
     fetcher = make_fetcher(_allowed_hosts(), urlopen=sync_urlopen)
 
     indexes: dict[str, object] = {}
-    sample_skus = [p.sku for p in ordered[:200] if p.sku]
+    sample_skus = [p.sku for p in ordered if p.sku][:500]
     for spec in [s for s in DEFAULT_SOURCES if s.wc_store_api]:
         idx = build_wc_index(spec, fetcher)
         calibrate_index(idx, sample_skus)
+        if not idx.bulk_enabled and len(idx.by_sku) >= 50:
+            # Index populated but sample missed — run lane calibration on brand-top SKUs
+            brand_top = [p.sku for p in ordered if p.sku][:20]
+            calibrate_index(idx, brand_top)
         indexes[spec.source_id] = idx
 
     lane_order = ("IR-1", "IR-2", "OFFICIAL", "DIST", "WIDE")
@@ -233,6 +237,7 @@ def run_discovery(
         )
         save_checkpoint(state, package_dir)
 
+    state.source_indexes = indexes  # type: ignore[attr-defined]
     return state
 
 

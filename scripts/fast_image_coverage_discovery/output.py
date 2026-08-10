@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from . import ACCEPTED_SEED_ARTIFACT_SHA256, ACCEPTED_USABLE_PRIMARY, TASK_ID
+from .calibration import calibration_rows
 from .contracts import (
     ATTEMPT_FIELDS,
     GREEN_FIELDS,
@@ -22,6 +23,7 @@ from .contracts import (
     RunProduct,
 )
 from .orchestrator import summarize_run
+from .sources.registry import DEFAULT_SOURCES
 
 
 def _sha256_file(path: Path) -> str:
@@ -249,6 +251,58 @@ def write_package(
     _write_csv(package_dir / "asset-manifest.csv", ["asset_sha256", "asset_relative_path"], assets)
 
     write_yellow_review_html(package_dir / "yellow-review.html", rows["yellow-review.csv"], package_dir)
+
+    # Source registry / calibration / coverage (derived)
+    registry = [
+        {
+            "source_id": s.source_id,
+            "domain": s.domain,
+            "lane": s.lane,
+            "country": s.country,
+            "source_class": s.source_class,
+            "enabled": s.enabled,
+        }
+        for s in DEFAULT_SOURCES
+    ]
+    (package_dir / "source-registry.json").write_text(
+        json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    cal_rows = calibration_rows(getattr(state, "source_indexes", {}) or {})
+    _write_csv(
+        package_dir / "source-calibration.csv",
+        ["source_id", "domain", "calibration_checked", "calibration_passed", "bulk_enabled", "indexed_skus", "last_error"],
+        cal_rows or [{"source_id": s.source_id, "domain": s.domain, "calibration_checked": 0, "calibration_passed": False, "bulk_enabled": False, "indexed_skus": 0, "last_error": ""} for s in DEFAULT_SOURCES if s.wc_store_api],
+    )
+    src_cov: Counter[str] = Counter()
+    for a in rows["all-attempts.csv"]:
+        if a.get("outcome") == "green_exact":
+            src_cov[a.get("source_id") or a.get("source_domain") or "unknown"] += 1
+    _write_csv(
+        package_dir / "source-coverage.csv",
+        ["source_id", "green_exact"],
+        [{"source_id": k, "green_exact": v} for k, v in src_cov.most_common()],
+    )
+    _write_csv(
+        package_dir / "source-health.csv",
+        ["source_id", "domain", "status", "bulk_enabled", "greens"],
+        cal_rows or [],
+    )
+    cat_cov: Counter[str] = Counter()
+    green_ids = {int(r["product_id"]) for r in rows["green-exact.csv"]}
+    for p in run_universe:
+        cat_cov[p.category_slug] += 1 if p.product_id in green_ids else 0
+    _write_csv(
+        package_dir / "coverage-by-category.csv",
+        ["category_slug", "universe", "green_exact"],
+        [
+            {
+                "category_slug": cat,
+                "universe": sum(1 for p in run_universe if p.category_slug == cat),
+                "green_exact": sum(1 for p in run_universe if p.category_slug == cat and p.product_id in green_ids),
+            }
+            for cat in sorted({p.category_slug for p in run_universe})
+        ],
+    )
 
     metrics = summarize_run(state)
     summary = build_summary_json(state, seed_zip=seed_zip, metrics=metrics)

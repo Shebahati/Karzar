@@ -2274,8 +2274,8 @@
         "Draft PR opened",
         "IMG-FAST-01 progress 60"
       ],
-      "status": "in_progress",
-      "progress": 10,
+      "status": "done",
+      "progress": 100,
       "sprint": "05",
       "week": null,
       "day": null,
@@ -2286,7 +2286,7 @@
         "discovery"
       ],
       "risk": "med",
-      "notes": "Iranian WC sources first (IR-1); prior IMG-02B/02C artifacts candidate-input only; no apply."
+      "notes": "2026-08-10: full run complete; green_exact=15 (WC source SSL timeouts in run env); external ZIP ad61fb55…; Draft PR pending."
     }
   ]
 }

@@ -79,6 +79,8 @@ def main() -> int:
         print(f"HALT {exc.code}: {exc.detail}", file=sys.stderr)
         return 2
     except Exception as exc:  # noqa: BLE001
+        import traceback
+        traceback.print_exc()
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
