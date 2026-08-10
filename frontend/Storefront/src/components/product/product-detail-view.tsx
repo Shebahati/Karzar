@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronLeft } from "react-iconly";
+import { Call, ChevronLeft, Star } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,17 +11,23 @@ import { ProductGallery } from "@/components/product/product-gallery";
 import { TwoLaneActions } from "@/components/product/two-lane-actions";
 import { MobileStickyBuyBar } from "@/components/product/mobile-sticky-buy-bar";
 import { ProductSpecTabs } from "@/components/product/product-spec-tabs";
-import { ProductTrustStrip } from "@/components/product/product-trust-strip";
+import {
+  buildPdpBuyCardTrust,
+  PdpAssistStrip,
+  type PdpTrustItem,
+} from "@/components/product/product-trust-strip";
 import { ProductPdfCta } from "@/components/product/product-pdf-cta";
 import { ProductAccessoriesSlot } from "@/components/product/product-accessories-slot";
 import {
   findBrandLogoUrl,
   PdpBrandMark,
 } from "@/components/product/pdp-brand-mark";
+import { resolveProductL1Category } from "@/components/product/pdp-category-orbit";
 import { ProductKnowledgeRail } from "@/components/product/product-knowledge-rail";
 import { SectionHeading } from "@/components/home/section-heading";
 import {
   useBrands,
+  useComments,
   useFlatCategories,
   useProduct,
 } from "@/features/catalog/queries";
@@ -29,8 +35,10 @@ import { categoryHref } from "@/config/nav-groups";
 import {
   filterEditorialDescription,
   hasRenderableSpecs,
+  pickKeySpecTeasers,
 } from "@/lib/pdp-description";
-import { cn, formatToman } from "@/lib/utils";
+import { cn, formatNumber, formatToman } from "@/lib/utils";
+import type { ProductDetail } from "@/types/product";
 
 const easePremium = [0.22, 1, 0.36, 1] as const;
 
@@ -84,8 +92,21 @@ export function ProductDetailView({ id }: { id: number }) {
     crumbs.length > 0
       ? crumbs.map((c) => c.name)
       : (product.category?.breadcrumb ?? []);
+  const lastCrumb = crumbs.length > 0 ? crumbs[crumbs.length - 1]! : null;
+  const lastBreadcrumbName =
+    breadcrumbNames.length > 0
+      ? breadcrumbNames[breadcrumbNames.length - 1]!
+      : null;
 
   const brandLogoUrl = findBrandLogoUrl(product.brand, brands);
+  const identityCategory =
+    resolveProductL1Category(product.category, categories) ??
+    (product.category?.id != null ? byId.get(product.category.id) : undefined) ??
+    null;
+  const keySpecs = pickKeySpecTeasers(product.specifications, 4);
+  const buyCardTrust = buildPdpBuyCardTrust({
+    warrantyText: product.warranty_text,
+  });
 
   const showSpecSection =
     hasRenderableSpecs(product.specifications) ||
@@ -97,38 +118,58 @@ export function ProductDetailView({ id }: { id: number }) {
       ),
     );
 
-  const fadeUp = reducedMotion
-    ? undefined
-    : { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 } };
+  const buyCardProps = {
+    product,
+    hasPrice,
+    trust: buyCardTrust,
+  } as const;
 
   return (
-    <div className="relative pb-24 lg:pb-14">
+    <div className="relative pb-28 lg:pb-14">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(52vh,420px)]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(48svh,420px)] max-lg:hidden"
         style={{
           background: `
-            radial-gradient(48% 55% at 88% 0%, rgba(208,35,39,0.045), transparent 70%),
-            linear-gradient(180deg, hsl(0 0% 97.5%) 0%, transparent 100%)
+            radial-gradient(42% 50% at 92% 0%, rgba(208,35,39,0.055), transparent 68%),
+            radial-gradient(38% 45% at 8% 12%, rgba(94,95,94,0.04), transparent 70%),
+            linear-gradient(180deg, hsl(0 0% 97.4%) 0%, transparent 100%)
           `,
         }}
       />
 
-      <Container className="pt-5 sm:pt-8 lg:pt-10">
+      {/*
+        Mobile: zero inline padding so gallery/sheet are edge-to-edge without
+        ever using -mx* (those fight global overflow-x-clip and clip RTL left).
+        Desktop keeps Container lg:px-8.
+      */}
+      <Container className="pt-3 sm:pt-5 lg:pt-6 max-lg:px-0 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:sm:pt-3 [@media(max-height:800px)]:lg:pt-3">
         <nav
           aria-label="مسیر صفحه"
-          className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:mb-8"
+          className={cn(
+            "mb-3 flex w-full min-w-0 items-center gap-1.5 px-5 text-xs text-muted-foreground sm:mb-5 sm:px-6 max-lg:mb-2.5 lg:px-0",
+            /* Mobile: one line — collapse early/middle segments, keep last readable */
+            "max-lg:flex-nowrap max-lg:overflow-hidden",
+            "lg:flex-wrap",
+            "[@media(max-height:800px)]:mb-2 [@media(max-height:800px)]:sm:mb-3",
+          )}
         >
-          <Link href="/" className="transition-colors hover:text-primary">
+          <Link href="/" className="shrink-0 transition-colors hover:text-primary">
             خانه
           </Link>
-          <ChevronLeft size="small" set="light" />
-          <Link href="/catalog" className="transition-colors hover:text-primary">
+          <span className="inline-flex shrink-0">
+            <ChevronLeft size="small" set="light" />
+          </span>
+          <Link href="/catalog" className="shrink-0 transition-colors hover:text-primary">
             فروشگاه
           </Link>
-          {crumbs.length > 0
-            ? crumbs.map((crumb) => (
-                <span key={crumb.id} className="flex items-center gap-1.5">
+          {crumbs.length > 0 ? (
+            <>
+              {crumbs.slice(0, -1).map((crumb) => (
+                <span
+                  key={crumb.id}
+                  className="hidden items-center gap-1.5 lg:flex"
+                >
                   <ChevronLeft size="small" set="light" />
                   <Link
                     href={categoryHref(crumb)}
@@ -137,143 +178,499 @@ export function ProductDetailView({ id }: { id: number }) {
                     {crumb.name}
                   </Link>
                 </span>
-              ))
-            : breadcrumbNames.map((crumb) => (
-                <span key={crumb} className="flex items-center gap-1.5">
+              ))}
+              {crumbs.length > 1 ? (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 lg:hidden"
+                  aria-hidden
+                >
+                  <ChevronLeft size="small" set="light" />
+                  <span>…</span>
+                </span>
+              ) : null}
+              {lastCrumb ? (
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="inline-flex shrink-0">
+                    <ChevronLeft size="small" set="light" />
+                  </span>
+                  <Link
+                    href={categoryHref(lastCrumb)}
+                    className="min-w-0 truncate transition-colors hover:text-primary"
+                  >
+                    {lastCrumb.name}
+                  </Link>
+                </span>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {breadcrumbNames.slice(0, -1).map((crumb) => (
+                <span
+                  key={crumb}
+                  className="hidden items-center gap-1.5 lg:flex"
+                >
                   <ChevronLeft size="small" set="light" />
                   {crumb}
                 </span>
               ))}
+              {breadcrumbNames.length > 1 ? (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 lg:hidden"
+                  aria-hidden
+                >
+                  <ChevronLeft size="small" set="light" />
+                  <span>…</span>
+                </span>
+              ) : null}
+              {lastBreadcrumbName ? (
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="inline-flex shrink-0">
+                    <ChevronLeft size="small" set="light" />
+                  </span>
+                  <span className="min-w-0 truncate">{lastBreadcrumbName}</span>
+                </span>
+              ) : null}
+            </>
+          )}
         </nav>
 
-        {/* Hero: clean gallery + commerce — no orbit beside photos */}
-        <section
+        {/*
+          Desktop: hero-only 3-col (gallery | info | buy). Buy sticks within its
+          column; lower sections are a sibling and keep full content width.
+          Mobile sticky parallax (no void / no RTL clip):
+            • Sticky applies ONLY to the gallery block (capped square height).
+            • Sheet/buy are siblings that scroll over it (z-1, −mt overlap).
+            • Wrapper is the sticky containing block; it does NOT inflate gallery height.
+            • No −mx bleeds (padding instead) — safe under overflow-x-clip + RTL.
+        */}
+        <div
           aria-label="معرفی محصول"
-          className="grid items-start gap-10 lg:grid-cols-2 lg:gap-14 xl:gap-16"
+          className={cn(
+            "w-full min-w-0 max-w-full max-lg:relative",
+            "grid items-start gap-6 sm:gap-8 max-lg:gap-0",
+            "lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)_minmax(248px,0.76fr)]",
+            "lg:gap-x-10 xl:gap-x-14",
+            "[@media(max-height:800px)]:lg:gap-x-8",
+          )}
         >
+          {/* Opacity-only: transform would break position:sticky. */}
           <motion.div
-            className="min-w-0"
-            {...(fadeUp ?? {})}
+            className={cn(
+              "w-full min-w-0 max-w-full",
+              "max-lg:sticky max-lg:top-0 max-lg:z-0",
+            )}
+            initial={reducedMotion ? undefined : { opacity: 0 }}
+            animate={reducedMotion ? undefined : { opacity: 1 }}
             transition={{ duration: 0.55, ease: easePremium }}
           >
             <ProductGallery images={product.images} alt={product.name} />
           </motion.div>
 
           <motion.div
-            className="flex min-w-0 flex-col"
-            {...(fadeUp ?? {})}
+            className={cn(
+              "flex w-full min-w-0 max-w-full flex-col",
+              /* Soft sheet slides over sticky gallery — padding gutters, never −mx */
+              "relative z-[1] max-lg:-mt-5 max-lg:px-5 max-lg:pt-4 max-lg:pb-1",
+              "max-lg:rounded-t-[1.35rem] max-lg:bg-white",
+              "max-lg:shadow-[0_-12px_40px_-24px_rgba(94,95,94,0.35)]",
+              "sm:max-lg:px-6",
+              /* Desktop: restore flat column (Container owns gutters) */
+              "lg:z-auto lg:mt-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none",
+            )}
+            initial={reducedMotion ? undefined : { opacity: 0 }}
+            animate={reducedMotion ? undefined : { opacity: 1 }}
             transition={{
-              duration: 0.6,
+              duration: 0.55,
               ease: easePremium,
-              delay: reducedMotion ? 0 : 0.05,
+              delay: reducedMotion ? 0 : 0.04,
             }}
           >
-            <h1 className="text-[1.4rem] font-bold leading-[1.55] tracking-tight text-foreground sm:text-2xl lg:text-[1.7rem] lg:leading-[1.5]">
+            {/* Sheet grab affordance — mobile only */}
+            <span
+              aria-hidden
+              className="mx-auto mb-4 h-1 w-9 shrink-0 rounded-full bg-steel/20 lg:hidden"
+            />
+
+            {product.discount_percent && product.discount_percent > 0 ? (
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-xl bg-[#D02327]/[0.07] px-3 py-2.5 lg:hidden">
+                <span className="text-[12px] font-bold text-primary">
+                  فروش ویژه
+                </span>
+                <span className="rounded-md bg-[#D02327] px-2 py-0.5 text-[11px] font-bold text-white tnum">
+                  ٪{formatNumber(product.discount_percent)} تخفیف
+                </span>
+              </div>
+            ) : null}
+
+            <h1
+              className={cn(
+                "text-balance font-bold tracking-tight text-foreground",
+                /* Mobile: tighter, clearer hierarchy */
+                "text-[1.22rem] leading-[1.45]",
+                "sm:text-[1.55rem] sm:leading-[1.45]",
+                /* Desktop unchanged */
+                "lg:text-[1.45rem] xl:text-[1.65rem]",
+                "[@media(max-height:800px)]:text-[1.2rem] [@media(max-height:800px)]:sm:text-[1.35rem]",
+              )}
+            >
               {product.name}
             </h1>
 
             {product.short_description ? (
-              <p className="mt-3 max-w-xl text-sm leading-8 text-foreground/85">
+              <p className="mt-2.5 text-sm leading-7 text-foreground/80 max-lg:mt-2 max-lg:line-clamp-3 max-lg:leading-6 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:line-clamp-2 [@media(max-height:800px)]:leading-6">
                 {product.short_description}
               </p>
             ) : null}
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-              <span className="text-muted-foreground" dir="ltr">
-                کد کالا:{" "}
-                <span className="font-medium text-foreground tnum">{product.sku}</span>
-              </span>
-              <StockBadge status={product.stock_status} available={product.availability} />
-            </div>
-
-            {/* Buy box — sole interactive surface in the hero */}
+            {/* Meta: desktop SKU→stock; mobile stock first via order */}
             <div
               className={cn(
-                "mt-7 rounded-2xl bg-secondary/55 p-5 sm:p-6",
-                "ring-1 ring-steel/[0.06]",
+                "mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm",
+                "max-lg:mt-3 max-lg:gap-x-2.5 max-lg:gap-y-1.5",
+                "[@media(max-height:800px)]:mt-2.5",
               )}
             >
-              <div className="mb-5">
-                {hasPrice ? (
-                  <div>
-                    {product.original_price && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground line-through tnum">
-                          {formatToman(product.original_price)}
-                        </span>
-                        {product.discount_percent ? (
-                          <Badge variant="primary">٪{product.discount_percent}</Badge>
-                        ) : null}
-                      </div>
-                    )}
-                    <div className="mt-1 text-[1.65rem] font-bold tracking-tight text-foreground tnum sm:text-3xl">
-                      {formatToman(product.base_price)}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-sm text-muted-foreground">قیمت این محصول</p>
-                    <p className="mt-1 text-xl font-bold text-primary">
-                      با استعلام تعیین می‌شود
-                    </p>
-                  </div>
+              <span
+                className={cn(
+                  "rounded-md bg-secondary/65 px-2 py-0.5 text-[11px] text-muted-foreground",
+                  "max-lg:order-2 max-lg:rounded-none max-lg:bg-transparent max-lg:px-0 max-lg:py-0 max-lg:text-[12px]",
                 )}
-              </div>
-              <TwoLaneActions product={product} />
+              >
+                کد کالا:{" "}
+                <span
+                  className="font-semibold text-foreground tnum max-lg:font-medium"
+                  dir="ltr"
+                >
+                  {product.sku}
+                </span>
+              </span>
+              <span className="max-lg:order-1">
+                <StockBadge
+                  status={product.stock_status}
+                  available={product.availability}
+                />
+              </span>
             </div>
 
-            {/* Brand — quiet row under buy box, not hero chrome */}
-            {product.brand ? (
-              <div className="mt-5 border-t border-steel/10 pt-5">
-                <PdpBrandMark
-                  brand={product.brand}
-                  logoUrl={brandLogoUrl}
-                  density="quiet"
-                />
+            <MobileSocialProof productId={product.id} />
+
+            {keySpecs.length > 0 ? (
+              <div
+                className={cn(
+                  "mt-5 rounded-xl bg-secondary/45 p-3.5 sm:p-4",
+                  "ring-1 ring-steel/[0.06]",
+                  /* Mobile: airier sheet block, aligned with content edges */
+                  "max-lg:mt-6 max-lg:rounded-2xl max-lg:bg-secondary/40 max-lg:p-4 max-lg:pt-3.5",
+                  "max-lg:ring-steel/[0.05]",
+                  "[@media(max-height:800px)]:mt-3.5 [@media(max-height:800px)]:p-3",
+                )}
+              >
+                <h2
+                  className={cn(
+                    "text-[11px] font-bold tracking-[0.06em] text-steel",
+                    "max-lg:text-[12px] max-lg:tracking-[0.04em] max-lg:text-foreground/70",
+                  )}
+                >
+                  ویژگی‌های کلیدی
+                </h2>
+                <ul
+                  className={cn(
+                    "mt-2.5 space-y-0 divide-y divide-steel/[0.07]",
+                    "max-lg:mt-3.5",
+                    "[@media(max-height:720px)]:[&_li:nth-child(n+3)]:hidden",
+                  )}
+                >
+                  {keySpecs.map((spec) => (
+                    <li
+                      key={`${spec.key}-${spec.value}`}
+                      className={cn(
+                        "grid grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-3 py-2 text-[13px]",
+                        "first:pt-0 last:pb-0",
+                        /* Mobile: label | value with clear gap, no red dots */
+                        "max-lg:grid-cols-[minmax(0,1fr)_minmax(0,auto)] max-lg:items-baseline max-lg:gap-x-5 max-lg:py-2.5",
+                        "[@media(max-height:800px)]:py-1.5",
+                      )}
+                    >
+                      <span className="flex items-start gap-2 font-medium text-steel max-lg:gap-0 max-lg:text-[13px] max-lg:leading-snug">
+                        <span
+                          aria-hidden
+                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D02327] max-lg:hidden"
+                        />
+                        {spec.key}
+                      </span>
+                      <span className="text-end font-semibold tracking-tight text-foreground max-lg:ps-2 max-lg:text-[13px] max-lg:leading-snug">
+                        {spec.value}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {showSpecSection ? (
+                  <a
+                    href="#pdp-specs-heading"
+                    className={cn(
+                      "mt-2.5 inline-block text-xs font-bold text-primary underline-offset-4 transition hover:underline",
+                      "max-lg:mt-3.5 max-lg:border-t max-lg:border-steel/[0.08] max-lg:pt-3",
+                    )}
+                  >
+                    مشاهده مشخصات کامل
+                  </a>
+                ) : null}
               </div>
             ) : null}
 
-            <ProductTrustStrip
-              className="mt-5"
-              warrantyText={product.warranty_text}
-              isOriginal={product.is_original}
-            />
+            <Link
+              href="/contact"
+              className={cn(
+                "group mt-5 inline-flex min-h-10 w-full items-center justify-center gap-2.5 rounded-xl sm:min-h-11 sm:w-auto sm:justify-start sm:pe-5 sm:ps-3.5",
+                "bg-secondary/55 text-[13px] font-semibold tracking-tight text-foreground",
+                "ring-1 ring-inset ring-steel/[0.08]",
+                "transition-[background-color,box-shadow,ring-color,color] duration-300 ease-out",
+                "hover-fine:bg-white hover-fine:text-primary hover-fine:ring-primary/20",
+                "hover-fine:shadow-[0_10px_28px_-22px_rgba(208,35,39,0.35)]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+                "max-lg:mt-5",
+                "[@media(max-height:800px)]:mt-3.5",
+              )}
+            >
+              <span
+                className={cn(
+                  "grid h-8 w-8 shrink-0 place-items-center rounded-lg",
+                  "bg-[#D02327]/[0.08] text-primary",
+                  "ring-1 ring-inset ring-primary/10",
+                  "transition-[background-color,transform] duration-300",
+                  "group-hover:bg-[#D02327]/[0.12] group-hover:scale-[1.03]",
+                )}
+              >
+                <Call set="bold" size="small" primaryColor="#D02327" />
+              </span>
+              مشاوره تخصصی
+            </Link>
 
-            <ProductPdfCta product={product} />
+            <ProductPdfCta
+              product={product}
+              className="mt-4 max-lg:mt-3.5 [@media(max-height:800px)]:mt-3"
+            />
           </motion.div>
-        </section>
 
-        {showSpecSection ? (
-          <section className="mt-16 sm:mt-20" aria-labelledby="pdp-specs-heading">
-            <SectionHeading
-              id="pdp-specs-heading"
-              title="مشخصات فنی"
-              subtitle="جدول مشخصات منبع اصلی است؛ توضیحات تحریریه جداگانه نمایش داده می‌شود"
-            />
-            <ProductSpecTabs
-              specifications={product.specifications}
-              description={product.description}
-              shortDescription={product.short_description}
-            />
+          {/* Desktop sticky buy — identity + card stick together in buy column.
+              Opacity-only motion: transform would break position:sticky. */}
+          <motion.aside
+            aria-label="خرید محصول"
+            className="hidden min-w-0 self-start lg:sticky lg:top-24 lg:z-[1] lg:block [@media(max-height:800px)]:lg:top-20"
+            initial={reducedMotion ? undefined : { opacity: 0 }}
+            animate={reducedMotion ? undefined : { opacity: 1 }}
+            transition={{
+              duration: 0.55,
+              ease: easePremium,
+              delay: reducedMotion ? 0 : 0.08,
+            }}
+          >
+            <div className="flex w-full min-w-0 flex-col gap-3.5 sm:gap-4">
+              {product.brand ? (
+                <PdpBrandMark
+                  brand={product.brand}
+                  logoUrl={brandLogoUrl}
+                  category={identityCategory}
+                  density="quiet"
+                  className="w-full"
+                />
+              ) : null}
+              <PdpBuyCard {...buyCardProps} />
+            </div>
+          </motion.aside>
+
+          {/* Mobile / tablet: identity above buy card, same column width */}
+          <div
+            className={cn(
+              "relative z-[1] flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8 lg:hidden",
+            )}
+          >
+            {product.brand ? (
+              <PdpBrandMark
+                brand={product.brand}
+                logoUrl={brandLogoUrl}
+                category={identityCategory}
+                density="quiet"
+                className="w-full"
+              />
+            ) : null}
+            <PdpBuyCard {...buyCardProps} />
+          </div>
+        </div>
+
+        {/* Full-width lower sections — outside the hero 3-col grid */}
+        <div
+          className={cn(
+            "relative z-[1] w-full min-w-0 max-w-full",
+            "max-lg:bg-background max-lg:px-5 max-lg:pb-2 sm:max-lg:px-6",
+            "lg:bg-transparent lg:px-0 lg:pb-0",
+          )}
+        >
+          <PdpAssistStrip
+            isOriginal={product.is_original}
+            className="mt-7 sm:mt-8 max-lg:mt-5 [@media(max-height:800px)]:mt-5"
+          />
+
+          {showSpecSection ? (
+            <section
+              className="mt-12 sm:mt-20 max-lg:mt-10"
+              aria-labelledby="pdp-specs-heading"
+            >
+              <SectionHeading
+                id="pdp-specs-heading"
+                title="مشخصات فنی"
+                subtitle="جدول مشخصات منبع اصلی است؛ توضیحات تحریریه جداگانه نمایش داده می‌شود"
+              />
+              <ProductSpecTabs
+                specifications={product.specifications}
+                description={product.description}
+                shortDescription={product.short_description}
+              />
+            </section>
+          ) : null}
+
+          <section className="mt-12 sm:mt-20 max-lg:mt-10">
+            <SectionHeading title="محصولات مرتبط" />
+            <RelatedProducts productId={product.id} />
           </section>
-        ) : null}
 
-        <ProductAccessoriesSlot product={product} />
+          <ProductKnowledgeRail productId={product.id} />
 
-        <ProductKnowledgeRail productId={product.id} />
+          <section
+            className="mt-12 sm:mt-20 max-lg:mt-10"
+            aria-labelledby="pdp-reviews-heading"
+          >
+            <SectionHeading
+              id="pdp-reviews-heading"
+              title="دیدگاه کاربران"
+              subtitle="تجربهٔ خریداران این محصول"
+            />
+            <ProductComments productId={product.id} />
+          </section>
 
-        <section className="mt-16 sm:mt-20">
-          <SectionHeading title="دیدگاه کاربران" />
-          <ProductComments productId={product.id} />
-        </section>
-
-        <section className="mt-16 pb-4 sm:mt-20">
-          <SectionHeading title="محصولات مرتبط" />
-          <RelatedProducts productId={product.id} />
-        </section>
+          <div className="pb-4">
+            <ProductAccessoriesSlot product={product} />
+          </div>
+        </div>
 
         <MobileStickyBuyBar product={product} />
       </Container>
+    </div>
+  );
+}
+
+function MobileSocialProof({ productId }: { productId: number }) {
+  const { data } = useComments(productId);
+  if (!data?.length) return null;
+
+  const avg =
+    data.reduce((sum, c) => sum + (c.rating ?? 0), 0) / data.length;
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 lg:hidden">
+      <span className="inline-flex items-center gap-1 rounded-full bg-secondary/70 px-2.5 py-1 text-[12px] font-bold text-foreground ring-1 ring-steel/[0.08]">
+        <Star set="bold" size="small" primaryColor="#E5A100" />
+        <span className="tnum">{avg.toFixed(1)}</span>
+      </span>
+      <a
+        href="#pdp-reviews-heading"
+        className="rounded-full bg-secondary/55 px-2.5 py-1 text-[12px] font-semibold text-steel ring-1 ring-steel/[0.08] transition-colors hover:text-primary"
+      >
+        <span className="tnum">{formatNumber(data.length)}</span> دیدگاه
+      </a>
+    </div>
+  );
+}
+
+function PdpBuyCard({
+  product,
+  hasPrice,
+  trust,
+}: {
+  product: ProductDetail;
+  hasPrice: boolean;
+  trust: PdpTrustItem[];
+}) {
+  return (
+    <div
+      className={cn(
+        /* Tight buy chrome — height follows content, no leftover void */
+        "relative flex w-full min-w-0 flex-col overflow-hidden rounded-[1.25rem] bg-white",
+        "px-3.5 sm:px-4",
+        "ring-1 ring-steel/[0.09]",
+        "shadow-[0_20px_48px_-28px_rgba(94,95,94,0.42)]",
+        /* Mobile: softer — sticky bar owns the primary CTA chrome */
+        "max-lg:rounded-2xl max-lg:shadow-[0_12px_32px_-24px_rgba(94,95,94,0.35)]",
+      )}
+    >
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[2.5px] bg-gradient-to-l from-[#D02327] via-[#D02327]/75 to-transparent"
+      />
+
+      <div className="border-b border-steel/[0.08] pb-3 pt-3.5 sm:pb-3.5 sm:pt-4 [@media(max-height:800px)]:pb-2.5 [@media(max-height:800px)]:pt-3">
+        {hasPrice ? (
+          <div>
+            <p className="text-[10px] font-medium tracking-[0.04em] text-steel">
+              قیمت
+            </p>
+            {product.original_price && (
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium text-[#D02327]/55 line-through tnum">
+                  {formatToman(product.original_price)}
+                </span>
+                {product.discount_percent ? (
+                  <Badge variant="primary">٪{product.discount_percent}</Badge>
+                ) : null}
+              </div>
+            )}
+            <div className="mt-1 text-[1.28rem] font-bold leading-none tracking-tight text-foreground tnum sm:text-[1.36rem] [@media(max-height:800px)]:text-[1.2rem]">
+              {formatToman(product.base_price)}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p className="text-[10px] font-medium tracking-[0.04em] text-steel">
+              قیمت این محصول
+            </p>
+            <p className="mt-1 text-[15px] font-bold leading-snug text-primary">
+              با استعلام تعیین می‌شود
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div
+        className={cn(
+          "py-3 sm:py-3.5 [@media(max-height:800px)]:py-2.5",
+          trust.length === 0 && "pb-3.5 sm:pb-4",
+        )}
+      >
+        <TwoLaneActions product={product} />
+      </div>
+
+      {trust.length > 0 ? (
+        <ul className="divide-y divide-steel/[0.08] border-t border-steel/[0.08] pb-0">
+          {trust.map(({ key, title, desc, Icon }) => (
+            <li
+              key={key}
+              className="flex items-center gap-2.5 py-2 last:pb-2.5 sm:last:pb-3 [@media(max-height:800px)]:py-1.5 [@media(max-height:800px)]:last:pb-2"
+            >
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[#D02327]/[0.08]">
+                <Icon set="bold" size="small" primaryColor="#D02327" />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <p className="truncate text-[12px] font-bold tracking-tight text-foreground">
+                  {title}
+                </p>
+                <p className="mt-0.5 truncate text-[10px] font-medium text-steel">
+                  {desc}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
@@ -284,18 +681,19 @@ function StockBadge({ status, available }: { status: string; available: boolean 
 
 function DetailSkeleton() {
   return (
-    <Container className="py-10">
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-        <Skeleton className="aspect-square rounded-xl" />
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-4/5" />
-          <Skeleton className="h-5 w-1/2" />
+    <Container className="py-6 sm:py-8 [@media(max-height:800px)]:py-4">
+      <div className="grid items-start gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)_minmax(248px,0.76fr)] lg:gap-x-10 xl:gap-x-14">
+        <Skeleton className="mx-auto aspect-square w-full max-w-[min(100%,32rem)] rounded-2xl max-h-[min(32rem,calc(100svh-9.25rem))]" />
+        <div className="space-y-3">
+          <Skeleton className="h-7 w-4/5" />
+          <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-40" />
-          <Skeleton className="mt-4 h-44 w-full rounded-2xl" />
-          <Skeleton className="h-12 w-48 rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="mt-2 h-28 w-full rounded-xl" />
+          <Skeleton className="h-10 w-40 rounded-xl" />
         </div>
+        <Skeleton className="hidden h-80 w-full rounded-[1.25rem] lg:block" />
       </div>
+      <Skeleton className="mt-8 h-14 w-full rounded-[1.1rem]" />
     </Container>
   );
 }

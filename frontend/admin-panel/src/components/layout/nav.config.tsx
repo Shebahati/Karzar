@@ -53,10 +53,34 @@ export const navSections: NavSection[] = [
     ],
   },
   {
+    title: "فروش و مالی",
+    items: [
+      {
+        label: "فاکتورساز",
+        href: "/finance/invoice-builder",
+        icon: Document as IconlyIcon,
+        matchPrefix: true,
+      },
+      {
+        label: "پیش‌فاکتورهای صادر شده",
+        href: "/finance/issued-proformas",
+        icon: Ticket as IconlyIcon,
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
     title: "محتوا (CMS)",
     items: [
       { label: "مقالات", href: "/cms/articles", icon: Document as IconlyIcon, matchPrefix: true },
       { label: "طراحی هیرو", href: "/cms/hero-design", icon: Image2 as IconlyIcon, matchPrefix: true },
+      { label: "صفحه هوم", href: "/cms/home-layout", icon: Home as IconlyIcon, matchPrefix: true },
+      {
+        label: "محتوای صفحات",
+        href: "/cms/static-pages",
+        icon: Document as IconlyIcon,
+        matchPrefix: true,
+      },
       { label: "نظرات محصولات", href: "/cms/comments", icon: Message as IconlyIcon, matchPrefix: true },
       { label: "پیام‌ها و تیکت‌ها", href: "/cms/contacts", icon: Call as IconlyIcon, matchPrefix: true },
     ],

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Call, Location, Message, ShieldDone } from "react-iconly";
 import { Logo } from "@/components/layout/logo";
-import { NeshanDirectionsButton } from "@/components/contact/neshan-directions-button";
+import { StoreSocialLinks } from "@/components/social/store-social-links";
 import { Container } from "@/components/ui/container";
 import {
   STORE_ADDRESS_FA,
@@ -35,6 +35,31 @@ const COLUMNS = [
   },
 ];
 
+/**
+ * Reserved eNamad (اینماد) slot — compact footprint for the footer bottom strip.
+ * When the certificate is issued, replace `EnamadBadge` body with the official
+ * `<a href="…"><img …/></a>` (or script embed) from enamad.ir; keep the wrapper size.
+ */
+const ENAMAD_BADGE = {
+  widthPx: 80,
+  heightPx: 90,
+} as const;
+
+function EnamadBadge() {
+  // TODO(enamad): swap placeholder for real badge markup from enamad.ir
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center rounded border border-dashed border-white/15 bg-white/[0.03] text-center"
+      style={{ width: ENAMAD_BADGE.widthPx, height: ENAMAD_BADGE.heightPx }}
+      role="img"
+      aria-label="جایگاه اینماد — رزرو شده"
+      data-enamad-slot="placeholder"
+    >
+      <span className="text-[10px] font-bold tracking-tight text-white/40">اینماد</span>
+    </div>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="relative mt-16 overflow-hidden bg-[#141615] text-white">
@@ -45,10 +70,10 @@ export function SiteFooter() {
 
       <Container className="relative pt-14 sm:pt-16">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-5">
+          <div className="order-1 lg:col-span-5">
             <Logo variant="slogan" height={43} tone="onDark" />
             <p className="mt-5 max-w-md text-sm leading-7 text-white/60">
-              مرجع تخصصی ابزارآلات صنعتی و تراشکاری — اصالت، تأمین سریع و پشتیبانی کارگاهی.
+              مرجع تخصصی ابزارآلات صنعتی و تراشکاری.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {["ضمانت اصالت", "ارسال سراسری", "مشاوره تخصصی"].map((label) => (
@@ -61,51 +86,70 @@ export function SiteFooter() {
                 </span>
               ))}
             </div>
+            <div className="mt-7">
+              <p
+                id="footer-social-heading"
+                className="text-xs font-bold tracking-tight text-white/45"
+              >
+                شبکه‌های اجتماعی
+              </p>
+              <StoreSocialLinks
+                tone="dark"
+                variant="icons"
+                labelledBy="footer-social-heading"
+                className="mt-3"
+              />
+            </div>
           </div>
 
-          {COLUMNS.map((col) => (
-            <div key={col.title} className="lg:col-span-2">
-              <h3 className="text-sm font-black tracking-tight text-white">{col.title}</h3>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/55 transition-colors hover:text-primary"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Mobile: after ارتباط, two columns. Desktop: brand → links → contact */}
+          <div className="order-3 grid grid-cols-2 gap-6 sm:gap-8 lg:order-2 lg:col-span-4 lg:gap-8">
+            {COLUMNS.map((col) => (
+              <div key={col.title}>
+                <h3 className="text-sm font-black tracking-tight text-white">{col.title}</h3>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-white/55 transition-colors hover:text-primary"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-          <div className="lg:col-span-3">
+          <div className="order-2 lg:order-3 lg:col-span-3">
             <h3 className="text-sm font-black tracking-tight text-white">ارتباط</h3>
-            <ul className="mt-4 space-y-3 text-sm text-white/60">
+            <ul className="mt-4 space-y-3.5 text-sm text-white/60">
               <li>
                 <a
                   href={`tel:${STORE_PHONE_E164}`}
-                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
-                  dir="ltr"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-primary">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/20 text-primary">
                     <Call size="small" set="bold" />
                   </span>
-                  {STORE_PHONE_DISPLAY}
+                  <span dir="ltr" className="min-w-0 tabular-nums tracking-wide">
+                    {STORE_PHONE_DISPLAY}
+                  </span>
                 </a>
               </li>
               <li>
                 <a
                   href={`mailto:${STORE_EMAIL}`}
-                  className="inline-flex items-center gap-2.5 transition-colors hover:text-white"
-                  dir="ltr"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-white/8">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
                     <Message size="small" set="light" />
                   </span>
-                  {STORE_EMAIL}
+                  <span dir="ltr" className="min-w-0 break-all">
+                    {STORE_EMAIL}
+                  </span>
                 </a>
               </li>
               <li>
@@ -113,22 +157,28 @@ export function SiteFooter() {
                   href={STORE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-start gap-2.5 transition-colors hover:text-white"
+                  className="flex items-start gap-2.5 transition-colors hover:text-white"
                 >
-                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/8">
                     <Location size="small" set="light" />
                   </span>
-                  <span className="leading-6">{STORE_ADDRESS_FA}</span>
+                  <span className="min-w-0 flex-1 leading-6 text-pretty">
+                    {STORE_ADDRESS_FA}
+                  </span>
                 </a>
               </li>
             </ul>
-            <NeshanDirectionsButton tone="dark" className="mt-5 w-full sm:w-auto" />
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row">
-          <p>© {new Date().getFullYear()} کارزار · تمامی حقوق محفوظ است</p>
-          <p className="font-bold text-white/55">تأمین تخصصی ابزار برای صنعتگران ایران</p>
+        {/* Bottom strip — eNamad + copyright in former tagline slot (no extra stacked band) */}
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-4 pb-5 text-xs text-white/40 sm:flex-row sm:items-center sm:gap-4 sm:pt-5 sm:pb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <EnamadBadge />
+          </div>
+          <p className="font-bold text-white/55">
+            © 1405 کارزار · تمامی حقوق محفوظ است
+          </p>
         </div>
       </Container>
     </footer>

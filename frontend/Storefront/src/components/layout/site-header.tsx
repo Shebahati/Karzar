@@ -47,10 +47,20 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setScrolled(window.scrollY > 12);
+      });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -76,9 +86,12 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background,box-shadow,backdrop-filter] duration-300",
+          "z-50 pt-[env(safe-area-inset-top,0px)] transition-[background-color,box-shadow,backdrop-filter,color] duration-300",
+          /* Home: fixed overlay — never participates in document flow / height. */
           isHome ? "fixed inset-x-0 top-0" : "sticky top-0",
-          scrolled ? "bg-white/70 shadow-glass backdrop-blur-xl" : "bg-transparent",
+          scrolled
+            ? "bg-white/[0.92] shadow-glass max-md:bg-white md:bg-white/70 md:backdrop-blur-xl"
+            : "bg-transparent",
         )}
         onMouseLeave={() => setMegaOpen(false)}
       >
@@ -187,6 +200,7 @@ export function SiteHeader() {
               {mounted && hasToken ? (
                 <Link
                   href="/account"
+                  aria-label="حساب کاربری"
                   className={cn(
                     "ms-1 inline-flex max-w-[150px] items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold backdrop-blur-md transition-[background-color,color,box-shadow] duration-200",
                     overHero
@@ -194,8 +208,15 @@ export function SiteHeader() {
                       : "bg-white/75 text-foreground hover-fine:bg-karzar-50 hover-fine:shadow-btn-soft",
                   )}
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-[11px] text-white">
-                    {(displayName || "ک").slice(0, 1)}
+                  <span
+                    className={cn(
+                      "grid h-7 w-7 place-items-center rounded-full",
+                      overHero
+                        ? "bg-white/15 text-white"
+                        : "bg-primary/10 text-primary",
+                    )}
+                  >
+                    <User size="small" set="bold" />
                   </span>
                   <span className="truncate">{displayName}</span>
                 </Link>
@@ -208,7 +229,7 @@ export function SiteHeader() {
                       "gap-1.5 rounded-full shadow-none ring-0",
                       overHero
                         ? "bg-black/40 text-white hover-fine:bg-black/55 hover-fine:text-white hover-fine:shadow-none hover-fine:translate-y-0"
-                        : "bg-white/80",
+                        : "bg-white/80 hover-fine:shadow-btn-soft",
                     )}
                   >
                     <User size="small" set="bold" />
@@ -226,30 +247,54 @@ export function SiteHeader() {
               type="button"
               onClick={() => setSpotlightOpen(true)}
               className={cn(
-                "ms-2 flex h-10 flex-1 items-center gap-2 rounded-full px-3.5 text-start text-sm transition-[background-color,color] duration-200",
+                "ms-2 flex min-h-11 flex-1 items-center gap-2 rounded-full px-3.5 text-start text-sm transition-[background-color,color] duration-200",
                 overHero
-                  ? "bg-black/40 text-white/70 shadow-[0_6px_20px_rgba(0,0,0,0.28)] backdrop-blur-xl"
-                  : "bg-white/80 text-steel shadow-btn-rest backdrop-blur-md active:bg-karzar-50",
+                  ? "bg-black/45 text-white/70 shadow-[0_6px_20px_rgba(0,0,0,0.28)]"
+                  : "bg-white text-steel shadow-btn-rest ring-1 ring-inset ring-steel/10 active:bg-karzar-50",
               )}
               aria-label="جستجو"
             >
               <Search size="small" set="bold" />
               <span className="truncate">جستجوی ابزار…</span>
             </button>
-            <div className="flex items-center gap-0.5">
-              <Link
-                href={mounted && hasToken ? "/account" : "/login?next=/account"}
-                className={cn(
-                  "touch-target grid place-items-center rounded-full transition-colors duration-200",
-                  overHero
-                    ? "text-white active:bg-white/15"
-                    : "text-steel active:bg-steel/[0.1]",
-                )}
-                aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
-              >
-                <User set="bold" />
-              </Link>
-            </div>
+            <Link
+              href={mounted && hasToken ? "/account" : "/login?next=/account"}
+              className={cn(
+                "touch-target inline-flex shrink-0 items-center rounded-full transition-[background-color,box-shadow,color] duration-200",
+                mounted && hasToken ? "h-11 w-11 justify-center" : "gap-1.5 px-2.5 py-1.5",
+                overHero
+                  ? "bg-black/45 text-white shadow-[0_6px_20px_rgba(0,0,0,0.28)] backdrop-blur-md active:bg-black/55"
+                  : "bg-white text-foreground shadow-btn-rest ring-1 ring-inset ring-steel/10 hover-fine:bg-karzar-50 hover-fine:shadow-btn-soft motion-safe:hover-fine:-translate-y-px active:bg-karzar-50 active:shadow-btn-soft",
+              )}
+              aria-label={mounted && hasToken ? "حساب کاربری" : "ورود"}
+            >
+              {mounted && hasToken ? (
+                <span
+                  className={cn(
+                    "grid h-7 w-7 place-items-center rounded-full",
+                    overHero
+                      ? "bg-white/15 text-white"
+                      : "bg-primary/10 text-primary",
+                  )}
+                >
+                  <User size="small" set="bold" />
+                </span>
+              ) : (
+                <>
+                  <span
+                    className={cn(
+                      "grid h-7 w-7 place-items-center rounded-full",
+                      overHero
+                        ? "bg-white/15 text-white"
+                        : "bg-primary/10 text-primary",
+                    )}
+                  >
+                    <User size="small" set="bold" />
+                  </span>
+                  <span className="text-xs font-bold">ورود</span>
+                </>
+              )}
+            </Link>
           </div>
 
           <MegaMenu

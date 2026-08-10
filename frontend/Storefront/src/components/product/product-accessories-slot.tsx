@@ -60,7 +60,7 @@ export function ProductAccessoriesSlot({ product }: { product: ProductDetail }) 
   const isEmpty = !hasProductCards && !hasLabelsOnly;
 
   return (
-    <section className="mt-16 sm:mt-20" aria-labelledby="pdp-accessories-heading">
+    <section className="mt-12 sm:mt-20" aria-labelledby="pdp-accessories-heading">
       <h2
         id="pdp-accessories-heading"
         className="mb-5 flex items-center gap-2.5 text-lg font-bold text-foreground sm:text-xl"

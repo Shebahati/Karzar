@@ -46,7 +46,9 @@ export function AccountInvoicesView() {
       setError(
         code === "POPUP_BLOCKED"
           ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
-          : "دانلود فایل ناموفق بود. دوباره تلاش کنید.",
+          : code === "MISSING_BUYER_ADDRESS"
+            ? "برای صدور فاکتور، آدرس و کد پستی را در حساب کاربری تکمیل کنید."
+            : "دانلود فایل ناموفق بود. دوباره تلاش کنید.",
       );
     } finally {
       setBusyCode(null);

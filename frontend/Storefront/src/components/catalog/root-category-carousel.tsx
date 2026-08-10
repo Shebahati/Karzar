@@ -73,28 +73,35 @@ function CategoryOrbButton({
       onClick={() => onSelect(node)}
       className={cn(
         "group flex w-[5.5rem] shrink-0 snap-start flex-col items-center outline-none sm:w-[6.25rem]",
-        "focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-primary/40",
+        "focus-visible:rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D02327]/25",
       )}
     >
       <span
         className={cn(
-          "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full transition-all duration-300 ease-out sm:h-[4.75rem] sm:w-[4.75rem]",
+          "relative grid h-[4.25rem] w-[4.25rem] place-items-center overflow-visible rounded-full",
+          "text-steel transition-[transform,background-color,box-shadow,ring-color,filter] duration-300 ease-out",
+          "group-hover:scale-[1.04] group-hover:brightness-[1.03]",
+          "sm:h-[4.75rem] sm:w-[4.75rem]",
           active
-            ? "scale-[1.08] bg-primary text-white shadow-[0_12px_32px_rgba(208,35,39,0.38)] ring-4 ring-primary/15"
-            : "bg-[#F5F5F5] text-steel shadow-[0_6px_20px_rgba(0,0,0,0.05)] group-hover:bg-primary/10 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.14)]",
+            ? // Selected: keep gray fill; distinctive soft brand-red ring
+              "scale-[1.05] bg-[#F5F5F5] shadow-[0_8px_22px_rgba(208,35,39,0.12)] ring-2 ring-primary/55 group-hover:bg-[#F5F5F5] group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.16)] group-hover:ring-primary/70"
+            : // Idle: soft red tint at 20% on hover (not gray wash)
+              "bg-[#F5F5F5] shadow-[0_6px_20px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.04] group-hover:bg-primary/20 group-hover:shadow-[0_10px_24px_rgba(208,35,39,0.1)] group-hover:ring-primary/25",
         )}
       >
         <CategoryVisualIcon
           icon={resolveCategoryIconUrl(node) ?? node.icon}
           size={32}
           overflowTop
-          color={active ? "#FFFFFF" : "#5E5F5E"}
+          color="#5E5F5E"
         />
       </span>
       <span
         className={cn(
-          "mt-2.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:text-xs",
-          active ? "font-black text-primary" : "font-bold text-foreground/85 group-hover:text-foreground",
+          "mt-1.5 max-w-full text-center text-[11px] leading-snug tracking-tight transition-colors duration-300 sm:mt-2.5 sm:text-xs",
+          active
+            ? "font-black text-foreground group-hover:text-foreground"
+            : "font-bold text-foreground/85 group-hover:text-foreground",
         )}
       >
         {node.name}
@@ -102,7 +109,7 @@ function CategoryOrbButton({
       <span
         className={cn(
           "mt-0.5 text-[10px] transition-colors duration-300",
-          active ? "font-bold text-primary/75" : "font-medium text-steel",
+          active ? "font-bold text-steel" : "font-medium text-steel/80 group-hover:text-steel",
         )}
       >
         {formatNumber(node.product_count ?? 0)} محصول
@@ -192,15 +199,23 @@ export function RootCategoryCarousel({
     };
   }, [updateEdges, roots.length]);
 
-  // Scroll the URL/locked selected orb into view once per active root.
+  // Scroll the URL/locked selected orb into the track only (never document scroll).
   useEffect(() => {
     if (activeRootId == null || !roots.length) return;
     if (didScrollToActive.current === activeRootId) return;
     const btn = orbRefs.current.get(activeRootId);
-    if (!btn) return;
+    const track = trackRef.current;
+    if (!btn || !track) return;
     didScrollToActive.current = activeRootId;
     requestAnimationFrame(() => {
-      btn.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      const trackBox = track.getBoundingClientRect();
+      const btnBox = btn.getBoundingClientRect();
+      const btnCenter = (btnBox.left + btnBox.right) / 2;
+      const trackCenter = (trackBox.left + trackBox.right) / 2;
+      const delta = btnCenter - trackCenter;
+      if (Math.abs(delta) >= 1) {
+        track.scrollBy({ left: delta, behavior: "smooth" });
+      }
       updateEdges();
     });
   }, [activeRootId, roots.length, updateEdges]);
@@ -290,9 +305,9 @@ export function RootCategoryCarousel({
   // Only shimmer when neither RSC seed nor query data is available.
   if (!roots.length && isLoading) {
     return (
-      <div className="flex gap-4 overflow-x-auto pe-2 pt-3 pb-4">
+      <div className="flex gap-3 h-scroll no-scrollbar pe-2 pt-2 pb-3 sm:gap-4 sm:pt-3 sm:pb-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex w-[5.5rem] shrink-0 flex-col items-center gap-2.5 sm:w-[6.25rem]">
+          <div key={i} className="flex w-[5.5rem] shrink-0 flex-col items-center gap-2 sm:w-[6.25rem] sm:gap-2.5">
             <Skeleton className="h-[4.25rem] w-[4.25rem] rounded-full sm:h-[4.75rem] sm:w-[4.75rem]" />
             <Skeleton className="h-3 w-14 rounded-full" />
           </div>
@@ -305,9 +320,8 @@ export function RootCategoryCarousel({
 
   return (
     <div className="min-w-0 w-full">
-      <div className="mb-3 flex items-end justify-between gap-3">
-        <h2 className="text-sm font-black text-foreground">دسته‌های اصلی</h2>
-        {lockedCategoryId == null && activeRootId != null && (
+      {lockedCategoryId == null && activeRootId != null && (
+        <div className="mb-1.5 flex items-end justify-end gap-3 sm:mb-3">
           <button
             type="button"
             className="text-xs font-bold text-primary transition-opacity hover:opacity-80"
@@ -315,8 +329,8 @@ export function RootCategoryCarousel({
           >
             پاک کردن
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/*
         Vertical padding lives on the scroll rail so scale + soft shadow of the
@@ -328,15 +342,17 @@ export function RootCategoryCarousel({
       <div className="relative min-w-0 w-full">
         <div
           ref={trackRef}
-          aria-label="دسته‌های اصلی"
+          aria-label="دسته‌ها"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onClickCapture={onClickCapture}
           className={cn(
-            "no-scrollbar flex w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-1 pt-3 pb-5 sm:gap-4",
-            "snap-x snap-mandatory touch-pan-x select-none",
+            "no-scrollbar h-scroll flex w-full min-w-0 gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-1 pt-2 pb-3 sm:gap-4 sm:pt-3 sm:pb-5",
+            // touch-manipulation: allow vertical page scroll + horizontal rail pan.
+            // Avoid touch-pan-x alone (traps vertical gestures on mobile).
+            "md:snap-x md:snap-mandatory touch-manipulation select-none",
             "cursor-grab active:cursor-grabbing",
           )}
         >

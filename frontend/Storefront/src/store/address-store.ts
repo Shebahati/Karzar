@@ -111,6 +111,10 @@ export const useAddressStore = create<AddressState>()(
 
       getById: (id) => get().addresses.find((a) => a.id === id),
     }),
-    { name: "karzar.addresses" },
+    {
+      name: "karzar.addresses",
+      // See cart-store: avoid persist rehydrate during React hydration.
+      skipHydration: true,
+    },
   ),
 );

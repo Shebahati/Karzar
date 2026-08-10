@@ -18,7 +18,7 @@ interface CustomSelectProps {
   "aria-label"?: string;
 }
 
-/** Custom dropdown — no native `<select>`. */
+/** Custom dropdown — no native `<select>`. Compact Karzar control (steel ring, soft shadow). */
 export function CustomSelect({
   value,
   onValueChange,
@@ -99,7 +99,7 @@ export function CustomSelect({
   };
 
   return (
-    <div ref={rootRef} className={cn("relative", className)}>
+    <div ref={rootRef} className={cn("relative inline-flex max-w-full", className)}>
       <button
         type="button"
         aria-haspopup="listbox"
@@ -108,14 +108,27 @@ export function CustomSelect({
         aria-label={props["aria-label"]}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onKeyDown}
-        className="flex h-10 w-full items-center justify-between gap-2 rounded-xl bg-card px-4 text-sm font-bold text-foreground shadow-soft outline-none focus:ring-2 focus:ring-ring/40"
+        className={cn(
+          "inline-flex h-9 max-w-full items-center justify-between gap-1.5 rounded-xl bg-white ps-3 pe-2.5 text-sm font-medium text-foreground",
+          "shadow-btn-rest ring-1 ring-inset ring-steel/10 outline-none",
+          "transition-[box-shadow,color,ring-color] duration-200",
+          "focus-visible:ring-2 focus-visible:ring-primary/35",
+          "active:bg-karzar-50",
+          open && "text-primary shadow-btn-soft ring-primary/22",
+        )}
       >
         <span className="truncate">{selected?.label ?? placeholder}</span>
-        <span className={cn(
-          "shrink-0 transition-transform duration-300 ease-out",
-          open && "rotate-180",
-        )}>
-          <ChevronDown size="small" set="light" primaryColor="#5E5F5E" />
+        <span
+          className={cn(
+            "shrink-0 transition-transform duration-300 ease-out",
+            open && "rotate-180",
+          )}
+        >
+          <ChevronDown
+            size="small"
+            set="light"
+            primaryColor={open ? "#D02327" : "#5E5F5E"}
+          />
         </span>
       </button>
 
@@ -123,7 +136,10 @@ export function CustomSelect({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-border bg-card p-1 shadow-elevated"
+          className={cn(
+            "absolute end-0 z-50 mt-1.5 max-h-60 min-w-full w-max max-w-[16rem] overflow-auto",
+            "rounded-xl border border-steel/10 bg-white p-1 shadow-elevated",
+          )}
         >
           {options.map((opt, index) => {
             const active = opt.value === value;
@@ -138,13 +154,17 @@ export function CustomSelect({
                     setOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
-                    active ? "bg-accent text-primary" : "text-foreground hover:bg-muted",
-                    focused && !active && "bg-muted",
+                    "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-primary/[0.06] font-semibold text-primary"
+                      : "text-foreground hover:bg-steel/[0.06]",
+                    focused && !active && "bg-steel/[0.06]",
                   )}
                 >
                   {opt.label}
-                  {active && <TickSquare set="bold" size={16} primaryColor="#D02327" />}
+                  {active && (
+                    <TickSquare set="bold" size={16} primaryColor="#D02327" />
+                  )}
                 </button>
               </li>
             );

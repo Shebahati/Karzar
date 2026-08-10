@@ -36,6 +36,7 @@ import type { ContactValues } from "@/lib/validation";
 import { buildOrderTimeline } from "@/lib/order-timeline";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { CategoryBrief, ProductDetail, ProductListParams, ProductListResponse, ProductSummary } from "@/types/product";
+import { productHasDiscount } from "@/types/product";
 import type {
   MeResponse,
   OtpRequestPayload,
@@ -128,6 +129,9 @@ function persistPayments() {
 const mockSession = {
   phone: "09121234567",
   full_name: "کاربر آزمایشی" as string | null,
+  company_name: null as string | null,
+  /** Flip to `true` locally to exercise corporate profile UI in mock mode. */
+  is_b2b: false,
   id: 1,
 };
 
@@ -228,6 +232,12 @@ export const mockApi = {
       items = items.filter((p) => p.availability && Number(p.stock_quantity) > 0);
     } else if (params.in_stock === false) {
       items = items.filter((p) => !p.availability || Number(p.stock_quantity) <= 0);
+    }
+    if (params.on_sale === true) {
+      items = items.filter((p) => productHasDiscount(p));
+      items = [...items].sort(
+        (a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0),
+      );
     }
     if (params.search) {
       const q = params.search.trim().toLowerCase();
@@ -636,7 +646,47 @@ export const mockApi = {
       id: mockSession.id,
       phone: mockSession.phone,
       full_name: mockSession.full_name,
+      company_name: mockSession.company_name,
+      is_b2b: mockSession.is_b2b,
     };
+  },
+
+  async updateProfile(payload: {
+    full_name: string;
+    company_name?: string | null;
+  }): Promise<MeResponse> {
+    await sleep(env.MOCK_LATENCY_MS);
+    const trimmed = payload.full_name.trim();
+    const company =
+      payload.company_name === undefined
+        ? mockSession.company_name
+        : payload.company_name?.trim() || null;
+    mockSession.full_name = trimmed;
+    mockSession.company_name = company;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "karzar.storefront.customer",
+        JSON.stringify({
+          id: mockSession.id,
+          phone: mockSession.phone,
+          full_name: trimmed,
+          company_name: company,
+          is_b2b: mockSession.is_b2b,
+        }),
+      );
+      window.dispatchEvent(new Event("karzar-auth-change"));
+    }
+    return {
+      id: mockSession.id,
+      phone: mockSession.phone,
+      full_name: trimmed,
+      company_name: company,
+      is_b2b: mockSession.is_b2b,
+    };
+  },
+
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    return this.updateProfile({ full_name: fullName });
   },
 
   async submitContact(payload: ContactValues): Promise<{ ok: true; ticket: string }> {
@@ -663,11 +713,15 @@ export const mockApi = {
       throw new Error("کد وارد شده صحیح نیست.");
     }
     mockSession.phone = payload.phone;
-    mockSession.full_name = mockSession.full_name ?? null;
+    mockSession.full_name = mockSession.full_name ?? "کاربر آزمایشی";
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "karzar.storefront.customer",
-        JSON.stringify({ phone: payload.phone, full_name: mockSession.full_name }),
+        JSON.stringify({
+          id: mockSession.id,
+          phone: payload.phone,
+          full_name: mockSession.full_name,
+        }),
       );
     }
     return {

@@ -164,6 +164,7 @@ export function HeroPreview({
   activeOrbIndex = 0,
   lockDrag = false,
   mobilePreset = null,
+  onSelectOrb,
   onSelectLayer,
   onMoveLayer,
   className,
@@ -177,6 +178,7 @@ export function HeroPreview({
   lockDrag?: boolean;
   /** When set, layout is remapped into a distinct mobile composition */
   mobilePreset?: MobileComposePreset | null;
+  onSelectOrb?: (orbKey: string) => void;
   onSelectLayer?: (id: string) => void;
   onMoveLayer?: (
     kind: "typography" | "button" | "badge" | "carousel",
@@ -395,7 +397,12 @@ export function HeroPreview({
             {featuredOrbs.map((orb, i) => {
               const selected = i === activeOrbIndex;
               return (
-                <div key={orb.key} className="flex flex-col items-center">
+                <button
+                  key={orb.key}
+                  type="button"
+                  className="pointer-events-auto flex flex-col items-center"
+                  onClick={() => onSelectOrb?.(orb.key)}
+                >
                   <div
                     className={cn(
                       "grid h-9 w-9 place-items-center rounded-full text-white transition",
@@ -414,7 +421,7 @@ export function HeroPreview({
                   >
                     {orb.name}
                   </span>
-                </div>
+                </button>
               );
             })}
             <div className="flex flex-col items-center">

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryLeafCombobox } from "@/features/catalog/components/category-leaf-combobox";
+import { ProductDescriptionEditor } from "@/features/catalog/components/product-description-editor";
 import { ProductImagesSection } from "@/features/catalog/components/product-images-section";
 import { ProductStockSection } from "@/features/catalog/components/product-stock-section";
 import { ProductChangeLogSection } from "@/features/catalog/components/product-change-log-section";
@@ -206,14 +207,23 @@ export default function EditProductPage() {
                 label="توضیحات کامل"
                 htmlFor="description"
                 error={errors.description?.message}
+                hint="می‌توانید تصویر را بین متن درج کنید (مارک‌داون)"
                 className="sm:col-span-2"
               >
-                <textarea
-                  id="description"
-                  rows={5}
-                  className="w-full rounded-xl border border-input bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
-                  aria-invalid={Boolean(errors.description)}
-                  {...register("description")}
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <ProductDescriptionEditor
+                      id="description"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      invalid={Boolean(errors.description)}
+                      productId={productId}
+                      rows={8}
+                    />
+                  )}
                 />
               </Field>
 

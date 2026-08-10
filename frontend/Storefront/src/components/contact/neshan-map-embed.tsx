@@ -8,7 +8,8 @@ type NeshanMapEmbedProps = {
 };
 
 /**
- * Compact Neshan place iframe — light frame, modest height.
+ * Soft Neshan place iframe — readable height, never hidden by contact layout.
+ * Gently shorter on short monitors; still clearly a map, not a stub.
  */
 export function NeshanMapEmbed({
   className,
@@ -17,11 +18,17 @@ export function NeshanMapEmbed({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl bg-[#f4f4f4] ring-1 ring-inset ring-[#5E5F5E]/12",
+        "relative overflow-hidden rounded-xl bg-muted ring-1 ring-inset ring-border/60",
         className,
       )}
     >
-      <div className="relative aspect-[2/1] w-full min-h-[140px] max-h-[200px]">
+      <div
+        className={cn(
+          "relative w-full",
+          "h-[11.5rem] sm:h-[13rem]",
+          "[@media(max-height:720px)]:h-[9.5rem]",
+        )}
+      >
         <iframe
           title={title}
           src={STORE_NESHAN_EMBED_URL}

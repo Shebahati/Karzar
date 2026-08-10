@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "publishedAt": null,
+  "sections": [
+    {
+      "id": "discounts",
+      "type": "discounts",
+      "enabled": true
+    },
+    {
+      "id": "bestsellers",
+      "type": "bestsellers",
+      "enabled": true
+    },
+    {
+      "id": "features",
+      "type": "features",
+      "enabled": true
+    },
+    {
+      "id": "trust",
+      "type": "trust",
+      "enabled": true
+    },
+    {
+      "id": "carousel-metrology",
+      "type": "category_carousel",
+      "enabled": true,
+      "title": "اندازه‌گیری",
+      "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
+      "ctaLabel": "مشاهده اندازه‌گیری",
+      "categoryId": 0,
+      "categorySlug": "andaze-giri",
+      "limit": 12
+    },
+    {
+      "id": "carousel-industrial",
+      "type": "category_carousel",
+      "enabled": true,
+      "title": "دستگاه‌های صنعتی",
+      "subtitle": "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
+      "ctaLabel": "مشاهده دستگاه‌ها",
+      "categoryId": 0,
+      "categorySlug": "dastgah-sanati",
+      "limit": 12
+    },
+    {
+      "id": "brands",
+      "type": "brands",
+      "enabled": true
+    },
+    {
+      "id": "articles",
+      "type": "articles",
+      "enabled": true
+    },
+    {
+      "id": "contact",
+      "type": "contact",
+      "enabled": true
+    }
+  ]
+}

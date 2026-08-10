@@ -24,7 +24,7 @@ See `.env.example`:
 
 ### Mock OTP
 
-When `USE_MOCK=true`, OTP code is typically `11111` (see mock API).
+When `NEXT_PUBLIC_USE_MOCK=true`, OTP code is `111111` (see `OTP_MOCK_CODE` / mock API).
 
 ## Scripts
 

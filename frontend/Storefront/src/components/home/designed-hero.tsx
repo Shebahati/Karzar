@@ -9,24 +9,47 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useMotionValue,
+  type PanInfo,
+} from "framer-motion";
 import { ChevronLeft, ChevronRight } from "react-iconly";
 import { HeroCategoryOrbs } from "@/components/home/hero-category-orbs";
+import {
+  HERO_DRAG_SETTLE,
+  HERO_SHEET_EASE,
+  HERO_SHEET_MS,
+  HERO_SHEET_MS_MOBILE,
+  HERO_SHEET_MS_REDUCED,
+  HERO_SHEET_UNDERLAY,
+  HERO_SWIPE_CONFIDENCE,
+  HERO_SWIPE_OFFSET,
+  heroSheetReducedVariants,
+  heroSheetTransition,
+  heroSheetVariants,
+  heroSwipePower,
+} from "@/components/home/hero-sheet-motion";
 import {
   featuredOrbs,
   HERO_ORB_CATEGORIES,
   orbsFromPublishedDock,
   orbsFromRoots,
 } from "@/config/hero-orbs";
+import { SafeImage } from "@/components/ui/safe-image";
 import { composeHeroForMobile, type MobileComposePreset } from "@/lib/mobile-hero-compose";
+import { lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroConfig, DesignedHeroPack, DesignedHeroSlide } from "@/types/hero-design";
 
 const AUTOPLAY_MS = 5500;
-const SWIPE_THRESHOLD = 48;
-const easePremium = [0.22, 1, 0.36, 1] as const;
+/** Hard cap — published pack + dock are designed around 6 slides / 5 featured orbs. */
+const MAX_ACTIVE_SLIDES = 6;
 
 function overlayCss(config: DesignedHeroConfig): string {
   const o = config.overlay;
@@ -54,14 +77,21 @@ function Layer({
   );
 }
 
-function BadgeLive({ badge }: { badge: DesignedHeroConfig["badges"][number] }) {
+function BadgeLive({
+  badge,
+  lite,
+}: {
+  badge: DesignedHeroConfig["badges"][number];
+  lite?: boolean;
+}) {
   const base = "max-w-[220px] shadow-elevated";
   if (badge.style === "chip") {
     return (
       <div
         className={cn(
           base,
-          "rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-white backdrop-blur-md",
+          "rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-white",
+          !lite && "backdrop-blur-md",
         )}
       >
         <span className="text-xs font-bold">{badge.label}</span>
@@ -84,19 +114,23 @@ function SlideCanvas({
   blurred,
   mobilePreset,
   isMobile,
+  priority,
 }: {
   slide: DesignedHeroSlide;
   reducedMotion: boolean;
   blurred?: boolean;
   mobilePreset?: MobileComposePreset | null;
   isMobile?: boolean;
+  priority?: boolean;
 }) {
   const composed =
     isMobile && mobilePreset ? composeHeroForMobile(slide.config, mobilePreset) : null;
   const config = composed?.config ?? slide.config;
   const overlayOpacity = composed?.overlayOpacity ?? config.overlay.opacity;
+  // Mobile + reduced-motion: no CSS keyframe layer (esp. infinite float).
+  const lite = Boolean(isMobile || reducedMotion);
   const anim =
-    reducedMotion || config.animation === "none" || blurred ? "" : `hero-anim-${config.animation}`;
+    lite || config.animation === "none" || blurred ? "" : `hero-anim-${config.animation}`;
 
   const bgSrc =
     config.background.mode === "image"
@@ -106,30 +140,31 @@ function SlideCanvas({
   return (
     <div
       className={cn(
-        "absolute inset-0 transition-[opacity,transform] duration-300 ease-out will-change-transform",
+        "absolute inset-0 transition-[opacity,transform] duration-300 ease-out",
+        !lite && "will-change-transform",
         blurred && "scale-[1.015] opacity-40",
       )}
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       data-mobile-preset={isMobile ? mobilePreset ?? undefined : undefined}
     >
       {config.background.mode === "color" || !bgSrc ? (
         <div className="absolute inset-0" style={{ background: config.background.color }} />
       ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <SafeImage
           src={bgSrc}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
+          className="object-cover"
           style={{ objectPosition: config.background.focal || "center" }}
+          fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
+          {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
         />
       )}
 
       <div
         className="absolute inset-0"
         style={{ background: overlayCss(config), opacity: overlayOpacity }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(208,35,39,0.2),transparent_42%)]"
       />
 
       <div className={cn("absolute inset-0", anim, blurred && "opacity-40")}>
@@ -148,22 +183,26 @@ function SlideCanvas({
           }}
         >
           <h1
-            className="font-black leading-[1.15] tracking-tight"
+            className="font-extrabold leading-[1.18] tracking-tight"
             style={{
               color: config.typography.titleColor,
-              fontSize: `clamp(1.45rem, 4.2vw, ${config.typography.titleSize}px)`,
-              textShadow: "0 2px 16px rgba(0,0,0,0.55)",
+              fontSize: `clamp(1.5rem, 4vw, ${config.typography.titleSize}px)`,
+              textShadow: "0 2px 20px rgba(0,0,0,0.45)",
             }}
           >
             {config.typography.title}
           </h1>
-          <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+          <div
+            className="mt-3 h-px w-10"
+            style={{ background: "rgba(208,35,39,0.85)" }}
+            aria-hidden
+          />
           <p
-            className="mt-3 max-w-prose font-medium leading-relaxed"
+            className="mt-4 max-w-prose font-normal leading-relaxed"
             style={{
               color: config.typography.subtitleColor,
-              fontSize: `clamp(0.85rem, 1.6vw, ${config.typography.subtitleSize}px)`,
-              textShadow: "0 1px 10px rgba(0,0,0,0.45)",
+              fontSize: `clamp(0.9rem, 1.55vw, ${config.typography.subtitleSize}px)`,
+              textShadow: "0 1px 12px rgba(0,0,0,0.4)",
             }}
           >
             {config.typography.subtitle}
@@ -187,9 +226,9 @@ function SlideCanvas({
               ? { background: "#5E5F5E", color: "#fff" }
               : preset === "on-dark-glass"
                 ? {
-                    background: "rgba(255,255,255,0.14)",
+                    background: lite ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.14)",
                     color: "#fff",
-                    backdropFilter: "blur(12px)",
+                    ...(lite ? {} : { backdropFilter: "blur(12px)" }),
                   }
                 : preset === "on-dark-outline"
                   ? {
@@ -204,12 +243,14 @@ function SlideCanvas({
               key={button.id}
               x={button.position.x}
               y={button.position.y}
-              className={cn(config.animation === "stagger-up" && `hero-stagger-${Math.min(i + 2, 4)}`)}
+              className={cn(
+                !lite && config.animation === "stagger-up" && `hero-stagger-${Math.min(i + 2, 4)}`,
+              )}
             >
               <Link
                 href={href}
                 className={cn(
-                  "inline-block font-bold whitespace-nowrap shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition hover:opacity-95 active:scale-[0.98]",
+                  "inline-block font-semibold whitespace-nowrap transition hover:opacity-95 active:scale-[0.98]",
                   pad,
                   size !== "pill" && "rounded-xl",
                 )}
@@ -223,11 +264,12 @@ function SlideCanvas({
 
         {config.badges.map((badge) => (
           <Layer key={badge.id} x={badge.position.x} y={badge.position.y}>
-            <BadgeLive badge={badge} />
+            <BadgeLive badge={badge} lite={lite} />
           </Layer>
         ))}
 
-        {config.carousel?.enabled ? (
+        {/* Nested product preview rail is desktop-only — heavy DOM on phones. */}
+        {!isMobile && config.carousel?.enabled ? (
           <Layer
             x={config.carousel.position.x}
             y={config.carousel.position.y}
@@ -268,8 +310,10 @@ function SlideCanvas({
               </div>
               <div
                 className={cn(
-                  "flex gap-2 overflow-x-auto pb-1",
-                  config.carousel.layoutPreset === "stack" && "flex-col",
+                  "flex gap-2 pb-1",
+                  config.carousel.layoutPreset === "stack"
+                    ? "flex-col"
+                    : "h-scroll",
                 )}
               >
                 {(config.carousel.previewTitles?.length
@@ -285,7 +329,7 @@ function SlideCanvas({
                         "min-w-[96px] shrink-0 rounded-xl p-2 transition hover:opacity-90",
                         (config.carousel.stylePreset ?? "rail-soft") === "cards-elevated"
                           ? "bg-[#F3F3F3] text-ink"
-                          : "bg-white/92 text-ink",
+                          : "bg-white/[0.92] text-ink",
                         (config.carousel.stylePreset ?? "rail-soft") === "spotlight" &&
                           ti === 0 &&
                           "min-w-[124px]",
@@ -304,6 +348,199 @@ function SlideCanvas({
   );
 }
 
+/**
+ * Sheet strip: next | current | prev (RTL page-turn), drag follows pointer, then settle.
+ * Next = content moves right (ورق از چپ به راست).
+ * Mobile-only; desktop uses AnimatePresence sheet (arrows + autoplay, no drag).
+ */
+function HeroSheetStrip({
+  slides,
+  index,
+  menuOpen,
+  packPreset,
+  isMobile,
+  nudge,
+  onNudgeHandled,
+  onCommitNext,
+  onCommitPrev,
+  onDragPause,
+}: {
+  slides: DesignedHeroSlide[];
+  index: number;
+  menuOpen: boolean;
+  packPreset: MobileComposePreset;
+  isMobile: boolean;
+  nudge: "next" | "prev" | null;
+  onNudgeHandled: () => void;
+  onCommitNext: () => void;
+  onCommitPrev: () => void;
+  onDragPause: (paused: boolean) => void;
+}) {
+  const count = slides.length;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const widthRef = useRef(0);
+  const [width, setWidth] = useState(0);
+  const [locked, setLocked] = useState(false);
+  const x = useMotionValue(0);
+
+  const current = slides[index]!;
+  const prev = slides[(index - 1 + count) % count]!;
+  const next = slides[(index + 1) % count]!;
+  const currentPreset = (current.mobilePreset ?? packPreset) as MobileComposePreset;
+  const prevPreset = (prev.mobilePreset ?? packPreset) as MobileComposePreset;
+  const nextPreset = (next.mobilePreset ?? packPreset) as MobileComposePreset;
+  const settleMs = isMobile ? HERO_SHEET_MS_MOBILE : HERO_SHEET_MS;
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth;
+      widthRef.current = w;
+      setWidth(w);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const settleTo = useCallback(
+    (target: number, commit: () => void) => {
+      const w = widthRef.current;
+      if (!w) {
+        commit();
+        x.set(0);
+        setLocked(false);
+        return;
+      }
+      setLocked(true);
+      animate(x, target, {
+        duration: settleMs,
+        ease: HERO_SHEET_EASE,
+        onComplete: () => {
+          // Index + x reset must paint together — otherwise x→0 with stale
+          // panels flashes the previous slide (reads as a white/empty gap).
+          flushSync(() => {
+            commit();
+          });
+          x.set(0);
+          setLocked(false);
+        },
+      });
+    },
+    [x, settleMs],
+  );
+
+  useEffect(() => {
+    if (!nudge || locked) return;
+    const w = widthRef.current;
+    // RTL next: drag/nudge content to the right (reveals next parked on the left).
+    if (nudge === "next") {
+      settleTo(w || 1, () => {
+        onCommitNext();
+        onNudgeHandled();
+      });
+    } else {
+      settleTo(-(w || 1), () => {
+        onCommitPrev();
+        onNudgeHandled();
+      });
+    }
+  }, [nudge, locked, settleTo, onCommitNext, onCommitPrev, onNudgeHandled]);
+
+  const onDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      onDragPause(false);
+      if (menuOpen || locked || count <= 1) {
+        animate(x, 0, HERO_DRAG_SETTLE);
+        return;
+      }
+      const w = widthRef.current || 1;
+      const { offset, velocity } = info;
+      const power = heroSwipePower(offset.x, velocity.x);
+      // Drag right → next; drag left → prev (RTL page-turn).
+      if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+        settleTo(w, onCommitNext);
+      } else if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+        settleTo(-w, onCommitPrev);
+      } else {
+        animate(x, 0, HERO_DRAG_SETTLE);
+      }
+    },
+    [menuOpen, locked, count, x, settleTo, onCommitNext, onCommitPrev, onDragPause],
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 overflow-hidden"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+    >
+      <motion.div
+        className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing"
+        style={{ x, willChange: "transform", backgroundColor: HERO_SHEET_UNDERLAY }}
+        drag={menuOpen || locked ? false : "x"}
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.78}
+        dragMomentum={false}
+        onDragStart={() => onDragPause(true)}
+        onDragEnd={onDragEnd}
+      >
+        {width > 0 ? (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{ transform: `translate3d(${-width}px,0,0)` }}
+              aria-hidden
+            >
+              <SlideCanvas
+                slide={next}
+                reducedMotion={isMobile}
+                blurred={menuOpen}
+                mobilePreset={nextPreset}
+                isMobile={isMobile}
+              />
+            </div>
+            <div className="absolute inset-0">
+              <SlideCanvas
+                slide={current}
+                reducedMotion={isMobile}
+                blurred={menuOpen}
+                mobilePreset={currentPreset}
+                isMobile={isMobile}
+                priority={index === 0}
+              />
+            </div>
+            <div
+              className="absolute inset-0"
+              style={{ transform: `translate3d(${width}px,0,0)` }}
+              aria-hidden
+            >
+              <SlideCanvas
+                slide={prev}
+                reducedMotion={isMobile}
+                blurred={menuOpen}
+                mobilePreset={prevPreset}
+                isMobile={isMobile}
+              />
+            </div>
+          </>
+        ) : (
+          <SlideCanvas
+            slide={current}
+            reducedMotion={isMobile}
+            blurred={menuOpen}
+            mobilePreset={currentPreset}
+            isMobile={isMobile}
+            priority={index === 0}
+          />
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 export function DesignedHero({
   pack,
   roots = [],
@@ -315,13 +552,18 @@ export function DesignedHero({
   menuOpen?: boolean;
   onMenuOpenChange?: (open: boolean) => void;
 }) {
-  const slides = useMemo(
-    () =>
-      [...pack.slides]
-        .filter((s) => s.isActive)
-        .sort((a, b) => a.sortOrder - b.sortOrder),
-    [pack.slides],
-  );
+  const slides = useMemo(() => {
+    const seen = new Set<string>();
+    return [...pack.slides]
+      .filter((s) => s.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .filter((s) => {
+        if (seen.has(s.id)) return false;
+        seen.add(s.id);
+        return true;
+      })
+      .slice(0, MAX_ACTIVE_SLIDES);
+  }, [pack.slides]);
 
   const publishedDockCategories = pack.categoryDock?.categories;
   const hasPublishedDock = Boolean(publishedDockCategories?.length);
@@ -342,7 +584,9 @@ export function DesignedHero({
   const [internalMenu, setInternalMenu] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const touchStartX = useRef<number | null>(null);
+  const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
+  /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
+  const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const regionRef = useRef<HTMLElement>(null);
 
   const menuOpen = menuOpenProp ?? internalMenu;
@@ -364,10 +608,17 @@ export function DesignedHero({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const activeIndex = slides.length
-    ? ((index % slides.length) + slides.length) % slides.length
+  const slideCount = slides.length;
+  const activeIndex = slideCount
+    ? ((index % slideCount) + slideCount) % slideCount
     : 0;
   const slide = slides[activeIndex];
+
+  // Clamp when pack shrinks (e.g. 13 → 6) so we never sit past the last slide.
+  useEffect(() => {
+    if (!slideCount) return;
+    setIndex((i) => ((i % slideCount) + slideCount) % slideCount);
+  }, [slideCount]);
 
   const mobilePreset = (
     slide?.mobilePreset ??
@@ -375,33 +626,47 @@ export function DesignedHero({
     "balanced"
   ) as MobileComposePreset;
 
-  const go = useCallback(
-    (next: number, dir: number) => {
-      if (!slides.length) return;
-      setDirection(dir);
-      setIndex(((next % slides.length) + slides.length) % slides.length);
-    },
-    [slides.length],
-  );
+  const packMobilePreset = (pack.mobilePreset ?? "balanced") as MobileComposePreset;
 
-  const goNext = useCallback(() => go(activeIndex + 1, 1), [go, activeIndex]);
-  const goPrev = useCallback(() => go(activeIndex - 1, -1), [go, activeIndex]);
-  const goTo = useCallback(
-    (i: number) => {
-      if (i === activeIndex) return;
-      go(i, i > activeIndex ? 1 : -1);
-    },
-    [go, activeIndex],
-  );
+  const commitNext = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(1);
+    setIndex((i) => (i + 1) % slideCount);
+  }, [slideCount]);
 
+  const commitPrev = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(-1);
+    setIndex((i) => (i - 1 + slideCount) % slideCount);
+  }, [slideCount]);
+
+  const goNext = useCallback(() => {
+    if (!slideCount) return;
+    // Mobile strip: nudge-driven settle; desktop AnimatePresence: commit index.
+    if (isMobile && !reducedMotion) {
+      setSheetNudge((n) => n ?? "next");
+      return;
+    }
+    commitNext();
+  }, [slideCount, isMobile, reducedMotion, commitNext]);
+
+  const goPrev = useCallback(() => {
+    if (!slideCount) return;
+    if (isMobile && !reducedMotion) {
+      setSheetNudge((n) => n ?? "prev");
+      return;
+    }
+    commitPrev();
+  }, [slideCount, isMobile, reducedMotion, commitPrev]);
+
+  // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
   useEffect(() => {
-    if (slides.length <= 1 || paused || reducedMotion || menuOpen) return;
+    if (isMobile || slideCount <= 1 || paused || reducedMotion || menuOpen) return;
     const t = window.setInterval(() => {
-      setDirection(1);
-      setIndex((i) => (i + 1) % slides.length);
+      commitNext();
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [slides.length, paused, reducedMotion, menuOpen]);
+  }, [isMobile, slideCount, paused, reducedMotion, menuOpen, commitNext]);
 
   if (!slide) return null;
 
@@ -412,21 +677,36 @@ export function DesignedHero({
     : hasPublishedDock
       ? []
       : (orbDefs as typeof HERO_ORB_CATEGORIES).slice(0, 5);
+  /**
+   * Passive highlight only — orb clicks navigate to category pages.
+   * Match by stable linkedOrbKey (never slide index — that drifts vs 5 dock slots).
+   * -1 = no dock highlight (e.g. 6th filler slide).
+   */
   const orbActive = (() => {
     const key = slide.config.linkedOrbKey;
-    if (key) {
-      const idx = featured.findIndex((o) => o.key === key);
-      if (idx >= 0) return idx;
-    }
-    return Math.min(activeIndex, Math.max(0, featured.length - 1));
+    if (!key || !featured.length) return -1;
+    return featured.findIndex((o) => o.key === key);
   })();
 
-  const selectFeatured = (i: number) => {
-    const orb = featured[i];
-    if (!orb) return;
-    const byLink = slides.findIndex((s) => s.config.linkedOrbKey === orb.key);
-    goTo(byLink >= 0 ? byLink : Math.min(i, slides.length - 1));
-  };
+  const slideArrowClass = (side: "left" | "right") =>
+    cn(
+      "pointer-events-auto absolute top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full outline-none",
+      "bg-black/68 text-white shadow-[0_10px_28px_rgba(0,0,0,0.44)] ring-1 ring-primary",
+      !isMobile && "backdrop-blur-md",
+      "transition-[opacity,background-color,box-shadow] duration-300 ease-out",
+      "hover-fine:bg-black/78 hover-fine:shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover-fine:ring-primary/80",
+      "active:bg-black/82",
+      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      // Touch / coarse: always slightly visible (bolder than prior wash)
+      "opacity-75",
+      // Fine pointer: hidden unless this visual half is hovered (or focused)
+      "[@media(hover:hover)_and_(pointer:fine)]:opacity-0",
+      arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
+    );
+
+  const sheetDuration = reducedMotion ? HERO_SHEET_MS_REDUCED : HERO_SHEET_MS;
+  const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
+  const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
 
   return (
     <section
@@ -434,72 +714,90 @@ export function DesignedHero({
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو کارزار"
-      className="relative h-[62dvh] w-full outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62svh] w-full max-w-full overflow-x-clip outline-none md:h-[100svh]"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={(e) => {
-        touchStartX.current = e.changedTouches[0]?.clientX ?? null;
-        setPaused(true);
-      }}
-      onTouchEnd={(e) => {
-        const start = touchStartX.current;
-        touchStartX.current = null;
+      onMouseLeave={() => {
         setPaused(false);
-        if (menuOpen || start == null) return;
-        const dx = (e.changedTouches[0]?.clientX ?? start) - start;
-        if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-        if (dx > 0) goNext();
-        else goPrev();
+        setArrowSide(null);
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const next = e.clientX - rect.left < rect.width / 2 ? "left" : "right";
+        setArrowSide((prev) => (prev === next ? prev : next));
       }}
     >
-      <div className="relative h-full w-full overflow-hidden">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={slide.id}
-            custom={direction}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0.18 : 0.75, ease: easePremium }}
-            className="absolute inset-0"
-          >
-            <SlideCanvas
-              slide={slide}
-              reducedMotion={reducedMotion}
-              blurred={menuOpen}
-              mobilePreset={mobilePreset}
-              isMobile={isMobile}
-            />
-          </motion.div>
-        </AnimatePresence>
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+      >
+        {useSheetStrip ? (
+          <HeroSheetStrip
+            slides={slides}
+            index={activeIndex}
+            menuOpen={menuOpen}
+            packPreset={packMobilePreset}
+            isMobile={isMobile}
+            nudge={sheetNudge}
+            onNudgeHandled={() => setSheetNudge(null)}
+            onCommitNext={commitNext}
+            onCommitPrev={commitPrev}
+            onDragPause={setPaused}
+          />
+        ) : (
+          <AnimatePresence initial={false} custom={direction} mode="sync">
+            <motion.div
+              key={slide.id}
+              custom={direction}
+              variants={sheetVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={heroSheetTransition(sheetDuration)}
+              className="absolute inset-0"
+              style={{
+                willChange: reducedMotion ? undefined : "transform",
+                backgroundColor: HERO_SHEET_UNDERLAY,
+              }}
+            >
+              <SlideCanvas
+                slide={slide}
+                reducedMotion={reducedMotion || isMobile}
+                blurred={menuOpen}
+                mobilePreset={mobilePreset}
+                isMobile={isMobile}
+                priority={activeIndex === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         {slides.length > 1 && !menuOpen ? (
-          <div className="pointer-events-none absolute inset-x-0 top-[calc(5.5rem+env(safe-area-inset-top,0px))] z-30 flex items-center justify-end gap-2 px-4 sm:px-8">
-            <div className="pointer-events-auto flex gap-2" dir="ltr">
-              <button
-                type="button"
-                aria-label="اسلاید بعدی"
-                onClick={goNext}
-                className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-              >
-                <ChevronLeft set="light" size="small" />
-              </button>
-              <button
-                type="button"
-                aria-label="اسلاید قبلی"
-                onClick={goPrev}
-                className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-              >
-                <ChevronRight set="light" size="small" />
-              </button>
-            </div>
-          </div>
+          <>
+            {/* Visual left → next (RTL carousel); physical left/right, not logical start/end */}
+            <button
+              type="button"
+              aria-label="اسلاید بعدی"
+              onClick={goNext}
+              className={cn(slideArrowClass("left"), "left-3 sm:left-5")}
+            >
+              <ChevronLeft set="bold" size={36} />
+            </button>
+            <button
+              type="button"
+              aria-label="اسلاید قبلی"
+              onClick={goPrev}
+              className={cn(slideArrowClass("right"), "right-3 sm:right-5")}
+            >
+              <ChevronRight set="bold" size={36} />
+            </button>
+          </>
         ) : null}
 
         {!isMobile ? (
           <HeroCategoryOrbs
             activeIndex={orbActive}
-            onSelectFeatured={selectFeatured}
             roots={roots}
             defs={orbDefs as typeof HERO_ORB_CATEGORIES}
             menuOpen={menuOpen}

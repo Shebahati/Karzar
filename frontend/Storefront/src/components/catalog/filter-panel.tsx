@@ -8,6 +8,10 @@ import { useBrands, useSpecFilterOptions } from "@/features/catalog/queries";
 import { useFeatureLabel } from "@/lib/feature-labels";
 import { AccordionFilter } from "@/components/catalog/accordion-filter";
 import { CategoryTreeFilter } from "@/components/catalog/category-tree-filter";
+import {
+  FilterShowMoreButton,
+  useFilterShowMore,
+} from "@/components/catalog/filter-show-more";
 import { PriceRangeSlider } from "@/components/catalog/price-range-slider";
 import {
   DEFAULT_MAX_PRICE,
@@ -21,15 +25,21 @@ export function FilterPanel({
   onApplied,
   /** When true, each change notifies parent (legacy). Prefer false + footer CTA on mobile. */
   notifyOnChange = false,
-  /** Mobile drawer: open high-traffic sections so filters need fewer taps. */
-  mobileDefaults = false,
+  /** Kept for callers; accordion sections always start collapsed. */
+  mobileDefaults: _mobileDefaults = false,
   /** Hub pages lock a category in the path — clear must leave the hub. */
   lockedCategoryId,
+  /**
+   * `sidebar`: sticky column with pinned «فیلترها» + explicit max-h scrollport.
+   * `stack` (default): plain flow for the mobile drawer (drawer owns overflow).
+   */
+  layout = "stack",
 }: {
   onApplied?: () => void;
   notifyOnChange?: boolean;
   mobileDefaults?: boolean;
   lockedCategoryId?: number;
+  layout?: "stack" | "sidebar";
 }) {
   const {
     params,
@@ -86,17 +96,11 @@ export function FilterPanel({
     );
   }, [brands, brandQuery]);
 
+  const brandShowMore = useFilterShowMore(filteredBrands.length, brandQuery);
+  const countryShowMore = useFilterShowMore(countries.length);
+
   const priceMin = params.min_price ?? DEFAULT_MIN_PRICE;
   const priceMax = params.max_price ?? DEFAULT_MAX_PRICE;
-  const openBrand =
-    mobileDefaults || selectedBrandIds.length > 0;
-  const openCountry = selectedCountries.length > 0;
-  const openPrice =
-    params.min_price != null || params.max_price != null;
-  const openStock = Boolean(params.in_stock);
-  const openSpecs = Boolean(
-    params.spec_filters && Object.keys(params.spec_filters).length > 0,
-  );
 
   /** URL `category` → product list API `category_id` (incl. L1/L2/L3; API expands subtree). */
   const selectCategory = (id: number | null) => {
@@ -114,22 +118,31 @@ export function FilterPanel({
     notify();
   };
 
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2 px-0.5">
-        <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
-        {(activeCount > 0 || lockedCategoryId != null) && (
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
-          >
-            <CloseSquare size="small" set="light" />
-            حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
-          </button>
-        )}
-      </div>
+  const isSidebar = layout === "sidebar";
 
+  const header = (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-2 px-0.5",
+        isSidebar && "shrink-0 bg-background pb-3",
+      )}
+    >
+      <h2 className="text-base font-bold tracking-tight text-foreground">فیلترها</h2>
+      {(activeCount > 0 || lockedCategoryId != null) && (
+        <button
+          type="button"
+          onClick={handleClearAll}
+          className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold text-primary hover:bg-accent"
+        >
+          <CloseSquare size="small" set="light" />
+          حذف همه ({formatNumber(Math.max(activeCount, lockedCategoryId != null ? 1 : 0))})
+        </button>
+      )}
+    </div>
+  );
+
+  const body = (
+    <>
       <CategoryTreeFilter
         activeId={effectiveCategoryId ?? null}
         onSelect={(id) => selectCategory(id)}
@@ -144,7 +157,7 @@ export function FilterPanel({
             : "می‌توانید چند برند را همزمان انتخاب کنید"
         }
         badge={selectedBrandIds.length ? toPersianDigits(selectedBrandIds.length) : undefined}
-        defaultOpen={openBrand}
+        defaultOpen={false}
       >
         {(brands?.length ?? 0) > 6 && (
           <div className="relative mb-3">
@@ -192,12 +205,12 @@ export function FilterPanel({
             </button>
           </div>
         )}
-        <div className="max-h-56 space-y-0.5 overflow-y-auto pe-1" role="group" aria-label="برندها">
+        <div className="space-y-0.5 pe-1" role="group" aria-label="برندها">
           {brandsLoading ? (
             <p className="px-2 py-3 text-xs text-steel">در حال بارگذاری برندها…</p>
           ) : (
             <>
-              {filteredBrands.map((b) => {
+              {filteredBrands.slice(0, brandShowMore.visibleCount).map((b) => {
                 const active = selectedBrandIds.includes(b.id);
                 return (
                   <MultiSelectRow
@@ -212,6 +225,12 @@ export function FilterPanel({
                   />
                 );
               })}
+              {brandShowMore.canShowMore ? (
+                <FilterShowMoreButton
+                  remaining={brandShowMore.remaining}
+                  onClick={brandShowMore.showMore}
+                />
+              ) : null}
               {filteredBrands.length === 0 && (
                 <p className="px-2 py-3 text-xs text-steel">برندی یافت نشد.</p>
               )}
@@ -233,7 +252,7 @@ export function FilterPanel({
               ? toPersianDigits(selectedCountries.length)
               : undefined
           }
-          defaultOpen={openCountry}
+          defaultOpen={false}
         >
           {selectedCountries.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -265,7 +284,7 @@ export function FilterPanel({
             </div>
           )}
           <div className="flex flex-wrap gap-2" role="group" aria-label="کشور سازنده">
-            {countries.map((country) => {
+            {countries.slice(0, countryShowMore.visibleCount).map((country) => {
               const active = selectedCountries.includes(country);
               return (
                 <button
@@ -288,10 +307,16 @@ export function FilterPanel({
               );
             })}
           </div>
+          {countryShowMore.canShowMore ? (
+            <FilterShowMoreButton
+              remaining={countryShowMore.remaining}
+              onClick={countryShowMore.showMore}
+            />
+          ) : null}
         </AccordionFilter>
       )}
 
-      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={openPrice}>
+      <AccordionFilter title="محدوده قیمت" hint="تومان" defaultOpen={false}>
         <PriceRangeSlider
           minValue={priceMin}
           maxValue={priceMax}
@@ -307,7 +332,7 @@ export function FilterPanel({
         />
       </AccordionFilter>
 
-      <AccordionFilter title="موجودی" defaultOpen={openStock}>
+      <AccordionFilter title="موجودی" defaultOpen={false}>
         <Checkbox
           id="in-stock-only"
           checked={params.in_stock ?? false}
@@ -318,13 +343,23 @@ export function FilterPanel({
           label="فقط کالاهای موجود"
           className="min-h-11"
         />
+        <Checkbox
+          id="on-sale-only"
+          checked={params.on_sale ?? false}
+          onCheckedChange={(checked) => {
+            setParams({ on_sale: checked ? "1" : null });
+            notify();
+          }}
+          label="فقط کالاهای تخفیف‌دار"
+          className="min-h-11"
+        />
       </AccordionFilter>
 
       {specOptions && Object.keys(specOptions.technical_specs).length > 0 && (
         <AccordionFilter
           title="مشخصات فنی"
           hint="بر اساس دستهٔ انتخاب‌شده"
-          defaultOpen={openSpecs}
+          defaultOpen={false}
         >
           {Object.entries(specOptions.technical_specs).map(([key, values]) => (
             <SpecFilterRow
@@ -346,6 +381,38 @@ export function FilterPanel({
           ))}
         </AccordionFilter>
       )}
+    </>
+  );
+
+  if (isSidebar) {
+    // Sticky + max-h keep the column on-screen; scrollport uses explicit max-h
+    // (not flex-1 alone) so expanded accordions remain fully reachable.
+    // overscroll-behavior:auto — chain to page when panel hits top/bottom (no contain).
+    return (
+      <div
+        className={cn(
+          "sticky top-24 z-[1] flex w-full flex-col overflow-hidden",
+          "max-h-[calc(100dvh-5.5rem)]",
+        )}
+      >
+        {header}
+        <div
+          className={cn(
+            "no-scrollbar min-h-0 flex-1 overflow-y-auto pe-1",
+            "max-h-[calc(100dvh-8.75rem)]",
+            "[overscroll-behavior:auto]",
+          )}
+        >
+          <div className="space-y-3">{body}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {header}
+      {body}
     </div>
   );
 }
@@ -398,6 +465,8 @@ function SpecFilterRow({
     if (!q) return values;
     return values.filter((v) => v.toLowerCase().includes(q));
   }, [values, query, longList]);
+
+  const chipShowMore = useFilterShowMore(visible.length, query);
 
   if (booleanLike) {
     return (
@@ -484,7 +553,7 @@ function SpecFilterRow({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={`جستجو در ${label}…`}
             aria-label={`جستجو در ${label}`}
-            className="h-10 w-full rounded-xl bg-input ps-9 pe-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+            className="h-11 w-full rounded-xl bg-input ps-9 pe-3 text-base outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
       )}
@@ -503,7 +572,7 @@ function SpecFilterRow({
         >
           همه
         </button>
-        {visible.map((value) => (
+        {visible.slice(0, chipShowMore.visibleCount).map((value) => (
           <button
             key={value}
             type="button"
@@ -524,6 +593,12 @@ function SpecFilterRow({
           <p className="w-full px-1 py-2 text-xs text-steel">موردی یافت نشد.</p>
         )}
       </div>
+      {chipShowMore.canShowMore ? (
+        <FilterShowMoreButton
+          remaining={chipShowMore.remaining}
+          onClick={chipShowMore.showMore}
+        />
+      ) : null}
     </div>
   );
 }

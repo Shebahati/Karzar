@@ -85,7 +85,7 @@ export function ArticleView({ slug }: { slug: string }) {
     <article
       itemScope
       itemType="https://schema.org/Article"
-      className="relative overflow-hidden"
+      className="relative overflow-x-clip"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_70%_at_100%_0%,rgba(208,35,39,0.07),transparent_70%),radial-gradient(45%_50%_at_0%_20%,rgba(94,95,94,0.06),transparent_65%)]"
@@ -365,7 +365,7 @@ function BlockRenderer({
       );
     case "table":
       return (
-        <figure className="my-6 overflow-x-auto rounded-2xl border border-[#5E5F5E]/12">
+        <figure className="my-6 h-scroll max-w-full rounded-2xl border border-[#5E5F5E]/12">
           {block.caption ? (
             <figcaption className="border-b border-[#5E5F5E]/10 bg-[#5E5F5E]/[0.04] px-4 py-2 text-sm font-bold text-foreground">
               {block.caption}

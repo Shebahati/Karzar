@@ -1,5 +1,7 @@
 /** Storefront PDP SEO metadata helpers (mirrors backend app.utils.seo_descriptions). */
 
+import { stripDescriptionImages } from "@/lib/pdp-description";
+
 const STUB_MAX_LENGTH = 40;
 
 function norm(text: string | null | undefined): string {
@@ -30,7 +32,7 @@ export function excerptDescription(
   text: string | null | undefined,
   maxLen = 160,
 ): string | null {
-  const body = norm(text);
+  const body = norm(stripDescriptionImages(text));
   if (!body) return null;
   if (body.length <= maxLen) return body;
   let truncated = body.slice(0, maxLen - 1).trimEnd();

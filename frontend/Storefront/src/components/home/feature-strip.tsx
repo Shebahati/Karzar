@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Call, Document, Send, ShieldDone } from "react-iconly";
 import { cn } from "@/lib/utils";
+import { useMotionSafe } from "@/lib/use-motion-safe";
+import { motion } from "framer-motion";
 
 const FEATURES = [
   {
@@ -19,7 +19,7 @@ const FEATURES = [
   {
     Icon: Call,
     title: "پشتیبانی دائم",
-    desc: "پاسخگویی ۹ تا ۱۹",
+    desc: "پاسخگویی ۹ تا ۱۸",
   },
   {
     Icon: Document,
@@ -28,85 +28,76 @@ const FEATURES = [
   },
 ] as const;
 
-/** Light stagger is fine on mobile; only skip when the user prefers reduced motion. */
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return reduced;
-}
-
+/** Compact trust strip — dense icon + title + one line, soft surface. */
 export function FeatureStrip() {
-  const reduceMotion = usePrefersReducedMotion();
+  const motionSafe = useMotionSafe();
 
   return (
     <section aria-label="مزایای خرید از کارزار">
-      <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
-        {FEATURES.map(({ Icon, title, desc }, i) => (
-          <motion.li
-            key={title}
-            initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={
-              reduceMotion
-                ? undefined
-                : {
-                    duration: 0.5,
-                    delay: i * 0.12,
-                    ease: [0.22, 1, 0.36, 1],
-                  }
-            }
-          >
+      <ul className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 lg:gap-3">
+        {FEATURES.map(({ Icon, title, desc }, i) => {
+          const card = (
             <article
               className={cn(
-                "group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl",
-                "bg-card px-4 py-5 sm:gap-5 sm:px-5 sm:py-6",
-                "shadow-[0_1px_0_rgba(94,95,94,0.06),0_12px_28px_-18px_rgba(94,95,94,0.28)]",
-                "transition-[transform,box-shadow] duration-400 ease-out",
-                "hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgba(94,95,94,0.08),0_18px_36px_-16px_rgba(208,35,39,0.18)]",
+                "group relative flex h-full items-start gap-3 overflow-hidden rounded-2xl",
+                "bg-[#F7F7F7] px-3.5 py-3 sm:px-4 sm:py-3.5",
+                "ring-1 ring-inset ring-[#5E5F5E]/[0.08]",
+                "shadow-[0_1px_0_rgba(94,95,94,0.04),0_8px_20px_-14px_rgba(94,95,94,0.22)]",
+                "transition-[transform,box-shadow,background-color] duration-300 ease-out",
+                "hover:-translate-y-0.5 hover:bg-white",
+                "hover:shadow-[0_1px_0_rgba(94,95,94,0.06),0_14px_28px_-16px_rgba(208,35,39,0.16)]",
+                "hover:ring-primary/15",
               )}
             >
-              {/* Soft brand wash — top edge only, no border frame */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-primary/35 to-transparent opacity-70 transition-opacity duration-400 group-hover:opacity-100"
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -end-10 -top-10 h-28 w-28 rounded-full bg-primary/[0.04] transition-transform duration-500 group-hover:scale-110"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-primary/30 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100"
               />
 
               <span
                 className={cn(
-                  "relative grid h-12 w-12 place-items-center rounded-2xl sm:h-14 sm:w-14",
-                  "bg-primary/[0.08] text-primary",
+                  "relative mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10",
+                  "bg-primary/[0.07] text-primary",
                   "ring-1 ring-inset ring-primary/10",
-                  "transition-[background-color,transform] duration-400",
-                  "group-hover:bg-primary/[0.12] group-hover:scale-[1.04]",
+                  "transition-[background-color,transform] duration-300",
+                  "group-hover:bg-primary/[0.11] group-hover:scale-[1.03]",
                 )}
               >
-                <Icon set="bold" primaryColor="#D02327" />
+                <Icon set="bold" primaryColor="#D02327" size="small" />
               </span>
 
-              <div className="relative space-y-1.5">
-                <h3 className="text-[15px] font-black tracking-tight text-foreground sm:text-base">
+              <div className="relative min-w-0 space-y-0.5 pt-0.5">
+                <h3 className="text-[13px] font-black leading-snug tracking-tight text-foreground sm:text-[14px]">
                   {title}
                 </h3>
-                <p className="text-[12px] font-medium leading-6 text-steel sm:text-[13px] sm:leading-7">
+                <p className="text-[11px] font-medium leading-5 text-[#5E5F5E] sm:text-[12px] sm:leading-5">
                   {desc}
                 </p>
               </div>
             </article>
-          </motion.li>
-        ))}
+          );
+
+          // Desktop only: entrance stagger. Mobile / reduced-motion: static list.
+          if (!motionSafe) {
+            return <li key={title}>{card}</li>;
+          }
+
+          return (
+            <motion.li
+              key={title}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{
+                duration: 0.4,
+                delay: i * 0.07,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              {card}
+            </motion.li>
+          );
+        })}
       </ul>
     </section>
   );

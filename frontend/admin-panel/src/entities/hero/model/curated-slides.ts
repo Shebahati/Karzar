@@ -1,16 +1,12 @@
 /**
- * Curated hero pack — تخفیف‌ها + all 12 finalized L1 categories.
- * Each seed is hand-varied (overlay / type / CTA / badge / carousel / animation).
+ * Curated hero seeds — clean industrial slides (photo + type + one CTA).
+ * No badges / fake product carousels. Pack uses 6: featured dock (5) + filler.
  */
 
 import type {
   DsButtonSize,
   DsButtonStyle,
-  DsCarouselLayout,
-  DsCarouselStyle,
   HeroAnimationPreset,
-  HeroBadgeKind,
-  HeroBadgeStyle,
   HeroBuilderConfig,
   HeroOrbCategory,
   HeroSlideDraft,
@@ -56,50 +52,30 @@ type SlideSeed = {
     align: TextAlign;
   };
   ctaPrimary: CtaSeed;
-  ctaSecondary?: CtaSeed;
-  badges: Array<{
-    label: string;
-    meta: string;
-    kind: HeroBadgeKind;
-    style: HeroBadgeStyle;
-    position: { x: number; y: number };
-    animated: boolean;
-  }>;
-  carousel?: {
-    label: string;
-    titles: string[];
-    hrefSlug?: string;
-    stylePreset: DsCarouselStyle;
-    layoutPreset: DsCarouselLayout;
-    position: { x: number; y: number };
-    maxItems: number;
-  };
 };
 
-/** Thirteen distinct power slides — discounts + every L1 (not clones). */
+/** Clean seeds — composition / temperature vary; chrome stays minimal. */
 export const CURATED_HERO_SEEDS: SlideSeed[] = [
   {
     orbKey: DISCOUNTS_ORB_KEY,
     name: "تخفیف‌ها",
     title: "تخفیف‌های ویژه کارزار",
-    subtitle:
-      "پیشنهادهای پرتخفیف ابزار صنعتی — قیمت رقابتی برای تجهیز کارگاه و خط تولید",
+    subtitle: "ابزار صنعتی منتخب با قیمت رقابتی برای تجهیز کارگاه و خط تولید",
     image: "/images/hero/hero-accessories-left.jpg",
-    focal: "left 38%",
-    animation: "float",
+    focal: "left 40%",
+    animation: "fade-up",
     minHeight: 760,
     mobilePreset: "copy-focus",
     overlay: {
-      gradientFrom: "rgba(80,8,12,0.15)",
-      gradientTo: "rgba(12,8,8,0.92)",
+      gradientFrom: "rgba(28,10,10,0.2)",
+      gradientTo: "rgba(8,6,6,0.88)",
       gradientAngle: 105,
-      opacity: 1,
     },
     typography: {
-      position: { x: 6, y: 22 },
+      position: { x: 6, y: 28 },
       maxWidth: 420,
       titleSize: 46,
-      subtitleSize: 15,
+      subtitleSize: 16,
       align: "start",
     },
     ctaPrimary: {
@@ -107,216 +83,117 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: DISCOUNTS_CATALOG_HREF,
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 6, y: 56 },
+      position: { x: 6, y: 58 },
     },
-    ctaSecondary: {
-      label: "کاتالوگ کامل",
-      href: "/catalog",
-      stylePreset: "on-dark-outline",
-      sizePreset: "md",
-      position: { x: 6, y: 68 },
-    },
-    badges: [
-      {
-        label: "پرتخفیف",
-        meta: "تا ۲۵٪",
-        kind: "discount",
-        style: "ribbon",
-        position: { x: 6, y: 12 },
-        animated: true,
-      },
-      {
-        label: "محدود زمانی",
-        meta: "این هفته",
-        kind: "flash_sale",
-        style: "stamp",
-        position: { x: 28, y: 12 },
-        animated: false,
-      },
-    ],
   },
   {
     orbKey: "metrology",
     name: "اندازه‌گیری",
     title: "اندازه‌گیری دقیق",
-    subtitle:
-      "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+    subtitle: "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
     image: "/images/hero/hero-metrology-left.jpg",
-    focal: "left 42%",
-    animation: "fade-up",
+    focal: "center left",
+    animation: "fade-in",
     minHeight: 720,
     mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.06)",
-      gradientTo: "rgba(12,12,12,0.84)",
-      gradientAngle: 90,
+      gradientFrom: "rgba(10,12,16,0.1)",
+      gradientTo: "rgba(8,10,12,0.86)",
+      gradientAngle: 255,
     },
     typography: {
-      position: { x: 5, y: 24 },
-      maxWidth: 440,
-      titleSize: 42,
+      position: { x: 48, y: 30 },
+      maxWidth: 400,
+      titleSize: 44,
       subtitleSize: 16,
-      align: "start",
+      align: "end",
     },
     ctaPrimary: {
       label: "مشاهده اندازه‌گیری",
       href: "/categories/andaze-giri",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 5, y: 54 },
-    },
-    ctaSecondary: {
-      label: "استعلام قیمت",
-      href: "/quote",
-      stylePreset: "on-dark-glass",
-      sizePreset: "md",
-      position: { x: 5, y: 66 },
-    },
-    badges: [
-      {
-        label: "اصالت کالا",
-        meta: "گارانتی",
-        kind: "trust",
-        style: "chip",
-        position: { x: 5, y: 14 },
-        animated: true,
-      },
-    ],
-    carousel: {
-      label: "منتخب مترولوژی",
-      titles: ["کولیس دیجیتال", "میکرومتر بیرونی", "ساعت اندیکاتور", "بلوک سنجه"],
-      hrefSlug: "andaze-giri",
-      stylePreset: "rail-soft",
-      layoutPreset: "row-comfortable",
-      position: { x: 52, y: 54 },
-      maxItems: 4,
+      position: { x: 62, y: 58 },
     },
   },
   {
     orbKey: "insert-tools",
     name: "ابزار اینسرتی",
-    title: "ابزار اینسرتی پایدار",
+    title: "ابزار اینسرتی",
     subtitle: "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
     image: "/images/hero/hero-cutting-left.jpg",
-    focal: "left 48%",
-    animation: "slide-in",
+    focal: "right 42%",
+    animation: "fade-in",
     minHeight: 710,
-    mobilePreset: "media-focus",
+    mobilePreset: "copy-focus",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.2)",
-      gradientTo: "rgba(12,12,12,0.8)",
-      gradientAngle: 108,
-      opacity: 0.96,
+      gradientFrom: "rgba(40,40,40,0.22)",
+      gradientTo: "rgba(12,12,12,0.86)",
+      gradientAngle: 70,
     },
     typography: {
-      position: { x: 6, y: 28 },
-      maxWidth: 400,
-      titleSize: 40,
-      subtitleSize: 15,
-      align: "start",
+      position: { x: 50, y: 30 },
+      maxWidth: 380,
+      titleSize: 42,
+      subtitleSize: 16,
+      align: "end",
     },
     ctaPrimary: {
       label: "مشاهده ابزار اینسرتی",
       href: "/categories/abzar-inserti",
-      stylePreset: "primary",
+      stylePreset: "soft",
       sizePreset: "lg",
-      position: { x: 6, y: 58 },
+      position: { x: 58, y: 58 },
     },
-    ctaSecondary: {
-      label: "استعلام موجودی",
-      href: "/quote",
-      stylePreset: "on-dark-outline",
-      sizePreset: "md",
-      position: { x: 6, y: 70 },
-    },
-    badges: [
-      {
-        label: "براده‌برداری",
-        meta: "هلدر",
-        kind: "new_arrival",
-        style: "ribbon",
-        position: { x: 6, y: 15 },
-        animated: true,
-      },
-    ],
   },
   {
     orbKey: "inserts",
     name: "اینسرت",
     title: "اینسرت کاربیدی",
-    subtitle:
-      "اینسرت‌های پوشش‌دار برای سطوح برش متنوع — تعویض سریع، عمر طولانی، کیفیت ثابت",
+    subtitle: "پوشش‌های صنعتی برای سطوح برش متنوع — عمر طولانی، کیفیت ثابت",
     image: "/images/hero/hero-cutting-left.jpg",
-    focal: "center left",
+    focal: "center",
     animation: "zoom-soft",
     minHeight: 700,
     mobilePreset: "media-focus",
     overlay: {
-      gradientFrom: "rgba(20,10,8,0.12)",
-      gradientTo: "rgba(8,8,10,0.88)",
-      gradientAngle: 78,
+      gradientFrom: "rgba(12,12,12,0.45)",
+      gradientTo: "rgba(12,12,12,0.78)",
+      gradientAngle: 180,
     },
     typography: {
-      position: { x: 4, y: 30 },
-      maxWidth: 400,
-      titleSize: 40,
-      subtitleSize: 15,
-      align: "start",
+      position: { x: 24, y: 32 },
+      maxWidth: 440,
+      titleSize: 44,
+      subtitleSize: 16,
+      align: "center",
     },
     ctaPrimary: {
       label: "مشاهده اینسرت",
       href: "/categories/insert",
       stylePreset: "primary",
-      sizePreset: "pill",
-      position: { x: 4, y: 58 },
-    },
-    ctaSecondary: {
-      label: "هلدر اینسرتی",
-      href: "/categories/abzar-inserti",
-      stylePreset: "soft",
-      sizePreset: "sm",
-      position: { x: 22, y: 58 },
-    },
-    badges: [
-      {
-        label: "انتخاب صنعتی",
-        meta: "CVD / PVD",
-        kind: "campaign",
-        style: "pill",
-        position: { x: 4, y: 18 },
-        animated: true,
-      },
-    ],
-    carousel: {
-      label: "پرفروش اینسرت",
-      titles: ["CNMG 120408", "DCMT 11T304", "VNMG 160408", "APKT 1604"],
-      hrefSlug: "insert",
-      stylePreset: "cards-elevated",
-      layoutPreset: "row-compact",
-      position: { x: 48, y: 58 },
-      maxItems: 4,
+      sizePreset: "lg",
+      position: { x: 38, y: 58 },
     },
   },
   {
     orbKey: "endmills",
     name: "فرز انگشتی",
     title: "فرز انگشتی دقیق",
-    subtitle:
-      "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
+    subtitle: "ابزار پروفایل و فرز انگشتی برای ماشین‌کاری تمیز",
     image: "/images/hero/hero-cutting-left.jpg",
     focal: "left 44%",
-    animation: "stagger-up",
+    animation: "fade-up",
     minHeight: 720,
     mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.04)",
-      gradientTo: "rgba(12,12,12,0.9)",
+      gradientFrom: "rgba(12,12,12,0.15)",
+      gradientTo: "rgba(12,12,12,0.88)",
       gradientAngle: 92,
-      opacity: 0.98,
     },
     typography: {
-      position: { x: 5, y: 26 },
-      maxWidth: 460,
+      position: { x: 6, y: 28 },
+      maxWidth: 420,
       titleSize: 42,
       subtitleSize: 16,
       align: "start",
@@ -326,46 +203,28 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: "/categories/farz-angoshti",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 5, y: 58 },
+      position: { x: 6, y: 56 },
     },
-    ctaSecondary: {
-      label: "استعلام موجودی",
-      href: "/quote",
-      stylePreset: "on-dark-glass",
-      sizePreset: "md",
-      position: { x: 22, y: 58 },
-    },
-    badges: [
-      {
-        label: "ماشین‌کاری",
-        meta: "۴۹۱",
-        kind: "campaign",
-        style: "pill",
-        position: { x: 5, y: 14 },
-        animated: true,
-      },
-    ],
   },
   {
     orbKey: "taps",
     name: "قلاویز",
     title: "قلاویز صنعتی",
-    subtitle: "قلاویز دستی و ماشینی برای رزوه‌کاری استاندارد صنعتی",
+    subtitle: "قلاویز دستی و ماشینی برای رزوه‌کاری استاندارد",
     image: "/images/hero/hero-cutting-left.jpg",
     focal: "left 36%",
     animation: "fade-in",
     minHeight: 690,
     mobilePreset: "dock-first",
     overlay: {
-      gradientFrom: "rgba(12,18,28,0.22)",
-      gradientTo: "rgba(12,12,12,0.84)",
-      gradientAngle: 118,
-      opacity: 0.94,
+      gradientFrom: "rgba(12,16,22,0.18)",
+      gradientTo: "rgba(12,12,12,0.86)",
+      gradientAngle: 110,
     },
     typography: {
       position: { x: 8, y: 30 },
       maxWidth: 360,
-      titleSize: 38,
+      titleSize: 40,
       subtitleSize: 15,
       align: "start",
     },
@@ -374,83 +233,87 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: "/categories/ghalaviz",
       stylePreset: "soft",
       sizePreset: "lg",
-      position: { x: 8, y: 60 },
+      position: { x: 8, y: 56 },
     },
-    ctaSecondary: {
-      label: "کاتالوگ",
-      href: "/catalog",
-      stylePreset: "on-dark-outline",
-      sizePreset: "md",
-      position: { x: 8, y: 72 },
+  },
+  {
+    orbKey: "drills",
+    name: "مته‌ها",
+    title: "مته‌های صنعتی",
+    subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
+    image: "/images/hero/hero-cutting-left.jpg",
+    focal: "left 46%",
+    animation: "zoom-soft",
+    minHeight: 720,
+    mobilePreset: "balanced",
+    overlay: {
+      gradientFrom: "rgba(12,12,12,0.14)",
+      gradientTo: "rgba(12,12,12,0.88)",
+      gradientAngle: 90,
     },
-    badges: [],
+    typography: {
+      position: { x: 6, y: 28 },
+      maxWidth: 400,
+      titleSize: 42,
+      subtitleSize: 16,
+      align: "start",
+    },
+    ctaPrimary: {
+      label: "مشاهده مته‌ها",
+      href: "/categories/mete",
+      stylePreset: "primary",
+      sizePreset: "lg",
+      position: { x: 6, y: 56 },
+    },
   },
   {
     orbKey: "toolholders",
-    name: "ابزار گیر",
+    name: "ابزارگیر",
     title: "ابزارگیر دقیق",
     subtitle: "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
     image: "/images/hero/hero-holding-left.jpg",
     focal: "left 50%",
-    animation: "float",
+    animation: "fade-up",
     minHeight: 730,
     mobilePreset: "media-focus",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.28)",
-      gradientTo: "rgba(12,12,12,0.76)",
-      gradientAngle: 68,
+      gradientFrom: "rgba(12,12,12,0.2)",
+      gradientTo: "rgba(12,12,12,0.84)",
+      gradientAngle: 88,
     },
     typography: {
-      position: { x: 5, y: 18 },
+      position: { x: 6, y: 28 },
       maxWidth: 400,
-      titleSize: 40,
-      subtitleSize: 15,
+      titleSize: 42,
+      subtitleSize: 16,
       align: "start",
     },
     ctaPrimary: {
-      label: "مشاهده ابزار گیر",
+      label: "مشاهده ابزارگیر",
       href: "/categories/abzar-gir",
       stylePreset: "primary",
-      sizePreset: "md",
-      position: { x: 5, y: 52 },
+      sizePreset: "lg",
+      position: { x: 6, y: 56 },
     },
-    ctaSecondary: {
-      label: "استعلام",
-      href: "/quote",
-      stylePreset: "on-dark-glass",
-      sizePreset: "sm",
-      position: { x: 5, y: 63 },
-    },
-    badges: [
-      {
-        label: "پایداری اسپیندل",
-        meta: "هولدر",
-        kind: "trust",
-        style: "banner",
-        position: { x: 5, y: 10 },
-        animated: false,
-      },
-    ],
   },
   {
     orbKey: "workholding",
     name: "ابزار گیرشی",
     title: "ثابت‌کاری حرفه‌ای",
-    subtitle:
-      "گیره، فیکسچر و سیستم‌های نگه‌دارنده — ثبات بیشتر، لرزش کمتر، نتیجه تمیزتر",
+    subtitle: "گیره، فیکسچر و سیستم‌های نگه‌دارنده برای ماشین‌کاری پایدار",
     image: "/images/hero/hero-holding-left.jpg",
-    focal: "left 48%",
+    focal: "left 46%",
     animation: "slide-in",
     minHeight: 740,
     mobilePreset: "dock-first",
     overlay: {
-      gradientFrom: "rgba(12,16,22,0.1)",
-      gradientTo: "rgba(8,10,14,0.9)",
+      gradientFrom: "rgba(12,16,20,0.12)",
+      gradientTo: "rgba(6,8,10,0.9)",
       gradientAngle: 95,
     },
     typography: {
-      position: { x: 8, y: 28 },
-      maxWidth: 480,
+      position: { x: 6, y: 26 },
+      maxWidth: 400,
       titleSize: 44,
       subtitleSize: 16,
       align: "start",
@@ -458,58 +321,31 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
     ctaPrimary: {
       label: "مشاهده ابزار گیرشی",
       href: "/categories/abzar-gireshi",
-      stylePreset: "primary",
-      sizePreset: "lg",
-      position: { x: 8, y: 58 },
-    },
-    ctaSecondary: {
-      label: "مشاوره فنی",
-      href: "/quote",
       stylePreset: "on-dark-outline",
-      sizePreset: "md",
-      position: { x: 8, y: 70 },
-    },
-    badges: [
-      {
-        label: "ارسال رایگان",
-        meta: "تهران",
-        kind: "free_shipping",
-        style: "banner",
-        position: { x: 8, y: 16 },
-        animated: false,
-      },
-    ],
-    carousel: {
-      label: "فیکسچر منتخب",
-      titles: ["گیره ماشین", "پلیت گیرشی", "کلمپ هیدرولیک"],
-      hrefSlug: "abzar-gireshi",
-      stylePreset: "strip-minimal",
-      layoutPreset: "row-large",
-      position: { x: 55, y: 62 },
-      maxItems: 3,
+      sizePreset: "lg",
+      position: { x: 6, y: 56 },
     },
   },
   {
     orbKey: "industrial-machines",
     name: "دستگاه‌های صنعتی",
     title: "ظرفیت کارگاه را بالا ببرید",
-    subtitle:
-      "ماشین‌ها و تجهیزات صنعتی برای ارتقای خط تولید — انتخاب تخصصی با پشتیبانی کارزار",
+    subtitle: "ماشین‌ها و تجهیزات صنعتی با انتخاب تخصصی و پشتیبانی کارزار",
     image: "/images/hero/hero-machines-left.jpg",
-    focal: "left 35%",
-    animation: "stagger-up",
+    focal: "left 34%",
+    animation: "fade-up",
     minHeight: 780,
     mobilePreset: "media-focus",
     overlay: {
-      gradientFrom: "rgba(8,12,20,0.2)",
-      gradientTo: "rgba(4,6,12,0.94)",
+      gradientFrom: "rgba(8,10,14,0.18)",
+      gradientTo: "rgba(4,5,8,0.92)",
       gradientAngle: 112,
     },
     typography: {
-      position: { x: 5, y: 20 },
-      maxWidth: 500,
+      position: { x: 6, y: 24 },
+      maxWidth: 460,
       titleSize: 48,
-      subtitleSize: 17,
+      subtitleSize: 16,
       align: "start",
     },
     ctaPrimary: {
@@ -517,41 +353,7 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: "/categories/dastgah-sanati",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 5, y: 52 },
-    },
-    ctaSecondary: {
-      label: "درخواست مشاوره",
-      href: "/quote",
-      stylePreset: "on-dark-glass",
-      sizePreset: "pill",
-      position: { x: 5, y: 64 },
-    },
-    badges: [
-      {
-        label: "تجهیز کارگاه",
-        meta: "صنعتی",
-        kind: "new_arrival",
-        style: "pill",
-        position: { x: 5, y: 10 },
-        animated: true,
-      },
-      {
-        label: "پشتیبانی فنی",
-        meta: "کارزار",
-        kind: "trust",
-        style: "chip",
-        position: { x: 26, y: 10 },
-        animated: false,
-      },
-    ],
-    carousel: {
-      label: "ماشین‌ابزار",
-      titles: ["تراش CNC", "فرز عمودی", "دریل ستونی", "اره نواری"],
-      hrefSlug: "dastgah-sanati",
-      stylePreset: "spotlight",
-      layoutPreset: "row-comfortable",
-      position: { x: 50, y: 52 },
-      maxItems: 4,
+      position: { x: 6, y: 56 },
     },
   },
   {
@@ -561,123 +363,48 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
     subtitle: "فنر، قلاویز و کیت‌های هلی‌کویل برای ترمیم رزوه",
     image: "/images/hero/hero-cutting-left.jpg",
     focal: "right 42%",
-    animation: "fade-up",
+    animation: "fade-in",
     minHeight: 700,
     mobilePreset: "copy-focus",
     overlay: {
-      gradientFrom: "rgba(40,18,12,0.24)",
-      gradientTo: "rgba(12,12,12,0.8)",
-      gradientAngle: 122,
-      opacity: 0.95,
+      gradientFrom: "rgba(20,14,12,0.18)",
+      gradientTo: "rgba(12,12,12,0.86)",
+      gradientAngle: 100,
     },
     typography: {
-      position: { x: 7, y: 32 },
-      maxWidth: 340,
-      titleSize: 36,
-      subtitleSize: 14,
+      position: { x: 6, y: 30 },
+      maxWidth: 380,
+      titleSize: 40,
+      subtitleSize: 15,
       align: "start",
     },
     ctaPrimary: {
       label: "مشاهده هلی کویل",
       href: "/categories/heli-coil",
       stylePreset: "primary",
-      sizePreset: "md",
-      position: { x: 7, y: 58 },
-    },
-    ctaSecondary: {
-      label: "استعلام",
-      href: "/quote",
-      stylePreset: "on-dark-glass",
-      sizePreset: "sm",
-      position: { x: 7, y: 69 },
-    },
-    badges: [
-      {
-        label: "ترمیم رزوه",
-        meta: "کیت",
-        kind: "limited",
-        style: "ribbon",
-        position: { x: 7, y: 18 },
-        animated: true,
-      },
-    ],
-  },
-  {
-    orbKey: "drills",
-    name: "مته",
-    title: "مته‌های صنعتی",
-    subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "left 46%",
-    animation: "zoom-soft",
-    minHeight: 720,
-    mobilePreset: "balanced",
-    overlay: {
-      gradientFrom: "rgba(12,12,12,0.12)",
-      gradientTo: "rgba(12,12,12,0.88)",
-      gradientAngle: 84,
-    },
-    typography: {
-      position: { x: 5, y: 24 },
-      maxWidth: 420,
-      titleSize: 42,
-      subtitleSize: 15,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده مته",
-      href: "/categories/mete",
-      stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 5, y: 54 },
-    },
-    ctaSecondary: {
-      label: "کاتالوگ",
-      href: "/catalog",
-      stylePreset: "on-dark-glass",
-      sizePreset: "md",
-      position: { x: 5, y: 66 },
-    },
-    badges: [
-      {
-        label: "سوراخ‌کاری",
-        meta: "HSS",
-        kind: "campaign",
-        style: "chip",
-        position: { x: 5, y: 13 },
-        animated: true,
-      },
-    ],
-    carousel: {
-      label: "مته‌های منتخب",
-      titles: ["مته کبالت", "مته کاربید", "مته مرکز", "مته پله‌ای"],
-      hrefSlug: "mete",
-      stylePreset: "rail-soft",
-      layoutPreset: "row-comfortable",
-      position: { x: 51, y: 56 },
-      maxItems: 4,
+      position: { x: 6, y: 56 },
     },
   },
   {
     orbKey: "workshop-tools",
-    name: "ابزار کارگاهی : دریل عادی",
+    name: "ابزار کارگاهی",
     title: "ابزار کارگاهی",
-    subtitle: "ابزار کارگاهی و دریل عادی برای کار روزمره کارگاه",
+    subtitle: "ابزار کارگاهی برای کار روزمره کارگاه",
     image: "/images/hero/hero-holding-left.jpg",
     focal: "left 55%",
     animation: "fade-in",
     minHeight: 700,
     mobilePreset: "dock-first",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.32)",
-      gradientTo: "rgba(12,12,12,0.74)",
-      gradientAngle: 62,
-      opacity: 0.92,
+      gradientFrom: "rgba(12,12,12,0.22)",
+      gradientTo: "rgba(12,12,12,0.84)",
+      gradientAngle: 85,
     },
     typography: {
-      position: { x: 5, y: 28 },
+      position: { x: 6, y: 28 },
       maxWidth: 380,
-      titleSize: 38,
+      titleSize: 40,
       subtitleSize: 15,
       align: "start",
     },
@@ -686,25 +413,8 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: "/categories/abzar-kargahi",
       stylePreset: "soft",
       sizePreset: "lg",
-      position: { x: 5, y: 58 },
+      position: { x: 6, y: 56 },
     },
-    ctaSecondary: {
-      label: "استعلام قیمت",
-      href: "/quote",
-      stylePreset: "on-dark-outline",
-      sizePreset: "md",
-      position: { x: 5, y: 70 },
-    },
-    badges: [
-      {
-        label: "کارگاه",
-        meta: "روزمره",
-        kind: "free_shipping",
-        style: "pill",
-        position: { x: 5, y: 16 },
-        animated: false,
-      },
-    ],
   },
   {
     orbKey: "lubricants",
@@ -713,18 +423,18 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
     subtitle: "روغن برش و روانکار صنعتی برای طول عمر ابزار و کیفیت سطح",
     image: "/images/hero/hero-accessories-left.jpg",
     focal: "left 40%",
-    animation: "float",
+    animation: "fade-up",
     minHeight: 720,
     mobilePreset: "copy-focus",
     overlay: {
-      gradientFrom: "rgba(22,28,18,0.16)",
-      gradientTo: "rgba(10,12,10,0.9)",
+      gradientFrom: "rgba(14,16,14,0.16)",
+      gradientTo: "rgba(10,12,10,0.88)",
       gradientAngle: 96,
     },
     typography: {
-      position: { x: 5, y: 26 },
-      maxWidth: 440,
-      titleSize: 40,
+      position: { x: 6, y: 28 },
+      maxWidth: 420,
+      titleSize: 42,
       subtitleSize: 16,
       align: "start",
     },
@@ -733,25 +443,8 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
       href: "/categories/roghan-ravankar",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 5, y: 56 },
+      position: { x: 6, y: 56 },
     },
-    ctaSecondary: {
-      label: "کاتالوگ",
-      href: "/catalog",
-      stylePreset: "on-dark-glass",
-      sizePreset: "md",
-      position: { x: 5, y: 68 },
-    },
-    badges: [
-      {
-        label: "عمر ابزار",
-        meta: "برش",
-        kind: "flash_sale",
-        style: "chip",
-        position: { x: 5, y: 14 },
-        animated: true,
-      },
-    ],
   },
 ];
 
@@ -801,56 +494,58 @@ export function configFromCuratedSeed(seed: SlideSeed): HeroBuilderConfig {
       title: seed.title,
       subtitle: seed.subtitle,
       titleColor: "#FFFFFF",
-      subtitleColor: "rgba(255,255,255,0.9)",
+      subtitleColor: "rgba(255,255,255,0.88)",
       titleSize: seed.typography.titleSize,
       subtitleSize: seed.typography.subtitleSize,
       align: seed.typography.align,
       position: seed.typography.position,
       maxWidth: seed.typography.maxWidth,
     },
-    buttons: [
-      buttonFromCta(seed.ctaPrimary),
-      ...(seed.ctaSecondary ? [buttonFromCta(seed.ctaSecondary)] : []),
-    ],
-    badges: seed.badges.map((b) => ({
-      id: createId("badge"),
-      kind: b.kind,
-      style: b.style,
-      label: b.label,
-      meta: b.meta,
-      position: b.position,
-      animated: b.animated,
-    })),
-    carousel: seed.carousel
-      ? {
-          enabled: true,
-          categorySlug: seed.carousel.hrefSlug ?? "",
-          categoryLabel: seed.carousel.label,
-          position: seed.carousel.position,
-          maxItems: seed.carousel.maxItems,
-          previewTitles: seed.carousel.titles,
-          stylePreset: seed.carousel.stylePreset,
-          layoutPreset: seed.carousel.layoutPreset,
-          productIds: [],
-          categoryId: null,
-        }
-      : {
-          enabled: false,
-          categorySlug: "",
-          categoryLabel: "",
-          position: { x: 52, y: 56 },
-          maxItems: 4,
-          previewTitles: [],
-          stylePreset: "rail-soft",
-          layoutPreset: "row-comfortable",
-          productIds: [],
-          categoryId: null,
-        },
+    buttons: [buttonFromCta(seed.ctaPrimary)],
+    badges: [],
+    carousel: {
+      enabled: false,
+      categorySlug: "",
+      categoryLabel: "",
+      position: { x: 52, y: 56 },
+      maxItems: 4,
+      previewTitles: [],
+      stylePreset: "rail-soft",
+      layoutPreset: "row-comfortable",
+      productIds: [],
+      categoryId: null,
+    },
   };
 }
 
+/**
+ * Build the fixed 6-slide pack: featured dock orbs first (stable keys),
+ * then remaining curated seeds until slot count is filled.
+ */
 export function curatedSlidesFromDock(orbs: HeroOrbCategory[]): HeroSlideDraft[] {
-  return CURATED_HERO_SEEDS.map((seed, i) => {
+  const SLIDE_SLOTS = 6; // keep in sync with HERO_SLIDE_SLOT_COUNT in defaults
+  const featured = [...orbs]
+    .filter((c) => c.featuredOrder != null)
+    .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
+    .slice(0, 5);
+
+  const used = new Set<string>();
+  const seeds: SlideSeed[] = [];
+  for (const orb of featured) {
+    const seed = CURATED_HERO_SEEDS.find((s) => s.orbKey === orb.key);
+    if (seed && !used.has(seed.orbKey)) {
+      seeds.push(seed);
+      used.add(seed.orbKey);
+    }
+  }
+  for (const seed of CURATED_HERO_SEEDS) {
+    if (seeds.length >= SLIDE_SLOTS) break;
+    if (used.has(seed.orbKey)) continue;
+    seeds.push(seed);
+    used.add(seed.orbKey);
+  }
+
+  return seeds.slice(0, SLIDE_SLOTS).map((seed, i) => {
     const orb = orbs.find((o) => o.key === seed.orbKey);
     const config = configFromCuratedSeed(seed);
     if (orb) {
@@ -867,6 +562,7 @@ export function curatedSlidesFromDock(orbs: HeroOrbCategory[]): HeroSlideDraft[]
       name: seed.name,
       sortOrder: i + 1,
       isActive: true,
+      isPlaceholder: false,
       mobilePreset: seed.mobilePreset,
       config,
     };

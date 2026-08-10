@@ -119,17 +119,25 @@ export const useCartStore = create<CartState>()(
         void removeServerCartItem("inquiry", productId);
       },
       setCartQuantity: (productId, quantity) => {
+        if (quantity < 1) {
+          get().removeFromCart(productId);
+          return;
+        }
         set((s) => ({
           cart: s.cart.map((l) =>
-            l.product.id === productId ? { ...l, quantity: Math.max(1, quantity) } : l,
+            l.product.id === productId ? { ...l, quantity } : l,
           ),
         }));
         void syncServerCart("purchase", productId, get().cart);
       },
       setQuoteQuantity: (productId, quantity) => {
+        if (quantity < 1) {
+          get().removeFromQuote(productId);
+          return;
+        }
         set((s) => ({
           quote: s.quote.map((l) =>
-            l.product.id === productId ? { ...l, quantity: Math.max(1, quantity) } : l,
+            l.product.id === productId ? { ...l, quantity } : l,
           ),
         }));
         void syncServerCart("inquiry", productId, get().quote);
@@ -223,6 +231,9 @@ export const useCartStore = create<CartState>()(
     {
       name: "karzar.storefront.cart",
       partialize: (state) => ({ cart: state.cart, quote: state.quote }),
+      // Defer localStorage merge until after mount (Providers PersistRehydrate).
+      // Eager hydrate schedules setState via microtask during SSR hydration → React 19 warning.
+      skipHydration: true,
     },
   ),
 );

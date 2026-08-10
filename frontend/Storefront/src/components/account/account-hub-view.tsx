@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bag,
   Document,
+  Edit,
   Location,
   Lock,
   Logout,
+  User,
   Wallet,
 } from "react-iconly";
 import { Container } from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMe } from "@/features/auth/queries";
 import { useMyOrders } from "@/features/orders/queries";
@@ -20,28 +22,30 @@ import { authService } from "@/services/auth";
 import { isLoggedIn } from "@/lib/api-client";
 import { cn, formatToman, toPersianDigits } from "@/lib/utils";
 
-function initialOf(name?: string | null, phone?: string | null): string {
-  const src = (name || phone || "ک").trim();
-  return src.charAt(0);
-}
-
 export function AccountHubView() {
   const router = useRouter();
-  const hasToken = typeof window !== "undefined" && isLoggedIn();
-  const { data: me, isLoading } = useMe(hasToken);
-  const { data: ordersData, isPending: ordersPending } = useMyOrders({ limit: 5 });
+  // Defer auth read until mount — avoids SSR/client hydration mismatch.
+  const [authReady, setAuthReady] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+  const { data: me, isLoading } = useMe(authReady && hasToken);
+  const { data: ordersData, isPending: ordersPending } = useMyOrders({
+    limit: 5,
+  });
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace("/login?next=/account");
-    }
+    const ok = isLoggedIn();
+    setHasToken(ok);
+    setAuthReady(true);
+    if (!ok) router.replace("/login?next=/account");
   }, [router]);
 
   const recent = useMemo(() => ordersData?.data.slice(0, 3) ?? [], [ordersData]);
   const displayName = me?.full_name || "کاربر کارزار";
   const phone = me?.phone;
+  const profileIncomplete = Boolean(authReady && !isLoading && !me?.full_name?.trim());
+  const profileCta = "ویرایش / تکمیل اطلاعات کاربری";
 
-  if (!isLoggedIn()) {
+  if (!authReady || !hasToken) {
     return (
       <Container className="py-16">
         <p className="text-center text-sm text-steel">در حال هدایت به ورود…</p>
@@ -105,8 +109,11 @@ export function AccountHubView() {
           }}
         />
         <div className="relative flex flex-wrap items-center gap-4">
-          <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary text-xl font-bold text-primary-foreground shadow-primary-glow">
-            {isLoading ? "…" : initialOf(me?.full_name, me?.phone)}
+          <div
+            className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary"
+            aria-hidden
+          >
+            <User set="bold" />
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-2xl font-bold text-foreground">
@@ -117,11 +124,32 @@ export function AccountHubView() {
             ) : (
               <p className="mt-1 text-sm text-steel">حساب کاربری کارزار</p>
             )}
+            {me?.is_b2b ? (
+              <p className="mt-1 text-[11px] font-bold text-primary">حساب شرکتی</p>
+            ) : me?.company_name?.trim() ? (
+              <p className="mt-1 truncate text-[11px] text-steel">
+                {me.company_name.trim()}
+              </p>
+            ) : null}
+            {profileIncomplete && !isLoading ? (
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                برای فاکتور و پیش‌فاکتور، نام و مشخصات خود را تکمیل کنید.
+              </p>
+            ) : null}
           </div>
-          <Button variant="outline" className="gap-2" onClick={() => void logout()}>
-            <Logout set="light" />
-            خروج
-          </Button>
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+            <Link
+              href="/account/profile"
+              className={cn(buttonVariants({ variant: "soft", size: "md" }), "gap-2")}
+            >
+              <Edit set="bold" size="small" />
+              {profileCta}
+            </Link>
+            <Button variant="outline" className="gap-2" onClick={() => void logout()}>
+              <Logout set="light" />
+              خروج
+            </Button>
+          </div>
         </div>
       </section>
 

@@ -73,6 +73,20 @@ export function DetailsStep({
 
 type AddressMode = "saved" | "new";
 
+function sameShipping(
+  a: Pick<SavedAddress, "full_name" | "phone" | "province" | "city" | "postal_code" | "address_line">,
+  b: Pick<ShippingValues, "full_name" | "phone" | "province" | "city" | "postal_code" | "address_line">,
+) {
+  return (
+    a.full_name.trim() === b.full_name.trim() &&
+    a.phone.trim() === b.phone.trim() &&
+    a.province.trim() === b.province.trim() &&
+    a.city.trim() === b.city.trim() &&
+    a.postal_code.trim() === b.postal_code.trim() &&
+    a.address_line.trim() === b.address_line.trim()
+  );
+}
+
 function ShippingForm({
   customer,
   submitting,
@@ -88,7 +102,12 @@ function ShippingForm({
 }) {
   const addresses = useAddressStore((s) => s.addresses);
   const getDefault = useAddressStore((s) => s.getDefault);
-  const loggedIn = typeof window !== "undefined" && isLoggedIn();
+  const addAddress = useAddressStore((s) => s.addAddress);
+  // Match SSR (guest) until mount — avoids hydration mismatch on auth read.
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
   const canUseSaved = loggedIn && addresses.length > 0;
 
   const [mode, setMode] = useState<AddressMode>(canUseSaved ? "saved" : "new");
@@ -133,29 +152,56 @@ function ShippingForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, selectedId]);
 
+  const persistNewAddress = (v: ShippingValues) => {
+    if (!loggedIn) return;
+    if (mode === "saved") return;
+    if (addresses.some((a) => sameShipping(a, v))) return;
+    addAddress({
+      label: v.city.trim() || "آدرس ارسال",
+      full_name: v.full_name,
+      phone: v.phone,
+      province: v.province,
+      city: v.city,
+      postal_code: v.postal_code,
+      address_line: v.address_line,
+      is_default: addresses.length === 0,
+    });
+  };
+
+  const handleShippingSubmit = (v: ShippingValues) => {
+    persistNewAddress(v);
+    onSubmit({
+      full_name: v.full_name,
+      phone: v.phone,
+      note: v.note || null,
+      shipping: {
+        province: v.province,
+        city: v.city,
+        postal_code: v.postal_code,
+        address_line: v.address_line,
+      },
+    });
+  };
+
   return (
     <>
       <form
         id={formId}
-        onSubmit={form.handleSubmit((v) =>
-          onSubmit({
-            full_name: v.full_name,
-            phone: v.phone,
-            note: v.note || null,
-            shipping: {
-              province: v.province,
-              city: v.city,
-              postal_code: v.postal_code,
-              address_line: v.address_line,
-            },
-          }),
-        )}
+        onSubmit={form.handleSubmit(handleShippingSubmit)}
         className="rounded-2xl bg-card p-6 shadow-soft sm:p-8"
       >
         <h2 className="text-lg font-bold text-foreground">اطلاعات ارسال</h2>
+        {loggedIn && !canUseSaved && (
+          <p className="mt-2 text-sm text-steel">
+            این آدرس پس از ثبت سفارش در «آدرس‌های من» ذخیره می‌شود.
+          </p>
+        )}
 
         {canUseSaved && (
           <div className="mt-5 space-y-3">
+            <p className="text-sm text-steel">
+              یکی از آدرس‌های ذخیره‌شده را انتخاب کنید یا آدرس جدید وارد کنید.
+            </p>
             <div
               role="tablist"
               aria-label="منبع آدرس"
@@ -179,7 +225,18 @@ function ShippingForm({
                 type="button"
                 role="tab"
                 aria-selected={mode === "new"}
-                onClick={() => setMode("new")}
+                onClick={() => {
+                  setMode("new");
+                  form.reset({
+                    full_name: customer?.full_name ?? form.getValues("full_name") ?? "",
+                    phone: customer?.phone ?? form.getValues("phone") ?? "",
+                    province: "",
+                    city: "",
+                    postal_code: "",
+                    address_line: "",
+                    note: form.getValues("note") ?? "",
+                  });
+                }}
                 className={cn(
                   "flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
                   mode === "new"
@@ -306,7 +363,9 @@ function ShippingForm({
         )}
       </form>
 
-      <div className="mobile-dock flex gap-2 px-4 py-3">
+      {/* lg:hidden must be a utility — class `flex` would otherwise beat
+          `.mobile-dock { @apply lg:hidden }` (components layer loses to utilities). */}
+      <div className="mobile-dock flex gap-2 px-4 py-3 lg:hidden">
         <Button
           type="submit"
           form={formId}
@@ -399,7 +458,7 @@ function InquiryForm({
         </div>
       </form>
 
-      <div className="mobile-dock flex gap-2 px-4 py-3">
+      <div className="mobile-dock flex gap-2 px-4 py-3 lg:hidden">
         <Button type="submit" form={formId} size="lg" className="flex-1 gap-2" disabled={submitting}>
           <Document set="bold" />
           {submitting ? "در حال ثبت…" : "ثبت استعلام"}

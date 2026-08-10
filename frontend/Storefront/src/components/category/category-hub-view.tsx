@@ -61,10 +61,10 @@ export function CategoryHubView({
 
   return (
     <>
-      <Container className="pt-6 pb-2">
+      <Container className="pt-3 pb-1 lg:pt-6 lg:pb-2">
         <nav
           aria-label="breadcrumb"
-          className="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"
+          className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground lg:mb-5"
         >
           <Link href="/" className="hover:text-primary">
             خانه
@@ -87,7 +87,7 @@ export function CategoryHubView({
           ))}
         </nav>
 
-        <div className="mb-2">
+        <div className="mb-1 lg:mb-2">
           <RootCategoryCarousel
             lockedCategoryId={category.id}
             initialTree={initialTree}
@@ -95,7 +95,7 @@ export function CategoryHubView({
         </div>
 
         {showStandaloneChildNav ? (
-          <div className="mt-4">
+          <div className="mt-2 lg:mt-4">
             <HubChildNav childCategories={children} hubName={category.name} />
           </div>
         ) : null}

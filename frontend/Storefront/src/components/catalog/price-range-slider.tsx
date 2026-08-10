@@ -107,7 +107,7 @@ export function PriceRangeSlider({
             setHi(b);
             onCommit(a, b);
           }}
-          className="h-11 w-full rounded-xl bg-input px-3 text-sm outline-none focus:ring-2 focus:ring-steel/20 tnum"
+          className="h-11 w-full rounded-xl bg-input px-3 text-base outline-none focus:ring-2 focus:ring-steel/20 tnum"
         />
         <span className="shrink-0 text-sm text-steel">تا</span>
         <input
@@ -129,7 +129,7 @@ export function PriceRangeSlider({
             setHi(b);
             onCommit(a, b);
           }}
-          className="h-11 w-full rounded-xl bg-input px-3 text-sm outline-none focus:ring-2 focus:ring-steel/20 tnum"
+          className="h-11 w-full rounded-xl bg-input px-3 text-base outline-none focus:ring-2 focus:ring-steel/20 tnum"
         />
       </div>
       <p className={cn("text-[11px] leading-5 text-steel")}>

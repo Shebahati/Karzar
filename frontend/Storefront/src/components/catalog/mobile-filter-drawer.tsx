@@ -40,14 +40,14 @@ export function MobileFilterDrawer({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[60] lg:hidden">
+        <div className="fixed inset-0 z-[80] lg:hidden">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: motionSafe ? 0.2 : 0.12 }}
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-foreground/50 md:bg-foreground/40 md:backdrop-blur-sm"
           />
           <motion.div
             ref={panelRef}
@@ -76,7 +76,7 @@ export function MobileFilterDrawer({
                 <CloseSquare set="light" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="no-scrollbar flex-1 overflow-y-auto p-4 [overscroll-behavior:auto]">
               {/* Quick chips keep apply path ≤3 taps; accordion for full IA. */}
               <QuickFilterBar />
               <FilterPanel

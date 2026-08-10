@@ -27,7 +27,14 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
   const productsById = useMemo(() => {
     const map = new Map<
       number,
-      { name: string; thumbnail: string | null; base_price: string | null; sku: string }
+      {
+        name: string;
+        thumbnail: string | null;
+        base_price: string | null;
+        sku: string;
+        original_price: string | null;
+        discount_percent: number | null;
+      }
     >();
     for (const p of productsQuery.data ?? []) {
       map.set(p.id, {
@@ -35,6 +42,8 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
         thumbnail: p.thumbnail,
         base_price: p.base_price,
         sku: p.sku,
+        original_price: p.original_price ?? null,
+        discount_percent: p.discount_percent ?? null,
       });
     }
     return map;
@@ -53,7 +62,12 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
       const products = Object.fromEntries(
         [...productsById.entries()].map(([id, p]) => [
           id,
-          { name: p.name, sku: p.sku },
+          {
+            name: p.name,
+            sku: p.sku,
+            originalPrice: p.original_price,
+            discountPercent: p.discount_percent,
+          },
         ]),
       );
       await downloadOrderDocumentFromTracking(data, {
@@ -66,7 +80,9 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
       setDownloadError(
         code === "POPUP_BLOCKED"
           ? "پنجره فاکتور مسدود شد. اجازه پاپ‌آپ را فعال کنید و دوباره بزنید."
-          : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
+          : code === "MISSING_BUYER_ADDRESS"
+            ? "برای صدور فاکتور، آدرس و کد پستی را در حساب کاربری تکمیل کنید."
+            : "دانلود فاکتور ناموفق بود. دوباره تلاش کنید.",
       );
     } finally {
       setBusy(false);
@@ -195,21 +211,23 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
             </p>
           )}
 
-          <div className="flex flex-wrap gap-3">
-            <Button
-              className="gap-2"
-              disabled={busy}
-              onClick={() => void handleDownload()}
-            >
-              <Download set="bold" size="small" />
-              {busy ? "در حال ساخت…" : downloadLabel}
-            </Button>
-            <Link href="/catalog">
-              <Button variant="outline">ادامه خرید</Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="ghost">پشتیبانی</Button>
-            </Link>
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                className="gap-2"
+                disabled={busy}
+                onClick={() => void handleDownload()}
+              >
+                <Download set="bold" size="small" />
+                {busy ? "در حال ساخت…" : downloadLabel}
+              </Button>
+              <Link href="/contact">
+                <Button variant="ghost">پشتیبانی</Button>
+              </Link>
+            </div>
+            <p className="text-xs leading-6 text-muted-foreground">
+              جهت دریافت فاکتور رسمی تماس بگیرید
+            </p>
           </div>
         </div>
       )}

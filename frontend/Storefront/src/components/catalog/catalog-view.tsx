@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Filter } from "react-iconly";
+import { ChevronLeft, ChevronRight, Filter } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
@@ -14,7 +14,8 @@ import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
-import { formatNumber, toPersianDigits } from "@/lib/utils";
+import { useIsDesktopLg } from "@/lib/use-motion-safe";
+import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import {
   isApiProductSort,
@@ -22,9 +23,9 @@ import {
   type ProductSummary,
 } from "@/types/product";
 
-const PAGE_SIZE = 24;
-/** Auto-fetch next pages on scroll this many times after the first page; then show a button. */
-const AUTO_LOAD_PAGES = 5;
+const PAGE_SIZE = 20;
+/** Append batches after the initial page before switching to numbered pagination. */
+const MAX_APPENDS = 2;
 const FILTERS_PANEL_ID = "catalog-filters-panel";
 
 export function CatalogView({
@@ -46,9 +47,19 @@ export function CatalogView({
   }>({});
   const [slugError, setSlugError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  /** How many +20 appends have been requested after the initial page. */
+  const [appendCount, setAppendCount] = useState(0);
+  /** Numbered pagination after MAX_APPENDS (or once the user picks a page). */
+  const [usePagination, setUsePagination] = useState(false);
+  /** Once true, each page replaces the grid (no more accumulating). */
+  const [replaceMode, setReplaceMode] = useState(false);
   const [accumulated, setAccumulated] = useState<ProductSummary[]>([]);
   const filterDrawerOpen = useUiStore((s) => s.filterDrawerOpen);
   const setDrawer = useUiStore((s) => s.setFilterDrawerOpen);
+  const isDesktop = useIsDesktopLg();
+  const gridTopRef = useRef<HTMLDivElement | null>(null);
+  /** Blocks double IntersectionObserver fires before `isFetching` flips. */
+  const appendLockRef = useRef(false);
 
   // URL wins over hub lock so L2/L3 drill-down and clear actually change the PLP.
   // Hub lock is only the default when the URL has no category.
@@ -77,6 +88,7 @@ export function CatalogView({
         min_price: resolvedParams.min_price ?? null,
         max_price: resolvedParams.max_price ?? null,
         in_stock: resolvedParams.in_stock ?? null,
+        on_sale: resolvedParams.on_sale ?? null,
         sort: resolvedParams.sort ?? null,
         spec_filters: resolvedParams.spec_filters ?? null,
       }),
@@ -101,8 +113,12 @@ export function CatalogView({
     setParams({ sort: null });
   }, [raw, setParams]);
 
+  // Filters / search / sort change → back to initial 20 + append rules.
   useEffect(() => {
     setPage(1);
+    setAppendCount(0);
+    setUsePagination(false);
+    setReplaceMode(false);
     setAccumulated([]);
   }, [filterKey]);
 
@@ -187,45 +203,80 @@ export function CatalogView({
   const { data: categories } = useFlatCategories();
 
   useEffect(() => {
-    if (!data?.data || isPlaceholderData) return;
+    if (!data?.data || isPlaceholderData || replaceMode) return;
     setAccumulated((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
-  }, [data, page, isPlaceholderData]);
+    if (appendCount >= MAX_APPENDS) {
+      const totalPages = Math.ceil((data.meta.total_count ?? 0) / PAGE_SIZE);
+      // Only switch when more than the 3 appended pages exist.
+      if (totalPages > MAX_APPENDS + 1) setUsePagination(true);
+    }
+  }, [data, page, isPlaceholderData, replaceMode, appendCount]);
+
+  const total = data?.meta.total_count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE) || 1);
 
   // Prefer live page-1 data so we never flash EmptyState while accumulated is still clearing.
-  const displayProducts =
-    page === 1 && data?.data && !isPlaceholderData ? data.data : accumulated;
-  const total = data?.meta.total_count ?? 0;
+  // After the user picks a page number, replace the grid with that page only.
+  const displayProducts = replaceMode
+    ? data?.data && !isPlaceholderData
+      ? data.data
+      : (data?.data ?? [])
+    : page === 1 && data?.data && !isPlaceholderData
+      ? data.data
+      : accumulated;
+
   const shown = displayProducts.length;
   const hasMore = !isPlaceholderData && shown < total;
-  /** Pages already loaded beyond the first (page 1 → 0 auto-loads used). */
-  const autoLoadsUsed = Math.max(0, page - 1);
-  const canAutoLoad = hasMore && autoLoadsUsed < AUTO_LOAD_PAGES;
-  const needsManualNext = hasMore && autoLoadsUsed >= AUTO_LOAD_PAGES;
+  const canAppend =
+    !usePagination && !replaceMode && hasMore && appendCount < MAX_APPENDS;
+  const showPagination = (usePagination || replaceMode) && totalPages > 1;
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const showFilterSkeleton =
     (isLoading || isPlaceholderData || (isFetching && page === 1 && shown === 0)) &&
-    page === 1;
+    page === 1 &&
+    !replaceMode;
   const showEmpty =
     !showFilterSkeleton && !isFetching && !isPlaceholderData && total === 0;
-
-  const loadNextPage = useCallback(() => {
-    if (isFetching || !hasMore) return;
-    setPage((p) => p + 1);
-  }, [hasMore, isFetching]);
+  /** Next-page fetch only — not initial PLP skeleton. */
+  const isLoadingMore =
+    isFetching && (page > 1 || replaceMode) && !showFilterSkeleton;
 
   useEffect(() => {
-    if (!canAutoLoad || showFilterSkeleton || shown === 0) return;
+    if (!isFetching) appendLockRef.current = false;
+  }, [isFetching]);
+
+  const appendNext = useCallback(() => {
+    if (isFetching || !canAppend || appendLockRef.current) return;
+    appendLockRef.current = true;
+    setAppendCount((c) => c + 1);
+    setPage((p) => p + 1);
+  }, [canAppend, isFetching]);
+
+  const goToPage = useCallback(
+    (next: number) => {
+      if (next < 1 || next > totalPages || (next === page && replaceMode)) return;
+      setReplaceMode(true);
+      setUsePagination(true);
+      setPage(next);
+      gridTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [page, replaceMode, totalPages],
+  );
+
+  // Desktop: auto-append on scroll near bottom (at most MAX_APPENDS times).
+  useEffect(() => {
+    if (!isDesktop || !canAppend || showFilterSkeleton || shown === 0) return;
     const node = loadMoreRef.current;
     if (!node) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) loadNextPage();
+        if (entries.some((e) => e.isIntersecting)) appendNext();
       },
       { root: null, rootMargin: "280px 0px", threshold: 0 },
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [canAutoLoad, loadNextPage, showFilterSkeleton, shown]);
+  }, [isDesktop, canAppend, appendNext, showFilterSkeleton, shown]);
 
   const activeCategory = resolvedParams.category_id
     ? categories?.find((c) => c.id === resolvedParams.category_id)
@@ -234,21 +285,28 @@ export function CatalogView({
   // Keep shop H1 stable — category context lives in carousel + filter panel.
   const title = params.search
     ? `نتایج «${params.search}»`
-    : "فروشگاه ابزار";
+    : "فروشگاه";
+
+  const headerHasVisibleContent =
+    lockedCategoryId == null || showFilterSkeleton || Boolean(slugError);
 
   return (
-    <Container className="py-6 lg:py-10">
-      <header className="mb-6">
+    <Container className="py-3 lg:py-10">
+      <header
+        className={
+          headerHasVisibleContent ? "mb-3 lg:mb-6" : "mb-0"
+        }
+      >
         {lockedCategoryId == null ? (
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-xl font-bold text-foreground lg:text-2xl">{title}</h1>
         ) : (
           <h1 className="sr-only">{title}</h1>
         )}
-        <p className={`text-sm text-muted-foreground ${lockedCategoryId == null ? "mt-1" : ""}`}>
-          {showFilterSkeleton
-            ? "در حال بارگذاری…"
-            : `${formatNumber(total)} محصول یافت شد`}
-        </p>
+        {showFilterSkeleton ? (
+          <p className={`text-sm text-muted-foreground ${lockedCategoryId == null ? "mt-1" : ""}`}>
+            در حال بارگذاری…
+          </p>
+        ) : null}
         {slugError && (
           <p className="mt-2 text-xs text-destructive" role="status">
             {slugError}
@@ -257,20 +315,26 @@ export function CatalogView({
       </header>
 
       {lockedCategoryId == null && lockedBrandId == null && (
-        <div className="mb-6">
+        <div className="mb-3 lg:mb-6">
           <RootCategoryCarousel initialTree={initialTree} />
         </div>
       )}
 
       <div className="flex gap-6">
-        <aside className="hidden w-72 shrink-0 lg:block" id={FILTERS_PANEL_ID}>
-          <div className="sticky top-32">
-            <FilterPanel lockedCategoryId={lockedCategoryId} />
-          </div>
+        {/*
+          Desktop filters: aside is only a width/self-start shell. Sticky +
+          viewport max-height + scroll live inside FilterPanel (sidebar layout)
+          so accordion expand never clips below the fold.
+        */}
+        <aside
+          id={FILTERS_PANEL_ID}
+          className="hidden w-72 shrink-0 self-start lg:block"
+        >
+          <FilterPanel layout="sidebar" lockedCategoryId={lockedCategoryId} />
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="mb-3 space-y-2.5 lg:mb-5 lg:space-y-3">
             <button
               type="button"
               onClick={() => setDrawer(true)}
@@ -286,10 +350,10 @@ export function CatalogView({
                 </span>
               )}
             </button>
-            <span className="hidden text-sm text-muted-foreground lg:block">مرتب‌سازی بر اساس</span>
-            <div className="ms-auto">
-              <SortSelect />
-            </div>
+            <SortSelect
+              totalCount={total}
+              isLoading={showFilterSkeleton}
+            />
           </div>
 
           {isError ? (
@@ -317,39 +381,70 @@ export function CatalogView({
           ) : (
             <>
               <div
-                className={`grid grid-cols-2 gap-4 transition-opacity sm:grid-cols-3 xl:grid-cols-4 ${
-                  isFetching && page > 1 ? "opacity-80" : "opacity-100"
-                }`}
+                ref={gridTopRef}
+                className={cn(
+                  "grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4",
+                  replaceMode && isLoadingMore && "opacity-60 transition-opacity duration-300",
+                )}
               >
                 {displayProducts.map((p, i) => (
                   <ProductCard
                     key={p.id}
                     product={p}
-                    priority={page === 1 && isPlpLcpIndex(i)}
+                    priority={!replaceMode && page === 1 && isPlpLcpIndex(i)}
                   />
                 ))}
               </div>
-              {canAutoLoad && shown > 0 ? (
+
+              {/* Desktop: soft footer cue + intersection sentinel for auto-append */}
+              {canAppend && isDesktop ? (
                 <div
                   ref={loadMoreRef}
-                  className="mt-8 flex h-12 items-center justify-center"
-                  aria-hidden={!isFetching}
+                  className="mt-8 flex min-h-12 items-center justify-center"
+                  aria-hidden={!isLoadingMore}
                 >
-                  {isFetching ? (
-                    <p className="text-sm text-muted-foreground">در حال بارگذاری…</p>
-                  ) : null}
+                  <CatalogNextPageLoader active={isLoadingMore} />
                 </div>
               ) : null}
-              {needsManualNext && shown > 0 ? (
+
+              {/* Mobile: «نمایش بیشتر» — max two appends, then pagination */}
+              {canAppend && !isDesktop ? (
                 <div className="mt-8 flex justify-center">
-                  <Button
-                    variant="outline"
-                    disabled={isFetching}
-                    onClick={loadNextPage}
+                  <button
+                    type="button"
+                    disabled={isLoadingMore}
+                    onClick={appendNext}
+                    aria-busy={isLoadingMore}
+                    className={cn(
+                      "inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium text-foreground",
+                      "bg-card shadow-soft ring-1 ring-inset ring-border/70",
+                      "transition-[opacity,transform,background-color] duration-300",
+                      "hover:bg-accent disabled:pointer-events-none",
+                      isLoadingMore && "animate-pulse bg-accent/60",
+                    )}
                   >
-                    {isFetching ? "در حال بارگذاری…" : "ادامه محصولات"}
-                  </Button>
+                    {isLoadingMore ? (
+                      <>
+                        <span
+                          className="size-3.5 animate-spin rounded-full border border-primary/25 border-t-primary"
+                          aria-hidden
+                        />
+                        <span className="text-muted-foreground">در حال بارگذاری…</span>
+                      </>
+                    ) : (
+                      "نمایش بیشتر"
+                    )}
+                  </button>
                 </div>
+              ) : null}
+
+              {showPagination ? (
+                <CatalogPagination
+                  page={page}
+                  totalPages={totalPages}
+                  disabled={isLoadingMore}
+                  onPageChange={goToPage}
+                />
               ) : null}
             </>
           )}
@@ -361,6 +456,131 @@ export function CatalogView({
         lockedCategoryId={lockedCategoryId}
       />
     </Container>
+  );
+}
+
+/** Soft footer cue while desktop infinite-scroll appends the next page. */
+function CatalogNextPageLoader({ active }: { active: boolean }) {
+  if (!active) return null;
+  return (
+    <div
+      className="flex flex-col items-center gap-2.5"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span
+        className="size-[18px] animate-spin rounded-full border-[1.5px] border-primary/20 border-t-primary"
+        aria-hidden
+      />
+      <span
+        className="h-px w-10 animate-pulse rounded-full bg-primary/40"
+        aria-hidden
+      />
+      <span className="sr-only">در حال بارگذاری محصولات بیشتر</span>
+    </div>
+  );
+}
+
+function CatalogPagination({
+  page,
+  totalPages,
+  disabled,
+  onPageChange,
+}: {
+  page: number;
+  totalPages: number;
+  disabled?: boolean;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const windowSize = 5;
+  let start = Math.max(1, page - Math.floor(windowSize / 2));
+  const end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+  return (
+    <nav
+      aria-label="صفحه‌بندی محصولات"
+      className="mt-8 flex flex-wrap items-center justify-center gap-2"
+    >
+      <button
+        type="button"
+        disabled={disabled || page <= 1}
+        onClick={() => onPageChange(page - 1)}
+        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
+      >
+        <ChevronRight size="small" set="light" />
+        قبلی
+      </button>
+      {start > 1 ? (
+        <>
+          <CatalogPageBtn n={1} active={page === 1} disabled={disabled} onClick={onPageChange} />
+          {start > 2 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
+        </>
+      ) : null}
+      {pages.map((n) => (
+        <CatalogPageBtn
+          key={n}
+          n={n}
+          active={page === n}
+          disabled={disabled}
+          onClick={onPageChange}
+        />
+      ))}
+      {end < totalPages ? (
+        <>
+          {end < totalPages - 1 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
+          <CatalogPageBtn
+            n={totalPages}
+            active={page === totalPages}
+            disabled={disabled}
+            onClick={onPageChange}
+          />
+        </>
+      ) : null}
+      <button
+        type="button"
+        disabled={disabled || page >= totalPages}
+        onClick={() => onPageChange(page + 1)}
+        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
+      >
+        بعدی
+        <ChevronLeft size="small" set="light" />
+      </button>
+    </nav>
+  );
+}
+
+function CatalogPageBtn({
+  n,
+  active,
+  disabled,
+  onClick,
+}: {
+  n: number;
+  active: boolean;
+  disabled?: boolean;
+  onClick: (page: number) => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-current={active ? "page" : undefined}
+      disabled={disabled}
+      onClick={() => onClick(n)}
+      className={cn(
+        "grid h-10 min-w-10 place-items-center rounded-xl px-2.5 text-sm font-bold transition",
+        active
+          ? "bg-[#D02327] text-white shadow-[0_10px_24px_-14px_rgba(208,35,39,0.8)]"
+          : "border border-border/60 bg-card text-[#5E5F5E] hover:text-[#D02327]",
+        disabled && "pointer-events-none opacity-40",
+      )}
+    >
+      {formatNumber(n)}
+    </button>
   );
 }
 

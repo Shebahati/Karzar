@@ -16,8 +16,11 @@ import type {
   OtpRequestResponse,
   OtpVerifyPayload,
   OtpVerifyResponse,
+  ProfileUpdatePayload,
 } from "@/types/auth";
 import { apiClient } from "@/lib/api-client";
+
+export const STOREFRONT_CUSTOMER_KEY = "karzar.storefront.customer";
 
 interface MeBackendResponse {
   id: number;
@@ -28,6 +31,14 @@ interface MeBackendResponse {
   company_name?: string | null;
 }
 
+interface StoredCustomer {
+  id?: number;
+  phone?: string;
+  full_name?: string | null;
+  company_name?: string | null;
+  is_b2b?: boolean;
+}
+
 function mapMe(data: MeBackendResponse): MeResponse {
   return {
     id: data.id,
@@ -36,6 +47,41 @@ function mapMe(data: MeBackendResponse): MeResponse {
     role: data.role,
     is_b2b: data.is_b2b,
     company_name: data.company_name,
+  };
+}
+
+function readStoredCustomer(): StoredCustomer | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STOREFRONT_CUSTOMER_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredCustomer;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredCustomer(customer: StoredCustomer): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STOREFRONT_CUSTOMER_KEY, JSON.stringify(customer));
+  window.dispatchEvent(new Event("karzar-auth-change"));
+}
+
+/**
+ * Prefer server profile fields; fill gaps from local customer cache
+ * (no storefront PATCH /auth/me yet on live).
+ */
+function mergeLocalProfile(me: MeResponse): MeResponse {
+  const local = readStoredCustomer();
+  if (!local) return me;
+  const full_name = me.full_name?.trim() || local.full_name?.trim() || null;
+  const company_name =
+    me.company_name?.trim() || local.company_name?.trim() || null;
+  return {
+    ...me,
+    full_name,
+    company_name,
+    is_b2b: me.is_b2b ?? local.is_b2b,
   };
 }
 
@@ -76,6 +122,12 @@ export const authService = {
           })
         ).data;
 
+    const phone = result.customer.phone ?? payload.phone;
+    const prev = readStoredCustomer();
+    const serverName = result.customer.full_name?.trim() || null;
+    const keptLocal =
+      !serverName && prev?.phone === phone ? prev.full_name?.trim() || null : null;
+
     const normalized: OtpVerifyResponse = {
       access_token: result.access_token,
       refresh_token: result.refresh_token ?? "",
@@ -83,8 +135,8 @@ export const authService = {
       expires_in: result.expires_in ?? 1800,
       customer: {
         id: result.customer.id,
-        phone: result.customer.phone ?? payload.phone,
-        full_name: result.customer.full_name,
+        phone,
+        full_name: serverName ?? keptLocal,
       },
     };
 
@@ -95,11 +147,7 @@ export const authService = {
     );
 
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        "karzar.storefront.customer",
-        JSON.stringify(normalized.customer),
-      );
-      window.dispatchEvent(new Event("karzar-auth-change"));
+      writeStoredCustomer(normalized.customer);
     }
 
     let cart_sync_error: string | null = null;
@@ -113,7 +161,62 @@ export const authService = {
   async getMe(): Promise<MeResponse> {
     if (env.USE_MOCK) return (await getMockApi()).getMe();
     const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
-    return mapMe(data);
+    return mergeLocalProfile(mapMe(data));
+  },
+
+  /**
+   * Save profile fields on the account session.
+   * OpenAPI has GET `/auth/me` only (no storefront profile PATCH) — mock updates
+   * in-memory session; live keeps fields in local customer cache + me query until BE ships.
+   */
+  async updateProfile(payload: ProfileUpdatePayload): Promise<MeResponse> {
+    const trimmed = payload.full_name.trim();
+    if (trimmed.length < 2) {
+      throw new Error("FULL_NAME_TOO_SHORT");
+    }
+    const companyRaw = payload.company_name?.trim() ?? "";
+    if (companyRaw.length > 120) {
+      throw new Error("COMPANY_NAME_TOO_LONG");
+    }
+    const company_name = companyRaw || null;
+
+    if (env.USE_MOCK) {
+      return (await getMockApi()).updateProfile({
+        full_name: trimmed,
+        company_name,
+      });
+    }
+
+    const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
+    const me = mergeLocalProfile({
+      ...mapMe(data),
+      full_name: trimmed,
+      company_name,
+    });
+    writeStoredCustomer({
+      id: me.id,
+      phone: me.phone,
+      full_name: trimmed,
+      company_name,
+      is_b2b: me.is_b2b,
+    });
+    return me;
+  },
+
+  async updateFullName(fullName: string): Promise<MeResponse> {
+    const localCompany = readStoredCustomer()?.company_name ?? null;
+    try {
+      const current = await this.getMe();
+      return this.updateProfile({
+        full_name: fullName,
+        company_name: current.company_name ?? localCompany,
+      });
+    } catch {
+      return this.updateProfile({
+        full_name: fullName,
+        company_name: localCompany,
+      });
+    }
   },
 
   async logout(): Promise<void> {
@@ -126,7 +229,7 @@ export const authService = {
     }
     setStoredToken(null);
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem("karzar.storefront.customer");
+      window.localStorage.removeItem(STOREFRONT_CUSTOMER_KEY);
       clearPendingPayment();
       window.dispatchEvent(new Event("karzar-auth-change"));
     }

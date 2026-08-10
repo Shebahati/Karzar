@@ -1,6 +1,6 @@
 "use client";
 
-import { Document, Send, ShieldDone, Swap } from "react-iconly";
+import { Call, Document, Send, ShieldDone, Swap, Wallet } from "react-iconly";
 import { cn } from "@/lib/utils";
 
 export type PdpTrustItem = {
@@ -11,49 +11,137 @@ export type PdpTrustItem = {
 };
 
 /**
- * Trust cues aligned with homepage / footer brand claims.
- * Does not invent certifications — product warranty is optional SoT copy only.
+ * Buy-card trust: only real product warranty (warranty_text).
+ * Does not invent authenticity / return chips — those live on the shared strip.
+ */
+export function buildPdpBuyCardTrust(opts: {
+  warrantyText?: string | null;
+}): PdpTrustItem[] {
+  const text = opts.warrantyText?.trim();
+  if (!text) return [];
+  return [
+    {
+      key: "warranty",
+      title: text,
+      desc: "شرایط گارانتی",
+      Icon: Document,
+    },
+  ];
+}
+
+/**
+ * @deprecated Prefer buildPdpBuyCardTrust for the card and buildPdpStripTrustItems
+ * for the shared strip. Kept for tests / rare reuse.
  */
 export function buildPdpTrustItems(opts: {
   warrantyText?: string | null;
   isOriginal?: boolean;
 }): PdpTrustItem[] {
-  const items: PdpTrustItem[] = [
+  return [
+    ...buildPdpStripTrustItems({ isOriginal: opts.isOriginal }),
+    ...buildPdpBuyCardTrust({ warrantyText: opts.warrantyText }),
+  ];
+}
+
+const SERVICE_ITEMS: PdpTrustItem[] = [
+  {
+    key: "shipping",
+    title: "ارسال سریع",
+    desc: "پوشش سراسر کشور",
+    Icon: Send,
+  },
+  {
+    key: "support",
+    title: "پشتیبانی",
+    desc: "پاسخگویی ۹ تا ۱۸",
+    Icon: Call,
+  },
+  {
+    key: "payment",
+    title: "پرداخت امن",
+    desc: "درگاه رسمی بانکی",
+    Icon: Wallet,
+  },
+];
+
+/** Shared strip: authenticity + return + delivery / support / payment. */
+export function buildPdpStripTrustItems(opts?: {
+  isOriginal?: boolean;
+}): PdpTrustItem[] {
+  return [
     {
       key: "authenticity",
       title: "ضمانت اصالت",
-      desc: opts.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
+      desc: opts?.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
       Icon: ShieldDone,
     },
-  ];
-
-  if (opts.warrantyText?.trim()) {
-    items.push({
-      key: "warranty",
-      title: opts.warrantyText.trim(),
-      desc: "شرایط گارانتی",
-      Icon: Document,
-    });
-  }
-
-  items.push(
     {
       key: "return",
       title: "۷ روز بازگشت",
       desc: "شرایط مرجوعی",
       Icon: Swap,
     },
-    {
-      key: "shipping",
-      title: "ارسال مطمئن",
-      desc: "سراسر کشور",
-      Icon: Send,
-    },
-  );
-
-  return items;
+    ...SERVICE_ITEMS,
+  ];
 }
 
+function SoftCueStrip({
+  items,
+  label,
+  className,
+}: {
+  items: PdpTrustItem[];
+  label: string;
+  className?: string;
+}) {
+  return (
+    <aside
+      aria-label={label}
+      className={cn(
+        "relative overflow-hidden rounded-[1.1rem]",
+        className,
+      )}
+    >
+      <ul
+        className={cn(
+          // Mobile: compact 2-col so 5 cues don’t stack as tall strips.
+          // sm+ unchanged from prior breakpoints.
+          "grid gap-0",
+          items.length >= 5
+            ? "grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            : items.length >= 4
+              ? "grid-cols-2 lg:grid-cols-4"
+              : "grid-cols-1 sm:grid-cols-3",
+        )}
+      >
+        {items.map(({ key, title, desc, Icon }) => (
+          <li
+            key={key}
+            className="group relative flex min-w-0 items-center gap-2 px-2.5 py-2 ps-3.5 sm:gap-2.5 sm:px-3 sm:py-2.5 sm:ps-4"
+          >
+            <span
+              aria-hidden
+              className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-[#D02327] sm:inset-y-2.5"
+            />
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#D02327]/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-[#D02327]/18 sm:h-8 sm:w-8">
+              <Icon set="bold" size="small" primaryColor="#D02327" />
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="text-[12px] font-bold tracking-tight text-foreground sm:text-[13px]">
+                {title}
+              </p>
+              <p className="mt-0.5 text-[10px] font-medium text-steel sm:text-[11px]">
+                {desc}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+}
+
+/** @deprecated Prefer PdpAssistStrip; kept for tests / rare reuse. */
 export function ProductTrustStrip({
   warrantyText,
   isOriginal = false,
@@ -63,50 +151,28 @@ export function ProductTrustStrip({
   isOriginal?: boolean;
   className?: string;
 }) {
-  const items = buildPdpTrustItems({ warrantyText, isOriginal });
-
   return (
-    <aside
-      aria-label="اعتماد خرید"
-      className={cn(
-        "relative overflow-hidden rounded-[1.1rem] bg-gradient-to-l from-[#D02327]/[0.06] via-secondary/40 to-transparent",
-        className,
-      )}
-    >
-      <span
-        aria-hidden
-        className="absolute inset-y-2.5 start-0 w-[3px] rounded-full bg-[#D02327]"
-      />
+    <SoftCueStrip
+      label="اعتماد خرید"
+      className={className}
+      items={buildPdpTrustItems({ warrantyText, isOriginal })}
+    />
+  );
+}
 
-      <ul
-        className={cn(
-          "grid gap-0 ps-3",
-          items.length >= 4
-            ? "sm:grid-cols-2 lg:grid-cols-4"
-            : "sm:grid-cols-3",
-        )}
-      >
-        {items.map(({ key, title, desc, Icon }, i) => (
-          <li
-            key={key}
-            className={cn(
-              "group relative flex items-center gap-2.5 px-3 py-2.5",
-              i > 0 &&
-                "sm:before:absolute sm:before:inset-y-2 sm:before:start-0 sm:before:w-px sm:before:bg-steel/15",
-            )}
-          >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#D02327]/10 transition-transform duration-300 group-hover:scale-105 group-hover:bg-[#D02327]/18">
-              <Icon set="bold" size="small" primaryColor="#D02327" />
-            </span>
-            <div className="min-w-0 leading-tight">
-              <p className="text-[13px] font-bold tracking-tight text-foreground">
-                {title}
-              </p>
-              <p className="mt-0.5 text-[11px] font-medium text-steel">{desc}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </aside>
+/** Below-hero strip: authenticity / return + delivery / support / payment. */
+export function PdpAssistStrip({
+  isOriginal = false,
+  className,
+}: {
+  isOriginal?: boolean;
+  className?: string;
+}) {
+  return (
+    <SoftCueStrip
+      label="خدمات و اعتماد خرید"
+      className={className}
+      items={buildPdpStripTrustItems({ isOriginal })}
+    />
   );
 }

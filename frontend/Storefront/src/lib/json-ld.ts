@@ -81,7 +81,12 @@ export function buildOrganizationNode(): JsonLdNode {
     "@id": ORG_ID,
     name: ORG_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/icon.svg`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/icon.svg`,
+      width: 289,
+      height: 289,
+    },
     email: STORE_EMAIL,
     telephone: STORE_PHONE_E164,
     hasMap: STORE_MAPS_URL,

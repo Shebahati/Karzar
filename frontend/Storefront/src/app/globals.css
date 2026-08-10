@@ -61,6 +61,12 @@
     --type-lede-lg: 0.875rem;
     --leading-lede: 1.5rem;
     --leading-lede-lg: 1.75rem;
+
+    /*
+     * Mobile bottom-nav tab row only (excludes safe-area).
+     * Keep in sync with MobileBottomNav — .mobile-dock sits flush on top.
+     */
+    --mobile-bottom-nav-chrome: 3.5rem;
   }
 
   @media (min-width: 640px) {
@@ -87,16 +93,58 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    scroll-behavior: smooth;
+    /* Prevent iOS Safari from inflating text unpredictably. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /*
+     * Smooth scroll only on fine pointers. On phones, smooth + URL-bar
+     * resize (dvh change) stacks into a jarring first-scroll jump.
+     */
+    scroll-behavior: auto;
     font-feature-settings: "ss01", "ss02";
     /* Keep in-page anchors / focus clear of sticky header + bottom nav on phones. */
     scroll-padding-top: 5.5rem;
     scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    /* Mobile horizontal lock — never pan the page left/right. */
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02";
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  /* Fallback when overflow: clip is unsupported (older WebKit). */
+  @supports not (overflow-x: clip) {
+    html,
+    body {
+      overflow-x: hidden;
+    }
+  }
+
+  /*
+   * Phones/tablets: document only accepts vertical pans.
+   * Intentional rails (.h-scroll / touch-manipulation) override so carousels
+   * and chip strips still swipe horizontally inside their boxes.
+   */
+  @media (max-width: 1023px) {
+    html,
+    body {
+      touch-action: pan-y;
+    }
   }
 
   /* Persian digits for numeric UI; never force Latin tabular figures. */
@@ -106,29 +154,65 @@
     font-variant-numeric: normal;
   }
 
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: hsl(0 0% 80%);
-    border-radius: 9999px;
-    border: 3px solid transparent;
-    background-clip: content-box;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(0 0% 70%);
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  /*
+   * Soft Karzar scrollbars — desktop / fine pointer only.
+   * Leaves mobile OS overlay bars alone. Applies to document + any
+   * overflow container (modals, drawers, .h-scroll, etc.). RTL-safe
+   * (no physical left/right). .no-scrollbar still wins via higher specificity.
+   *
+   * Note: Chromium honors scrollbar-color/width and ignores ::-webkit-* when
+   * both are set — keep the standard thumb opaque enough to read. Use
+   * any-pointer:fine so hybrid/touchscreen laptops still get the style.
+   */
+  @media (min-width: 768px) and (any-pointer: fine) {
+    html {
+      scrollbar-width: thin; /* Firefox + Chromium */
+      scrollbar-color: rgba(94, 95, 94, 0.5) transparent; /* thumb | track; inherits */
+    }
+
+    /* Explicit html + universal so the viewport bar and overflow panes both style. */
+    html::-webkit-scrollbar,
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    html::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    html::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(94, 95, 94, 0.5); /* steel #5E5F5E */
+      border-radius: 9999px;
+      /* 1px inset — keeps a slim pill without shrinking to near-invisible */
+      border: 1px solid transparent;
+      background-clip: content-box;
+    }
+    html::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(94, 95, 94, 0.68);
+    }
+    html::-webkit-scrollbar-thumb:active,
+    ::-webkit-scrollbar-thumb:active {
+      background-color: rgba(208, 35, 39, 0.5); /* brand red, sparingly */
+    }
+    html::-webkit-scrollbar-corner,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
   }
 }
 
 @layer components {
-  /** Fixed bar sitting just above the mobile bottom nav. */
+  /**
+   * Fixed bar flush above the mobile bottom nav (tab chrome + safe-area).
+   * z-[60] clears page chrome; nav stays z-[70] underneath.
+   * Desktop hide is unlayered below — `@apply lg:hidden` loses to utility
+   * `flex` on the same node (utilities layer beats components).
+   */
   .mobile-dock {
-    @apply fixed inset-x-0 z-40 border-t border-border/50 bg-card/95 shadow-elevated backdrop-blur-md lg:hidden;
-    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+    @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl;
+    bottom: calc(var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px));
   }
 
   /** Minimum comfortable touch target (Apple HIG ~44px). */
@@ -137,11 +221,11 @@
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+    @apply bg-white/85 md:bg-white/70 md:backdrop-blur-xl md:backdrop-saturate-150;
   }
 
   .glass-strong {
-    @apply bg-white/85 backdrop-blur-2xl backdrop-saturate-150;
+    @apply bg-white/92 md:bg-white/85 md:backdrop-blur-2xl md:backdrop-saturate-150;
   }
 
   /** Homepage section stack — uses FE-001 CSS variables. */
@@ -183,6 +267,22 @@
     display: none;
   }
 
+  /**
+   * Contained horizontal scroll track (carousels, chip rails, galleries).
+   * overscroll-x:contain stops the gesture from dragging the page sideways.
+   * touch-manipulation restores pan-x + pan-y inside the track under the
+   * document-level pan-y lock.
+   */
+  .h-scroll {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .shimmer {
     position: relative;
     overflow: hidden;
@@ -211,7 +311,23 @@
   }
 }
 
+/* Unlayered so it beats utility `flex` on the same node (CSS cascade layers). */
+@media (min-width: 1024px) {
+  .mobile-dock {
+    display: none;
+  }
+}
+
 @layer utilities {
+  /**
+   * Arabic/Persian joining: non-zero letter-spacing gaps connecting forms
+   * on WebKit (Safari iOS) — use instead of tracking-* on FA headlines.
+   * Prefer tracking-normal; this utility documents the Safari constraint.
+   */
+  .tracking-arabic {
+    letter-spacing: normal;
+  }
+
   .bg-hero-glow {
     background:
       radial-gradient(55% 50% at 100% 0%, rgba(40, 48, 56, 0.06), transparent 70%),
@@ -244,25 +360,14 @@
   }
 }
 
-/* Home hero scroll-snap: desktop only — mobile uses normal document scroll */
-@media (min-width: 768px) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-  .hero-snap {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  .home-snap {
-    scroll-snap-align: start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-snap-type: none;
-  }
-}
+/*
+ * Home hero used to set `scroll-snap-type: y` on html (desktop) with
+ * scroll-snap-stop:always on a sticky hero. That fought native wheel
+ * scrolling. Sticky hero + sheet overlay was later disabled in
+ * `home-view.tsx` (commented restore block) in favor of normal scroll.
+ * Document-flow hero heights use svh (not dvh) so Android Chrome URL-bar
+ * hide does not reflow the first viewport (~40px jump).
+ */
 
 /* Designed hero animations (admin builder presets) */
 @keyframes hero-fade-up {
@@ -299,3 +404,238 @@
 .hero-anim-stagger-up .hero-stagger-2 { animation: hero-stagger-item 650ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .hero-anim-stagger-up .hero-stagger-3 { animation: hero-stagger-item 650ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .hero-anim-stagger-up .hero-stagger-4 { animation: hero-stagger-item 650ms 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Kill continuous / entrance hero CSS on phones + reduced-motion. */
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .hero-anim-fade-up > *,
+  .hero-anim-fade-in > *,
+  .hero-anim-slide-in > *,
+  .hero-anim-zoom-soft > *,
+  .hero-anim-float > *,
+  .hero-anim-stagger-up .hero-stagger-1,
+  .hero-anim-stagger-up .hero-stagger-2,
+  .hero-anim-stagger-up .hero-stagger-3,
+  .hero-anim-stagger-up .hero-stagger-4 {
+    animation: none !important;
+  }
+}
+
+/* Mobile hero slide change — directional sheet / page-turn (RTL next: enter right → exit left). */
+@keyframes hero-mobile-enter {
+  from {
+    opacity: 0.96;
+    transform: translate3d(var(--hero-mx, 100%), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes hero-mobile-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0.96;
+    transform: translate3d(var(--hero-mx-exit, -100%), 0, 0);
+  }
+}
+.hero-mobile-enter {
+  animation: hero-mobile-enter 500ms cubic-bezier(0.4, 0.12, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+.hero-mobile-exit {
+  animation: hero-mobile-exit 500ms cubic-bezier(0.4, 0.12, 0.2, 1) both;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+/* dir=1 next: enter from right, exit to left. dir=-1 prev: opposite. */
+.hero-mobile-enter[data-dir="1"] {
+  --hero-mx: 100%;
+}
+.hero-mobile-exit[data-dir="1"] {
+  --hero-mx-exit: -100%;
+}
+.hero-mobile-enter[data-dir="-1"] {
+  --hero-mx: -100%;
+}
+.hero-mobile-exit[data-dir="-1"] {
+  --hero-mx-exit: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mobile-enter,
+  .hero-mobile-exit {
+    animation: none !important;
+    will-change: auto;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  First-visit splash — gated by html[data-karzar-splash] (head boot script) */
+/*  Boot veil is a CSS pseudo (not React DOM). Overlay is React-owned only.  */
+/* -------------------------------------------------------------------------- */
+html[data-karzar-splash] {
+  overflow: hidden;
+}
+
+/* Instant cover before React mounts FirstVisitSplash (avoids FOUC + removeChild). */
+html[data-karzar-splash] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: auto;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 58%),
+    linear-gradient(165deg, #f7f6f4 0%, #eef0f1 45%, #e6e8ea 100%);
+}
+
+.karzar-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+}
+
+.karzar-splash__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 58%),
+    linear-gradient(165deg, #f7f6f4 0%, #eef0f1 45%, #e6e8ea 100%);
+  transition: opacity 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.karzar-splash__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.125rem;
+  padding: 1.5rem;
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.karzar-splash--ready .karzar-splash__inner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.karzar-splash__logo {
+  width: min(220px, 58vw);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transform-origin: center center;
+}
+
+.karzar-splash--animate.karzar-splash--ready:not(.karzar-splash--exit) .karzar-splash__logo {
+  animation: karzar-splash-breathe 2.4s ease-in-out infinite;
+}
+
+.karzar-splash__accent {
+  display: block;
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+  background: #d02327;
+  opacity: 0.85;
+  transform: scaleX(0.35);
+  transform-origin: center;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+}
+
+.karzar-splash--ready .karzar-splash__accent {
+  transform: scaleX(1);
+}
+
+.karzar-splash__hairline {
+  display: block;
+  width: min(120px, 36vw);
+  height: 1px;
+  margin-top: 0.125rem;
+  border-radius: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(94, 95, 94, 0.28) 20%,
+    rgba(208, 35, 39, 0.45) 50%,
+    rgba(94, 95, 94, 0.28) 80%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0.7;
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1) 280ms;
+}
+
+.karzar-splash--ready .karzar-splash__hairline {
+  transform: scaleX(1);
+}
+
+.karzar-splash--exit {
+  pointer-events: none;
+}
+
+.karzar-splash--exit .karzar-splash__veil {
+  opacity: 0;
+}
+
+.karzar-splash--exit .karzar-splash__inner {
+  opacity: 0;
+  transform: translateY(-4px) scale(1.01);
+  transition-duration: 420ms;
+}
+
+.karzar-splash--reduced .karzar-splash__inner,
+.karzar-splash--reduced .karzar-splash__accent,
+.karzar-splash--reduced .karzar-splash__hairline,
+.karzar-splash--reduced .karzar-splash__veil {
+  transition-duration: 160ms;
+  transition-delay: 0ms;
+}
+
+.karzar-splash--reduced.karzar-splash--exit .karzar-splash__inner {
+  transform: none;
+}
+
+@keyframes karzar-splash-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.012);
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karzar-splash--animate.karzar-splash--ready:not(.karzar-splash--exit) .karzar-splash__logo {
+    animation: none;
+  }
+
+  .karzar-splash__inner,
+  .karzar-splash__accent,
+  .karzar-splash__hairline,
+  .karzar-splash__veil {
+    transition-duration: 160ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .karzar-splash--exit .karzar-splash__inner {
+    transform: none;
+  }
+}

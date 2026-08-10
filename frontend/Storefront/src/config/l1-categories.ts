@@ -5,8 +5,11 @@
  */
 
 export const DISCOUNTS_ORB_KEY = "discounts";
-/** Catalog entry for تخفیف‌ها dock — API has no discount sort key. */
-export const DISCOUNTS_CATALOG_HREF = "/catalog";
+/**
+ * Catalog entry for تخفیف‌ها dock / پرتخفیف‌ها CTA.
+ * `on_sale=1` is an FE filter (see ProductListParams.on_sale) — not a live API sort key.
+ */
+export const DISCOUNTS_CATALOG_HREF = "/catalog?on_sale=1";
 
 export interface FinalL1Category {
   /** Stable dock / marketing key */
@@ -50,7 +53,10 @@ export const FINAL_L1_FEATURED_KEYS = [
   "industrial-machines",
 ] as const;
 
-/** Canonical 12 L1 categories — exact names for mock + menus. */
+/**
+ * Canonical 12 L1 categories — merchandising order for mock + menus.
+ * Array order is the single FE display order (drills before toolholders).
+ */
 export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
   {
     key: "metrology",
@@ -59,12 +65,13 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     iconSlug: "andaze-giri",
     heroImage: "/images/hero/hero-metrology-left.jpg",
     subtitle:
-      "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر — کنترل کیفیت مطمئن برای خط تولید شما",
+      "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
     ctaLabel: "مشاهده اندازه‌گیری",
     featuredOrder: 1,
     aliases: [
       "اندازه‌گیری",
       "اندازه گیری",
+      "ابزار اندازه‌گیری",
       "اندازه گیری دقیق",
       "اندازه‌گیری دقیق",
       "اندازه گیری آزمایشگاهی",
@@ -80,7 +87,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle: "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
     ctaLabel: "مشاهده ابزار اینسرتی",
     featuredOrder: null,
-    aliases: ["ابزار اینسرتی"],
+    aliases: ["ابزار اینسرتی", "اینسرتی"],
   },
   {
     key: "inserts",
@@ -118,15 +125,26 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     aliases: ["قلاویز"],
   },
   {
+    key: "drills",
+    name: "مته‌ها",
+    slug: "mete",
+    iconSlug: "mete",
+    heroImage: "/images/hero/hero-cutting-left.jpg",
+    subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
+    ctaLabel: "مشاهده مته‌ها",
+    featuredOrder: null,
+    aliases: ["مته‌ها", "مته"],
+  },
+  {
     key: "toolholders",
-    name: "ابزار گیر",
+    name: "ابزارگیر",
     slug: "abzar-gir",
     iconSlug: "abzar-gir",
     heroImage: "/images/hero/hero-holding-left.jpg",
     subtitle: "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
-    ctaLabel: "مشاهده ابزار گیر",
+    ctaLabel: "مشاهده ابزارگیر",
     featuredOrder: null,
-    aliases: ["ابزار گیر", "ابزارگیر"],
+    aliases: ["ابزارگیر", "ابزار گیر"],
   },
   {
     key: "workholding",
@@ -147,7 +165,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     iconSlug: "dastgah-sanati",
     heroImage: "/images/hero/hero-machines-left.jpg",
     subtitle:
-      "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه — انتخاب تخصصی، پشتیبانی کارزاری",
+      "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
     ctaLabel: "مشاهده دستگاه‌ها",
     featuredOrder: 4,
     aliases: ["دستگاه‌های صنعتی", "دستگاه های صنعتی"],
@@ -164,26 +182,15 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     aliases: ["هلی کویل", "هلی‌کویل"],
   },
   {
-    key: "drills",
-    name: "مته",
-    slug: "mete",
-    iconSlug: "mete",
-    heroImage: "/images/hero/hero-cutting-left.jpg",
-    subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
-    ctaLabel: "مشاهده مته",
-    featuredOrder: null,
-    aliases: ["مته"],
-  },
-  {
     key: "workshop-tools",
-    name: "ابزار کارگاهی : دریل عادی",
+    name: "ابزار کارگاهی",
     slug: "abzar-kargahi",
     iconSlug: "abzar-kargahi",
     heroImage: "/images/hero/hero-holding-left.jpg",
-    subtitle: "ابزار کارگاهی و دریل عادی برای کار روزمره کارگاه",
+    subtitle: "ابزار کارگاهی برای کار روزمره کارگاه",
     ctaLabel: "مشاهده ابزار کارگاهی",
     featuredOrder: null,
-    aliases: ["ابزار کارگاهی : دریل عادی", "ابزار کارگاهی"],
+    aliases: ["ابزار کارگاهی"],
   },
   {
     key: "lubricants",
@@ -200,7 +207,22 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
 
 export const FINAL_L1_NAMES = FINAL_L1_CATEGORIES.map((c) => c.name);
 
-/** Stable mock DB ids for the 12 L1 roots (1–12). */
-export const FINAL_L1_MOCK_IDS: Record<string, number> = Object.fromEntries(
-  FINAL_L1_CATEGORIES.map((c, i) => [c.key, i + 1]),
-);
+/**
+ * Stable mock DB ids for the 12 L1 roots (1–12).
+ * Fixed by key — do not derive from array index so merchandising reorder
+ * does not break mock parent_id links.
+ */
+export const FINAL_L1_MOCK_IDS: Record<string, number> = {
+  metrology: 1,
+  "insert-tools": 2,
+  inserts: 3,
+  endmills: 4,
+  taps: 5,
+  toolholders: 6,
+  workholding: 7,
+  "industrial-machines": 8,
+  "heli-coil": 9,
+  drills: 10,
+  "workshop-tools": 11,
+  lubricants: 12,
+};

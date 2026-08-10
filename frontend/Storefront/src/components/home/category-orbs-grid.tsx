@@ -70,9 +70,11 @@ function CategoryOrb({
       <span className="relative mt-auto min-w-0 space-y-1.5 pt-1">
         <span
           className={cn(
-            "block text-[15px] font-black leading-snug tracking-tight sm:text-base",
+            "block overflow-hidden text-[15px] font-black leading-snug tracking-tight sm:text-base",
+            "line-clamp-2 break-words",
             active ? "text-primary" : "text-foreground",
           )}
+          title={node.name}
         >
           {node.name}
         </span>
@@ -82,8 +84,9 @@ function CategoryOrb({
               "text-[12px] font-bold tabular-nums sm:text-[13px]",
               active ? "text-primary/75" : "text-[#5E5F5E]/75",
             )}
+            aria-label={`${formatNumber(count)} محصول`}
           >
-            {formatNumber(count)} محصول
+            {formatNumber(count)}
           </span>
           {mode === "link" ? (
             <span

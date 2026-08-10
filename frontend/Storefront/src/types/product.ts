@@ -144,7 +144,70 @@ export interface ProductListParams {
   /** Multi-country filter (API: repeated `country`). */
   countries?: string[];
   in_stock?: boolean;
+  /**
+   * FE-only: products with an active discount (`discount_percent > 0` or
+   * compare-at / original price above sale price). Not a live API query key —
+   * mock filters natively; live responses are filtered client-side.
+   */
+  on_sale?: boolean;
   sort?: ProductSort;
   /** spec_* filters encoded as dot-path keys (e.g. technical_specs.grade). */
   spec_filters?: Record<string, string>;
+}
+
+/** True when the product carries a real discount signal for PLP / deal rails. */
+export function productHasDiscount(p: {
+  discount_percent?: number | null;
+  original_price?: string | number | null;
+  base_price?: string | number | null;
+}): boolean {
+  if ((p.discount_percent ?? 0) > 0) return true;
+  if (p.original_price == null || p.base_price == null) return false;
+  const original = Number(p.original_price);
+  const base = Number(p.base_price);
+  return Number.isFinite(original) && Number.isFinite(base) && original > base;
+}
+
+/**
+ * Per-unit discount savings in toman.
+ * Prefers `original_price - base_price`; falls back to reconstructing
+ * compare-at from `discount_percent` when original is missing.
+ */
+export function productUnitSavings(p: {
+  discount_percent?: number | null;
+  original_price?: string | number | null;
+  base_price?: string | number | null;
+}): number {
+  const base = Number(p.base_price);
+  if (!Number.isFinite(base) || base <= 0) return 0;
+
+  if (p.original_price != null && p.original_price !== "") {
+    const original = Number(p.original_price);
+    if (Number.isFinite(original) && original > base) {
+      return original - base;
+    }
+  }
+
+  const pct = Number(p.discount_percent ?? 0);
+  if (Number.isFinite(pct) && pct > 0 && pct < 100) {
+    const original = base / (1 - pct / 100);
+    const savings = original - base;
+    return Number.isFinite(savings) && savings > 0 ? savings : 0;
+  }
+
+  return 0;
+}
+
+/** Line savings = unit savings × quantity (rounded to whole toman). */
+export function productLineSavings(
+  p: {
+    discount_percent?: number | null;
+    original_price?: string | number | null;
+    base_price?: string | number | null;
+  },
+  quantity: number,
+): number {
+  const qty = Math.max(0, quantity);
+  if (qty <= 0) return 0;
+  return Math.round(productUnitSavings(p) * qty);
 }

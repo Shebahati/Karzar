@@ -101,7 +101,7 @@ export function AccountSecurityView() {
               type="password"
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
-              className="h-11 w-full rounded-lg bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+              className="h-11 w-full rounded-lg bg-input px-4 text-base outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
           </label>
@@ -112,7 +112,7 @@ export function AccountSecurityView() {
               value={next}
               onChange={(e) => setNext(e.target.value)}
               minLength={8}
-              className="h-11 w-full rounded-lg bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+              className="h-11 w-full rounded-lg bg-input px-4 text-base outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
           </label>
@@ -157,7 +157,7 @@ function PasswordResetBlock() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="۰۹XXXXXXXXX"
-          className="h-11 w-full rounded-lg bg-input px-4 text-sm tnum outline-none focus:ring-2 focus:ring-ring/40"
+          className="h-11 w-full rounded-lg bg-input px-4 text-base tnum outline-none focus:ring-2 focus:ring-ring/40"
           dir="ltr"
         />
         {!sent ? (
@@ -193,7 +193,7 @@ function PasswordResetBlock() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="کد ۶ رقمی"
-              className="h-11 w-full rounded-lg bg-input px-4 text-sm tnum outline-none focus:ring-2 focus:ring-ring/40"
+              className="h-11 w-full rounded-lg bg-input px-4 text-base tnum outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
             <input
@@ -201,7 +201,7 @@ function PasswordResetBlock() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="رمز جدید (حداقل ۸ کاراکتر)"
-              className="h-11 w-full rounded-lg bg-input px-4 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+              className="h-11 w-full rounded-lg bg-input px-4 text-base outline-none focus:ring-2 focus:ring-ring/40"
               dir="ltr"
             />
             <Button

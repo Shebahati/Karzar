@@ -8,13 +8,26 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "react-iconly";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HeroCategoryOrbs } from "@/components/home/hero-category-orbs";
 import { DesignedHero } from "@/components/home/designed-hero";
+import {
+  HERO_SHEET_EASE,
+  HERO_SHEET_MS,
+  HERO_SHEET_MS_MOBILE,
+  HERO_SHEET_MS_REDUCED,
+  HERO_SHEET_UNDERLAY,
+  HERO_SWIPE_CONFIDENCE,
+  HERO_SWIPE_OFFSET,
+  heroSheetReducedVariants,
+  heroSheetTransition,
+  heroSheetVariants,
+  heroSwipePower,
+} from "@/components/home/hero-sheet-motion";
 import {
   featuredOrbs,
   matchOrbToTreeNode,
@@ -30,8 +43,6 @@ import type { HeroSlide } from "@/types/content";
 import type { CategoryTreeNode } from "@/types/category";
 
 const AUTOPLAY_MS = 5500;
-const SWIPE_THRESHOLD = 48;
-const easePremium = [0.22, 1, 0.36, 1] as const;
 
 const copyShadow =
   "0 1px 2px rgba(0,0,0,0.72), 0 2px 16px rgba(0,0,0,0.45)";
@@ -75,7 +86,9 @@ export function Hero() {
   const [paused, setPaused] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const touchStartX = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
+  const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const regionRef = useRef<HTMLElement>(null);
 
   const designedPack = designQuery.data;
@@ -99,6 +112,14 @@ export function Hero() {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
@@ -128,14 +149,31 @@ export function Hero() {
     [go, activeIndex],
   );
 
+  const onSheetDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (menuOpen || slides.length <= 1 || reducedMotion) return;
+      const { offset, velocity } = info;
+      const power = heroSwipePower(offset.x, velocity.x);
+      // Drag right → next; drag left → prev (RTL page-turn).
+      if (offset.x > HERO_SWIPE_OFFSET || power > HERO_SWIPE_CONFIDENCE) {
+        goNext();
+      } else if (offset.x < -HERO_SWIPE_OFFSET || power < -HERO_SWIPE_CONFIDENCE) {
+        goPrev();
+      }
+    },
+    [menuOpen, slides.length, reducedMotion, goNext, goPrev],
+  );
+
   useEffect(() => {
-    if (hasDesigned || menuOpen || slides.length <= 1 || paused || reducedMotion) return;
+    if (hasDesigned || isMobile || menuOpen || slides.length <= 1 || paused || reducedMotion) {
+      return;
+    }
     const t = window.setInterval(() => {
       setDirection(1);
       setIndex((i) => (i + 1) % slides.length);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [hasDesigned, menuOpen, slides.length, paused, reducedMotion]);
+  }, [hasDesigned, isMobile, menuOpen, slides.length, paused, reducedMotion]);
 
   useEffect(() => {
     if (hasDesigned) return;
@@ -163,7 +201,7 @@ export function Hero() {
 
   if (isLoading) {
     return (
-      <div className="relative h-[62dvh] w-full overflow-hidden bg-secondary md:h-[100dvh]">
+      <div className="relative h-[62svh] w-full overflow-hidden bg-secondary md:h-[100svh]">
         <Skeleton className="absolute inset-0 rounded-none" />
       </div>
     );
@@ -183,8 +221,28 @@ export function Hero() {
   if (!slides.length) return null;
 
   const slide = slides[activeIndex]!;
-  const slideMs = reducedMotion ? 0.18 : 0.85;
-  const textX = reducedMotion ? 0 : direction * 28;
+  const sheetDuration = reducedMotion
+    ? HERO_SHEET_MS_REDUCED
+    : isMobile
+      ? HERO_SHEET_MS_MOBILE
+      : HERO_SHEET_MS;
+  const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
+  const canDragSheet = isMobile && !reducedMotion && !menuOpen && slides.length > 1;
+  const textX = reducedMotion ? 0 : direction * -36;
+
+  const slideArrowClass = (side: "left" | "right") =>
+    cn(
+      "pointer-events-auto absolute top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full outline-none",
+      "bg-black/68 text-white shadow-[0_10px_28px_rgba(0,0,0,0.44)] ring-1 ring-primary",
+      !isMobile && "backdrop-blur-md",
+      "transition-[opacity,background-color,box-shadow] duration-300 ease-out",
+      "hover-fine:bg-black/78 hover-fine:shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover-fine:ring-primary/80",
+      "active:bg-black/82",
+      "focus-visible:!opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      "opacity-75",
+      "[@media(hover:hover)_and_(pointer:fine)]:opacity-0",
+      arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
+    );
 
   return (
     <section
@@ -192,73 +250,73 @@ export function Hero() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو دسته‌بندی‌های کارزار"
-      className="relative h-[62dvh] w-full outline-none md:h-[100dvh]"
+      className="group/hero relative h-[62svh] w-full max-w-full overflow-x-clip outline-none md:h-[100svh]"
+      style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={() => {
+        setPaused(false);
+        setArrowSide(null);
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const next = e.clientX - rect.left < rect.width / 2 ? "left" : "right";
+        setArrowSide((prev) => (prev === next ? prev : next));
+      }}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
           setPaused(false);
         }
       }}
-      onTouchStart={(e) => {
-        touchStartX.current = e.changedTouches[0]?.clientX ?? null;
-        setPaused(true);
-      }}
-      onTouchEnd={(e) => {
-        const start = touchStartX.current;
-        touchStartX.current = null;
-        setPaused(false);
-        if (menuOpen || start == null) return;
-        const dx = (e.changedTouches[0]?.clientX ?? start) - start;
-        if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-        if (dx > 0) goNext();
-        else goPrev();
-      }}
     >
-      <div className="relative h-full w-full overflow-hidden">
-        <AnimatePresence initial={false} custom={direction}>
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
+      >
+        <AnimatePresence initial={false} custom={direction} mode="sync">
           <motion.div
             key={slide.id}
             custom={direction}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: menuOpen ? 0.42 : 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: slideMs, ease: easePremium }}
+            variants={sheetVariants}
+            initial="enter"
+            animate={{
+              x: 0,
+              opacity: menuOpen && !reducedMotion ? 0.42 : 1,
+              zIndex: 2,
+            }}
+            exit="exit"
+            transition={heroSheetTransition(sheetDuration)}
+            drag={canDragSheet ? "x" : false}
+            dragConstraints={canDragSheet ? { left: 0, right: 0 } : undefined}
+            dragElastic={canDragSheet ? 0.78 : 0}
+            dragMomentum={false}
+            onDragStart={() => setPaused(true)}
+            onDragEnd={(e, info) => {
+              setPaused(false);
+              onSheetDragEnd(e, info);
+            }}
             className={cn(
-              "absolute inset-0 transition-transform duration-300 ease-out",
+              "absolute inset-0",
+              canDragSheet && "cursor-grab touch-pan-y active:cursor-grabbing",
               menuOpen && "scale-[1.015]",
             )}
+            style={{
+              willChange: reducedMotion ? undefined : "transform",
+              backgroundColor: HERO_SHEET_UNDERLAY,
+            }}
           >
-            <motion.div
-              className="absolute inset-0 origin-center will-change-transform"
-              initial={{
-                scale: reducedMotion ? 1 : 1.06,
-                x: reducedMotion ? 0 : direction * -18,
-              }}
-              animate={{
-                scale: reducedMotion ? 1 : 1.1,
-                x: 0,
-              }}
-              transition={
-                reducedMotion
-                  ? { duration: 0.18 }
-                  : {
-                      scale: { duration: AUTOPLAY_MS / 1000, ease: "linear" },
-                      x: { duration: slideMs, ease: easePremium },
-                    }
+            <SafeImage
+              src={slide.image}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-[left_42%]"
+              fallback={
+                <div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />
               }
-            >
-              <SafeImage
-                src={slide.image}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover object-[left_42%]"
-                fallback={<div className="absolute inset-0 bg-[#1a1a1a]" />}
-                {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
-              />
-            </motion.div>
+              {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
+            />
             <div
               aria-hidden
               className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
@@ -281,17 +339,24 @@ export function Hero() {
               <motion.div
                 key={slide.id}
                 custom={direction}
-                initial={{ opacity: 0, x: textX, y: reducedMotion ? 0 : 10 }}
+                initial={
+                  reducedMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, x: textX, y: 8 }
+                }
                 animate={{ opacity: 1, x: 0, y: 0 }}
-                exit={{
-                  opacity: 0,
-                  x: reducedMotion ? 0 : direction * -18,
-                  y: reducedMotion ? 0 : -6,
+                exit={
+                  reducedMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, x: direction * 24, y: -4 }
+                }
+                transition={{
+                  duration: reducedMotion ? HERO_SHEET_MS_REDUCED : 0.5,
+                  ease: HERO_SHEET_EASE,
                 }}
-                transition={{ duration: reducedMotion ? 0.15 : 0.55, ease: easePremium }}
               >
                 <p
-                  className="text-sm font-bold tracking-wide text-white sm:text-base"
+                  className="text-sm font-bold tracking-normal text-white sm:text-base"
                   style={{ textShadow: copyShadow }}
                 >
                   کارزار
@@ -352,36 +417,40 @@ export function Hero() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-2" dir="ltr">
-                <button
-                  type="button"
-                  aria-label="اسلاید بعدی"
-                  onClick={goNext}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-                >
-                  <ChevronLeft set="light" size="small" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="اسلاید قبلی"
-                  onClick={goPrev}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-black/30 text-white transition hover:bg-black/45 active:scale-95"
-                >
-                  <ChevronRight set="light" size="small" />
-                </button>
-              </div>
             </div>
           ) : null}
         </div>
 
-        <HeroCategoryOrbs
-          activeIndex={activeIndex}
-          onSelectFeatured={goTo}
-          roots={roots}
-          defs={orbsFromRoots(roots)}
-          menuOpen={menuOpen}
-          onMenuOpenChange={setMenuOpen}
-        />
+        {slides.length > 1 && !menuOpen ? (
+          <>
+            <button
+              type="button"
+              aria-label="اسلاید بعدی"
+              onClick={goNext}
+              className={cn(slideArrowClass("left"), "left-3 sm:left-5")}
+            >
+              <ChevronLeft set="bold" size={36} />
+            </button>
+            <button
+              type="button"
+              aria-label="اسلاید قبلی"
+              onClick={goPrev}
+              className={cn(slideArrowClass("right"), "right-3 sm:right-5")}
+            >
+              <ChevronRight set="bold" size={36} />
+            </button>
+          </>
+        ) : null}
+
+        {!isMobile ? (
+          <HeroCategoryOrbs
+            activeIndex={activeIndex}
+            roots={roots}
+            defs={orbsFromRoots(roots)}
+            menuOpen={menuOpen}
+            onMenuOpenChange={setMenuOpen}
+          />
+        ) : null}
 
         <span className="sr-only" aria-live="polite">
           {slide.title}

@@ -42,6 +42,7 @@ const FACET_KEYS = new Set([
   "min_price",
   "max_price",
   "in_stock",
+  "on_sale",
   "search",
   "sort",
   "roots",

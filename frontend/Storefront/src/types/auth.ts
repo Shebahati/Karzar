@@ -35,7 +35,14 @@ export interface MeResponse {
   phone: string;
   full_name: string | null;
   role?: string;
+  /** Corporate (شرکتی) account — enables company-details panel in profile edit. */
   is_b2b?: boolean;
+  company_name?: string | null;
+}
+
+/** Storefront profile patch (local cache + mock until BE ships PATCH /auth/me). */
+export interface ProfileUpdatePayload {
+  full_name: string;
   company_name?: string | null;
 }
 

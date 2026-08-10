@@ -107,13 +107,13 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
             transition={{ duration: 0.18, ease: "easeOut" }}
             className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8"
           >
-            {/* Subtle glass: readable dark text + blur of page behind */}
+            {/* Solid panel — independent of header glass/scrolled state.
+                Nested backdrop-blur over a scrolled header's own blur often
+                fails to composite, leaving the panel too transparent. */}
             <div
               className={cn(
-                "isolate max-h-[min(36rem,calc(100dvh-6.5rem))] overflow-hidden rounded-2xl",
-                "border border-white/60 bg-white/78 shadow-elevated",
-                "backdrop-blur-[40px] backdrop-saturate-150",
-                "supports-[backdrop-filter]:bg-white/60",
+                "max-h-[min(36rem,calc(100dvh-6.5rem))] overflow-hidden rounded-2xl",
+                "border border-steel/10 bg-white shadow-elevated",
               )}
             >
               {isLoading ? (
@@ -132,7 +132,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                 <p className="p-8 text-sm text-[#5E5F5E]">دسته‌بندی‌ای یافت نشد.</p>
               ) : (
                 <div className="flex max-h-[min(36rem,calc(100dvh-6.5rem))] min-h-[320px]">
-                  <aside className="w-64 shrink-0 overflow-y-auto overscroll-contain border-e border-white/50 bg-white/45 py-2 backdrop-blur-md supports-[backdrop-filter]:bg-white/30">
+                  <aside className="w-64 shrink-0 overflow-y-auto overscroll-contain border-e border-steel/10 bg-[#F7F7F7] py-2">
                     {roots.map((root) => {
                       const active = activeRoot?.id === root.id;
                       return (
@@ -144,8 +144,8 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                           className={cn(
                             "flex w-full items-center justify-between gap-2 px-4 py-3 text-start text-sm transition-colors",
                             active
-                              ? "bg-white/75 font-bold text-[#1f1f1f] shadow-[inset_-3px_0_0_0_#D02327] backdrop-blur-sm"
-                              : "font-semibold text-[#3a3a3a] hover:bg-white/55 hover:text-[#D02327]",
+                              ? "bg-white font-bold text-[#1f1f1f] shadow-[inset_-3px_0_0_0_#D02327]"
+                              : "font-semibold text-[#3a3a3a] hover:bg-white/80 hover:text-[#D02327]",
                           )}
                         >
                           <span className="truncate">{root.name}</span>
@@ -155,9 +155,9 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                     })}
                   </aside>
 
-                  <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white/35 supports-[backdrop-filter]:bg-white/20">
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
                     {activeRoot && (
-                      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/50 px-6 py-3">
+                      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-steel/10 px-6 py-3">
                         <div>
                           <p className="text-sm font-bold text-[#1a1a1a]">{activeRoot.name}</p>
                           <p className="text-[11px] font-medium text-[#5E5F5E]">
@@ -174,7 +174,7 @@ export function MegaMenu({ open, onNavigate, onClose }: MegaMenuProps) {
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="جستجو در این دسته…"
                             aria-label="جستجو در منوی دسته‌بندی"
-                            className="h-10 w-full rounded-xl border border-white/60 bg-white/70 ps-9 pe-3 text-sm text-[#2a2a2a] outline-none placeholder:text-[#8a8a8a] backdrop-blur-md supports-[backdrop-filter]:bg-white/55 focus:ring-2 focus:ring-steel/25"
+                            className="h-10 w-full rounded-xl border border-steel/15 bg-[#F7F7F7] ps-9 pe-3 text-base text-[#2a2a2a] outline-none placeholder:text-[#8a8a8a] focus:bg-white focus:ring-2 focus:ring-steel/25"
                           />
                         </div>
                       </div>

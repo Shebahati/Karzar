@@ -6,16 +6,19 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type MouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, CloseSquare, Scan } from "react-iconly";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Scan } from "react-iconly";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { lazyImageProps, lcpImageProps } from "@/lib/cwv";
 import { toSafeNextImageSrc } from "@/lib/image-remote-patterns";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { cn } from "@/lib/utils";
 import type { ProductImage } from "@/types/product";
 
@@ -48,6 +51,7 @@ export function ProductGallery({
     list.findIndex((i) => i.id === activeId),
   );
   const current = list[activeIndex] ?? list[0];
+  const reducedMotion = useReducedMotion();
 
   const [lightbox, setLightbox] = useState(false);
   const [zoom, setZoom] = useState(false);
@@ -106,68 +110,80 @@ export function ProductGallery({
     });
   };
 
+  /**
+   * First-viewport budget: keep the main stage fully visible under sticky header
+   * + crumbs. Cap with rem so tall monitors don’t inflate; shrink via svh/dvh
+   * on short / low-res screens. Thumbs sit under the stage (extra chrome when multi).
+   */
+  const multi = list.length > 1;
+  const galleryBudget = multi
+    ? "min(32rem, calc(100svh - 12.75rem), calc(100dvh - 12.75rem))"
+    : "min(32rem, calc(100svh - 9.25rem), calc(100dvh - 9.25rem))";
+  const galleryBudgetShort = multi
+    ? "min(26rem, calc(100svh - 10.5rem), calc(100dvh - 10.5rem))"
+    : "min(26rem, calc(100svh - 7.75rem), calc(100dvh - 7.75rem))";
+
   if (!list.length || !current) {
     return (
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#E9E8E7]">
+      <div
+        className={cn(
+          "relative mx-auto w-full min-w-0 max-w-full overflow-hidden bg-[#E9E8E7]",
+          /* Mobile: true square, capped under ~½ viewport (no tall void) */
+          "max-lg:aspect-square max-lg:max-h-[min(100vw,48svh)] max-lg:rounded-none",
+          "lg:aspect-square lg:w-[min(100%,var(--pdp-gallery-budget))] lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
+          "[@media(max-height:800px)]:[--pdp-gallery-budget:min(26rem,calc(100svh-7.75rem),calc(100dvh-7.75rem))]",
+        )}
+        style={
+          {
+            ["--pdp-gallery-budget"]:
+              "min(32rem, calc(100svh - 9.25rem), calc(100dvh - 9.25rem))",
+          } as CSSProperties
+        }
+      >
         <ProductPlaceholder name={alt} />
       </div>
     );
   }
 
-  const multi = list.length > 1;
-
   return (
-    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
-      {multi && (
-        <div
-          role="tablist"
-          aria-label="تصاویر محصول"
-          className="flex gap-2.5 overflow-x-auto pb-0.5 no-scrollbar sm:flex-col sm:overflow-visible"
-        >
-          {list.map((img, i) => {
-            const selected = activeId === img.id;
-            return (
-              <button
-                key={img.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-label={`تصویر ${i + 1}`}
-                onClick={() => {
-                  setActiveId(img.id);
-                  setZoom(false);
-                }}
-                className={cn(
-                  "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted/35 transition-all duration-300 sm:h-16 sm:w-16",
-                  selected
-                    ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-background"
-                    : "opacity-55 hover:opacity-100",
-                )}
-              >
-                <SafeImage
-                  src={img.url}
-                  alt=""
-                  fill
-                  sizes="64px"
-                  className="object-contain p-1"
-                  fallback={null}
-                  {...lazyImageProps()}
-                />
-              </button>
-            );
-          })}
-        </div>
+    <div
+      className={cn(
+        "flex w-full min-w-0 max-w-full flex-col gap-2.5 sm:gap-3",
+        "max-lg:gap-0",
+        "[@media(max-height:800px)]:gap-1.5 [@media(max-height:800px)]:max-lg:gap-0",
       )}
-
-      <div className="relative min-w-0 flex-1">
+      style={
+        {
+          ["--pdp-gallery-budget"]: galleryBudget,
+        } as CSSProperties
+      }
+    >
+      <div
+        className={cn(
+          "relative mx-auto min-w-0 w-full max-w-full",
+          "lg:w-[min(100%,var(--pdp-gallery-budget))]",
+          "[@media(max-height:800px)]:[--pdp-gallery-budget:var(--pdp-gallery-budget-short)]",
+        )}
+        style={
+          {
+            ["--pdp-gallery-budget-short"]: galleryBudgetShort,
+          } as CSSProperties
+        }
+      >
         <div
           ref={stageRef}
           role="button"
           tabIndex={0}
-          aria-label={`${alt} — بزرگ‌نمایی یا نمایش تمام‌صفحه`}
+          aria-label={`${alt} — نمایش گالری تصاویر`}
           className={cn(
-            "group relative aspect-square overflow-hidden rounded-xl bg-muted/35 outline-none",
-            "focus-visible:ring-2 focus-visible:ring-karzar-500/40",
+            "group relative w-full min-w-0 max-w-full overflow-hidden touch-pan-y",
+            /* Mobile square ≤ ~½ viewport — sticky element height stays content-sized */
+            "max-lg:aspect-square max-lg:max-h-[min(100vw,48svh)] max-lg:rounded-none",
+            "lg:aspect-square lg:max-h-[var(--pdp-gallery-budget)] lg:rounded-2xl",
+            "bg-gradient-to-b from-muted/40 to-muted/20 outline-none",
+            "max-lg:ring-0 max-lg:shadow-none",
+            "lg:ring-1 lg:ring-steel/[0.07] lg:shadow-[0_16px_36px_-26px_rgba(94,95,94,0.38)]",
+            "focus-visible:ring-2 focus-visible:ring-[#D02327]/35",
             zoom ? "cursor-zoom-out" : "cursor-zoom-in",
           )}
           onMouseEnter={(e) => {
@@ -216,6 +232,7 @@ export function ProductGallery({
             const start = swipeRef.current;
             swipeRef.current = null;
             if (!start || e.pointerType === "mouse") return;
+            if ((e.target as HTMLElement).closest("button")) return;
 
             if (start.moved && multi) {
               const dx = e.clientX - start.x;
@@ -231,13 +248,8 @@ export function ProductGallery({
               return;
             }
 
-            // Tap to toggle zoom on touch
-            if (!zoom) {
-              updateOrigin(e.clientX, e.clientY);
-              setZoom(true);
-            } else {
-              setZoom(false);
-            }
+            // Tap opens lightbox (zoom lives inside the viewer)
+            openLightbox();
           }}
           onPointerCancel={() => {
             swipeRef.current = null;
@@ -258,28 +270,33 @@ export function ProductGallery({
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={current.id}
-              initial={{ opacity: 0.4 }}
+              initial={reducedMotion ? false : { opacity: 0.4 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0.4 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              exit={reducedMotion ? undefined : { opacity: 0.4 }}
+              transition={{
+                duration: reducedMotion ? 0.01 : 0.28,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="absolute inset-0"
             >
               <div
-                className="absolute inset-0 will-change-transform"
+                className="absolute inset-0"
                 style={{
                   transformOrigin: `${origin.x}% ${origin.y}%`,
                   transform: zoom ? "scale(1.9)" : "scale(1)",
-                  transition: zoom
-                    ? "transform 70ms linear"
-                    : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  transition: reducedMotion
+                    ? "none"
+                    : zoom
+                      ? "transform 70ms linear"
+                      : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
                 }}
               >
                 <SafeImage
                   src={current.url}
                   alt={alt}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain p-4 select-none"
+                  sizes="(max-width: 1023px) 100vw, (max-width: 1024px) 50vw, 34vw"
+                  className="object-cover object-center select-none"
                   draggable={false}
                   fallback={<ProductPlaceholder name={alt} />}
                   {...lcpImageProps()}
@@ -321,40 +338,93 @@ export function ProductGallery({
               openLightbox();
             }}
             className={cn(
-              "absolute bottom-3 start-3 z-10 grid h-9 w-9 place-items-center rounded-full",
+              "absolute start-3 bottom-3 z-10 grid h-9 w-9 place-items-center rounded-full",
+              /* Clear soft-sheet −mt overlap while sticky */
+              "max-lg:bottom-8",
               "bg-white/75 text-steel shadow-soft backdrop-blur-md transition-all duration-300",
               "hover:bg-white hover:text-karzar-500",
-              "opacity-90 sm:opacity-0 sm:group-hover:opacity-100",
+              "max-lg:bg-foreground/70 max-lg:text-white max-lg:opacity-100",
+              "lg:opacity-0 lg:group-hover:opacity-100",
             )}
           >
             <Scan set="bold" size="small" primaryColor="currentColor" />
           </button>
 
           {multi && (
-            <span className="pointer-events-none absolute bottom-3 end-3 z-10 rounded-full bg-white/75 px-2.5 py-1 text-[11px] font-bold tabular-nums text-steel backdrop-blur-md">
+            <span
+              className={cn(
+                "pointer-events-none absolute end-3 bottom-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold tabular-nums backdrop-blur-md",
+                "max-lg:bottom-8",
+                "max-lg:bg-foreground/75 max-lg:text-white",
+                "lg:bg-white/75 lg:text-steel",
+              )}
+            >
               {activeIndex + 1} / {list.length}
             </span>
           )}
         </div>
       </div>
 
-      <AnimatePresence>
-        {lightbox ? (
-          <GalleryLightbox
-            key="pdp-lightbox"
-            alt={alt}
-            list={list}
-            activeIndex={activeIndex}
-            onClose={closeLightbox}
-            onPrev={goPrev}
-            onNext={goNext}
-            onSelect={(id) => {
-              setActiveId(id);
-              setZoom(false);
-            }}
-          />
-        ) : null}
-      </AnimatePresence>
+      {multi && (
+        <div
+          role="tablist"
+          aria-label="تصاویر محصول"
+          className={cn(
+            "justify-center gap-2 h-scroll no-scrollbar px-0.5 py-1.5 sm:gap-2.5",
+            /* Mobile: swipe + counter only; thumbs return at lg (desktop) */
+            "hidden lg:flex",
+          )}
+        >
+          {list.map((img, i) => {
+            const selected = activeId === img.id;
+            return (
+              <button
+                key={img.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-label={`تصویر ${i + 1}`}
+                onClick={() => {
+                  setActiveId(img.id);
+                  setZoom(false);
+                }}
+                className={cn(
+                  "relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted/35 transition-all duration-300 sm:h-12 sm:w-12",
+                  "[@media(max-height:800px)]:h-10 [@media(max-height:800px)]:w-10",
+                  selected
+                    ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-background"
+                    : "opacity-55 hover:opacity-100",
+                )}
+              >
+                <SafeImage
+                  src={img.url}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  className="object-cover object-center"
+                  fallback={null}
+                  {...lazyImageProps()}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Portal to body — sticky/z PDP sheet must not trap the overlay */}
+      <GalleryLightbox
+        open={lightbox}
+        alt={alt}
+        list={list}
+        activeIndex={activeIndex}
+        onClose={closeLightbox}
+        onPrev={goPrev}
+        onNext={goNext}
+        onSelect={(id) => {
+          setActiveId(id);
+          setZoom(false);
+        }}
+      />
     </div>
   );
 }
@@ -389,6 +459,7 @@ function NavChevron({
 }
 
 function GalleryLightbox({
+  open,
   alt,
   list,
   activeIndex,
@@ -397,6 +468,7 @@ function GalleryLightbox({
   onNext,
   onSelect,
 }: {
+  open: boolean;
   alt: string;
   list: GalleryImage[];
   activeIndex: number;
@@ -405,14 +477,25 @@ function GalleryLightbox({
   onNext: () => void;
   onSelect: (id: number) => void;
 }) {
+  const [mounted, setMounted] = useState(false);
   const current = list[activeIndex]!;
   const multi = list.length > 1;
+  const reducedMotion = useReducedMotion();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const swipeRef = useRef<{ x: number; y: number; moved: boolean } | null>(
     null,
   );
   const [lbZoom, setLbZoom] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
   const frameRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  useFocusTrap(dialogRef, open, onClose);
+
+  useEffect(() => {
+    if (!open) setLbZoom(false);
+  }, [open]);
 
   const handlePrev = () => {
     setLbZoom(false);
@@ -436,174 +519,216 @@ function GalleryLightbox({
     });
   };
 
-  return (
-    <motion.div
-      role="dialog"
-      aria-modal="true"
-      aria-label={`گالری تصاویر — ${alt}`}
-      className="fixed inset-0 z-[80] flex flex-col"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
-    >
-      <button
-        type="button"
-        aria-label="بستن"
-        className="absolute inset-0 bg-steel/45 backdrop-blur-xl supports-[backdrop-filter]:bg-steel/30"
-        onClick={onClose}
-      />
+  const fadeMs = reducedMotion ? 0.01 : 0.22;
+  const crossfadeMs = reducedMotion ? 0.01 : 0.26;
 
-      <div className="relative z-10 flex items-center justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <span className="rounded-full bg-white/70 px-3 py-1.5 text-xs font-bold text-steel backdrop-blur-md">
-          {activeIndex + 1} / {list.length}
-        </span>
-        <button
-          type="button"
-          aria-label="بستن گالری"
-          onClick={onClose}
-          className="grid h-10 w-10 place-items-center rounded-full bg-white/75 text-steel shadow-soft backdrop-blur-md transition hover:bg-white hover:text-karzar-500"
+  if (!mounted) return null;
+
+  return createPortal(
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          key="pdp-gallery-lightbox"
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`گالری تصاویر — ${alt}`}
+          className="fixed inset-0 z-[100] flex flex-col"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: fadeMs }}
         >
-          <CloseSquare set="bold" size="small" primaryColor="currentColor" />
-        </button>
-      </div>
+          {/* Dim page — above header/nav via portal + z-[100] */}
+          <button
+            type="button"
+            aria-label="بستن"
+            className="absolute inset-0 bg-[#0e0f0f]/86 backdrop-blur-[2px]"
+            onClick={onClose}
+          />
 
-      <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-3 pb-3 sm:px-8">
-        {multi && (
-          <>
+          <div
+            className="relative z-10 flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) onClose();
+            }}
+          >
+            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-steel shadow-soft">
+              {activeIndex + 1} / {list.length}
+            </span>
             <button
               type="button"
-              aria-label="تصویر قبلی"
-              onClick={handlePrev}
-              className="absolute start-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/75 text-steel shadow-card backdrop-blur-md transition hover:bg-white hover:text-karzar-500 sm:start-6"
+              aria-label="بستن گالری"
+              onClick={onClose}
+              className="grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-white text-[1.85rem] leading-none text-[#0e0f0f] shadow-[0_4px_20px_rgba(0,0,0,0.35)] ring-2 ring-black/25 transition hover:bg-white hover:text-karzar-500"
             >
-              <ChevronRight set="light" />
+              <span aria-hidden className="translate-y-[-1px]">
+                ×
+              </span>
             </button>
-            <button
-              type="button"
-              aria-label="تصویر بعدی"
-              onClick={handleNext}
-              className="absolute end-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/75 text-steel shadow-card backdrop-blur-md transition hover:bg-white hover:text-karzar-500 sm:end-6"
+          </div>
+
+          <div
+            className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 pb-2 sm:gap-4 sm:px-8"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) onClose();
+            }}
+          >
+            <div
+              className="relative flex min-h-0 w-full flex-1 items-center justify-center"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+              }}
             >
-              <ChevronLeft set="light" />
-            </button>
-          </>
-        )}
+              {multi && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="تصویر قبلی"
+                    onClick={handlePrev}
+                    className="absolute start-1 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-steel shadow-card transition hover:text-karzar-500 sm:start-4"
+                  >
+                    <ChevronRight set="light" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="تصویر بعدی"
+                    onClick={handleNext}
+                    className="absolute end-1 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-steel shadow-card transition hover:text-karzar-500 sm:end-4"
+                  >
+                    <ChevronLeft set="light" />
+                  </button>
+                </>
+              )}
 
-        <div
-          ref={frameRef}
-          className={cn(
-            "relative mx-auto aspect-square h-auto w-full max-h-[min(78dvh,820px)] max-w-5xl overflow-hidden rounded-2xl",
-            "bg-white/55 shadow-floating ring-1 ring-white/50 backdrop-blur-2xl",
-            "supports-[backdrop-filter]:bg-white/40",
-            lbZoom ? "cursor-zoom-out" : "cursor-zoom-in",
-          )}
-          onMouseMove={(e) => {
-            if (!lbZoom) return;
-            updateOrigin(e.clientX, e.clientY);
-          }}
-          onPointerDown={(e) => {
-            swipeRef.current = { x: e.clientX, y: e.clientY, moved: false };
-          }}
-          onPointerMove={(e) => {
-            const start = swipeRef.current;
-            if (!start) return;
-            if (
-              Math.abs(e.clientX - start.x) > 8 ||
-              Math.abs(e.clientY - start.y) > 8
-            ) {
-              start.moved = true;
-            }
-          }}
-          onPointerUp={(e) => {
-            const start = swipeRef.current;
-            swipeRef.current = null;
-            if (!start) return;
-
-            if (start.moved && multi) {
-              const dx = e.clientX - start.x;
-              const dy = e.clientY - start.y;
-              if (
-                Math.abs(dx) >= SWIPE_THRESHOLD &&
-                Math.abs(dx) > Math.abs(dy)
-              ) {
-                if (dx > 0) handleNext();
-                else handlePrev();
-              }
-              return;
-            }
-
-            updateOrigin(e.clientX, e.clientY);
-            setLbZoom((z) => !z);
-          }}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={current.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0"
-            >
               <div
-                className="absolute inset-0 will-change-transform"
-                style={{
-                  transformOrigin: `${origin.x}% ${origin.y}%`,
-                  transform: lbZoom ? "scale(2.15)" : "scale(1)",
-                  transition: lbZoom
-                    ? "transform 70ms linear"
-                    : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+                ref={frameRef}
+                className={cn(
+                  "relative mx-auto aspect-square h-auto w-full max-h-[min(68dvh,760px)] max-w-4xl overflow-hidden rounded-2xl touch-manipulation",
+                  "bg-white shadow-[0_24px_64px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/80",
+                  lbZoom ? "cursor-zoom-out" : "cursor-zoom-in",
+                )}
+                onMouseMove={(e) => {
+                  if (!lbZoom) return;
+                  updateOrigin(e.clientX, e.clientY);
+                }}
+                onPointerDown={(e) => {
+                  swipeRef.current = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    moved: false,
+                  };
+                }}
+                onPointerMove={(e) => {
+                  const start = swipeRef.current;
+                  if (!start) return;
+                  if (
+                    Math.abs(e.clientX - start.x) > 8 ||
+                    Math.abs(e.clientY - start.y) > 8
+                  ) {
+                    start.moved = true;
+                  }
+                }}
+                onPointerUp={(e) => {
+                  const start = swipeRef.current;
+                  swipeRef.current = null;
+                  if (!start) return;
+
+                  if (start.moved && multi) {
+                    const dx = e.clientX - start.x;
+                    const dy = e.clientY - start.y;
+                    if (
+                      Math.abs(dx) >= SWIPE_THRESHOLD &&
+                      Math.abs(dx) > Math.abs(dy)
+                    ) {
+                      if (dx > 0) handleNext();
+                      else handlePrev();
+                    }
+                    return;
+                  }
+
+                  updateOrigin(e.clientX, e.clientY);
+                  setLbZoom((z) => !z);
                 }}
               >
-                <SafeImage
-                  src={current.url}
-                  alt={alt}
-                  fill
-                  sizes="100vw"
-                  className="object-contain p-4 sm:p-8 select-none"
-                  draggable={false}
-                  fallback={<ProductPlaceholder name={alt} />}
-                  {...lazyImageProps()}
-                />
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={current.id}
+                    initial={reducedMotion ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={reducedMotion ? undefined : { opacity: 0 }}
+                    transition={{
+                      duration: crossfadeMs,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="absolute inset-0"
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        transformOrigin: `${origin.x}% ${origin.y}%`,
+                        transform: lbZoom ? "scale(2.15)" : "scale(1)",
+                        transition: reducedMotion
+                          ? "none"
+                          : lbZoom
+                            ? "transform 70ms linear"
+                            : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      }}
+                    >
+                      <SafeImage
+                        src={current.url}
+                        alt={alt}
+                        fill
+                        sizes="100vw"
+                        className="object-cover object-center select-none"
+                        draggable={false}
+                        fallback={<ProductPlaceholder name={alt} />}
+                        {...lazyImageProps()}
+                      />
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+            </div>
 
-      {multi && (
-        <div className="relative z-10 flex justify-center gap-2 overflow-x-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-1 no-scrollbar">
-          {list.map((img, i) => {
-            const selected = i === activeIndex;
-            return (
-              <button
-                key={img.id}
-                type="button"
-                aria-label={`تصویر ${i + 1}`}
-                aria-current={selected || undefined}
-                onClick={() => handleSelect(img.id)}
-                className={cn(
-                  "relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/50 backdrop-blur-md transition-all duration-300",
-                  selected
-                    ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-transparent"
-                    : "opacity-50 hover:opacity-90",
-                )}
-              >
-                <SafeImage
-                  src={img.url}
-                  alt=""
-                  fill
-                  sizes="48px"
-                  className="object-contain p-0.5"
-                  fallback={null}
-                  {...lazyImageProps()}
-                />
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </motion.div>
+            {multi ? (
+              <div className="flex shrink-0 justify-center gap-2 h-scroll no-scrollbar px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-0.5">
+                {list.map((img, i) => {
+                  const selected = i === activeIndex;
+                  return (
+                    <button
+                      key={img.id}
+                      type="button"
+                      aria-label={`تصویر ${i + 1}`}
+                      aria-current={selected || undefined}
+                      onClick={() => handleSelect(img.id)}
+                      className={cn(
+                        "relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white shadow-soft transition-all duration-300 sm:h-16 sm:w-16",
+                        selected
+                          ? "opacity-100 ring-2 ring-karzar-500 ring-offset-2 ring-offset-transparent"
+                          : "opacity-55 hover:opacity-95",
+                      )}
+                    >
+                      <SafeImage
+                        src={img.url}
+                        alt=""
+                        fill
+                        sizes="64px"
+                        className="object-cover object-center"
+                        fallback={null}
+                        {...lazyImageProps()}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))]" />
+            )}
+          </div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
+    document.body,
   );
 }

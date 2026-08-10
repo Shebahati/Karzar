@@ -3,9 +3,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useMe } from "@/features/auth/queries";
-import { isLoggedIn, tokenStorage } from "@/lib/api-client";
+import { tokenStorage } from "@/lib/api-client";
 import { getQueryClient } from "@/lib/get-query-client";
 import { loadFeatureLabels } from "@/lib/feature-labels";
+import { useAddressStore } from "@/store/address-store";
+import { useCartStore } from "@/store/cart-store";
 
 function SessionWatcher() {
   useEffect(() => {
@@ -20,14 +22,27 @@ function SessionWatcher() {
   return null;
 }
 
+/** Prefetch /me only after mount — session reads must not run during hydration render. */
 function AuthBootstrap() {
-  useMe(isLoggedIn());
+  useMe(true);
   return null;
 }
 
 function FeatureLabelsBootstrap() {
   useEffect(() => {
     void loadFeatureLabels();
+  }, []);
+  return null;
+}
+
+/**
+ * Zustand persist must not rehydrate during module init / hydration render —
+ * localStorage merge is sync-thenable and setStates subscribers before mount.
+ */
+function PersistRehydrate() {
+  useEffect(() => {
+    void useCartStore.persist.rehydrate();
+    void useAddressStore.persist.rehydrate();
   }, []);
   return null;
 }
@@ -41,6 +56,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PersistRehydrate />
       <AuthBootstrap />
       <SessionWatcher />
       <FeatureLabelsBootstrap />
