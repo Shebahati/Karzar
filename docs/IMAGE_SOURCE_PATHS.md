@@ -231,3 +231,18 @@ R2 Artifact:
   /home/moahmmad/Projects/Karzar-image-discovery/IMG-02B-R2.zip
   SHA-256: 255c9326bc4f5adf69f267f78dddcbc562bc77bdb537412bf0ceff3eb1ef3854
 ```
+
+## IMG-02C — Multisource expansion (R2 semantic correction)
+
+```text
+TASK_ID = IMG-02C
+NODE = IMG-02C-01-R2-PDF-RETAIL-ARTIFACT-INTEGRITY
+status = in_progress
+progress = 60
+R1 Artifact = immutable / validation-failed
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R1.zip
+  SHA-256 f0d66c559225f91a17d49b2646af7e4021b8d75ee728a5d46f8feb0904aae350
+R2 Artifact = semantic correction complete
+  /home/moahmmad/Projects/Karzar-image-discovery/IMG-02C-01-R2.zip
+IMG-02B status preserved (in_progress / 40; IMG-02B-05 not started)
+```
