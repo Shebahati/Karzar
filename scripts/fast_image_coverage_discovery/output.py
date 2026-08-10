@@ -275,7 +275,9 @@ def write_package(
             "lane": s.lane,
             "country": s.country,
             "source_class": s.source_class,
+            "adapter_type": s.adapter_type,
             "enabled": s.enabled,
+            "notes": s.notes,
         }
         for s in DEFAULT_SOURCES
     ]
@@ -285,8 +287,31 @@ def write_package(
     cal_rows = calibration_rows(getattr(state, "source_indexes", {}) or {})
     _write_csv(
         package_dir / "source-calibration.csv",
-        ["source_id", "domain", "calibration_checked", "calibration_passed", "bulk_enabled", "indexed_skus", "last_error"],
-        cal_rows or [{"source_id": s.source_id, "domain": s.domain, "calibration_checked": 0, "calibration_passed": False, "bulk_enabled": False, "indexed_skus": 0, "last_error": ""} for s in DEFAULT_SOURCES if s.wc_store_api],
+        [
+            "source_id",
+            "domain",
+            "adapter_type",
+            "calibration_checked",
+            "calibration_passed",
+            "bulk_enabled",
+            "indexed_skus",
+            "last_error",
+        ],
+        cal_rows
+        or [
+            {
+                "source_id": s.source_id,
+                "domain": s.domain,
+                "adapter_type": s.adapter_type,
+                "calibration_checked": 0,
+                "calibration_passed": False,
+                "bulk_enabled": False,
+                "indexed_skus": 0,
+                "last_error": "",
+            }
+            for s in DEFAULT_SOURCES
+            if s.adapter_type != "configured_but_unsupported_adapter"
+        ],
     )
     src_cov: Counter[str] = Counter()
     for a in rows["all-attempts.csv"]:

@@ -8,21 +8,51 @@ import unicodedata
 from scripts.image_discovery.contracts import normalize_identity_token
 
 # Word-boundary exact token — suffix/variant protection (5801-A55 ≠ 5801).
-_EXACT_BOUNDARY = r"(?<![A-Za-z0-9\-_/])"
-_EXACT_BOUNDARY_END = r"(?![A-Za-z0-9\-_/])"
+# Path separators (/ .) are boundaries so SKUs in URLs still match.
+_EXACT_BOUNDARY = r"(?<![A-Za-z0-9\-_])"
+_EXACT_BOUNDARY_END = r"(?![A-Za-z0-9\-_])"
 
-_PUNCT_COLLAPSE = re.compile(r"[\s_\-/]+")
-_NON_ALNUM = re.compile(r"[^a-z0-9]+")
+_PUNCT_COLLAPSE = re.compile(r"[\s_\-/·•]+")
+_UNICODE_DASHES = str.maketrans({"–": "-", "—": "-", "−": "-", "‐": "-"})
 
 
 def normalize_sku(value: str) -> str:
+    """Hardened SKU normalize: case/whitespace/dash/punct; keep meaningful suffixes."""
     text = unicodedata.normalize("NFKC", value or "")
+    text = text.translate(_UNICODE_DASHES)
+    # Drop only non-semantic punctuation; keep alnum
     text = _PUNCT_COLLAPSE.sub("", text.strip().casefold())
+    # Remove remaining punctuation that is not alnum
+    text = re.sub(r"[^a-z0-9]", "", text)
     return text
+
+
+def skus_equivalent(a: str, b: str) -> bool:
+    return bool(a) and bool(b) and normalize_sku(a) == normalize_sku(b)
+
+
+_NON_ALNUM = re.compile(r"[^a-z0-9]+")
 
 
 def normalize_brand_key(value: str) -> str:
     return normalize_identity_token(value.replace("|", " ").replace("-", " "))
+
+
+def brands_compatible(a: str, b: str) -> bool:
+    """True when brand labels refer to the same maker (bilingual keys OK)."""
+    na = normalize_brand_key(a)
+    nb = normalize_brand_key(b)
+    if not na or not nb:
+        return False
+    if na == nb or na in nb or nb in na:
+        return True
+    # Compare ASCII stems: "dasqua داسکوا" vs "dasqua"
+    def ascii_stem(s: str) -> str:
+        m = re.match(r"[a-z0-9]+", s.replace(" ", ""))
+        return m.group(0) if m else ""
+
+    sa, sb = ascii_stem(na), ascii_stem(nb)
+    return bool(sa and sb and (sa == sb or sa.startswith(sb) or sb.startswith(sa)))
 
 
 def sku_tokens(value: str) -> list[str]:
@@ -45,9 +75,28 @@ def exact_sku_in_text(expected_sku: str, text: str) -> bool:
     for tok in sku_tokens(expected_sku):
         if not tok:
             continue
-        pattern = _EXACT_BOUNDARY + re.escape(tok) + _EXACT_BOUNDARY_END
+        # Hyphenated model codes may sit after another hyphenated slug token
+        # (e.g. .../dasqua-angle-...-1041-2205). Treat '-' as a left boundary then.
+        if "-" in tok:
+            left = r"(?<![A-Za-z0-9])"
+        else:
+            left = _EXACT_BOUNDARY
+        pattern = left + re.escape(tok) + _EXACT_BOUNDARY_END
         if re.search(pattern, hay, flags=re.IGNORECASE):
             return True
+        # Compact alnum form against compact hay (URL slugs without separators)
+        compact_tok = normalize_sku(tok)
+        compact_hay = normalize_sku(hay)
+        if compact_tok and len(compact_tok) >= 4 and compact_tok in compact_hay:
+            # Digit-aware boundaries in compact space
+            idx = compact_hay.find(compact_tok)
+            while idx >= 0:
+                before = compact_hay[idx - 1] if idx > 0 else ""
+                after_i = idx + len(compact_tok)
+                after = compact_hay[after_i] if after_i < len(compact_hay) else ""
+                if (not before.isdigit()) and (not after.isdigit()) and (not before.isalpha()) and (not after.isalpha()):
+                    return True
+                idx = compact_hay.find(compact_tok, idx + 1)
         # Also check spaced/hyphen variants when token has no separators
         if "-" not in tok and len(tok) >= 4:
             spaced = "-".join(re.findall(r".{1,4}", tok)) if len(tok) > 4 else tok

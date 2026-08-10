@@ -40,24 +40,27 @@ def materialize_asset(
     if digest in sha_map:
         rel = sha_map[digest]
     else:
-        sig = detect_signature(data) or "bin"
-        ext = {"jpeg": "jpg", "png": "png", "webp": "webp", "gif": "gif"}.get(sig, sig)
+        mime, ext = detect_signature(data)
+        ext = ext or "bin"
+        mime = mime or "application/octet-stream"
         rel = f"assets/{digest}.{ext}"
         path = assets_dir.parent / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         if not path.is_file():
             path.write_bytes(data)
         sha_map[digest] = rel
-    sig = detect_signature(data) or "unknown"
-    w, h = extract_dimensions(data, sig if sig != "unknown" else "image/png")
+    mime, ext = detect_signature(data)
+    mime = mime or "application/octet-stream"
+    fmt = (ext or "unknown")
+    w, h = extract_dimensions(data, mime)
     return MaterializedAsset(
         sha256=digest,
         relative_path=sha_map[digest],
         width=int(w or 0),
         height=int(h or 0),
-        format=sig,
+        format=fmt,
         byte_size=len(data),
-        mime_type=f"image/{sig}" if sig in {"jpeg", "png", "webp", "gif"} else "application/octet-stream",
+        mime_type=mime,
         source_url=source_url,
     )
 

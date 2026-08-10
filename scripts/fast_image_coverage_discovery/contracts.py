@@ -296,6 +296,51 @@ class DiscoveryRunState:
     sha_assets: dict[str, str] = field(default_factory=dict)
 
     def to_checkpoint(self) -> dict[str, Any]:
+        def _cand(c: DiscoveryCandidate | None) -> dict[str, Any] | None:
+            if c is None:
+                return None
+            asset = None
+            if c.asset is not None:
+                asset = {
+                    "sha256": c.asset.sha256,
+                    "relative_path": c.asset.relative_path,
+                    "width": c.asset.width,
+                    "height": c.asset.height,
+                    "format": c.asset.format,
+                    "byte_size": c.asset.byte_size,
+                    "mime_type": c.asset.mime_type,
+                    "source_url": c.asset.source_url,
+                }
+            return {
+                "product_id": c.product_id,
+                "sku": c.sku,
+                "brand_key": c.brand_key,
+                "product_name": c.product_name,
+                "category": c.category,
+                "source_id": c.source_id,
+                "source_domain": c.source_domain,
+                "source_country": c.source_country,
+                "source_class": c.source_class,
+                "lane": c.lane,
+                "source_page_url": c.source_page_url,
+                "source_image_url": c.source_image_url,
+                "match_type": c.match_type,
+                "brand_evidence": c.brand_evidence,
+                "sku_model_evidence": c.sku_model_evidence,
+                "page_identity_evidence": c.page_identity_evidence,
+                "gallery_identity_evidence": c.gallery_identity_evidence,
+                "owner_usage_policy": c.owner_usage_policy,
+                "discovery_status": c.discovery_status,
+                "temporary_primary_eligible": c.temporary_primary_eligible,
+                "reason_code": c.reason_code,
+                "missing_evidence": c.missing_evidence,
+                "best_known_evidence": c.best_known_evidence,
+                "recommended_action": c.recommended_action,
+                "discovery_timestamp": c.discovery_timestamp,
+                "stop_search": c.stop_search,
+                "asset": asset,
+            }
+
         return {
             "api_base": self.api_base,
             "package_dir": self.package_dir,
@@ -310,6 +355,9 @@ class DiscoveryRunState:
                 str(pid): {
                     "final_status": ps.final_status,
                     "stop_search": ps.stop_search,
+                    "green": _cand(ps.green),
+                    "best_yellow": _cand(ps.best_yellow),
+                    "attempts": [_cand(a) for a in ps.attempts if a is not None],
                 }
                 for pid, ps in self.products.items()
             },
