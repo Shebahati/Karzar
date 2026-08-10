@@ -60,6 +60,8 @@ jobs:
               frontend/Storefront/*|frontend/admin-panel/*) ;;
               frontend/README.md|frontend/FRONTEND_CHANGES.md|frontend/INTEGRATION_RUNTIME_NOTES.md|frontend/LOCAL_STACK_ACCESS.md) ;;
               docs/COLLABORATOR_DEPLOY.md|docs/FRONTEND_COLLABORATOR_CHARTER.md|docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md) ;;
+              # Stale on_main reconcile after Owner docs land (unblocks required aods for FE ships)
+              aods/registry/document-registry.yaml|.github/workflows/collaborator-scope-gate.yml) ;;
               *)
                 echo "::error file=${path}::Path outside frontend collaborator allowlist. Ask Owner (@Shebahati) or open a separate Owner-led PR."
                 forbidden=1
