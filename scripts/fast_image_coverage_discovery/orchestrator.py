@@ -251,31 +251,24 @@ def run_discovery(
     return state
 
 
-def summarize_run(state: DiscoveryRunState) -> dict[str, int | float]:
-    greens = yellows = unresolved = reds = 0
-    green_ir = green_non = 0
-    for ps in state.products.values():
-        if ps.final_status == "green_exact":
-            greens += 1
-        elif ps.final_status == "yellow_review":
-            yellows += 1
-        else:
-            unresolved += 1
-        for a in ps.attempts:
-            if a.discovery_status == "red_rejected":
-                reds += 1
-            if a.discovery_status == "green_exact" and a.owner_usage_policy == "iranian_source_allowed":
-                green_ir += 1
-            if a.discovery_status == "green_exact" and a.owner_usage_policy != "iranian_source_allowed":
-                green_non += 1
-    total = state.run_discovery_universe_total or 1
+def summarize_from_rows(
+    *,
+    greens: list[dict[str, Any]],
+    yellows: list[dict[str, Any]],
+    unresolved: list[dict[str, Any]],
+    reds: list[dict[str, Any]],
+    run_total: int,
+) -> dict[str, int | float]:
+    green_ir = sum(1 for g in greens if g.get("owner_usage_policy") == "iranian_source_allowed")
+    green_non = len(greens) - green_ir
+    total = run_total or 1
     return {
-        "green_exact": greens,
-        "yellow_review": yellows,
-        "unresolved": unresolved,
-        "red_attempts": reds,
+        "green_exact": len(greens),
+        "yellow_review": len(yellows),
+        "unresolved": len(unresolved),
+        "red_attempts": len(reds),
         "green_iranian": green_ir,
         "green_non_iranian": green_non,
-        "green_coverage_pct": round(100.0 * greens / total, 2),
-        "green_yellow_coverage_pct": round(100.0 * (greens + yellows) / total, 2),
+        "green_coverage_pct": round(100.0 * len(greens) / total, 2),
+        "green_yellow_coverage_pct": round(100.0 * (len(greens) + len(yellows)) / total, 2),
     }

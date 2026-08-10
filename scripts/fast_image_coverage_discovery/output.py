@@ -22,7 +22,7 @@ from .contracts import (
     DriftRow,
     RunProduct,
 )
-from .orchestrator import summarize_run
+from .orchestrator import summarize_from_rows
 from .sources.registry import DEFAULT_SOURCES
 
 
@@ -319,7 +319,13 @@ def write_package(
         ],
     )
 
-    metrics = summarize_run(state)
+    metrics = summarize_from_rows(
+        greens=rows["green-exact.csv"],
+        yellows=rows["yellow-review.csv"],
+        unresolved=rows["unresolved.csv"],
+        reds=rows["red-rejected.csv"],
+        run_total=state.run_discovery_universe_total,
+    )
     summary = build_summary_json(state, seed_zip=seed_zip, metrics=metrics)
     (package_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     readme = package_dir / "README.md"

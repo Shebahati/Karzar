@@ -39,7 +39,7 @@ from scripts.fast_image_coverage_discovery.identity import (  # noqa: E402
     temporary_primary_eligible,
 )
 from scripts.fast_image_coverage_discovery.orchestrator import (  # noqa: E402
-    summarize_run,
+    summarize_from_rows,
 )
 from scripts.fast_image_coverage_discovery.ordering import order_run_universe  # noqa: E402
 from scripts.fast_image_coverage_discovery.seed import load_seed_products  # noqa: E402
@@ -193,7 +193,13 @@ def test_final_queue_reconciliation():
     state.products[1] = ProductTerminalState(product_id=1, final_status="green_exact", stop_search=True)
     state.products[2] = ProductTerminalState(product_id=2, final_status="yellow_review", stop_search=False)
     state.products[3] = ProductTerminalState(product_id=3, final_status="unresolved", stop_search=False)
-    metrics = summarize_run(state)
+    metrics = summarize_from_rows(
+        greens=[{"owner_usage_policy": "iranian_source_allowed"}],
+        yellows=[{}],
+        unresolved=[{}],
+        reds=[],
+        run_total=3,
+    )
     assert metrics["green_exact"] + metrics["yellow_review"] + metrics["unresolved"] == 3
 
 
