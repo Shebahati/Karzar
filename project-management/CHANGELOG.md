@@ -1,5 +1,10 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-10 — IMG-FAST-01B catalog-wide one-image discovery (in progress)
+- IMG-FAST-01A merged to main (#221); parent IMG-FAST-01 progress 60
+- Added IMG-FAST-01B discovery tooling (`scripts/fast_image_coverage_discovery/`)
+- External artifact target: `/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B`
+
 ## 2026-08-08 — IMG-FAST-01A live storefront catalog baseline
 - Added IMG-FAST-01 parent + IMG-FAST-01A child (CR-008)
 - Read-only baseline tooling against public storefront API; external Artifact only

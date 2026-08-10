@@ -1,7 +1,7 @@
 # Fast Image Coverage
 
 **Program:** IMG-FAST-01 — Catalog-wide one-image coverage sprint  
-**Current node:** IMG-FAST-01A — Live storefront catalog baseline
+**Current node:** IMG-FAST-01B — Catalog-wide one-image discovery
 
 ## Objective
 
@@ -64,6 +64,29 @@ Missing `--api-base` exits before any network activity.
 - Storefront list forces `is_active=True` for non-super-admin (`app/api/endpoints/products_catalog.py`).
 - Thumbnail / primary selection: `is_primary` else `images[0]`; order `(not is_primary, display_order, id)` (`app/utils/product_presenter.py`).
 
+## IMG-FAST-01B scope (discovery)
+
+- Input: immutable accepted IMG-FAST-01A seed (`internet-discovery-universe.csv`, 4708 IDs).
+- Start-of-run reconciliation against current storefront via explicit `--api-base`.
+- Source-index-first discovery: Iranian WC retailers first, then official/distributor/wide lanes.
+- Output queues: `green_exact`, `yellow_review`, `unresolved` (+ `red_rejected` attempts).
+- First GREEN per product stops further search for that product.
+- External artifact: `/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B`.
+
+```bash
+python scripts/build_fast_image_coverage_discovery.py \
+  --api-base "$KARZAR_FAST_COVERAGE_API_BASE" \
+  --seed-zip /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A.zip \
+  --package-dir /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B \
+  --zip-path /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B.zip
+```
+
+### Non-goals (IMG-FAST-01B)
+
+- ProductImage / DB / application storage writes
+- Bulk apply (IMG-FAST-01C)
+- Quality enrichment (3–5 images)
+
 ## Tooling
 
-CI tests (`tests/test_fast_image_coverage_baseline.py`) are **fixture-only** and perform zero live network calls.
+CI tests (`tests/test_fast_image_coverage_baseline.py`, `tests/test_fast_image_coverage_discovery.py`) are **fixture-only** and perform zero live network calls.
