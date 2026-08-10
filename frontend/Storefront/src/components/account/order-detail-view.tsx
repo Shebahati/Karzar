@@ -225,7 +225,7 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
                 <Button variant="ghost">پشتیبانی</Button>
               </Link>
             </div>
-            <p className="text-xs leading-6 text-muted-foreground">
+            <p className="text-[13px] leading-5 text-muted-foreground">
               جهت دریافت فاکتور رسمی تماس بگیرید
             </p>
           </div>

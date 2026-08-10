@@ -30,7 +30,7 @@ const COLUMNS = [
       { label: "استعلام قیمت", href: "/quote" },
       { label: "سبد خرید", href: "/cart" },
       { label: "قوانین", href: "/terms" },
-      { label: "حریم خصوصی", href: "/privacy" },
+      { label: "سوالات متداول", href: "/faq" },
     ],
   },
 ];

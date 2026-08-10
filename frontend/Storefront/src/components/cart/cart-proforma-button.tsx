@@ -199,7 +199,7 @@ export function CartProformaButton({
         <Document set="bold" size="small" />
         {busy ? "در حال ساخت…" : "دریافت پیش فاکتور"}
       </Button>
-      <p className="mt-2 text-center text-[11px] leading-5 text-muted-foreground">
+      <p className="mt-2 text-center text-[13px] leading-5 text-muted-foreground">
         برای پیش‌فاکتور رسمی{" "}
         <Link
           href={CONTACT_HREF}

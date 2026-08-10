@@ -322,37 +322,43 @@ export function CatalogView({
 
       <div className="flex gap-6">
         {/*
-          Desktop filters: aside is only a width/self-start shell. Sticky +
-          viewport max-height + scroll live inside FilterPanel (sidebar layout)
-          so accordion expand never clips below the fold.
+          Desktop filters: aside is only a width/self-start shell. Sticky lives
+          inside FilterPanel (sidebar layout); tall accordion stacks scroll with
+          the page — no inner max-height clip.
         */}
         <aside
           id={FILTERS_PANEL_ID}
           className="hidden w-72 shrink-0 self-start lg:block"
         >
-          <FilterPanel layout="sidebar" lockedCategoryId={lockedCategoryId} />
+          <FilterPanel
+            layout="sidebar"
+            lockedCategoryId={lockedCategoryId}
+            priceSeedProducts={displayProducts}
+          />
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-3 space-y-2.5 lg:mb-5 lg:space-y-3">
-            <button
-              type="button"
-              onClick={() => setDrawer(true)}
-              aria-expanded={filterDrawerOpen}
-              aria-controls="mobile-filter-drawer"
-              className="flex min-h-11 items-center gap-2 rounded-lg bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-soft lg:hidden"
-            >
-              <Filter size="small" set="bold" />
-              فیلترها
-              {activeCount > 0 && (
-                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-xs text-primary-foreground tnum">
-                  {toPersianDigits(String(activeCount))}
-                </span>
-              )}
-            </button>
+          <div className="mb-3 lg:mb-5">
             <SortSelect
               totalCount={total}
               isLoading={showFilterSkeleton}
+              mobileLeading={
+                <button
+                  type="button"
+                  onClick={() => setDrawer(true)}
+                  aria-expanded={filterDrawerOpen}
+                  aria-controls="mobile-filter-drawer"
+                  className="flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-soft"
+                >
+                  <Filter size="small" set="bold" />
+                  فیلترها
+                  {activeCount > 0 && (
+                    <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-xs text-primary-foreground tnum">
+                      {toPersianDigits(String(activeCount))}
+                    </span>
+                  )}
+                </button>
+              }
             />
           </div>
 
@@ -454,6 +460,7 @@ export function CatalogView({
       <MobileFilterDrawer
         productCount={total}
         lockedCategoryId={lockedCategoryId}
+        priceSeedProducts={displayProducts}
       />
     </Container>
   );

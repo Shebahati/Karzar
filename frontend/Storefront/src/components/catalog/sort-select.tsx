@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCatalogParams } from "@/components/catalog/use-catalog-params";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { cn, formatNumber } from "@/lib/utils";
@@ -61,13 +62,20 @@ function ProductCount({
   );
 }
 
+/** Closed trigger styles aligned with the mobile «فیلترها» chip. */
+const MOBILE_SORT_TRIGGER =
+  "h-auto min-h-11 w-auto max-w-full rounded-lg bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-soft ring-0";
+
 export function SortSelect({
   totalCount,
   isLoading,
+  mobileLeading,
 }: {
   /** Live catalog `meta.total_count` for the «N کالا» counter. */
   totalCount?: number;
   isLoading?: boolean;
+  /** Mobile-only control rendered before the sort dropdown (e.g. Filters). */
+  mobileLeading?: ReactNode;
 } = {}) {
   const { params, setParams } = useCatalogParams();
   const value =
@@ -77,22 +85,22 @@ export function SortSelect({
 
   return (
     <div dir="rtl">
-      {/* Mobile: compact content-width select beside «N کالا» (not full-bleed). */}
-      <div className="flex items-center justify-between gap-3 lg:hidden">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="inline-flex shrink-0 items-center text-sm text-steel">
-            <SortLinesIcon className="text-steel" />
-            <span className="sr-only">مرتب‌سازی</span>
-          </span>
-          <CustomSelect
-            aria-label="مرتب‌سازی محصولات"
-            value={value}
-            onValueChange={(sort) => setParams({ sort })}
-            options={SORT_OPTIONS}
-            className="min-w-0 max-w-[11.5rem] sm:max-w-[13.5rem]"
-          />
-        </div>
-        <ProductCount totalCount={totalCount} isLoading={isLoading} />
+      {/* Mobile: Filters + sort chip row; count pinned to physical left (ms-auto in RTL). */}
+      <div className="flex w-full items-center gap-2 lg:hidden">
+        {mobileLeading}
+        <CustomSelect
+          aria-label="مرتب‌سازی محصولات"
+          value={value}
+          onValueChange={(sort) => setParams({ sort })}
+          options={SORT_OPTIONS}
+          className="w-auto max-w-[9.5rem] shrink-0 sm:max-w-[11rem]"
+          triggerClassName={MOBILE_SORT_TRIGGER}
+        />
+        <ProductCount
+          totalCount={totalCount}
+          isLoading={isLoading}
+          className="ms-auto ps-2 pe-0.5"
+        />
       </div>
 
       {/* Desktop: Digikala-style horizontal sort bar */}
