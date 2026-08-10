@@ -531,8 +531,8 @@ function GalleryLightbox({
     x: 0,
     y: 0,
   });
+  /** Gesture handlers read latest zoom without re-binding; writers update both. */
   const mobileZoomRef = useRef(mobileZoom);
-  mobileZoomRef.current = mobileZoom;
   const frameRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(
     new Map<number, { x: number; y: number }>(),

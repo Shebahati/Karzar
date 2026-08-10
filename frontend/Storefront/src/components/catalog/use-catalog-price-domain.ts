@@ -80,14 +80,13 @@ export function useCatalogPriceDomain(
   ready: boolean;
 } {
   const facetParams = useMemo(() => {
-    const {
-      min_price: _min,
-      max_price: _max,
-      sort: _sort,
-      skip: _skip,
-      limit: _limit,
-      ...rest
-    } = listParams;
+    // Omit price/sort/paging so domain probes mirror non-price facets only.
+    const rest = { ...listParams };
+    delete rest.min_price;
+    delete rest.max_price;
+    delete rest.sort;
+    delete rest.skip;
+    delete rest.limit;
     return rest;
   }, [listParams]);
 
