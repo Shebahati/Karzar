@@ -1,7 +1,7 @@
 # Fast Image Coverage
 
 **Program:** IMG-FAST-01 — Catalog-wide one-image coverage sprint  
-**Current node:** IMG-FAST-01A — Live storefront catalog baseline
+**Current node:** IMG-FAST-01B — Catalog-wide one-image discovery
 
 ## Objective
 
@@ -64,6 +64,35 @@ Missing `--api-base` exits before any network activity.
 - Storefront list forces `is_active=True` for non-super-admin (`app/api/endpoints/products_catalog.py`).
 - Thumbnail / primary selection: `is_primary` else `images[0]`; order `(not is_primary, display_order, id)` (`app/utils/product_presenter.py`).
 
+## IMG-FAST-01B scope (discovery)
+
+- Input: immutable accepted IMG-FAST-01A seed (`internet-discovery-universe.csv`, 4708 IDs).
+- Start-of-run reconciliation against current storefront via explicit `--api-base`.
+- Multi-adapter source-index-first discovery (R2): prior-artifact reuse, Iranian WC, HTML brand indexes, sitemaps, then official/distributor/wide lanes with per-source failover.
+- Output queues: `green_exact`, `yellow_review`, `unresolved` (+ `red_rejected` attempts).
+- First GREEN per product stops further search for that product.
+- R1 Artifact (immutable evidence of first live attempt): `/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B` — do not overwrite.
+- R2 Artifact (remediation / operational lanes): `/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B-R2`
+  - Full R2 (2026-08-10): green_exact=204, yellow=67, unresolved=4437; ZIP SHA-256 `a33f2edf276002743bdf5779dce4b502e8db7cb4975485f972712c5939742054`
+  - Sources: prior reuse + abzarmarket HTML + azarsanat WC
+
+```bash
+# R2 (default package paths). Use --pilot before full bulk; --skip-drift reuses R1 CSVs.
+python scripts/build_fast_image_coverage_discovery.py \
+  --api-base "$KARZAR_FAST_COVERAGE_API_BASE" \
+  --seed-zip /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01A.zip \
+  --package-dir /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B-R2 \
+  --zip-path /home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B-R2.zip \
+  --pilot --skip-drift
+```
+
+### Non-goals (IMG-FAST-01B)
+
+- ProductImage / DB / application storage writes
+- Bulk apply (IMG-FAST-01C)
+- Quality enrichment (3–5 images)
+- Overwriting the R1 Artifact ZIP/dir
+
 ## Tooling
 
-CI tests (`tests/test_fast_image_coverage_baseline.py`) are **fixture-only** and perform zero live network calls.
+CI tests (`tests/test_fast_image_coverage_baseline.py`, `tests/test_fast_image_coverage_discovery.py`) are **fixture-only** and perform zero live network calls.

@@ -1,5 +1,23 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-10 — IMG-FAST-01B R2 multi-adapter discovery complete (awaiting acceptance)
+- Pilot passed: green_exact=34/100; domains abzarham.com + abzarmarket.com
+- Full R2: green_exact=204, yellow=67, unresolved=4437 (universe 4708)
+- Sources with green: prior_artifact_reuse, abzarmarket_html, azarsanat_wc
+- R2 ZIP SHA-256: `a33f2edf276002743bdf5779dce4b502e8db7cb4975485f972712c5939742054`
+- R1 ZIP preserved: `260a60797d46f1a57a6c98017c8977bce23363f48c0fca18bf805a73e766341c`
+- PMO: IMG-FAST-01B in_progress/85; parent in_progress/50; Draft #223; no 01C
+
+## 2026-08-10 — IMG-FAST-01B R2 discovery remediation opened
+- Corrected PMO: IMG-FAST-01B in_progress/35; parent in_progress/25
+- R1 preserved (green=0/4708); R1 was tooling foundation, not objective complete
+- R2 target: IMG-FAST-01B-R2 multi-adapter + failover (Draft PR #223)
+
+## 2026-08-10 — IMG-FAST-01B catalog-wide one-image discovery (in progress)
+- IMG-FAST-01A merged to main (#221); parent IMG-FAST-01 progress 60
+- Added IMG-FAST-01B discovery tooling (`scripts/fast_image_coverage_discovery/`)
+- External artifact target: `/home/moahmmad/Projects/Karzar-image-coverage/IMG-FAST-01B`
+
 ## 2026-08-08 — IMG-FAST-01A live storefront catalog baseline
 - Added IMG-FAST-01 parent + IMG-FAST-01A child (CR-008)
 - Read-only baseline tooling against public storefront API; external Artifact only

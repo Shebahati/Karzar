@@ -2180,7 +2180,7 @@
         "No ProductImage/DB/storage mutations in baseline"
       ],
       "status": "in_progress",
-      "progress": 10,
+      "progress": 50,
       "sprint": "05",
       "week": null,
       "day": null,
@@ -2191,7 +2191,7 @@
         "baseline"
       ],
       "risk": "med",
-      "notes": "2026-08-08: opened with IMG-FAST-01A live storefront API baseline (authority supersedes direct prod DB requirement)."
+      "notes": "2026-08-10 R2: 01A done; 01B R2 discovery green_exact=204/4708 across 3 sources (prior/abzarmarket/azarsanat). Parent 50 until 01B independently accepted (DoD→60). Do not start 01C."
     },
     {
       "id": "IMG-FAST-01A",
@@ -2238,7 +2238,55 @@
         "baseline"
       ],
       "risk": "med",
-      "notes": "Authority: live public storefront API (api.karzartools.com). database_accessed=false. Placeholder policy: deterministic signatures only. priority_tier=unassigned."
+      "notes": "Authority: live public storefront API (api.karzartools.com). database_accessed=false. Merged PR #221 2026-08-10."
+    },
+    {
+      "id": "IMG-FAST-01B",
+      "title": "Catalog-wide one-image discovery",
+      "description": "Source-index-first Fast Coverage discovery for run_discovery_universe from accepted 01A seed; first-GREEN stop; external artifact only; zero DB/ProductImage/storage mutations.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 40,
+      "deps": [
+        "IMG-FAST-01A"
+      ],
+      "files": [
+        "scripts/build_fast_image_coverage_discovery.py",
+        "scripts/fast_image_coverage_discovery/**",
+        "tests/test_fast_image_coverage_discovery.py",
+        "aods/reports/tasks/IMG-FAST-01B-ONE-IMAGE-DISCOVERY.md",
+        "docs/FAST_IMAGE_COVERAGE.md"
+      ],
+      "modules": [
+        "images",
+        "scripts",
+        "docs"
+      ],
+      "ac": [
+        "Accepted 01A seed verified (4708 IDs)",
+        "baseline-to-run-drift.csv reconciliation",
+        "green_exact + yellow_review + unresolved = run_discovery_universe_total",
+        "External package + ZIP with checksums",
+        "Fixture-only CI tests"
+      ],
+      "dod": [
+        "Full live discovery run complete",
+        "Draft PR opened",
+        "IMG-FAST-01 progress 60"
+      ],
+      "status": "in_progress",
+      "progress": 85,
+      "sprint": "05",
+      "week": null,
+      "day": null,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "fast-coverage",
+        "discovery"
+      ],
+      "risk": "med",
+      "notes": "2026-08-10 R2 complete (awaiting independent acceptance before done/100): pilot green=34/100 (abzarham+abzarmarket); full green_exact=204 yellow=67 unresolved=4437; sources prior_artifact_reuse+abzarmarket_html+azarsanat_wc; R2 ZIP a33f2edf…; R1 ZIP 260a6079… preserved. Draft #223. Do not start 01C."
     }
   ]
 }

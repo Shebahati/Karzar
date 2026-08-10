@@ -533,12 +533,11 @@ documents:
     rank: 6
     status: current
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     notes: >-
-      IMG-FAST-01 program plan for catalog-wide one-image-per-product Fast
-      Coverage. Does not supersede ADR-012. Does not authorize production
-      writes. IMG-FAST-01A baseline is read-only against an explicitly supplied
-      --api-base (no production/live API code default). Draft PR #221.
+      IMG-FAST-01 program plan; IMG-FAST-01A baseline merged (PR #221); IMG-FAST-01B discovery.
+      Does not supersede ADR-012. Does not authorize production writes.
+      Operational runs require explicit --api-base (no production/live API code default).
 
   - id: HESABFA
     path: docs/HESABFA.md
