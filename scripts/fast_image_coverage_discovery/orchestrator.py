@@ -218,9 +218,18 @@ def run_discovery(
                     asset = None
                 final.asset = asset
 
-        if green:
+        if green and green.asset is not None:
             status = "green_exact"
             stop = True
+        elif green and green.asset is None:
+            # Exact identity without downloadable bytes → yellow
+            green.discovery_status = "yellow_review"
+            green.reason_code = "asset_materialization_failed"
+            green.recommended_action = "retry_download"
+            best_yellow = green
+            green = None
+            status = "yellow_review"
+            stop = False
         elif best_yellow:
             status = "yellow_review"
             stop = False

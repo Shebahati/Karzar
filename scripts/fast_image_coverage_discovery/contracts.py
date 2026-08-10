@@ -175,8 +175,8 @@ class DiscoveryCandidate:
     stop_search: bool = False
 
     def as_green_row(self) -> dict[str, Any]:
-        assert self.discovery_status == "green_exact"
-        assert self.asset is not None
+        if self.discovery_status != "green_exact" or self.asset is None:
+            raise ValueError("green row requires materialized asset")
         return {
             "product_id": self.product_id,
             "sku": self.sku,

@@ -74,22 +74,31 @@ def collect_rows(state: DiscoveryRunState) -> dict[str, list[dict[str, Any]]]:
                     if a.discovery_status == "green_exact":
                         cand = a
                         break
-            if cand:
+            if cand and cand.asset is not None:
                 greens.append(cand.as_green_row())
-                if cand.asset:
-                    relations.append(
-                        {
-                            "product_id": cand.product_id,
-                            "asset_sha256": cand.asset.sha256,
-                            "asset_relative_path": cand.asset.relative_path,
-                            "source_page_url": cand.source_page_url,
-                            "source_image_url": cand.source_image_url,
-                        }
-                    )
+                relations.append(
+                    {
+                        "product_id": cand.product_id,
+                        "asset_sha256": cand.asset.sha256,
+                        "asset_relative_path": cand.asset.relative_path,
+                        "source_page_url": cand.source_page_url,
+                        "source_image_url": cand.source_image_url,
+                    }
+                )
+            elif cand:
+                # Identity GREEN but download failed → yellow for review
+                cand.discovery_status = "yellow_review"
+                cand.reason_code = cand.reason_code or "asset_materialization_failed"
+                cand.recommended_action = "retry_download"
+                yellows.append(cand.as_yellow_row())
+            else:
+                unresolved.append({"product_id": ps.product_id, "final_status": "unresolved"})
         elif ps.final_status == "yellow_review":
             cand = ps.best_yellow
             if cand:
                 yellows.append(cand.as_yellow_row())
+            else:
+                unresolved.append({"product_id": ps.product_id, "final_status": "unresolved"})
         else:
             unresolved.append({"product_id": ps.product_id, "final_status": "unresolved"})
         for a in ps.attempts:
