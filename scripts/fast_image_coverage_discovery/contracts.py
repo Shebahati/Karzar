@@ -262,6 +262,7 @@ class ProductTerminalState:
     final_status: Literal["green_exact", "yellow_review", "unresolved"]
     stop_search: bool = False
     best_yellow: DiscoveryCandidate | None = None
+    green: DiscoveryCandidate | None = None
     attempts: list[DiscoveryCandidate] = field(default_factory=list)
 
 

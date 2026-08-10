@@ -233,6 +233,7 @@ def run_discovery(
             final_status=status,  # type: ignore[arg-type]
             stop_search=stop,
             best_yellow=best_yellow,
+            green=green,
             attempts=attempts,
         )
         save_checkpoint(state, package_dir)

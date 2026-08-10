@@ -68,22 +68,28 @@ def collect_rows(state: DiscoveryRunState) -> dict[str, list[dict[str, Any]]]:
 
     for ps in state.products.values():
         if ps.final_status == "green_exact":
-            for a in ps.attempts:
-                if a.discovery_status == "green_exact":
-                    greens.append(a.as_green_row())
-                    if a.asset:
-                        relations.append(
-                            {
-                                "product_id": a.product_id,
-                                "asset_sha256": a.asset.sha256,
-                                "asset_relative_path": a.asset.relative_path,
-                                "source_page_url": a.source_page_url,
-                                "source_image_url": a.source_image_url,
-                            }
-                        )
-                    break
-        elif ps.final_status == "yellow_review" and ps.best_yellow:
-            yellows.append(ps.best_yellow.as_yellow_row())
+            cand = ps.green
+            if cand is None:
+                for a in ps.attempts:
+                    if a.discovery_status == "green_exact":
+                        cand = a
+                        break
+            if cand:
+                greens.append(cand.as_green_row())
+                if cand.asset:
+                    relations.append(
+                        {
+                            "product_id": cand.product_id,
+                            "asset_sha256": cand.asset.sha256,
+                            "asset_relative_path": cand.asset.relative_path,
+                            "source_page_url": cand.source_page_url,
+                            "source_image_url": cand.source_image_url,
+                        }
+                    )
+        elif ps.final_status == "yellow_review":
+            cand = ps.best_yellow
+            if cand:
+                yellows.append(cand.as_yellow_row())
         else:
             unresolved.append({"product_id": ps.product_id, "final_status": "unresolved"})
         for a in ps.attempts:
