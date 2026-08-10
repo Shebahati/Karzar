@@ -527,6 +527,19 @@ documents:
       items. Live discovery not started. Image downloads 0. ProductImage apply
       not started. Rights clearance not started.
 
+  - id: FAST-IMAGE-COVERAGE
+    path: docs/FAST_IMAGE_COVERAGE.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-BE-ARCH
+    on_main: false
+    notes: >-
+      IMG-FAST-01 program plan for catalog-wide one-image-per-product Fast
+      Coverage. Does not supersede ADR-012. Does not authorize production
+      writes. IMG-FAST-01A baseline is read-only against an explicitly supplied
+      --api-base (no production/live API code default). Draft PR #221.
+
   - id: HESABFA
     path: docs/HESABFA.md
     class: POLICY

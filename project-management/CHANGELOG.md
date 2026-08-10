@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-08 — IMG-FAST-01A live storefront catalog baseline
+- Added IMG-FAST-01 parent + IMG-FAST-01A child (CR-008)
+- Read-only baseline tooling against public storefront API; external Artifact only
+- Docs: `docs/FAST_IMAGE_COVERAGE.md`
+
+
 ## 2026-08-05
 - [x] **IMG-02B** — R2 drift quarantine on Draft #211: progress **40**; INSIZE effective partition 49=42+7 / 30=28+2 / 19=14+5; stable coverage 42/263=15.97% and 28/263=10.65%; raw pre-quarantine mat 30/263=11.41% historical only; governed review 46; packaged 18 assets retained; R1 ZIP immutable; IMG-02B-R2 external. Dasqua/SAN OU still `calibration_failed`; IMG-02B-05 not started. Zero DB/ProductImage mutations.
 - [x] **IMG-02B** — R1.1 status alignment on Draft #211: progress **40**; R1 source-gap recalibration **complete** as classification; overall live discovery still incomplete. Dasqua/SAN OU `calibration_failed`; INSIZE `partial` (49→48 drift; 30 materialized / 18 unique). SAN OU: site-shape `parser_drift`; lane 38 `model_token_not_found` manual + 215 `source_unavailable` (not `product_not_published`). IMG-02B-05 not started. Artifact ZIP external. Zero DB/ProductImage mutations.
