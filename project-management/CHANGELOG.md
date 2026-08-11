@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (ops continuation)
+- Durable rescue copy of 163 repaired assets + checksums under `.local-rescue/shopmill-watermark-cleanup/` (preferred home path blocked by sandbox)
+- Confirmed serving storage = Docker volume `karzar_uploads` → `/app/data/uploads/products` on live VPS (`CR-011`)
+- Pre-apply dry-run vs empty local tree: 410 paths MISSING SOURCE; SSH/Docker access unavailable
+- Apply helper gained classification report + destination format conversion; **no production apply**
+
 ## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (staged)
 - Added CR-008 task `IMG-SHOPMILL-WATERMARK-CLEANUP` on `fix/remove-shopmill-watermarks-active-products`
 - Offline audit of 1193 active/public imaged products; 163 unique ShopMill assets / 410 products confirmed via IMG-02A-02 HR

@@ -2290,7 +2290,7 @@
         "shopmill"
       ],
       "risk": "high",
-      "notes": "CR-008 Option C. Offline audit+Method C staging complete: 1193 active imaged products; 163 unique ShopMill assets; 410 product assignments; staged verify 0 positives. Apply to serving storage blocked (no local DB/uploads; ADR-012). Live storefront still serves originals until authorized apply/deploy."
+      "notes": "CR-008 Option C. Offline audit+Method C staging complete: 1193 active imaged products; 163 unique ShopMill assets; 410 product paths; staged verify 0 positives. Durable rescue at .local-rescue/shopmill-watermark-cleanup/ (65M, checksum-identical to /var/tmp). Serving storage = VPS Docker volume karzar_uploads (/app/data/uploads/products); SSH/Docker access unavailable here. Production apply STOPPED pending explicit authorization (CR-011 live VPS)."
     }
   ]
 }
