@@ -2239,6 +2239,58 @@
       ],
       "risk": "med",
       "notes": "Authority: live public storefront API (api.karzartools.com). database_accessed=false. Placeholder policy: deterministic signatures only. priority_tier=unassigned."
+    },
+    {
+      "id": "IMG-SHOPMILL-WATERMARK-CLEANUP",
+      "title": "Remove ShopMill watermarks from active product images",
+      "description": "Audit all active/public ProductImage assets for ShopMill watermarks; remediate confirmed assets; stage local apply package. No production DB/storage writes.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 24,
+      "deps": [
+        "IMG-02A-02-REMAINDER-ALL"
+      ],
+      "files": [
+        "scripts/audit_active_product_shopmill_watermarks.py",
+        "scripts/shopmill_watermark/**",
+        "scripts/apply_shopmill_watermark_remediations.py",
+        "tests/test_shopmill_watermark_detect.py",
+        "aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/**",
+        "project-management/**"
+      ],
+      "modules": [
+        "images",
+        "catalog",
+        "scripts",
+        "aods"
+      ],
+      "ac": [
+        "Active/public semantics cited from storefront list filters",
+        "All active products with images inventoried",
+        "Confirmed ShopMill assets remediated offline",
+        "Staged verification returns zero ShopMill-positive assets",
+        "No production DB/storage mutation"
+      ],
+      "dod": [
+        "Focused unit tests",
+        "AODS validate pass",
+        "Report under aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/",
+        "Local commits on fix/remove-shopmill-watermarks-active-products"
+      ],
+      "status": "in_progress",
+      "progress": 80,
+      "sprint": "05",
+      "week": null,
+      "day": null,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "watermark",
+        "shopmill"
+      ],
+      "risk": "high",
+      "notes": "CR-008 Option C. Offline audit+Method C staging complete: 1193 active imaged products; 163 unique ShopMill assets; 410 product assignments; staged verify 0 positives. Apply to serving storage blocked (no local DB/uploads; ADR-012). Live storefront still serves originals until authorized apply/deploy."
     }
   ]
 }

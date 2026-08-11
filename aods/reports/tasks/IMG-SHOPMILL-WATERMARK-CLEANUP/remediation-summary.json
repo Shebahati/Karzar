@@ -1,0 +1,15 @@
+{
+  "task_id": "IMG-SHOPMILL-WATERMARK-CLEANUP",
+  "observed_at_utc": "2026-08-11T11:36:51Z",
+  "unique_assets_attempted": 163,
+  "unique_assets_repaired_ok": 163,
+  "unique_assets_failed": 0,
+  "method_a_clean_originals": 0,
+  "method_b_clean_alternates": 0,
+  "method_c_repaired": 163,
+  "unresolved": 0,
+  "work_dir": "/var/tmp/karzar-shopmill-cleanup",
+  "repaired_dir": "/var/tmp/karzar-shopmill-cleanup/repaired_assets",
+  "apply_status": "not_applied_to_db_or_storage",
+  "apply_blocker": "No local DATABASE_URL / empty data/uploads/products; ADR-012 forbids production writes from this node. Remediated binaries are staged under work-dir for a future local apply."
+}

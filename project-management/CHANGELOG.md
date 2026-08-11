@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (staged)
+- Added CR-008 task `IMG-SHOPMILL-WATERMARK-CLEANUP` on `fix/remove-shopmill-watermarks-active-products`
+- Offline audit of 1193 active/public imaged products; 163 unique ShopMill assets / 410 products confirmed via IMG-02A-02 HR
+- Method C remediations staged under `/var/tmp/karzar-shopmill-cleanup/` (verify 0 positives); **not** applied to DB/storage (ADR-012)
+- Tooling: `scripts/audit_active_product_shopmill_watermarks.py`, `scripts/shopmill_watermark/**`, apply dry-run helper
+
 ## 2026-08-08 — IMG-FAST-01A live storefront catalog baseline
 - Added IMG-FAST-01 parent + IMG-FAST-01A child (CR-008)
 - Read-only baseline tooling against public storefront API; external Artifact only

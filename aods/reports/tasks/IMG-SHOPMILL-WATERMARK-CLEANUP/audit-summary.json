@@ -1,0 +1,41 @@
+{
+  "task_id": "IMG-SHOPMILL-WATERMARK-CLEANUP",
+  "observed_at_utc": "2026-08-11T11:34:28Z",
+  "inventory_csv": "/var/tmp/karzar-image-audit/img02a01-20260803T121056Z/inventory.csv",
+  "active_public_semantics": {
+    "is_active": true,
+    "deleted": false,
+    "require_available": false,
+    "citations": [
+      "app/api/endpoints/products_catalog.py:131-132",
+      "app/crud/product.py:115",
+      "app/db/models/product.py:187-188"
+    ]
+  },
+  "counts": {
+    "inventory_image_rows": 1194,
+    "active_public_products_with_images": 1193,
+    "active_public_image_rows": 1193,
+    "unique_active_image_sha256": 614,
+    "hr_distributor_or_retailer_assets": 163,
+    "automatic_candidates_rows": 412,
+    "confirmed_image_rows": 410,
+    "confirmed_unique_assets": 163,
+    "confirmed_products": 410,
+    "brands": {
+      "TERMA | ترما": 181,
+      "ASTPOWER | ای اس تی پاور": 143,
+      "SAN OU | سانو": 62,
+      "Dasqua | داسکوا": 24
+    }
+  },
+  "live_network": {
+    "status": "blocked",
+    "note": "Outbound HTTPS to api.karzartools.com failed in this environment; audit uses IMG-02A-01/02 offline corpus + FAST-01A metadata (no image blobs)."
+  },
+  "notes": [
+    "IMG-02A-01: products_with_multiple_images=0 — each imaged product has one row",
+    "Human-review watermark_status=distributor_or_retailer is ShopMill for this corpus",
+    "Preview pixels used for auto-detection and Method C remediation"
+  ]
+}
