@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (PRODUCTION_COMPLETE)
+- Applied 410 WEBP-normalized serving-path remediations on production `lathe_api` / `karzar_karzar_uploads`
+- Gates: fresh shadow 410, shadow verify 410/410, preapply EXACT_MATCH 410, final backup 410, post-apply hash/decode/format 410, public HTTP 410, genuine ShopMill remaining 0
+- Evidence: `/opt/karzar/backups/shopmill-production-apply-20260811T133311Z`; final backup `shopmill-preapply-final-20260811T133243Z`
+- No DB/catalog path mutation; rollback prepared and not executed
+
 ## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (VPS read-only preflight tooling)
 - Added `scripts/shopmill_watermark/production_preflight.py` + CLI; portable bundle under `.local-rescue/.../vps-preflight/`
 - Target manifest: 410 serving paths / 163 unique assets; paste-ready `VPS-READONLY-PREFLIGHT.sh` (no apply/backup/mutate)

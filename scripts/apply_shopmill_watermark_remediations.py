@@ -38,23 +38,46 @@ def _sha256(path: Path) -> str:
 
 
 def _copy_replacement(src: Path, dest: Path) -> None:
-    """Copy replacement bytes, converting format when destination suffix differs."""
+    """Copy/encode replacement bytes atomically into dest.
+
+    Bytes written always match the destination suffix (``.webp`` / ``.jpg`` /
+    ``.png``). Same-suffix sources are byte-copied; cross-suffix sources are
+    re-encoded with Pillow. Write goes to a sibling temp then ``os.replace``.
+    """
+    import os
+    import tempfile
+
     dest.parent.mkdir(parents=True, exist_ok=True)
     src_suf = src.suffix.lower()
     dest_suf = dest.suffix.lower()
-    if src_suf == dest_suf or dest_suf == "":
-        shutil.copy2(src, dest)
-        return
-    image = Image.open(src).convert("RGB")
-    if dest_suf in {".jpg", ".jpeg"}:
-        image.save(dest, format="JPEG", quality=95, optimize=True)
-    elif dest_suf == ".png":
-        image.save(dest, format="PNG", optimize=True)
-    elif dest_suf == ".webp":
-        image.save(dest, format="WEBP", quality=95, method=6)
-    else:
-        # Unknown destination type: refuse rather than write mismatched bytes.
-        raise ValueError(f"unsupported destination suffix {dest_suf} for {dest}")
+    fd, tmp_name = tempfile.mkstemp(prefix=".shopmill-", suffix=dest_suf or ".tmp", dir=str(dest.parent))
+    os.close(fd)
+    tmp = Path(tmp_name)
+    try:
+        if src_suf == dest_suf or dest_suf == "":
+            shutil.copy2(src, tmp)
+        else:
+            image = Image.open(src)
+            if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
+                if dest_suf in {".jpg", ".jpeg"}:
+                    image = image.convert("RGB")
+                else:
+                    image = image.convert("RGBA")
+            else:
+                image = image.convert("RGB")
+            if dest_suf in {".jpg", ".jpeg"}:
+                image.save(tmp, format="JPEG", quality=95, optimize=True)
+            elif dest_suf == ".png":
+                image.save(tmp, format="PNG", optimize=True)
+            elif dest_suf == ".webp":
+                image.save(tmp, format="WEBP", quality=95, method=6)
+            else:
+                raise ValueError(f"unsupported destination suffix {dest_suf} for {dest}")
+        os.replace(tmp, dest)
+    except Exception:
+        if tmp.exists():
+            tmp.unlink(missing_ok=True)
+        raise
 
 
 @dataclass
@@ -260,8 +283,16 @@ def main(argv: list[str] | None = None) -> int:
                 if not bak.exists():
                     shutil.copy2(dest, bak)
             _copy_replacement(Path(row.replacement_path), dest)
-            print(f"  sha256={_sha256(dest)}")
-            replaced += 1
+            written = _sha256(dest)
+            print(f"  sha256={written}")
+            if row.sha256_final_manifest and written != row.sha256_final_manifest:
+                errors.append(
+                    f"{row.rel_path}: post-write sha mismatch "
+                    f"got={written} expected={row.sha256_final_manifest}"
+                )
+                # leave file written but count as error (caller may roll back)
+            else:
+                replaced += 1
         except (OSError, ValueError) as exc:
             errors.append(f"{row.rel_path}: {exc}")
 

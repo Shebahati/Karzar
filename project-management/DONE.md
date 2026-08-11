@@ -2,6 +2,7 @@
 
 Move completed task IDs here with date + PR.
 
+- [x] **IMG-SHOPMILL-WATERMARK-CLEANUP** Remove ShopMill watermarks from active product images — 2026-08-11 — branch `fix/remove-shopmill-watermarks-active-products` (PRODUCTION_COMPLETE; 410 paths / 163 assets; evidence on VPS `/opt/karzar/backups/shopmill-production-apply-20260811T133311Z`; PR pending)
 - [x] **KB-REMEDIATION-11A** Property Dictionary runtime — Units + Definitions + Aliases (`f7a8b9c0d1e2`) — branch `feat/kb-remediation-11a-property-dictionary` (awaiting human commit/PR; HC-08 before apply)
 - [x] KB-PT-01A Close PT-W1 deletion-integrity + populated-migration evidence — 2026-08-02 — PR #195
 - [x] KB-PT-01 Introduce Product Type runtime core + nullable Product FK — 2026-08-02 — PR #195 → `main`

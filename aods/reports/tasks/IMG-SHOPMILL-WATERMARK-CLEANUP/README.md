@@ -2,235 +2,125 @@
 
 **Node:** IMG-SHOPMILL-WATERMARK-CLEANUP  
 **Prompt:** `aods/70-prompts/know/KNOW-catalog-ingest.prompt.md`  
-**Change class:** C4 (data/media affecting — staged locally; **not** applied to production)  
+**Change class:** C4 (media bytes at existing serving paths)  
 **Branch:** `fix/remove-shopmill-watermarks-active-products`  
-**Base:** `db0d3db` (local `main` / cached `origin/main`)
+**STATUS:** `PRODUCTION_COMPLETE`
 
-## Status legend (do not conflate)
+## Status legend
 
 | State | Meaning | Current |
 |-------|---------|---------|
 | Audited | Active/public imaged catalog inventoried | **Done** |
-| Repaired | Method C outputs exist for confirmed assets | **Done (163)** |
-| Staged | Repairs verified ShopMill-negative offline | **Done** |
-| Applied to staging | Bytes written to a non-production serving root | **Not done** (no staging storage access) |
-| Applied to production | Bytes written to live `karzar_uploads` | **Not done — STOP** |
-| Live verified | Storefront QA on serving URLs | **Not done** |
+| Repaired | Method C + WEBP-normalized outputs | **Done (163)** |
+| Shadow verified | Fresh shadow apply + independent verify | **Done (410/410)** |
+| Applied to production | Bytes written to live `karzar_karzar_uploads` | **Done 2026-08-11T13:33:11Z** |
+| Live verified | Hash/decode/format + public HTTP | **Done (410/410)** |
+| Watermark re-audit | Active storefront detector scan | **Done — 0 genuine remaining** |
+| Rollback | Automatic rollback on failed post-apply | **Not required** |
 
 ## Executive result
 
 ```text
-Staged remediations with post-repair ShopMill detection == 0 unique assets: YES (163/163)
-Applied to staging: NO
-Applied to production: NO
-Live storefront ShopMill-positive after apply: UNKNOWN (still serving originals)
+STATUS = PRODUCTION_COMPLETE
+Production images modified: YES
+Rollback required: NO
+
+target serving paths replaced: 410
+unique repaired WEBP assets: 163
+preapply EXACT_MATCH: 410/410
+shadow apply replaced: 410
+shadow independent HASH/DECODE/FORMAT: 410/410
+production HASH/DECODE/FORMAT: 410/410
+public HTTP OK (valid WEBP bytes): 410/410
+genuine remaining ShopMill positives (HR-confirmed / remediated set): 0
+auto-only detector hits (Mitutoyo yellow dials, known FP class): 2
+DB/catalog path mutation: NONE
 ```
 
-**Operational apply is blocked** in this environment: serving storage is the live VPS Docker volume (CR-011 staging≈production), and this agent has no reachable SSH/Docker mount to that volume.
+## Production operation (2026-08-11 UTC)
 
-## Durable repair backup
+| Item | Value |
+|------|-------|
+| VPS | `195.177.255.198` (`karzar-vps`) |
+| Hostname | `srv5944957438` |
+| Container | `lathe_api` |
+| Volume | `karzar_karzar_uploads` |
+| Container storage root | `/app/data/uploads/products` |
+| Host storage root | `/var/lib/docker/volumes/karzar_karzar_uploads/_data/products` |
+| Apply timestamp | `20260811T133311Z` |
+| Prior backup (kept) | `/opt/karzar/backups/shopmill-preapply-20260811T123615Z` |
+| Final pre-apply backup | `/opt/karzar/backups/shopmill-preapply-final-20260811T133243Z` |
+| Evidence dir | `/opt/karzar/backups/shopmill-production-apply-20260811T133311Z` |
+| Shadow base | `/tmp/karzar-shopmill-shadow-20260811T133126Z` |
+| Rollback script | `.../shopmill-preapply-final-20260811T133243Z/rollback_shopmill_from_final_backup.py` |
 
-Preferred path `/home/moahmmad/Karzar-local-rescue-20260811/...` could **not** be created (agent sandbox denies writes outside the workspace).
+## Format normalization (gate)
 
-Durable copy (byte-identical to `/var/tmp/karzar-shopmill-cleanup/repaired_assets/`):
+All 410 destinations are `.webp`; staged Method C repairs were `.png`/`.jpg`.
 
-```text
-path:   /home/moahmmad/Projects/Karzar/.local-rescue/shopmill-watermark-cleanup/
-images: 163
-size:   65M
-checksum file: repaired-assets.sha256
-identical_to_vartmp: YES
-gitignored: .local-rescue/
-manifests/: remediation + audit CSVs/JSON copied alongside
-```
+- Generated WEBP-normalized repairs: `.local-rescue/shopmill-watermark-cleanup/repaired_assets_webp/` (163)
+- Manifest with serving finals: `remediation-manifest.serving-webp.csv`
+- Apply helper writes atomically (`temp` + `os.replace`) and encodes to destination suffix
+- Independent verify requires actual Pillow format `WEBP` under `.webp` paths (`FORMAT_BAD=0`)
 
-`/var/tmp` copy was **not** deleted (copy-first).
+## Catalog integrity (post-apply)
 
-## Serving storage (authoritative)
-
-| Item | Value | Citation |
-|------|-------|----------|
-| Storage type | Docker named volume `karzar_uploads` | `docker-compose.yml:24`, `:77-78` |
-| Container path | `/app/data/uploads` | `docs/OPERATIONS.md:149` |
-| Product subtree | `/app/data/uploads/products/{product_id}/{file}` | `app/utils/file_storage.py:56-61` |
-| Repo-relative path | `data/uploads/products/` | `docs/EXISTING_IMAGE_AUDIT.md:37-38` |
-| Public URL marker | `/static/uploads/products/` | `app/main.py:141`, `EXISTING_IMAGE_AUDIT.md:38` |
-| Public host (live) | `https://api.karzartools.com/static/uploads/products/...` | IMG-02A-01 inventory URLs |
-| VPS checkout | `/opt/karzar/Karzar` | `docs/COLLABORATOR_DEPLOY.md:34` |
-| Live hazard | Staging deploy target = same VPS as production | `CR-011` / `COLLABORATOR_DEPLOY.md:28-31` |
-
-**URL → file mapping:** strip host; require exact marker `/static/uploads/products/`; remainder is relative path under the uploads products root.
-
-## Access check (this environment)
-
-| Mechanism | Result |
-|-----------|--------|
-| Local `data/uploads/products` | Empty / absent product files |
-| Local Docker / `karzar_uploads` volume | Docker socket unavailable |
-| SSH to configured hosts | Network unreachable |
-| SSH to documented VPS `195.177.255.198` | Failed (ssh_config permissions / no usable session) |
-| `.env` present | No |
-
-**Required for apply:** interactive SSH (or equivalent) to the VPS as an operator who can reach `docker compose` / the `karzar_uploads` volume under `/opt/karzar/Karzar`, **plus explicit production authorization** (this prompt forbids unattended live mutation).
-
-## Pre-apply verification
-
-| Check | Result |
-|-------|--------|
-| Expected affected unique assets | 163 |
-| Durable repairs present | 163/163 |
-| Post-repair ShopMill detection | **0** positive |
-| Serving originals hash-compared | **0** (storage inaccessible) |
-| Classification | **MISSING SOURCE × 163** (serving) |
-| Exact hash matches vs live | 0 |
-| Changed source assets | unknown |
-| Format note | Staged repairs are often `.png`/`.jpg` while live paths are often `.webp`; apply helper now converts on write |
-
-Artifacts: `preapply-validation.json`, `preapply-validation.csv`, `preapply-dry-run-local-empty.json`.
-
-## Backup (production originals)
-
-**Not created** — no access to serving originals. Rollback readiness: **not ready**.
-
-## Dry run
-
-Against empty local `data/uploads/products` using durable replacement paths:
-
-```text
-planned_unique_paths=410   # per-product file paths (shared SHA ⇒ multiple paths)
-classification_counts={'MISSING SOURCE': 410}
-products_affected=410
-conflicts=0
-errors=0 (dry-run)
-```
-
-No non-production populated storage root was available for a meaningful EXACT MATCH dry-run.
-
-## Apply
-
-**Not executed.** Production/live is the only reachable serving storage architecture, and this prompt forbids mutating it without explicit authorization.
-
-### Proposed production apply (REQUIRES EXPLICIT HUMAN OK)
-
-On the VPS, after backing up the volume and verifying EXACT MATCH hashes against live files:
-
-```bash
-# 1) On VPS: backup uploads volume
-cd /opt/karzar/Karzar
-./scripts/backup_uploads.sh
-
-# 2) Materialize durable repairs onto the host (example)
-#    scp/rsync .local-rescue/shopmill-watermark-cleanup/ → /opt/karzar/shopmill-watermark-cleanup/
-
-# 3) Discover the volume mount path for karzar_uploads (operator), then dry-run:
-python3 scripts/apply_shopmill_watermark_remediations.py \
-  --manifest aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/remediation-manifest.durable-paths.csv \
-  --storage-root /PATH/TO/VOLUME/products \
-  --require-exact-match \
-  --report-json /tmp/shopmill-apply-report.json
-
-# 4) Only with explicit production authorization:
-python3 scripts/apply_shopmill_watermark_remediations.py \
-  --manifest aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/remediation-manifest.durable-paths.csv \
-  --storage-root /PATH/TO/VOLUME/products \
-  --require-exact-match \
-  --apply
-```
-
-Files that would be replaced if EXACT MATCH: up to **410** product file paths (**163** unique contents).
-
-Rollback: restore from `backup_uploads.sh` archive via `scripts/restore_uploads.sh`, or per-file `*.shopmill-bak` siblings created by the apply helper.
-
-## Active/public semantics (cited)
-
-| Field | Storefront meaning | Citation |
-|-------|--------------------|----------|
-| `is_active=true` | Forced for non-admin product list | `app/api/endpoints/products_catalog.py:131-132` |
-| `deleted_at IS NULL` | Soft-deleted excluded from normal queries | `app/crud/product.py:115`, `app/db/models/product.py:187-188` |
-| `is_available` | Binary stock UX; **not** required for catalog visibility | `app/db/models/product.py:171-173` |
-| Images | `ProductImage` rows; presenter uses primary else first | `app/db/models/product.py:236-252`, `docs/FAST_IMAGE_COVERAGE.md` |
-
-IMG-FAST-01A live catalog total active products: **5901**.  
-This audit covers all **1193** active/public products with `ProductImage` rows.
-
-## Counts
+Live DB snapshot (no mutations by this task):
 
 | Metric | Value |
 |--------|------:|
-| Active/public products with images audited | 1193 |
-| Unique active-product image SHA-256s | 614 |
-| Active-product image rows | 1193 |
-| HR `distributor_or_retailer` assets (ShopMill) | 163 |
-| Automatic detector candidates (rows) | 412 |
-| Visually/HR **confirmed** affected image rows | 410 |
-| Confirmed unique assets | 163 |
-| Affected products | 410 |
-| Method A (clean originals) | 0 |
-| Method B (clean alternates) | 0 |
-| Method C (professional repair) | 163 |
-| Unresolved staged assets | 0 |
-| Final ShopMill-positive **staged** assets | **0** |
-| Applied to live storage | **0** |
+| `products` total | 5918 |
+| `is_active=true` AND `deleted_at IS NULL` | 1410 |
+| `product_images` total | 1194 |
+| Active image rows | 1193 |
+| Remediated paths still present in DB URLs | 410/410 |
 
-Brands (confirmed products): TERMA 181, ASTPOWER 143, SAN OU 62, Dasqua 24.
+Note: earlier staging docs labeled ~5901 as “active”; live `is_active=true` is 1410. Active-with-images **1193** matches the prior image-row figure. Cleanup replaced file bytes only.
 
-## Per-product remediation table
+## Public serving
 
-- `remediation-manifest.csv` (410 rows)
-- `remediation-manifest.durable-paths.csv` (same rows; `output_path` → `.local-rescue/...`)
-- `confirmed-unique-assets.csv` (163)
-- `verification-results.csv`
-- `preapply-validation.csv`
+- URL form: `https://api.karzartools.com/static/uploads/products/{rel_path}`
+- HTTP 200 for all 410; body magic = WEBP (`RIFF…WEBP`)
+- `Content-Type` remains `application/octet-stream` (pre-existing StaticFiles behavior; not introduced by this apply)
 
-## Technical changes
+## Watermark re-audit
+
+Scanned all **1193** active (`is_active=true`, `deleted_at IS NULL`) product image files with `detect_shopmill_file`.
+
+| Check | Result |
+|-------|--------|
+| Remediated 410 detector-positive | **0** |
+| Prior HR-confirmed still positive | **0** |
+| Auto-only new hits | **2** — Mitutoyo dial indicators `2137/34ec949768f70fa7.webp`, `2388/e1f3661baf5f8d01.webp` (yellow dial faces; same false-positive class previously excluded by HR-only confirmation policy) |
+
+Artifacts: `postapply-watermark-audit.json`, `postapply-watermark-positives.csv`.
+
+## Sidecar `.shopmill-bak` files
+
+Apply created **410** `*.webp.shopmill-bak` sidecars beside live targets (pre-replace copies). Full-tree rollback uses the final backup under `/opt/karzar/backups/`; sidecars are additional local safety and were **not** deleted.
+
+## Durable local artifacts (gitignored)
+
+```text
+.local-rescue/shopmill-watermark-cleanup/
+  repaired_assets/           # Method C sources (163)
+  repaired_assets_webp/      # serving-normalized WEBP (163)
+  repaired-assets.sha256
+  repaired-assets-webp.sha256
+```
+
+## Tooling
 
 | Path | Role |
 |------|------|
-| `scripts/audit_active_product_shopmill_watermarks.py` | Audit / remediate / verify CLI |
-| `scripts/shopmill_watermark/**` | Detect + remediate + inventory loaders |
-| `scripts/apply_shopmill_watermark_remediations.py` | Dry-run/apply with classification + format convert |
-| `tests/test_shopmill_watermark_detect.py` | Unit tests |
-| `aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/**` | Reports |
-| `.gitignore` | Ignores `.local-rescue/` |
+| `scripts/audit_active_product_shopmill_watermarks.py` | Offline audit/remediate/verify |
+| `scripts/shopmill_watermark/` | Detect / remediate / inventory / preflight |
+| `scripts/apply_shopmill_watermark_remediations.py` | Dry-run/apply with `--require-exact-match` |
+| `scripts/shopmill_production_preflight.py` | Read-only VPS preflight CLI |
 
-## QA evidence
-
-### Staged verification
+## Tests / validation
 
 ```text
-unique_assets_verified=163
-final_shopmill_positive_assets=0
-```
-
-### Unit tests
-
-```bash
-python3 -m pytest tests/test_shopmill_watermark_detect.py -q --noconftest
-# 4 passed
-```
-
-### Storefront QA
-
-**Blocked** — no applied storage + no live API/SSH from this environment.
-
-## VPS read-only preflight (next operator step)
-
-Portable bundle: `.local-rescue/shopmill-watermark-cleanup/vps-preflight/`  
-Script: `scripts/shopmill_production_preflight.py`  
-Operator notes: `VPS-PREFLIGHT.md`, paste script: `VPS-READONLY-PREFLIGHT.sh`  
-Target manifest: `target-serving-paths.csv` (410 paths / 163 unique assets)
-
-This phase only prepares **read-only** verification. It does **not** apply repairs.
-
-## Reproduce offline
-
-```bash
-python3 scripts/audit_active_product_shopmill_watermarks.py --mode all \
-  --report-dir aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP \
-  --work-dir /var/tmp/karzar-shopmill-cleanup
-
-python3 scripts/apply_shopmill_watermark_remediations.py \
-  --manifest aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/remediation-manifest.durable-paths.csv \
-  --storage-root data/uploads/products \
-  --report-json aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/preapply-dry-run-local-empty.json
+pytest tests/test_shopmill_watermark_detect.py tests/test_shopmill_production_preflight.py --noconftest  → 7 passed
+python3 aods/tools/aods_validate.py  → run at completion
 ```
