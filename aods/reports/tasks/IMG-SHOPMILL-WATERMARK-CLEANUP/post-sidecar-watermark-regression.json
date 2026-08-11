@@ -1,0 +1,10 @@
+{
+  "repaired_webp_scanned": 163,
+  "repaired_webp_detector_positives": 0,
+  "repaired_webp_yellow_ge_40": 0,
+  "prior_active_audit_genuine_remaining": 0,
+  "prior_auto_only_hits": 2,
+  "prior_remediated_410_detector_positive": 0,
+  "note": "Live bytes unchanged by sidecar cleanup (LIVE_HASH_OK=410). Reconfirm repaired WEBP corpus still ShopMill-negative.",
+  "WATERMARK_REGRESSION": "PASS"
+}

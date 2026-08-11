@@ -82,6 +82,7 @@ Note: earlier staging docs labeled ~5901 as “active”; live `is_active=true` 
 - URL form: `https://api.karzartools.com/static/uploads/products/{rel_path}`
 - HTTP 200 for all 410; body magic = WEBP (`RIFF…WEBP`)
 - `Content-Type` remains `application/octet-stream` (pre-existing StaticFiles behavior; not introduced by this apply)
+- Follow-up issue: [#229](https://github.com/Shebahati/Karzar/issues/229) — correct image MIME types (out of scope for this PR)
 
 ## Watermark re-audit
 
@@ -95,9 +96,43 @@ Scanned all **1193** active (`is_active=true`, `deleted_at IS NULL`) product ima
 
 Artifacts: `postapply-watermark-audit.json`, `postapply-watermark-positives.csv`.
 
-## Sidecar `.shopmill-bak` files
+Post-sidecar regression (repaired WEBP corpus 163 + prior audit): `post-sidecar-watermark-regression.json` → **PASS** (genuine remaining 0; Mitutoyo auto-FPs unchanged).
 
-Apply created **410** `*.webp.shopmill-bak` sidecars beside live targets (pre-replace copies). Full-tree rollback uses the final backup under `/opt/karzar/backups/`; sidecars are additional local safety and were **not** deleted.
+## Sidecar `.shopmill-bak` cleanup (post-production hygiene)
+
+Apply initially created **410** `*.webp.shopmill-bak` sidecars beside live targets. Canonical rollback remains the external final backup (not the public tree).
+
+| Gate | Result |
+|------|--------|
+| SIDECARS_FOUND | 410 |
+| SIDECARS_APPROVED (mapped to 410 targets) | 410 |
+| SIDECAR_HASH_MATCH_ORIGINAL (vs final backup) | 410 |
+| UNEXPECTED_SIDECARS | 0 |
+| Final backup re-check FILES_BACKED_UP / CHECKSUM_OK | 410 / 410 |
+| SIDECARS_DELETED | 410 |
+| SIDECARS_REMAINING / UNEXPECTED after delete | 0 / 0 |
+| Live HASH/DECODE/FORMAT after cleanup | 410 / 410 / 410 |
+| Public HTTP + WEBP magic after cleanup | 410 / 410 |
+
+Evidence: `/opt/karzar/backups/shopmill-sidecar-cleanup-20260811T140000Z/`  
+**Live production image bytes were not modified during sidecar cleanup.**
+
+## Post-merge CI fixes (after `9e576d6`)
+
+PR #228 Backend CI initially failed on commit `9e576d6`:
+
+| Job | Failure | Fix |
+|-----|---------|-----|
+| lint | Ruff `I001` in `tests/test_shopmill_watermark_detect.py` (blank line between third-party imports; `scripts` not first-party under `pyproject.toml` `src`) | Removed blank line; no `# noqa` |
+| test | `ModuleNotFoundError: numpy` | Pinned `numpy==2.2.6` in `requirements.txt` (operational ShopMill detect/remediate import numpy; same pattern as Pillow) |
+
+Local gates after fix:
+
+```text
+ruff check app tests  → All checks passed!
+pytest tests/test_shopmill_watermark_detect.py tests/test_shopmill_production_preflight.py --noconftest  → 7 passed
+python3 aods/tools/aods_validate.py  → PASS
+```
 
 ## Durable local artifacts (gitignored)
 
@@ -121,6 +156,7 @@ Apply created **410** `*.webp.shopmill-bak` sidecars beside live targets (pre-re
 ## Tests / validation
 
 ```text
+ruff check app tests
 pytest tests/test_shopmill_watermark_detect.py tests/test_shopmill_production_preflight.py --noconftest  → 7 passed
-python3 aods/tools/aods_validate.py  → run at completion
+python3 aods/tools/aods_validate.py  → PASS
 ```

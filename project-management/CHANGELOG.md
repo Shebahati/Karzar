@@ -1,5 +1,10 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (CI + sidecar hygiene)
+- Fixed Ruff I001 in ShopMill unit test; pinned `numpy==2.2.6` in `requirements.txt` for detect/remediate
+- Removed 410 verified `.shopmill-bak` public-tree sidecars after hash match to final backup; live finals unchanged
+- Follow-up MIME issue: #229
+
 ## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (PRODUCTION_COMPLETE)
 - Applied 410 WEBP-normalized serving-path remediations on production `lathe_api` / `karzar_karzar_uploads`
 - Gates: fresh shadow 410, shadow verify 410/410, preapply EXACT_MATCH 410, final backup 410, post-apply hash/decode/format 410, public HTTP 410, genuine ShopMill remaining 0

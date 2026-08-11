@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw
-
 from scripts.shopmill_watermark.detect import detect_shopmill, remaining_logo_zone_yellow
 from scripts.shopmill_watermark.remediate import remediate_array
 
