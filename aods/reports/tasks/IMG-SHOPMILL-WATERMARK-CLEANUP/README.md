@@ -213,6 +213,15 @@ python3 -m pytest tests/test_shopmill_watermark_detect.py -q --noconftest
 
 **Blocked** — no applied storage + no live API/SSH from this environment.
 
+## VPS read-only preflight (next operator step)
+
+Portable bundle: `.local-rescue/shopmill-watermark-cleanup/vps-preflight/`  
+Script: `scripts/shopmill_production_preflight.py`  
+Operator notes: `VPS-PREFLIGHT.md`, paste script: `VPS-READONLY-PREFLIGHT.sh`  
+Target manifest: `target-serving-paths.csv` (410 paths / 163 unique assets)
+
+This phase only prepares **read-only** verification. It does **not** apply repairs.
+
 ## Reproduce offline
 
 ```bash

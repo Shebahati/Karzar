@@ -1,5 +1,9 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (VPS read-only preflight tooling)
+- Added `scripts/shopmill_watermark/production_preflight.py` + CLI; portable bundle under `.local-rescue/.../vps-preflight/`
+- Target manifest: 410 serving paths / 163 unique assets; paste-ready `VPS-READONLY-PREFLIGHT.sh` (no apply/backup/mutate)
+
 ## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (ops continuation)
 - Durable rescue copy of 163 repaired assets + checksums under `.local-rescue/shopmill-watermark-cleanup/` (preferred home path blocked by sandbox)
 - Confirmed serving storage = Docker volume `karzar_uploads` → `/app/data/uploads/products` on live VPS (`CR-011`)
