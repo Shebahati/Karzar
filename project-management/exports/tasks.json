@@ -2239,6 +2239,60 @@
       ],
       "risk": "med",
       "notes": "Authority: live public storefront API (api.karzartools.com). database_accessed=false. Placeholder policy: deterministic signatures only. priority_tier=unassigned."
+    },
+    {
+      "id": "IMG-SHOPMILL-WATERMARK-CLEANUP",
+      "title": "Remove ShopMill watermarks from active product images",
+      "description": "Audit all active/public ProductImage assets for ShopMill watermarks; remediate confirmed assets; apply WEBP-normalized repairs to production serving paths with gated shadow/backup/verify.",
+      "priority": "P1",
+      "complexity": "high",
+      "hours": 24,
+      "deps": [
+        "IMG-02A-02-REMAINDER-ALL"
+      ],
+      "files": [
+        "scripts/audit_active_product_shopmill_watermarks.py",
+        "scripts/shopmill_watermark/**",
+        "scripts/apply_shopmill_watermark_remediations.py",
+        "tests/test_shopmill_watermark_detect.py",
+        "aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/**",
+        "project-management/**"
+      ],
+      "modules": [
+        "images",
+        "catalog",
+        "scripts",
+        "aods"
+      ],
+      "ac": [
+        "Active/public semantics cited from storefront list filters",
+        "All active products with images inventoried",
+        "Confirmed ShopMill assets remediated offline",
+        "Shadow + production verification 410/410 hash/decode/format",
+        "Post-apply active storefront genuine ShopMill positives = 0",
+        "No DB/catalog path mutation (bytes-only at existing URLs)"
+      ],
+      "dod": [
+        "Focused unit tests",
+        "AODS validate pass",
+        "Report under aods/reports/tasks/IMG-SHOPMILL-WATERMARK-CLEANUP/",
+        "Local commits on fix/remove-shopmill-watermarks-active-products",
+        "Production evidence under /opt/karzar/backups/shopmill-production-apply-*"
+      ],
+      "status": "done",
+      "progress": 100,
+      "sprint": "05",
+      "week": null,
+      "day": null,
+      "owner": "agent",
+      "tags": [
+        "images",
+        "catalog",
+        "watermark",
+        "shopmill"
+      ],
+      "risk": "high",
+      "notes": "CR-008 Option C. PRODUCTION_COMPLETE 2026-08-11T133311Z on srv5944957438/lathe_api. 410 paths / 163 WEBP assets. Exact-match 410/410. Shadow+live verify PASS. Genuine remaining ShopMill=0 (2 Mitutoyo dial auto-FP). Evidence /opt/karzar/backups/shopmill-production-apply-20260811T133311Z. No DB mutation."
     }
   ]
 }

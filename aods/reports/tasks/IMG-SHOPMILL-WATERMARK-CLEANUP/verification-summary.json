@@ -1,0 +1,8 @@
+{
+  "task_id": "IMG-SHOPMILL-WATERMARK-CLEANUP",
+  "observed_at_utc": "2026-08-11T11:37:16Z",
+  "unique_assets_verified": 163,
+  "final_shopmill_positive_assets": 0,
+  "clean_assets": 163,
+  "acceptance_gate": true
+}

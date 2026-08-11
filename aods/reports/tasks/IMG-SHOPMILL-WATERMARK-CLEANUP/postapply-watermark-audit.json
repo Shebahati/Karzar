@@ -1,0 +1,60 @@
+{
+  "active_products_is_active_true": 1410,
+  "active_image_rows": 1193,
+  "unique_active_serving_paths": 1193,
+  "files_scanned": 1193,
+  "missing_files": 0,
+  "scan_errors": 0,
+  "detector_detected_true": 2,
+  "yellow_zone_only_ge_40": 0,
+  "remediated_410_detector_positive": 0,
+  "remediated_410_yellow_ge_40": 0,
+  "genuine_remaining_from_prior_confirmed_or_remediated": 0,
+  "auto_only_new_detector_hits": 2,
+  "auto_only_sample": [
+    {
+      "rel": "2137/34ec949768f70fa7.webp",
+      "product_id": "2137",
+      "image_id": "1180",
+      "detected": true,
+      "confidence": "high",
+      "reason": "",
+      "yellow_px": 2966,
+      "dark_px": 6472,
+      "remaining_yellow": 53,
+      "bbox": [
+        74,
+        42,
+        283,
+        237
+      ],
+      "was_in_prior_confirmed": false,
+      "was_in_remediated_410": false
+    },
+    {
+      "rel": "2388/e1f3661baf5f8d01.webp",
+      "product_id": "2388",
+      "image_id": "1277",
+      "detected": true,
+      "confidence": "high",
+      "reason": "",
+      "yellow_px": 1528,
+      "dark_px": 3328,
+      "remaining_yellow": 168,
+      "bbox": [
+        119,
+        34,
+        407,
+        182
+      ],
+      "was_in_prior_confirmed": false,
+      "was_in_remediated_410": false
+    }
+  ],
+  "genuine_sample": [],
+  "yellow_only_sample": [],
+  "missing_sample": [],
+  "error_sample": [],
+  "WATERMARK_AUDIT": "PASS",
+  "note": "Binding confirmation policy remains HR distributor_or_retailer. Post-apply acceptance: remediated 410 detector-clean and no prior-confirmed assets still positive. Auto-only hits outside that set are recorded for triage, not treated as authorized mutation targets."
+}

@@ -9,6 +9,7 @@
 
 ## Tasks
 - [x] **IMG-FAST-01A** Live storefront catalog baseline — `done` 100% | P1 | Sprint 05 — public API six-state baseline; existing-asset repair separated from internet discovery; zero DB/ProductImage mutations
+- [x] **IMG-SHOPMILL-WATERMARK-CLEANUP** Remove ShopMill watermarks from active product images — `done` 100% | P1 | Sprint 05 — PRODUCTION_COMPLETE 2026-08-11; 410 serving paths / 163 WEBP assets on `lathe_api`; no DB path mutation
 - [ ] **IMG-FAST-01** Catalog-wide one-image coverage sprint — `in_progress` 10% | P1 | Sprint 05 — parent for Fast Coverage; 01A baseline complete; 01B not started
 - [ ] **IMG-02B** Existing Source Paths — `in_progress` 40% | P1 | Sprint 05 — worklists + R1 recalibration + R2 drift quarantine; overall discovery incomplete (Dasqua/SAN OU calibration_failed; INSIZE partial stable 28/16 + 18 packaged); IMG-02B-05 not started; zero DB/ProductImage/app mutations
 - [x] **IMG-02A-02-REMAINDER-ALL** All Remaining Existing Image Assets Review Package — `done` 100% | P1 | Sprint 05 — merged PR #207 @ `5ea3f54e…`; All 414 remainder Assets and 516 Assignments reviewed; existing-image coverage is now 614/614 Assets and 1193/1193 Assignments; 88 replacements and 2 manual reviews remain queued; zero decisions applied and zero runtime mutations

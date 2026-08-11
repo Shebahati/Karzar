@@ -79,3 +79,5 @@ frontend/**/*.pem
 
 # Chumpower official catalog: keep reports, skip bulky manufacturer PDF binaries
 data/imports/chumpower/official_catalog/pdfs/
+
+.local-rescue/
