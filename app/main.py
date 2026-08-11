@@ -26,8 +26,12 @@ from app.core.security_middleware import (
     RequestBodySizeLimitMiddleware,
 )
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
+from app.core.static_mime import ensure_image_static_mime_types
 from app.db.database import async_session_maker
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
+
+# Register before StaticFiles mount so FileResponse guesses image/* for uploads.
+ensure_image_static_mime_types()
 
 setup_logging()
 logger = get_logger(__name__)
@@ -138,6 +142,7 @@ app.include_router(api_router, prefix="/api/v1")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _uploads_root = PROJECT_ROOT / "data" / "uploads"
 _uploads_root.mkdir(parents=True, exist_ok=True)
+# Content-Type comes from mimetypes (see ensure_image_static_mime_types above).
 app.mount("/static/uploads", StaticFiles(directory=_uploads_root), name="uploads")
 
 
