@@ -1,5 +1,12 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-14 — SEO-004 GSC canonical inheritance (local)
+- Root layout no longer declares homepage canonical for every descendant
+- Indexable static routes (`/`, `/about`, `/contact`, `/terms`, `/faq`, `/blog`, `/catalog`, `/categories`) set self-canonicals via `metadataBase`
+- Product sitemap URLs go through `productPath` (slug preferred); numeric id→slug 301 helper extracted for regression tests
+- No KIH/KF contract, slug bulk-change, or JSON-LD rating invention
+- Branch `seo/gsc-remediation-2026-08`; merge/deploy not in this node (HC-07 / HC-11)
+
 ## 2026-08-11 — IMG-SHOPMILL-WATERMARK-CLEANUP (CI + sidecar hygiene)
 - Fixed Ruff I001 in ShopMill unit test; pinned `numpy==2.2.6` in `requirements.txt` for detect/remediate
 - Removed 410 verified `.shopmill-bak` public-tree sidecars after hash match to final backup; live finals unchanged

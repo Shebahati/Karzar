@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { BlogList } from "@/components/blog/blog-list";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
 
 export const metadata: Metadata = {
   title: "مجله کارزار",
   description: "مقالات تخصصی دنیای ابزار صنعتی و تراشکاری.",
+  alternates: selfCanonicalAlternates(INDEXABLE_STATIC_CANONICALS.blog),
 };
 
 function BlogFallback() {

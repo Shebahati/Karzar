@@ -31,6 +31,39 @@ export const ROBOTS_DISALLOW = [
 ] as const;
 
 /**
+ * Self-canonical paths for indexable static routes (resolved via metadataBase).
+ * Root layout must NOT set a sitewide canonical — descendants inherit it.
+ */
+export const INDEXABLE_STATIC_CANONICALS = {
+  home: "/",
+  about: "/about",
+  contact: "/contact",
+  terms: "/terms",
+  faq: "/faq",
+  blog: "/blog",
+  catalog: "/catalog",
+  categories: "/categories",
+} as const;
+
+/** Static sitemap entries: public canonical URLs only (no private/facet/legacy). */
+export const SITEMAP_STATIC_PATHS = [
+  "/",
+  "/catalog",
+  "/blog",
+  "/about",
+  "/contact",
+  "/terms",
+  "/faq",
+] as const;
+
+/** Next.js Metadata.alternates for a self-canonical path (via metadataBase). */
+export function selfCanonicalAlternates(
+  pathname: string,
+): NonNullable<Metadata["alternates"]> {
+  return { canonical: pathname };
+}
+
+/**
  * Query keys that create near-duplicate PLP/hub URLs.
  * Pagination is client-state only (not in the URL) — not listed here.
  */

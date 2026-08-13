@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { capSitemapEntries } from "@/lib/crawl-hygiene";
+import { capSitemapEntries, SITEMAP_STATIC_PATHS } from "@/lib/crawl-hygiene";
+import { productPath } from "@/lib/product-url";
 import { getSiteUrl } from "@/lib/site-url";
 import { catalogService } from "@/services/catalog";
 
@@ -26,9 +27,7 @@ async function collectProductEntries(
         ? new Date(product.updated_at)
         : now;
       entries.push({
-        url: product.slug
-          ? `${site}/product/${product.slug}`
-          : `${site}/product/${product.id}`,
+        url: `${site}${productPath(product)}`,
         lastModified,
         changeFrequency: "weekly",
         priority: 0.8,
@@ -85,13 +84,11 @@ async function collectBrandEntries(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = getSiteUrl();
   const now = new Date();
-  const staticPaths = ["", "/catalog", "/blog", "/about", "/contact", "/terms", "/faq"];
-
-  const staticEntries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
-    url: `${site}${path || "/"}`,
+  const staticEntries: MetadataRoute.Sitemap = SITEMAP_STATIC_PATHS.map((path) => ({
+    url: `${site}${path}`,
     lastModified: now,
-    changeFrequency: path === "" || path === "/catalog" ? "daily" : "weekly",
-    priority: path === "" ? 1 : path === "/blog" ? 0.8 : 0.7,
+    changeFrequency: path === "/" || path === "/catalog" ? "daily" : "weekly",
+    priority: path === "/" ? 1 : path === "/blog" ? 0.8 : 0.7,
   }));
 
   let blogEntries: MetadataRoute.Sitemap = [];

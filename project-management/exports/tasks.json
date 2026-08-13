@@ -194,7 +194,7 @@
         "tech"
       ],
       "risk": "low",
-      "notes": "#94 → main @a119b38; Deploy Staging green. Soft-404 empty hubs→404; sitemap 6007 urls (<50k) with lastmod; SITE_URL env; private+facet noindex; robots disallow; hreflang N/A (fa-only). Vitest crawl-hygiene+site-url."
+      "notes": "#94 → main @a119b38; Deploy Staging green. Soft-404 empty hubs→404; sitemap 6007 urls (<50k) with lastmod; SITE_URL env; private+facet noindex; robots disallow; hreflang N/A (fa-only). Vitest crawl-hygiene+site-url. 2026-08-14 GSC follow-up (IMPL-2026-08-14-gsc-canonical-remediation): removed root-layout homepage canonical inheritance; static indexable routes self-canonical; numeric PDP 301 helper; sitemap uses productPath. Local gates green; merge/deploy pending HC-07/HC-11."
     },
     {
       "id": "CAT-001",

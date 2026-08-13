@@ -5,7 +5,12 @@ import { CatalogView } from "@/components/catalog/catalog-view";
 import { Container } from "@/components/ui/container";
 import { ProductCardSkeleton } from "@/components/product/product-card";
 import { catalogKeys } from "@/features/catalog/keys";
-import { NOINDEX_FOLLOW, isFacetedSearchParams } from "@/lib/crawl-hygiene";
+import {
+  INDEXABLE_STATIC_CANONICALS,
+  NOINDEX_FOLLOW,
+  isFacetedSearchParams,
+  selfCanonicalAlternates,
+} from "@/lib/crawl-hygiene";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
 import type { CategoryTreeNode } from "@/types/category";
@@ -29,7 +34,7 @@ export async function generateMetadata({
   return {
     title: "فروشگاه",
     description: "مرور و فیلتر محصولات ابزار صنعتی و تراشکاری کارزار.",
-    alternates: { canonical: "/catalog" },
+    alternates: selfCanonicalAlternates(INDEXABLE_STATIC_CANONICALS.catalog),
     ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
   };
 }

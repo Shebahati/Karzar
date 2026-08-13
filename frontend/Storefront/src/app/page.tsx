@@ -1,10 +1,16 @@
+import type { Metadata } from "next";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { HomeView } from "@/components/home/home-view";
 import { NAV_GROUPS, navGroupsFromApi } from "@/config/nav-groups";
 import { catalogKeys } from "@/features/catalog/keys";
+import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
 import type { Brand, CategoryTreeNode } from "@/types/category";
+
+export const metadata: Metadata = {
+  alternates: selfCanonicalAlternates(INDEXABLE_STATIC_CANONICALS.home),
+};
 
 const DISCOUNT_PARAMS = { limit: 12, sort: "newest" as const };
 const NEWEST_PARAMS = { limit: 10, sort: "newest" as const };

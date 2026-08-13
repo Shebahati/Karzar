@@ -11,6 +11,7 @@ import {
 } from "@/lib/product-seo";
 import {
   isNumericProductParam,
+  numericProductRedirectPath,
   productPath,
   safeDecodeURIComponent,
 } from "@/lib/product-url";
@@ -67,12 +68,9 @@ export default async function ProductPage({ params }: Props) {
   }
 
   // RFC-004: permanent redirect from /product/{id} → /product/{slug}
-  if (
-    isNumericProductParam(param) &&
-    product.slug?.trim() &&
-    product.slug.trim() !== param.trim()
-  ) {
-    permanentRedirect(productPath(product));
+  const redirectTo = numericProductRedirectPath(param, product);
+  if (redirectTo) {
+    permanentRedirect(redirectTo);
   }
 
   await queryClient.prefetchQuery({
