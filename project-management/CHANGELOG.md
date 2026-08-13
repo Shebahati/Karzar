@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-14 — SEO-005 HTTP 301 for `/product/{id}`
+- Live numeric PDPs returned 200 + meta-refresh (Next.js page `permanentRedirect` after Root Layout `headers()` streaming)
+- Middleware now 301s to encode-once slug URL before HTML starts (ADR-010 / RFC-004)
+- Lookup: public `GET /api/v1/products/{id}`; fail-open to the page if API/timeout/no slug
+- Branch `fix/seo-product-id-http-301`
+
 ## 2026-08-14 — SEO-004 GSC canonical inheritance (local)
 - Root layout no longer declares homepage canonical for every descendant
 - Indexable static routes (`/`, `/about`, `/contact`, `/terms`, `/faq`, `/blog`, `/catalog`, `/categories`) set self-canonicals via `metadataBase`

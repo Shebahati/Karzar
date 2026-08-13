@@ -51,3 +51,23 @@ export function numericProductRedirectPath(
   if (!slug || slug === key) return null;
   return productPath(product);
 }
+
+/**
+ * Numeric id from `/product/{id}` (optional trailing slash). Null for slug
+ * routes, nested paths, or non-product URLs.
+ */
+export function numericProductPathId(pathname: string): string | null {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 2 || parts[0] !== "product") return null;
+  const param = safeDecodeURIComponent(parts[1]).trim();
+  return isNumericProductParam(param) ? param : null;
+}
+
+/** Location path for a slug PDP: decode-once then encode-once (RFC-3986). */
+export function encodedProductSlugPath(slug: string): string {
+  return `/product/${encodeSlugPathSegment(slug)}`;
+}
+
+export function catalogProductByIdUrl(apiBase: string, id: string): string {
+  return `${apiBase.replace(/\/$/, "")}/products/${id}`;
+}
