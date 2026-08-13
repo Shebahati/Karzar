@@ -35,3 +35,19 @@ export function productPath(product: {
   if (slug) return `/product/${slug}`;
   return `/product/${product.id}`;
 }
+
+/**
+ * RFC-004 / ADR-010: `/product/{numeric-id}` permanently redirects to the
+ * slug URL when a distinct slug exists. Returns null when the request is
+ * already the canonical path (slug route, or id with no slug).
+ */
+export function numericProductRedirectPath(
+  param: string,
+  product: { id: number; slug?: string | null },
+): string | null {
+  const key = param.trim();
+  if (!isNumericProductParam(key)) return null;
+  const slug = product.slug?.trim();
+  if (!slug || slug === key) return null;
+  return productPath(product);
+}

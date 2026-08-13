@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  INDEXABLE_STATIC_CANONICALS,
   MAX_SITEMAP_URLS,
+  ROBOTS_DISALLOW,
+  SITEMAP_STATIC_PATHS,
   capSitemapEntries,
   isEmptyCategoryHub,
   isFacetedSearchParams,
+  selfCanonicalAlternates,
 } from "@/lib/crawl-hygiene";
 
 describe("isFacetedSearchParams", () => {
@@ -54,5 +58,50 @@ describe("capSitemapEntries", () => {
     expect(MAX_SITEMAP_URLS).toBeLessThan(50_000);
     const entries = Array.from({ length: MAX_SITEMAP_URLS + 10 }, (_, i) => i);
     expect(capSitemapEntries(entries)).toHaveLength(MAX_SITEMAP_URLS);
+  });
+});
+
+describe("indexable static canonicals", () => {
+  it("maps each public static route to a self path, not the homepage", () => {
+    expect(INDEXABLE_STATIC_CANONICALS.home).toBe("/");
+    expect(INDEXABLE_STATIC_CANONICALS.about).toBe("/about");
+    expect(INDEXABLE_STATIC_CANONICALS.contact).toBe("/contact");
+    expect(INDEXABLE_STATIC_CANONICALS.terms).toBe("/terms");
+    expect(INDEXABLE_STATIC_CANONICALS.faq).toBe("/faq");
+    expect(INDEXABLE_STATIC_CANONICALS.blog).toBe("/blog");
+    expect(INDEXABLE_STATIC_CANONICALS.catalog).toBe("/catalog");
+    expect(INDEXABLE_STATIC_CANONICALS.categories).toBe("/categories");
+
+    const others = Object.entries(INDEXABLE_STATIC_CANONICALS).filter(
+      ([key]) => key !== "home",
+    );
+    for (const [, path] of others) {
+      expect(path).not.toBe("/");
+      expect(selfCanonicalAlternates(path).canonical).toBe(path);
+    }
+  });
+});
+
+describe("sitemap static paths", () => {
+  it("submits only public canonical URLs (no private, facet, or numeric-legacy)", () => {
+    expect([...SITEMAP_STATIC_PATHS]).toEqual([
+      "/",
+      "/catalog",
+      "/blog",
+      "/about",
+      "/contact",
+      "/terms",
+      "/faq",
+    ]);
+    for (const path of SITEMAP_STATIC_PATHS) {
+      expect(path).not.toContain("?");
+      expect(path).not.toMatch(/\/product\/\d+$/);
+      const publicPath: string = path;
+      for (const blocked of ROBOTS_DISALLOW) {
+        expect(publicPath.startsWith(blocked) || publicPath === blocked).toBe(
+          false,
+        );
+      }
+    }
   });
 });

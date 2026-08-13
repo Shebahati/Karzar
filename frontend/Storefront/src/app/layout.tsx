@@ -65,9 +65,9 @@ export const metadata: Metadata = {
       "خرید آنلاین ابزارآلات صنعتی و تراشکاری از معتبرترین برندهای جهان با ضمانت اصالت کالا.",
     images: [BRAND_ICON.url],
   },
-  alternates: {
-    canonical: SITE_URL,
-  },
+  // Do not set alternates.canonical here. Next.js inherits root canonicals onto
+  // every descendant that does not override them (GSC: /contact, /about, /terms
+  // were observed with homepage as user-declared canonical).
   ...(isSeoIndexable() ? {} : { robots: NOINDEX_NOFOLLOW }),
 };
 
