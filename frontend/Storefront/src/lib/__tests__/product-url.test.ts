@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  catalogProductByIdUrl,
   encodeSlugPathSegment,
+  encodedProductSlugPath,
   isNumericProductParam,
+  numericProductPathId,
   numericProductRedirectPath,
   productPath,
   safeDecodeURIComponent,
@@ -59,5 +62,29 @@ describe("product-url", () => {
     expect(
       numericProductRedirectPath("7115", { id: 7115, slug: "7115" }),
     ).toBeNull();
+  });
+
+  it("extracts numeric id only from a PDP path", () => {
+    expect(numericProductPathId("/product/6587")).toBe("6587");
+    expect(numericProductPathId("/product/6587/")).toBe("6587");
+    expect(numericProductPathId("/product/مدل-ast-cor305p")).toBeNull();
+    expect(numericProductPathId("/product/ins-1108")).toBeNull();
+    expect(numericProductPathId("/catalog")).toBeNull();
+    expect(numericProductPathId("/product/6587/extra")).toBeNull();
+  });
+
+  it("encodes slug Location paths exactly once", () => {
+    expect(encodedProductSlugPath("digital-caliper")).toBe(
+      "/product/digital-caliper",
+    );
+    expect(encodedProductSlugPath("مدل-ast-cor305p")).toBe(
+      `/product/${encodeURIComponent("مدل-ast-cor305p")}`,
+    );
+    expect(encodedProductSlugPath(encodeURIComponent("مدل-ast-cor305p"))).toBe(
+      `/product/${encodeURIComponent("مدل-ast-cor305p")}`,
+    );
+    expect(catalogProductByIdUrl("https://api.karzartools.com/api/v1/", "6587")).toBe(
+      "https://api.karzartools.com/api/v1/products/6587",
+    );
   });
 });

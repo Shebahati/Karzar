@@ -737,7 +737,7 @@
         "slug"
       ],
       "risk": "med",
-      "notes": "Shipped PR #127 (2026-07-29/30). Registered retroactively under CR-008 Option C so EPIC-1 work is PMO-citeable. Not a 31-Shahrivar checkpoint reopen."
+      "notes": "Shipped PR #127 (2026-07-29/30). Registered retroactively under CR-008 Option C so EPIC-1 work is PMO-citeable. Not a 31-Shahrivar checkpoint reopen. 2026-08-14: live `/product/{id}` was 200 + meta-refresh because page-level permanentRedirect runs after Root Layout streams; HTTP 301 moved to Storefront middleware (fix/seo-product-id-http-301)."
     },
     {
       "id": "SEO-006",
