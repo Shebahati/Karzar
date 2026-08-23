@@ -4,7 +4,7 @@
 # Required env (set in cron / .deploy-secrets — never commit secrets):
 #   BACKUP_OFFSITE_URI   e.g. s3://bucket/karzar/  or  rsync://user@host:/path/
 # Optional:
-#   BACKUP_LOCAL_DIR     default: /opt/karzar/backups
+#   BACKUP_LOCAL_DIR     default: <repository>/backups
 #   BACKUP_RETENTION_DAYS default: 14 (local only; offsite retention is destination-side)
 #
 # Usage:
@@ -13,7 +13,8 @@
 # Prerequisites: aws CLI (for s3://) or rsync (for rsync:// / ssh paths).
 set -euo pipefail
 
-LOCAL_DIR="${BACKUP_LOCAL_DIR:-/opt/karzar/backups}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOCAL_DIR="${BACKUP_LOCAL_DIR:-$ROOT_DIR/backups}"
 URI="${BACKUP_OFFSITE_URI:-}"
 RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-14}"
 

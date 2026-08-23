@@ -1,5 +1,6 @@
 # Risk Register
 
+- [ ] **R12** Backup automation silently failed after deploy artifact permission normalization — Owner: DevOps / Mohammad Shebahati — *mitigate:* Phase 0 deployment freeze; invoke cron scripts through `/bin/bash`; restore executable modes after deploy; take fresh DB/uploads backups with checksums and an off-VPS copy; close only after a verified scheduled run.
 - [ ] **R1** Head-term SEO expectation vs mid-tail strategy — Owner: Product/SEO — *mitigate:* KPI freeze in `EXECUTIVE_SUMMARY.md` + checkpoint narrative in `RELEASE_PLAN.md`.
 - [ ] **R2** AI content hallucinations on specs — Owner: Content lead — *mitigate:* specs SoT in PIM; editorial ban on invented numeric claims.
 - [ ] **R3** CWV regression from imagery or template drift — Owner: Frontend lead — *mitigate:* PERF-001 budgets landed; monitor field p75 during launch window; keep image priority/CDN constraints.

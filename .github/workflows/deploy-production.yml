@@ -21,8 +21,28 @@ permissions:
   actions: write
 
 jobs:
+  deploy-freeze:
+    name: Deployment freeze gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce main branch and deployment freeze
+        env:
+          DEPLOY_FREEZE: ${{ vars.KARZAR_DEPLOY_FREEZE }}
+          DISPATCH_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$DISPATCH_REF" != "refs/heads/main" ]]; then
+            echo "::error::Deploys are allowed only from main (got $DISPATCH_REF)."
+            exit 1
+          fi
+          if [[ "${DEPLOY_FREEZE:-}" == "true" ]]; then
+            echo "::error::Deployments are frozen by KARZAR_DEPLOY_FREEZE. Owner must document the incident/change before unfreezing."
+            exit 1
+          fi
+
   package:
     name: Package sources
+    needs: deploy-freeze
     runs-on: ubuntu-latest
     if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
     steps:
@@ -104,6 +124,7 @@ jobs:
           set -euo pipefail
           cd /opt/karzar/Karzar
           chmod +x deploy/staging/scripts/*.sh || true
+          chmod +x scripts/backup_db.sh scripts/backup_uploads.sh scripts/backup_offsite_sync.sh
           bash deploy/staging/scripts/deploy-backend.sh
 
           export FRONTEND_ROOT=/opt/karzar/frontend

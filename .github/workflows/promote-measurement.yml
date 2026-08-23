@@ -19,6 +19,17 @@ jobs:
   promote:
     runs-on: [self-hosted, karzar-vps]
     steps:
+      - name: Enforce Phase 0 freeze for apply mode
+        if: inputs.mode == 'apply'
+        env:
+          DEPLOY_FREEZE: ${{ vars.KARZAR_DEPLOY_FREEZE }}
+        run: |
+          set -euo pipefail
+          if [[ "${DEPLOY_FREEZE:-}" == "true" ]]; then
+            echo "::error::Live data mutations are frozen by KARZAR_DEPLOY_FREEZE."
+            exit 1
+          fi
+
       - name: Run promote (via-db) from deploy tree
         working-directory: /opt/karzar/Karzar
         run: |
