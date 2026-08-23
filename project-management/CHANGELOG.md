@@ -1,10 +1,13 @@
 # PMO / Product Changelog (living)
 
-## 2026-08-23 — OPS Phase 0 backup protection freeze (in progress)
+## 2026-08-23 — OPS Phase 0 backup protection freeze (complete)
 - Root cause confirmed: GitHub deploy artifacts normalize executable modes; deploy restored only `deploy/staging/scripts/*.sh`, while backup scripts arrived on the VPS as `0644` and cron executed them directly.
-- Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. Set and verify the repository variable before any workflow is re-enabled.
+- Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. PR #233 merged at `0fc5f9f`; repository variable `KARZAR_DEPLOY_FREEZE=true` was verified and the workflows remain disabled.
 - Hardened backup cron to invoke DB/uploads scripts through `/bin/bash`; deploy workflows also restore backup script modes as defense in depth.
-- Added static regression tests. Server evidence (fresh DB/uploads backups, checksums, off-VPS copy, repaired cron) is required before Phase 0 closure.
+- Added static regression tests; Backend CI, AODS, lint, and tests passed before merge.
+- Created and validated fresh server backups: `karzar_20260823_071500.sql.gz` (SHA-256 `b14c54cd24c6da22f73fdb4af32d003467a0e75f1f5d397bc93ce625ca72149d`) and `karzar_uploads_20260823_071501.tar.gz` (SHA-256 `52516287deee8b44af8c786be511939482927bbe1dc7fa8587cc9ee52bcb96d2`, 2552 tar entries). The manifest and both artifacts were copied to ignored off-VPS storage at `.local-rescue/phase0-backups/20260823T071500Z/` and revalidated there.
+- Installed the checksum-matched merged cron installer; DB/uploads scripts are `0755`, `/etc/cron.d/karzar-backup` is `0644`, cron is active, and exact manual cron-command runs created and validated `karzar_20260823_073322.sql.gz` plus `karzar_uploads_20260823_073323.tar.gz`. Canonical API `/health` and `/ready` returned HTTPS 200 after the change.
+- Phase 0 execution blocker is closed. R12 remains open until the next scheduled 03:15/03:30 UTC run is observed; the deployment freeze remains in force.
 
 ## 2026-08-14 — SEO-005 HTTP 301 for `/product/{id}`
 - Live numeric PDPs returned 200 + meta-refresh (Next.js page `permanentRedirect` after Root Layout `headers()` streaming)
