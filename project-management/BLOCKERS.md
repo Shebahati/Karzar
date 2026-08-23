@@ -1,6 +1,6 @@
 # Blockers
 
-- [ ] **OPS-P0 backup protection gap / deployment freeze** (opened 2026-08-23) — scheduled DB backup has failed with `Permission denied` since 2026-08-02 after deploy artifact mode normalization; latest observed DB artifact was 2026-08-01 and uploads artifact 2026-07-28. The four live deploy/data workflows are `disabled_manually`; they must not be re-enabled until the merged guards are present and `KARZAR_DEPLOY_FREEZE=true` is set and verified. Fresh DB/uploads backups, checksums, an off-VPS copy, and repaired cron execution are required for Phase 0 closure. Owner: DevOps / Mohammad Shebahati.
+- [x] ~~**OPS-P0 backup protection gap / deployment freeze**~~ — **CLOSED 2026-08-23:** PR #233 merged the freeze/mode guards at `0fc5f9f`; all four live deploy/data workflows remain `disabled_manually` and `KARZAR_DEPLOY_FREEZE=true` was verified. Fresh DB/uploads artifacts (`karzar_20260823_071500.sql.gz`, `karzar_uploads_20260823_071501.tar.gz`) passed gzip/tar and SHA-256 validation and were copied off-VPS under ignored local rescue storage. The merged cron installer was checksum-verified on the VPS, installed with explicit `/bin/bash` invocation, and both cron commands completed manually. Scheduled-run observation remains tracked by R12. Owner: DevOps / Mohammad Shebahati.
 - [x] ~~Runner offline~~ — karzar-vps restored (historical)
 - [ ] Search Console API access for weekly automation (optional)
 - [x] ~~Editorial QA capacity for 24 articles~~ — SEO-003 24 articles published and verified
