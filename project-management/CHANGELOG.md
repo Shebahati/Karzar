@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-08-23 — OPS Phase 0 backup protection freeze (in progress)
+- Root cause confirmed: GitHub deploy artifacts normalize executable modes; deploy restored only `deploy/staging/scripts/*.sh`, while backup scripts arrived on the VPS as `0644` and cron executed them directly.
+- Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. Set and verify the repository variable before any workflow is re-enabled.
+- Hardened backup cron to invoke DB/uploads scripts through `/bin/bash`; deploy workflows also restore backup script modes as defense in depth.
+- Added static regression tests. Server evidence (fresh DB/uploads backups, checksums, off-VPS copy, repaired cron) is required before Phase 0 closure.
+
 ## 2026-08-14 — SEO-005 HTTP 301 for `/product/{id}`
 - Live numeric PDPs returned 200 + meta-refresh (Next.js page `permanentRedirect` after Root Layout `headers()` streaming)
 - Middleware now 301s to encode-once slug URL before HTML starts (ADR-010 / RFC-004)

@@ -158,6 +158,11 @@ Artifacts land in `./backups/` as `karzar_uploads_YYYYMMDD_HHMMSS.tar.gz`.
 
 Daily cron (with DB): `sudo bash deploy/staging/scripts/install-backup-cron.sh`
 
+The installer deliberately invokes backup scripts through `/bin/bash`. GitHub
+artifact download normalizes file modes, so cron must not depend solely on an
+executable bit surviving deployment. Deployment workflows restore the bits as
+defense in depth.
+
 ### Restore
 
 ```bash
@@ -176,6 +181,16 @@ sudo bash scripts/backup_offsite_sync.sh
 ```
 
 Wire into cron after `install-backup-cron.sh` (append the sync job). Retention suggestion: 7 daily + 4 weekly off-host.
+
+### Emergency deployment freeze (OPS Phase 0)
+
+Repository Actions variable `KARZAR_DEPLOY_FREEZE=true` blocks staging and
+production deployment workflows and blocks `apply` mode in live taxonomy
+workflows. Dry-runs remain available. During Phase 0, keep the four live
+workflows manually disabled as the outer control; set and verify the variable
+before re-enabling them. During an emergency, the Owner must first record the
+incident/change, temporarily set the variable to `false`, deploy only from
+`main`, and restore it to `true` immediately afterward.
 
 ### Restore drill checklist
 

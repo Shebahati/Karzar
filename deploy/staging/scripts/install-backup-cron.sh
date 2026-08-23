@@ -13,6 +13,16 @@ if [[ "${EUID}" -ne 0 ]]; then
   exit 1
 fi
 
+for script in "$DB_SCRIPT" "$UPLOADS_SCRIPT"; do
+  if [[ ! -r "$script" ]]; then
+    echo "Missing or unreadable backup script: $script" >&2
+    exit 1
+  fi
+done
+
+# GitHub artifacts normalize file modes. Keep executable bits as defense in
+# depth, but cron invokes the scripts through bash so a later deploy cannot
+# silently break backups by restoring mode 0644.
 chmod +x "$DB_SCRIPT" "$UPLOADS_SCRIPT"
 mkdir -p "$ROOT_DIR/backups"
 
@@ -20,13 +30,13 @@ cat > "$CRON_FILE" <<EOF
 # Karzar staging backups — DB 03:15 UTC, uploads 03:30 UTC
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-15 3 * * * root cd "$ROOT_DIR" && set -a && . ./.env && set +a && BACKUP_DIR="$ROOT_DIR/backups" "$DB_SCRIPT" >> "$ROOT_DIR/backups/cron.log" 2>&1
-30 3 * * * root cd "$ROOT_DIR" && set -a && . ./.env && set +a && BACKUP_DIR="$ROOT_DIR/backups" "$UPLOADS_SCRIPT" >> "$ROOT_DIR/backups/cron-uploads.log" 2>&1
+15 3 * * * root cd "$ROOT_DIR" && set -a && . ./.env && set +a && BACKUP_DIR="$ROOT_DIR/backups" /bin/bash "$DB_SCRIPT" >> "$ROOT_DIR/backups/cron.log" 2>&1
+30 3 * * * root cd "$ROOT_DIR" && set -a && . ./.env && set +a && BACKUP_DIR="$ROOT_DIR/backups" /bin/bash "$UPLOADS_SCRIPT" >> "$ROOT_DIR/backups/cron-uploads.log" 2>&1
 EOF
 
 chmod 644 "$CRON_FILE"
 
 echo "Installed $CRON_FILE"
-echo "Test DB:      cd $ROOT_DIR && ./scripts/backup_db.sh"
-echo "Test uploads: cd $ROOT_DIR && ./scripts/backup_uploads.sh"
+echo "Test DB:      cd $ROOT_DIR && bash scripts/backup_db.sh"
+echo "Test uploads: cd $ROOT_DIR && bash scripts/backup_uploads.sh"
 echo "NOTE: Copy ./backups/*.gz off-host (S3/object storage) — on-host alone is not DR."
