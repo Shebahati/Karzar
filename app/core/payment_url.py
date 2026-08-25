@@ -13,6 +13,8 @@ ALLOWED_PAYMENT_HOSTS = frozenset(
         "zarinpal.com",
         "sandbox.zarinpal.com",
         "payment.zarinpal.com",
+        # Exact SEP host only — no wildcard / subdomain / lookalike.
+        "sep.shaparak.ir",
     }
 )
 
@@ -53,8 +55,12 @@ def is_allowed_payment_url(url: str) -> bool:
         return False
     if parsed.scheme not in {"http", "https"}:
         return False
-    if parsed.scheme == "http" and parsed.hostname not in {"localhost", "127.0.0.1"}:
+    host = (parsed.hostname or "").lower().rstrip(".")
+    if parsed.scheme == "http" and host not in {"localhost", "127.0.0.1"}:
         # Production gateways must be HTTPS; allow http only for local mock.
+        return False
+    # SEP must always be HTTPS even if somehow listed elsewhere.
+    if host == "sep.shaparak.ir" and parsed.scheme != "https":
         return False
     return _host_allowed(parsed.hostname)
 

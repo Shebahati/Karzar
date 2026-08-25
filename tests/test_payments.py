@@ -95,24 +95,17 @@ def test_payment_amount_uses_toman_to_rial_conversion(
     captured: dict[str, int] = {}
 
     class SpyProvider:
-        async def init_payment(self, *, amount_rials: int, description: str, callback_url: str):
-            captured["amount_rials"] = amount_rials
+        async def init_payment(self, ctx):
+            captured["amount_rials"] = ctx.amount_rials
             from app.services.payment_service import MockPaymentProvider
 
-            return await MockPaymentProvider().init_payment(
-                amount_rials=amount_rials,
-                description=description,
-                callback_url=callback_url,
-            )
+            return await MockPaymentProvider().init_payment(ctx)
 
-        async def verify_payment(self, *, authority: str, amount_rials: int):
-            captured["verify_amount_rials"] = amount_rials
+        async def verify_payment(self, ctx):
+            captured["verify_amount_rials"] = ctx.amount_rials
             from app.services.payment_service import MockPaymentProvider
 
-            return await MockPaymentProvider().verify_payment(
-                authority=authority,
-                amount_rials=amount_rials,
-            )
+            return await MockPaymentProvider().verify_payment(ctx)
 
         async def refund_payment(self, *, ref_id: str, amount_rials: int):
             from app.services.payment_service import MockPaymentProvider
@@ -218,10 +211,10 @@ def test_payment_gateway_timeout_returns_specific_error(
     reset_payment_provider_for_tests()
 
     class TimeoutProvider:
-        async def init_payment(self, *, amount_rials: int, description: str, callback_url: str):
+        async def init_payment(self, ctx):
             raise PaymentGatewayTimeoutError("Payment gateway request timed out")
 
-        async def verify_payment(self, *, authority: str, amount_rials: int):
+        async def verify_payment(self, ctx):
             raise PaymentGatewayTimeoutError("Payment verification request timed out")
 
     create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
@@ -244,16 +237,12 @@ def test_payment_verify_failed_returns_specific_error(
     reset_payment_provider_for_tests()
 
     class FailingVerifyProvider:
-        async def init_payment(self, *, amount_rials: int, description: str, callback_url: str):
+        async def init_payment(self, ctx):
             from app.services.payment_service import MockPaymentProvider
 
-            return await MockPaymentProvider().init_payment(
-                amount_rials=amount_rials,
-                description=description,
-                callback_url=callback_url,
-            )
+            return await MockPaymentProvider().init_payment(ctx)
 
-        async def verify_payment(self, *, authority: str, amount_rials: int):
+        async def verify_payment(self, ctx):
             raise PaymentVerifyFailedError("Invalid mock payment authority")
 
         async def refund_payment(self, *, ref_id: str, amount_rials: int):

@@ -1,30 +1,45 @@
-# بعد از خرید Zarinpal و SMS — بدون تغییر معماری
+# بعد از خرید درگاه / SMS — با احتیاط
 
 Staging الان با `PAYMENT_PROVIDER=mock` و `SMS_PROVIDER=console` اجرا می‌شود.
-وقتی درگاه و SMS را خریدی، فقط env را عوض کن و container را ری‌استارت کن.
 
 ## 1) Zarinpal
 
-در `.env` روی VPS:
+برای زرین‌پال (provider از پیش پیاده‌شده) معمولاً فقط env و ری‌استارت کافی است:
 
 ```env
 PAYMENT_PROVIDER=zarinpal
 ZARINPAL_MERCHANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-# در صورت نیاز URLهای request/verify را از داشبورد زرین‌پال ست کنید
-PAYMENT_CALLBACK_URL=https://shop.YOUR_DOMAIN/checkout/payment/callback
+PAYMENT_CALLBACK_URL=https://api.YOUR_DOMAIN/api/v1/payments/callback
 PAYMENT_SUCCESS_REDIRECT_URL=https://shop.YOUR_DOMAIN/checkout/success
 PAYMENT_FAILURE_REDIRECT_URL=https://shop.YOUR_DOMAIN/checkout/payment/failed
 ```
-
-در پنل زرین‌پال، آدرس بازگشت/callback را مطابق قرارداد API ست کنید
-(معمولاً مسیر عمومی بک‌اند: `https://api.YOUR_DOMAIN/api/v1/payments/callback`).
 
 ```bash
 cd /opt/karzar/Karzar
 docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d app
 ```
 
-یک خرید تست (sandbox اگر موجود است) انجام دهید و ledger را در ادمین چک کنید.
+## 1b) SEP (سامان کیش) — بازنویسی لازم است
+
+SEP **فقط با عوض‌کردن env فعال نمی‌شود**. پیاده‌سازی اختصاصی Token / POST callback / Verify /
+retry در کد لازم است. مرجع عملیاتی: [`docs/SEP_PAYMENT_GATEWAY.md`](../../docs/SEP_PAYMENT_GATEWAY.md).
+
+نمونهٔ env (شماره ترمینال واقعی را commit نکنید):
+
+```env
+PAYMENT_PROVIDER=sep
+PAYMENT_CALLBACK_URL=https://api.YOUR_DOMAIN/api/v1/payments/callback/sep
+PAYMENT_SUCCESS_REDIRECT_URL=https://www.YOUR_DOMAIN/checkout/success
+PAYMENT_FAILURE_REDIRECT_URL=https://www.YOUR_DOMAIN/checkout/payment/failed
+SEP_TERMINAL_ID=
+SEP_TOKEN_URL=https://sep.shaparak.ir/OnlinePG/OnlinePG
+SEP_SEND_TOKEN_URL=https://sep.shaparak.ir/OnlinePG/SendToken
+SEP_VERIFY_URL=https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction
+SEP_REVERSE_URL=https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/ReverseTransaction
+SEP_TOKEN_EXPIRY_MINUTES=30
+```
+
+پیش‌نیاز: ثبت IP خروجی VPS نزد SEP، تأیید املای Verify endpoint با SEP، migration مربوطه، و smoke بدون پرداخت واقعی.
 
 ## 2) FarazSMS / IranPayamak (پیشنهادی فعلی)
 
@@ -68,6 +83,7 @@ OTP_DEV_ECHO=False
 - `ENFORCE_HTTPS=True`
 - `TRUSTED_HOSTS` ست باشد
 - `PAYMENT_PROVIDER` غیر از `mock`
+- برای `sep`: `SEP_TERMINAL_ID` الزامی
 - `SMS_PROVIDER` غیر از `console`
 - `ENABLE_API_DOCS=False`
 - Redis اجباری
@@ -76,5 +92,5 @@ OTP_DEV_ECHO=False
 
 ## پیچیدگی؟
 
-خیر — مسیر دوم (اول Staging، بعد provider) همان طراحی پروژه است.
-بازنویسی فرانت/بک‌اند لازم نیست؛ فقط secrets و URLها.
+- **Zarinpal / SMS:** اغلب فقط secrets و URLها.
+- **SEP:** پیاده‌سازی در کد + migration + IP whitelist + تأیید endpoint با SEP؛ جزئیات در `docs/SEP_PAYMENT_GATEWAY.md`.

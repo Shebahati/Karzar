@@ -8,12 +8,37 @@ describe("isAllowedPaymentUrl", () => {
     ).toBe(true);
   });
 
+  it("allows SEP SendToken https", () => {
+    expect(
+      isAllowedPaymentUrl(
+        "https://sep.shaparak.ir/OnlinePG/SendToken?token=abc123token",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects SEP over http", () => {
+    expect(
+      isAllowedPaymentUrl("http://sep.shaparak.ir/OnlinePG/SendToken?token=x"),
+    ).toBe(false);
+  });
+
+  it("rejects lookalike SEP hosts and query-only mentions", () => {
+    expect(isAllowedPaymentUrl("https://sep.shaparak.ir.evil.example/")).toBe(
+      false,
+    );
+    expect(
+      isAllowedPaymentUrl("https://evil.example/?next=sep.shaparak.ir"),
+    ).toBe(false);
+    expect(isAllowedPaymentUrl("https://evil-sep.shaparak.ir/pay")).toBe(false);
+  });
+
   it("rejects arbitrary https hosts", () => {
     expect(isAllowedPaymentUrl("https://evil.example/phish")).toBe(false);
   });
 
   it("rejects javascript: and relative urls", () => {
     expect(isAllowedPaymentUrl("javascript:alert(1)")).toBe(false);
+    expect(isAllowedPaymentUrl("data:text/html,hi")).toBe(false);
     expect(isAllowedPaymentUrl("/checkout/payment/callback")).toBe(false);
   });
 

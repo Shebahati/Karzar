@@ -29,6 +29,7 @@ from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.core.static_mime import ensure_image_static_mime_types
 from app.db.database import async_session_maker
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
+from app.services.sep_verify_retry_service import process_sep_verify_retries
 
 # Register before StaticFiles mount so FileResponse guesses image/* for uploads.
 ensure_image_static_mime_types()
@@ -82,6 +83,25 @@ async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
             continue
 
 
+async def _sep_verify_retry_worker(stop_event: asyncio.Event) -> None:
+    """DB-backed SEP Verify retries for payment_status=verifying."""
+    interval = max(5, int(settings.SEP_VERIFY_RETRY_INTERVAL_SECONDS))
+    while not stop_event.is_set():
+        try:
+            if settings.PAYMENT_PROVIDER == "sep" and await try_acquire_lock(
+                "sep_verify_retry_sweep",
+                interval,
+            ):
+                async with async_session_maker() as session:
+                    await process_sep_verify_retries(session)
+        except Exception:
+            logger.exception("SEP verify retry sweep failed")
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=interval)
+        except TimeoutError:
+            continue
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Run startup hooks before serving traffic."""
@@ -89,13 +109,17 @@ async def lifespan(app: FastAPI):
     await bootstrap_catalog_seed()
     stop_event = asyncio.Event()
     expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
+    sep_retry_task = asyncio.create_task(_sep_verify_retry_worker(stop_event))
     try:
         yield
     finally:
         stop_event.set()
         expiry_task.cancel()
+        sep_retry_task.cancel()
         with suppress(asyncio.CancelledError):
             await expiry_task
+        with suppress(asyncio.CancelledError):
+            await sep_retry_task
 
 
 app = FastAPI(

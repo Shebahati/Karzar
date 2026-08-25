@@ -43,6 +43,7 @@ from app.services.payment_ledger_service import record_payment_refunded
 from app.services.payment_service import (
     PaymentGatewayError,
     PaymentGatewayTimeoutError,
+    PaymentRefundUnsupportedError,
     PaymentVerifyFailedError,
     get_payment_provider,
 )
@@ -93,6 +94,12 @@ async def _check_public_verify_rate_limit(order_id: int) -> None:
 
 
 def _raise_gateway_error(exc: Exception) -> None:
+    if isinstance(exc, PaymentRefundUnsupportedError):
+        raise api_error(
+            status.HTTP_400_BAD_REQUEST,
+            error_code=ErrorCode.BAD_REQUEST,
+            message=exc.message,
+        ) from exc
     if isinstance(exc, PaymentGatewayTimeoutError):
         raise api_error(
             status.HTTP_504_GATEWAY_TIMEOUT,
@@ -310,6 +317,123 @@ async def payment_callback(
         )
 
 
+@router.post(
+    "/callback/sep",
+    summary="SEP (Saman Kish) OnlinePG callback",
+    include_in_schema=False,
+)
+async def payment_callback_sep(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Receive SEP form POST, verify server-side, then 303 to the storefront."""
+    from sqlalchemy.exc import IntegrityError
+
+    from app.services.sep_callback_service import (
+        apply_sep_verify_failure,
+        apply_sep_verify_success,
+        build_sep_storefront_redirect,
+        claim_sep_verify_job,
+        invoke_sep_verify_network,
+        parse_sep_callback_form,
+        reserve_sep_callback,
+    )
+
+    try:
+        form = await request.form()
+    except Exception:
+        logger.exception("SEP callback form parse failed")
+        return RedirectResponse(
+            settings.PAYMENT_FAILURE_REDIRECT_URL,
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    fields = parse_sep_callback_form(form)
+    if fields is None:
+        return RedirectResponse(
+            settings.PAYMENT_FAILURE_REDIRECT_URL,
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    ip = _client_ip(request)
+    try:
+        reserved = await reserve_sep_callback(db, fields, ip_address=ip)
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome="failure", tracking_code=fields.res_num),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    except Exception:
+        logger.exception("SEP callback reserve failed ResNum=%s", fields.res_num)
+        await db.rollback()
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome="failure", tracking_code=fields.res_num),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    if reserved.outcome in {"success", "failure", "reconciliation"}:
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome=reserved.outcome, tracking_code=reserved.tracking_code),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    if reserved.order_id is None:
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome="failure", tracking_code=reserved.tracking_code),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    # Transaction B: claim (short lock) → commit → network → apply.
+    try:
+        claim = await claim_sep_verify_job(db, reserved.order_id)
+        await db.commit()
+    except Exception:
+        logger.exception("SEP verify claim failed order_id=%s", reserved.order_id)
+        await db.rollback()
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome="verifying", tracking_code=reserved.tracking_code),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    if claim is None:
+        # Deadline / already finalized during claim.
+        refreshed = await crud_commerce.get_order_by_id(db, reserved.order_id)
+        if refreshed and refreshed.payment_status == "paid":
+            outcome = "success"
+        elif refreshed and refreshed.payment_status == "reconciliation_required":
+            outcome = "reconciliation"
+        else:
+            outcome = "failure"
+        return RedirectResponse(
+            build_sep_storefront_redirect(outcome=outcome, tracking_code=reserved.tracking_code),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    try:
+        verify_result = await invoke_sep_verify_network(claim)
+        final = await apply_sep_verify_success(db, claim, verify_result, ip_address=ip)
+        await db.commit()
+    except Exception as exc:
+        await db.rollback()
+        try:
+            final = await apply_sep_verify_failure(db, claim, exc=exc, ip_address=ip)
+            await db.commit()
+        except Exception:
+            logger.exception("SEP verify apply failure path failed order_id=%s", claim.order_id)
+            await db.rollback()
+            return RedirectResponse(
+                build_sep_storefront_redirect(outcome="verifying", tracking_code=claim.tracking_code),
+                status_code=status.HTTP_303_SEE_OTHER,
+            )
+
+    return RedirectResponse(
+        build_sep_storefront_redirect(outcome=final.outcome, tracking_code=final.tracking_code),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
 @router.post("/verify", response_model=PaymentVerifyResponse, summary="Verify payment callback")
 async def payment_verify(
     payload: PaymentVerifyRequest,
@@ -411,7 +535,12 @@ async def payment_refund(
 
     try:
         result = await get_payment_provider().refund_payment(ref_id=ref_id, amount_rials=amount_rials)
-    except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError) as exc:
+    except (
+        PaymentGatewayError,
+        PaymentGatewayTimeoutError,
+        PaymentVerifyFailedError,
+        PaymentRefundUnsupportedError,
+    ) as exc:
         _raise_gateway_error(exc)
 
     if not result.success:

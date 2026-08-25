@@ -1,7 +1,8 @@
-"""Shared payment initialization and verification logic."""
+"""Shared payment initialization and verification logic (mock / zarinpal / SEP)."""
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from urllib.parse import urlencode
 
@@ -21,7 +22,9 @@ from app.services.payment_ledger_service import (
 from app.services.payment_service import (
     PaymentGatewayError,
     PaymentGatewayTimeoutError,
+    PaymentInitContext,
     PaymentInitResult,
+    PaymentVerifyContext,
     PaymentVerifyFailedError,
     PaymentVerifyResult,
     get_payment_provider,
@@ -38,7 +41,11 @@ def order_amount_rials(order: Order) -> int:
 
 
 def resolve_payment_callback_url() -> str:
-    return settings.PAYMENT_CALLBACK_URL or "http://localhost:8000/api/v1/payments/callback"
+    if settings.PAYMENT_CALLBACK_URL:
+        return settings.PAYMENT_CALLBACK_URL
+    if settings.PAYMENT_PROVIDER == "sep":
+        return "http://localhost:8000/api/v1/payments/callback/sep"
+    return "http://localhost:8000/api/v1/payments/callback"
 
 
 def get_order_payment_authority(order: Order) -> str | None:
@@ -56,10 +63,33 @@ def build_mock_payment_url(authority: str) -> str:
     return f"{callback}{separator}{query}"
 
 
-def build_gateway_payment_url(authority: str) -> str:
+def build_gateway_payment_url(authority: str, *, provider_payment_url: str | None = None) -> str:
+    if provider_payment_url:
+        return assert_allowed_payment_url(provider_payment_url)
     if settings.PAYMENT_PROVIDER == "mock":
         return assert_allowed_payment_url(build_mock_payment_url(authority))
+    if settings.PAYMENT_PROVIDER == "sep":
+        from app.services.sep_client import build_sep_send_token_url
+
+        return assert_allowed_payment_url(build_sep_send_token_url(authority))
     return assert_allowed_payment_url(f"https://www.zarinpal.com/pg/StartPay/{authority}")
+
+
+def _authority_still_valid(order: Order) -> bool:
+    expires = order.payment_authority_expires_at
+    if expires is None:
+        # Legacy mock/zarinpal rows without expiry: reuse until paid/failed.
+        return True
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=UTC)
+    return expires > datetime.now(UTC)
+
+
+def _token_expiry_minutes_for_order(order: Order) -> int:
+    """Align SEP TokenExpiryInMin with remaining order lifetime when known."""
+    configured = int(settings.SEP_TOKEN_EXPIRY_MINUTES)
+    # Clamp to official SEP range already enforced by settings (20–3600).
+    return configured
 
 
 async def initialize_order_payment(
@@ -72,13 +102,17 @@ async def initialize_order_payment(
         raise ValueError("Payment is only available for purchase orders")
     if order.payment_status == PaymentStatus.PAID.value or order.status == OrderStatus.PAID.value:
         raise ValueError("Order is already paid")
+    if order.payment_status == PaymentStatus.VERIFYING.value:
+        raise ValueError("Payment verification is already in progress for this order")
+    if order.payment_status == PaymentStatus.RECONCILIATION_REQUIRED.value:
+        raise ValueError("Order payment requires reconciliation and cannot be re-initialized")
     if order.status != OrderStatus.PENDING_PAYMENT.value:
         raise ValueError("Order is not in payable state")
     if order.estimated_total is None:
         raise ValueError("Order total is missing")
 
     existing = get_order_payment_authority(order)
-    if existing:
+    if existing and _authority_still_valid(order):
         return PaymentInitResult(
             authority=existing,
             payment_url=build_gateway_payment_url(existing),
@@ -86,12 +120,23 @@ async def initialize_order_payment(
 
     callback_url = resolve_payment_callback_url()
     amount_rials = order_amount_rials(order)
-    result = await get_payment_provider().init_payment(
+    ctx = PaymentInitContext(
         amount_rials=amount_rials,
         description=f"Karzar order {order.tracking_code}",
         callback_url=callback_url,
+        merchant_reference=order.tracking_code,
+        payer_phone=order.customer_phone,
     )
+    result = await get_payment_provider().init_payment(ctx)
     order.payment_authority = result.authority
+    if settings.PAYMENT_PROVIDER == "sep":
+        minutes = _token_expiry_minutes_for_order(order)
+        order.payment_authority_expires_at = datetime.now(UTC) + timedelta(minutes=minutes)
+    else:
+        order.payment_authority_expires_at = None
+    # New token invalidates prior failed attempts for a fresh payable attempt.
+    if order.payment_status == PaymentStatus.FAILED.value:
+        order.payment_status = PaymentStatus.UNPAID.value
     await db.flush()
     await record_payment_initiated(
         db,
@@ -101,7 +146,7 @@ async def initialize_order_payment(
     )
     return PaymentInitResult(
         authority=result.authority,
-        payment_url=build_gateway_payment_url(result.authority),
+        payment_url=build_gateway_payment_url(result.authority, provider_payment_url=result.payment_url),
     )
 
 
@@ -112,7 +157,12 @@ async def verify_order_payment(
     authority: str,
     gateway_status: str | None = None,
     ip_address: str | None = None,
+    ref_num: str | None = None,
 ) -> PaymentVerifyResult:
+    """Verify mock/zarinpal-style callbacks (authority + optional Status).
+
+    SEP uses ``handle_sep_callback_and_verify`` instead.
+    """
     if order.mode != OrderMode.PURCHASE:
         raise ValueError("Invalid order mode")
     if order.estimated_total is None:
@@ -136,10 +186,19 @@ async def verify_order_payment(
     amount_rials = order_amount_rials(order)
     try:
         result = await get_payment_provider().verify_payment(
-            authority=authority,
-            amount_rials=amount_rials,
+            PaymentVerifyContext(
+                authority=authority,
+                amount_rials=amount_rials,
+                ref_num=ref_num,
+            )
         )
-    except (PaymentGatewayError, PaymentGatewayTimeoutError, PaymentVerifyFailedError) as exc:
+    except PaymentGatewayTimeoutError:
+        # Mock/Zarinpal path historically marks failed; SEP callbacks must not use this path.
+        order.payment_status = PaymentStatus.FAILED.value
+        await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
+        await db.flush()
+        raise
+    except (PaymentGatewayError, PaymentVerifyFailedError) as exc:
         order.payment_status = PaymentStatus.FAILED.value
         await record_payment_failed(db, order, authority=authority, ip_address=ip_address)
         await db.flush()
@@ -157,8 +216,8 @@ async def verify_order_payment(
             authority=authority,
             ref_id=result.ref_id,
             ip_address=ip_address,
+            provider_data=result.provider_data,
         )
-        # Best-effort Hesabfa sale invoice; never fails payment verification.
         await maybe_create_invoice_after_payment(db, order)
     else:
         order.payment_status = PaymentStatus.FAILED.value
