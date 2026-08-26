@@ -15,6 +15,9 @@ export const CWV_BUDGETS = {
 /** LCP / above-the-fold stills — prefer bytes over max fidelity. */
 export const LCP_IMAGE_QUALITY = 75;
 
+/** Full-bleed home hero backgrounds — allowlisted in next.config qualities. */
+export const HERO_IMAGE_QUALITY = 90;
+
 /** Below-fold / gallery thumbs. */
 export const CONTENT_IMAGE_QUALITY = 75;
 

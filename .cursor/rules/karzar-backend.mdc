@@ -1,0 +1,28 @@
+---
+description: FastAPI, OpenAPI, Alembic — pointers only; not a second API spec
+globs: app/**,alembic/**,openapi/**
+alwaysApply: false
+---
+
+# Backend (load with `app/` / `alembic/` / `openapi/`)
+
+Runtime SoT is code + `openapi/v1.json` + `alembic/`, then Canon (`aods/10-repository-intelligence/AUTHORITY-MODEL.md`).
+
+## Layout
+
+- Routers: `app/api/v1/__init__.py:22-33` (`/products`, `/brands`, `/knowledge`, …)
+- Public PDP API: `GET /api/v1/products/slug/{slug}` — `app/api/endpoints/products_catalog.py:278-280`
+- Coverage gate: `fail_under = 68` — `pyproject.toml:23` (`CR-003`)
+
+## Invariants (cite, do not invent)
+
+- URL/SEO: `docs/architecture/adr/ADR-010-seo-url-contract.md:64-69`
+- Schema: Alembic only — `docs/development/standards/alembic-and-schema-change-rules.md:8-12`; `HC-08`
+- API shape change: regenerate `openapi/v1.json` in the same PR — `docs/development/standards/api-change-rules.md:8-16`
+- Site stock is binary `is_available`; warehouse counts = Hesabfa only — `docs/HESABFA.md:8`, `docs/API_CHANGELOG.md:33`, `docs/OPERATIONS.md:93`
+- PKE identity = `products.id` — `docs/architecture/CANON-LOCK.md:72` (ADR-014)
+- Primary Product Type = nullable `products.product_type_id` — `docs/architecture/CANON-LOCK.md:90-94` (ADR-015)
+
+## Do not
+
+Resurrect `stock_quantity` / `low_stock` as sellable UX. Dual-write Facts is deferred (`CANON-LOCK.md:155`).
