@@ -42,4 +42,7 @@ export interface CheckoutResponse {
   status_label: string;
   estimated_total: string | null;
   created_at: string;
+  /** Present when purchase checkout already initialized the gateway. */
+  payment_url?: string | null;
+  authority?: string | null;
 }
