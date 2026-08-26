@@ -1,6 +1,7 @@
 """FastAPI application entry point, middleware, and global handlers."""
 
 import asyncio
+import os
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
@@ -102,24 +103,32 @@ async def _sep_verify_retry_worker(stop_event: asyncio.Event) -> None:
             continue
 
 
+def _background_workers_disabled() -> bool:
+    """TestClient shares the CI Postgres URI with async_session_maker; workers must not race tests."""
+    return os.environ.get("DISABLE_BACKGROUND_WORKERS", "").lower() in ("1", "true", "yes")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Run startup hooks before serving traffic."""
     await bootstrap_super_admin()
     await bootstrap_catalog_seed()
     stop_event = asyncio.Event()
-    expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
-    sep_retry_task = asyncio.create_task(_sep_verify_retry_worker(stop_event))
+    expiry_task = None
+    sep_retry_task = None
+    if not _background_workers_disabled():
+        expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
+        sep_retry_task = asyncio.create_task(_sep_verify_retry_worker(stop_event))
     try:
         yield
     finally:
         stop_event.set()
-        expiry_task.cancel()
-        sep_retry_task.cancel()
-        with suppress(asyncio.CancelledError):
-            await expiry_task
-        with suppress(asyncio.CancelledError):
-            await sep_retry_task
+        for task in (expiry_task, sep_retry_task):
+            if task is None:
+                continue
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
 
 app = FastAPI(

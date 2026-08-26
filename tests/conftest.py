@@ -16,6 +16,9 @@ os.environ["ALLOW_PUBLIC_REGISTER"] = "true"
 os.environ["OTP_DEV_ECHO"] = "true"
 os.environ["SMS_PROVIDER"] = "console"
 os.environ["PAYMENT_PROVIDER"] = "mock"
+# Lifespan workers use app.db.database.async_session_maker (same Postgres URI in CI).
+# Disable them so they cannot race TRUNCATE / payment uniqueness with the suite.
+os.environ["DISABLE_BACKGROUND_WORKERS"] = "1"
 
 USE_POSTGRES_TESTS = os.environ.get("USE_POSTGRES_TESTS", "").lower() in ("1", "true", "yes")
 

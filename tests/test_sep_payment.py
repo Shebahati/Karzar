@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import uuid
 from datetime import UTC, datetime, timedelta
 from urllib.parse import parse_qs, urlparse
 
@@ -38,6 +39,14 @@ client = TestClient(app)
 
 TERMINAL = "2001"
 TOKEN = "SEPTOKEN1234567890ABCD"
+
+
+def _unique_token(prefix: str = "TOK") -> str:
+    return f"{prefix}-{uuid.uuid4().hex[:20]}"
+
+
+def _unique_ref(prefix: str = "REF") -> str:
+    return f"{prefix}-{uuid.uuid4().hex[:16]}"
 
 
 def _auth(phone: str) -> dict[str, str]:
@@ -385,25 +394,27 @@ def _mock_verify_ok(monkeypatch, *, amount_rials: int, ref_num: str = "REF-OK-1"
 
 
 def test_sep_callback_success_flow(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
+    token = _unique_token("OK")
+    ref_num = _unique_ref("OK")
     create = client.post("/api/v1/products/", json=valid_product_data, headers=super_admin_headers)
     product_id = create.json()["id"]
     headers = _auth("09121110001")
     body = _checkout(product_id, headers, phone="09121110001")
     order_id = body["order_id"]
-    tracking = asyncio.run(_set_order_authority(order_id, TOKEN))
+    tracking = asyncio.run(_set_order_authority(order_id, token))
     from app.services.payment_flow_service import order_amount_rials
 
     order = asyncio.run(_get_order(order_id))
     amount_rials = order_amount_rials(order)
     _enable_sep(monkeypatch)
-    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num="REF-OK-1")
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
 
     resp = client.post(
         "/api/v1/payments/callback/sep",
         data={
-            "Token": TOKEN,
+            "Token": token,
             "ResNum": tracking,
-            "RefNum": "REF-OK-1",
+            "RefNum": ref_num,
             "State": "OK",
             "Status": "2",
             "TerminalId": TERMINAL,
@@ -412,14 +423,16 @@ def test_sep_callback_success_flow(valid_product_data, super_admin_headers, monk
         follow_redirects=False,
     )
     assert resp.status_code == 303
-    assert "paid=1" in resp.headers["location"]
+    assert "paid=1" in resp.headers["location"], resp.headers.get("location")
     order2 = asyncio.run(_get_order(order_id))
     assert order2.payment_status == PaymentStatus.PAID.value
-    assert order2.payment_ref_id == "REF-OK-1"
+    assert order2.payment_ref_id == ref_num
+    assert order2.payment_last_error is None
 
 
 def test_sep_callback_declined_no_verify(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
     called = {"n": 0}
+    token = _unique_token("DEC")
 
     class _Client:
         async def __aenter__(self):
@@ -440,16 +453,16 @@ def test_sep_callback_declined_no_verify(valid_product_data, super_admin_headers
     product_id = create.json()["id"]
     headers = _auth("09121110002")
     body = _checkout(product_id, headers, phone="09121110002")
-    tracking = asyncio.run(_set_order_authority(body["order_id"], TOKEN))
+    tracking = asyncio.run(_set_order_authority(body["order_id"], token))
     _enable_sep(monkeypatch)
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
 
     resp = client.post(
         "/api/v1/payments/callback/sep",
         data={
-            "Token": TOKEN,
+            "Token": token,
             "ResNum": tracking,
-            "RefNum": "REF-FAIL",
+            "RefNum": _unique_ref("FAIL"),
             "State": "CanceledByUser",
             "Status": "1",
             "TerminalId": TERMINAL,
@@ -464,6 +477,7 @@ def test_sep_callback_declined_no_verify(valid_product_data, super_admin_headers
 
 
 def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
+    token = _unique_token("MIS")
     create = client.post(
         "/api/v1/products/",
         json={**valid_product_data, "sku": "SEP-TOK"},
@@ -472,7 +486,7 @@ def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, mo
     product_id = create.json()["id"]
     headers = _auth("09121110003")
     body = _checkout(product_id, headers, phone="09121110003")
-    tracking = asyncio.run(_set_order_authority(body["order_id"], TOKEN))
+    tracking = asyncio.run(_set_order_authority(body["order_id"], token))
     _enable_sep(monkeypatch)
 
     resp = client.post(
@@ -480,7 +494,7 @@ def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, mo
         data={
             "Token": "WRONG-TOKEN",
             "ResNum": tracking,
-            "RefNum": "REF-X",
+            "RefNum": _unique_ref("X"),
             "State": "OK",
             "Status": "2",
             "TerminalId": TERMINAL,
@@ -501,6 +515,8 @@ def test_sep_callback_get_not_allowed(sep_settings):
 def test_sep_callback_idempotent_same_ref(
     valid_product_data, super_admin_headers, monkeypatch, sep_settings
 ):
+    token = _unique_token("IDEM")
+    ref_num = _unique_ref("IDEM")
     create = client.post(
         "/api/v1/products/",
         json={**valid_product_data, "sku": "SEP-IDEM"},
@@ -510,18 +526,18 @@ def test_sep_callback_idempotent_same_ref(
     headers = _auth("09121110004")
     body = _checkout(product_id, headers, phone="09121110004")
     order_id = body["order_id"]
-    tracking = asyncio.run(_set_order_authority(order_id, TOKEN))
+    tracking = asyncio.run(_set_order_authority(order_id, token))
     from app.services.payment_flow_service import order_amount_rials
 
     order = asyncio.run(_get_order(order_id))
     amount_rials = order_amount_rials(order)
     _enable_sep(monkeypatch)
-    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num="REF-IDEM")
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
 
     data = {
-        "Token": TOKEN,
+        "Token": token,
         "ResNum": tracking,
-        "RefNum": "REF-IDEM",
+        "RefNum": ref_num,
         "State": "OK",
         "Status": "2",
         "TerminalId": TERMINAL,
@@ -539,6 +555,9 @@ def test_sep_callback_idempotent_same_ref(
 def test_sep_verify_timeout_leaves_verifying(
     valid_product_data, super_admin_headers, monkeypatch, sep_settings
 ):
+    token = _unique_token("TO")
+    ref_num = _unique_ref("TO")
+
     class _Client:
         async def __aenter__(self):
             return self
@@ -558,7 +577,7 @@ def test_sep_verify_timeout_leaves_verifying(
     headers = _auth("09121110005")
     body = _checkout(product_id, headers, phone="09121110005")
     order_id = body["order_id"]
-    tracking = asyncio.run(_set_order_authority(order_id, TOKEN))
+    tracking = asyncio.run(_set_order_authority(order_id, token))
     from app.services.payment_flow_service import order_amount_rials
 
     order = asyncio.run(_get_order(order_id))
@@ -569,9 +588,9 @@ def test_sep_verify_timeout_leaves_verifying(
     resp = client.post(
         "/api/v1/payments/callback/sep",
         data={
-            "Token": TOKEN,
+            "Token": token,
             "ResNum": tracking,
-            "RefNum": "REF-TO",
+            "RefNum": ref_num,
             "State": "OK",
             "Status": "2",
             "TerminalId": TERMINAL,
@@ -583,7 +602,7 @@ def test_sep_verify_timeout_leaves_verifying(
     assert "reason=verifying" in resp.headers["location"]
     order2 = asyncio.run(_get_order(order_id))
     assert order2.payment_status == PaymentStatus.VERIFYING.value
-    assert order2.payment_ref_id == "REF-TO"
+    assert order2.payment_ref_id == ref_num
     assert order2.payment_next_verify_at is not None
 
 

@@ -112,16 +112,37 @@ Cloudflare/edge ingress IP is irrelevant. Callback must accept public HTTPS Form
 
 ## Deployment checklist
 
-1. DB backup
-2. Run Alembic migration `g8h9i0j1k2l3`
-3. Set secrets on VPS only (`SEP_TERMINAL_ID`, callback URLs)
-4. Confirm SEP IP + callback + Verify path spelling
-5. Deploy API + Storefront
-6. Health/readiness
-7. Smoke without real payment
-8. Real payment only with explicit owner approval
-9. Check `payment_transactions` ledger + SEP report portal
-10. Rollback plan ready
+1. DB backup on VPS
+2. Run Alembic migration `g8h9i0j1k2l3` (verifying + RefNum unique + retry columns)
+3. Confirm SEP has **egress IP** of the API host (Shaparak whitelist) — not Cloudflare edge IP
+4. Confirm callback URL registered with SEP:
+   `https://api.karzartools.com/api/v1/payments/callback/sep`
+5. Set **VPS secrets only** (never commit): `SEP_TERMINAL_ID`, `PAYMENT_CALLBACK_URL`,
+   success/failure redirect URLs. Terminal password and SEP report-portal login are **not**
+   application env vars (panel/plugin only).
+6. Confirm Verify/Reverse URL spelling with SEP support (PDF `VerifyTransaction` vs Postman typo)
+7. Owner: temporarily set Actions variable `KARZAR_DEPLOY_FREEZE=false` (see `docs/OPERATIONS.md`)
+8. Deploy Staging from `main` (`workflow_dispatch`) — staging shares live VPS (`CR-011`)
+9. Restore `KARZAR_DEPLOY_FREEZE=true` immediately after deploy
+10. Health/readiness (`GET /ready`) + Storefront smoke
+11. Keep `PAYMENT_PROVIDER=mock` until steps 3–6 are confirmed
+12. Flip `PAYMENT_PROVIDER=sep` only with explicit Owner approval + one controlled low-amount pay
+13. Check `payment_transactions` ledger + SEP report portal reconciliation
+14. Blu Pay is **out of scope** until a separate Board/Owner node
+15. Rollback: set `PAYMENT_PROVIDER=mock`, redeploy or revert env; do not leave freeze=false
+
+## Go-live gate (Owner)
+
+| Gate | Status needed before live SEP |
+|------|-------------------------------|
+| PR with SEP code merged to `main` | Required |
+| Migration applied on VPS | Required |
+| Egress IP whitelisted | Required |
+| Callback HTTPS POST works | Required |
+| `SEP_TERMINAL_ID` on VPS only | Required |
+| Secrets rotated if ever pasted in chat/email | Strongly recommended |
+| `KARZAR_DEPLOY_FREEZE` restored to `true` | Required after deploy |
+| First real charge Owner-approved | Required |
 
 ## Manual test checklist (after Terminal issued)
 
