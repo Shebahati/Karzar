@@ -37,7 +37,7 @@ import {
 import { orderedTaxonomyRoots, NAV_GROUPS } from "@/config/nav-groups";
 import { useCategoryTree, useHeroSlides, useNavGroupDefs } from "@/features/catalog/queries";
 import { useDesignedHeroPack } from "@/features/home/use-hero-design";
-import { lcpImageProps } from "@/lib/cwv";
+import { HERO_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { HeroSlide } from "@/types/content";
 import type { CategoryTreeNode } from "@/types/category";
@@ -317,10 +317,11 @@ export function Hero() {
                 <div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />
               }
               {...(activeIndex === 0 ? lcpImageProps() : { loading: "lazy" as const })}
+              quality={HERO_IMAGE_QUALITY}
             />
             <div
               aria-hidden
-              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.45)_0%,rgba(18,18,18,0.22)_38%,rgba(18,18,18,0.72)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.12)_0%,rgba(18,18,18,0.35)_48%,rgba(18,18,18,0.82)_78%,rgba(18,18,18,0.92)_100%)]"
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,18,18,0.22)_0%,rgba(18,18,18,0.10)_38%,rgba(18,18,18,0.56)_100%)] sm:bg-[linear-gradient(105deg,rgba(18,18,18,0.04)_0%,rgba(18,18,18,0.15)_48%,rgba(18,18,18,0.62)_78%,rgba(18,18,18,0.74)_100%)]"
             />
             <div
               aria-hidden
@@ -331,15 +332,17 @@ export function Hero() {
 
         <div
           className={cn(
-            "relative z-10 flex h-full flex-col justify-center px-5 pb-36 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-300 ease-out sm:px-10 lg:px-16",
+            // items-start + text-right: copy/CTAs hug RTL inline-start (viewport right).
+            "relative z-10 flex h-full flex-col items-start justify-center px-5 pb-36 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] text-right transition-[opacity,transform] duration-300 ease-out sm:px-10 lg:px-16",
             menuOpen && "pointer-events-none translate-y-1 opacity-35",
           )}
         >
-          <div className="max-w-xl">
+          <div className="w-full max-w-xl">
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
                 key={slide.id}
                 custom={direction}
+                className="text-right"
                 initial={
                   reducedMotion
                     ? { opacity: 0 }
@@ -362,7 +365,10 @@ export function Hero() {
                 >
                   کارزار
                 </p>
-                <div className="mt-2 h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14" aria-hidden />
+                <div
+                  className="mt-2 me-auto h-1 w-12 rounded-full bg-primary sm:mt-3 sm:w-14"
+                  aria-hidden
+                />
                 <h1
                   className="mt-4 text-[1.7rem] font-bold leading-snug text-white sm:mt-5 sm:text-4xl lg:text-[2.75rem] lg:leading-tight"
                   style={{ textShadow: copyShadow }}
@@ -376,7 +382,7 @@ export function Hero() {
                   {slide.subtitle}
                 </p>
 
-                <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+                <div className="mt-6 flex flex-col items-stretch gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-3">
                   <Link href={slide.cta_href} className="w-full sm:w-auto">
                     <Button size="lg" className="w-full gap-2 sm:w-auto">
                       {slide.cta_label}
@@ -398,7 +404,7 @@ export function Hero() {
           </div>
 
           {slides.length > 1 && !menuOpen ? (
-            <div className="mt-8 flex items-center gap-4 sm:mt-10">
+            <div className="mt-8 flex items-center justify-start gap-4 self-start sm:mt-10">
               <div className="flex gap-1.5" role="tablist" aria-label="انتخاب اسلاید">
                 {slides.map((s, i) => (
                   <button

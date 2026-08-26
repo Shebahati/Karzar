@@ -1,0 +1,25 @@
+---
+description: Architecture Canon index — what is Binding vs not citeable
+globs: docs/architecture/**
+alwaysApply: false
+---
+
+# Canon (load with `docs/architecture/`)
+
+Start at `docs/architecture/CANON-LOCK.md`. If a doc is not **Accepted** or **Binding** there, it is not merge criteria (`CANON-LOCK.md:12-13`). Binding SoR is **this Git tree only** (`:8-10`, `CR-009`).
+
+## Accepted / Binding (open the row, do not copy)
+
+Wave-1: ADR-010, ADR-012, RFC-004, RFC-005, IA pack, Brand Hub contract, developer standards — `CANON-LOCK.md:30-44`.  
+Knowledge: specs pack + ADR-013/014 — `:58-72`. Product Type: ADR-015 — `:90-95`.  
+AODS process: `aods/` — `:111-116`. Ingestion policy + git workflow still Binding — `:121-128`.
+
+KPI to checkpoint: mid-tail SEO + UX + CWV, not head-term #1 — `project-management/EXECUTIVE_SUMMARY.md:68-69`.
+
+## Not citeable until promoted (`CANON-LOCK.md:138-156`)
+
+ADR-001–009/011; RFC-001/002/003/006/007; dual-write; generative RAG; packs not in this checkout. Phase1–3 knowledge docs are HISTORICAL.
+
+## Conflicts
+
+`aods/10-repository-intelligence/CONFLICT-REGISTER.md` is append-only (`:19-21`). Open BLOCKERs: 0 (`:66`). Same-VPS residual: deploy is `workflow_dispatch` only — `.github/workflows/deploy-staging.yml:3-9`.

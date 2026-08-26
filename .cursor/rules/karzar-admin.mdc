@@ -1,0 +1,23 @@
+---
+description: Next.js admin panel — commerce ops pointers; not a UI kit
+globs: frontend/admin-panel/**
+alwaysApply: false
+---
+
+# Admin panel (load with `frontend/admin-panel/`)
+
+Local: `http://localhost:3001` — `frontend/admin-panel/README.md:11-14`. API: `NEXT_PUBLIC_API_BASE_URL` — `frontend/admin-panel/src/config/env.ts:10`. App Router under `src/app/(dashboard)/`.
+
+## Product / inventory
+
+- Availability on site is `is_available` (موجود/ناموجود), not numeric warehouse qty — `docs/HESABFA.md:8`, `docs/API_CHANGELOG.md:33`
+- Admin must not show Hesabfa sales/stock metrics — `docs/HESABFA.md:13`, `:29`; `docs/OPERATIONS.md:93-95`
+- Catalog bulk in UI is not a substitute for a versioned Category A/B pipeline — `docs/architecture/data-ingestion-policy.md:119`
+
+## Knowledge
+
+`src/app/(dashboard)/knowledge/page.tsx` exists. KB writes follow Accepted specs + ADR-013/014/015 (`docs/architecture/CANON-LOCK.md:58-95`). Do not enable dual-write or RAG (`CANON-LOCK.md:155-156`).
+
+## Next.js
+
+This App Router is not classic Pages Router. Prefer `node_modules/next/dist/docs/` over training-data habits (`AGENTS.md`).

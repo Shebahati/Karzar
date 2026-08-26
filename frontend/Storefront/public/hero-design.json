@@ -171,8 +171,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(28,10,10,0.2)",
-          "gradientTo": "rgba(8,6,6,0.88)",
+          "gradientFrom": "rgba(28,10,10,0.08)",
+          "gradientTo": "rgba(8,6,6,0.70)",
           "gradientAngle": 105,
           "opacity": 1
         },
@@ -184,7 +184,10 @@
           "titleSize": 46,
           "subtitleSize": 16,
           "align": "start",
-          "position": { "x": 6, "y": 28 },
+          "position": {
+            "x": 6,
+            "y": 28
+          },
           "maxWidth": 420
         },
         "buttons": [
@@ -195,8 +198,14 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 6, "y": 58 },
-            "action": { "type": "href", "value": "/catalog" },
+            "position": {
+              "x": 6,
+              "y": 58
+            },
+            "action": {
+              "type": "href",
+              "value": "/catalog"
+            },
             "stylePreset": "primary",
             "sizePreset": "lg"
           }
@@ -206,7 +215,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -236,8 +248,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(10,12,16,0.1)",
-          "gradientTo": "rgba(8,10,12,0.86)",
+          "gradientFrom": "rgba(10,12,16,0.06)",
+          "gradientTo": "rgba(8,10,12,0.68)",
           "gradientAngle": 255,
           "opacity": 1
         },
@@ -249,7 +261,10 @@
           "titleSize": 44,
           "subtitleSize": 16,
           "align": "end",
-          "position": { "x": 48, "y": 30 },
+          "position": {
+            "x": 48,
+            "y": 30
+          },
           "maxWidth": 400
         },
         "buttons": [
@@ -260,8 +275,14 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 62, "y": 58 },
-            "action": { "type": "href", "value": "/categories/andaze-giri" },
+            "position": {
+              "x": 62,
+              "y": 58
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/andaze-giri"
+            },
             "stylePreset": "primary",
             "sizePreset": "lg"
           }
@@ -271,7 +292,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -301,8 +325,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(12,12,12,0.45)",
-          "gradientTo": "rgba(12,12,12,0.78)",
+          "gradientFrom": "rgba(12,12,12,0.18)",
+          "gradientTo": "rgba(12,12,12,0.62)",
           "gradientAngle": 180,
           "opacity": 1
         },
@@ -314,7 +338,10 @@
           "titleSize": 44,
           "subtitleSize": 16,
           "align": "center",
-          "position": { "x": 24, "y": 32 },
+          "position": {
+            "x": 24,
+            "y": 32
+          },
           "maxWidth": 440
         },
         "buttons": [
@@ -325,8 +352,14 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 38, "y": 58 },
-            "action": { "type": "href", "value": "/categories/insert" },
+            "position": {
+              "x": 38,
+              "y": 58
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/insert"
+            },
             "stylePreset": "primary",
             "sizePreset": "lg"
           }
@@ -336,7 +369,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -366,8 +402,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(12,16,20,0.12)",
-          "gradientTo": "rgba(6,8,10,0.9)",
+          "gradientFrom": "rgba(12,16,20,0.06)",
+          "gradientTo": "rgba(6,8,10,0.70)",
           "gradientAngle": 95,
           "opacity": 1
         },
@@ -379,7 +415,10 @@
           "titleSize": 44,
           "subtitleSize": 16,
           "align": "start",
-          "position": { "x": 6, "y": 26 },
+          "position": {
+            "x": 6,
+            "y": 26
+          },
           "maxWidth": 400
         },
         "buttons": [
@@ -390,8 +429,14 @@
             "bgColor": "transparent",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 6, "y": 56 },
-            "action": { "type": "href", "value": "/categories/abzar-gireshi" },
+            "position": {
+              "x": 6,
+              "y": 56
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/abzar-gireshi"
+            },
             "stylePreset": "on-dark-outline",
             "sizePreset": "lg"
           }
@@ -401,7 +446,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -431,8 +479,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(8,10,14,0.18)",
-          "gradientTo": "rgba(4,5,8,0.92)",
+          "gradientFrom": "rgba(8,10,14,0.06)",
+          "gradientTo": "rgba(4,5,8,0.72)",
           "gradientAngle": 112,
           "opacity": 1
         },
@@ -444,7 +492,10 @@
           "titleSize": 48,
           "subtitleSize": 16,
           "align": "start",
-          "position": { "x": 6, "y": 24 },
+          "position": {
+            "x": 6,
+            "y": 24
+          },
           "maxWidth": 460
         },
         "buttons": [
@@ -455,8 +506,14 @@
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 6, "y": 56 },
-            "action": { "type": "href", "value": "/categories/dastgah-sanati" },
+            "position": {
+              "x": 6,
+              "y": 56
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/dastgah-sanati"
+            },
             "stylePreset": "primary",
             "sizePreset": "lg"
           }
@@ -466,7 +523,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
@@ -496,8 +556,8 @@
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.7)",
-          "gradientFrom": "rgba(40,40,40,0.22)",
-          "gradientTo": "rgba(12,12,12,0.86)",
+          "gradientFrom": "rgba(40,40,40,0.08)",
+          "gradientTo": "rgba(12,12,12,0.68)",
           "gradientAngle": 70,
           "opacity": 1
         },
@@ -509,7 +569,10 @@
           "titleSize": 42,
           "subtitleSize": 16,
           "align": "end",
-          "position": { "x": 50, "y": 30 },
+          "position": {
+            "x": 50,
+            "y": 30
+          },
           "maxWidth": 380
         },
         "buttons": [
@@ -520,8 +583,14 @@
             "bgColor": "#5E5F5E",
             "textColor": "#FFFFFF",
             "borderRadius": 12,
-            "position": { "x": 58, "y": 58 },
-            "action": { "type": "href", "value": "/categories/abzar-inserti" },
+            "position": {
+              "x": 58,
+              "y": 58
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/abzar-inserti"
+            },
             "stylePreset": "soft",
             "sizePreset": "lg"
           }
@@ -531,7 +600,10 @@
           "enabled": false,
           "categorySlug": "",
           "categoryLabel": "",
-          "position": { "x": 52, "y": 56 },
+          "position": {
+            "x": 52,
+            "y": 56
+          },
           "maxItems": 4,
           "previewTitles": [],
           "stylePreset": "rail-soft",
