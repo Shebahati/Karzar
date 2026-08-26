@@ -96,13 +96,17 @@ def sep_settings(monkeypatch):
         "PAYMENT_FAILURE_REDIRECT_URL",
         "http://localhost:3000/checkout/payment/failed",
     )
+    # Isolate provider selection — previous tests must not leave PAYMENT_PROVIDER=sep.
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     reset_payment_provider_for_tests()
     yield
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     reset_payment_provider_for_tests()
 
 
 def _enable_sep(monkeypatch):
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "sep")
+    monkeypatch.setattr(settings, "SEP_TERMINAL_ID", TERMINAL)
     reset_payment_provider_for_tests()
 
 
