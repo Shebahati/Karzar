@@ -27,6 +27,55 @@ depends_on = None
 _REF_UNIQUE_INDEX = "uq_orders_payment_ref_id_not_null"
 _VERIFY_NEXT_INDEX = "ix_orders_payment_next_verify_at"
 
+# Widen lifecycle CHECKs from a2b3c4d5e6f7 to match PaymentStatus / PaymentTransactionStatus.
+_PAYMENT_STATUSES = (
+    "unpaid",
+    "paid",
+    "failed",
+    "refunded",
+    "verifying",
+    "reconciliation_required",
+)
+_TX_STATUSES = (
+    "initiated",
+    "callback_received",
+    "verifying",
+    "verified",
+    "failed",
+    "refunded",
+    "reversed",
+    "reconciliation_required",
+)
+_LEGACY_PAYMENT_STATUSES = ("unpaid", "paid", "failed", "refunded")
+_LEGACY_TX_STATUSES = ("initiated", "verified", "failed", "refunded")
+
+
+def _recreate_payment_status_checks(
+    *,
+    payment_statuses: tuple[str, ...],
+    tx_statuses: tuple[str, ...],
+) -> None:
+    payments = ", ".join(f"'{s}'" for s in payment_statuses)
+    txs = ", ".join(f"'{s}'" for s in tx_statuses)
+    op.execute("ALTER TABLE orders DROP CONSTRAINT IF EXISTS ck_orders_payment_status_lifecycle")
+    op.execute(
+        f"""
+        ALTER TABLE orders
+        ADD CONSTRAINT ck_orders_payment_status_lifecycle
+        CHECK (payment_status IN ({payments}))
+        """
+    )
+    op.execute(
+        "ALTER TABLE payment_transactions DROP CONSTRAINT IF EXISTS ck_payment_transactions_status_lifecycle"
+    )
+    op.execute(
+        f"""
+        ALTER TABLE payment_transactions
+        ADD CONSTRAINT ck_payment_transactions_status_lifecycle
+        CHECK (status IN ({txs}))
+        """
+    )
+
 
 def upgrade() -> None:
     conn = op.get_bind()
@@ -62,6 +111,10 @@ def upgrade() -> None:
         existing_type=sa.String(length=20),
         type_=sa.String(length=32),
         existing_nullable=False,
+    )
+    _recreate_payment_status_checks(
+        payment_statuses=_PAYMENT_STATUSES,
+        tx_statuses=_TX_STATUSES,
     )
 
     op.add_column(
@@ -151,6 +204,35 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Reject new statuses before restoring the narrower CHECK.
+    op.execute(
+        sa.text(
+            """
+            UPDATE orders
+            SET payment_status = 'failed'
+            WHERE payment_status IN ('verifying', 'reconciliation_required')
+            """
+        )
+    )
+    op.execute(
+        sa.text(
+            """
+            UPDATE payment_transactions
+            SET status = 'failed'
+            WHERE status IN (
+                'callback_received',
+                'verifying',
+                'reversed',
+                'reconciliation_required'
+            )
+            """
+        )
+    )
+    _recreate_payment_status_checks(
+        payment_statuses=_LEGACY_PAYMENT_STATUSES,
+        tx_statuses=_LEGACY_TX_STATUSES,
+    )
+
     op.drop_column("payment_transactions", "merchant_reference")
     op.drop_column("payment_transactions", "rrn")
     op.drop_column("payment_transactions", "trace_no")

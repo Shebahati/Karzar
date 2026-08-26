@@ -350,12 +350,15 @@ async def reserve_sep_callback(
         order.payment_ref_id = fields.ref_num
         await db.flush()
     except IntegrityError as exc:
-        # Concurrent reserve of the same RefNum — do not continue on this session.
-        # Log dialect detail: CI races can also surface other unique constraints.
+        orig = getattr(exc, "orig", None)
+        orig_name = type(orig).__name__ if orig is not None else ""
+        # CheckViolation (e.g. payment_status lifecycle) must not be masked as a RefNum race.
+        if orig_name == "CheckViolationError":
+            raise
         logger.warning(
             "SEP RefNum unique race for ResNum=%s detail=%s",
             fields.res_num,
-            getattr(exc, "orig", exc),
+            orig if orig is not None else exc,
         )
         raise
 
