@@ -138,9 +138,13 @@ export function CheckoutView() {
           setPaying(true);
           savePendingPayment(res.order_id, res.tracking_code);
 
-          const payment = await initPayment.mutateAsync({ order_id: res.order_id });
+          let paymentUrl = res.payment_url;
+          if (!paymentUrl) {
+            const payment = await initPayment.mutateAsync({ order_id: res.order_id });
+            paymentUrl = payment.payment_url;
+          }
           const { redirectToPaymentUrl } = await import("@/lib/payment-url");
-          redirectToPaymentUrl(payment.payment_url);
+          redirectToPaymentUrl(paymentUrl);
         } catch (err) {
           setPaying(false);
           if (err instanceof ApiError && err.errorCode === ERROR_CODES.GUEST_ORDER_NOT_PAYABLE) {

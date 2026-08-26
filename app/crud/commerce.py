@@ -146,6 +146,27 @@ async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Or
     return result.scalar_one_or_none()
 
 
+async def get_order_by_tracking_code_for_update(db: AsyncSession, tracking_code: str) -> Order | None:
+    stmt = (
+        select(Order)
+        .where(Order.tracking_code == tracking_code, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .with_for_update()
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def get_order_by_payment_ref_id(db: AsyncSession, ref_id: str) -> Order | None:
+    stmt = (
+        select(Order)
+        .where(Order.payment_ref_id == ref_id, Order.deleted_at.is_(None))
+        .options(selectinload(Order.items), selectinload(Order.status_events))
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
 async def list_orders(
     db: AsyncSession,
     *,

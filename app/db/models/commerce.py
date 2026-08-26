@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -39,13 +39,21 @@ class PaymentStatus(str, enum.Enum):
     PAID = "paid"
     FAILED = "failed"
     REFUNDED = "refunded"
+    # Gateway callback accepted; server-side Verify in progress or pending retry.
+    VERIFYING = "verifying"
+    # Verified/received amount or reverse outcome needs human reconciliation.
+    RECONCILIATION_REQUIRED = "reconciliation_required"
 
 
 class PaymentTransactionStatus(str, enum.Enum):
     INITIATED = "initiated"
+    CALLBACK_RECEIVED = "callback_received"
+    VERIFYING = "verifying"
     VERIFIED = "verified"
     FAILED = "failed"
     REFUNDED = "refunded"
+    REVERSED = "reversed"
+    RECONCILIATION_REQUIRED = "reconciliation_required"
 
 
 class PaymentTransaction(Base):
@@ -64,10 +72,15 @@ class PaymentTransaction(Base):
     )
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
     gateway: Mapped[str] = mapped_column(String(32), nullable=False)
-    authority: Mapped[str | None] = mapped_column(String(64))
+    authority: Mapped[str | None] = mapped_column(String(256))
     ref_id: Mapped[str | None] = mapped_column(String(64))
-    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
     ip_address: Mapped[str | None] = mapped_column(String(45))
+    provider_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    result_code: Mapped[int | None] = mapped_column(Integer)
+    trace_no: Mapped[str | None] = mapped_column(String(64))
+    rrn: Mapped[str | None] = mapped_column(String(64))
+    merchant_reference: Mapped[str | None] = mapped_column(String(64))
 
     order: Mapped["Order"] = relationship("Order", back_populates="payment_transactions")
 
@@ -78,6 +91,14 @@ class Order(Base):
         Index("ix_orders_user_id", "user_id"),
         Index("ix_orders_created_at", "created_at"),
         Index("ix_orders_status", "status"),
+        Index("ix_orders_payment_next_verify_at", "payment_next_verify_at"),
+        Index(
+            "uq_orders_payment_ref_id_not_null",
+            "payment_ref_id",
+            unique=True,
+            postgresql_where=text("payment_ref_id IS NOT NULL"),
+            sqlite_where=text("payment_ref_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -88,7 +109,7 @@ class Order(Base):
     )
     status: Mapped[str] = mapped_column(String(100), nullable=False)
     payment_status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=PaymentStatus.UNPAID.value, server_default="unpaid"
+        String(32), nullable=False, default=PaymentStatus.UNPAID.value, server_default="unpaid"
     )
     estimated_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     customer_full_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -105,9 +126,19 @@ class Order(Base):
     invoice_valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
-    payment_authority: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)
+    payment_authority: Mapped[str | None] = mapped_column(String(256), unique=True, index=True)
     payment_ref_id: Mapped[str | None] = mapped_column(String(64))
     payment_refund_id: Mapped[str | None] = mapped_column(String(64))
+    # Generic gateway verify/retry bookkeeping (SEP OnlinePG and future providers).
+    payment_callback_received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payment_verify_deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payment_verify_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    payment_next_verify_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payment_last_error: Mapped[str | None] = mapped_column(String(255))
+    payment_authority_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payment_provider_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
     items: Mapped[list["OrderItem"]] = relationship(
         "OrderItem", back_populates="order", cascade="all, delete-orphan"

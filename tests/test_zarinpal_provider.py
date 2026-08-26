@@ -6,6 +6,8 @@ import httpx
 import pytest
 from app.core.config import settings
 from app.services.payment_service import (
+    PaymentInitContext,
+    PaymentVerifyContext,
     PaymentVerifyFailedError,
     ZarinpalProvider,
     reset_payment_provider_for_tests,
@@ -38,9 +40,12 @@ def test_zarinpal_init_payment_success(monkeypatch):
     provider = ZarinpalProvider()
     result = asyncio.run(
         provider.init_payment(
-            amount_rials=10000,
-            description="test",
-            callback_url="http://localhost/callback",
+            PaymentInitContext(
+                amount_rials=10000,
+                description="test",
+                callback_url="http://localhost/callback",
+                merchant_reference="KZ-TEST",
+            )
         )
     )
     assert result.authority == "A000111"
@@ -69,7 +74,11 @@ def test_zarinpal_verify_payment_success(monkeypatch):
     monkeypatch.setattr(settings, "ZARINPAL_MERCHANT_ID", "test-merchant")
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _MockClient())
     provider = ZarinpalProvider()
-    result = asyncio.run(provider.verify_payment(authority="A000111", amount_rials=10000))
+    result = asyncio.run(
+        provider.verify_payment(
+            PaymentVerifyContext(authority="A000111", amount_rials=10000)
+        )
+    )
     assert result.success is True
     assert result.ref_id == "999888"
 
@@ -96,4 +105,8 @@ def test_zarinpal_verify_payment_rejected(monkeypatch):
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _MockClient())
     provider = ZarinpalProvider()
     with pytest.raises(PaymentVerifyFailedError):
-        asyncio.run(provider.verify_payment(authority="A000111", amount_rials=10000))
+        asyncio.run(
+            provider.verify_payment(
+                PaymentVerifyContext(authority="A000111", amount_rials=10000)
+            )
+        )

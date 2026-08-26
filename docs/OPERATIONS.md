@@ -126,8 +126,9 @@ Never downgrade production past a migration that dropped columns without a backu
 4. Run `alembic upgrade head` on staging (entrypoint does this on boot).
 5. Smoke: `GET /ready`, checkout mock payment, admin login
    (`deploy/staging/scripts/smoke-staging.sh`).
-6. Production: same compose profile with secrets from vault (not `.env` in repo);
-   see [deploy/staging/PROVIDERS_LATER.md](../deploy/staging/PROVIDERS_LATER.md) before enabling live payment/SMS.
+6. Production: same compose profile with secrets from vault (not `.env` in repo).
+   Zarinpal may be env-only; **SEP is not** — see [SEP_PAYMENT_GATEWAY.md](./SEP_PAYMENT_GATEWAY.md)
+   and [deploy/staging/PROVIDERS_LATER.md](../deploy/staging/PROVIDERS_LATER.md) before enabling live payment/SMS.
 7. Post-deploy: watch error rate and `/metrics` for 15 minutes.
 
 ## Incident response (suggested)

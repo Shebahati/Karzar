@@ -5,6 +5,8 @@ const ALLOWED_PAYMENT_HOSTS = new Set([
   "zarinpal.com",
   "sandbox.zarinpal.com",
   "payment.zarinpal.com",
+  // Exact SEP host only — no wildcard / subdomain / lookalike.
+  "sep.shaparak.ir",
 ]);
 
 function isLocalDevHost(hostname: string): boolean {
@@ -14,6 +16,7 @@ function isLocalDevHost(hostname: string): boolean {
 /**
  * Returns true when `url` is a safe absolute http(s) payment redirect target.
  * Localhost http is allowed only for mock / local callback flows.
+ * SEP (`sep.shaparak.ir`) requires HTTPS.
  */
 export function isAllowedPaymentUrl(url: string): boolean {
   if (!url || typeof url !== "string") return false;
@@ -25,6 +28,9 @@ export function isAllowedPaymentUrl(url: string): boolean {
   }
   if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
   const host = parsed.hostname.toLowerCase();
+  if (host === "sep.shaparak.ir") {
+    return parsed.protocol === "https:";
+  }
   if (ALLOWED_PAYMENT_HOSTS.has(host)) {
     return parsed.protocol === "https:" || isLocalDevHost(host);
   }

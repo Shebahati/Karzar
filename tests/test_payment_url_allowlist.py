@@ -19,3 +19,15 @@ def test_localhost_mock_callback_allowed():
 
 def test_javascript_rejected():
     assert not is_allowed_payment_url("javascript:alert(1)")
+
+
+def test_sep_send_token_allowed():
+    assert is_allowed_payment_url(
+        "https://sep.shaparak.ir/OnlinePG/SendToken?token=abc123"
+    )
+
+
+def test_sep_http_and_lookalikes_rejected():
+    assert not is_allowed_payment_url("http://sep.shaparak.ir/OnlinePG/SendToken?token=x")
+    assert not is_allowed_payment_url("https://sep.shaparak.ir.evil.example/")
+    assert not is_allowed_payment_url("https://evil.example/?next=sep.shaparak.ir")

@@ -549,6 +549,19 @@ documents:
     on_main: true
     notes: "Locked decisions: binary availability; warehouse counts live only in Hesabfa."
 
+  - id: SEP-PAYMENT-GATEWAY
+    path: docs/SEP_PAYMENT_GATEWAY.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-BE-ARCH
+    on_main: false
+    notes: >-
+      Saman Kish (SEP) OnlinePG operator runbook: Token/Verify/callback, RefNum
+      uniqueness, verifying retry, Reverse vs refund, IP whitelist, deployment
+      checklist. No live terminal secrets. Keep PAYMENT_PROVIDER=mock until Terminal
+      + egress IP are registered with SEP.
+
   - id: COLLABORATOR-DEPLOY
     path: docs/COLLABORATOR_DEPLOY.md
     class: POLICY

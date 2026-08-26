@@ -49,9 +49,10 @@ class Settings(BaseSettings):
     SMS_FARAZ_BASE_URL: str = "https://api.iranpayamak.com"
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
 
-    # Payment provider: "mock" (local dev) or "zarinpal" (production gateway).
+    # Payment provider: "mock" | "zarinpal" | "sep" (Saman Kish OnlinePG).
     PAYMENT_PROVIDER: str = "mock"
     # Callback URL registered with the gateway (storefront or backend callback endpoint).
+    # For SEP use the backend POST callback: .../api/v1/payments/callback/sep
     PAYMENT_CALLBACK_URL: str | None = None
     PAYMENT_SUCCESS_REDIRECT_URL: str = "http://localhost:3000/checkout/success"
     PAYMENT_FAILURE_REDIRECT_URL: str = "http://localhost:3000/checkout/payment/failed"
@@ -59,6 +60,21 @@ class Settings(BaseSettings):
     ZARINPAL_REQUEST_URL: str = "https://payment.zarinpal.com/pg/v4/payment/request.json"
     ZARINPAL_VERIFY_URL: str = "https://payment.zarinpal.com/pg/v4/payment/verify.json"
     PAYMENT_TIMEOUT_SECONDS: float = Field(default=12.0, ge=1.0, le=60.0)
+    # SEP (Saman Kish) — Terminal ID is secret/ops; never commit real values.
+    SEP_TERMINAL_ID: str | None = None
+    SEP_TOKEN_URL: str = "https://sep.shaparak.ir/OnlinePG/OnlinePG"
+    SEP_SEND_TOKEN_URL: str = "https://sep.shaparak.ir/OnlinePG/SendToken"
+    # Prefer PDF/Python spelling VerifyTransaction (not Postman typo VerifyTranscation).
+    SEP_VERIFY_URL: str = (
+        "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction"
+    )
+    SEP_REVERSE_URL: str = (
+        "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/ReverseTransaction"
+    )
+    SEP_TOKEN_EXPIRY_MINUTES: int = Field(default=30, ge=20, le=3600)
+    # DB-backed retry for SEP verify after callback when gateway times out (~30 min window).
+    SEP_VERIFY_RETRY_INTERVAL_SECONDS: int = Field(default=15, ge=5, le=120)
+    SEP_VERIFY_DEADLINE_MINUTES: int = Field(default=30, ge=5, le=60)
 
     # Hesabfa (حسابفا) accounting integration — secrets only via env / VPS.
     # Disabled by default; enable after apiKey + loginToken are set on the server.
@@ -167,8 +183,8 @@ class Settings(BaseSettings):
     @classmethod
     def validate_payment_provider(cls, v: str) -> str:
         normalized = v.strip().lower()
-        if normalized not in {"mock", "zarinpal"}:
-            raise ValueError("PAYMENT_PROVIDER must be either 'mock' or 'zarinpal'")
+        if normalized not in {"mock", "zarinpal", "sep"}:
+            raise ValueError("PAYMENT_PROVIDER must be one of: mock, zarinpal, sep")
         return normalized
 
     @field_validator("HESABFA_CURRENCY_UNIT")
@@ -216,10 +232,30 @@ class Settings(BaseSettings):
                 raise ValueError("ENFORCE_HTTPS must be True when APP_ENV=production")
             if self.PAYMENT_PROVIDER == "mock":
                 raise ValueError("PAYMENT_PROVIDER=mock is not allowed when APP_ENV=production")
+            if self.PAYMENT_PROVIDER == "sep" and not (self.SEP_TERMINAL_ID or "").strip():
+                raise ValueError(
+                    "SEP_TERMINAL_ID is required when PAYMENT_PROVIDER=sep and APP_ENV=production"
+                )
             if self.SMS_PROVIDER == "console":
                 raise ValueError("SMS_PROVIDER=console is not allowed when APP_ENV=production")
             if self.ENABLE_API_DOCS:
                 raise ValueError("ENABLE_API_DOCS must be False when APP_ENV=production")
+
+        if self.PAYMENT_PROVIDER == "sep":
+            from urllib.parse import urlparse
+
+            for label, url in (
+                ("SEP_TOKEN_URL", self.SEP_TOKEN_URL),
+                ("SEP_SEND_TOKEN_URL", self.SEP_SEND_TOKEN_URL),
+                ("SEP_VERIFY_URL", self.SEP_VERIFY_URL),
+                ("SEP_REVERSE_URL", self.SEP_REVERSE_URL),
+            ):
+                parsed = urlparse(url)
+                host = (parsed.hostname or "").lower()
+                if parsed.scheme != "https" or host != "sep.shaparak.ir":
+                    if self.APP_ENV == "development" and host in {"localhost", "127.0.0.1"}:
+                        continue
+                    raise ValueError(f"{label} must be https://sep.shaparak.ir/…")
 
         if harden:
             if self.ADMIN_STEP_UP_PIN in weak_pins:
