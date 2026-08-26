@@ -1,0 +1,25 @@
+---
+description: Catalog scripts — local-only Category A; fail-closed production
+globs: scripts/**
+alwaysApply: false
+---
+
+# Ingestion (load with `scripts/`)
+
+Treat every catalog writer as hazardous. Guard: `scripts/ingestion_boundary.py:1-7`.
+
+## Destination
+
+- Category A default: `KARZAR_API_BASE=http://127.0.0.1:8000/api/v1` — `docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md:64-66`; `docs/architecture/data-ingestion-policy.md:74-75`, `:183-191`
+- Production host (`karzartools.com`) requires **both** `KARZAR_ALLOW_PRODUCTION_WRITE=1` and `KARZAR_INGESTION_CATEGORY=B` or abort — `data-ingestion-policy.md:77-85`; `ingestion_boundary.py:20-24`
+- Category B = ticket + backup + rollback, not habit — `ADR-012:68`; `data-ingestion-policy.md:197`
+
+## What a job may write
+
+Spec enrich: specs yes, **prices no** by default — `docs/architecture/specs/SPEC-product-import-enrichment-playbook.md:166-171`. Price jobs are a separate commercial path. Do not invent stock; site flag is `is_available` (`docs/HESABFA.md:8`).
+
+Declare Source, Destination, Owner, Validation, Audit, Rollback — `ADR-012:67`.
+
+## Do not
+
+Default to `https://api.karzartools.com`. “Continue with warning” is non-compliant (`ADR-012:66`). Cite `ADR-012` + `data-ingestion-policy.md` on importer PRs (`docs/development/standards/documentation-citation-rules.md:19`).

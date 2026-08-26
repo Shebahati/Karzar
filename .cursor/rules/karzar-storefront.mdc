@@ -1,0 +1,26 @@
+---
+description: Next.js public shop (RTL/FA) — URL/SEO pointers; not a page spec
+globs: frontend/Storefront/**
+alwaysApply: false
+---
+
+# Storefront (load with `frontend/Storefront/`)
+
+Local: `http://localhost:3000` — `frontend/LOCAL_STACK_ACCESS.md:9`. API: `NEXT_PUBLIC_API_BASE_URL` — `frontend/Storefront/src/config/env.ts:11`.
+
+## Canonical routes (ADR-010 / RFC-004 / RFC-005)
+
+| Surface | Path | As-built |
+|---------|------|----------|
+| PDP | `/product/{slug}` | `src/app/product/[slug]/page.tsx` |
+| id → slug 301 | `/product/{id}` | same file `:69-75` (`permanentRedirect`) |
+| Brand hub | `/brands/{slug}` | `src/app/brands/[slug]/page.tsx` + `docs/architecture/information-architecture/brand-hub-page-contract.md:14-16` |
+| Category | `/categories/{slug}` | `src/app/categories/[slug]/page.tsx` |
+
+Do not ship plural `/products/{slug}` as TARGET — `docs/architecture/adr/ADR-010-seo-url-contract.md:64-66`. Canonical, sitemap, breadcrumbs, JSON-LD `@id` must agree (`:69`).
+
+## FE rules
+
+`docs/development/standards/frontend-change-rules.md:8-14`. Honest empty slots (PDF/accessories) stay visible. Do not render OperationalMetadata `top:*` as customer specs (`:20-24`).
+
+Quarantine: never read `frontend/AI_CONTEXT.md` or `docs/FRONTEND_IMPLEMENTATION_GUIDE.md`.

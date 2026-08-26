@@ -42,7 +42,7 @@ import {
 } from "@/config/hero-orbs";
 import { SafeImage } from "@/components/ui/safe-image";
 import { composeHeroForMobile, type MobileComposePreset } from "@/lib/mobile-hero-compose";
-import { lcpImageProps } from "@/lib/cwv";
+import { HERO_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroConfig, DesignedHeroPack, DesignedHeroSlide } from "@/types/hero-design";
@@ -161,6 +161,7 @@ function SlideCanvas({
           style={{ objectPosition: config.background.focal || "center" }}
           fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
           {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
+          quality={HERO_IMAGE_QUALITY}
         />
       )}
 
@@ -195,7 +196,13 @@ function SlideCanvas({
             {config.typography.title}
           </h1>
           <div
-            className="mt-3 h-px w-10"
+            className={cn(
+              "mt-3 h-px w-10",
+              // start→right (RTL): keep accent under the right edge of the copy block
+              config.typography.align === "start" && "me-auto",
+              config.typography.align === "end" && "ms-auto",
+              config.typography.align === "center" && "mx-auto",
+            )}
             style={{ background: "rgba(208,35,39,0.85)" }}
             aria-hidden
           />
@@ -252,7 +259,10 @@ function SlideCanvas({
               <Link
                 href={href}
                 className={cn(
-                  "inline-block font-semibold whitespace-nowrap transition hover:opacity-95 active:scale-[0.98]",
+                  "inline-block text-center font-semibold whitespace-nowrap transition hover:opacity-95 active:scale-[0.98]",
+                  // Match typography: start maps to physical right in designed-hero Layer
+                  config.typography.align === "start" && "text-right",
+                  config.typography.align === "end" && "text-left",
                   pad,
                   size !== "pill" && "rounded-xl",
                 )}
