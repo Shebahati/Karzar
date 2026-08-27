@@ -260,9 +260,9 @@
           "subtitleColor": "rgba(255,255,255,0.86)",
           "titleSize": 44,
           "subtitleSize": 16,
-          "align": "end",
+          "align": "start",
           "position": {
-            "x": 48,
+            "x": 6,
             "y": 30
           },
           "maxWidth": 400
@@ -276,7 +276,7 @@
             "textColor": "#FFFFFF",
             "borderRadius": 12,
             "position": {
-              "x": 62,
+              "x": 6,
               "y": 58
             },
             "action": {
@@ -337,9 +337,9 @@
           "subtitleColor": "rgba(255,255,255,0.88)",
           "titleSize": 44,
           "subtitleSize": 16,
-          "align": "center",
+          "align": "start",
           "position": {
-            "x": 24,
+            "x": 6,
             "y": 32
           },
           "maxWidth": 440
@@ -353,7 +353,7 @@
             "textColor": "#FFFFFF",
             "borderRadius": 12,
             "position": {
-              "x": 38,
+              "x": 6,
               "y": 58
             },
             "action": {
@@ -568,9 +568,9 @@
           "subtitleColor": "rgba(255,255,255,0.86)",
           "titleSize": 42,
           "subtitleSize": 16,
-          "align": "end",
+          "align": "start",
           "position": {
-            "x": 50,
+            "x": 6,
             "y": 30
           },
           "maxWidth": 380
@@ -584,7 +584,7 @@
             "textColor": "#FFFFFF",
             "borderRadius": 12,
             "position": {
-              "x": 58,
+              "x": 6,
               "y": 58
             },
             "action": {
