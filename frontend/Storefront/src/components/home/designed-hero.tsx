@@ -70,6 +70,8 @@ function Layer({
   style?: CSSProperties;
   children: ReactNode;
 }) {
+  // x is % inset-inline-start (RTL → physical right). Prefer small x + typography.align
+  // "start" so Persian copy hugs the right; large x + "end" wrongly parks copy on the left.
   return (
     <div className={cn("absolute z-20", className)} style={{ insetInlineStart: `${x}%`, top: `${y}%`, ...style }}>
       {children}

@@ -555,12 +555,12 @@ documents:
     rank: 6
     status: current
     owner_role: R-BE-ARCH
-    on_main: false
+    on_main: true
     notes: >-
       Saman Kish (SEP) OnlinePG operator runbook: Token/Verify/callback, RefNum
       uniqueness, verifying retry, Reverse vs refund, IP whitelist, deployment
       checklist. No live terminal secrets. Keep PAYMENT_PROVIDER=mock until Terminal
-      + egress IP are registered with SEP.
+      + egress IP are registered with SEP. Landed via #236; on_main reconciled.
 
   - id: COLLABORATOR-DEPLOY
     path: docs/COLLABORATOR_DEPLOY.md
