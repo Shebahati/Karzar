@@ -862,6 +862,17 @@ documents:
   # RANK 8 · REFERENCE
   # =========================================================================
 
+  - id: ROOT-AGENTS
+    path: AGENTS.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-PROMPT-ENG
+    on_main: false
+    branch: chore/codex-guidance
+    ai_instrumentation: true
+    notes: "Repository-wide Codex guidance; summarizes and points to binding AODS sources."
+
   - id: ROOT-README
     path: README.md
     class: REFERENCE
@@ -1456,6 +1467,17 @@ documents:
     owner_role: R-PROJ-ARCH
     on_main: true
     notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
+  - id: AODS-CODEX-RUNBOOK
+    path: aods/CODEX-RUNBOOK.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-PROMPT-ENG
+    on_main: false
+    branch: chore/codex-guidance
+    ai_instrumentation: true
+    notes: "Bounded Codex workflow runbook; summarizes but does not amend binding AODS rules."
+
   - id: AODS-README
     path: aods/README.md
     class: POLICY
