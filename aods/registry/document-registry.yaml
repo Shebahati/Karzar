@@ -868,7 +868,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     branch: chore/codex-guidance
     ai_instrumentation: true
     notes: "Repository-wide Codex guidance; summarizes and points to binding AODS sources."
@@ -1473,7 +1473,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-PROMPT-ENG
-    on_main: false
+    on_main: true
     branch: chore/codex-guidance
     ai_instrumentation: true
     notes: "Bounded Codex workflow runbook; summarizes but does not amend binding AODS rules."
