@@ -40,7 +40,7 @@ export const customersService = {
   async list(params: CustomerListParams = {}): Promise<CustomerListResponse> {
     if (env.USE_MOCK) return (await getMockApi()).listCustomers(params);
     const { data } = await apiClient.get<{ data: CustomerBackend[]; meta: CustomerListResponse["meta"] }>(
-      "/users/",
+      "/users",
       { params },
     );
     return {
