@@ -62,7 +62,7 @@ export const ordersService = {
     const { data } = await apiClient.get<{
       data: Array<Omit<OrderDetailBackend, "items"> & { customer_name?: string }>;
       meta: OrderListResponse["meta"];
-    }>("/orders/", { params });
+    }>("/orders", { params });
 
     return {
       data: data.data.map((row) => ({
