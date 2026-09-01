@@ -80,6 +80,8 @@ class ProductService:
         skip: int = 0,
         limit: int = 100,
         is_deleted: bool | None = None,
+        *,
+        storefront_public_only: bool = False,
     ) -> tuple[list[Product], int]:
         logger.info(f"Searching products: search={search}, category_id={category_id}")
         return await crud_product.get_products(
@@ -98,6 +100,7 @@ class ProductService:
             sort=sort,
             product_ids=product_ids,
             is_deleted=is_deleted,
+            storefront_public_only=storefront_public_only,
         )
 
     @staticmethod

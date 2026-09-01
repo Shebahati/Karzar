@@ -79,6 +79,7 @@ export interface ProductDetail {
   tax_percent: string;
   is_active: boolean;
   pdf_catalog_url: string | null;
+  hesabfa_category_override_code?: string | null;
   thumbnail: string | null;
   images: ProductImage[];
   specifications: Specifications;
@@ -130,6 +131,7 @@ export interface ProductUpdatePayload {
   is_active?: boolean;
   pdf_catalog_url?: string | null;
   specifications?: Specifications;
+  hesabfa_category_override_code?: string | null;
 }
 
 export type ProductListResponse = PaginatedResponse<ProductSummary>;

@@ -176,6 +176,7 @@ export function createProductFormSchema(template?: CategorySpecTemplate | null) 
         .refine(isBlankOrValidUrl, { message: "آدرس URL معتبر وارد کنید." }),
       is_original: z.boolean(),
       is_active: z.boolean(),
+      hesabfa_category_override_code: z.string().max(64, { message: "حداکثر ۶۴ کاراکتر." }),
       specifications: specificationsFormSchema,
     })
     .superRefine((data, ctx) => {
@@ -237,6 +238,7 @@ export const productFormDefaults: ProductFormValues = {
   pdf_catalog_url: "",
   is_original: true,
   is_active: true,
+  hesabfa_category_override_code: "",
   specifications: {
     technical_specs: [{ key: "", value: "" }],
     featureToggles: {},
@@ -333,7 +335,11 @@ export function toProductUpdatePayload(
 ): ProductUpdatePayload {
   // FE-A-21: availability is owned by ProductStockSection (PUT /availability), not form save.
   const { is_available: _availability, ...rest } = toProductCreatePayload(values, template);
-  return rest;
+  const override = values.hesabfa_category_override_code.trim();
+  return {
+    ...rest,
+    hesabfa_category_override_code: override || null,
+  };
 }
 
 export function productDetailToFormValues(detail: ProductDetail): ProductFormValues {
@@ -396,6 +402,7 @@ export function productDetailToFormValues(detail: ProductDetail): ProductFormVal
     pdf_catalog_url: detail.pdf_catalog_url ?? "",
     is_original: detail.is_original,
     is_active: detail.is_active,
+    hesabfa_category_override_code: detail.hesabfa_category_override_code ?? "",
     specifications: {
       technical_specs: technical_specs.length ? technical_specs : [{ key: "", value: "" }],
       featureToggles,

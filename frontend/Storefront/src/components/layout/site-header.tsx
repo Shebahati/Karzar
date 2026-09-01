@@ -16,8 +16,8 @@ import { useMe } from "@/features/auth/queries";
 const NAV_LINKS = [
   { label: "فروشگاه", href: "/catalog" },
   { label: "مجله", href: "/blog" },
-  { label: "درباره", href: "/about" },
-  { label: "تماس", href: "/contact" },
+  { label: "درباره ما", href: "/about" },
+  { label: "تماس با ما", href: "/contact" },
 ];
 
 export function SiteHeader() {

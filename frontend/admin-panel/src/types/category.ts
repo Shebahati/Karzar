@@ -22,6 +22,7 @@ export interface CategoryFlat extends Category {
   megamenu_hidden?: boolean;
   megamenu_as_leaf?: boolean;
   megamenu_bold?: boolean | null;
+  hesabfa_category_code?: string | null;
 }
 
 export interface CategoryTreeNode extends Category {
@@ -75,6 +76,7 @@ export interface CategoryCreatePayload {
   megamenu_hidden?: boolean;
   megamenu_as_leaf?: boolean;
   megamenu_bold?: boolean | null;
+  hesabfa_category_code?: string | null;
 }
 
 export interface CategoryUpdatePayload {
@@ -88,6 +90,7 @@ export interface CategoryUpdatePayload {
   megamenu_hidden?: boolean;
   megamenu_as_leaf?: boolean;
   megamenu_bold?: boolean | null;
+  hesabfa_category_code?: string | null;
   unset_megamenu_bold?: boolean;
 }
 

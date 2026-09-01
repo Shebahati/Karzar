@@ -28,11 +28,19 @@ def brand_to_response(brand: Brand, product_count: int | None = None) -> BrandRe
 
 class BrandService:
     @staticmethod
-    async def list_brands(db: AsyncSession) -> list[BrandResponse]:
+    async def list_brands(
+        db: AsyncSession,
+        *,
+        storefront_product_counts: bool = False,
+    ) -> list[BrandResponse]:
         brands = await crud_brand.list_brands(db)
         responses: list[BrandResponse] = []
         for brand in brands:
-            count = await crud_brand.count_products_for_brand(db, brand.id)
+            count = await crud_brand.count_products_for_brand(
+                db,
+                brand.id,
+                storefront_public_only=storefront_product_counts,
+            )
             responses.append(brand_to_response(brand, count))
         return responses
 

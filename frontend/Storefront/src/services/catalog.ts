@@ -63,7 +63,9 @@ export const catalogService = {
 
   async listBrands(): Promise<Brand[]> {
     if (env.USE_MOCK) return (await getMockApi()).listBrands();
-    const { data } = await apiClient.get<{ data: Brand[] }>("/brands/");
+    const { data } = await apiClient.get<{ data: Brand[] }>("/brands/", {
+      params: { storefront_product_counts: true },
+    });
     return data.data;
   },
 
@@ -244,7 +246,9 @@ export const catalogService = {
       if (!found) throw new Error("Brand not found");
       return found;
     }
-    const { data } = await apiClient.get<Brand>(`/brands/slug/${slug}`);
+    const { data } = await apiClient.get<Brand>(`/brands/slug/${slug}`, {
+      params: { storefront_product_counts: true },
+    });
     return data;
   },
 

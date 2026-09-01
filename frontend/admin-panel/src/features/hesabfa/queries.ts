@@ -20,8 +20,10 @@ export function useHesabfaStatus() {
 /** Website paid-sales only — never displays Hesabfa-sourced metrics. */
 export function useWebsitePaidSales() {
   return useQuery({
-    queryKey: hesabfaKeys.websiteSales(),
+    queryKey: [...hesabfaKeys.websiteSales(), "v2"],
     queryFn: () => hesabfaService.getWebsitePaidSales(),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }

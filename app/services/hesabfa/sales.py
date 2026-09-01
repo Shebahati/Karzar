@@ -10,13 +10,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.core.logging import get_logger
-from app.db.models.commerce import Order, OrderMode, PaymentStatus
+from app.db.models.commerce import (
+    Order,
+    OrderMode,
+    PaymentStatus,
+    PaymentTransaction,
+    PaymentTransactionStatus,
+)
 from app.services.hesabfa.client import (
     INVOICE_TYPE_SALE,
     HesabfaClient,
@@ -40,6 +46,14 @@ class SalesSummary:
 
 
 async def website_paid_sales(db: AsyncSession) -> tuple[Decimal, int]:
+    """Sum paid purchase orders verified through a real (non-mock) payment gateway."""
+    verified_non_mock_payment = exists(
+        select(PaymentTransaction.id).where(
+            PaymentTransaction.order_id == Order.id,
+            PaymentTransaction.status == PaymentTransactionStatus.VERIFIED.value,
+            PaymentTransaction.gateway != "mock",
+        )
+    )
     result = await db.execute(
         select(
             func.coalesce(func.sum(Order.estimated_total), 0),
@@ -48,6 +62,7 @@ async def website_paid_sales(db: AsyncSession) -> tuple[Decimal, int]:
             Order.mode == OrderMode.PURCHASE,
             Order.payment_status == PaymentStatus.PAID.value,
             Order.deleted_at.is_(None),
+            verified_non_mock_payment,
         )
     )
     total, count = result.one()

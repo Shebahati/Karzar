@@ -62,4 +62,12 @@ describe("numeric product HTTP 301 (middleware)", () => {
     );
     expect(res.status).toBeLessThan(300);
   });
+
+  it("passes through canonical category hub paths", async () => {
+    vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "true");
+    const res = await middleware(
+      new NextRequest("https://www.karzartools.com/categories/andaze-daghigh"),
+    );
+    expect(res.status).toBeLessThan(300);
+  });
 });
