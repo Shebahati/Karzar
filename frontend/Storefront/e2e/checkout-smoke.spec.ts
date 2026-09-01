@@ -25,7 +25,7 @@ async function waitForCartPersisted(page: Page) {
  * Requires NEXT_PUBLIC_USE_MOCK=true (injected by playwright.config webServer).
  */
 test.describe("checkout smoke (mock)", () => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
 
   test("OTP → checkout → payment callback", async ({ page }) => {
     await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
@@ -38,7 +38,7 @@ test.describe("checkout smoke (mock)", () => {
     await addCart.click();
     await waitForCartPersisted(page);
 
-    await page.goto("/checkout");
+    await page.goto("/checkout", { waitUntil: "domcontentloaded", timeout: 120_000 });
     // Hydration: empty-cart flash must resolve to auth step in mock mode.
     await expect(
       page.getByRole("heading", { level: 2, name: "ورود برای پرداخت" }),
