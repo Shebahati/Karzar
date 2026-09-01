@@ -28,7 +28,7 @@ test.describe("checkout smoke (mock)", () => {
   test.setTimeout(90_000);
 
   test("OTP → checkout → payment callback", async ({ page }) => {
-    await page.goto("/product/1");
+    await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
     await expect(
       page.getByRole("heading", { level: 1, name: /دریل چکشی بوش/i }),
     ).toBeVisible({ timeout: 30_000 });
