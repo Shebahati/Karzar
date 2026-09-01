@@ -10,7 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { contactSchema, type ContactValues } from "@/lib/validation";
 import { useSubmitContact } from "@/features/checkout/queries";
-import { STORE_PHONE_DISPLAY, STORE_PHONE_E164 } from "@/lib/store-location";
+import {
+  STORE_LANDLINE_DISPLAY,
+  STORE_LANDLINE_E164,
+  STORE_PHONE_DISPLAY,
+  STORE_PHONE_E164,
+} from "@/lib/store-location";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import { cn } from "@/lib/utils";
 
@@ -37,26 +42,44 @@ function ContactIntro() {
         تیکت و پشتیبانی
       </h2>
 
-      <a
-        href={`tel:${STORE_PHONE_E164}`}
-        className={cn(
-          "mt-8 inline-flex w-fit items-center gap-3 rounded-2xl bg-white/[0.06] px-4 py-3",
-          "ring-1 ring-inset ring-white/15 transition",
-          "hover:bg-white/[0.1] hover:ring-[#D02327]/40 hover:shadow-[0_12px_28px_-16px_rgba(208,35,39,0.45)]",
-        )}
-      >
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#D02327] text-white">
-          <Call size="small" set="bold" />
-        </span>
-        <span className="text-start">
-          <span className="block text-[11px] font-bold text-white/60">
-            تماس مستقیم
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <a
+          href={`tel:${STORE_LANDLINE_E164}`}
+          className={cn(
+            "inline-flex w-fit items-center gap-3 rounded-2xl bg-white/[0.06] px-4 py-3",
+            "ring-1 ring-inset ring-white/15 transition",
+            "hover:bg-white/[0.1] hover:ring-[#D02327]/40",
+          )}
+        >
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#D02327] text-white">
+            <Call size="small" set="bold" />
           </span>
-          <span className="mt-0.5 block text-base font-black text-white tnum" dir="ltr">
-            {STORE_PHONE_DISPLAY}
+          <span className="text-start">
+            <span className="block text-[11px] font-bold text-white/60">تلفن ثابت</span>
+            <span className="mt-0.5 block text-base font-black text-white tnum" dir="ltr">
+              {STORE_LANDLINE_DISPLAY}
+            </span>
           </span>
-        </span>
-      </a>
+        </a>
+        <a
+          href={`tel:${STORE_PHONE_E164}`}
+          className={cn(
+            "inline-flex w-fit items-center gap-3 rounded-2xl bg-white/[0.06] px-4 py-3",
+            "ring-1 ring-inset ring-white/15 transition",
+            "hover:bg-white/[0.1] hover:ring-[#D02327]/40",
+          )}
+        >
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#D02327] text-white">
+            <Call size="small" set="bold" />
+          </span>
+          <span className="text-start">
+            <span className="block text-[11px] font-bold text-white/60">موبایل</span>
+            <span className="mt-0.5 block text-base font-black text-white tnum" dir="ltr">
+              {STORE_PHONE_DISPLAY}
+            </span>
+          </span>
+        </a>
+      </div>
     </>
   );
 }

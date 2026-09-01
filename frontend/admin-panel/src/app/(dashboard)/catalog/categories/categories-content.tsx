@@ -103,7 +103,7 @@ export function CategoriesContent() {
             <Category set="bulk" size={26} primaryColor="#D02327" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#4F4F4F]">درخت دسته‌بندی</h2>
+            <h2 className="admin-page-title">درخت دسته‌بندی</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               لایه ۱ تا ۳ — تنها منبع حقیقت دسته‌ها برای فروشگاه و مگامنو
             </p>

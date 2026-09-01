@@ -24,6 +24,8 @@ import {
   STORE_ADDRESS_FA,
   STORE_ADDRESS_MAP_CAPTION_FA,
   STORE_EMAIL,
+  STORE_LANDLINE_DISPLAY,
+  STORE_LANDLINE_E164,
   STORE_MAPS_URL,
   STORE_NAME_FA,
   STORE_PHONE_DISPLAY,
@@ -34,7 +36,14 @@ import { cn } from "@/lib/utils";
 const DETAILS = [
   {
     Icon: Call,
-    label: "تماس تلفنی",
+    label: "تلفن ثابت",
+    value: STORE_LANDLINE_DISPLAY,
+    href: `tel:${STORE_LANDLINE_E164}`,
+    dir: "ltr" as const,
+  },
+  {
+    Icon: Call,
+    label: "موبایل پشتیبانی",
     value: STORE_PHONE_DISPLAY,
     href: `tel:${STORE_PHONE_E164}`,
     dir: "ltr" as const,

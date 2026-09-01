@@ -148,8 +148,8 @@ export default function EditProductPage() {
             </Link>
           </Button>
           <div>
-            <h2 className="text-2xl font-bold text-[#4F4F4F]">ویرایش محصول</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="admin-page-title">ویرایش محصول</h2>
+            <p className="admin-page-subtitle">
               {product.name} — {product.sku}
             </p>
           </div>
@@ -470,6 +470,22 @@ export default function EditProductPage() {
                   </label>
                 )}
               />
+
+              <Field
+                label="کد دسته حسابفا (اختیاری)"
+                htmlFor="hesabfa_category_override_code"
+                error={errors.hesabfa_category_override_code?.message}
+                hint="فقط متادیتای محلی — Hesabfa غیرفعال است تا زمان فعال‌سازی"
+              >
+                <Input
+                  id="hesabfa_category_override_code"
+                  dir="ltr"
+                  placeholder="مثال: 001"
+                  className="text-start"
+                  aria-invalid={Boolean(errors.hesabfa_category_override_code)}
+                  {...register("hesabfa_category_override_code")}
+                />
+              </Field>
 
               <Field
                 label="لینک کاتالوگ PDF"

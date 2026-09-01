@@ -14,6 +14,7 @@ import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
+import { hasPublicProductImage } from "@/lib/product-image";
 import { useIsDesktopLg } from "@/lib/use-motion-safe";
 import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
@@ -225,7 +226,11 @@ export function CatalogView({
       ? data.data
       : accumulated;
 
-  const shown = displayProducts.length;
+  const visibleProducts = useMemo(
+    () => displayProducts.filter(hasPublicProductImage),
+    [displayProducts],
+  );
+  const shown = visibleProducts.length;
   const hasMore = !isPlaceholderData && shown < total;
   const canAppend =
     !usePagination && !replaceMode && hasMore && appendCount < MAX_APPENDS;
@@ -393,7 +398,7 @@ export function CatalogView({
                   replaceMode && isLoadingMore && "opacity-60 transition-opacity duration-300",
                 )}
               >
-                {displayProducts.map((p, i) => (
+                {visibleProducts.map((p, i) => (
                   <ProductCard
                     key={p.id}
                     product={p}

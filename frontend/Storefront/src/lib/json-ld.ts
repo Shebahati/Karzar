@@ -18,6 +18,7 @@ import {
   STORE_GEO,
   STORE_MAPS_URL,
   STORE_NAME_FA,
+  STORE_LANDLINE_E164,
   STORE_PHONE_E164,
 } from "@/lib/store-location";
 import type { Brand, CategoryFlat } from "@/types/category";
@@ -88,7 +89,7 @@ export function buildOrganizationNode(): JsonLdNode {
       height: 289,
     },
     email: STORE_EMAIL,
-    telephone: STORE_PHONE_E164,
+    telephone: [STORE_LANDLINE_E164, STORE_PHONE_E164],
     hasMap: STORE_MAPS_URL,
     address: {
       "@type": "PostalAddress",

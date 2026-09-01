@@ -9,12 +9,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from app.core.config import settings
 from app.core.logging import get_logger
 from app.crud import category as crud_category
 from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.jsonb_filters import build_specification_filters
 from app.utils.specifications import specifications_for_storage
+from app.utils.public_catalog import (
+    filter_storefront_public_products,
+    storefront_public_product_filters,
+)
 from app.utils.storefront_catalog import escape_ilike_pattern, product_sort_clause
 
 logger = get_logger(__name__)
@@ -152,12 +157,16 @@ async def get_products(
     sort: str | None = None,
     product_ids: list[int] | None = None,
     is_deleted: bool | None = None,
+    *,
+    storefront_public_only: bool = False,
 ) -> tuple[list[Product], int]:
     if is_deleted:
         query = select(Product).where(Product.deleted_at.isnot(None))
     else:
         query = select(Product).where(Product.deleted_at.is_(None))
     filters = []
+    if storefront_public_only:
+        filters.extend(storefront_public_product_filters())
 
     if product_ids:
         filters.append(Product.id.in_(product_ids))
@@ -241,14 +250,47 @@ async def get_products(
     count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
-    query = (
-        query.options(*_product_load_options())
-        .order_by(*product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
-        .offset(skip)
-        .limit(limit)
-    )
-    result = await db.execute(query)
-    products = list(result.scalars().all())
+    materialized = storefront_public_only and settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES
+    if materialized:
+        count_stmt = (
+            select(Product)
+            .where(and_(*filters) if filters else True)
+            .options(*_product_load_options())
+        )
+        all_candidates = list((await db.execute(count_stmt)).scalars().all())
+        total = len(filter_storefront_public_products(all_candidates))
+
+    if materialized:
+        collected: list[Product] = []
+        offset = skip
+        batch_size = max(limit * 4, limit + 20)
+        sort_clauses = product_sort_clause(sort, dialect_name=db.get_bind().dialect.name)
+        while len(collected) < skip + limit:
+            batch_stmt = (
+                select(Product)
+                .where(and_(*filters) if filters else True)
+                .options(*_product_load_options())
+                .order_by(*sort_clauses)
+                .offset(offset)
+                .limit(batch_size)
+            )
+            batch = list((await db.execute(batch_stmt)).scalars().all())
+            if not batch:
+                break
+            collected.extend(filter_storefront_public_products(batch))
+            if len(batch) < batch_size:
+                break
+            offset += batch_size
+        products = collected[skip : skip + limit]
+    else:
+        query = (
+            query.options(*_product_load_options())
+            .order_by(*product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
+            .offset(skip)
+            .limit(limit)
+        )
+        result = await db.execute(query)
+        products = list(result.scalars().all())
 
     if product_ids:
         order_index = {product_id: index for index, product_id in enumerate(product_ids)}
@@ -444,6 +486,8 @@ async def get_related_products(
         return []
 
     from app.crud import category as crud_category
+    from app.utils.public_catalog import public_image_exists_clause
+    from app.utils.storefront_catalog import product_sort_clause
 
     categories = await crud_category.get_all_categories(db)
     by_id = {category.id: category for category in categories}
@@ -471,14 +515,18 @@ async def get_related_products(
                 Product.is_active.is_(True),
                 Product.id != product_id,
                 Product.category_id.in_(subtree_ids),
+                public_image_exists_clause(),
             )
         )
         .options(*_product_load_options())
-        .order_by(Product.created_at.desc())
+        .order_by(*product_sort_clause("newest", dialect_name=db.get_bind().dialect.name))
         .limit(limit)
     )
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    related = list(result.scalars().all())
+    from app.utils.public_catalog import filter_storefront_public_products
+
+    return filter_storefront_public_products(related)[:limit]
 
 
 async def count_product_images(db: AsyncSession, product_id: int) -> int:

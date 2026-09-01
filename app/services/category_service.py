@@ -63,6 +63,7 @@ def _to_flat_response(
         megamenu_hidden=bool(category.megamenu_hidden),
         megamenu_as_leaf=bool(category.megamenu_as_leaf),
         megamenu_bold=category.megamenu_bold,
+        hesabfa_category_code=category.hesabfa_category_code,
     )
 
 
@@ -367,6 +368,12 @@ class CategoryService:
             ),
             megamenu_bold=payload.megamenu_bold if "megamenu_bold" in fields_set else None,
             unset_megamenu_bold=bool(payload.unset_megamenu_bold),
+            hesabfa_category_code=(
+                payload.hesabfa_category_code if "hesabfa_category_code" in fields_set else None
+            ),
+            unset_hesabfa_category_code=(
+                "hesabfa_category_code" in fields_set and payload.hesabfa_category_code is None
+            ),
         )
 
         await db.commit()

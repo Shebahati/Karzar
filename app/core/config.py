@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     DEBUG: bool = False
     ENABLE_API_DOCS: bool = False
+    # When true, public catalog also requires the image file on local disk (no HTTP probe).
+    STOREFRONT_REQUIRE_MATERIALIZED_IMAGES: bool | None = None
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -276,6 +278,8 @@ class Settings(BaseSettings):
                     "REDIS_HOST is required when DEBUG=False or APP_ENV=production "
                     "so rate limits are shared across workers"
                 )
+        if self.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES is None:
+            self.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES = self.DEBUG
         return self
 
     @computed_field

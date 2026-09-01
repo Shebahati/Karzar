@@ -180,10 +180,17 @@ async def list_orders(
     search: str | None = None,
     user_id: int | None = None,
     sort: str = "newest",
+    open_only: bool | None = None,
 ) -> tuple[list[Order], int]:
     """Return a page of orders plus the total match count."""
+    from app.services.order_workflow import open_statuses_for_mode
+
     filters = [Order.deleted_at.is_(None)]
-    if status is not None:
+    if open_only:
+        open_statuses = open_statuses_for_mode(mode)
+        if open_statuses:
+            filters.append(Order.status.in_(tuple(open_statuses)))
+    elif status is not None:
         filters.append(Order.status == status)
     if mode is not None:
         filters.append(Order.mode == mode)

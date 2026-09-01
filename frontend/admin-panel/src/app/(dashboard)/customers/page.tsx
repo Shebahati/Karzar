@@ -30,9 +30,11 @@ export default function CustomersPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#4F4F4F]">مشتریان</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {data ? `${data.meta.total_count.toLocaleString("fa-IR")} مشتری` : "مدیریت مشتریان"}
+        <h2 className="admin-page-title">مشتریان</h2>
+        <p className="admin-page-subtitle">
+          {data
+            ? `${data.meta.total_count.toLocaleString("fa-IR")} حساب ثبت‌نام‌شده (شامل کاربران بدون سفارش)`
+            : "همه حساب‌های ثبت‌نام‌شده وبسایت"}
         </p>
       </div>
 

@@ -128,6 +128,22 @@
   .glass {
     @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
   }
+
+  .admin-page-title {
+    @apply text-2xl font-bold text-ink;
+  }
+
+  .admin-page-subtitle {
+    @apply mt-1 text-sm text-muted-foreground;
+  }
+
+  .admin-card {
+    @apply border-transparent shadow-sm;
+  }
+
+  .admin-kpi-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4;
+  }
 }
 
 /* -------------------------------------------------------------------------- */

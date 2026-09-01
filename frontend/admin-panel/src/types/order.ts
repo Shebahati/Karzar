@@ -87,6 +87,7 @@ export interface OrderListParams {
   search?: string;
   mode?: "purchase" | "inquiry";
   customer_phone?: string;
+  open?: boolean;
 }
 
 export interface OrderStatusUpdatePayload {

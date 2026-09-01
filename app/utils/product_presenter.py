@@ -11,6 +11,10 @@ from app.schemas.product import (
 )
 from app.utils.category_depth import CategoryMeta
 from app.utils.specifications import normalize_specifications_for_api
+from app.utils.public_catalog import (
+    get_first_valid_public_image_url,
+    is_placeholder_image_url,
+)
 from app.utils.storefront_catalog import (
     Audience,
     compute_discount_percent,
@@ -46,10 +50,8 @@ def absolutize_asset_url(url: str | None) -> str | None:
 
 
 def get_thumbnail_url(product: Product) -> str | None:
-    if not product.images:
-        return None
-    primary = next((image for image in product.images if image.is_primary), None)
-    return absolutize_asset_url((primary or product.images[0]).image_url)
+    url = get_first_valid_public_image_url(product)
+    return absolutize_asset_url(url) if url else None
 
 
 def _category_brief(
@@ -94,14 +96,25 @@ def _brand_brief(product: Product) -> BrandBrief | None:
     )
 
 
-def _images(product: Product) -> list[ProductImageResponse]:
+def _images(product: Product, *, audience: Audience = "storefront") -> list[ProductImageResponse]:
+    rows = sorted(
+        product.images,
+        key=lambda img: (not img.is_primary, img.display_order, img.id),
+    )
+    if audience == "storefront":
+        rows = [
+            image
+            for image in rows
+            if (image.image_url or "").strip()
+            and not is_placeholder_image_url(image.image_url)
+        ]
     return [
         ProductImageResponse(
             id=image.id,
             url=absolutize_asset_url(image.image_url) or image.image_url,
             is_primary=image.is_primary,
         )
-        for image in sorted(product.images, key=lambda img: (not img.is_primary, img.display_order, img.id))
+        for image in rows
     ]
 
 
@@ -166,7 +179,7 @@ def to_product_detail(
         meta_title=product.meta_title,
         meta_description=product.meta_description,
         thumbnail=get_thumbnail_url(product),
-        images=_images(product),
+        images=_images(product, audience=audience),
         specifications=normalize_specifications_for_api(
             dict(product.specifications or {}),
             audience=audience,

@@ -140,8 +140,7 @@ class ProductUpdate(BaseModel):
     meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = None
     specifications: dict[str, Any] | None = None
-
-    @field_validator("sku", "name", mode="before")
+    hesabfa_category_override_code: str | None = Field(None, max_length=64)
     @classmethod
     def check_not_null_and_clean(cls, v: Any, info) -> Any:
         """Reject explicit null and whitespace-only values on required string fields."""
@@ -216,6 +215,7 @@ class ProductDetailResponse(BaseModel):
     description: str | None = None
     meta_title: str | None = None
     meta_description: str | None = None
+    hesabfa_category_override_code: str | None = None
     thumbnail: str | None = None
     images: list[ProductImageResponse] = Field(default_factory=list)
     specifications: dict[str, Any] = Field(default_factory=dict)
