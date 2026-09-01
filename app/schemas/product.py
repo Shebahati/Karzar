@@ -141,6 +141,8 @@ class ProductUpdate(BaseModel):
     original_price: Decimal | None = None
     specifications: dict[str, Any] | None = None
     hesabfa_category_override_code: str | None = Field(None, max_length=64)
+
+    @field_validator("sku", "name", mode="before")
     @classmethod
     def check_not_null_and_clean(cls, v: Any, info) -> Any:
         """Reject explicit null and whitespace-only values on required string fields."""
