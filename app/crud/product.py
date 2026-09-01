@@ -15,11 +15,11 @@ from app.crud import category as crud_category
 from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.jsonb_filters import build_specification_filters
-from app.utils.specifications import specifications_for_storage
 from app.utils.public_catalog import (
     filter_storefront_public_products,
     storefront_public_product_filters,
 )
+from app.utils.specifications import specifications_for_storage
 from app.utils.storefront_catalog import escape_ilike_pattern, product_sort_clause
 
 logger = get_logger(__name__)

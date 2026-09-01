@@ -156,7 +156,7 @@ describe("buildSitewideJsonLd", () => {
         height: 289,
       },
       hasMap: "https://neshan.org/maps/places/bf220a8c1cf5f0240b6587c9e6f98197",
-      telephone: "+989912480087",
+      telephone: ["+982166479477", "+989912480087"],
       email: "info@karzartools.com",
       address: {
         "@type": "PostalAddress",

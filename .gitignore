@@ -81,3 +81,4 @@ frontend/**/*.pem
 data/imports/chumpower/official_catalog/pdfs/
 
 .local-rescue/
+work/reports/

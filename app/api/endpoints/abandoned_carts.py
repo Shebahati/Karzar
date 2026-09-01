@@ -1,7 +1,6 @@
 """Admin abandoned-cart API."""
 
 from datetime import datetime
-from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field

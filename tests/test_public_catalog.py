@@ -2,6 +2,12 @@
 
 from app.core.config import settings
 from app.db.models.product import Product, ProductImage
+from app.services.order_workflow import (
+    OPEN_INQUIRY_ORDER_STATUSES,
+    OPEN_PURCHASE_ORDER_STATUSES,
+    is_open_inquiry_order,
+    is_open_purchase_order,
+)
 from app.utils.public_catalog import (
     get_first_valid_public_image_url,
     is_placeholder_image_url,
@@ -12,12 +18,6 @@ from app.utils.public_catalog import (
     product_image_materialized_on_disk,
 )
 from app.utils.storefront_catalog import product_sort_clause
-from app.services.order_workflow import (
-    OPEN_INQUIRY_ORDER_STATUSES,
-    OPEN_PURCHASE_ORDER_STATUSES,
-    is_open_inquiry_order,
-    is_open_purchase_order,
-)
 
 
 def test_is_placeholder_image_url_detects_known_patterns():

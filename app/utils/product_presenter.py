@@ -10,11 +10,11 @@ from app.schemas.product import (
     ProductSummaryResponse,
 )
 from app.utils.category_depth import CategoryMeta
-from app.utils.specifications import normalize_specifications_for_api
 from app.utils.public_catalog import (
     get_first_valid_public_image_url,
     is_placeholder_image_url,
 )
+from app.utils.specifications import normalize_specifications_for_api
 from app.utils.storefront_catalog import (
     Audience,
     compute_discount_percent,
