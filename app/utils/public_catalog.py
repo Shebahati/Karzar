@@ -103,6 +103,8 @@ def product_has_materialized_public_image(product: Product) -> bool:
 
 def product_has_storefront_public_image(product: Product) -> bool:
     """URL/placeholder guard plus optional on-disk materialization in DEBUG/local."""
+    if not settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
+        return True
     if not product_has_valid_public_image(product):
         return False
     if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
@@ -141,8 +143,10 @@ def availability_rank_clause() -> ColumnElement[int]:
 
 def storefront_public_product_filters() -> list[ColumnElement[bool]]:
     """Filters applied to every public product list/detail guard."""
-    return [
+    filters: list[ColumnElement[bool]] = [
         Product.deleted_at.is_(None),
         Product.is_active.is_(True),
-        public_image_exists_clause(),
     ]
+    if settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
+        filters.append(public_image_exists_clause())
+    return filters

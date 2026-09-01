@@ -68,6 +68,7 @@ def test_product_image_materialized_on_disk_unknown_host_is_trusted():
 def test_product_has_materialized_public_image_requires_file_when_enabled(
     monkeypatch, tmp_path
 ):
+    monkeypatch.setattr(settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", True)
     monkeypatch.setattr(settings, "STOREFRONT_REQUIRE_MATERIALIZED_IMAGES", True)
     upload_root = tmp_path / "uploads"
     (upload_root / "products" / "1").mkdir(parents=True)

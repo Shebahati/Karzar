@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     ENABLE_API_DOCS: bool = False
     # When true, public catalog also requires the image file on local disk (no HTTP probe).
     STOREFRONT_REQUIRE_MATERIALIZED_IMAGES: bool | None = None
+    # When true, hide products without a valid public image from storefront lists/PDP.
+    STOREFRONT_HIDE_IMAGELESS_PRODUCTS: bool = True
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
