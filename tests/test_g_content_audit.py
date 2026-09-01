@@ -114,6 +114,12 @@ def test_comments_require_auth_and_block_inactive_product(
     )
     active_id = active.json()["id"]
     inactive_id = inactive.json()["id"]
+    image = client.post(
+        f"/api/v1/products/{active_id}/images",
+        json={"image_url": "https://cdn.example.com/g-content-audit.jpg", "is_primary": True},
+        headers=super_admin_headers,
+    )
+    assert image.status_code == 201, image.text
 
     anon = client.post(
         f"/api/v1/products/{active_id}/comments",

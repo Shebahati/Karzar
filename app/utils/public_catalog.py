@@ -3,16 +3,12 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
 
 from sqlalchemy import and_, case, exists, func, select
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.config import settings
 from app.db.models.product import Product, ProductImage
-
-if TYPE_CHECKING:
-    from sqlalchemy.orm import InstrumentedAttribute
 
 # Known generic placeholders — never treat as a real public product image.
 # Keep SQL ILIKE tokens in sync with these patterns (see public_image_exists_clause).
@@ -132,7 +128,7 @@ def public_image_exists_clause() -> ColumnElement[bool]:
     )
 
 
-def availability_rank_clause() -> InstrumentedAttribute:
+def availability_rank_clause() -> ColumnElement[int]:
     """0 = available (active + is_available), 1 = unavailable — primary list partition."""
     return case(
         (
