@@ -3,25 +3,29 @@
 from __future__ import annotations
 
 import io
+import json
 import zipfile
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import pytest
-
 from scripts.insize_sales_activation_lib import (
     CONTROL_RIAL,
-    CONTROL_SKU,
     CONTROL_TOMAN,
     CONTROL_USD,
     PilotGateError,
+    PilotManifest,
     PilotSkuPlan,
     WorkbookRow,
     apply_pilot_plans,
     assert_expected_rate,
     assert_expected_workbook_sha,
+    assert_manifest_identity_unique,
+    bind_workbook_authorities,
+    category_inconsistency_reason,
     content_ready,
     final_toman_from_usd,
     image_ready,
@@ -29,14 +33,17 @@ from scripts.insize_sales_activation_lib import (
     match_exact,
     normalize_sku,
     normalize_status,
+    revalidate_plan_against_db_row,
     revalidate_plan_against_live,
     rial_from_usd,
+    rollback_from_recovery_snapshot,
     supplier_available,
     toman_from_rial,
     valid_workbook_price,
     verify_control_sku,
     verify_pilot_state,
     workbook_sha256,
+    write_recovery_snapshot,
 )
 
 
@@ -190,9 +197,35 @@ def _plan(**overrides) -> PilotSkuPlan:
         eligibility_reason="test",
         expected_updated_at="2026-01-01T00:00:00+00:00",
         review_flags=[],
+        pilot_group="unavailable_to_available",
+        category_review_note="test OK",
     )
     base.update(overrides)
     return PilotSkuPlan(**base)
+
+
+def _db_product(**over) -> SimpleNamespace:
+    base = dict(
+        id=1,
+        sku="9722-250",
+        name="متر",
+        base_price=Decimal("399000"),
+        is_available=False,
+        is_active=True,
+        brand_id=3,
+        category_id=77,
+        short_description="متر فلزی صنعتی اینسایز با طول مفید مشخص برای کارگاه.",
+        description="توضیح بلندتر از چهل کاراکتر برای رد کردن stub classifier در تست.",
+        specifications={"technical_specs": {"range": "0-250mm"}},
+        stock_quantity=Decimal("0"),
+        slug="9722-250",
+        original_price=None,
+        meta_title=None,
+        meta_description=None,
+        updated_at=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+    base.update(over)
+    return SimpleNamespace(**base)
 
 
 def test_normalize_sku_hyphen_and_case():
@@ -277,100 +310,266 @@ def test_image_and_content_readiness():
     )
 
 
-def _live_ok(sku="9722-250", **over):
-    base = {
-        "id": 1,
-        "sku": sku,
-        "name": "متر",
-        "base_price": "399000",
-        "is_available": "f",
-        "is_active": "t",
-        "category_id": "77",
-        "slug": sku,
-        "short_description": "متر فلزی صنعتی اینسایز با طول مفید مشخص برای کارگاه.",
-        "description": "توضیح بلندتر از چهل کاراکتر برای رد کردن stub classifier در تست.",
-        "specifications": '{"technical_specs":{"range":"0-250mm"}}',
-        "image_count": "1",
-        "primary_image_url": "/media/x.webp",
-        "updated_at": "2026-01-01T00:00:00+00:00",
-    }
-    base.update(over)
-    return base
+def test_stale_csv_cannot_authorize_write(sample_xlsx: Path):
+    cat = load_workbook_catalog(sample_xlsx)
+    with pytest.raises(PilotGateError, match="stale CSV cannot authorize"):
+        revalidate_plan_against_live(
+            _plan(),
+            product={"sku": "9722-250", "updated_at": "anything"},
+            workbook_row=cat.by_code["9722-250"],
+            catalog=cat,
+        )
 
 
 def test_inactive_product_rejection(sample_xlsx: Path):
     cat = load_workbook_catalog(sample_xlsx)
-    plan = _plan()
-    live = _live_ok(is_active="f")
-    wb = cat.by_code["9722-250"]
+    product = _db_product(is_active=False)
     with pytest.raises(PilotGateError, match="inactive"):
-        revalidate_plan_against_live(plan, product=live, workbook_row=wb, catalog=cat)
+        revalidate_plan_against_db_row(
+            _plan(),
+            product=product,
+            workbook_row=cat.by_code["9722-250"],
+            catalog=cat,
+            image_count=1,
+            primary_image_url="/media/x.webp",
+        )
 
 
 def test_image_content_readiness_rejection(sample_xlsx: Path):
     cat = load_workbook_catalog(sample_xlsx)
-    plan = _plan()
-    live = _live_ok(image_count="0", primary_image_url="")
-    wb = cat.by_code["9722-250"]
     with pytest.raises(PilotGateError, match="image"):
-        revalidate_plan_against_live(plan, product=live, workbook_row=wb, catalog=cat)
+        revalidate_plan_against_db_row(
+            _plan(),
+            product=_db_product(),
+            workbook_row=cat.by_code["9722-250"],
+            catalog=cat,
+            image_count=0,
+            primary_image_url="",
+        )
 
 
-def test_stale_concurrent_rejection(sample_xlsx: Path):
+def test_db_product_id_sku_mismatch_blocks(sample_xlsx: Path):
     cat = load_workbook_catalog(sample_xlsx)
-    plan = _plan(expected_updated_at="2026-01-01T00:00:00+00:00")
-    live = _live_ok(updated_at="2026-09-01T00:00:00+00:00")
+    with pytest.raises(PilotGateError, match="product_id/SKU mismatch"):
+        revalidate_plan_against_db_row(
+            _plan(),
+            product=_db_product(sku="OTHER-SKU"),
+            workbook_row=cat.by_code["9722-250"],
+            catalog=cat,
+            image_count=1,
+            primary_image_url="/media/x.webp",
+        )
+
+
+def test_live_db_price_availability_updated_at_drift(sample_xlsx: Path):
+    cat = load_workbook_catalog(sample_xlsx)
     wb = cat.by_code["9722-250"]
+    with pytest.raises(PilotGateError, match="live DB price drift"):
+        revalidate_plan_against_db_row(
+            _plan(),
+            product=_db_product(base_price=Decimal("1")),
+            workbook_row=wb,
+            catalog=cat,
+            image_count=1,
+            primary_image_url="/media/x.webp",
+        )
+    with pytest.raises(PilotGateError, match="live DB availability drift"):
+        revalidate_plan_against_db_row(
+            _plan(),
+            product=_db_product(is_available=True),
+            workbook_row=wb,
+            catalog=cat,
+            image_count=1,
+            primary_image_url="/media/x.webp",
+        )
     with pytest.raises(PilotGateError, match="stale/concurrent"):
-        revalidate_plan_against_live(plan, product=live, workbook_row=wb, catalog=cat)
+        revalidate_plan_against_db_row(
+            _plan(expected_updated_at="2026-01-01T00:00:00+00:00"),
+            product=_db_product(updated_at=datetime(2026, 9, 1, tzinfo=UTC)),
+            workbook_row=wb,
+            catalog=cat,
+            image_count=1,
+            primary_image_url="/media/x.webp",
+        )
 
 
-def test_apply_only_allowlisted_fields_and_idempotent(sample_xlsx: Path):
+def test_manifest_sha_rate_and_duplicate_identity_blocks(sample_xlsx: Path):
     cat = load_workbook_catalog(sample_xlsx)
     plan = _plan()
-    product = SimpleNamespace(
-        id=1,
-        sku="9722-250",
-        name="متر",
-        base_price=Decimal("399000"),
-        is_available=False,
-        is_active=True,
-        brand_id=3,
-        category_id=77,
-        short_description="x",
-        description="y",
-        specifications={},
-        stock_quantity=Decimal("0"),
-        slug="9722-250",
-        original_price=None,
-        meta_title=None,
-        meta_description=None,
+    manifest = PilotManifest(
+        version=2,
+        workbook_sha256="deadbeef",
+        expected_rate="2500000",
+        expected_sku_count=1,
+        selected_skus=[plan.sku],
+        checkout_test_sku=plan.sku,
+        plans=[plan],
+        generated_at_utc="2026-01-01T00:00:00+00:00",
     )
-    live = _live_ok()
+    with pytest.raises(PilotGateError, match="workbook SHA authority mismatch"):
+        bind_workbook_authorities(
+            xlsx=sample_xlsx,
+            catalog=cat,
+            manifest=manifest,
+            cli_sha256=workbook_sha256(sample_xlsx),
+            cli_rate=cat.rate,
+        )
+    bad_rate = PilotManifest(
+        version=2,
+        workbook_sha256=workbook_sha256(sample_xlsx),
+        expected_rate="1",
+        expected_sku_count=1,
+        selected_skus=[plan.sku],
+        checkout_test_sku=plan.sku,
+        plans=[plan],
+        generated_at_utc="2026-01-01T00:00:00+00:00",
+    )
+    with pytest.raises(PilotGateError, match="workbook rate authority mismatch"):
+        bind_workbook_authorities(
+            xlsx=sample_xlsx,
+            catalog=cat,
+            manifest=bad_rate,
+            cli_sha256=workbook_sha256(sample_xlsx),
+            cli_rate=cat.rate,
+        )
+    dup_sku = PilotManifest(
+        version=2,
+        workbook_sha256=workbook_sha256(sample_xlsx),
+        expected_rate="2500000",
+        expected_sku_count=2,
+        selected_skus=["9722-250", "9722-250"],
+        checkout_test_sku="9722-250",
+        plans=[plan, _plan(product_id=2)],
+        generated_at_utc="2026-01-01T00:00:00+00:00",
+    )
+    with pytest.raises(PilotGateError, match="duplicate normalized SKUs"):
+        assert_manifest_identity_unique(dup_sku)
+    dup_id = PilotManifest(
+        version=2,
+        workbook_sha256=workbook_sha256(sample_xlsx),
+        expected_rate="2500000",
+        expected_sku_count=2,
+        selected_skus=["9722-250", "1114-150A"],
+        checkout_test_sku="9722-250",
+        plans=[plan, _plan(product_id=1, sku="1114-150A", workbook_code="1114-150A")],
+        generated_at_utc="2026-01-01T00:00:00+00:00",
+    )
+    with pytest.raises(PilotGateError, match="duplicate product IDs"):
+        assert_manifest_identity_unique(dup_id)
+
+
+def test_unavailable_to_available_transition_and_second_apply_noop(
+    sample_xlsx: Path, tmp_path: Path
+):
+    cat = load_workbook_catalog(sample_xlsx)
+    plan = _plan(current_is_available=False)
+    product = _db_product(is_available=False)
+    snap = tmp_path / "recovery.json"
     result = apply_pilot_plans(
         products_by_id={1: product},
         plans=[plan],
         workbook_by_code=cat.by_code,
         catalog=cat,
-        live_product_rows={"9722-250": live},
+        image_state_by_id={1: (1, "/media/x.webp")},
+        recovery_snapshot_path=snap,
     )
     assert product.base_price == Decimal("480000")
     assert product.is_available is True
-    assert product.name == "متر"
-    assert product.sku == "9722-250"
-    assert product.brand_id == 3
     assert len(result.updated) == 1
+    assert snap.is_file()
+    assert result.recovery_snapshot_sha256
 
-    # Second run idempotent
+    # Second apply is a no-op when approved pre-values already match targets.
+    plan2 = _plan(
+        current_base_price=Decimal("480000"),
+        current_is_available=True,
+        expected_updated_at=product.updated_at.isoformat(),
+    )
     result2 = apply_pilot_plans(
         products_by_id={1: product},
-        plans=[plan],
+        plans=[plan2],
         workbook_by_code=cat.by_code,
         catalog=cat,
-        live_product_rows={"9722-250": live},
+        image_state_by_id={1: (1, "/media/x.webp")},
+        recovery_snapshot_path=None,
     )
     assert result2.updated == []
     assert len(result2.skipped_idempotent) == 1
+
+
+def test_recovery_snapshot_failure_prevents_mutation(
+    sample_xlsx: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    cat = load_workbook_catalog(sample_xlsx)
+    product = _db_product()
+    snap = tmp_path / "recovery.json"
+
+    def fail_write(path, rows):
+        raise PilotGateError("recovery snapshot failure prevents mutation")
+
+    monkeypatch.setattr(
+        "scripts.insize_sales_activation_lib.write_recovery_snapshot", fail_write
+    )
+    with pytest.raises(PilotGateError, match="recovery snapshot failure"):
+        apply_pilot_plans(
+            products_by_id={1: product},
+            plans=[_plan()],
+            workbook_by_code=cat.by_code,
+            catalog=cat,
+            image_state_by_id={1: (1, "/media/x.webp")},
+            recovery_snapshot_path=snap,
+        )
+    assert product.base_price == Decimal("399000")
+    assert product.is_available is False
+
+
+def test_write_recovery_snapshot_os_replace_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    import scripts.insize_sales_activation_lib as lib
+
+    def boom(*_a, **_k):
+        raise OSError("nope")
+
+    monkeypatch.setattr(lib.os, "replace", boom)
+    with pytest.raises(PilotGateError, match="recovery snapshot failure"):
+        write_recovery_snapshot(
+            tmp_path / "r.json",
+            [
+                {
+                    "product_id": 1,
+                    "sku": "X",
+                    "old_base_price": "1",
+                    "old_is_available": False,
+                    "updated_at": "t",
+                }
+            ],
+        )
+
+
+def test_rollback_restores_allowed_fields_only(sample_xlsx: Path, tmp_path: Path):
+    cat = load_workbook_catalog(sample_xlsx)
+    product = _db_product()
+    snap = tmp_path / "recovery.json"
+    apply_pilot_plans(
+        products_by_id={1: product},
+        plans=[_plan()],
+        workbook_by_code=cat.by_code,
+        catalog=cat,
+        image_state_by_id={1: (1, "/media/x.webp")},
+        recovery_snapshot_path=snap,
+    )
+    assert product.is_available is True
+    product.name = "SHOULD_STAY"
+    raw = json.loads(snap.read_text(encoding="utf-8"))
+    restored = rollback_from_recovery_snapshot(
+        products_by_id={1: product},
+        snapshot_rows=raw["rows"],
+    )
+    assert product.base_price == Decimal("399000")
+    assert product.is_available is False
+    assert product.name == "SHOULD_STAY"
+    assert len(restored) == 1
 
 
 def test_verify_forbidden_field_preservation():
@@ -398,44 +597,72 @@ def test_explicit_count_mismatch_via_empty_plans():
             plans=[],
             workbook_by_code={},
             catalog=SimpleNamespace(rate=Decimal("2500000"), by_code={}),  # type: ignore[arg-type]
-            live_product_rows={},
+            image_state_by_id={},
         )
 
 
-def test_transaction_rollback_semantics(sample_xlsx: Path):
-    """If a later plan fails gate, caller must not keep earlier mutations.
-
-    We simulate by validating all-or-nothing preflight: a bad second plan raises
-    before any mutation.
-    """
+def test_transaction_rollback_semantics(sample_xlsx: Path, tmp_path: Path):
     cat = load_workbook_catalog(sample_xlsx)
     good = _plan()
-    bad = _plan(product_id=2, sku="NO-SUCH", workbook_code="NO-SUCH", new_base_price=Decimal("1"), toman_price=Decimal("1"), rial_price=Decimal("10"), usd_price=Decimal("0.004"))
-    p1 = SimpleNamespace(id=1, base_price=Decimal("399000"), is_available=False, name="متر", sku="9722-250", brand_id=3, category_id=77, short_description="x", description="y", specifications={}, stock_quantity=Decimal("0"), slug="9722-250", original_price=None, meta_title=None, meta_description=None, is_active=True)
+    bad = _plan(
+        product_id=2,
+        sku="NO-SUCH",
+        workbook_code="NO-SUCH",
+        new_base_price=Decimal("1"),
+        toman_price=Decimal("1"),
+        rial_price=Decimal("10"),
+        usd_price=Decimal("0.004"),
+    )
+    p1 = _db_product()
     with pytest.raises(PilotGateError):
         apply_pilot_plans(
             products_by_id={1: p1},
             plans=[good, bad],
             workbook_by_code=cat.by_code,
             catalog=cat,
-            live_product_rows={"9722-250": _live_ok()},
+            image_state_by_id={1: (1, "/media/x.webp")},
+            recovery_snapshot_path=tmp_path / "r.json",
         )
-    # First product untouched because preflight failed before mutations
     assert p1.base_price == Decimal("399000")
     assert p1.is_available is False
 
 
-def test_only_allowlisted_skus_in_apply_set(sample_xlsx: Path):
+def test_only_allowlisted_skus_in_apply_set(sample_xlsx: Path, tmp_path: Path):
     cat = load_workbook_catalog(sample_xlsx)
-    plan = _plan()
-    p1 = SimpleNamespace(id=1, base_price=Decimal("399000"), is_available=False, name="متر", sku="9722-250", brand_id=3, category_id=77, short_description="x", description="y", specifications={}, stock_quantity=Decimal("0"), slug="9722-250", original_price=None, meta_title=None, meta_description=None, is_active=True)
-    p2 = SimpleNamespace(id=2, base_price=Decimal("100"), is_available=False, name="other", sku="OTHER", brand_id=3, category_id=77)
+    p1 = _db_product()
+    p2 = _db_product(id=2, sku="OTHER", base_price=Decimal("100"), is_available=False)
     apply_pilot_plans(
         products_by_id={1: p1, 2: p2},
-        plans=[plan],
+        plans=[_plan()],
         workbook_by_code=cat.by_code,
         catalog=cat,
-        live_product_rows={"9722-250": _live_ok()},
+        image_state_by_id={1: (1, "/media/x.webp")},
+        recovery_snapshot_path=tmp_path / "r.json",
     )
     assert p2.base_price == Decimal("100")
     assert p2.is_available is False
+
+
+def test_category_inconsistency_rules():
+    assert category_inconsistency_reason(
+        "SMART DIGITAL MULTIMETER", "عمق سنج"
+    )
+    assert category_inconsistency_reason("WELDING GAGE", "انواع کولیس")
+    assert category_inconsistency_reason("VOLTAGE TESTER", "متر")
+    assert category_inconsistency_reason("TAPE", "متر") is None
+
+
+def test_synthetic_fixture_has_no_real_skus():
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "fixtures"
+        / "insize_pilot_manifest_synthetic.json"
+    )
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    for sku in raw["selected_skus"]:
+        assert sku.startswith("FAKE-")
+    for plan in raw["plans"]:
+        assert plan["sku"].startswith("FAKE-")
+        assert int(plan["product_id"]) >= 900000
+        assert Decimal(plan["new_base_price"]) <= Decimal("500000")

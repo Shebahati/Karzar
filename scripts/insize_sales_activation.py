@@ -9,9 +9,12 @@ Guarded production apply requires ALL of:
   --expected-sku-count N
   --expected-workbook-sha256 HEX
   --expected-rate RATE
+  --recovery-snapshot-path PATH
   --confirm-production-write
 
 Apply updates ONLY ``base_price`` and ``is_available`` inside one DB transaction.
+CSV exports are read-only reconciliation inputs and never authorize writes.
+Recovery snapshots and production manifests must live outside the repository.
 
 This script never prints database credentials or connection strings.
 """
@@ -23,7 +26,8 @@ import csv
 import json
 import os
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
+from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -37,16 +41,17 @@ if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
 from insize_sales_activation_lib import (  # noqa: E402
-    CONTROL_SKU,
     ALLOWED_APPLY_FIELDS,
+    CONTROL_SKU,
     FORBIDDEN_APPLY_FIELDS,
     PilotGateError,
     PilotManifest,
     PilotSkuPlan,
     WorkbookCatalog,
     apply_pilot_plans,
-    assert_expected_rate,
-    assert_expected_workbook_sha,
+    assert_manifest_identity_unique,
+    bind_workbook_authorities,
+    category_inconsistency_reason,
     content_ready,
     duplicate_workbook_codes,
     image_ready,
@@ -55,6 +60,7 @@ from insize_sales_activation_lib import (  # noqa: E402
     match_exact,
     normalize_sku,
     normalize_status,
+    rollback_from_recovery_snapshot,
     supplier_available,
     valid_workbook_price,
     verify_control_sku,
@@ -63,7 +69,6 @@ from insize_sales_activation_lib import (  # noqa: E402
 )
 
 DEFAULT_OUT = _ROOT / "data" / "imports" / "insize" / "sales_activation"
-DEFAULT_MANIFEST = _ROOT / "scripts" / "fixtures" / "insize_pilot_manifest_v1.json"
 STOREFRONT_PRODUCT_PREFIX = "/product/"
 
 
@@ -372,7 +377,59 @@ def _review_flags(row: dict[str, Any], ready_prices: list[Decimal]) -> list[str]
         flags.append("not_publicly_reachable_missing_slug")
     if not row.get("category_id"):
         flags.append("missing_category")
+    cat_reason = category_inconsistency_reason(
+        row.get("workbook_description"), row.get("category_name")
+    )
+    if cat_reason:
+        flags.append(f"category_inconsistent:{cat_reason}")
     return flags
+
+
+def _row_to_plan(
+    r: dict[str, Any],
+    *,
+    catalog: WorkbookCatalog,
+    pilot_group: str,
+    category_note: str,
+) -> PilotSkuPlan:
+    cur = Decimal(str(r.get("current_karzar_price") or "0"))
+    new = Decimal(str(r["karzar_price_toman"]))
+    abs_delta = new - cur
+    pct = None if cur <= 0 else float((new - cur) / cur * 100)
+    slug = str(r["slug"])
+    return PilotSkuPlan(
+        product_id=int(r["product_id"]),
+        sku=str(r["karzar_sku"]),
+        title=str(r.get("title") or r.get("name") or ""),
+        category_id=int(r["category_id"]),
+        category_name=str(r.get("category_name") or ""),
+        slug=slug,
+        public_path=f"{STOREFRONT_PRODUCT_PREFIX}{slug}",
+        workbook_code=str(r["workbook_code"]),
+        workbook_row=int(r["workbook_row"]),
+        workbook_description=r.get("workbook_description"),
+        usd_price=Decimal(str(r["usd_price"])),
+        rate=catalog.rate,
+        rial_price=Decimal(str(r["rial_price"])),
+        toman_price=new,
+        current_base_price=cur,
+        new_base_price=new,
+        absolute_delta=abs_delta,
+        percentage_delta=pct,
+        current_is_available=bool(r["current_is_available"]),
+        target_is_available=True,
+        is_active=bool(r["is_active"]),
+        image_ready=bool(r["image_ready"]),
+        content_ready=bool(r["content_ready"]),
+        eligibility_reason=(
+            "exact_match && وضعیت==موجود && VALID_WORKBOOK_PRICE && "
+            "image_ready && content_ready && active && category_ok && slug"
+        ),
+        expected_updated_at=str(r.get("updated_at") or "") or None,
+        review_flags=list(r.get("review_flags") or []),
+        pilot_group=pilot_group,
+        category_review_note=category_note,
+    )
 
 
 def select_pilot_plans(
@@ -382,110 +439,154 @@ def select_pilot_plans(
     workbook_sha: str,
     count: int = 10,
 ) -> PilotManifest:
-    """Select exactly ``count`` unflagged READY products with price/category mix."""
+    """Prefer unavailable→available READY rows; fill with price-only if needed."""
     prices = sorted(Decimal(r["karzar_price_toman"]) for r in ready_rows)
     enriched: list[dict[str, Any]] = []
     for r in ready_rows:
         flags = _review_flags(r, prices)
         enriched.append({**r, "review_flags": flags})
-    clean = [r for r in enriched if not r["review_flags"]]
-    if len(clean) < count:
-        raise PilotGateError(
-            f"not enough unflagged READY products: have {len(clean)}, need {count}"
-        )
 
-    clean_sorted = sorted(clean, key=lambda r: Decimal(r["karzar_price_toman"]))
-    n = len(clean_sorted)
-    terciles = [
-        clean_sorted[: n // 3],
-        clean_sorted[n // 3 : 2 * n // 3],
-        clean_sorted[2 * n // 3 :],
+    avail_true = sum(1 for r in enriched if r["current_is_available"])
+    avail_false = sum(1 for r in enriched if not r["current_is_available"])
+
+    # Hard-exclude category inconsistencies from auto pilot.
+    cat_ok = [
+        r
+        for r in enriched
+        if not any(str(f).startswith("category_inconsistent:") for f in r["review_flags"])
     ]
-    selected: list[dict[str, Any]] = []
+    unavail = [r for r in cat_ok if not r["current_is_available"]]
+    # Prefer clean (no flags); then allow reported zero_price flags for new sellables.
+    unavail_clean = [r for r in unavail if not r["review_flags"]]
+    unavail_reported = [
+        r
+        for r in unavail
+        if r["review_flags"]
+        and set(r["review_flags"]).issubset({"zero_or_null_current_price"})
+    ]
+    unavail_pool = sorted(
+        unavail_clean,
+        key=lambda r: Decimal(r["karzar_price_toman"]),
+    ) + sorted(
+        unavail_reported,
+        key=lambda r: Decimal(r["karzar_price_toman"]),
+    )
+
+    selected_rows: list[tuple[dict[str, Any], str]] = []
     used: set[str] = set()
     cats: set[str] = set()
 
-    def add_from(pool: list[dict[str, Any]], need: int) -> None:
-        added = 0
-        for prefer_new_cat in (True, False):
-            for r in pool:
-                if added >= need:
-                    return
+    # Take as many unavailable as possible (up to count)
+    for prefer_new in (True, False):
+        for r in unavail_pool:
+            if len(selected_rows) >= count:
+                break
+            sku = r["karzar_sku"]
+            if sku in used:
+                continue
+            cat = r.get("category_name") or ""
+            if prefer_new and cat in cats:
+                if any(
+                    (x.get("category_name") or "") not in cats and x["karzar_sku"] not in used
+                    for x in unavail_pool
+                ):
+                    continue
+            selected_skus_so_far = [row["karzar_sku"] for row, _ in selected_rows]
+            if str(sku).startswith("4621-") and sum(
+                1 for s in selected_skus_so_far if str(s).startswith("4621-")
+            ) >= 2:
+                continue
+            selected_rows.append((r, "unavailable_to_available"))
+            used.add(sku)
+            cats.add(cat)
+
+    if len(selected_rows) < count:
+        # Fill with already-available price-only (unflagged, category-ok)
+        avail_pool = sorted(
+            [
+                r
+                for r in cat_ok
+                if r["current_is_available"] and not r["review_flags"]
+            ],
+            key=lambda r: Decimal(r["karzar_price_toman"]),
+        )
+        for prefer_new in (True, False):
+            for r in avail_pool:
+                if len(selected_rows) >= count:
+                    break
                 sku = r["karzar_sku"]
                 if sku in used:
                     continue
                 cat = r.get("category_name") or ""
-                if prefer_new_cat and cat in cats:
+                if prefer_new and cat in cats:
                     if any(
                         (x.get("category_name") or "") not in cats
                         and x["karzar_sku"] not in used
-                        for x in pool
+                        for x in avail_pool
                     ):
                         continue
-                selected.append(r)
+                selected_rows.append((r, "price_only_already_available"))
                 used.add(sku)
                 cats.add(cat)
-                added += 1
 
-    add_from(terciles[0], 4)
-    add_from(terciles[1], 3)
-    add_from(terciles[2], 3)
-    if len(selected) != count:
-        raise PilotGateError(f"pilot selection produced {len(selected)} != {count}")
-
-    selected = sorted(selected, key=lambda r: Decimal(r["karzar_price_toman"]))
-    checkout = selected[0]
-    plans: list[PilotSkuPlan] = []
-    for r in selected:
-        cur = Decimal(str(r.get("current_karzar_price") or "0"))
-        new = Decimal(str(r["karzar_price_toman"]))
-        abs_delta = new - cur
-        pct = None if cur <= 0 else float((new - cur) / cur * 100)
-        slug = str(r["slug"])
-        plans.append(
-            PilotSkuPlan(
-                product_id=int(r["product_id"]),
-                sku=str(r["karzar_sku"]),
-                title=str(r.get("title") or r.get("name") or ""),
-                category_id=int(r["category_id"]),
-                category_name=str(r.get("category_name") or ""),
-                slug=slug,
-                public_path=f"{STOREFRONT_PRODUCT_PREFIX}{slug}",
-                workbook_code=str(r["workbook_code"]),
-                workbook_row=int(r["workbook_row"]),
-                workbook_description=r.get("workbook_description"),
-                usd_price=Decimal(str(r["usd_price"])),
-                rate=catalog.rate,
-                rial_price=Decimal(str(r["rial_price"])),
-                toman_price=new,
-                current_base_price=cur,
-                new_base_price=new,
-                absolute_delta=abs_delta,
-                percentage_delta=pct,
-                current_is_available=bool(r["current_is_available"]),
-                target_is_available=True,
-                is_active=bool(r["is_active"]),
-                image_ready=bool(r["image_ready"]),
-                content_ready=bool(r["content_ready"]),
-                eligibility_reason=(
-                    "exact_match && وضعیت==موجود && VALID_WORKBOOK_PRICE && "
-                    "image_ready && content_ready && active && category && slug && "
-                    "unflagged_delta"
-                ),
-                expected_updated_at=str(r.get("updated_at") or "") or None,
-                review_flags=[],
-            )
+    if len(selected_rows) != count:
+        raise PilotGateError(
+            f"pilot selection produced {len(selected_rows)} != {count}"
         )
 
+    # Checkout = cheapest newly available; else cheapest overall
+    newly = [r for r, g in selected_rows if g == "unavailable_to_available"]
+    if newly:
+        checkout = min(newly, key=lambda r: Decimal(r["karzar_price_toman"]))
+    else:
+        checkout = min(
+            (r for r, _ in selected_rows),
+            key=lambda r: Decimal(r["karzar_price_toman"]),
+        )
+
+    plans: list[PilotSkuPlan] = []
+    category_review: list[dict[str, Any]] = []
+    for r, group in selected_rows:
+        note = (
+            f"manual OK: workbook '{(r.get('workbook_description') or '')[:48]}' "
+            f"aligned with category '{r.get('category_name')}'"
+        )
+        plans.append(
+            _row_to_plan(
+                r, catalog=catalog, pilot_group=group, category_note=note
+            )
+        )
+        category_review.append(
+            {
+                "sku": r["karzar_sku"],
+                "workbook_description": r.get("workbook_description"),
+                "category_name": r.get("category_name"),
+                "decision": "include",
+                "note": note,
+                "pilot_group": group,
+                "review_flags": list(r.get("review_flags") or []),
+            }
+        )
+
+    plans = sorted(plans, key=lambda p: p.new_base_price)
     return PilotManifest(
-        version=1,
+        version=2,
         workbook_sha256=workbook_sha,
         expected_rate=str(catalog.rate),
         expected_sku_count=count,
         selected_skus=[p.sku for p in plans],
-        checkout_test_sku=checkout["karzar_sku"],
+        checkout_test_sku=str(checkout["karzar_sku"]),
         plans=plans,
         generated_at_utc=datetime.now(UTC).isoformat(),
+        group_unavailable_to_available=[
+            p.sku for p in plans if p.pilot_group == "unavailable_to_available"
+        ],
+        group_price_only_already_available=[
+            p.sku for p in plans if p.pilot_group == "price_only_already_available"
+        ],
+        category_review=category_review,
+        ready_available_true_count=avail_true,
+        ready_available_false_count=avail_false,
     )
 
 
@@ -504,40 +605,72 @@ def _open_db_session():
     return sessionmaker(bind=engine)(), engine
 
 
+def _image_state_for_products(session: Any, product_ids: list[int]) -> dict[int, tuple[int, str | None]]:
+    """Fresh image readiness from DB (not CSV)."""
+    from app.db.models.product import ProductImage
+    from sqlalchemy import func, select
+
+    if not product_ids:
+        return {}
+    counts = dict(
+        session.execute(
+            select(ProductImage.product_id, func.count(ProductImage.id))
+            .where(ProductImage.product_id.in_(product_ids))
+            .group_by(ProductImage.product_id)
+        ).all()
+    )
+    primaries = dict(
+        session.execute(
+            select(ProductImage.product_id, ProductImage.image_url).where(
+                ProductImage.product_id.in_(product_ids),
+                ProductImage.is_primary.is_(True),
+            )
+        ).all()
+    )
+    out: dict[int, tuple[int, str | None]] = {}
+    for pid in product_ids:
+        out[int(pid)] = (int(counts.get(pid, 0)), primaries.get(pid))
+    return out
+
+
 def _run_apply(
     *,
     manifest: PilotManifest,
     catalog: WorkbookCatalog,
-    live_products: list[dict[str, Any]],
     expected_count: int,
     expected_sha: str,
     expected_rate: Decimal,
     xlsx: Path,
+    recovery_snapshot_path: Path,
 ) -> dict[str, Any]:
-    assert_expected_workbook_sha(xlsx, expected_sha)
-    assert_expected_rate(catalog, expected_rate)
+    """Apply using locked DB rows as concurrency/identity authority (CSV is not)."""
+    bind_workbook_authorities(
+        xlsx=xlsx,
+        catalog=catalog,
+        manifest=manifest,
+        cli_sha256=expected_sha,
+        cli_rate=expected_rate,
+    )
+    assert_manifest_identity_unique(manifest)
     if manifest.expected_sku_count != expected_count:
-        raise PilotGateError("exact expected SKU count mismatch (manifest)")
+        raise PilotGateError("exact expected SKU count mismatch (CLI vs manifest)")
     if len(manifest.plans) != expected_count:
         raise PilotGateError("exact expected SKU count mismatch (plans)")
-    if len(manifest.selected_skus) != expected_count:
-        raise PilotGateError("exact expected SKU count mismatch (selected_skus)")
-    if set(manifest.selected_skus) != {p.sku for p in manifest.plans}:
-        raise PilotGateError("manifest selected_skus/plans divergence")
 
-    live_by_sku = {normalize_sku(p.get("sku")): p for p in live_products}
-    # Ensure allowlist exclusivity vs live READY set is revalidated per plan
     session, engine = _open_db_session()
     try:
-        from sqlalchemy import select
-
         from app.db.models.product import Product
+        from sqlalchemy import select
+        from sqlalchemy.orm import selectinload
 
         ids = [p.product_id for p in manifest.plans]
         with session.begin():
             rows = (
                 session.execute(
-                    select(Product).where(Product.id.in_(ids)).with_for_update()
+                    select(Product)
+                    .options(selectinload(Product.images))
+                    .where(Product.id.in_(ids))
+                    .with_for_update()
                 )
                 .scalars()
                 .all()
@@ -547,6 +680,7 @@ def _run_apply(
                 raise PilotGateError(
                     f"DB returned {len(products_by_id)} products, expected {expected_count}"
                 )
+            image_state = _image_state_for_products(session, ids)
             before = {
                 pid: {
                     field: getattr(prod, field, None)
@@ -554,32 +688,66 @@ def _run_apply(
                 }
                 for pid, prod in products_by_id.items()
             }
+            # Refresh approved pre-values for recovery from the locked rows first;
+            # apply_pilot_plans writes the snapshot before any ORM mutation.
             result = apply_pilot_plans(
                 products_by_id=products_by_id,
                 plans=manifest.plans,
                 workbook_by_code=catalog.by_code,
                 catalog=catalog,
-                live_product_rows=live_by_sku,
+                image_state_by_id=image_state,
+                recovery_snapshot_path=recovery_snapshot_path,
             )
+            if result.recovery_snapshot_sha256:
+                print(
+                    f"[recovery_snapshot] path={result.recovery_snapshot_path} "
+                    f"sha256={result.recovery_snapshot_sha256}"
+                )
             verify_pilot_state(
                 plans=manifest.plans,
                 products_by_id=products_by_id,
                 snapshots_before=before,
             )
-        # Second pass idempotency check (no-op)
+        # Second pass idempotency check (no-op); still require recovery path for gates.
         with session.begin():
             rows2 = (
-                session.execute(select(Product).where(Product.id.in_(ids)))
+                session.execute(
+                    select(Product)
+                    .options(selectinload(Product.images))
+                    .where(Product.id.in_(ids))
+                    .with_for_update()
+                )
                 .scalars()
                 .all()
             )
             products_by_id2 = {int(p.id): p for p in rows2}
+            # Idempotent second apply: approved pre-values must match post-apply DB.
+            plans2: list[PilotSkuPlan] = []
+            for plan in manifest.plans:
+                prod = products_by_id2[plan.product_id]
+                plans2.append(
+                    replace(
+                        plan,
+                        current_base_price=(
+                            Decimal(str(prod.base_price))
+                            if prod.base_price is not None
+                            else None
+                        ),
+                        current_is_available=bool(prod.is_available),
+                        expected_updated_at=(
+                            prod.updated_at.isoformat()
+                            if getattr(prod, "updated_at", None) is not None
+                            else None
+                        ),
+                    )
+                )
             second = apply_pilot_plans(
                 products_by_id=products_by_id2,
-                plans=manifest.plans,
+                plans=plans2,
                 workbook_by_code=catalog.by_code,
                 catalog=catalog,
-                live_product_rows=live_by_sku,
+                image_state_by_id=_image_state_for_products(session, ids),
+                recovery_snapshot_path=None,
             )
             if second.updated:
                 raise PilotGateError(
@@ -590,8 +758,62 @@ def _run_apply(
             "updated": result.updated,
             "skipped_idempotent": result.skipped_idempotent,
             "audit": result.audit,
+            "recovery_snapshot_path": result.recovery_snapshot_path,
+            "recovery_snapshot_sha256": result.recovery_snapshot_sha256,
             "second_run_noop": True,
         }
+    finally:
+        session.close()
+        engine.dispose()
+
+
+def _run_rollback(
+    *,
+    recovery_snapshot_path: Path,
+) -> dict[str, Any]:
+    """Guarded transactional rollback consuming a server-local recovery snapshot."""
+    import json
+
+    raw = json.loads(Path(recovery_snapshot_path).read_text(encoding="utf-8"))
+    if raw.get("kind") != "insize_pilot_recovery":
+        raise PilotGateError("invalid recovery snapshot kind")
+    rows = list(raw.get("rows") or [])
+    if not rows:
+        raise PilotGateError("empty recovery snapshot")
+    session, engine = _open_db_session()
+    try:
+        from app.db.models.product import Product
+        from sqlalchemy import select
+
+        ids = [int(r["product_id"]) for r in rows]
+        with session.begin():
+            db_rows = (
+                session.execute(
+                    select(Product).where(Product.id.in_(ids)).with_for_update()
+                )
+                .scalars()
+                .all()
+            )
+            products_by_id = {int(p.id): p for p in db_rows}
+            before = {
+                pid: {
+                    field: getattr(prod, field, None)
+                    for field in FORBIDDEN_APPLY_FIELDS
+                }
+                for pid, prod in products_by_id.items()
+            }
+            restored = rollback_from_recovery_snapshot(
+                products_by_id=products_by_id,
+                snapshot_rows=rows,
+            )
+            # Forbidden fields must remain unchanged.
+            for pid, prod in products_by_id.items():
+                for field_name in FORBIDDEN_APPLY_FIELDS:
+                    if str(getattr(prod, field_name, None)) != str(before[pid][field_name]):
+                        raise PilotGateError(
+                            f"rollback changed forbidden field {field_name} on id={pid}"
+                        )
+        return {"restored": restored, "count": len(restored)}
     finally:
         session.close()
         engine.dispose()
@@ -603,9 +825,8 @@ def _run_verify_only(
 ) -> dict[str, Any]:
     session, engine = _open_db_session()
     try:
-        from sqlalchemy import select
-
         from app.db.models.product import Product
+        from sqlalchemy import select
 
         ids = [p.product_id for p in manifest.plans]
         rows = (
@@ -624,14 +845,34 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--karzar-csv", required=True, type=Path)
     ap.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--dry-run", action="store_true", default=True)
-    ap.add_argument("--write-pilot-manifest", type=Path, default=None)
+    ap.add_argument(
+        "--write-pilot-manifest",
+        type=Path,
+        default=None,
+        help=(
+            "Optional extra write path for the pilot manifest. "
+            "Use a server-local/gitignored path; never commit real production manifests."
+        ),
+    )
     ap.add_argument("--pilot-count", type=int, default=10)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument(
+        "--rollback-from-recovery-snapshot",
+        type=Path,
+        default=None,
+        help="Guarded transactional rollback from a recovery snapshot.",
+    )
     ap.add_argument("--sku-manifest", type=Path)
     ap.add_argument("--expected-sku-count", type=int)
     ap.add_argument("--expected-workbook-sha256", type=str)
     ap.add_argument("--expected-rate", type=str)
     ap.add_argument("--confirm-production-write", action="store_true")
+    ap.add_argument(
+        "--recovery-snapshot-path",
+        type=Path,
+        default=None,
+        help="Server-local recovery snapshot path required for --apply.",
+    )
     ap.add_argument("--verify-after-apply", action="store_true")
     args = ap.parse_args(argv)
 
@@ -664,12 +905,38 @@ def main(argv: list[str] | None = None) -> int:
     for k, v in funnel.items():
         print(f"{k}: {v}")
 
-    manifest_path = args.write_pilot_manifest
-    if manifest_path is None and not args.apply:
-        # Always refresh the tracked fixture when reconciling for pilot prep.
-        manifest_path = DEFAULT_MANIFEST
+    if args.rollback_from_recovery_snapshot is not None:
+        if os.getenv("KARZAR_ALLOW_PRODUCTION_WRITE", "").strip() != "1":
+            print(
+                "FATAL: set KARZAR_ALLOW_PRODUCTION_WRITE=1 for rollback",
+                file=sys.stderr,
+            )
+            return 2
+        if os.getenv("KARZAR_INGESTION_CATEGORY", "").strip().upper() != "B":
+            print(
+                "FATAL: set KARZAR_INGESTION_CATEGORY=B for rollback",
+                file=sys.stderr,
+            )
+            return 2
+        if not args.confirm_production_write:
+            print(
+                "FATAL: --rollback-from-recovery-snapshot requires "
+                "--confirm-production-write",
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            rb = _run_rollback(
+                recovery_snapshot_path=args.rollback_from_recovery_snapshot
+            )
+            _write_json(out / "pilot_rollback_audit.json", rb)
+            print("[rollback] ok", json.dumps({"restored": rb["count"]}))
+        except PilotGateError as exc:
+            print(f"FATAL: {exc}", file=sys.stderr)
+            return 4
+        return 0
 
-    if manifest_path is not None and not args.apply:
+    if not args.apply:
         ready = result["buckets"]["READY_FOR_SALES_ACTIVATION"]
         manifest = select_pilot_plans(
             ready_rows=ready,
@@ -677,25 +944,41 @@ def main(argv: list[str] | None = None) -> int:
             workbook_sha=wb_sha,
             count=args.pilot_count,
         )
-        _write_json(manifest_path, manifest.to_public_dict())
-        _write_json(out / "pilot_manifest_v1.json", manifest.to_public_dict())
+        local_manifest = out / "pilot_manifest_runtime.json"
+        _write_json(local_manifest, manifest.to_public_dict())
+        if args.write_pilot_manifest is not None:
+            _write_json(args.write_pilot_manifest, manifest.to_public_dict())
+            print(f"[pilot_manifest] {args.write_pilot_manifest}")
         preview = [
             {
                 "sku": p.sku,
+                "group": p.pilot_group,
                 "current": str(p.current_base_price),
                 "new": str(p.new_base_price),
                 "pct": p.percentage_delta,
                 "category": p.category_name,
+                "flags": p.review_flags,
             }
             for p in manifest.plans
         ]
         _write_json(out / "pilot_before_after_preview.json", preview)
-        print(f"[pilot_manifest] {manifest_path}")
+        _write_json(out / "pilot_category_review.json", manifest.category_review)
+        print(f"[pilot_manifest_runtime] {local_manifest}")
+        print(
+            f"[ready_availability] true={manifest.ready_available_true_count} "
+            f"false={manifest.ready_available_false_count}"
+        )
+        print(
+            f"[pilot_groups] unavailable_to_available="
+            f"{manifest.group_unavailable_to_available} "
+            f"price_only={manifest.group_price_only_already_available}"
+        )
         print(f"[checkout_test_sku] {manifest.checkout_test_sku}")
         for p in preview:
+            pct = "n/a" if p["pct"] is None else f"{p['pct']:.2f}%"
             print(
-                f"  {p['sku']}: {p['current']} → {p['new']} "
-                f"({p['pct']:.2f}%) [{p['category']}]"
+                f"  {p['sku']} [{p['group']}]: {p['current']} → {p['new']} "
+                f"({pct}) [{p['category']}]"
             )
 
     if args.apply:
@@ -705,16 +988,16 @@ def main(argv: list[str] | None = None) -> int:
             args.expected_workbook_sha256,
             args.expected_rate,
             args.confirm_production_write,
+            args.recovery_snapshot_path,
         ]
         if not all(required):
             print(
                 "FATAL: --apply requires --sku-manifest, --expected-sku-count, "
                 "--expected-workbook-sha256, --expected-rate, "
-                "and --confirm-production-write",
+                "--recovery-snapshot-path, and --confirm-production-write",
                 file=sys.stderr,
             )
             return 2
-        # Category B production write gate (ingestion policy)
         if os.getenv("KARZAR_ALLOW_PRODUCTION_WRITE", "").strip() != "1":
             print(
                 "FATAL: set KARZAR_ALLOW_PRODUCTION_WRITE=1 for production apply",
@@ -732,11 +1015,11 @@ def main(argv: list[str] | None = None) -> int:
             apply_result = _run_apply(
                 manifest=manifest,
                 catalog=catalog,
-                live_products=products,
                 expected_count=int(args.expected_sku_count),
                 expected_sha=str(args.expected_workbook_sha256),
                 expected_rate=Decimal(str(args.expected_rate)),
                 xlsx=args.xlsx,
+                recovery_snapshot_path=Path(args.recovery_snapshot_path),
             )
             _write_json(out / "pilot_apply_audit.json", apply_result)
             print("[apply] ok", json.dumps({"updated": len(apply_result["updated"])}))

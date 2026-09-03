@@ -10,13 +10,18 @@ Commercial rules (Revenue Fast Track, distributor workbook 11 Shahrivar):
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import re
-import zipfile
+import tempfile
 import xml.etree.ElementTree as ET
+import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from app.core.constants import TOMAN_TO_RIAL
 from app.utils.seo_descriptions import is_stub_description
@@ -66,7 +71,7 @@ def parse_decimal(value: Any) -> Decimal | None:
         return None
     if isinstance(value, Decimal):
         return value
-    if isinstance(value, (int, float)):
+    if isinstance(value, int | float):
         return Decimal(str(value))
     text = str(value).strip().replace(",", "").replace(" ", "")
     if not text:
@@ -354,10 +359,8 @@ def content_ready(
 ) -> bool:
     short_ok = not is_stub_description(short_description, product_name=name)
     long_ok = not is_stub_description(description, product_name=name)
-    specs_ok = has_useful_specs(specifications)
-    # Acceptable if non-stub short OR non-stub long, plus useful specs when present;
-    # require at least one factual prose field and prefer specs, but allow prose-only
-    # if specs empty (still not inventing).
+    # Acceptable if non-stub short OR non-stub long.
+    # Specs remain optional for readiness (has_useful_specs available for future gates).
     if short_ok or long_ok:
         return True
     return False
@@ -390,8 +393,6 @@ def duplicate_workbook_codes(rows: Iterable[WorkbookRow]) -> dict[str, int]:
 
 
 def workbook_sha256(path: Path) -> str:
-    import hashlib
-
     h = hashlib.sha256()
     with Path(path).open("rb") as fh:
         for chunk in iter(lambda: fh.read(1024 * 1024), b""):
@@ -448,6 +449,8 @@ class PilotSkuPlan:
     eligibility_reason: str
     expected_updated_at: str | None = None
     review_flags: list[str] = field(default_factory=list)
+    pilot_group: str = "unavailable_to_available"
+    category_review_note: str = ""
 
     def to_public_dict(self) -> dict[str, Any]:
         return {
@@ -481,6 +484,8 @@ class PilotSkuPlan:
             "eligibility_reason": self.eligibility_reason,
             "expected_updated_at": self.expected_updated_at,
             "review_flags": list(self.review_flags),
+            "pilot_group": self.pilot_group,
+            "category_review_note": self.category_review_note,
         }
 
 
@@ -494,6 +499,11 @@ class PilotManifest:
     checkout_test_sku: str
     plans: list[PilotSkuPlan]
     generated_at_utc: str
+    group_unavailable_to_available: list[str] = field(default_factory=list)
+    group_price_only_already_available: list[str] = field(default_factory=list)
+    category_review: list[dict[str, Any]] = field(default_factory=list)
+    ready_available_true_count: int = 0
+    ready_available_false_count: int = 0
 
     def to_public_dict(self) -> dict[str, Any]:
         return {
@@ -504,8 +514,37 @@ class PilotManifest:
             "selected_skus": list(self.selected_skus),
             "checkout_test_sku": self.checkout_test_sku,
             "generated_at_utc": self.generated_at_utc,
+            "group_unavailable_to_available": list(self.group_unavailable_to_available),
+            "group_price_only_already_available": list(
+                self.group_price_only_already_available
+            ),
+            "category_review": list(self.category_review),
+            "ready_available_true_count": self.ready_available_true_count,
+            "ready_available_false_count": self.ready_available_false_count,
             "plans": [p.to_public_dict() for p in self.plans],
         }
+
+
+INSIZE_BRAND_ID = 3
+
+# Workbook English family vs Persian category mismatches to exclude from auto-pilot.
+_CATEGORY_INCONSISTENCY_RULES: tuple[tuple[str, str, str], ...] = (
+    (r"MULTIMETER|VOLTAGE TESTER|CLAMP METER", r"عمق سنج|^\s*متر\s*$|کولیس", "electrical vs metrology"),
+    (r"WELDING GAGE|WET FILM GAGE", r"کولیس", "welding/film gage vs caliper"),
+    (r"MICROMETER", r"^\s*متر\s*$", "micrometer vs meter"),
+    (r"THICKNESS GAGE", r"فیلر", "thickness gage vs feeler"),
+)
+
+
+def category_inconsistency_reason(
+    workbook_description: str | None, category_name: str | None
+) -> str | None:
+    desc = (workbook_description or "").upper()
+    cat = category_name or ""
+    for desc_pat, cat_pat, reason in _CATEGORY_INCONSISTENCY_RULES:
+        if re.search(desc_pat, desc) and re.search(cat_pat, cat):
+            return reason
+    return None
 
 
 class PilotGateError(ValueError):
@@ -514,6 +553,19 @@ class PilotGateError(ValueError):
 
 def _truthy(value: Any) -> bool:
     return str(value).strip().lower() in {"1", "t", "true", "yes", "y"}
+
+
+def _dec_or_none(value: Any) -> Decimal | None:
+    if value is None or value == "":
+        return None
+    return Decimal(str(value))
+
+
+def _prices_equal(a: Decimal | None, b: Decimal | None) -> bool:
+    """Treat None and 0 as equivalent 'unpriced' states for pre-value checks."""
+    aa = Decimal("0") if a is None else a
+    bb = Decimal("0") if b is None else b
+    return aa == bb
 
 
 def assert_expected_workbook_sha(path: Path, expected_sha256: str) -> str:
@@ -532,9 +584,56 @@ def assert_expected_rate(catalog: WorkbookCatalog, expected_rate: Decimal) -> No
         )
 
 
-def load_pilot_manifest(path: Path) -> PilotManifest:
-    import json
+def bind_workbook_authorities(
+    *,
+    xlsx: Path,
+    catalog: WorkbookCatalog,
+    manifest: PilotManifest,
+    cli_sha256: str,
+    cli_rate: Decimal,
+) -> None:
+    actual_sha = workbook_sha256(xlsx)
+    if not (
+        actual_sha.lower()
+        == cli_sha256.lower()
+        == manifest.workbook_sha256.lower()
+    ):
+        raise PilotGateError(
+            "workbook SHA authority mismatch between file/CLI/manifest: "
+            f"file={actual_sha} cli={cli_sha256} manifest={manifest.workbook_sha256}"
+        )
+    if not (
+        catalog.rate
+        == cli_rate
+        == Decimal(str(manifest.expected_rate))
+    ):
+        raise PilotGateError(
+            "workbook rate authority mismatch between file/CLI/manifest: "
+            f"file={catalog.rate} cli={cli_rate} manifest={manifest.expected_rate}"
+        )
+    for plan in manifest.plans:
+        if plan.rate != catalog.rate:
+            raise PilotGateError(
+                f"plan rate mismatch for {plan.sku}: {plan.rate} != {catalog.rate}"
+            )
 
+
+def assert_manifest_identity_unique(manifest: PilotManifest) -> None:
+    skus = [normalize_sku(p.sku) for p in manifest.plans]
+    ids = [p.product_id for p in manifest.plans]
+    if len(skus) != len(set(skus)):
+        raise PilotGateError("duplicate normalized SKUs in manifest")
+    if len(ids) != len(set(ids)):
+        raise PilotGateError("duplicate product IDs in manifest")
+    if len(manifest.plans) != manifest.expected_sku_count:
+        raise PilotGateError("exact expected count mismatch vs plans")
+    if len(manifest.selected_skus) != manifest.expected_sku_count:
+        raise PilotGateError("exact expected count mismatch vs selected_skus")
+    if {normalize_sku(s) for s in manifest.selected_skus} != set(skus):
+        raise PilotGateError("selected_skus/plans SKU set divergence")
+
+
+def load_pilot_manifest(path: Path) -> PilotManifest:
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     plans = [
         PilotSkuPlan(
@@ -572,6 +671,8 @@ def load_pilot_manifest(path: Path) -> PilotManifest:
             eligibility_reason=str(p["eligibility_reason"]),
             expected_updated_at=p.get("expected_updated_at"),
             review_flags=list(p.get("review_flags") or []),
+            pilot_group=str(p.get("pilot_group") or "unavailable_to_available"),
+            category_review_note=str(p.get("category_review_note") or ""),
         )
         for p in raw["plans"]
     ]
@@ -584,24 +685,52 @@ def load_pilot_manifest(path: Path) -> PilotManifest:
         checkout_test_sku=str(raw["checkout_test_sku"]),
         plans=plans,
         generated_at_utc=str(raw["generated_at_utc"]),
+        group_unavailable_to_available=list(
+            raw.get("group_unavailable_to_available") or []
+        ),
+        group_price_only_already_available=list(
+            raw.get("group_price_only_already_available") or []
+        ),
+        category_review=list(raw.get("category_review") or []),
+        ready_available_true_count=int(raw.get("ready_available_true_count") or 0),
+        ready_available_false_count=int(raw.get("ready_available_false_count") or 0),
     )
 
 
-def revalidate_plan_against_live(
+def _iso_updated_at(value: Any) -> str:
+    if value is None:
+        return ""
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    return str(value)
+
+
+def revalidate_plan_against_db_row(
     plan: PilotSkuPlan,
     *,
-    product: dict[str, Any],
+    product: Any,
     workbook_row: WorkbookRow,
     catalog: WorkbookCatalog,
+    image_count: int,
+    primary_image_url: str | None,
 ) -> None:
-    """Fail closed if live product/workbook no longer matches the approved plan."""
-    if normalize_sku(product.get("sku")) != normalize_sku(plan.sku):
-        raise PilotGateError(f"SKU mismatch for product_id={plan.product_id}")
+    """Fail closed using locked DB row state — never CSV concurrency authority."""
+    if int(product.id) != int(plan.product_id):
+        raise PilotGateError(
+            f"DB product_id mismatch: locked={product.id} plan={plan.product_id}"
+        )
+    if normalize_sku(getattr(product, "sku", None)) != normalize_sku(plan.sku):
+        raise PilotGateError(
+            f"DB product_id/SKU mismatch for id={plan.product_id}: "
+            f"db={getattr(product, 'sku', None)} plan={plan.sku}"
+        )
+    if int(getattr(product, "brand_id", 0) or 0) != INSIZE_BRAND_ID:
+        raise PilotGateError(f"brand_id isolation failure for {plan.sku}")
     if normalize_sku(workbook_row.code) != normalize_sku(plan.workbook_code):
         raise PilotGateError(f"workbook CODE mismatch for {plan.sku}")
     if normalize_sku(plan.sku) != normalize_sku(plan.workbook_code):
         raise PilotGateError(f"exact SKU enforcement failed for {plan.sku}")
-    if not _truthy(product.get("is_active")):
+    if not bool(getattr(product, "is_active", False)):
         raise PilotGateError(f"inactive product rejection: {plan.sku}")
     if not supplier_available(workbook_row.status):
         raise PilotGateError(f"supplier unavailable: {plan.sku}")
@@ -610,26 +739,51 @@ def revalidate_plan_against_live(
         raise PilotGateError(f"invalid price rejection: {plan.sku} ({price_class})")
     if toman != plan.new_base_price or rial != plan.rial_price:
         raise PilotGateError(f"price plan drift for {plan.sku}")
-    if not image_ready(product.get("image_count"), product.get("primary_image_url")):
+    db_price = _dec_or_none(getattr(product, "base_price", None))
+    if not _prices_equal(db_price, plan.current_base_price):
+        raise PilotGateError(
+            f"live DB price drift for {plan.sku}: db={db_price} "
+            f"approved_pre={plan.current_base_price}"
+        )
+    db_avail = bool(getattr(product, "is_available", False))
+    if db_avail != bool(plan.current_is_available):
+        raise PilotGateError(
+            f"live DB availability drift for {plan.sku}: db={db_avail} "
+            f"approved_pre={plan.current_is_available}"
+        )
+    if int(getattr(product, "category_id", 0) or 0) != int(plan.category_id):
+        raise PilotGateError(f"category_id drift for {plan.sku}")
+    if str(getattr(product, "slug", "") or "") != str(plan.slug):
+        raise PilotGateError(f"slug drift for {plan.sku}")
+    if not image_ready(image_count, primary_image_url):
         raise PilotGateError(f"image/content readiness rejection (image): {plan.sku}")
     if not content_ready(
-        name=product.get("name"),
-        short_description=product.get("short_description"),
-        description=product.get("description"),
-        specifications=product.get("specifications"),
+        name=getattr(product, "name", None),
+        short_description=getattr(product, "short_description", None),
+        description=getattr(product, "description", None),
+        specifications=getattr(product, "specifications", None),
     ):
         raise PilotGateError(f"image/content readiness rejection (content): {plan.sku}")
-    if not product.get("category_id"):
-        raise PilotGateError(f"missing category: {plan.sku}")
-    if not (product.get("slug") or "").strip():
-        raise PilotGateError(f"missing slug: {plan.sku}")
-    # Stale/concurrent detection via updated_at snapshot in manifest
-    live_updated = str(product.get("updated_at") or "")
-    if plan.expected_updated_at and live_updated and live_updated != plan.expected_updated_at:
+    live_updated = _iso_updated_at(getattr(product, "updated_at", None))
+    if plan.expected_updated_at and live_updated != plan.expected_updated_at:
         raise PilotGateError(
-            f"stale/concurrent record rejection: {plan.sku} "
-            f"(expected updated_at={plan.expected_updated_at}, live={live_updated})"
+            f"stale/concurrent updated_at rejection: {plan.sku} "
+            f"(expected={plan.expected_updated_at}, db={live_updated})"
         )
+
+
+# Back-compat name used by older unit tests; CSV must not authorize writes.
+def revalidate_plan_against_live(
+    plan: PilotSkuPlan,
+    *,
+    product: dict[str, Any],
+    workbook_row: WorkbookRow,
+    catalog: WorkbookCatalog,
+) -> None:
+    """Deprecated CSV-shaped helper for unit tests only — not used by --apply."""
+    raise PilotGateError(
+        "stale CSV cannot authorize a write; use locked DB row validation"
+    )
 
 
 @dataclass
@@ -637,6 +791,46 @@ class ApplyResult:
     updated: list[dict[str, Any]]
     skipped_idempotent: list[dict[str, Any]]
     audit: list[dict[str, Any]]
+    recovery_snapshot_path: str | None = None
+    recovery_snapshot_sha256: str | None = None
+
+
+def write_recovery_snapshot(path: Path, rows: list[dict[str, Any]]) -> str:
+    """Atomically write recovery JSON with mode 0600; return SHA-256."""
+    from datetime import UTC, datetime
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "version": 1,
+        "kind": "insize_pilot_recovery",
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "rows": rows,
+    }
+    raw = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True).encode(
+        "utf-8"
+    )
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=path.name + ".", dir=str(path.parent), text=False
+    )
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(raw)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.chmod(tmp_name, 0o600)
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
+    except Exception:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise PilotGateError("recovery snapshot failure prevents mutation") from None
+    digest = hashlib.sha256(raw).hexdigest()
+    if not path.is_file() or path.stat().st_size <= 0:
+        raise PilotGateError("recovery snapshot failure prevents mutation")
+    return digest
 
 
 def apply_pilot_plans(
@@ -645,44 +839,61 @@ def apply_pilot_plans(
     plans: list[PilotSkuPlan],
     workbook_by_code: dict[str, WorkbookRow],
     catalog: WorkbookCatalog,
-    live_product_rows: dict[str, dict[str, Any]],
+    image_state_by_id: dict[int, tuple[int, str | None]],
+    recovery_snapshot_path: Path | None = None,
 ) -> ApplyResult:
-    """Apply base_price + is_available only. Mutates product objects in-memory.
-
-    Caller must wrap in a DB transaction and commit/rollback. Raises PilotGateError
-    before any mutation if gates fail; if mutation has started and a later gate
-    fails, raises after partial in-memory changes — caller must rollback session.
-    """
+    """Apply base_price + is_available only after DB-row gates + recovery snapshot."""
     if not plans:
         raise PilotGateError("empty pilot plan")
 
-    # Preflight all gates before mutating anything
-    ordered: list[tuple[PilotSkuPlan, Any, WorkbookRow, dict[str, Any]]] = []
+    ordered: list[tuple[PilotSkuPlan, Any, WorkbookRow]] = []
+    recovery_rows: list[dict[str, Any]] = []
     for plan in plans:
         product = products_by_id.get(plan.product_id)
         if product is None:
             raise PilotGateError(f"product_id {plan.product_id} not found")
-        live = live_product_rows.get(normalize_sku(plan.sku))
-        if live is None:
-            raise PilotGateError(f"live snapshot missing for {plan.sku}")
         wb = workbook_by_code.get(normalize_sku(plan.workbook_code))
         if wb is None:
             raise PilotGateError(f"workbook row missing for {plan.sku}")
-        revalidate_plan_against_live(
-            plan, product=live, workbook_row=wb, catalog=catalog
+        img_count, img_url = image_state_by_id.get(plan.product_id, (0, None))
+        revalidate_plan_against_db_row(
+            plan,
+            product=product,
+            workbook_row=wb,
+            catalog=catalog,
+            image_count=img_count,
+            primary_image_url=img_url,
         )
-        # Forbidden field identity checks against live snapshot
-        if str(live.get("name")) != plan.title:
-            raise PilotGateError(f"forbidden-field drift (title): {plan.sku}")
-        if normalize_sku(live.get("sku")) != normalize_sku(plan.sku):
-            raise PilotGateError(f"forbidden-field drift (sku): {plan.sku}")
-        ordered.append((plan, product, wb, live))
+        recovery_rows.append(
+            {
+                "product_id": int(product.id),
+                "sku": str(product.sku),
+                "old_base_price": None
+                if product.base_price is None
+                else str(product.base_price),
+                "old_is_available": bool(product.is_available),
+                "updated_at": _iso_updated_at(getattr(product, "updated_at", None)),
+            }
+        )
+        ordered.append((plan, product, wb))
+
+    snap_sha = None
+    snap_path = None
+    if recovery_snapshot_path is not None:
+        try:
+            snap_sha = write_recovery_snapshot(recovery_snapshot_path, recovery_rows)
+            snap_path = str(recovery_snapshot_path)
+        except PilotGateError:
+            raise
+        except Exception as exc:
+            raise PilotGateError(
+                "recovery snapshot failure prevents mutation"
+            ) from exc
 
     updated: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     audit: list[dict[str, Any]] = []
-
-    for plan, product, _wb, live in ordered:
+    for plan, product, _wb in ordered:
         old_price = getattr(product, "base_price", None)
         old_avail = bool(getattr(product, "is_available", False))
         new_price = plan.new_base_price
@@ -699,6 +910,7 @@ def apply_pilot_plans(
             "old_is_available": old_avail,
             "new_is_available": True,
             "idempotent": already,
+            "pilot_group": plan.pilot_group,
         }
         audit.append(entry)
         if already:
@@ -708,7 +920,41 @@ def apply_pilot_plans(
         product.is_available = True
         updated.append(entry)
 
-    return ApplyResult(updated=updated, skipped_idempotent=skipped, audit=audit)
+    return ApplyResult(
+        updated=updated,
+        skipped_idempotent=skipped,
+        audit=audit,
+        recovery_snapshot_path=snap_path,
+        recovery_snapshot_sha256=snap_sha,
+    )
+
+
+def rollback_from_recovery_snapshot(
+    *,
+    products_by_id: dict[int, Any],
+    snapshot_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Restore only base_price and is_available from a recovery snapshot."""
+    restored: list[dict[str, Any]] = []
+    for row in snapshot_rows:
+        pid = int(row["product_id"])
+        product = products_by_id.get(pid)
+        if product is None:
+            raise PilotGateError(f"rollback missing product_id={pid}")
+        if normalize_sku(getattr(product, "sku", None)) != normalize_sku(row.get("sku")):
+            raise PilotGateError(f"rollback SKU mismatch for product_id={pid}")
+        old_price = row.get("old_base_price")
+        product.base_price = None if old_price in (None, "") else Decimal(str(old_price))
+        product.is_available = bool(row.get("old_is_available"))
+        restored.append(
+            {
+                "product_id": pid,
+                "sku": row.get("sku"),
+                "restored_base_price": old_price,
+                "restored_is_available": bool(row.get("old_is_available")),
+            }
+        )
+    return restored
 
 
 def verify_pilot_state(

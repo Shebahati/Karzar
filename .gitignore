@@ -80,4 +80,12 @@ frontend/**/*.pem
 # Chumpower official catalog: keep reports, skip bulky manufacturer PDF binaries
 data/imports/chumpower/official_catalog/pdfs/
 
+# INSIZE sales activation — runtime manifests/audits/recovery live outside git
+# (data/ is already ignored via /data/; keep explicit safety nets)
+**/insize_pilot_manifest_runtime.json
+**/pilot_apply_audit.json
+**/pilot_rollback_audit.json
+**/insize*recovery*.json
+scripts/fixtures/insize_pilot_manifest_production*.json
+
 .local-rescue/
