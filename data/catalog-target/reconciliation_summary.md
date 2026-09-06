@@ -2,8 +2,8 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `b31551a51a733fc259db704d65f3deb4bdb5de65`
-- Generated at: `2026-09-06T10:38:26.597966+00:00`
+- Baseline SHA: `00266efd95efd4227350cc94ba8c27143e79d9da`
+- Generated at: `2026-09-06T10:39:47.545212+00:00`
 - DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`unavailable`) — no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
 - Current products observed: **0**
 - Target SKUs: **0**
