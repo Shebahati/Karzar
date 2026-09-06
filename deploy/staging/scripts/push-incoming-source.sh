@@ -93,6 +93,7 @@ echo "Seeding incoming tree from live source (incoming only; live not mutated)"
   declare -f karzar_prepare_incoming_dest
   declare -f karzar_seed_incoming_tree
   printf 'set -euo pipefail\n'
+  printf 'KARZAR_PARTIAL_DIR=%q\n' "$KARZAR_PARTIAL_DIR"
   printf 'chmod 755 /opt/karzar /opt/karzar/incoming\n'
   printf 'karzar_prepare_incoming_dest %q\n' "$DEST"
   printf 'karzar_seed_incoming_tree /opt/karzar/Karzar /opt/karzar/frontend %q\n' "${DEST}/tree"
