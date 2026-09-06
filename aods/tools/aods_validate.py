@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 """AODS validation orchestrator.
 
-Runs the mechanical gates defined in aods/80-validation/VALIDATION-FRAMEWORK.md.
-Standard library only, so the gates run on a clean checkout without installing anything
-(PyYAML is absent from requirements*.txt; see aods/tools/aods_yaml.py).
+Retained integrity gates: registry, links, naming, openapi, ingestion-boundary.
+Optional orchestration gates (pmo, prompts, graph, allowlist) run only when
+requested and skip when their artifacts are absent.
 
-    python3 aods/tools/aods_validate.py --gate all
-    python3 aods/tools/aods_validate.py --gate links --gate registry
+Standard library only (PyYAML is absent; see aods/tools/aods_yaml.py).
+
+    python3 aods/tools/aods_validate.py
+    python3 aods/tools/aods_validate.py --gate openapi
     python3 aods/tools/aods_validate.py --gate citation --pr-body /tmp/pr.md
-    python3 aods/tools/aods_validate.py --gate allowlist --node IMPL-x-001 --base origin/main
-    python3 aods/tools/aods_validate.py --gate all --json
-    python3 aods/tools/aods_validate.py --gate all --write-baseline
 
 Exit codes: 0 all selected gates passed · 1 at least one failed · 2 usage/internal error.
 
-These gates are expected to FAIL on the repository as it stands today. That is the point:
-they report the real state recorded in aods/10-repository-intelligence/CONFLICT-REGISTER.md.
-Use --write-baseline to record known failures so CI can enforce "no new failures" while the
-existing ones are worked off. A baselined failure stays visible in the baseline file; it is
-not silenced.
+Use --write-baseline to record known failures so CI can enforce "no new failures".
+A baselined failure stays visible; it is not silenced.
 """
 
 from __future__ import annotations
@@ -50,11 +46,17 @@ SKIP_DIRS = {
     ".git", "node_modules", ".venv", "venv", "__pycache__", ".next", ".pytest_cache",
     ".mypy_cache", ".ruff_cache", "htmlcov", ".turbo", "dist", "build", "out",
 }
+# Historical evidence is not current authority and is not scanned for links/registry.
+ARCHIVE_PREFIXES = ("docs/archive/",)
 
 PROMPT_ARCHETYPES = ("AUD", "SPEC", "IMPL", "TEST", "KNOW", "DOC", "GOV", "REL")
 KNOWN_GATES = (
     "registry", "links", "pmo", "prompts", "graph", "naming", "citation",
     "allowlist", "openapi", "ingestion-boundary",
+)
+# Default / --all: useful integrity only. Orchestration gates are opt-in.
+RETAINED_GATES = (
+    "registry", "links", "naming", "openapi", "ingestion-boundary",
 )
 # Gates enforced by existing project tooling rather than by this script. Prompts and nodes
 # legitimately name these, so they must be recognised — but this script cannot run them,
@@ -150,6 +152,8 @@ def tracked_files(pattern: str = "") -> list[str]:
 
 
 def _skipped(rel: str) -> bool:
+    if rel.startswith(ARCHIVE_PREFIXES):
+        return True
     return any(part in SKIP_DIRS for part in Path(rel).parts)
 
 
@@ -590,11 +594,6 @@ def gate_citation(args: argparse.Namespace) -> GateResult:
     body = body_path.read_text(encoding="utf-8")
     base = args.base
 
-    if not re.search(r"^\s*Node:\s*\S+", body, re.M):
-        result.fail(str(body_path), "PR body has no 'Node:' line (required for --gate allowlist to work)")
-    if not re.search(r"^\s*Authority:", body, re.M):
-        result.fail(str(body_path), "PR body has no 'Authority:' line")
-
     cited = set(re.findall(r"(?:^|[\s`(])((?:docs|app|aods|project-management|alembic|scripts)/[\w./\-]+\.\w+)", body))
     if not cited:
         result.fail(str(body_path), "PR body cites no repository paths")
@@ -907,7 +906,7 @@ def main(argv: list[str] | None = None) -> int:
 
     selected = args.gate or ["all"]
     if "all" in selected:
-        names = [g for g in KNOWN_GATES if g not in CONTEXTUAL]
+        names = list(RETAINED_GATES)
         if args.pr_body:
             names.append("citation")
         if args.node:

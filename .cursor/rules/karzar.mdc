@@ -1,0 +1,6 @@
+---
+description: Karzar routing — AGENTS.md is the floor; do not duplicate policy here
+alwaysApply: true
+---
+
+Follow root `AGENTS.md`. Domain rules: `docs/COMMERCE.md`, `docs/OPERATIONS.md`, `docs/architecture/CANON-LOCK.md`, `docs/architecture/data-ingestion-policy.md`. Checks: `aods/README.md`.
