@@ -3,8 +3,9 @@ name: Deploy Staging
 # Staging = live VPS serving karzartools.com (single host until prod is split).
 # CR-011 Option B (2026-07-30): NO push-to-main auto-deploy — human must
 # Actions → Deploy Staging → Run workflow (workflow_dispatch) on `main`.
-# Handoff: GitHub-hosted packs + SSH-pushes exact SHA to
-# /opt/karzar/incoming/<sha>/; karzar-vps only reads that local tree.
+# Handoff: GitHub-hosted builds a deploy tree + SHA-256 manifest, seeds
+# /opt/karzar/incoming/<sha>/tree from live (non-mutating), then delta-rsyncs
+# over IPv4 SSH. karzar-vps only reads that local tree after HANDOFF_COMPLETE.
 # Do not checkout or download Actions artifacts on karzar-vps
 # (VPS→github.com 504s / hangs; VPS→Azure blob fails). Never runs on fork PRs.
 on:
@@ -39,28 +40,31 @@ jobs:
           fi
 
   package:
-    name: Package and push sources
+    name: Prepare and rsync sources
     needs: deploy-freeze
     runs-on: ubuntu-latest
     timeout-minutes: 20
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     outputs:
-      digest: ${{ steps.push.outputs.digest }}
+      manifest_sha: ${{ steps.push.outputs.manifest_sha }}
     steps:
-      - name: Checkout
+      - name: Checkout exact workflow SHA
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
-      - name: Push package to VPS incoming
+      - name: Delta-rsync deploy tree to VPS incoming
         id: push
         env:
           GITHUB_SHA: ${{ github.sha }}
+          EXPECTED_SHA: ${{ github.sha }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          chmod +x deploy/staging/scripts/push-incoming-source.sh
+          chmod +x deploy/staging/scripts/*.sh || true
           bash deploy/staging/scripts/push-incoming-source.sh
 
   deploy:
@@ -73,21 +77,20 @@ jobs:
       - name: Verify incoming source
         env:
           GITHUB_SHA: ${{ github.sha }}
-          EXPECTED_DIGEST: ${{ needs.package.outputs.digest }}
-          STAGED_DIR: ${{ runner.temp }}/staging-src
+          EXPECTED_SHA: ${{ github.sha }}
+          EXPECTED_MANIFEST_SHA: ${{ needs.package.outputs.manifest_sha }}
         run: |
           set -euo pipefail
           IN="/opt/karzar/incoming/${GITHUB_SHA}"
-          test -f "$IN/src.tgz"
-          test -f "$IN/src.tgz.sha256"
-          VERIFY="${{ runner.temp }}/verify-incoming-source.sh"
-          tar -xOf "$IN/src.tgz" ./deploy/staging/scripts/verify-incoming-source.sh > "$VERIFY"
-          bash "$VERIFY"
+          test -f "$IN/HANDOFF_COMPLETE"
+          test -d "$IN/tree"
+          test -f "$IN/deploy-manifest.sha256"
+          bash "$IN/tree/deploy/staging/scripts/verify-incoming-source.sh"
 
       - name: Sync backend → /opt/karzar/Karzar
         run: |
           set -euo pipefail
-          SRC="${{ runner.temp }}/staging-src"
+          SRC="/opt/karzar/incoming/${{ github.sha }}/tree"
           rsync -a --delete \
             --exclude '.git/' \
             --exclude '.github/' \
@@ -113,7 +116,7 @@ jobs:
       - name: Sync frontend → /opt/karzar/frontend
         run: |
           set -euo pipefail
-          SRC="${{ runner.temp }}/staging-src"
+          SRC="/opt/karzar/incoming/${{ github.sha }}/tree"
           rsync -a --delete \
             --exclude 'node_modules/' \
             --exclude '.next/' \

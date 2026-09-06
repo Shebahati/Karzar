@@ -1,53 +1,38 @@
 #!/usr/bin/env bash
-# Verify a locally staged incoming package and extract it.
-# Runs on karzar-vps. Never fetches from GitHub or Azure.
+# Verify a locally staged incoming tree against the GitHub-generated manifest.
+# Runs on karzar-vps. Never fetches from GitHub or Azure. Never writes live trees.
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deploy-tree-lib.sh
+source "${SCRIPT_DIR}/deploy-tree-lib.sh"
+
 if [[ "${1:-}" == --selftest ]]; then
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
-  mkdir -p "$tmp/in" "$tmp/empty"
-  if INCOMING_DIR="$tmp/empty" STAGED_DIR="$tmp/out" GITHUB_SHA=deadbeef EXPECTED_DIGEST=deadbeef \
-      "$0"; then
-    echo "selftest: empty incoming should fail" >&2
-    exit 1
-  fi
-  mkdir -p "$tmp/tree/deploy/staging/scripts" "$tmp/tree/frontend/Storefront" "$tmp/tree/app"
-  echo ok > "$tmp/tree/deploy/staging/scripts/deploy-frontend.sh"
-  echo ok > "$tmp/tree/app/main.py"
-  tar -C "$tmp/tree" -czf "$tmp/in/src.tgz" .
-  sha256sum "$tmp/in/src.tgz" | awk '{print $1"  src.tgz"}' > "$tmp/in/src.tgz.sha256"
-  expected="$(awk '{print $1}' "$tmp/in/src.tgz.sha256")"
-  INCOMING_DIR="$tmp/in" STAGED_DIR="$tmp/out" GITHUB_SHA=deadbeef EXPECTED_DIGEST="$expected" "$0"
-  test -f "$tmp/out/deploy/staging/scripts/deploy-frontend.sh"
-  echo "selftest: ok"
-  exit 0
+  exec "${SCRIPT_DIR}/test-delta-rsync-handoff.sh"
 fi
 
 : "${GITHUB_SHA:?GITHUB_SHA is required}"
-: "${EXPECTED_DIGEST:?EXPECTED_DIGEST is required}"
+: "${EXPECTED_MANIFEST_SHA:?EXPECTED_MANIFEST_SHA is required}"
+EXPECTED_SHA="${EXPECTED_SHA:-$GITHUB_SHA}"
 INCOMING="${INCOMING_DIR:-/opt/karzar/incoming/${GITHUB_SHA}}"
-STAGED="${STAGED_DIR:-${RUNNER_TEMP:-/tmp}/staging-src}"
+STAGED="${STAGED_DIR:-${INCOMING}/tree}"
+REQUIRE_HANDOFF_COMPLETE="${REQUIRE_HANDOFF_COMPLETE:-1}"
+WRITE_HANDOFF_COMPLETE="${WRITE_HANDOFF_COMPLETE:-0}"
 
-test -d "$INCOMING"
-test -f "$INCOMING/src.tgz"
-test -f "$INCOMING/src.tgz.sha256"
-(
-  cd "$INCOMING"
-  sha256sum -c src.tgz.sha256
-)
-DIGEST="$(awk '{print $1}' "$INCOMING/src.tgz.sha256")"
-if [[ "$DIGEST" != "$EXPECTED_DIGEST" ]]; then
-  echo "incoming digest does not match GitHub-hosted package digest" >&2
-  exit 1
+if [[ "${REQUIRE_HANDOFF_COMPLETE}" != "0" ]]; then
+  karzar_require_handoff_complete "$INCOMING" "$EXPECTED_SHA"
 fi
 
-rm -rf "$STAGED"
-mkdir -p "$STAGED"
-tar -xzf "$INCOMING/src.tgz" -C "$STAGED"
+karzar_verify_incoming_tree "$INCOMING" "$EXPECTED_SHA" "$EXPECTED_MANIFEST_SHA"
 
-test -f "$STAGED/deploy/staging/scripts/deploy-frontend.sh"
-test -d "$STAGED/frontend/Storefront"
-test -d "$STAGED/app"
+if [[ "${WRITE_HANDOFF_COMPLETE}" == "1" ]]; then
+  karzar_write_handoff_complete "$INCOMING" "$EXPECTED_SHA" "$EXPECTED_MANIFEST_SHA"
+  echo "HANDOFF_COMPLETE written for sha=${EXPECTED_SHA}"
+fi
 
-echo "HANDOFF_OK sha=${GITHUB_SHA} transport=ssh-push digest=${DIGEST}"
+# Optional local materialize for callers that still want a copy. Default STAGED
+# is the incoming tree itself — no extra copy, no live mutation.
+if [[ "$STAGED" != "${INCOMING}/tree" ]]; then
+  mkdir -p "$STAGED"
+  rsync -a --delete --exclude="${KARZAR_PARTIAL_DIR}/" "${INCOMING}/tree"/ "$STAGED"/
+fi

@@ -1,19 +1,38 @@
 #!/usr/bin/env bash
-# Pack the current checkout and push it to karzar-vps incoming/.
-# Runs on GitHub-hosted ubuntu-latest. Does not log keys or the private key path contents.
+# Build an isolated deploy tree, seed incoming/<sha> from live (non-mutating),
+# then delta-rsync over IPv4 SSH. Runs on GitHub-hosted ubuntu-latest.
+# Does not log keys. Does not write live /opt/karzar/{Karzar,frontend}.
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deploy-tree-lib.sh
+source "${SCRIPT_DIR}/deploy-tree-lib.sh"
+
+if [[ "${1:-}" == --selftest ]]; then
+  exec "${SCRIPT_DIR}/test-delta-rsync-handoff.sh"
+fi
 
 : "${GITHUB_SHA:?GITHUB_SHA is required}"
 : "${SSH_HOST:?SSH_HOST secret is required}"
 : "${SSH_USER:?SSH_USER secret is required}"
 : "${SSH_PRIVATE_KEY:?SSH_PRIVATE_KEY secret is required}"
 SSH_PORT="${SSH_PORT:-22}"
-SCP_TIMEOUT_SECONDS="${SCP_TIMEOUT_SECONDS:-900}"
+# Overall rsync bound. 900s matches the previous full-SCP cap (run 34036993174
+# died at ~15m / exit 124). Delta of a ~75MB tree should finish far sooner;
+# this is a hang guard, not a performance target.
+RSYNC_TIMEOUT_SECONDS="${RSYNC_TIMEOUT_SECONDS:-900}"
+META_TIMEOUT_SECONDS="${META_TIMEOUT_SECONDS:-60}"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+EXPECTED_SHA="${EXPECTED_SHA:-$GITHUB_SHA}"
+if [[ "$EXPECTED_SHA" != "$GITHUB_SHA" ]]; then
+  echo "EXPECTED_SHA=${EXPECTED_SHA} does not match GITHUB_SHA=${GITHUB_SHA}" >&2
+  exit 1
+fi
+echo "EXPECTED_SHA=${EXPECTED_SHA}"
+
+ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 KNOWN_HOSTS="${KNOWN_HOSTS_FILE:-$ROOT/deploy/staging/ssh/known_hosts}"
 test -f "$KNOWN_HOSTS"
-
 if [[ ! -s "$KNOWN_HOSTS" ]]; then
   echo "known_hosts is empty" >&2
   exit 1
@@ -22,9 +41,13 @@ fi
 DEST="/opt/karzar/incoming/${GITHUB_SHA}"
 WORKDIR="$(mktemp -d)"
 KEYFILE="$(mktemp)"
+TREE="${DEPLOY_TREE_DIR:-${RUNNER_TEMP:-$WORKDIR}/deploy-tree}"
 cleanup() {
   rm -f "$KEYFILE"
   rm -rf "$WORKDIR"
+  if [[ "$TREE" == "$WORKDIR"/* ]] || { [[ -n "${RUNNER_TEMP:-}" ]] && [[ "$TREE" == "${RUNNER_TEMP}/"* ]]; }; then
+    rm -rf "$TREE"
+  fi
 }
 trap cleanup EXIT
 
@@ -36,25 +59,13 @@ if ! grep -q 'BEGIN .*PRIVATE KEY' "$KEYFILE"; then
 fi
 chmod 600 "$KEYFILE"
 
-echo "Packing source at $ROOT"
-tar -C "$ROOT" -czf "$WORKDIR/src.tgz" \
-  --exclude='.git' \
-  --exclude='.github' \
-  --exclude='.venv' \
-  --exclude='venv' \
-  --exclude='node_modules' \
-  --exclude='.next' \
-  --exclude='__pycache__' \
-  --exclude='.pytest_cache' \
-  --exclude='.mypy_cache' \
-  --exclude='.ruff_cache' \
-  --exclude='backups' \
-  --exclude='data/uploads' \
-  --exclude='logs' \
-  --exclude='actions-runner' \
-  .
-DIGEST="$(sha256sum "$WORKDIR/src.tgz" | awk '{print $1}')"
-printf '%s  src.tgz\n' "$DIGEST" > "$WORKDIR/src.tgz.sha256"
+echo "Building isolated deploy tree (checkout left untouched)"
+rm -rf "$TREE"
+karzar_copy_tracked_deploy_tree "$ROOT" "$TREE"
+
+MANIFEST="${WORKDIR}/${KARZAR_MANIFEST_NAME}"
+karzar_write_deploy_manifest "$TREE" "$MANIFEST"
+echo "DEPLOY_TREE files=${KARZAR_FILE_COUNT} bytes=${KARZAR_TOTAL_BYTES} manifest=${KARZAR_MANIFEST_SHA}"
 
 ssh_base=(
   ssh -4
@@ -72,45 +83,64 @@ ssh_base=(
   -o ServerAliveCountMax=3
 )
 
-echo "Pushing package to incoming (IPv4 SSH, host-key pinned)"
+ssh_cmd="ssh -4 -i ${KEYFILE} -p ${SSH_PORT} -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o UserKnownHostsFile=${KNOWN_HOSTS} -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=25 -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
+
+echo "Seeding incoming tree from live source (incoming only; live not mutated)"
+{
+  declare -f karzar_backend_rsync_excludes
+  declare -f karzar_frontend_rsync_excludes
+  declare -f karzar_read_null_args
+  declare -f karzar_prepare_incoming_dest
+  declare -f karzar_seed_incoming_tree
+  printf 'set -euo pipefail\n'
+  printf 'chmod 755 /opt/karzar /opt/karzar/incoming\n'
+  printf 'karzar_prepare_incoming_dest %q\n' "$DEST"
+  printf 'karzar_seed_incoming_tree /opt/karzar/Karzar /opt/karzar/frontend %q\n' "${DEST}/tree"
+  printf 'chmod 755 /opt/karzar /opt/karzar/incoming %q\n' "$DEST"
+} | "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s
+
+echo "Delta rsync deploy-tree → incoming/${GITHUB_SHA}/tree (timeout=${RSYNC_TIMEOUT_SECONDS}s, io-timeout=${KARZAR_RSYNC_IO_TIMEOUT}s)"
+export KARZAR_RSYNC_RSH="$ssh_cmd"
+if ! timeout --foreground "${RSYNC_TIMEOUT_SECONDS}s" \
+    bash "${SCRIPT_DIR}/deploy-tree-lib.sh" rsync-delta \
+    "$TREE" "${SSH_USER}@${SSH_HOST}:${DEST}/tree"; then
+  echo "VERIFY=FAIL rsync transfer failed or timed out; live mutation skipped" >&2
+  exit 124
+fi
+
+echo "Uploading integrity manifest"
+timeout --foreground "${META_TIMEOUT_SECONDS}s" \
+  "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
+  "rm -rf '${DEST}/tree/${KARZAR_PARTIAL_DIR}' && rm -f '${DEST}/${KARZAR_HANDOFF_MARKER}' && mkdir -p '$DEST'"
+
+timeout --foreground "${META_TIMEOUT_SECONDS}s" \
+  scp -4 \
+  -i "$KEYFILE" \
+  -P "$SSH_PORT" \
+  -o IdentitiesOnly=yes \
+  -o PreferredAuthentications=publickey \
+  -o PasswordAuthentication=no \
+  -o KbdInteractiveAuthentication=no \
+  -o UserKnownHostsFile="$KNOWN_HOSTS" \
+  -o StrictHostKeyChecking=yes \
+  -o BatchMode=yes \
+  -o ConnectTimeout=25 \
+  -o ServerAliveInterval=10 \
+  -o ServerAliveCountMax=3 \
+  "$MANIFEST" \
+  "${SSH_USER}@${SSH_HOST}:${DEST}/${KARZAR_MANIFEST_NAME}"
+
+echo "Verifying staged tree against GitHub manifest (HANDOFF_COMPLETE not yet written)"
 "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
-  "rm -rf '$DEST' && mkdir -p '$DEST' && chmod 755 /opt/karzar /opt/karzar/incoming '$DEST'"
+  env REQUIRE_HANDOFF_COMPLETE=0 WRITE_HANDOFF_COMPLETE=1 \
+      GITHUB_SHA="$GITHUB_SHA" EXPECTED_SHA="$EXPECTED_SHA" \
+      EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
+      INCOMING_DIR="$DEST" \
+      bash "${DEST}/tree/deploy/staging/scripts/verify-incoming-source.sh"
 
-scp_base=(
-  scp -4
-  -i "$KEYFILE"
-  -P "$SSH_PORT"
-  -o IdentitiesOnly=yes
-  -o PreferredAuthentications=publickey
-  -o PasswordAuthentication=no
-  -o KbdInteractiveAuthentication=no
-  -o UserKnownHostsFile="$KNOWN_HOSTS"
-  -o StrictHostKeyChecking=yes
-  -o BatchMode=yes
-  -o ConnectTimeout=25
-  -o ServerAliveInterval=10
-  -o ServerAliveCountMax=3
-)
-
-echo "Uploading source package with hard timeout=${SCP_TIMEOUT_SECONDS}s"
-timeout --foreground "${SCP_TIMEOUT_SECONDS}s" \
-  "${scp_base[@]}" "$WORKDIR/src.tgz" \
-  "${SSH_USER}@${SSH_HOST}:${DEST}/src.tgz.part"
-
-timeout --foreground 60s \
-  "${scp_base[@]}" "$WORKDIR/src.tgz.sha256" \
-  "${SSH_USER}@${SSH_HOST}:${DEST}/src.tgz.sha256.part"
-
-"${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
-  "cd '$DEST' && \
-   ACTUAL=\$(sha256sum src.tgz.part | awk '{print \$1}') && \
-   test \"\$ACTUAL\" = '$DIGEST' && \
-   mv src.tgz.part src.tgz && \
-   mv src.tgz.sha256.part src.tgz.sha256 && \
-   sha256sum -c src.tgz.sha256 && \
-   chmod 644 src.tgz src.tgz.sha256"
-
-echo "PUSH_OK sha=${GITHUB_SHA} dest=${DEST} digest=${DIGEST}"
+echo "HANDOFF_OK sha=${GITHUB_SHA} transport=rsync-delta files=${KARZAR_FILE_COUNT} bytes=${KARZAR_TOTAL_BYTES} manifest=${KARZAR_MANIFEST_SHA}"
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+  echo "manifest_sha=${KARZAR_MANIFEST_SHA}" >> "$GITHUB_OUTPUT"
+  echo "file_count=${KARZAR_FILE_COUNT}" >> "$GITHUB_OUTPUT"
+  echo "total_bytes=${KARZAR_TOTAL_BYTES}" >> "$GITHUB_OUTPUT"
 fi
