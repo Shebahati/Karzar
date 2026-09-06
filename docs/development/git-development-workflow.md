@@ -3,8 +3,7 @@
 **Document type:** Branch governance standard  
 **Migration ID:** `KARZAR-BASELINE-20260728-001`  
 **Date:** 2026-07-29  
-**Canonical repo:** `https://github.com/Shebahati/Karzar.git`  
-**Primary checkout:** `/home/moahmmad/Projects/Karzar/Website/backend`  
+**Canonical repo:** `https://github.com/Shebahati/Karzar`  
 **Owner:** Mohammad Shebahati
 
 ---
@@ -59,19 +58,9 @@ Existing remote `feat/*` names are grandfathered until deleted (no mass-rename).
 
 ---
 
-## Current migration hangover (temporary)
+## Branch hygiene
 
-Dated snapshots go stale; **re-measure with live commands** (do not cite a missing cleanup plan):
-
-| Item | How to measure / policy |
-|------|-------------------------|
-| Remote unmerged branches | `git branch -r --no-merged origin/main` (e.g. **62** on 2026-07-30 this checkout; drifts daily) |
-| Local worktrees | `git worktree list` (e.g. **1** on 2026-07-30 this checkout — primary on `main`) |
-| Residual (acknowledged) | Unmerged remotes + post-merge branch deletes not consistently done (`docs/CONTRIBUTING.md`); `CR-017` Option B |
-| Destructive cleanup | Forbidden without a **written plan + confirmation** (§7). Agents record only — no mass `worktree remove` / `branch -D` |
-
-Prefer primary checkout on `main`; still use feature branches for new work. Missing path
-`docs/audits/worktree-cleanup-execution-plan.md` is **not** inventable here (`CR-010` / `CR-017` Option B).
+Dated branch counts go stale — re-measure with `git branch -r --no-merged origin/main` and `git worktree list`. Destructive cleanup (worktree remove, `branch -D`, reset) needs a written plan + confirmation. Agents record only. Missing historical cleanup-plan paths are not inventable (`CR-010` / `CR-017`).
 
 ---
 
@@ -96,7 +85,7 @@ Prefer primary checkout on `main`; still use feature branches for new work. Miss
 ```
 1. git fetch origin && git checkout main && git pull --ff-only   # after main unlocked
 2. git checkout -b feature/<ticket>-short-name
-3. Implement + test against local baseline (5901 / c4d5e6f7a8b9 starting point)
+3. Implement + test against the local baseline
 4. If schema: alembic revision + upgrade local only
 5. Open PR → review → CI → merge
 6. Deploy path separate from coding (ops runbook)
@@ -147,8 +136,8 @@ Rollback uses the tag for **code**; DB restore uses off-host dumps — not the t
 In-repo (prefer these):
 
 - [`docs/architecture/CANON-LOCK.md`](../architecture/CANON-LOCK.md)
-- [`docs/architecture/PROMOTION-WAVE1.md`](../architecture/PROMOTION-WAVE1.md)
 - [`docs/development/standards/`](standards/)
+- [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md)
 
 Paths formerly listed here but **not present** in this repository (do not cite until promoted — `CR-010`):
 

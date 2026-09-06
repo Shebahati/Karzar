@@ -5,7 +5,7 @@
 **Location:** Canonical copy in this repository (`docs/architecture/CANON-LOCK.md`)  
 **Purpose:** Single answer to: *What is mandatory criteria for work today?*
 
-> **Promotion record:** see [`PROMOTION-WAVE1.md`](./PROMOTION-WAVE1.md).  
+> **Promotion record:** see [`PROMOTION-WAVE1.md`](../archive/docs/architecture/PROMOTION-WAVE1.md) (historical).
 > **SoR rule (AODS `CR-009` Option B, 2026-07-30):** Binding merge criteria live **only** in this Git
 > repository. Paths outside the checkout (including historical `Website/docs/`) are **not** Authoring SoR
 > for agents or PR review and MUST NOT be cited as merge criteria until Board promotes them into this tree.
@@ -107,13 +107,36 @@
 | **Signed** | محمد شباهتی / Mohammad Shebahati |
 | **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](../../aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md) (lands with PR #128) |
 | **Scope** | Adopt AODS (`aods/`) as the binding process system for how changes are executed, validated, recorded, and approved |
+| **Historical note** | Version **1.0.0** accepted the full orchestration pack. That acceptance is preserved. Current *procedure* was amended ۱۵ شهریور ۱۴۰۵ (below). |
 
-## 1b. Accepted — Process (AODS)
+## 1b. Accepted — Process (AODS) — historical 1.0.0 provenance
 
 | Document | Path | Status | Since | Signed | Mandatory for |
 |----------|------|--------|-------|--------|----------------|
-| AODS Charter | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
-| AODS pack (root) | [`../../aods/`](../../aods/) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Same — full pack under `aods/` version 1.0.0 |
+| AODS Charter (1.0.0 acceptance) | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Historical provenance — 1.0.0 pack accepted in full; orchestration procedure superseded ۱۵ شهریور ۱۴۰۵ |
+| AODS pack 1.0.0 (archived tree) | [`../../docs/archive/aods/`](../../docs/archive/aods/) | **Accepted** (historical evidence) | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Evidence only — **not** current executable procedure; do not cite as live authority |
+
+## Board Acceptance (AODS operating-model simplification)
+
+| Field | Value |
+|-------|-------|
+| **Accepted on** | ۱۴۰۵/۰۶/۱۵ (2026-09-06) — ۱۵ شهریور ۱۴۰۵ |
+| **Board** | Architecture Board / Owner |
+| **Signed** | محمد شباهتی / Mohammad Shebahati |
+| **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md`](../../aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md) (PR #271) |
+| **Scope** | Supersede 1.0.0 recurring orchestration as current procedure; keep AODS as a minimal on-demand integrity layer; close `CR-024` / `HC-14` |
+| **Does not change** | Application architecture, product / commerce / payment behavior, or production state |
+
+## 1b-current. Accepted — Process (AODS) — current operating model
+
+| Document | Path | Status | Since | Signed | Mandatory for |
+|----------|------|--------|-------|--------|----------------|
+| AODS Charter (current operating model) | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Current AODS procedure: on-demand integrity; retained invariants; not 1.0.0 ceremony |
+| AODS checks (invocation) | [`../../aods/README.md`](../../aods/README.md) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Default validator gates: registry, links, naming, openapi, ingestion-boundary |
+| AODS document registry | [`../../aods/registry/document-registry.yaml`](../../aods/registry/document-registry.yaml) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Active-document classification / registry integrity |
+| AODS validators | [`../../aods/tools/aods_validate.py`](../../aods/tools/aods_validate.py) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Machine enforcement of retained gates |
+
+> Archived 1.0.0 orchestration under `docs/archive/aods/` is historical evidence only. It is **not** current authority.
 
 
 ---
@@ -147,7 +170,7 @@ concrete files into this repository and adds Accepted/Binding rows above.
 | RFC-001, 002, 003, 006, 007 | `docs/architecture/rfc/` | **No** (only 004, 005 + index/template) | Not citeable until promoted |
 | Reserved packs `domain/` / `pim/` / `knowledge-graph/` | respective dirs | **No** (UD-07 deferred) | Living Accepted path = `docs/architecture/specs/` core pack (§1c) |
 | Taxonomy master seed / audit / target / readiness / FA summary | `docs/architecture/specs/` (named files) | **Yes** | Remain **Proposed / REFERENCE** — not merge criteria alone |
-| Phase1–3 knowledge docs | `docs/KNOWLEDGE_PLATFORM_PHASE*.md` | **Yes** | **HISTORICAL** after OI-KF-04 — do not use as living SoT |
+| Phase1–3 knowledge docs | `docs/archive/docs/KNOWLEDGE_PLATFORM_PHASE*.md` | **Yes (archived)** | **HISTORICAL** after OI-KF-04 — do not use as living SoT |
 | Enterprise AI | `docs/architecture/ai/` | **No** | Generative blocked until pack exists + Gate C |
 | Enterprise Search | `docs/architecture/search/` | **No** | Not citeable until promoted |
 | Repo Governance v2 | `docs/governance/repository/` | **No** | Not citeable until promoted |
@@ -161,7 +184,7 @@ concrete files into this repository and adds Accepted/Binding rows above.
 
 | Kind | Path | Rule |
 |------|------|------|
-| EPIC 0 / repository audits present under `docs/audits/` | only files that **exist** in this checkout | Measure reality; do not invent missing audit paths; do not edit upward to look healthier |
+| EPIC 0 / repository audits | `docs/archive/docs/audits/` (files that exist) | Measure reality; do not invent missing audit paths; do not edit upward to look healthier |
 
 Missing historical audit filenames cited in older prose are **not** evidence and are tracked under `CR-010` until removed or promoted.
 

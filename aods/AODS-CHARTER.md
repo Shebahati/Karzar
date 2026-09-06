@@ -2,24 +2,60 @@
 
 **Document ID:** `AODS-CHARTER`
 **Document type:** Process / methodology standard (Plane B — design intent)
-**Status:** **Accepted** — binding process standard (Architecture Board minute ۱۴۰۵/۰۵/۰۸)
-**Version:** 1.0.0
+**Status:** **Accepted** — binding process standard
+**Version:** 1.1.0
 **Date:** 2026-07-29
-**Accepted on:** ۱۴۰۵/۰۵/۰۸ (2026-07-30)
+**Accepted on:** ۱۴۰۵/۰۵/۰۸ (2026-07-30) — AODS 1.0.0 pack
+**Operating model amended on:** ۱۴۰۵/۰۶/۱۵ (2026-09-06) — simplified on-demand model
 **Accepted by:** Mohammad Shebahati / محمد شباهتی (Architecture Board)
 **Repo:** `https://github.com/Shebahati/Karzar` (checkout role: `Website/backend`)
 **Owner:** Platform / Staff Engineering (logical role)
 **Acceptance authority:** Architecture Board (Mohammad Shebahati)
 
-> **Acceptance record.** Per [`docs/architecture/adr/README.md` §2](../docs/architecture/adr/README.md) and
+> **Acceptance record (1.0.0).** Per [`docs/architecture/adr/README.md` §2](../docs/architecture/adr/README.md) and
 > [`docs/development/standards/documentation-citation-rules.md`](../docs/development/standards/documentation-citation-rules.md),
 > only the Architecture Board may set a document to **Accepted**. This charter was accepted by Board minute on
 > **۸ مرداد ۱۴۰۵ (2026-07-30)**, signed **Mohammad Shebahati / محمد شباهتی**. The minute is
-> [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md). A Canon Lock
-> row MUST be added to [`docs/architecture/CANON-LOCK.md`](../docs/architecture/CANON-LOCK.md) (PR #125 /
-> post-merge follow-up) so citations resolve on `main`.
->
-> Adoption phases after acceptance: [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md).
+> [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md).
+
+> **Operating-model amendment (HC-14).** Architecture Board minute
+> [`90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md`](90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md)
+> on **۱۵ شهریور ۱۴۰۵ (2026-09-06)** (PR #271) supersedes the 1.0.0 *orchestration procedure* as current
+> executable process. The 1.0.0 acceptance is preserved as historical provenance. Current authorities:
+> this Charter’s **current operating model**, [`README.md`](README.md), and retained validator / registry
+> controls. Archived 1.0.0 artifacts under `docs/archive/` are evidence, not current procedure.
+> `CR-024` is **CLOSED**.
+
+---
+
+## Current operating model (Board-approved, ۱۴۰۵/۰۶/۱۵)
+
+AODS remains Karzar’s governance and integrity system. It operates as a **minimal, on-demand control layer**.
+It does not decide *what* Karzar builds. It constrains *how* changes are authorized, checked, and recorded.
+
+**Current procedure**
+
+- Specification outranks implementation for *requirements* (Φ3). Code, OpenAPI, and Alembic are evidence of implemented state.
+- Ambiguity must not be guessed through; report conflicts and halt.
+- Scope is a safety boundary (one concern; explicit allowlist).
+- Evidence backs completion claims.
+- Human authority controls Accepted / Binding status changes.
+- Production mutation requires explicit authorization.
+- Retained machine gates: registry, links, naming, OpenAPI, ingestion-boundary (`README.md`); citation where applicable.
+- GitHub Issues / PRs are the operational work-status system.
+
+**Retired as current procedure** (historical 1.0.0 orchestration; preserved under `docs/archive/`):
+
+- mandatory named-role ceremony
+- mandatory versioned prompt per task
+- mandatory task graph
+- prompt-library execution protocol
+- PMO mirror synchronization
+- mandatory full AODS context loading
+- task-record ceremony as a universal requirement
+
+Sections below that describe the 1.0.0 pipeline are **historical design**. They are not current executable
+procedure unless restated in this section.
 
 ---
 
@@ -27,18 +63,23 @@
 
 ### 1.1 Purpose
 
-AODS is the **operating system for AI-assisted software engineering in the Karzar repository**. It converts an
-ad-hoc, human-supervised, chat-driven development style into a **deterministic, auditable, reproducible pipeline**
-in which an AI agent running in **Cursor Auto Mode** — with no memory, no supervision, and no conversational
-repair — can be handed a task and produce a mergeable, governed change, or **stop safely**.
+AODS is the governance and integrity layer for AI-assisted work in the Karzar repository. Under the current
+Board-approved model it is an **on-demand control layer**: agents follow Accepted Canon, halt on conflict,
+and run the retained validators when the change can break them.
 
-AODS does not decide *what* Karzar builds. It decides *how* any build is executed, validated, recorded, and approved.
+**Historical 1.0.0 design intent** (not current ceremony): convert ad-hoc chat-driven work into a
+deterministic Auto Mode pipeline that produces a mergeable change or stops safely.
 
-### 1.2 Vision
+AODS does not decide *what* Karzar builds.
+
+### 1.2 Vision (historical 1.0.0)
 
 > Every change to Karzar is produced by a **named role**, executing a **versioned prompt**, against an **explicit
 > context set**, bounded by an **allow-list of files**, gated by **objective validation**, traceable to an
 > **authoritative specification**, and approved by a **human at a defined checkpoint**.
+
+That 1.0.0 vision is superseded as *current procedure* by the current operating model above. Allowlists,
+objective validation, specification traceability, and human acceptance remain in force.
 
 The repository, not the conversation, holds the state. Any operator — human or model — can resume any task from
 the repository alone.
@@ -63,8 +104,8 @@ the repository alone.
   FastAPI backend (`app/`), Storefront (`frontend/Storefront/`), admin panel (`frontend/admin-panel/`),
   and data/catalog pipelines (`scripts/`, `alembic/`).
 - Document authority, conflict resolution, and drift detection across the ~140 markdown documents in the repo.
-- The prompt library, context assembly rules, and Auto Mode safety protocol.
-- Role definitions, artifact definitions, validation gates, and human checkpoints.
+- Historical 1.0.0: prompt library, context assembly, Auto Mode protocol, role/artifact definitions (now archived).
+- Current: validation gates that still have commands, human acceptance of Accepted/Binding, production-mutation approval.
 - Runnable validators under [`aods/tools/`](tools/).
 
 **Out of scope (explicitly)**
@@ -73,7 +114,7 @@ the repository alone.
 |---|---|---|
 | Product requirements / feature decisions | AODS is process, not product | `docs/architecture/`, PMO |
 | Architectural decisions | Board authority, not process authority | ADR / RFC packs |
-| Task scheduling, sprints, status | Already owned | `project-management/` (PMO) |
+| Task scheduling, sprints, status | Already owned | GitHub Issues / PRs (current); archived PMO mirrors are evidence |
 | Changing application code behaviour | This charter is process-only | Feature PRs |
 | Re-scoring engineering quality | Audit authority | `docs/audits/v2/` |
 | Accepting any document | Board authority | Board minute + Canon Lock row |
@@ -85,15 +126,15 @@ AODS is working when **all** of the following are objectively true. Each is meas
 | ID | Success criterion | Measurement |
 |----|-------------------|-------------|
 | S-01 | Every merged PR in AODS scope cites its governing authority | `aods/tools/aods_validate.py --gate citation` on the PR body |
-| S-02 | No merged change touches files outside its task's declared allow-list | Diff vs `allowed_paths` in the task record |
-| S-03 | Zero unregistered markdown documents (every doc has a declared authority class) | `--gate registry` |
-| S-04 | Zero broken internal documentation links | `--gate links` |
-| S-05 | PMO status is consistent across `tasks.json` and all mirrors | `--gate pmo` |
-| S-06 | `openapi/v1.json` matches the running app on every merge | `--gate openapi` |
-| S-07 | Every prompt in the library declares context, allow-list, and stop conditions | `--gate prompts` |
-| S-08 | Every conflict in the conflict register has a named owner and a decision or an explicit defer | Manual read of `CONFLICT-REGISTER.md`; no `owner: UNASSIGNED` rows |
-| S-09 | An Auto Mode agent can complete a task with no clarifying question, or halts with a numbered blocker | Task outcome is `COMPLETE` or `HALTED(reason)`, never `PARTIAL` |
-| S-10 | Re-running the same task prompt on the same input commit produces an equivalent diff | Determinism spot-check, quarterly |
+| S-02 | *(historical 1.0.0)* No merged change touches files outside its task's declared allow-list | Diff vs `allowed_paths` in the task record — not a current universal ceremony |
+| S-03 | Zero unregistered markdown documents (every doc has a declared authority class) | `--gate registry` *(current)* |
+| S-04 | Zero broken internal documentation links | `--gate links` *(current; active docs)* |
+| S-05 | *(historical 1.0.0)* PMO status is consistent across `tasks.json` and all mirrors | `--gate pmo` — retired as current procedure; status = GitHub Issues / PRs |
+| S-06 | `openapi/v1.json` matches the running app on every merge | `--gate openapi` *(current)* |
+| S-07 | *(historical 1.0.0)* Every prompt in the library declares context, allow-list, and stop conditions | `--gate prompts` — retired as current procedure |
+| S-08 | Every conflict in the conflict register has a named owner and a decision or an explicit defer | Manual read of `CONFLICT-REGISTER.md`; no `owner: UNASSIGNED` rows *(current)* |
+| S-09 | Halt on ambiguity rather than guessing | Current rule; 1.0.0 Auto Mode `COMPLETE`/`HALTED` ceremony is not required |
+| S-10 | *(historical 1.0.0)* Re-running the same task prompt on the same input commit produces an equivalent diff | Determinism spot-check — not a current universal ceremony |
 
 ### 1.6 Failure criteria (system is failing — stop and repair AODS itself)
 
@@ -111,8 +152,10 @@ AODS is working when **all** of the following are objectively true. Each is meas
 
 ### 1.7 Operating principles → enforcement mapping
 
-The twelve founding principles are only real if something enforces them. This table is the spine of AODS;
-every later document elaborates one row.
+The twelve founding principles are only real if something enforces them. **Current enforcement** is the
+retained validator / registry surface plus human acceptance rules in the current operating model.
+The 1.0.0 mapping below is **historical design** where it names prompts, task-graph, TASK-RECORD, or
+PMO nodes.
 
 | # | Principle | Concrete enforcement in this system |
 |---|-----------|-------------------------------------|
@@ -133,7 +176,7 @@ every later document elaborates one row.
 
 ## 2. Why this repository needs AODS (evidence, not opinion)
 
-These are findings from the audit in [`10-repository-intelligence/REPOSITORY-AUDIT.md`](10-repository-intelligence/REPOSITORY-AUDIT.md).
+These are findings from the audit in [`docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md`](../docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md).
 They justify the design and are the reason certain controls exist.
 
 | Evidence | Control it justifies |
@@ -163,38 +206,44 @@ Any future change to AODS must preserve these. Breaking one is a redesign, not a
 
 1. **AODS never grants itself authority.** Only a Board minute + a Canon Lock row makes any document binding.
 2. **AODS never becomes a second architecture bible.** It references ADR/RFC/IA; it never restates their decisions.
-3. **AODS never becomes a second PMO.** It references `project-management/exports/tasks.json`; it never forks task state.
-4. **Every gate has a command.** No prose-only gates.
-5. **Every prompt is a file under version control.** No prompt lives only in a chat.
-6. **No agent pushes, merges, or deploys.** Per `docs/development/git-development-workflow.md` §6: *"No automatic push from agents; human approves push."*
+3. **AODS never becomes a second status system.** Current operational status is GitHub Issues / PRs. Archived PMO mirrors are evidence, not a live dual ledger.
+4. **Every *current* gate has a command.** No prose-only gates. Retired 1.0.0 gates are not re-imposed by this invariant.
+5. **Prompts are not a universal requirement.** The archived prompt library is historical evidence. Agents follow this Charter, Canon Lock, and `README.md`.
+6. **No agent pushes, merges, or deploys to production without explicit human authorization.** Per `docs/development/git-development-workflow.md` §6.
 7. **Conflicts are reported, never silently resolved.** The conflict register is append-only; entries are closed by a human decision with a date.
 
 ---
 
 ## 4. Document map
 
+**Current authorities:** this Charter (current operating model), [`README.md`](README.md), [`registry/`](registry/),
+[`tools/`](tools/), [`10-repository-intelligence/CONFLICT-REGISTER.md`](10-repository-intelligence/CONFLICT-REGISTER.md),
+and Accepted/Binding rows in [`docs/architecture/CANON-LOCK.md`](../docs/architecture/CANON-LOCK.md).
+
+The archive paths below are **historical 1.0.0 design**, not current executable procedure.
+
 | Required capability | Document |
 |---|---|
 | System overview (this) | `AODS-CHARTER.md` |
-| Repository intelligence | [`10-repository-intelligence/REPOSITORY-AUDIT.md`](10-repository-intelligence/REPOSITORY-AUDIT.md) |
-| Authority hierarchy & conflict strategy | [`10-repository-intelligence/AUTHORITY-MODEL.md`](10-repository-intelligence/AUTHORITY-MODEL.md) |
+| Repository intelligence | [`docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md`](../docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md) |
+| Authority hierarchy & conflict strategy | [`docs/archive/aods/10-repository-intelligence/AUTHORITY-MODEL.md`](../docs/archive/aods/10-repository-intelligence/AUTHORITY-MODEL.md) |
 | Open conflicts requiring human decision | [`10-repository-intelligence/CONFLICT-REGISTER.md`](10-repository-intelligence/CONFLICT-REGISTER.md) |
-| Project lifecycle | [`20-lifecycle/PROJECT-LIFECYCLE.md`](20-lifecycle/PROJECT-LIFECYCLE.md) |
-| Workflow DAG | [`20-lifecycle/WORKFLOW-GRAPH.md`](20-lifecycle/WORKFLOW-GRAPH.md) |
-| Timeline / critical path | [`20-lifecycle/TIMELINE-GRAPH.md`](20-lifecycle/TIMELINE-GRAPH.md) |
-| Roles | [`30-roles/ROLE-ARCHITECTURE.md`](30-roles/ROLE-ARCHITECTURE.md) |
-| Artifacts | [`40-artifacts/ARTIFACT-ARCHITECTURE.md`](40-artifacts/ARTIFACT-ARCHITECTURE.md) |
-| Naming | [`40-artifacts/NAMING-CONVENTIONS.md`](40-artifacts/NAMING-CONVENTIONS.md) |
-| AI execution model | [`50-ai-execution/AI-EXECUTION-MODEL.md`](50-ai-execution/AI-EXECUTION-MODEL.md) |
-| Cursor Auto Mode strategy | [`50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md`](50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md) |
-| Context management | [`50-ai-execution/CONTEXT-MANAGEMENT.md`](50-ai-execution/CONTEXT-MANAGEMENT.md) |
-| Model capability strategy | [`50-ai-execution/MODEL-CAPABILITY-STRATEGY.md`](50-ai-execution/MODEL-CAPABILITY-STRATEGY.md) |
-| Human intervention | [`60-human/HUMAN-INTERVENTION-MODEL.md`](60-human/HUMAN-INTERVENTION-MODEL.md) |
-| Prompt library | [`70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md`](70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md) |
-| Validation | [`80-validation/VALIDATION-FRAMEWORK.md`](80-validation/VALIDATION-FRAMEWORK.md) |
-| Risk | [`90-governance/RISK-REGISTER.md`](90-governance/RISK-REGISTER.md) |
-| Knowledge flow | [`90-governance/KNOWLEDGE-FLOW.md`](90-governance/KNOWLEDGE-FLOW.md) |
-| Governance | [`90-governance/GOVERNANCE.md`](90-governance/GOVERNANCE.md) |
-| Deliverables & adoption | [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md) |
+| Project lifecycle | [`docs/archive/aods/20-lifecycle/PROJECT-LIFECYCLE.md`](../docs/archive/aods/20-lifecycle/PROJECT-LIFECYCLE.md) |
+| Workflow DAG | [`docs/archive/aods/20-lifecycle/WORKFLOW-GRAPH.md`](../docs/archive/aods/20-lifecycle/WORKFLOW-GRAPH.md) |
+| Timeline / critical path | [`docs/archive/aods/20-lifecycle/TIMELINE-GRAPH.md`](../docs/archive/aods/20-lifecycle/TIMELINE-GRAPH.md) |
+| Roles | [`docs/archive/aods/30-roles/ROLE-ARCHITECTURE.md`](../docs/archive/aods/30-roles/ROLE-ARCHITECTURE.md) |
+| Artifacts | [`docs/archive/aods/40-artifacts/ARTIFACT-ARCHITECTURE.md`](../docs/archive/aods/40-artifacts/ARTIFACT-ARCHITECTURE.md) |
+| Naming | [`docs/archive/aods/40-artifacts/NAMING-CONVENTIONS.md`](../docs/archive/aods/40-artifacts/NAMING-CONVENTIONS.md) |
+| AI execution model | [`docs/archive/aods/50-ai-execution/AI-EXECUTION-MODEL.md`](../docs/archive/aods/50-ai-execution/AI-EXECUTION-MODEL.md) |
+| Cursor Auto Mode strategy | [`docs/archive/aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md`](../docs/archive/aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md) |
+| Context management | [`docs/archive/aods/50-ai-execution/CONTEXT-MANAGEMENT.md`](../docs/archive/aods/50-ai-execution/CONTEXT-MANAGEMENT.md) |
+| Model capability strategy | [`docs/archive/aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md`](../docs/archive/aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md) |
+| Human intervention | [`docs/archive/aods/60-human/HUMAN-INTERVENTION-MODEL.md`](../docs/archive/aods/60-human/HUMAN-INTERVENTION-MODEL.md) |
+| Prompt library | [`docs/archive/aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md`](../docs/archive/aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md) |
+| Validation | [`docs/archive/aods/80-validation/VALIDATION-FRAMEWORK.md`](../docs/archive/aods/80-validation/VALIDATION-FRAMEWORK.md) |
+| Risk | [`docs/archive/aods/90-governance/RISK-REGISTER.md`](../docs/archive/aods/90-governance/RISK-REGISTER.md) |
+| Knowledge flow | [`docs/archive/aods/90-governance/KNOWLEDGE-FLOW.md`](../docs/archive/aods/90-governance/KNOWLEDGE-FLOW.md) |
+| Governance | [`docs/archive/aods/90-governance/GOVERNANCE.md`](../docs/archive/aods/90-governance/GOVERNANCE.md) |
+| Deliverables & adoption | [`docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md`](../docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md) |
 | Machine-readable registries | [`registry/`](registry/) |
 | Validators | [`tools/`](tools/) |

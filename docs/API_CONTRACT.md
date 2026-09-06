@@ -1,66 +1,27 @@
-# API contract reference
+# API contract
 
-Production may set `ENABLE_API_DOCS=false`, so interactive Swagger is not always available. Use the documents below as the **source of truth** for frontend and admin-panel integration.
+Machine source of truth: [`../openapi/v1.json`](../openapi/v1.json). This file records only rules that OpenAPI does not.
 
-## Primary contract documents
+Changelog: [`API_CHANGELOG.md`](API_CHANGELOG.md). Domain rules: [`COMMERCE.md`](COMMERCE.md).
 
-| Document | Audience | Contents |
-|----------|----------|----------|
-| [GO_LIVE_EXECUTION_PLAN.md](GO_LIVE_EXECUTION_PLAN.md) | All teams | **Launch program** — backend, frontend, data, ops, integrations, gates |
-| [BACKEND_STRUCTURE_REFACTOR_MAP.md](BACKEND_STRUCTURE_REFACTOR_MAP.md) | Backend | File-by-file structure cleanup plan (no API change) |
-| [FRONTEND_IMPLEMENTATION_GUIDE.md](FRONTEND_IMPLEMENTATION_GUIDE.md) | Storefront + Admin | **Primary** — parity checklist, gaps, phased work, E2E flows |
-| [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md) | Storefront Next.js | PLP/PDP, checkout, cart, auth, error envelope, examples |
-| [BACKEND_CHANGES.md](BACKEND_CHANGES.md) | Frontend sessions | Recent deltas, new endpoints, error codes, manual curl tests |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Backend | Codebase map after structure refactor |
-| [API_CHANGELOG.md](API_CHANGELOG.md) | All clients | Versioning policy, breaking vs non-breaking changes |
-| [TESTING.md](TESTING.md) | Backend devs | pytest markers, CI, Postgres/Redis integration tests |
-
-## OpenAPI / Swagger
+## OpenAPI
 
 | Env | `ENABLE_API_DOCS` | URLs |
 |-----|-------------------|------|
-| Local dev | `true` (default) | `/api/docs`, `/api/redoc`, `/api/openapi.json` |
+| Local | `true` (default) | `/api/docs`, `/api/redoc`, `/api/openapi.json` |
 | Staging | `true` recommended | Same paths |
-| Production | `false` recommended | Export JSON from staging; do not rely on live docs |
+| Production | `false` recommended | Use the committed snapshot; do not rely on live docs |
 
-## Endpoint map (v1)
-
-Base path: `/api/v1`
-
-| Module | Prefix | Key routes |
-|--------|--------|------------|
-| Auth | `/auth` | register, login, refresh, logout, OTP, verify-pin |
-| Products | `/products` | CRUD, stock, images, soft delete/restore |
-| Categories | `/categories` | tree, CRUD, spec-labels, spec-filter-options, spec-templates |
-| Brands | `/brands` | CRUD (delete requires step-up) |
-| Cart | `/cart` | get, add/update/remove items, merge on login |
-| Orders | `/orders` | admin list/detail/status/quote, `/me`, `/track/{code}` |
-| Payments | `/payments` | init, callback (GET), verify, refund |
-| Users | `/users` | admin user list/search/update |
-| CMS | `/cms` | blog, hero slides, product comments (admin) |
-| Storefront | `/` | `/checkout`, `/contact`, `/blog`, `/hero-slides` |
-
-System (outside v1): `GET /health`, `GET /ready`, `GET /metrics` (when enabled).
-
-Committed snapshot (for offline/typegen): [`openapi/v1.json`](../openapi/v1.json). Regenerate with:
+Regenerate after any shape change:
 
 ```bash
 python -c "import json; from app.main import app; json.dump(app.openapi(), open('openapi/v1.json','w'), indent=2, ensure_ascii=False)"
+python3 aods/tools/aods_validate.py --gate openapi
 ```
 
-## List response shapes
+Path inventory is the snapshot, not a prose table. Known residual: regenerate in the same PR if `app.openapi()` and the file diverge (`CR-012`).
 
-| Pattern | Endpoints |
-|---------|-----------|
-| `{ data, meta }` | products list, orders list/`/me`, users, CMS articles/comments/contact |
-| `{ data }` only | brands list, categories flat, blog/articles, hero-slides, related products |
-| Raw JSON array | `GET /categories/tree`, `POST /cart/merge` |
-
-## Optional auth (Bearer not required)
-
-These accept an optional JWT (and cart also accepts `X-Cart-Token`): `GET/PUT/DELETE /cart*`, `POST /checkout`, `POST /payments/init`, `GET /products/`, `GET /products/{id}`, `GET /products/sku/{sku}`.
-
-## Error envelope (all modules)
+## Error envelope
 
 ```json
 {
@@ -70,9 +31,16 @@ These accept an optional JWT (and cart also accepts `X-Cart-Token`): `GET/PUT/DE
 }
 ```
 
-## Keeping contract in sync
+## Rules OpenAPI does not own
 
-1. Backend change → update [API_CHANGELOG.md](API_CHANGELOG.md) and [BACKEND_CHANGES.md](BACKEND_CHANGES.md).
-2. Run `pytest` and contract tests (`tests/test_p5_contract.py`, `tests/test_p1_contract.py`).
-3. Regenerate and commit `openapi/v1.json`; diff it in frontend CI.
-4. For mock API drift, prefer generated types from OpenAPI over hand-written mocks.
+- Site availability is `is_available`, not warehouse quantity (`COMMERCE.md`).
+- Optional auth: cart (`X-Cart-Token` and/or JWT), checkout, payment init, public product GETs.
+- List envelopes vary (`{data, meta}` vs `{data}` vs raw array) — trust the snapshot + contract tests (`tests/test_p5_contract.py`, `tests/test_p1_contract.py`).
+- Breaking field changes need `/api/v2` or a documented deprecation window (`API_CHANGELOG.md`).
+
+## Sync checklist
+
+1. Change code/schemas.
+2. Update `API_CHANGELOG.md` when contract-affecting.
+3. Regenerate and commit `openapi/v1.json`.
+4. Run pytest contract tests + `--gate openapi`.

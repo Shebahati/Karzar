@@ -1,7 +1,10 @@
 # SEP (Saman Kish) OnlinePG — Karzar
 
-Production-grade integration notes for `PAYMENT_PROVIDER=sep`.
-Authority for protocol fields: official technical document **v3.6** (مستند فنی نسخه 3.6).
+SEP is **implemented** in this repository (`PAYMENT_PROVIDER=sep`, Token → SendToken → callback → Verify → worker retry).
+
+**Unresolved:** a successful real or controlled test transaction has **not** been proven. Do not treat this file as evidence of a live charge.
+
+Authority for protocol fields: official technical document **v3.6** (مستند فنی نسخه 3.6). Commerce policy: [`COMMERCE.md`](COMMERCE.md).
 
 ## Architecture
 
@@ -125,11 +128,11 @@ Cloudflare/edge ingress IP is irrelevant. Callback must accept public HTTPS Form
 8. Deploy Staging from `main` (`workflow_dispatch`) — staging shares live VPS (`CR-011`)
 9. Restore `KARZAR_DEPLOY_FREEZE=true` immediately after deploy
 10. Health/readiness (`GET /ready`) + Storefront smoke
-11. Keep `PAYMENT_PROVIDER=mock` until steps 3–6 are confirmed
+11. Do **not** enable SEP on the live VPS until steps 3–6 are confirmed. Local/dev may use mock; the live host must not.
 12. Flip `PAYMENT_PROVIDER=sep` only with explicit Owner approval + one controlled low-amount pay
 13. Check `payment_transactions` ledger + SEP report portal reconciliation
 14. Blu Pay is **out of scope** until a separate Board/Owner node
-15. Rollback: set `PAYMENT_PROVIDER=mock`, redeploy or revert env; do not leave freeze=false
+15. Rollback: restore the previous working image/env (still non-mock on the live host). Production **cannot boot** with `PAYMENT_PROVIDER=mock`. Do not leave `KARZAR_DEPLOY_FREEZE=false`.
 
 ## Go-live gate (Owner)
 

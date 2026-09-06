@@ -43,8 +43,8 @@ and the prompt library. It is process-only — **no application code, schema, or
 | Task graph | [`registry/task-graph.yaml`](../registry/task-graph.yaml) | Machine-readable | `--gate graph` |
 | Validation orchestrator | [`tools/aods_validate.py`](../tools/aods_validate.py) | **Executable, stdlib-only** | `python3 aods/tools/aods_validate.py` |
 | YAML subset parser | [`tools/aods_yaml.py`](../tools/aods_yaml.py) | **Executable, stdlib-only** | Imported by the above |
-| Cursor rule — always-on safety floor | [`.cursor/rules/aods-auto-mode.mdc`](../../.cursor/rules/aods-auto-mode.mdc) | Rule | Applied by Cursor on every request |
-| Cursor rule — editing AODS itself | [`.cursor/rules/aods-node-execution.mdc`](../../.cursor/rules/aods-node-execution.mdc) | Rule | Glob-scoped to `aods/**` |
+| Cursor rule — always-on floor | [`.cursor/rules/karzar.mdc`](../../.cursor/rules/karzar.mdc) | Rule | Pointer to root `AGENTS.md` |
+| Agent floor | [`AGENTS.md`](../../AGENTS.md) | Doc | Durable Karzar-specific constraints |
 
 **Why the validators use only the standard library.** A gate that cannot run is not a gate (charter Φ7).
 `PyYAML` is not in `requirements.txt`, and adding a dependency to make the governance tooling work would

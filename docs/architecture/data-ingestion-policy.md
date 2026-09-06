@@ -4,16 +4,9 @@
 **Status:** Binding after Phase 4 of baseline migration; normative for all catalog writes  
 **Date:** 2026-07-28  
 **Owner:** Backend lead (importers) + Platform Architect (policy)  
-**References:**  
-- Sync SoT: `docs/audits/production-to-development-synchronization-strategy.md`  
-- Execution plan: `docs/operations/database-baseline-migration-plan.md`  
-- Quality gate: `docs/audits/production-baseline-quality-report.md` (**ACCEPT BASELINE**)  
-- Readiness: `docs/operations/baseline-migration-readiness.md`  
-- Runbook: `docs/operations/production-to-local-baseline-runbook.md`  
-- Lifecycle: `docs/architecture/development-lifecycle-standard.md`  
-- Registry: `docs/architecture/DOCUMENT_GOVERNANCE.md`  
-- As-implemented flow: `docs/architecture/specification-data-flow.md`  
-- Runbook (scripts): `backend/docs/OPERATIONS.md`  
+**Living companions (in this checkout):** ADR-012, [`../OPERATIONS.md`](../OPERATIONS.md), [`../COMMERCE.md`](../COMMERCE.md), `scripts/ingestion_boundary.py`.
+
+Historical baseline/migration notes (if present) live under `docs/archive/` and are **not** citeable as current policy. Paths outside this Git tree are not Authoring SoR (`CR-009`).  
 
 **Non-goals:** Re-auditing product census · Designing full PKM · **Changing importer/application code in this RFC** · Duplicating the migration plan or runbook · Creating a second competing ingestion policy file.
 

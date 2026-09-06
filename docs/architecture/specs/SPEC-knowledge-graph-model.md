@@ -40,7 +40,7 @@ The Knowledge Graph (KG) is a **logical overlay** on Systems of Record (Phase 2 
 | Phase 2 modules | M1 Entity, M2 Relation, M3 Graph façade | `:77-79` |
 | IA | Fact/KG hubs not required for EPIC 1 Wave | `…/karzar-information-architecture.md:20` |
 | As-built soft links | `articles.related_product_ids` JSONB | `app/db/models/content.py:43` |
-| KB-001 | Link articles↔products↔categories; avoid second taxonomy | `project-management/exports/tasks.json` KB-001 |
+| KB-001 | Link articles↔products↔categories; avoid second taxonomy | archived `docs/archive/project-management/exports/tasks.json` KB-001; live status: GitHub Issues / PRs |
 
 ---
 

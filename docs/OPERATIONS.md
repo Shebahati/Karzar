@@ -1,204 +1,89 @@
-# Operations runbook — backup, restore, environments, observability
+# Operations
+
+Runbook for environments, backup, deploy, and incidents. Commerce/payment policy: [`COMMERCE.md`](COMMERCE.md). Hesabfa: [`HESABFA.md`](HESABFA.md). SEP: [`SEP_PAYMENT_GATEWAY.md`](SEP_PAYMENT_GATEWAY.md).
 
 ## Environments
 
-| Env | `APP_ENV` | Compose files | Notes |
-|-----|-----------|---------------|-------|
-| Development | `development` | `docker-compose.yml` + `docker-compose.dev.yml` | Bind-mount source, OTP echo OK when `DEBUG=true` |
-| Staging | `staging` | `docker-compose.yml` + `docker-compose.staging.yml` | No bind mount, `DEBUG=false`, HTTPS enforced |
-| Production | `production` | `docker-compose.yml` (+ secrets manager) | Redis required, mock payment forbidden |
+| Env | `APP_ENV` | Compose | Notes |
+|-----|-----------|---------|-------|
+| Development | `development` | `docker-compose.yml` + `docker-compose.dev.yml` | Bind-mount; OTP echo OK when `DEBUG=true` |
+| Staging | `staging` | `docker-compose.yml` + `docker-compose.staging.yml` | No bind-mount; `DEBUG=false`; HTTPS |
+| Production | `production` | `docker-compose.yml` + secrets | Redis required; **mock payment forbidden** |
 
-Copy templates:
-- `.env.example` — local/dev baseline
-- `.env.staging.example` — staging checklist
+Templates: `.env.example`, `.env.staging.example`. Never commit real secrets.
+
+**Topology:** staging deploy targets the **same VPS** as public traffic (`karzartools.com`). There is no isolated staging host (`CR-011`).
 
 ## Networking
 
-Compose uses a bridge network (`karzar`). Inside containers:
+Compose network `karzar`: Postgres `db:5432`, Redis `redis:6379`. Host maps: API `8000`, Postgres `5435`, Redis `6379`.
 
-- Postgres host: `db:5432`
-- Redis host: `redis:6379`
+## Observability
 
-Host-mapped ports for local tools:
+- Logs: console always; file when `LOG_TO_FILE=true` (`LOG_FILE`, default `logs/app.log`, 10×10MB). Volume `karzar_logs` → `/app/logs`.
+- Metrics: `GET /metrics` when `ENABLE_METRICS=true`. Nginx must restrict to loopback.
+- Health: `GET /health` (liveness), `GET /ready` (DB + Redis).
+- Sentry: soft-init when `SENTRY_DSN` set and `sentry-sdk` installed. Uptime: point an external monitor at `/health` and `/ready`. Until those accounts exist, watch `/metrics` + container logs for 15 minutes after every deploy.
 
-- API `8000`
-- Postgres `5435`
-- Redis `6379`
-
-## Logging
-
-- Console logs always enabled.
-- File logs: `LOG_TO_FILE=true`, path `LOG_FILE` (default `logs/app.log`), rotating 10×10MB.
-- Compose mounts named volume `karzar_logs` → `/app/logs`.
-
-## Metrics
-
-When `ENABLE_METRICS=true`, scrape:
-
-```
-GET /metrics
-```
-
-Nginx staging template restricts `/metrics` to loopback (`allow 127.0.0.1; deny all`). Scrape from the host or a private agent only — never expose publicly.
-
-Health probes:
-
-```
-GET /health   # liveness
-GET /ready    # DB + Redis readiness
-```
-
-## Alerting hooks (OPS-07)
-
-Until external accounts exist, treat these as **documented compensating controls**:
-
-| Hook | Env | Status |
-|------|-----|--------|
-| Sentry errors/traces | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE` | Soft-init in `app/main.py` when DSN set and `sentry-sdk` installed (`pip install sentry-sdk`) |
-| Uptime monitor | `UPTIME_CHECK_URL` (documentation only) | Point UptimeRobot/Better Stack at `GET /health` and `GET /ready` on API host |
-| Deploy smoke | `deploy/staging/scripts/smoke-staging.sh` | Hard gate in staging/production deploy workflows |
-
-Compensating until Sentry/uptime are live: watch `/metrics` + container logs for 15 minutes after every deploy; SEV1 path in the incident table below.
-
-## Backup / restore (PostgreSQL)
-
-### Backup
+## Backup / restore
 
 ```bash
-# From host (port 5435) or via compose exec
-./scripts/backup_db.sh
+./scripts/backup_db.sh                          # → backups/karzar_YYYYMMDD_HHMMSS.sql.gz
+./scripts/restore_db.sh backups/karzar_….sql.gz
+./scripts/backup_uploads.sh                     # volume karzar_uploads → /app/data/uploads
+./scripts/restore_uploads.sh backups/karzar_uploads_….tar.gz
+sudo bash scripts/backup_offsite_sync.sh        # requires BACKUP_OFFSITE_URI
 ```
 
-Artifacts land in `./backups/` as `karzar_YYYYMMDD_HHMMSS.sql.gz`.
+On-host `./backups/` is **not** disaster recovery. Sync off-host after each dump. Suggested: 7 daily + 4 weekly. Cron installer: `deploy/staging/scripts/install-backup-cron.sh` (invokes scripts via `/bin/bash` because artifact download may strip +x).
 
-Retention suggestion: keep 7 daily + 4 weekly dumps off-host (S3/object storage).
+Restore onto a scratch/staging target first. Suggested RPO ≤ 24h, RTO ≤ 2h.
 
-### Restore
-
-```bash
-./scripts/restore_db.sh backups/karzar_YYYYMMDD_HHMMSS.sql.gz
-```
-
-Always restore onto staging first and run `pytest` / smoke checkout before production.
-
-### Disaster recovery targets (suggested)
-
-- RPO: ≤ 24h (daily dump)
-- RTO: ≤ 2h (restore + migrate + smoke)
-
-## Hesabfa (حسابفا)
-
-See [HESABFA.md](./HESABFA.md) for env vars, SKU matching, site→Hesabfa item push (qty 0), and invoice-after-payment hook.
-
-**Inventory:** warehouse counts live **only in Hesabfa**. The site stores `is_available` (موجود/ناموجود) and never pulls `GetQuantity`.
-
-**Admin:** do not display Hesabfa-sourced metrics (`HESABFA_ADMIN_READS_ENABLED=false`). Keep invoice-after-payment + site→Hesabfa item push.
-
-On VPS, put `HESABFA_API_KEY` / `HESABFA_LOGIN_TOKEN` only in the API container secrets — never in git.
+Unresolved: a recorded restore-drill result (issue [#247](https://github.com/Shebahati/Karzar/issues/247)).
 
 ## Migrations
 
 ```bash
 docker compose exec app alembic upgrade head
+docker compose exec app alembic current
+docker compose exec app alembic downgrade -1   # non-prod first
 ```
 
-### Rollback (one revision)
+Never downgrade production past a column-drop without a backup. Prefer forward-fix migrations.
+
+## VPS bootstrap (unique host facts)
+
+Live tree on the VPS is `/opt/karzar/Karzar`. First-time host setup:
 
 ```bash
-# Inspect current revision
-docker compose exec app alembic current
-
-# Downgrade one step (staging first!)
-docker compose exec app alembic downgrade -1
-
-# Re-apply after fix
-docker compose exec app alembic upgrade head
+sudo git clone https://github.com/Shebahati/Karzar.git /opt/karzar/Karzar
+cd /opt/karzar/Karzar
+sudo bash deploy/staging/scripts/bootstrap-vps.sh   # Docker, Nginx, Certbot, UFW 22/80/443
 ```
 
-Never downgrade production past a migration that dropped columns without a backup. Prefer forward-fix migrations.
+DNS A records historically used `api` / `shop` / `admin`. Public shop today is `www.karzartools.com`; API is `api.karzartools.com`. Backend env lives on the host (not in git): `TRUSTED_HOSTS`, `CORS_ORIGINS`, `SECRET_KEY`, DB password, step-up PIN. Historical step-by-step: `docs/archive/deploy/staging/STAGING_DEPLOY.md` (stale mock-payment phase — do not follow its provider advice).
 
-## Deploy checklist
+## Deploy
 
-1. Merge to `main`; CI must pass (lint + pytest + coverage ≥ 62%).
-2. Tag release in [API_CHANGELOG.md](API_CHANGELOG.md) if contract changed.
-3. **Staging on VPS:** follow [deploy/staging/STAGING_DEPLOY.md](../deploy/staging/STAGING_DEPLOY.md)
-   (`docker compose -f docker-compose.yml -f docker-compose.staging.yml`).
-4. Run `alembic upgrade head` on staging (entrypoint does this on boot).
-5. Smoke: `GET /ready`, checkout mock payment, admin login
-   (`deploy/staging/scripts/smoke-staging.sh`).
-6. Production: same compose profile with secrets from vault (not `.env` in repo).
-   Zarinpal may be env-only; **SEP is not** — see [SEP_PAYMENT_GATEWAY.md](./SEP_PAYMENT_GATEWAY.md)
-   and [deploy/staging/PROVIDERS_LATER.md](../deploy/staging/PROVIDERS_LATER.md) before enabling live payment/SMS.
-7. Post-deploy: watch error rate and `/metrics` for 15 minutes.
+1. CI green on `main` (lint + pytest + **coverage ≥ 68%** — `pyproject.toml`).
+2. Update [`API_CHANGELOG.md`](API_CHANGELOG.md) if the contract changed.
+3. Owner: set Actions variable `KARZAR_DEPLOY_FREEZE=false` only for the window needed.
+4. Run **Deploy Staging** via GitHub Actions `workflow_dispatch` on `main` — **not** push-auto-deploy (`.github/workflows/deploy-staging.yml`).
+5. Compose on the VPS: `docker compose -f docker-compose.yml -f docker-compose.staging.yml`. Entrypoint runs `alembic upgrade head`.
+6. Smoke: `deploy/staging/scripts/smoke-staging.sh` (`GET /ready`, admin session, checkout against the **configured** provider). Do **not** switch production/staging-live to mock to smoke.
+7. Restore `KARZAR_DEPLOY_FREEZE=true` immediately.
+8. Watch error rate and `/metrics` for 15 minutes.
 
-## Incident response (suggested)
+Production image rollback: revert the container image / previous env. **Never** set `PAYMENT_PROVIDER=mock` on production (boot validators reject it).
+
+`KARZAR_DEPLOY_FREEZE=true` also blocks `apply` mode on live taxonomy workflows; dry-runs remain available.
+
+## Incidents
 
 | Severity | Examples | Actions |
 |----------|----------|---------|
-| SEV1 | API down, payment verify failing | Roll back container image; restore DB if schema broken; notify gateway |
-| SEV2 | Elevated 5xx, Redis unavailable | Scale Redis; fall back to in-memory throttles (degraded); check `GET /ready` |
-| SEV3 | Single endpoint regression | Feature flag via env; hotfix branch; forward migration |
+| SEV1 | API down, payment verify failing | Roll back image; restore DB only if schema is broken; notify gateway |
+| SEV2 | Elevated 5xx, Redis down | Check `/ready`; degrade throttles if needed |
+| SEV3 | Single endpoint | Env flag / hotfix / forward migration |
 
-1. Capture request-id from response header / logs.
-2. Check `GET /health` and `GET /ready`.
-3. Recent deploy? Roll back image before DB rollback.
-4. DB corruption? Restore latest `backups/*.sql.gz` to staging, validate, then production.
-5. Document timeline and root cause in issue tracker; update runbook if gap found.
-
-## Uploads
-
-Product image uploads persist in volume `karzar_uploads` (`/app/data/uploads`).
-
-### Backup
-
-```bash
-./scripts/backup_uploads.sh
-```
-
-Artifacts land in `./backups/` as `karzar_uploads_YYYYMMDD_HHMMSS.tar.gz`.
-
-Daily cron (with DB): `sudo bash deploy/staging/scripts/install-backup-cron.sh`
-
-The installer deliberately invokes backup scripts through `/bin/bash`. GitHub
-artifact download normalizes file modes, so cron must not depend solely on an
-executable bit surviving deployment. Deployment workflows restore the bits as
-defense in depth.
-
-### Restore
-
-```bash
-./scripts/restore_uploads.sh backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
-```
-
-### Off-host requirement (OPS-02 / Phase 0)
-
-On-host `./backups/` is **not** disaster recovery. After each dump/archive, sync to off-host storage:
-
-```bash
-# Set in server secrets (never commit):
-#   BACKUP_OFFSITE_URI=s3://your-bucket/karzar/
-#   BACKUP_LOCAL_DIR=/opt/karzar/backups
-sudo bash scripts/backup_offsite_sync.sh
-```
-
-Wire into cron after `install-backup-cron.sh` (append the sync job). Retention suggestion: 7 daily + 4 weekly off-host.
-
-### Emergency deployment freeze (OPS Phase 0)
-
-Repository Actions variable `KARZAR_DEPLOY_FREEZE=true` blocks staging and
-production deployment workflows and blocks `apply` mode in live taxonomy
-workflows. Dry-runs remain available. During Phase 0, keep the four live
-workflows manually disabled as the outer control; set and verify the variable
-before re-enabling them. During an emergency, the Owner must first record the
-incident/change, temporarily set the variable to `false`, deploy only from
-`main`, and restore it to `true` immediately afterward.
-
-### Restore drill checklist
-
-Document results under `docs/roadmap/phase-0-execution-log.md` after running once on a scratch/staging target:
-
-1. Take fresh `backup_db.sh` + `backup_uploads.sh`
-2. Restore DB into scratch DB (or staging scratch)
-3. Restore uploads into scratch volume/path
-4. Hit `GET /ready` and spot-check one product image URL
-5. Record wall-clock time, gaps, owner (`shebahati`)
+Capture `request-id` from headers/logs. Roll back image before rolling back the database.

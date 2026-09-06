@@ -42,7 +42,7 @@ MUST NOT self-mark Implemented/Completed without Board evidence.
 ## Naming & numbering
 
 - Files: `RFC-NNN-kebab-case-title.md`
-- New RFCs: next free NNN; register in [`rfc-index.md`](./rfc-index.md)
+- New RFCs: next free NNN; register in [`rfc-index.md`](../../archive/docs/architecture/rfc/rfc-index.md)
 - One primary change program per RFC
 
 ## Owners & review SLA (defaults)
@@ -56,7 +56,7 @@ MUST NOT self-mark Implemented/Completed without Board evidence.
 
 ## Required sections
 
-See [`RFC-TEMPLATE.md`](./RFC-TEMPLATE.md). Every RFC MUST include rollback, ingestion boundary, and KPIs.
+See [`RFC-TEMPLATE.md`](../../archive/docs/architecture/rfc/RFC-TEMPLATE.md). Every RFC MUST include rollback, ingestion boundary, and KPIs.
 
 ## Citing baselines / DQ
 
@@ -75,7 +75,7 @@ Cite only DQ / EPIC0 files that **exist** in this checkout. Do not invent improv
 | [RFC-004](./RFC-004-slug-migration-and-redirects.md) | Slug Migration & Redirects | **Accepted** | **1** | ADR-010 |
 | [RFC-005](./RFC-005-brand-hub-launch.md) | Brand Hub Launch | **Accepted** | **1** | ADR-010 |
 
-Full present+reserved index: [`rfc-index.md`](./rfc-index.md).
+Full present+reserved index: [`rfc-index.md`](../../archive/docs/architecture/rfc/rfc-index.md).
 
 ## Reserved IDs — **not in this repository** (do not cite / invent)
 
