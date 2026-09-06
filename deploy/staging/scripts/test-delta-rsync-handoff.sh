@@ -432,4 +432,40 @@ if grep -qE '^[[:space:]]+outputs:' "$WF"; then
 fi
 pass "WORKFLOW_NO_CROSS_JOB_MANIFEST"
 
+# Marker files/bytes must match the staged tree, not only be numeric.
+S_SHA="$(hex40 30)"
+S_IN="$TMP/s-in"
+make_completed_incoming "$S_IN" "$S_SHA"
+S_MANIFEST="$(awk -F= '/^manifest=/{print $2; exit}' "$S_IN/HANDOFF_COMPLETE")"
+S_FILES="$(karzar_tree_file_count "$S_IN/tree")"
+S_BYTES="$(karzar_tree_total_bytes "$S_IN/tree")"
+{
+  echo "sha=${S_SHA}"
+  echo "transport=rsync-delta"
+  echo "files=$((S_FILES + 1))"
+  echo "bytes=${S_BYTES}"
+  echo "manifest=${S_MANIFEST}"
+} > "$S_IN/HANDOFF_COMPLETE"
+if consume_verify "$S_IN" "$S_SHA"; then
+  fail "marker files mismatch should fail"
+fi
+pass "MARKER_FILES_MISMATCH"
+
+T_SHA="$(hex40 31)"
+T_IN="$TMP/t-in"
+make_completed_incoming "$T_IN" "$T_SHA"
+T_MANIFEST="$(awk -F= '/^manifest=/{print $2; exit}' "$T_IN/HANDOFF_COMPLETE")"
+T_FILES="$(karzar_tree_file_count "$T_IN/tree")"
+T_BYTES="$(karzar_tree_total_bytes "$T_IN/tree")"
+{
+  echo "sha=${T_SHA}"
+  echo "transport=rsync-delta"
+  echo "files=${T_FILES}"
+  echo "bytes=$((T_BYTES + 1))"
+  echo "manifest=${T_MANIFEST}"
+} > "$T_IN/HANDOFF_COMPLETE"
+if consume_verify "$T_IN" "$T_SHA"; then
+  fail "marker bytes mismatch should fail"
+fi
+pass "MARKER_BYTES_MISMATCH"
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"
