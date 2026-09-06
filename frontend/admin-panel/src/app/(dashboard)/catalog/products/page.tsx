@@ -247,7 +247,7 @@ export default function ProductsListPage() {
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-ink">مدیریت محصولات</h2>
+          <h2 className="admin-page-title">مدیریت محصولات</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {data ? `${formatNumber(data.meta.total_count)} محصول` : "کاتالوگ فروشگاه"}
           </p>

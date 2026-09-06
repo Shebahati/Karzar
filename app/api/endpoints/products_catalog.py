@@ -189,6 +189,7 @@ async def read_products(
             sort=sort,
             product_ids=product_ids,
             is_deleted=is_deleted,
+            storefront_public_only=not is_super_admin(current_user),
         )
 
         metadata = await _category_metadata(db)

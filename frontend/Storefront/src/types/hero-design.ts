@@ -19,6 +19,8 @@ export interface DesignedHeroConfig {
   background: {
     mode: "image" | "color";
     imageUrl: string;
+    /** Optional mobile-specific art-directed asset (desktop uses imageUrl). */
+    mobileImageUrl?: string;
     color: string;
     focal: string;
   };

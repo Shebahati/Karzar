@@ -34,6 +34,7 @@ class CategoryFlatResponse(CategoryResponse):
     megamenu_hidden: bool = False
     megamenu_as_leaf: bool = False
     megamenu_bold: bool | None = None
+    hesabfa_category_code: str | None = Field(None, max_length=64)
 
 
 class CategoryListResponse(BaseModel):
@@ -49,6 +50,7 @@ class CategoryTreeResponse(CategoryResponse):
     megamenu_hidden: bool = False
     megamenu_as_leaf: bool = False
     megamenu_bold: bool | None = None
+    hesabfa_category_code: str | None = Field(None, max_length=64)
     subcategories: list["CategoryTreeResponse"] = []
 
 
@@ -106,6 +108,7 @@ class CategoryCreate(BaseModel):
     megamenu_hidden: bool = False
     megamenu_as_leaf: bool = False
     megamenu_bold: bool | None = None
+    hesabfa_category_code: str | None = Field(None, max_length=64)
 
 
 class CategoryUpdate(BaseModel):
@@ -120,6 +123,7 @@ class CategoryUpdate(BaseModel):
     megamenu_hidden: bool | None = None
     megamenu_as_leaf: bool | None = None
     megamenu_bold: bool | None = None
+    hesabfa_category_code: str | None = Field(None, max_length=64)
     unset_megamenu_bold: bool = False
 
 

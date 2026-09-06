@@ -99,12 +99,6 @@ export default function DashboardPage() {
   const { data: stats, isPending: statsPending } = useProductStatistics();
   const { data: productsData, isPending: productsPending } = useProducts({ limit: 100 });
   const { data: categories } = useCategories();
-  const { data: paidOrders, isPending: paidPending } = useOrders({ status: "paid", limit: 6 });
-  const { data: openInquiries, isPending: inquiriesPending } = useOrders({
-    mode: "inquiry",
-    status: "inquiry_review",
-    limit: 6,
-  });
   const { data: websiteSalesSummary, isPending: salesPending } = useWebsitePaidSales();
 
   const products = productsData?.data ?? [];
@@ -118,15 +112,27 @@ export default function DashboardPage() {
     stats?.categories ??
     (categories ?? []).reduce((sum, c) => sum + 1 + c.subcategories.length, 0);
 
-  const websiteSales = websiteSalesSummary?.website_paid_total_toman
-    ? Number(websiteSalesSummary.website_paid_total_toman)
-    : null;
+  const websiteSales =
+    websiteSalesSummary?.website_paid_total_toman != null
+      ? Number(websiteSalesSummary.website_paid_total_toman)
+      : null;
 
-  const paidQueue: QueueItem[] = (paidOrders?.data ?? []).map((order) => ({
+  const { data: openPurchaseOrders, isPending: openPurchasePending } = useOrders({
+    mode: "purchase",
+    open: true,
+    limit: 6,
+  });
+  const { data: openInquiries, isPending: inquiriesPending } = useOrders({
+    mode: "inquiry",
+    open: true,
+    limit: 6,
+  });
+
+  const paidQueue: QueueItem[] = (openPurchaseOrders?.data ?? []).map((order) => ({
     key: `order-${order.id}`,
     href: `/orders/${order.id}`,
     title: toPersianDigits(order.tracking_code),
-    subtitle: `${order.customer_name} — پرداخت شده، در انتظار شروع پردازش`,
+    subtitle: `${order.customer_name} — ${order.status_label}`,
     badgeLabel: "پردازش سفارش",
     badgeVariant: "warning" as const,
   }));
@@ -165,8 +171,8 @@ export default function DashboardPage() {
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-ink">امروز — صف اقدامات</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="admin-page-title">امروز — صف اقدامات</h2>
+          <p className="admin-page-subtitle">
             نمای عملیاتی فروشگاه ابزارآلات صنعتی کارزار — {formatNumber(totalQueueCount)} مورد نیازمند
             بررسی
           </p>
@@ -234,7 +240,7 @@ export default function DashboardPage() {
                 <Link href="/orders">مشاهده همه</Link>
               </Button>
             </div>
-            <ActionQueueList items={paidQueue} loading={paidPending} emptyLabel="سفارش پرداخت‌شده‌ای در صف نیست." />
+            <ActionQueueList items={paidQueue} loading={openPurchasePending} emptyLabel="سفارش پرداخت‌شده‌ای در صف نیست." />
           </CardContent>
         </Card>
 

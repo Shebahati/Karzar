@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.endpoints import (
+    abandoned_carts,
     auth,
     brand,
     cart,
@@ -25,6 +26,9 @@ api_router.include_router(category.router, prefix="/categories", tags=["Categori
 api_router.include_router(brand.router, prefix="/brands", tags=["Brands"])
 api_router.include_router(cart.router, prefix="/cart", tags=["Cart"])
 api_router.include_router(order.router, prefix="/orders", tags=["Orders"])
+api_router.include_router(
+    abandoned_carts.router, prefix="/abandoned-carts", tags=["Abandoned Carts"]
+)
 api_router.include_router(payment.router, prefix="/payments", tags=["Payments"])
 api_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_router.include_router(cms.router, prefix="/cms", tags=["CMS"])

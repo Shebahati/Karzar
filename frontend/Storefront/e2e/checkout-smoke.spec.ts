@@ -25,10 +25,10 @@ async function waitForCartPersisted(page: Page) {
  * Requires NEXT_PUBLIC_USE_MOCK=true (injected by playwright.config webServer).
  */
 test.describe("checkout smoke (mock)", () => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
 
   test("OTP → checkout → payment callback", async ({ page }) => {
-    await page.goto("/product/1");
+    await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
     await expect(
       page.getByRole("heading", { level: 1, name: /دریل چکشی بوش/i }),
     ).toBeVisible({ timeout: 30_000 });
@@ -38,7 +38,7 @@ test.describe("checkout smoke (mock)", () => {
     await addCart.click();
     await waitForCartPersisted(page);
 
-    await page.goto("/checkout");
+    await page.goto("/checkout", { waitUntil: "domcontentloaded", timeout: 120_000 });
     // Hydration: empty-cart flash must resolve to auth step in mock mode.
     await expect(
       page.getByRole("heading", { level: 2, name: "ورود برای پرداخت" }),
@@ -70,17 +70,18 @@ test.describe("checkout smoke (mock)", () => {
 
     await shipping.getByRole("button", { name: /انتقال به درگاه پرداخت/i }).click();
 
-    // Mock payment redirects to callback → success
-    await page.waitForURL(/checkout\/(success|payment\/callback)/, {
+    // Assert URL state (not Playwright navigation "load") — callback may never
+    // fire window load under Next.js SPA routing; success remains mandatory.
+    await expect(page).toHaveURL(/checkout\/(success|payment\/callback)/, {
       timeout: 45_000,
     });
-    const url = page.url();
-    expect(url).toMatch(/checkout\/(success|payment\/callback)/);
 
-    // Prefer landing on success after verify; callback is acceptable mid-flight.
-    if (/payment\/callback/.test(url)) {
-      await page.waitForURL(/checkout\/success/, { timeout: 30_000 });
+    if (/payment\/callback/.test(page.url())) {
+      await expect(page).toHaveURL(/checkout\/success/, {
+        timeout: 30_000,
+      });
     }
+
     await expect(page).toHaveURL(/checkout\/success/);
   });
 });

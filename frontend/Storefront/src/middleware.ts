@@ -5,6 +5,7 @@ import {
   encodedProductSlugPath,
   numericProductPathId,
 } from "@/lib/product-url";
+import { categoryHubPath, resolveCategorySlugRedirect } from "@/lib/category-slug-redirect";
 
 const isDev = process.env.NODE_ENV !== "production";
 const PRODUCT_LOOKUP_TIMEOUT_MS = 2000;
@@ -103,8 +104,28 @@ async function lookupProductSlug(id: string): Promise<string | null> {
   }
 }
 
+function categoryPathSlug(pathname: string): string | null {
+  const match = pathname.match(/^\/categories\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const nonce = newNonce();
+  const categorySlug = categoryPathSlug(request.nextUrl.pathname);
+  if (categorySlug) {
+    const targetSlug = resolveCategorySlugRedirect(categorySlug);
+    if (targetSlug && targetSlug !== categorySlug) {
+      const location = new URL(categoryHubPath(targetSlug), request.nextUrl.origin);
+      location.search = request.nextUrl.search;
+      return applySecurityHeaders(NextResponse.redirect(location, 301), nonce);
+    }
+  }
+
   const numericId = numericProductPathId(request.nextUrl.pathname);
 
   // ADR-010 / RFC-004: HTTP 301 before Root Layout streams (page-level

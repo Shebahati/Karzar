@@ -140,6 +140,7 @@ class ProductUpdate(BaseModel):
     meta_description: str | None = Field(None, max_length=500)
     original_price: Decimal | None = None
     specifications: dict[str, Any] | None = None
+    hesabfa_category_override_code: str | None = Field(None, max_length=64)
 
     @field_validator("sku", "name", mode="before")
     @classmethod
@@ -216,6 +217,7 @@ class ProductDetailResponse(BaseModel):
     description: str | None = None
     meta_title: str | None = None
     meta_description: str | None = None
+    hesabfa_category_override_code: str | None = None
     thumbnail: str | None = None
     images: list[ProductImageResponse] = Field(default_factory=list)
     specifications: dict[str, Any] = Field(default_factory=dict)

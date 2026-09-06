@@ -2731,6 +2731,20 @@
         "summary": "List all brands",
         "description": "Return all brands ordered by name (used by admin product forms).",
         "operationId": "list_brands_api_v1_brands__get",
+        "parameters": [
+          {
+            "name": "storefront_product_counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "When true, product_count reflects active public-catalog products only.",
+              "default": false,
+              "title": "Storefront Product Counts"
+            },
+            "description": "When true, product_count reflects active public-catalog products only."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2738,6 +2752,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BrandListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -2825,6 +2849,18 @@
               "type": "string",
               "title": "Slug"
             }
+          },
+          {
+            "name": "storefront_product_counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "When true, product_count reflects active public-catalog products only.",
+              "default": false,
+              "title": "Storefront Product Counts"
+            },
+            "description": "When true, product_count reflects active public-catalog products only."
           }
         ],
         "responses": {
@@ -3762,6 +3798,24 @@
             }
           },
           {
+            "name": "open",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter to actionable open orders for the given mode",
+              "title": "Open"
+            },
+            "description": "Filter to actionable open orders for the given mode"
+          },
+          {
             "name": "karzar_access",
             "in": "cookie",
             "required": false,
@@ -4080,6 +4134,130 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/abandoned-carts": {
+      "get": {
+        "tags": [
+          "Abandoned Carts"
+        ],
+        "summary": "List abandoned carts (admin)",
+        "operationId": "list_abandoned_carts_endpoint_api_v1_abandoned_carts_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "inactive_hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 720,
+              "minimum": 1,
+              "default": 24,
+              "title": "Inactive Hours"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbandonedCartListResponse"
                 }
               }
             }
@@ -7308,6 +7486,131 @@
   },
   "components": {
     "schemas": {
+      "AbandonedCartItemResponse": {
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "title": "Product Id"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "product_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name"
+          },
+          "product_sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Sku"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "quantity"
+        ],
+        "title": "AbandonedCartItemResponse"
+      },
+      "AbandonedCartListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AbandonedCartSummary"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "AbandonedCartListResponse"
+      },
+      "AbandonedCartSummary": {
+        "properties": {
+          "cart_id": {
+            "type": "integer",
+            "title": "Cart Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "customer_name": {
+            "type": "string",
+            "title": "Customer Name"
+          },
+          "customer_phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Phone"
+          },
+          "item_count": {
+            "type": "integer",
+            "title": "Item Count"
+          },
+          "cart_value": {
+            "type": "string",
+            "title": "Cart Value"
+          },
+          "last_activity_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Activity At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AbandonedCartItemResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cart_id",
+          "user_id",
+          "customer_name",
+          "customer_phone",
+          "item_count",
+          "cart_value",
+          "last_activity_at"
+        ],
+        "title": "AbandonedCartSummary"
+      },
       "AdminUserListResponse": {
         "properties": {
           "data": {
@@ -8635,6 +8938,18 @@
               }
             ],
             "title": "Megamenu Bold"
+          },
+          "hesabfa_category_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Code"
           }
         },
         "type": "object",
@@ -8818,6 +9133,18 @@
               }
             ],
             "title": "Megamenu Bold"
+          },
+          "hesabfa_category_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Code"
           }
         },
         "type": "object",
@@ -9039,6 +9366,18 @@
             ],
             "title": "Megamenu Bold"
           },
+          "hesabfa_category_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Code"
+          },
           "subcategories": {
             "items": {
               "$ref": "#/components/schemas/CategoryTreeResponse"
@@ -9188,6 +9527,18 @@
               }
             ],
             "title": "Megamenu Bold"
+          },
+          "hesabfa_category_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Code"
           },
           "unset_megamenu_bold": {
             "type": "boolean",
@@ -12532,6 +12883,17 @@
             ],
             "title": "Meta Description"
           },
+          "hesabfa_category_override_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Override Code"
+          },
           "thumbnail": {
             "anyOf": [
               {
@@ -13105,6 +13467,18 @@
               }
             ],
             "title": "Specifications"
+          },
+          "hesabfa_category_override_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hesabfa Category Override Code"
           }
         },
         "type": "object",

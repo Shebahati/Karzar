@@ -55,8 +55,8 @@ export default function OrdersPage() {
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#4F4F4F]">سفارش‌ها</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="admin-page-title">سفارش‌ها</h2>
+          <p className="admin-page-subtitle">
             {data ? `${data.meta.total_count.toLocaleString("fa-IR")} سفارش` : "مدیریت سفارش‌ها"}
           </p>
         </div>

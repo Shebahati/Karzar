@@ -7,36 +7,14 @@ import { CardAddToCartCta } from "@/components/product/card-add-to-cart-cta";
 import { ProductPlaceholder } from "@/components/ui/product-placeholder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { CONTENT_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
-import { toSafeNextImageSrc } from "@/lib/image-remote-patterns";
+import { resolveProductCardImages } from "@/lib/product-image";
 import { useCanHover } from "@/lib/use-motion-safe";
 import { cn, formatNumber, formatToman } from "@/lib/utils";
 import { productPath } from "@/lib/product-url";
 import { useCartStore } from "@/store/cart-store";
-import type { ProductImage, ProductSummary } from "@/types/product";
+import type { ProductSummary } from "@/types/product";
 
-/** Ordered unique image URLs for card media (thumbnail first, then gallery). */
-function resolveCardImages(product: ProductSummary): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  const push = (url: string | null | undefined) => {
-    const safe = toSafeNextImageSrc(url);
-    if (!safe || seen.has(safe)) return;
-    seen.add(safe);
-    out.push(safe);
-  };
-
-  push(product.thumbnail);
-
-  if (product.images?.length) {
-    const sorted = [...product.images].sort(
-      (a: ProductImage, b: ProductImage) =>
-        Number(b.is_primary) - Number(a.is_primary) || a.id - b.id,
-    );
-    for (const img of sorted) push(img.url);
-  }
-
-  return out;
-}
+export { resolveProductCardImages } from "@/lib/product-image";
 
 function stockCue(product: ProductSummary): { label: string; tone: "ok" | "low" | "out" } | null {
   if (!product.availability || product.stock_status === "out_of_stock" || product.stock_status === "ناموجود") {
@@ -72,7 +50,7 @@ export function ProductCard({
   const outOfStock = !product.availability;
   const [addedFlash, setAddedFlash] = useState(false);
   const canHover = useCanHover();
-  const images = resolveCardImages(product);
+  const images = resolveProductCardImages(product);
   // Hover-swap second image only on fine pointers — halves decode work on phones.
   const hasMultiImage = canHover && images.length > 1;
   const cue = stockCue(product);

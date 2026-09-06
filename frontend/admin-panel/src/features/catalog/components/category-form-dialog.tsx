@@ -27,6 +27,7 @@ export type CategoryFormValues = {
   meta_title?: string;
   meta_description?: string;
   spec_template_key?: string;
+  hesabfa_category_code?: string;
 };
 
 interface CategoryFormDialogProps {
@@ -56,6 +57,7 @@ export function CategoryFormDialog({
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [specKey, setSpecKey] = useState("");
+  const [hesabfaCode, setHesabfaCode] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -71,6 +73,7 @@ export function CategoryFormDialog({
       setMetaTitle(category?.meta_title ?? "");
       setMetaDescription(category?.meta_description ?? "");
       setSpecKey(category?.spec_template_key ?? "");
+      setHesabfaCode(category?.hesabfa_category_code ?? "");
       setPreviewUrl(category?.image_url ?? null);
       setIconPreviewUrl(
         category?.icon &&
@@ -94,6 +97,7 @@ export function CategoryFormDialog({
       meta_title: metaTitle.trim() || undefined,
       meta_description: metaDescription.trim() || undefined,
       spec_template_key: specKey.trim() || undefined,
+      hesabfa_category_code: hesabfaCode.trim() || undefined,
     });
   }
 
@@ -302,6 +306,19 @@ export function CategoryFormDialog({
                 disabled={pending}
               />
             </Field>
+            <Field label="کد دسته حسابفا (اختیاری)" htmlFor="category-hesabfa-code">
+              <Input
+                id="category-hesabfa-code"
+                value={hesabfaCode}
+                onChange={(e) => setHesabfaCode(e.target.value)}
+                placeholder="HES-001"
+                dir="ltr"
+                disabled={pending}
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                فقط نگهداری محلی — هنگام غیرفعال بودن همگام‌سازی، هیچ درخواست شبکه‌ای ارسال نمی‌شود.
+              </p>
+            </Field>
           </div>
 
           <SheetFooter>
@@ -329,6 +346,7 @@ export function toCreatePayload(
     meta_title: values.meta_title,
     meta_description: values.meta_description,
     spec_template_key: values.spec_template_key,
+    hesabfa_category_code: values.hesabfa_category_code,
   };
 }
 
@@ -340,5 +358,6 @@ export function toUpdatePayload(values: CategoryFormValues): CategoryUpdatePaylo
     meta_title: values.meta_title ?? null,
     meta_description: values.meta_description ?? null,
     spec_template_key: values.spec_template_key ?? null,
+    hesabfa_category_code: values.hesabfa_category_code ?? null,
   };
 }

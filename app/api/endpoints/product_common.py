@@ -11,6 +11,7 @@ from app.schemas.product import ProductDetailResponse
 from app.services.product_service import ProductService
 from app.utils.category_depth import build_category_metadata
 from app.utils.product_presenter import to_product_detail
+from app.utils.public_catalog import product_has_storefront_public_image
 
 
 def _audience_for_user(user: User | None) -> str:
@@ -18,8 +19,16 @@ def _audience_for_user(user: User | None) -> str:
 
 
 def _guard_inactive_product(product, user: User | None, identifier: str) -> None:
-    """Hide inactive products from non-admin callers on direct read paths."""
-    if not product.is_active and not is_super_admin(user):
+    """Hide inactive or image-less products from non-admin callers on direct read paths."""
+    if is_super_admin(user):
+        return
+    if not product.is_active:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product '{identifier}' not found",
+        )
+    if not product_has_storefront_public_image(product):
         raise api_error(
             status.HTTP_404_NOT_FOUND,
             error_code=ErrorCode.NOT_FOUND,

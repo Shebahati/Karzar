@@ -9,14 +9,26 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.core.config import settings
-from app.db.models.commerce import Order, OrderItem, OrderMode, PaymentStatus
+from app.db.models.commerce import (
+    Order,
+    OrderItem,
+    OrderMode,
+    PaymentStatus,
+    PaymentTransaction,
+    PaymentTransactionStatus,
+)
 from app.db.models.hesabfa import HesabfaInvoiceRecord, HesabfaItemMapping
 from app.db.models.product import Product
 from app.main import app
-from app.services.hesabfa.client import HesabfaClient, reset_hesabfa_client_for_tests
+from app.services.hesabfa.client import (
+    HesabfaClient,
+    hesabfa_integration_active,
+    reset_hesabfa_client_for_tests,
+)
 from app.services.hesabfa.exceptions import HesabfaApiError, HesabfaNotConfiguredError
 from app.services.hesabfa.invoices import create_invoice_for_paid_order
 from app.services.hesabfa.mapping import sync_item_mappings_by_sku
+from app.services.hesabfa.sales import website_paid_sales
 from app.services.hesabfa.stock_sync import pull_stock_from_hesabfa
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -326,6 +338,55 @@ def test_hesabfa_status_endpoint(super_admin_headers):
     assert "test_mode" in body
 
 
+def test_website_paid_sales_excludes_mock_gateway():
+    async def run():
+        async with TestingSessionLocal() as session:
+            mock_order = Order(
+                tracking_code="TRK-SALES-MOCK",
+                mode=OrderMode.PURCHASE,
+                status="paid",
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("100000"),
+                customer_full_name="Mock Buyer",
+                customer_phone="09120000001",
+                customer_is_guest=True,
+            )
+            real_order = Order(
+                tracking_code="TRK-SALES-SEP",
+                mode=OrderMode.PURCHASE,
+                status="paid",
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("250000"),
+                customer_full_name="Real Buyer",
+                customer_phone="09120000002",
+                customer_is_guest=True,
+            )
+            session.add_all([mock_order, real_order])
+            await session.flush()
+            session.add_all(
+                [
+                    PaymentTransaction(
+                        order_id=mock_order.id,
+                        amount=Decimal("100000"),
+                        gateway="mock",
+                        status=PaymentTransactionStatus.VERIFIED.value,
+                    ),
+                    PaymentTransaction(
+                        order_id=real_order.id,
+                        amount=Decimal("250000"),
+                        gateway="sep",
+                        status=PaymentTransactionStatus.VERIFIED.value,
+                    ),
+                ]
+            )
+            await session.commit()
+            return await website_paid_sales(session)
+
+    total, count = asyncio.run(run())
+    assert count == 1
+    assert total == Decimal("250000")
+
+
 def test_sales_summary_website_only_never_returns_hesabfa(
     super_admin_headers, monkeypatch
 ):
@@ -348,3 +409,9 @@ def test_hesabfa_status_reports_admin_reads_disabled(super_admin_headers):
     body = response.json()
     assert body["stock_pull_enabled"] is False
     assert body["admin_reads_enabled"] is False
+
+
+def test_hesabfa_client_skips_when_disabled(monkeypatch):
+    monkeypatch.setattr(settings, "HESABFA_ENABLED", False)
+    reset_hesabfa_client_for_tests()
+    assert hesabfa_integration_active() is False

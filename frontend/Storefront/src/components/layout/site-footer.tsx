@@ -8,6 +8,8 @@ import { Container } from "@/components/ui/container";
 import {
   STORE_ADDRESS_FA,
   STORE_EMAIL,
+  STORE_LANDLINE_DISPLAY,
+  STORE_LANDLINE_E164,
   STORE_MAPS_URL,
   STORE_PHONE_DISPLAY,
   STORE_PHONE_E164,
@@ -36,27 +38,36 @@ const COLUMNS = [
 ];
 
 /**
- * Reserved eNamad (اینماد) slot — compact footprint for the footer bottom strip.
- * When the certificate is issued, replace `EnamadBadge` body with the official
- * `<a href="…"><img …/></a>` (or script embed) from enamad.ir; keep the wrapper size.
+ * Official eNamad (اینماد) badge — validation link and attributes must stay unchanged.
  */
-const ENAMAD_BADGE = {
-  widthPx: 80,
-  heightPx: 90,
-} as const;
+const ENAMAD_TRUST_URL =
+  "https://trustseal.enamad.ir/?id=6961566&Code=5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
+const ENAMAD_LOGO_URL =
+  "https://trustseal.enamad.ir/logo.aspx?id=6961566&Code=5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
+const ENAMAD_CODE = "5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
 
 function EnamadBadge() {
-  // TODO(enamad): swap placeholder for real badge markup from enamad.ir
   return (
-    <div
-      className="flex shrink-0 items-center justify-center rounded border border-dashed border-white/15 bg-white/[0.03] text-center"
-      style={{ width: ENAMAD_BADGE.widthPx, height: ENAMAD_BADGE.heightPx }}
-      role="img"
-      aria-label="جایگاه اینماد — رزرو شده"
-      data-enamad-slot="placeholder"
+    <a
+      referrerPolicy="origin"
+      target="_blank"
+      rel="noopener noreferrer"
+      href={ENAMAD_TRUST_URL}
+      className="inline-flex shrink-0 items-center justify-center"
+      aria-label="نماد اعتماد الکترونیکی (اینماد)"
     >
-      <span className="text-[10px] font-bold tracking-tight text-white/40">اینماد</span>
-    </div>
+      {/* eslint-disable-next-line @next/next/no-img-element -- official enamad.ir embed */}
+      <img
+        referrerPolicy="origin"
+        src={ENAMAD_LOGO_URL}
+        alt="نماد اعتماد الکترونیکی"
+        style={{ cursor: "pointer" }}
+        width={80}
+        height={90}
+        className="h-auto max-h-[90px] w-[80px] object-contain"
+        {...({ code: ENAMAD_CODE } as React.ImgHTMLAttributes<HTMLImageElement>)}
+      />
+    </a>
   );
 }
 
@@ -128,14 +139,33 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-3.5 text-sm text-white/60">
               <li>
                 <a
+                  href={`tel:${STORE_LANDLINE_E164}`}
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/20 text-primary">
+                    <Call size="small" set="bold" />
+                  </span>
+                  <span>
+                    <span className="block text-xs text-white/45">تلفن ثابت</span>
+                    <span dir="ltr" className="min-w-0 tabular-nums tracking-wide">
+                      {STORE_LANDLINE_DISPLAY}
+                    </span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
                   href={`tel:${STORE_PHONE_E164}`}
                   className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/20 text-primary">
                     <Call size="small" set="bold" />
                   </span>
-                  <span dir="ltr" className="min-w-0 tabular-nums tracking-wide">
-                    {STORE_PHONE_DISPLAY}
+                  <span>
+                    <span className="block text-xs text-white/45">موبایل</span>
+                    <span dir="ltr" className="min-w-0 tabular-nums tracking-wide">
+                      {STORE_PHONE_DISPLAY}
+                    </span>
                   </span>
                 </a>
               </li>

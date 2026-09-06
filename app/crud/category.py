@@ -151,6 +151,8 @@ async def update_category(
     megamenu_as_leaf: bool | None = None,
     megamenu_bold: bool | None = None,
     unset_megamenu_bold: bool = False,
+    hesabfa_category_code: str | None = None,
+    unset_hesabfa_category_code: bool = False,
 ) -> Category:
     if name is not None:
         category.name = name
@@ -188,6 +190,10 @@ async def update_category(
         category.megamenu_bold = None
     elif megamenu_bold is not None:
         category.megamenu_bold = megamenu_bold
+    if unset_hesabfa_category_code:
+        category.hesabfa_category_code = None
+    elif hesabfa_category_code is not None:
+        category.hesabfa_category_code = hesabfa_category_code.strip() or None
     await db.flush()
     await db.refresh(category)
     return category

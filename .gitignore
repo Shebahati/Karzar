@@ -89,3 +89,4 @@ data/imports/chumpower/official_catalog/pdfs/
 scripts/fixtures/insize_pilot_manifest_production*.json
 
 .local-rescue/
+work/reports/

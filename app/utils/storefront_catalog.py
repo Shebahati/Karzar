@@ -78,11 +78,15 @@ VALID_SORT_KEYS = frozenset(
 def product_sort_clause(sort: str | None, *, dialect_name: str = "postgresql"):
     """Return an ORDER BY clause tuple for storefront product listing.
 
-    Name sorts use plain column order (no locale collation) so listings work on
-    databases that lack fa_IR / ICU collations.
+  Available products always precede unavailable ones (primary partition).
+  The selected sort applies within each partition. Name sorts use plain column
+  order (no locale collation) so listings work on databases without fa_IR.
     """
+    from app.utils.public_catalog import availability_rank_clause
+
     del dialect_name  # Reserved for dialect-specific sorts; name sort is portable.
     key = sort if sort in VALID_SORT_KEYS else "newest"
+    avail = availability_rank_clause()
 
     if key == "discount_desc":
         discount_ratio = case(
@@ -95,18 +99,17 @@ def product_sort_clause(sort: str | None, *, dialect_name: str = "postgresql"):
             ),
             else_=literal(0),
         )
-        return (desc(discount_ratio), Product.created_at.desc(), Product.id.desc())
+        return (asc(avail), desc(discount_ratio), Product.created_at.desc(), Product.id.desc())
 
     if key == "stock_first":
-        unavailable = case((Product.is_available.is_(True), 0), else_=1)
-        return (asc(unavailable), Product.created_at.desc())
+        return (asc(avail), Product.created_at.desc(), Product.id.desc())
 
     mapping = {
-        "newest": (Product.created_at.desc(), Product.id.desc()),
-        "price_asc": (nulls_last(asc(Product.base_price)), Product.id.asc()),
-        "price_desc": (nulls_last(desc(Product.base_price)), Product.id.desc()),
-        "name_asc": (Product.name.asc(), Product.id.asc()),
-        "name_desc": (Product.name.desc(), Product.id.desc()),
+        "newest": (asc(avail), Product.created_at.desc(), Product.id.desc()),
+        "price_asc": (asc(avail), nulls_last(asc(Product.base_price)), Product.id.asc()),
+        "price_desc": (asc(avail), nulls_last(desc(Product.base_price)), Product.id.desc()),
+        "name_asc": (asc(avail), Product.name.asc(), Product.id.asc()),
+        "name_desc": (asc(avail), Product.name.desc(), Product.id.desc()),
     }
     return mapping.get(key, mapping["newest"])
 

@@ -1,6 +1,6 @@
 """Brand CRUD endpoints for admin panel and storefront filters."""
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
@@ -29,10 +29,19 @@ router = APIRouter()
     summary="List all brands",
     tags=["Brands"],
 )
-async def list_brands(db: AsyncSession = Depends(get_db)):
+async def list_brands(
+    db: AsyncSession = Depends(get_db),
+    storefront_product_counts: bool = Query(
+        False,
+        description="When true, product_count reflects active public-catalog products only.",
+    ),
+):
     """Return all brands ordered by name (used by admin product forms)."""
     try:
-        brands = await BrandService.list_brands(db)
+        brands = await BrandService.list_brands(
+            db,
+            storefront_product_counts=storefront_product_counts,
+        )
         return {"data": brands}
     except Exception as exc:
         logger.error("Error listing brands: %s", exc)
@@ -49,7 +58,14 @@ async def list_brands(db: AsyncSession = Depends(get_db)):
     summary="Get brand by slug",
     tags=["Brands"],
 )
-async def get_brand_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
+async def get_brand_by_slug(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+    storefront_product_counts: bool = Query(
+        False,
+        description="When true, product_count reflects active public-catalog products only.",
+    ),
+):
     brand = await crud_brand.get_brand_by_slug(db, slug.strip())
     if brand is None:
         raise api_error(
@@ -57,7 +73,11 @@ async def get_brand_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
             error_code=ErrorCode.NOT_FOUND,
             message=f"Brand '{slug}' not found",
         )
-    count = await crud_brand.count_products_for_brand(db, brand.id)
+    count = await crud_brand.count_products_for_brand(
+        db,
+        brand.id,
+        storefront_public_only=storefront_product_counts,
+    )
     return brand_to_response(brand, count)
 
 

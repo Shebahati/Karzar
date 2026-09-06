@@ -186,6 +186,7 @@ async def list_orders(
     customer_phone: str | None = Query(None),
     search: str | None = Query(None),
     sort: str = Query("newest"),
+    open: bool | None = Query(None, description="Filter to actionable open orders for the given mode"),
 ):
     if sort not in _VALID_ORDER_SORTS:
         raise api_error(
@@ -233,6 +234,7 @@ async def list_orders(
         customer_phone=customer_phone,
         search=search,
         sort=sort,
+        open_only=open,
     )
     return {
         "data": [_to_summary(order) for order in orders],

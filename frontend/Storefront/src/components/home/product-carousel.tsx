@@ -6,6 +6,7 @@ import { ChevronLeft } from "react-iconly";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
 import { AutoCarousel } from "@/components/ui/auto-carousel";
 import { isPlpLcpIndex } from "@/lib/cwv";
+import { hasPublicProductImage } from "@/lib/product-image";
 import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
 
@@ -190,6 +191,7 @@ export function ProductCarousel({
         ? "w-[167px] md:w-[196px]"
         : "w-[210px] sm:w-[250px]";
   const leadWidth = "w-[148px]";
+  const visibleProducts = products.filter(hasPublicProductImage);
 
   if (isLoading) {
     if (isDeal && lead) {
@@ -229,11 +231,11 @@ export function ProductCarousel({
 
   // Duplicate for seamless infinite feel when short lists — lead stays pinned once.
   const loop =
-    products.length > 0 && products.length < 8
-      ? [...products, ...products, ...products]
-      : products.length >= 8
-        ? [...products, ...products]
-        : products;
+    visibleProducts.length > 0 && visibleProducts.length < 8
+      ? [...visibleProducts, ...visibleProducts, ...visibleProducts]
+      : visibleProducts.length >= 8
+        ? [...visibleProducts, ...visibleProducts]
+        : visibleProducts;
 
   if (loop.length === 0) return null;
 
@@ -250,12 +252,12 @@ export function ProductCarousel({
 
           <div className="min-w-0 flex-1">
             <AutoCarousel
-              autoPlay={autoPlay && products.length > 1}
+              autoPlay={autoPlay && visibleProducts.length > 1}
               intervalMs={intervalMs}
               itemClassName={cardWidth}
               gapClass="gap-3 sm:gap-3.5"
               trackClassName="items-stretch pb-0.5"
-              showControls={products.length > 2}
+              showControls={visibleProducts.length > 2}
               controls="both"
               controlClassName={cn(
                 "h-10 w-10 border-0 bg-white text-[#5E5F5E]",
@@ -286,12 +288,12 @@ export function ProductCarousel({
       )}
     >
       <AutoCarousel
-        autoPlay={autoPlay && products.length > 1}
+        autoPlay={autoPlay && visibleProducts.length > 1}
         intervalMs={intervalMs}
         itemClassName={cardWidth}
         gapClass="gap-3 sm:gap-4"
         trackClassName="pb-2"
-        showControls={products.length > 2}
+        showControls={visibleProducts.length > 2}
         controlClassName="h-11 w-11"
       >
         {loop.map((p, i) => (

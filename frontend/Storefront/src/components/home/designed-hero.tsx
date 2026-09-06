@@ -117,6 +117,7 @@ function SlideCanvas({
   mobilePreset,
   isMobile,
   priority,
+  primaryHeading = false,
 }: {
   slide: DesignedHeroSlide;
   reducedMotion: boolean;
@@ -124,6 +125,7 @@ function SlideCanvas({
   mobilePreset?: MobileComposePreset | null;
   isMobile?: boolean;
   priority?: boolean;
+  primaryHeading?: boolean;
 }) {
   const composed =
     isMobile && mobilePreset ? composeHeroForMobile(slide.config, mobilePreset) : null;
@@ -154,17 +156,22 @@ function SlideCanvas({
       {config.background.mode === "color" || !bgSrc ? (
         <div className="absolute inset-0" style={{ background: config.background.color }} />
       ) : (
-        <SafeImage
-          src={bgSrc}
-          alt=""
-          fill
-          sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
-          className="object-cover"
-          style={{ objectPosition: config.background.focal || "center" }}
-          fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
-          {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
-          quality={HERO_IMAGE_QUALITY}
-        />
+        <picture className="absolute inset-0 block">
+          {config.background.mobileImageUrl ? (
+            <source media="(max-width: 767px)" srcSet={config.background.mobileImageUrl} />
+          ) : null}
+          <SafeImage
+            src={bgSrc}
+            alt=""
+            fill
+            sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
+            className="object-cover"
+            style={{ objectPosition: config.background.focal || "center" }}
+            fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
+            {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
+            quality={HERO_IMAGE_QUALITY}
+          />
+        </picture>
       )}
 
       <div
@@ -187,16 +194,29 @@ function SlideCanvas({
                   : "center",
           }}
         >
-          <h1
-            className="font-extrabold leading-[1.18] tracking-tight"
-            style={{
-              color: config.typography.titleColor,
-              fontSize: `clamp(1.5rem, 4vw, ${config.typography.titleSize}px)`,
-              textShadow: "0 2px 20px rgba(0,0,0,0.45)",
-            }}
-          >
-            {config.typography.title}
-          </h1>
+          {primaryHeading ? (
+            <h1
+              className="font-extrabold leading-[1.18] tracking-tight"
+              style={{
+                color: config.typography.titleColor,
+                fontSize: `clamp(1.5rem, 4vw, ${config.typography.titleSize}px)`,
+                textShadow: "0 2px 20px rgba(0,0,0,0.45)",
+              }}
+            >
+              {config.typography.title}
+            </h1>
+          ) : (
+            <h2
+              className="font-extrabold leading-[1.18] tracking-tight"
+              style={{
+                color: config.typography.titleColor,
+                fontSize: `clamp(1.5rem, 4vw, ${config.typography.titleSize}px)`,
+                textShadow: "0 2px 20px rgba(0,0,0,0.45)",
+              }}
+            >
+              {config.typography.title}
+            </h2>
+          )}
           <div
             className={cn(
               "mt-3 h-px w-10",
@@ -588,6 +608,7 @@ function HeroSheetStrip({
                 mobilePreset={currentPreset}
                 isMobile={isMobile}
                 priority={index === 0}
+                primaryHeading={index === 0}
               />
             </div>
             <div
@@ -612,6 +633,7 @@ function HeroSheetStrip({
             mobilePreset={currentPreset}
             isMobile={isMobile}
             priority={index === 0}
+            primaryHeading={index === 0}
           />
         )}
       </motion.div>
@@ -845,6 +867,7 @@ export function DesignedHero({
                 mobilePreset={mobilePreset}
                 isMobile={isMobile}
                 priority={activeIndex === 0}
+                primaryHeading={activeIndex === 0}
               />
             </motion.div>
           </AnimatePresence>

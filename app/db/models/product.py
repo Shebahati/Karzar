@@ -102,6 +102,8 @@ class Category(Base):
     )
     # None = auto (branch headers bold; terminal links normal). True/False override.
     megamenu_bold: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    # Local Hesabfa category reference (metadata only while sync disabled).
+    hesabfa_category_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     subcategories: Mapped[list["Category"]] = relationship("Category", back_populates="parent")
     parent: Mapped[Optional["Category"]] = relationship(
@@ -171,6 +173,7 @@ class Product(Base):
     is_available: Mapped[bool] = mapped_column(
         Boolean, default=True, server_default="true", nullable=False
     )
+    hesabfa_category_override_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
     stock_unit: Mapped[StockUnitEnum] = mapped_column(
         Enum(StockUnitEnum, values_callable=_enum_values, name="stockunitenum", native_enum=True),
         default=StockUnitEnum.PIECE,

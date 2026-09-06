@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { StatValue } from "@/components/ui/stat-value";
+import { useWebsitePaidSales } from "@/features/hesabfa/queries";
 import { useOrders } from "@/features/orders/queries";
 import { useProductStatistics, useProducts } from "@/features/catalog/queries";
 import { formatNumber, formatToman } from "@/lib/utils";
@@ -44,6 +45,7 @@ function ReportStat({ label, value, icon: Icon, loading, hint }: ReportStatProps
 
 export default function ReportsPage() {
   const { data: stats, isPending: statsPending, isError: statsError } = useProductStatistics();
+  const { data: websiteSalesSummary, isPending: salesPending } = useWebsitePaidSales();
   const { data: ordersData, isPending: ordersPending } = useOrders({ limit: 200 });
   const { data: productsData, isPending: productsPending } = useProducts({
     limit: 50,
@@ -55,10 +57,11 @@ export default function ReportsPage() {
 
   const purchases = orders.filter((o) => o.mode === "purchase");
   const inquiries = orders.filter((o) => o.mode === "inquiry");
-  const paid = purchases.filter((o) =>
-    ["paid", "processing", "shipped", "delivered"].includes(o.status),
-  );
-  const revenue = paid.reduce((sum, o) => sum + Number(o.estimated_total ?? 0), 0);
+  const websiteRevenue =
+    websiteSalesSummary?.website_paid_total_toman != null
+      ? Number(websiteSalesSummary.website_paid_total_toman)
+      : null;
+  const websitePaidCount = websiteSalesSummary?.website_paid_order_count ?? null;
   const outOfStock = products.filter((p) => p.stock_status === "out_of_stock");
 
   const needsAction = orders.filter(
@@ -75,9 +78,9 @@ export default function ReportsPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">گزارش‌ها</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          آمار کاتالوگ از سرور؛ صف سفارش‌ها از نمونهٔ عملیاتی اخیر
+        <h2 className="admin-page-title">گزارش‌ها</h2>
+        <p className="admin-page-subtitle">
+          آمار کاتالوگ از سرور؛ فروش وبسایت فقط از تراکنش‌های تأییدشده غیر-mock
         </p>
       </div>
 
@@ -154,10 +157,15 @@ export default function ReportsPage() {
             loading={ordersLoading}
           />
           <ReportStat
-            label="درآمد پرداخت‌شده (نمونه)"
-            value={formatToman(revenue)}
+            label="فروش وبسایت (تأییدشده)"
+            value={websiteRevenue != null ? formatToman(websiteRevenue) : "—"}
             icon={Wallet as IconlyIcon}
-            loading={ordersLoading}
+            loading={salesPending}
+            hint={
+              websitePaidCount != null
+                ? `${formatNumber(websitePaidCount)} سفارش پرداخت‌شده`
+                : undefined
+            }
           />
         </div>
       </div>

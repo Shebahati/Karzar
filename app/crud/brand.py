@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
 from app.db.models.product import Brand, Product
+from app.utils.public_catalog import public_image_exists_clause
 
 logger = get_logger(__name__)
 
@@ -94,12 +95,24 @@ async def update_brand(
     return brand
 
 
-async def count_products_for_brand(db: AsyncSession, brand_id: int) -> int:
-    result = await db.scalar(
-        select(func.count())
-        .select_from(Product)
-        .where(Product.brand_id == brand_id, Product.deleted_at.is_(None))
-    )
+async def count_products_for_brand(
+    db: AsyncSession,
+    brand_id: int,
+    *,
+    storefront_public_only: bool = False,
+) -> int:
+    filters = [
+        Product.brand_id == brand_id,
+        Product.deleted_at.is_(None),
+    ]
+    if storefront_public_only:
+        filters.extend(
+            (
+                Product.is_active.is_(True),
+                public_image_exists_clause(),
+            )
+        )
+    result = await db.scalar(select(func.count()).select_from(Product).where(*filters))
     return int(result or 0)
 
 

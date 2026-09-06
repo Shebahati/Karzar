@@ -92,6 +92,13 @@ class TestProductCategoryValidationEndpoint:
             headers=super_admin_headers,
         )
         assert create.status_code == 201
+        product_id = create.json()["id"]
+        image = client.post(
+            f"/api/v1/products/{product_id}/images",
+            json={"image_url": "https://cdn.example.com/subtree-test.jpg", "is_primary": True},
+            headers=super_admin_headers,
+        )
+        assert image.status_code == 201, image.text
 
         by_leaf = client.get("/api/v1/products/?category_id=3")
         assert by_leaf.status_code == 200

@@ -48,13 +48,19 @@ export const navSections: NavSection[] = [
     items: [
       { label: "محصولات", href: "/catalog/products", icon: Bag2 as IconlyIcon, matchPrefix: true },
       { label: "دسته‌بندی‌ها", href: "/catalog/categories", icon: Category as IconlyIcon, matchPrefix: true },
-      { label: "سفارش‌ها", href: "/orders", icon: Buy as IconlyIcon, matchPrefix: true },
-      { label: "استعلام‌های قیمت", href: "/quotes", icon: Ticket as IconlyIcon, matchPrefix: true },
     ],
   },
   {
     title: "فروش و مالی",
     items: [
+      { label: "سفارش‌ها", href: "/orders", icon: Buy as IconlyIcon, matchPrefix: true },
+      { label: "استعلام‌های قیمت", href: "/quotes", icon: Ticket as IconlyIcon, matchPrefix: true },
+      {
+        label: "سبدهای رهاشده",
+        href: "/finance/abandoned-carts",
+        icon: Bag2 as IconlyIcon,
+        matchPrefix: true,
+      },
       {
         label: "فاکتورساز",
         href: "/finance/invoice-builder",

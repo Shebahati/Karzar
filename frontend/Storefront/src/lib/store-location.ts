@@ -11,6 +11,14 @@ export const STORE_NAME_FA = "کارزار";
 export const STORE_ADDRESS_FA =
   "تهران، خیابان امام خمینی، حدفاصل میدان حسن‌آباد و تقاطع ولی‌عصر، مجتمع تجاری فجر، پلاک ۱۰۸";
 
+/** Landline (office) — display and tel link per approved contact spec. */
+export const STORE_LANDLINE_DISPLAY = "۰۲۱ ۶۶۴۷ ۹۴۷۷";
+export const STORE_LANDLINE_E164 = "+982166479477";
+
+/** Mobile support line — display and tel link per approved contact spec. */
+export const STORE_PHONE_DISPLAY = "۰۹۹۱ ۲۴۸ ۰۰۸۷";
+export const STORE_PHONE_E164 = "+989912480087";
+
 /** Short map-panel caption (building + plaque + map provider). */
 export const STORE_ADDRESS_MAP_CAPTION_FA =
   "مجتمع تجاری فجر، پلاک ۱۰۸ · نشان";
@@ -38,9 +46,6 @@ export const STORE_NESHAN_DIRECTIONS_URL = `https://neshan.org/maps#/dir/current
 /** Neshan iframe embed src (place + camera hash from Neshan share). */
 export const STORE_NESHAN_EMBED_URL = `https://neshan.org/maps/iframe/places/${STORE_NESHAN_PLACE_ID}#c35.687-51.405-20z-0p/${STORE_GEO.latitude}/${STORE_GEO.longitude}`;
 
-/** Already published on contact + footer — not invented for this change. */
-export const STORE_PHONE_DISPLAY = "09912480087";
-export const STORE_PHONE_E164 = "+989912480087";
 export const STORE_EMAIL = "info@karzartools.com";
 
 /** Live Telegram support — @Karzar_support1 */
