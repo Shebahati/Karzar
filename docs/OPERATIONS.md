@@ -74,6 +74,16 @@ DNS A records historically used `api` / `shop` / `admin`. Public shop today is `
 7. Restore `KARZAR_DEPLOY_FREEZE=true` immediately.
 8. Watch error rate and `/metrics` for 15 minutes.
 
+### Staging source handoff
+
+GitHub-hosted checkout is pinned to `github.sha`. That runner builds an isolated deploy tree (tracked files; no `.git` / `.github` / caches / uploads / `.env`), writes `deploy-manifest.sha256`, seeds `/opt/karzar/incoming/<sha>/tree` from the current live trees (`/opt/karzar/Karzar` and `/opt/karzar/frontend`) without mutating them, then delta-rsyncs over IPv4 SSH (`--checksum --delete`, host key pinned in `deploy/staging/ssh/known_hosts`).
+
+`HANDOFF_COMPLETE` is written only after the VPS verifies every manifest entry (`EXPECTED_MANIFEST_SHA` = `ACTUAL_MANIFEST_SHA`, then `sha256sum -c`). The self-hosted `karzar-vps` job reads only that incoming tree. It does not pull `github.com`, the GitHub API, `raw.githubusercontent.com`, Actions artifacts, or Azure Blob.
+
+Handoff failure (timeout, rsync error, missing marker, manifest mismatch, extra/missing/corrupt file) skips live rsync, rebuild, and container restart. Incoming dirs without `HANDOFF_COMPLETE` are leftover debug state, not a completed handoff. Successful deploys remove `/opt/karzar/incoming/<sha>` and incoming dirs older than one day.
+
+Scripts: [`deploy/staging/scripts/push-incoming-source.sh`](../deploy/staging/scripts/push-incoming-source.sh), [`deploy/staging/scripts/verify-incoming-source.sh`](../deploy/staging/scripts/verify-incoming-source.sh), [`deploy/staging/scripts/deploy-tree-lib.sh`](../deploy/staging/scripts/deploy-tree-lib.sh). Local selftest: `bash deploy/staging/scripts/test-delta-rsync-handoff.sh`. Historical collaborator copy: [`archive/docs/COLLABORATOR_DEPLOY.md`](archive/docs/COLLABORATOR_DEPLOY.md).
+
 Production image rollback: revert the container image / previous env. **Never** set `PAYMENT_PROVIDER=mock` on production (boot validators reject it).
 
 `KARZAR_DEPLOY_FREEZE=true` also blocks `apply` mode on live taxonomy workflows; dry-runs remain available.
