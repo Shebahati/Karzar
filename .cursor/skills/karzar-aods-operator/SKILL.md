@@ -8,7 +8,7 @@ description: >
 
 # Karzar operator
 
-Follow root `AGENTS.md`. Do not preload `aods/`.
+Follow root `AGENTS.md`. Do not preload archived AODS orchestration. Charter 1.0.0 is still Accepted; the reduced check surface is pending Board (`CR-024`).
 
 | Change | Authority |
 |--------|-----------|

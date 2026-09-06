@@ -28,7 +28,7 @@ B2B/B2C industrial-tools commerce monorepo.
 | Accounting / warehouse | [`docs/HESABFA.md`](docs/HESABFA.md) |
 | SEP gateway | [`docs/SEP_PAYMENT_GATEWAY.md`](docs/SEP_PAYMENT_GATEWAY.md) |
 | Catalog writes | [`docs/architecture/data-ingestion-policy.md`](docs/architecture/data-ingestion-policy.md) |
-| Validation (on demand) | [`aods/README.md`](aods/README.md) |
+| Process checks (CI; not a Charter supersession) | [`aods/README.md`](aods/README.md) · `CR-024` |
 | Security reports | [`SECURITY.md`](SECURITY.md) |
 | Work status | [GitHub Issues](https://github.com/Shebahati/Karzar/issues) / PRs |
 

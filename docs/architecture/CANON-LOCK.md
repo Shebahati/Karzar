@@ -115,6 +115,8 @@
 | AODS Charter | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
 | AODS pack (root) | [`../../aods/`](../../aods/) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Same — full pack under `aods/` version 1.0.0 |
 
+> **Process-surface note (PR #271 — not a Status change, not a new Accepted row).** Much of the 1.0.0 pack tree now lives under `docs/archive/aods/`. The Accepted rows above are unchanged. Whether the reduced on-demand check surface in `aods/README.md` supersedes Charter orchestration is **pending Architecture Board (`HC-14`, `CR-024`)**. Until that minute exists, do not treat the reduced surface as an Accepted replacement of the 1.0.0 pack, and do not treat archived files as executable current machinery.
+
 
 ---
 

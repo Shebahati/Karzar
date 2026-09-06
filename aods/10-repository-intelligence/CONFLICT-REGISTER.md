@@ -62,8 +62,9 @@
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: docs aligned to binary `is_available` (Option A / D19); admin bulk migrate residual | MEDIUM | Backend Architect | CLOSED |
 | CR-023 | Broken doc links fixed (BACKEND_CHANGES + Bible/IA/arch README not-in-repo prune) | LOW | Documentation Architect | CLOSED |
+| CR-024 | PR #271 reduced AODS tree vs Accepted Charter 1.0.0 / Canon Lock §1b — not a Board supersession | HIGH | Architecture Board | OPEN |
 
-**Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
+**Open BLOCKERs: 0.** Open process amendment: **CR-024** (HIGH) — do not treat the reduced AODS check surface as Accepted. `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
 `CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
 `CR-010` closed 2026-07-30 (ADR/RFC index prune). `CR-023` closed 2026-07-30 (remaining broken links pruned; `--gate links` clean).
 **degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../../docs/archive/aods/90-governance/GOVERNANCE.md`](../../docs/archive/aods/90-governance/GOVERNANCE.md) §7.
@@ -814,6 +815,36 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 
 ---
 
+## CR-024 — Reduced AODS tree vs Accepted Charter 1.0.0
+
+| Field | Value |
+|-------|-------|
+| **Severity** | HIGH |
+| **Owner** | Architecture Board (Mohammad Shebahati) |
+| **Status** | OPEN |
+| **Affects** | Process execution; whether PR #271's on-demand integrity gates replace Accepted AODS 1.0.0 orchestration |
+| **Opened** | 2026-09-06 |
+
+**Side A (Accepted Canon, unchanged).** Canon Lock §1b and Board minute ۸ مرداد ۱۴۰۵ accept the AODS Charter and the full `aods/` 1.0.0 pack as binding process (roles, versioned prompts, task-graph, task records, PMO-mirror consistency, human checkpoints). Charter Φ3: specification outranks code.
+
+**Side B (implemented tree after PR #271).** Most orchestration artifacts were moved to `docs/archive/`. CI default gates are `registry`, `links`, `naming`, `openapi`, `ingestion-boundary`. `aods/README.md` is an operational invocation guide and is **not** Accepted.
+
+**Conflict.** Active guidance must not claim Side B already supersedes Side A. Changing Charter/Canon Lock Accepted meaning requires a new Board minute + Canon Lock row (`HC-14` / `HC-02`). No such minute exists.
+
+**Options (Board only)**
+
+| ID | Option |
+|----|--------|
+| A | Accept the reduced check surface; amend Charter + Canon Lock §1b with a new minute |
+| B | Restore executable orchestration artifacts to `aods/` |
+| C | Accept a documented hybrid (integrity gates now; ceremony remains historical evidence only) |
+
+**AI recommendation (advisory):** Option A or C — do not treat this row as a decision.
+
+**DECISION:** *none yet — pending Architecture Board.*
+
+---
+
 ## Change log for this register
 
 | Date | Change | By |
@@ -833,3 +864,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | CR-014 CLOSED — page contract Accepted + Canon Lock (HC-01 / D21); SEO-008 IMPL residual | Board / operator session |
 | 2026-07-30 | PMO schedule note — CAT-002/KB-001 **2026-09-23** start gate lifted (eligible to start); D7/D8 historical rows not rewritten; D16 image-plan authority unchanged | PMO GOV-pmo-sync |
 | 2026-07-30 | PMO **D22** recorded — supersedes D8 schedule/start-gate only; residual mirrors (RELEASE_PLAN, KANBAN, README, export CSVs, operator skill §7) aligned; audit evidence left historical | PMO GOV-pmo-sync |
+| 2026-09-06 | CR-024 OPEN — PR #271 reduced AODS tree vs Accepted Charter 1.0.0; no Board supersession | Documentation consolidation correction |

@@ -21,6 +21,8 @@
 >
 > Adoption phases after acceptance: [`docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md`](../docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md).
 
+> **Implementation-surface note (not a Status change).** The Accepted 1.0.0 text below is unchanged. PR #271 archived most orchestration artifacts (prompts, task-graph, roles, PMO mirrors) and CI now runs the integrity gates listed in [`README.md`](README.md). That reduced surface is **not** a Board-accepted supersession of this Charter. Owner/Board must accept or reject the transition (`HC-14`, `CR-024`). Until then: do not invent replacement process; do not treat archived files as live executable ceremony; report Charter-vs-tree drift rather than silently picking a winner.
+
 ---
 
 ## 1. System Overview

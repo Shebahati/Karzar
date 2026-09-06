@@ -1,10 +1,17 @@
 # AODS checks (on demand)
 
-AODS is the **Accepted** process system (1.0.0, Board minute ۸ مرداد ۱۴۰۵). Charter: [`AODS-CHARTER.md`](AODS-CHARTER.md). Acceptance evidence: [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md).
+**Status of this file:** operational invocation guide — **not** Accepted. It does not replace [`AODS-CHARTER.md`](AODS-CHARTER.md).
 
-It is **not** a mandatory role/prompt ceremony and not a second product spec. Do not preload this tree. Run checks when the change can break them.
+The Charter (1.0.0) and Canon Lock §1b remain the Accepted process authority (Board minute ۸ مرداد ۱۴۰۵). PR #271 archived most orchestration artifacts and CI now runs the integrity gates below. **That reduction is not a Board-accepted supersession** — see `CR-024`. Until Architecture Board accepts or rejects the transition (`HC-14`):
 
-## What the retained gates prove
+- do not claim roles / versioned prompts / task-graph / PMO-mirror gates are repealed
+- do not treat archived files as executable current ceremony
+- do not invent a third process
+- run the retained commands when the change can break them
+
+Acceptance evidence: [`90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md).
+
+## What CI currently runs
 
 | Gate | Proves |
 |------|--------|
@@ -14,29 +21,23 @@ It is **not** a mandatory role/prompt ceremony and not a second product spec. Do
 | `openapi` | `openapi/v1.json` path set matches `app.openapi()` |
 | `ingestion-boundary` | `scripts/*.py` do not default to `karzartools.com` (ADR-012) |
 
-Optional / contextual: `--gate citation` (PR body paths on merge-base), `--gate pmo` / `prompts` / `graph` / `allowlist` if those artifacts still exist.
-
-## Invoke
+Optional gates (`citation`, `pmo`, `prompts`, `graph`, `allowlist`) remain in the tool and skip when their artifacts are absent. Absence is tree drift vs Charter S-05/S-07, not a silent repeal.
 
 ```bash
-python3 aods/tools/aods_validate.py              # retained gates, baseline-aware (CI)
-python3 aods/tools/aods_validate.py --all        # same gates, no baseline
+python3 aods/tools/aods_validate.py
 python3 aods/tools/aods_validate.py --gate openapi
 python3 aods/tools/aods_validate.py --gate ingestion-boundary
 python3 aods/tools/aods_validate.py --list-gates
 ```
 
-Stdlib only. Baseline: `aods/registry/validation-baseline.json` (visible debt, not a silent skip).
+Stdlib only. Baseline: `aods/registry/validation-baseline.json`.
 
-## Authority that still matters
+## Authority (as-built vs requirement)
 
-1. Runtime: code, `openapi/v1.json`, `alembic/`
-2. Canon: `docs/architecture/CANON-LOCK.md` + Accepted ADR/RFC
-3. Ops / ingestion policy
-4. Developer standards under `docs/development/standards/`
-5. GitHub Issues/PRs for *when*
-6. `docs/archive/` and `CONFLICT-REGISTER.md` for evidence — register is append-only
+- **Implemented state:** code, `openapi/v1.json`, `alembic/`, workflows, `.env*.example`
+- **Requirement:** Accepted/Binding rows in `docs/architecture/CANON-LOCK.md` (Charter Φ3: specification outranks code)
+- Drift: report it; follow Accepted Canon unless a newer Accepted decision supersedes it
+- Schedule: GitHub Issues/PRs (operational). Charter still names PMO consistency until Board amends it (`CR-024`)
+- Evidence: `docs/archive/`, `CONFLICT-REGISTER.md` (append-only)
 
 Do not set a document `Accepted`. Do not rewrite conflict-register rows. Production writes and deploys need a human (`docs/OPERATIONS.md`, ADR-012).
-
-Historical orchestration (prompt library, task-graph, role ceremony, PMO mirrors) lives under `docs/archive/` after consolidation and is not current guidance.
