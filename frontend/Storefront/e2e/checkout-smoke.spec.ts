@@ -70,17 +70,18 @@ test.describe("checkout smoke (mock)", () => {
 
     await shipping.getByRole("button", { name: /انتقال به درگاه پرداخت/i }).click();
 
-    // Mock payment redirects to callback → success
-    await page.waitForURL(/checkout\/(success|payment\/callback)/, {
+    // Assert URL state (not Playwright navigation "load") — callback may never
+    // fire window load under Next.js SPA routing; success remains mandatory.
+    await expect(page).toHaveURL(/checkout\/(success|payment\/callback)/, {
       timeout: 45_000,
     });
-    const url = page.url();
-    expect(url).toMatch(/checkout\/(success|payment\/callback)/);
 
-    // Prefer landing on success after verify; callback is acceptable mid-flight.
-    if (/payment\/callback/.test(url)) {
-      await page.waitForURL(/checkout\/success/, { timeout: 30_000 });
+    if (/payment\/callback/.test(page.url())) {
+      await expect(page).toHaveURL(/checkout\/success/, {
+        timeout: 30_000,
+      });
     }
+
     await expect(page).toHaveURL(/checkout\/success/);
   });
 });
