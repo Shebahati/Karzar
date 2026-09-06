@@ -8,6 +8,7 @@ set -euo pipefail
 : "${SSH_USER:?SSH_USER secret is required}"
 : "${SSH_PRIVATE_KEY:?SSH_PRIVATE_KEY secret is required}"
 SSH_PORT="${SSH_PORT:-22}"
+SCP_TIMEOUT_SECONDS="${SCP_TIMEOUT_SECONDS:-900}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 KNOWN_HOSTS="${KNOWN_HOSTS_FILE:-$ROOT/deploy/staging/ssh/known_hosts}"
@@ -73,23 +74,41 @@ ssh_base=(
 
 echo "Pushing package to incoming (IPv4 SSH, host-key pinned)"
 "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
-  "mkdir -p '$DEST' && chmod 755 /opt/karzar /opt/karzar/incoming '$DEST'"
+  "rm -rf '$DEST' && mkdir -p '$DEST' && chmod 755 /opt/karzar /opt/karzar/incoming '$DEST'"
 
-scp -4 \
-  -i "$KEYFILE" \
-  -P "$SSH_PORT" \
-  -o IdentitiesOnly=yes \
-  -o PreferredAuthentications=publickey \
-  -o PasswordAuthentication=no \
-  -o UserKnownHostsFile="$KNOWN_HOSTS" \
-  -o StrictHostKeyChecking=yes \
-  -o BatchMode=yes \
-  -o ConnectTimeout=25 \
-  "$WORKDIR/src.tgz" "$WORKDIR/src.tgz.sha256" \
-  "${SSH_USER}@${SSH_HOST}:${DEST}/"
+scp_base=(
+  scp -4
+  -i "$KEYFILE"
+  -P "$SSH_PORT"
+  -o IdentitiesOnly=yes
+  -o PreferredAuthentications=publickey
+  -o PasswordAuthentication=no
+  -o KbdInteractiveAuthentication=no
+  -o UserKnownHostsFile="$KNOWN_HOSTS"
+  -o StrictHostKeyChecking=yes
+  -o BatchMode=yes
+  -o ConnectTimeout=25
+  -o ServerAliveInterval=10
+  -o ServerAliveCountMax=3
+)
+
+echo "Uploading source package with hard timeout=${SCP_TIMEOUT_SECONDS}s"
+timeout --foreground "${SCP_TIMEOUT_SECONDS}s" \
+  "${scp_base[@]}" "$WORKDIR/src.tgz" \
+  "${SSH_USER}@${SSH_HOST}:${DEST}/src.tgz.part"
+
+timeout --foreground 60s \
+  "${scp_base[@]}" "$WORKDIR/src.tgz.sha256" \
+  "${SSH_USER}@${SSH_HOST}:${DEST}/src.tgz.sha256.part"
 
 "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
-  "cd '$DEST' && sha256sum -c src.tgz.sha256 && chmod 644 src.tgz src.tgz.sha256"
+  "cd '$DEST' && \
+   ACTUAL=\$(sha256sum src.tgz.part | awk '{print \$1}') && \
+   test \"\$ACTUAL\" = '$DIGEST' && \
+   mv src.tgz.part src.tgz && \
+   mv src.tgz.sha256.part src.tgz.sha256 && \
+   sha256sum -c src.tgz.sha256 && \
+   chmod 644 src.tgz src.tgz.sha256"
 
 echo "PUSH_OK sha=${GITHUB_SHA} dest=${DEST} digest=${DIGEST}"
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
