@@ -35,7 +35,7 @@ Karzar/
 - فرانت: `/opt/karzar/frontend`
 - Runner خودمیزبان: لیبل `karzar-vps`
 
-> چرا self-hosted؟ از GitHub-hosted به SSH این VPS timeout می‌شود. چرا artifact؟ از خود VPS به `github.com` گاهی 504 می‌دهد؛ بنابراین checkout روی `ubuntu-latest` است و فقط artifact روی runner سرور پیاده می‌شود.
+> چرا self-hosted؟ rebuild و rsync باید روی خود VPS اجرا شود. چرا **push** نه artifact/checkout روی VPS؟ از `karzar-vps` به `github.com` گاهی 504/hang می‌دهد و دانلود Azure Actions artifact هم قطع می‌شود؛ بنابراین GitHub-hosted پکیج را با SSH به `/opt/karzar/incoming/<sha>/` می‌فرستد و runner فقط همان درخت محلی را verify/rsync می‌کند.
 
 ## استقرار Staging (دستی — `CR-011` Option B)
 
@@ -77,13 +77,12 @@ git push -u origin HEAD
 
 ## Secrets / Infrastructure
 
-برای workflowهای فعلی (self-hosted + artifact) معمولاً نیازی به `SSH_*` در runtime نیست؛ runner روی خود VPS است.
-نام‌های secret موجود در ریپو برای مسیر جایگزین GitHub-hosted+SSH نگه داشته شده‌اند:
+Deploy Staging حالا به `SSH_*` نیاز دارد (GitHub-hosted → VPS source push). Host key در Git پین شده: `deploy/staging/ssh/known_hosts` (`StrictHostKeyChecking=yes`).
 
 | Secret | توضیح |
 |--------|--------|
-| `SSH_HOST` | IP یا hostname VPS |
-| `SSH_USER` | معمولاً `root` |
+| `SSH_HOST` | IP یا hostname VPS (باید با `known_hosts` یکی باشد) |
+| `SSH_USER` | کاربر SSH موجود (در مدل فعلی معمولاً `root`) |
 | `SSH_PRIVATE_KEY` | کلید خصوصی با دسترسی SSH |
 | `SSH_PORT` | اختیاری؛ پیش‌فرض 22 |
 
