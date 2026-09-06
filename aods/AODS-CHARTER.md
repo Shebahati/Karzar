@@ -19,7 +19,7 @@
 > row MUST be added to [`docs/architecture/CANON-LOCK.md`](../docs/architecture/CANON-LOCK.md) (PR #125 /
 > post-merge follow-up) so citations resolve on `main`.
 >
-> Adoption phases after acceptance: [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md).
+> Adoption phases after acceptance: [`docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md`](../docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md).
 
 ---
 
@@ -133,7 +133,7 @@ every later document elaborates one row.
 
 ## 2. Why this repository needs AODS (evidence, not opinion)
 
-These are findings from the audit in [`10-repository-intelligence/REPOSITORY-AUDIT.md`](10-repository-intelligence/REPOSITORY-AUDIT.md).
+These are findings from the audit in [`docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md`](../docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md).
 They justify the design and are the reason certain controls exist.
 
 | Evidence | Control it justifies |
@@ -176,25 +176,25 @@ Any future change to AODS must preserve these. Breaking one is a redesign, not a
 | Required capability | Document |
 |---|---|
 | System overview (this) | `AODS-CHARTER.md` |
-| Repository intelligence | [`10-repository-intelligence/REPOSITORY-AUDIT.md`](10-repository-intelligence/REPOSITORY-AUDIT.md) |
-| Authority hierarchy & conflict strategy | [`10-repository-intelligence/AUTHORITY-MODEL.md`](10-repository-intelligence/AUTHORITY-MODEL.md) |
+| Repository intelligence | [`docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md`](../docs/archive/aods/10-repository-intelligence/REPOSITORY-AUDIT.md) |
+| Authority hierarchy & conflict strategy | [`docs/archive/aods/10-repository-intelligence/AUTHORITY-MODEL.md`](../docs/archive/aods/10-repository-intelligence/AUTHORITY-MODEL.md) |
 | Open conflicts requiring human decision | [`10-repository-intelligence/CONFLICT-REGISTER.md`](10-repository-intelligence/CONFLICT-REGISTER.md) |
-| Project lifecycle | [`20-lifecycle/PROJECT-LIFECYCLE.md`](20-lifecycle/PROJECT-LIFECYCLE.md) |
-| Workflow DAG | [`20-lifecycle/WORKFLOW-GRAPH.md`](20-lifecycle/WORKFLOW-GRAPH.md) |
-| Timeline / critical path | [`20-lifecycle/TIMELINE-GRAPH.md`](20-lifecycle/TIMELINE-GRAPH.md) |
-| Roles | [`30-roles/ROLE-ARCHITECTURE.md`](30-roles/ROLE-ARCHITECTURE.md) |
-| Artifacts | [`40-artifacts/ARTIFACT-ARCHITECTURE.md`](40-artifacts/ARTIFACT-ARCHITECTURE.md) |
-| Naming | [`40-artifacts/NAMING-CONVENTIONS.md`](40-artifacts/NAMING-CONVENTIONS.md) |
-| AI execution model | [`50-ai-execution/AI-EXECUTION-MODEL.md`](50-ai-execution/AI-EXECUTION-MODEL.md) |
-| Cursor Auto Mode strategy | [`50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md`](50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md) |
-| Context management | [`50-ai-execution/CONTEXT-MANAGEMENT.md`](50-ai-execution/CONTEXT-MANAGEMENT.md) |
-| Model capability strategy | [`50-ai-execution/MODEL-CAPABILITY-STRATEGY.md`](50-ai-execution/MODEL-CAPABILITY-STRATEGY.md) |
-| Human intervention | [`60-human/HUMAN-INTERVENTION-MODEL.md`](60-human/HUMAN-INTERVENTION-MODEL.md) |
-| Prompt library | [`70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md`](70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md) |
-| Validation | [`80-validation/VALIDATION-FRAMEWORK.md`](80-validation/VALIDATION-FRAMEWORK.md) |
-| Risk | [`90-governance/RISK-REGISTER.md`](90-governance/RISK-REGISTER.md) |
-| Knowledge flow | [`90-governance/KNOWLEDGE-FLOW.md`](90-governance/KNOWLEDGE-FLOW.md) |
-| Governance | [`90-governance/GOVERNANCE.md`](90-governance/GOVERNANCE.md) |
-| Deliverables & adoption | [`90-governance/DELIVERABLES-AND-ADOPTION.md`](90-governance/DELIVERABLES-AND-ADOPTION.md) |
+| Project lifecycle | [`docs/archive/aods/20-lifecycle/PROJECT-LIFECYCLE.md`](../docs/archive/aods/20-lifecycle/PROJECT-LIFECYCLE.md) |
+| Workflow DAG | [`docs/archive/aods/20-lifecycle/WORKFLOW-GRAPH.md`](../docs/archive/aods/20-lifecycle/WORKFLOW-GRAPH.md) |
+| Timeline / critical path | [`docs/archive/aods/20-lifecycle/TIMELINE-GRAPH.md`](../docs/archive/aods/20-lifecycle/TIMELINE-GRAPH.md) |
+| Roles | [`docs/archive/aods/30-roles/ROLE-ARCHITECTURE.md`](../docs/archive/aods/30-roles/ROLE-ARCHITECTURE.md) |
+| Artifacts | [`docs/archive/aods/40-artifacts/ARTIFACT-ARCHITECTURE.md`](../docs/archive/aods/40-artifacts/ARTIFACT-ARCHITECTURE.md) |
+| Naming | [`docs/archive/aods/40-artifacts/NAMING-CONVENTIONS.md`](../docs/archive/aods/40-artifacts/NAMING-CONVENTIONS.md) |
+| AI execution model | [`docs/archive/aods/50-ai-execution/AI-EXECUTION-MODEL.md`](../docs/archive/aods/50-ai-execution/AI-EXECUTION-MODEL.md) |
+| Cursor Auto Mode strategy | [`docs/archive/aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md`](../docs/archive/aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md) |
+| Context management | [`docs/archive/aods/50-ai-execution/CONTEXT-MANAGEMENT.md`](../docs/archive/aods/50-ai-execution/CONTEXT-MANAGEMENT.md) |
+| Model capability strategy | [`docs/archive/aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md`](../docs/archive/aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md) |
+| Human intervention | [`docs/archive/aods/60-human/HUMAN-INTERVENTION-MODEL.md`](../docs/archive/aods/60-human/HUMAN-INTERVENTION-MODEL.md) |
+| Prompt library | [`docs/archive/aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md`](../docs/archive/aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md) |
+| Validation | [`docs/archive/aods/80-validation/VALIDATION-FRAMEWORK.md`](../docs/archive/aods/80-validation/VALIDATION-FRAMEWORK.md) |
+| Risk | [`docs/archive/aods/90-governance/RISK-REGISTER.md`](../docs/archive/aods/90-governance/RISK-REGISTER.md) |
+| Knowledge flow | [`docs/archive/aods/90-governance/KNOWLEDGE-FLOW.md`](../docs/archive/aods/90-governance/KNOWLEDGE-FLOW.md) |
+| Governance | [`docs/archive/aods/90-governance/GOVERNANCE.md`](../docs/archive/aods/90-governance/GOVERNANCE.md) |
+| Deliverables & adoption | [`docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md`](../docs/archive/aods/90-governance/DELIVERABLES-AND-ADOPTION.md) |
 | Machine-readable registries | [`registry/`](registry/) |
 | Validators | [`tools/`](tools/) |

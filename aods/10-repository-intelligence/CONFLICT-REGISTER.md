@@ -22,7 +22,7 @@
 2. **`Owner: UNASSIGNED` is a failure state** (success criterion S-08). Assign a name.
 3. An agent that encounters a live conflict **must halt** and cite the `CR-nnn` ID rather than improvising.
 4. Conflicts that block a workflow node are listed in that node's `blocked_by` field in
-   [`../registry/task-graph.yaml`](../registry/task-graph.yaml).
+   [`task-graph.yaml`](../../docs/archive/aods/registry/task-graph.yaml) (archived).
 
 **Severity scale**
 
@@ -66,7 +66,7 @@
 **Open BLOCKERs: 0.** `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
 `CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
 `CR-010` closed 2026-07-30 (ADR/RFC index prune). `CR-023` closed 2026-07-30 (remaining broken links pruned; `--gate links` clean).
-**degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../90-governance/GOVERNANCE.md`](../90-governance/GOVERNANCE.md) §7.
+**degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../../docs/archive/aods/90-governance/GOVERNANCE.md`](../../docs/archive/aods/90-governance/GOVERNANCE.md) §7.
 
 ---
 

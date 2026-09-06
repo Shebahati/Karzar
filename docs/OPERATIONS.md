@@ -51,6 +51,18 @@ docker compose exec app alembic downgrade -1   # non-prod first
 
 Never downgrade production past a column-drop without a backup. Prefer forward-fix migrations.
 
+## VPS bootstrap (unique host facts)
+
+Live tree on the VPS is `/opt/karzar/Karzar`. First-time host setup:
+
+```bash
+sudo git clone https://github.com/Shebahati/Karzar.git /opt/karzar/Karzar
+cd /opt/karzar/Karzar
+sudo bash deploy/staging/scripts/bootstrap-vps.sh   # Docker, Nginx, Certbot, UFW 22/80/443
+```
+
+DNS A records historically used `api` / `shop` / `admin`. Public shop today is `www.karzartools.com`; API is `api.karzartools.com`. Backend env lives on the host (not in git): `TRUSTED_HOSTS`, `CORS_ORIGINS`, `SECRET_KEY`, DB password, step-up PIN. Historical step-by-step: `docs/archive/deploy/staging/STAGING_DEPLOY.md` (stale mock-payment phase — do not follow its provider advice).
+
 ## Deploy
 
 1. CI green on `main` (lint + pytest + **coverage ≥ 68%** — `pyproject.toml`).

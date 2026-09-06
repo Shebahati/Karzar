@@ -1,32 +1,7 @@
-# Karzar Project Management Office (PMO)
+# Project management
 
-**Single Source of Truth** for planning, tracking, and release readiness.
+Work status lives in [GitHub Issues](https://github.com/Shebahati/Karzar/issues) and pull requests.
 
-- **Deadline checkpoint:** 31 شهریور ۱۴۰۵ ≈ **2026-09-22**
-- **As-of:** 2026-07-30
-- **Machine SoT:** `exports/tasks.json` (update this first, then regenerate markdown if needed)
-- **Human SoT:** this folder’s markdown checklists
+This folder is not a second backlog. Historical PMO mirrors (progress ledgers, sprints, kanban, weighted percentages) are under [`docs/archive/project-management/`](../docs/archive/project-management/) and are **not** current guidance.
 
-## How agents must use this
-
-1. Before coding: read `PROJECT_STATUS.md` + current `sprints/SPRINT_XX.md`
-2. Pick a task ID from `exports/tasks.json` / `KANBAN_BOARD.md`
-3. After finishing work: update task `status`/`progress`, then touch related `progress/*_PROGRESS.md`, `CHANGELOG.md`, `DONE.md`
-4. Never leave code shipped without PMO update (enforced by Cursor rule `.cursor/rules/pmo-living-system.mdc`)
-
-## Layout
-
-| Path | Role |
-|------|------|
-| `MASTER_ROADMAP.md` | Living outcomes to checkpoint |
-| `PROJECT_STATUS.md` | Current truth |
-| `EXECUTIVE_SUMMARY.md` | Hours/LOC realism for 31 Shahrivar |
-| `exports/` | ClickUp / Taskulu / GitHub / JSON |
-| `printable/` | Wall-track HTML (A4/A3) |
-| `diagrams/` | Mermaid sources |
-| `sprints/` | **Canonical** sprint files `SPRINT_00…04` (CR-007) |
-| `progress/` | **Canonical** domain progress ledgers (CR-007) |
-
-## Progress (weighted by hours)
-
-**~85%** of tracked backlog hours claimed (progress-weighted from `exports/tasks.json`) · **414h** estimated · open: CAT-002 / KB-001 (**eligible to start**; D22 lifted 2026-09-23 date gate)
+Documentation consolidation: issue [#253](https://github.com/Shebahati/Karzar/issues/253).

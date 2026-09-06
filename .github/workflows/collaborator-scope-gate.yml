@@ -1,7 +1,7 @@
 name: Collaborator Scope Gate
 
 # Fail PRs from non-Owner actors that touch paths outside the frontend allowlist.
-# Owner (@Shebahati) and bots are not blocked. Aligns with docs/FRONTEND_COLLABORATOR_CHARTER.md.
+# Owner (@Shebahati) and bots are not blocked. Frontend setup: docs/DEVELOPMENT.md.
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -58,8 +58,7 @@ jobs:
             esac
             case "$path" in
               frontend/Storefront/*|frontend/admin-panel/*) ;;
-              frontend/README.md|frontend/FRONTEND_CHANGES.md|frontend/INTEGRATION_RUNTIME_NOTES.md|frontend/LOCAL_STACK_ACCESS.md) ;;
-              docs/COLLABORATOR_DEPLOY.md|docs/FRONTEND_COLLABORATOR_CHARTER.md|docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md) ;;
+              frontend/README.md|frontend/Storefront/README.md|frontend/admin-panel/README.md|frontend/admin-panel/AGENTS.md) ;;
               # Stale on_main reconcile after Owner docs land (unblocks required aods for FE ships)
               aods/registry/document-registry.yaml|.github/workflows/collaborator-scope-gate.yml) ;;
               *)

@@ -1,1645 +1,553 @@
-# AODS Document Registry
-# ---------------------------------------------------------------------------
-# Machine-readable twin of aods/10-repository-intelligence/AUTHORITY-MODEL.md
-#
-# PURPOSE
-#   Every governance-relevant document in the repository is classified here.
-#   `aods/tools/aods_validate.py --gate registry` fails when:
-#     * a markdown file exists that is neither registered nor matched by `unclassified_allow`
-#     * a registered `path` does not exist AND `on_main` is not explicitly false
-#     * a prompt declares context that includes a `forbidden_context: true` document
-#
-# CLASSES (see AUTHORITY-MODEL.md §2)
-#   CANON | PROPOSED | CONTRACT | POLICY | PLAN | EVIDENCE | GENERATED
-#   REFERENCE | HISTORICAL | QUARANTINED
-#
-# RANK (see AUTHORITY-MODEL.md §3) — lower number wins a conflict.
-#
-# EDITING RULES
-#   * Adding a CANON row requires an Architecture Board minute (HC-03).
-#   * Changing `class` or `rank` requires the decision authority for that rank.
-#   * `notes` should carry the CR-nnn conflict ID when a row is disputed.
-# ---------------------------------------------------------------------------
-
+# AODS Document Registry — active surface after documentation consolidation
 meta:
-  version: 1.0.0
+  version: 1.1.0
   status: accepted
-  generated_by: AODS design task (aods/10-repository-intelligence/REPOSITORY-AUDIT.md)
-  audited_commit: c022a44
-  audited_at: "2026-07-29"
-  on_main_reconciled_at: "2026-07-30"
-  accepted_on: "2026-07-30"
-  accepted_jalali: "1405/05/08"
-  accepted_by: "Mohammad Shebahati"
-  board_minute: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
-  owner_role: R-DOC-ARCH
+  notes: Historical corpus lives under docs/archive/ and is excluded from authority scans.
 
-# Globs that are exempt from the "every markdown must be classified" rule.
-# Keep this list SMALL — it is the escape hatch that lets the corpus decay.
 unclassified_allow:
   - "**/node_modules/**"
   - ".git/**"
-  - "aods/reports/**"
-  - ".github/*.md"                               # GitHub PR/issue templates (CR-018)
-  - "frontend/Storefront/content/**/README.md"   # per-directory data notes
-  - "data/imports/**/README.md"                  # per-import provenance notes
+  - "docs/archive/**"
+  - ".github/*.md"
+  - "frontend/Storefront/content/**/README.md"
+  - "data/imports/**/README.md"
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
-  - "project-management/diagrams/README.md"
-  - "project-management/printable/README.md"
-  - "project-management/_templates/**"
-  - "docs/audits/**"                             # bulk EVIDENCE; represented by summary rows below
-  - "project-management/progress/**"             # canonical progress ledgers (CR-007 Option A)
-  - "project-management/sprints/**"              # canonical sprint files (CR-007 Option A)
-  - "frontend/docs/**"                           # bilingual audit/gap twins; EVIDENCE, superseded by v2
-  - "aods/70-prompts/*/*.prompt.md"              # validated by --gate prompts instead
 
 documents:
 
-  # =========================================================================
-  # RANK 1-3 · CANON — binding criteria (Architecture Board)
-  # NOTE: every row below has on_main: false — this is CR-001, the highest
-  # severity open conflict. These files live only on branch
-  # `docs/wave1-canon-lock-promote` (open PR #125).
-  # =========================================================================
-
-  - id: CANON-LOCK
-    path: docs/architecture/CANON-LOCK.md
-    class: CANON
-    rank: 1
-    status: accepted
-    accepted_on: "2026-07-29"
-    accepted_by: Architecture Board (Mohammad Shebahati)
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-    citation_required_for: [CT-URL-SEO, CT-DATA, CT-API, CT-SCHEMA]
-    notes: "Root of all binding authority. NOT ON MAIN — see CR-001. Merged PR #127 already cites it."
-
-  - id: ARCH-BIBLE
-    path: docs/architecture/karzar-knowledge-platform-master-architecture.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Orientation hub (Plane B). Does not override binding ingestion policy."
-
-  - id: ADR-010
-    path: docs/architecture/adr/ADR-010-seo-url-contract.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-URL-SEO]
-    notes: "Canonical /product/{slug} singular; 301 from /product/{id}; /brands/{slug}. Supersedes plural constitution row."
-
-  - id: ADR-012
-    path: docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md
-    class: CANON
-    rank: 2
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-DATA]
-    notes: "Inviolable per cross-cutting rule R4. Violated by 18 scripts — see CR-004."
-  - id: ADR-013
-    path: docs/architecture/adr/ADR-013-knowledge-edge-fact-storage.md
-    class: CANON
-    rank: 2
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Accepted Day-2 2026-08-01 (UD-05 A). Postgres overlay edges/Facts; no graph engine for KB-001."
-
-  - id: ADR-014
-    path: docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
-    class: CANON
-    rank: 2
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Accepted Day-2 2026-08-01 (UD-02 A). Wave-1 PKE join = products.id."
-  - id: BOARD-MINUTE-KF-ACCEPT-2026-08-01
-    path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Day-2 Board minute — knowledge foundation Accept + ballot."
-
-
-
-  - id: RFC-004
-    path: docs/architecture/rfc/RFC-004-slug-migration-and-redirects.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-URL-SEO]
-
-  - id: RFC-005
-    path: docs/architecture/rfc/RFC-005-brand-hub-launch.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-URL-SEO]
-    notes: "adr/README.md and rfc/README.md still index RFC-005 as Draft while CANON-LOCK lists it Accepted. Status ambiguity — resolve with CR-010."
-
-  # Index / template documents from the Wave-1 pack. They are not themselves binding criteria,
-  # but they are the discovery surface an agent uses to find the ADRs and RFCs, and they are
-  # cited by AODS documents — so they must be classified. All on_main: false (CR-001).
-  - id: ADR-INDEX
-    path: docs/architecture/adr/README.md
+  - id: SKILL
+    path: .cursor/skills/karzar-aods-operator/SKILL.md
     class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-    notes: "ADR index + §2 status rules (only the Board may set Accepted). Indexes RFC-005 as Draft while CANON-LOCK says Accepted — CR-010."
-
-  - id: RFC-INDEX-README
-    path: docs/architecture/rfc/README.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-
-  - id: RFC-INDEX
-    path: docs/architecture/rfc/rfc-index.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-    notes: "RFC counter. Consult before issuing a new RFC number (NAMING-CONVENTIONS §4.2)."
-
-  - id: RFC-TEMPLATE
-    path: docs/architecture/rfc/RFC-TEMPLATE.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-
-  - id: ARCH-README
-    path: docs/architecture/README.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-
-  - id: IA-README
-    path: docs/architecture/information-architecture/README.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-
-  - id: STANDARDS-README
-    path: docs/development/standards/README.md
-    class: REFERENCE
-    rank: 40
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-
-  - id: PROMOTION-WAVE1
-    path: docs/architecture/PROMOTION-WAVE1.md
-    class: EVIDENCE
-    rank: 50
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    branch: docs/wave1-canon-lock-promote
-    notes: "Record of the Wave-1 promotion decision. Evidence for the HC-02 minute that closes CR-001."
-
-  - id: IA-PACK
-    path: docs/architecture/information-architecture/karzar-information-architecture.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-URL-SEO]
-
-  - id: IA-EPIC1
-    path: docs/architecture/information-architecture/epic1-ia-readiness.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-URL-SEO]
-    notes: "8 EPIC-1 deliverables + 6 engineering-acceptance checkboxes. Deliverable 5 (/brands/{slug}) unimplemented — CR-014."
-
-  - id: IA-URLMAP
-    path: docs/architecture/information-architecture/url-map.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-
-  - id: IA-BRAND-HUB-PAGE-CONTRACT
-    path: docs/architecture/information-architecture/brand-hub-page-contract.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-FE-ARCH
-    on_main: true
-    notes: "Accepted 2026-07-30 (HC-01 / Board). Brand Hub `/brands/{slug}` page contract for SEO-008. Q1–Q5 frozen D21. Binding with ADR-010 / RFC-005."
-
-  - id: INGESTION-POLICY
-    path: docs/architecture/data-ingestion-policy.md
-    class: CANON
-    rank: 2
-    status: binding
-    owner_role: R-BE-ARCH
-    on_main: true
-    citation_required_for: [CT-DATA]
-    notes: "Sole living ingestion policy. Declares Category A/B/C. Bans production API defaults — CR-004."
-
-  - id: GIT-WORKFLOW
-    path: docs/development/git-development-workflow.md
-    class: CANON
-    rank: 2
-    status: binding
-    owner_role: R-OWNER
-    on_main: true
-    notes: "Branch model feature/fix/hotfix/chore/docs — conflicts with CONTRIBUTING.md (CR-002). §6: no automatic agent push."
-
-  - id: DEV-STANDARDS
-    path: docs/development/standards/karzar-developer-standards.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    citation_required_for: [CT-API, CT-DOMAIN, CT-SCHEMA, CT-URL-SEO, CT-FE-UI, CT-DATA]
-    notes: "Principles S1-S10. Mandatory for all PRs."
-
-  - id: DOD
-    path: docs/development/standards/definition-of-done.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "DoD per PR type. Note: file's own header says 'Status: Proposed' while CANON-LOCK lists the pack Accepted — internal inconsistency, part of CR-010."
-
-  - id: PR-CHECKLIST
-    path: docs/development/standards/pr-checklist.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Explicit PR fails enumerated. Implemented by .github/pull_request_template.md (CR-018 CLOSED 2026-07-30)."
-
-  - id: CITATION-RULES
-    path: docs/development/standards/documentation-citation-rules.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Defines the minimum PR citation block. Basis of the citation gate."
-
-  - id: STD-ALEMBIC
-    path: docs/development/standards/alembic-and-schema-change-rules.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-DB-ARCH
-    on_main: true
-    citation_required_for: [CT-SCHEMA]
-
-  - id: STD-API
-    path: docs/development/standards/api-change-rules.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-BE-ARCH
-    on_main: true
-    citation_required_for: [CT-API]
-
-  - id: STD-FRONTEND
-    path: docs/development/standards/frontend-change-rules.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-FE-ARCH
-    on_main: true
-    citation_required_for: [CT-FE-UI, CT-URL-SEO]
-
-  - id: STD-TESTING
-    path: docs/development/standards/testing-and-verification.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-QA
-    on_main: true
-
-  - id: STD-SECURITY
-    path: docs/development/standards/security-and-secrets.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-SEC-ARCH
-    on_main: true
-    citation_required_for: [CT-SEC]
-
-  - id: STD-LOCAL-ENRICH
-    path: docs/development/standards/local-development-and-enrichment.md
-    class: CANON
-    rank: 3
-    status: accepted
-    owner_role: R-KNOW
-    on_main: true
-    citation_required_for: [CT-DATA]
-
-  # =========================================================================
-  # RANK 4 · Quality bar
-  # =========================================================================
-
-  - id: AUDIT-V2-MASTER
-    path: docs/audits/v2/master-engineering-report-v2.md
-    class: EVIDENCE
-    rank: 4
-    status: current
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "Overall 5.7/10. Elevated to rank 4 as the quality bar by docs/CONTRIBUTING.md ('when site docs contradict v2, edit the site docs')."
-
-  - id: REMEDIATION-TO-9
-    path: docs/audits/v2/REMEDIATION-TO-9.md
-    class: POLICY
-    rank: 4
-    status: current
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "Waves 0-3 remediation programme. BE-01 (CR-005) still listed open."
-
-  - id: SCORECARD-AFTER
-    path: docs/audits/v2/SCORECARD-AFTER-REMEDIATION.md
-    class: HISTORICAL
-    rank: 10
-    status: historical
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "CR-006 CLOSED 2026-07-30 Option B — self-certification 9.0 demoted; not live bar. Live bar = AUDIT-V2-MASTER + REMEDIATION-TO-9. Independent v3 (Option A) deferred."
-
-  - id: AUDIT-V1-MASTER
-    path: docs/audits/master-engineering-report.md
-    class: HISTORICAL
-    rank: 10
-    status: superseded
-    superseded_by: AUDIT-V2-MASTER
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "6.8/10. Superseded for grading; retained as a finding archive (finding IDs still cited by remediation waves)."
-
-  # =========================================================================
-  # RANK 5 · CONTRACT
-  # =========================================================================
-
-  - id: OPENAPI-SNAPSHOT
-    path: openapi/v1.json
-    class: GENERATED
-    rank: 5
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    generated_by: "python -c \"import json; from app.main import app; json.dump(app.openapi(), open('openapi/v1.json','w'), indent=2, ensure_ascii=False)\""
-    hand_edit: forbidden
-    notes: "81 paths / 115 schemas. NO CI verification — CR-012. Machine contract; consumers defer to it."
-
-  - id: API-CONTRACT
-    path: docs/API_CONTRACT.md
-    class: CONTRACT
-    rank: 5
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    citation_required_for: [CT-API]
-    notes: "Index, not exhaustive. Missing Hesabfa, nav-groups, availability, image-upload routes."
-
-  - id: API-CHANGELOG
-    path: docs/API_CHANGELOG.md
-    class: CONTRACT
-    rank: 5
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    citation_required_for: [CT-API]
-    notes: "Versioning policy + dated deltas. States coverage 62% — stale, see CR-003."
-
-  - id: AUTH-COOKIE-CONTRACT
-    path: frontend/docs/auth-cookie-httponly-contract.md
-    class: CONTRACT
-    rank: 5
-    status: current
-    owner_role: R-SEC-ARCH
-    on_main: true
-
-  # =========================================================================
-  # RANK 6 · POLICY
-  # =========================================================================
-
-  - id: OPERATIONS
-    path: docs/OPERATIONS.md
-    class: POLICY
     rank: 6
     status: current
-    owner_role: R-DEVOPS
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Backup, restore, metrics, alerting. Contains one dead link to a missing docs/roadmap/ path."
 
-  - id: DOC-DEVELOPMENT
-    path: docs/DEVELOPMENT.md
+  - id: PULL_REQUEST_TEMPLATE
+    path: .github/pull_request_template.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: AGENTS
+    path: AGENTS.md
+    class: REFERENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: README
+    path: README.md
+    class: REFERENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SECURITY
+    path: SECURITY.md
+    class: REFERENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: CONFLICT-REGISTER
+    path: aods/10-repository-intelligence/CONFLICT-REGISTER.md
+    class: POLICY
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION
+    path: aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: BOARD-MINUTE-AODS-ACCEPTANCE
+    path: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: BOARD-MINUTE-AODS-PHASE4-CI
+    path: aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01
+    path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: AODS-CHARTER
+    path: aods/AODS-CHARTER.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: AODS-README
+    path: aods/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: API_CHANGELOG
+    path: docs/API_CHANGELOG.md
     class: POLICY
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
-    notes: "Local setup, tests, coverage 68%, admin HttpOnly session, NEXT_PUBLIC_API_BASE_URL."
+    on_main: true
 
-  - id: DOC-COMMERCE
+  - id: API_CONTRACT
+    path: docs/API_CONTRACT.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: ARCHITECTURE
+    path: docs/ARCHITECTURE.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: COMMERCE
     path: docs/COMMERCE.md
     class: POLICY
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
     on_main: false
-    notes: "Availability, dual-lane checkout, SEP implemented-but-unproven, no production mock rollback."
 
-  - id: IMAGE-DISCOVERY-PIPELINE
-    path: docs/IMAGE_DISCOVERY_PIPELINE.md
+  - id: DEVELOPMENT
+    path: docs/DEVELOPMENT.md
     class: POLICY
     rank: 6
     status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      IMG-01..IMG-01E-R1 governed image discovery operator policy; merged PR #198
-      @ f10cfff3ace2a00ef3a7403d5408e79e0b9b395b; live TOSAG parser validation pending;
-      not production-approved; no ProductImage/DB integration.
-
-  - id: EXISTING-IMAGE-AUDIT
-    path: docs/EXISTING_IMAGE_AUDIT.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      IMG-02A-01 and IMG-02A-01-R1 merged in PR #201;
-      merge commit: 58401eb28fe346d2f00a0679d90c6763a5000250;
-      authoritative inventory completed against karzar_staging;
-      transaction_read_only=on; zero database/storage mutations;
-      no watermark or suitability classification; read-only audit only
-      (not a production mutation tool).
-
-  - id: EXISTING-IMAGE-HUMAN-REVIEW
-    path: docs/EXISTING_IMAGE_HUMAN_REVIEW.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      IMG-02A-02 merged in PR #203; merge commit
-      023047b8cd0c82b48428f0c5037121e9f0471b24; Pilot 001 packaging and human
-      review complete; 100 unique assets and 465 assignments reviewed; 52
-      visible ShopMill distributor/retailer watermarks; 41 assignments queued
-      for replacement; 1 assignment queued for manual review; rights remain
-      review_required; no replacement execution; no DB/ProductImage/storage
-      mutation; raw Pilot and human-review evidence remain external to Git.
-
-  - id: IMAGE-SOURCE-PATHS
-    path: docs/IMAGE_SOURCE_PATHS.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      IMG-02B-01 merged in PR #209; merge commit:
-      e8f8f5285904616350015db73d2912c70ce0f71a. 1204 governed product work
-      items. Live discovery not started. Image downloads 0. ProductImage apply
-      not started. Rights clearance not started.
-
-  - id: FAST-IMAGE-COVERAGE
-    path: docs/FAST_IMAGE_COVERAGE.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      IMG-FAST-01 program plan for catalog-wide one-image-per-product Fast
-      Coverage. Does not supersede ADR-012. Does not authorize production
-      writes. IMG-FAST-01A baseline is read-only against an explicitly supplied
-      --api-base (no production/live API code default). Landed via #221; registry on_main reconciled.
+    owner_role: R-DOC-ARCH
+    on_main: false
 
   - id: HESABFA
     path: docs/HESABFA.md
     class: POLICY
     rank: 6
     status: current
-    owner_role: R-BE-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Locked decisions: binary availability; warehouse counts live only in Hesabfa."
 
-  - id: SEP-PAYMENT-GATEWAY
+  - id: OPERATIONS
+    path: docs/OPERATIONS.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SEP_PAYMENT_GATEWAY
     path: docs/SEP_PAYMENT_GATEWAY.md
     class: POLICY
     rank: 6
     status: current
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: >-
-      Saman Kish (SEP) OnlinePG operator runbook: Token/Verify/callback, RefNum
-      uniqueness, verifying retry, Reverse vs refund, IP whitelist, deployment
-      checklist. No live terminal secrets. Keep PAYMENT_PROVIDER=mock until Terminal
-      + egress IP are registered with SEP. Landed via #236; on_main reconciled.
-
-  - id: COLLABORATOR-DEPLOY
-    path: docs/COLLABORATOR_DEPLOY.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-    notes: "Honest about staging==production. Production deploy = dispatch + typed confirm + environment approval."
-
-  - id: FRONTEND-COLLABORATOR-CHARTER
-    path: docs/FRONTEND_COLLABORATOR_CHARTER.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-    notes: "FE Write collaborator allowlist + self-merge policy; not Canon Accept."
-
-  - id: FRONTEND-COLLABORATOR-HANDOFF-FA
-    path: docs/FRONTEND_COLLABORATOR_HANDOFF_FA.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-    notes: "Paste-ready FA handoff for mhrbzandi-Designer."
-
-  - id: OWNER-GITHUB-FRONTEND-ACCESS
-    path: docs/OWNER_GITHUB_FRONTEND_ACCESS.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-    notes: "Owner-only GitHub UI checklist (invite + branch protection). Agent API cannot apply."
-
-  - id: STAGING-DEPLOY
-    path: deploy/staging/STAGING_DEPLOY.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-
-  - id: PROVIDERS-LATER
-    path: deploy/staging/PROVIDERS_LATER.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DEVOPS
-    on_main: true
-
-  - id: CONTRIBUTING
-    path: docs/CONTRIBUTING.md
-    class: POLICY
-    rank: 6
-    status: current
     owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Branch prefixes feat/ conflict with CANON feature/ — CR-002. Establishes v2 as the quality bar. Repeats BE-01."
 
-  - id: TESTING
-    path: docs/TESTING.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-QA
-    on_main: true
-    notes: "States coverage 67% min / 70% target; CI enforces 68% — CR-003."
-
-  - id: SECURITY-POLICY
-    path: SECURITY.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-SEC-ARCH
-    on_main: true
-
-  - id: SEED-IMPORT
-    path: docs/SEED_IMPORT.md
-    class: POLICY
-    rank: 6
-    status: stale
-    owner_role: R-DATA-ENG
-    on_main: true
-    notes: "Claims URL-only images; multipart upload endpoints exist (app/api/endpoints/products_images.py)."
-
-  - id: SCRIPTS-INDEX
-    path: docs/SCRIPTS.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-DATA-ENG
-    on_main: true
-
-  - id: LOCAL-DEV-FRONTEND
-    path: docs/LOCAL_DEV_FRONTEND.md
-    class: POLICY
-    rank: 6
-    status: stale
-    owner_role: R-FE-ARCH
-    on_main: true
-    notes: "v2 audit flagged an incorrect env var name."
-
-  # =========================================================================
-  # RANK 7 · PLAN (PMO)
-  # =========================================================================
-
-  - id: PMO-TASKS
-    path: project-management/exports/tasks.json
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "Machine SoT for status. 18 tasks, as_of 2026-07-28, weighted 85.3%. Mandated by .cursor/rules/pmo-living-system.mdc."
-
-  - id: PMO-README
-    path: project-management/README.md
-    class: PLAN
-    rank: 7
-    status: stale
-    owner_role: R-PMO
-    on_main: true
-    notes: "States ~25% of backlog hours claimed; actual 85.3% — CR-013."
-
-  - id: PMO-EXEC-SUMMARY
-    path: project-management/EXECUTIVE_SUMMARY.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "Checkpoint 2026-09-22. Required reading before large work per the always-applied Cursor rule. Priority conflicts with Board EPIC-1 — CR-008."
-
-  - id: PMO-PROJECT-STATUS
-    path: project-management/PROJECT_STATUS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-KANBAN
-    path: project-management/KANBAN_BOARD.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "SEC-001 filed under ## todo while marked done 100% — CR-013."
-
-  - id: PMO-ROADMAP
-    path: project-management/MASTER_ROADMAP.md
-    class: PLAN
-    rank: 7
-    status: stale
-    owner_role: R-PMO
-    on_main: true
-    notes: "Outcomes O3-O6 unchecked although all constituent tasks are done — CR-013."
-
-  - id: PMO-RELEASE-PLAN
-    path: project-management/RELEASE_PLAN.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-REL
-    on_main: true
-    notes: "REL-001 marked done while release/rollback owners remain unnamed — CR-021."
-
-  - id: PMO-DECISIONS
-    path: project-management/DECISIONS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "ADR-lite D1-D8. D6 (owner matrix) open — CR-021."
-
-  - id: PMO-RISKS
-    path: project-management/RISKS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-TECH-DEBT
-    path: project-management/TECH_DEBT.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-BLOCKERS
-    path: project-management/BLOCKERS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-DEPENDENCIES
-    path: project-management/DEPENDENCIES.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-CHANGELOG
-    path: project-management/CHANGELOG.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-DONE
-    path: project-management/DONE.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-LESSONS
-    path: project-management/LESSONS_LEARNED.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-CONTENT-CALENDAR
-    path: project-management/CONTENT_CALENDAR.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-SEO
-    on_main: true
-
-  - id: PMO-DAILY
-    path: project-management/DAILY_CHECKLIST.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "Requires task ID in commit messages; observed adherence ~11%."
-
-  - id: PMO-WEEKLY
-    path: project-management/WEEKLY_CHECKLIST.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: PMO-DIAGRAMS
-    path: project-management/MASTER_DIAGRAMS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-
-  - id: CATALOG-IMAGES-PLAN
-    path: docs/CATALOG_IMAGES_PLAN.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-DATA-ENG
-    on_main: true
-    notes: "Actively executing while Knowledge Platform Phase 3 says pause image import — CR-019."
-
-  - id: SEO-DESC-PLAN
-    path: docs/architecture/product-seo-descriptions-plan.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-SEO
-    on_main: true
-    notes: "Lives under docs/architecture/ but is a PLAN, not CANON. P0 merged in #66."
-
-  # PMO progress ledgers (canonical under progress/ — CR-007 Option A, 2026-07-30).
-  - id: PMO-PROGRESS-CANON
-    path: project-management/progress/BACKEND_PROGRESS.md
-    class: PLAN
-    rank: 7
-    status: current
-    owner_role: R-PMO
-    on_main: true
-    notes: "Representative row for progress/*_PROGRESS.md. Root twins deleted under CR-007 Option A."
-
-  # =========================================================================
-  # RANK 8 · REFERENCE
-  # =========================================================================
-
-  - id: ROOT-AGENTS
-    path: AGENTS.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    branch: chore/codex-guidance
-    ai_instrumentation: true
-    notes: "Repository-wide Codex guidance; summarizes and points to binding AODS sources."
-
-  - id: ROOT-README
-    path: README.md
-    class: REFERENCE
-    rank: 8
-    status: current
+  - id: CANON-LOCK
+    path: docs/architecture/CANON-LOCK.md
+    class: CANON
+    rank: 1
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Monorepo front door. Coverage figure 67% stale vs CI 68% — CR-003."
 
-  - id: ARCHITECTURE-MAP
-    path: docs/ARCHITECTURE.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Codebase map + BE-01 transaction ownership rule. Code violates BE-01 in 8 service modules — CR-005."
-
-  - id: FRONTEND-INTEGRATION
-    path: docs/FRONTEND_INTEGRATION.md
-    class: REFERENCE
-    rank: 8
-    status: stale
-    owner_role: R-FE-ARCH
-    on_main: true
-    notes: "Documents low_stock as qty<10; code always returns False — CR-022."
-
-  - id: FRONTEND-README
-    path: frontend/README.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: STOREFRONT-README
-    path: frontend/Storefront/README.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: ADMIN-README
-    path: frontend/admin-panel/README.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: ADMIN-AGENTS
-    path: frontend/admin-panel/AGENTS.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-    ai_instrumentation: true
-    notes: "Next.js 16 differs from model training data; instructs agents to read node_modules/next/dist/docs/ first. Keep."
-
-  - id: ADMIN-CLAUDE
-    path: frontend/admin-panel/CLAUDE.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-    ai_instrumentation: true
-    notes: "Pointer to AGENTS.md."
-
-  - id: FE-CHANGES
-    path: frontend/FRONTEND_CHANGES.md
-    class: REFERENCE
-    rank: 8
-    status: stale
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: FE-RUNTIME-NOTES
-    path: frontend/INTEGRATION_RUNTIME_NOTES.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: FE-LOCAL-STACK
-    path: frontend/LOCAL_STACK_ACCESS.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: FE-GAPS-01-EN
-    path: frontend/docs/gaps/01-fe-ahead-be-needed-en.md
-    class: REFERENCE
-    rank: 8
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-    notes: "Open gaps: site settings, aggregate reports, invoice PDF. Diverges from the FA twin on endpoint paths — CR-020."
-
-  - id: FE-GAPS-02-EN
-    path: frontend/docs/gaps/02-be-exists-fe-should-use-en.md
-    class: REFERENCE
-    rank: 8
-    status: stale
-    owner_role: R-FE-ARCH
-    on_main: true
-    notes: "FA twin dated later with extra completed items — CR-020."
-
-  - id: FE-DEPLOY-EN
-    path: frontend/docs/deploy/DEPLOYMENT_en.md
-    class: REFERENCE
-    rank: 8
-    status: stale
-    owner_role: R-DEVOPS
-    on_main: true
-    notes: "Describes split-host topology; reality is a single VPS — CR-011."
-
-  # =========================================================================
-  # RANK 9 · EVIDENCE
-  # =========================================================================
-
-  - id: AODS-AUDIT
-    path: aods/10-repository-intelligence/REPOSITORY-AUDIT.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "This pack's Phase-0 audit. Evidence, not policy."
-
-  - id: CATALOG-IMAGES-PROGRESS
-    path: docs/CATALOG_IMAGES_PROGRESS_2026-07-25.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-DATA-ENG
-    on_main: true
-
-  - id: TAXONOMY-DRYRUN
-    path: docs/taxonomy/remove_omumi_padding_dry_run_REPORT.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-DATA-ENG
-    on_main: true
-
-  - id: CHUMPOWER-REPORT
-    path: scripts/chumpower_official_catalog_REPORT.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-DATA-ENG
-    on_main: true
-
-  - id: BACKEND-AUDIT-PLAYBOOK
-    path: docs/BACKEND_COMPREHENSIVE_AUDIT_PLAYBOOK.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-AUDITOR
-    on_main: true
-    notes: "Phases A-H PASS (B PARTIAL); phase I rollup never completed."
-
-  - id: BACKEND-REFACTOR-MAP
-    path: docs/BACKEND_STRUCTURE_REFACTOR_MAP.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "R0-R2 done, R3 partial (layering enforcement pending), R4 deferred. R3 gap is CR-005."
-
-  - id: FE-AUDIT-UIUX-EN
-    path: frontend/docs/audits/02-uiux-audit-en.md
-    class: EVIDENCE
-    rank: 9
-    status: current
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  # =========================================================================
-  # HISTORICAL / PROPOSED / ACCEPTED-SPEC rows (see class+status per row)
-  # Former Phase docs HISTORICAL (OI-KF-04); core SPECs Accepted Day-2; seed/audit remain PROPOSED
-  # =========================================================================
-
-  - id: KP-PHASE1
-    path: docs/KNOWLEDGE_PLATFORM_PHASE1_ARCHITECTURE_AUDIT.md
-    class: HISTORICAL
-    rank: 10
-    status: historical
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Design only. KB-001 deferred past 2026-09-22."
-
-  - id: KP-PHASE2
-    path: docs/KNOWLEDGE_PLATFORM_PHASE2_TARGET_ARCHITECTURE.md
-    class: HISTORICAL
-    rank: 10
-    status: historical
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Modules M0-M11, additive /api/v1/knowledge/*. Not implemented — no app/knowledge/ directory exists."
-
-  - id: KP-PHASE3
-    path: docs/KNOWLEDGE_PLATFORM_PHASE3_IMPLEMENTATION_ROADMAP.md
-    class: HISTORICAL
-    rank: 10
-    status: historical
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "OI-KF-04 CLOSED Day-2: HISTORICAL; living path docs/architecture/specs/. Slices I0-I15; I0 never started. Says pause image import — conflicts with CATALOG-IMAGES-PLAN (CR-019)."
-
-  - id: SPEC-PACK-README
-    path: docs/architecture/specs/README.md
+  - id: ADR-010
+    path: docs/architecture/adr/ADR-010-seo-url-contract.md
     class: CANON
     rank: 1
     status: accepted
-    owner_role: R-SYS-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Day-2 2026-08-01 (UD-06 A). Canon Lock §1c pack index."
 
-  - id: SPEC-PKE-MODEL
-    path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
+  - id: ADR-012
+    path: docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md
     class: CANON
-    rank: 1
+    rank: 2
     status: accepted
-    owner_role: R-SYS-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Day-2. Commerce vs PKE; cite with ADR-014."
 
-  - id: SPEC-TAXONOMY-MODEL
-    path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
+  - id: ADR-013
+    path: docs/architecture/adr/ADR-013-knowledge-edge-fact-storage.md
     class: CANON
-    rank: 1
+    rank: 2
     status: accepted
-    owner_role: R-SYS-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Day-2. Multi-dim taxonomy; preserves single commerce Category tree. Amended v0.1.1 §7.1 Hybrid primary Product Type FK (Board minute AB-ADR-015-2026-08-02 Option A)."
 
-  - id: SPEC-KG-MODEL
-    path: docs/architecture/specs/SPEC-knowledge-graph-model.md
+  - id: ADR-014
+    path: docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
     class: CANON
-    rank: 1
+    rank: 2
     status: accepted
-    owner_role: R-SYS-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Day-2. KG overlay; cite with ADR-013."
-
-  - id: SPEC-IMPORT-PLAYBOOK
-    path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-DATA-ENG
-    on_main: true
-    notes: "Accepted Day-2. Pipeline stages; does not weaken ADR-012; UD-08 no AI FA auto-publish."
-
-  - id: SPEC-FULL-AUDIT
-    path: docs/architecture/specs/FULL_PLATFORM_ARCHITECTURE_AUDIT.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Full platform as-built audit for knowledge completion pack."
-
-  - id: SPEC-FOUNDATION-REVIEW
-    path: docs/architecture/specs/FOUNDATION_ARCHITECTURE_REVIEW.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Review of foundation SPECs vs repository."
-
-  - id: SPEC-DOMAIN-MODEL
-    path: docs/architecture/specs/SPEC-domain-model.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Accepted Day-2. Logical domain ER commerce+knowledge."
-
-  - id: SPEC-PROPERTY-DICTIONARY
-    path: docs/architecture/specs/SPEC-property-dictionary-system.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Accepted Day-2. Property system; dual-write gated; UD-03 metrology-first."
-
-  - id: SPEC-TAXONOMY-SEED
-    path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Concrete taxonomy seed; does not replace commerce categories."
-
-  - id: SPEC-KG-REGISTRY
-    path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
-    class: CANON
-    rank: 1
-    status: accepted
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Accepted Day-2. Relation vocabulary; KB-001 freeze three edges."
-
-  - id: SPEC-MASTER-KB-REMEDIATION
-    path: docs/architecture/specs/SPEC-master-knowledge-base-remediation.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "KB remediation architecture contract v0.4.1 on main (PR #193). Lifecycle Proposed; not Board-Accepted. Owner approval for Prompts 01-14 subject to §12.1. KB-PT-01 blocked pending Board Hybrid clarification minute."
-
-  - id: SPEC-CANONICAL-PRODUCT-TYPE
-    path: docs/architecture/specs/SPEC-canonical-product-type-model.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Canonical Product Type Model v0.1.1 on main (PR #193). Remains Proposed implementation contract under Accepted ADR-015. KB-PT-01 unblocked after Board minute AB-ADR-015-2026-08-02."
 
   - id: ADR-015
     path: docs/architecture/adr/ADR-015-product-type-engineering-classification.md
     class: CANON
     rank: 2
     status: accepted
-    owner_role: R-SYS-ARCH
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted 2026-08-02 / ۱۴۰۵/۰۵/۱۱ (AB-ADR-015-2026-08-02 Option A). Hybrid primary products.product_type_id; PRODUCT_CLASSIFIED_AS secondary."
 
-  - id: BOARD-MINUTE-ADR-015-HYBRID-PT
-    path: aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md
+  - id: DOCS-ARCHITECTURE-ADR-README
+    path: docs/architecture/adr/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: INGESTION-POLICY
+    path: docs/architecture/data-ingestion-policy.md
+    class: POLICY
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: DOCS-ARCHITECTURE-INFORMATION-ARCHITECTURE-README
+    path: docs/architecture/information-architecture/README.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: BRAND-HUB-PAGE-CONTRACT
+    path: docs/architecture/information-architecture/brand-hub-page-contract.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: EPIC1-IA-READINESS
+    path: docs/architecture/information-architecture/epic1-ia-readiness.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: KARZAR-INFORMATION-ARCHITECTURE
+    path: docs/architecture/information-architecture/karzar-information-architecture.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: URL-MAP
+    path: docs/architecture/information-architecture/url-map.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: ARCH-BIBLE
+    path: docs/architecture/karzar-knowledge-platform-master-architecture.md
     class: CANON
     rank: 1
     status: accepted
-    owner_role: R-BOARD
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Board minute AB-ADR-015-2026-08-02 Option A. Signed Mohammad Shebahati. Task KB-PT-00B. Merged via PR #194."
 
-  - id: SPEC-DATA-TRANSFORM
+  - id: DOCS-ARCHITECTURE-RFC-README
+    path: docs/architecture/rfc/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: RFC-004
+    path: docs/architecture/rfc/RFC-004-slug-migration-and-redirects.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: RFC-005
+    path: docs/architecture/rfc/RFC-005-brand-hub-launch.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: DOCS-ARCHITECTURE-SPECS-README
+    path: docs/architecture/specs/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-CANONICAL-PRODUCT-TYPE-MODEL
+    path: docs/architecture/specs/SPEC-canonical-product-type-model.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-DATA-TRANSFORMATION-ARCHITECTURE
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
     class: CANON
-    rank: 1
+    rank: 2
     status: accepted
-    owner_role: R-DATA-ENG
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Accepted Day-2. Supplier→production transform mechanics."
 
-  - id: SPEC-KP-TARGET-ARCH
-    path: docs/architecture/specs/KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
+  - id: SPEC-DOMAIN-MODEL
+    path: docs/architecture/specs/SPEC-domain-model.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Target blueprint connecting commerce/knowledge/SEO/AI."
 
-  - id: SPEC-IMPL-READINESS
-    path: docs/architecture/specs/FOUNDATION_IMPLEMENTATION_READINESS.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
+  - id: SPEC-INDUSTRIAL-TAXONOMY-MASTER-SEED
+    path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Implementation readiness gates for KB engineering."
 
-  - id: SPEC-PACK-SUMMARY-FA
-    path: docs/architecture/specs/KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md
-    class: PROPOSED
-    rank: 99
-    status: proposed
-    owner_role: R-SYS-ARCH
+  - id: SPEC-INDUSTRIAL-TAXONOMY-MODEL
+    path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Persian executive summary of knowledge foundation + completion pack."
 
-  - id: SEED-PROPERTY-DICT-V0-METROLOGY
-    path: docs/architecture/specs/seeds/property-dictionary-v0-metrology.json
-    class: PROPOSED
-    rank: 99
-    status: draft
-    owner_role: R-SYS-ARCH
+  - id: SPEC-KNOWLEDGE-GRAPH-MODEL
+    path: docs/architecture/specs/SPEC-knowledge-graph-model.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
     on_main: true
-    notes: "Day-4 Property Dictionary v0 metrology Git seed (UD-03 A). No dual-write."
 
-  - id: SEED-PROPERTY-DICT-README
+  - id: SPEC-KNOWLEDGE-GRAPH-REGISTRY
+    path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-MASTER-KNOWLEDGE-BASE-REMEDIATION
+    path: docs/architecture/specs/SPEC-master-knowledge-base-remediation.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-PRODUCT-IMPORT-ENRICHMENT-PLAYBOOK
+    path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-PRODUCT-KNOWLEDGE-ENTITY-MODEL
+    path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SPEC-PROPERTY-DICTIONARY-SYSTEM
+    path: docs/architecture/specs/SPEC-property-dictionary-system.md
+    class: CANON
+    rank: 2
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: DOCS-ARCHITECTURE-SPECS-SEEDS-README
     path: docs/architecture/specs/seeds/README.md
-    class: PROPOSED
-    rank: 99
-    status: draft
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Seeds index + KB-001 operator residual checklist."
-
-  - id: SEED-TAXONOMY-V0-METROLOGY
-    path: docs/architecture/specs/seeds/taxonomy-v0-metrology.json
-    class: PROPOSED
-    rank: 99
-    status: draft
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Day-4 taxonomy v0 metrology Git seed. Bridge L1 56/81/87 → dom.measurement. No second Category DAG."
-
-  - id: SEED-CLASSIFY-MAP-INSIZE-V0-METROLOGY
-    path: docs/architecture/specs/seeds/classification-map-insize-v0-metrology.json
-    class: PROPOSED
-    rank: 99
-    status: draft
-    owner_role: R-SYS-ARCH
-    on_main: true
-    notes: "Day-5 INSIZE taxonomy classify MAPPING-TABLE (brand_id=3). Closed taxonomy v0 labels. No Facts / no PRODUCT_CLASSIFIED_AS projection."
-
-  # AODS pack — Accepted ۱۴۰۵/۰۵/۰۸ (process POLICY; Canon Lock row via #125)
-  - id: AODS-CHARTER
-    path: aods/AODS-CHARTER.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted ۸ مرداد ۱۴۰۵ (2026-07-30) by Mohammad Shebahati. Binding process charter. Canon Lock on main via PR #125; CR-001 closed."
-
-  - id: AODS-AUTHORITY
-    path: aods/10-repository-intelligence/AUTHORITY-MODEL.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-DOC-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-CONFLICTS
-    path: aods/10-repository-intelligence/CONFLICT-REGISTER.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-AI-REVIEWER
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-LIFECYCLE
-    path: aods/20-lifecycle/PROJECT-LIFECYCLE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-WORKFLOW
-    path: aods/20-lifecycle/WORKFLOW-GRAPH.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-TIMELINE
-    path: aods/20-lifecycle/TIMELINE-GRAPH.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-ROLES
-    path: aods/30-roles/ROLE-ARCHITECTURE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-ARTIFACTS
-    path: aods/40-artifacts/ARTIFACT-ARCHITECTURE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-DOC-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-NAMING
-    path: aods/40-artifacts/NAMING-CONVENTIONS.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-DOC-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-EXEC-MODEL
-    path: aods/50-ai-execution/AI-EXECUTION-MODEL.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-AUTO-MODE
-    path: aods/50-ai-execution/CURSOR-AUTO-MODE-STRATEGY.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-CONTEXT
-    path: aods/50-ai-execution/CONTEXT-MANAGEMENT.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-MODELS
-    path: aods/50-ai-execution/MODEL-CAPABILITY-STRATEGY.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-HUMAN
-    path: aods/60-human/HUMAN-INTERVENTION-MODEL.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-OWNER
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-PROMPTS
-    path: aods/70-prompts/PROMPT-LIBRARY-ARCHITECTURE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-PROMPT-TEMPLATE
-    path: aods/70-prompts/PROMPT-TEMPLATE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-VALIDATION
-    path: aods/80-validation/VALIDATION-FRAMEWORK.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-AI-REVIEWER
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-RISK
-    path: aods/90-governance/RISK-REGISTER.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-KNOWLEDGE-FLOW
-    path: aods/90-governance/KNOWLEDGE-FLOW.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-KNOW
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-GOVERNANCE
-    path: aods/90-governance/GOVERNANCE.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-DELIVERABLES
-    path: aods/90-governance/DELIVERABLES-AND-ADOPTION.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-CODEX-RUNBOOK
-    path: aods/CODEX-RUNBOOK.md
-    class: POLICY
-    rank: 6
-    status: current
-    owner_role: R-PROMPT-ENG
-    on_main: true
-    branch: chore/codex-guidance
-    ai_instrumentation: true
-    notes: "Bounded Codex workflow runbook; summarizes but does not amend binding AODS rules."
-
-  - id: AODS-README
-    path: aods/README.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Accepted with AODS pack ۱.۰.۰ — Board minute ۱۴۰۵/۰۵/۰۸."
-  - id: AODS-BOARD-MINUTE-001
-    path: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
-    class: EVIDENCE
-    rank: 9
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Board minute ۸ مرداد ۱۴۰۵ — AODS Accepted in full; signed Mohammad Shebahati."
-
-  - id: AODS-BOARD-MINUTE-002
-    path: aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md
-    class: EVIDENCE
-    rank: 9
-    status: accepted
-    owner_role: R-BOARD
-    on_main: true
-    notes: "Phase 4 / OI-GOV-05 — Backend CI job aods; signed Mohammad Shebahati; PR #137."
-
-
-  - id: CURSOR-SKILL-AODS-OPERATOR
-    path: .cursor/skills/karzar-aods-operator/SKILL.md
-    class: POLICY
-    rank: 6
-    status: accepted
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Project Cursor skill for Accepted AODS 1.0.0 operations (PR #129)."
-
-  - id: CURSOR-SKILL-AODS-OPERATOR-NOTES
-    path: .cursor/skills/karzar-aods-operator/references/NOTES.md
     class: REFERENCE
-    rank: 8
+    rank: 6
     status: current
-    owner_role: R-PROJ-ARCH
-    on_main: true
-    notes: "Companion notes for karzar-aods-operator skill."
-
-  # =========================================================================
-  # HISTORICAL — readable for context, never for instruction
-  # =========================================================================
-
-  - id: GO-LIVE-PLAN
-    path: docs/GO_LIVE_EXECUTION_PLAN.md
-    class: HISTORICAL
-    rank: 10
-    status: stale
-    owner_role: R-REL
-    on_main: true
-    notes: "Self-declared 'living' but frozen 2026-07-14. Says catalog 25% while ~5901 products are live. Needs a dated banner."
-
-  - id: BACKEND-CHANGES
-    path: docs/BACKEND_CHANGES.md
-    class: HISTORICAL
-    rank: 10
-    status: stale
-    owner_role: R-BE-ARCH
-    on_main: true
-    notes: "Snapshot-era test counts and URL-only image policy."
-
-  - id: FE-HANDOVER
-    path: docs/FRONTEND_HANDOVER.md
-    class: HISTORICAL
-    rank: 10
-    status: stale
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  - id: FE-BACKEND-HANDOFF
-    path: frontend/BACKEND_HANDOFF.md
-    class: HISTORICAL
-    rank: 10
-    status: superseded
-    owner_role: R-FE-ARCH
-    on_main: true
-    forbidden_context: true
-    notes: "Requests already fulfilled; no resolved banner. Quarantined for AI context to prevent re-implementation of shipped features."
-
-  - id: FE-API-GAPS-01-EN
-    path: frontend/docs/audits/01-api-gaps-en.md
-    class: HISTORICAL
-    rank: 10
-    status: superseded
-    superseded_by: FE-GAPS-02-EN
-    owner_role: R-FE-ARCH
-    on_main: true
-
-  # =========================================================================
-  # QUARANTINED — MUST NEVER ENTER AN AI CONTEXT WINDOW
-  # =========================================================================
-
-  - id: AI-CONTEXT
-    path: frontend/AI_CONTEXT.md
-    class: QUARANTINED
-    rank: 999
-    status: quarantined
     owner_role: R-DOC-ARCH
     on_main: true
-    forbidden_context: true
-    notes: >-
-      CR-015 CLOSED (2026-07-30 Option A): stub retains obsolete banner + §21 only.
-      Full historical body at docs/archive/AI_CONTEXT-2026-07-11.md. Keep forbidden_context.
 
-  - id: FE-AI-CONTEXT-ARCHIVE
-    path: docs/archive/AI_CONTEXT-2026-07-11.md
-    class: HISTORICAL
-    rank: 10
-    status: archived
+  - id: GIT-WORKFLOW
+    path: docs/development/git-development-workflow.md
+    class: POLICY
+    rank: 3
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: true
-    forbidden_context: true
-    notes: "Full body of frontend/AI_CONTEXT.md quarantined 2026-07-30 (CR-015 Option A, PR #135). Never load for agent context."
 
-
-  - id: BACKEND-NON-COMPLIANCE
-    path: frontend/BACKEND_NON_COMPLIANCE.md
-    class: QUARANTINED
-    rank: 999
-    status: quarantined
+  - id: DOCS-DEVELOPMENT-STANDARDS-README
+    path: docs/development/standards/README.md
+    class: CANON
+    rank: 3
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: true
-    forbidden_context: true
-    notes: >-
-      Dated 2026-07-11; ~7/8 spot-checked gaps have since been closed. Names a step-up endpoint
-      /auth/step-up that does not exist (actual: /auth/verify-pin) and demands a phone_number
-      field where the API accepts phone. High risk of causing regressions if read as current.
 
-  - id: FE-IMPL-GUIDE
-    path: docs/FRONTEND_IMPLEMENTATION_GUIDE.md
-    class: QUARANTINED
-    rank: 999
-    status: quarantined
+  - id: ALEMBIC-AND-SCHEMA-CHANGE-RULES
+    path: docs/development/standards/alembic-and-schema-change-rules.md
+    class: CANON
+    rank: 3
+    status: accepted
     owner_role: R-DOC-ARCH
     on_main: true
-    forbidden_context: true
-    notes: >-
-      Self-declares "منبع اصلی کار فرانت" (primary frontend source) but frozen at 2026-07-13
-      against backend commit 0657db9. Readiness matrix claims Storefront-API integration ~55%
-      and an open OTP bug that was fixed 2026-07-17. Dangerous precisely because of its
-      self-declared authority.
+
+  - id: API-CHANGE-RULES
+    path: docs/development/standards/api-change-rules.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: DEFINITION-OF-DONE
+    path: docs/development/standards/definition-of-done.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: DOCUMENTATION-CITATION-RULES
+    path: docs/development/standards/documentation-citation-rules.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: FRONTEND-CHANGE-RULES
+    path: docs/development/standards/frontend-change-rules.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: KARZAR-DEVELOPER-STANDARDS
+    path: docs/development/standards/karzar-developer-standards.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: LOCAL-DEVELOPMENT-AND-ENRICHMENT
+    path: docs/development/standards/local-development-and-enrichment.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: PR-CHECKLIST
+    path: docs/development/standards/pr-checklist.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: SECURITY-AND-SECRETS
+    path: docs/development/standards/security-and-secrets.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: TESTING-AND-VERIFICATION
+    path: docs/development/standards/testing-and-verification.md
+    class: CANON
+    rank: 3
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: FRONTEND-README
+    path: frontend/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: FRONTEND-STOREFRONT-README
+    path: frontend/Storefront/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: FRONTEND-ADMIN-PANEL-AGENTS
+    path: frontend/admin-panel/AGENTS.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: FRONTEND-ADMIN-PANEL-README
+    path: frontend/admin-panel/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: PROJECT-MANAGEMENT-README
+    path: project-management/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true

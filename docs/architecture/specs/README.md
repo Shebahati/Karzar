@@ -89,16 +89,16 @@ This pack is the **living Accepted knowledge foundation** under `docs/architectu
 
 | Document | Path | Owns |
 |----------|------|------|
-| Full Platform Architecture Audit | [`FULL_PLATFORM_ARCHITECTURE_AUDIT.md`](./FULL_PLATFORM_ARCHITECTURE_AUDIT.md) | As-built map, SEO/import reality, debt, conflicts |
-| Foundation Architecture Review | [`FOUNDATION_ARCHITECTURE_REVIEW.md`](./FOUNDATION_ARCHITECTURE_REVIEW.md) | Consistency critique of foundation SPECs |
+| Full Platform Architecture Audit | [`FULL_PLATFORM_ARCHITECTURE_AUDIT.md`](../../archive/docs/architecture/specs/FULL_PLATFORM_ARCHITECTURE_AUDIT.md) | As-built map, SEO/import reality, debt, conflicts |
+| Foundation Architecture Review | [`FOUNDATION_ARCHITECTURE_REVIEW.md`](../../archive/docs/architecture/specs/FOUNDATION_ARCHITECTURE_REVIEW.md) | Consistency critique of foundation SPECs |
 | Domain Model | [`SPEC-domain-model.md`](./SPEC-domain-model.md) | Full logical ER, ownership, strangler map |
 | Property Dictionary System | [`SPEC-property-dictionary-system.md`](./SPEC-property-dictionary-system.md) | Definitions, templates, Facts, FA/EN, units |
 | Industrial Taxonomy Master Seed | [`SPEC-industrial-taxonomy-master-seed.md`](./SPEC-industrial-taxonomy-master-seed.md) | Concrete nodes + commerce L1 bridge |
 | Knowledge Graph Registry | [`SPEC-knowledge-graph-registry.md`](./SPEC-knowledge-graph-registry.md) | Official relation vocabulary + publish rules |
 | Data Transformation Architecture | [`SPEC-data-transformation-architecture.md`](./SPEC-data-transformation-architecture.md) | Mapping, duplicates, provenance, rollback |
-| Knowledge Platform Target Architecture | [`KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md`](./KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md) | PDP composition; plane integration |
-| Foundation Implementation Readiness | [`FOUNDATION_IMPLEMENTATION_READINESS.md`](./FOUNDATION_IMPLEMENTATION_READINESS.md) | What engineering may/may not build yet |
-| خلاصه اجرایی فارسی | [`KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md`](./KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md) | One-page precise FA summary of the full pack |
+| Knowledge Platform Target Architecture | [`KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md`](../../archive/docs/architecture/specs/KNOWLEDGE_PLATFORM_TARGET_ARCHITECTURE.md) | PDP composition; plane integration |
+| Foundation Implementation Readiness | [`FOUNDATION_IMPLEMENTATION_READINESS.md`](../../archive/docs/architecture/specs/FOUNDATION_IMPLEMENTATION_READINESS.md) | What engineering may/may not build yet |
+| خلاصه اجرایی فارسی | [`KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md`](../../archive/docs/architecture/specs/KNOWLEDGE_PLATFORM_ARCHITECTURE_SUMMARY_FA.md) | One-page precise FA summary of the full pack |
 
 ### 1.3 Seeds (Git-first; not Canon alone)
 

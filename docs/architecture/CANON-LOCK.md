@@ -5,7 +5,7 @@
 **Location:** Canonical copy in this repository (`docs/architecture/CANON-LOCK.md`)  
 **Purpose:** Single answer to: *What is mandatory criteria for work today?*
 
-> **Promotion record:** see [`PROMOTION-WAVE1.md`](./PROMOTION-WAVE1.md).  
+> **Promotion record:** see [`PROMOTION-WAVE1.md`](../archive/docs/architecture/PROMOTION-WAVE1.md) (historical).
 > **SoR rule (AODS `CR-009` Option B, 2026-07-30):** Binding merge criteria live **only** in this Git
 > repository. Paths outside the checkout (including historical `Website/docs/`) are **not** Authoring SoR
 > for agents or PR review and MUST NOT be cited as merge criteria until Board promotes them into this tree.
@@ -147,7 +147,7 @@ concrete files into this repository and adds Accepted/Binding rows above.
 | RFC-001, 002, 003, 006, 007 | `docs/architecture/rfc/` | **No** (only 004, 005 + index/template) | Not citeable until promoted |
 | Reserved packs `domain/` / `pim/` / `knowledge-graph/` | respective dirs | **No** (UD-07 deferred) | Living Accepted path = `docs/architecture/specs/` core pack (§1c) |
 | Taxonomy master seed / audit / target / readiness / FA summary | `docs/architecture/specs/` (named files) | **Yes** | Remain **Proposed / REFERENCE** — not merge criteria alone |
-| Phase1–3 knowledge docs | `docs/KNOWLEDGE_PLATFORM_PHASE*.md` | **Yes** | **HISTORICAL** after OI-KF-04 — do not use as living SoT |
+| Phase1–3 knowledge docs | `docs/archive/docs/KNOWLEDGE_PLATFORM_PHASE*.md` | **Yes (archived)** | **HISTORICAL** after OI-KF-04 — do not use as living SoT |
 | Enterprise AI | `docs/architecture/ai/` | **No** | Generative blocked until pack exists + Gate C |
 | Enterprise Search | `docs/architecture/search/` | **No** | Not citeable until promoted |
 | Repo Governance v2 | `docs/governance/repository/` | **No** | Not citeable until promoted |
@@ -161,7 +161,7 @@ concrete files into this repository and adds Accepted/Binding rows above.
 
 | Kind | Path | Rule |
 |------|------|------|
-| EPIC 0 / repository audits present under `docs/audits/` | only files that **exist** in this checkout | Measure reality; do not invent missing audit paths; do not edit upward to look healthier |
+| EPIC 0 / repository audits | `docs/archive/docs/audits/` (files that exist) | Measure reality; do not invent missing audit paths; do not edit upward to look healthier |
 
 Missing historical audit filenames cited in older prose are **not** evidence and are tracked under `CR-010` until removed or promoted.
 

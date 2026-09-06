@@ -523,7 +523,7 @@ Bodies: Prompt 2 only (Canon C6).
 
 ## 17. RFC Index (IDs + titles ONLY)
 
-Process SoT: [`docs/architecture/rfc/README.md`](./rfc/README.md) · Full index: [`rfc/rfc-index.md`](./rfc/rfc-index.md)
+Process SoT: [`docs/architecture/rfc/README.md`](./rfc/README.md) · Full index: [`rfc/rfc-index.md`](../archive/docs/architecture/rfc/rfc-index.md)
 
 | ID | Title | Status | Owner role | Depends on | Prompt that will author it |
 |----|-------|--------|------------|------------|------------------------------|
