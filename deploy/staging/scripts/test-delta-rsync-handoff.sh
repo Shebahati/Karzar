@@ -582,4 +582,24 @@ chmod 0600 "$Z_IN/${KARZAR_MANIFEST_NAME}"
   || fail "clean-shell normalize: manifest not 644"
 pass "NORMALIZE_CLEAN_SHELL"
 
+WF="$(cd "${SCRIPT_DIR}/../../.." && pwd)/.github/workflows/deploy-staging.yml"
+if grep -A20 '^  cleanup:' "$WF" | grep -q 'needs: deploy' \
+  && grep -A20 '^  cleanup:' "$WF" | grep -q 'runs-on: ubuntu-latest' \
+  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'karzar-vps' \
+  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'self-hosted'; then
+  pass "WORKFLOW_DEPENDENCY"
+else
+  fail "cleanup job must need deploy and run on ubuntu-latest, not karzar-vps"
+fi
+if grep -A20 '^  cleanup:' "$WF" | grep -q "needs.deploy.result == 'success'" \
+  && ! grep -A20 '^  cleanup:' "$WF" | grep -q 'always()'; then
+  pass "FAILED_DEPLOY_PRESERVES_INCOMING"
+else
+  fail "cleanup must run only when deploy succeeds (no always())"
+fi
+if awk '/^  deploy:/,/^  cleanup:/ { if ($0 ~ /rm -rf .*incoming/) found=1 } END { exit !found }' "$WF"; then
+  fail "self-hosted deploy job still deletes incoming"
+fi
+pass "SELF_HOSTED_CLEANUP_REMOVED"
+
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"
