@@ -1,0 +1,7 @@
+# Pinned OpenSSH host keys for karzar-vps (public). Used by Deploy Staging
+# GitHub-hosted → VPS source push. Do not disable StrictHostKeyChecking.
+# Captured 2026-09-06 from live SSH-2.0-OpenSSH_10.2p1 (ed25519 only).
+195.177.255.198 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZRsgWavJ/58GNGq2rluxo27HeVSXFpdjrdV2c2TWTi
+karzartools.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZRsgWavJ/58GNGq2rluxo27HeVSXFpdjrdV2c2TWTi
+www.karzartools.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZRsgWavJ/58GNGq2rluxo27HeVSXFpdjrdV2c2TWTi
+api.karzartools.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZRsgWavJ/58GNGq2rluxo27HeVSXFpdjrdV2c2TWTi
