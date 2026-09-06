@@ -107,6 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "download-artifact@v4 failed; retrying via api.github.com over IPv4"
+          rm -rf "$DEST"
           mkdir -p "$DEST"
           ZIP="${RUNNER_TEMP}/staging-src-artifact.zip"
           LIST_JSON="$(curl -4 -fsS --retry 8 --retry-all-errors --retry-delay 3 --connect-timeout 15 --max-time 60 \
