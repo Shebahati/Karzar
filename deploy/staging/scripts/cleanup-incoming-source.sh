@@ -75,6 +75,15 @@ karzar_cleanup_incoming_local() {
     -exec rm -rf -- {} + || echo "::warning::stale incoming cleanup failed"
 }
 
+karzar_install_keyfile_exit_trap() {
+  local path="$1"
+  local quoted
+  printf -v quoted '%q' "$path"
+  # Expand the path now so EXIT does not reference a function-local variable
+  # after karzar_cleanup_incoming_via_ssh has returned under set -u.
+  trap "rm -f -- $quoted" EXIT
+}
+
 karzar_cleanup_incoming_via_ssh() {
   : "${SSH_HOST:?SSH_HOST secret is required}"
   : "${SSH_USER:?SSH_USER secret is required}"
@@ -91,7 +100,7 @@ karzar_cleanup_incoming_via_ssh() {
   fi
 
   keyfile="$(mktemp)"
-  trap 'rm -f "$keyfile"' EXIT
+  karzar_install_keyfile_exit_trap "$keyfile"
   umask 077
   printf '%s\n' "$SSH_PRIVATE_KEY" > "$keyfile"
   if ! grep -q 'BEGIN .*PRIVATE KEY' "$keyfile"; then
@@ -245,6 +254,21 @@ EOF
     fail "NO_WORLD_WRITE found chmod 777 or live-tree chown in workflow"
   else
     pass "NO_WORLD_WRITE"
+  fi
+
+  TRAP_FILE="$TMP/keyfile-exit-trap"
+  touch "$TRAP_FILE"
+  if (
+    set -u
+    karzar_install_keyfile_exit_trap "$TRAP_FILE"
+  ); then
+    if [[ -e "$TRAP_FILE" ]]; then
+      fail "KEYFILE_EXIT_TRAP_NOUNSET temp keyfile remains"
+    else
+      pass "KEYFILE_EXIT_TRAP_NOUNSET"
+    fi
+  else
+    fail "KEYFILE_EXIT_TRAP_NOUNSET exit trap failed under set -u"
   fi
 
   echo "ALL_CLEANUP_SELFTESTS_OK"
