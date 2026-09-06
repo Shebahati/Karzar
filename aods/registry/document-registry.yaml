@@ -94,7 +94,7 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
 
   - id: BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01
     path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
@@ -150,7 +150,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
 
   - id: DEVELOPMENT
     path: docs/DEVELOPMENT.md
@@ -158,7 +158,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
 
   - id: HESABFA
     path: docs/HESABFA.md
