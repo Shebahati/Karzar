@@ -1,93 +1,54 @@
-# Karzar API Architecture (FastAPI + SQLAlchemy 2.0 + PostgreSQL)
+# Architecture
 
-**Updated:** 2026-07-18 — structure refactor R0–R2 (+ partial R3).  
-**Contract rule:** Internal file moves must not change `/api/v1` paths or payloads. Frontend docs remain authoritative for shapes.
+Runtime map. Binding decisions: [`architecture/CANON-LOCK.md`](architecture/CANON-LOCK.md). API shapes: [`../openapi/v1.json`](../openapi/v1.json).
 
-## Root layout
+## Layout
 
 ```text
-karzar/
-├── app/
-│   ├── main.py                 # bootstrap, middleware, /health /ready
-│   ├── api/
-│   │   ├── deps.py             # authn/authz, step-up
-│   │   ├── v1/__init__.py      # mounts routers (URL prefixes unchanged)
-│   │   └── endpoints/
-│   │       ├── auth.py
-│   │       ├── product.py              # thin aggregator
-│   │       ├── product_common.py       # shared product helpers
-│   │       ├── products_catalog.py     # PLP/PDP/related/statistics
-│   │       ├── products_admin.py       # CRUD/stock/change-log
-│   │       ├── products_images.py
-│   │       ├── products_reviews.py
-│   │       ├── storefront.py           # thin aggregator
-│   │       ├── storefront_content.py   # blog/hero/contact
-│   │       ├── checkout.py             # POST /checkout
-│   │       ├── order.py / payment.py / cart.py
-│   │       ├── category.py / brand.py / cms.py / users.py
-│   ├── core/                   # config, security, errors, throttle, health
-│   ├── services/               # business orchestration
-│   ├── crud/
-│   │   ├── otp.py              # OTP persistence (hashed codes)
-│   │   ├── cart_persistence.py / refresh_tokens.py / audit.py / idempotency.py
-│   │   ├── platform.py         # SHIM re-export (compat)
-│   │   ├── content.py          # CMS + re-exports OTP for compat
-│   │   ├── product.py / category.py / brand.py / commerce.py / …
-│   ├── schemas/                # Pydantic API contracts
-│   ├── db/models/              # ORM
-│   └── utils/                  # helpers (+ utils/category package facade)
-├── alembic/versions/
-├── docs/                       # contracts, go-live, architecture, examples/
-├── tests/
-├── scripts/
-└── Dockerfile / docker-compose*.yml
+app/
+  main.py                 # bootstrap, /health /ready /metrics
+  api/v1/                 # mounts routers — public prefixes unchanged
+  api/endpoints/          # HTTP handlers own commit/rollback
+  api/deps.py             # authn/authz, step-up
+  services/               # orchestration (flush only)
+  crud/                   # persistence (flush/refresh only)
+  schemas/                # Pydantic contracts
+  db/models/              # ORM
+  core/                   # config, security, errors, throttle
+alembic/versions/
+frontend/Storefront/      # Next.js 16 public shop
+frontend/admin-panel/     # Next.js 16 admin
+openapi/v1.json           # committed snapshot
 ```
+
+Routers are mounted from `app/api/v1/__init__.py`. Internal file splits must not change `/api/v1` paths or payloads.
 
 ## Request flow
 
-1. HTTP → security middleware → `app/api/endpoints`
-2. Dependencies in `app/api/deps.py` (JWT, step-up, optional user)
-3. Prefer `app/services/*` for orchestration
-4. Persistence via `app/crud/*` → `app/db/models/*`
-5. Response shaping via `app/schemas/*` + presenters in `utils/`
+1. HTTP → security middleware → endpoint
+2. `app/api/deps.py` (session/JWT, step-up, optional user)
+3. `app/services/*` for orchestration
+4. `app/crud/*` → `app/db/models/*`
+5. `app/schemas/*` for response shape
 6. Error envelope from `app/core/errors.py`
 
-## Transaction ownership (BE-01)
+## Transaction ownership
 
-**Rule:** HTTP endpoint handlers own `await db.commit()` / `rollback()`.  
-Services and CRUD layers **flush only** (persist within the open transaction) unless a documented exception applies.
+HTTP handlers own `await db.commit()` / `rollback()`. Services and CRUD **flush only**, unless a documented worker owns its session.
 
-| Layer | May `commit`/`rollback`? | Notes |
-|-------|--------------------------|--------|
-| `app/api/endpoints/*` | Yes | Owns request transaction boundary |
-| `app/services/*` | No (prefer) | `flush` after mutations; raise for caller to decide |
-| `app/crud/*` | No | `flush` / `refresh` only |
-| Background workers (`main` lifespan, scripts) | Yes | Worker owns its session lifecycle |
+Money-path callbacks commit only expected outcomes; unexpected errors roll back.
 
-Money-path exceptions already hardened: payment callback commits only expected outcomes; unexpected errors roll back and log (see `payment.py`). New money-path code must follow the same pattern.
+## Security posture (as-built)
 
-**Remediation (AODS `CR-005` / D20, Option A):** Incremental — services move to `flush` only; endpoints own `commit`. Money path first. `submit_checkout` was already flush-only; `checkout_service.submit_contact` hoist completed 2026-07-30. Residual service-level commits remain in otp/cart/product/brand/category/idempotency/hesabfa (separate IMPL nodes).
+- Admin edge session: signed HttpOnly cookie after `/auth/me` proves `super_admin`
+- Refresh rotation / token_version revocation on API JWTs
+- Step-up PIN (single-use) for destructive admin actions
+- Production boot rejects weak PIN, wildcard CORS, OTP echo, **mock payment**, console SMS, empty `TRUSTED_HOSTS`
 
-## Compatibility shims
+## Knowledge overlay
 
-- `crud/platform.py` re-exports cart/refresh/audit/idempotency modules.
-- `crud/content.py` still exports OTP helpers (implementation lives in `crud/otp.py`).
-- `api/v1` still mounts **one** `product.router` and **one** `storefront.router` — public URLs unchanged.
+PKE identity = `products.id` (ADR-014). Primary Product Type = nullable `products.product_type_id` (ADR-015). Graph edges/Facts are a Postgres overlay (ADR-013). Dual-write and generative RAG stay deferred (`CANON-LOCK.md`).
 
-## Security posture (unchanged by refactor)
+## Deploy topology
 
-- JWT + token_version revocation; refresh rotation
-- Step-up PIN (single-use jti) for destructive admin actions
-- Rate limits / public throttles via Redis when configured
-- OTP: 6-digit codes hashed with HMAC-SHA256 + `SECRET_KEY` pepper (`app/utils/otp_hash.py`)
-- Production validators reject weak PIN, wildcard CORS, OTP echo, mock payment in production
-- Image URL SSRF guard (hostname + resolve-time private IP block); raster-only uploads (no SVG)
-- Cookie CSRF Origin/Referer check on unsafe methods (`CookieCsrfOriginMiddleware`)
-- Body size limits; optional HTTPS / trusted hosts; `/metrics` loopback-only in nginx template
-
-## Related docs
-
-- [API_CONTRACT.md](API_CONTRACT.md) — index for frontend
-- [FRONTEND_IMPLEMENTATION_GUIDE.md](FRONTEND_IMPLEMENTATION_GUIDE.md) — FE/BE parity
-- [BACKEND_STRUCTURE_REFACTOR_MAP.md](BACKEND_STRUCTURE_REFACTOR_MAP.md) — refactor plan
-- [GO_LIVE_EXECUTION_PLAN.md](GO_LIVE_EXECUTION_PLAN.md) — launch checklist
+One VPS today serves public traffic. `deploy-staging.yml` is **manual** `workflow_dispatch` on `main`. There is no isolated staging host (`CR-011`). Treat a qualifying deploy as a live release. See [`OPERATIONS.md`](OPERATIONS.md).

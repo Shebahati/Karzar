@@ -15,12 +15,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 | New `error_code` | Minor | `GUEST_ORDER_NOT_PAYABLE` |
 | Stricter validation | Minor* | `category_id` required on create |
 
-\* Document in this file and in [BACKEND_CHANGES.md](BACKEND_CHANGES.md); frontend should handle new validation errors.
+\* Document in this file; frontend should handle new validation errors.
 
 ## Current baseline: API v1.0
 
 **Status:** Active  
-**Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
+**Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
 ### 2026-08-02 — KB-REMEDIATION-11A Property Dictionary admin read (CR-012)
 

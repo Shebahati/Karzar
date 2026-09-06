@@ -21,4 +21,4 @@ We aim to acknowledge reports within 7 days.
 ## Secrets
 
 Never commit `.env`, `.env.local`, `.deploy-secrets`, private keys, or production credentials.
-See [docs/COLLABORATOR_DEPLOY.md](docs/COLLABORATOR_DEPLOY.md).
+See [docs/OPERATIONS.md](docs/OPERATIONS.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
