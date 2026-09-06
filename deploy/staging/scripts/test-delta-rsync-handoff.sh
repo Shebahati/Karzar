@@ -279,4 +279,27 @@ karzar_copy_tracked_deploy_tree "$I_REPO" "$I_TREE"
 [[ -f "$I_TREE/frontend/Storefront/index.html" ]] || fail "copy: missing public-like file"
 pass "TRACKED_TREE_COPY"
 
+
+# --- J. remote seed helper payload must be self-contained under set -u ---
+J_BE="$TMP/j-live-be"
+J_FE="$TMP/j-live-fe"
+J_IN="$TMP/j-in/tree"
+make_min_tree "$J_BE"
+mkdir -p "$J_FE/Storefront"
+echo 'remote-seed' > "$J_FE/Storefront/asset.bin"
+{
+  declare -f karzar_backend_rsync_excludes
+  declare -f karzar_frontend_rsync_excludes
+  declare -f karzar_read_null_args
+  declare -f karzar_prepare_incoming_dest
+  declare -f karzar_seed_incoming_tree
+  printf 'set -euo pipefail\n'
+  printf 'KARZAR_PARTIAL_DIR=%q\n' "$KARZAR_PARTIAL_DIR"
+  printf 'karzar_prepare_incoming_dest %q\n' "$TMP/j-in"
+  printf 'karzar_seed_incoming_tree %q %q %q\n' "$J_BE" "$J_FE" "$J_IN"
+} | env -i PATH="$PATH" bash -s
+[[ -f "$J_IN/app/main.py" ]] || fail "remote-seed: backend file missing"
+[[ -f "$J_IN/frontend/Storefront/asset.bin" ]] || fail "remote-seed: frontend file missing"
+pass "REMOTE_SEED_CLEAN_SHELL"
+
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"
