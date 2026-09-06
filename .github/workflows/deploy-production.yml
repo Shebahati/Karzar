@@ -76,10 +76,51 @@ jobs:
     if: github.repository == 'Shebahati/Karzar' && github.event.inputs.confirm == 'deploy-production'
     steps:
       - name: Download deploy artifact
+        id: artifact
+        continue-on-error: true
+        env:
+          NODE_OPTIONS: --dns-result-order=ipv4first
         uses: actions/download-artifact@v4
         with:
           name: production-src-${{ github.sha }}
           path: ${{ runner.temp }}/production-src
+
+      - name: Download deploy artifact over IPv4 (fallback)
+        if: steps.artifact.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: production-src-${{ github.sha }}
+          DEST: ${{ runner.temp }}/production-src
+        run: |
+          set -euo pipefail
+          echo "download-artifact@v4 failed; retrying artifact API over IPv4"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          ZIP="${RUNNER_TEMP}/production-src-artifact.zip"
+          LIST_JSON="$(curl -4 -fsS --retry 8 --retry-all-errors --retry-delay 3 --connect-timeout 15 --max-time 60 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts")"
+          AID="$(printf '%s' "$LIST_JSON" | python3 -c "import json,os,sys; name=os.environ['ARTIFACT_NAME']; data=json.loads(sys.stdin.read()); ids=[a.get('id') for a in (data.get('artifacts') or []) if a.get('name')==name and not a.get('expired')]; raise SystemExit('artifact_not_found:'+name) if not ids else print(ids[0])")"
+          echo "artifact_id=${AID}"
+          curl -4 -fL --retry 12 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 300 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -o "$ZIP" \
+            -w "artifact_http=%{http_code} time=%{time_total} ip=%{remote_ip} bytes=%{size_download}\n" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${AID}/zip"
+          ZIP="$ZIP" DEST="$DEST" python3 -c "import os,zipfile,pathlib; z,d=os.environ['ZIP'],os.environ['DEST']; pathlib.Path(d).mkdir(parents=True, exist_ok=True); zf=zipfile.ZipFile(z); names=zf.namelist(); zf.extractall(d); zf.close(); print('extracted_files=%d' % len(names))"
+          rm -f "$ZIP"
+
+      - name: Verify source handoff
+        run: |
+          set -euo pipefail
+          SRC="${{ runner.temp }}/production-src"
+          test -f "$SRC/deploy/staging/scripts/deploy-frontend.sh"
+          test -d "$SRC/frontend/Storefront"
+          echo "HANDOFF_OK sha=${{ github.sha }} artifact=${{ steps.artifact.outcome }}"
 
       - name: Sync backend → /opt/karzar/Karzar
         run: |
