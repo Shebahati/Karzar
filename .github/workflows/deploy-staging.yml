@@ -72,6 +72,7 @@ jobs:
       - name: Verify incoming source
         env:
           GITHUB_SHA: ${{ github.sha }}
+          EXPECTED_DIGEST: ${{ needs.package.outputs.digest }}
           STAGED_DIR: ${{ runner.temp }}/staging-src
         run: |
           set -euo pipefail
@@ -79,7 +80,7 @@ jobs:
           test -f "$IN/src.tgz"
           test -f "$IN/src.tgz.sha256"
           VERIFY="${{ runner.temp }}/verify-incoming-source.sh"
-          tar -xOf "$IN/src.tgz" deploy/staging/scripts/verify-incoming-source.sh > "$VERIFY"
+          tar -xOf "$IN/src.tgz" ./deploy/staging/scripts/verify-incoming-source.sh > "$VERIFY"
           bash "$VERIFY"
 
       - name: Sync backend → /opt/karzar/Karzar
