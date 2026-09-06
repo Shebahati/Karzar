@@ -1,5 +1,9 @@
 # PMO / Product Changelog (living)
 
+## 2026-09-06 — Deploy Staging artifact handoff (IPv4 fallback)
+- Run `34027498113` failed on self-hosted `karzar-vps` at `Download deploy artifact`: `Artifact download failed after 5 retries`. Package/upload succeeded (artifact `9987646407`, 62663128 bytes). Job logs were `BlobNotFound` (VPS could not persist logs to Azure either). Same step failed then recovered on 2026-08-27 (`33055395097` → `33056154505`).
+- Workflow now probes IPv4/IPv6, prefers IPv4 for Node (`--dns-result-order=ipv4first`), and falls back to `curl -4` against `api.github.com` when `actions/download-artifact@v4` fails. Gates unchanged: `workflow_dispatch`, main-only, freeze, same-repo, smoke.
+
 ## 2026-08-23 — OPS Phase 0 backup protection freeze (complete)
 - Root cause confirmed: GitHub deploy artifacts normalize executable modes; deploy restored only `deploy/staging/scripts/*.sh`, while backup scripts arrived on the VPS as `0644` and cron executed them directly.
 - Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. PR #233 merged at `0fc5f9f`; repository variable `KARZAR_DEPLOY_FREEZE=true` was verified and the workflows remain disabled.
