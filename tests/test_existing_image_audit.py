@@ -426,6 +426,10 @@ def test_inventory_duplicates_unreferenced_deterministic(tmp_path: Path, monkeyp
 
     monkeypatch.setattr("scripts.image_audit.inventory.fetch_products", fake_products)
     monkeypatch.setattr("scripts.image_audit.inventory.fetch_product_images", fake_images)
+    monkeypatch.setattr(
+        "scripts.image_audit.inventory._utc_now",
+        lambda: "2026-01-01T00:00:00Z",
+    )
 
     out1 = tmp_path / "out1"
     out1.mkdir()
