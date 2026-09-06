@@ -1,0 +1,83 @@
+{
+  "version": "1",
+  "source_root_env": "KARZAR_TARGET_SOURCE_DIR",
+  "notes": "Paths are globs under the configurable source root. No developer-specific absolute paths.",
+  "approved_scopes": [
+    {"brand": "INSIZE", "product_family": "measurement", "scope_kind": "brand"},
+    {"brand": "TERMA", "product_family": "measurement", "scope_kind": "brand"},
+    {"brand": "DASQUA", "product_family": "measurement", "scope_kind": "brand"},
+    {"brand": "MITUTOYO", "product_family": "measurement", "scope_kind": "brand"},
+    {"brand": "GUANGLU", "product_family": "measurement", "scope_kind": "brand", "aliases": ["GL"]},
+    {"brand": "DCOIL", "product_family": "helicoil", "scope_kind": "brand"},
+    {"brand": "SHAMS", "product_family": "helicoil", "scope_kind": "brand"},
+    {"brand": "ASTPOWER", "product_family": "chuck", "scope_kind": "product_family", "folder_hints": ["chuck", "سه نظام"]},
+    {"brand": "ASTPOWER", "product_family": "tool_grinder", "scope_kind": "product_family", "folder_hints": ["tool grinder", "ابزار تیزکن", "تیزکن"]},
+    {"brand": "ASTPOWER", "product_family": "tailstock_rotary", "scope_kind": "product_family", "folder_hints": ["tailstock", "rotary", "گردان"]},
+    {"brand": "ASTPOWER", "product_family": "magnetic_drill", "scope_kind": "product_family", "folder_hints": ["magnetic drill", "دریل مگنت", "core drill", "کرگیری"]},
+    {"brand": "ASTPOWER", "product_family": "et_taps", "scope_kind": "product_family", "folder_hints": ["et tap", "ET"]},
+    {"brand": "ASTPOWER", "product_family": "pneumatic_tapping", "scope_kind": "product_family", "folder_hints": ["pneumatic tapping", "قلاویز زن بادی"]},
+    {"brand": "ASTPOWER", "product_family": "cutting_fluid", "scope_kind": "product_family", "folder_hints": ["cutting fluid", "روغن آب صابون"]},
+    {"brand": "ASTPOWER", "product_family": "tapping_collets", "scope_kind": "product_family", "folder_hints": ["tapping collet", "holder", "کولت قلاویز"]},
+    {"brand": "ASTPOWER", "product_family": "automatic_tapping", "scope_kind": "product_family", "folder_hints": ["automatic tapping", "قلاویز زن اتومات"]},
+    {"brand": "ASTPOWER", "product_family": "electric_tapping", "scope_kind": "product_family", "folder_hints": ["electric tapping", "قلاویز زن برقی"]},
+    {"brand": "ASTPOWER", "product_family": "multi_spindle", "scope_kind": "product_family", "folder_hints": ["multi-spindle", "مولتی اسپیندل"]},
+    {"brand": "ASTPOWER", "product_family": "magnetic_drill_hole_saws", "scope_kind": "product_family", "folder_hints": ["hole saw", "گردبر"]},
+    {"brand": "ASTPOWER", "product_family": "utex_drills", "scope_kind": "product_family", "folder_hints": ["utex"]},
+    {"brand": "ASTPOWER", "product_family": "spade_drills", "scope_kind": "product_family", "folder_hints": ["spade drill", "مته کف تراش"]}
+  ],
+  "insize": {
+    "never_use_distributor_as_universe": true,
+    "match": "exact_normalized_sku",
+    "product_scope_globs": [
+      "**/*insize*product*list*",
+      "**/*insize*لیست*محصول*",
+      "**/*اینسایز*لیست*محصول*",
+      "**/INSIZE/**/*product*list*",
+      "**/INSIZE/**/product_scope.*"
+    ],
+    "distributor_globs": [
+      "**/*insize*distributor*",
+      "**/*insize*inventory*",
+      "**/*insize*موجودی*",
+      "**/INSIZE/**/*distributor*",
+      "**/INSIZE/**/price*",
+      "**/INSIZE/**/inventory*"
+    ],
+    "sku_headers": ["CODE", "SKU", "product_code", "کد", "کد کالا"],
+    "status_available_values": ["موجود"]
+  },
+  "role_globs": {
+    "product_scope": [
+      "**/*product*list*",
+      "**/*لیست*محصول*",
+      "**/product_scope.*"
+    ],
+    "price": [
+      "**/*price*",
+      "**/*قیمت*",
+      "**/*+10%*",
+      "**/*+25%*"
+    ],
+    "inventory": [
+      "**/*inventory*",
+      "**/*موجودی*",
+      "**/*distributor*"
+    ],
+    "catalog": [
+      "**/*catalog*",
+      "**/*کاتالوگ*",
+      "**/*spec*"
+    ],
+    "media": [
+      "**/*image*",
+      "**/*media*",
+      "**/*تصویر*"
+    ]
+  },
+  "sku_headers": ["sku", "SKU", "CODE", "code", "product_code", "کد", "کد کالا"],
+  "brand_headers": ["brand", "Brand", "برند"],
+  "price_headers": ["price", "base_price", "قیمت", "stored_price", "قیمت دلاری", "TOMAN", "toman"],
+  "currency_headers": ["currency", "price_currency", "واحد"],
+  "status_headers": ["status", "وضعیت", "inventory_status"],
+  "family_headers": ["product_family", "family", "خانواده"]
+}

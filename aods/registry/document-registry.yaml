@@ -53,6 +53,7 @@ unclassified_allow:
   - "project-management/sprints/**"              # canonical sprint files (CR-007 Option A)
   - "frontend/docs/**"                           # bilingual audit/gap twins; EVIDENCE, superseded by v2
   - "aods/70-prompts/*/*.prompt.md"              # validated by --gate prompts instead
+  - "data/catalog-target/**"                     # generated READ-ONLY reconciliation artifacts
 
 documents:
 

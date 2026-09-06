@@ -1,0 +1,181 @@
+{
+  "baseline_sha": "2de7a4cbfdaeec9b2f520b9914aeb727647a10d8",
+  "generated_at": "2026-09-06T09:56:07.982663+00:00",
+  "production_mutation": "ZERO",
+  "apply_phase": false,
+  "db_evidence": "unavailable",
+  "db_evidence_note": "no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts",
+  "live_db": false,
+  "total_current_products_observed": 0,
+  "total_target_skus": 0,
+  "target_skus_per_brand": {},
+  "counts": {
+    "KEEP": 0,
+    "UPDATE": 0,
+    "CREATE": 0,
+    "DEACTIVATE": 0,
+    "REVIEW": 0
+  },
+  "insize": {
+    "target_sku_count": 0,
+    "exact_matches_to_distributor": 0,
+    "unmatched_target_skus": [],
+    "duplicate_matches": [],
+    "ambiguous_matches": [],
+    "inventory_without_usable_price": [],
+    "price_but_unavailable": [],
+    "commerce_ready": [],
+    "unresolved_identities": [],
+    "distributor_row_count": 0,
+    "universe_expanded_from_distributor": false
+  },
+  "unavailable_authoritative_sources": [
+    {
+      "source": "KARZAR_TARGET_SOURCE_DIR",
+      "reason": "source_root_unset_or_missing"
+    },
+    {
+      "source": "INSIZE/measurement",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "TERMA/measurement",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "DASQUA/measurement",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "MITUTOYO/measurement",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "GUANGLU/measurement",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "DCOIL/helicoil",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "SHAMS/helicoil",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/chuck",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/tool_grinder",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/tailstock_rotary",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/magnetic_drill",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/et_taps",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/pneumatic_tapping",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/cutting_fluid",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/tapping_collets",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/automatic_tapping",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/electric_tapping",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/multi_spindle",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/magnetic_drill_hole_saws",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/utex_drills",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "ASTPOWER/spade_drills",
+      "reason": "source_root_unavailable"
+    },
+    {
+      "source": "INSIZE/product_scope",
+      "reason": "authoritative_source_file_unavailable"
+    },
+    {
+      "source": "INSIZE/distributor_price_inventory",
+      "reason": "authoritative_source_file_unavailable"
+    }
+  ],
+  "parse_failures": [],
+  "source_conflicts": [],
+  "examples": {},
+  "tooling": [
+    {
+      "path": "scripts/reconcile_prices_availability.py",
+      "class": "unsafe_for_new_catalog_authority",
+      "why": "Global rule: positive base_price => is_available for ALL live products; price lists treated as membership."
+    },
+    {
+      "path": "scripts/import_price_lists.py",
+      "class": "unsafe_for_new_catalog_authority",
+      "why": "Hardcoded developer Price dir; APPLY writes DB; price lists do not define Target membership."
+    },
+    {
+      "path": "scripts/insize_price_update.py",
+      "class": "legacy",
+      "why": "Strips trailing letters (A/S) for matching; API writer; not Target-universe aware."
+    },
+    {
+      "path": "scripts/insize_sales_activation.py (PR #266, unmerged)",
+      "class": "reusable_pieces_unsafe_as_authority",
+      "why": "Reusable: conservative normalize_sku, stdlib xlsx, rial/10, exact match, apply gates. Unsafe as Target authority: 10-SKU pilot allowlist must not define membership; APPLY exists."
+    },
+    {
+      "path": "scripts/azarsanat_import.py",
+      "class": "legacy",
+      "why": "Placeholder 10_000_000 prices; infers brands/families beyond the approved AST folder set."
+    },
+    {
+      "path": "scripts/enrich_insize_from_shopmill.py",
+      "class": "reusable",
+      "why": "Content-only enrichment; must not be used as product-scope membership."
+    },
+    {
+      "path": "data/imports/insize_products.csv / all_products.csv",
+      "class": "legacy",
+      "why": "PDF price-list parse (~342 INSIZE rows). Not the approved ~872 product-list universe."
+    },
+    {
+      "path": "scripts/seed_products_from_csv.py",
+      "class": "unsafe_for_new_catalog_authority",
+      "why": "Creates products from CSV; this task forbids CREATE/DELETE mutation."
+    }
+  ],
+  "storefront": {
+    "STOREFRONT_HIDE_IMAGELESS_PRODUCTS": true,
+    "note": "Public lists/details hide products without a non-placeholder image when the flag is on (app/utils/public_catalog.py). target_member is independent of media_ready and commerce_ready."
+  },
+  "ready_for_apply": false,
+  "ready_for_apply_reason": "No APPLY in this node. Authoritative product-scope files were missing or incomplete, and current-catalog evidence is not live. REVIEW must never auto-promote."
+}

@@ -1,5 +1,11 @@
 # PMO / Product Changelog (living)
 
+## 2026-09-06 — CAT-004 Target Catalog reconciliation (READ-ONLY)
+- Added `scripts/catalog_target/` + `scripts/reconcile_target_catalog.py`: membership from approved product-scope sources only; price/inventory/catalog/media stay separate; INSIZE universe cannot expand from a distributor workbook.
+- Generated `data/catalog-target/` reports. This workspace had no `KARZAR_TARGET_SOURCE_DIR` and no live DB; PDF parses and image-only extracts were refused as catalog authority.
+- Existing `reconcile_prices_availability.py` classified unsafe (positive price ⇒ available globally). PR #266 not merged/applied; 10-SKU pilot is not Target membership.
+- PRODUCTION MUTATION: ZERO. No APPLY path. Task `CAT-004` in_progress 70% pending authoritative source files + current-catalog snapshot.
+
 ## 2026-08-23 — OPS Phase 0 backup protection freeze (complete)
 - Root cause confirmed: GitHub deploy artifacts normalize executable modes; deploy restored only `deploy/staging/scripts/*.sh`, while backup scripts arrived on the VPS as `0644` and cron executed them directly.
 - Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. PR #233 merged at `0fc5f9f`; repository variable `KARZAR_DEPLOY_FREEZE=true` was verified and the workflows remain disabled.
