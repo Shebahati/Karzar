@@ -468,4 +468,118 @@ if consume_verify "$T_IN" "$T_SHA"; then
   fail "marker bytes mismatch should fail"
 fi
 pass "MARKER_BYTES_MISMATCH"
+
+file_mode() {
+  stat -c '%a' "$1"
+}
+
+has_other_write() {
+  find -P "$1" \( -type f -o -type d \) -perm -0002 -print
+}
+
+# --- incoming readability / permission normalization ---
+U_SHA="$(hex40 40)"
+U_IN="$TMP/u-in"
+make_completed_incoming "$U_IN" "$U_SHA"
+chmod 0755 "$U_IN"
+chmod 0644 "$U_IN/${KARZAR_MANIFEST_NAME}" "$U_IN/${KARZAR_HANDOFF_MARKER}"
+chmod -R a+rX "$U_IN/tree"
+consume_verify "$U_IN" "$U_SHA" >/dev/null
+pass "READABLE_HANDOFF"
+
+V_SHA="$(hex40 41)"
+V_IN="$TMP/v-in"
+make_completed_incoming "$V_IN" "$V_SHA"
+chmod 0755 "$V_IN/tree/deploy/staging/scripts/deploy-frontend.sh"
+chmod 0600 "$V_IN/${KARZAR_MANIFEST_NAME}" "$V_IN/${KARZAR_HANDOFF_MARKER}"
+chmod 0700 "$V_IN" "$V_IN/tree"
+find -P "$V_IN/tree" -type d -exec chmod 0700 {} +
+find -P "$V_IN/tree" -type f -exec chmod 0600 {} +
+chmod 0755 "$V_IN/tree/deploy/staging/scripts/deploy-frontend.sh"
+[[ "$(file_mode "$V_IN/${KARZAR_MANIFEST_NAME}")" == "600" ]] \
+  || fail "restrictive fixture: expected manifest 600"
+karzar_normalize_incoming_permissions "$V_IN"
+[[ "$(file_mode "$V_IN")" == "755" ]] || fail "normalize: incoming dir not 755"
+[[ "$(file_mode "$V_IN/${KARZAR_MANIFEST_NAME}")" == "644" ]] \
+  || fail "normalize: manifest not 644"
+[[ "$(file_mode "$V_IN/${KARZAR_HANDOFF_MARKER}")" == "644" ]] \
+  || fail "normalize: marker not 644"
+[[ "$(file_mode "$V_IN/tree/app/main.py")" == "644" ]] \
+  || fail "normalize: tree file not readable"
+[[ "$(file_mode "$V_IN/tree/deploy/staging/scripts/deploy-frontend.sh")" == "755" ]] \
+  || fail "normalize: executable bit stripped"
+if [[ -n "$(has_other_write "$V_IN")" ]]; then
+  fail "normalize: world-writable path created"
+fi
+consume_verify "$V_IN" "$V_SHA" >/dev/null
+pass "RESTRICTIVE_MANIFEST_NORMALIZED"
+pass "EXEC_BIT_PRESERVED"
+pass "NO_WORLD_WRITE"
+
+W_LIVE_BE="$TMP/w-live-be"
+W_LIVE_FE="$TMP/w-live-fe"
+W_SECRETS="$TMP/w-secrets"
+W_IN="$TMP/w-in"
+W_SHA="$(hex40 42)"
+make_min_tree "$W_LIVE_BE"
+mkdir -p "$W_LIVE_FE/Storefront" "$W_SECRETS"
+echo 'be-secret' > "$W_LIVE_BE/.env"
+echo 'fe-keep' > "$W_LIVE_FE/Storefront/keep.bin"
+echo 'deploy-secret' > "$W_SECRETS/.deploy-secrets"
+chmod 0600 "$W_LIVE_BE/.env" "$W_SECRETS/.deploy-secrets"
+chmod 0700 "$W_SECRETS"
+W_BE_MODE="$(file_mode "$W_LIVE_BE/.env")"
+W_SEC_MODE="$(file_mode "$W_SECRETS/.deploy-secrets")"
+W_SEC_DIR="$(file_mode "$W_SECRETS")"
+W_BE_HASH="$(sha256sum "$W_LIVE_BE/.env" "$W_LIVE_BE/app/main.py")"
+W_FE_HASH="$(sha256sum "$W_LIVE_FE/Storefront/keep.bin")"
+W_SEC_HASH="$(sha256sum "$W_SECRETS/.deploy-secrets")"
+make_completed_incoming "$W_IN" "$W_SHA"
+chmod 0600 "$W_IN/${KARZAR_MANIFEST_NAME}"
+karzar_normalize_incoming_permissions "$W_IN"
+[[ "$(file_mode "$W_LIVE_BE/.env")" == "$W_BE_MODE" ]] || fail "outside: backend .env mode changed"
+[[ "$(file_mode "$W_SECRETS/.deploy-secrets")" == "$W_SEC_MODE" ]] || fail "outside: secrets mode changed"
+[[ "$(file_mode "$W_SECRETS")" == "$W_SEC_DIR" ]] || fail "outside: secrets dir mode changed"
+[[ "$(sha256sum "$W_LIVE_BE/.env" "$W_LIVE_BE/app/main.py")" == "$W_BE_HASH" ]] \
+  || fail "outside: backend content changed"
+[[ "$(sha256sum "$W_LIVE_FE/Storefront/keep.bin")" == "$W_FE_HASH" ]] \
+  || fail "outside: frontend content changed"
+[[ "$(sha256sum "$W_SECRETS/.deploy-secrets")" == "$W_SEC_HASH" ]] \
+  || fail "outside: secrets content changed"
+pass "OUTSIDE_TREE_UNCHANGED"
+
+X_SHA="$(hex40 43)"
+X_IN="$TMP/x-in"
+make_completed_incoming "$X_IN" "$X_SHA"
+chmod 0600 "$X_IN/${KARZAR_MANIFEST_NAME}" "$X_IN/${KARZAR_HANDOFF_MARKER}"
+karzar_normalize_incoming_permissions "$X_IN"
+consume_verify "$X_IN" "$X_SHA" >/dev/null
+pass "VERIFY_AFTER_NORMALIZATION"
+
+Y_SHA="$(hex40 44)"
+Y_IN="$TMP/y-in"
+make_completed_incoming "$Y_IN" "$Y_SHA"
+karzar_normalize_incoming_permissions "$Y_IN"
+echo 'tampered-after-normalize' > "$Y_IN/tree/app/main.py"
+if consume_verify "$Y_IN" "$Y_SHA"; then
+  fail "corruption after normalize should fail"
+fi
+pass "CORRUPTION_STILL_FAILS"
+
+# Remote payload must set the same vars as push-incoming-source.sh
+Z_SHA="$(hex40 45)"
+Z_IN="$TMP/z-in"
+make_completed_incoming "$Z_IN" "$Z_SHA"
+chmod 0600 "$Z_IN/${KARZAR_MANIFEST_NAME}"
+{
+  declare -f karzar_normalize_incoming_permissions
+  printf 'set -euo pipefail\n'
+  printf 'KARZAR_MANIFEST_NAME=%q\n' "$KARZAR_MANIFEST_NAME"
+  printf 'KARZAR_HANDOFF_MARKER=%q\n' "$KARZAR_HANDOFF_MARKER"
+  printf 'karzar_normalize_incoming_permissions %q\n' "$Z_IN"
+} | env -i PATH="$PATH" bash -s
+[[ "$(file_mode "$Z_IN/${KARZAR_MANIFEST_NAME}")" == "644" ]] \
+  || fail "clean-shell normalize: manifest not 644"
+pass "NORMALIZE_CLEAN_SHELL"
+
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"

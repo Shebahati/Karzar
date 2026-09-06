@@ -58,6 +58,10 @@ if ! grep -q 'BEGIN .*PRIVATE KEY' "$KEYFILE"; then
   exit 1
 fi
 chmod 600 "$KEYFILE"
+# umask 077 is only for the keyfile. The deploy-tree and deploy-manifest.sha256
+# must not inherit 0600 — scp preserves that mode and the self-hosted runner
+# may be a different Unix user than SSH_USER (run 34040385983).
+umask 022
 
 echo "Building isolated deploy tree (checkout left untouched)"
 rm -rf "$TREE"
@@ -138,5 +142,19 @@ echo "Verifying staged tree against GitHub manifest (HANDOFF_COMPLETE not yet wr
       EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
       INCOMING_DIR="$DEST" \
       bash "${DEST}/tree/deploy/staging/scripts/verify-incoming-source.sh"
+
+echo "Normalizing incoming/${GITHUB_SHA} read/traverse permissions (incoming only)"
+{
+  declare -f karzar_normalize_incoming_permissions
+  printf 'set -euo pipefail\n'
+  printf 'KARZAR_MANIFEST_NAME=%q\n' "$KARZAR_MANIFEST_NAME"
+  printf 'KARZAR_HANDOFF_MARKER=%q\n' "$KARZAR_HANDOFF_MARKER"
+  printf 'karzar_normalize_incoming_permissions %q\n' "$DEST"
+  printf 'stat -c %%A\\ %%a\\ %%n %q %q %q %q\n' \
+    "$DEST" \
+    "$DEST/tree" \
+    "$DEST/${KARZAR_HANDOFF_MARKER}" \
+    "$DEST/${KARZAR_MANIFEST_NAME}"
+} | "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s
 
 echo "HANDOFF_OK sha=${GITHUB_SHA} transport=rsync-delta files=${KARZAR_FILE_COUNT} bytes=${KARZAR_TOTAL_BYTES}"
