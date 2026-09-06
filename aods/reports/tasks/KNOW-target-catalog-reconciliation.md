@@ -18,9 +18,19 @@
 - `app/utils/public_catalog.py:106-152` — imageless products hidden when `STOREFRONT_HIDE_IMAGELESS_PRODUCTS`
 - `app/core/config.py:20` — flag default True
 
+## Correction pass (PR #269)
+
+Old PR base was `feat/site-change-batch-v1`. Catalog commits were replayed onto `origin/main`. Unrelated storefront/admin/backend site-change work is not in this PR.
+
+Source discovery is an explicit registry (`scripts/catalog_target/source_registry.json`), not generic filename guessing. Multi-role `product_scope` + `price` is legal only when declared. Generic price files do not confer membership. INSIZE universe is `اندازه گیری/اینسایز/لیست محصولات.pdf`; distributor workbooks are price+inventory only. Scanned PDFs are UNPARSED, never silent empty success. Duplicate tree `اد محصول 15 شهریور` is skipped against originals.
+
 ## Source verification
 
-`KARZAR_TARGET_SOURCE_DIR` unset. No approved Products-and-Data files in this workspace. Legacy repo CSVs (`data/imports/insize_products.csv`, `all_products.csv`) are PDF parses, not product-scope authority. Image-only `active-products.csv` is not a full catalog snapshot. Live DB unavailable.
+`KARZAR_TARGET_SOURCE_DIR` unset. Path `/home/shebahati/KaZar/Products and Data-20260906T100713Z-1-002` is not present on this workspace. Real INSIZE extraction (~872 expected, not hardcoded) is still pending.
+
+Legacy repo CSVs (`data/imports/insize_products.csv`, `all_products.csv`) are PDF parses, not product-scope authority and not current-site evidence. Live DB unavailable.
+
+A (Target source completeness) and B (current-site evidence) are reported separately.
 
 ## Resolved target
 
@@ -47,12 +57,13 @@ PRODUCTION MUTATION: ZERO. APPLY flags exit 2.
 python3 -m unittest tests.test_catalog_target_reconciliation -v
 ```
 
-19 passed.
+33 passed.
 
 ## Proposed next human step (NOT run)
 
 1. Point `KARZAR_TARGET_SOURCE_DIR` at the business-maintained Products and Data set.
-2. Provide a full current-catalog snapshot CSV or a local READ-ONLY DB.
-3. Re-run this tool. Review REVIEW rows. Separate APPLY node only after that — HC-09 / HC-13.
+2. Re-run this tool and record the extracted INSIZE unique SKU count (do not hardcode 872).
+3. Provide a full current-catalog snapshot CSV or a local READ-ONLY DB (not old import CSVs).
+4. Review REVIEW rows. Separate APPLY node only after that — HC-09 / HC-13.
 
-STATUS: COMPLETE for READ-ONLY tooling; APPLY blocked.
+STATUS: COMPLETE for READ-ONLY tooling correction; APPLY **NOT READY**.

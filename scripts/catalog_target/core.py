@@ -18,8 +18,22 @@ STATES = ("KEEP", "UPDATE", "CREATE", "DEACTIVATE", "REVIEW")
 
 _HYPHEN_RE = re.compile(r"[\u2010\u2011\u2012\u2013\u2014\u2212\uFE63\uFF0Dـ]")
 _WS_RE = re.compile(r"\s+")
-_MARKUP_RE = re.compile(r"(?<!\d)\+(\d+(?:\.\d+)?)%", re.IGNORECASE)
+_MARKUP_RE = re.compile(
+    r"(?<!\d)\+(\d+(?:\.\d+)?)\s*(?:%|٪|درصد)",
+    re.IGNORECASE,
+)
 _TRAILING_LETTER_RE = re.compile(r"^(.+?)([A-Z]+)$")
+_ZWNJ_RE = re.compile(r"[\u200c\u200d\ufeff]")
+
+
+def fold_token(value: str | None) -> str:
+    """Folder/filename compare: drop ZWNJ/whitespace, unify Yeh/Kaf. Do not stem meaning."""
+    if value is None:
+        return ""
+    s = str(value).replace("ي", "ی").replace("ك", "ک")
+    s = _ZWNJ_RE.sub("", s)
+    s = _WS_RE.sub("", s)
+    return s.casefold()
 
 # Canonical brand keys used for matching. Aliases never cross brands.
 BRAND_ALIASES: dict[str, str] = {
@@ -260,6 +274,9 @@ class TargetSku:
     source_scope: str
     source_product: str
     provenance: str = ""
+    membership_mode: str = "authoritative"
+    parse_status: str = "ok"
+    duplicate_in_source: bool = False
 
 
 @dataclass
@@ -272,6 +289,13 @@ class SourceFile:
     sha256: str = ""
     row_count: int | None = None
     markup_percent: Decimal | None = None
+    roles: list[str] = field(default_factory=list)
+    parse_status: str = "ok"
+    source_id: str = ""
+    product_family: str = ""
+    currency: str | None = None
+    membership_mode: str = "authoritative"
+    duplicate_copy: bool = False
 
 
 @dataclass

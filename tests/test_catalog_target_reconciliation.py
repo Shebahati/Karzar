@@ -21,15 +21,40 @@ from catalog_target.core import (  # noqa: E402
     commerce_ready,
     convert_price,
     cross_brand_sku_collisions,
+    detect_markup_percent,
+    fold_token,
     index_current_products,
     match_brand_sku,
     normalize_sku,
     suffix_near_miss,
 )
+from catalog_target.pdf import extract_pdf_text  # noqa: E402
 from catalog_target.reconcile import counts, reconcile, run_reconciliation  # noqa: E402
 from catalog_target.snapshot import load_current_catalog, load_snapshot_csv  # noqa: E402
 from catalog_target.sources import SourceDiscovery, resolve_source_root  # noqa: E402
 from catalog_target.xlsx import iter_xlsx_rows  # noqa: E402
+
+INSIZE_DIR = Path("اندازه گیری") / "اینسایز"
+TERMA_DIR = Path("اندازه گیری") / "ترما"
+DASQUA_DIR = Path("اندازه گیری") / "داسکوا"
+GUANGLU_DIR = Path("اندازه گیری") / "گوانگلو(GL)"
+MITUTOYO_DIR = Path("اندازه گیری") / "میتوتویو"
+DCOIL_DIR = Path("هلی کویل") / "DCOIL"
+SHAMS_DIR = Path("هلی کویل") / "شمس"
+AST_POWER = Path("آذرصنعت") / "AST Power"
+DUP_TREE = Path("آذرصنعت") / "اد محصول 15 شهریور"
+
+
+def _insize_list_pdf(root: Path, lines: list[str]) -> Path:
+    path = root / INSIZE_DIR / "لیست محصولات.pdf"
+    write_text_pdf(path, lines)
+    return path
+
+
+def _insize_distributor(root: Path, rows: list[list[object]]) -> Path:
+    path = root / INSIZE_DIR / "موجودی توزیع کننده 11 شهریور - Sheet1 باز.xlsx"
+    _write_xlsx(path, ["CODE", "TOMAN", "وضعیت"], rows)
+    return path
 
 
 def _write_csv(path: Path, headers: list[str], rows: list[list[object]]) -> None:
@@ -124,6 +149,60 @@ def _write_xlsx(path: Path, headers: list[str], rows: list[list[object]]) -> Non
         z.writestr("xl/sharedStrings.xml", sst)
 
 
+def write_text_pdf(path: Path, lines: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ops = ["BT /F1 12 Tf 50 720 Td"]
+    for i, line in enumerate(lines):
+        esc = line.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+        if i:
+            ops.append("0 -16 Td")
+        ops.append(f"({esc}) Tj")
+    ops.append("ET")
+    stream = "\n".join(ops).encode("latin-1")
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        (
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            b"/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>"
+        ),
+        b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    ]
+    chunks = [b"%PDF-1.1\n"]
+    offsets = []
+    for i, obj in enumerate(objects, start=1):
+        offsets.append(sum(len(c) for c in chunks))
+        chunks.append(f"{i} 0 obj\n".encode() + obj + b"\nendobj\n")
+    xref_at = sum(len(c) for c in chunks)
+    xref = [b"xref\n0 6\n0000000000 65535 f \n"]
+    for off in offsets:
+        xref.append(f"{off:010d} 00000 n \n".encode())
+    chunks.extend(xref)
+    chunks.append(
+        b"trailer << /Size 6 /Root 1 0 R >>\nstartxref\n"
+        + str(xref_at).encode()
+        + b"\n%%EOF\n"
+    )
+    path.write_bytes(b"".join(chunks))
+
+
+def write_image_pdf(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(
+        b"%PDF-1.1\n"
+        b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
+        b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
+        b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] "
+        b"/Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >> endobj\n"
+        b"4 0 obj << /Type /XObject /Subtype /Image /Width 1 /Height 1 "
+        b"/ColorSpace /DeviceGray /BitsPerComponent 8 /Length 1 >> stream\n"
+        b"X\nendstream\nendobj\n"
+        b"5 0 obj << /Length 0 >> stream\nendstream\nendobj\n"
+        b"trailer << /Root 1 0 R >>\n%%EOF\n"
+    )
+
+
 def _current(
     sku: str,
     brand: str,
@@ -160,6 +239,11 @@ class SkuNormalizationTests(unittest.TestCase):
         self.assertTrue(suffix_near_miss("1114-150", "1114-150A"))
         self.assertFalse(suffix_near_miss("1114-150", "1114-150"))
         self.assertFalse(suffix_near_miss("1103-150", "1114-150"))
+
+    def test_fold_token_whitespace_and_zwnj(self):
+        self.assertEqual(fold_token("قلاویز زن"), fold_token("قلاویززن"))
+        self.assertEqual(fold_token("ابزار تیزکن"), fold_token("ابزارتیزکن"))
+        self.assertNotEqual(fold_token("مته برگی"), fold_token("مته کف تراش"))
 
 
 class BrandMatchTests(unittest.TestCase):
@@ -264,6 +348,11 @@ class PriceTests(unittest.TestCase):
         )
         self.assertEqual(applied.base_price_toman, Decimal("1100"))
 
+    def test_persian_markup_filename_tokens(self):
+        self.assertEqual(detect_markup_percent("لیست قیمت داسکوا +10 درصد.pdf"), Decimal("10"))
+        self.assertEqual(detect_markup_percent("لیست قیمت ترما +25درصد.pdf"), Decimal("25"))
+        self.assertEqual(detect_markup_percent("لیست قیمت DCOIL +10%.pdf"), Decimal("10"))
+
     def test_membership_not_availability(self):
         self.assertTrue(
             commerce_ready(
@@ -288,29 +377,49 @@ class SourceAndInsizeTests(unittest.TestCase):
         self.assertIsNone(resolve_source_root(None, env={}))
         discovery = SourceDiscovery(source_root=None)
         discovery.discover()
-        self.assertTrue(any("INSIZE/product_scope" == u["source"] for u in discovery.unavailable))
+        self.assertTrue(any(u["source"] == "insize.product_list" for u in discovery.unavailable))
         self.assertEqual(discovery.load_product_scope_targets(), [])
+
+    def test_source_root_outside_git_via_env(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["1103-150"])
+            resolved = resolve_source_root(None, env={"KARZAR_TARGET_SOURCE_DIR": str(root)})
+            self.assertEqual(resolved, root.resolve())
+            discovery = SourceDiscovery(source_root=resolved)
+            discovery.discover()
+            skus = {t.sku for t in discovery.load_product_scope_targets()}
+            self.assertEqual(skus, {"1103-150"})
+
+    def test_persian_insize_parent_folder_product_list_pdf(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = _insize_list_pdf(root, ["1103-150", "1114-150", "9722-250"])
+            self.assertEqual(path.name, "لیست محصولات.pdf")
+            self.assertEqual(path.parent.name, "اینسایز")
+            extracted = extract_pdf_text(path)
+            self.assertTrue(extracted.ok)
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            files = [f for f in discovery.files if f.source_id == "insize.product_list"]
+            self.assertEqual(len(files), 1)
+            self.assertEqual(files[0].roles, ["product_scope"])
+            targets = discovery.load_product_scope_targets()
+            self.assertEqual({t.sku for t in targets}, {"1103-150", "1114-150", "9722-250"})
 
     def test_insize_universe_does_not_expand_from_distributor(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            _write_csv(
-                root / "INSIZE" / "insize_product_list.csv",
-                ["CODE", "brand", "product_family"],
+            _insize_list_pdf(root, ["1103-150", "1114-150", "9722-250"])
+            extra = [[f"880{i}-01", 1000, "موجود"] for i in range(30)]
+            _insize_distributor(
+                root,
                 [
-                    ["1103-150", "INSIZE", "measurement"],
-                    ["1114-150", "INSIZE", "measurement"],
-                    ["9722-250", "INSIZE", "measurement"],
-                ],
-            )
-            extra = [[f"X-{i}", "INSIZE", "1000", "toman", "موجود"] for i in range(30)]
-            _write_csv(
-                root / "INSIZE" / "insize_distributor.csv",
-                ["CODE", "brand", "TOMAN", "currency", "وضعیت"],
-                [
-                    ["1103-150", "INSIZE", "50000", "toman", "موجود"],
-                    ["1114-150A", "INSIZE", "60000", "toman", "موجود"],
-                    ["9722-250", "INSIZE", "0", "toman", "ناموجود"],
+                    ["1103-150", 50000, "موجود"],
+                    ["1114-150A", 60000, "موجود"],
+                    ["9722-250", 0, "ناموجود"],
+                    ["1103-151", 10, "موجود"],
+                    ["9722-251", 8000, "ناموجود"],
                     *extra,
                 ],
             )
@@ -343,9 +452,10 @@ class SourceAndInsizeTests(unittest.TestCase):
                 snapshot_path=snapshot,
             )
             self.assertEqual(result.insize.target_sku_count, 3)
+            self.assertEqual(result.insize.unique_sku_count, 3)
             self.assertGreater(result.insize.distributor_row_count, 3)
             self.assertFalse(result.insize.universe_expanded_from_distributor)
-            self.assertNotIn("X-0", {t.sku for t in result.target_skus})
+            self.assertNotIn("8800-01", {t.sku for t in result.target_skus})
             self.assertEqual(result.insize.exact_distributor_matches, 2)  # 1103-150 and 9722-250
             self.assertIn("1114-150", result.insize.unmatched_target_skus)
             self.assertTrue(any(u["sku"] == "1114-150" for u in result.insize.unresolved_identities))
@@ -356,12 +466,19 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertFalse(any(r.commerce_ready for r in result.rows if r.sku == "9722-250"))
             deactivate = [r for r in result.rows if r.reconciliation_state == "DEACTIVATE"]
             self.assertTrue(any(r.sku == "OLD-1" for r in deactivate))
+            self.assertEqual(result.insize.available_positive_price, ["1103-150"])
+            self.assertEqual(result.insize.available_missing_zero_price, [])
+            self.assertEqual(result.insize.unavailable_positive_price, [])
 
-    def test_source_precedence_price_does_not_create_membership(self):
+    def test_generic_price_file_cannot_become_membership(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            write_text_pdf(
+                root / INSIZE_DIR / "لیست قیمت اینسایز +10 درصد.pdf",
+                ["1103-150 50000"],
+            )
             _write_csv(
-                root / "DASQUA" / "dasqua_price+10%.csv",
+                root / "misc" / "price_list+10%.csv",
                 ["sku", "brand", "price", "currency"],
                 [["1012-0010", "DASQUA", "1100", "toman"]],
             )
@@ -370,14 +487,81 @@ class SourceAndInsizeTests(unittest.TestCase):
             targets = discovery.load_product_scope_targets()
             self.assertEqual(targets, [])
 
+    def test_explicit_dual_role_product_scope_and_price(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / DASQUA_DIR / "لیست قیمت داسکوا +10 درصد.pdf",
+                ["1012-0010 11000 rial"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            dasqua = [f for f in discovery.files if f.source_id == "dasqua.price_list"]
+            self.assertEqual(len(dasqua), 1)
+            self.assertEqual(set(dasqua[0].roles), {"product_scope", "price"})
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            self.assertEqual({t.sku for t in result.target_skus}, {"1012-0010"})
+            row = next(r for r in result.rows if r.sku == "1012-0010")
+            self.assertEqual(row.base_price_toman, "1100")
+            self.assertFalse(row.commerce_ready)
+
+    def test_markup_already_applied_plus_10_and_plus_25(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / DASQUA_DIR / "لیست قیمت داسکوا +10 درصد.pdf",
+                ["1012-0010 11000 rial"],
+            )
+            write_text_pdf(
+                root / TERMA_DIR / "لیست قیمت ترما +25درصد.pdf",
+                ["TR-100 250000 rial"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            by_sku = {r.sku: r for r in result.rows if r.target_member}
+            self.assertEqual(by_sku["1012-0010"].base_price_toman, "1100")
+            self.assertNotEqual(by_sku["1012-0010"].base_price_toman, "1210")
+            self.assertEqual(by_sku["TR-100"].base_price_toman, "25000")
+            self.assertNotEqual(by_sku["TR-100"].base_price_toman, "31250")
+
+    def test_dcoil_zero_price_not_commerce_ready(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / DCOIL_DIR / "لیست قیمت DCOIL +10%.pdf",
+                ["DC-100 0 rial", "DC-200 10000 rial"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            by_sku = {r.sku: r for r in result.rows if r.target_member}
+            self.assertIn("DC-100", by_sku)
+            self.assertFalse(by_sku["DC-100"].commerce_ready)
+            self.assertFalse(by_sku["DC-200"].commerce_ready)
+
     def test_duplicate_target_sku_is_review(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            _write_csv(
-                root / "INSIZE" / "insize_product_list.csv",
-                ["CODE", "brand"],
-                [["1103-150", "INSIZE"], ["1103-150", "INSIZE"]],
-            )
+            _insize_list_pdf(root, ["1103-150", "1103-150"])
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
             result = reconcile(
@@ -387,29 +571,28 @@ class SourceAndInsizeTests(unittest.TestCase):
                 evidence_note="test",
                 baseline_sha="x",
             )
-            self.assertTrue(all(r.reconciliation_state == "REVIEW" for r in result.rows if r.target_member))
+            members = [r for r in result.rows if r.target_member]
+            self.assertEqual(len(members), 1)
+            self.assertEqual(members[0].reconciliation_state, "REVIEW")
+            self.assertEqual(result.insize.unique_sku_count, 1)
+            self.assertIn("1103-150", result.duplicate_scope_skus)
 
     def test_keep_update_create_deactivate(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            _write_csv(
-                root / "INSIZE" / "insize_product_list.csv",
-                ["CODE", "brand"],
-                [["KEEP-1", "INSIZE"], ["UPD-1", "INSIZE"], ["NEW-1", "INSIZE"]],
-            )
-            _write_csv(
-                root / "INSIZE" / "insize_distributor.csv",
-                ["CODE", "TOMAN", "وضعیت"],
+            _insize_list_pdf(root, ["1108-25", "1114-150", "1234-56"])
+            _insize_distributor(
+                root,
                 [
-                    ["KEEP-1", "1000", "موجود"],
-                    ["UPD-1", "2000", "موجود"],
-                    ["NEW-1", "3000", "موجود"],
+                    ["1108-25", 1000, "موجود"],
+                    ["1114-150", 2000, "موجود"],
+                    ["1234-56", 3000, "موجود"],
                 ],
             )
             current = [
-                _current("KEEP-1", "INSIZE", id="1", base_price=Decimal("1000"), is_available=True),
-                _current("UPD-1", "INSIZE", id="2", base_price=Decimal("1500"), is_available=True),
-                _current("GONE-1", "INSIZE", id="3"),
+                _current("1108-25", "INSIZE", id="1", base_price=Decimal("1000"), is_available=True),
+                _current("1114-150", "INSIZE", id="2", base_price=Decimal("1500"), is_available=True),
+                _current("9999-99", "INSIZE", id="3"),
             ]
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
@@ -421,28 +604,23 @@ class SourceAndInsizeTests(unittest.TestCase):
                 baseline_sha="x",
             )
             by_sku = {r.sku: r for r in result.rows}
-            self.assertEqual(by_sku["KEEP-1"].reconciliation_state, "KEEP")
-            self.assertEqual(by_sku["UPD-1"].reconciliation_state, "UPDATE")
-            self.assertEqual(by_sku["NEW-1"].reconciliation_state, "CREATE")
-            self.assertEqual(by_sku["GONE-1"].reconciliation_state, "DEACTIVATE")
-            self.assertTrue(by_sku["KEEP-1"].commerce_ready)
-            self.assertTrue(by_sku["KEEP-1"].target_member)
-            self.assertFalse(by_sku["GONE-1"].target_member)
+            self.assertEqual(by_sku["1108-25"].reconciliation_state, "KEEP")
+            self.assertEqual(by_sku["1114-150"].reconciliation_state, "UPDATE")
+            self.assertEqual(by_sku["1234-56"].reconciliation_state, "CREATE")
+            self.assertEqual(by_sku["9999-99"].reconciliation_state, "DEACTIVATE")
+            self.assertTrue(by_sku["1108-25"].commerce_ready)
+            self.assertTrue(by_sku["1108-25"].target_member)
+            self.assertFalse(by_sku["9999-99"].target_member)
 
     def test_xlsx_distributor_join_exact_only(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            _write_csv(
-                root / "INSIZE" / "insize_product_list.csv",
-                ["CODE", "brand"],
-                [["A-1", "INSIZE"]],
+            _insize_list_pdf(root, ["1103-150"])
+            dist = _insize_distributor(
+                root,
+                [["1103-150", 5000, "موجود"], ["1103-150A", 8000, "موجود"], ["9999-01", 1, "موجود"]],
             )
-            _write_xlsx(
-                root / "INSIZE" / "insize_distributor.xlsx",
-                ["CODE", "TOMAN", "وضعیت"],
-                [["A-1", 5000, "موجود"], ["A-1B", 8000, "موجود"], ["Z-9", 1, "موجود"]],
-            )
-            rows = iter_xlsx_rows(root / "INSIZE" / "insize_distributor.xlsx")
+            rows = iter_xlsx_rows(dist)
             self.assertEqual(len(rows), 3)
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
@@ -456,7 +634,121 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertEqual(result.insize.target_sku_count, 1)
             self.assertEqual(result.insize.exact_distributor_matches, 1)
             self.assertFalse(result.insize.universe_expanded_from_distributor)
-            self.assertEqual({t.sku for t in result.target_skus}, {"A-1"})
+            self.assertEqual({t.sku for t in result.target_skus}, {"1103-150"})
+
+    def test_ast_exact_persian_folders_and_duplicate_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(root / AST_POWER / "مته برگی" / "list.pdf", ["MB-100 5000 rial"])
+            write_text_pdf(root / AST_POWER / "قلاویززن بادی" / "list.pdf", ["QT-100 8000 rial"])
+            write_text_pdf(
+                root / DUP_TREE / "مته برگی" / "list.pdf",
+                ["MB-100 5000 rial"],
+            )
+            write_text_pdf(
+                root / AST_POWER / "مته کف تراش" / "should_not.pdf",
+                ["KT-100 9000 rial"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            targets = discovery.load_product_scope_targets()
+            skus = {t.sku for t in targets}
+            self.assertIn("MB-100", skus)
+            self.assertIn("QT-100", skus)
+            self.assertNotIn("KT-100", skus)
+            self.assertEqual(sum(1 for t in targets if t.sku == "MB-100"), 1)
+            self.assertTrue(any("اد محصول 15 شهریور" in p for p in discovery.skipped_duplicates))
+            families = {t.sku: t.product_family for t in targets}
+            self.assertEqual(families["MB-100"], "spade_drills")
+            self.assertEqual(families["QT-100"], "pneumatic_tapping")
+
+    def test_scanned_pdf_is_unparsed_not_zero_success(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / INSIZE_DIR / "لیست محصولات.pdf"
+            write_image_pdf(path)
+            extracted = extract_pdf_text(path)
+            self.assertFalse(extracted.ok)
+            self.assertEqual(extracted.status, "unparsed_image")
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            targets = discovery.load_product_scope_targets()
+            self.assertEqual(targets, [])
+            self.assertTrue(discovery.unparsed)
+            self.assertTrue(discovery.parse_failures)
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="unavailable",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            self.assertTrue(result.unparsed)
+            self.assertTrue(result.parse_failures)
+
+    def test_pdf_parse_failure_is_surfaced(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / INSIZE_DIR / "لیست محصولات.pdf"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"this is not a pdf")
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            self.assertEqual(discovery.load_product_scope_targets(), [])
+            self.assertTrue(discovery.unparsed or discovery.parse_failures)
+            statuses = {f.parse_status for f in discovery.files if f.source_id == "insize.product_list"}
+            self.assertTrue(statuses)
+            self.assertNotIn("ok", statuses)
+
+    def test_text_pdf_with_no_skus_is_unparsed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(root / INSIZE_DIR / "لیست محصولات.pdf", ["Price list header only"])
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            discovery.load_product_scope_targets()
+            self.assertTrue(discovery.unparsed)
+            self.assertTrue(discovery.parse_failures)
+
+    def test_shams_scanned_does_not_create_products(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_image_pdf(root / SHAMS_DIR / "کاتالوگ شمس.pdf")
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            skus = {t.sku for t in discovery.load_product_scope_targets()}
+            self.assertEqual(skus, set())
+            self.assertTrue(any(u["source"] == "shams.catalog" for u in discovery.unavailable))
+            self.assertTrue(discovery.unparsed)
+
+    def test_mitutoyo_catalog_only_unresolved_scope(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(root / MITUTOYO_DIR / "کاتالوگ میتوتویو.pdf", ["103-137 5000"])
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            self.assertEqual(discovery.load_product_scope_targets(), [])
+            self.assertTrue(any(u["source"] == "mitutoyo.catalog" for u in discovery.unavailable))
+
+    def test_guanglu_weak_parse_is_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / GUANGLU_DIR / "لیست قیمت گوانگلو(GL).pdf",
+                ["GL-100 12000 rial"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            row = next(r for r in result.rows if r.target_member)
+            self.assertEqual(row.reconciliation_state, "REVIEW")
+            self.assertIn("weak_parser_confidence", row.review_reason)
 
     def test_snapshot_labeled_non_live(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -490,11 +782,7 @@ class CountInvariantTests(unittest.TestCase):
     def test_exactly_one_state_per_row(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            _write_csv(
-                root / "INSIZE" / "insize_product_list.csv",
-                ["CODE", "brand"],
-                [["N-1", "INSIZE"]],
-            )
+            _insize_list_pdf(root, ["1103-150"])
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
             result = reconcile(

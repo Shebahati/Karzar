@@ -8,7 +8,7 @@
 - [x] Ship remaining open EPIC-1 PMO tasks (`FE-002`) after SPEC gates
 
 ## Tasks
-- [ ] **CAT-004** Target Catalog reconciliation (READ-ONLY) — `in_progress` 70% | P1 | Sprint 05 — membership vs price/inventory split; INSIZE product-list universe; no APPLY; PRODUCTION MUTATION ZERO
+- [ ] **CAT-004** Target Catalog reconciliation (READ-ONLY) — `in_progress` 80% | P1 | Sprint 05 — explicit Persian source registry + PDF extract; real source-root INSIZE validation pending; no APPLY; PRODUCTION MUTATION ZERO
 - [x] **IMG-FAST-01A** Live storefront catalog baseline — `done` 100% | P1 | Sprint 05 — public API six-state baseline; existing-asset repair separated from internet discovery; zero DB/ProductImage mutations
 - [x] **IMG-SHOPMILL-WATERMARK-CLEANUP** Remove ShopMill watermarks from active product images — `done` 100% | P1 | Sprint 05 — PRODUCTION_COMPLETE 2026-08-11; 410 serving paths / 163 WEBP assets on `lathe_api`; no DB path mutation
 - [ ] **IMG-FAST-01** Catalog-wide one-image coverage sprint — `in_progress` 10% | P1 | Sprint 05 — parent for Fast Coverage; 01A baseline complete; 01B not started

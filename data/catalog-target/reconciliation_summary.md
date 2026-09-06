@@ -2,11 +2,25 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `2de7a4cbfdaeec9b2f520b9914aeb727647a10d8`
-- Generated at: `2026-09-06T09:56:07.982663+00:00`
+- Baseline SHA: `b31551a51a733fc259db704d65f3deb4bdb5de65`
+- Generated at: `2026-09-06T10:38:26.597966+00:00`
 - DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`unavailable`) — no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
 - Current products observed: **0**
 - Target SKUs: **0**
+
+## A. Target source completeness
+- Discovered files: 0
+- Unparsed files: 0
+- Unavailable registry sources: 26
+- Duplicate-tree copies skipped: 0
+- Duplicate source SKUs (identity collapsed, REVIEW): 0
+
+## B. Current-site evidence completeness
+- Kind: `unavailable` — **NON-LIVE / SNAPSHOT / UNAVAILABLE**
+- Note: no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
+- Current products observed: **0**
+
+A and B are independent. A real Target manifest can exist without live site evidence.
 
 ## Target SKUs per brand
 - (none — no authoritative product-scope files were available)
@@ -20,6 +34,7 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 
 ## INSIZE
 - Target SKU count: 0
+- Unique SKU count: 0
 - Exact matches to distributor workbook: 0
 - Distributor rows seen (price/inventory join only): 0
 - Universe expanded from distributor: False
@@ -29,9 +44,11 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 - (none)
 - Ambiguous matches: 0
 - (none)
-- Inventory but no usable price: 0
+- Available + positive price: 0
 - (none)
-- Price but unavailable: 0
+- Available + missing/zero price: 0
+- (none)
+- Unavailable + positive price: 0
 - (none)
 - Commerce-ready: 0
 - (none)
@@ -60,13 +77,17 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 
 ## Unavailable authoritative sources
 - `KARZAR_TARGET_SOURCE_DIR`: source_root_unset_or_missing
-- `INSIZE/measurement`: source_root_unavailable
-- `TERMA/measurement`: source_root_unavailable
-- `DASQUA/measurement`: source_root_unavailable
-- `MITUTOYO/measurement`: source_root_unavailable
-- `GUANGLU/measurement`: source_root_unavailable
-- `DCOIL/helicoil`: source_root_unavailable
-- `SHAMS/helicoil`: source_root_unavailable
+- `insize.product_list`: source_root_unavailable
+- `insize.distributor`: source_root_unavailable
+- `insize.catalog`: source_root_unavailable
+- `terma.price_list`: source_root_unavailable
+- `terma.catalog`: source_root_unavailable
+- `dasqua.price_list`: source_root_unavailable
+- `dasqua.catalog`: source_root_unavailable
+- `guanglu.price_list`: source_root_unavailable
+- `mitutoyo.catalog`: source_root_unavailable
+- `dcoil.price_list`: source_root_unavailable
+- `shams.catalog`: source_root_unavailable
 - `ASTPOWER/chuck`: source_root_unavailable
 - `ASTPOWER/tool_grinder`: source_root_unavailable
 - `ASTPOWER/tailstock_rotary`: source_root_unavailable
@@ -81,8 +102,9 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 - `ASTPOWER/magnetic_drill_hole_saws`: source_root_unavailable
 - `ASTPOWER/utex_drills`: source_root_unavailable
 - `ASTPOWER/spade_drills`: source_root_unavailable
-- `INSIZE/product_scope`: authoritative_source_file_unavailable
-- `INSIZE/distributor_price_inventory`: authoritative_source_file_unavailable
+
+## Unparsed sources
+- (none)
 
 ## Parse failures / source conflicts
 - (none)

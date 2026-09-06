@@ -29,7 +29,7 @@
 - [x] UX-001 PLP filter + hub IA polish (#113 → main @f4ec40b)
 - [x] TD-001 Category depth/selectable FE drift (#114 → main @8cd01bd)
 - [x] CAT-003 L1 category image coverage (#112 → main @fb7d628)
-- [ ] **CAT-004** Target Catalog reconciliation READ-ONLY (tooling + reports; APPLY blocked on source files + current snapshot)
+- [ ] **CAT-004** Target Catalog reconciliation READ-ONLY (tooling + reports; APPLY blocked on real source-root validation + current snapshot)
 - [x] FE-001 follow-up homepage padding (#117 → main @174718f)
 - [x] **AODS-001** AI-Orchestrated Development System **Accepted** ۱.۰.۰ — Board minute ۸ مرداد ۱۴۰۵ (Mohammad Shebahati); PR #128
 - [x] **CR-008 / D14** EPIC-1 ↔ PMO join (Option C) — tasks `SEO-005`…`SEO-009`, `BE-002`, `FE-002`; see `sprints/SPRINT_05.md`

@@ -15,7 +15,7 @@
   - Definition of Done:
     - [x] PROJECT_STATUS updated
   - Notes: #67 → main @f51c9fd; #69 → main @0829571 (Deploy Staging 30274744553); #70–#73 prior; #74 closed; #90 deferred w/ CAT-002.
-- [ ] **CAT-004** Target Catalog reconciliation (READ-ONLY) — `in_progress` 70% | P1 | Sprint 05 — tooling + reports; sources/DB unavailable in this workspace; no APPLY; PRODUCTION MUTATION ZERO
+- [ ] **CAT-004** Target Catalog reconciliation (READ-ONLY) — `in_progress` 80% | P1 | Sprint 05 — explicit Persian registry + PDF extract; `KARZAR_TARGET_SOURCE_DIR` unset here; no APPLY; PRODUCTION MUTATION ZERO
 - [ ] **CAT-002** INSIZE JSON-schema content fill (staging apply) — `in_progress` 75% | P1 | 20h | Sprint 02
   - Owner: PMO | Week 3 Day 1 | Risk: med
   - [ ] Description: Resume content-only INSIZE enrichment with locked measurement schema; no inventing specs.

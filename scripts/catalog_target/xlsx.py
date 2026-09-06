@@ -111,3 +111,20 @@ def iter_xlsx_rows(
             item["__source_row"] = int(row_el.get("r") or (len(rows) + 2))
             rows.append(item)
         return rows
+
+
+def read_xlsx_cell(path: Path, cell_ref: str, *, sheet_name: str | None = None) -> Any:
+    """Read one cell (e.g. K6) from an xlsx workbook."""
+    path = Path(path)
+    wanted = cell_ref.strip().upper()
+    with zipfile.ZipFile(path) as z:
+        shared = _load_shared_strings(z)
+        sheet_path = _sheet_path(z, sheet_name)
+        if sheet_path not in z.namelist():
+            sheet_path = "xl/worksheets/sheet1.xml"
+        sheet = ET.fromstring(z.read(sheet_path))
+        for row in sheet.findall("m:sheetData/m:row", _NS):
+            for c in row.findall("m:c", _NS):
+                if (c.get("r") or "").upper() == wanted:
+                    return _cell_value(c, shared)
+    return None

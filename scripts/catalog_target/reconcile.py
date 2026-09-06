@@ -90,12 +90,16 @@ class ManifestRow:
 @dataclass
 class InsizeStats:
     target_sku_count: int = 0
+    unique_sku_count: int = 0
     exact_distributor_matches: int = 0
     unmatched_target_skus: list[str] = field(default_factory=list)
     duplicate_matches: list[str] = field(default_factory=list)
     ambiguous_matches: list[str] = field(default_factory=list)
     inventory_without_price: list[str] = field(default_factory=list)
     price_but_unavailable: list[str] = field(default_factory=list)
+    available_positive_price: list[str] = field(default_factory=list)
+    available_missing_zero_price: list[str] = field(default_factory=list)
+    unavailable_positive_price: list[str] = field(default_factory=list)
     commerce_ready: list[str] = field(default_factory=list)
     unresolved_identities: list[dict[str, str]] = field(default_factory=list)
     distributor_row_count: int = 0
@@ -115,6 +119,10 @@ class ReconciliationResult:
     unavailable_sources: list[dict[str, str]]
     parse_failures: list[dict[str, str]]
     source_conflicts: list[str]
+    unparsed: list[dict[str, str]]
+    discovered_files: list[dict[str, str]]
+    skipped_duplicates: list[str]
+    duplicate_scope_skus: list[str]
     tooling_notes: list[dict[str, str]]
     examples: dict[str, list[str]]
 
@@ -165,13 +173,7 @@ def classify_target_row(
         "malformed_sku",
     }:
         return "REVIEW"
-    if extra_review in {
-        "suffix_mismatch",
-        "duplicate_price_match",
-        "ambiguous_price_match",
-        "uncertain_currency",
-        "conflicting_authoritative_sources",
-    }:
+    if extra_review:
         return "REVIEW"
     if source_conflict:
         return "REVIEW"
@@ -236,7 +238,10 @@ def reconcile(
     current_cross = cross_brand_sku_collisions(current_products)
 
     insize_targets = [t for t in targets if t.brand_key == "INSIZE"]
-    insize_stats = InsizeStats(target_sku_count=len(insize_targets))
+    insize_stats = InsizeStats(
+        target_sku_count=len(insize_targets),
+        unique_sku_count=len({t.normalized_sku for t in insize_targets}),
+    )
     distributor_codes: set[str] = set()
     counted_files: set[str] = set()
     for source, row in price_rows:
@@ -258,7 +263,10 @@ def reconcile(
             bucket_list.append(sku)
 
     for target in targets:
-        dup_target = target_dupes[identity_key(target.brand_key, target.normalized_sku)] > 1
+        dup_target = (
+            target_dupes[identity_key(target.brand_key, target.normalized_sku)] > 1
+            or target.duplicate_in_source
+        )
         match = match_brand_sku(
             brand_key=target.brand_key,
             normalized_sku=target.normalized_sku,
@@ -268,8 +276,12 @@ def reconcile(
         )
         extra_review = None
         source_conflict = None
+        if target.membership_mode == "review_if_weak":
+            extra_review = extra_review or "weak_parser_confidence"
+        if target.parse_status not in {"ok", ""}:
+            extra_review = extra_review or "unparsed_source"
         if target.normalized_sku in target_cross:
-            extra_review = "cross_brand_collision"
+            extra_review = extra_review or "cross_brand_collision"
             add_example("cross_brand_sku_collisions", target.sku)
         if dup_target:
             extra_review = extra_review or "duplicate_target_sku"
@@ -344,10 +356,14 @@ def reconcile(
                     )
                     add_example("unresolved_insize_identities", target.sku)
             has_price = bool(price_conv and price_conv.base_price_toman and price_conv.base_price_toman > 0)
+            if inventory_available is True and has_price:
+                insize_stats.available_positive_price.append(target.sku)
             if inventory_available is True and not has_price:
                 insize_stats.inventory_without_price.append(target.sku)
+                insize_stats.available_missing_zero_price.append(target.sku)
             if has_price and inventory_available is False:
                 insize_stats.price_but_unavailable.append(target.sku)
+                insize_stats.unavailable_positive_price.append(target.sku)
 
         review_bits = [
             match.review_reason,
@@ -532,6 +548,10 @@ def reconcile(
         unavailable_sources=discovery.unavailable,
         parse_failures=discovery.parse_failures,
         source_conflicts=conflicts,
+        unparsed=list(getattr(discovery, "unparsed", [])),
+        discovered_files=list(getattr(discovery, "discovered", [])),
+        skipped_duplicates=list(getattr(discovery, "skipped_duplicates", [])),
+        duplicate_scope_skus=list(getattr(discovery, "duplicate_scope_skus", [])),
         tooling_notes=tooling_notes,
         examples=dict(examples),
     )
@@ -571,16 +591,34 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "counts": state_counts,
         "insize": {
             "target_sku_count": result.insize.target_sku_count,
+            "unique_sku_count": result.insize.unique_sku_count,
             "exact_matches_to_distributor": result.insize.exact_distributor_matches,
             "unmatched_target_skus": result.insize.unmatched_target_skus,
             "duplicate_matches": result.insize.duplicate_matches,
             "ambiguous_matches": result.insize.ambiguous_matches,
             "inventory_without_usable_price": result.insize.inventory_without_price,
             "price_but_unavailable": result.insize.price_but_unavailable,
+            "available_positive_price": result.insize.available_positive_price,
+            "available_missing_zero_price": result.insize.available_missing_zero_price,
+            "unavailable_positive_price": result.insize.unavailable_positive_price,
             "commerce_ready": result.insize.commerce_ready,
             "unresolved_identities": result.insize.unresolved_identities,
             "distributor_row_count": result.insize.distributor_row_count,
             "universe_expanded_from_distributor": result.insize.universe_expanded_from_distributor,
+        },
+        "target_source_completeness": {
+            "discovered_files": result.discovered_files,
+            "unparsed_files": result.unparsed,
+            "unavailable_authoritative_sources": result.unavailable_sources,
+            "skipped_duplicate_tree_copies": result.skipped_duplicates,
+            "duplicate_scope_skus": result.duplicate_scope_skus,
+            "parse_failures": result.parse_failures,
+        },
+        "current_site_evidence_completeness": {
+            "kind": result.evidence_kind,
+            "live_db": result.evidence_kind == SNAPSHOT_KIND_LIVE,
+            "note": result.evidence_note,
+            "current_products_observed": len(result.current_products),
         },
         "unavailable_authoritative_sources": result.unavailable_sources,
         "parse_failures": result.parse_failures,
@@ -630,6 +668,20 @@ def render_summary(
         f"- Current products observed: **{len(result.current_products)}**",
         f"- Target SKUs: **{len(result.target_skus)}**",
         "",
+        "## A. Target source completeness",
+        f"- Discovered files: {len(result.discovered_files)}",
+        f"- Unparsed files: {len(result.unparsed)}",
+        f"- Unavailable registry sources: {len(result.unavailable_sources)}",
+        f"- Duplicate-tree copies skipped: {len(result.skipped_duplicates)}",
+        f"- Duplicate source SKUs (identity collapsed, REVIEW): {len(result.duplicate_scope_skus)}",
+        "",
+        "## B. Current-site evidence completeness",
+        f"- Kind: `{result.evidence_kind}` — **{live}**",
+        f"- Note: {result.evidence_note}",
+        f"- Current products observed: **{len(result.current_products)}**",
+        "",
+        "A and B are independent. A real Target manifest can exist without live site evidence.",
+        "",
         "## Target SKUs per brand",
     ]
     if per_brand:
@@ -648,6 +700,7 @@ def render_summary(
         "",
         "## INSIZE",
         f"- Target SKU count: {result.insize.target_sku_count}",
+        f"- Unique SKU count: {result.insize.unique_sku_count}",
         f"- Exact matches to distributor workbook: {result.insize.exact_distributor_matches}",
         f"- Distributor rows seen (price/inventory join only): {result.insize.distributor_row_count}",
         f"- Universe expanded from distributor: {result.insize.universe_expanded_from_distributor}",
@@ -657,10 +710,12 @@ def render_summary(
         bullets(result.insize.duplicate_matches[:8]),
         f"- Ambiguous matches: {len(result.insize.ambiguous_matches)}",
         bullets(result.insize.ambiguous_matches[:8]),
-        f"- Inventory but no usable price: {len(result.insize.inventory_without_price)}",
-        bullets(result.insize.inventory_without_price[:8]),
-        f"- Price but unavailable: {len(result.insize.price_but_unavailable)}",
-        bullets(result.insize.price_but_unavailable[:8]),
+        f"- Available + positive price: {len(result.insize.available_positive_price)}",
+        bullets(result.insize.available_positive_price[:8]),
+        f"- Available + missing/zero price: {len(result.insize.available_missing_zero_price)}",
+        bullets(result.insize.available_missing_zero_price[:8]),
+        f"- Unavailable + positive price: {len(result.insize.unavailable_positive_price)}",
+        bullets(result.insize.unavailable_positive_price[:8]),
         f"- Commerce-ready: {len(result.insize.commerce_ready)}",
         bullets(result.insize.commerce_ready[:8]),
         f"- Unresolved identities: {len(result.insize.unresolved_identities)}",
@@ -697,6 +752,12 @@ def render_summary(
     if result.unavailable_sources:
         for item in result.unavailable_sources:
             lines.append(f"- `{item.get('source')}`: {item.get('reason')}")
+    else:
+        lines.append("- (none)")
+    lines += ["", "## Unparsed sources"]
+    if result.unparsed:
+        for item in result.unparsed:
+            lines.append(f"- `{item.get('path')}`: {item.get('reason')}")
     else:
         lines.append("- (none)")
     lines += ["", "## Parse failures / source conflicts"]

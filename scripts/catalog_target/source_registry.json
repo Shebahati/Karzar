@@ -1,83 +1,175 @@
 {
-  "version": "1",
+  "version": "2",
   "source_root_env": "KARZAR_TARGET_SOURCE_DIR",
-  "notes": "Paths are globs under the configurable source root. No developer-specific absolute paths.",
-  "approved_scopes": [
-    {"brand": "INSIZE", "product_family": "measurement", "scope_kind": "brand"},
-    {"brand": "TERMA", "product_family": "measurement", "scope_kind": "brand"},
-    {"brand": "DASQUA", "product_family": "measurement", "scope_kind": "brand"},
-    {"brand": "MITUTOYO", "product_family": "measurement", "scope_kind": "brand"},
-    {"brand": "GUANGLU", "product_family": "measurement", "scope_kind": "brand", "aliases": ["GL"]},
-    {"brand": "DCOIL", "product_family": "helicoil", "scope_kind": "brand"},
-    {"brand": "SHAMS", "product_family": "helicoil", "scope_kind": "brand"},
-    {"brand": "ASTPOWER", "product_family": "chuck", "scope_kind": "product_family", "folder_hints": ["chuck", "سه نظام"]},
-    {"brand": "ASTPOWER", "product_family": "tool_grinder", "scope_kind": "product_family", "folder_hints": ["tool grinder", "ابزار تیزکن", "تیزکن"]},
-    {"brand": "ASTPOWER", "product_family": "tailstock_rotary", "scope_kind": "product_family", "folder_hints": ["tailstock", "rotary", "گردان"]},
-    {"brand": "ASTPOWER", "product_family": "magnetic_drill", "scope_kind": "product_family", "folder_hints": ["magnetic drill", "دریل مگنت", "core drill", "کرگیری"]},
-    {"brand": "ASTPOWER", "product_family": "et_taps", "scope_kind": "product_family", "folder_hints": ["et tap", "ET"]},
-    {"brand": "ASTPOWER", "product_family": "pneumatic_tapping", "scope_kind": "product_family", "folder_hints": ["pneumatic tapping", "قلاویز زن بادی"]},
-    {"brand": "ASTPOWER", "product_family": "cutting_fluid", "scope_kind": "product_family", "folder_hints": ["cutting fluid", "روغن آب صابون"]},
-    {"brand": "ASTPOWER", "product_family": "tapping_collets", "scope_kind": "product_family", "folder_hints": ["tapping collet", "holder", "کولت قلاویز"]},
-    {"brand": "ASTPOWER", "product_family": "automatic_tapping", "scope_kind": "product_family", "folder_hints": ["automatic tapping", "قلاویز زن اتومات"]},
-    {"brand": "ASTPOWER", "product_family": "electric_tapping", "scope_kind": "product_family", "folder_hints": ["electric tapping", "قلاویز زن برقی"]},
-    {"brand": "ASTPOWER", "product_family": "multi_spindle", "scope_kind": "product_family", "folder_hints": ["multi-spindle", "مولتی اسپیندل"]},
-    {"brand": "ASTPOWER", "product_family": "magnetic_drill_hole_saws", "scope_kind": "product_family", "folder_hints": ["hole saw", "گردبر"]},
-    {"brand": "ASTPOWER", "product_family": "utex_drills", "scope_kind": "product_family", "folder_hints": ["utex"]},
-    {"brand": "ASTPOWER", "product_family": "spade_drills", "scope_kind": "product_family", "folder_hints": ["spade drill", "مته کف تراش"]}
-  ],
-  "insize": {
-    "never_use_distributor_as_universe": true,
-    "match": "exact_normalized_sku",
-    "product_scope_globs": [
-      "**/*insize*product*list*",
-      "**/*insize*لیست*محصول*",
-      "**/*اینسایز*لیست*محصول*",
-      "**/INSIZE/**/*product*list*",
-      "**/INSIZE/**/product_scope.*"
-    ],
-    "distributor_globs": [
-      "**/*insize*distributor*",
-      "**/*insize*inventory*",
-      "**/*insize*موجودی*",
-      "**/INSIZE/**/*distributor*",
-      "**/INSIZE/**/price*",
-      "**/INSIZE/**/inventory*"
-    ],
-    "sku_headers": ["CODE", "SKU", "product_code", "کد", "کد کالا"],
-    "status_available_values": ["موجود"]
-  },
-  "role_globs": {
-    "product_scope": [
-      "**/*product*list*",
-      "**/*لیست*محصول*",
-      "**/product_scope.*"
-    ],
-    "price": [
-      "**/*price*",
-      "**/*قیمت*",
-      "**/*+10%*",
-      "**/*+25%*"
-    ],
-    "inventory": [
-      "**/*inventory*",
-      "**/*موجودی*",
-      "**/*distributor*"
-    ],
-    "catalog": [
-      "**/*catalog*",
-      "**/*کاتالوگ*",
-      "**/*spec*"
-    ],
-    "media": [
-      "**/*image*",
-      "**/*media*",
-      "**/*تصویر*"
-    ]
-  },
+  "notes": "Explicit per-file authority. Relative paths are under KARZAR_TARGET_SOURCE_DIR. Filename matching uses folder identity; brand need not appear in the filename. Duplicate tree اد محصول 15 شهریور is not a second universe.",
+  "duplicate_trees": ["اد محصول 15 شهریور"],
   "sku_headers": ["sku", "SKU", "CODE", "code", "product_code", "کد", "کد کالا"],
   "brand_headers": ["brand", "Brand", "برند"],
   "price_headers": ["price", "base_price", "قیمت", "stored_price", "قیمت دلاری", "TOMAN", "toman"],
   "currency_headers": ["currency", "price_currency", "واحد"],
   "status_headers": ["status", "وضعیت", "inventory_status"],
-  "family_headers": ["product_family", "family", "خانواده"]
+  "family_headers": ["product_family", "family", "خانواده"],
+  "insize": {
+    "never_use_distributor_as_universe": true,
+    "match": "exact_normalized_sku",
+    "status_available_values": ["موجود"],
+    "sku_headers": ["CODE", "SKU", "product_code", "کد", "کد کالا"]
+  },
+  "sources": [
+    {
+      "id": "insize.product_list",
+      "brand": "INSIZE",
+      "product_family": "measurement",
+      "roles": ["product_scope"],
+      "parser": "pdf_sku",
+      "sku_kind": "insize",
+      "match": {
+        "parent_folder": "اینسایز",
+        "ancestor_folder": "اندازه گیری",
+        "filename_equals": ["لیست محصولات.pdf"]
+      }
+    },
+    {
+      "id": "insize.distributor",
+      "brand": "INSIZE",
+      "product_family": "measurement",
+      "roles": ["price", "inventory"],
+      "never_product_scope": true,
+      "parser": "insize_distributor_xlsx",
+      "match": {
+        "parent_folder": "اینسایز",
+        "ancestor_folder": "اندازه گیری",
+        "filename_contains": ["موجودی توزیع کننده"]
+      }
+    },
+    {
+      "id": "insize.catalog",
+      "brand": "INSIZE",
+      "product_family": "measurement",
+      "roles": ["catalog"],
+      "parser": "none",
+      "match": {
+        "parent_folder": "اینسایز",
+        "filename_contains": ["کاتالوگ"]
+      }
+    },
+    {
+      "id": "terma.price_list",
+      "brand": "TERMA",
+      "product_family": "measurement",
+      "roles": ["product_scope", "price"],
+      "parser": "pdf_sku_price",
+      "sku_kind": "generic",
+      "source_currency": "rial",
+      "markup_already_present": true,
+      "match": {
+        "parent_folder": "ترما",
+        "filename_contains": ["لیست قیمت ترما"]
+      }
+    },
+    {
+      "id": "terma.catalog",
+      "brand": "TERMA",
+      "product_family": "measurement",
+      "roles": ["catalog"],
+      "parser": "none",
+      "match": {
+        "parent_folder": "ترما",
+        "filename_contains": ["کاتالوگ ترما"]
+      }
+    },
+    {
+      "id": "dasqua.price_list",
+      "brand": "DASQUA",
+      "product_family": "measurement",
+      "roles": ["product_scope", "price"],
+      "parser": "pdf_sku_price",
+      "sku_kind": "generic",
+      "source_currency": "rial",
+      "markup_already_present": true,
+      "match": {
+        "parent_folder": "داسکوا",
+        "filename_contains": ["لیست قیمت داسکوا"]
+      }
+    },
+    {
+      "id": "dasqua.catalog",
+      "brand": "DASQUA",
+      "product_family": "measurement",
+      "roles": ["catalog"],
+      "parser": "none",
+      "match": {
+        "parent_folder": "داسکوا",
+        "filename_contains": ["کاتالوگ داسکوا"]
+      }
+    },
+    {
+      "id": "guanglu.price_list",
+      "brand": "GUANGLU",
+      "product_family": "measurement",
+      "roles": ["product_scope", "price"],
+      "parser": "pdf_sku_price",
+      "sku_kind": "generic",
+      "source_currency": "rial",
+      "membership_mode": "review_if_weak",
+      "match": {
+        "parent_folder": "گوانگلو(GL)",
+        "filename_contains": ["لیست قیمت گوانگلو"]
+      }
+    },
+    {
+      "id": "mitutoyo.catalog",
+      "brand": "MITUTOYO",
+      "product_family": "measurement",
+      "roles": ["catalog"],
+      "parser": "none",
+      "product_scope_status": "unresolved",
+      "match": {
+        "parent_folder": "میتوتویو",
+        "filename_contains": ["کاتالوگ میتوتویو"]
+      }
+    },
+    {
+      "id": "dcoil.price_list",
+      "brand": "DCOIL",
+      "product_family": "helicoil",
+      "roles": ["product_scope", "price"],
+      "parser": "pdf_sku_price",
+      "sku_kind": "generic",
+      "source_currency": "rial",
+      "markup_already_present": true,
+      "match": {
+        "parent_folder": "DCOIL",
+        "filename_contains": ["لیست قیمت DCOIL"]
+      }
+    },
+    {
+      "id": "shams.catalog",
+      "brand": "SHAMS",
+      "product_family": "helicoil",
+      "roles": ["catalog", "media"],
+      "parser": "pdf_or_media",
+      "product_scope_status": "unresolved_until_sku_extraction",
+      "match": {
+        "parent_folder": "شمس"
+      }
+    }
+  ],
+  "ast_families": [
+    {"id": "ast.chuck", "product_family": "chuck", "folder_names": ["AST powerسه نظام", "سه نظام"]},
+    {"id": "ast.tool_grinder", "product_family": "tool_grinder", "folder_names": ["ابزارتیزکن", "ابزار تیزکن"]},
+    {"id": "ast.tailstock_rotary", "product_family": "tailstock_rotary", "folder_names": ["تایکوپ و صفحه گردان", "تایکوپ", "صفحه گردان"]},
+    {"id": "ast.magnetic_drill", "product_family": "magnetic_drill", "folder_names": ["دریل مگنت و کرگیری", "دریل مگنت", "کرگیری"]},
+    {"id": "ast.et_taps", "product_family": "et_taps", "folder_names": ["قلاویز ET"]},
+    {"id": "ast.pneumatic_tapping", "product_family": "pneumatic_tapping", "folder_names": ["قلاویززن بادی", "قلاویز زن بادی"]},
+    {"id": "ast.cutting_fluid", "product_family": "cutting_fluid", "folder_names": ["روغن آب صابون"]},
+    {"id": "ast.tapping_collets", "product_family": "tapping_collets", "folder_names": ["قلاویزگیر AST کلت و دنبالهPower", "قلاویزگیر", "کلت", "دنباله"]},
+    {"id": "ast.automatic_tapping", "product_family": "automatic_tapping", "folder_names": ["قلاویززن اتومات", "قلاویز زن اتومات"]},
+    {"id": "ast.electric_tapping", "product_family": "electric_tapping", "folder_names": ["قلاویززن برقی", "قلاویز زن برقی"]},
+    {"id": "ast.multi_spindle", "product_family": "multi_spindle", "folder_names": ["مولتی اسپیندل"]},
+    {"id": "ast.hole_saws", "product_family": "magnetic_drill_hole_saws", "folder_names": ["گردبر دریل مگنت"]},
+    {"id": "ast.utex", "product_family": "utex_drills", "folder_names": ["مته یوتکس", "یوتکس"]},
+    {"id": "ast.spade", "product_family": "spade_drills", "folder_names": ["مته برگی"]}
+  ],
+  "ast_roots": ["آذرصنعت/AST Power", "آذرصنعت/ASTPOWER", "آذرصنعت"]
 }
