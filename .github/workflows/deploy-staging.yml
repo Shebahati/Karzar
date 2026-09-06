@@ -5,6 +5,9 @@ name: Deploy Staging
 # Actions → Deploy Staging → Run workflow (workflow_dispatch) on `main`.
 # Pattern: checkout on GitHub-hosted (VPS often gets 504 from github.com), then
 # artifact → self-hosted runner for local rsync/rebuild. Never runs on fork PRs.
+# Artifact download hits Azure Blob (productionresultssa*.blob.core.windows.net).
+# That path is intermittent from karzar-vps; prefer IPv4 and fall back to git
+# checkout at github.sha so a blob outage cannot block HC-11.
 on:
   workflow_dispatch:
 
@@ -72,11 +75,58 @@ jobs:
     environment: staging
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     steps:
+      - name: Probe artifact storage (no secrets)
+        continue-on-error: true
+        run: |
+          set +e
+          echo "IPv4/IPv6 lookups (no signed URLs)"
+          for h in results.actions.githubusercontent.com \
+                   productionresultssa9.blob.core.windows.net \
+                   blob.core.windows.net; do
+            echo "== $h"
+            getent ahostsv4 "$h" | awk '{print $1}' | sort -u
+            getent ahostsv6 "$h" | awk '{print $1}' | sort -u
+          done
+          for u in https://results.actions.githubusercontent.com/ \
+                   https://productionresultssa9.blob.core.windows.net/; do
+            echo "== HEAD $u"
+            curl -sS -I -o /dev/null \
+              -w 'http_code=%{http_code} time=%{time_total} ip=%{remote_ip}\n' \
+              --connect-timeout 10 --max-time 20 "$u"
+          done
+          exit 0
+
       - name: Download deploy artifact
+        id: artifact
+        continue-on-error: true
+        env:
+          # Azure Blob often publishes AAAA; broken IPv6 on this VPS times out ~30s.
+          NODE_OPTIONS: --dns-result-order=ipv4first
         uses: actions/download-artifact@v4
         with:
           name: staging-src-${{ github.sha }}
           path: ${{ runner.temp }}/staging-src
+
+      - name: Clear partial artifact dir
+        if: steps.artifact.outcome != 'success'
+        run: rm -rf "${{ runner.temp }}/staging-src"
+
+      - name: Fallback checkout if artifact download failed
+        if: steps.artifact.outcome != 'success'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: ${{ runner.temp }}/staging-src
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify source handoff
+        run: |
+          set -euo pipefail
+          SRC="${{ runner.temp }}/staging-src"
+          test -f "$SRC/deploy/staging/scripts/deploy-frontend.sh"
+          test -d "$SRC/frontend/Storefront"
+          echo "HANDOFF_OK sha=${{ github.sha }} artifact=${{ steps.artifact.outcome }}"
 
       - name: Sync backend → /opt/karzar/Karzar
         run: |
