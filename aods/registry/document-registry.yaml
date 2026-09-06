@@ -88,6 +88,14 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: BOARD-MINUTE-AODS-SIMPLIFICATION
+    path: aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+    on_main: false
+
   - id: BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01
     path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
     class: EVIDENCE

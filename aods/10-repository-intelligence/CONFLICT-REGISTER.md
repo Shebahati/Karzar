@@ -29,7 +29,7 @@
 | Severity | Meaning |
 |----------|---------|
 | **BLOCKER** | Work in the affected area must not proceed until resolved |
-| **HIGH** | Work may proceed under a stated assumption, which must be recorded in the TASK-RECORD |
+| **HIGH** | Work may proceed under a stated assumption, which must be recorded (PR or issue note) |
 | **MEDIUM** | Causes drift and rework; resolve within the current wave |
 | **LOW** | Cosmetic or hygiene |
 
@@ -62,9 +62,9 @@
 | CR-021 | Release/rollback owners named (single-operator S1); REL-001 GO residual closed | HIGH | Owner | CLOSED |
 | CR-022 | Availability semantics: docs aligned to binary `is_available` (Option A / D19); admin bulk migrate residual | MEDIUM | Backend Architect | CLOSED |
 | CR-023 | Broken doc links fixed (BACKEND_CHANGES + Bible/IA/arch README not-in-repo prune) | LOW | Documentation Architect | CLOSED |
-| CR-024 | PR #271 reduced AODS tree vs Accepted Charter 1.0.0 / Canon Lock §1b — not a Board supersession | HIGH | Architecture Board | OPEN |
+| CR-024 | PR #271 reduced AODS tree vs Accepted Charter 1.0.0 / Canon Lock §1b — Board accepted simplified operating model | HIGH | Architecture Board | CLOSED |
 
-**Open BLOCKERs: 0.** Open process amendment: **CR-024** (HIGH) — do not treat the reduced AODS check surface as Accepted. `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
+**Open BLOCKERs: 0.** Open process amendments: **none.** `CR-024` closed 2026-09-06 (Board minute `AODS-BOARD-MINUTE-003` — simplified AODS operating model). `CR-009` closed 2026-07-30 (Option B — binding SoR is this Git tree).
 `CR-011` closed 2026-07-30 (Option B — no push auto-deploy; same-VPS residual until Option A).
 `CR-010` closed 2026-07-30 (ADR/RFC index prune). `CR-023` closed 2026-07-30 (remaining broken links pruned; `--gate links` clean).
 **degraded mode** for those surfaces is lifted for `CR-009`/`CR-011` — see [`../../docs/archive/aods/90-governance/GOVERNANCE.md`](../../docs/archive/aods/90-governance/GOVERNANCE.md) §7.
@@ -821,9 +821,10 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 |-------|-------|
 | **Severity** | HIGH |
 | **Owner** | Architecture Board (Mohammad Shebahati) |
-| **Status** | OPEN |
+| **Status** | CLOSED |
 | **Affects** | Process execution; whether PR #271's on-demand integrity gates replace Accepted AODS 1.0.0 orchestration |
 | **Opened** | 2026-09-06 |
+| **Closed** | 2026-09-06 |
 
 **Side A (Accepted Canon, unchanged).** Canon Lock §1b and Board minute ۸ مرداد ۱۴۰۵ accept the AODS Charter and the full `aods/` 1.0.0 pack as binding process (roles, versioned prompts, task-graph, task records, PMO-mirror consistency, human checkpoints). Charter Φ3: specification outranks code.
 
@@ -841,7 +842,7 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 
 **AI recommendation (advisory):** Option A or C — do not treat this row as a decision.
 
-**DECISION:** *none yet — pending Architecture Board.*
+**DECISION (2026-09-06, Mohammad Shebahati — HC-14 / Owner / Architecture Board):** **Option A + C hybrid as stated in the minute** — accept the reduced on-demand check surface as *current procedure*; preserve AODS 1.0.0 acceptance as historical provenance; archived orchestration is evidence only. Minute: [`../90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md`](../90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md) (PR #271). Charter amended to 1.1.0 current operating model; Canon Lock §1b-current recorded. **Status → CLOSED / RESOLVED.**
 
 ---
 
@@ -865,3 +866,4 @@ packs that were never promoted into this repository (absorbed from `CR-010` resi
 | 2026-07-30 | PMO schedule note — CAT-002/KB-001 **2026-09-23** start gate lifted (eligible to start); D7/D8 historical rows not rewritten; D16 image-plan authority unchanged | PMO GOV-pmo-sync |
 | 2026-07-30 | PMO **D22** recorded — supersedes D8 schedule/start-gate only; residual mirrors (RELEASE_PLAN, KANBAN, README, export CSVs, operator skill §7) aligned; audit evidence left historical | PMO GOV-pmo-sync |
 | 2026-09-06 | CR-024 OPEN — PR #271 reduced AODS tree vs Accepted Charter 1.0.0; no Board supersession | Documentation consolidation correction |
+| 2026-09-06 | CR-024 CLOSED — Board minute AODS-BOARD-MINUTE-003 accepts simplified on-demand AODS model; 1.0.0 orchestration retired as current procedure | Architecture Board / Owner |

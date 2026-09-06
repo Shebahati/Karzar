@@ -4,4 +4,4 @@ Operational status after PR #271 is tracked in [GitHub Issues](https://github.co
 
 Historical PMO mirrors (progress ledgers, sprints, kanban, `exports/tasks.json`) are under [`docs/archive/project-management/`](../docs/archive/project-management/).
 
-The Accepted AODS Charter still names PMO-mirror consistency (`S-05`, invariant 3). **Board has not repealed that** (`CR-024`). Do not treat this README as an Accepted supersession.
+PMO-mirror consistency is **retired** as current procedure (Board minute `AODS-BOARD-MINUTE-003`, ۱۵ شهریور ۱۴۰۵). Historical mirrors under `docs/archive/project-management/` are evidence only.

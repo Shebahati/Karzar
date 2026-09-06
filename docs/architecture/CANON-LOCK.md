@@ -107,15 +107,36 @@
 | **Signed** | محمد شباهتی / Mohammad Shebahati |
 | **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md`](../../aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md) (lands with PR #128) |
 | **Scope** | Adopt AODS (`aods/`) as the binding process system for how changes are executed, validated, recorded, and approved |
+| **Historical note** | Version **1.0.0** accepted the full orchestration pack. That acceptance is preserved. Current *procedure* was amended ۱۵ شهریور ۱۴۰۵ (below). |
 
-## 1b. Accepted — Process (AODS)
+## 1b. Accepted — Process (AODS) — historical 1.0.0 provenance
 
 | Document | Path | Status | Since | Signed | Mandatory for |
 |----------|------|--------|-------|--------|----------------|
-| AODS Charter | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Process execution: roles, prompts, gates, human checkpoints; all Auto Mode work |
-| AODS pack (root) | [`../../aods/`](../../aods/) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Same — full pack under `aods/` version 1.0.0 |
+| AODS Charter (1.0.0 acceptance) | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Historical provenance — 1.0.0 pack accepted in full; orchestration procedure superseded ۱۵ شهریور ۱۴۰۵ |
+| AODS pack 1.0.0 (archived tree) | [`../../docs/archive/aods/`](../../docs/archive/aods/) | **Accepted** (historical evidence) | ۱۴۰۵/۰۵/۰۸ | Mohammad Shebahati | Evidence only — **not** current executable procedure; do not cite as live authority |
 
-> **Process-surface note (PR #271 — not a Status change, not a new Accepted row).** Much of the 1.0.0 pack tree now lives under `docs/archive/aods/`. The Accepted rows above are unchanged. Whether the reduced on-demand check surface in `aods/README.md` supersedes Charter orchestration is **pending Architecture Board (`HC-14`, `CR-024`)**. Until that minute exists, do not treat the reduced surface as an Accepted replacement of the 1.0.0 pack, and do not treat archived files as executable current machinery.
+## Board Acceptance (AODS operating-model simplification)
+
+| Field | Value |
+|-------|-------|
+| **Accepted on** | ۱۴۰۵/۰۶/۱۵ (2026-09-06) — ۱۵ شهریور ۱۴۰۵ |
+| **Board** | Architecture Board / Owner |
+| **Signed** | محمد شباهتی / Mohammad Shebahati |
+| **Minute** | [`aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md`](../../aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md) (PR #271) |
+| **Scope** | Supersede 1.0.0 recurring orchestration as current procedure; keep AODS as a minimal on-demand integrity layer; close `CR-024` / `HC-14` |
+| **Does not change** | Application architecture, product / commerce / payment behavior, or production state |
+
+## 1b-current. Accepted — Process (AODS) — current operating model
+
+| Document | Path | Status | Since | Signed | Mandatory for |
+|----------|------|--------|-------|--------|----------------|
+| AODS Charter (current operating model) | [`../../aods/AODS-CHARTER.md`](../../aods/AODS-CHARTER.md) | **Accepted** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Current AODS procedure: on-demand integrity; retained invariants; not 1.0.0 ceremony |
+| AODS checks (invocation) | [`../../aods/README.md`](../../aods/README.md) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Default validator gates: registry, links, naming, openapi, ingestion-boundary |
+| AODS document registry | [`../../aods/registry/document-registry.yaml`](../../aods/registry/document-registry.yaml) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Active-document classification / registry integrity |
+| AODS validators | [`../../aods/tools/aods_validate.py`](../../aods/tools/aods_validate.py) | **Binding** | ۱۴۰۵/۰۶/۱۵ | Mohammad Shebahati | Machine enforcement of retained gates |
+
+> Archived 1.0.0 orchestration under `docs/archive/aods/` is historical evidence only. It is **not** current authority.
 
 
 ---

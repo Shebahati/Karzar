@@ -8,5 +8,5 @@
 6. Commerce: site `is_available` is binary; warehouse counts are Hesabfa-only; production cannot use mock payment; SEP exists but a live charge is unproven — `docs/COMMERCE.md`.
 7. URLs: `/product/{slug}` canonical, `/product/{id}` 301, `/brands/{slug}`, `/categories/{slug}` — ADR-010. Schema: Alembic only. API shape: regenerate `openapi/v1.json` in the same PR.
 8. One concern, explicit allowlist, preserve dirty worktree files. Admin work: `frontend/admin-panel/AGENTS.md` (`lint` / `typecheck` / `test` / `build`).
-9. CI integrity checks: `python3 aods/tools/aods_validate.py` (`aods/README.md`). AODS Charter 1.0.0 remains Accepted; the reduced check surface is **not** a Board-accepted supersession (`CR-024`). Do not run archived prompts/task-graph as live ceremony.
-10. Operational status: GitHub Issues/PRs. Charter PMO-consistency is not Board-repealed (`CR-024`). Checkpoint intent: mid-tail SEO + UX + CWV, not head-term #1 vanity.
+9. CI integrity checks: `python3 aods/tools/aods_validate.py` (`aods/README.md`). Current AODS model is the Board-approved on-demand layer (`AODS-CHARTER.md` current operating model; minute `AODS-BOARD-MINUTE-003`). Do not run archived 1.0.0 prompts/task-graph as live ceremony.
+10. Operational status: GitHub Issues/PRs. Checkpoint intent: mid-tail SEO + UX + CWV, not head-term #1 vanity.
