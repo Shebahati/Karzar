@@ -1,5 +1,10 @@
 # PMO / Product Changelog (living)
 
+## 2026-09-06 — Deploy Staging artifact handoff (IPv4 zip fallback)
+- Run `34027498113`: `download-artifact@v4` failed after 5 retries; package/upload succeeded. Job logs `BlobNotFound`.
+- PR #272 (`c7e0112`) added IPv4-first + `actions/checkout` into `runner.temp`. Run `34029681779` still failed download after 5 retries; checkout aborted immediately: path not under `GITHUB_WORKSPACE`.
+- Replace checkout fallback with `curl -4` to `api.github.com` artifact zip (no signed URLs in logs). Same pattern on Deploy Production. Gates unchanged.
+
 ## 2026-08-23 — OPS Phase 0 backup protection freeze (complete)
 - Root cause confirmed: GitHub deploy artifacts normalize executable modes; deploy restored only `deploy/staging/scripts/*.sh`, while backup scripts arrived on the VPS as `0644` and cron executed them directly.
 - Manually disabled the four live deploy/data workflows before push. Added fail-closed `KARZAR_DEPLOY_FREEZE` gates for staging/production deploys and live taxonomy apply workflows; deploys are restricted to `main`. PR #233 merged at `0fc5f9f`; repository variable `KARZAR_DEPLOY_FREEZE=true` was verified and the workflows remain disabled.
