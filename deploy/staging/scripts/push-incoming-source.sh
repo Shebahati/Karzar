@@ -133,15 +133,10 @@ timeout --foreground "${META_TIMEOUT_SECONDS}s" \
 
 echo "Verifying staged tree against GitHub manifest (HANDOFF_COMPLETE not yet written)"
 "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" \
-  env REQUIRE_HANDOFF_COMPLETE=0 WRITE_HANDOFF_COMPLETE=1 \
+  env HANDOFF_VERIFY_MODE=prepare \
       GITHUB_SHA="$GITHUB_SHA" EXPECTED_SHA="$EXPECTED_SHA" \
       EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
       INCOMING_DIR="$DEST" \
       bash "${DEST}/tree/deploy/staging/scripts/verify-incoming-source.sh"
 
-echo "HANDOFF_OK sha=${GITHUB_SHA} transport=rsync-delta files=${KARZAR_FILE_COUNT} bytes=${KARZAR_TOTAL_BYTES} manifest=${KARZAR_MANIFEST_SHA}"
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "manifest_sha=${KARZAR_MANIFEST_SHA}" >> "$GITHUB_OUTPUT"
-  echo "file_count=${KARZAR_FILE_COUNT}" >> "$GITHUB_OUTPUT"
-  echo "total_bytes=${KARZAR_TOTAL_BYTES}" >> "$GITHUB_OUTPUT"
-fi
+echo "HANDOFF_OK sha=${GITHUB_SHA} transport=rsync-delta files=${KARZAR_FILE_COUNT} bytes=${KARZAR_TOTAL_BYTES}"

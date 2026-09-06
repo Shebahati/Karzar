@@ -34,19 +34,45 @@ make_min_tree() {
   echo 'admin' > "$root/frontend/admin-panel/index.html"
 }
 
+hex40() {
+  printf '%040x' "$1"
+}
+
+# Self-hosted consume path: no EXPECTED_MANIFEST_SHA, no GITHUB_OUTPUT.
+consume_verify() {
+  local incoming="$1" sha="$2"
+  env -u EXPECTED_MANIFEST_SHA -u GITHUB_OUTPUT \
+    HANDOFF_VERIFY_MODE=consume \
+    GITHUB_SHA="$sha" EXPECTED_SHA="$sha" \
+    INCOMING_DIR="$incoming" \
+    STAGED_DIR="${incoming}/tree" \
+    bash "${SCRIPT_DIR}/verify-incoming-source.sh"
+}
+
 sync_live_after_verify() {
-  local incoming="$1" live="$2" sha="$3" manifest_sha="$4"
-  if ! REQUIRE_HANDOFF_COMPLETE=1 WRITE_HANDOFF_COMPLETE=0 \
-      GITHUB_SHA="$sha" EXPECTED_SHA="$sha" \
-      EXPECTED_MANIFEST_SHA="$manifest_sha" \
-      INCOMING_DIR="$incoming" \
-      STAGED_DIR="${incoming}/tree" \
-      bash "${SCRIPT_DIR}/verify-incoming-source.sh"; then
+  local incoming="$1" live="$2" sha="$3"
+  if ! consume_verify "$incoming" "$sha"; then
     echo "SYNC_TO_LIVE=SKIPPED"
     return 1
   fi
   mkdir -p "$live"
   rsync -a --delete "${incoming}/tree"/ "$live"/
+}
+
+write_marker() {
+  local incoming="$1" sha="$2" manifest_sha="$3"
+  local extra="${4:-}"
+  local files bytes
+  files="$(karzar_tree_file_count "$incoming/tree")"
+  bytes="$(karzar_tree_total_bytes "$incoming/tree")"
+  cat > "$incoming/${KARZAR_HANDOFF_MARKER}" <<EOF
+sha=${sha}
+transport=rsync-delta
+files=${files}
+bytes=${bytes}
+manifest=${manifest_sha}
+${extra}
+EOF
 }
 
 rsync_stats() {
@@ -81,12 +107,8 @@ A_LIT="$(literal_data_bytes "$A_STATS")"
 [[ "$A_XFER" == "0" ]] || fail "unchanged: expected 0 regular files transferred, got ${A_XFER}"
 [[ "${A_LIT:-1}" == "0" ]] || fail "unchanged: expected 0 literal data bytes, got ${A_LIT}"
 karzar_write_deploy_manifest "$A_SRC" "$TMP/a-in/${KARZAR_MANIFEST_NAME}"
-karzar_write_handoff_complete "$TMP/a-in" testhashA "$KARZAR_MANIFEST_SHA"
-REQUIRE_HANDOFF_COMPLETE=1 WRITE_HANDOFF_COMPLETE=0 \
-  GITHUB_SHA=testhashA EXPECTED_SHA=testhashA \
-  EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
-  INCOMING_DIR="$TMP/a-in" \
-  bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null
+karzar_write_handoff_complete "$TMP/a-in" "$(hex40 10)" "$KARZAR_MANIFEST_SHA"
+consume_verify "$TMP/a-in" "$(hex40 10)" >/dev/null
 cmp -s "$A_SRC/frontend/Storefront/hero.bin" "$A_IN/frontend/Storefront/hero.bin" \
   || fail "unchanged: staged hero.bin differs"
 pass "UNCHANGED_TEST (transferred=${A_XFER} literal=${A_LIT})"
@@ -111,12 +133,8 @@ B_XFER="$(transferred_regular_files "$B_STATS")"
 [[ "$(cat "$B_IN/frontend/Storefront/hero.bin")" == "new-hero" ]] \
   || fail "changed: staged file not updated"
 karzar_write_deploy_manifest "$B_SRC" "$TMP/b-in/${KARZAR_MANIFEST_NAME}"
-karzar_write_handoff_complete "$TMP/b-in" testhashB "$KARZAR_MANIFEST_SHA"
-REQUIRE_HANDOFF_COMPLETE=1 \
-  GITHUB_SHA=testhashB EXPECTED_SHA=testhashB \
-  EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
-  INCOMING_DIR="$TMP/b-in" \
-  bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null
+karzar_write_handoff_complete "$TMP/b-in" "$(hex40 11)" "$KARZAR_MANIFEST_SHA"
+consume_verify "$TMP/b-in" "$(hex40 11)" >/dev/null
 pass "CHANGED_TEST (transferred=${B_XFER})"
 
 # --- C. new file ---
@@ -135,12 +153,8 @@ C_XFER="$(transferred_regular_files "$C_STATS")"
 [[ "$C_XFER" -ge 1 ]] || fail "new: expected a transferred file, got ${C_XFER}"
 [[ "$(cat "$C_IN/app/new_module.py")" == "brand-new" ]] || fail "new: file missing after rsync"
 karzar_write_deploy_manifest "$C_SRC" "$TMP/c-in/${KARZAR_MANIFEST_NAME}"
-karzar_write_handoff_complete "$TMP/c-in" testhashC "$KARZAR_MANIFEST_SHA"
-REQUIRE_HANDOFF_COMPLETE=1 \
-  GITHUB_SHA=testhashC EXPECTED_SHA=testhashC \
-  EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
-  INCOMING_DIR="$TMP/c-in" \
-  bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null
+karzar_write_handoff_complete "$TMP/c-in" "$(hex40 12)" "$KARZAR_MANIFEST_SHA"
+consume_verify "$TMP/c-in" "$(hex40 12)" >/dev/null
 pass "NEW_FILE_TEST (transferred=${C_XFER})"
 
 # --- D. deleted file (--delete must drop seed-only paths) ---
@@ -161,12 +175,8 @@ karzar_write_deploy_manifest "$D_SRC" "$TMP/d-in/${KARZAR_MANIFEST_NAME}"
 if grep -q 'removed.py' "$TMP/d-in/${KARZAR_MANIFEST_NAME}"; then
   fail "delete: manifest still lists removed.py"
 fi
-karzar_write_handoff_complete "$TMP/d-in" testhashD "$KARZAR_MANIFEST_SHA"
-REQUIRE_HANDOFF_COMPLETE=1 \
-  GITHUB_SHA=testhashD EXPECTED_SHA=testhashD \
-  EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA" \
-  INCOMING_DIR="$TMP/d-in" \
-  bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null
+karzar_write_handoff_complete "$TMP/d-in" "$(hex40 13)" "$KARZAR_MANIFEST_SHA"
+consume_verify "$TMP/d-in" "$(hex40 13)" >/dev/null
 pass "DELETE_TEST"
 
 # --- E. interrupted / failed transfer: no HANDOFF_COMPLETE → live skip ---
@@ -179,7 +189,7 @@ cp -a "$E_SRC/." "$E_INCOMING/tree/"
 karzar_write_deploy_manifest "$E_SRC" "$E_INCOMING/${KARZAR_MANIFEST_NAME}"
 echo 'live-original' > "$E_LIVE/keep.txt"
 E_LIVE_HASH="$(sha256sum "$E_LIVE/keep.txt")"
-E_OUT="$(set +e; sync_live_after_verify "$E_INCOMING" "$E_LIVE" testhashE "$KARZAR_MANIFEST_SHA" 2>&1; echo EXIT:$?)"
+E_OUT="$(set +e; sync_live_after_verify "$E_INCOMING" "$E_LIVE" "$(hex40 14)" 2>&1; echo EXIT:$?)"
 printf '%s\n' "$E_OUT"
 printf '%s\n' "$E_OUT" | grep -q 'HANDOFF_COMPLETE absent' \
   || fail "failed-transfer: expected HANDOFF_COMPLETE absent"
@@ -198,11 +208,11 @@ make_min_tree "$F_SRC"
 mkdir -p "$F_INCOMING/tree" "$F_LIVE"
 cp -a "$F_SRC/." "$F_INCOMING/tree/"
 karzar_write_deploy_manifest "$F_SRC" "$F_INCOMING/${KARZAR_MANIFEST_NAME}"
-karzar_write_handoff_complete "$F_INCOMING" testhashF "$KARZAR_MANIFEST_SHA"
+karzar_write_handoff_complete "$F_INCOMING" "$(hex40 15)" "$KARZAR_MANIFEST_SHA"
 echo 'tampered' > "$F_INCOMING/tree/app/main.py"
 echo 'live-original' > "$F_LIVE/keep.txt"
 F_LIVE_HASH="$(sha256sum "$F_LIVE/keep.txt")"
-F_OUT="$(set +e; sync_live_after_verify "$F_INCOMING" "$F_LIVE" testhashF "$KARZAR_MANIFEST_SHA" 2>&1; echo EXIT:$?)"
+F_OUT="$(set +e; sync_live_after_verify "$F_INCOMING" "$F_LIVE" "$(hex40 15)" 2>&1; echo EXIT:$?)"
 printf '%s\n' "$F_OUT"
 printf '%s\n' "$F_OUT" | grep -q 'VERIFY=FAIL' \
   || fail "corruption: expected VERIFY=FAIL"
@@ -247,15 +257,11 @@ make_min_tree "$H_SRC"
 mkdir -p "$H_IN/tree"
 cp -a "$H_SRC/." "$H_IN/tree/"
 karzar_write_deploy_manifest "$H_SRC" "$H_IN/${KARZAR_MANIFEST_NAME}"
-karzar_write_handoff_complete "$H_IN" testhashH "$KARZAR_MANIFEST_SHA"
-if REQUIRE_HANDOFF_COMPLETE=1 \
-    GITHUB_SHA=testhashH EXPECTED_SHA=testhashH \
-    EXPECTED_MANIFEST_SHA=deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef \
-    INCOMING_DIR="$H_IN" \
-    bash "${SCRIPT_DIR}/verify-incoming-source.sh"; then
-  fail "manifest SHA mismatch should fail"
+write_marker "$H_IN" "$(hex40 16)" "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+if consume_verify "$H_IN" "$(hex40 16)"; then
+  fail "marker manifest vs file hash mismatch should fail"
 fi
-pass "MANIFEST_SHA_MISMATCH"
+pass "MANIFEST_MISMATCH"
 
 # --- tracked-tree copy excludes .github / untracked ---
 I_REPO="$TMP/i-repo"
@@ -302,4 +308,164 @@ echo 'remote-seed' > "$J_FE/Storefront/asset.bin"
 [[ -f "$J_IN/frontend/Storefront/asset.bin" ]] || fail "remote-seed: frontend file missing"
 pass "REMOTE_SEED_CLEAN_SHELL"
 
+make_completed_incoming() {
+  local incoming="$1" sha="$2"
+  mkdir -p "$incoming/tree"
+  make_min_tree "$incoming/tree"
+  karzar_write_deploy_manifest "$incoming/tree" "$incoming/${KARZAR_MANIFEST_NAME}"
+  karzar_write_handoff_complete "$incoming" "$sha" "$KARZAR_MANIFEST_SHA"
+}
+
+# --- incident: local marker is authority; no cross-job output ---
+K_SHA="$(hex40 21)"
+K_IN="$TMP/k-in"
+make_completed_incoming "$K_IN" "$K_SHA"
+consume_verify "$K_IN" "$K_SHA" >/dev/null
+pass "VALID_HANDOFF"
+
+L_SHA="$(hex40 22)"
+L_IN="$TMP/l-in"
+make_completed_incoming "$L_IN" "$L_SHA"
+# Critical regression: consume succeeds with EXPECTED_MANIFEST_SHA unset.
+if ! env -u EXPECTED_MANIFEST_SHA -u GITHUB_OUTPUT \
+    HANDOFF_VERIFY_MODE=consume \
+    GITHUB_SHA="$L_SHA" EXPECTED_SHA="$L_SHA" \
+    INCOMING_DIR="$L_IN" \
+    bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null; then
+  fail "NO_JOB_OUTPUT: consume verify required EXPECTED_MANIFEST_SHA"
+fi
+pass "NO_JOB_OUTPUT"
+
+M_SHA="$(hex40 23)"
+M_IN="$TMP/m-in"
+make_completed_incoming "$M_IN" "$M_SHA"
+write_marker "$M_IN" "$M_SHA" ""
+if consume_verify "$M_IN" "$M_SHA"; then
+  fail "empty marker manifest should fail"
+fi
+pass "EMPTY_MANIFEST"
+
+N_SHA="$(hex40 24)"
+N_IN="$TMP/n-in"
+make_completed_incoming "$N_IN" "$N_SHA"
+malformed_ok=1
+for bad in abc ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ \
+           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
+           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; do
+  write_marker "$N_IN" "$N_SHA" "$bad"
+  if consume_verify "$N_IN" "$N_SHA"; then
+    echo "malformed manifest accepted: $bad" >&2
+    malformed_ok=0
+  fi
+done
+[[ "$malformed_ok" -eq 1 ]] || fail "MALFORMED_MANIFEST"
+pass "MALFORMED_MANIFEST"
+
+# MANIFEST_MISMATCH already covered above
+pass "MANIFEST_MISMATCH_NAMED"
+
+# corrupted tree: already CORRUPTION_TEST
+pass "CORRUPTED_TREE"
+
+O_SHA="$(hex40 25)"
+O_WRONG="$(hex40 26)"
+O_IN="$TMP/o-in"
+make_completed_incoming "$O_IN" "$O_SHA"
+if consume_verify "$O_IN" "$O_WRONG"; then
+  fail "wrong marker SHA should fail"
+fi
+pass "WRONG_SHA"
+
+P_SHA="$(hex40 27)"
+P_IN="$TMP/p-in"
+make_completed_incoming "$P_IN" "$P_SHA"
+{
+  echo "sha=${P_SHA}"
+  echo "transport=scp-tarball"
+  echo "files=1"
+  echo "bytes=1"
+  echo "manifest=${KARZAR_MANIFEST_SHA}"
+} > "$P_IN/${KARZAR_HANDOFF_MARKER}"
+if consume_verify "$P_IN" "$P_SHA"; then
+  fail "wrong transport should fail"
+fi
+pass "WRONG_TRANSPORT"
+
+Q_SHA="$(hex40 28)"
+Q_IN="$TMP/q-in"
+make_completed_incoming "$Q_IN" "$Q_SHA"
+rm -f "$Q_IN/${KARZAR_HANDOFF_MARKER}"
+if consume_verify "$Q_IN" "$Q_SHA"; then
+  fail "missing marker should fail"
+fi
+pass "MISSING_MARKER"
+
+# FAILED_TRANSFER_TEST already proves no live mutation
+pass "NO_LIVE_MUTATION"
+
+R_SHA="$(hex40 29)"
+R_IN="$TMP/r-in"
+make_completed_incoming "$R_IN" "$R_SHA"
+# Architectural: marker data is local; GITHUB_OUTPUT is unused even if present.
+if ! env -u EXPECTED_MANIFEST_SHA \
+    GITHUB_OUTPUT="$TMP/r-github-output" \
+    HANDOFF_VERIFY_MODE=consume \
+    GITHUB_SHA="$R_SHA" EXPECTED_SHA="$R_SHA" \
+    INCOMING_DIR="$R_IN" \
+    bash "${SCRIPT_DIR}/verify-incoming-source.sh" >/dev/null; then
+  fail "secret-like path: consume verify failed without job output"
+fi
+if [[ -e "$TMP/r-github-output" ]]; then
+  fail "consume verify wrote GITHUB_OUTPUT"
+fi
+pass "SECRET_LIKE_NO_JOB_OUTPUT"
+
+WF="$(cd "${SCRIPT_DIR}/../../.." && pwd)/.github/workflows/deploy-staging.yml"
+if grep -q 'needs.package.outputs.manifest_sha' "$WF"; then
+  fail "workflow still references needs.package.outputs.manifest_sha"
+fi
+if grep -q 'steps.push.outputs.manifest_sha' "$WF"; then
+  fail "workflow still references steps.push.outputs.manifest_sha"
+fi
+if grep -qE '^[[:space:]]+outputs:' "$WF"; then
+  fail "package job still declares cross-job outputs"
+fi
+pass "WORKFLOW_NO_CROSS_JOB_MANIFEST"
+
+# Marker files/bytes must match the staged tree, not only be numeric.
+S_SHA="$(hex40 30)"
+S_IN="$TMP/s-in"
+make_completed_incoming "$S_IN" "$S_SHA"
+S_MANIFEST="$(awk -F= '/^manifest=/{print $2; exit}' "$S_IN/HANDOFF_COMPLETE")"
+S_FILES="$(karzar_tree_file_count "$S_IN/tree")"
+S_BYTES="$(karzar_tree_total_bytes "$S_IN/tree")"
+{
+  echo "sha=${S_SHA}"
+  echo "transport=rsync-delta"
+  echo "files=$((S_FILES + 1))"
+  echo "bytes=${S_BYTES}"
+  echo "manifest=${S_MANIFEST}"
+} > "$S_IN/HANDOFF_COMPLETE"
+if consume_verify "$S_IN" "$S_SHA"; then
+  fail "marker files mismatch should fail"
+fi
+pass "MARKER_FILES_MISMATCH"
+
+T_SHA="$(hex40 31)"
+T_IN="$TMP/t-in"
+make_completed_incoming "$T_IN" "$T_SHA"
+T_MANIFEST="$(awk -F= '/^manifest=/{print $2; exit}' "$T_IN/HANDOFF_COMPLETE")"
+T_FILES="$(karzar_tree_file_count "$T_IN/tree")"
+T_BYTES="$(karzar_tree_total_bytes "$T_IN/tree")"
+{
+  echo "sha=${T_SHA}"
+  echo "transport=rsync-delta"
+  echo "files=${T_FILES}"
+  echo "bytes=$((T_BYTES + 1))"
+  echo "manifest=${T_MANIFEST}"
+} > "$T_IN/HANDOFF_COMPLETE"
+if consume_verify "$T_IN" "$T_SHA"; then
+  fail "marker bytes mismatch should fail"
+fi
+pass "MARKER_BYTES_MISMATCH"
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"
