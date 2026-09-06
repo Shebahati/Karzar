@@ -6,10 +6,15 @@
 #   NEXT_PUBLIC_API_BASE_URL — e.g. https://api.example.com/api/v1
 #   ADMIN_SESSION_SECRET — min 32 chars; HMAC for admin edge session cookie
 #
+# Optional Storefront analytics (baked at `next build`; empty disables GA4):
+#   NEXT_PUBLIC_GA_MEASUREMENT_ID — intended production: G-NT8ZT3G6HC
+#   Do not set NEXT_PUBLIC_GTM_ID for the same property (double-count).
+#
 # Example:
 #   export FRONTEND_ROOT=/opt/karzar/frontend
 #   export NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1
 #   export ADMIN_SESSION_SECRET="$(openssl rand -hex 32)"
+#   export NEXT_PUBLIC_GA_MEASUREMENT_ID=G-NT8ZT3G6HC
 #   bash deploy/staging/scripts/deploy-frontend.sh
 set -euo pipefail
 
@@ -72,6 +77,7 @@ docker build \
   --build-arg "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" \
   --build-arg "NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://www.karzartools.com}" \
   --build-arg "NEXT_PUBLIC_SEO_INDEXABLE=${NEXT_PUBLIC_SEO_INDEXABLE:-true}" \
+  --build-arg "NEXT_PUBLIC_GA_MEASUREMENT_ID=${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}" \
   -t karzar-shop:staging \
   "$SHOP_DIR"
 

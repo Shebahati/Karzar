@@ -128,6 +128,7 @@ jobs:
 
           export FRONTEND_ROOT=/opt/karzar/frontend
           export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-https://api.karzartools.com/api/v1}"
+          export NEXT_PUBLIC_GA_MEASUREMENT_ID="${NEXT_PUBLIC_GA_MEASUREMENT_ID:-G-NT8ZT3G6HC}"
           if [[ -z "${ADMIN_SESSION_SECRET:-}" ]]; then
             for f in /opt/karzar/.deploy-secrets /opt/karzar/Karzar/.env; do
               if [[ -f "$f" ]] && grep -q '^ADMIN_SESSION_SECRET=' "$f"; then
