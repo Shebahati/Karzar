@@ -414,6 +414,19 @@ karzar_verify_prepared_handoff() {
 karzar_verify_completed_handoff() {
   local incoming="$1" expected_sha="$2"
   karzar_require_handoff_complete "$incoming" "$expected_sha" || return 1
+
+  local actual_files actual_bytes
+  actual_files="$(karzar_tree_file_count "$incoming/tree")"
+  actual_bytes="$(karzar_tree_total_bytes "$incoming/tree")"
+  if [[ "$KARZAR_HANDOFF_FILES" != "$actual_files" ]]; then
+    echo "VERIFY=FAIL HANDOFF_COMPLETE files does not match staged tree" >&2
+    return 1
+  fi
+  if [[ "$KARZAR_HANDOFF_BYTES" != "$actual_bytes" ]]; then
+    echo "VERIFY=FAIL HANDOFF_COMPLETE bytes does not match staged tree" >&2
+    return 1
+  fi
+
   karzar_verify_incoming_tree "$incoming" "$expected_sha" "$KARZAR_HANDOFF_MANIFEST"
 }
 
