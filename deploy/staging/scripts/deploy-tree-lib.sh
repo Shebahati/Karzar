@@ -199,12 +199,32 @@ karzar_assert_structural_files() {
   test -d "$tree/app"
 }
 
+karzar_is_git_sha() {
+  [[ "${1:-}" =~ ^[0-9a-f]{40}$ ]]
+}
+
+karzar_is_sha256() {
+  [[ "${1:-}" =~ ^[0-9a-f]{64}$ ]]
+}
+
 karzar_write_handoff_complete() {
   local incoming="$1" sha="$2" manifest_sha="$3"
   local tree="$incoming/tree"
   local count bytes
+  if ! karzar_is_git_sha "$sha"; then
+    echo "refuse to write HANDOFF_COMPLETE: sha is not 40 lowercase hex" >&2
+    return 1
+  fi
+  if ! karzar_is_sha256 "$manifest_sha"; then
+    echo "refuse to write HANDOFF_COMPLETE: manifest is not 64 lowercase hex" >&2
+    return 1
+  fi
   count="$(karzar_tree_file_count "$tree")"
   bytes="$(karzar_tree_total_bytes "$tree")"
+  if [[ ! "$count" =~ ^[0-9]+$ || ! "$bytes" =~ ^[0-9]+$ ]]; then
+    echo "refuse to write HANDOFF_COMPLETE: files/bytes not integers" >&2
+    return 1
+  fi
   umask 022
   cat > "$incoming/${KARZAR_HANDOFF_MARKER}" <<EOF
 sha=${sha}
@@ -215,6 +235,106 @@ manifest=${manifest_sha}
 EOF
 }
 
+# Parse HANDOFF_COMPLETE as data. Never source or eval the file.
+# Sets KARZAR_HANDOFF_{SHA,TRANSPORT,FILES,BYTES,MANIFEST}.
+karzar_read_handoff_complete() {
+  local marker="$1"
+  local line key value
+  local sha="" transport="" files="" bytes="" manifest=""
+  local seen_sha=0 seen_transport=0 seen_files=0 seen_bytes=0 seen_manifest=0
+
+  KARZAR_HANDOFF_SHA=""
+  KARZAR_HANDOFF_TRANSPORT=""
+  KARZAR_HANDOFF_FILES=""
+  KARZAR_HANDOFF_BYTES=""
+  KARZAR_HANDOFF_MANIFEST=""
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == *$'\r'* ]]; then
+      echo "HANDOFF_COMPLETE contains CR" >&2
+      return 1
+    fi
+    if [[ "$line" != *=* ]]; then
+      echo "HANDOFF_COMPLETE malformed line" >&2
+      return 1
+    fi
+    key="${line%%=*}"
+    value="${line#*=}"
+    case "$key" in
+      sha|transport|files|bytes|manifest) ;;
+      *)
+        echo "HANDOFF_COMPLETE unknown key" >&2
+        return 1
+        ;;
+    esac
+    if [[ "$key" =~ [[:space:]] || "$value" =~ [[:space:]] ]]; then
+      echo "HANDOFF_COMPLETE whitespace in field" >&2
+      return 1
+    fi
+    case "$key" in
+      sha)
+        [[ "$seen_sha" -eq 0 ]] || { echo "HANDOFF_COMPLETE duplicate key=sha" >&2; return 1; }
+        seen_sha=1
+        sha="$value"
+        ;;
+      transport)
+        [[ "$seen_transport" -eq 0 ]] || { echo "HANDOFF_COMPLETE duplicate key=transport" >&2; return 1; }
+        seen_transport=1
+        transport="$value"
+        ;;
+      files)
+        [[ "$seen_files" -eq 0 ]] || { echo "HANDOFF_COMPLETE duplicate key=files" >&2; return 1; }
+        seen_files=1
+        files="$value"
+        ;;
+      bytes)
+        [[ "$seen_bytes" -eq 0 ]] || { echo "HANDOFF_COMPLETE duplicate key=bytes" >&2; return 1; }
+        seen_bytes=1
+        bytes="$value"
+        ;;
+      manifest)
+        [[ "$seen_manifest" -eq 0 ]] || { echo "HANDOFF_COMPLETE duplicate key=manifest" >&2; return 1; }
+        seen_manifest=1
+        manifest="$value"
+        ;;
+    esac
+  done < "$marker"
+
+  [[ "$seen_sha" -eq 1 && -n "$sha" ]] || { echo "HANDOFF_COMPLETE missing sha" >&2; return 1; }
+  [[ "$seen_transport" -eq 1 && -n "$transport" ]] || { echo "HANDOFF_COMPLETE missing transport" >&2; return 1; }
+  [[ "$seen_files" -eq 1 ]] || { echo "HANDOFF_COMPLETE missing files" >&2; return 1; }
+  [[ "$seen_bytes" -eq 1 ]] || { echo "HANDOFF_COMPLETE missing bytes" >&2; return 1; }
+  [[ "$seen_manifest" -eq 1 ]] || { echo "HANDOFF_COMPLETE missing manifest" >&2; return 1; }
+
+  if ! karzar_is_git_sha "$sha"; then
+    echo "HANDOFF_COMPLETE invalid sha" >&2
+    return 1
+  fi
+  if [[ "$transport" != "rsync-delta" ]]; then
+    echo "HANDOFF_COMPLETE wrong transport" >&2
+    return 1
+  fi
+  if ! karzar_is_sha256 "$manifest"; then
+    echo "HANDOFF_COMPLETE invalid manifest" >&2
+    return 1
+  fi
+  if [[ ! "$files" =~ ^[0-9]+$ ]]; then
+    echo "HANDOFF_COMPLETE invalid files" >&2
+    return 1
+  fi
+  if [[ ! "$bytes" =~ ^[0-9]+$ ]]; then
+    echo "HANDOFF_COMPLETE invalid bytes" >&2
+    return 1
+  fi
+
+  KARZAR_HANDOFF_SHA="$sha"
+  KARZAR_HANDOFF_TRANSPORT="$transport"
+  KARZAR_HANDOFF_FILES="$files"
+  KARZAR_HANDOFF_BYTES="$bytes"
+  KARZAR_HANDOFF_MANIFEST="$manifest"
+}
+
 karzar_require_handoff_complete() {
   local incoming="$1" expected_sha="$2"
   local marker="$incoming/${KARZAR_HANDOFF_MARKER}"
@@ -222,15 +342,18 @@ karzar_require_handoff_complete() {
     echo "HANDOFF_COMPLETE absent — transfer incomplete; live sync skipped" >&2
     return 1
   fi
-  local marked
-  marked="$(awk -F= '/^sha=/{print $2; exit}' "$marker")"
-  if [[ "$marked" != "$expected_sha" ]]; then
-    echo "HANDOFF_COMPLETE sha=${marked} does not match EXPECTED_SHA=${expected_sha}" >&2
+  karzar_read_handoff_complete "$marker" || return 1
+  if ! karzar_is_git_sha "$expected_sha"; then
+    echo "EXPECTED_SHA is not 40 lowercase hex" >&2
+    return 1
+  fi
+  if [[ "$KARZAR_HANDOFF_SHA" != "$expected_sha" ]]; then
+    echo "HANDOFF_COMPLETE sha does not match EXPECTED_SHA" >&2
     return 1
   fi
 }
 
-# Verify incoming/<sha> against the GitHub-generated manifest. No live writes.
+# Verify incoming/<sha> against a caller-supplied expected manifest SHA. No live writes.
 karzar_verify_incoming_tree() {
   local incoming="$1" expected_sha="$2" expected_manifest_sha="$3"
   local tree="$incoming/tree"
@@ -240,14 +363,18 @@ karzar_verify_incoming_tree() {
   test -d "$tree"
   test -f "$manifest"
 
+  if ! karzar_is_sha256 "$expected_manifest_sha"; then
+    echo "VERIFY=FAIL expected manifest SHA is not 64 lowercase hex" >&2
+    return 1
+  fi
+
   local actual_manifest_sha
   actual_manifest_sha="$(sha256sum "$manifest" | awk '{print $1}')"
-  echo "EXPECTED_MANIFEST_SHA=${expected_manifest_sha}"
-  echo "ACTUAL_MANIFEST_SHA=${actual_manifest_sha}"
   if [[ "$actual_manifest_sha" != "$expected_manifest_sha" ]]; then
     echo "VERIFY=FAIL manifest SHA mismatch" >&2
     return 1
   fi
+  echo "MANIFEST_SHA_MATCH=YES"
 
   karzar_cleanup_partial "$tree"
 
@@ -270,7 +397,24 @@ karzar_verify_incoming_tree() {
   local files bytes
   files="$(karzar_tree_file_count "$tree")"
   bytes="$(karzar_tree_total_bytes "$tree")"
-  echo "HANDOFF_OK sha=${expected_sha} transport=rsync-delta files=${files} bytes=${bytes} manifest=${actual_manifest_sha}"
+  echo "HANDOFF_OK sha=${expected_sha} transport=rsync-delta files=${files} bytes=${bytes}"
+}
+
+# GitHub-hosted remote verify: expected manifest SHA is local to this SSH session.
+karzar_verify_prepared_handoff() {
+  local incoming="$1" expected_sha="$2" expected_manifest_sha="$3"
+  if ! karzar_is_git_sha "$expected_sha"; then
+    echo "EXPECTED_SHA is not 40 lowercase hex" >&2
+    return 1
+  fi
+  karzar_verify_incoming_tree "$incoming" "$expected_sha" "$expected_manifest_sha"
+}
+
+# Self-hosted verify: expected manifest SHA comes only from HANDOFF_COMPLETE.
+karzar_verify_completed_handoff() {
+  local incoming="$1" expected_sha="$2"
+  karzar_require_handoff_complete "$incoming" "$expected_sha" || return 1
+  karzar_verify_incoming_tree "$incoming" "$expected_sha" "$KARZAR_HANDOFF_MANIFEST"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

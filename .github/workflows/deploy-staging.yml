@@ -45,8 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
-    outputs:
-      manifest_sha: ${{ steps.push.outputs.manifest_sha }}
+    # No cross-job outputs. Actions secret-masking dropped the package-job
+    # manifest digest (Deploy Staging run 34039051081). Self-hosted verify
+    # reads HANDOFF_COMPLETE.
     steps:
       - name: Checkout exact workflow SHA
         uses: actions/checkout@v4
@@ -78,7 +79,7 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
           EXPECTED_SHA: ${{ github.sha }}
-          EXPECTED_MANIFEST_SHA: ${{ needs.package.outputs.manifest_sha }}
+          HANDOFF_VERIFY_MODE: consume
         run: |
           set -euo pipefail
           IN="/opt/karzar/incoming/${GITHUB_SHA}"
