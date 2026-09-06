@@ -430,6 +430,27 @@ karzar_verify_completed_handoff() {
   karzar_verify_incoming_tree "$incoming" "$expected_sha" "$KARZAR_HANDOFF_MANIFEST"
 }
 
+# Make incoming/<sha> readable/traversable by the self-hosted runner.
+# Scope is only this incoming directory. Never follow symlinks. Never chmod live trees.
+karzar_normalize_incoming_permissions() {
+  local incoming="$1"
+  local tree="$incoming/tree"
+  local manifest="$incoming/${KARZAR_MANIFEST_NAME}"
+  local marker="$incoming/${KARZAR_HANDOFF_MARKER}"
+
+  test -d "$incoming"
+  test -d "$tree"
+  test -f "$manifest"
+  test -f "$marker"
+
+  chmod 0755 "$incoming"
+  # -P: do not follow symlinks (repo has a relative content -> frontend/... link).
+  find -P "$tree" -type d -exec chmod a+rX {} +
+  find -P "$tree" -type f -exec chmod a+r {} +
+  chmod 0644 "$manifest"
+  chmod 0644 "$marker"
+}
+
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   set -euo pipefail
   cmd="${1:-}"

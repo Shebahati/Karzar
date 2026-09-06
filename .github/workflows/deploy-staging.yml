@@ -75,6 +75,24 @@ jobs:
     environment: staging
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     steps:
+      - name: Diagnose incoming permissions
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          IN="/opt/karzar/incoming/${GITHUB_SHA}"
+          echo "SELF_HOSTED_ID:"
+          id
+          echo "INCOMING_PATH_METADATA:"
+          namei -l "$IN/deploy-manifest.sha256" || true
+          stat -c '%A %a %U:%G %n' \
+            "$IN" \
+            "$IN/tree" \
+            "$IN/HANDOFF_COMPLETE" \
+            "$IN/deploy-manifest.sha256" \
+            "$IN/tree/deploy/staging/scripts/verify-incoming-source.sh" \
+            || true
+
       - name: Verify incoming source
         env:
           GITHUB_SHA: ${{ github.sha }}
