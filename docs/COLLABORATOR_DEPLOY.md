@@ -35,7 +35,7 @@ Karzar/
 - فرانت: `/opt/karzar/frontend`
 - Runner خودمیزبان: لیبل `karzar-vps`
 
-> چرا self-hosted؟ از GitHub-hosted به SSH این VPS timeout می‌شود. چرا artifact؟ از خود VPS به `github.com` گاهی 504 می‌دهد؛ بنابراین checkout روی `ubuntu-latest` است و فقط artifact روی runner سرور پیاده می‌شود.
+> چرا self-hosted؟ از GitHub-hosted به SSH این VPS timeout می‌شود. چرا artifact؟ از خود VPS به `github.com` گاهی 504 می‌دهد؛ بنابراین checkout روی `ubuntu-latest` است و فقط artifact روی runner سرور پیاده می‌شود. `actions/download-artifact` روی VPS هم پس از ۵ retry به blob می‌خورد؛ fallback باید zip را با `curl -4` از `api.github.com` بگیرد — `actions/checkout` به `runner.temp` مجاز نیست (`path is not under GITHUB_WORKSPACE`).
 
 ## استقرار Staging (دستی — `CR-011` Option B)
 
