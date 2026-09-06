@@ -2,6 +2,7 @@ name: Frontend CI
 
 # OPS-04 / QA-21: gate lint + typecheck + unit tests for both Next apps.
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
