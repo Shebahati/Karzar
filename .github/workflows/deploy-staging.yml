@@ -3,11 +3,10 @@ name: Deploy Staging
 # Staging = live VPS serving karzartools.com (single host until prod is split).
 # CR-011 Option B (2026-07-30): NO push-to-main auto-deploy — human must
 # Actions → Deploy Staging → Run workflow (workflow_dispatch) on `main`.
-# Pattern: checkout on GitHub-hosted (VPS often gets 504 from github.com), then
-# artifact → self-hosted runner for local rsync/rebuild. Never runs on fork PRs.
-# Artifact download hits Azure Blob (productionresultssa*.blob.core.windows.net).
-# That path is intermittent from karzar-vps; prefer IPv4 and fall back to git
-# checkout at github.sha so a blob outage cannot block HC-11.
+# Handoff: GitHub-hosted packs + SSH-pushes exact SHA to
+# /opt/karzar/incoming/<sha>/; karzar-vps only reads that local tree.
+# Do not checkout or download Actions artifacts on karzar-vps
+# (VPS→github.com 504s / hangs; VPS→Azure blob fails). Never runs on fork PRs.
 on:
   workflow_dispatch:
 
@@ -40,33 +39,28 @@ jobs:
           fi
 
   package:
-    name: Package sources
+    name: Package and push sources
     needs: deploy-freeze
     runs-on: ubuntu-latest
-    # Same-repo only (never trust fork workflows on self-hosted)
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Upload deploy artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: staging-src-${{ github.sha }}
-          path: |
-            .
-            !.git
-            !.github
-            !**/.venv
-            !**/venv
-            !**/node_modules
-            !**/.next
-            !**/__pycache__
-            !**/.pytest_cache
-            !**/.mypy_cache
-            !**/.ruff_cache
-          retention-days: 1
-          include-hidden-files: true
+      - name: Push package to VPS incoming
+        id: push
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          chmod +x deploy/staging/scripts/push-incoming-source.sh
+          bash deploy/staging/scripts/push-incoming-source.sh
 
   deploy:
     name: Sync + rebuild staging
@@ -75,58 +69,18 @@ jobs:
     environment: staging
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
     steps:
-      - name: Probe artifact storage (no secrets)
-        continue-on-error: true
-        run: |
-          set +e
-          echo "IPv4/IPv6 lookups (no signed URLs)"
-          for h in results.actions.githubusercontent.com \
-                   productionresultssa9.blob.core.windows.net \
-                   blob.core.windows.net; do
-            echo "== $h"
-            getent ahostsv4 "$h" | awk '{print $1}' | sort -u
-            getent ahostsv6 "$h" | awk '{print $1}' | sort -u
-          done
-          for u in https://results.actions.githubusercontent.com/ \
-                   https://productionresultssa9.blob.core.windows.net/; do
-            echo "== HEAD $u"
-            curl -sS -I -o /dev/null \
-              -w 'http_code=%{http_code} time=%{time_total} ip=%{remote_ip}\n' \
-              --connect-timeout 10 --max-time 20 "$u"
-          done
-          exit 0
-
-      - name: Download deploy artifact
-        id: artifact
-        continue-on-error: true
+      - name: Verify incoming source
         env:
-          # Azure Blob often publishes AAAA; broken IPv6 on this VPS times out ~30s.
-          NODE_OPTIONS: --dns-result-order=ipv4first
-        uses: actions/download-artifact@v4
-        with:
-          name: staging-src-${{ github.sha }}
-          path: ${{ runner.temp }}/staging-src
-
-      - name: Clear partial artifact dir
-        if: steps.artifact.outcome != 'success'
-        run: rm -rf "${{ runner.temp }}/staging-src"
-
-      - name: Fallback checkout if artifact download failed
-        if: steps.artifact.outcome != 'success'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          path: ${{ runner.temp }}/staging-src
-          persist-credentials: false
-          fetch-depth: 1
-
-      - name: Verify source handoff
+          GITHUB_SHA: ${{ github.sha }}
+          STAGED_DIR: ${{ runner.temp }}/staging-src
         run: |
           set -euo pipefail
-          SRC="${{ runner.temp }}/staging-src"
-          test -f "$SRC/deploy/staging/scripts/deploy-frontend.sh"
-          test -d "$SRC/frontend/Storefront"
-          echo "HANDOFF_OK sha=${{ github.sha }} artifact=${{ steps.artifact.outcome }}"
+          IN="/opt/karzar/incoming/${GITHUB_SHA}"
+          test -f "$IN/src.tgz"
+          test -f "$IN/src.tgz.sha256"
+          VERIFY="${{ runner.temp }}/verify-incoming-source.sh"
+          tar -xOf "$IN/src.tgz" deploy/staging/scripts/verify-incoming-source.sh > "$VERIFY"
+          bash "$VERIFY"
 
       - name: Sync backend → /opt/karzar/Karzar
         run: |
@@ -152,7 +106,6 @@ jobs:
             --exclude '.coverage' \
             --exclude 'actions-runner/' \
             "$SRC"/ /opt/karzar/Karzar/
-          # rsync --exclude 'frontend/' preserves a stale tree; remove it explicitly
           rm -rf /opt/karzar/Karzar/frontend
 
       - name: Sync frontend → /opt/karzar/frontend
@@ -194,19 +147,15 @@ jobs:
           export ADMIN_SESSION_SECRET
           bash deploy/staging/scripts/deploy-frontend.sh
 
-          # OPS-20: hard smoke gate — admin must not soft-fail.
           API_BASE=http://127.0.0.1:8000 \
           SHOP_BASE=http://127.0.0.1:3000 \
           ADMIN_BASE=http://127.0.0.1:3001 \
             bash deploy/staging/scripts/smoke-staging.sh
 
-          # SEO-003: Category B deploy-time CMS publish (ADR-012 / CR-004 residual).
-          # Not Category A enrichment — articles.json is Git SoT; live host is destination.
           export FRONTEND_ROOT="${FRONTEND_ROOT:-/opt/karzar/frontend}"
           export KARZAR_API_BASE="${KARZAR_API_BASE:-https://api.karzartools.com/api/v1}"
           export KARZAR_ALLOW_PRODUCTION_WRITE=1
           export KARZAR_INGESTION_CATEGORY=B
-          # Creds live in preserved server .env / .deploy-secrets (rsync-excluded).
           set -a
           # shellcheck disable=SC1091
           [[ -f /opt/karzar/.deploy-secrets ]] && source /opt/karzar/.deploy-secrets
@@ -214,3 +163,10 @@ jobs:
           [[ -f /opt/karzar/Karzar/.env ]] && source /opt/karzar/Karzar/.env
           set +a
           python3 scripts/publish_seo003_articles.py
+
+      - name: Cleanup incoming package
+        if: success()
+        run: |
+          set -euo pipefail
+          rm -rf "/opt/karzar/incoming/${{ github.sha }}"
+          find /opt/karzar/incoming -mindepth 1 -maxdepth 1 -mtime +1 -exec rm -rf {} + || true
