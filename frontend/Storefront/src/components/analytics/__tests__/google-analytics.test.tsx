@@ -1,16 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReactElement, ReactNode } from "react";
 
-vi.mock("next/script", () => ({
-  default: function Script(props: {
-    src?: string;
-    id?: string;
-    children?: ReactNode;
-  }) {
-    return <script data-next-script="" src={props.src} id={props.id}>{props.children}</script>;
-  },
-}));
-
 type ScriptProbe = {
   src?: string;
   id?: string;
