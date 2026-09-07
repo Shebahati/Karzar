@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     SMS_FARAZ_BASE_URL: str = "https://api.iranpayamak.com"
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
 
+    # Purchase checkout kill switch. Safe default is OFF — missing env must not
+    # silently enable real purchase checkout. Inquiry checkout is unaffected.
+    # Set PURCHASE_CHECKOUT_ENABLED=true only when SEP merchant domain is ready.
+    PURCHASE_CHECKOUT_ENABLED: bool = False
     # Payment provider: "mock" | "zarinpal" | "sep" (Saman Kish OnlinePG).
     PAYMENT_PROVIDER: str = "mock"
     # Callback URL registered with the gateway (storefront or backend callback endpoint).

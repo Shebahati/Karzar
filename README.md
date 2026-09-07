@@ -41,6 +41,7 @@ Accepted ADRs/RFCs and the knowledge-spec pack stay under `docs/architecture/` a
 - Backend coverage gate is **68%** (`pyproject.toml`).
 - Staging deploy is **`workflow_dispatch` only** — not push-to-`main` auto-deploy. Staging shares the live VPS (`CR-011`).
 - Production **cannot** boot with `PAYMENT_PROVIDER=mock`. Do not use mock as a production rollback.
+- Purchase checkout can be paused with `PURCHASE_CHECKOUT_ENABLED=false` (safe default) without changing SEP or catalog.
 - Admin edge session is a signed **HttpOnly** cookie; do not document JWT-in-`localStorage` as the admin session model.
 - SEP integration **exists** in code. A successful real/test charge is **not yet proven**.
 - Canonical PDP is `/product/{slug}`; `/product/{id}` **301**s to slug (ADR-010).

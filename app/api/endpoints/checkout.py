@@ -15,7 +15,11 @@ from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.storefront import CheckoutRequest, CheckoutResponse
-from app.services.checkout_service import PurchaseAuthRequiredError, submit_checkout
+from app.services.checkout_service import (
+    PurchaseAuthRequiredError,
+    PurchaseCheckoutDisabledError,
+    submit_checkout,
+)
 
 router = APIRouter()
 
@@ -80,6 +84,22 @@ async def checkout(
             current_user=current_user,
             guest_cart_token=x_cart_token,
         )
+    except PurchaseCheckoutDisabledError as exc:
+        if idempotency_key and idempotency_key.strip():
+            await crud_platform.delete_idempotency_record(
+                db,
+                scope=idempotency_scope,
+                key=idempotency_key.strip(),
+            )
+            await db.commit()
+        raise api_error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            error_code=ErrorCode.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED,
+            message=(
+                "خرید آنلاین موقتاً در حال به‌روزرسانی است. "
+                "لطفاً کمی بعد دوباره تلاش کنید یا درخواست استعلام ثبت کنید."
+            ),
+        ) from exc
     except PurchaseAuthRequiredError as exc:
         if idempotency_key and idempotency_key.strip():
             await crud_platform.delete_idempotency_record(
