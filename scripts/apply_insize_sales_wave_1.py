@@ -33,10 +33,13 @@ from catalog_target.sales_wave_apply import (  # noqa: E402
     REVIEWED_PRICE_CHANGES,
     REVIEWED_SNAPSHOT_SHA256,
     REVIEWED_SNAPSHOT_TIMESTAMP,
+    RUNTIME_DB_DEPENDENCY,
+    RUNTIME_DB_DRIVER,
     ApplyAbort,
     LiveProduct,
     apply_allowlist,
     assert_production_apply_authorized,
+    connect_runtime_db,
     default_plan_csv_path,
     load_and_validate_plan,
     post_apply_verification_contract,
@@ -88,12 +91,9 @@ def _load_live_csv(path: Path) -> list[LiveProduct]:
         return out
 
 
-def _connect_psycopg(database_url: str):
-    try:
-        import psycopg2  # type: ignore
-    except ImportError as exc:  # pragma: no cover
-        raise ApplyAbort("psycopg2_not_installed") from exc
-    return psycopg2.connect(database_url)
+def _connect_runtime_db(database_url: str):
+    """Connect with the project runtime PostgreSQL client (asyncpg)."""
+    return connect_runtime_db(database_url)
 
 
 class _MemoryConn:
@@ -261,14 +261,19 @@ def main(argv: list[str] | None = None) -> int:
             # Also attach explicit stale guard from CSV for reporting clarity.
             result.stale_guard = stale_guard(plan_rows, live).as_dict()
         elif args.database_url:
-            conn = _connect_psycopg(args.database_url)
+            conn = _connect_runtime_db(args.database_url)
             try:
                 result = apply_allowlist(
                     conn,
                     plan_rows,
                     dry_run=dry_run,
-                    backup_dir=args.backup_dir if args.apply else args.backup_dir,
+                    backup_dir=args.backup_dir,
                 )
+                result.transaction_safeguards = {
+                    **(result.transaction_safeguards or {}),
+                    "runtime_db_driver": RUNTIME_DB_DRIVER,
+                    "runtime_db_dependency": RUNTIME_DB_DEPENDENCY,
+                }
             finally:
                 conn.close()
         else:

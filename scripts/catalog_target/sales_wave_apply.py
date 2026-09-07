@@ -6,9 +6,11 @@ explicit Category B authorization and never runs by default.
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import hashlib
 import os
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -17,6 +19,11 @@ from typing import Any, Protocol
 from urllib.parse import urlparse
 
 from catalog_target.apply_contract import APPLY_REQUIRED_LIVE_FIELDS, StaleSnapshotGuard
+
+# Runtime DB client pinned in requirements.txt (API image). Do not use psycopg.
+RUNTIME_DB_DRIVER = "asyncpg"
+RUNTIME_DB_DEPENDENCY = "asyncpg==0.29.0"
+
 
 # Reviewed plan identity from PR #285 (immutable contract for this wave).
 REVIEWED_SNAPSHOT_TIMESTAMP = "20260907T102823Z"
@@ -578,17 +585,18 @@ def write_pre_apply_backup(
             )
     lines = [
         "-- Rollback for INSIZE Sales Wave 1. Generated from pre-write backup.",
+        "-- Restores ONLY writer-mutable columns: base_price, is_available.",
+        "-- Active flag is audited in the CSV backup but intentionally excluded from SET.",
         "BEGIN;",
     ]
     for row in sorted(live_rows, key=lambda item: item.id):
         price = "NULL" if row.base_price is None else str(row.base_price)
-        active = "NULL" if row.is_active is None else ("TRUE" if row.is_active else "FALSE")
         available = (
             "NULL" if row.is_available is None else ("TRUE" if row.is_available else "FALSE")
         )
         lines.append(
             "UPDATE products SET "
-            f"base_price = {price}, is_active = {active}, is_available = {available} "
+            f"base_price = {price}, is_available = {available} "
             f"WHERE id = {row.id} AND sku = '{row.sku.replace(chr(39), chr(39)+chr(39))}';"
         )
     lines.append(f"-- expected_row_count={len(live_rows)}")
@@ -624,6 +632,46 @@ WHERE id = %s AND sku = %s AND deleted_at IS NULL
 """
 
 
+def normalize_database_url(url: str) -> str:
+    """Strip SQLAlchemy asyncpg driver suffixes for asyncpg.connect()."""
+    for prefix in ("postgresql+asyncpg://", "postgres+asyncpg://"):
+        if url.startswith(prefix):
+            return "postgresql://" + url[len(prefix) :]
+    return url
+
+
+def _percent_s_to_asyncpg(sql: str) -> str:
+    """Convert psycopg-style %s placeholders to asyncpg $1..$n."""
+    parts = sql.split("%s")
+    if len(parts) == 1:
+        return sql
+    out: list[str] = []
+    for index, part in enumerate(parts[:-1]):
+        out.append(part)
+        out.append(f"${index + 1}")
+    out.append(parts[-1])
+    return "".join(out)
+
+
+def _record_to_live_product(payload: dict[str, Any]) -> LiveProduct:
+    price = payload.get("base_price")
+    deleted = payload.get("deleted_at")
+    return LiveProduct(
+        id=int(payload["id"]),
+        sku=str(payload["sku"]),
+        base_price=None if price is None else Decimal(str(price)),
+        is_active=None if payload.get("is_active") is None else bool(payload["is_active"]),
+        is_available=None
+        if payload.get("is_available") is None
+        else bool(payload["is_available"]),
+        deleted_at=None if not deleted else str(deleted),
+        brand_id=None if payload.get("brand_id") is None else str(payload["brand_id"]),
+        category_id=None if payload.get("category_id") is None else str(payload["category_id"]),
+        name=None if payload.get("name") is None else str(payload["name"]),
+        slug=None if payload.get("slug") is None else str(payload["slug"]),
+    )
+
+
 def rows_from_db(cursor: Any, product_ids: list[int], *, for_update: bool) -> list[LiveProduct]:
     sql = SELECT_ALLOWLIST_SQL if for_update else SELECT_ALLOWLIST_SQL_NO_LOCK
     cursor.execute(sql, (product_ids,))
@@ -644,27 +692,114 @@ def rows_from_db(cursor: Any, product_ids: list[int], *, for_update: bool) -> li
                 "name": row[8],
                 "slug": row[9],
             }
-        price = payload.get("base_price")
-        deleted = payload.get("deleted_at")
-        out.append(
-            LiveProduct(
-                id=int(payload["id"]),
-                sku=str(payload["sku"]),
-                base_price=None if price is None else Decimal(str(price)),
-                is_active=None if payload.get("is_active") is None else bool(payload["is_active"]),
-                is_available=None
-                if payload.get("is_available") is None
-                else bool(payload["is_available"]),
-                deleted_at=None if not deleted else str(deleted),
-                brand_id=None if payload.get("brand_id") is None else str(payload["brand_id"]),
-                category_id=None
-                if payload.get("category_id") is None
-                else str(payload["category_id"]),
-                name=None if payload.get("name") is None else str(payload["name"]),
-                slug=None if payload.get("slug") is None else str(payload["slug"]),
-            )
-        )
+        out.append(_record_to_live_product(payload))
     return out
+
+
+class AsyncpgApplyConnection:
+    """Sync facade over asyncpg (requirements.txt) for one APPLY transaction.
+
+    Matches the DbConnection protocol used by apply_allowlist / FakeConn tests.
+    """
+
+    def __init__(self, database_url: str):
+        try:
+            import asyncpg
+        except ImportError as exc:  # pragma: no cover
+            raise ApplyAbort(
+                f"asyncpg_not_installed:required={RUNTIME_DB_DEPENDENCY}"
+            ) from exc
+        self._asyncpg = asyncpg
+        self._loop = asyncio.new_event_loop()
+        self._conn = self._loop.run_until_complete(
+            asyncpg.connect(normalize_database_url(database_url))
+        )
+        self._tx: Any | None = None
+
+    def cursor(self, *args: Any, **kwargs: Any) -> AsyncpgApplyCursor:
+        del args, kwargs
+        if self._tx is None:
+            self._tx = self._conn.transaction()
+            self._loop.run_until_complete(self._tx.start())
+        return AsyncpgApplyCursor(self)
+
+    def commit(self) -> None:
+        if self._tx is not None:
+            self._loop.run_until_complete(self._tx.commit())
+            self._tx = None
+
+    def rollback(self) -> None:
+        if self._tx is not None:
+            self._loop.run_until_complete(self._tx.rollback())
+            self._tx = None
+
+    def close(self) -> None:
+        try:
+            if self._tx is not None:
+                self._loop.run_until_complete(self._tx.rollback())
+                self._tx = None
+            self._loop.run_until_complete(self._conn.close())
+        finally:
+            self._loop.close()
+
+
+class AsyncpgApplyCursor:
+    def __init__(self, owner: AsyncpgApplyConnection):
+        self._owner = owner
+        self.rowcount = 0
+        self._rows: list[tuple[Any, ...]] = []
+
+    def execute(self, sql: str, params: Any = None) -> None:
+        converted = _percent_s_to_asyncpg(sql)
+        args = tuple(params) if params is not None else ()
+        sql_l = " ".join(sql.lower().split())
+        if sql_l.startswith("select "):
+            records = self._owner._loop.run_until_complete(
+                self._owner._conn.fetch(converted, *args)
+            )
+            self._rows = [tuple(record[key] for key in record.keys()) for record in records]
+            self.rowcount = len(self._rows)
+            return
+        if sql_l.startswith("update "):
+            status = self._owner._loop.run_until_complete(
+                self._owner._conn.execute(converted, *args)
+            )
+            # asyncpg returns e.g. "UPDATE 1"
+            parts = str(status).split()
+            self.rowcount = int(parts[-1]) if parts and parts[-1].isdigit() else 0
+            self._rows = []
+            return
+        raise ApplyAbort(f"unsupported_sql:{sql_l[:40]}")
+
+    def fetchall(self) -> list[tuple[Any, ...]]:
+        return list(self._rows)
+
+
+async def fetch_allowlist_readonly_async(
+    database_url: str, product_ids: list[int]
+) -> list[LiveProduct]:
+    """SELECT-only allowlist re-read via asyncpg (no FOR UPDATE, no writes)."""
+    import asyncpg
+
+    conn = await asyncpg.connect(normalize_database_url(database_url))
+    try:
+        sql = _percent_s_to_asyncpg(SELECT_ALLOWLIST_SQL_NO_LOCK)
+        records = await conn.fetch(sql, product_ids)
+        return [
+            _record_to_live_product({key: record[key] for key in record.keys()})
+            for record in records
+        ]
+    finally:
+        await conn.close()
+
+
+def fetch_allowlist_readonly(database_url: str, product_ids: list[int]) -> list[LiveProduct]:
+    return asyncio.run(fetch_allowlist_readonly_async(database_url, product_ids))
+
+
+def connect_runtime_db(database_url: str) -> AsyncpgApplyConnection:
+    """Open the project-runtime PostgreSQL client used by future APPLY."""
+    return AsyncpgApplyConnection(database_url)
 
 
 def assert_production_apply_authorized(
@@ -880,8 +1015,8 @@ def isolation_proof_queries(allowlist_ids: list[int]) -> dict[str, str]:
             f"FROM products WHERE id NOT IN ({id_list})"
         ),
         "product_images_fingerprint": (
-            "SELECT md5(string_agg(md5(ROW(id, product_id, url, is_primary, display_order)::text), "
-            "',' ORDER BY id)) FROM product_images"
+            "SELECT md5(string_agg(md5(ROW(id, product_id, image_url, is_primary, "
+            "display_order)::text), ',' ORDER BY id)) FROM product_images"
         ),
         "brands_count": "SELECT COUNT(*) FROM brands",
         "categories_count": "SELECT COUNT(*) FROM categories",
@@ -890,6 +1025,105 @@ def isolation_proof_queries(allowlist_ids: list[int]) -> dict[str, str]:
             f"SELECT id, sku FROM products WHERE id IN ({id_list}) AND deleted_at IS NOT NULL"
         ),
     }
+
+
+def assert_isolation_queries_match_schema() -> None:
+    """Fail closed if verification SQL drifts from the ProductImage schema contract.
+
+    Prefers live SQLAlchemy metadata when importable; always cross-checks the
+    checked-in model source so CI and offline unit runs agree.
+    """
+    repo_root = Path(__file__).resolve().parents[2]
+    model_path = repo_root / "app" / "db" / "models" / "product.py"
+    if not model_path.is_file():
+        raise ApplyAbort(f"product_model_missing:{model_path}")
+    model_src = model_path.read_text(encoding="utf-8")
+    image_match = re.search(
+        r"class ProductImage\(Base\):(.*?)(?:\nclass |\Z)",
+        model_src,
+        flags=re.S,
+    )
+    if image_match is None:
+        raise ApplyAbort("product_image_class_missing_in_model_source")
+    image_body = image_match.group(1)
+    if "image_url" not in image_body:
+        raise ApplyAbort("product_images_model_missing_image_url")
+    if re.search(r"(?<![A-Za-z0-9_])url(?![A-Za-z0-9_])\s*:", image_body):
+        raise ApplyAbort("product_images_model_has_bare_url_column")
+    for required in (
+        "__tablename__ = \"product_images\"",
+        "product_id",
+        "is_primary",
+        "display_order",
+    ):
+        if required not in image_body and required not in model_src:
+            # tablename lives in class body; product_id etc. too
+            if required.startswith("__tablename__") and required not in image_body:
+                raise ApplyAbort("product_images_tablename_mismatch")
+            if not required.startswith("__tablename__") and required not in image_body:
+                raise ApplyAbort(f"product_images_model_missing:{required}")
+
+    product_match = re.search(
+        r"class Product\(Base\):(.*?)(?:\nclass |\Z)",
+        model_src,
+        flags=re.S,
+    )
+    if product_match is None:
+        raise ApplyAbort("product_class_missing_in_model_source")
+    product_body = product_match.group(1)
+    for col in (
+        "base_price",
+        "is_active",
+        "is_available",
+        "deleted_at",
+        "brand_id",
+        "category_id",
+        "sku",
+        "name",
+        "slug",
+    ):
+        if col not in product_body:
+            raise ApplyAbort(f"products_model_missing:{col}")
+
+    queries = isolation_proof_queries([1])
+    images_sql = queries["product_images_fingerprint"]
+    if "image_url" not in images_sql:
+        raise ApplyAbort("isolation_sql_missing_image_url")
+    bare_url = re.search(r"(?<![A-Za-z0-9_])url(?![A-Za-z0-9_])", images_sql)
+    if bare_url is not None:
+        raise ApplyAbort("isolation_sql_uses_forbidden_url_column")
+
+    # Optional live ORM metadata check when app deps are installed (CI).
+    try:
+        from app.db.models.product import Brand, Category, Product, ProductImage
+    except Exception:  # noqa: BLE001
+        return
+
+    product_cols = {column.key for column in Product.__table__.columns}
+    image_cols = {column.key for column in ProductImage.__table__.columns}
+    brand_cols = {column.key for column in Brand.__table__.columns}
+    category_cols = {column.key for column in Category.__table__.columns}
+    required_product = {
+        "id",
+        "sku",
+        "base_price",
+        "is_active",
+        "is_available",
+        "deleted_at",
+        "brand_id",
+        "category_id",
+        "name",
+        "slug",
+    }
+    missing_product = required_product - product_cols
+    if missing_product:
+        raise ApplyAbort(f"products_schema_missing:{sorted(missing_product)}")
+    required_images = {"id", "product_id", "image_url", "is_primary", "display_order"}
+    missing_images = required_images - image_cols
+    if missing_images:
+        raise ApplyAbort(f"product_images_schema_missing:{sorted(missing_images)}")
+    if "id" not in brand_cols or "id" not in category_cols:
+        raise ApplyAbort("brand_or_category_schema_missing_id")
 
 
 def post_apply_verification_contract() -> dict[str, Any]:
@@ -932,6 +1166,8 @@ def writer_contract_summary() -> dict[str, Any]:
         "reviewed_snapshot_sha256": REVIEWED_SNAPSHOT_SHA256,
         "reviewed_plan_csv_sha256": REVIEWED_PLAN_CSV_SHA256,
         "reviewed_plan_json_sha256": REVIEWED_PLAN_JSON_SHA256,
+        "runtime_db_driver": RUNTIME_DB_DRIVER,
+        "runtime_db_dependency": RUNTIME_DB_DEPENDENCY,
         "stale_snapshot_guard": StaleSnapshotGuard(writer_implemented=True).as_dict(),
         "required_live_fields": list(APPLY_REQUIRED_LIVE_FIELDS) + ["deleted_at"],
         "default_mode": "DRY_RUN",

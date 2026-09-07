@@ -23,12 +23,17 @@ from apply_insize_sales_wave_1 import main as apply_main  # noqa: E402
 from catalog_target.sales_wave_apply import (  # noqa: E402
     REVIEWED_ALLOWLIST_COUNT,
     REVIEWED_PLAN_CSV_SHA256,
+    RUNTIME_DB_DEPENDENCY,
+    RUNTIME_DB_DRIVER,
     ApplyAbort,
     LiveProduct,
     PlanRow,
     apply_allowlist,
+    assert_isolation_queries_match_schema,
     assert_production_apply_authorized,
+    isolation_proof_queries,
     load_and_validate_plan,
+    normalize_database_url,
     sha256_file,
     stale_guard,
     write_pre_apply_backup,
@@ -373,6 +378,98 @@ class ApplyTransactionTests(unittest.TestCase):
             self.assertIn("BEGIN;", text)
             self.assertIn("COMMIT;", text)
             self.assertIn(f"WHERE id = {live[0].id}", text)
+            # Backup retains is_active for audit evidence.
+            backup_text = backup.read_text(encoding="utf-8")
+            self.assertIn("is_active", backup_text)
+            # Rollback must not mutate forbidden columns.
+            for line in text.splitlines():
+                if not line.strip().upper().startswith("UPDATE "):
+                    continue
+                set_clause = line.lower().split("where", 1)[0]
+                self.assertIn("base_price", set_clause)
+                self.assertIn("is_available", set_clause)
+                self.assertNotIn("is_active", set_clause)
+                self.assertNotIn("deleted_at", set_clause)
+                self.assertNotIn("brand_id", set_clause)
+
+    def test_rollback_sql_excludes_is_active_even_when_active_differs(self):
+        live = [
+            LiveProduct(
+                id=1,
+                sku="X-1",
+                base_price=Decimal("100"),
+                is_active=True,
+                is_available=False,
+                deleted_at=None,
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            _backup, _digest, rollback = write_pre_apply_backup(
+                live, output_dir=Path(tmp), stamp="T2"
+            )
+            text = rollback.read_text(encoding="utf-8")
+            self.assertIn("base_price = 100", text)
+            self.assertIn("is_available = FALSE", text)
+            self.assertNotIn("is_active", text)
+
+
+class SchemaIsolationTests(unittest.TestCase):
+    def test_isolation_sql_uses_product_images_image_url(self):
+        queries = isolation_proof_queries([1771, 1772])
+        sql = queries["product_images_fingerprint"]
+        self.assertIn("image_url", sql)
+        self.assertNotRegex(sql, r"(?<![A-Za-z0-9_])url(?![A-Za-z0-9_])")
+
+    def test_isolation_queries_match_orm_schema(self):
+        # Requires app package on PYTHONPATH (unittest from repo root).
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        assert_isolation_queries_match_schema()
+
+
+class RuntimeConnectorTests(unittest.TestCase):
+    def test_requirements_pin_asyncpg_not_psycopg2(self):
+        req = (ROOT / "requirements.txt").read_text(encoding="utf-8")
+        self.assertIn(RUNTIME_DB_DEPENDENCY, req)
+        self.assertNotIn("psycopg2", req)
+        self.assertEqual(RUNTIME_DB_DRIVER, "asyncpg")
+
+    def test_normalize_database_url_strips_sqlalchemy_driver(self):
+        self.assertEqual(
+            normalize_database_url("postgresql+asyncpg://u:p@localhost/db"),
+            "postgresql://u:p@localhost/db",
+        )
+
+    def test_asyncpg_importable_from_runtime(self):
+        import importlib.util
+
+        spec = importlib.util.find_spec("asyncpg")
+        if spec is None:
+            self.skipTest("asyncpg not installed in this local interpreter; pinned in requirements.txt")
+        import asyncpg
+
+        self.assertTrue(hasattr(asyncpg, "connect"))
+
+    def test_asyncpg_readonly_dry_run_path_with_fake_server(self):
+        """Prove CLI runtime connector class wires asyncpg (no psycopg2)."""
+        import catalog_target.sales_wave_apply as mod
+
+        self.assertTrue(hasattr(mod, "AsyncpgApplyConnection"))
+        self.assertTrue(callable(mod.connect_runtime_db))
+        self.assertEqual(mod.RUNTIME_DB_DRIVER, "asyncpg")
+        # Source must not import psycopg2.
+        source = Path(mod.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("import psycopg2", source)
+        self.assertNotIn("psycopg2.connect", source)
+        cli_source = (SCRIPTS / "apply_insize_sales_wave_1.py").read_text(encoding="utf-8")
+        self.assertNotIn("import psycopg2", cli_source)
+        self.assertNotIn("psycopg2.connect", cli_source)
+        self.assertIn("connect_runtime_db", cli_source)
+
+    def test_writer_contract_declares_asyncpg_runtime(self):
+        contract = writer_contract_summary()
+        self.assertEqual(contract["runtime_db_driver"], "asyncpg")
+        self.assertEqual(contract["runtime_db_dependency"], RUNTIME_DB_DEPENDENCY)
 
 
 class AuthorizationTests(unittest.TestCase):
