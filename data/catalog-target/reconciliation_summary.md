@@ -1,0 +1,1597 @@
+# Target Catalog Reconciliation (READ-ONLY)
+
+PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
+
+- Baseline SHA: `0b145a48fcc524f78126a9081e5ed89830e8fb5e`
+- Generated at: `2026-09-07T10:48:10.969779+00:00`
+- REAL_SOURCE_VALIDATION: `ok`
+- SOURCE_TREE_VALID: `TRUE`
+- PARTIAL_TARGET_MANIFEST_VALID: `TRUE`
+- TARGET_MANIFEST_READY: `TRUE`
+- TARGET_MANIFEST_SCOPE: `WAVE_1_RESOLVED_AUTHORITIES`
+- DEFERRED_AUTHORITIES: `['guanglu.price_list']`
+- CURRENT_SITE_SNAPSHOT_VALID: `TRUE`
+- CURRENT_SITE_RECONCILIATION_READY: `TRUE`
+- INSIZE_SALES_WAVE_1_READY: `TRUE`
+- CREATE_APPLY_READY: `FALSE`
+- DEACTIVATE_APPLY_READY: `FALSE`
+- GLOBAL_APPLY_READY: `FALSE`
+- APPLY_READY: `FALSE`
+- DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`repository_snapshot_non_live`) — file:current_site_snapshot_latest.csv
+- Current products observed: **5918**
+- Target SKUs: **2316**
+
+## Reconciliation action counts (DELETE never emitted)
+- KEEP: 238
+- UPDATE: 1328
+- CREATE: 506
+- DEACTIVATE (active non-target requiring is_active true→false): 360
+- REVIEW: 244
+- NOOP_INACTIVE_NON_TARGET: 3819
+
+## Snapshot integrity
+- `{"CURRENT_SITE_SNAPSHOT_VALID": true, "expected_row_count": 5918, "observed_row_count": 5918, "unique_ids": true, "missing_columns": [], "duplicate_ids": [], "duplicate_skus": [], "empty_skus": 0, "missing_brands": 296, "base_price_parse_failures": 0, "boolean_parse_failures": 0, "image_count_parse_failures": 0, "truncation_suspected": false, "problems": [], "stats": {"total": 5918, "active": 1410, "inactive": 4507, "deleted": 1, "with_sku": 5918, "without_sku": 0, "with_brand": 5622, "without_brand": 296, "with_images": 1194, "without_images": 4724, "duplicate_sku_groups": 0}}`
+
+## A. Target source completeness
+- Discovered files: 550
+- Unparsed files: 1
+- Unavailable registry sources: 0
+- Duplicate-tree copies skipped: 537
+- Same-name different-hash conflicts: 1
+- Duplicate source SKUs (identity collapsed, REVIEW): 60
+
+## B. Current-site evidence completeness
+- Kind: `repository_snapshot_non_live` — **NON-LIVE / SNAPSHOT / UNAVAILABLE**
+- Note: file:current_site_snapshot_latest.csv
+- Current products observed: **5918**
+
+A and B are independent. A real Target manifest can exist without live site evidence.
+
+## Target SKUs per brand
+- ASTPOWER: 51
+- DASQUA: 889
+- DCOIL: 253
+- INSIZE: 872
+- TERMA: 251
+
+## Brand source quality
+- ASTPOWER: extracted=51 unique=51 valid_prices=0 zero/missing=51 duplicates=0 rejected=0 review=51 confidence=high
+- DASQUA: extracted=897 unique=889 valid_prices=773 zero/missing=116 duplicates=8 rejected=57 review=9 confidence=high
+- DCOIL: extracted=321 unique=253 valid_prices=191 zero/missing=62 duplicates=42 rejected=0 review=42 confidence=high
+- GUANGLU: extracted=0 unique=0 valid_prices=0 zero/missing=0 duplicates=0 rejected=265 review=0 confidence=none
+- INSIZE: extracted=872 unique=872 valid_prices=714 zero/missing=158 duplicates=0 rejected=110 review=132 confidence=high
+- TERMA: extracted=278 unique=251 valid_prices=239 zero/missing=12 duplicates=10 rejected=0 review=10 confidence=high
+
+## Reconciliation counts
+- KEEP: 238
+- UPDATE: 1328
+- CREATE: 506
+- DEACTIVATE: 360
+- REVIEW: 244
+- NOOP_INACTIVE_NON_TARGET: 3819
+
+## INSIZE
+- INSIZE_TARGET_ROWS: 872
+- INSIZE_TARGET_UNIQUE_SKUS: 872
+- INSIZE_TARGET_DUPLICATES: 0
+- INSIZE_DISTRIBUTOR_ROWS: 55266
+- INSIZE_DISTRIBUTOR_UNIQUE_CODES: 55265
+- INSIZE_EXACT_MATCHES: 728
+- INSIZE_UNIVERSE_EXPANDED_FROM_DISTRIBUTOR: False
+- INSIZE_UNMATCHED_TARGET: 144
+- `1111-75`
+- `1111-100`
+- `1114-150`
+- `1114-200`
+- `1114-300`
+- `1183-150`
+- `1185-150`
+- `1186-150`
+- `1186-200`
+- `1186-300`
+- `1188-150`
+- `1187-150`
+- `1120-150`
+- `1120-200`
+- `1120-300`
+- `1121-150`
+- `1123-150`
+- `1123-300`
+- `1161-150`
+- `1151-300`
+- `1151-600`
+- `1205-1502`
+- `1205-2002`
+- `1205-3002`
+- `1312-150`
+- `1312-200`
+- `1312-300`
+- `1311-150`
+- `1311-200`
+- `1311-300`
+- `1141-150`
+- `1141-200`
+- `1141-300`
+- `1141-500`
+- `1141-1000`
+- `1142-150`
+- `1142-200`
+- `1142-300`
+- `1144-150`
+- `1144-200`
+- `1144-300`
+- `1145-25`
+- `2341-101`
+- `2141-202`
+- `3203-25`
+- `3203-50`
+- `3203-75`
+- `3203-100`
+- `3203-125`
+- `3203-150`
+- `3203-175`
+- `3203-200`
+- `3203-225`
+- `3203-250`
+- `3203-275`
+- `3203-300`
+- `3203-1506`
+- `3203-3006`
+- `3203-3012`
+- `3206-150`
+- `3206-200`
+- `3206-300`
+- `3206-301`
+- `3506-150`
+- `3506-300`
+- `3506-400`
+- `3506-500`
+- `3506-600`
+- `3210-25`
+- `3210-50`
+- `3210-75`
+- `3210-100`
+- `3109-25`
+- `3109-50`
+- `3109-75`
+- `3109-100`
+- `3109-125`
+- `3109-150`
+- `3109-175`
+- `3109-200`
+- `3109-225`
+- `3109-250`
+- `3109-275`
+- `3109-300`
+- `3108-25`
+- `3108-50`
+- `3108-75`
+- `3108-100`
+- `3101-25`
+- `3101-225`
+- `3101-250`
+- `3101-275`
+- `3101-300`
+- `3594-25`
+- `3594-50`
+- `6372-25`
+- `3290-153`
+- `3290-455`
+- `3590-153`
+- `3232-75`
+- `3232-100`
+- `3260-25`
+- `3560-25`
+- `2308-10`
+- `2310-30`
+- `2383-08`
+- `6207-80`
+- `6208-80`
+- `sp-point-1`
+- `SP-BORE`
+- `2322-35`
+- `2322-60`
+- `2322-160`
+- `2322-250`
+- `2322-450`
+- `2827-60`
+- `2827-160`
+- `2828-800`
+- `2122-35`
+- `2122-60`
+- `2122-160`
+- `2367-10`
+- `4780-85`
+- `4831-20`
+- `4903-150`
+- `4903-200`
+- `4903-300`
+- `2172-360`
+- `6902-85`
+- `6902-106`
+- `7111-300`
+- `7111-500`
+- `7111-1000`
+- `7120-200`
+- `7202-200`
+- `ISH-PHB`
+- `ISH-DR150`
+- `ISH-TDV-1000`
+- `4150-130`
+- `4150-1301`
+- `4150-250`
+- `4150-2501`
+- `58698`
+- `7323`
+- INSIZE_DUPLICATE_DISTRIBUTOR_MATCHES: 0
+- (none)
+- INSIZE_AMBIGUOUS: 0
+- (none)
+- INSIZE_AVAILABLE_POSITIVE_PRICE: 171
+- `1108-150`
+- `1108-200`
+- `1108-300`
+- `1196-300`
+- `1103-150`
+- `1103-200`
+- `1103-300`
+- `1110-150A`
+- `1110-300A`
+- `1106-501`
+- `1176-150`
+- `1150-300`
+- `1150-500`
+- `1203-1003`
+- `1205-200S`
+- `1214-500`
+- `1214-600`
+- `1240-1501`
+- `1240-2001`
+- `1240-3001`
+- `3205-400`
+- `3400-25`
+- `3220-30`
+- `3220-50`
+- `3220-75`
+- `3222-500`
+- `2301-10`
+- `2302-25`
+- `2309-50`
+- `2313-1A`
+- `2311-5`
+- `2380-08`
+- `2381-08`
+- `2381-021`
+- `2381-02`
+- `2112-10`
+- `2112-25`
+- `6201-60`
+- `6200-60`
+- `5024`
+- `6210-80`
+- `6210-100`
+- `6228-40`
+- `6229-80`
+- `6202-80`
+- `6202-100`
+- `5013`
+- `6301`
+- `6890-702`
+- `6284-3`
+- `6284-82`
+- `6298-2`
+- `6282-2001`
+- `6282-2002`
+- `6282-2003`
+- `6282-2004`
+- `6282-2005`
+- `6282-2007`
+- `6282-2009`
+- `6282-2013`
+- `6282-2017`
+- `6282-1201`
+- `6282-1601`
+- `2852-18`
+- `2364-10`
+- `2871-10`
+- `2871-101`
+- `4608-31`
+- `4602-17`
+- `4602-20`
+- `4602-32`
+- `4605-201`
+- `4621-02`
+- `4621-03`
+- `4621-04`
+- `4621-05`
+- `4621-06`
+- `4621-07`
+- `4621-08`
+- `4621-09`
+- `4621-10`
+- `4621-12`
+- `4621-15`
+- `4621-20`
+- `4621-25`
+- `4621-30`
+- `4621-35`
+- `4621-40`
+- `4621-50`
+- `4621-60`
+- `4621-70`
+- `4621-90`
+- `4621-100`
+- `4799-180`
+- `4799-1150`
+- `4799-1200`
+- `4799-1300`
+- `4801-17`
+- `4801-15`
+- `4835-1`
+- `4839-1`
+- `4838-1`
+- `4830`
+- `4845-2`
+- `4833-1`
+- `4829-1`
+- `4842-1`
+- `4806-20`
+- `4820-552`
+- `4824-12`
+- `4824-16`
+- `4917-30`
+- `2179-360`
+- `4912-100`
+- `4922-100`
+- `4922-150`
+- `4913-250`
+- `4921-230`
+- `2176-300`
+- `2171-250`
+- `2372-360`
+- `2278-180`
+- `2275-300`
+- `4790-0100`
+- `7110-500`
+- `7110-600`
+- `7110-1000`
+- `7110-2000`
+- `7139-100`
+- `7247-150`
+- `7247-200`
+- `7247-300`
+- `7261-150`
+- `7261-200`
+- `7261-300`
+- `7262-150`
+- `7262-200`
+- `7262-300`
+- `7140-3`
+- `7140-5`
+- `7142-5`
+- `9561-50B`
+- `9561-70B`
+- `9563-C40`
+- `7114-3460`
+- `0222-C520`
+- `0213-A500`
+- `0215-A900`
+- `0110-1125`
+- `0312-TH50`
+- `ISF-F500`
+- `ISO-1000FN`
+- `ISQ-RM30`
+- `7522-610`
+- `7523-3D5`
+- `7600-6`
+- `4206-1`
+- `9225-405`
+- `8602-200`
+- `8003-3`
+- `9247-190`
+- `9241-ML200`
+- `9722-250`
+- `9723-400`
+- `DSW-A010`
+- `4120-10`
+- `4120-10N`
+- `4120-12N`
+- `4130-4`
+- `4130-5`
+- `4130-10`
+- INSIZE_AVAILABLE_NO_POSITIVE_PRICE: 6
+- `4802-31`
+- `ISH-R150`
+- `7164-1`
+- `6557-50`
+- `8601-100`
+- `ISGF-0501`
+- INSIZE_UNAVAILABLE_POSITIVE_PRICE: 543
+- `1170-300`
+- `1106-301`
+- `1106-302`
+- `1106-601`
+- `1106-502`
+- `1106-503`
+- `1106-505`
+- `1106-602`
+- `1106-603`
+- `1106-802`
+- `1106-1002`
+- `1106-1005`
+- `1106-1502`
+- `1106-1503`
+- `1106-2002`
+- `1106-2003`
+- `1172-200`
+- `1135-601`
+- `1136-501`
+- `1136-502`
+- `1136-503`
+- `1136-601`
+- `1169-150`
+- `1180-6`
+- `1120-500`
+- `1122-300`
+- `1520-150`
+- `1176-200`
+- `1178-300`
+- `1530-300`
+- `1530-500`
+- `1250-300`
+- `1250-600`
+- `1150-600`
+- `1150-1000`
+- `1156-300`
+- `1156-600`
+- `1156-1000`
+- `1204-70`
+- `1201-1003`
+- `1205-150S`
+- `1205-300S`
+- `1214-1000`
+- `1214-1500`
+- `1214-2000`
+- `1215-392`
+- `1236-394`
+- `1215-322`
+- `1217-3001`
+- `1215-522`
+- `1215-532`
+- `1236-524`
+- `1215-622`
+- `1215-822`
+- `1215-1032`
+- `1215-1052`
+- `1208-511`
+- `1208-524`
+- `1208-824`
+- `1316-500`
+- `1240-5001`
+- `1340-150`
+- `1340-200`
+- `1340-300`
+- `1140-25`
+- `1140-50`
+- `1140-100`
+- `1140-150`
+- `1244-30`
+- `2342-202`
+- `2142-101`
+- `2142-102`
+- `2343-102`
+- `3240-25`
+- `3240-100`
+- `3240-150`
+- `3240-300`
+- `3540-50`
+- `3540-150`
+- `3540-300`
+- `3205-500`
+- `3205-600`
+- `3205-700`
+- `3205-800`
+- `3205-900`
+- `3205-1000`
+- `3205-1200`
+- `3205-1400`
+- `3205-1600`
+- `3205-1800`
+- `3358-25`
+- `3203-1A`
+- `3203-2A`
+- `3203-3A`
+- `3203-4A`
+- `3203-5A`
+- `3203-6A`
+- `3203-7A`
+- `3203-8A`
+- `3203-9A`
+- `3203-10A`
+- `3203-12A`
+- `3282-25`
+- `3282-50`
+- `3282-75`
+- `3282-100`
+- `3220-100`
+- `3520-30`
+- `3520-50`
+- `3520-75`
+- `3520-100`
+- `3287-25B`
+- `3222-300`
+- `3222-600`
+- `3222-1000`
+- `3222-1500`
+- `3225-2100`
+- `3521-2000`
+- `3222-12`
+- `3227-6`
+- `3227-8`
+- `3227-10`
+- `3227-12`
+- `3227-16`
+- `3227-20`
+- `3227-25`
+- `3227-30`
+- `3227-40`
+- `3227-50`
+- `3227-63`
+- `3227-75`
+- `3227-88`
+- `3227-100`
+- `3227-125`
+- `3227-150`
+- `3227-175`
+- `3227-200`
+- `3227-123`
+- `3227-202`
+- `3227-504`
+- `3227-1004`
+- `3127-5`
+- `3127-6`
+- `3127-8`
+- `3127-10`
+- `3127-12`
+- `3127-16`
+- `3127-20`
+- `3127-25`
+- `3127-30`
+- `3127-40`
+- `3127-50`
+- `3127-63`
+- `3127-75`
+- `3127-88`
+- `3127-100`
+- `3127-125`
+- `3127-150`
+- `3127-175`
+- `3127-200`
+- `3127-225`
+- `3127-250`
+- `3127-275`
+- `3127-300`
+- `3127-123`
+- `3127-202`
+- `3127-504`
+- `3127-1004`
+- `6377-25W`
+- `6354-25W`
+- `3290-203`
+- `3291-25`
+- `3293-131`
+- `3230-25BA`
+- `3530-25BA`
+- `3260-25SA`
+- `3332-25`
+- `2309-100D`
+- `2311-5F`
+- `2318-10`
+- `2318-30`
+- `2114-5F`
+- `2112-50`
+- `2115-10`
+- `2115-25`
+- `2112-101`
+- `2112-251`
+- `2112-501`
+- `2103-10`
+- `7214-50M`
+- `2118-10`
+- `2315-05`
+- `2304-01`
+- `2307-105`
+- `2307-025`
+- `2307-1`
+- `6211-10`
+- `6226-80`
+- `6210-81`
+- `6215-60`
+- `6224-40`
+- `6229-60`
+- `6862-1002`
+- `6866-150`
+- `2878-6A`
+- `2878-71B`
+- `6300`
+- `6801-1201`
+- `6801-1202`
+- `6896-11`
+- `6896-13`
+- `1281-M26A`
+- `1181-M25A`
+- `1181-M50A`
+- `7302-21`
+- `6293-1`
+- `6293-2`
+- `6291-1`
+- `6294-1A`
+- `6295-1A`
+- `6297-1`
+- `6282-1102`
+- `6282-1203`
+- `2852-10`
+- `2824-S3`
+- `7351-EX12`
+- `2153-10`
+- `2825-35`
+- `2825-60`
+- `2825-160`
+- `7350-35`
+- `7350-60`
+- `7350-160`
+- `2365-10`
+- `2364-1`
+- `2366-30`
+- `2876-10`
+- `2673-10`
+- `2164-25A`
+- `2163-25`
+- `2872-10`
+- `2875-30`
+- `2361-10`
+- `2710-25`
+- `2862-102`
+- `2863-10`
+- `2866-10`
+- `4605-20`
+- `4605-202`
+- `4621-80`
+- `2281-360`
+- `4799-1120`
+- `7205-200`
+- `4801-16`
+- `4804-26`
+- `2183`
+- `4803-1`
+- `4807`
+- `4851-1`
+- `4832-1`
+- `4833-2`
+- `4833-3`
+- `4833-4`
+- `4837-1`
+- `4834-1`
+- `4836-1`
+- `4836-2`
+- `6832-1`
+- `4843-1`
+- `4841-1`
+- `4844-1`
+- `4820-230`
+- `4820-452`
+- `4860-212`
+- `4860-245`
+- `4810-601`
+- `4810-602`
+- `4852-3`
+- `4852-15`
+- `4852-30`
+- `4953-200`
+- `4902-150`
+- `4902-200`
+- `4902-300`
+- `2170-1`
+- `2198-2`
+- `2199-1`
+- `2173-360`
+- `2175-360`
+- `4918-300`
+- `4918-600`
+- `4911-600`
+- `4910-400`
+- `4910-600`
+- `2176-200`
+- `2174-225`
+- `2374-320`
+- `2373-360`
+- `2771-360`
+- `4100-18`
+- `4100-187`
+- `4100-1112`
+- `4100-232`
+- `4100-247`
+- `4100-287`
+- `4100-2112`
+- `4100-2122`
+- `4168-S25`
+- `6511-24`
+- `6511-241`
+- `4101-C1000`
+- `4790-050`
+- `4790-075`
+- `4790-0150`
+- `4790-0200`
+- `4790-0300`
+- `4796-50`
+- `4796-75`
+- `4796-100`
+- `4796-150`
+- `4796-300`
+- `4707-300`
+- `4707-500`
+- `4745-1120`
+- `4745-1150`
+- `4745-1200`
+- `4760-1200`
+- `4700-200`
+- `4141-400`
+- `6900-132`
+- `6900-142`
+- `6900-153`
+- `6900-164`
+- `6900-185`
+- `6900-1106`
+- `7110-150`
+- `7110-200`
+- `7110-300`
+- `7110-1200`
+- `7110-1500`
+- `2121-25`
+- `2222-25`
+- `2222-301`
+- `2333-201`
+- `2132-20`
+- `2332-20`
+- `2711-216`
+- `2711-165`
+- `2321-35`
+- `2321-55`
+- `2321-75`
+- `2223-153`
+- `2151-35`
+- `2151-AL35`
+- `2151-55`
+- `2151-AL55`
+- `2151-75`
+- `2151-AL75`
+- `2151-95`
+- `7144-1`
+- `7145-1`
+- `7114-950`
+- `7114-2200`
+- `HDT-LP200`
+- `HDT-L411`
+- `HDT-LP200B`
+- `ISH-SAM`
+- `ISH-SDM`
+- `ISH-DSA`
+- `ISH-STAC`
+- `ISH-STD`
+- `ISF-F200`
+- `ISF-F300`
+- `ISF-1DF1000`
+- `ISF-MT500`
+- `ISF-V10A`
+- `ISF-MT1K`
+- `ISR-CS130-W`
+- `ISO-1200FN`
+- `ISQ-PB2`
+- `9501-1200`
+- `ISU-100D`
+- `ISU-200D`
+- `ISU-250C`
+- `ISR-C300`
+- `ISM-PM100`
+- `ISM-PM200SB`
+- `7524-10`
+- `7527-D1`
+- `7527-D2`
+- `7515-10`
+- `7513-2`
+- `7513-4`
+- `7517-3D`
+- `7516-5D`
+- `7160-1`
+- `7160-2`
+- `7162-1`
+- `7161-1`
+- `7163-1`
+- `ISL-A1-1000`
+- `ISL-A1-800`
+- `ISL-A1-600`
+- `ISL-B5-1000`
+- `ISL-DR3`
+- `ISL-DR2`
+- `4208-1`
+- `2385-3`
+- `2841-300`
+- `2841-500`
+- `6566-3`
+- `9341-50`
+- `8003-6`
+- `8003-10`
+- `8101-30`
+- `8301-1200`
+- `8604-40`
+- `8203-CW03T`
+- `8203-CW05T`
+- `8203-CW1T`
+- `6140`
+- `6144`
+- `7230`
+- `9315-CF210`
+- `9721-250`
+- `5201-63B2Y10`
+- `4166-0D`
+- `4166-1`
+- `4166-1D`
+- `4166-2`
+- `4166-2D`
+- `4166-3`
+- `4166-3D`
+- `4166-4`
+- `4166-4D`
+- `4166-5`
+- `4166-5D`
+- `4166-6`
+- `4166-6D`
+- `4166-7`
+- `4166-7D`
+- `4166-8`
+- `4166-8D`
+- `4166-9`
+- `4166-9D`
+- `4166-10`
+- `4166-10D`
+- `4166-411`
+- `4166-511`
+- `4166-512`
+- `4166-513`
+- `6520-67`
+- `6520-87`
+- `6520-102`
+- `ISV-E40`
+- `4129-4G`
+- `4129-4GN`
+- `4120-4`
+- `4120-4N`
+- `4129-5G`
+- `4129-5GN`
+- `4120-5`
+- `4120-5N`
+- `4129-6G`
+- `4129-6GN`
+- `4120-6`
+- `4120-6N`
+- `4129-8P`
+- `4129-8PN`
+- `4120-8`
+- `4120-8N`
+- `4129-10Q`
+- `4129-10QN`
+- `4129-12R`
+- `4129-12RN`
+- `4120-12`
+- `4129-14R`
+- `4129-14RN`
+- `4120-14`
+- `4120-14N`
+- `4129-16R`
+- `4129-16RN`
+- `4120-16`
+- `4120-16N`
+- `4129-18T`
+- `4129-18TN`
+- `4120-18`
+- `4120-18N`
+- `4129-20T`
+- `4129-20TN`
+- `4120-20`
+- `4120-20N`
+- `4129-22T`
+- `4129-22TN`
+- `4120-22`
+- `4120-22N`
+- `4129-24T`
+- `4129-24TN`
+- `4120-24`
+- `4120-24N`
+- `4129-25T`
+- `4129-25TN`
+- `4129-26T`
+- `4129-26TN`
+- `4129-27T`
+- `4129-27TN`
+- `4120-27`
+- `4120-27N`
+- `4129-28T`
+- `4129-28TN`
+- `4129-30T`
+- `4129-30TN`
+- `4120-30`
+- `4120-30N`
+- `4130-1`
+- `4139-4G`
+- `4139-5G`
+- `4139-6G`
+- `4130-6`
+- `4139-8P`
+- `4130-8`
+- `4139-10Q`
+- `4139-12R`
+- `4130-12`
+- `4139-14R`
+- `4130-14`
+- `4139-16R`
+- `4130-16`
+- `4139-18T`
+- `4130-18`
+- `4139-20T`
+- `4130-20`
+- `4139-22T`
+- `4130-22`
+- `4139-24T`
+- `4130-24`
+- `4139-25T`
+- `4139-26T`
+- `4139-27T`
+- `4130-27`
+- `4139-28T`
+- `4139-30T`
+- `4130-30`
+- INSIZE_UNAVAILABLE_NO_PRICE: 8
+- `1115-150`
+- `1115-200`
+- `1115-300`
+- `7315-21`
+- `4100-8`
+- `9351-130`
+- `6566-2`
+- `ISGF-0901`
+
+## Authority decisions
+- insize.distributor: class A `not_membership` (price_inventory_only)
+- terma.catalog: class A `not_membership` (not_membership)
+- dasqua.catalog: class A `not_membership` (not_membership)
+- guanglu.price_list: class C `deferred` (commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source)
+- mitutoyo.catalog: class A `not_membership` (catalog_specification_only)
+- shams.catalog: class A `not_membership` (catalog_media_only_no_product_list)
+- ASTPOWER/chuck: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/tapping_collets: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/tool_grinder: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/tailstock: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/rotary_table: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/magnetic_drill: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/core_drill: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/et_taps: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/pneumatic_tapping: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/cutting_fluid: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/multi_spindle: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/magnetic_drill_hole_saws: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/utex_drills: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+
+## Unresolved full-manifest blockers
+- (none)
+
+## AST families
+- chuck: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- tapping_collets: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- tool_grinder: candidates=2 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- tailstock: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- rotary_table: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- magnetic_drill: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- core_drill: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- et_taps: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- pneumatic_tapping: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- cutting_fluid: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- automatic_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=3 unique=3 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
+- electric_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=27 unique=27 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
+- multi_spindle: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- magnetic_drill_hole_saws: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- utex_drills: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- spade_drills: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=21 unique=21 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
+
+## Guanglu evidence
+- Pages inspected: 11
+- Method: pdftotext (encoding-corrupted) + page render
+- Candidate priced rows recorded: 265
+- Unique Target SKUs: 0
+- Final status: class C deferred (Wave 1) — commercial price list without stable manufacturer identity
+- Reason: `commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source`
+- This does not claim Guanglu products should never exist in Karzar.
+- Detail: `data/catalog-target/guanglu_authority_review.csv`
+
+## Current-site snapshot phase (READ-ONLY, not run)
+- Method: `scripts/catalog_target/snapshot.py` (`load_current_catalog` / `--snapshot` / local `--read-db`)
+- Status: prepared, **not executed** this pass
+- Production hosts (`karzartools.com`) are refused
+- Historical `data/imports/*_products.csv` and image-only extracts are refused
+- Required fields: id, sku, brand_id/brand, category_id, slug, name, base_price, is_active, is_available, deleted_at, primary image/media state
+- CURRENT_SITE_RECONCILIATION_READY remains FALSE until a trustworthy snapshot is obtained
+
+## Duplicate-source findings
+- Same name + same hash skipped: 537
+- `/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/موجودی توزیع کننده 11 شهریور (2).xlsx`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tc312-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tb48-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.13 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.06 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.47 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.07 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.05 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.20 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tc1433-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tb13-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.23 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.42 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/دنباله مرس - مته(1).jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.45 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.08 AM (1).jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/تجهیزات دستگاه فرز، تراش و دریل.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.18 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/تبديل دنباله فشنگي .jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.36 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tb31-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/دنباله مرس - فرز(1).jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.09 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.29 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.32 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.05 AM (1).jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/تجهیزات دستگاه فرز، تراش و دریل_Page_14.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tb19-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/دنباله استوانه.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 10.00.08 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/WhatsApp Image 2025-07-21 at 9.59.15 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویزگیر AST  کلت و دنبالهPower/tc820-CHUCK-ASTPOWER.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/AST-E312.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/F14.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/G70.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ ابزار تیزکن آذرصنعت_Page_28.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_33.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/U3.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/STW.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ دستگاه تراش کوچک آذرصنعت_Page_2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ اسپارک آذرصنعت_Page_2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/دستگاه پخ زن.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/T20.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/SM.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/GT600.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/EH14.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/830MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/F30.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ ابزار تیزکن آذرصنعت_Page_33.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/FTV313.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/BSB.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/26MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ اسپارک آذرصنعت_Page_5.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ ابزار تیزکن آذرصنعت_Page_27.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_35.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/GT670.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/TMS20.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ ابزار تیزکن آذرصنعت_Page_01.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ اسپارک آذرصنعت_Page_4.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_36.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/832MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/80 MA.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/HIGH SPEED COMPOSITE CHAMFERING MACHINE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/TU-DR313.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/32MG.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ اسپارک آذرصنعت_Page_3.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/15MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/30MG.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_34.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_37.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/13MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/FB620.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_32.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/230MA.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/photo1734956102.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/EH614.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ اسپارک آذرصنعت_Page_1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/F20.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/TS20.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/TS42.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/کاتالوگ دستگاه تراش کوچک آذرصنعت_Page_1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/AST-E316.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/20MG.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/AST-E425.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ تک برگی/MF14.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/همکاری ابزار تیزکن.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/همکاری اسپارک.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/spark600W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/._spark3000W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/._spark1500W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/spark1500W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/spark3000W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/._spark600W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/T20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/FB620w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/26MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/32MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/WhatsApp Image 2025-07-21 at 10.00.04 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/U3-toolssharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/TS20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/GT600-toolssharpener-1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._BSB-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._GT600-toolssharpener-1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/830MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/FREE-230ma.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._13MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._FB620w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/free-TU-D13E12.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._stw-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/free-TU-DR313.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/EH14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._U3-toolssharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._F30w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._GT600-toolssharpener-2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/fee-TU-DR230.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/sm-i-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._.DS_Store`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/FTV313w-endmillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/BSB-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._sm-i-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/WhatsApp Image 2025-07-21 at 10.00.02 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._830MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._GT600-toolssharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._FTV313w-endmillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._26MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/F30w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._32MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._F20w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/GT600-toolssharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/832MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/F14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._F14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._TS42w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/F20w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/13MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._T20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/stw-W.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/EH614w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._MF14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/30MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._TMS20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/free-EG-12A.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/MF14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._15MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/free-EG-25A.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._832MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._20MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._TS20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/free-EG-16A.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._30MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/20MGw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/WhatsApp Image 2025-07-21 at 10.00.00 AM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/TS42w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._EH14w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/15MAw-drillsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/._EH614w-endsharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/GT600-toolssharpener-2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/کاتالوگ ابزار تیزکن ها/TMS20w-TapSharpener.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3798.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3796i.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3804.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3792.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3798.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3804.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3802.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3802.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3794.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3792.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/IMG_3794.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP1500/._IMG_3796i.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/IMG_3829.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/._IMG_3831.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/._IMG_3833.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/IMG_3823.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/IMG_3831.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/._IMG_3823.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/._IMG_3829.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP600/IMG_3833.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/._IMG_3716.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/._IMG_3713.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/IMG_3714.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/IMG_3724.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/IMG_3713.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/._IMG_3714.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/IMG_3716.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/._IMG_3719.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/._IMG_3724.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/ابزارتیزکن/کاتالوگ همکاری/اسپارک/AST SP3000/IMG_3719.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-AST POWER  VUT TILTING ROTARY TABLES.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/تایکوپ همکاری.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-PullStUd.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-Right angle back plate.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-صفجه گدران HV.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS2 -2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS0i.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS0.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS1x.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/⁨free-صفحه گردان و تایکوپ⁩ CS دقیق.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREEastpower-dm35 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._TUMT5.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-PROT150 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/TUMT5.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-astpower-dm120 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-TUMT4 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/free-promax-at80.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-astpower-dm60 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._.DS_Store`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/free-TUMT5.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-astpower-dm60 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-K38 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-PRO35 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-astpower-dm120 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREEastpower-dm35 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-PROT100 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-K38 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-PROT65 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-PRO35 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/PROT65-hamkari.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-TUMT3 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-TUMT2 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-PROT100 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-TUMT3 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._free-TUMT5.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-TUMT4 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-PROT150 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREE-TUMT2 copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3340.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3353.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3347.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3329.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3340.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3353.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3347.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3355.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3355.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/IMG_3346.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3329.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST CORE DRILL 100/._IMG_3346.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/._IMG_0809.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/IMG_0817.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/IMG_0802.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/IMG_0806.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/._IMG_0817.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/._IMG_0806.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/._IMG_0802.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor355/IMG_0809.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/IMG_0835.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/._IMG_0833.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/._IMG_0835.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/IMG_0829.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/IMG_0838.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/._IMG_0838.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/._IMG_0829.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor255/IMG_0833.HEIC`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/._IMG_0785.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/IMG_0778.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/._IMG_0800I.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/._IMG_0777.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/IMG_0785.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/._IMG_0778.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/IMG_0800I.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/ASTCORE255P/IMG_0777.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/._IMG_2974.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/._IMG_2956.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/._IMG_2942.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/IMG_2956.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/IMG_2964.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/IMG_2974.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/._IMG_2967.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/._IMG_2964.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/IMG_2942.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/AST CoreDrill 80/IMG_2967.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/IMG_3090.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/IMG_3112.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/._IMG_3091.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/IMG_3118.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/._IMG_3118.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/._IMG_3090.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/IMG_3091.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/IMG_3100.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/._IMG_3100.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/PHOTO AST COREDRILL 205P/._IMG_3112.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/._IMG_0855.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/._IMG_0856.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/._IMG_0849.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/IMG_0855.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/IMG_0856.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/tcor205/IMG_0849.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 205-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - tumt 305-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - tumt 355-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - tumt 205-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - tumt 255-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 80-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 255-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 355-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 100-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/کرگیری/کاتالوگ همکاری/همکاری/Core Drill - promax 305-for-partner.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3288.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3300.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3287.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3310.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3314.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3282 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3305.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3305.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3315.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3314.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3282 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/._IMG_3315.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3300.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3287.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3288.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST K38/IMG_3310.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2747.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2749i.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2749.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2745.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2749x.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2749i.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._tumt2-into.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2763.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2763.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2749.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/tumt2-into.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2747.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_3235.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2745.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_3235.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2749x.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/._IMG_2750.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT2/IMG_2750.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2147.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2144 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2194.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2194.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2146.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2148.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2145.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2148.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2187.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2146.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2145.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2170.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2147.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2148.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2144 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2170.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/._IMG_2148.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 35/IMG_2187.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2272.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2252.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2271.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2283.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2271.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2272.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2212.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2283.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2252.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2272.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2212.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2272.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2227.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2224.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/IMG_2224.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO T 65/._IMG_2227.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2382.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2389.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2397.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2393.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2395.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2393.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2386 2.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2403.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2402.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2397.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2403.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2402.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2395.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/IMG_2386 2.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2382.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT3/._IMG_2389.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3227.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3213.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3208.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3200.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3223 2.webp`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3225.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3208.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3225.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3223 2.webp`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3210.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3200.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3210.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/IMG_3227.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT5/._IMG_3213.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_2993.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_2982.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_3028.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_3030.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_3048.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_3027.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_2992.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_2993.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_2982.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_2992.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_3048.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/._IMG_3055.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_3030.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_3028.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_3055.JPG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM120/IMG_3027.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3185.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3175.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3158.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3174 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3174 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3185.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3178.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3178.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3153.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/IMG_3149.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3153.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3149.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3158.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST TUMT4/._IMG_3175.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2880.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2880.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2790.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2877.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2805.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2879.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2805.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2786.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2879.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2877.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2786.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/IMG_2804.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2804.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM35/._IMG_2790.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/._IMG_2868.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/IMG_2836.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/IMG_2847 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/IMG_2831.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/IMG_2868.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/._IMG_2847.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/._IMG_2847 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/IMG_2847.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/._IMG_2836.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/Drillmagnet DM50/._IMG_2831.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2268.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2376.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2309.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2316.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_3364.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2370.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2255.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2331 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_3372.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_3364.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2376.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2331 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2369.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2255.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2369.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2370.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2309.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_3372.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2253.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2268.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/._IMG_2253.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST PRO MAX T 150/IMG_2316.psd`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2890.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2908.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2910.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2901 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2899.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2899.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2908.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2910.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2941.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2928.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2901 Background Removed.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2941.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2921.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2890.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2928.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2921.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/کاتالوگ قلاویز ای تی.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/free-ET.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/free-ET copy.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/ET همکاری.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن بادی/NEW قلاویززن بادی.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/روغن آب صابون/همکاری روغن اب صابون.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن اتومات/free-automatic-tapping.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/NSB.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ قلاویز زن برقی آذرصنعت_Page_1.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/دفترچه فارسی قلاویززن برقی.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/لوازم جانبی دستگاه.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/TRM.jpeg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/میز دستگاه قلاویززن.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ قلاویز زن برقی آذرصنعت_Page_6.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/همکاری TRM.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/._elc-tap-machine-ACCESSORISE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/._elc-tap-machine-ACCESSORISE-2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/elc-tap-machine-ACCESSORISE-2.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/همکاری NSBM.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/._TAPPINGMACHINE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/._TRM-PASHESHW.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/elc-tap-machine-ACCESSORISE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مولتی اسپیندل/کاتالوگ مولتی اسپیندل تایوان.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مولتی اسپیندل/کاتالوگ تک برگی/کاتالوگ مولتی اسپیندل تایوان_Page_2.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مولتی اسپیندل/کاتالوگ تک برگی/کاتالوگ مولتی اسپیندل تایوان_Page_1.png`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مولتی اسپیندل/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_38.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مولتی اسپیندل/کاتالوگ تک برگی/نمایندگی های شرکت آذرصنعت_Page_39.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/گردبر دریل مگنت/کاتالوگ_تجهیزات_سوراخکاری_آذر_صنعت.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/گردبر دریل مگنت/کاتالوگ همکاری/free-AST MAGNET Holesaw TCT.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/گردبر دریل مگنت/کاتالوگ همکاری/free-AST MAGNET Holesaw.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته یوتکس/کاتالوگ_تجهیزات_سوراخکاری_آذر_صنعت_Page_07.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/همکاری مته برگی.pdf`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/._free-Spade Drills.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/free-Spade Drills.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/free-insert HSS.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/._free-insert CARBIDE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/._free-Spade cooling.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/free-insert CARBIDE.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/free-Spade Drills-morse.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/free-Spade cooling.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/._free-Spade Drills-morse.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/مته برگی/مته برگی/._free-insert HSS.jpg`
+- Same name + different hash REVIEW conflicts: 1
+- `موجودی توزیع کننده 11 شهریور (2).xlsx`: same_logical_source_different_hash original=`/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/موجودی توزیع کننده 11 شهریور - Sheet1 باز.xlsx` copy=`/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/موجودی توزیع کننده 11 شهریور (2).xlsx`
+
+## Price / unit / markup conflicts
+- (none)
+
+## Other findings (examples, not exhaustive)
+- Duplicate current SKUs: 0
+- (none)
+- Cross-brand SKU collisions: 1
+- `7111-1000`
+
+## Unavailable authoritative sources
+- (none)
+
+## Unparsed sources
+- `/home/shebahati/KaZar/Product and Data Complete/هلی کویل/شمس/کاتالوگ شمس.pdf`: pdftotext_empty
+
+## INSIZE Sales Wave 1 (plan only)
+- Count: 158
+- Commerce-ready: 171
+- Media-ready: 620
+- Public-sell-ready: 158
+- Excluded commerce-ready/no-media: 13
+- Snapshot timestamp: `20260907T102823Z`
+- Snapshot sha256: `4823ea7e39ffe6dc057c329a9387343ad77f369a8506925bf96cdb75c3b99cbf`
+- Detail: `data/catalog-target/insize_sales_wave_1_plan.csv` / `.json`
+- Stale-snapshot guard: re-SELECT allowlisted rows before any future APPLY; abort entire APPLY on drift
+
+## APPLY readiness
+- **GLOBAL_APPLY_READY = FALSE.** No writer in this PR.
+- CREATE_APPLY_READY = FALSE; DEACTIVATE_APPLY_READY = FALSE.
+- REVIEW rows are hard-blocked from every allowlist.
+
+PRODUCTION DB MUTATION: ZERO
+

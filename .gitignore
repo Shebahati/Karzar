@@ -90,3 +90,4 @@ scripts/fixtures/insize_pilot_manifest_production*.json
 
 .local-rescue/
 work/reports/
+.local-scratch/
