@@ -217,21 +217,62 @@ def source_has_role(source: SourceFile, role: str) -> bool:
     return False
 
 
+def membership_authority_of(spec: dict[str, Any]) -> str:
+    explicit = str(spec.get("membership_authority") or "").strip()
+    if explicit:
+        return explicit
+    roles = list(spec.get("roles") or [])
+    if "product_scope" in roles:
+        return "required"
+    return "not_membership"
+
+
+def _is_ast_enumerator_filename(name: str, registry: dict[str, Any]) -> bool:
+    rules = registry.get("ast_enumerators") or {}
+    enumerators = list(rules.get("product_scope_price_filename_contains") or [])
+    catalogs = list(rules.get("catalog_filename_contains") or [])
+    if _filename_contains_any(name, catalogs):
+        return False
+    return _filename_contains_any(name, enumerators)
+
+
+def _is_ast_enumerator_candidate(path: Path, registry: dict[str, Any]) -> bool:
+    suffix = path.suffix.lower()
+    if suffix not in PDF_SUFFIXES | TABULAR_SUFFIXES | JSON_SUFFIXES:
+        return False
+    return _is_ast_enumerator_filename(path.name, registry)
+
+
+def _ast_filename_family_len(filename: str, names: list[str]) -> int:
+    folded = fold_token(filename)
+    best = 0
+    for name in names:
+        if name and name in folded:
+            best = max(best, len(name))
+    return best
+
+
 def ast_roles_for_file(path: Path, registry: dict[str, Any]) -> tuple[list[str], str, str]:
-    """Fail closed: family folder is not enough. Enumerators are explicit."""
+    """Fail closed: family folder is not enough. Enumerators are explicit.
+
+    A cooperation/price filename is a candidate only. Catalog-named files are
+    never auto-promoted to product_scope.
+    """
     suffix = path.suffix.lower()
     rules = registry.get("ast_enumerators") or {}
     enumerators = list(rules.get("product_scope_price_filename_contains") or [])
     catalogs = list(rules.get("catalog_filename_contains") or [])
     if suffix in MEDIA_SUFFIXES:
         return ["media"], "none", "ok"
-    if _filename_contains_any(path.name, enumerators):
+    catalog_named = suffix in PDF_SUFFIXES and _filename_contains_any(path.name, catalogs)
+    enumerator_named = _filename_contains_any(path.name, enumerators) and not catalog_named
+    if enumerator_named:
         if suffix in PDF_SUFFIXES:
             return ["product_scope", "price"], "pdf_sku_price", "ok"
         if suffix in TABULAR_SUFFIXES | JSON_SUFFIXES:
             return ["product_scope", "price"], "tabular", "ok"
         return ["unclassified"], "none", "unclassified"
-    if suffix in PDF_SUFFIXES and _filename_contains_any(path.name, catalogs):
+    if catalog_named:
         return ["catalog"], "none", "ok"
     if suffix in PDF_SUFFIXES:
         return ["unclassified"], "none", "unclassified"
@@ -260,6 +301,8 @@ class SourceDiscovery:
         self.rejected_examples: dict[str, list[str]] = {}
         self.brand_parse: dict[str, dict[str, Any]] = {}
         self._row_cache: dict[str, list[dict[str, Any]]] = {}
+        self.authority_decisions: list[dict[str, str]] = []
+        self.ast_reports: list[dict[str, Any]] = []
 
     def discover(self) -> None:
         if self.source_root is None:
@@ -290,22 +333,29 @@ class SourceDiscovery:
 
         for spec in self.registry.get("sources") or []:
             matches = [p for p in files if spec_matches_path(self.source_root, p, spec.get("match") or {})]
+            authority = membership_authority_of(spec)
             if not matches:
-                if spec.get("product_scope_status"):
-                    self.unavailable.append(
-                        {
-                            "source": spec.get("id", ""),
-                            "reason": spec.get("product_scope_status", "authoritative_source_file_unavailable"),
-                        }
-                    )
-                else:
-                    self.unavailable.append(
-                        {
-                            "source": spec.get("id", ""),
-                            "reason": "authoritative_source_file_unavailable",
-                        }
-                    )
+                if authority in {"not_membership", "deferred"}:
+                    continue
+                self.unavailable.append(
+                    {
+                        "source": spec.get("id", ""),
+                        "reason": str(
+                            spec.get("product_scope_status") or "authoritative_source_file_unavailable"
+                        ),
+                    }
+                )
                 continue
+            if authority in {"not_membership", "deferred"}:
+                klass = "A" if authority == "not_membership" else "C"
+                self.authority_decisions.append(
+                    {
+                        "source": str(spec.get("id") or ""),
+                        "class": klass,
+                        "decision": authority,
+                        "reason": str(spec.get("authority_reason") or spec.get("product_scope_status") or authority),
+                    }
+                )
             chosen = self._prefer_originals(matches, dup_markers)
             if spec.get("id") == "insize.distributor" and len(chosen) > 1:
                 chosen = self._prefer_single_workbook(chosen)
@@ -438,7 +488,12 @@ class SourceDiscovery:
                         "reason": extracted.error or extracted.status,
                     }
                 )
-                if "product_scope" in roles:
+                ast_candidate = source.brand_key == "ASTPOWER" and "product_scope" in roles
+                if ast_candidate:
+                    source.roles = ["enumerator_unparsed"]
+                    source.role = "enumerator_unparsed"
+                    roles = source.roles
+                elif "product_scope" in roles:
                     self.parse_failures.append(
                         {
                             "path": str(path),
@@ -471,12 +526,13 @@ class SourceDiscovery:
             if not _folder_in_path(parts, "آذرصنعت"):
                 continue
             best_family = None
-            best_score = (-1, -1)
+            best_score = (-1, -1, -1)
             for family in families:
                 names = [fold_token(n) for n in (family.get("folder_names") or [])]
-                score = _ast_family_score(parts, names)
-                if score is None:
+                folder_score = _ast_family_score(parts, names)
+                if folder_score is None:
                     continue
+                score = (_ast_filename_family_len(path.name, names), folder_score[0], folder_score[1])
                 if score > best_score:
                     best_score = score
                     best_family = family
@@ -494,21 +550,60 @@ class SourceDiscovery:
                     and _ast_family_match(_path_parts(self.source_root, path), names)
                     for path in files
                 )
+                reason = (
+                    "ast_family_present_but_no_approved_enumerator"
+                    if present
+                    else "authoritative_source_file_unavailable"
+                )
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": (
-                            "ast_family_present_but_no_approved_enumerator"
-                            if present
-                            else "authoritative_source_file_unavailable"
-                        ),
+                        "reason": reason,
+                    }
+                )
+                self.ast_reports.append(
+                    {
+                        "family": str(family.get("product_family") or ""),
+                        "enumerator_candidates": [],
+                        "selected_authority": "",
+                        "duplicate_original_relationship": "",
+                        "parse_status": "none",
+                        "extracted_rows": 0,
+                        "unique_skus": 0,
+                        "rejected_rows": 0,
+                        "price_unit": "rial",
+                        "membership_result": reason,
                     }
                 )
                 continue
+            chosen = self._prefer_originals(matched, dup_markers)
+            enumerator_paths = [
+                p for p in chosen if _is_ast_enumerator_candidate(p, self.registry)
+            ]
+            dup_enumerators = [
+                p
+                for p in matched
+                if in_duplicate_tree(self.source_root, p, dup_markers)
+                and _is_ast_enumerator_candidate(p, self.registry)
+            ]
+            orig_enumerators = [
+                p
+                for p in matched
+                if not in_duplicate_tree(self.source_root, p, dup_markers)
+                and _is_ast_enumerator_candidate(p, self.registry)
+            ]
+            if orig_enumerators and dup_enumerators:
+                relationship = "original_preferred_duplicate_skipped_or_conflict"
+            elif not orig_enumerators and dup_enumerators:
+                relationship = "duplicate_tree_only"
+            elif orig_enumerators:
+                relationship = "original"
+            else:
+                relationship = ""
             saw_enumerator = False
-            for path in self._prefer_originals(matched, dup_markers):
+            for path in chosen:
                 roles, parser, parse_status = ast_roles_for_file(path, self.registry)
-                if "product_scope" in roles:
+                if "product_scope" in roles or _is_ast_enumerator_candidate(path, self.registry):
                     saw_enumerator = True
                 spec = {
                     "id": fid,
@@ -520,16 +615,54 @@ class SourceDiscovery:
                     "source_currency": "rial",
                     "sku_kind": "generic",
                     "membership_mode": "review_if_weak" if parse_status == "unclassified" else "authoritative",
+                    "membership_authority": "required",
                 }
                 self._register_file(path, spec)
                 claimed.add(path.resolve())
-            if not saw_enumerator:
+            enum_sources = [
+                f
+                for f in self.files
+                if f.source_id == fid
+                and (
+                    "product_scope" in (f.roles or [])
+                    or "enumerator_unparsed" in (f.roles or [])
+                )
+            ]
+            if not saw_enumerator and not enum_sources:
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
                         "reason": "ast_family_present_but_no_approved_enumerator",
                     }
                 )
+                membership_result = "ast_family_present_but_no_approved_enumerator"
+            elif enum_sources and all("enumerator_unparsed" in (f.roles or []) for f in enum_sources):
+                self.unavailable.append(
+                    {
+                        "source": f"ASTPOWER/{family.get('product_family')}",
+                        "reason": "ast_enumerator_unparsed_requires_ocr",
+                    }
+                )
+                membership_result = "enumerator_candidate_unparsed"
+            else:
+                membership_result = "pending_parse"
+            selected = str(enumerator_paths[0]) if enumerator_paths else (
+                str(enum_sources[0].path) if enum_sources else ""
+            )
+            self.ast_reports.append(
+                {
+                    "family": str(family.get("product_family") or ""),
+                    "enumerator_candidates": [str(p) for p in orig_enumerators or dup_enumerators],
+                    "selected_authority": selected,
+                    "duplicate_original_relationship": relationship,
+                    "parse_status": enum_sources[0].parse_status if enum_sources else "none",
+                    "extracted_rows": 0,
+                    "unique_skus": 0,
+                    "rejected_rows": 0,
+                    "price_unit": "rial",
+                    "membership_result": membership_result,
+                }
+            )
 
     def rows_for(self, source: SourceFile) -> list[dict[str, Any]]:
         if source.path in self._row_cache:
@@ -634,6 +767,10 @@ class SourceDiscovery:
                 self.unparsed.append(
                     {"path": str(path), "source_id": source.source_id, "reason": reason}
                 )
+                if source.brand_key == "ASTPOWER":
+                    source.roles = ["enumerator_unparsed"]
+                    source.role = "enumerator_unparsed"
+                    return []
                 self.parse_failures.append({"path": str(path), "reason": reason})
             if parsed.confidence == "low" and source.membership_mode == "authoritative":
                 source.membership_mode = "review_if_weak"
@@ -742,7 +879,42 @@ class SourceDiscovery:
                 item.duplicate_in_source = True
                 self.duplicate_scope_skus.append(item.sku)
             targets.append(item)
+        self.refresh_ast_reports()
         return targets
+
+    def refresh_ast_reports(self) -> None:
+        sku_headers = ["sku", "CODE"]
+        for report in self.ast_reports:
+            family = report.get("family")
+            sources = [
+                f
+                for f in self.files
+                if f.brand_key == "ASTPOWER" and f.product_family == family
+            ]
+            enum_sources = [
+                f
+                for f in sources
+                if "product_scope" in (f.roles or []) or "enumerator_unparsed" in (f.roles or [])
+            ]
+            extracted = 0
+            unique: set[str] = set()
+            parse_status = str(report.get("parse_status") or "none")
+            for src in enum_sources:
+                parse_status = src.parse_status
+                rows = self.rows_for(src) if "product_scope" in (src.roles or []) else []
+                extracted += len(rows)
+                for row in rows:
+                    sku = extract_sku(row, sku_headers)
+                    if sku:
+                        unique.add(normalize_sku(sku))
+            report["extracted_rows"] = extracted
+            report["unique_skus"] = len(unique)
+            report["rejected_rows"] = len(self.rejected_examples.get(enum_sources[0].source_id, []) if enum_sources else [])
+            report["parse_status"] = parse_status
+            if unique:
+                report["membership_result"] = "product_scope_conferred"
+            elif enum_sources and all("enumerator_unparsed" in (s.roles or []) for s in enum_sources):
+                report["membership_result"] = "enumerator_candidate_unparsed"
 
     def load_role_rows(self, role: str) -> list[tuple[SourceFile, dict[str, Any]]]:
         out: list[tuple[SourceFile, dict[str, Any]]] = []

@@ -33,7 +33,7 @@ from catalog_target.core import (
     suffix_near_miss,
 )
 from catalog_target.snapshot import SNAPSHOT_KIND_FILE, SNAPSHOT_KIND_LIVE, SNAPSHOT_KIND_UNAVAILABLE, load_current_catalog
-from catalog_target.sources import SourceDiscovery, extract_sku, pick_header
+from catalog_target.sources import SourceDiscovery, extract_sku, pick_header, membership_authority_of
 
 MANIFEST_FIELDS = [
     "brand",
@@ -165,6 +165,11 @@ class ReconciliationResult:
     apply_ready: bool = False
     real_source_validation: str = "ok"
     price_unit_conflicts: list[str] = field(default_factory=list)
+    source_tree_valid: bool = False
+    partial_target_manifest_valid: bool = False
+    unresolved_blockers: list[dict[str, str]] = field(default_factory=list)
+    authority_decisions: list[dict[str, str]] = field(default_factory=list)
+    ast_reports: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _bool_text(value: bool) -> str:
@@ -605,14 +610,13 @@ def reconcile(
 
     product_scope_ok = any(source_has_role_safe(f) for f in discovery.files)
     parsed_members = bool(targets)
-    unparsed_blockers = bool(discovery.parse_failures) and not parsed_members
-    target_manifest_ready = (
-        real_source_validation == "ok"
-        and discovery.source_root is not None
-        and product_scope_ok
-        and parsed_members
-        and not unparsed_blockers
+    source_tree_valid, partial_valid, target_manifest_ready, unresolved_blockers = assess_readiness(
+        discovery, targets, real_source_validation
     )
+    if not product_scope_ok or not parsed_members:
+        partial_valid = False
+        if target_manifest_ready:
+            target_manifest_ready = False
 
     return ReconciliationResult(
         baseline_sha=baseline_sha,
@@ -639,7 +643,77 @@ def reconcile(
         apply_ready=False,
         real_source_validation=real_source_validation,
         price_unit_conflicts=price_unit_conflicts,
+        source_tree_valid=source_tree_valid,
+        partial_target_manifest_valid=partial_valid,
+        unresolved_blockers=unresolved_blockers,
+        authority_decisions=list(getattr(discovery, "authority_decisions", [])),
+        ast_reports=list(getattr(discovery, "ast_reports", [])),
     )
+
+
+def assess_readiness(
+    discovery: SourceDiscovery,
+    targets: list[TargetSku],
+    real_source_validation: str,
+) -> tuple[bool, bool, bool, list[dict[str, str]]]:
+    """Full TARGET_MANIFEST_READY requires every in-scope class-B authority resolved.
+
+    Class A (not membership) and class C (explicitly deferred) do not block.
+    """
+    source_tree_valid = real_source_validation == "ok" and discovery.source_root is not None
+    members = Counter(t.brand_key for t in targets)
+    partial = source_tree_valid and any(
+        members.get(brand, 0) > 0 for brand in ("INSIZE", "TERMA", "DASQUA", "DCOIL", "ASTPOWER")
+    )
+    blockers: list[dict[str, str]] = []
+    if not source_tree_valid:
+        return False, False, False, [{"source": "KARZAR_TARGET_SOURCE_DIR", "class": "B", "reason": "source_tree_invalid"}]
+    registered = {f.source_id for f in discovery.files}
+    for spec in discovery.registry.get("sources") or []:
+        sid = str(spec.get("id") or "")
+        if sid not in registered:
+            continue
+        auth = membership_authority_of(spec)
+        if auth in {"not_membership", "deferred"}:
+            continue
+        files = [f for f in discovery.files if f.source_id == sid]
+        rows = 0
+        for source in files:
+            if "product_scope" in (source.roles or []):
+                rows += len(discovery.rows_for(source))
+        weak = any(
+            source.membership_mode == "review_if_weak"
+            and (source.parser_confidence == "low" or rows < 20)
+            for source in files
+        )
+        if rows <= 0:
+            blockers.append(
+                {
+                    "source": sid,
+                    "class": "B",
+                    "reason": "required_membership_authority_unresolved",
+                }
+            )
+        elif weak:
+            blockers.append(
+                {
+                    "source": sid,
+                    "class": "B",
+                    "reason": "required_membership_authority_weak_parse",
+                }
+            )
+    if any("آذرصنعت" in (source.path or "") for source in discovery.files):
+        for report in discovery.ast_reports:
+            if int(report.get("unique_skus") or 0) <= 0:
+                blockers.append(
+                    {
+                        "source": f"ASTPOWER/{report.get('family')}",
+                        "class": "B",
+                        "reason": str(report.get("membership_result") or "ast_unresolved"),
+                    }
+                )
+    target_ready = source_tree_valid and partial and not blockers
+    return source_tree_valid, partial, target_ready, blockers
 
 
 def source_has_role_safe(source: SourceFile) -> bool:
@@ -693,6 +767,8 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "production_mutation": "ZERO",
         "apply_phase": False,
         "REAL_SOURCE_VALIDATION": result.real_source_validation,
+        "SOURCE_TREE_VALID": result.source_tree_valid,
+        "PARTIAL_TARGET_MANIFEST_VALID": result.partial_target_manifest_valid,
         "TARGET_MANIFEST_READY": result.target_manifest_ready,
         "CURRENT_SITE_RECONCILIATION_READY": result.current_site_reconciliation_ready,
         "APPLY_READY": False,
@@ -758,6 +834,9 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             "STOREFRONT_HIDE_IMAGELESS_PRODUCTS": True,
             "note": "target_member is independent of media_ready and commerce_ready.",
         },
+        "authority_decisions": result.authority_decisions,
+        "ast_families": result.ast_reports,
+        "unresolved_full_manifest_blockers": result.unresolved_blockers,
         "ready_for_apply": False,
         "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction.",
     }
@@ -791,6 +870,8 @@ def render_summary(
         f"- Baseline SHA: `{result.baseline_sha}`",
         f"- Generated at: `{result.generated_at}`",
         f"- REAL_SOURCE_VALIDATION: `{result.real_source_validation}`",
+        f"- SOURCE_TREE_VALID: `{str(result.source_tree_valid).upper()}`",
+        f"- PARTIAL_TARGET_MANIFEST_VALID: `{str(result.partial_target_manifest_valid).upper()}`",
         f"- TARGET_MANIFEST_READY: `{str(result.target_manifest_ready).upper()}`",
         f"- CURRENT_SITE_RECONCILIATION_READY: `{str(result.current_site_reconciliation_ready).upper()}`",
         "- APPLY_READY: `FALSE`",
@@ -865,6 +946,41 @@ def render_summary(
         bullets(result.insize.unavailable_positive_price),
         f"- INSIZE_UNAVAILABLE_NO_PRICE: {len(result.insize.unavailable_no_price)}",
         bullets(result.insize.unavailable_no_price),
+        "",
+        "## Authority decisions",
+    ]
+    if result.authority_decisions:
+        for item in result.authority_decisions:
+            lines.append(
+                f"- {item.get('source')}: class {item.get('class')} `{item.get('decision')}` ({item.get('reason')})"
+            )
+    else:
+        lines.append("- (none)")
+    lines += [
+        "",
+        "## Unresolved full-manifest blockers",
+    ]
+    if result.unresolved_blockers:
+        for item in result.unresolved_blockers:
+            lines.append(f"- {item.get('source')}: class {item.get('class')} `{item.get('reason')}`")
+    else:
+        lines.append("- (none)")
+    lines += [
+        "",
+        "## AST families",
+    ]
+    if result.ast_reports:
+        for item in result.ast_reports:
+            lines.append(
+                f"- {item.get('family')}: candidates={len(item.get('enumerator_candidates') or [])} "
+                f"selected=`{item.get('selected_authority') or ''}` rel=`{item.get('duplicate_original_relationship')}` "
+                f"parse=`{item.get('parse_status')}` rows={item.get('extracted_rows')} "
+                f"unique={item.get('unique_skus')} rejected={item.get('rejected_rows')} "
+                f"unit={item.get('price_unit')} result=`{item.get('membership_result')}`"
+            )
+    else:
+        lines.append("- (none)")
+    lines += [
         "",
         "## Duplicate-source findings",
         f"- Same name + same hash skipped: {len(result.skipped_duplicates)}",

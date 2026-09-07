@@ -100,6 +100,8 @@ def main(argv: list[str] | None = None) -> int:
         real_source_validation="ok",
     )
     print("REAL_SOURCE_VALIDATION = ok")
+    print(f"SOURCE_TREE_VALID = {str(result.source_tree_valid).upper()}")
+    print(f"PARTIAL_TARGET_MANIFEST_VALID = {str(result.partial_target_manifest_valid).upper()}")
     print(f"TARGET_MANIFEST_READY = {str(result.target_manifest_ready).upper()}")
     print(
         "CURRENT_SITE_RECONCILIATION_READY = "

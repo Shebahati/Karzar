@@ -17,22 +17,23 @@
     "unique_sku_sanity_low": 800,
     "unique_sku_sanity_high": 950
   },
-  "ast_enumerators": {
-    "product_scope_price_filename_contains": [
-      "لیست قیمت",
-      "لیست همکاری",
-      "فهرست قیمت",
-      "فهرست همکاری",
-      "price list"
-    ],
-    "catalog_filename_contains": [
-      "کاتالوگ",
-      "بروشور",
-      "catalogue",
-      "catalog",
-      "brochure"
-    ]
-  },
+    "ast_enumerators": {
+      "product_scope_price_filename_contains": [
+        "لیست قیمت",
+        "لیست همکاری",
+        "فهرست قیمت",
+        "فهرست همکاری",
+        "price list",
+        "همکاری"
+      ],
+      "catalog_filename_contains": [
+        "کاتالوگ",
+        "بروشور",
+        "catalogue",
+        "catalog",
+        "brochure"
+      ]
+    },
   "sources": [
     {
       "id": "insize.product_list",
@@ -41,6 +42,7 @@
       "roles": ["product_scope"],
       "parser": "pdf_sku",
       "sku_kind": "insize",
+      "membership_authority": "required",
       "match": {
         "parent_folder": "اینسایز",
         "ancestor_folder": "اندازه گیری",
@@ -54,6 +56,8 @@
       "roles": ["price", "inventory"],
       "never_product_scope": true,
       "parser": "insize_distributor_xlsx",
+      "membership_authority": "not_membership",
+      "authority_reason": "price_inventory_only",
       "match": {
         "parent_folder": "اینسایز",
         "ancestor_folder": "اندازه گیری",
@@ -80,6 +84,7 @@
       "sku_kind": "terma",
       "source_currency": "rial",
       "markup_already_present": true,
+      "membership_authority": "required",
       "match": {
         "parent_folder": "ترما",
         "filename_contains": ["لیست قیمت ترما"]
@@ -105,6 +110,7 @@
       "sku_kind": "dasqua",
       "source_currency": "rial",
       "markup_already_present": true,
+      "membership_authority": "required",
       "match": {
         "parent_folder": "داسکوا",
         "filename_contains": ["لیست قیمت داسکوا"]
@@ -130,6 +136,7 @@
       "sku_kind": "guanglu",
       "source_currency": "rial",
       "membership_mode": "review_if_weak",
+      "membership_authority": "required",
       "match": {
         "parent_folder": "گوانگلو(GL)",
         "filename_contains": ["لیست قیمت گوانگلو"]
@@ -141,7 +148,8 @@
       "product_family": "measurement",
       "roles": ["catalog"],
       "parser": "none",
-      "product_scope_status": "unresolved",
+      "membership_authority": "not_membership",
+      "authority_reason": "catalog_specification_only",
       "match": {
         "parent_folder": "میتوتویو",
         "filename_contains": ["کاتالوگ میتوتویو"]
@@ -156,6 +164,7 @@
       "sku_kind": "dcoil",
       "source_currency": "rial",
       "markup_already_present": true,
+      "membership_authority": "required",
       "match": {
         "parent_folder": "DCOIL",
         "filename_contains": ["لیست قیمت DCOIL"]
@@ -167,7 +176,8 @@
       "product_family": "helicoil",
       "roles": ["catalog", "media"],
       "parser": "pdf_or_media",
-      "product_scope_status": "unresolved_until_sku_extraction",
+      "membership_authority": "not_membership",
+      "authority_reason": "catalog_media_only_no_product_list",
       "match": {
         "parent_folder": "شمس"
       }

@@ -2,20 +2,22 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `519ac9a91b6f88b2f085b207cf840b1a61c078bf`
-- Generated at: `2026-09-07T08:55:25.988720+00:00`
+- Baseline SHA: `2b6811ac96d535ca941474f758e4b6d9d6cb7be6`
+- Generated at: `2026-09-07T09:22:20.956350+00:00`
 - REAL_SOURCE_VALIDATION: `ok`
-- TARGET_MANIFEST_READY: `TRUE`
+- SOURCE_TREE_VALID: `TRUE`
+- PARTIAL_TARGET_MANIFEST_VALID: `TRUE`
+- TARGET_MANIFEST_READY: `FALSE`
 - CURRENT_SITE_RECONCILIATION_READY: `FALSE`
 - APPLY_READY: `FALSE`
 - DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`unavailable`) — no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
 - Current products observed: **0**
-- Target SKUs: **2255**
+- Target SKUs: **2265**
 
 ## A. Target source completeness
 - Discovered files: 550
-- Unparsed files: 2
-- Unavailable registry sources: 19
+- Unparsed files: 13
+- Unavailable registry sources: 16
 - Duplicate-tree copies skipped: 537
 - Same-name different-hash conflicts: 1
 - Duplicate source SKUs (identity collapsed, REVIEW): 60
@@ -30,14 +32,14 @@ A and B are independent. A real Target manifest can exist without live site evid
 ## Target SKUs per brand
 - DASQUA: 889
 - DCOIL: 253
-- INSIZE: 862
+- INSIZE: 872
 - TERMA: 251
 
 ## Brand source quality
 - DASQUA: extracted=897 unique=889 valid_prices=773 zero/missing=116 duplicates=8 rejected=57 review=889 confidence=high
 - DCOIL: extracted=321 unique=253 valid_prices=191 zero/missing=62 duplicates=42 rejected=0 review=253 confidence=high
 - GUANGLU: extracted=0 unique=0 valid_prices=0 zero/missing=0 duplicates=0 rejected=265 review=0 confidence=low
-- INSIZE: extracted=862 unique=862 valid_prices=703 zero/missing=159 duplicates=0 rejected=172 review=862 confidence=high
+- INSIZE: extracted=872 unique=872 valid_prices=714 zero/missing=158 duplicates=0 rejected=110 review=872 confidence=high
 - TERMA: extracted=278 unique=251 valid_prices=239 zero/missing=12 duplicates=10 rejected=0 review=251 confidence=high
 
 ## Reconciliation counts
@@ -45,17 +47,17 @@ A and B are independent. A real Target manifest can exist without live site evid
 - UPDATE: 0
 - CREATE: 0
 - DEACTIVATE: 0
-- REVIEW: 2255
+- REVIEW: 2265
 
 ## INSIZE
-- INSIZE_TARGET_ROWS: 862
-- INSIZE_TARGET_UNIQUE_SKUS: 862
+- INSIZE_TARGET_ROWS: 872
+- INSIZE_TARGET_UNIQUE_SKUS: 872
 - INSIZE_TARGET_DUPLICATES: 0
 - INSIZE_DISTRIBUTOR_ROWS: 55266
 - INSIZE_DISTRIBUTOR_UNIQUE_CODES: 55265
-- INSIZE_EXACT_MATCHES: 717
+- INSIZE_EXACT_MATCHES: 728
 - INSIZE_UNIVERSE_EXPANDED_FROM_DISTRIBUTOR: False
-- INSIZE_UNMATCHED_TARGET: 145
+- INSIZE_UNMATCHED_TARGET: 144
 - `1111-75`
 - `1111-100`
 - `1114-150`
@@ -151,7 +153,6 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `3101-300`
 - `3594-25`
 - `3594-50`
-- `1000`
 - `6372-25`
 - `3290-153`
 - `3290-455`
@@ -205,7 +206,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - (none)
 - INSIZE_AMBIGUOUS: 0
 - (none)
-- INSIZE_AVAILABLE_POSITIVE_PRICE: 170
+- INSIZE_AVAILABLE_POSITIVE_PRICE: 171
 - `1108-150`
 - `1108-200`
 - `1108-300`
@@ -350,6 +351,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `9561-50B`
 - `9561-70B`
 - `9563-C40`
+- `7114-3460`
 - `0222-C520`
 - `0213-A500`
 - `0215-A900`
@@ -383,7 +385,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `6557-50`
 - `8601-100`
 - `ISGF-0501`
-- INSIZE_UNAVAILABLE_POSITIVE_PRICE: 533
+- INSIZE_UNAVAILABLE_POSITIVE_PRICE: 543
 - `1170-300`
 - `1106-301`
 - `1106-302`
@@ -498,6 +500,8 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `3287-25B`
 - `3222-300`
 - `3222-600`
+- `3222-1000`
+- `3222-1500`
 - `3225-2100`
 - `3521-2000`
 - `3222-12`
@@ -522,6 +526,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `3227-123`
 - `3227-202`
 - `3227-504`
+- `3227-1004`
 - `3127-5`
 - `3127-6`
 - `3127-8`
@@ -548,11 +553,15 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `3127-123`
 - `3127-202`
 - `3127-504`
+- `3127-1004`
 - `6377-25W`
 - `6354-25W`
 - `3290-203`
 - `3291-25`
 - `3293-131`
+- `3230-25BA`
+- `3530-25BA`
+- `3260-25SA`
 - `3332-25`
 - `2309-100D`
 - `2311-5F`
@@ -614,6 +623,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `2364-1`
 - `2366-30`
 - `2876-10`
+- `2673-10`
 - `2164-25A`
 - `2163-25`
 - `2872-10`
@@ -656,6 +666,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `4852-3`
 - `4852-15`
 - `4852-30`
+- `4953-200`
 - `4902-150`
 - `4902-200`
 - `4902-300`
@@ -737,6 +748,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `7144-1`
 - `7145-1`
 - `7114-950`
+- `7114-2200`
 - `HDT-LP200`
 - `HDT-L411`
 - `HDT-LP200B`
@@ -926,6 +938,50 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `9351-130`
 - `6566-2`
 - `ISGF-0901`
+
+## Authority decisions
+- insize.distributor: class A `not_membership` (price_inventory_only)
+- terma.catalog: class A `not_membership` (not_membership)
+- dasqua.catalog: class A `not_membership` (not_membership)
+- mitutoyo.catalog: class A `not_membership` (catalog_specification_only)
+- shams.catalog: class A `not_membership` (catalog_media_only_no_product_list)
+
+## Unresolved full-manifest blockers
+- guanglu.price_list: class B `required_membership_authority_unresolved`
+- ASTPOWER/chuck: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/tapping_collets: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/tool_grinder: class B `enumerator_candidate_unparsed`
+- ASTPOWER/tailstock: class B `enumerator_candidate_unparsed`
+- ASTPOWER/rotary_table: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/magnetic_drill: class B `enumerator_candidate_unparsed`
+- ASTPOWER/core_drill: class B `enumerator_candidate_unparsed`
+- ASTPOWER/et_taps: class B `enumerator_candidate_unparsed`
+- ASTPOWER/pneumatic_tapping: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/cutting_fluid: class B `enumerator_candidate_unparsed`
+- ASTPOWER/automatic_tapping: class B `enumerator_candidate_unparsed`
+- ASTPOWER/electric_tapping: class B `enumerator_candidate_unparsed`
+- ASTPOWER/multi_spindle: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/magnetic_drill_hole_saws: class B `enumerator_candidate_unparsed`
+- ASTPOWER/utex_drills: class B `ast_family_present_but_no_approved_enumerator`
+- ASTPOWER/spade_drills: class B `enumerator_candidate_unparsed`
+
+## AST families
+- chuck: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- tapping_collets: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- tool_grinder: candidates=2 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری ابزار تیزکن.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- tailstock: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/تایکوپ و صفحه گردان/کاتالوگ همکاری/تایکوپ همکاری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- rotary_table: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- magnetic_drill: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- core_drill: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- et_taps: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویز ET/ET همکاری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- pneumatic_tapping: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- cutting_fluid: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/روغن آب صابون/همکاری روغن اب صابون.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- automatic_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- electric_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- multi_spindle: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- magnetic_drill_hole_saws: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
+- utex_drills: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial result=`ast_family_present_but_no_approved_enumerator`
+- spade_drills: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial result=`enumerator_candidate_unparsed`
 
 ## Duplicate-source findings
 - Same name + same hash skipped: 537
@@ -1124,13 +1180,12 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-صفجه گدران HV.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS2 -2.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS0i.jpg`
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/⁨free-صفحه گردان و تایکوپ⁩ CS دقیق.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS1.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS2.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS0.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/free-BS1x.jpg`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/تایکوپ و صفحه گردان/کاتالوگ همکاری/⁨free-صفحه گردان و تایکوپ⁩ CS دقیق.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf`
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._FREEastpower-dm35 copy.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/._TUMT5.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/دریل مگنت/FREE-PROT150 copy.jpg`
@@ -1421,6 +1476,7 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2890.DNG`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/._IMG_2928.jpeg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/drillmagnet/AST Pro A T 80/IMG_2921.DNG`
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/کاتالوگ قلاویز ای تی.pdf`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/free-ET.jpg`
 - `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/اد محصول 15 شهریور/قلاویز ET/free-ET copy.jpg`
@@ -1479,28 +1535,36 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `7111-1000`
 
 ## Unavailable authoritative sources
-- `insize.catalog`: authoritative_source_file_unavailable
-- `mitutoyo.catalog`: unresolved
-- `shams.catalog`: unresolved_until_sku_extraction
 - `ASTPOWER/chuck`: ast_family_present_but_no_approved_enumerator
 - `ASTPOWER/tapping_collets`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/tool_grinder`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/tailstock`: ast_family_present_but_no_approved_enumerator
+- `ASTPOWER/tool_grinder`: ast_enumerator_unparsed_requires_ocr
+- `ASTPOWER/tailstock`: ast_enumerator_unparsed_requires_ocr
 - `ASTPOWER/rotary_table`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/magnetic_drill`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/core_drill`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/et_taps`: ast_family_present_but_no_approved_enumerator
+- `ASTPOWER/magnetic_drill`: ast_enumerator_unparsed_requires_ocr
+- `ASTPOWER/core_drill`: ast_enumerator_unparsed_requires_ocr
+- `ASTPOWER/et_taps`: ast_enumerator_unparsed_requires_ocr
 - `ASTPOWER/pneumatic_tapping`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/cutting_fluid`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/automatic_tapping`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/electric_tapping`: ast_family_present_but_no_approved_enumerator
+- `ASTPOWER/cutting_fluid`: ast_enumerator_unparsed_requires_ocr
+- `ASTPOWER/automatic_tapping`: ast_enumerator_unparsed_requires_ocr
+- `ASTPOWER/electric_tapping`: ast_enumerator_unparsed_requires_ocr
 - `ASTPOWER/multi_spindle`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/magnetic_drill_hole_saws`: ast_family_present_but_no_approved_enumerator
+- `ASTPOWER/magnetic_drill_hole_saws`: ast_enumerator_unparsed_requires_ocr
 - `ASTPOWER/utex_drills`: ast_family_present_but_no_approved_enumerator
-- `ASTPOWER/spade_drills`: ast_family_present_but_no_approved_enumerator
+- `ASTPOWER/spade_drills`: ast_enumerator_unparsed_requires_ocr
 
 ## Unparsed sources
 - `/home/shebahati/KaZar/Product and Data Complete/هلی کویل/شمس/کاتالوگ شمس.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری ابزار تیزکن.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری اسپارک.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/تایکوپ و صفحه گردان/کاتالوگ همکاری/تایکوپ همکاری.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویز ET/ET همکاری.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/روغن آب صابون/همکاری روغن اب صابون.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf`: pdftotext_empty
+- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf`: pdftotext_empty
 - `/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/گوانگلو(GL)/لیست قیمت گوانگلو(GL).pdf`: pdf_text_extracted_but_no_skus
 
 ## APPLY readiness

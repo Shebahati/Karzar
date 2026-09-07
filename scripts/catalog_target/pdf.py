@@ -66,6 +66,7 @@ SKU_PREFIX_JUNK = {
     "SHORE",
     "WTG",
 }
+INSIZE_PREFIX_JUNK = SKU_PREFIX_JUNK - {"ISO"}
 JUNK_TOKEN = re.compile(
     r"(?i)^(mm|cm|kg|din|hsse|hss|iso|unf|unc|page|row|pdf|ast|et|in)$"
 )
@@ -77,8 +78,12 @@ HAS_UNIT = re.compile(r"(?i)(?:mm|cm|kg|inch|in)\s*$")
 COMMA_PRICE = re.compile(r"^\d{1,3}(?:,\d{3}){1,4}$")
 PLAIN_PRICE = re.compile(r"^\d{4,12}$")
 ZERO_PRICE = re.compile(r"^0(?:\.0+)?$")
-PAGE_LINE = re.compile(r"(?i)^\s*(?:page|صفحه)\s*\d+\s*$")
+PAGE_LINE = re.compile(
+    r"(?i)^\s*(?:page|صفحه)\s*\d+(?:\s+(?:of|از)\s+\d+)?\s*$"
+)
 ONLY_PAGE_NUM = re.compile(r"^\d{1,3}$")
+INCOMPLETE_PRICE = re.compile(r"(?<!\d),\d{3}\b")
+RANGE_MARK = {"-", "–", "—"}
 
 
 @dataclass
@@ -270,16 +275,47 @@ def _is_header_line(line: str) -> bool:
     return hits >= 2 or folded in {"code", "sku", "کد", "شرح"}
 
 
+def _is_range_endpoint(tokens: list[str], idx: int) -> bool:
+    """True for the right-hand number in ``50 - 1000``, not a leading dash cell."""
+    if idx <= 0 or tokens[idx - 1] not in RANGE_MARK:
+        return False
+    if idx < 2:
+        return False
+    left = _strip_punct(tokens[idx - 2])
+    right = _strip_punct(tokens[idx])
+    return bool(re.fullmatch(r"\d+(?:[./]\d+)?", left) and re.match(r"\d+", right))
+
+
+def _has_price_signal(line: str) -> bool:
+    return bool(COMMA_MONEY.search(line) or INCOMPLETE_PRICE.search(line))
+
+
+def _is_price_and_row_index(tokens: list[str]) -> bool:
+    if len(tokens) != 2 or not ROW_INDEX.fullmatch(tokens[1]):
+        return False
+    raw = _strip_punct(tokens[0]).replace("٬", ",")
+    return bool(COMMA_PRICE.match(raw) or COMMA_MONEY.search(tokens[0]) or INCOMPLETE_PRICE.search(tokens[0]))
+
+
 def _insize_code_from_token(token: str, *, allow_bare: bool) -> str | None:
     """Code-column shapes from لیست محصولات.pdf — not a page-wide catch-all."""
     t = _strip_punct(token)
-    if not t or t in {"-", "–"} or JUNK_TOKEN.match(t) or _has_unit_suffix(t):
+    if not t or t in {"-", "–"} or JUNK_TOKEN.match(t):
         return None
     if re.fullmatch(r"0-\d+", t):
         return None
+    glued = INSIZE_GLUED.match(t)
+    if glued:
+        rest = t[len(glued.group(1)) :]
+        if rest and not re.match(r"[A-Z0-9-]", rest, re.I):
+            code = glued.group(1)
+            if code.split("-", 1)[0].upper() not in INSIZE_PREFIX_JUNK:
+                return code
+    if _has_unit_suffix(t):
+        return None
     if INSIZE_CODE.fullmatch(t):
         prefix = t.split("-", 1)[0].upper()
-        if prefix in SKU_PREFIX_JUNK:
+        if prefix in INSIZE_PREFIX_JUNK:
             return None
         if re.fullmatch(r"\d{4,6}", t):
             if not allow_bare:
@@ -288,11 +324,6 @@ def _insize_code_from_token(token: str, *, allow_bare: bool) -> str | None:
             if 1900 <= n <= 2100:
                 return None
         return t
-    glued = INSIZE_GLUED.match(t)
-    if glued:
-        rest = t[len(glued.group(1)) :]
-        if rest and not re.match(r"[A-Z0-9-]", rest, re.I):
-            return glued.group(1)
     return None
 
 
@@ -341,6 +372,8 @@ def _dotted_or_comma_price(tokens: list[str], sku_idx: int = -1) -> str:
     zeros: list[str] = []
     for idx, token in enumerate(tokens):
         if idx == sku_idx:
+            continue
+        if _is_range_endpoint(tokens, idx):
             continue
         raw = _strip_punct(token).replace("٬", ",")
         if _has_unit_suffix(raw):
@@ -394,38 +427,83 @@ def _row_dict(sku: str, line_no: int, line: str, price: str, currency: str | Non
     }
 
 
+def _insize_sku_from_table_tokens(tokens: list[str]) -> tuple[str | None, int]:
+    """SKU is the manufacturer code immediately before the trailing row index.
+
+    Range endpoints such as ``50 - 1000`` are not codes. Bare numerics are
+    accepted only when they are the code cell, not a dimension.
+    """
+    last = len(tokens) - 1
+    scan_from = last - 1 if tokens and ROW_INDEX.fullmatch(tokens[-1]) else last
+    for idx in range(scan_from, -1, -1):
+        if _is_range_endpoint(tokens, idx):
+            continue
+        sku = _insize_code_from_token(tokens[idx], allow_bare=False)
+        if sku:
+            return sku, idx
+    idx = scan_from
+    if idx >= 0 and not _is_range_endpoint(tokens, idx):
+        sku = _insize_code_from_token(tokens[idx], allow_bare=True)
+        if sku:
+            return sku, idx
+    return None, -1
+
+
+def _leading_insize_sku(tokens: list[str]) -> tuple[str | None, int]:
+    for idx, token in enumerate(tokens[:3]):
+        if _is_range_endpoint(tokens, idx):
+            continue
+        sku = _insize_code_from_token(token, allow_bare=True)
+        if sku:
+            return sku, idx
+    return None, -1
+
+
 def extract_insize_product_rows(text: str, *, default_currency: str | None = None) -> PdfRowParse:
     """INSIZE لیست محصولات.pdf: RTL table, manufacturer code before the row index.
 
     Fixture PDFs without that table shape still accept a leading code cell.
     Other-brand dash codes and page/dimension tokens are not SKUs.
+    Zero or incomplete prices still confer membership.
     """
     parsed = PdfRowParse()
+    pending: dict[str, str] | None = None
+
+    def flush_pending() -> None:
+        nonlocal pending
+        if pending:
+            parsed.rows.append(pending)
+            pending = None
+
     for line_no, raw in enumerate(text.splitlines(), start=1):
         line = _clean_line(raw)
         if not line or _is_header_line(line):
             continue
         tokens = _tokens(line)
+        if pending and _is_price_and_row_index(tokens):
+            pending["price"] = _strip_punct(tokens[0]).replace("٬", ",")
+            if pending["price"].startswith(","):
+                pending["price"] = ""
+            parsed.rows.append(pending)
+            pending = None
+            continue
+        flush_pending()
         sku: str | None = None
         sku_idx = -1
-        has_money = bool(COMMA_MONEY.search(line))
-        trailing_table = has_money and len(tokens) >= 2 and ROW_INDEX.fullmatch(tokens[-1])
-        if trailing_table:
-            sku = _insize_code_from_token(tokens[-2], allow_bare=True)
-            sku_idx = len(tokens) - 2
-            if sku is None:
-                for idx in range(len(tokens) - 3, -1, -1):
-                    sku = _insize_code_from_token(tokens[idx], allow_bare=False)
-                    if sku:
-                        sku_idx = idx
-                        break
+        trailing_index = bool(tokens) and ROW_INDEX.fullmatch(tokens[-1])
+        table_row = trailing_index and (
+            _has_price_signal(line)
+            or any(_insize_code_from_token(t, allow_bare=False) for t in tokens[:-1])
+        )
+        if table_row:
+            sku, sku_idx = _insize_sku_from_table_tokens(tokens)
             if sku is None:
                 parsed.rejected.append(
                     {"line": str(line_no), "reason": "table_row_without_code_column", "text": line[:120]}
                 )
                 continue
         else:
-            sku, sku_idx = _leading_sku(tokens, _is_insize_code)
+            sku, sku_idx = _leading_insize_sku(tokens)
             if not sku:
                 if any(ch.isdigit() for ch in line) and not PAGE_LINE.match(line):
                     parsed.rejected.append(
@@ -445,7 +523,14 @@ def extract_insize_product_rows(text: str, *, default_currency: str | None = Non
         if "تومان" in line:
             currency = "toman"
         price = _dotted_or_comma_price(tokens, sku_idx)
-        parsed.rows.append(_row_dict(sku, line_no, line, price, currency))
+        if price.startswith(","):
+            price = ""
+        row = _row_dict(sku, line_no, line, price, currency)
+        if trailing_index:
+            parsed.rows.append(row)
+        else:
+            pending = row
+    flush_pending()
     if parsed.rows and len(parsed.rejected) > len(parsed.rows) * 3:
         parsed.confidence = "low"
     elif parsed.rows:

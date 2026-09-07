@@ -742,6 +742,99 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertTrue(unclassified)
             self.assertTrue(catalog)
 
+    def test_ast_hamkari_enumerator_and_catalog_non_promotion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / AST_POWER / "مته برگی" / "همکاری مته برگی.pdf",
+                ["MB-100 5000 rial"],
+            )
+            write_text_pdf(
+                root / AST_POWER / "قلاویز ET" / "ET همکاری.pdf",
+                ["ET-200 8000 rial"],
+            )
+            write_text_pdf(
+                root / AST_POWER / "روغن آب صابون" / "کاتالوگ همکاری.pdf",
+                ["CF-300 9000 rial"],
+            )
+            write_text_pdf(
+                root / AST_POWER / "قلاویززن برقی" / "همکاری قلاویززن برقی.pdf",
+                ["This brochure has no manufacturer codes."],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            skus = {t.sku: t.product_family for t in discovery.load_product_scope_targets()}
+            self.assertEqual(skus.get("MB-100"), "spade_drills")
+            self.assertEqual(skus.get("ET-200"), "et_taps")
+            self.assertNotIn("CF-300", skus)
+            self.assertTrue(
+                any(
+                    r.get("family") == "electric_tapping"
+                    and r.get("membership_result") == "enumerator_candidate_unparsed"
+                    for r in discovery.ast_reports
+                )
+            )
+
+    def test_ast_enumerator_filename_splits_combined_folder_and_ignores_media(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            combined = root / AST_POWER / "دریل مگنت و کرگیری"
+            write_text_pdf(combined / "همکاری دریل مگنت.pdf", ["MD-100 5000 rial"])
+            write_text_pdf(combined / "همکاری کرگیری.pdf", ["CD-100 8000 rial"])
+            jpg = combined / "کاتالوگ همکاری" / "همکاری TRM.jpg"
+            jpg.parent.mkdir(parents=True, exist_ok=True)
+            jpg.write_bytes(b"\xff\xd8\xff")
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            skus = {t.sku: t.product_family for t in discovery.load_product_scope_targets()}
+            self.assertEqual(skus.get("MD-100"), "magnetic_drill")
+            self.assertEqual(skus.get("CD-100"), "core_drill")
+            magnetic = next(r for r in discovery.ast_reports if r.get("family") == "magnetic_drill")
+            core = next(r for r in discovery.ast_reports if r.get("family") == "core_drill")
+            self.assertTrue(any(Path(p).name == "همکاری دریل مگنت.pdf" for p in magnetic["enumerator_candidates"]))
+            self.assertTrue(any(Path(p).name == "همکاری کرگیری.pdf" for p in core["enumerator_candidates"]))
+            self.assertFalse(any(p.lower().endswith(".jpg") for p in magnetic["enumerator_candidates"]))
+            self.assertFalse(any(p.lower().endswith(".jpg") for p in core["enumerator_candidates"]))
+
+    def test_ast_duplicate_tree_only_enumerator_is_used(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_text_pdf(
+                root / DUP_TREE / "مته برگی" / "همکاری مته برگی.pdf",
+                ["MB-400 5000 rial"],
+            )
+            (root / AST_POWER / "مته برگی").mkdir(parents=True, exist_ok=True)
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            targets = discovery.load_product_scope_targets()
+            self.assertEqual({t.sku for t in targets}, {"MB-400"})
+            report = next(r for r in discovery.ast_reports if r.get("family") == "spade_drills")
+            self.assertEqual(report.get("duplicate_original_relationship"), "duplicate_tree_only")
+
+    def test_full_manifest_ready_false_when_required_brand_unresolved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["1108-150"])
+            write_text_pdf(
+                root / GUANGLU_DIR / "لیست قیمت گوانگلو(GL).pdf",
+                ["GL 60 37,000,000", "! # $ 30 88,000,000"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="unavailable",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            self.assertTrue(result.source_tree_valid)
+            self.assertTrue(result.partial_target_manifest_valid)
+            self.assertFalse(result.target_manifest_ready)
+            self.assertTrue(
+                any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers)
+            )
+
     def test_scanned_pdf_is_unparsed_not_zero_success(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -798,7 +891,9 @@ class SourceAndInsizeTests(unittest.TestCase):
             discovery.discover()
             skus = {t.sku for t in discovery.load_product_scope_targets()}
             self.assertEqual(skus, set())
-            self.assertTrue(any(u["source"] == "shams.catalog" for u in discovery.unavailable))
+            self.assertTrue(
+                any(d.get("source") == "shams.catalog" and d.get("class") == "A" for d in discovery.authority_decisions)
+            )
             self.assertTrue(discovery.unparsed)
 
     def test_mitutoyo_catalog_only_unresolved_scope(self):
@@ -808,7 +903,9 @@ class SourceAndInsizeTests(unittest.TestCase):
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
             self.assertEqual(discovery.load_product_scope_targets(), [])
-            self.assertTrue(any(u["source"] == "mitutoyo.catalog" for u in discovery.unavailable))
+            self.assertTrue(
+                any(d.get("source") == "mitutoyo.catalog" and d.get("class") == "A" for d in discovery.authority_decisions)
+            )
 
     def test_guanglu_weak_parse_is_review(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -917,6 +1014,39 @@ class InsizeRowStructureTests(unittest.TestCase):
         self.assertNotIn("0-200", skus)
         self.assertNotIn("150mm", skus)
         self.assertNotIn("2024", skus)
+
+    def test_real_table_rows_and_false_bare_1000(self):
+        parsed = extract_insize_product_rows(
+            "\n".join(
+                [
+                    "Page 50 of 50",
+                    "0/01 mm 27,130,000 3222-1000میکرومتر داخل لوله ای 50 - 1000 102",
+                    "0/005 mm 105,660,000 3227-1004میکرومتر داخل سه فک 50 - 100 129",
+                    "0/01 mm 7,040,000 3230-25BAمیکرومتر سوزنی 0 - 25 170",
+                    "0/01 mm 3,970,000 3260-25SAمیکرومتر لوله 0 - 25 173",
+                    "0/01 mm ,000 ضخامت سنج پایه دار دیجیتال 2673-10 459",
+                    "0/02 mm ,000 تراز صنعتی دیجیتال تخت 20سانت 4953-200 556",
+                    "- 7114-3460سیرکومتر قطر لوله 700 - 1100کولیس دیجیتال",
+                    "2,220,000 690",
+                ]
+            )
+        )
+        by_sku = {row["sku"]: row for row in parsed.rows}
+        for sku in [
+            "3222-1000",
+            "3227-1004",
+            "3230-25BA",
+            "3260-25SA",
+            "2673-10",
+            "4953-200",
+            "7114-3460",
+        ]:
+            self.assertIn(sku, by_sku)
+        self.assertNotIn("1000", by_sku)
+        self.assertEqual(by_sku["2673-10"]["price"], "")
+        self.assertEqual(by_sku["4953-200"]["price"], "")
+        self.assertEqual(by_sku["3222-1000"]["price"], "27,130,000")
+        self.assertEqual(by_sku["7114-3460"]["price"], "2,220,000")
 
     def test_generic_price_uses_money_cell_not_dimension(self):
         parsed = extract_generic_sku_price_rows(

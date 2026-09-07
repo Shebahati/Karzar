@@ -11,6 +11,7 @@ unclassified_allow:
   - ".github/*.md"
   - "frontend/Storefront/content/**/README.md"
   - "data/imports/**/README.md"
+  - "data/catalog-target/**"
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
 
