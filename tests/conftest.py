@@ -255,10 +255,12 @@ def override_database(_test_schema):
     """Opt-in isolated test database: truncate + seed once per requesting test.
 
     Isolation boundary is reset-at-start (TRUNCATE RESTART IDENTITY on Postgres,
-    DELETE + sqlite_sequence reset on SQLite). Teardown always disposes the
-    engine and clears FastAPI dependency overrides, including after failures.
-    The next database test re-seeds; leftover rows cannot leak into a later
-    DB test. Pure tests never request this fixture and do not connect.
+    DELETE + sqlite_sequence reset on SQLite). Teardown always clears FastAPI
+    dependency overrides, including after failures. PostgreSQL disposes the
+    engine per test so asyncpg connections are not reused across event loops.
+    SQLite keeps the StaticPool connection for the session so the in-memory
+    schema created by `_test_schema` survives until session teardown. Pure
+    tests never request this fixture and do not connect.
     """
 
     async def init_db():
@@ -284,7 +286,8 @@ def override_database(_test_schema):
         yield
     finally:
         app.dependency_overrides.clear()
-        asyncio.run(test_engine.dispose())
+        if USE_POSTGRES_TESTS:
+            asyncio.run(test_engine.dispose())
 
 
 @pytest.fixture(autouse=True)
