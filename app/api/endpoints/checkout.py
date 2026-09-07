@@ -51,6 +51,16 @@ async def checkout(
         max_requests=settings.PUBLIC_THROTTLE_CHECKOUT_MAX,
         window_seconds=settings.PUBLIC_THROTTLE_CHECKOUT_WINDOW,
     )
+    # Endpoint-level kill switch: reject before any idempotency DB work.
+    if payload.mode == "purchase" and not settings.PURCHASE_CHECKOUT_ENABLED:
+        raise api_error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            error_code=ErrorCode.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED,
+            message=(
+                "خرید آنلاین موقتاً در حال به‌روزرسانی است. "
+                "لطفاً کمی بعد دوباره تلاش کنید یا درخواست استعلام ثبت کنید."
+            ),
+        )
     if idempotency_key and idempotency_key.strip():
         normalized_key = idempotency_key.strip()
         cached = await crud_platform.get_idempotency_record(

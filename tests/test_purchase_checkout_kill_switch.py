@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock
 import pytest
 from app.core.config import settings
 from app.db.models.commerce import Order, PaymentTransaction
+from app.db.models.platform import IdempotencyKey
 from app.main import app
 from app.schemas.storefront import CheckoutRequest
 from app.services import checkout_service
@@ -38,8 +39,8 @@ def _purchase_payload(product_id: int, *, phone: str = "09125550909") -> dict:
     }
 
 
-def _count_orders_and_payments() -> tuple[int, int]:
-    async def _count() -> tuple[int, int]:
+def _count_checkout_db_rows() -> tuple[int, int, int]:
+    async def _count() -> tuple[int, int, int]:
         async with TestingSessionLocal() as session:
             orders = (
                 await session.execute(select(func.count()).select_from(Order))
@@ -47,13 +48,16 @@ def _count_orders_and_payments() -> tuple[int, int]:
             payments = (
                 await session.execute(select(func.count()).select_from(PaymentTransaction))
             ).scalar_one()
-            return int(orders), int(payments)
+            idem = (
+                await session.execute(select(func.count()).select_from(IdempotencyKey))
+            ).scalar_one()
+            return int(orders), int(payments), int(idem)
 
     return asyncio.run(_count())
 
 
 def test_purchase_disabled_rejects_before_any_side_effect(monkeypatch):
-    """Unit: kill switch fires before order/payment/stock/cart/expiry work."""
+    """Unit: service-level kill switch fires before order/payment/stock/cart/expiry work."""
     monkeypatch.setattr(settings, "PURCHASE_CHECKOUT_ENABLED", False)
 
     cancel_expired = AsyncMock()
@@ -132,7 +136,7 @@ def test_purchase_disabled_api_returns_503_without_mutations(
     )
     assert put.status_code == 200
 
-    orders_before, payments_before = _count_orders_and_payments()
+    orders_before, payments_before, idem_before = _count_checkout_db_rows()
 
     response = client.post(
         "/api/v1/checkout",
@@ -144,9 +148,71 @@ def test_purchase_disabled_api_returns_503_without_mutations(
     assert body["error_code"] == "PURCHASE_CHECKOUT_TEMPORARILY_DISABLED"
     assert body["message"] == _PURCHASE_MESSAGE
 
-    orders_after, payments_after = _count_orders_and_payments()
+    orders_after, payments_after, idem_after = _count_checkout_db_rows()
     assert orders_after == orders_before
     assert payments_after == payments_before
+    assert idem_after == idem_before
+
+    cart = client.get(
+        "/api/v1/cart?lane=purchase",
+        headers={**auth, "X-Cart-Token": guest},
+    )
+    assert cart.status_code == 200
+    assert cart.json()["item_count"] == 1
+
+    stock = client.get(
+        f"/api/v1/products/{product_id}/stock",
+        headers=super_admin_headers,
+    )
+    assert stock.status_code == 200
+    assert stock.json()["is_available"] is True
+
+
+@pytest.mark.usefixtures("override_database")
+def test_purchase_disabled_with_idempotency_key_zero_db_mutations(
+    super_admin_headers, valid_product_data, monkeypatch
+):
+    """Disabled purchase + Idempotency-Key must not reserve/commit any checkout rows."""
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(settings, "PURCHASE_CHECKOUT_ENABLED", False)
+
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "KILL-SW-IDEM"},
+        headers=super_admin_headers,
+    )
+    assert create.status_code == 201
+    product_id = create.json()["id"]
+
+    auth = customer_auth_headers("09125550912")
+    guest = "kill-switch-idem-token-32chars-xx!"
+    put = client.put(
+        "/api/v1/cart/items",
+        headers={**auth, "X-Cart-Token": guest},
+        json={"lane": "purchase", "product_id": product_id, "quantity": 1},
+    )
+    assert put.status_code == 200
+
+    orders_before, payments_before, idem_before = _count_checkout_db_rows()
+
+    response = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product_id, phone="09125550912"),
+        headers={
+            **auth,
+            "X-Cart-Token": guest,
+            "Idempotency-Key": "kill-switch-purchase-disabled-001",
+        },
+    )
+    assert response.status_code == 503
+    body = response.json()
+    assert body["error_code"] == "PURCHASE_CHECKOUT_TEMPORARILY_DISABLED"
+    assert body["message"] == _PURCHASE_MESSAGE
+
+    orders_after, payments_after, idem_after = _count_checkout_db_rows()
+    assert orders_after == orders_before
+    assert payments_after == payments_before
+    assert idem_after == idem_before
 
     cart = client.get(
         "/api/v1/cart?lane=purchase",
