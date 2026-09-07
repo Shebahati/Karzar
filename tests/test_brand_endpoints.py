@@ -1,7 +1,10 @@
 """Brand endpoints: step-up delete + EPIC 1 meta exposure (RFC-005)."""
 
+import pytest
 from app.main import app
 from fastapi.testclient import TestClient
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

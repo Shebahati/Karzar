@@ -2,6 +2,7 @@
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from app.services import otp_service
@@ -39,6 +40,7 @@ def test_get_sms_provider_faraz(monkeypatch):
     assert isinstance(provider, FarazSmsProvider)
 
 
+@pytest.mark.usefixtures("override_database")
 def test_otp_request_sends_sms(monkeypatch):
     fake = _FakeProvider()
     monkeypatch.setattr(otp_service, "get_sms_provider", lambda: fake)

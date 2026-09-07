@@ -1,7 +1,10 @@
 """Admin abandoned-cart API contract tests."""
 
+import pytest
 from app.main import app
 from fastapi.testclient import TestClient
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

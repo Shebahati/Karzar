@@ -2,6 +2,7 @@
 
 import asyncio
 
+import pytest
 from app.api.endpoints import auth as auth_endpoints
 from app.core.config import settings
 from app.core.rate_limit import InMemoryRateLimiter
@@ -29,6 +30,7 @@ class TestInMemoryRateLimiter:
         asyncio.run(scenario())
 
 
+@pytest.mark.usefixtures("override_database")
 class TestLoginThrottle:
     def test_login_locks_out_after_max_attempts(self):
         auth_endpoints._reset_pin_rate_limiter_for_tests()

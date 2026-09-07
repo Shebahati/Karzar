@@ -1,5 +1,6 @@
 """P5: storefront/admin API contract regression tests."""
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from fastapi.testclient import TestClient
@@ -22,6 +23,7 @@ AUTH_ME_KEYS = {"id", "phone_number", "full_name"}
 
 
 class TestApiContractShapes:
+    @pytest.mark.usefixtures("override_database")
     def test_error_envelope_shape(self):
         response = client.get("/api/v1/products/999999")
         assert response.status_code == 404
@@ -29,6 +31,7 @@ class TestApiContractShapes:
         assert ERROR_ENVELOPE_KEYS.issubset(body.keys())
         assert isinstance(body["details"], list)
 
+    @pytest.mark.usefixtures("override_database")
     def test_checkout_purchase_contract_fields(
         self, valid_product_data, super_admin_headers, monkeypatch
     ):
@@ -65,6 +68,7 @@ class TestApiContractShapes:
         assert checkout.status_code == 201
         assert CHECKOUT_REQUIRED_KEYS.issubset(checkout.json().keys())
 
+    @pytest.mark.usefixtures("override_database")
     def test_auth_me_contract(self, monkeypatch):
         monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
         otp = client.post("/api/v1/auth/otp/request", json={"phone": "09125550003"})
@@ -77,6 +81,7 @@ class TestApiContractShapes:
         assert me.status_code == 200
         assert AUTH_ME_KEYS.issubset(me.json().keys())
 
+    @pytest.mark.usefixtures("override_database")
     def test_pagination_envelope(self, valid_product_data, super_admin_headers):
         client.post(
             "/api/v1/products/",

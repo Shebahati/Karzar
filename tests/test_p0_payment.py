@@ -2,6 +2,7 @@
 
 import asyncio
 
+import pytest
 from app.core.config import settings
 from app.crud.payment_transaction import list_payment_transactions_for_order
 from app.main import app
@@ -9,6 +10,8 @@ from app.services.payment_service import reset_payment_provider_for_tests
 from fastapi.testclient import TestClient
 
 from tests.conftest import TestingSessionLocal
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 
