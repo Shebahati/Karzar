@@ -3,6 +3,7 @@
 import asyncio
 from decimal import ROUND_HALF_UP, Decimal
 
+import pytest
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.crud.payment_transaction import list_payment_transactions_for_order
@@ -38,6 +39,7 @@ def _checkout(product_id: int, headers: dict, *, phone: str) -> dict:
     return response.json()
 
 
+@pytest.mark.usefixtures("override_database")
 def test_payment_init_requires_owner(valid_product_data, super_admin_headers, monkeypatch):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
@@ -72,6 +74,7 @@ def test_payment_init_requires_owner(valid_product_data, super_admin_headers, mo
     assert ok.status_code == 200
 
 
+@pytest.mark.usefixtures("override_database")
 def test_payment_callback_failure_redirect(
     valid_product_data, super_admin_headers, monkeypatch
 ):
@@ -96,6 +99,7 @@ def test_payment_callback_failure_redirect(
     assert settings.PAYMENT_FAILURE_REDIRECT_URL.split("?")[0] in response.headers["location"]
 
 
+@pytest.mark.usefixtures("override_database")
 def test_refund_appends_ledger_and_cancels_order(
     valid_product_data, super_admin_headers, step_up_headers, monkeypatch
 ):
@@ -146,6 +150,7 @@ def test_refund_appends_ledger_and_cancels_order(
     assert any(row.status == "initiated" for row in rows)
 
 
+@pytest.mark.usefixtures("override_database")
 def test_refund_works_after_shipped_fulfillment(
     valid_product_data, super_admin_headers, step_up_headers, monkeypatch
 ):

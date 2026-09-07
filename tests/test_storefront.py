@@ -2,11 +2,14 @@
 
 import re
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from fastapi.testclient import TestClient
 
 from tests.conftest import customer_auth_headers
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

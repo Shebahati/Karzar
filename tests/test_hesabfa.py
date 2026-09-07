@@ -108,6 +108,7 @@ def _create_product(super_admin_headers, valid_product_data) -> dict:
     return response.json()
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sync_item_mappings_by_sku(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     mock_client = MagicMock()
@@ -139,6 +140,7 @@ def test_sync_item_mappings_by_sku(super_admin_headers, valid_product_data):
     asyncio.run(run())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_pull_stock_is_disabled_noop(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     product_id = product["id"]
@@ -174,6 +176,7 @@ def test_pull_stock_is_disabled_noop(super_admin_headers, valid_product_data):
     assert qty == Decimal("0")
 
 
+@pytest.mark.usefixtures("override_database")
 def test_ensure_product_in_hesabfa_creates_mapping(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     product_id = product["id"]
@@ -203,6 +206,7 @@ def test_ensure_product_in_hesabfa_creates_mapping(super_admin_headers, valid_pr
     assert "Stock" not in payload
 
 
+@pytest.mark.usefixtures("override_database")
 def test_invoice_hook_skips_when_unpaid():
     order = SimpleNamespace(
         id=999001,
@@ -225,6 +229,7 @@ def test_invoice_hook_skips_when_unpaid():
     assert result.message == "payment_not_verified"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_invoice_hook_skips_in_test_mode(monkeypatch):
     monkeypatch.setattr(settings, "HESABFA_TEST_MODE", True)
     order = SimpleNamespace(
@@ -248,6 +253,7 @@ def test_invoice_hook_skips_in_test_mode(monkeypatch):
     assert result.message == "test_mode"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_invoice_creates_when_mapped(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     product_id = product["id"]
@@ -329,6 +335,7 @@ def test_invoice_creates_when_mapped(super_admin_headers, valid_product_data):
     assert payload["invoiceItems"][0]["unitPrice"] == 1_000_000.0
 
 
+@pytest.mark.usefixtures("override_database")
 def test_hesabfa_status_endpoint(super_admin_headers):
     response = client.get("/api/v1/hesabfa/status", headers=super_admin_headers)
     assert response.status_code == 200
@@ -338,6 +345,7 @@ def test_hesabfa_status_endpoint(super_admin_headers):
     assert "test_mode" in body
 
 
+@pytest.mark.usefixtures("override_database")
 def test_website_paid_sales_excludes_mock_gateway():
     async def run():
         async with TestingSessionLocal() as session:
@@ -387,6 +395,7 @@ def test_website_paid_sales_excludes_mock_gateway():
     assert total == Decimal("250000")
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sales_summary_website_only_never_returns_hesabfa(
     super_admin_headers, monkeypatch
 ):
@@ -403,6 +412,7 @@ def test_sales_summary_website_only_never_returns_hesabfa(
     assert body["hesabfa_error"] == "hesabfa_admin_reads_disabled"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_hesabfa_status_reports_admin_reads_disabled(super_admin_headers):
     response = client.get("/api/v1/hesabfa/status", headers=super_admin_headers)
     assert response.status_code == 200

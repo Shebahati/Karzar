@@ -1,5 +1,6 @@
 """Unit/integration tests for storefront catalog filter helpers and contracts."""
 
+import pytest
 from app.main import app
 from app.utils.storefront_catalog import (
     escape_ilike_pattern,
@@ -88,6 +89,7 @@ class TestNameSortPortable:
         assert "fa_IR" not in str(desc_clause[0])
 
 
+@pytest.mark.usefixtures("override_database")
 class TestCatalogFilterContract:
     def test_invalid_in_stock_returns_422(self):
         response = client.get("/api/v1/products/?in_stock=maybe")

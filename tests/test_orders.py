@@ -4,12 +4,15 @@ import asyncio
 import re
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from app.crud.stock_movement import list_stock_movements_for_reference
 from app.main import app
 from app.services import order_expiry_service
 from fastapi.testclient import TestClient
 
 from tests.conftest import TestingSessionLocal, customer_auth_headers
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

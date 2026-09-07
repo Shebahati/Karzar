@@ -21,6 +21,7 @@ def _create_product(super_admin_headers, valid_product_data, *, sku: str, stock:
     return response.json()["id"]
 
 
+@pytest.mark.usefixtures("override_database")
 def test_cart_lanes_are_isolated(super_admin_headers, valid_product_data):
     product_id = _create_product(super_admin_headers, valid_product_data, sku="E-LANE")
     guest = "guest-cart-token-phase-e-lanes-32chars!"
@@ -47,12 +48,14 @@ def test_cart_lanes_are_isolated(super_admin_headers, valid_product_data):
     assert inquiry.json()["lane"] == "inquiry"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_short_cart_token_rejected():
     response = client.get("/api/v1/cart", headers={"X-Cart-Token": "too-short"})
     assert response.status_code == 422
     assert response.json()["error_code"] == "VALIDATION_FAILED"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_cart_merge_on_login(super_admin_headers, valid_product_data, monkeypatch):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     product_id = _create_product(super_admin_headers, valid_product_data, sku="E-MERGE")
@@ -80,6 +83,7 @@ def test_cart_merge_on_login(super_admin_headers, valid_product_data, monkeypatc
     assert user_cart.json()["item_count"] == 3
 
 
+@pytest.mark.usefixtures("override_database")
 def test_inquiry_checkout_starts_in_review(super_admin_headers, valid_product_data):
     product_id = _create_product(
         super_admin_headers, valid_product_data, sku="E-INQ", stock="0"
@@ -97,6 +101,7 @@ def test_inquiry_checkout_starts_in_review(super_admin_headers, valid_product_da
     assert checkout.json()["status"] == "inquiry_review"
 
 
+@pytest.mark.usefixtures("override_database")
 def test_purchase_requires_shipping(super_admin_headers, valid_product_data, monkeypatch):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     product_id = _create_product(super_admin_headers, valid_product_data, sku="E-SHIP")
@@ -170,6 +175,7 @@ def test_purchase_checkout_rejects_null_price(monkeypatch):
         )
 
 
+@pytest.mark.usefixtures("override_database")
 def test_paid_cancel_blocked_until_refund(
     super_admin_headers, step_up_headers, valid_product_data, monkeypatch
 ):

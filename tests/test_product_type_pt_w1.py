@@ -29,6 +29,7 @@ async def _enable_fk(session) -> None:
         await session.execute(text("PRAGMA foreign_keys=ON"))
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_create_required_fields():
     async def body():
         async with TestingSessionLocal() as session:
@@ -50,6 +51,7 @@ def test_product_type_create_required_fields():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_code_uniqueness():
     async def body():
         async with TestingSessionLocal() as session:
@@ -76,6 +78,7 @@ def test_product_type_code_uniqueness():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_slug_uniqueness():
     async def body():
         async with TestingSessionLocal() as session:
@@ -103,6 +106,7 @@ def test_product_type_slug_uniqueness():
 
 
 @pytest.mark.parametrize("status", ["draft", "active", "retired"])
+@pytest.mark.usefixtures("override_database")
 def test_product_type_valid_lifecycle_statuses(status: str):
     async def body():
         async with TestingSessionLocal() as session:
@@ -119,6 +123,7 @@ def test_product_type_valid_lifecycle_statuses(status: str):
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_invalid_lifecycle_status_rejected():
     async def body():
         async with TestingSessionLocal() as session:
@@ -136,6 +141,7 @@ def test_product_type_invalid_lifecycle_status_rejected():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_may_exist_with_null_product_type(super_admin_headers, valid_product_data):
     created = client.post(
         "/api/v1/products/",
@@ -154,6 +160,7 @@ def test_product_may_exist_with_null_product_type(super_admin_headers, valid_pro
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_can_reference_product_type(super_admin_headers, valid_product_data):
     async def setup_and_assign():
         async with TestingSessionLocal() as session:
@@ -189,6 +196,7 @@ def test_product_can_reference_product_type(super_admin_headers, valid_product_d
     _run(assign())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_delete_restricted_while_referenced(
     super_admin_headers, valid_product_data
 ):
@@ -240,6 +248,7 @@ def test_product_type_delete_restricted_while_referenced(
     _run(assign_and_delete())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_product_type_delete_restricted_when_products_collection_loaded(
     super_admin_headers, valid_product_data
 ):
@@ -300,6 +309,7 @@ def test_product_type_delete_restricted_when_products_collection_loaded(
     _run(assign_load_delete_verify())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_deleting_product_does_not_delete_product_type(
     super_admin_headers, valid_product_data
 ):
@@ -343,6 +353,7 @@ def test_deleting_product_does_not_delete_product_type(
     _run(assign_delete_product_check_type())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_changing_category_does_not_change_product_type(
     super_admin_headers, valid_product_data
 ):
@@ -392,6 +403,7 @@ def test_changing_category_does_not_change_product_type(
     _run(assign_and_change_category())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_no_product_type_seed_and_no_backfill(super_admin_headers, valid_product_data):
     client.post(
         "/api/v1/products/",
@@ -442,6 +454,7 @@ def test_no_readout_column_or_profile_on_product_types():
     assert expected.issubset(column_names)
 
 
+@pytest.mark.usefixtures("override_database")
 def test_specifications_unchanged_when_assigning_type(
     super_admin_headers, valid_product_data
 ):

@@ -1,5 +1,6 @@
 """Tests for product SEO description fields and metadata priority helpers."""
 
+import pytest
 from app.main import app
 from app.utils.seo_descriptions import (
     display_brand_name,
@@ -139,6 +140,7 @@ class TestSeoHelpers:
         )
 
 
+@pytest.mark.usefixtures("override_database")
 class TestProductSeoApi:
     def test_create_and_public_detail_expose_seo_fields(
         self, valid_product_data, super_admin_headers

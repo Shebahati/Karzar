@@ -12,6 +12,7 @@ from tests.conftest import customer_auth_headers
 client = TestClient(app)
 
 
+@pytest.mark.usefixtures("override_database")
 def test_unpublished_article_hidden_from_storefront(super_admin_headers):
     published = client.post(
         "/api/v1/cms/articles",
@@ -53,6 +54,7 @@ def test_unpublished_article_hidden_from_storefront(super_admin_headers):
     assert client.get("/api/v1/blog/g-published").status_code == 200
 
 
+@pytest.mark.usefixtures("override_database")
 def test_hero_slides_active_only_and_sorted(super_admin_headers):
     for sort_order, title, active in (
         (20, "دوم", True),
@@ -82,6 +84,7 @@ def test_hero_slides_active_only_and_sorted(super_admin_headers):
     assert titles.index("اول") < titles.index("دوم")
 
 
+@pytest.mark.usefixtures("override_database")
 def test_contact_tickets_are_unique():
     payload = {
         "full_name": "کاربر تماس",
@@ -98,6 +101,7 @@ def test_contact_tickets_are_unique():
     assert first.json()["ticket"] != second.json()["ticket"]
 
 
+@pytest.mark.usefixtures("override_database")
 def test_comments_require_auth_and_block_inactive_product(
     valid_product_data, super_admin_headers, monkeypatch
 ):
@@ -145,6 +149,7 @@ def test_comments_require_auth_and_block_inactive_product(
     assert ok.status_code == 201
 
 
+@pytest.mark.usefixtures("override_database")
 def test_cms_requires_admin():
     from app.api.deps import get_current_super_admin
     from app.main import app as fastapi_app

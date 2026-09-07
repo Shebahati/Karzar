@@ -1,4 +1,4 @@
-"""Pytest fixtures: in-memory SQLite database, seeded data, and auth overrides."""
+"""Pytest fixtures: opt-in test database, seeded data, and auth overrides."""
 
 import os
 
@@ -52,6 +52,28 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.pool import NullPool, StaticPool
 from sqlalchemy.schema import CreateIndex
 
+ADMIN_PASSWORD = "adminpass123"
+ADMIN_PHONE = "09120000001"
+
+# Observable by regression tests. Hashing is session-cached; database setup is
+# opt-in via `override_database` (fixture dependency or usefixtures).
+FIXTURE_STATS = {
+    "database_setups": 0,
+    "password_hashes": 0,
+    "table_resets": 0,
+}
+
+_admin_password_hash: str | None = None
+
+
+def get_cached_admin_password_hash() -> str:
+    """Return the seeded admin bcrypt hash, computing it at most once per process."""
+    global _admin_password_hash
+    if _admin_password_hash is None:
+        _admin_password_hash = get_password_hash(ADMIN_PASSWORD)
+        FIXTURE_STATS["password_hashes"] += 1
+    return _admin_password_hash
+
 
 def customer_auth_headers(phone: str = "09123333333") -> dict[str, str]:
     """OTP-login helper for authenticated purchase checkout tests."""
@@ -69,7 +91,7 @@ def customer_auth_headers(phone: str = "09123333333") -> dict[str, str]:
 
 
 @pytest.fixture
-def purchase_customer_headers(monkeypatch):
+def purchase_customer_headers(monkeypatch, override_database):
     monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
     return customer_auth_headers("09123333333")
 
@@ -133,6 +155,39 @@ async def _reset_postgres_tables() -> None:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
 
 
+async def _reset_sqlite_tables() -> None:
+    """Delete all rows and reset SQLite autoincrement so seed IDs stay stable."""
+    async with test_engine.begin() as conn:
+        for table in reversed(Base.metadata.sorted_tables):
+            await conn.execute(table.delete())
+        seq = await conn.execute(
+            text(
+                "SELECT name FROM sqlite_master "
+                "WHERE type='table' AND name='sqlite_sequence'"
+            )
+        )
+        if seq.first() is not None:
+            await conn.execute(text("DELETE FROM sqlite_sequence"))
+
+
+async def _reset_all_tables() -> None:
+    if USE_POSTGRES_TESTS:
+        await _reset_postgres_tables()
+    else:
+        await _reset_sqlite_tables()
+    FIXTURE_STATS["table_resets"] += 1
+
+
+async def _create_sqlite_schema() -> None:
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+async def _drop_sqlite_schema() -> None:
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
 @pytest.fixture(autouse=True)
 def _reset_rate_limiters():
     """Isolate throttle / SMS provider state between tests."""
@@ -163,8 +218,8 @@ async def _seed_reference_data(session: AsyncSession) -> None:
 
 async def _create_super_admin(session: AsyncSession) -> User:
     admin = User(
-        phone_number="09120000001",
-        hashed_password=get_password_hash("adminpass123"),
+        phone_number=ADMIN_PHONE,
+        hashed_password=get_cached_admin_password_hash(),
         full_name="Test Admin",
         role=UserRole.SUPER_ADMIN,
         is_active=True,
@@ -177,22 +232,39 @@ async def _create_super_admin(session: AsyncSession) -> User:
 async def override_super_admin():
     async with TestingSessionLocal() as session:
         result = await session.execute(
-            select(User).where(User.phone_number == "09120000001")
+            select(User).where(User.phone_number == ADMIN_PHONE)
         )
         return result.scalars().first()
 
 
-@pytest.fixture(autouse=True)
-def override_database():
-    """Replace the production DB dependency with an isolated test database."""
+@pytest.fixture(scope="session")
+def _test_schema():
+    """Create SQLite schema once per session when any test opts into the DB fixture."""
+    if not USE_POSTGRES_TESTS:
+        asyncio.run(_create_sqlite_schema())
+    try:
+        yield
+    finally:
+        if not USE_POSTGRES_TESTS:
+            asyncio.run(_drop_sqlite_schema())
+        asyncio.run(test_engine.dispose())
+
+
+@pytest.fixture
+def override_database(_test_schema):
+    """Opt-in isolated test database: truncate + seed once per requesting test.
+
+    Isolation boundary is reset-at-start (TRUNCATE RESTART IDENTITY on Postgres,
+    DELETE + sqlite_sequence reset on SQLite). Teardown always clears FastAPI
+    dependency overrides, including after failures. PostgreSQL disposes the
+    engine per test so asyncpg connections are not reused across event loops.
+    SQLite keeps the StaticPool connection for the session so the in-memory
+    schema created by `_test_schema` survives until session teardown. Pure
+    tests never request this fixture and do not connect.
+    """
 
     async def init_db():
-        if USE_POSTGRES_TESTS:
-            # CI runs alembic first; recreate/drop would fight Postgres enums.
-            await _reset_postgres_tables()
-        else:
-            async with test_engine.begin() as conn:
-                await conn.run_sync(Base.metadata.create_all)
+        await _reset_all_tables()
         async with TestingSessionLocal() as session:
             await _seed_reference_data(session)
             await _create_super_admin(session)
@@ -202,6 +274,7 @@ def override_database():
             await test_engine.dispose()
 
     asyncio.run(init_db())
+    FIXTURE_STATS["database_setups"] += 1
 
     async def override_get_db():
         async with TestingSessionLocal() as session:
@@ -209,35 +282,29 @@ def override_database():
 
     app.dependency_overrides[get_db] = override_get_db
 
-    yield
-
-    async def drop_db():
+    try:
+        yield
+    finally:
+        app.dependency_overrides.clear()
         if USE_POSTGRES_TESTS:
-            await _reset_postgres_tables()
-            await test_engine.dispose()
-        else:
-            async with test_engine.begin() as conn:
-                await conn.run_sync(Base.metadata.drop_all)
-
-    asyncio.run(drop_db())
-    app.dependency_overrides.clear()
+            asyncio.run(test_engine.dispose())
 
 
 @pytest.fixture(autouse=True)
 def _disable_storefront_image_hiding_for_tests(monkeypatch):
     """Legacy integration tests create products without images; production hides them."""
-    from app.core.config import settings
+    from app.core.config import settings as app_settings
 
-    monkeypatch.setattr(settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", False)
+    monkeypatch.setattr(app_settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", False)
 
 
 @pytest.fixture
-def super_admin_headers():
+def super_admin_headers(override_database):
     from app.core.security import create_access_token
 
     app.dependency_overrides[get_current_super_admin] = override_super_admin
 
-    token = create_access_token(subject="09120000001")
+    token = create_access_token(subject=ADMIN_PHONE)
     headers = {"Authorization": f"Bearer {token}"}
     yield headers
 
@@ -247,14 +314,14 @@ def super_admin_headers():
 @pytest.fixture
 def step_up_headers(super_admin_headers):
     """Obtain a valid step-up token for destructive-action endpoint tests."""
-    from app.core.config import settings
+    from app.core.config import settings as app_settings
     from app.main import app as fastapi_app
     from fastapi.testclient import TestClient
 
     client = TestClient(fastapi_app)
     response = client.post(
         "/api/v1/auth/verify-pin",
-        json={"pin": settings.ADMIN_STEP_UP_PIN},
+        json={"pin": app_settings.ADMIN_STEP_UP_PIN},
         headers=super_admin_headers,
     )
     assert response.status_code == 200

@@ -59,6 +59,7 @@ def test_seed_validate_rejects_cross_definition_alias_collision():
         validate_seed(data)
 
 
+@pytest.mark.usefixtures("override_database")
 def test_import_idempotent_and_counts():
     async def body():
         async with TestingSessionLocal() as session:
@@ -151,6 +152,7 @@ def test_import_idempotent_and_counts():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_dry_run_does_not_mutate():
     async def body():
         async with TestingSessionLocal() as session:
@@ -174,6 +176,7 @@ def test_dry_run_does_not_mutate():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_import_does_not_create_template_tables_or_touch_products():
     async def body():
         async with TestingSessionLocal() as session:
@@ -222,6 +225,7 @@ def test_import_does_not_create_template_tables_or_touch_products():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_import_rollback_on_invalid_seed_mutates_nothing():
     async def body():
         async with TestingSessionLocal() as session:
@@ -253,6 +257,7 @@ def test_import_rollback_on_invalid_seed_mutates_nothing():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_definition_key_and_alias_uniqueness():
     async def body():
         async with TestingSessionLocal() as session:
@@ -323,6 +328,7 @@ def test_definition_key_and_alias_uniqueness():
     _run(body())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_admin_dictionary_api_auth_and_read():
     async def seed():
         async with TestingSessionLocal() as session:
