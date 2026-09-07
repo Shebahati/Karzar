@@ -2,8 +2,8 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `80c5b25b15bd27de3d1140ac2fcd5642a4439051`
-- Generated at: `2026-09-07T10:33:19.374178+00:00`
+- Baseline SHA: `0b145a48fcc524f78126a9081e5ed89830e8fb5e`
+- Generated at: `2026-09-07T10:48:10.969779+00:00`
 - REAL_SOURCE_VALIDATION: `ok`
 - SOURCE_TREE_VALID: `TRUE`
 - PARTIAL_TARGET_MANIFEST_VALID: `TRUE`
@@ -12,15 +12,18 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 - DEFERRED_AUTHORITIES: `['guanglu.price_list']`
 - CURRENT_SITE_SNAPSHOT_VALID: `TRUE`
 - CURRENT_SITE_RECONCILIATION_READY: `TRUE`
+- INSIZE_SALES_WAVE_1_READY: `TRUE`
+- CREATE_APPLY_READY: `FALSE`
+- DEACTIVATE_APPLY_READY: `FALSE`
+- GLOBAL_APPLY_READY: `FALSE`
 - APPLY_READY: `FALSE`
 - DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`repository_snapshot_non_live`) — file:current_site_snapshot_latest.csv
 - Current products observed: **5918**
 - Target SKUs: **2316**
-- CURRENT_SITE_SNAPSHOT_VALID: `TRUE`
 
 ## Reconciliation action counts (DELETE never emitted)
-- KEEP: 655
-- UPDATE: 911
+- KEEP: 238
+- UPDATE: 1328
 - CREATE: 506
 - DEACTIVATE (active non-target requiring is_active true→false): 360
 - REVIEW: 244
@@ -60,8 +63,8 @@ A and B are independent. A real Target manifest can exist without live site evid
 - TERMA: extracted=278 unique=251 valid_prices=239 zero/missing=12 duplicates=10 rejected=0 review=10 confidence=high
 
 ## Reconciliation counts
-- KEEP: 655
-- UPDATE: 911
+- KEEP: 238
+- UPDATE: 1328
 - CREATE: 506
 - DEACTIVATE: 360
 - REVIEW: 244
@@ -1574,10 +1577,21 @@ A and B are independent. A real Target manifest can exist without live site evid
 ## Unparsed sources
 - `/home/shebahati/KaZar/Product and Data Complete/هلی کویل/شمس/کاتالوگ شمس.pdf`: pdftotext_empty
 
-## APPLY readiness
-- **APPLY_READY = FALSE.** This node is reconciliation/audit only.
-- REVIEW rows must never auto-become UPDATE or CREATE.
-- Future deactivation of out-of-scope products must be `is_active = false`, never DELETE.
+## INSIZE Sales Wave 1 (plan only)
+- Count: 158
+- Commerce-ready: 171
+- Media-ready: 620
+- Public-sell-ready: 158
+- Excluded commerce-ready/no-media: 13
+- Snapshot timestamp: `20260907T102823Z`
+- Snapshot sha256: `4823ea7e39ffe6dc057c329a9387343ad77f369a8506925bf96cdb75c3b99cbf`
+- Detail: `data/catalog-target/insize_sales_wave_1_plan.csv` / `.json`
+- Stale-snapshot guard: re-SELECT allowlisted rows before any future APPLY; abort entire APPLY on drift
 
-PRODUCTION MUTATION: ZERO
+## APPLY readiness
+- **GLOBAL_APPLY_READY = FALSE.** No writer in this PR.
+- CREATE_APPLY_READY = FALSE; DEACTIVATE_APPLY_READY = FALSE.
+- REVIEW rows are hard-blocked from every allowlist.
+
+PRODUCTION DB MUTATION: ZERO
 

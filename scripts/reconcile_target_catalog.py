@@ -118,12 +118,17 @@ def main(argv: list[str] | None = None) -> int:
         "CURRENT_SITE_RECONCILIATION_READY = "
         f"{str(result.current_site_reconciliation_ready).upper()}"
     )
+    print(f"INSIZE_SALES_WAVE_1_READY = {str(result.insize_sales_wave_1_ready).upper()}")
+    print("CREATE_APPLY_READY = FALSE")
+    print("DEACTIVATE_APPLY_READY = FALSE")
+    print("GLOBAL_APPLY_READY = FALSE")
     print("APPLY_READY = FALSE")
     print("PRODUCTION MUTATION: ZERO")
     print(f"baseline_sha={result.baseline_sha}")
     print(f"db_evidence={result.evidence_kind} ({result.evidence_note})")
     print(f"current_products={len(result.current_products)}")
     print(f"target_skus={len(result.target_skus)}")
+    print(f"insize_sales_wave_1={result.sales_wave_summary.get('insize_sales_wave_1_count', 0)}")
     print(f"output_dir={args.output_dir}")
     print("apply_phase=false")
     return 0

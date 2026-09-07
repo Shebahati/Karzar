@@ -437,6 +437,16 @@ def media_ready(*, image_count: int | None, primary_image_url: str | None) -> bo
     return True
 
 
+def public_sell_ready(
+    *,
+    target_member: bool,
+    commerce_ready_flag: bool,
+    media_ready_flag: bool,
+) -> bool:
+    """First public-sales gate: membership + commercial evidence + media."""
+    return bool(target_member and commerce_ready_flag and media_ready_flag)
+
+
 def parse_bool(value: Any) -> bool | None:
     if value is None or value == "":
         return None

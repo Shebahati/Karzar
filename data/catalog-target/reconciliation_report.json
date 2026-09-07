@@ -1,6 +1,6 @@
 {
-  "baseline_sha": "80c5b25b15bd27de3d1140ac2fcd5642a4439051",
-  "generated_at": "2026-09-07T10:33:19.374178+00:00",
+  "baseline_sha": "0b145a48fcc524f78126a9081e5ed89830e8fb5e",
+  "generated_at": "2026-09-07T10:48:10.969779+00:00",
   "production_mutation": "ZERO",
   "apply_phase": false,
   "REAL_SOURCE_VALIDATION": "ok",
@@ -13,6 +13,10 @@
   ],
   "CURRENT_SITE_SNAPSHOT_VALID": true,
   "CURRENT_SITE_RECONCILIATION_READY": true,
+  "INSIZE_SALES_WAVE_1_READY": true,
+  "CREATE_APPLY_READY": false,
+  "DEACTIVATE_APPLY_READY": false,
+  "GLOBAL_APPLY_READY": false,
   "APPLY_READY": false,
   "db_evidence": "repository_snapshot_non_live",
   "db_evidence_note": "file:current_site_snapshot_latest.csv",
@@ -48,8 +52,8 @@
   "commerce_ready_count": 171,
   "media_ready_count": 1193,
   "counts": {
-    "KEEP": 655,
-    "UPDATE": 911,
+    "KEEP": 238,
+    "UPDATE": 1328,
     "CREATE": 506,
     "DEACTIVATE": 360,
     "REVIEW": 244,
@@ -964,7 +968,7 @@
       },
       {
         "sku": "1114-150",
-        "near": "1114-150A,1114-150AW"
+        "near": "1114-150AW,1114-150A"
       },
       {
         "sku": "1114-200",
@@ -976,7 +980,7 @@
       },
       {
         "sku": "1183-150",
-        "near": "1183-150AWL,1183-150A"
+        "near": "1183-150A,1183-150AWL"
       },
       {
         "sku": "1185-150",
@@ -988,39 +992,39 @@
       },
       {
         "sku": "1186-200",
-        "near": "1186-200AWL,1186-200A"
+        "near": "1186-200A,1186-200AWL"
       },
       {
         "sku": "1186-300",
-        "near": "1186-300A,1186-300AWL"
+        "near": "1186-300AWL,1186-300A"
       },
       {
         "sku": "1188-150",
-        "near": "1188-150A,1188-150AWL"
+        "near": "1188-150AWL,1188-150A"
       },
       {
         "sku": "1187-150",
-        "near": "1187-150AWL,1187-150A"
+        "near": "1187-150A,1187-150AWL"
       },
       {
         "sku": "1120-150",
-        "near": "1120-150AEWL,1120-150AE,1120-150AWL,1120-150A,1120-150P"
+        "near": "1120-150AWL,1120-150P,1120-150AE,1120-150AEWL,1120-150B"
       },
       {
         "sku": "1120-200",
-        "near": "1120-200AWL,1120-200A,1120-200B"
+        "near": "1120-200A,1120-200AWL,1120-200B"
       },
       {
         "sku": "1120-300",
-        "near": "1120-300AWL,1120-300A,1120-300B"
+        "near": "1120-300A,1120-300B,1120-300AWL"
       },
       {
         "sku": "1121-150",
-        "near": "1121-150A,1121-150AWL,1121-150B"
+        "near": "1121-150AWL,1121-150B,1121-150A"
       },
       {
         "sku": "1123-150",
-        "near": "1123-150AWL,1123-150A"
+        "near": "1123-150A,1123-150AWL"
       },
       {
         "sku": "1123-300",
@@ -1028,7 +1032,7 @@
       },
       {
         "sku": "1161-150",
-        "near": "1161-150A,1161-150AWL"
+        "near": "1161-150AWL,1161-150A"
       },
       {
         "sku": "1151-300",
@@ -1036,7 +1040,7 @@
       },
       {
         "sku": "1151-600",
-        "near": "1151-600AE,1151-600A"
+        "near": "1151-600A,1151-600AE"
       },
       {
         "sku": "1205-1502",
@@ -1056,7 +1060,7 @@
       },
       {
         "sku": "1312-200",
-        "near": "1312-200AW,1312-200A"
+        "near": "1312-200A,1312-200AW"
       },
       {
         "sku": "1312-300",
@@ -1064,27 +1068,27 @@
       },
       {
         "sku": "1311-150",
-        "near": "1311-150A,1311-150AW"
+        "near": "1311-150AW,1311-150A"
       },
       {
         "sku": "1311-200",
-        "near": "1311-200A,1311-200AW"
+        "near": "1311-200AW,1311-200A"
       },
       {
         "sku": "1311-300",
-        "near": "1311-300AW,1311-300A"
+        "near": "1311-300A,1311-300AW"
       },
       {
         "sku": "1141-150",
-        "near": "1141-150AWL,1141-150A"
+        "near": "1141-150A,1141-150AWL"
       },
       {
         "sku": "1141-200",
-        "near": "1141-200A,1141-200AWL"
+        "near": "1141-200AWL,1141-200A"
       },
       {
         "sku": "1141-300",
-        "near": "1141-300AWL,1141-300A"
+        "near": "1141-300A,1141-300AWL"
       },
       {
         "sku": "1141-500",
@@ -1096,11 +1100,11 @@
       },
       {
         "sku": "1142-150",
-        "near": "1142-150AWL,1142-150A"
+        "near": "1142-150A,1142-150AWL"
       },
       {
         "sku": "1142-200",
-        "near": "1142-200AWL,1142-200A"
+        "near": "1142-200A,1142-200AWL"
       },
       {
         "sku": "1142-300",
@@ -1132,11 +1136,11 @@
       },
       {
         "sku": "3203-25",
-        "near": "3203-25A,3203-25FA"
+        "near": "3203-25FA,3203-25A"
       },
       {
         "sku": "3203-50",
-        "near": "3203-50A,3203-50FA"
+        "near": "3203-50FA,3203-50A"
       },
       {
         "sku": "3203-75",
@@ -1208,15 +1212,15 @@
       },
       {
         "sku": "3506-150",
-        "near": "3506-150E,3506-150AWL,3506-150EWL,3506-150A"
+        "near": "3506-150EWL,3506-150E,3506-150A,3506-150AWL"
       },
       {
         "sku": "3506-300",
-        "near": "3506-300AWL,3506-300A,3506-300E,3506-300EWL"
+        "near": "3506-300AWL,3506-300A,3506-300EWL,3506-300E"
       },
       {
         "sku": "3506-400",
-        "near": "3506-400AWL,3506-400EWL,3506-400E,3506-400A"
+        "near": "3506-400EWL,3506-400A,3506-400AWL,3506-400E"
       },
       {
         "sku": "3506-500",
@@ -1224,11 +1228,11 @@
       },
       {
         "sku": "3506-600",
-        "near": "3506-600EWL,3506-600A,3506-600E,3506-600AWL"
+        "near": "3506-600E,3506-600A,3506-600AWL,3506-600EWL"
       },
       {
         "sku": "3210-25",
-        "near": "3210-25FA,3210-25A"
+        "near": "3210-25A,3210-25FA"
       },
       {
         "sku": "3210-50",
@@ -1252,11 +1256,11 @@
       },
       {
         "sku": "3109-75",
-        "near": "3109-75A,3109-75E"
+        "near": "3109-75E,3109-75A"
       },
       {
         "sku": "3109-100",
-        "near": "3109-100A,3109-100E"
+        "near": "3109-100E,3109-100A"
       },
       {
         "sku": "3109-125",
@@ -1264,11 +1268,11 @@
       },
       {
         "sku": "3109-150",
-        "near": "3109-150A,3109-150E"
+        "near": "3109-150E,3109-150A"
       },
       {
         "sku": "3109-175",
-        "near": "3109-175E,3109-175A"
+        "near": "3109-175A,3109-175E"
       },
       {
         "sku": "3109-200",
@@ -1276,11 +1280,11 @@
       },
       {
         "sku": "3109-225",
-        "near": "3109-225E,3109-225A"
+        "near": "3109-225A,3109-225E"
       },
       {
         "sku": "3109-250",
-        "near": "3109-250A,3109-250E"
+        "near": "3109-250E,3109-250A"
       },
       {
         "sku": "3109-275",
@@ -1292,7 +1296,7 @@
       },
       {
         "sku": "3108-25",
-        "near": "3108-25FA,3108-25A"
+        "near": "3108-25A,3108-25FA"
       },
       {
         "sku": "3108-50",
@@ -1308,31 +1312,31 @@
       },
       {
         "sku": "3101-25",
-        "near": "3101-25FA,3101-25A,3101-25FE,3101-25E"
+        "near": "3101-25FA,3101-25A,3101-25E,3101-25FE"
       },
       {
         "sku": "3101-225",
-        "near": "3101-225E,3101-225A"
+        "near": "3101-225A,3101-225E"
       },
       {
         "sku": "3101-250",
-        "near": "3101-250E,3101-250A"
+        "near": "3101-250A,3101-250E"
       },
       {
         "sku": "3101-275",
-        "near": "3101-275E,3101-275A"
+        "near": "3101-275A,3101-275E"
       },
       {
         "sku": "3101-300",
-        "near": "3101-300A,3101-300E"
+        "near": "3101-300E,3101-300A"
       },
       {
         "sku": "3594-25",
-        "near": "3594-25AWL,3594-25A"
+        "near": "3594-25A,3594-25AWL"
       },
       {
         "sku": "3594-50",
-        "near": "3594-50AWL,3594-50A"
+        "near": "3594-50A,3594-50AWL"
       },
       {
         "sku": "3290-153",
@@ -1344,31 +1348,31 @@
       },
       {
         "sku": "3590-153",
-        "near": "3590-153EWL,3590-153AWL,3590-153E,3590-153A"
+        "near": "3590-153A,3590-153AWL,3590-153EWL,3590-153E"
       },
       {
         "sku": "3232-75",
-        "near": "3232-75A,3232-75BA"
+        "near": "3232-75BA,3232-75A"
       },
       {
         "sku": "3232-100",
-        "near": "3232-100BA,3232-100A"
+        "near": "3232-100A,3232-100BA"
       },
       {
         "sku": "3260-25",
-        "near": "3260-25SA,3260-25A"
+        "near": "3260-25A,3260-25SA"
       },
       {
         "sku": "3560-25",
-        "near": "3560-25AWL,3560-25SA,3560-25SAWL,3560-25SEWL,3560-25EWL"
+        "near": "3560-25SEWL,3560-25SE,3560-25A,3560-25AWL,3560-25E"
       },
       {
         "sku": "2308-10",
-        "near": "2308-10A,2308-10FA"
+        "near": "2308-10FA,2308-10A"
       },
       {
         "sku": "2310-30",
-        "near": "2310-30FA,2310-30A"
+        "near": "2310-30A,2310-30FA"
       },
       {
         "sku": "2383-08",
@@ -1416,7 +1420,7 @@
       },
       {
         "sku": "2122-35",
-        "near": "2122-35AWL,2122-35AWP,2122-35A"
+        "near": "2122-35A,2122-35AWL,2122-35AWP"
       },
       {
         "sku": "2122-60",
@@ -1424,7 +1428,7 @@
       },
       {
         "sku": "2122-160",
-        "near": "2122-160AWL,2122-160A,2122-160AWP"
+        "near": "2122-160A,2122-160AWL,2122-160AWP"
       },
       {
         "sku": "2367-10",
@@ -6244,5 +6248,59 @@
     "note": "expectation derived from current source results; not parser logic"
   },
   "ready_for_apply": false,
-  "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction."
+  "ready_for_apply_reason": "GLOBAL_APPLY_READY = FALSE. INSIZE Sales Wave 1 plan is READ-ONLY; no writer is implemented in this PR.",
+  "insize_sales_wave_1": {
+    "wave": "INSIZE_SALES_WAVE_1",
+    "insize_target": 872,
+    "insize_commerce_ready": 171,
+    "insize_media_ready": 620,
+    "insize_public_sell_ready": 158,
+    "insize_sales_wave_1_count": 158,
+    "allowlist_active_changes": 0,
+    "allowlist_price_changes": 158,
+    "allowlist_availability_changes": 22,
+    "excluded_commerce_ready_no_media": 13,
+    "baseline_sha": "0b145a48fcc524f78126a9081e5ed89830e8fb5e",
+    "generated_at": "2026-09-07T10:48:10.969779+00:00",
+    "snapshot_timestamp": "20260907T102823Z",
+    "snapshot_sha256": "4823ea7e39ffe6dc057c329a9387343ad77f369a8506925bf96cdb75c3b99cbf",
+    "snapshot_path_basename": "current_site_snapshot_latest.csv",
+    "target_manifest_ready": true,
+    "current_site_snapshot_valid": true,
+    "current_site_reconciliation_ready": true
+  },
+  "apply_contract": {
+    "INSIZE_SALES_WAVE_1_READY": true,
+    "CREATE_APPLY_READY": false,
+    "DEACTIVATE_APPLY_READY": false,
+    "GLOBAL_APPLY_READY": false,
+    "stale_snapshot_guard": {
+      "name": "stale_snapshot_preflight",
+      "mode": "abort_entire_apply_on_any_drift",
+      "required_live_fields": [
+        "id",
+        "sku",
+        "base_price",
+        "is_active",
+        "is_available"
+      ],
+      "compare_against": "reviewed_snapshot_row",
+      "on_mismatch": "ABORT_BEFORE_MUTATION",
+      "partial_apply_allowed": false,
+      "writer_implemented": false,
+      "notes": [
+        "Re-SELECT targeted production rows immediately before mutation.",
+        "Compare id, sku, base_price, is_active, is_available to the reviewed plan.",
+        "Also refuse if snapshot checksum/timestamp no longer matches operator-approved evidence.",
+        "REVIEW / CREATE / DEACTIVATE are out of scope for INSIZE Sales Wave 1."
+      ]
+    },
+    "reasons": [
+      "plan_derived_from_reconciliation",
+      "CREATE_APPLY_READY=false",
+      "DEACTIVATE_APPLY_READY=false",
+      "GLOBAL_APPLY_READY=false_until_authorized_writer",
+      "writer_not_implemented"
+    ]
+  }
 }

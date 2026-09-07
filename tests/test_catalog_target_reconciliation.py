@@ -27,14 +27,17 @@ from catalog_target.core import (  # noqa: E402
     index_current_products,
     match_brand_sku,
     normalize_sku,
+    public_sell_ready,
     suffix_near_miss,
 )
+from catalog_target.apply_contract import StaleSnapshotGuard  # noqa: E402
 from catalog_target.pdf import (  # noqa: E402
     extract_generic_sku_price_rows,
     extract_insize_product_rows,
     extract_pdf_text,
 )
-from catalog_target.reconcile import counts, reconcile, run_reconciliation  # noqa: E402
+from catalog_target.reconcile import ManifestRow, counts, reconcile, run_reconciliation  # noqa: E402
+from catalog_target.sales_wave import row_in_insize_sales_wave_1  # noqa: E402
 from catalog_target.snapshot import (  # noqa: E402
     PRODUCTS_SNAPSHOT_SELECT_SQL,
     describe_snapshot_phase,
@@ -757,6 +760,161 @@ class SourceAndInsizeTests(unittest.TestCase):
             bad = validate_snapshot_csv(path, expected_row_count=99)
             self.assertFalse(bad.valid)
             self.assertTrue(bad.truncation_suspected)
+
+    def test_inactive_target_proposes_active_true(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["1108-25"])
+            _insize_distributor(root, [["1108-25", 1000, "موجود"]])
+            current = [
+                _current(
+                    "1108-25",
+                    "INSIZE",
+                    id="1",
+                    base_price=Decimal("1000"),
+                    is_available=True,
+                    is_active=False,
+                )
+            ]
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=current,
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            row = next(r for r in result.rows if r.sku == "1108-25")
+            self.assertEqual(row.reconciliation_state, "UPDATE")
+            self.assertIs(row.current_is_active, False)
+            self.assertIs(row.proposed_is_active, True)
+            self.assertEqual(row.is_active_change, "true")
+
+    def test_deleted_target_match_is_review_not_resurrected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["1108-25"])
+            _insize_distributor(root, [["1108-25", 1000, "موجود"]])
+            current = [
+                _current(
+                    "1108-25",
+                    "INSIZE",
+                    id="1",
+                    base_price=Decimal("1000"),
+                    is_available=True,
+                    is_active=False,
+                    deleted_at="2026-01-01",
+                )
+            ]
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=current,
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            row = next(r for r in result.rows if r.sku == "1108-25")
+            self.assertEqual(row.reconciliation_state, "REVIEW")
+            self.assertIn("deleted_current_match", row.review_reason)
+            self.assertIsNone(row.proposed_is_active)
+            ok, reasons = row_in_insize_sales_wave_1(row)
+            self.assertFalse(ok)
+            self.assertTrue(any("review" in r or "deleted" in r for r in reasons))
+
+    def test_public_sell_ready_requires_media(self):
+        self.assertTrue(
+            public_sell_ready(target_member=True, commerce_ready_flag=True, media_ready_flag=True)
+        )
+        self.assertFalse(
+            public_sell_ready(target_member=True, commerce_ready_flag=True, media_ready_flag=False)
+        )
+        self.assertFalse(
+            public_sell_ready(target_member=True, commerce_ready_flag=False, media_ready_flag=True)
+        )
+
+    def test_commerce_ready_no_media_excluded_from_insize_sales_wave(self):
+        row = ManifestRow(
+            brand="INSIZE",
+            sku="1108-25",
+            normalized_sku="1108-25",
+            product_family="measurement",
+            target_member=True,
+            source_scope="product_scope",
+            source_product="x",
+            inventory_status="موجود",
+            commerce_ready=True,
+            media_ready=False,
+            public_sell_ready=False,
+            reconciliation_state="UPDATE",
+            current_id="1",
+            proposed_base_price="1000",
+            proposed_is_available=True,
+            proposed_is_active=True,
+            exact_distributor_match=True,
+        )
+        ok, reasons = row_in_insize_sales_wave_1(row)
+        self.assertFalse(ok)
+        self.assertIn("not_media_ready", reasons)
+
+    def test_review_excluded_from_insize_sales_wave(self):
+        row = ManifestRow(
+            brand="INSIZE",
+            sku="1108-25",
+            normalized_sku="1108-25",
+            product_family="measurement",
+            target_member=True,
+            source_scope="product_scope",
+            source_product="x",
+            inventory_status="موجود",
+            commerce_ready=False,
+            media_ready=True,
+            public_sell_ready=False,
+            reconciliation_state="REVIEW",
+            review_reason="suffix_mismatch",
+            current_id="1",
+            proposed_base_price="1000",
+            proposed_is_available=True,
+            proposed_is_active=True,
+            exact_distributor_match=True,
+        )
+        ok, reasons = row_in_insize_sales_wave_1(row)
+        self.assertFalse(ok)
+        self.assertIn("review_blocked", reasons)
+
+    def test_create_not_in_insize_sales_wave(self):
+        row = ManifestRow(
+            brand="INSIZE",
+            sku="NEW-1",
+            normalized_sku="NEW-1",
+            product_family="measurement",
+            target_member=True,
+            source_scope="product_scope",
+            source_product="x",
+            inventory_status="موجود",
+            commerce_ready=True,
+            media_ready=False,
+            public_sell_ready=False,
+            reconciliation_state="CREATE",
+            proposed_base_price="1000",
+            proposed_is_available=True,
+            proposed_is_active=True,
+            exact_distributor_match=True,
+        )
+        ok, reasons = row_in_insize_sales_wave_1(row)
+        self.assertFalse(ok)
+        self.assertIn("create_excluded_from_sales_wave_1", reasons)
+
+    def test_stale_snapshot_guard_contract(self):
+        guard = StaleSnapshotGuard()
+        payload = guard.as_dict()
+        self.assertEqual(payload["on_mismatch"], "ABORT_BEFORE_MUTATION")
+        self.assertFalse(payload["partial_apply_allowed"])
+        self.assertFalse(payload["writer_implemented"])
+        self.assertIn("id", payload["required_live_fields"])
+        self.assertIn("base_price", payload["required_live_fields"])
 
     def test_xlsx_distributor_join_exact_only(self):
         with tempfile.TemporaryDirectory() as tmp:

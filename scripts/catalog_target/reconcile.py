@@ -41,6 +41,7 @@ from catalog_target.core import (
     match_brand_sku,
     media_ready,
     normalize_sku,
+    public_sell_ready,
     suffix_near_miss,
 )
 
@@ -64,12 +65,28 @@ MANIFEST_FIELDS = [
     "inventory_status",
     "commerce_ready",
     "media_ready",
+    "public_sell_ready",
     "parser_confidence",
     "match_confidence",
     "review_reason",
     "reconciliation_state",
     "current_id",
+    "current_sku",
     "current_slug",
+    "current_brand",
+    "current_base_price",
+    "proposed_base_price",
+    "base_price_change",
+    "current_is_active",
+    "proposed_is_active",
+    "is_active_change",
+    "current_is_available",
+    "proposed_is_available",
+    "is_available_change",
+    "current_image_count",
+    "current_primary_image_url",
+    "current_deleted_at",
+    "exact_distributor_match",
     "provenance",
 ]
 
@@ -104,12 +121,28 @@ class ManifestRow:
     inventory_status: str = ""
     commerce_ready: bool = False
     media_ready: bool = False
+    public_sell_ready: bool = False
     parser_confidence: str = ""
     match_confidence: str = "none"
     review_reason: str = ""
     reconciliation_state: str = "REVIEW"
     current_id: str = ""
+    current_sku: str = ""
     current_slug: str = ""
+    current_brand: str = ""
+    current_base_price: str = ""
+    proposed_base_price: str = ""
+    base_price_change: str = "false"
+    current_is_active: bool | None = None
+    proposed_is_active: bool | None = None
+    is_active_change: str = "false"
+    current_is_available: bool | None = None
+    proposed_is_available: bool | None = None
+    is_available_change: str = "false"
+    current_image_count: int | None = None
+    current_primary_image_url: str = ""
+    current_deleted_at: str = ""
+    exact_distributor_match: bool = False
     provenance: str = ""
 
 
@@ -192,10 +225,26 @@ class ReconciliationResult:
     deferred_authorities: list[str] = field(default_factory=list)
     current_site_snapshot_valid: bool = False
     snapshot_integrity: dict[str, Any] = field(default_factory=dict)
+    insize_sales_wave_1_ready: bool = False
+    create_apply_ready: bool = False
+    deactivate_apply_ready: bool = False
+    global_apply_ready: bool = False
+    sales_wave_summary: dict[str, Any] = field(default_factory=dict)
+    apply_contract: dict[str, Any] = field(default_factory=dict)
 
 
-def _bool_text(value: bool) -> str:
+def _bool_text(value: bool | None) -> str:
+    if value is None:
+        return ""
     return "true" if value else "false"
+
+
+def _change_text(current: Any, proposed: Any) -> str:
+    if proposed is None or proposed == "":
+        return "false"
+    if current is None or current == "":
+        return "true"
+    return "true" if current != proposed else "false"
 
 
 def _join_reasons(*parts: str | None) -> str:
@@ -229,6 +278,7 @@ def classify_target_row(
     duplicate_target: bool,
     source_conflict: str | None,
     extra_review: str | None,
+    proposed_is_active: bool | None,
 ) -> str:
     if duplicate_target:
         return "REVIEW"
@@ -237,6 +287,7 @@ def classify_target_row(
         "ambiguous_alias",
         "cross_brand_collision",
         "malformed_sku",
+        "deleted_current_match",
     }:
         return "REVIEW"
     if extra_review:
@@ -249,6 +300,8 @@ def classify_target_row(
         return "CREATE"
 
     current = match.current
+    if current.deleted_at:
+        return "REVIEW"
     proposed = price.base_price_toman if price else None
     differs = False
     if proposed is not None and current.base_price is not None:
@@ -259,6 +312,8 @@ def classify_target_row(
     if inventory_available is not None and current.is_available is not None:
         if bool(current.is_available) != bool(inventory_available):
             differs = True
+    if proposed_is_active is True and current.is_active is False:
+        differs = True
     if canonicalize_brand(current.brand) and canonicalize_brand(current.brand) != target.brand_key:
         differs = True
     if differs:
@@ -384,6 +439,9 @@ def reconcile(
         if dup_target:
             extra_review = extra_review or "duplicate_target_sku"
             add_example("duplicate_target_skus", target.sku)
+        if match.current and match.current.deleted_at:
+            extra_review = extra_review or "deleted_current_match"
+            add_example("deleted_target_matches", target.sku)
 
         price_hits = price_index.get((target.brand_key, target.normalized_sku), [])
         inv_hits = inventory_index.get((target.brand_key, target.normalized_sku), [])
@@ -393,6 +451,7 @@ def reconcile(
         inventory_available: bool | None = None
         inventory_status = ""
         markup_note = ""
+        exact_distributor_match = False
 
         if len(price_hits) > 1:
             extra_review = extra_review or "duplicate_price_match"
@@ -402,6 +461,7 @@ def reconcile(
         if len(price_hits) == 1:
             source, prow = price_hits[0]
             source_price = source.path
+            exact_distributor_match = target.brand_key == "INSIZE"
             price_header = pick_header(prow, price_headers)
             currency_header = pick_header(prow, currency_headers)
             currency_raw = str(prow.get(currency_header) or "")
@@ -435,6 +495,8 @@ def reconcile(
         if len(inv_hits) == 1:
             source, irow = inv_hits[0]
             source_inventory = source.path
+            if target.brand_key == "INSIZE":
+                exact_distributor_match = True
             status_header = pick_header(irow, status_headers)
             inventory_status, inventory_available = _available_status(
                 irow.get(status_header) if status_header else None,
@@ -445,6 +507,8 @@ def reconcile(
             status_header = pick_header(prow, status_headers)
             if status_header:
                 source_inventory = source.path
+                if target.brand_key == "INSIZE":
+                    exact_distributor_match = True
                 inventory_status, inventory_available = _available_status(
                     prow.get(status_header), available_values
                 )
@@ -459,6 +523,7 @@ def reconcile(
             exact = bool(price_hits) or bool(inv_hits)
             if exact:
                 insize_stats.exact_distributor_matches += 1
+                exact_distributor_match = True
             else:
                 insize_stats.unmatched_target_skus.append(target.sku)
                 near = [code for code in distributor_codes if suffix_near_miss(code, target.normalized_sku)]
@@ -476,6 +541,16 @@ def reconcile(
                 insize_stats.unavailable_positive_price.append(target.sku)
             if inventory_available is False and not has_price:
                 insize_stats.unavailable_no_price.append(target.sku)
+
+        current = match.current
+        # Desired active: Wave-1 Target members should be active unless deleted/blocked.
+        deleted_match = bool(current and current.deleted_at)
+        if deleted_match:
+            proposed_is_active: bool | None = None
+        else:
+            proposed_is_active = True
+        # Availability only from authority; never invent for brands without inventory SoT.
+        proposed_is_available: bool | None = inventory_available
 
         review_bits = [
             match.review_reason,
@@ -498,17 +573,22 @@ def reconcile(
             duplicate_target=dup_target,
             source_conflict=source_conflict,
             extra_review=extra_review,
+            proposed_is_active=proposed_is_active,
         )
         if not site_ready and state in {"KEEP", "UPDATE", "CREATE", "DEACTIVATE"}:
             extra_review = extra_review or "site_evidence_unavailable"
             review_bits.append("site_evidence_unavailable")
             state = "REVIEW"
-        current = match.current
+        if state == "REVIEW" and deleted_match:
+            # Safety: no automatic resurrection.
+            proposed_is_active = None
+
+        review_joined = _join_reasons(*review_bits)
         ready = commerce_ready(
             target_member=True,
             base_price_toman=price_conv.base_price_toman if price_conv else None,
             inventory_available=inventory_available,
-            review_reason=_join_reasons(*review_bits) if state == "REVIEW" else None,
+            review_reason=review_joined if state == "REVIEW" else None,
         )
         if state == "REVIEW":
             ready = False
@@ -520,6 +600,11 @@ def reconcile(
             image_count=current.image_count if current else None,
             primary_image_url=current.primary_image_url if current else None,
         )
+        p_ready = public_sell_ready(
+            target_member=True,
+            commerce_ready_flag=ready,
+            media_ready_flag=m_ready,
+        )
         if not m_ready:
             add_example("target_products_with_no_valid_public_image", target.sku)
         if current is None:
@@ -530,6 +615,15 @@ def reconcile(
             add_example("is_available_true_with_missing_or_non_positive_price", current.sku)
         if current and not current.category_id:
             add_example("target_products_with_category_problems", target.sku)
+
+        proposed_price = (
+            ""
+            if not price_conv or price_conv.base_price_toman is None
+            else str(price_conv.base_price_toman)
+        )
+        current_price = "" if not current or current.base_price is None else str(current.base_price)
+        current_active = current.is_active if current else None
+        current_available = current.is_available if current else None
 
         rows.append(
             ManifestRow(
@@ -552,18 +646,39 @@ def reconcile(
                 else price_conv.source_currency,
                 price_conversion="" if not price_conv else price_conv.conversion,
                 markup_note=markup_note,
-                base_price_toman=""
-                if not price_conv or price_conv.base_price_toman is None
-                else str(price_conv.base_price_toman),
+                base_price_toman=proposed_price,
                 inventory_status=inventory_status,
                 commerce_ready=ready,
                 media_ready=m_ready,
+                public_sell_ready=p_ready,
                 parser_confidence=target.parser_confidence,
                 match_confidence=match.confidence,
-                review_reason=_join_reasons(*review_bits),
+                review_reason=review_joined,
                 reconciliation_state=state,
                 current_id="" if not current or not current.id else current.id,
+                current_sku="" if not current else current.sku,
                 current_slug="" if not current or not current.slug else current.slug,
+                current_brand="" if not current or not current.brand else current.brand,
+                current_base_price=current_price,
+                proposed_base_price=proposed_price,
+                base_price_change=_change_text(
+                    Decimal(current_price) if current_price else None,
+                    Decimal(proposed_price) if proposed_price else None,
+                )
+                if proposed_price
+                else "false",
+                current_is_active=current_active,
+                proposed_is_active=proposed_is_active,
+                is_active_change=_change_text(current_active, proposed_is_active),
+                current_is_available=current_available,
+                proposed_is_available=proposed_is_available,
+                is_available_change=_change_text(current_available, proposed_is_available),
+                current_image_count=current.image_count if current else None,
+                current_primary_image_url=""
+                if not current or not current.primary_image_url
+                else current.primary_image_url,
+                current_deleted_at="" if not current or not current.deleted_at else current.deleted_at,
+                exact_distributor_match=exact_distributor_match,
                 provenance=target.provenance,
             )
         )
@@ -601,11 +716,29 @@ def reconcile(
                         image_count=product.image_count,
                         primary_image_url=product.primary_image_url,
                     ),
+                    public_sell_ready=False,
                     match_confidence="none",
                     review_reason=review_reason,
                     reconciliation_state=non_target_state,
                     current_id=product.id or "",
+                    current_sku=product.sku,
                     current_slug=product.slug or "",
+                    current_brand=product.brand or "",
+                    current_base_price="" if product.base_price is None else str(product.base_price),
+                    proposed_base_price="",
+                    base_price_change="false",
+                    current_is_active=product.is_active,
+                    proposed_is_active=False if non_target_state == "DEACTIVATE" else product.is_active,
+                    is_active_change=_change_text(
+                        product.is_active,
+                        False if non_target_state == "DEACTIVATE" else product.is_active,
+                    ),
+                    current_is_available=product.is_available,
+                    proposed_is_available=None,
+                    is_available_change="false",
+                    current_image_count=product.image_count,
+                    current_primary_image_url=product.primary_image_url or "",
+                    current_deleted_at=product.deleted_at or "",
                     provenance="current_catalog_only",
                 )
             )
@@ -705,6 +838,10 @@ def reconcile(
         deferred_authorities=_deferred_authorities(discovery),
         current_site_snapshot_valid=snapshot_valid if evidence_kind != "test" else False,
         snapshot_integrity=integrity.as_dict(),
+        insize_sales_wave_1_ready=False,
+        create_apply_ready=False,
+        deactivate_apply_ready=False,
+        global_apply_ready=False,
     )
 
 
@@ -824,6 +961,15 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             payload["target_member"] = _bool_text(row.target_member)
             payload["commerce_ready"] = _bool_text(row.commerce_ready)
             payload["media_ready"] = _bool_text(row.media_ready)
+            payload["public_sell_ready"] = _bool_text(row.public_sell_ready)
+            payload["exact_distributor_match"] = _bool_text(row.exact_distributor_match)
+            payload["current_is_active"] = _bool_text(row.current_is_active)
+            payload["proposed_is_active"] = _bool_text(row.proposed_is_active)
+            payload["current_is_available"] = _bool_text(row.current_is_available)
+            payload["proposed_is_available"] = _bool_text(row.proposed_is_available)
+            payload["current_image_count"] = (
+                "" if row.current_image_count is None else str(row.current_image_count)
+            )
             writer.writerow(payload)
     ast_fields = [
         "family",
@@ -884,6 +1030,10 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "DEFERRED_AUTHORITIES": result.deferred_authorities,
         "CURRENT_SITE_SNAPSHOT_VALID": result.current_site_snapshot_valid,
         "CURRENT_SITE_RECONCILIATION_READY": result.current_site_reconciliation_ready,
+        "INSIZE_SALES_WAVE_1_READY": result.insize_sales_wave_1_ready,
+        "CREATE_APPLY_READY": False,
+        "DEACTIVATE_APPLY_READY": False,
+        "GLOBAL_APPLY_READY": False,
         "APPLY_READY": False,
         "db_evidence": result.evidence_kind,
         "db_evidence_note": result.evidence_note,
@@ -972,7 +1122,12 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             "note": "expectation derived from current source results; not parser logic",
         },
         "ready_for_apply": False,
-        "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction.",
+        "ready_for_apply_reason": (
+            "GLOBAL_APPLY_READY = FALSE. INSIZE Sales Wave 1 plan is READ-ONLY; "
+            "no writer is implemented in this PR."
+        ),
+        "insize_sales_wave_1": result.sales_wave_summary,
+        "apply_contract": result.apply_contract,
     }
     (output_dir / "reconciliation_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
@@ -1011,11 +1166,14 @@ def render_summary(
         f"- DEFERRED_AUTHORITIES: `{result.deferred_authorities}`",
         f"- CURRENT_SITE_SNAPSHOT_VALID: `{str(result.current_site_snapshot_valid).upper()}`",
         f"- CURRENT_SITE_RECONCILIATION_READY: `{str(result.current_site_reconciliation_ready).upper()}`",
+        f"- INSIZE_SALES_WAVE_1_READY: `{str(result.insize_sales_wave_1_ready).upper()}`",
+        "- CREATE_APPLY_READY: `FALSE`",
+        "- DEACTIVATE_APPLY_READY: `FALSE`",
+        "- GLOBAL_APPLY_READY: `FALSE`",
         "- APPLY_READY: `FALSE`",
         f"- DB evidence: **{live}** (`{result.evidence_kind}`) — {result.evidence_note}",
         f"- Current products observed: **{len(result.current_products)}**",
         f"- Target SKUs: **{len(result.target_skus)}**",
-        f"- CURRENT_SITE_SNAPSHOT_VALID: `{str(result.current_site_snapshot_valid).upper()}`",
         "",
         "## Reconciliation action counts (DELETE never emitted)",
         f"- KEEP: {state_counts.get('KEEP', 0)}",
@@ -1190,12 +1348,23 @@ def render_summary(
         lines.append("- (none)")
     lines += [
         "",
-        "## APPLY readiness",
-        "- **APPLY_READY = FALSE.** This node is reconciliation/audit only.",
-        "- REVIEW rows must never auto-become UPDATE or CREATE.",
-        "- Future deactivation of out-of-scope products must be `is_active = false`, never DELETE.",
+        "## INSIZE Sales Wave 1 (plan only)",
+        f"- Count: {result.sales_wave_summary.get('insize_sales_wave_1_count', 0)}",
+        f"- Commerce-ready: {result.sales_wave_summary.get('insize_commerce_ready', 0)}",
+        f"- Media-ready: {result.sales_wave_summary.get('insize_media_ready', 0)}",
+        f"- Public-sell-ready: {result.sales_wave_summary.get('insize_public_sell_ready', 0)}",
+        f"- Excluded commerce-ready/no-media: {result.sales_wave_summary.get('excluded_commerce_ready_no_media', 0)}",
+        f"- Snapshot timestamp: `{result.sales_wave_summary.get('snapshot_timestamp', '')}`",
+        f"- Snapshot sha256: `{result.sales_wave_summary.get('snapshot_sha256', '')}`",
+        "- Detail: `data/catalog-target/insize_sales_wave_1_plan.csv` / `.json`",
+        "- Stale-snapshot guard: re-SELECT allowlisted rows before any future APPLY; abort entire APPLY on drift",
         "",
-        "PRODUCTION MUTATION: ZERO",
+        "## APPLY readiness",
+        "- **GLOBAL_APPLY_READY = FALSE.** No writer in this PR.",
+        "- CREATE_APPLY_READY = FALSE; DEACTIVATE_APPLY_READY = FALSE.",
+        "- REVIEW rows are hard-blocked from every allowlist.",
+        "",
+        "PRODUCTION DB MUTATION: ZERO",
         "",
     ]
     return "\n".join(lines) + "\n"
@@ -1212,9 +1381,13 @@ def run_reconciliation(
     write: bool = True,
     real_source_validation: str | None = None,
     expected_snapshot_rows: int | None = None,
+    snapshot_timestamp: str = "",
 ) -> ReconciliationResult:
+    from catalog_target.sales_wave import build_sales_wave_artifacts, write_sales_wave_outputs
+
     discovery = SourceDiscovery(source_root=source_root)
     discovery.discover()
+    snapshot_file = Path(snapshot_path) if snapshot_path else None
     current, kind, note = load_current_catalog(snapshot_path=snapshot_path, read_db=read_db)
     integrity: SnapshotIntegrity | None = None
     if snapshot_path and kind == SNAPSHOT_KIND_FILE:
@@ -1223,8 +1396,6 @@ def run_reconciliation(
             expected_row_count=expected_snapshot_rows,
         )
         if not integrity.valid:
-            # Refuse incomplete evidence for readiness; still emit audit rows only when valid
-            # enough to load products. Keep products for diagnostics but mark not ready.
             note = f"{note};snapshot_integrity_failed:{';'.join(integrity.problems)}"
     validation = real_source_validation or ("ok" if source_root is not None else "BLOCKED_SOURCE_NOT_MOUNTED")
     result = reconcile(
@@ -1237,10 +1408,40 @@ def run_reconciliation(
         real_source_validation=validation,
         snapshot_integrity=integrity,
     )
+
+    meta_stamp = snapshot_timestamp
+    if not meta_stamp and snapshot_file and snapshot_file.is_file():
+        sibling = snapshot_file.with_suffix(".meta.json")
+        # Support symlink basename *_latest.csv → matching meta via resolved stem.
+        candidates = [
+            sibling,
+            snapshot_file.parent / "current_site_snapshot_latest.meta.json",
+        ]
+        for candidate in candidates:
+            if candidate.is_file():
+                try:
+                    meta_stamp = str(json.loads(candidate.read_text(encoding="utf-8")).get("snapshot_timestamp_utc") or "")
+                except (OSError, json.JSONDecodeError):
+                    meta_stamp = ""
+                if meta_stamp:
+                    break
+
+    artifacts = build_sales_wave_artifacts(
+        result,
+        snapshot_path=snapshot_file if snapshot_file and snapshot_file.is_file() else None,
+        snapshot_timestamp=meta_stamp,
+    )
+    result.insize_sales_wave_1_ready = artifacts.readiness.insize_sales_wave_1_ready
+    result.create_apply_ready = False
+    result.deactivate_apply_ready = False
+    result.global_apply_ready = False
+    result.sales_wave_summary = artifacts.summary
+    result.apply_contract = artifacts.readiness.as_dict()
+
     if write:
-        # Avoid committing absolute local snapshot paths.
         if result.evidence_note.startswith("file:") or result.evidence_note.startswith("env_file:"):
             prefix, _, rest = result.evidence_note.partition(":")
             result.evidence_note = f"{prefix}:{Path(rest).name}"
         write_outputs(result, output_dir)
+        write_sales_wave_outputs(artifacts, output_dir)
     return result
