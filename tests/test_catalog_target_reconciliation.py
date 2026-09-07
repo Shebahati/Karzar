@@ -735,7 +735,7 @@ class SourceAndInsizeTests(unittest.TestCase):
             skus = {t.sku for t in discovery.load_product_scope_targets()}
             self.assertEqual(skus, set())
             self.assertTrue(
-                any("ast_family_present_but_no_approved_enumerator" in u["reason"] for u in discovery.unavailable)
+                any(u["reason"] == "AUTHORITY_GAP" for u in discovery.unavailable)
             )
             unclassified = [f for f in discovery.files if "unclassified" in (f.roles or [])]
             catalog = [f for f in discovery.files if f.roles == ["catalog"]]
@@ -795,6 +795,26 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertTrue(any(Path(p).name == "همکاری کرگیری.pdf" for p in core["enumerator_candidates"]))
             self.assertFalse(any(p.lower().endswith(".jpg") for p in magnetic["enumerator_candidates"]))
             self.assertFalse(any(p.lower().endswith(".jpg") for p in core["enumerator_candidates"]))
+
+    def test_ast_image_code_table_promotes_verified_skus_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_image_pdf(root / AST_POWER / "قلاویززن اتومات" / "همکاری قلاویززن اتومات.pdf")
+            write_image_pdf(root / AST_POWER / "قلاویززن برقی" / "کاتالوگ.pdf")
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            skus = {t.sku: t.product_family for t in discovery.load_product_scope_targets()}
+            self.assertEqual(skus.get("AST-GAT7"), "automatic_tapping")
+            self.assertEqual(skus.get("AST-GAT20"), "automatic_tapping")
+            self.assertNotIn("AST-TRM10", skus)
+            report = next(r for r in discovery.ast_reports if r.get("family") == "automatic_tapping")
+            self.assertEqual(report.get("membership_result"), "product_scope_conferred")
+            self.assertTrue(
+                any(
+                    rec.get("decision") == "promote_target_member_review" and rec.get("raw_sku") == "AST-GAT7"
+                    for rec in discovery.ast_review_rows
+                )
+            )
 
     def test_ast_duplicate_tree_only_enumerator_is_used(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -907,15 +927,18 @@ class SourceAndInsizeTests(unittest.TestCase):
                 any(d.get("source") == "mitutoyo.catalog" and d.get("class") == "A" for d in discovery.authority_decisions)
             )
 
-    def test_guanglu_weak_parse_is_review(self):
+    def test_guanglu_has_no_manufacturer_sku_column(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             write_text_pdf(
                 root / GUANGLU_DIR / "لیست قیمت گوانگلو(GL).pdf",
-                ["GL-100 12000 rial"],
+                ["GL 60 37,000,000", "TG 1-10 21,160,000", "150 stainless GL 50,000,000"],
             )
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
+            targets = discovery.load_product_scope_targets()
+            self.assertEqual({t.sku for t in targets if t.brand_key == "GUANGLU"}, set())
+            self.assertTrue(discovery.guanglu_evidence)
             result = reconcile(
                 discovery=discovery,
                 current_products=[],
@@ -923,9 +946,8 @@ class SourceAndInsizeTests(unittest.TestCase):
                 evidence_note="test",
                 baseline_sha="x",
             )
-            row = next(r for r in result.rows if r.target_member)
-            self.assertEqual(row.reconciliation_state, "REVIEW")
-            self.assertIn("weak_parser_confidence", row.review_reason)
+            self.assertFalse(any(r.brand == "GUANGLU" and r.target_member for r in result.rows))
+            self.assertTrue(any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers))
 
     def test_snapshot_labeled_non_live(self):
         with tempfile.TemporaryDirectory() as tmp:

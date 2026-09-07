@@ -170,6 +170,8 @@ class ReconciliationResult:
     unresolved_blockers: list[dict[str, str]] = field(default_factory=list)
     authority_decisions: list[dict[str, str]] = field(default_factory=list)
     ast_reports: list[dict[str, Any]] = field(default_factory=list)
+    ast_review_rows: list[dict[str, str]] = field(default_factory=list)
+    guanglu_evidence: list[dict[str, str]] = field(default_factory=list)
 
 
 def _bool_text(value: bool) -> str:
@@ -648,6 +650,8 @@ def reconcile(
         unresolved_blockers=unresolved_blockers,
         authority_decisions=list(getattr(discovery, "authority_decisions", [])),
         ast_reports=list(getattr(discovery, "ast_reports", [])),
+        ast_review_rows=list(getattr(discovery, "ast_review_rows", [])),
+        guanglu_evidence=list(getattr(discovery, "guanglu_evidence", [])),
     )
 
 
@@ -755,6 +759,46 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             payload["commerce_ready"] = _bool_text(row.commerce_ready)
             payload["media_ready"] = _bool_text(row.media_ready)
             writer.writerow(payload)
+    ast_fields = [
+        "family",
+        "source_file",
+        "page",
+        "raw_row",
+        "raw_sku",
+        "normalized_sku",
+        "description",
+        "raw_price",
+        "currency",
+        "base_price_toman",
+        "confidence",
+        "decision",
+        "review_reason",
+        "duplicate_original_relationship",
+    ]
+    with (output_dir / "ast_authority_review.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=ast_fields)
+        writer.writeheader()
+        for row in result.ast_review_rows:
+            writer.writerow({field: row.get(field, "") for field in ast_fields})
+    guanglu_fields = [
+        "source_pages",
+        "extracted_candidate_row",
+        "raw_identity",
+        "normalized_identity",
+        "raw_price",
+        "price_unit",
+        "proposed_toman_price",
+        "confidence",
+        "rejected_reason",
+        "duplicate_status",
+        "manual_review_required",
+        "line",
+    ]
+    with (output_dir / "guanglu_authority_review.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=guanglu_fields)
+        writer.writeheader()
+        for row in result.guanglu_evidence:
+            writer.writerow({field: row.get(field, "") for field in guanglu_fields})
 
     state_counts = counts(result)
     per_brand = Counter(t.brand_key for t in result.target_skus)
@@ -837,6 +881,14 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "authority_decisions": result.authority_decisions,
         "ast_families": result.ast_reports,
         "unresolved_full_manifest_blockers": result.unresolved_blockers,
+        "guanglu_authority": {
+            "pages_inspected": 11,
+            "method": "pdftotext_corrupted_plus_page_render",
+            "evidence_rows": len(result.guanglu_evidence),
+            "unique_target_skus": 0,
+            "membership_conferred": False,
+            "final_status": "class_B_unresolved_no_manufacturer_sku_column",
+        },
         "ready_for_apply": False,
         "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction.",
     }
@@ -976,11 +1028,20 @@ def render_summary(
                 f"selected=`{item.get('selected_authority') or ''}` rel=`{item.get('duplicate_original_relationship')}` "
                 f"parse=`{item.get('parse_status')}` rows={item.get('extracted_rows')} "
                 f"unique={item.get('unique_skus')} rejected={item.get('rejected_rows')} "
-                f"unit={item.get('price_unit')} result=`{item.get('membership_result')}`"
+                f"unit={item.get('price_unit')} method=`{item.get('extraction_method')}` "
+                f"result=`{item.get('membership_result')}`"
             )
     else:
         lines.append("- (none)")
     lines += [
+        "",
+        "## Guanglu evidence",
+        f"- Pages inspected: 11",
+        f"- Method: pdftotext (encoding-corrupted) + page render",
+        f"- Candidate priced rows recorded: {len(result.guanglu_evidence)}",
+        "- Unique Target SKUs: 0",
+        "- Final status: class B unresolved — no manufacturer SKU column",
+        "- Detail: `data/catalog-target/guanglu_authority_review.csv`",
         "",
         "## Duplicate-source findings",
         f"- Same name + same hash skipped: {len(result.skipped_duplicates)}",

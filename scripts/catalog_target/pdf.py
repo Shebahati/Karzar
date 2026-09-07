@@ -691,6 +691,56 @@ def extract_dcoil_rows(text: str, *, default_currency: str | None = None) -> Pdf
     return parsed
 
 
+GUANGLU_TRAILING_PRICE = re.compile(r"(\d{1,3}(?:,\d{3}){1,4})\s*$")
+
+
+def extract_guanglu_row_parse(text: str, *, default_currency: str | None = None) -> PdfRowParse:
+    """Guanglu price list has no manufacturer SKU column.
+
+    Embedded text is encoding-corrupted. Rendered pages show description +
+    optional size + price. Identity is not a stable SKU, so membership rows
+    are never emitted. Evidence is recorded on rejected lines.
+    """
+    del default_currency
+    parsed = PdfRowParse()
+    parsed.confidence = "none"
+    for line_no, raw in enumerate(text.splitlines(), start=1):
+        line = _clean_line(raw)
+        if not line or _is_header_line(line) or PAGE_LINE.match(line):
+            continue
+        match = GUANGLU_TRAILING_PRICE.search(line)
+        if not match:
+            if any(ch.isdigit() for ch in line):
+                parsed.rejected.append(
+                    {
+                        "line": str(line_no),
+                        "reason": "no_trailing_price_or_not_a_row",
+                        "text": line[:160],
+                        "raw_identity": line[:160],
+                        "raw_price": "",
+                        "price_unit": "rial_unconfirmed",
+                        "decision": "reject",
+                        "confidence": "low",
+                    }
+                )
+            continue
+        identity = line[: match.start()].strip()
+        parsed.rejected.append(
+            {
+                "line": str(line_no),
+                "reason": "no_manufacturer_sku_column",
+                "text": line[:160],
+                "raw_identity": identity[:160],
+                "raw_price": match.group(1),
+                "price_unit": "rial_unconfirmed",
+                "decision": "reject",
+                "confidence": "low",
+                "manual_review_required": "true",
+            }
+        )
+    return parsed
+
+
 def extract_generic_sku_price_rows(text: str, *, default_currency: str | None = None) -> PdfRowParse:
     """Generic price tables: SKU in leading cells, money in a price cell."""
     parsed = PdfRowParse()
@@ -745,8 +795,9 @@ def extract_pdf_row_parse(
         return extract_dasqua_rows(text, default_currency=default_currency)
     if sku_kind == "dcoil":
         return extract_dcoil_rows(text, default_currency=default_currency)
+    if sku_kind == "guanglu":
+        return extract_guanglu_row_parse(text, default_currency=default_currency)
     parsed = extract_generic_sku_price_rows(text, default_currency=default_currency)
-    if sku_kind == "guanglu" or (parsed.rows and parsed.confidence == "low"):
-        if len(parsed.rows) < 20:
-            parsed.confidence = "low"
+    if parsed.rows and parsed.confidence == "low" and len(parsed.rows) < 20:
+        parsed.confidence = "low"
     return parsed

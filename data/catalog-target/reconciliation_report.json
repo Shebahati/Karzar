@@ -1,6 +1,6 @@
 {
-  "baseline_sha": "2b6811ac96d535ca941474f758e4b6d9d6cb7be6",
-  "generated_at": "2026-09-07T09:22:20.956350+00:00",
+  "baseline_sha": "a76a9c346e7117f5066e50d5ef1e41ed11a0f504",
+  "generated_at": "2026-09-07T09:48:34.423309+00:00",
   "production_mutation": "ZERO",
   "apply_phase": false,
   "REAL_SOURCE_VALIDATION": "ok",
@@ -13,25 +13,32 @@
   "db_evidence_note": "no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts",
   "live_db": false,
   "total_current_products_observed": 0,
-  "total_target_skus": 2265,
+  "total_target_skus": 2316,
   "target_skus_per_brand": {
     "INSIZE": 872,
     "TERMA": 251,
     "DASQUA": 889,
-    "DCOIL": 253
+    "DCOIL": 253,
+    "ASTPOWER": 51
   },
   "target_skus_per_source_file": {
     "/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/لیست محصولات.pdf": 872,
     "/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf": 251,
     "/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/داسکوا/لیست قیمت داسکوا +10 درصد.pdf": 889,
-    "/home/shebahati/KaZar/Product and Data Complete/هلی کویل/DCOIL/لیست قیمت DCOIL +10%.pdf": 253
+    "/home/shebahati/KaZar/Product and Data Complete/هلی کویل/DCOIL/لیست قیمت DCOIL +10%.pdf": 253,
+    "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf": 3,
+    "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf": 27,
+    "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf": 21
   },
   "target_skus_per_product_family": {
     "measurement": 2012,
-    "helicoil": 253
+    "helicoil": 253,
+    "automatic_tapping": 3,
+    "electric_tapping": 27,
+    "spade_drills": 21
   },
   "parser_confidence": {
-    "high": 2265
+    "high": 2316
   },
   "commerce_ready_count": 0,
   "media_ready_count": 0,
@@ -40,7 +47,7 @@
     "UPDATE": 0,
     "CREATE": 0,
     "DEACTIVATE": 0,
-    "REVIEW": 2265
+    "REVIEW": 2316
   },
   "insize": {
     "INSIZE_TARGET_ROWS": 872,
@@ -959,15 +966,15 @@
       },
       {
         "sku": "1114-300",
-        "near": "1114-300AW,1114-300A"
+        "near": "1114-300A,1114-300AW"
       },
       {
         "sku": "1183-150",
-        "near": "1183-150AWL,1183-150A"
+        "near": "1183-150A,1183-150AWL"
       },
       {
         "sku": "1185-150",
-        "near": "1185-150AWL,1185-150A"
+        "near": "1185-150A,1185-150AWL"
       },
       {
         "sku": "1186-150",
@@ -979,7 +986,7 @@
       },
       {
         "sku": "1186-300",
-        "near": "1186-300AWL,1186-300A"
+        "near": "1186-300A,1186-300AWL"
       },
       {
         "sku": "1188-150",
@@ -987,19 +994,19 @@
       },
       {
         "sku": "1187-150",
-        "near": "1187-150A,1187-150AWL"
+        "near": "1187-150AWL,1187-150A"
       },
       {
         "sku": "1120-150",
-        "near": "1120-150AWL,1120-150P,1120-150AE,1120-150A,1120-150B"
+        "near": "1120-150AE,1120-150P,1120-150A,1120-150B,1120-150AWL"
       },
       {
         "sku": "1120-200",
-        "near": "1120-200B,1120-200A,1120-200AWL"
+        "near": "1120-200B,1120-200AWL,1120-200A"
       },
       {
         "sku": "1120-300",
-        "near": "1120-300AWL,1120-300B,1120-300A"
+        "near": "1120-300AWL,1120-300A,1120-300B"
       },
       {
         "sku": "1121-150",
@@ -1023,31 +1030,31 @@
       },
       {
         "sku": "1151-600",
-        "near": "1151-600AE,1151-600A"
+        "near": "1151-600A,1151-600AE"
       },
       {
         "sku": "1205-1502",
-        "near": "1205-1502E,1205-1502S"
+        "near": "1205-1502S,1205-1502E"
       },
       {
         "sku": "1205-2002",
-        "near": "1205-2002E,1205-2002S"
+        "near": "1205-2002S,1205-2002E"
       },
       {
         "sku": "1205-3002",
-        "near": "1205-3002E,1205-3002S"
+        "near": "1205-3002S,1205-3002E"
       },
       {
         "sku": "1312-150",
-        "near": "1312-150A,1312-150AW"
+        "near": "1312-150AW,1312-150A"
       },
       {
         "sku": "1312-200",
-        "near": "1312-200AW,1312-200A"
+        "near": "1312-200A,1312-200AW"
       },
       {
         "sku": "1312-300",
-        "near": "1312-300AW,1312-300A"
+        "near": "1312-300A,1312-300AW"
       },
       {
         "sku": "1311-150",
@@ -1055,7 +1062,7 @@
       },
       {
         "sku": "1311-200",
-        "near": "1311-200AW,1311-200A"
+        "near": "1311-200A,1311-200AW"
       },
       {
         "sku": "1311-300",
@@ -1067,11 +1074,11 @@
       },
       {
         "sku": "1141-200",
-        "near": "1141-200A,1141-200AWL"
+        "near": "1141-200AWL,1141-200A"
       },
       {
         "sku": "1141-300",
-        "near": "1141-300AWL,1141-300A"
+        "near": "1141-300A,1141-300AWL"
       },
       {
         "sku": "1141-500",
@@ -1091,19 +1098,19 @@
       },
       {
         "sku": "1142-300",
-        "near": "1142-300A,1142-300AWL"
+        "near": "1142-300AWL,1142-300A"
       },
       {
         "sku": "1144-150",
-        "near": "1144-150A,1144-150AWL"
+        "near": "1144-150AWL,1144-150A"
       },
       {
         "sku": "1144-200",
-        "near": "1144-200A,1144-200AWL"
+        "near": "1144-200AWL,1144-200A"
       },
       {
         "sku": "1144-300",
-        "near": "1144-300A,1144-300AWL"
+        "near": "1144-300AWL,1144-300A"
       },
       {
         "sku": "1145-25",
@@ -1119,7 +1126,7 @@
       },
       {
         "sku": "3203-25",
-        "near": "3203-25FA,3203-25A"
+        "near": "3203-25A,3203-25FA"
       },
       {
         "sku": "3203-50",
@@ -1195,23 +1202,23 @@
       },
       {
         "sku": "3506-150",
-        "near": "3506-150AWL,3506-150E,3506-150A,3506-150EWL"
+        "near": "3506-150E,3506-150A,3506-150AWL,3506-150EWL"
       },
       {
         "sku": "3506-300",
-        "near": "3506-300EWL,3506-300A,3506-300AWL,3506-300E"
+        "near": "3506-300A,3506-300EWL,3506-300E,3506-300AWL"
       },
       {
         "sku": "3506-400",
-        "near": "3506-400EWL,3506-400A,3506-400E,3506-400AWL"
+        "near": "3506-400AWL,3506-400E,3506-400A,3506-400EWL"
       },
       {
         "sku": "3506-500",
-        "near": "3506-500E,3506-500AWL,3506-500EWL,3506-500A"
+        "near": "3506-500EWL,3506-500E,3506-500A,3506-500AWL"
       },
       {
         "sku": "3506-600",
-        "near": "3506-600E,3506-600A,3506-600AWL,3506-600EWL"
+        "near": "3506-600A,3506-600E,3506-600AWL,3506-600EWL"
       },
       {
         "sku": "3210-25",
@@ -1231,15 +1238,15 @@
       },
       {
         "sku": "3109-25",
-        "near": "3109-25A,3109-25E"
+        "near": "3109-25E,3109-25A"
       },
       {
         "sku": "3109-50",
-        "near": "3109-50E,3109-50A"
+        "near": "3109-50A,3109-50E"
       },
       {
         "sku": "3109-75",
-        "near": "3109-75A,3109-75E"
+        "near": "3109-75E,3109-75A"
       },
       {
         "sku": "3109-100",
@@ -1247,31 +1254,31 @@
       },
       {
         "sku": "3109-125",
-        "near": "3109-125A,3109-125E"
+        "near": "3109-125E,3109-125A"
       },
       {
         "sku": "3109-150",
-        "near": "3109-150A,3109-150E"
+        "near": "3109-150E,3109-150A"
       },
       {
         "sku": "3109-175",
-        "near": "3109-175E,3109-175A"
+        "near": "3109-175A,3109-175E"
       },
       {
         "sku": "3109-200",
-        "near": "3109-200A,3109-200E"
+        "near": "3109-200E,3109-200A"
       },
       {
         "sku": "3109-225",
-        "near": "3109-225A,3109-225E"
+        "near": "3109-225E,3109-225A"
       },
       {
         "sku": "3109-250",
-        "near": "3109-250E,3109-250A"
+        "near": "3109-250A,3109-250E"
       },
       {
         "sku": "3109-275",
-        "near": "3109-275E,3109-275A"
+        "near": "3109-275A,3109-275E"
       },
       {
         "sku": "3109-300",
@@ -1295,7 +1302,7 @@
       },
       {
         "sku": "3101-25",
-        "near": "3101-25FE,3101-25E,3101-25A,3101-25FA"
+        "near": "3101-25A,3101-25FE,3101-25E,3101-25FA"
       },
       {
         "sku": "3101-225",
@@ -1307,7 +1314,7 @@
       },
       {
         "sku": "3101-275",
-        "near": "3101-275A,3101-275E"
+        "near": "3101-275E,3101-275A"
       },
       {
         "sku": "3101-300",
@@ -1331,7 +1338,7 @@
       },
       {
         "sku": "3590-153",
-        "near": "3590-153E,3590-153EWL,3590-153AWL,3590-153A"
+        "near": "3590-153EWL,3590-153A,3590-153E,3590-153AWL"
       },
       {
         "sku": "3232-75",
@@ -1347,11 +1354,11 @@
       },
       {
         "sku": "3560-25",
-        "near": "3560-25SEWL,3560-25A,3560-25SAWL,3560-25SE,3560-25SA"
+        "near": "3560-25EWL,3560-25SAWL,3560-25AWL,3560-25SA,3560-25E"
       },
       {
         "sku": "2308-10",
-        "near": "2308-10FA,2308-10A"
+        "near": "2308-10A,2308-10FA"
       },
       {
         "sku": "2310-30",
@@ -1367,7 +1374,7 @@
       },
       {
         "sku": "6208-80",
-        "near": "6208-80E,6208-80A"
+        "near": "6208-80A,6208-80E"
       },
       {
         "sku": "2322-35",
@@ -1403,15 +1410,15 @@
       },
       {
         "sku": "2122-35",
-        "near": "2122-35A,2122-35AWL,2122-35AWP"
+        "near": "2122-35A,2122-35AWP,2122-35AWL"
       },
       {
         "sku": "2122-60",
-        "near": "2122-60A,2122-60AWL,2122-60AWP"
+        "near": "2122-60A,2122-60AWP,2122-60AWL"
       },
       {
         "sku": "2122-160",
-        "near": "2122-160A,2122-160AWL,2122-160AWP"
+        "near": "2122-160AWL,2122-160A,2122-160AWP"
       },
       {
         "sku": "2367-10",
@@ -1443,11 +1450,11 @@
       },
       {
         "sku": "6902-85",
-        "near": "6902-85A,6902-85H"
+        "near": "6902-85H,6902-85A"
       },
       {
         "sku": "6902-106",
-        "near": "6902-106A,6902-106H"
+        "near": "6902-106H,6902-106A"
       },
       {
         "sku": "7111-300",
@@ -1473,6 +1480,17 @@
     "commerce_ready": []
   },
   "brand_source_quality": {
+    "ASTPOWER": {
+      "extracted_rows": 51,
+      "unique_target_skus": 51,
+      "valid_prices": 0,
+      "zero_or_missing_prices": 51,
+      "duplicates": 0,
+      "rejected_malformed_rows": 0,
+      "review_rows": 51,
+      "parser_confidence": "high",
+      "rejected_examples": []
+    },
     "DASQUA": {
       "extracted_rows": 897,
       "unique_target_skus": 889,
@@ -1512,7 +1530,7 @@
       "duplicates": 0,
       "rejected_malformed_rows": 265,
       "review_rows": 0,
-      "parser_confidence": "low",
+      "parser_confidence": "none",
       "rejected_examples": [
         "GL 60 37,000,000",
         "TG 1-10 21,160,000",
@@ -4634,8 +4652,8 @@
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf",
         "source_id": "ast.automatic_tapping",
-        "roles": "enumerator_unparsed",
-        "parse_status": "unparsed_empty"
+        "roles": "product_scope,price",
+        "parse_status": "ok"
       },
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/NSB.jpeg",
@@ -4682,8 +4700,8 @@
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf",
         "source_id": "ast.electric_tapping",
-        "roles": "enumerator_unparsed",
-        "parse_status": "unparsed_empty"
+        "roles": "product_scope,price",
+        "parse_status": "ok"
       },
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/کاتالوگ قلاویززن برقی/همکاری TRM.jpg",
@@ -4796,8 +4814,8 @@
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf",
         "source_id": "ast.spade",
-        "roles": "enumerator_unparsed",
-        "parse_status": "unparsed_empty"
+        "roles": "product_scope,price",
+        "parse_status": "ok"
       },
       {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/مته برگی/._free-Spade Drills.jpg",
@@ -4902,23 +4920,8 @@
         "reason": "pdftotext_empty"
       },
       {
-        "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf",
-        "source_id": "ast.automatic_tapping",
-        "reason": "pdftotext_empty"
-      },
-      {
-        "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf",
-        "source_id": "ast.electric_tapping",
-        "reason": "pdftotext_empty"
-      },
-      {
         "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf",
         "source_id": "ast.hole_saws",
-        "reason": "pdftotext_empty"
-      },
-      {
-        "path": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf",
-        "source_id": "ast.spade",
         "reason": "pdftotext_empty"
       },
       {
@@ -4930,67 +4933,55 @@
     "unavailable_authoritative_sources": [
       {
         "source": "ASTPOWER/chuck",
-        "reason": "ast_family_present_but_no_approved_enumerator"
+        "reason": "AUTHORITY_GAP"
       },
       {
         "source": "ASTPOWER/tapping_collets",
-        "reason": "ast_family_present_but_no_approved_enumerator"
+        "reason": "AUTHORITY_GAP"
       },
       {
         "source": "ASTPOWER/tool_grinder",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/tailstock",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/rotary_table",
-        "reason": "ast_family_present_but_no_approved_enumerator"
+        "reason": "AUTHORITY_GAP"
       },
       {
         "source": "ASTPOWER/magnetic_drill",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/core_drill",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/et_taps",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/pneumatic_tapping",
-        "reason": "ast_family_present_but_no_approved_enumerator"
+        "reason": "AUTHORITY_GAP"
       },
       {
         "source": "ASTPOWER/cutting_fluid",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
-      },
-      {
-        "source": "ASTPOWER/automatic_tapping",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
-      },
-      {
-        "source": "ASTPOWER/electric_tapping",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/multi_spindle",
-        "reason": "ast_family_present_but_no_approved_enumerator"
+        "reason": "AUTHORITY_GAP"
       },
       {
         "source": "ASTPOWER/magnetic_drill_hole_saws",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "enumerator_catalog_datasheet_no_sku_table"
       },
       {
         "source": "ASTPOWER/utex_drills",
-        "reason": "ast_family_present_but_no_approved_enumerator"
-      },
-      {
-        "source": "ASTPOWER/spade_drills",
-        "reason": "ast_enumerator_unparsed_requires_ocr"
+        "reason": "AUTHORITY_GAP"
       }
     ],
     "skipped_duplicate_tree_copies": [
@@ -5620,67 +5611,55 @@
   "unavailable_authoritative_sources": [
     {
       "source": "ASTPOWER/chuck",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/tapping_collets",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/tool_grinder",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/tailstock",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/rotary_table",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/magnetic_drill",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/core_drill",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/et_taps",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/pneumatic_tapping",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/cutting_fluid",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
-    },
-    {
-      "source": "ASTPOWER/automatic_tapping",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
-    },
-    {
-      "source": "ASTPOWER/electric_tapping",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/multi_spindle",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/magnetic_drill_hole_saws",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/utex_drills",
-      "reason": "ast_family_present_but_no_approved_enumerator"
-    },
-    {
-      "source": "ASTPOWER/spade_drills",
-      "reason": "ast_enumerator_unparsed_requires_ocr"
+      "reason": "AUTHORITY_GAP"
     }
   ],
   "parse_failures": [
@@ -5827,7 +5806,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "tapping_collets",
@@ -5839,7 +5819,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "tool_grinder",
@@ -5854,7 +5835,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "tailstock",
@@ -5868,7 +5850,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "rotary_table",
@@ -5880,7 +5863,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "magnetic_drill",
@@ -5894,7 +5878,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "core_drill",
@@ -5908,7 +5893,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "et_taps",
@@ -5922,7 +5908,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "pneumatic_tapping",
@@ -5934,7 +5921,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "cutting_fluid",
@@ -5948,7 +5936,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "automatic_tapping",
@@ -5957,12 +5946,13 @@
       ],
       "selected_authority": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf",
       "duplicate_original_relationship": "original_preferred_duplicate_skipped_or_conflict",
-      "parse_status": "unparsed_empty",
-      "extracted_rows": 0,
-      "unique_skus": 0,
+      "parse_status": "ok",
+      "extracted_rows": 3,
+      "unique_skus": 3,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "product_scope_conferred",
+      "extraction_method": "code_table"
     },
     {
       "family": "electric_tapping",
@@ -5971,12 +5961,13 @@
       ],
       "selected_authority": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf",
       "duplicate_original_relationship": "original_preferred_duplicate_skipped_or_conflict",
-      "parse_status": "unparsed_empty",
-      "extracted_rows": 0,
-      "unique_skus": 0,
+      "parse_status": "ok",
+      "extracted_rows": 27,
+      "unique_skus": 27,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "product_scope_conferred",
+      "extraction_method": "code_table"
     },
     {
       "family": "multi_spindle",
@@ -5988,7 +5979,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "magnetic_drill_hole_saws",
@@ -6002,7 +5994,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "enumerator_catalog_datasheet_no_sku_table",
+      "extraction_method": "catalog_datasheet"
     },
     {
       "family": "utex_drills",
@@ -6014,7 +6007,8 @@
       "unique_skus": 0,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "ast_family_present_but_no_approved_enumerator"
+      "membership_result": "AUTHORITY_GAP",
+      "extraction_method": ""
     },
     {
       "family": "spade_drills",
@@ -6023,12 +6017,13 @@
       ],
       "selected_authority": "/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf",
       "duplicate_original_relationship": "original_preferred_duplicate_skipped_or_conflict",
-      "parse_status": "unparsed_empty",
-      "extracted_rows": 0,
-      "unique_skus": 0,
+      "parse_status": "ok",
+      "extracted_rows": 21,
+      "unique_skus": 21,
       "rejected_rows": 0,
       "price_unit": "rial",
-      "membership_result": "enumerator_candidate_unparsed"
+      "membership_result": "product_scope_conferred",
+      "extraction_method": "code_table"
     }
   ],
   "unresolved_full_manifest_blockers": [
@@ -6040,84 +6035,77 @@
     {
       "source": "ASTPOWER/chuck",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/tapping_collets",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/tool_grinder",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/tailstock",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/rotary_table",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/magnetic_drill",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/core_drill",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/et_taps",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/pneumatic_tapping",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/cutting_fluid",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
-    },
-    {
-      "source": "ASTPOWER/automatic_tapping",
-      "class": "B",
-      "reason": "enumerator_candidate_unparsed"
-    },
-    {
-      "source": "ASTPOWER/electric_tapping",
-      "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/multi_spindle",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
+      "reason": "AUTHORITY_GAP"
     },
     {
       "source": "ASTPOWER/magnetic_drill_hole_saws",
       "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "enumerator_catalog_datasheet_no_sku_table"
     },
     {
       "source": "ASTPOWER/utex_drills",
       "class": "B",
-      "reason": "ast_family_present_but_no_approved_enumerator"
-    },
-    {
-      "source": "ASTPOWER/spade_drills",
-      "class": "B",
-      "reason": "enumerator_candidate_unparsed"
+      "reason": "AUTHORITY_GAP"
     }
   ],
+  "guanglu_authority": {
+    "pages_inspected": 11,
+    "method": "pdftotext_corrupted_plus_page_render",
+    "evidence_rows": 265,
+    "unique_target_skus": 0,
+    "membership_conferred": false,
+    "final_status": "class_B_unresolved_no_manufacturer_sku_column"
+  },
   "ready_for_apply": false,
   "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction."
 }

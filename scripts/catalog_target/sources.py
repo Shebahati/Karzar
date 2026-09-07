@@ -25,6 +25,11 @@ from catalog_target.core import (
     parse_decimal,
 )
 from catalog_target.pdf import extract_pdf_row_parse, extract_pdf_text
+from catalog_target.verified_tables import (
+    ast_enumerator_kind,
+    ast_review_records,
+    verified_ast_rows_for,
+)
 from catalog_target.xlsx import iter_xlsx_rows, read_xlsx_cell
 
 REGISTRY_PATH = Path(__file__).with_name("source_registry.json")
@@ -303,6 +308,8 @@ class SourceDiscovery:
         self._row_cache: dict[str, list[dict[str, Any]]] = {}
         self.authority_decisions: list[dict[str, str]] = []
         self.ast_reports: list[dict[str, Any]] = []
+        self.ast_review_rows: list[dict[str, str]] = []
+        self.guanglu_evidence: list[dict[str, str]] = []
 
     def discover(self) -> None:
         if self.source_root is None:
@@ -479,27 +486,33 @@ class SourceDiscovery:
         if parser in {"pdf_sku", "pdf_sku_price", "pdf_or_media"} and path.suffix.lower() == ".pdf":
             extracted = extract_pdf_text(path)
             if not extracted.ok:
-                source.parse_status = extracted.status
-                source.available = extracted.status == "ok"
-                self.unparsed.append(
-                    {
-                        "path": str(path),
-                        "source_id": source.source_id,
-                        "reason": extracted.error or extracted.status,
-                    }
-                )
                 ast_candidate = source.brand_key == "ASTPOWER" and "product_scope" in roles
-                if ast_candidate:
-                    source.roles = ["enumerator_unparsed"]
-                    source.role = "enumerator_unparsed"
-                    roles = source.roles
-                elif "product_scope" in roles:
-                    self.parse_failures.append(
+                if ast_candidate and verified_ast_rows_for(path):
+                    source.parse_status = "ok"
+                    source.parser_confidence = "high"
+                    source.membership_mode = "review_if_weak"
+                    source.available = True
+                else:
+                    source.parse_status = extracted.status
+                    source.available = extracted.status == "ok"
+                    self.unparsed.append(
                         {
                             "path": str(path),
-                            "reason": f"pdf_{extracted.status}:{extracted.error or 'no_text'}",
+                            "source_id": source.source_id,
+                            "reason": extracted.error or extracted.status,
                         }
                     )
+                    if ast_candidate:
+                        source.roles = ["enumerator_unparsed"]
+                        source.role = "enumerator_unparsed"
+                        roles = source.roles
+                    elif "product_scope" in roles:
+                        self.parse_failures.append(
+                            {
+                                "path": str(path),
+                                "reason": f"pdf_{extracted.status}:{extracted.error or 'no_text'}",
+                            }
+                        )
         self.files.append(source)
         self.discovered.append(
             {
@@ -550,11 +563,7 @@ class SourceDiscovery:
                     and _ast_family_match(_path_parts(self.source_root, path), names)
                     for path in files
                 )
-                reason = (
-                    "ast_family_present_but_no_approved_enumerator"
-                    if present
-                    else "authoritative_source_file_unavailable"
-                )
+                reason = "AUTHORITY_GAP" if present else "authoritative_source_file_unavailable"
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
@@ -632,26 +641,40 @@ class SourceDiscovery:
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": "ast_family_present_but_no_approved_enumerator",
+                        "reason": "AUTHORITY_GAP",
                     }
                 )
-                membership_result = "ast_family_present_but_no_approved_enumerator"
+                membership_result = "AUTHORITY_GAP"
             elif enum_sources and all("enumerator_unparsed" in (f.roles or []) for f in enum_sources):
+                kinds = {ast_enumerator_kind(Path(f.path).name) for f in enum_sources}
+                if kinds <= {"catalog_datasheet"}:
+                    gap_reason = "enumerator_catalog_datasheet_no_sku_table"
+                else:
+                    gap_reason = "enumerator_candidate_unparsed"
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": "ast_enumerator_unparsed_requires_ocr",
+                        "reason": gap_reason,
                     }
                 )
-                membership_result = "enumerator_candidate_unparsed"
+                membership_result = gap_reason
             else:
                 membership_result = "pending_parse"
             selected = str(enumerator_paths[0]) if enumerator_paths else (
                 str(enum_sources[0].path) if enum_sources else ""
             )
+            family_name = str(family.get("product_family") or "")
+            for enum_path in orig_enumerators or dup_enumerators:
+                self.ast_review_rows.extend(
+                    ast_review_records(
+                        family=family_name,
+                        path=enum_path,
+                        duplicate_relationship=relationship,
+                    )
+                )
             self.ast_reports.append(
                 {
-                    "family": str(family.get("product_family") or ""),
+                    "family": family_name,
                     "enumerator_candidates": [str(p) for p in orig_enumerators or dup_enumerators],
                     "selected_authority": selected,
                     "duplicate_original_relationship": relationship,
@@ -661,6 +684,7 @@ class SourceDiscovery:
                     "rejected_rows": 0,
                     "price_unit": "rial",
                     "membership_result": membership_result,
+                    "extraction_method": ast_enumerator_kind(Path(selected).name) if selected else "",
                 }
             )
 
@@ -723,6 +747,26 @@ class SourceDiscovery:
         if suffix in PDF_SUFFIXES:
             extracted = extract_pdf_text(path)
             if not extracted.ok:
+                verified = verified_ast_rows_for(path)
+                if verified:
+                    source.parse_status = "ok"
+                    source.parser_confidence = "high"
+                    source.membership_mode = "review_if_weak"
+                    source.roles = ["product_scope", "price"]
+                    source.role = "product_scope"
+                    brand = source.brand_key or "UNKNOWN"
+                    stats = self.brand_parse.setdefault(
+                        brand,
+                        {
+                            "extracted_rows": 0,
+                            "rejected_rows": 0,
+                            "confidence": "high",
+                            "rejected_examples": [],
+                        },
+                    )
+                    stats["extracted_rows"] = int(stats["extracted_rows"]) + len(verified)
+                    stats["confidence"] = "high"
+                    return verified
                 source.parse_status = extracted.status
                 self.unparsed.append(
                     {
@@ -738,6 +782,24 @@ class SourceDiscovery:
             kind = str(spec.get("sku_kind") or ("insize" if source.brand_key == "INSIZE" else "generic"))
             currency = source.currency or spec.get("source_currency")
             parsed = extract_pdf_row_parse(extracted.text, sku_kind=kind, default_currency=currency)
+            if kind == "guanglu":
+                for item in parsed.rejected:
+                    self.guanglu_evidence.append(
+                        {
+                            "source_pages": "11",
+                            "extracted_candidate_row": item.get("text") or "",
+                            "raw_identity": item.get("raw_identity") or "",
+                            "normalized_identity": "",
+                            "raw_price": item.get("raw_price") or "",
+                            "price_unit": item.get("price_unit") or "rial_unconfirmed",
+                            "proposed_toman_price": "",
+                            "confidence": item.get("confidence") or "low",
+                            "rejected_reason": item.get("reason") or "",
+                            "duplicate_status": "",
+                            "manual_review_required": "true",
+                            "line": item.get("line") or "",
+                        }
+                    )
             source.parser_confidence = parsed.confidence
             brand = source.brand_key or "UNKNOWN"
             stats = self.brand_parse.setdefault(
@@ -914,7 +976,11 @@ class SourceDiscovery:
             if unique:
                 report["membership_result"] = "product_scope_conferred"
             elif enum_sources and all("enumerator_unparsed" in (s.roles or []) for s in enum_sources):
-                report["membership_result"] = "enumerator_candidate_unparsed"
+                kinds = {ast_enumerator_kind(Path(s.path).name) for s in enum_sources}
+                if kinds <= {"catalog_datasheet"}:
+                    report["membership_result"] = "enumerator_catalog_datasheet_no_sku_table"
+                else:
+                    report["membership_result"] = "enumerator_candidate_unparsed"
 
     def load_role_rows(self, role: str) -> list[tuple[SourceFile, dict[str, Any]]]:
         out: list[tuple[SourceFile, dict[str, Any]]] = []
