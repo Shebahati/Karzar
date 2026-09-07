@@ -1,9 +1,12 @@
 """Integration tests for product CRUD, listing, auth, and step-up flows."""
 
+import pytest
 from app.api.endpoints import auth as auth_endpoints
 from app.core.config import settings
 from app.main import app
 from fastapi.testclient import TestClient
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

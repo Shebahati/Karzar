@@ -393,6 +393,7 @@ def _mock_verify_ok(monkeypatch, *, amount_rials: int, ref_num: str = "REF-OK-1"
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_callback_success_flow(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
     token = _unique_token("OK")
     ref_num = _unique_ref("OK")
@@ -430,6 +431,7 @@ def test_sep_callback_success_flow(valid_product_data, super_admin_headers, monk
     assert order2.payment_last_error is None
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_callback_declined_no_verify(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
     called = {"n": 0}
     token = _unique_token("DEC")
@@ -476,6 +478,7 @@ def test_sep_callback_declined_no_verify(valid_product_data, super_admin_headers
     assert order.payment_status == PaymentStatus.FAILED.value
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, monkeypatch, sep_settings):
     token = _unique_token("MIS")
     create = client.post(
@@ -507,11 +510,13 @@ def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, mo
     assert order.payment_status != PaymentStatus.PAID.value
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_callback_get_not_allowed(sep_settings):
     resp = client.get("/api/v1/payments/callback/sep", follow_redirects=False)
     assert resp.status_code == 405
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_callback_idempotent_same_ref(
     valid_product_data, super_admin_headers, monkeypatch, sep_settings
 ):
@@ -552,6 +557,7 @@ def test_sep_callback_idempotent_same_ref(
     assert "paid=1" in second.headers["location"]
 
 
+@pytest.mark.usefixtures("override_database")
 def test_sep_verify_timeout_leaves_verifying(
     valid_product_data, super_admin_headers, monkeypatch, sep_settings
 ):
@@ -606,6 +612,7 @@ def test_sep_verify_timeout_leaves_verifying(
     assert order2.payment_next_verify_at is not None
 
 
+@pytest.mark.usefixtures("override_database")
 def test_order_expiry_skips_verifying(monkeypatch, sep_settings):
     from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 

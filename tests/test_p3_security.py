@@ -26,6 +26,7 @@ class TestRequestThrottle:
         asyncio.run(scenario())
 
 
+@pytest.mark.usefixtures("override_database")
 class TestPublicEndpointThrottles:
     def test_contact_form_rate_limited(self, monkeypatch):
         monkeypatch.setattr("app.core.config.settings.PUBLIC_THROTTLE_CONTACT_MAX", 2)
@@ -109,6 +110,7 @@ class TestImageUrlSsrfGuard:
             )
 
 
+@pytest.mark.usefixtures("override_database")
 class TestCookieCsrfOrigin:
     def test_cookie_post_without_origin_rejected(self, monkeypatch):
         monkeypatch.setattr("app.core.security_middleware.settings.DEBUG", False)
@@ -236,6 +238,7 @@ class TestProductionConfigGuards:
             Settings(**kwargs)
 
 
+@pytest.mark.usefixtures("override_database")
 class TestLogoutRevokesAccessToken:
     def test_logout_invalidates_existing_access_token(self, monkeypatch):
         monkeypatch.setattr("app.core.config.settings.OTP_DEV_ECHO", True)
@@ -254,6 +257,7 @@ class TestLogoutRevokesAccessToken:
         assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
 
 
+@pytest.mark.usefixtures("override_database")
 class TestRequestBodySizeLimit:
     def test_rejects_oversized_content_length(self, monkeypatch):
         monkeypatch.setattr("app.core.config.settings.MAX_REQUEST_BODY_BYTES", 32)

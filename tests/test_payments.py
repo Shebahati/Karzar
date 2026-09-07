@@ -2,6 +2,7 @@
 
 import asyncio
 
+import pytest
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.db.models.commerce import Order
@@ -15,6 +16,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import update
 
 from tests.conftest import TestingSessionLocal, customer_auth_headers
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 

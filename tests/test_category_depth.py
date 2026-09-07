@@ -1,6 +1,6 @@
 """Unit tests for category depth and product-category validation rules."""
 
-
+import pytest
 from app.db.models.product import Category
 from app.utils.category_depth import build_category_metadata, is_selectable_product_category
 
@@ -46,6 +46,7 @@ class TestSelectableCategoryRules:
         assert is_selectable_product_category(meta) is False
 
 
+@pytest.mark.usefixtures("override_database")
 class TestProductCategoryValidationEndpoint:
     def test_create_product_rejects_root_category(self, valid_product_data, super_admin_headers):
         from app.main import app

@@ -50,7 +50,21 @@ ruff check app tests
 # .github/workflows/backend-ci.yml --cov-fail-under=68
 ```
 
-Do not run the full suite for a docs-only change unless a binding rule requires it.
+Database truncation, category/brand/admin seed, and the test-admin bcrypt hash run only for tests that opt into `override_database` (fixture dependency, `usefixtures`, or a `super_admin_headers` / `purchase_customer_headers` request). Pure helper tests do not open Postgres.
+
+```bash
+# Iteration — no database fixture (parsers, taxonomy, image helpers, fixture guards)
+pytest tests/test_category_tree.py tests/test_jsonb_filters.py tests/test_conftest_fixtures.py -q
+
+# Iteration — one DB-backed slice (still uses real Postgres when USE_POSTGRES_TESTS=1)
+USE_POSTGRES_TESTS=1 pytest tests/test_product_endpoints.py tests/test_c_security_authz.py -q
+
+# Before final submission — same gate as backend-ci.yml `test`
+alembic upgrade head
+USE_POSTGRES_TESTS=1 pytest --cov=app --cov-report=term-missing --cov-fail-under=68
+```
+
+Do not run the full suite after every small edit. Do not run the full suite for a docs-only change unless a binding rule requires it.
 
 ## Schema and API shape
 

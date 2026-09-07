@@ -1,5 +1,6 @@
 """P4 data-quality and ops regression tests."""
 
+import pytest
 from app.core.config import settings
 from app.main import app
 from app.utils.storefront_catalog import stock_status_label
@@ -11,6 +12,7 @@ client = TestClient(app)
 
 
 class TestStockStatusConsistency:
+    @pytest.mark.usefixtures("override_database")
     def test_admin_stock_endpoint_uses_availability_codes(
         self, valid_product_data, super_admin_headers
     ):
@@ -37,6 +39,7 @@ class TestStockStatusConsistency:
         assert stock_status_label(False, audience="storefront") == "ناموجود"
 
 
+@pytest.mark.usefixtures("override_database")
 class TestCategoryDepthLimit:
     def test_rejects_fourth_layer_category(self, super_admin_headers):
         # Seed tree is depth 1→2→3 (ids 1,2,3). Parent=3 would create depth 4.
@@ -49,6 +52,7 @@ class TestCategoryDepthLimit:
         assert response.json()["error_code"] == "BAD_REQUEST"
 
 
+@pytest.mark.usefixtures("override_database")
 class TestCategoryRequiredOnCreate:
     def test_create_product_requires_category(self, valid_product_data, super_admin_headers):
         payload = {**valid_product_data, "sku": "P4-NOCAT"}
@@ -61,6 +65,7 @@ class TestCategoryRequiredOnCreate:
         assert response.status_code == 422
 
 
+@pytest.mark.usefixtures("override_database")
 class TestAdminNoteDoesNotOverwriteCustomerNote:
     def test_status_note_goes_to_admin_note(
         self, valid_product_data, super_admin_headers, monkeypatch
@@ -110,6 +115,7 @@ class TestAdminNoteDoesNotOverwriteCustomerNote:
         assert body["admin_note"] == "یادداشت ادمین"
 
 
+@pytest.mark.usefixtures("override_database")
 class TestAdminUserCreatedAt:
     def test_list_users_exposes_created_at(self, super_admin_headers):
         response = client.get("/api/v1/users", headers=super_admin_headers)

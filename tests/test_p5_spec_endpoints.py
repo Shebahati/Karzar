@@ -1,7 +1,10 @@
 """P5: specification labels, filter options, and template endpoints."""
 
+import pytest
 from app.main import app
 from fastapi.testclient import TestClient
+
+pytestmark = pytest.mark.usefixtures("override_database")
 
 client = TestClient(app)
 
