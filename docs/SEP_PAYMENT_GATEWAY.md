@@ -24,6 +24,7 @@ Callback **must** hit the API host, not Next.js:
 | Variable | Default / notes |
 |----------|-----------------|
 | `PAYMENT_PROVIDER` | `sep` |
+| `PURCHASE_CHECKOUT_ENABLED` | **`false`** (safe default). Ops kill switch for purchase checkout only; inquiry stays open. See [`COMMERCE.md`](COMMERCE.md). |
 | `PAYMENT_CALLBACK_URL` | Backend SEP callback URL |
 | `SEP_TERMINAL_ID` | Required in production; never commit |
 | `SEP_TOKEN_URL` | `https://sep.shaparak.ir/OnlinePG/OnlinePG` |

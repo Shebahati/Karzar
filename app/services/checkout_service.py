@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.crud import commerce as crud_commerce
 from app.crud import content as crud_content
 from app.crud import product as crud_product
@@ -26,6 +27,10 @@ from app.utils.storefront_catalog import decimal_to_api_string
 
 class PurchaseAuthRequiredError(ValueError):
     """Raised when purchase checkout is attempted without authentication."""
+
+
+class PurchaseCheckoutDisabledError(RuntimeError):
+    """Raised when purchase checkout is temporarily disabled by ops kill switch."""
 
 
 def _merge_quantities(payload: CheckoutRequest) -> dict[int, int]:
@@ -51,6 +56,9 @@ async def submit_checkout(
     )
     mode = OrderMode(mode_str)
     is_purchase = mode == OrderMode.PURCHASE
+    # Kill switch before auth/shipping checks and any DB side effects.
+    if is_purchase and not settings.PURCHASE_CHECKOUT_ENABLED:
+        raise PurchaseCheckoutDisabledError()
     if is_purchase and current_user is None:
         raise PurchaseAuthRequiredError()
     if is_purchase and payload.shipping is None:

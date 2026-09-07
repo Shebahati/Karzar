@@ -16,6 +16,8 @@ os.environ["ALLOW_PUBLIC_REGISTER"] = "true"
 os.environ["OTP_DEV_ECHO"] = "true"
 os.environ["SMS_PROVIDER"] = "console"
 os.environ["PAYMENT_PROVIDER"] = "mock"
+# Suite exercises the purchase path; production default remains false.
+os.environ["PURCHASE_CHECKOUT_ENABLED"] = "true"
 # Lifespan workers use app.db.database.async_session_maker (same Postgres URI in CI).
 # Disable them so they cannot race TRUNCATE / payment uniqueness with the suite.
 os.environ["DISABLE_BACKGROUND_WORKERS"] = "1"

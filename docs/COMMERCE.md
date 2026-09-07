@@ -24,6 +24,14 @@ The **site** is source of truth for catalog prices. Do not push site prices to H
 
 Require `Idempotency-Key` on checkout and payment init.
 
+### Temporary purchase kill switch
+
+| Variable | Safe default | Effect |
+|----------|--------------|--------|
+| `PURCHASE_CHECKOUT_ENABLED` | `false` | When `false`, `mode=purchase` checkout returns **HTTP 503** with `PURCHASE_CHECKOUT_TEMPORARILY_DISABLED` **before** any order, stock, payment, or cart mutation. Inquiry checkout is unchanged. |
+
+Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer is confirmed. Keep `PAYMENT_PROVIDER=sep` — do not flip back to mock.
+
 ## Payments
 
 | Provider | Status |
