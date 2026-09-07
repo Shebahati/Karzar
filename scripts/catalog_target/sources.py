@@ -32,6 +32,7 @@ TABULAR_SUFFIXES = {".csv", ".tsv", ".xlsx", ".xlsm"}
 PDF_SUFFIXES = {".pdf"}
 JSON_SUFFIXES = {".json", ".jsonl"}
 MEDIA_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".tif", ".tiff"}
+SKIP_FILE_NAMES = {"thumbs.db", "desktop.ini", ".ds_store"}
 
 LEGACY_NON_AUTHORITY = (
     "data/imports/insize_products.csv",
@@ -151,6 +152,31 @@ def _folder_in_path(parts: tuple[str, ...], wanted: str | None) -> bool:
     return any(fold_token(p) == needle for p in parts)
 
 
+def _ast_family_match(parts: tuple[str, ...], names: list[str]) -> str | None:
+    folded_parts = [fold_token(p) for p in parts]
+    if any(p in names for p in folded_parts):
+        return "exact"
+    if any(n and any(n in p for p in folded_parts) for n in names if n):
+        return "contains"
+    return None
+
+
+def _ast_family_score(parts: tuple[str, ...], names: list[str]) -> tuple[int, int] | None:
+    kind = _ast_family_match(parts, names)
+    if not kind:
+        return None
+    folded_parts = [fold_token(p) for p in parts]
+    namelen = 0
+    for n in names:
+        if not n:
+            continue
+        if n in folded_parts:
+            namelen = max(namelen, len(n))
+        elif any(n in p for p in folded_parts):
+            namelen = max(namelen, len(n))
+    return (1 if kind == "exact" else 0, namelen)
+
+
 def _filename_contains_any(name: str, needles: list[str]) -> bool:
     folded = fold_token(name)
     return any(fold_token(item) and fold_token(item) in folded for item in needles)
@@ -253,7 +279,12 @@ class SourceDiscovery:
                 )
             return
 
-        files = [p for p in self.source_root.rglob("*") if p.is_file()]
+        skip_names = {fold_token(n) for n in SKIP_FILE_NAMES}
+        files = [
+            p
+            for p in self.source_root.rglob("*")
+            if p.is_file() and fold_token(p.name) not in skip_names
+        ]
         dup_markers = list(self.registry.get("duplicate_trees") or [])
         claimed: set[Path] = set()
 
@@ -276,6 +307,8 @@ class SourceDiscovery:
                     )
                 continue
             chosen = self._prefer_originals(matches, dup_markers)
+            if spec.get("id") == "insize.distributor" and len(chosen) > 1:
+                chosen = self._prefer_single_workbook(chosen)
             for path in chosen:
                 self._register_file(path, spec)
                 claimed.add(path.resolve())
@@ -333,6 +366,42 @@ class SourceDiscovery:
             chosen.append(path)
             seen_names.add(key)
         return chosen
+
+    def _prefer_single_workbook(self, matches: list[Path]) -> list[Path]:
+        """One INSIZE distributor workbook is join authority; extra copies must not duplicate-match."""
+        preferred = [p for p in matches if "sheet1" in fold_token(p.name)]
+        pick = preferred[0] if preferred else sorted(matches, key=lambda p: p.name)[0]
+        pick_hash = file_sha256(pick)
+        for other in matches:
+            if other.resolve() == pick.resolve():
+                continue
+            try:
+                other_hash = file_sha256(other)
+            except OSError as exc:
+                self.hash_conflicts.append(
+                    {
+                        "name": other.name,
+                        "original": str(pick),
+                        "copy": str(other),
+                        "reason": f"hash_unreadable:{exc}",
+                    }
+                )
+                continue
+            if other_hash == pick_hash:
+                self.skipped_duplicates.append(str(other))
+            else:
+                self.hash_conflicts.append(
+                    {
+                        "name": other.name,
+                        "original": str(pick),
+                        "copy": str(other),
+                        "original_sha256": pick_hash,
+                        "copy_sha256": other_hash,
+                        "reason": "same_logical_source_different_hash",
+                    }
+                )
+                self.skipped_duplicates.append(str(other))
+        return [pick]
 
     def _register_file(self, path: Path, spec: dict[str, Any]) -> None:
         roles = list(spec.get("roles") or [])
@@ -394,24 +463,45 @@ class SourceDiscovery:
     ) -> None:
         assert self.source_root is not None
         families = list(self.registry.get("ast_families") or [])
+        buckets: dict[str, list[Path]] = {str(f.get("id") or f.get("product_family")): [] for f in families}
+        for path in files:
+            if path.resolve() in claimed:
+                continue
+            parts = _path_parts(self.source_root, path)
+            if not _folder_in_path(parts, "آذرصنعت"):
+                continue
+            best_family = None
+            best_score = (-1, -1)
+            for family in families:
+                names = [fold_token(n) for n in (family.get("folder_names") or [])]
+                score = _ast_family_score(parts, names)
+                if score is None:
+                    continue
+                if score > best_score:
+                    best_score = score
+                    best_family = family
+            if best_family is None:
+                continue
+            fid = str(best_family.get("id") or best_family.get("product_family"))
+            buckets[fid].append(path)
         for family in families:
-            names = [fold_token(n) for n in (family.get("folder_names") or [])]
             fid = str(family.get("id") or family.get("product_family"))
-            matched = []
-            for path in files:
-                if path.resolve() in claimed:
-                    continue
-                parts = _path_parts(self.source_root, path)
-                if not _folder_in_path(parts, "آذرصنعت"):
-                    continue
-                if not any(fold_token(p) in names for p in parts):
-                    continue
-                matched.append(path)
+            matched = buckets.get(fid) or []
             if not matched:
+                names = [fold_token(n) for n in (family.get("folder_names") or [])]
+                present = any(
+                    _folder_in_path(_path_parts(self.source_root, path), "آذرصنعت")
+                    and _ast_family_match(_path_parts(self.source_root, path), names)
+                    for path in files
+                )
                 self.unavailable.append(
                     {
                         "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": "authoritative_source_file_unavailable",
+                        "reason": (
+                            "ast_family_present_but_no_approved_enumerator"
+                            if present
+                            else "authoritative_source_file_unavailable"
+                        ),
                     }
                 )
                 continue

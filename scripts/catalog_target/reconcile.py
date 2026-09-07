@@ -184,12 +184,12 @@ def _available_status(raw: Any, available_values: list[str]) -> tuple[str, bool 
     return text, False
 
 
-def _index_by_sku(rows: list[tuple[SourceFile, dict[str, Any]]], sku_headers: list[str]):
-    index: dict[str, list[tuple[SourceFile, dict[str, Any]]]] = defaultdict(list)
+def _index_by_brand_sku(rows: list[tuple[SourceFile, dict[str, Any]]], sku_headers: list[str]):
+    index: dict[tuple[str, str], list[tuple[SourceFile, dict[str, Any]]]] = defaultdict(list)
     for source, row in rows:
         sku = normalize_sku(extract_sku(row, sku_headers))
         if sku:
-            index[sku].append((source, row))
+            index[(source.brand_key, sku)].append((source, row))
     return index
 
 
@@ -265,8 +265,8 @@ def reconcile(
 
     price_rows = discovery.load_role_rows("price")
     inventory_rows = discovery.load_role_rows("inventory")
-    price_index = _index_by_sku(price_rows, sku_headers)
-    inventory_index = _index_by_sku(inventory_rows, sku_headers)
+    price_index = _index_by_brand_sku(price_rows, sku_headers)
+    inventory_index = _index_by_brand_sku(inventory_rows, sku_headers)
     current_index = index_current_products(current_products)
 
     target_dupes: dict[tuple[str, str], int] = Counter(
@@ -350,8 +350,8 @@ def reconcile(
             extra_review = extra_review or "duplicate_target_sku"
             add_example("duplicate_target_skus", target.sku)
 
-        price_hits = price_index.get(target.normalized_sku, [])
-        inv_hits = inventory_index.get(target.normalized_sku, [])
+        price_hits = price_index.get((target.brand_key, target.normalized_sku), [])
+        inv_hits = inventory_index.get((target.brand_key, target.normalized_sku), [])
         price_conv: PriceConversion | None = None
         source_price = ""
         source_inventory = ""

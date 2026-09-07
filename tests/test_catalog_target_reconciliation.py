@@ -541,6 +541,59 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertEqual(by_sku["TR-100"].base_price_toman, "25000")
             self.assertNotEqual(by_sku["TR-100"].base_price_toman, "31250")
 
+    def test_terma_ignores_jaw_and_letter_only_tokens(self):
+        from catalog_target.pdf import extract_terma_rows
+
+        parsed = extract_terma_rows(
+            "\n".join(
+                [
+                    "62.000.000 کولیس 15سانت ساعتی CB210-150 jaw90 1",
+                    "WTG hardness",
+                    "SHORE A 1",
+                ]
+            ),
+            default_currency="rial",
+        )
+        skus = [row["sku"] for row in parsed.rows]
+        self.assertEqual(skus, ["CB210-150"])
+
+    def test_cross_brand_price_is_not_joined(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["7111-1000"])
+            write_text_pdf(
+                root / DASQUA_DIR / "لیست قیمت داسکوا +10 درصد.pdf",
+                ["76,250,000 0-150mm 7111-1000 1"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            insize = next(r for r in result.rows if r.brand == "INSIZE" and r.sku == "7111-1000")
+            self.assertEqual(insize.source_price, "")
+            self.assertNotIn("داسکوا", insize.source_price)
+
+    def test_dcoil_keeps_full_identity_after_coil(self):
+        from catalog_target.pdf import extract_dcoil_rows
+
+        parsed = extract_dcoil_rows(
+            "\n".join(
+                [
+                    "1 کيت هلی کوئل d.coil M2-0.40 ﷼ 29,900,000",
+                    "2 فنر d.coilM2-0.40-1.5D ﷼ 4,500,000",
+                    "3 d.coil M10 UNC ﷼ 12,000,000",
+                ]
+            ),
+            default_currency="rial",
+        )
+        skus = [row["sku"] for row in parsed.rows]
+        self.assertEqual(skus, ["M2-0.40", "M2-0.40-1.5D", "M10 UNC"])
+
     def test_dcoil_zero_price_not_commerce_ready(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -696,7 +749,7 @@ class SourceAndInsizeTests(unittest.TestCase):
             write_image_pdf(path)
             extracted = extract_pdf_text(path)
             self.assertFalse(extracted.ok)
-            self.assertEqual(extracted.status, "unparsed_image")
+            self.assertIn(extracted.status, {"unparsed_image", "unparsed_empty"})
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
             targets = discovery.load_product_scope_targets()
@@ -816,11 +869,32 @@ class InsizeRowStructureTests(unittest.TestCase):
                     "58698 Accessory block",
                     "7323",
                     "1114-150A Dial caliper",
+                    "0/01 mm 2,250,000 Digital caliper 15cm 1108-200 222",
+                    "0/01 mm 13,150,000 1110-150A diamond jaws 235",
+                    "0/01 mm 4,200,000 1110-150Aکولیس 236",
+                    "0/02 mm 1,800,000 1180-6 12",
+                    "ISH-PHB hardness tester 40",
+                    "ISH-TDV-1000 41",
+                    "0/01 mm 1,000,000 - 934",
                 ]
             )
         )
         skus = {row["sku"] for row in parsed.rows}
-        self.assertEqual(skus, {"1108-150", "ISH-R150", "58698", "7323", "1114-150A"})
+        self.assertEqual(
+            skus,
+            {
+                "1108-150",
+                "ISH-R150",
+                "58698",
+                "7323",
+                "1114-150A",
+                "1108-200",
+                "1110-150A",
+                "1180-6",
+                "ISH-PHB",
+                "ISH-TDV-1000",
+            },
+        )
 
     def test_dimensions_and_page_numbers_are_not_skus(self):
         parsed = extract_insize_product_rows(

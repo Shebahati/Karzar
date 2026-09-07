@@ -77,7 +77,7 @@
       "product_family": "measurement",
       "roles": ["product_scope", "price"],
       "parser": "pdf_sku_price",
-      "sku_kind": "generic",
+      "sku_kind": "terma",
       "source_currency": "rial",
       "markup_already_present": true,
       "match": {
@@ -102,7 +102,7 @@
       "product_family": "measurement",
       "roles": ["product_scope", "price"],
       "parser": "pdf_sku_price",
-      "sku_kind": "generic",
+      "sku_kind": "dasqua",
       "source_currency": "rial",
       "markup_already_present": true,
       "match": {
@@ -127,7 +127,7 @@
       "product_family": "measurement",
       "roles": ["product_scope", "price"],
       "parser": "pdf_sku_price",
-      "sku_kind": "generic",
+      "sku_kind": "guanglu",
       "source_currency": "rial",
       "membership_mode": "review_if_weak",
       "match": {
@@ -153,7 +153,7 @@
       "product_family": "helicoil",
       "roles": ["product_scope", "price"],
       "parser": "pdf_sku_price",
-      "sku_kind": "generic",
+      "sku_kind": "dcoil",
       "source_currency": "rial",
       "markup_already_present": true,
       "match": {
@@ -174,7 +174,8 @@
     }
   ],
   "ast_families": [
-    {"id": "ast.chuck", "product_family": "chuck", "folder_names": ["سه نظام"]},
+    {"id": "ast.chuck", "product_family": "chuck", "folder_names": ["سه نظام", "AST powerسه نظام"]},
+    {"id": "ast.tapping_collets", "product_family": "tapping_collets", "folder_names": ["قلاویزگیر", "قلاویزگیر AST  کلت و دنبالهPower"]},
     {"id": "ast.tool_grinder", "product_family": "tool_grinder", "folder_names": ["ابزارتیزکن", "ابزار تیزکن"]},
     {"id": "ast.tailstock", "product_family": "tailstock", "folder_names": ["تایکوپ", "تایکوپ و صفحه گردان"]},
     {"id": "ast.rotary_table", "product_family": "rotary_table", "folder_names": ["صفحه گردان"]},
@@ -183,7 +184,6 @@
     {"id": "ast.et_taps", "product_family": "et_taps", "folder_names": ["قلاویز ET"]},
     {"id": "ast.pneumatic_tapping", "product_family": "pneumatic_tapping", "folder_names": ["قلاویززن بادی", "قلاویز زن بادی"]},
     {"id": "ast.cutting_fluid", "product_family": "cutting_fluid", "folder_names": ["روغن آب صابون"]},
-    {"id": "ast.tapping_collets", "product_family": "tapping_collets", "folder_names": ["قلاویزگیر"]},
     {"id": "ast.automatic_tapping", "product_family": "automatic_tapping", "folder_names": ["قلاویززن اتومات", "قلاویز زن اتومات"]},
     {"id": "ast.electric_tapping", "product_family": "electric_tapping", "folder_names": ["قلاویززن برقی", "قلاویز زن برقی"]},
     {"id": "ast.multi_spindle", "product_family": "multi_spindle", "folder_names": ["مولتی اسپیندل"]},
