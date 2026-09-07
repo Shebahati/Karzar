@@ -32,7 +32,13 @@ from catalog_target.core import (
     normalize_sku,
     suffix_near_miss,
 )
-from catalog_target.snapshot import SNAPSHOT_KIND_FILE, SNAPSHOT_KIND_LIVE, SNAPSHOT_KIND_UNAVAILABLE, load_current_catalog
+from catalog_target.snapshot import (
+    SNAPSHOT_KIND_FILE,
+    SNAPSHOT_KIND_LIVE,
+    SNAPSHOT_KIND_UNAVAILABLE,
+    describe_snapshot_phase,
+    load_current_catalog,
+)
 from catalog_target.sources import SourceDiscovery, extract_sku, pick_header, membership_authority_of
 
 MANIFEST_FIELDS = [
@@ -65,6 +71,13 @@ MANIFEST_FIELDS = [
 ]
 
 SITE_EVIDENCE_READY_KINDS = {SNAPSHOT_KIND_LIVE, SNAPSHOT_KIND_FILE, "test"}
+TARGET_MANIFEST_SCOPE_WAVE_1 = "WAVE_1_RESOLVED_AUTHORITIES"
+# Validation expectation from current source results. Not parser logic.
+WAVE_1_EXPECTED_TARGET_SKUS = 2316
+AST_NON_MEMBERSHIP_RESULTS = {
+    "not_membership_in_current_source",
+    "catalog_datasheet_no_stable_product_identity",
+}
 
 
 @dataclass
@@ -172,6 +185,8 @@ class ReconciliationResult:
     ast_reports: list[dict[str, Any]] = field(default_factory=list)
     ast_review_rows: list[dict[str, str]] = field(default_factory=list)
     guanglu_evidence: list[dict[str, str]] = field(default_factory=list)
+    target_manifest_scope: str = TARGET_MANIFEST_SCOPE_WAVE_1
+    deferred_authorities: list[str] = field(default_factory=list)
 
 
 def _bool_text(value: bool) -> str:
@@ -652,7 +667,17 @@ def reconcile(
         ast_reports=list(getattr(discovery, "ast_reports", [])),
         ast_review_rows=list(getattr(discovery, "ast_review_rows", [])),
         guanglu_evidence=list(getattr(discovery, "guanglu_evidence", [])),
+        target_manifest_scope=TARGET_MANIFEST_SCOPE_WAVE_1,
+        deferred_authorities=_deferred_authorities(discovery),
     )
+
+
+def _deferred_authorities(discovery: SourceDiscovery) -> list[str]:
+    return [
+        str(spec.get("id") or "")
+        for spec in discovery.registry.get("sources") or []
+        if membership_authority_of(spec) == "deferred" and spec.get("id")
+    ]
 
 
 def assess_readiness(
@@ -663,6 +688,7 @@ def assess_readiness(
     """Full TARGET_MANIFEST_READY requires every in-scope class-B authority resolved.
 
     Class A (not membership) and class C (explicitly deferred) do not block.
+    Wave 1 scope is resolved authorities only; Guanglu is deferred, not hidden.
     """
     source_tree_valid = real_source_validation == "ok" and discovery.source_root is not None
     members = Counter(t.brand_key for t in targets)
@@ -708,6 +734,10 @@ def assess_readiness(
             )
     if any("آذرصنعت" in (source.path or "") for source in discovery.files):
         for report in discovery.ast_reports:
+            if str(report.get("membership_authority") or "") == "not_membership":
+                continue
+            if str(report.get("membership_result") or "") in AST_NON_MEMBERSHIP_RESULTS:
+                continue
             if int(report.get("unique_skus") or 0) <= 0:
                 blockers.append(
                     {
@@ -814,6 +844,8 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "SOURCE_TREE_VALID": result.source_tree_valid,
         "PARTIAL_TARGET_MANIFEST_VALID": result.partial_target_manifest_valid,
         "TARGET_MANIFEST_READY": result.target_manifest_ready,
+        "TARGET_MANIFEST_SCOPE": result.target_manifest_scope,
+        "DEFERRED_AUTHORITIES": result.deferred_authorities,
         "CURRENT_SITE_RECONCILIATION_READY": result.current_site_reconciliation_ready,
         "APPLY_READY": False,
         "db_evidence": result.evidence_kind,
@@ -887,7 +919,19 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             "evidence_rows": len(result.guanglu_evidence),
             "unique_target_skus": 0,
             "membership_conferred": False,
-            "final_status": "class_B_unresolved_no_manufacturer_sku_column",
+            "final_status": "class_C_deferred",
+            "reason": (
+                "commercial_price_list_without_stable_manufacturer_identity_"
+                "requires_future_manual_mapping_or_new_authoritative_source"
+            ),
+            "wave": "1_deferred",
+            "evidence_csv": "data/catalog-target/guanglu_authority_review.csv",
+        },
+        "current_site_snapshot_phase": describe_snapshot_phase(),
+        "wave_1_validation_expectation": {
+            "expected_target_skus": WAVE_1_EXPECTED_TARGET_SKUS,
+            "actual_target_skus": len(result.target_skus),
+            "note": "expectation derived from current source results; not parser logic",
         },
         "ready_for_apply": False,
         "ready_for_apply_reason": "APPLY_READY = FALSE. This pass is READ-ONLY Target Catalog construction.",
@@ -925,6 +969,8 @@ def render_summary(
         f"- SOURCE_TREE_VALID: `{str(result.source_tree_valid).upper()}`",
         f"- PARTIAL_TARGET_MANIFEST_VALID: `{str(result.partial_target_manifest_valid).upper()}`",
         f"- TARGET_MANIFEST_READY: `{str(result.target_manifest_ready).upper()}`",
+        f"- TARGET_MANIFEST_SCOPE: `{result.target_manifest_scope}`",
+        f"- DEFERRED_AUTHORITIES: `{result.deferred_authorities}`",
         f"- CURRENT_SITE_RECONCILIATION_READY: `{str(result.current_site_reconciliation_ready).upper()}`",
         "- APPLY_READY: `FALSE`",
         f"- DB evidence: **{live}** (`{result.evidence_kind}`) — {result.evidence_note}",
@@ -1029,6 +1075,7 @@ def render_summary(
                 f"parse=`{item.get('parse_status')}` rows={item.get('extracted_rows')} "
                 f"unique={item.get('unique_skus')} rejected={item.get('rejected_rows')} "
                 f"unit={item.get('price_unit')} method=`{item.get('extraction_method')}` "
+                f"authority=`{item.get('membership_authority')}` "
                 f"result=`{item.get('membership_result')}`"
             )
     else:
@@ -1040,8 +1087,18 @@ def render_summary(
         f"- Method: pdftotext (encoding-corrupted) + page render",
         f"- Candidate priced rows recorded: {len(result.guanglu_evidence)}",
         "- Unique Target SKUs: 0",
-        "- Final status: class B unresolved — no manufacturer SKU column",
+        "- Final status: class C deferred (Wave 1) — commercial price list without stable manufacturer identity",
+        "- Reason: `commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source`",
+        "- This does not claim Guanglu products should never exist in Karzar.",
         "- Detail: `data/catalog-target/guanglu_authority_review.csv`",
+        "",
+        "## Current-site snapshot phase (READ-ONLY, not run)",
+        "- Method: `scripts/catalog_target/snapshot.py` (`load_current_catalog` / `--snapshot` / local `--read-db`)",
+        "- Status: prepared, **not executed** this pass",
+        "- Production hosts (`karzartools.com`) are refused",
+        "- Historical `data/imports/*_products.csv` and image-only extracts are refused",
+        "- Required fields: id, sku, brand_id/brand, category_id, slug, name, base_price, is_active, is_available, deleted_at, primary image/media state",
+        "- CURRENT_SITE_RECONCILIATION_READY remains FALSE until a trustworthy snapshot is obtained",
         "",
         "## Duplicate-source findings",
         f"- Same name + same hash skipped: {len(result.skipped_duplicates)}",

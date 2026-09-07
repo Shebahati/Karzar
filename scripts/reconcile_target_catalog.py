@@ -103,11 +103,14 @@ def main(argv: list[str] | None = None) -> int:
     print(f"SOURCE_TREE_VALID = {str(result.source_tree_valid).upper()}")
     print(f"PARTIAL_TARGET_MANIFEST_VALID = {str(result.partial_target_manifest_valid).upper()}")
     print(f"TARGET_MANIFEST_READY = {str(result.target_manifest_ready).upper()}")
+    print(f"TARGET_MANIFEST_SCOPE = {result.target_manifest_scope}")
+    print(f"DEFERRED_AUTHORITIES = {result.deferred_authorities}")
     print(
         "CURRENT_SITE_RECONCILIATION_READY = "
         f"{str(result.current_site_reconciliation_ready).upper()}"
     )
     print("APPLY_READY = FALSE")
+    print("CURRENT_SITE_SNAPSHOT_STATUS = prepared_not_run")
     print("PRODUCTION MUTATION: ZERO")
     print(f"baseline_sha={result.baseline_sha}")
     print(f"db_evidence={result.evidence_kind} ({result.evidence_note})")

@@ -26,6 +26,8 @@ from catalog_target.core import (
 )
 from catalog_target.pdf import extract_pdf_row_parse, extract_pdf_text
 from catalog_target.verified_tables import (
+    CATALOG_DATASHEET_REASON,
+    NO_ENUMERATOR_REASON,
     ast_enumerator_kind,
     ast_review_records,
     verified_ast_rows_for,
@@ -248,6 +250,13 @@ def _is_ast_enumerator_candidate(path: Path, registry: dict[str, Any]) -> bool:
     return _is_ast_enumerator_filename(path.name, registry)
 
 
+def _is_ast_membership_enumerator(path: Path, registry: dict[str, Any]) -> bool:
+    """Price-list / کد کالا enumerators only. Catalog/datasheet filenames do not confer membership."""
+    if not _is_ast_enumerator_candidate(path, registry):
+        return False
+    return ast_enumerator_kind(path) != "catalog_datasheet"
+
+
 def _ast_filename_family_len(filename: str, names: list[str]) -> int:
     folded = fold_token(filename)
     best = 0
@@ -269,6 +278,8 @@ def ast_roles_for_file(path: Path, registry: dict[str, Any]) -> tuple[list[str],
     catalogs = list(rules.get("catalog_filename_contains") or [])
     if suffix in MEDIA_SUFFIXES:
         return ["media"], "none", "ok"
+    if ast_enumerator_kind(path) == "catalog_datasheet":
+        return ["catalog"], "none", "ok"
     catalog_named = suffix in PDF_SUFFIXES and _filename_contains_any(path.name, catalogs)
     enumerator_named = _filename_contains_any(path.name, enumerators) and not catalog_named
     if enumerator_named:
@@ -379,6 +390,9 @@ class SourceDiscovery:
                 )
 
         self._discover_ast_families(files, claimed, dup_markers)
+        for source in self.files:
+            if source.source_id == "guanglu.price_list":
+                self.rows_for(source)
 
     def _prefer_originals(self, matches: list[Path], dup_markers: list[str]) -> list[Path]:
         originals = [p for p in matches if not in_duplicate_tree(self.source_root, p, dup_markers)]
@@ -563,13 +577,27 @@ class SourceDiscovery:
                     and _ast_family_match(_path_parts(self.source_root, path), names)
                     for path in files
                 )
-                reason = "AUTHORITY_GAP" if present else "authoritative_source_file_unavailable"
-                self.unavailable.append(
-                    {
-                        "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": reason,
-                    }
-                )
+                reason = NO_ENUMERATOR_REASON if present else "authoritative_source_file_unavailable"
+                membership_authority = "not_membership" if present else "required"
+                if present:
+                    self.authority_decisions.append(
+                        {
+                            "source": f"ASTPOWER/{family.get('product_family')}",
+                            "class": "A",
+                            "decision": "not_membership_in_current_source",
+                            "reason": (
+                                "current_source_tree_has_no_membership_enumerator; "
+                                "does_not_assert_manufacturer_has_no_products"
+                            ),
+                        }
+                    )
+                else:
+                    self.unavailable.append(
+                        {
+                            "source": f"ASTPOWER/{family.get('product_family')}",
+                            "reason": reason,
+                        }
+                    )
                 self.ast_reports.append(
                     {
                         "family": str(family.get("product_family") or ""),
@@ -582,13 +610,11 @@ class SourceDiscovery:
                         "rejected_rows": 0,
                         "price_unit": "rial",
                         "membership_result": reason,
+                        "membership_authority": membership_authority,
                     }
                 )
                 continue
             chosen = self._prefer_originals(matched, dup_markers)
-            enumerator_paths = [
-                p for p in chosen if _is_ast_enumerator_candidate(p, self.registry)
-            ]
             dup_enumerators = [
                 p
                 for p in matched
@@ -601,6 +627,13 @@ class SourceDiscovery:
                 if not in_duplicate_tree(self.source_root, p, dup_markers)
                 and _is_ast_enumerator_candidate(p, self.registry)
             ]
+            inspected_enumerators = orig_enumerators or dup_enumerators
+            membership_enumerators = [
+                p for p in chosen if _is_ast_membership_enumerator(p, self.registry)
+            ]
+            catalog_enumerators = [
+                p for p in inspected_enumerators if ast_enumerator_kind(p) == "catalog_datasheet"
+            ]
             if orig_enumerators and dup_enumerators:
                 relationship = "original_preferred_duplicate_skipped_or_conflict"
             elif not orig_enumerators and dup_enumerators:
@@ -609,11 +642,11 @@ class SourceDiscovery:
                 relationship = "original"
             else:
                 relationship = ""
-            saw_enumerator = False
             for path in chosen:
                 roles, parser, parse_status = ast_roles_for_file(path, self.registry)
-                if "product_scope" in roles or _is_ast_enumerator_candidate(path, self.registry):
-                    saw_enumerator = True
+                membership_authority = (
+                    "required" if "product_scope" in roles else "not_membership"
+                )
                 spec = {
                     "id": fid,
                     "brand": "ASTPOWER",
@@ -624,7 +657,7 @@ class SourceDiscovery:
                     "source_currency": "rial",
                     "sku_kind": "generic",
                     "membership_mode": "review_if_weak" if parse_status == "unclassified" else "authoritative",
-                    "membership_authority": "required",
+                    "membership_authority": membership_authority,
                 }
                 self._register_file(path, spec)
                 claimed.add(path.resolve())
@@ -637,34 +670,47 @@ class SourceDiscovery:
                     or "enumerator_unparsed" in (f.roles or [])
                 )
             ]
-            if not saw_enumerator and not enum_sources:
-                self.unavailable.append(
-                    {
-                        "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": "AUTHORITY_GAP",
-                    }
-                )
-                membership_result = "AUTHORITY_GAP"
-            elif enum_sources and all("enumerator_unparsed" in (f.roles or []) for f in enum_sources):
-                kinds = {ast_enumerator_kind(Path(f.path).name) for f in enum_sources}
-                if kinds <= {"catalog_datasheet"}:
-                    gap_reason = "enumerator_catalog_datasheet_no_sku_table"
-                else:
-                    gap_reason = "enumerator_candidate_unparsed"
-                self.unavailable.append(
-                    {
-                        "source": f"ASTPOWER/{family.get('product_family')}",
-                        "reason": gap_reason,
-                    }
-                )
-                membership_result = gap_reason
-            else:
-                membership_result = "pending_parse"
-            selected = str(enumerator_paths[0]) if enumerator_paths else (
-                str(enum_sources[0].path) if enum_sources else ""
-            )
             family_name = str(family.get("product_family") or "")
-            for enum_path in orig_enumerators or dup_enumerators:
+            family_label = f"ASTPOWER/{family_name}"
+            if enum_sources and all("enumerator_unparsed" in (f.roles or []) for f in enum_sources):
+                membership_result = "enumerator_candidate_unparsed"
+                membership_authority = "required"
+                self.unavailable.append(
+                    {
+                        "source": family_label,
+                        "reason": membership_result,
+                    }
+                )
+            elif membership_enumerators or any("product_scope" in (f.roles or []) for f in enum_sources):
+                membership_result = "pending_parse"
+                membership_authority = "required"
+            elif catalog_enumerators:
+                membership_result = CATALOG_DATASHEET_REASON
+                membership_authority = "not_membership"
+                self.authority_decisions.append(
+                    {
+                        "source": family_label,
+                        "class": "A",
+                        "decision": "not_membership",
+                        "reason": CATALOG_DATASHEET_REASON,
+                    }
+                )
+            else:
+                membership_result = NO_ENUMERATOR_REASON
+                membership_authority = "not_membership"
+                self.authority_decisions.append(
+                    {
+                        "source": family_label,
+                        "class": "A",
+                        "decision": "not_membership_in_current_source",
+                        "reason": (
+                            "current_source_tree_has_no_membership_enumerator; "
+                            "does_not_assert_manufacturer_has_no_products"
+                        ),
+                    }
+                )
+            selected = str(membership_enumerators[0]) if membership_enumerators else ""
+            for enum_path in inspected_enumerators:
                 self.ast_review_rows.extend(
                     ast_review_records(
                         family=family_name,
@@ -675,7 +721,7 @@ class SourceDiscovery:
             self.ast_reports.append(
                 {
                     "family": family_name,
-                    "enumerator_candidates": [str(p) for p in orig_enumerators or dup_enumerators],
+                    "enumerator_candidates": [str(p) for p in inspected_enumerators],
                     "selected_authority": selected,
                     "duplicate_original_relationship": relationship,
                     "parse_status": enum_sources[0].parse_status if enum_sources else "none",
@@ -684,6 +730,7 @@ class SourceDiscovery:
                     "rejected_rows": 0,
                     "price_unit": "rial",
                     "membership_result": membership_result,
+                    "membership_authority": membership_authority,
                     "extraction_method": ast_enumerator_kind(Path(selected).name) if selected else "",
                 }
             )
@@ -975,12 +1022,12 @@ class SourceDiscovery:
             report["parse_status"] = parse_status
             if unique:
                 report["membership_result"] = "product_scope_conferred"
+                report["membership_authority"] = "product_scope"
+            elif report.get("membership_authority") == "not_membership":
+                continue
             elif enum_sources and all("enumerator_unparsed" in (s.roles or []) for s in enum_sources):
-                kinds = {ast_enumerator_kind(Path(s.path).name) for s in enum_sources}
-                if kinds <= {"catalog_datasheet"}:
-                    report["membership_result"] = "enumerator_catalog_datasheet_no_sku_table"
-                else:
-                    report["membership_result"] = "enumerator_candidate_unparsed"
+                report["membership_result"] = "enumerator_candidate_unparsed"
+                report["membership_authority"] = "required"
 
     def load_role_rows(self, role: str) -> list[tuple[SourceFile, dict[str, Any]]]:
         out: list[tuple[SourceFile, dict[str, Any]]] = []

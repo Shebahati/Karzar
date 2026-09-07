@@ -2,12 +2,14 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `a76a9c346e7117f5066e50d5ef1e41ed11a0f504`
-- Generated at: `2026-09-07T09:48:34.423309+00:00`
+- Baseline SHA: `82064870700de073dc9e799aae2ff050318759af`
+- Generated at: `2026-09-07T10:00:56.505639+00:00`
 - REAL_SOURCE_VALIDATION: `ok`
 - SOURCE_TREE_VALID: `TRUE`
 - PARTIAL_TARGET_MANIFEST_VALID: `TRUE`
-- TARGET_MANIFEST_READY: `FALSE`
+- TARGET_MANIFEST_READY: `TRUE`
+- TARGET_MANIFEST_SCOPE: `WAVE_1_RESOLVED_AUTHORITIES`
+- DEFERRED_AUTHORITIES: `['guanglu.price_list']`
 - CURRENT_SITE_RECONCILIATION_READY: `FALSE`
 - APPLY_READY: `FALSE`
 - DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`unavailable`) — no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
@@ -16,8 +18,8 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 
 ## A. Target source completeness
 - Discovered files: 550
-- Unparsed files: 10
-- Unavailable registry sources: 13
+- Unparsed files: 1
+- Unavailable registry sources: 0
 - Duplicate-tree copies skipped: 537
 - Same-name different-hash conflicts: 1
 - Duplicate source SKUs (identity collapsed, REVIEW): 60
@@ -945,50 +947,61 @@ A and B are independent. A real Target manifest can exist without live site evid
 - insize.distributor: class A `not_membership` (price_inventory_only)
 - terma.catalog: class A `not_membership` (not_membership)
 - dasqua.catalog: class A `not_membership` (not_membership)
+- guanglu.price_list: class C `deferred` (commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source)
 - mitutoyo.catalog: class A `not_membership` (catalog_specification_only)
 - shams.catalog: class A `not_membership` (catalog_media_only_no_product_list)
+- ASTPOWER/chuck: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/tapping_collets: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/tool_grinder: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/tailstock: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/rotary_table: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/magnetic_drill: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/core_drill: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/et_taps: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/pneumatic_tapping: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/cutting_fluid: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/multi_spindle: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
+- ASTPOWER/magnetic_drill_hole_saws: class A `not_membership` (catalog_datasheet_no_stable_product_identity)
+- ASTPOWER/utex_drills: class A `not_membership_in_current_source` (current_source_tree_has_no_membership_enumerator; does_not_assert_manufacturer_has_no_products)
 
 ## Unresolved full-manifest blockers
-- guanglu.price_list: class B `required_membership_authority_unresolved`
-- ASTPOWER/chuck: class B `AUTHORITY_GAP`
-- ASTPOWER/tapping_collets: class B `AUTHORITY_GAP`
-- ASTPOWER/tool_grinder: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/tailstock: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/rotary_table: class B `AUTHORITY_GAP`
-- ASTPOWER/magnetic_drill: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/core_drill: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/et_taps: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/pneumatic_tapping: class B `AUTHORITY_GAP`
-- ASTPOWER/cutting_fluid: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/multi_spindle: class B `AUTHORITY_GAP`
-- ASTPOWER/magnetic_drill_hole_saws: class B `enumerator_catalog_datasheet_no_sku_table`
-- ASTPOWER/utex_drills: class B `AUTHORITY_GAP`
+- (none)
 
 ## AST families
-- chuck: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- tapping_collets: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- tool_grinder: candidates=2 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری ابزار تیزکن.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- tailstock: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/تایکوپ و صفحه گردان/کاتالوگ همکاری/تایکوپ همکاری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- rotary_table: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- magnetic_drill: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- core_drill: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- et_taps: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویز ET/ET همکاری.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- pneumatic_tapping: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- cutting_fluid: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/روغن آب صابون/همکاری روغن اب صابون.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- automatic_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=3 unique=3 rejected=0 unit=rial method=`code_table` result=`product_scope_conferred`
-- electric_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=27 unique=27 rejected=0 unit=rial method=`code_table` result=`product_scope_conferred`
-- multi_spindle: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- magnetic_drill_hole_saws: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`unparsed_empty` rows=0 unique=0 rejected=0 unit=rial method=`catalog_datasheet` result=`enumerator_catalog_datasheet_no_sku_table`
-- utex_drills: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` result=`AUTHORITY_GAP`
-- spade_drills: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=21 unique=21 rejected=0 unit=rial method=`code_table` result=`product_scope_conferred`
+- chuck: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- tapping_collets: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- tool_grinder: candidates=2 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- tailstock: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- rotary_table: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- magnetic_drill: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- core_drill: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- et_taps: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- pneumatic_tapping: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- cutting_fluid: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- automatic_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن اتومات/همکاری قلاویززن اتومات.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=3 unique=3 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
+- electric_tapping: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویززن برقی/کاتالوگ همکاری/همکاری قلاویززن برقی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=27 unique=27 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
+- multi_spindle: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- magnetic_drill_hole_saws: candidates=1 selected=`` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`catalog_datasheet_no_stable_product_identity`
+- utex_drills: candidates=0 selected=`` rel=`` parse=`none` rows=0 unique=0 rejected=0 unit=rial method=`` authority=`not_membership` result=`not_membership_in_current_source`
+- spade_drills: candidates=1 selected=`/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/مته برگی/همکاری مته برگی.pdf` rel=`original_preferred_duplicate_skipped_or_conflict` parse=`ok` rows=21 unique=21 rejected=0 unit=rial method=`code_table` authority=`product_scope` result=`product_scope_conferred`
 
 ## Guanglu evidence
 - Pages inspected: 11
 - Method: pdftotext (encoding-corrupted) + page render
 - Candidate priced rows recorded: 265
 - Unique Target SKUs: 0
-- Final status: class B unresolved — no manufacturer SKU column
+- Final status: class C deferred (Wave 1) — commercial price list without stable manufacturer identity
+- Reason: `commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source`
+- This does not claim Guanglu products should never exist in Karzar.
 - Detail: `data/catalog-target/guanglu_authority_review.csv`
+
+## Current-site snapshot phase (READ-ONLY, not run)
+- Method: `scripts/catalog_target/snapshot.py` (`load_current_catalog` / `--snapshot` / local `--read-db`)
+- Status: prepared, **not executed** this pass
+- Production hosts (`karzartools.com`) are refused
+- Historical `data/imports/*_products.csv` and image-only extracts are refused
+- Required fields: id, sku, brand_id/brand, category_id, slug, name, base_price, is_active, is_available, deleted_at, primary image/media state
+- CURRENT_SITE_RECONCILIATION_READY remains FALSE until a trustworthy snapshot is obtained
 
 ## Duplicate-source findings
 - Same name + same hash skipped: 537
@@ -1542,31 +1555,10 @@ A and B are independent. A real Target manifest can exist without live site evid
 - `7111-1000`
 
 ## Unavailable authoritative sources
-- `ASTPOWER/chuck`: AUTHORITY_GAP
-- `ASTPOWER/tapping_collets`: AUTHORITY_GAP
-- `ASTPOWER/tool_grinder`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/tailstock`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/rotary_table`: AUTHORITY_GAP
-- `ASTPOWER/magnetic_drill`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/core_drill`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/et_taps`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/pneumatic_tapping`: AUTHORITY_GAP
-- `ASTPOWER/cutting_fluid`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/multi_spindle`: AUTHORITY_GAP
-- `ASTPOWER/magnetic_drill_hole_saws`: enumerator_catalog_datasheet_no_sku_table
-- `ASTPOWER/utex_drills`: AUTHORITY_GAP
+- (none)
 
 ## Unparsed sources
 - `/home/shebahati/KaZar/Product and Data Complete/هلی کویل/شمس/کاتالوگ شمس.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری ابزار تیزکن.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/ابزارتیزکن/کاتالوگ همکاری/همکاری اسپارک.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/تایکوپ و صفحه گردان/کاتالوگ همکاری/تایکوپ همکاری.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری دریل مگنت.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/دریل مگنت و کرگیری/کاتالوگ همکاری/همکاری کرگیری.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/قلاویز ET/ET همکاری.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/روغن آب صابون/همکاری روغن اب صابون.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/آذرصنعت/AST Power/گردبر دریل مگنت/کاتالوگ همکاری/همکاری گردبر.pdf`: pdftotext_empty
-- `/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/گوانگلو(GL)/لیست قیمت گوانگلو(GL).pdf`: pdf_text_extracted_but_no_skus
 
 ## APPLY readiness
 - **APPLY_READY = FALSE.** This node is reconciliation/audit only.

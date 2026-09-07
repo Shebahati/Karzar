@@ -131,12 +131,14 @@
       "id": "guanglu.price_list",
       "brand": "GUANGLU",
       "product_family": "measurement",
-      "roles": ["product_scope", "price"],
+      "roles": ["price"],
+      "never_product_scope": true,
       "parser": "pdf_sku_price",
       "sku_kind": "guanglu",
       "source_currency": "rial",
-      "membership_mode": "review_if_weak",
-      "membership_authority": "required",
+      "membership_authority": "deferred",
+      "authority_reason": "commercial_price_list_without_stable_manufacturer_identity_requires_future_manual_mapping_or_new_authoritative_source",
+      "wave": "1_deferred",
       "match": {
         "parent_folder": "گوانگلو(GL)",
         "filename_contains": ["لیست قیمت گوانگلو"]

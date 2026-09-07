@@ -14,6 +14,47 @@ SNAPSHOT_KIND_LIVE = "live_db"
 SNAPSHOT_KIND_FILE = "repository_snapshot_non_live"
 SNAPSHOT_KIND_UNAVAILABLE = "unavailable"
 
+SNAPSHOT_REQUIRED_FIELDS = (
+    "id",
+    "sku",
+    "brand_id",
+    "brand",
+    "category_id",
+    "slug",
+    "name",
+    "base_price",
+    "is_active",
+    "is_available",
+    "deleted_at",
+    "primary_image_url",
+    "image_count",
+)
+
+
+def describe_snapshot_phase() -> dict[str, object]:
+    """Describe the guarded READ-ONLY snapshot method. Does not connect or mutate."""
+    return {
+        "status": "prepared_not_run",
+        "method": "scripts/catalog_target/snapshot.py:load_current_catalog",
+        "read_only": True,
+        "production_mutation": "ZERO",
+        "production_hosts_refused": True,
+        "refuses": [
+            "karzartools.com",
+            "data/imports/*_products.csv",
+            "image-only historical extracts",
+        ],
+        "required_fields": list(SNAPSHOT_REQUIRED_FIELDS),
+        "cli": (
+            "python3 scripts/reconcile_target_catalog.py "
+            "--snapshot /path/to/current_catalog.csv"
+            " | --read-db (local non-production only)"
+        ),
+        "CURRENT_SITE_RECONCILIATION_READY": False,
+        "APPLY_READY": False,
+        "note": "Do not reconcile against an incomplete or image-only historical extract.",
+    }
+
 
 def _is_production_host(host: str) -> bool:
     return "karzartools.com" in (host or "").lower()

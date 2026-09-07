@@ -34,7 +34,7 @@ from catalog_target.pdf import (  # noqa: E402
     extract_pdf_text,
 )
 from catalog_target.reconcile import counts, reconcile, run_reconciliation  # noqa: E402
-from catalog_target.snapshot import load_current_catalog, load_snapshot_csv  # noqa: E402
+from catalog_target.snapshot import describe_snapshot_phase, load_current_catalog, load_snapshot_csv  # noqa: E402
 from catalog_target.sources import SourceDiscovery, resolve_source_root  # noqa: E402
 from catalog_target.xlsx import iter_xlsx_rows  # noqa: E402
 
@@ -734,9 +734,12 @@ class SourceAndInsizeTests(unittest.TestCase):
             discovery.discover()
             skus = {t.sku for t in discovery.load_product_scope_targets()}
             self.assertEqual(skus, set())
-            self.assertTrue(
+            self.assertFalse(
                 any(u["reason"] == "AUTHORITY_GAP" for u in discovery.unavailable)
             )
+            report = next(r for r in discovery.ast_reports if r.get("family") == "spade_drills")
+            self.assertEqual(report.get("membership_result"), "not_membership_in_current_source")
+            self.assertEqual(report.get("membership_authority"), "not_membership")
             unclassified = [f for f in discovery.files if "unclassified" in (f.roles or [])]
             catalog = [f for f in discovery.files if f.roles == ["catalog"]]
             self.assertTrue(unclassified)
@@ -765,8 +768,11 @@ class SourceAndInsizeTests(unittest.TestCase):
             discovery.discover()
             skus = {t.sku: t.product_family for t in discovery.load_product_scope_targets()}
             self.assertEqual(skus.get("MB-100"), "spade_drills")
-            self.assertEqual(skus.get("ET-200"), "et_taps")
+            self.assertNotIn("ET-200", skus)
             self.assertNotIn("CF-300", skus)
+            et = next(r for r in discovery.ast_reports if r.get("family") == "et_taps")
+            self.assertEqual(et.get("membership_result"), "catalog_datasheet_no_stable_product_identity")
+            self.assertEqual(et.get("membership_authority"), "not_membership")
             self.assertTrue(
                 any(
                     r.get("family") == "electric_tapping"
@@ -787,10 +793,13 @@ class SourceAndInsizeTests(unittest.TestCase):
             discovery = SourceDiscovery(source_root=root)
             discovery.discover()
             skus = {t.sku: t.product_family for t in discovery.load_product_scope_targets()}
-            self.assertEqual(skus.get("MD-100"), "magnetic_drill")
-            self.assertEqual(skus.get("CD-100"), "core_drill")
+            self.assertNotIn("MD-100", skus)
+            self.assertNotIn("CD-100", skus)
             magnetic = next(r for r in discovery.ast_reports if r.get("family") == "magnetic_drill")
             core = next(r for r in discovery.ast_reports if r.get("family") == "core_drill")
+            self.assertEqual(magnetic.get("membership_result"), "catalog_datasheet_no_stable_product_identity")
+            self.assertEqual(core.get("membership_result"), "catalog_datasheet_no_stable_product_identity")
+            self.assertEqual(magnetic.get("membership_authority"), "not_membership")
             self.assertTrue(any(Path(p).name == "همکاری دریل مگنت.pdf" for p in magnetic["enumerator_candidates"]))
             self.assertTrue(any(Path(p).name == "همکاری کرگیری.pdf" for p in core["enumerator_candidates"]))
             self.assertFalse(any(p.lower().endswith(".jpg") for p in magnetic["enumerator_candidates"]))
@@ -831,7 +840,7 @@ class SourceAndInsizeTests(unittest.TestCase):
             report = next(r for r in discovery.ast_reports if r.get("family") == "spade_drills")
             self.assertEqual(report.get("duplicate_original_relationship"), "duplicate_tree_only")
 
-    def test_full_manifest_ready_false_when_required_brand_unresolved(self):
+    def test_wave1_ready_when_guanglu_deferred_and_insize_resolved(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             _insize_list_pdf(root, ["1108-150"])
@@ -850,10 +859,36 @@ class SourceAndInsizeTests(unittest.TestCase):
             )
             self.assertTrue(result.source_tree_valid)
             self.assertTrue(result.partial_target_manifest_valid)
+            self.assertTrue(result.target_manifest_ready)
+            self.assertEqual(result.target_manifest_scope, "WAVE_1_RESOLVED_AUTHORITIES")
+            self.assertEqual(result.deferred_authorities, ["guanglu.price_list"])
+            self.assertFalse(any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers))
+            self.assertFalse(result.apply_ready)
+            self.assertFalse(result.current_site_reconciliation_ready)
+
+    def test_full_manifest_ready_false_when_required_brand_unresolved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_image_pdf(root / INSIZE_DIR / "لیست محصولات.pdf")
+            write_text_pdf(
+                root / GUANGLU_DIR / "لیست قیمت گوانگلو(GL).pdf",
+                ["GL 60 37,000,000"],
+            )
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=[],
+                evidence_kind="unavailable",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            self.assertTrue(result.source_tree_valid)
             self.assertFalse(result.target_manifest_ready)
             self.assertTrue(
-                any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers)
+                any(b.get("source") == "insize.product_list" for b in result.unresolved_blockers)
             )
+            self.assertFalse(any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers))
 
     def test_scanned_pdf_is_unparsed_not_zero_success(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -947,7 +982,11 @@ class SourceAndInsizeTests(unittest.TestCase):
                 baseline_sha="x",
             )
             self.assertFalse(any(r.brand == "GUANGLU" and r.target_member for r in result.rows))
-            self.assertTrue(any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers))
+            self.assertFalse(any(b.get("source") == "guanglu.price_list" for b in result.unresolved_blockers))
+            self.assertEqual(result.deferred_authorities, ["guanglu.price_list"])
+            self.assertTrue(
+                any(d.get("source") == "guanglu.price_list" and d.get("class") == "C" for d in discovery.authority_decisions)
+            )
 
     def test_snapshot_labeled_non_live(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -964,6 +1003,25 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertEqual(empty, [])
             self.assertEqual(kind2, "unavailable")
             self.assertIn("no_live_db", note)
+            phase = describe_snapshot_phase()
+            self.assertEqual(phase["status"], "prepared_not_run")
+            self.assertTrue(phase["read_only"])
+            self.assertFalse(phase["CURRENT_SITE_RECONCILIATION_READY"])
+            self.assertFalse(phase["APPLY_READY"])
+            for field in (
+                "id",
+                "sku",
+                "brand_id",
+                "brand",
+                "category_id",
+                "slug",
+                "name",
+                "base_price",
+                "is_active",
+                "is_available",
+                "deleted_at",
+            ):
+                self.assertIn(field, phase["required_fields"])
 
     def test_cli_forbids_apply(self):
         import subprocess

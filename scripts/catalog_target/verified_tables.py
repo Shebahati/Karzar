@@ -17,6 +17,9 @@ CODE_TABLE_ENUMERATORS = {
     "همکاری مته برگی.pdf",
 }
 
+CATALOG_DATASHEET_REASON = "catalog_datasheet_no_stable_product_identity"
+NO_ENUMERATOR_REASON = "not_membership_in_current_source"
+
 # Inspected cooperation PDFs that are datasheets/catalogs, not SKU tables.
 CATALOG_DATASHEET_ENUMERATORS = {
     "همکاری ابزار تیزکن.pdf": "34-page single-model datasheets; no کد کالا table; page 1 model 13MA is catalog-only",
@@ -214,7 +217,7 @@ def ast_review_records(
                 "base_price_toman": "",
                 "confidence": "high",
                 "decision": "catalog_not_membership",
-                "review_reason": "enumerator_is_catalog_or_datasheet_without_sku_table",
+                "review_reason": CATALOG_DATASHEET_REASON,
                 "duplicate_original_relationship": duplicate_relationship,
             }
         )
