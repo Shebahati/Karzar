@@ -15,6 +15,7 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+from catalog_target.apply_contract import StaleSnapshotGuard  # noqa: E402
 from catalog_target.core import (  # noqa: E402
     STATES,
     CurrentProduct,
@@ -30,13 +31,17 @@ from catalog_target.core import (  # noqa: E402
     public_sell_ready,
     suffix_near_miss,
 )
-from catalog_target.apply_contract import StaleSnapshotGuard  # noqa: E402
 from catalog_target.pdf import (  # noqa: E402
     extract_generic_sku_price_rows,
     extract_insize_product_rows,
     extract_pdf_text,
 )
-from catalog_target.reconcile import ManifestRow, counts, reconcile, run_reconciliation  # noqa: E402
+from catalog_target.reconcile import (  # noqa: E402
+    ManifestRow,
+    counts,
+    reconcile,
+    run_reconciliation,
+)
 from catalog_target.sales_wave import row_in_insize_sales_wave_1  # noqa: E402
 from catalog_target.snapshot import (  # noqa: E402
     PRODUCTS_SNAPSHOT_SELECT_SQL,
