@@ -74,6 +74,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Attempt local READ-ONLY DB snapshot. Production hosts are refused.",
     )
+    parser.add_argument(
+        "--expected-snapshot-rows",
+        type=int,
+        default=None,
+        help="Optional production COUNT(*) for snapshot truncation checks.",
+    )
     args = parser.parse_args(raw)
 
     info = describe_source_root(args.source_dir)
@@ -85,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     if root is None:
         print("REAL_SOURCE_VALIDATION = BLOCKED_SOURCE_NOT_MOUNTED")
         print("TARGET_MANIFEST_READY = FALSE")
+        print("CURRENT_SITE_SNAPSHOT_VALID = FALSE")
         print("CURRENT_SITE_RECONCILIATION_READY = FALSE")
         print("APPLY_READY = FALSE")
         print("Did not regenerate a zero-row manifest.")
@@ -98,6 +105,7 @@ def main(argv: list[str] | None = None) -> int:
         snapshot_path=args.snapshot,
         read_db=args.read_db,
         real_source_validation="ok",
+        expected_snapshot_rows=args.expected_snapshot_rows,
     )
     print("REAL_SOURCE_VALIDATION = ok")
     print(f"SOURCE_TREE_VALID = {str(result.source_tree_valid).upper()}")
@@ -105,12 +113,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"TARGET_MANIFEST_READY = {str(result.target_manifest_ready).upper()}")
     print(f"TARGET_MANIFEST_SCOPE = {result.target_manifest_scope}")
     print(f"DEFERRED_AUTHORITIES = {result.deferred_authorities}")
+    print(f"CURRENT_SITE_SNAPSHOT_VALID = {str(result.current_site_snapshot_valid).upper()}")
     print(
         "CURRENT_SITE_RECONCILIATION_READY = "
         f"{str(result.current_site_reconciliation_ready).upper()}"
     )
     print("APPLY_READY = FALSE")
-    print("CURRENT_SITE_SNAPSHOT_STATUS = prepared_not_run")
     print("PRODUCTION MUTATION: ZERO")
     print(f"baseline_sha={result.baseline_sha}")
     print(f"db_evidence={result.evidence_kind} ({result.evidence_note})")

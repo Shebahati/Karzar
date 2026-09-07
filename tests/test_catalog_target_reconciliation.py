@@ -16,6 +16,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.core import (  # noqa: E402
+    STATES,
     CurrentProduct,
     canonicalize_brand,
     commerce_ready,
@@ -34,7 +35,14 @@ from catalog_target.pdf import (  # noqa: E402
     extract_pdf_text,
 )
 from catalog_target.reconcile import counts, reconcile, run_reconciliation  # noqa: E402
-from catalog_target.snapshot import describe_snapshot_phase, load_current_catalog, load_snapshot_csv  # noqa: E402
+from catalog_target.snapshot import (  # noqa: E402
+    PRODUCTS_SNAPSHOT_SELECT_SQL,
+    describe_snapshot_phase,
+    load_current_catalog,
+    load_snapshot_csv,
+    select_primary_image_url,
+    validate_snapshot_csv,
+)
 from catalog_target.sources import SourceDiscovery, resolve_source_root  # noqa: E402
 from catalog_target.xlsx import iter_xlsx_rows  # noqa: E402
 
@@ -433,20 +441,22 @@ class SourceAndInsizeTests(unittest.TestCase):
                 [
                     "id",
                     "sku",
-                    "slug",
-                    "name",
+                    "brand_id",
                     "brand",
                     "category_id",
+                    "slug",
+                    "name",
                     "base_price",
                     "is_active",
                     "is_available",
+                    "deleted_at",
                     "primary_image_url",
                     "image_count",
                 ],
                 [
-                    ["1", "1103-150", "1103-150", "caliper", "INSIZE", "57", "40000", "true", "true", "https://x/a.jpg", "1"],
-                    ["2", "OLD-1", "old-1", "legacy", "INSIZE", "57", "10", "true", "true", "", "0"],
-                    ["3", "1103-150", "dup", "dup", "INSIZE", "57", "1", "true", "true", "https://x/a.jpg", "1"],
+                    ["1", "1103-150", "3", "INSIZE", "57", "1103-150", "caliper", "40000", "true", "true", "", "https://x/a.jpg", "1"],
+                    ["2", "OLD-1", "3", "INSIZE", "57", "old-1", "legacy", "10", "true", "true", "", "", "0"],
+                    ["3", "1103-150", "3", "INSIZE", "57", "dup", "dup", "1", "true", "true", "", "https://x/a.jpg", "1"],
                 ],
             )
             result = run_reconciliation(
@@ -454,6 +464,7 @@ class SourceAndInsizeTests(unittest.TestCase):
                 output_dir=root / "out",
                 baseline_sha="testsha",
                 snapshot_path=snapshot,
+                expected_snapshot_rows=3,
             )
             self.assertEqual(result.insize.target_sku_count, 3)
             self.assertEqual(result.insize.unique_sku_count, 3)
@@ -668,6 +679,84 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertTrue(by_sku["1108-25"].commerce_ready)
             self.assertTrue(by_sku["1108-25"].target_member)
             self.assertFalse(by_sku["9999-99"].target_member)
+
+    def test_inactive_non_target_is_noop_not_deactivate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _insize_list_pdf(root, ["1108-25"])
+            _insize_distributor(root, [["1108-25", 1000, "موجود"]])
+            current = [
+                _current("1108-25", "INSIZE", id="1", base_price=Decimal("1000"), is_available=True),
+                _current("ACTIVE-OUT", "INSIZE", id="2", is_active=True),
+                _current("INACTIVE-OUT", "INSIZE", id="3", is_active=False),
+                _current("DELETED-OUT", "INSIZE", id="4", is_active=True, deleted_at="2026-01-01"),
+            ]
+            discovery = SourceDiscovery(source_root=root)
+            discovery.discover()
+            result = reconcile(
+                discovery=discovery,
+                current_products=current,
+                evidence_kind="test",
+                evidence_note="test",
+                baseline_sha="x",
+            )
+            by_sku = {r.sku: r for r in result.rows}
+            self.assertEqual(by_sku["ACTIVE-OUT"].reconciliation_state, "DEACTIVATE")
+            self.assertEqual(by_sku["INACTIVE-OUT"].reconciliation_state, "NOOP_INACTIVE_NON_TARGET")
+            self.assertNotIn("DELETED-OUT", by_sku)
+            self.assertEqual(counts(result)["DEACTIVATE"], 1)
+            self.assertEqual(counts(result)["NOOP_INACTIVE_NON_TARGET"], 1)
+
+    def test_primary_image_prefers_is_primary_then_display_order(self):
+        self.assertIn("is_primary DESC", PRODUCTS_SNAPSHOT_SELECT_SQL)
+        self.assertIn("display_order ASC", PRODUCTS_SNAPSHOT_SELECT_SQL)
+        images = [
+            {"id": 1, "is_primary": False, "display_order": 0, "image_url": "first-by-id.jpg"},
+            {"id": 5, "is_primary": True, "display_order": 9, "image_url": "primary.jpg"},
+            {"id": 2, "is_primary": False, "display_order": 1, "image_url": "second.jpg"},
+        ]
+        self.assertEqual(select_primary_image_url(images), "primary.jpg")
+        no_primary = [
+            {"id": 10, "is_primary": False, "display_order": 2, "image_url": "later.jpg"},
+            {"id": 11, "is_primary": False, "display_order": 0, "image_url": "earlier-order.jpg"},
+            {"id": 9, "is_primary": False, "display_order": 0, "image_url": "same-order-lower-id.jpg"},
+        ]
+        self.assertEqual(select_primary_image_url(no_primary), "same-order-lower-id.jpg")
+        self.assertEqual(select_primary_image_url([]), None)
+
+    def test_snapshot_validation_requires_columns_and_row_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "snap.csv"
+            headers = list(
+                [
+                    "id",
+                    "sku",
+                    "brand_id",
+                    "brand",
+                    "category_id",
+                    "slug",
+                    "name",
+                    "base_price",
+                    "is_active",
+                    "is_available",
+                    "deleted_at",
+                    "primary_image_url",
+                    "image_count",
+                ]
+            )
+            _write_csv(
+                path,
+                headers,
+                [
+                    ["1", "A-1", "3", "INSIZE", "57", "a-1", "A", "1000", "true", "true", "", "https://x/a.jpg", "1"],
+                    ["2", "B-1", "3", "INSIZE", "57", "b-1", "B", "0", "false", "false", "", "", "0"],
+                ],
+            )
+            ok = validate_snapshot_csv(path, expected_row_count=2)
+            self.assertTrue(ok.valid)
+            bad = validate_snapshot_csv(path, expected_row_count=99)
+            self.assertFalse(bad.valid)
+            self.assertTrue(bad.truncation_suspected)
 
     def test_xlsx_distributor_join_exact_only(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1213,7 +1302,8 @@ class CountInvariantTests(unittest.TestCase):
             states = counts(result)
             self.assertEqual(sum(states.values()), len(result.rows))
             for row in result.rows:
-                self.assertIn(row.reconciliation_state, {"KEEP", "UPDATE", "CREATE", "DEACTIVATE", "REVIEW"})
+                self.assertIn(row.reconciliation_state, set(STATES))
+                self.assertNotEqual(row.reconciliation_state, "DELETE")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ from typing import Any
 
 TOMAN_PER_RIAL_DIVISOR = Decimal("10")  # rial / 10 → toman; never inferred
 
-STATES = ("KEEP", "UPDATE", "CREATE", "DEACTIVATE", "REVIEW")
+STATES = ("KEEP", "UPDATE", "CREATE", "DEACTIVATE", "REVIEW", "NOOP_INACTIVE_NON_TARGET")
 
 _HYPHEN_RE = re.compile(r"[\u2010\u2011\u2012\u2013\u2014\u2212\uFE63\uFF0Dـ]")
 _WS_RE = re.compile(r"\s+")

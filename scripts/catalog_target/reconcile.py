@@ -11,9 +11,20 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from catalog_target.snapshot import (
+    SNAPSHOT_KIND_FILE,
+    SNAPSHOT_KIND_LIVE,
+    SNAPSHOT_KIND_UNAVAILABLE,
+    SnapshotIntegrity,
+    describe_snapshot_phase,
+    load_current_catalog,
+    validate_snapshot_csv,
+)
+from catalog_target.sources import SourceDiscovery, extract_sku, pick_header, membership_authority_of
 from catalog_target.core import (
     INSIZE_UNIQUE_SANITY_HIGH,
     INSIZE_UNIQUE_SANITY_LOW,
+    STATES,
     CurrentProduct,
     MatchDecision,
     PriceConversion,
@@ -32,14 +43,6 @@ from catalog_target.core import (
     normalize_sku,
     suffix_near_miss,
 )
-from catalog_target.snapshot import (
-    SNAPSHOT_KIND_FILE,
-    SNAPSHOT_KIND_LIVE,
-    SNAPSHOT_KIND_UNAVAILABLE,
-    describe_snapshot_phase,
-    load_current_catalog,
-)
-from catalog_target.sources import SourceDiscovery, extract_sku, pick_header, membership_authority_of
 
 MANIFEST_FIELDS = [
     "brand",
@@ -187,6 +190,8 @@ class ReconciliationResult:
     guanglu_evidence: list[dict[str, str]] = field(default_factory=list)
     target_manifest_scope: str = TARGET_MANIFEST_SCOPE_WAVE_1
     deferred_authorities: list[str] = field(default_factory=list)
+    current_site_snapshot_valid: bool = False
+    snapshot_integrity: dict[str, Any] = field(default_factory=dict)
 
 
 def _bool_text(value: bool) -> str:
@@ -270,6 +275,7 @@ def reconcile(
     baseline_sha: str,
     aliases: dict[tuple[str, str], str] | None = None,
     real_source_validation: str = "ok",
+    snapshot_integrity: SnapshotIntegrity | None = None,
 ) -> ReconciliationResult:
     targets = discovery.load_product_scope_targets()
     sku_headers = list(
@@ -284,6 +290,13 @@ def reconcile(
         (discovery.registry.get("insize") or {}).get("status_available_values") or ["موجود"]
     )
     site_ready = evidence_kind in SITE_EVIDENCE_READY_KINDS
+    if (
+        evidence_kind == SNAPSHOT_KIND_FILE
+        and snapshot_integrity is not None
+        and not snapshot_integrity.valid
+    ):
+        # Refuse actionable current-site reconciliation against incomplete evidence.
+        site_ready = False
 
     price_rows = discovery.load_role_rows("price")
     inventory_rows = discovery.load_role_rows("inventory")
@@ -562,9 +575,17 @@ def reconcile(
             if key in target_keys:
                 continue
             if product.deleted_at:
+                add_example("deleted_non_target_products", product.sku or product.id or "")
                 continue
             if product.is_active is True:
                 add_example("active_non_target_products", product.sku)
+                non_target_state = "DEACTIVATE"
+                review_reason = "active_non_target"
+            else:
+                # Already inactive: no actionable is_active true→false change.
+                add_example("inactive_non_target_products", product.sku)
+                non_target_state = "NOOP_INACTIVE_NON_TARGET"
+                review_reason = "inactive_non_target"
             rows.append(
                 ManifestRow(
                     brand=product.brand_key or "",
@@ -581,8 +602,8 @@ def reconcile(
                         primary_image_url=product.primary_image_url,
                     ),
                     match_confidence="none",
-                    review_reason="active_non_target" if product.is_active else "non_target",
-                    reconciliation_state="DEACTIVATE",
+                    review_reason=review_reason,
+                    reconciliation_state=non_target_state,
                     current_id=product.id or "",
                     current_slug=product.slug or "",
                     provenance="current_catalog_only",
@@ -635,6 +656,19 @@ def reconcile(
         if target_manifest_ready:
             target_manifest_ready = False
 
+    integrity = snapshot_integrity or SnapshotIntegrity()
+    # File/live snapshots require integrity pass. Fixture evidence_kind "test" stays unit-test only.
+    snapshot_valid = bool(integrity.valid) if evidence_kind in {SNAPSHOT_KIND_LIVE, SNAPSHOT_KIND_FILE} else (
+        evidence_kind == "test"
+    )
+    site_reconciliation_ready = (
+        site_ready
+        and evidence_kind != "test"
+        and snapshot_valid
+        and evidence_kind in {SNAPSHOT_KIND_LIVE, SNAPSHOT_KIND_FILE}
+        and bool(current_products)
+    )
+
     return ReconciliationResult(
         baseline_sha=baseline_sha,
         generated_at=datetime.now(timezone.utc).isoformat(),
@@ -656,7 +690,7 @@ def reconcile(
         examples=dict(examples),
         brand_quality=brand_quality,
         target_manifest_ready=target_manifest_ready,
-        current_site_reconciliation_ready=site_ready and evidence_kind != "test",
+        current_site_reconciliation_ready=site_reconciliation_ready,
         apply_ready=False,
         real_source_validation=real_source_validation,
         price_unit_conflicts=price_unit_conflicts,
@@ -669,6 +703,8 @@ def reconcile(
         guanglu_evidence=list(getattr(discovery, "guanglu_evidence", [])),
         target_manifest_scope=TARGET_MANIFEST_SCOPE_WAVE_1,
         deferred_authorities=_deferred_authorities(discovery),
+        current_site_snapshot_valid=snapshot_valid if evidence_kind != "test" else False,
+        snapshot_integrity=integrity.as_dict(),
     )
 
 
@@ -757,7 +793,7 @@ def source_has_role_safe(source: SourceFile) -> bool:
 
 def counts(result: ReconciliationResult) -> dict[str, int]:
     counter = Counter(row.reconciliation_state for row in result.rows)
-    return {state: int(counter.get(state, 0)) for state in ("KEEP", "UPDATE", "CREATE", "DEACTIVATE", "REVIEW")}
+    return {state: int(counter.get(state, 0)) for state in STATES}
 
 
 def _brand_quality_payload(result: ReconciliationResult) -> dict[str, Any]:
@@ -846,6 +882,7 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "TARGET_MANIFEST_READY": result.target_manifest_ready,
         "TARGET_MANIFEST_SCOPE": result.target_manifest_scope,
         "DEFERRED_AUTHORITIES": result.deferred_authorities,
+        "CURRENT_SITE_SNAPSHOT_VALID": result.current_site_snapshot_valid,
         "CURRENT_SITE_RECONCILIATION_READY": result.current_site_reconciliation_ready,
         "APPLY_READY": False,
         "db_evidence": result.evidence_kind,
@@ -900,6 +937,7 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
             "live_db": result.evidence_kind == SNAPSHOT_KIND_LIVE,
             "note": result.evidence_note,
             "current_products_observed": len(result.current_products),
+            "snapshot_integrity": result.snapshot_integrity,
         },
         "unavailable_authoritative_sources": result.unavailable_sources,
         "parse_failures": result.parse_failures,
@@ -971,11 +1009,24 @@ def render_summary(
         f"- TARGET_MANIFEST_READY: `{str(result.target_manifest_ready).upper()}`",
         f"- TARGET_MANIFEST_SCOPE: `{result.target_manifest_scope}`",
         f"- DEFERRED_AUTHORITIES: `{result.deferred_authorities}`",
+        f"- CURRENT_SITE_SNAPSHOT_VALID: `{str(result.current_site_snapshot_valid).upper()}`",
         f"- CURRENT_SITE_RECONCILIATION_READY: `{str(result.current_site_reconciliation_ready).upper()}`",
         "- APPLY_READY: `FALSE`",
         f"- DB evidence: **{live}** (`{result.evidence_kind}`) — {result.evidence_note}",
         f"- Current products observed: **{len(result.current_products)}**",
         f"- Target SKUs: **{len(result.target_skus)}**",
+        f"- CURRENT_SITE_SNAPSHOT_VALID: `{str(result.current_site_snapshot_valid).upper()}`",
+        "",
+        "## Reconciliation action counts (DELETE never emitted)",
+        f"- KEEP: {state_counts.get('KEEP', 0)}",
+        f"- UPDATE: {state_counts.get('UPDATE', 0)}",
+        f"- CREATE: {state_counts.get('CREATE', 0)}",
+        f"- DEACTIVATE (active non-target requiring is_active true→false): {state_counts.get('DEACTIVATE', 0)}",
+        f"- REVIEW: {state_counts.get('REVIEW', 0)}",
+        f"- NOOP_INACTIVE_NON_TARGET: {state_counts.get('NOOP_INACTIVE_NON_TARGET', 0)}",
+        "",
+        "## Snapshot integrity",
+        f"- `{json.dumps(result.snapshot_integrity, ensure_ascii=False)}`",
         "",
         "## A. Target source completeness",
         f"- Discovered files: {len(result.discovered_files)}",
@@ -1021,6 +1072,7 @@ def render_summary(
         f"- CREATE: {state_counts['CREATE']}",
         f"- DEACTIVATE: {state_counts['DEACTIVATE']}",
         f"- REVIEW: {state_counts['REVIEW']}",
+        f"- NOOP_INACTIVE_NON_TARGET: {state_counts.get('NOOP_INACTIVE_NON_TARGET', 0)}",
         "",
         "## INSIZE",
         f"- INSIZE_TARGET_ROWS: {result.insize.target_rows}",
@@ -1159,10 +1211,21 @@ def run_reconciliation(
     aliases: dict[tuple[str, str], str] | None = None,
     write: bool = True,
     real_source_validation: str | None = None,
+    expected_snapshot_rows: int | None = None,
 ) -> ReconciliationResult:
     discovery = SourceDiscovery(source_root=source_root)
     discovery.discover()
     current, kind, note = load_current_catalog(snapshot_path=snapshot_path, read_db=read_db)
+    integrity: SnapshotIntegrity | None = None
+    if snapshot_path and kind == SNAPSHOT_KIND_FILE:
+        integrity = validate_snapshot_csv(
+            Path(snapshot_path),
+            expected_row_count=expected_snapshot_rows,
+        )
+        if not integrity.valid:
+            # Refuse incomplete evidence for readiness; still emit audit rows only when valid
+            # enough to load products. Keep products for diagnostics but mark not ready.
+            note = f"{note};snapshot_integrity_failed:{';'.join(integrity.problems)}"
     validation = real_source_validation or ("ok" if source_root is not None else "BLOCKED_SOURCE_NOT_MOUNTED")
     result = reconcile(
         discovery=discovery,
@@ -1172,7 +1235,12 @@ def run_reconciliation(
         baseline_sha=baseline_sha,
         aliases=aliases,
         real_source_validation=validation,
+        snapshot_integrity=integrity,
     )
     if write:
+        # Avoid committing absolute local snapshot paths.
+        if result.evidence_note.startswith("file:") or result.evidence_note.startswith("env_file:"):
+            prefix, _, rest = result.evidence_note.partition(":")
+            result.evidence_note = f"{prefix}:{Path(rest).name}"
         write_outputs(result, output_dir)
     return result

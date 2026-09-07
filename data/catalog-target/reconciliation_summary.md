@@ -2,19 +2,32 @@
 
 PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path.
 
-- Baseline SHA: `82064870700de073dc9e799aae2ff050318759af`
-- Generated at: `2026-09-07T10:00:56.505639+00:00`
+- Baseline SHA: `80c5b25b15bd27de3d1140ac2fcd5642a4439051`
+- Generated at: `2026-09-07T10:33:19.374178+00:00`
 - REAL_SOURCE_VALIDATION: `ok`
 - SOURCE_TREE_VALID: `TRUE`
 - PARTIAL_TARGET_MANIFEST_VALID: `TRUE`
 - TARGET_MANIFEST_READY: `TRUE`
 - TARGET_MANIFEST_SCOPE: `WAVE_1_RESOLVED_AUTHORITIES`
 - DEFERRED_AUTHORITIES: `['guanglu.price_list']`
-- CURRENT_SITE_RECONCILIATION_READY: `FALSE`
+- CURRENT_SITE_SNAPSHOT_VALID: `TRUE`
+- CURRENT_SITE_RECONCILIATION_READY: `TRUE`
 - APPLY_READY: `FALSE`
-- DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`unavailable`) — no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
-- Current products observed: **0**
+- DB evidence: **NON-LIVE / SNAPSHOT / UNAVAILABLE** (`repository_snapshot_non_live`) — file:current_site_snapshot_latest.csv
+- Current products observed: **5918**
 - Target SKUs: **2316**
+- CURRENT_SITE_SNAPSHOT_VALID: `TRUE`
+
+## Reconciliation action counts (DELETE never emitted)
+- KEEP: 655
+- UPDATE: 911
+- CREATE: 506
+- DEACTIVATE (active non-target requiring is_active true→false): 360
+- REVIEW: 244
+- NOOP_INACTIVE_NON_TARGET: 3819
+
+## Snapshot integrity
+- `{"CURRENT_SITE_SNAPSHOT_VALID": true, "expected_row_count": 5918, "observed_row_count": 5918, "unique_ids": true, "missing_columns": [], "duplicate_ids": [], "duplicate_skus": [], "empty_skus": 0, "missing_brands": 296, "base_price_parse_failures": 0, "boolean_parse_failures": 0, "image_count_parse_failures": 0, "truncation_suspected": false, "problems": [], "stats": {"total": 5918, "active": 1410, "inactive": 4507, "deleted": 1, "with_sku": 5918, "without_sku": 0, "with_brand": 5622, "without_brand": 296, "with_images": 1194, "without_images": 4724, "duplicate_sku_groups": 0}}`
 
 ## A. Target source completeness
 - Discovered files: 550
@@ -25,9 +38,9 @@ PRODUCTION MUTATION: **ZERO**. APPLY was not run and this tool has no apply path
 - Duplicate source SKUs (identity collapsed, REVIEW): 60
 
 ## B. Current-site evidence completeness
-- Kind: `unavailable` — **NON-LIVE / SNAPSHOT / UNAVAILABLE**
-- Note: no_live_db_and_no_full_catalog_snapshot; refusing data/imports/*_products.csv (PDF parse, not site state) and image-only active-product extracts
-- Current products observed: **0**
+- Kind: `repository_snapshot_non_live` — **NON-LIVE / SNAPSHOT / UNAVAILABLE**
+- Note: file:current_site_snapshot_latest.csv
+- Current products observed: **5918**
 
 A and B are independent. A real Target manifest can exist without live site evidence.
 
@@ -40,18 +53,19 @@ A and B are independent. A real Target manifest can exist without live site evid
 
 ## Brand source quality
 - ASTPOWER: extracted=51 unique=51 valid_prices=0 zero/missing=51 duplicates=0 rejected=0 review=51 confidence=high
-- DASQUA: extracted=897 unique=889 valid_prices=773 zero/missing=116 duplicates=8 rejected=57 review=889 confidence=high
-- DCOIL: extracted=321 unique=253 valid_prices=191 zero/missing=62 duplicates=42 rejected=0 review=253 confidence=high
+- DASQUA: extracted=897 unique=889 valid_prices=773 zero/missing=116 duplicates=8 rejected=57 review=9 confidence=high
+- DCOIL: extracted=321 unique=253 valid_prices=191 zero/missing=62 duplicates=42 rejected=0 review=42 confidence=high
 - GUANGLU: extracted=0 unique=0 valid_prices=0 zero/missing=0 duplicates=0 rejected=265 review=0 confidence=none
-- INSIZE: extracted=872 unique=872 valid_prices=714 zero/missing=158 duplicates=0 rejected=110 review=872 confidence=high
-- TERMA: extracted=278 unique=251 valid_prices=239 zero/missing=12 duplicates=10 rejected=0 review=251 confidence=high
+- INSIZE: extracted=872 unique=872 valid_prices=714 zero/missing=158 duplicates=0 rejected=110 review=132 confidence=high
+- TERMA: extracted=278 unique=251 valid_prices=239 zero/missing=12 duplicates=10 rejected=0 review=10 confidence=high
 
 ## Reconciliation counts
-- KEEP: 0
-- UPDATE: 0
-- CREATE: 0
-- DEACTIVATE: 0
-- REVIEW: 2316
+- KEEP: 655
+- UPDATE: 911
+- CREATE: 506
+- DEACTIVATE: 360
+- REVIEW: 244
+- NOOP_INACTIVE_NON_TARGET: 3819
 
 ## INSIZE
 - INSIZE_TARGET_ROWS: 872
