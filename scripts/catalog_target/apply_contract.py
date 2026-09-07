@@ -1,13 +1,13 @@
-"""Future APPLY contract (READ-ONLY design). No writer is implemented here.
+"""APPLY contract: stale-snapshot guard shared by Sales Wave writers.
 
-Any future production mutation PR must implement this guard before writing.
+The guard itself is read-only. Production mutation requires an explicit APPLY
+CLI with Category B authorization (see sales_wave_apply.py).
 """
 
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from typing import Any
-
 
 APPLY_REQUIRED_LIVE_FIELDS = (
     "id",
