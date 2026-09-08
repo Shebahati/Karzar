@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-09-08T06:30:25.645080+00:00",
+  "wave": "STRICT_PUBLIC_SALE_SAFETY_S1",
+  "production_mutation": "ZERO",
+  "apply_executed": false,
+  "fresh_snapshot": {
+    "snapshot_timestamp_utc": "20260908T062718Z",
+    "method": "ssh_docker_exec_lathe_postgres_psql_copy_stdout",
+    "query_kind": "SELECT_ONLY / COPY (...) TO STDOUT WITH CSV HEADER",
+    "production_db_mutation": "ZERO",
+    "database": "karzar_staging",
+    "local_path": "/home/shebahati/Projects/Karzar/.local-scratch/insize-872-master-v2/current_site_snapshot_20260908T062718Z.csv",
+    "observed_data_rows": 5918,
+    "sha256": "39bd234f4814a3b959f40d3be6de97c4c12b8f026e47db792ddbb22b0098fa71",
+    "vps_file_written": false,
+    "note": "fresh READ-ONLY re-read for strict public-sale safety planning"
+  },
+  "candidate_count": 316,
+  "keep_count": 158,
+  "available_count": 474,
+  "previous_s1_count": 254,
+  "additional_rows_vs_old_s1": 62,
+  "plan_csv": "/home/shebahati/Projects/Karzar/.local-scratch/insize-872-master-v2/insize_strict_safety_s1_plan.csv",
+  "plan_csv_sha256": "d67eb70a67742c985bca45b1a13c7df7e468853ba16cae2d4070e11e6018a054",
+  "repo_plan_csv": "/home/shebahati/Projects/Karzar/data/catalog-target/insize_strict_public_sale_s1_plan.csv",
+  "repo_plan_csv_sha256": "d67eb70a67742c985bca45b1a13c7df7e468853ba16cae2d4070e11e6018a054",
+  "mutation": {
+    "field": "is_available",
+    "from": true,
+    "to": false
+  },
+  "forbidden_mutations": [
+    "base_price",
+    "is_active",
+    "sku",
+    "name",
+    "slug",
+    "brand_id",
+    "category_id",
+    "media",
+    "delete",
+    "deactivate"
+  ],
+  "expected_post_apply_invariant": {
+    "AVAILABLE_TRUE_NOT_ON_PUBLIC_SALE_ALLOWLIST": 0,
+    "remaining_available_should_equal_keep_count": 158
+  },
+  "non_target_quarantine": [
+    {
+      "sku": "2313-1",
+      "product_id": "3620",
+      "blocker": "non_target_insize_brand_row",
+      "reason": "INSIZE brand product not in authoritative 872-SKU membership target; quarantine from public sale",
+      "current_is_available": "true",
+      "proposed_is_available": "false",
+      "decision": "quarantine_is_available_false_keep_product"
+    },
+    {
+      "sku": "5042",
+      "product_id": "4140",
+      "blocker": "non_target_insize_brand_row",
+      "reason": "INSIZE brand product not in authoritative 872-SKU membership target; quarantine from public sale",
+      "current_is_available": "true",
+      "proposed_is_available": "false",
+      "decision": "quarantine_is_available_false_keep_product"
+    },
+    {
+      "sku": "ISM-PM200SA",
+      "product_id": "3705",
+      "blocker": "non_target_insize_brand_row",
+      "reason": "INSIZE brand product not in authoritative 872-SKU membership target; quarantine from public sale",
+      "current_is_available": "true",
+      "proposed_is_available": "false",
+      "decision": "quarantine_is_available_false_keep_product"
+    }
+  ],
+  "blocker_counts": {
+    "not_active": 37,
+    "authoritative_source_unavailable": 253,
+    "required_public_fields_not_ready": 7,
+    "unresolved_identity_risk_c": 10,
+    "non_target_insize_brand_row": 3,
+    "no_exact_authoritative_source": 5,
+    "invalid_or_missing_authoritative_price": 1
+  },
+  "gap_blocker_counts": {
+    "not_active": 37,
+    "required_public_fields_not_ready": 7,
+    "unresolved_identity_risk_c": 10,
+    "non_target_insize_brand_row": 3,
+    "no_exact_authoritative_source": 5
+  },
+  "writer_contract": {
+    "default_mode": "DRY_RUN",
+    "mutable_columns": [
+      "is_available"
+    ],
+    "requires": [
+      "immutable_reviewed_plan_sha256",
+      "exact_row_count",
+      "fresh_production_re_read",
+      "stale_plan_guard",
+      "SELECT_FOR_UPDATE",
+      "single_transaction",
+      "expected_current_predicates",
+      "abort_on_first_mismatch",
+      "pre_write_backup",
+      "post_write_verification",
+      "non_allowlist_isolation_proof"
+    ]
+  }
+}
