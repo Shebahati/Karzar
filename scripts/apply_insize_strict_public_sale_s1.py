@@ -121,6 +121,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             if not args.database_url:
                 raise ApplyAbort("database_url_required_for_live_reread_or_apply")
+            if args.apply and not str(args.backup_dir or "").strip():
+                raise ApplyAbort("backup_dir_required_for_apply")
             conn = connect_runtime_db(args.database_url)
             try:
                 run = apply_allowlist(

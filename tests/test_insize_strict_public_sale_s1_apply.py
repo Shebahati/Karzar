@@ -32,11 +32,18 @@ from catalog_target.public_sale_safety_apply import (  # noqa: E402
     load_and_validate_plan,
     sha256_file,
     stale_guard,
-    write_pre_apply_backup,
     writer_contract_summary,
 )
 
 PLAN_CSV = ROOT / "data" / "catalog-target" / "insize_strict_public_sale_s1_plan.csv"
+
+_DEFAULT_ISOLATION = {
+    "non_allowlist_fingerprint": "fp-non-allowlist-v1",
+    "product_images_fingerprint": "fp-product-images-v1",
+    "products_count": "5000",
+    "brands_count": "12",
+    "categories_count": "80",
+}
 
 
 def _sample_plan_rows(n: int = 3) -> list[StrictPlanRow]:
@@ -62,18 +69,58 @@ def _live_from_plan_row(row: StrictPlanRow, **overrides: Any) -> LiveProduct:
 
 
 class FakeCursor:
-    def __init__(self, store: dict[int, LiveProduct], *, fail_after: int | None = None):
+    def __init__(
+        self,
+        store: dict[int, LiveProduct],
+        *,
+        fail_after: int | None = None,
+        isolation: dict[str, str] | None = None,
+        flip_isolation_key_after_updates: str | None = None,
+    ):
         self.store = store
         self.fail_after = fail_after
         self.updates = 0
         self.rowcount = 0
         self._result: list[tuple] = []
         self.executed: list[tuple[str, Any]] = []
+        self.isolation = dict(isolation or _DEFAULT_ISOLATION)
+        self.flip_isolation_key_after_updates = flip_isolation_key_after_updates
+        self._isolation_capture_count = 0
+
+    def _classify_isolation(self, sql_l: str) -> str | None:
+        if "from product_images" in sql_l:
+            return "product_images_fingerprint"
+        if "id not in" in sql_l and "md5(" in sql_l:
+            return "non_allowlist_fingerprint"
+        if sql_l.startswith("select count(*) from products"):
+            return "products_count"
+        if sql_l.startswith("select count(*) from brands"):
+            return "brands_count"
+        if sql_l.startswith("select count(*) from categories"):
+            return "categories_count"
+        return None
 
     def execute(self, sql: str, params=None) -> None:  # noqa: ANN001
         self.executed.append((sql, params))
         sql_l = " ".join(sql.lower().split())
         if sql_l.startswith("select "):
+            isolation_key = self._classify_isolation(sql_l)
+            if isolation_key is not None:
+                self._isolation_capture_count += 1
+                # After UPDATEs, optionally flip one fingerprint to force mismatch.
+                if (
+                    self.flip_isolation_key_after_updates
+                    and self.updates > 0
+                    and self._isolation_capture_count > len(_DEFAULT_ISOLATION)
+                    and isolation_key == self.flip_isolation_key_after_updates
+                ):
+                    self._result = [(f"CHANGED-{self.isolation[isolation_key]}",)]
+                else:
+                    self._result = [(self.isolation[isolation_key],)]
+                self.rowcount = 1
+                return
+            if params is None:
+                raise AssertionError(f"unexpected parameterless SELECT: {sql}")
             ids = list(params[0])
             self._result = []
             for pid in sorted(ids):
@@ -150,13 +197,25 @@ class FakeCursor:
 
 
 class FakeConn:
-    def __init__(self, store: dict[int, LiveProduct], *, fail_after: int | None = None):
+    def __init__(
+        self,
+        store: dict[int, LiveProduct],
+        *,
+        fail_after: int | None = None,
+        isolation: dict[str, str] | None = None,
+        flip_isolation_key_after_updates: str | None = None,
+    ):
         self.store = store
         self.fail_after = fail_after
         self.committed = False
         self.rolled_back = False
         self._snapshot: dict[int, LiveProduct] | None = None
-        self.cursor_obj = FakeCursor(store, fail_after=fail_after)
+        self.cursor_obj = FakeCursor(
+            store,
+            fail_after=fail_after,
+            isolation=isolation,
+            flip_isolation_key_after_updates=flip_isolation_key_after_updates,
+        )
 
     def cursor(self, *args, **kwargs):  # noqa: ANN002, ANN003
         if self._snapshot is None:
@@ -253,8 +312,10 @@ class ApplyBehaviorTests(unittest.TestCase):
         self.assertFalse(result.production_apply_executed)
         self.assertFalse(result.aborted)
         self.assertEqual(result.updated_count, 0)
+        self.assertFalse(result.isolation_verified)
         self.assertTrue(conn.rolled_back)
         self.assertFalse(conn.committed)
+        self.assertEqual(conn.cursor_obj.updates, 0)
         for pid, row in before.items():
             self.assertEqual(self.store[pid].is_available, row.is_available)
             self.assertEqual(self.store[pid].base_price, row.base_price)
@@ -262,7 +323,44 @@ class ApplyBehaviorTests(unittest.TestCase):
             self.assertEqual(self.store[pid].sku, row.sku)
             self.assertEqual(self.store[pid].name, row.name)
 
-    def test_apply_only_allowlisted_availability(self):
+    def test_apply_requires_backup_dir_aborts_before_update(self):
+        conn = FakeConn(self.store)
+        with self.assertRaises(ApplyAbort) as ctx:
+            apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=None,
+                expected_count=len(self.plan),
+            )
+        self.assertEqual(str(ctx.exception), "backup_dir_required_for_apply")
+        self.assertEqual(conn.cursor_obj.updates, 0)
+        self.assertFalse(conn.committed)
+        self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_backup_failure_aborts_before_update(self):
+        conn = FakeConn(self.store)
+        with tempfile.TemporaryDirectory() as tmp:
+            backup_dir = Path(tmp)
+            with mock.patch(
+                "catalog_target.public_sale_safety_apply.write_pre_apply_backup",
+                side_effect=OSError("disk full"),
+            ):
+                with self.assertRaises(ApplyAbort) as ctx:
+                    apply_allowlist(
+                        conn,
+                        self.plan,
+                        dry_run=False,
+                        backup_dir=backup_dir,
+                        expected_count=len(self.plan),
+                    )
+            self.assertIn("backup_generation_failed", str(ctx.exception))
+            self.assertEqual(conn.cursor_obj.updates, 0)
+            self.assertFalse(conn.committed)
+            self.assertTrue(conn.rolled_back)
+            self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_apply_with_backup_before_mutation_and_isolation_evidence(self):
         outsider = LiveProduct(
             id=999999,
             sku="OUTSIDER",
@@ -278,12 +376,34 @@ class ApplyBehaviorTests(unittest.TestCase):
         self.store[outsider.id] = outsider
         before_out = replace(outsider)
         conn = FakeConn(self.store)
-        result = apply_allowlist(
-            conn, self.plan, dry_run=False, expected_count=len(self.plan)
-        )
-        self.assertEqual(result.mode, "apply_committed")
-        self.assertTrue(result.production_apply_executed)
-        self.assertEqual(result.updated_count, len(self.plan))
+        with tempfile.TemporaryDirectory() as tmp:
+            result = apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=Path(tmp),
+                expected_count=len(self.plan),
+            )
+            self.assertEqual(result.mode, "apply_committed")
+            self.assertTrue(result.production_apply_executed)
+            self.assertEqual(result.updated_count, len(self.plan))
+            self.assertTrue(result.isolation_verified)
+            self.assertTrue(result.non_allowlist_state_unchanged)
+            self.assertEqual(result.isolation_before, result.isolation_after)
+            self.assertEqual(
+                result.isolation_before["non_allowlist_fingerprint"],
+                _DEFAULT_ISOLATION["non_allowlist_fingerprint"],
+            )
+            self.assertTrue(Path(result.backup_path).is_file())
+            self.assertTrue(Path(result.rollback_sql_path).is_file())
+            self.assertTrue(result.backup_sha256)
+            sql = Path(result.rollback_sql_path).read_text(encoding="utf-8")
+            self.assertIn("UPDATE products SET is_available", sql)
+            set_clause = sql.split("SET", 1)[1].split("WHERE", 1)[0]
+            self.assertNotIn("base_price", set_clause)
+            self.assertNotIn("is_active", set_clause)
+            # Backup written before first UPDATE: backup exists and updates ran.
+            self.assertGreater(conn.cursor_obj.updates, 0)
         for row in self.plan:
             live = self.store[row.product_id]
             self.assertFalse(live.is_available)
@@ -291,8 +411,96 @@ class ApplyBehaviorTests(unittest.TestCase):
             self.assertEqual(live.is_active, row.expected_is_active)
             self.assertEqual(live.sku, row.sku)
             self.assertEqual(live.name, f"name-{row.sku}")
+            self.assertEqual(live.slug, row.sku.lower())
+            self.assertEqual(live.brand_id, "3")
+            self.assertEqual(live.category_id, "57")
         self.assertEqual(self.store[outsider.id].is_available, before_out.is_available)
         self.assertEqual(self.store[outsider.id].base_price, before_out.base_price)
+
+    def test_non_allowlist_isolation_mismatch_rolls_back(self):
+        conn = FakeConn(
+            self.store,
+            flip_isolation_key_after_updates="non_allowlist_fingerprint",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_allowlist(
+                    conn,
+                    self.plan,
+                    dry_run=False,
+                    backup_dir=Path(tmp),
+                    expected_count=len(self.plan),
+                )
+        self.assertEqual(str(ctx.exception), "non_allowlist_isolation_mismatch")
+        self.assertTrue(conn.rolled_back)
+        self.assertFalse(conn.committed)
+        self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_product_images_isolation_mismatch_rolls_back(self):
+        conn = FakeConn(
+            self.store,
+            flip_isolation_key_after_updates="product_images_fingerprint",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_allowlist(
+                    conn,
+                    self.plan,
+                    dry_run=False,
+                    backup_dir=Path(tmp),
+                    expected_count=len(self.plan),
+                )
+        self.assertEqual(str(ctx.exception), "product_images_isolation_mismatch")
+        self.assertTrue(conn.rolled_back)
+        self.assertFalse(conn.committed)
+        self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_products_count_mismatch_rolls_back(self):
+        conn = FakeConn(
+            self.store,
+            flip_isolation_key_after_updates="products_count",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_allowlist(
+                    conn,
+                    self.plan,
+                    dry_run=False,
+                    backup_dir=Path(tmp),
+                    expected_count=len(self.plan),
+                )
+        self.assertEqual(str(ctx.exception), "products_count_changed")
+        self.assertTrue(conn.rolled_back)
+        self.assertFalse(conn.committed)
+        self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_brand_and_category_counts_unchanged_on_success(self):
+        conn = FakeConn(self.store)
+        with tempfile.TemporaryDirectory() as tmp:
+            result = apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=Path(tmp),
+                expected_count=len(self.plan),
+            )
+        self.assertTrue(result.isolation_verified)
+        self.assertEqual(
+            result.isolation_before["brands_count"],
+            result.isolation_after["brands_count"],
+        )
+        self.assertEqual(
+            result.isolation_before["categories_count"],
+            result.isolation_after["categories_count"],
+        )
+        self.assertEqual(
+            result.isolation_before["brands_count"],
+            _DEFAULT_ISOLATION["brands_count"],
+        )
+        self.assertEqual(
+            result.isolation_before["categories_count"],
+            _DEFAULT_ISOLATION["categories_count"],
+        )
 
     def test_stale_row_aborts_entire_transaction(self):
         self.store[self.plan[0].product_id] = replace(
@@ -300,26 +508,74 @@ class ApplyBehaviorTests(unittest.TestCase):
             base_price=Decimal("123456"),
         )
         conn = FakeConn(self.store)
-        result = apply_allowlist(
-            conn, self.plan, dry_run=False, expected_count=len(self.plan)
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            result = apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=Path(tmp),
+                expected_count=len(self.plan),
+            )
         self.assertTrue(result.aborted)
         self.assertEqual(result.abort_reason, "stale_snapshot_guard_failed")
         self.assertFalse(result.production_apply_executed)
         self.assertTrue(conn.rolled_back)
-        # No availability flips when aborted before writes.
+        self.assertEqual(conn.cursor_obj.updates, 0)
         self.assertTrue(self.store[self.plan[1].product_id].is_available)
 
     def test_rowcount_mismatch_aborts_and_rolls_back(self):
         conn = FakeConn(self.store, fail_after=1)
-        with self.assertRaises(ApplyAbort) as ctx:
-            apply_allowlist(
-                conn, self.plan, dry_run=False, expected_count=len(self.plan)
-            )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_allowlist(
+                    conn,
+                    self.plan,
+                    dry_run=False,
+                    backup_dir=Path(tmp),
+                    expected_count=len(self.plan),
+                )
         self.assertIn("affected_row_mismatch", str(ctx.exception))
         self.assertTrue(conn.rolled_back)
-        # FakeConn rollback restores snapshot taken at first cursor().
+        self.assertFalse(conn.committed)
         self.assertTrue(all(self.store[r.product_id].is_available for r in self.plan))
+
+    def test_only_is_available_true_to_false_writable(self):
+        conn = FakeConn(self.store)
+        with tempfile.TemporaryDirectory() as tmp:
+            result = apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=Path(tmp),
+                expected_count=len(self.plan),
+            )
+        self.assertTrue(result.production_apply_executed)
+        for row in self.plan:
+            self.assertTrue(row.expected_is_available)
+            self.assertFalse(row.proposed_is_available)
+            self.assertFalse(self.store[row.product_id].is_available)
+
+    def test_base_price_is_active_identity_unchanged(self):
+        before = {pid: replace(row) for pid, row in self.store.items()}
+        conn = FakeConn(self.store)
+        with tempfile.TemporaryDirectory() as tmp:
+            apply_allowlist(
+                conn,
+                self.plan,
+                dry_run=False,
+                backup_dir=Path(tmp),
+                expected_count=len(self.plan),
+            )
+        for pid, prior in before.items():
+            live = self.store[pid]
+            self.assertEqual(live.base_price, prior.base_price)
+            self.assertEqual(live.is_active, prior.is_active)
+            self.assertEqual(live.sku, prior.sku)
+            self.assertEqual(live.name, prior.name)
+            self.assertEqual(live.slug, prior.slug)
+            self.assertEqual(live.brand_id, prior.brand_id)
+            self.assertEqual(live.category_id, prior.category_id)
+            self.assertEqual(live.deleted_at, prior.deleted_at)
 
     def test_backup_and_rollback_sql_sufficient(self):
         conn = FakeConn(self.store)
@@ -342,9 +598,6 @@ class ApplyBehaviorTests(unittest.TestCase):
 
     def test_apply_cannot_run_accidentally_default(self):
         with mock.patch.dict("os.environ", {}, clear=False):
-            for key in ("KARZAR_ALLOW_PRODUCTION_WRITE", "KARZAR_INGESTION_CATEGORY"):
-                # Ensure missing auth aborts when --apply requested.
-                pass
             with self.assertRaises(ApplyAbort):
                 assert_production_apply_authorized(
                     apply=True,
@@ -382,6 +635,8 @@ class ApplyBehaviorTests(unittest.TestCase):
         self.assertEqual(contract["default_mode"], "DRY_RUN")
         self.assertEqual(contract["mutable_columns"], ["is_available"])
         self.assertIn("base_price", contract["forbidden_columns"])
+        self.assertTrue(contract["backup_required_before_apply"])
+        self.assertTrue(contract["isolation_proof_enforced_before_commit"])
 
 
 if __name__ == "__main__":

@@ -7,8 +7,6 @@ Category B authorization tokens and is never executed by this planning task.
 from __future__ import annotations
 
 import csv
-import hashlib
-import os
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -19,13 +17,12 @@ from catalog_target.apply_contract import StaleSnapshotGuard
 from catalog_target.sales_wave_apply import (
     ALLOW_ENV,
     CATEGORY_ENV,
-    FORBIDDEN_MUTATION_COLUMNS as _WAVE1_FORBIDDEN,
-    ApplyAbort,
-    DbConnection,
-    LiveProduct,
     PROD_HOST_MARKER,
     RUNTIME_DB_DEPENDENCY,
     RUNTIME_DB_DRIVER,
+    ApplyAbort,
+    DbConnection,
+    LiveProduct,
     assert_isolation_queries_match_schema,
     assert_production_apply_authorized,
     connect_runtime_db,
@@ -35,6 +32,9 @@ from catalog_target.sales_wave_apply import (
     normalize_database_url,
     rows_from_db,
     sha256_file,
+)
+from catalog_target.sales_wave_apply import (
+    FORBIDDEN_MUTATION_COLUMNS as _WAVE1_FORBIDDEN,
 )
 
 # Frozen after local reviewed plan generation (also copied under data/catalog-target/).
@@ -147,6 +147,23 @@ class DryRunLine:
     blocker: str
 
 
+ISOLATION_EVIDENCE_KEYS = (
+    "non_allowlist_fingerprint",
+    "product_images_fingerprint",
+    "products_count",
+    "brands_count",
+    "categories_count",
+)
+
+ISOLATION_ABORT_REASONS = {
+    "non_allowlist_fingerprint": "non_allowlist_isolation_mismatch",
+    "product_images_fingerprint": "product_images_isolation_mismatch",
+    "products_count": "products_count_changed",
+    "brands_count": "brands_count_changed",
+    "categories_count": "categories_count_changed",
+}
+
+
 @dataclass
 class ApplyRunResult:
     mode: str
@@ -163,6 +180,10 @@ class ApplyRunResult:
     backup_sha256: str = ""
     rollback_sql_path: str = ""
     updated_count: int = 0
+    isolation_before: dict[str, str] = field(default_factory=dict)
+    isolation_after: dict[str, str] = field(default_factory=dict)
+    isolation_verified: bool = False
+    non_allowlist_state_unchanged: bool | None = None
     transaction_safeguards: dict[str, Any] = field(default_factory=dict)
     implementation_ready: bool = True
 
@@ -466,7 +487,46 @@ def write_pre_apply_backup(
     lines.append(f"-- expected_row_count={len(live_rows)}")
     lines.append("COMMIT;")
     rollback_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return backup_path, sha256_file(backup_path), rollback_path
+    if not backup_path.is_file() or not rollback_path.is_file():
+        raise ApplyAbort("backup_artifacts_missing_after_write")
+    digest = sha256_file(backup_path)
+    if not digest:
+        raise ApplyAbort("backup_sha256_empty")
+    return backup_path, digest, rollback_path
+
+
+def require_backup_dir_for_apply(*, dry_run: bool, backup_dir: Path | None) -> None:
+    """Fail-closed: APPLY cannot proceed without a backup directory."""
+    if dry_run:
+        return
+    if backup_dir is None:
+        raise ApplyAbort("backup_dir_required_for_apply")
+    path = Path(backup_dir)
+    if str(path).strip() == "":
+        raise ApplyAbort("backup_dir_required_for_apply")
+
+
+def capture_isolation_evidence(cursor: Any, allowlist_ids: list[int]) -> dict[str, str]:
+    """Execute isolation proof queries and return scalar evidence values."""
+    queries = isolation_proof_queries(allowlist_ids)
+    evidence: dict[str, str] = {}
+    for key in ISOLATION_EVIDENCE_KEYS:
+        sql = queries[key]
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        if not rows:
+            raise ApplyAbort(f"isolation_query_empty:{key}")
+        value = rows[0][0]
+        evidence[key] = "" if value is None else str(value)
+    return evidence
+
+
+def assert_isolation_unchanged(
+    before: dict[str, str], after: dict[str, str]
+) -> None:
+    for key in ISOLATION_EVIDENCE_KEYS:
+        if before.get(key) != after.get(key):
+            raise ApplyAbort(ISOLATION_ABORT_REASONS[key])
 
 
 def apply_allowlist(
@@ -480,8 +540,13 @@ def apply_allowlist(
     if len(plan_rows) != expected_count:
         raise ApplyAbort(f"allowlist_count_invalid:{len(plan_rows)}")
 
+    # APPLY must have a backup directory before any DB write work begins.
+    require_backup_dir_for_apply(dry_run=dry_run, backup_dir=backup_dir)
+
     product_ids = [row.product_id for row in plan_rows]
     cursor = conn.cursor()
+    isolation_before: dict[str, str] = {}
+    isolation_after: dict[str, str] = {}
     try:
         live = rows_from_db(cursor, product_ids, for_update=not dry_run)
         guard = stale_guard(plan_rows, live)
@@ -500,20 +565,23 @@ def apply_allowlist(
                     "abort_before_first_write": True,
                     "partial_commit_allowed": False,
                     "mutable_columns": list(MUTABLE_COLUMNS),
+                    "backup_required_for_apply": True,
+                    "isolation_proof_enforced_before_commit": True,
                 },
             )
 
         backup_path = ""
         backup_sha = ""
         rollback_path = ""
-        if backup_dir is not None:
-            bpath, bsha, rpath = write_pre_apply_backup(live, output_dir=backup_dir)
-            backup_path = str(bpath)
-            backup_sha = bsha
-            rollback_path = str(rpath)
-
         dry_lines = build_dry_run_lines(plan_rows)
+
         if dry_run:
+            # Optional backup on dry-run is allowed but never required.
+            if backup_dir is not None:
+                bpath, bsha, rpath = write_pre_apply_backup(live, output_dir=Path(backup_dir))
+                backup_path = str(bpath)
+                backup_sha = bsha
+                rollback_path = str(rpath)
             conn.rollback()
             return ApplyRunResult(
                 mode="dry_run",
@@ -526,6 +594,8 @@ def apply_allowlist(
                 backup_sha256=backup_sha,
                 rollback_sql_path=rollback_path,
                 updated_count=0,
+                isolation_verified=False,
+                non_allowlist_state_unchanged=None,
                 transaction_safeguards={
                     "single_transaction": True,
                     "for_update_lock": False,
@@ -533,8 +603,29 @@ def apply_allowlist(
                     "forbidden_columns": list(FORBIDDEN_MUTATION_COLUMNS),
                     "affected_count_must_equal": len(plan_rows),
                     "partial_commit_allowed": False,
+                    "backup_required_for_apply": True,
+                    "isolation_proof_enforced_before_commit": True,
                 },
             )
+
+        # --- APPLY path: backup mandatory, then isolation-before, writes, isolation-after ---
+        assert backup_dir is not None  # narrowed by require_backup_dir_for_apply
+        try:
+            bpath, bsha, rpath = write_pre_apply_backup(live, output_dir=Path(backup_dir))
+        except ApplyAbort:
+            conn.rollback()
+            raise
+        except OSError as exc:
+            conn.rollback()
+            raise ApplyAbort(f"backup_generation_failed:{exc}") from exc
+        if not bpath.is_file() or not rpath.is_file() or not bsha:
+            conn.rollback()
+            raise ApplyAbort("backup_artifacts_incomplete")
+        backup_path = str(bpath)
+        backup_sha = bsha
+        rollback_path = str(rpath)
+
+        isolation_before = capture_isolation_evidence(cursor, product_ids)
 
         updated = 0
         for plan in plan_rows:
@@ -587,6 +678,13 @@ def apply_allowlist(
                 conn.rollback()
                 raise ApplyAbort(f"post_write_sku_mutated:{plan.sku}")
 
+        isolation_after = capture_isolation_evidence(cursor, product_ids)
+        try:
+            assert_isolation_unchanged(isolation_before, isolation_after)
+        except ApplyAbort:
+            conn.rollback()
+            raise
+
         conn.commit()
         return ApplyRunResult(
             mode="apply_committed",
@@ -599,6 +697,10 @@ def apply_allowlist(
             backup_sha256=backup_sha,
             rollback_sql_path=rollback_path,
             updated_count=updated,
+            isolation_before=isolation_before,
+            isolation_after=isolation_after,
+            isolation_verified=True,
+            non_allowlist_state_unchanged=True,
             transaction_safeguards={
                 "single_transaction": True,
                 "for_update_lock": True,
@@ -607,6 +709,9 @@ def apply_allowlist(
                 "affected_count_must_equal": len(plan_rows),
                 "post_write_verification": True,
                 "partial_commit_allowed": False,
+                "backup_required_for_apply": True,
+                "isolation_proof_enforced_before_commit": True,
+                "only_reviewed_allowlist_is_available_changed": True,
             },
         )
     except Exception:
@@ -627,6 +732,9 @@ def writer_contract_summary() -> dict[str, Any]:
         "reviewed_plan_csv_sha256": REVIEWED_PLAN_CSV_SHA256,
         "reviewed_snapshot_timestamp": REVIEWED_SNAPSHOT_TIMESTAMP,
         "reviewed_snapshot_sha256": REVIEWED_SNAPSHOT_SHA256,
+        "backup_required_before_apply": True,
+        "isolation_proof_enforced_before_commit": True,
+        "isolation_evidence_keys": list(ISOLATION_EVIDENCE_KEYS),
         "stale_snapshot_guard": StaleSnapshotGuard(
             writer_implemented=True,
             notes=(
@@ -634,12 +742,15 @@ def writer_contract_summary() -> dict[str, Any]:
                 "Compare id, sku, base_price, is_active, is_available to the reviewed plan.",
                 "Abort entire APPLY on any drift; no partial commit.",
                 "Only is_available may change (true→false).",
+                "APPLY requires pre-write backup CSV + rollback SQL before first UPDATE.",
+                "Non-allowlist/product_images/count isolation proofs must match before COMMIT.",
             ),
         ).as_dict(),
         "authorization": {
             "apply_flag": "--apply",
             "confirm_production_write": "--confirm-production-write",
             "confirm_plan_sha256": "--confirm-plan-sha256",
+            "backup_dir": "--backup-dir (required for --apply)",
             "env": [ALLOW_ENV, f"{CATEGORY_ENV}=B"],
             "production_host_marker": PROD_HOST_MARKER,
         },
@@ -653,9 +764,14 @@ def post_apply_verification_contract() -> dict[str, Any]:
         "expected_remaining_available_on_keep_allowlist_only": True,
         "AVAILABLE_TRUE_NOT_ON_PUBLIC_SALE_ALLOWLIST": 0,
         "assert_isolation_queries_match_schema": True,
+        "isolation_before_after_required_on_apply": True,
+        "NON_ALLOWLIST_STATE_UNCHANGED": True,
+        "ONLY_REVIEWED_ALLOWLIST_IS_AVAILABLE_CHANGED": True,
         "fingerprint_helpers": [
             "isolation_fingerprint",
             "isolation_proof_queries",
+            "capture_isolation_evidence",
+            "assert_isolation_unchanged",
         ],
     }
 
@@ -670,13 +786,16 @@ __all__ = [
     "LiveProduct",
     "apply_allowlist",
     "assert_isolation_queries_match_schema",
+    "assert_isolation_unchanged",
     "assert_production_apply_authorized",
     "build_dry_run_lines",
+    "capture_isolation_evidence",
     "connect_runtime_db",
     "default_plan_csv_path",
     "fetch_allowlist_readonly",
     "isolation_fingerprint",
     "isolation_proof_queries",
+    "require_backup_dir_for_apply",
     "load_and_validate_plan",
     "normalize_database_url",
     "post_apply_verification_contract",
