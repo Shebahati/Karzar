@@ -67,6 +67,9 @@ TLS verification always on. Do not log full tokens.
 Form POST fields include `Token`, `ResNum`, `RefNum`, `State`, `Status`, `TerminalId`, `MID`,
 `TraceNo`, `RRN`/`Rrn`, `Amount`, masked pan fields. Full PAN is never stored.
 Success gate before Verify: `State=OK` (uppercase) and `Status=2`.
+`TerminalId` must match configured `SEP_TERMINAL_ID`. `MID` is retained as sanitized
+diagnostics only — real SEP callbacks often send `MID` ≠ `TerminalId`; do **not** reject
+on that inequality. Settlement still requires server-side Verify.
 
 ## Verify logic
 
