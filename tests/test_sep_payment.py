@@ -508,6 +508,181 @@ def test_sep_callback_token_mismatch(valid_product_data, super_admin_headers, mo
     assert "reason=failed" in resp.headers["location"]
     order = asyncio.run(_get_order(body["order_id"]))
     assert order.payment_status != PaymentStatus.PAID.value
+    assert order.payment_last_error == "token_mismatch"
+    assert order.payment_ref_id is None
+
+
+@pytest.mark.usefixtures("override_database")
+def test_sep_callback_mid_differs_from_terminal_still_verifies(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    """Production regression: real SEP POSTs MID that is not string-equal to TerminalId.
+
+    Pre-fix code rejected with mid_mismatch before RefNum reservation / Verify.
+    """
+    token = _unique_token("MID")
+    ref_num = _unique_ref("MID")
+    # Distinct merchant-style MID (not equal to TERMINAL="2001").
+    merchant_mid = "13157071"
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-MID"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09121110013")
+    body = _checkout(product_id, headers, phone="09121110013")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    from app.services.payment_flow_service import order_amount_rials
+
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
+
+    assert merchant_mid != TERMINAL
+    resp = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token,
+            "ResNum": tracking,
+            "RefNum": ref_num,
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": TERMINAL,
+            "MID": merchant_mid,
+            "Amount": str(amount_rials),
+            "TraceNo": "100428",
+            "RRN": "14226761817",
+            "SecurePan": "6219****1234",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "paid=1" in resp.headers["location"], resp.headers.get("location")
+    order2 = asyncio.run(_get_order(order_id))
+    assert order2.payment_status == PaymentStatus.PAID.value
+    assert order2.payment_ref_id == ref_num
+    assert order2.payment_last_error != "mid_mismatch"
+    assert order2.payment_last_error is None
+    assert order2.payment_provider_data is not None
+    assert order2.payment_provider_data.get("MID") == merchant_mid
+
+
+@pytest.mark.usefixtures("override_database")
+def test_sep_callback_terminal_mismatch_blocks_verify(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    token = _unique_token("TERM")
+    called = {"n": 0}
+
+    class _Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return None
+
+        async def post(self, url, json):
+            called["n"] += 1
+            raise AssertionError("Verify must not run on terminal mismatch")
+
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-TERM"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09121110014")
+    body = _checkout(product_id, headers, phone="09121110014")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    from app.services.payment_flow_service import order_amount_rials
+
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
+
+    resp = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token,
+            "ResNum": tracking,
+            "RefNum": _unique_ref("TERM"),
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": "9999",
+            "MID": "13157071",
+            "Amount": str(amount_rials),
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "reason=failed" in resp.headers["location"]
+    assert called["n"] == 0
+    order2 = asyncio.run(_get_order(order_id))
+    assert order2.payment_status == PaymentStatus.UNPAID.value
+    assert order2.payment_last_error == "terminal_mismatch"
+    assert order2.payment_ref_id is None
+
+
+@pytest.mark.usefixtures("override_database")
+def test_sep_callback_amount_mismatch_blocks_verify(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    token = _unique_token("AMT")
+    called = {"n": 0}
+
+    class _Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return None
+
+        async def post(self, url, json):
+            called["n"] += 1
+            raise AssertionError("Verify must not run on amount mismatch")
+
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-AMT"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09121110015")
+    body = _checkout(product_id, headers, phone="09121110015")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    from app.services.payment_flow_service import order_amount_rials
+
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
+
+    resp = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token,
+            "ResNum": tracking,
+            "RefNum": _unique_ref("AMT"),
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": TERMINAL,
+            "Amount": str(amount_rials + 1),
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "reason=failed" in resp.headers["location"]
+    assert called["n"] == 0
+    order2 = asyncio.run(_get_order(order_id))
+    assert order2.payment_status == PaymentStatus.UNPAID.value
+    assert order2.payment_last_error == "callback_amount_mismatch"
+    assert order2.payment_ref_id is None
 
 
 @pytest.mark.usefixtures("override_database")

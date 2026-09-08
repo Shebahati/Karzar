@@ -199,6 +199,40 @@ async def _mark_failed(
     return SepCallbackResult(outcome="failure", tracking_code=order.tracking_code, order_id=order.id)
 
 
+def _security_reject_details(
+    *,
+    reason: str,
+    fields: SepCallbackFields | None = None,
+    **extra: Any,
+) -> dict[str, Any]:
+    """Build audit details for security rejects — safe fields only, never Token/PAN raw body."""
+    details: dict[str, Any] = {"reason": reason, **extra}
+    if fields is None:
+        return details
+
+    expected = _expected_terminal()
+    terminal_match = bool(expected) and fields.terminal_id == expected
+    mid_equals_terminal = bool(fields.mid) and bool(expected) and fields.mid == expected
+    details.update(
+        {
+            "res_num": fields.res_num,
+            "State": fields.state or None,
+            "Status": fields.status or None,
+            "RefNum_present": bool(fields.ref_num),
+            "TerminalId_match": terminal_match,
+            "MID_present": bool(fields.mid),
+            # Diagnostic only: real SEP callbacks may send MID != TerminalId.
+            "MID_equals_terminal": mid_equals_terminal,
+            "Amount": fields.amount if fields.amount is not None and fields.amount >= 0 else None,
+            "TraceNo_present": bool(fields.trace_no),
+            "RRN_present": bool(fields.rrn),
+            "SecurePan_masked": fields.secure_pan,
+            "HashedCardNumber_present": bool(fields.hashed_card_number),
+        }
+    )
+    return details
+
+
 async def _security_reject(
     db: AsyncSession,
     order: Order | None,
@@ -248,11 +282,11 @@ async def reserve_sep_callback(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={
-                "reason": "paid_ref_mismatch",
-                "res_num": fields.res_num,
-                "incoming_ref_present": bool(fields.ref_num),
-            },
+            details=_security_reject_details(
+                reason="paid_ref_mismatch",
+                fields=fields,
+                incoming_ref_present=bool(fields.ref_num),
+            ),
         )
 
     if order.payment_status == PaymentStatus.RECONCILIATION_REQUIRED.value:
@@ -285,7 +319,7 @@ async def reserve_sep_callback(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={"reason": "token_mismatch", "res_num": fields.res_num},
+            details=_security_reject_details(reason="token_mismatch", fields=fields),
         )
 
     expected_terminal = _expected_terminal()
@@ -294,15 +328,11 @@ async def reserve_sep_callback(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={"reason": "terminal_mismatch", "res_num": fields.res_num},
+            details=_security_reject_details(reason="terminal_mismatch", fields=fields),
         )
-    if fields.mid and fields.mid != expected_terminal:
-        return await _security_reject(
-            db,
-            order,
-            tracking_code=order.tracking_code,
-            details={"reason": "mid_mismatch", "res_num": fields.res_num},
-        )
+    # MID is merchant metadata on real SEP callbacks and is often not equal to TerminalId.
+    # Do not block Verify on MID≠TerminalId; TerminalId remains the identity gate.
+    # MID is retained in fields.sanitized for diagnostics / provider_data.
 
     if fields.state != SEP_CALLBACK_STATE_OK or fields.status != SEP_CALLBACK_STATUS_OK:
         return await _mark_failed(
@@ -323,11 +353,12 @@ async def reserve_sep_callback(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={
-                "reason": "callback_amount_mismatch",
-                "expected_rials": expected_rials,
-                "callback_amount": fields.amount,
-            },
+            details=_security_reject_details(
+                reason="callback_amount_mismatch",
+                fields=fields,
+                expected_rials=expected_rials,
+                callback_amount=fields.amount,
+            ),
         )
 
     other = await crud_commerce.get_order_by_payment_ref_id(db, fields.ref_num)
@@ -336,7 +367,11 @@ async def reserve_sep_callback(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={"reason": "ref_bound_to_other_order", "other_order_id": other.id},
+            details=_security_reject_details(
+                reason="ref_bound_to_other_order",
+                fields=fields,
+                other_order_id=other.id,
+            ),
         )
 
     now = datetime.now(UTC)
@@ -466,7 +501,7 @@ async def apply_sep_verify_success(
             db,
             order,
             tracking_code=order.tracking_code,
-            details={"reason": "verify_ref_changed"},
+            details=_security_reject_details(reason="verify_ref_changed"),
         )
 
     if not result.success:
