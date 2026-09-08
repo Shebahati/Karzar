@@ -58,6 +58,41 @@ check "api_health" "$API_BASE/health" 200
 check "api_ready" "$API_BASE/ready" 200
 check "api_products" "$API_BASE/api/v1/products/?limit=1" 200
 check "shop_home" "$SHOP_BASE/" 200
+
+# Read-only: the running Storefront build must include the production GA4 ID.
+# Does not call Google, does not change production state, stays on SHOP_BASE.
+assert_shop_ga4_id() {
+  local html src body
+  html="$(mktemp)"
+  if ! curl -sS -o "$html" "$SHOP_BASE/"; then
+    echo "FAIL shop_ga4_id (homepage fetch failed) $SHOP_BASE/" >&2
+    fail=1
+    rm -f "$html"
+    return
+  fi
+  if grep -q 'G-NT8ZT3G6HC' "$html"; then
+    echo "OK  shop_ga4_id (homepage HTML)"
+    rm -f "$html"
+    return
+  fi
+  while IFS= read -r src; do
+    case "$src" in
+      /_next/static/*)
+        body="$(curl -sS "$SHOP_BASE$src" || true)"
+        if grep -q 'G-NT8ZT3G6HC' <<<"$body"; then
+          echo "OK  shop_ga4_id (same-origin script)"
+          rm -f "$html"
+          return
+        fi
+        ;;
+    esac
+  done < <(grep -oE '/_next/static/[^"'\''[:space:]]+' "$html" | sort -u)
+  echo "FAIL shop_ga4_id (G-NT8ZT3G6HC not in homepage HTML or same-origin scripts)" >&2
+  fail=1
+  rm -f "$html"
+}
+assert_shop_ga4_id
+
 # Admin root redirects anonymous users to login — both prove the app is up.
 check "admin_home" "$ADMIN_BASE/" 200 302 307
 check "admin_login" "$ADMIN_BASE/login" 200

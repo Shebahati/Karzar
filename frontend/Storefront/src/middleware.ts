@@ -61,8 +61,8 @@ function buildCsp(nonce: string): string {
   ].join("; ");
 }
 
-function applySecurityHeaders(response: NextResponse, nonce: string): NextResponse {
-  response.headers.set("Content-Security-Policy", buildCsp(nonce));
+function applySecurityHeaders(response: NextResponse, csp: string): NextResponse {
+  response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -116,13 +116,15 @@ function categoryPathSlug(pathname: string): string | null {
 
 export async function middleware(request: NextRequest) {
   const nonce = newNonce();
+  const csp = buildCsp(nonce);
+
   const categorySlug = categoryPathSlug(request.nextUrl.pathname);
   if (categorySlug) {
     const targetSlug = resolveCategorySlugRedirect(categorySlug);
     if (targetSlug && targetSlug !== categorySlug) {
       const location = new URL(categoryHubPath(targetSlug), request.nextUrl.origin);
       location.search = request.nextUrl.search;
-      return applySecurityHeaders(NextResponse.redirect(location, 301), nonce);
+      return applySecurityHeaders(NextResponse.redirect(location, 301), csp);
     }
   }
 
@@ -137,17 +139,19 @@ export async function middleware(request: NextRequest) {
         encodedProductSlugPath(slug),
         request.nextUrl.origin,
       );
-      return applySecurityHeaders(NextResponse.redirect(location, 301), nonce);
+      return applySecurityHeaders(NextResponse.redirect(location, 301), csp);
     }
   }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // Next extracts the nonce from the request CSP during SSR (see Next CSP guide).
+  requestHeaders.set("Content-Security-Policy", csp);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
   });
-  return applySecurityHeaders(response, nonce);
+  return applySecurityHeaders(response, csp);
 }
 
 export const config = {

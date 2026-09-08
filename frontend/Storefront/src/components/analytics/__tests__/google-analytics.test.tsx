@@ -5,6 +5,7 @@ type ScriptProbe = {
   src?: string;
   id?: string;
   children?: string;
+  nonce?: string;
 };
 
 function collectScripts(node: ReactNode): ScriptProbe[] {
@@ -15,6 +16,7 @@ function collectScripts(node: ReactNode): ScriptProbe[] {
   const element = node as ReactElement<{
     src?: string;
     id?: string;
+    nonce?: string;
     children?: ReactNode;
   }>;
   const props = element.props ?? {};
@@ -23,6 +25,7 @@ function collectScripts(node: ReactNode): ScriptProbe[] {
     here.push({
       src: typeof props.src === "string" ? props.src : undefined,
       id: typeof props.id === "string" ? props.id : undefined,
+      nonce: typeof props.nonce === "string" ? props.nonce : undefined,
       children: typeof props.children === "string" ? props.children : undefined,
     });
   }
@@ -61,7 +64,9 @@ describe("GoogleAnalytics install cases", () => {
     expect(loader?.src).toBe(
       "https://www.googletagmanager.com/gtag/js?id=G-NT8ZT3G6HC",
     );
+    expect(loader?.nonce).toBe("test-nonce");
     expect(config?.children).toContain("gtag('config', 'G-NT8ZT3G6HC')");
+    expect(config?.nonce).toBe("test-nonce");
     expect(GoogleTagManagerHead({})).toBeNull();
     expect(GoogleTagManagerNoscript()).toBeNull();
   });

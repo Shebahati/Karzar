@@ -79,6 +79,8 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // App scripts (GA4 next/script, splash). Next.js runtime scripts get the same
+  // nonce only when middleware also forwards Content-Security-Policy on the request.
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
