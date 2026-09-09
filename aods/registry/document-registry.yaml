@@ -159,10 +159,10 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: >-
       Supplier stock authority contract and Owner-scoped brand inventory
-      exceptions. Flip on_main to true in a follow-up after this PR merges.
+      exceptions.
 
   - id: DEVELOPMENT
     path: docs/DEVELOPMENT.md
