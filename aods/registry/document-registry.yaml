@@ -153,6 +153,17 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: SUPPLIER-STOCK-AUTHORITY
+    path: docs/catalog/SUPPLIER_STOCK_AUTHORITY.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    notes: >-
+      Supplier stock authority contract and Owner-scoped brand inventory
+      exceptions. Flip on_main to true in a follow-up after this PR merges.
+
   - id: DEVELOPMENT
     path: docs/DEVELOPMENT.md
     class: POLICY
