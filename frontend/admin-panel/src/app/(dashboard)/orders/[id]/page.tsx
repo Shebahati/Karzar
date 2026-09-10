@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderStatusStepper } from "@/features/orders/components/order-status-stepper";
 import { OrderActionPanel } from "@/features/orders/components/order-action-panel";
 import { InvoiceCard } from "@/features/orders/components/invoice-card";
+import { OrderLogisticsSection } from "@/features/orders/components/order-logistics-section";
 import { useEnrichedOrder } from "@/features/orders/use-enriched-order";
 import { formatToman, toPersianDigits } from "@/lib/utils";
 
@@ -66,6 +67,8 @@ export default function OrderDetailPage() {
       <div className="grid gap-5 lg:grid-cols-[1fr_320px] lg:gap-6">
         <div className="flex flex-col gap-5 sm:gap-6">
           {order.invoice && <InvoiceCard order={order} />}
+
+          <OrderLogisticsSection order={order} />
 
           <div className="grid gap-5 sm:grid-cols-2">
             <Card>

@@ -1,5 +1,7 @@
 /** Order status enum — aligned with backend commerce.OrderStatus (decision 13-A). */
 
+import type { PublicShipment } from "@/types/shipping";
+
 export const ORDER_STATUSES = [
   "pending_payment",
   "paid",
@@ -76,6 +78,8 @@ export interface OrderTracking {
   delivery_eta?: string | null;
   items?: OrderTrackingItem[];
   timeline: OrderTrackingEvent[];
+  /** Normalized Karzar shipments — no provider payload or recipient PII. */
+  shipments?: PublicShipment[];
   /** True when timeline was inferred client-side via buildOrderTimeline (not server history). */
   timeline_estimated?: boolean;
 }

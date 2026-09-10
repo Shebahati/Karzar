@@ -22,6 +22,17 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-10 — Postex logistics domain (safe-disabled)
+
+- New provider-neutral shipping endpoints: `GET /shipping/status`, `GET /shipping/cities`, `POST /shipping/quotes`.
+- Admin shipment actions under `/orders/{order_id}/shipments*` (book, ready, label PDF, refresh-tracking, edit, cancel).
+- Admin `GET /admin/shipping/health` and optional read-only wallet.
+- Checkout: optional `shipping.location_code` and `shipping_quote_token` (required when `POSTEX_ENABLED`).
+- Order detail / public track: `shipments` plus shipping cost snapshots. `estimated_total` remains payable total (items + tax + customer shipping).
+- Product: optional `package_*_cm`, `shipping_is_fragile`, `shipping_is_liquid`, `shipping_class`.
+- New error codes: `SHIPPING_DATA_INCOMPLETE`, `SHIPPING_FREIGHT_REQUIRED`, `SHIPPING_UNAVAILABLE`, `SHIPPING_QUOTE_*`, `SHIPMENT_*`, `SHIPPING_PROVIDER_CUTOFF`.
+- Default `POSTEX_ENABLED=false`. No live Postex mutation in this change.
+
 ### 2026-08-02 — KB-REMEDIATION-11A Property Dictionary admin read (CR-012)
 
 - Regenerated committed `openapi/v1.json` from `app.openapi()` (paths → 90).

@@ -7,14 +7,17 @@ import type { CartLine } from "@/store/cart-store";
 export function OrderSummary({
   lines,
   isInquiry,
+  shippingToman = null,
 }: {
   lines: CartLine[];
   isInquiry: boolean;
+  shippingToman?: number | null;
 }) {
-  const total = lines.reduce(
+  const itemsTotal = lines.reduce(
     (sum, l) => sum + Number(l.product.base_price ?? 0) * l.quantity,
     0,
   );
+  const payable = itemsTotal + (isInquiry ? 0 : (shippingToman ?? 0));
 
   return (
     <div className="rounded-2xl bg-card p-6 shadow-card">
@@ -65,12 +68,18 @@ export function OrderSummary({
       {!isInquiry && (
         <div className="mt-5 space-y-2 border-t border-border/60 pt-4 text-sm">
           <div className="flex items-center justify-between text-[#5E5F5E]">
-            <span>جمع کل</span>
-            <span className="tnum">{formatToman(total)}</span>
+            <span>جمع کالا</span>
+            <span className="tnum">{formatToman(itemsTotal)}</span>
+          </div>
+          <div className="flex items-center justify-between text-[#5E5F5E]">
+            <span>هزینه ارسال</span>
+            <span className="tnum">
+              {shippingToman == null ? "پس از انتخاب سرویس" : formatToman(shippingToman)}
+            </span>
           </div>
           <div className="flex items-center justify-between font-bold text-foreground">
             <span>مبلغ قابل پرداخت</span>
-            <span className="tnum">{formatToman(total)}</span>
+            <span className="tnum">{formatToman(payable)}</span>
           </div>
         </div>
       )}

@@ -180,6 +180,22 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: POSTEX-README
+    path: docs/integrations/postex/README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+
+  - id: POSTEX-API-CONTRACT
+    path: docs/integrations/postex/API-CONTRACT.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+
   - id: OPERATIONS
     path: docs/OPERATIONS.md
     class: POLICY

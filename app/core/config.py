@@ -1,6 +1,5 @@
 """Application settings loaded from environment variables via Pydantic Settings."""
 
-
 from typing import Self
 
 from pydantic import Field, computed_field, field_validator, model_validator
@@ -73,9 +72,7 @@ class Settings(BaseSettings):
     SEP_TOKEN_URL: str = "https://sep.shaparak.ir/OnlinePG/OnlinePG"
     SEP_SEND_TOKEN_URL: str = "https://sep.shaparak.ir/OnlinePG/SendToken"
     # Prefer PDF/Python spelling VerifyTransaction (not Postman typo VerifyTranscation).
-    SEP_VERIFY_URL: str = (
-        "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction"
-    )
+    SEP_VERIFY_URL: str = "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction"
     SEP_REVERSE_URL: str = (
         "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/ReverseTransaction"
     )
@@ -106,6 +103,29 @@ class Settings(BaseSettings):
     # "rial" multiplies site Tomans by TOMAN_TO_RIAL; "toman" sends as-is.
     HESABFA_CURRENCY_UNIT: str = "rial"
     HESABFA_CURRENCY_CODE: str = "IRR"
+
+    # Postex parcel logistics. Safe default OFF — never enable without Owner authorization.
+    POSTEX_ENABLED: bool = False
+    POSTEX_API_KEY: str | None = None
+    POSTEX_BASE_URL: str = "https://api.postex.ir/api/v1"
+    POSTEX_TIMEOUT_SECONDS: float = Field(default=20.0, ge=1.0, le=60.0)
+    POSTEX_QUOTE_TTL_SECONDS: int = Field(default=600, ge=60, le=3600)
+    POSTEX_TRACKING_SYNC_INTERVAL_SECONDS: int = Field(default=120, ge=30, le=3600)
+    POSTEX_BOOKING_INTERVAL_SECONDS: int = Field(default=20, ge=5, le=600)
+    POSTEX_REFERENCE_CACHE_SECONDS: int = Field(default=3600, ge=60, le=86400)
+    POSTEX_COLLECTION_TYPE: str = "pick_up"
+    POSTEX_DEFAULT_PAYMENT_TYPE: str = "SENDER"
+    POSTEX_ORIGIN_CITY_CODE: int | None = None
+    POSTEX_ORIGIN_CITY_NAME: str | None = None
+    POSTEX_ORIGIN_POSTAL_CODE: str | None = None
+    POSTEX_ORIGIN_ADDRESS: str | None = None
+    POSTEX_ORIGIN_FIRST_NAME: str | None = None
+    POSTEX_ORIGIN_LAST_NAME: str | None = None
+    POSTEX_ORIGIN_MOBILE: str | None = None
+    POSTEX_ORIGIN_COMPANY_NAME: str = "Karzar Tools"
+    POSTEX_ORIGIN_LAT: str | None = None
+    POSTEX_ORIGIN_LON: str | None = None
+
     PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
     ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
     ADMIN_STEP_UP_PIN: str = Field(
@@ -212,6 +232,30 @@ class Settings(BaseSettings):
             raise ValueError(f"APP_ENV must be one of: {', '.join(sorted(allowed))}")
         return normalized
 
+    @field_validator("POSTEX_COLLECTION_TYPE")
+    @classmethod
+    def validate_postex_collection_type(cls, v: str) -> str:
+        normalized = v.strip()
+        allowed = {"pick_up", "courier_drop_off", "postex_drop_off"}
+        if normalized not in allowed:
+            raise ValueError(
+                "POSTEX_COLLECTION_TYPE must be one of: pick_up, courier_drop_off, postex_drop_off"
+            )
+        return normalized
+
+    @field_validator("POSTEX_DEFAULT_PAYMENT_TYPE")
+    @classmethod
+    def validate_postex_payment_type(cls, v: str) -> str:
+        normalized = v.strip().upper()
+        if normalized != "SENDER":
+            raise ValueError("POSTEX_DEFAULT_PAYMENT_TYPE must be SENDER in v1 (no COD)")
+        return normalized
+
+    @field_validator("POSTEX_BASE_URL")
+    @classmethod
+    def validate_postex_base_url(cls, v: str) -> str:
+        return v.rstrip("/")
+
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:
         """Reject weak security settings for non-debug and production runtimes."""
@@ -264,6 +308,30 @@ class Settings(BaseSettings):
                     if self.APP_ENV == "development" and host in {"localhost", "127.0.0.1"}:
                         continue
                     raise ValueError(f"{label} must be https://sep.shaparak.ir/…")
+
+        if self.POSTEX_ENABLED:
+            required = {
+                "POSTEX_API_KEY": self.POSTEX_API_KEY,
+                "POSTEX_ORIGIN_CITY_CODE": self.POSTEX_ORIGIN_CITY_CODE,
+                "POSTEX_ORIGIN_CITY_NAME": self.POSTEX_ORIGIN_CITY_NAME,
+                "POSTEX_ORIGIN_POSTAL_CODE": self.POSTEX_ORIGIN_POSTAL_CODE,
+                "POSTEX_ORIGIN_ADDRESS": self.POSTEX_ORIGIN_ADDRESS,
+                "POSTEX_ORIGIN_FIRST_NAME": self.POSTEX_ORIGIN_FIRST_NAME,
+                "POSTEX_ORIGIN_LAST_NAME": self.POSTEX_ORIGIN_LAST_NAME,
+                "POSTEX_ORIGIN_MOBILE": self.POSTEX_ORIGIN_MOBILE,
+            }
+            missing = [name for name, value in required.items() if value in (None, "")]
+            if missing:
+                raise ValueError("POSTEX_ENABLED=true requires: " + ", ".join(missing))
+            from urllib.parse import urlparse
+
+            parsed = urlparse(self.POSTEX_BASE_URL)
+            host = (parsed.hostname or "").lower()
+            if parsed.scheme != "https" or host != "api.postex.ir":
+                if self.APP_ENV == "development" and host in {"localhost", "127.0.0.1"}:
+                    pass
+                else:
+                    raise ValueError("POSTEX_BASE_URL must be https://api.postex.ir/…")
 
         if harden:
             if self.ADMIN_STEP_UP_PIN in weak_pins:

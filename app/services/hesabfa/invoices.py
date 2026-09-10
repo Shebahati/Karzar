@@ -83,10 +83,14 @@ async def create_invoice_for_paid_order(
         return InvoiceSyncResult(status="skipped", message="payment_not_verified")
 
     existing = (
-        await db.execute(
-            select(HesabfaInvoiceRecord).where(HesabfaInvoiceRecord.order_id == order.id)
+        (
+            await db.execute(
+                select(HesabfaInvoiceRecord).where(HesabfaInvoiceRecord.order_id == order.id)
+            )
         )
-    ).scalars().first()
+        .scalars()
+        .first()
+    )
     if existing and existing.status == "created" and existing.hesabfa_number:
         return InvoiceSyncResult(
             status="already_created",
@@ -107,12 +111,14 @@ async def create_invoice_for_paid_order(
         # Ensure items are loaded
         if not order.items:
             refreshed = (
-                await db.execute(
-                    select(Order)
-                    .where(Order.id == order.id)
-                    .options(selectinload(Order.items))
+                (
+                    await db.execute(
+                        select(Order).where(Order.id == order.id).options(selectinload(Order.items))
+                    )
                 )
-            ).scalars().first()
+                .scalars()
+                .first()
+            )
             if refreshed is None:
                 raise ValueError("Order not found")
             order = refreshed
@@ -128,23 +134,21 @@ async def create_invoice_for_paid_order(
 
         product_ids = [item.product_id for item in order.items]
         mappings = (
-            await db.execute(
-                select(HesabfaItemMapping).where(
-                    HesabfaItemMapping.product_id.in_(product_ids)
+            (
+                await db.execute(
+                    select(HesabfaItemMapping).where(HesabfaItemMapping.product_id.in_(product_ids))
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         mapping_by_product = {m.product_id: m for m in mappings}
 
         missing = [
-            item.product_id
-            for item in order.items
-            if item.product_id not in mapping_by_product
+            item.product_id for item in order.items if item.product_id not in mapping_by_product
         ]
         if missing:
-            raise ValueError(
-                f"Order items missing Hesabfa SKU mapping for product_ids={missing}"
-            )
+            raise ValueError(f"Order items missing Hesabfa SKU mapping for product_ids={missing}")
 
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
         invoice_items = []
@@ -186,7 +190,7 @@ async def create_invoice_for_paid_order(
             "invoiceType": INVOICE_TYPE_SALE,
             "status": 2,
             "tag": f"order:{order.id}",
-            "freight": 0,
+            "freight": float(_to_hesabfa_money(Decimal(str(order.shipping_customer_cost or 0)))),
             "currency": settings.HESABFA_CURRENCY_CODE,
             "invoiceItems": invoice_items,
         }

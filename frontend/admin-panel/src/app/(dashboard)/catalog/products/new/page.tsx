@@ -422,6 +422,59 @@ export default function NewProductPage() {
                   />
                 </Field>
               </div>
+              <p className="text-xs text-muted-foreground">
+                ابعاد مهندسی محصول در مشخصات فنی است. ابعاد زیر فقط برای بسته‌بندی پستی است.
+              </p>
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="طول بسته (cm)" htmlFor="package_length_cm" error={errors.package_length_cm?.message}>
+                  <Input id="package_length_cm" dir="ltr" inputMode="decimal" className="text-start tnum" {...register("package_length_cm")} />
+                </Field>
+                <Field label="عرض بسته (cm)" htmlFor="package_width_cm" error={errors.package_width_cm?.message}>
+                  <Input id="package_width_cm" dir="ltr" inputMode="decimal" className="text-start tnum" {...register("package_width_cm")} />
+                </Field>
+                <Field label="ارتفاع بسته (cm)" htmlFor="package_height_cm" error={errors.package_height_cm?.message}>
+                  <Input id="package_height_cm" dir="ltr" inputMode="decimal" className="text-start tnum" {...register("package_height_cm")} />
+                </Field>
+              </div>
+              <Controller
+                control={control}
+                name="shipping_class"
+                render={({ field }) => (
+                  <Field label="کلاس ارسال">
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="parcel">مرسوله پستی</SelectItem>
+                        <SelectItem value="freight_only">فقط باربری / استعلام</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Controller
+                  control={control}
+                  name="shipping_is_fragile"
+                  render={({ field }) => (
+                    <label className="flex items-center justify-between gap-2 rounded-xl bg-[#F7F7F7] px-4 py-3 text-sm">
+                      شکستنی
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </label>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="shipping_is_liquid"
+                  render={({ field }) => (
+                    <label className="flex items-center justify-between gap-2 rounded-xl bg-[#F7F7F7] px-4 py-3 text-sm">
+                      مایع
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </label>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

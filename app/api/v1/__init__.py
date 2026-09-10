@@ -14,6 +14,7 @@ from app.api.endpoints import (
     order,
     payment,
     product,
+    shipping,
     storefront,
     users,
 )
@@ -35,3 +36,4 @@ api_router.include_router(cms.router, prefix="/cms", tags=["CMS"])
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge"])
 api_router.include_router(hesabfa.router, prefix="/hesabfa", tags=["Hesabfa"])
 api_router.include_router(storefront.router, tags=["Storefront"])
+api_router.include_router(shipping.router, tags=["Shipping"])

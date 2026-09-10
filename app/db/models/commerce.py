@@ -3,7 +3,7 @@
 import enum
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -11,6 +11,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.models.base import Base
 from app.db.models.product import _enum_values
+
+if TYPE_CHECKING:
+    from app.db.models.logistics import Shipment
 
 
 class OrderMode(str, enum.Enum):
@@ -121,6 +124,13 @@ class Order(Base):
     shipping: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     postal_tracking_code: Mapped[str | None] = mapped_column(String(64))
     delivery_eta: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Logistics snapshots. estimated_total = items + tax + shipping_customer_cost.
+    shipping_provider: Mapped[str | None] = mapped_column(String(32))
+    shipping_quote_id: Mapped[int | None] = mapped_column(Integer)
+    shipping_customer_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    shipping_provider_quoted_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    shipping_carrier_code: Mapped[str | None] = mapped_column(String(64))
+    shipping_service_code: Mapped[str | None] = mapped_column(String(64))
     invoice: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     invoice_number: Mapped[str | None] = mapped_column(String(32))
     invoice_valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -155,6 +165,12 @@ class Order(Base):
         cascade="all, delete-orphan",
         order_by="PaymentTransaction.created_at",
     )
+    shipments: Mapped[list["Shipment"]] = relationship(
+        "Shipment",
+        back_populates="order",
+        cascade="all, delete-orphan",
+        order_by="Shipment.id",
+    )
 
 
 class OrderItem(Base):
@@ -180,9 +196,13 @@ class OrderStatusEvent(Base):
     __table_args__ = (Index("ix_order_status_events_order_id", "order_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    order_id: Mapped[int] = mapped_column(
+        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+    )
     status: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    actor: Mapped[str] = mapped_column(String(20), nullable=False, default="system", server_default="system")
+    actor: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="system", server_default="system"
+    )
 
     order: Mapped["Order"] = relationship("Order", back_populates="status_events")

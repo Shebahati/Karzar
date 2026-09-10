@@ -32,6 +32,17 @@ Require `Idempotency-Key` on checkout and payment init.
 
 Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer is confirmed. Keep `PAYMENT_PROVIDER=sep` — do not flip back to mock.
 
+## Shipping (Postex)
+
+Parcel shipping is a provider-neutral Karzar logistics domain. Postex is the v1 provider, gated by `POSTEX_ENABLED` (safe default **false**). See [`integrations/postex/README.md`](integrations/postex/README.md).
+
+- Purchase checkout with Postex on requires a server-owned `shipping_quote_token`. Inquiry is unchanged.
+- v1 price policy is pass-through: customer shipping cost = Postex quote (Toman). SEP charges `estimated_total` = items + tax + shipping **once**.
+- Parcel carrier `payment_type` is official `SENDER`. Karzar checkout payment remains SEP — no Postex COD/wallet.
+- Creating a Postex label/barcode is **not** order `shipped`. `SHIPPED` requires tracking evidence of physical handoff. `DELIVERED` only when all required shipments are delivered.
+
+Unresolved until Owner enablement: origin city code, catalog package-dimension coverage, one read-only live quote, staging verification.
+
 ## Payments
 
 | Provider | Status |

@@ -50,6 +50,12 @@ class OrderDetailResponse(OrderSummary):
     user_id: int | None = None
     postal_tracking_code: str | None = None
     delivery_eta: datetime | None = None
+    shipping_provider: str | None = None
+    shipping_customer_cost: str | None = None
+    shipping_provider_quoted_cost: str | None = None
+    shipping_carrier_code: str | None = None
+    shipping_service_code: str | None = None
+    shipments: list[dict[str, Any]] = Field(default_factory=list)
     invoice: OrderInvoiceResponse | None = None
     items: list[OrderItemResponse] = Field(default_factory=list)
     allowed_next_statuses: list[str] = Field(default_factory=list)
@@ -110,3 +116,4 @@ class OrderTrackingResponse(BaseModel):
     created_at: datetime
     items: list[OrderTrackingItemResponse] = Field(default_factory=list)
     timeline: list[OrderTrackingEvent] = Field(default_factory=list)
+    shipments: list[dict[str, Any]] = Field(default_factory=list)

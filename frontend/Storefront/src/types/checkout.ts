@@ -21,6 +21,7 @@ export interface ShippingAddress {
   city: string;
   postal_code: string;
   address_line: string;
+  location_code?: number | null;
 }
 
 export interface CheckoutPayload {
@@ -30,6 +31,8 @@ export interface CheckoutPayload {
   note?: string | null;
   /** Purchase mode only. */
   shipping?: ShippingAddress;
+  /** Bound server-side quote; required when Postex shipping is enabled. */
+  shipping_quote_token?: string | null;
   /** Inquiry mode only (optional B2B company). */
   company_name?: string | null;
 }

@@ -12,10 +12,14 @@ import {
   type InquiryValues,
   type ShippingValues,
 } from "@/lib/validation";
+import { ShippingOptions } from "@/components/checkout/shipping-options";
+import { useCheckoutShipping } from "@/features/checkout/use-checkout-shipping";
+import { canSubmitPurchaseShipping } from "@/lib/shipping-quote";
 import { isLoggedIn } from "@/lib/api-client";
 import { cn, toPersianDigits } from "@/lib/utils";
 import { useAddressStore, type SavedAddress } from "@/store/address-store";
 import type { ResolvedCustomer } from "@/components/checkout/auth-step";
+import type { ShippingQuoteOption } from "@/types/shipping";
 
 export interface DetailsResult {
   full_name: string;
@@ -27,7 +31,9 @@ export interface DetailsResult {
     city: string;
     postal_code: string;
     address_line: string;
+    location_code?: number | null;
   };
+  shipping_quote_token?: string | null;
 }
 
 /**
@@ -42,6 +48,7 @@ export function DetailsStep({
   canPay = true,
   onSubmit,
   onBack,
+  onQuoteChange,
 }: {
   isInquiry: boolean;
   customer: ResolvedCustomer | null;
@@ -49,6 +56,7 @@ export function DetailsStep({
   canPay?: boolean;
   onSubmit: (result: DetailsResult) => void;
   onBack: () => void;
+  onQuoteChange?: (amountToman: number | null) => void;
 }) {
   if (isInquiry) {
     return (
@@ -67,6 +75,7 @@ export function DetailsStep({
       canPay={canPay}
       onSubmit={onSubmit}
       onBack={onBack}
+      onQuoteChange={onQuoteChange}
     />
   );
 }
@@ -93,16 +102,19 @@ function ShippingForm({
   canPay,
   onSubmit,
   onBack,
+  onQuoteChange,
 }: {
   customer: ResolvedCustomer | null;
   submitting: boolean;
   canPay: boolean;
   onSubmit: (r: DetailsResult) => void;
   onBack: () => void;
+  onQuoteChange?: (amountToman: number | null) => void;
 }) {
   const addresses = useAddressStore((s) => s.addresses);
   const getDefault = useAddressStore((s) => s.getDefault);
   const addAddress = useAddressStore((s) => s.addAddress);
+  const shipping = useCheckoutShipping(true);
   // Match SSR (guest) until mount — avoids hydration mismatch on auth read.
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
@@ -132,6 +144,22 @@ function ShippingForm({
   });
   const { errors } = form.formState;
   const formId = "checkout-shipping-form";
+  const watchedPostal = form.watch("postal_code");
+
+  useEffect(() => {
+    if (!shipping.enabled || shipping.locationCode == null) return;
+    const timer = window.setTimeout(() => {
+      void shipping.refreshQuotes(
+        shipping.locationCode as number,
+        watchedPostal,
+        form.getValues("city"),
+        form.getValues("province"),
+      );
+    }, 400);
+    return () => window.clearTimeout(timer);
+    // Re-bind quote to the current postal code; client amounts are never authority.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedPostal, shipping.locationCode, shipping.enabled]);
 
   const applySaved = (addr: SavedAddress) => {
     form.reset({
@@ -169,6 +197,17 @@ function ShippingForm({
   };
 
   const handleShippingSubmit = (v: ShippingValues) => {
+    if (
+      shipping.enabled &&
+      !canSubmitPurchaseShipping({
+        postexEnabled: true,
+        quoteToken: shipping.selected?.quote_token ?? null,
+        expiresAt: shipping.expiresAt,
+        shippingUnavailable: shipping.unavailable,
+      })
+    ) {
+      return;
+    }
     persistNewAddress(v);
     onSubmit({
       full_name: v.full_name,
@@ -179,9 +218,26 @@ function ShippingForm({
         city: v.city,
         postal_code: v.postal_code,
         address_line: v.address_line,
+        location_code: shipping.locationCode,
       },
+      shipping_quote_token: shipping.selected?.quote_token ?? null,
     });
   };
+
+  useEffect(() => {
+    onQuoteChange?.(
+      shipping.selected ? Number(shipping.selected.amount_toman) : null,
+    );
+  }, [onQuoteChange, shipping.selected]);
+
+  const shippingReady =
+    !shipping.enabled ||
+    canSubmitPurchaseShipping({
+      postexEnabled: true,
+      quoteToken: shipping.selected?.quote_token ?? null,
+      expiresAt: shipping.expiresAt,
+      shippingUnavailable: shipping.unavailable,
+    });
 
   return (
     <>
@@ -342,13 +398,65 @@ function ShippingForm({
               readOnly={mode === "saved" && canUseSaved}
             />
           </Field>
+          {shipping.enabled && (
+            <div className="sm:col-span-2 space-y-3 rounded-xl border border-border/60 bg-secondary/40 p-4">
+              <h3 className="text-sm font-bold text-foreground">روش ارسال</h3>
+              <Field label="شهر مقصد (کد شهر)">
+                <input
+                  value={shipping.cityQuery}
+                  onChange={(event) => shipping.setCityQuery(event.target.value)}
+                  className={fieldInputClass}
+                  placeholder="جستجوی شهر"
+                  autoComplete="off"
+                />
+              </Field>
+              <div className="max-h-40 overflow-y-auto space-y-1" role="listbox" aria-label="شهرهای ارسال">
+                {shipping.filteredCities.map((city) => {
+                  const active = shipping.locationCode === city.code;
+                  return (
+                    <button
+                      key={city.code}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      className={cn(
+                        "w-full rounded-lg px-3 py-2 text-start text-sm",
+                        active ? "bg-accent text-foreground" : "hover:bg-card",
+                      )}
+                      onClick={() => {
+                        shipping.setLocationCode(city.code);
+                        form.setValue("city", city.name);
+                        if (city.province_name) form.setValue("province", city.province_name);
+                        void shipping.refreshQuotes(
+                          city.code,
+                          form.getValues("postal_code"),
+                          city.name,
+                          city.province_name ?? form.getValues("province"),
+                        );
+                      }}
+                    >
+                      {city.name}
+                      {city.province_name ? ` — ${city.province_name}` : ""}
+                    </button>
+                  );
+                })}
+              </div>
+              <ShippingOptions
+                options={shipping.options}
+                selectedToken={shipping.selected?.quote_token ?? null}
+                loading={shipping.loading}
+                error={shipping.error}
+                onSelect={(option: ShippingQuoteOption) => shipping.setSelected(option)}
+              />
+            </div>
+          )}
           <Field label="توضیحات (اختیاری)" className="sm:col-span-2">
             <textarea {...form.register("note")} rows={2} className={fieldTextareaClass} />
           </Field>
         </div>
 
         <div className="mt-6 hidden gap-2 lg:flex">
-          <Button type="submit" size="lg" className="flex-1 gap-2" disabled={submitting || !canPay}>
+          <Button type="submit" size="lg" className="flex-1 gap-2" disabled={submitting || !canPay || !shippingReady}>
             <Wallet set="bold" />
             {submitting ? "در حال ثبت…" : "انتقال به درگاه پرداخت"}
           </Button>
@@ -361,6 +469,11 @@ function ShippingForm({
             برای پرداخت آنلاین ابتدا با کد یک‌بارمصرف وارد شوید.
           </p>
         )}
+        {shipping.enabled && !shippingReady && (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            برای ادامه خرید ابتدا شهر مقصد و سرویس ارسال را انتخاب کنید.
+          </p>
+        )}
       </form>
 
       {/* lg:hidden must be a utility — class `flex` would otherwise beat
@@ -371,7 +484,7 @@ function ShippingForm({
           form={formId}
           size="lg"
           className="flex-1 gap-2"
-          disabled={submitting || !canPay}
+          disabled={submitting || !canPay || !shippingReady}
         >
           <Wallet set="bold" />
           {submitting ? "در حال ثبت…" : "پرداخت"}

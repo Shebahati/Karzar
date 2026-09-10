@@ -140,6 +140,22 @@ class Product(Base):
         Index("ix_products_product_type_id", "product_type_id"),
         Index("ix_products_active_list", "is_active", "deleted_at"),
         CheckConstraint("stock_quantity >= 0", name="ck_products_stock_non_negative"),
+        CheckConstraint(
+            "package_length_cm IS NULL OR package_length_cm >= 0",
+            name="ck_products_package_length_non_negative",
+        ),
+        CheckConstraint(
+            "package_width_cm IS NULL OR package_width_cm >= 0",
+            name="ck_products_package_width_non_negative",
+        ),
+        CheckConstraint(
+            "package_height_cm IS NULL OR package_height_cm >= 0",
+            name="ck_products_package_height_non_negative",
+        ),
+        CheckConstraint(
+            "shipping_class IN ('parcel', 'freight_only')",
+            name="ck_products_shipping_class",
+        ),
         Index(
             "uq_products_sku_active",
             "sku",
@@ -182,6 +198,20 @@ class Product(Base):
 
     warranty_text: Mapped[str | None] = mapped_column(String(255))
     weight_grams: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    # Packaged-parcel dimensions for logistics. Null = unknown, never treat as zero.
+    # Do not read specifications.dimensions (engineering) for shipping.
+    package_length_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    package_width_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    package_height_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    shipping_is_fragile: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    shipping_is_liquid: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    shipping_class: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="parcel", server_default="parcel"
+    )
     is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     tax_percent: Mapped[Decimal] = mapped_column(
         Numeric(5, 2), default=Decimal("0.0"), server_default="0"
@@ -251,5 +281,7 @@ class ProductImage(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
-    display_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    display_order: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
     product: Mapped["Product"] = relationship("Product", back_populates="images")
