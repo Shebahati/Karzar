@@ -74,6 +74,7 @@ async def _lock_shipment(db: AsyncSession, shipment_id: int) -> Shipment | None:
             await db.execute(
                 select(Shipment)
                 .where(Shipment.id == shipment_id)
+                .options(selectinload(Shipment.events))
                 .with_for_update()
                 .execution_options(populate_existing=True)
             )

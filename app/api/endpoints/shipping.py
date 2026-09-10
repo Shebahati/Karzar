@@ -254,6 +254,7 @@ async def admin_book_shipment(
         )
     await _book_one(db, shipment)
     await db.commit()
+    await db.refresh(shipment, ["events"])
     return admin_shipment_view(shipment)
 
 
