@@ -32,10 +32,11 @@ from app.schemas.shipping import (
     ShippingQuoteResponse,
     ShippingStatusResponse,
 )
-from app.services.logistics.booking_worker import _book_one
+from app.services.logistics.booking_worker import book_shipment, request_shipment_cancellation
 from app.services.logistics.exceptions import (
     LogisticsError,
     ProviderError,
+    ShipmentStateError,
     ShippingDataIncompleteError,
 )
 from app.services.logistics.fingerprints import canonical_cart_items
@@ -245,14 +246,14 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id)
     if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="این مرسوله قابل رزرو مجدد نیست.",
         )
-    await _book_one(db, shipment)
+    await book_shipment(db, shipment.id)
     await db.commit()
     await db.refresh(shipment, ["events"])
     return admin_shipment_view(shipment)
@@ -452,46 +453,19 @@ async def admin_cancel_shipment(
             error_code=ErrorCode.STEP_UP_INVALID,
             message="Step-up token has already been used",
         )
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    if shipment.status in {
-        ShipmentStatus.DELIVERED.value,
-        ShipmentStatus.RETURNED.value,
-        ShipmentStatus.CANCELLED.value,
-    }:
-        raise api_error(
-            status.HTTP_409_CONFLICT,
-            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
-            message="این مرسوله قابل انصراف نیست.",
-        )
-    if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
-        return admin_shipment_view(shipment)
-    if shipment.provider_parcel_no:
-        try:
-            await get_provider().cancel_parcel(shipment.provider_parcel_no, payload.reason)
-        except ProviderError as exc:
-            if getattr(exc, "http_status", None) in {400, 409, 422}:
-                raise api_error(
-                    status.HTTP_409_CONFLICT,
-                    error_code=ErrorCode.SHIPPING_PROVIDER_CUTOFF,
-                    message="پستکس انصراف را در این مرحله نپذیرفت.",
-                ) from exc
-            if getattr(exc, "ambiguous_write", False):
-                shipment.status = ShipmentStatus.CANCELLATION_PENDING.value
-                shipment.cancellation_requested_at = datetime.now(UTC)
-                data = dict(shipment.provider_data or {})
-                data["cancellation_request_uncertain"] = True
-                shipment.provider_data = data
-                await db.commit()
-                return admin_shipment_view(shipment)
-            _raise_logistics(exc)
-        # Official cancel-request is a request, not a confirmed cancellation.
-        shipment.status = ShipmentStatus.CANCELLATION_PENDING.value
-        shipment.cancellation_requested_at = datetime.now(UTC)
-        data = dict(shipment.provider_data or {})
-        data["cancellation_requested"] = True
-        shipment.provider_data = data
-    else:
-        shipment.status = ShipmentStatus.CANCELLED.value
-        shipment.cancelled_at = datetime.now(UTC)
+    await _shipment_or_raise(db, order_id, shipment_id)
+    try:
+        shipment = await request_shipment_cancellation(db, shipment_id, payload.reason)
+    except ProviderError as exc:
+        if getattr(exc, "http_status", None) in {400, 409, 422}:
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.SHIPPING_PROVIDER_CUTOFF,
+                message="پستکس انصراف را در این مرحله نپذیرفت.",
+            ) from exc
+        _raise_logistics(exc)
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
     await db.commit()
+    await db.refresh(shipment, ["events"])
     return admin_shipment_view(shipment)

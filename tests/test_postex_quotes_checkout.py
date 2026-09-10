@@ -23,12 +23,14 @@ class FakeProvider:
 
     def __init__(self):
         self.create_calls = 0
+        self.lookup_calls = 0
         self.cancel_calls = 0
         self.ready_calls = 0
         self.update_calls = 0
         self.label_calls = 0
         self.whoami_calls = 0
         self.parcels: dict[str, ParcelBooking] = {}
+        self.op_log: list[str] = []
         self.tracking: list = []
 
     async def list_boxes(self):
@@ -53,6 +55,7 @@ class FakeProvider:
 
     async def create_parcel(self, request):
         self.create_calls += 1
+        self.op_log.append("create")
         booking = ParcelBooking(
             provider_parcel_no="1001",
             tracking_code="1234567890123",
@@ -70,6 +73,8 @@ class FakeProvider:
         return booking
 
     async def lookup_by_custom_order_no(self, custom_order_no):
+        self.lookup_calls += 1
+        self.op_log.append("lookup")
         booking = self.parcels.get(custom_order_no)
         if booking:
             return ParcelLookup(found=True, booking=booking)

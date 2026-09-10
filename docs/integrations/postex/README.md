@@ -69,13 +69,14 @@ On payment `VERIFIED`:
 
 1. Create/ensure a `shipments` row (`pending_booking`) in the same DB transaction as paid state.
 2. Return the payment flow normally.
-3. Background worker (same lifespan style as order-expiry / SEP verify retry) claims the row and `POST /parcels/bulk`.
+3. Background worker (same lifespan style as order-expiry / SEP verify retry) claims the row. **TX A** locks, marks `booking`, persists `create_attempted`, **commits**, then `POST /parcels/bulk` with **no** row lock held. **TX B** persists parcel/tracking (`booked`) or `creation_uncertain`. Admin manual book uses the same domain function.
+4. Process death after Postex accepts create but before TX B leaves `booking` (never `pending_booking`). Restart looks up `custom_order_no` = `shipment.public_id` before any second create.
 
 `custom_order_no` = shipment UUID (lookup key). `custom_reference_no` = Karzar order tracking code.
 
 ## Idempotency / uncertain create
 
-Official spec has **no** idempotency key. After a create **timeout**, shipment status is `creation_uncertain`. Worker reconciles with `GET /parcels/custom-order-no/{uuid}`. It does **not** POST bulk again until lookup proves no parcel.
+Official spec has **no** idempotency key. A create attempt is **committed** as `booking` before `POST /parcels/bulk`. After a create **timeout** or process death, shipment status is `booking` or `creation_uncertain`. Worker reconciles with `GET /parcels/custom-order-no/{uuid}`. It does **not** POST bulk again until lookup proves no parcel (two empty lookups). Cancel of those states must not locally mark `cancelled` while a provider parcel may exist.
 
 ## Tracking
 

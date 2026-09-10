@@ -13,7 +13,12 @@ from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment, ShipmentEvent, ShippingQuote
 from app.db.models.product import Product
 from app.main import app
-from app.services.logistics.booking_worker import _book_one, process_shipment_bookings
+from app.services.logistics.booking_worker import (
+    _book_one,
+    book_shipment,
+    never_attempted_create,
+    process_shipment_bookings,
+)
 from app.services.logistics.exceptions import (
     ProviderAmbiguousWriteError,
     ProviderTimeoutError,
@@ -26,7 +31,7 @@ from app.services.logistics.package_builder import build_package
 from app.services.logistics.postex.client import PostexClient
 from app.services.logistics.service import build_parcel_create_request
 from fastapi.testclient import TestClient
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select, text
 
 from tests.conftest import USE_POSTGRES_TESTS, TestingSessionLocal, customer_auth_headers
 from tests.test_postex_logistics import _enable_postex
@@ -44,7 +49,13 @@ def fake_provider(monkeypatch):
     return provider
 
 
-def _seed_order_shipment(*, status: str, parcel_no: str | None = None) -> tuple[int, int, str]:
+def _seed_order_shipment(
+    *,
+    status: str,
+    parcel_no: str | None = None,
+    booking_attempts: int = 0,
+    provider_data: dict | None = None,
+) -> tuple[int, int, str]:
     async def seed():
         async with TestingSessionLocal() as session:
             order = Order(
@@ -65,6 +76,9 @@ def _seed_order_shipment(*, status: str, parcel_no: str | None = None) -> tuple[
             )
             session.add(order)
             await session.flush()
+            data = {"package": {"box_type_id": 1}}
+            if provider_data:
+                data.update(provider_data)
             shipment = Shipment(
                 public_id=str(uuid4()),
                 order_id=order.id,
@@ -79,8 +93,9 @@ def _seed_order_shipment(*, status: str, parcel_no: str | None = None) -> tuple[
                 package_height_cm=4,
                 package_weight_grams=250,
                 declared_value_irr=Decimal("1000000"),
+                booking_attempts=booking_attempts,
                 booking_next_attempt_at=datetime.now(UTC),
-                provider_data={"package": {"box_type_id": 1}},
+                provider_data=data,
             )
             session.add(shipment)
             await session.commit()
@@ -738,3 +753,342 @@ def test_logistics_schema_parity_postgres(override_database):
             await conn.run_sync(sync_check)
 
     asyncio.run(body())
+
+
+@pytest.mark.skipif(not USE_POSTGRES_TESTS, reason="requires PostgreSQL durability")
+def test_process_death_after_provider_create_does_not_duplicate(
+    fake_provider, override_database
+):
+    """A/B/C/D: crash after Postex create, before Karzar stores the response."""
+    order_id, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.PENDING_BOOKING.value
+    )
+
+    async def create_then_die(request):
+        await FakeProvider.create_parcel(fake_provider, request)
+        raise asyncio.CancelledError()
+
+    fake_provider.create_parcel = create_then_die
+
+    async def body():
+        async with TestingSessionLocal() as session:
+            with pytest.raises(asyncio.CancelledError):
+                await book_shipment(session, shipment_id)
+
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.BOOKING.value
+            assert row.status != ShipmentStatus.PENDING_BOOKING.value
+            assert (row.provider_data or {}).get("create_attempted") is True
+            assert row.provider_parcel_no is None
+            assert row.booking_attempts == 1
+            assert public_id in fake_provider.parcels
+
+        lookups_before_recovery = fake_provider.lookup_calls
+        async with TestingSessionLocal() as session:
+            await process_shipment_bookings(session)
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.BOOKED.value
+            assert row.provider_parcel_no == "1001"
+            assert fake_provider.create_calls == 1
+            assert fake_provider.lookup_calls > lookups_before_recovery
+            assert fake_provider.op_log[0] == "create"
+            assert "lookup" in fake_provider.op_log
+            assert fake_provider.op_log.count("create") == 1
+
+    asyncio.run(body())
+    _ = order_id
+
+
+@pytest.mark.skipif(not USE_POSTGRES_TESTS, reason="requires PostgreSQL row locking")
+def test_create_does_not_hold_row_lock_during_network(fake_provider, override_database):
+    _, shipment_id, _ = _seed_order_shipment(status=ShipmentStatus.PENDING_BOOKING.value)
+    lock_wait_ok = False
+
+    async def create_and_probe(request):
+        async with TestingSessionLocal() as other:
+            await other.execute(text("SET lock_timeout TO '200ms'"))
+            try:
+                await other.execute(
+                    select(Shipment).where(Shipment.id == shipment_id).with_for_update()
+                )
+            except Exception as exc:
+                raise AssertionError(
+                    "shipment row lock was held during Postex create HTTP"
+                ) from exc
+            await other.rollback()
+        fake_provider.create_calls += 1
+        fake_provider.op_log.append("create")
+        booking = ParcelBooking(
+            provider_parcel_no="1001",
+            tracking_code="1234567890123",
+            carrier_code="IR_POST",
+            service_code="EXPRESS",
+            provider_status="registered",
+            raw={},
+        )
+        fake_provider.parcels[request["parcels"][0]["custom_order_no"]] = booking
+        return booking
+
+    fake_provider.create_parcel = create_and_probe
+
+    async def body():
+        nonlocal lock_wait_ok
+        async with TestingSessionLocal() as session:
+            await book_shipment(session, shipment_id)
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.BOOKED.value
+        lock_wait_ok = True
+
+    asyncio.run(body())
+    assert lock_wait_ok
+    assert fake_provider.create_calls == 1
+
+
+@pytest.mark.skipif(not USE_POSTGRES_TESTS, reason="requires PostgreSQL row locking")
+def test_admin_and_worker_race_creates_one_parcel(
+    fake_provider, override_database, super_admin_headers
+):
+    order_id, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.PENDING_BOOKING.value
+    )
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    async def slow_create(request):
+        fake_provider.create_calls += 1
+        fake_provider.op_log.append("create")
+        started.set()
+        await release.wait()
+        booking = ParcelBooking(
+            provider_parcel_no="1001",
+            tracking_code="1234567890123",
+            carrier_code="IR_POST",
+            service_code="EXPRESS",
+            provider_status="registered",
+            raw={},
+        )
+        fake_provider.parcels[request["parcels"][0]["custom_order_no"]] = booking
+        return booking
+
+    fake_provider.create_parcel = slow_create
+
+    async def worker():
+        async with TestingSessionLocal() as session:
+            await process_shipment_bookings(session)
+
+    async def admin_book():
+        # Same domain function as POST /orders/{id}/shipments/{id}/book
+        async with TestingSessionLocal() as session:
+            await book_shipment(session, shipment_id)
+
+    async def body():
+        worker_task = asyncio.create_task(worker())
+        admin_task = asyncio.create_task(admin_book())
+        await started.wait()
+        await asyncio.sleep(0.3)
+        assert fake_provider.create_calls == 1
+        release.set()
+        await asyncio.gather(admin_task, worker_task)
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.provider_parcel_no == "1001"
+            assert row.status == ShipmentStatus.BOOKED.value
+            assert fake_provider.create_calls == 1
+            assert public_id in fake_provider.parcels
+        client = TestClient(app)
+        res = client.post(
+            f"/api/v1/orders/{order_id}/shipments/{shipment_id}/book",
+            headers=super_admin_headers,
+        )
+        assert res.status_code == 200, res.text
+        assert res.json()["status"] == "booked"
+        assert fake_provider.create_calls == 1
+
+    asyncio.run(body())
+
+
+def test_cancel_never_attempted_is_local(fake_provider, override_database, step_up_headers):
+    order_id, shipment_id, _ = _seed_order_shipment(status=ShipmentStatus.PENDING_BOOKING.value)
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "cancelled"
+    assert fake_provider.cancel_calls == 0
+    assert fake_provider.create_calls == 0
+
+    async def check():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.CANCELLED.value
+            assert never_attempted_create(row) is False
+            await process_shipment_bookings(session)
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.CANCELLED.value
+            assert fake_provider.create_calls == 0
+
+    asyncio.run(check())
+
+
+def test_cancel_creation_uncertain_found_parcel_uses_cancel_request(
+    fake_provider, override_database, step_up_headers
+):
+    order_id, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.CREATION_UNCERTAIN.value,
+        booking_attempts=1,
+        provider_data={"create_attempted": True},
+    )
+    fake_provider.parcels[public_id] = ParcelBooking(
+        provider_parcel_no="1001",
+        tracking_code="1234567890123",
+        carrier_code="IR_POST",
+        service_code="EXPRESS",
+        provider_status="registered",
+        raw={},
+    )
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "cancellation_pending"
+    assert res.json()["status"] != "cancelled"
+    assert fake_provider.cancel_calls == 1
+    assert fake_provider.lookup_calls >= 1
+
+    async def check():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.CANCELLATION_PENDING.value
+            assert row.provider_parcel_no == "1001"
+            assert row.cancelled_at is None
+
+    asyncio.run(check())
+
+
+def test_cancel_creation_uncertain_lookup_unavailable_never_local_cancelled(
+    fake_provider, override_database, step_up_headers
+):
+    order_id, shipment_id, _ = _seed_order_shipment(
+        status=ShipmentStatus.CREATION_UNCERTAIN.value,
+        booking_attempts=1,
+        provider_data={"create_attempted": True},
+    )
+
+    async def lookup_down(custom_order_no):
+        fake_provider.lookup_calls += 1
+        fake_provider.op_log.append("lookup")
+        raise RuntimeError("lookup unavailable")
+
+    fake_provider.lookup_by_custom_order_no = lookup_down
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "cancellation_pending"
+    assert fake_provider.cancel_calls == 0
+
+    async def check():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.status != ShipmentStatus.CANCELLED.value
+            assert row.status == ShipmentStatus.CANCELLATION_PENDING.value
+            assert (row.provider_data or {}).get("cancellation_lookup_inconclusive") is True
+
+    asyncio.run(check())
+
+
+def test_cancel_booking_after_crash_found_parcel_uses_cancel_request(
+    fake_provider, override_database, step_up_headers
+):
+    order_id, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.BOOKING.value,
+        booking_attempts=1,
+        provider_data={
+            "create_attempted": True,
+            "create_started_at": datetime.now(UTC).isoformat(),
+        },
+    )
+    fake_provider.parcels[public_id] = ParcelBooking(
+        provider_parcel_no="1001",
+        tracking_code="1234567890123",
+        carrier_code="IR_POST",
+        service_code="EXPRESS",
+        provider_status="registered",
+        raw={},
+    )
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "cancellation_pending"
+    assert fake_provider.cancel_calls == 1
+
+    async def check():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row.status == ShipmentStatus.CANCELLATION_PENDING.value
+            assert row.provider_parcel_no == "1001"
+            assert row.cancelled_at is None
+            await process_shipment_bookings(session)
+            row = await session.get(Shipment, shipment_id)
+            assert fake_provider.create_calls == 0
+            assert row.status != ShipmentStatus.CANCELLED.value
+
+    asyncio.run(check())
+
+
+def test_false_local_cancel_cannot_leave_provider_parcel_unnoticed(
+    fake_provider, override_database, step_up_headers
+):
+    order_id, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.CREATION_UNCERTAIN.value,
+        booking_attempts=1,
+        provider_data={"create_attempted": True},
+    )
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] != "cancelled"
+    assert res.json()["status"] == "cancellation_pending"
+
+    fake_provider.parcels[public_id] = ParcelBooking(
+        provider_parcel_no="1001",
+        tracking_code="1234567890123",
+        carrier_code="IR_POST",
+        service_code="EXPRESS",
+        provider_status="registered",
+        raw={},
+    )
+
+    async def recover():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            row.booking_next_attempt_at = datetime.now(UTC)
+            await session.commit()
+        async with TestingSessionLocal() as session:
+            await process_shipment_bookings(session)
+            row = await session.get(Shipment, shipment_id)
+            assert row.status != ShipmentStatus.CANCELLED.value
+            assert row.provider_parcel_no == "1001"
+            assert fake_provider.cancel_calls == 1
+            assert fake_provider.create_calls == 0
+            assert row.status == ShipmentStatus.CANCELLATION_PENDING.value
+
+    asyncio.run(recover())
