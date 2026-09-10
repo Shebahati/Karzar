@@ -58,6 +58,7 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
         .order_by(Shipment.id)
         .limit(10)
         .with_for_update(skip_locked=True)
+        .execution_options(populate_existing=True)
     )
     shipments = list((await db.execute(stmt)).scalars().all())
     processed = 0
@@ -71,7 +72,10 @@ async def _lock_shipment(db: AsyncSession, shipment_id: int) -> Shipment | None:
     return (
         (
             await db.execute(
-                select(Shipment).where(Shipment.id == shipment_id).with_for_update()
+                select(Shipment)
+                .where(Shipment.id == shipment_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
             )
         )
         .scalars()

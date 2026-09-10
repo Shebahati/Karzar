@@ -764,7 +764,7 @@ async def get_shipment_for_order(
         .options(selectinload(Shipment.events))
     )
     if for_update:
-        stmt = stmt.with_for_update()
+        stmt = stmt.with_for_update().execution_options(populate_existing=True)
     shipment = (await db.execute(stmt)).scalars().first()
     if shipment is None:
         raise ShipmentNotFoundError("مرسوله یافت نشد")
