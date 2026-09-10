@@ -14878,6 +14878,18 @@
               }
             ],
             "title": "Last Error Message"
+          },
+          "cancellation_requested_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Requested At"
           }
         },
         "type": "object",

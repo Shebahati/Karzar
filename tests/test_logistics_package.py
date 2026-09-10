@@ -112,7 +112,8 @@ def test_redact_nested_secrets():
 def test_unknown_status_never_delivered():
     mapped = map_provider_status(event_code="FUTURE_XYZ", event_name="وضعیت جدید")
     assert mapped != ShipmentStatus.DELIVERED
-    assert mapped == ShipmentStatus.IN_TRANSIT
+    assert mapped == ShipmentStatus.PROVIDER_UNKNOWN
+    assert can_advance(ShipmentStatus.BOOKED.value, mapped.value) is False
 
 
 def test_delivered_does_not_regress():
@@ -121,4 +122,5 @@ def test_delivered_does_not_regress():
         event_code="in_transit",
         current=ShipmentStatus.DELIVERED,
     )
-    assert mapped == ShipmentStatus.DELIVERED
+    assert mapped == ShipmentStatus.IN_TRANSIT
+    assert can_advance(ShipmentStatus.DELIVERED.value, mapped.value) is False

@@ -121,6 +121,12 @@ def upgrade() -> None:
             server_default=sa.text("CURRENT_TIMESTAMP"),
             nullable=False,
         ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("CURRENT_TIMESTAMP"),
+            nullable=False,
+        ),
         sa.UniqueConstraint("token", name="uq_shipping_quotes_token"),
     )
     op.create_index("ix_shipping_quotes_user_id", "shipping_quotes", ["user_id"])
@@ -157,6 +163,7 @@ def upgrade() -> None:
         sa.Column("shipped_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("delivered_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("cancelled_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("cancellation_requested_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_error_code", sa.String(length=64), nullable=True),
         sa.Column("last_error_message", sa.String(length=500), nullable=True),
         sa.Column("provider_data", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
@@ -214,6 +221,12 @@ def upgrade() -> None:
         sa.Column("payload", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column(
             "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("CURRENT_TIMESTAMP"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
             sa.DateTime(timezone=True),
             server_default=sa.text("CURRENT_TIMESTAMP"),
             nullable=False,

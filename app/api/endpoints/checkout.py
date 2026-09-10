@@ -144,6 +144,7 @@ async def checkout(
             "SHIPPING_QUOTE_EXPIRED",
             "SHIPPING_QUOTE_MISMATCH",
             "SHIPPING_QUOTE_CONSUMED",
+            "SHIPPING_QUOTE_STALE",
         }:
             http_status = status.HTTP_409_CONFLICT
         raise api_error(

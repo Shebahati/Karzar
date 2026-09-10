@@ -38,7 +38,13 @@ from app.services.logistics.exceptions import (
     ProviderError,
     ShippingDataIncompleteError,
 )
-from app.services.logistics.models import Destination, ShipmentStatus
+from app.services.logistics.fingerprints import canonical_cart_items
+from app.services.logistics.models import (
+    READY_ELIGIBLE_STATUSES,
+    TERMINAL_SHIPMENT_STATUSES,
+    Destination,
+    ShipmentStatus,
+)
 from app.services.logistics.service import (
     admin_shipment_view,
     apply_tracking_to_order,
@@ -71,6 +77,7 @@ def _http_for(exc: LogisticsError) -> tuple[int, str]:
         "SHIPPING_QUOTE_EXPIRED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_EXPIRED),
         "SHIPPING_QUOTE_MISMATCH": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_MISMATCH),
         "SHIPPING_QUOTE_CONSUMED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_CONSUMED),
+        "SHIPPING_QUOTE_STALE": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_STALE),
         "SHIPMENT_NOT_FOUND": (status.HTTP_404_NOT_FOUND, ErrorCode.SHIPMENT_NOT_FOUND),
         "SHIPMENT_STATE_INVALID": (status.HTTP_409_CONFLICT, ErrorCode.SHIPMENT_STATE_INVALID),
         "SHIPPING_PROVIDER_CUTOFF": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_PROVIDER_CUTOFF),
@@ -101,9 +108,11 @@ def _raise_logistics(exc: LogisticsError) -> NoReturn:
     ) from exc
 
 
-async def _shipment_or_raise(db: AsyncSession, order_id: int, shipment_id: int) -> Shipment:
+async def _shipment_or_raise(
+    db: AsyncSession, order_id: int, shipment_id: int, *, for_update: bool = False
+) -> Shipment:
     try:
-        return await get_shipment_for_order(db, order_id, shipment_id)
+        return await get_shipment_for_order(db, order_id, shipment_id, for_update=for_update)
     except LogisticsError as exc:
         _raise_logistics(exc)
 
@@ -139,15 +148,15 @@ async def create_shipping_quote(
             error_code=ErrorCode.SHIPPING_UNAVAILABLE,
             message="ارسال پستی فعال نیست.",
         )
-    quantities = {line.product_id: line.quantity for line in payload.items}
-    products = await crud_product.get_products_for_update(db, list(quantities.keys()))
+    items = canonical_cart_items(
+        [{"product_id": line.product_id, "quantity": line.quantity} for line in payload.items]
+    )
+    products = await crud_product.get_products_by_ids(db, [item["product_id"] for item in items])
     try:
         result = await create_quote(
             db,
             user_id=current_user.id,
-            items=[
-                {"product_id": line.product_id, "quantity": line.quantity} for line in payload.items
-            ],
+            items=items,
             destination=Destination(
                 location_code=payload.location_code,
                 city_name=payload.city_name,
@@ -236,7 +245,13 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+            message="این مرسوله قابل رزرو مجدد نیست.",
+        )
     await _book_one(db, shipment)
     await db.commit()
     return admin_shipment_view(shipment)
@@ -252,13 +267,24 @@ async def admin_mark_ready(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if not shipment.provider_parcel_no:
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="شناسه مرسوله پستکس موجود نیست.",
         )
+    if shipment.status not in {status.value for status in READY_ELIGIBLE_STATUSES}:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+            message="این مرسوله در وضعیت فعلی قابل آماده به ارسال شدن نیست.",
+        )
+    if (
+        shipment.status == ShipmentStatus.READY_FOR_PICKUP.value
+        and shipment.ready_to_accept
+    ):
+        return admin_shipment_view(shipment)
     try:
         await get_provider().mark_ready([int(shipment.provider_parcel_no)])
     except LogisticsError as exc:
@@ -425,13 +451,19 @@ async def admin_cancel_shipment(
             error_code=ErrorCode.STEP_UP_INVALID,
             message="Step-up token has already been used",
         )
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
-    if shipment.status in {ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value}:
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    if shipment.status in {
+        ShipmentStatus.DELIVERED.value,
+        ShipmentStatus.RETURNED.value,
+        ShipmentStatus.CANCELLED.value,
+    }:
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="این مرسوله قابل انصراف نیست.",
         )
+    if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
+        return admin_shipment_view(shipment)
     if shipment.provider_parcel_no:
         try:
             await get_provider().cancel_parcel(shipment.provider_parcel_no, payload.reason)
@@ -442,8 +474,23 @@ async def admin_cancel_shipment(
                     error_code=ErrorCode.SHIPPING_PROVIDER_CUTOFF,
                     message="پستکس انصراف را در این مرحله نپذیرفت.",
                 ) from exc
+            if getattr(exc, "ambiguous_write", False):
+                shipment.status = ShipmentStatus.CANCELLATION_PENDING.value
+                shipment.cancellation_requested_at = datetime.now(UTC)
+                data = dict(shipment.provider_data or {})
+                data["cancellation_request_uncertain"] = True
+                shipment.provider_data = data
+                await db.commit()
+                return admin_shipment_view(shipment)
             _raise_logistics(exc)
-    shipment.status = ShipmentStatus.CANCELLED.value
-    shipment.cancelled_at = datetime.now(UTC)
+        # Official cancel-request is a request, not a confirmed cancellation.
+        shipment.status = ShipmentStatus.CANCELLATION_PENDING.value
+        shipment.cancellation_requested_at = datetime.now(UTC)
+        data = dict(shipment.provider_data or {})
+        data["cancellation_requested"] = True
+        shipment.provider_data = data
+    else:
+        shipment.status = ShipmentStatus.CANCELLED.value
+        shipment.cancelled_at = datetime.now(UTC)
     await db.commit()
     return admin_shipment_view(shipment)

@@ -27,6 +27,8 @@ class ShipmentStatus(StrEnum):
     RETURNING = "returning"
     RETURNED = "returned"
     CANCELLED = "cancelled"
+    CANCELLATION_PENDING = "cancellation_pending"
+    PROVIDER_UNKNOWN = "provider_unknown"
     CREATION_UNCERTAIN = "creation_uncertain"
     ERROR = "error"
 
@@ -39,9 +41,28 @@ TERMINAL_SHIPMENT_STATUSES = frozenset(
     }
 )
 
-# Physical handoff into the delivery network — not "label created".
+# Physical handoff into the delivery network — not "label created" and not unknown text.
 PHYSICAL_HANDOFF_STATUSES = frozenset(
     {
+        ShipmentStatus.PICKED_UP,
+        ShipmentStatus.IN_TRANSIT,
+        ShipmentStatus.OUT_FOR_DELIVERY,
+        ShipmentStatus.DELIVERED,
+    }
+)
+
+READY_ELIGIBLE_STATUSES = frozenset(
+    {
+        ShipmentStatus.BOOKED,
+        ShipmentStatus.READY_FOR_PICKUP,
+    }
+)
+
+# States that already have (or must never obtain) a second Postex create.
+BOOKING_CREATE_FORBIDDEN_STATUSES = frozenset(
+    {
+        ShipmentStatus.BOOKED,
+        ShipmentStatus.READY_FOR_PICKUP,
         ShipmentStatus.PICKED_UP,
         ShipmentStatus.IN_TRANSIT,
         ShipmentStatus.OUT_FOR_DELIVERY,
@@ -49,6 +70,9 @@ PHYSICAL_HANDOFF_STATUSES = frozenset(
         ShipmentStatus.DELIVERY_FAILED,
         ShipmentStatus.RETURNING,
         ShipmentStatus.RETURNED,
+        ShipmentStatus.CANCELLED,
+        ShipmentStatus.CANCELLATION_PENDING,
+        ShipmentStatus.PROVIDER_UNKNOWN,
     }
 )
 
@@ -65,6 +89,8 @@ SHIPMENT_STATUS_LABELS_FA: dict[str, str] = {
     ShipmentStatus.RETURNING.value: "در حال بازگشت",
     ShipmentStatus.RETURNED.value: "مرجوع شد",
     ShipmentStatus.CANCELLED.value: "لغو شد",
+    ShipmentStatus.CANCELLATION_PENDING.value: "درخواست انصراف ثبت شد",
+    ShipmentStatus.PROVIDER_UNKNOWN.value: "وضعیت ارائه‌دهنده ناشناخته",
     ShipmentStatus.CREATION_UNCERTAIN.value: "ثبت مرسوله نامشخص — در حال تطبیق",
     ShipmentStatus.ERROR.value: "خطای لجستیک",
 }

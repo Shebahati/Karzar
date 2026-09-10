@@ -47,6 +47,8 @@ class ShipmentStatus(str, enum.Enum):
     RETURNING = "returning"
     RETURNED = "returned"
     CANCELLED = "cancelled"
+    CANCELLATION_PENDING = "cancellation_pending"
+    PROVIDER_UNKNOWN = "provider_unknown"
     CREATION_UNCERTAIN = "creation_uncertain"
     ERROR = "error"
 
@@ -84,6 +86,12 @@ class ShippingQuote(Base):
     consumed_order_id: Mapped[int | None] = mapped_column(ForeignKey("orders.id"))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("CURRENT_TIMESTAMP"),
+        onupdate=text("CURRENT_TIMESTAMP"),
+        nullable=False,
     )
 
 
@@ -141,6 +149,7 @@ class Shipment(Base):
     shipped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    cancellation_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_error_code: Mapped[str | None] = mapped_column(String(64))
     last_error_message: Mapped[str | None] = mapped_column(String(500))
     provider_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
@@ -186,6 +195,12 @@ class ShipmentEvent(Base):
     payload: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("CURRENT_TIMESTAMP"),
+        onupdate=text("CURRENT_TIMESTAMP"),
+        nullable=False,
     )
 
     shipment: Mapped[Shipment] = relationship("Shipment", back_populates="events")

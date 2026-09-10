@@ -44,6 +44,10 @@ class ShippingQuoteConsumedError(LogisticsError):
     error_code = "SHIPPING_QUOTE_CONSUMED"
 
 
+class ShippingQuoteStaleError(LogisticsError):
+    error_code = "SHIPPING_QUOTE_STALE"
+
+
 class ShipmentNotFoundError(LogisticsError):
     error_code = "SHIPMENT_NOT_FOUND"
 
@@ -107,6 +111,14 @@ class ProviderTimeoutError(ProviderError):
             ambiguous_write=ambiguous_write,
             **kwargs,  # type: ignore[arg-type]
         )
+
+
+class ProviderAmbiguousWriteError(ProviderTimeoutError):
+    """Mutating request may have reached Postex; do not retry create blindly."""
+
+    def __init__(self, message: str, **kwargs: object) -> None:
+        kwargs.setdefault("ambiguous_write", True)
+        super().__init__(message, **kwargs)  # type: ignore[arg-type]
 
 
 class ProviderNotFoundError(ProviderError):

@@ -7,17 +7,26 @@ import json
 from collections.abc import Mapping, Sequence
 
 
+def merge_line_quantities(items: Sequence[Mapping[str, int]]) -> dict[int, int]:
+    """Sum quantities for the same product_id. Quote and checkout must share this."""
+    merged: dict[int, int] = {}
+    for item in items:
+        product_id = int(item["product_id"])
+        quantity = int(item["quantity"])
+        merged[product_id] = merged.get(product_id, 0) + quantity
+    return merged
+
+
+def canonical_cart_items(items: Sequence[Mapping[str, int]]) -> list[dict[str, int]]:
+    merged = merge_line_quantities(items)
+    return [
+        {"product_id": product_id, "quantity": quantity}
+        for product_id, quantity in sorted(merged.items())
+    ]
+
+
 def cart_fingerprint(items: Sequence[Mapping[str, int]]) -> str:
-    normalized = sorted(
-        (
-            {
-                "product_id": int(item["product_id"]),
-                "quantity": int(item["quantity"]),
-            }
-            for item in items
-        ),
-        key=lambda row: row["product_id"],
-    )
+    normalized = canonical_cart_items(items)
     payload = json.dumps(normalized, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 

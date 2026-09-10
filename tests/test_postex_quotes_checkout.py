@@ -638,7 +638,7 @@ def test_admin_cancel_requires_step_up_and_cancels(
         headers=step_up_headers,
     )
     assert res.status_code == 200, res.text
-    assert res.json()["status"] == "cancelled"
+    assert res.json()["status"] == "cancellation_pending"
     assert fake_provider.cancel_calls == 1
 
 

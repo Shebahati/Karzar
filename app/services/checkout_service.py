@@ -18,8 +18,14 @@ from app.schemas.storefront import (
 )
 from app.services.cart_service import clear_cart_for_checkout, resolve_checkout_defaults
 from app.services.logistics.exceptions import LogisticsError
+from app.services.logistics.fingerprints import merge_line_quantities
 from app.services.logistics.models import Destination
-from app.services.logistics.service import bind_quote_to_order, consume_quote, postex_enabled
+from app.services.logistics.service import (
+    assert_quote_prices_current,
+    bind_quote_to_order,
+    consume_quote,
+    postex_enabled,
+)
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import record_initial_status_event, status_label
 from app.services.payment_flow_service import initialize_order_payment
@@ -38,10 +44,9 @@ class PurchaseCheckoutDisabledError(RuntimeError):
 
 def _merge_quantities(payload: CheckoutRequest) -> dict[int, int]:
     """Aggregate quantities per product so duplicate lines are validated together."""
-    merged: dict[int, int] = {}
-    for line in payload.items:
-        merged[line.product_id] = merged.get(line.product_id, 0) + line.quantity
-    return merged
+    return merge_line_quantities(
+        [{"product_id": line.product_id, "quantity": line.quantity} for line in payload.items]
+    )
 
 
 async def submit_checkout(
@@ -104,6 +109,8 @@ async def submit_checkout(
 
     # Lock the referenced product rows so concurrent purchases cannot oversell.
     products = await crud_product.get_products_for_update(db, list(quantities.keys()))
+    if shipping_quote is not None:
+        assert_quote_prices_current(shipping_quote, products, quantities)
 
     line_items = []
     estimated_total = Decimal("0.0")

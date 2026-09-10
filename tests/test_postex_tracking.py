@@ -149,9 +149,22 @@ def test_unknown_provider_status_never_delivered(override_database):
                     )
                 ],
             )
+            await apply_tracking_to_order(session, order)
             await session.commit()
-            assert shipment.status == ShipmentStatus.IN_TRANSIT.value
+            events = (
+                (
+                    await session.execute(
+                        select(ShipmentEvent).where(ShipmentEvent.shipment_id == shipment.id)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            assert events[0].status == ShipmentStatus.PROVIDER_UNKNOWN.value
+            assert events[0].provider_status == "وضعیت ناشناخته"
+            assert shipment.status == ShipmentStatus.BOOKED.value
             assert shipment.status != ShipmentStatus.DELIVERED.value
+            assert order.status == OrderStatus.PROCESSING.value
 
     asyncio.run(body())
 
@@ -223,5 +236,178 @@ def test_booking_barcode_does_not_mark_order_shipped(override_database):
             await session.commit()
             assert order.status == OrderStatus.PROCESSING.value
             assert order.postal_tracking_code == "1234567890123"
+
+    asyncio.run(body())
+
+
+def _seed_processing_shipment(session):
+    order = Order(
+        tracking_code="KZ-TRK-X",
+        mode=OrderMode.PURCHASE,
+        status=OrderStatus.PROCESSING.value,
+        payment_status=PaymentStatus.PAID.value,
+        customer_full_name="علی تست",
+        customer_phone="09123333333",
+    )
+    session.add(order)
+    return order
+
+
+async def _flush_shipment(session, order, **kwargs):
+    shipment = Shipment(
+        public_id=str(uuid4()),
+        order_id=order.id,
+        provider="postex",
+        tracking_code="1234567890123",
+        provider_parcel_no="1001",
+        **kwargs,
+    )
+    session.add(shipment)
+    await session.flush()
+    return shipment
+
+
+def test_delivered_to_sender_does_not_complete_order(override_database):
+    async def body():
+        async with TestingSessionLocal() as session:
+            order = _seed_processing_shipment(session)
+            await session.flush()
+            shipment = await _flush_shipment(
+                session, order, status=ShipmentStatus.IN_TRANSIT.value
+            )
+            await ingest_tracking_events(
+                session,
+                shipment,
+                [
+                    TrackingEvent(
+                        provider_status="deliveredtosender",
+                        provider_code="deliveredtosender",
+                        occurred_at=datetime.now(UTC),
+                        description="تحویل به فرستنده",
+                        location=None,
+                        payload={},
+                    )
+                ],
+            )
+            await apply_tracking_to_order(session, order)
+            await session.commit()
+            assert shipment.status == ShipmentStatus.RETURNED.value
+            assert order.status != OrderStatus.DELIVERED.value
+            assert order.status != OrderStatus.SHIPPED.value
+
+    asyncio.run(body())
+
+
+def test_failed_delivery_does_not_become_delivered(override_database):
+    mapped = map_provider_status(event_code="failed", event_name="عدم تحویل شد")
+    assert mapped == ShipmentStatus.DELIVERY_FAILED
+
+    async def body():
+        async with TestingSessionLocal() as session:
+            order = _seed_processing_shipment(session)
+            await session.flush()
+            shipment = await _flush_shipment(session, order, status=ShipmentStatus.OUT_FOR_DELIVERY.value)
+            await ingest_tracking_events(
+                session,
+                shipment,
+                [
+                    TrackingEvent(
+                        provider_status="عدم تحویل شد",
+                        provider_code="failed",
+                        occurred_at=datetime.now(UTC),
+                        description="عدم تحویل شد",
+                        location=None,
+                        payload={},
+                    )
+                ],
+            )
+            await apply_tracking_to_order(session, order)
+            await session.commit()
+            assert shipment.status == ShipmentStatus.DELIVERY_FAILED.value
+            assert order.status != OrderStatus.DELIVERED.value
+
+    asyncio.run(body())
+
+
+def test_return_event_does_not_become_delivered(override_database):
+    mapped = map_provider_status(event_code="returned", event_name="مرجوع شد")
+    assert mapped == ShipmentStatus.RETURNED
+    assert mapped != ShipmentStatus.DELIVERED
+
+
+def test_recipient_delivered_completes_order(override_database):
+    async def body():
+        async with TestingSessionLocal() as session:
+            order = Order(
+                tracking_code="KZ-TRK-DEL",
+                mode=OrderMode.PURCHASE,
+                status=OrderStatus.SHIPPED.value,
+                payment_status=PaymentStatus.PAID.value,
+                customer_full_name="علی تست",
+                customer_phone="09123333333",
+                postal_tracking_code="1234567890123",
+            )
+            session.add(order)
+            await session.flush()
+            shipment = await _flush_shipment(
+                session, order, status=ShipmentStatus.OUT_FOR_DELIVERY.value
+            )
+            await ingest_tracking_events(
+                session,
+                shipment,
+                [
+                    TrackingEvent(
+                        provider_status="delivered",
+                        provider_code="delivered",
+                        occurred_at=datetime.now(UTC),
+                        description="تحویل شد",
+                        location=None,
+                        payload={},
+                    )
+                ],
+            )
+            await apply_tracking_to_order(session, order)
+            await session.commit()
+            assert shipment.status == ShipmentStatus.DELIVERED.value
+            assert order.status == OrderStatus.DELIVERED.value
+
+    asyncio.run(body())
+
+
+def test_terminal_state_never_regresses_from_unknown(override_database):
+    async def body():
+        async with TestingSessionLocal() as session:
+            order = Order(
+                tracking_code="KZ-TRK-TERM",
+                mode=OrderMode.PURCHASE,
+                status=OrderStatus.DELIVERED.value,
+                payment_status=PaymentStatus.PAID.value,
+                customer_full_name="علی تست",
+                customer_phone="09123333333",
+                postal_tracking_code="1234567890123",
+            )
+            session.add(order)
+            await session.flush()
+            shipment = await _flush_shipment(
+                session, order, status=ShipmentStatus.DELIVERED.value
+            )
+            await ingest_tracking_events(
+                session,
+                shipment,
+                [
+                    TrackingEvent(
+                        provider_status="وضعیت ناشناخته",
+                        provider_code="FUTURE_XYZ",
+                        occurred_at=datetime.now(UTC),
+                        description="unknown",
+                        location=None,
+                        payload={},
+                    )
+                ],
+            )
+            await apply_tracking_to_order(session, order)
+            await session.commit()
+            assert shipment.status == ShipmentStatus.DELIVERED.value
+            assert order.status == OrderStatus.DELIVERED.value
 
     asyncio.run(body())

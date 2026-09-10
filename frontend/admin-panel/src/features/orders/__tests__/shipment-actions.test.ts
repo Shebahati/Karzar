@@ -24,9 +24,13 @@ describe("shipmentActionAvailability", () => {
     );
   });
 
-  it("gates label and cancel", () => {
+    it("gates label and cancel", () => {
     expect(shipmentActionAvailability(shipment({ provider_parcel_no: "1" })).canLabel).toBe(true);
     expect(shipmentActionAvailability(shipment({ status: "delivered" })).canCancel).toBe(false);
+    expect(
+      shipmentActionAvailability(shipment({ status: "cancellation_pending", provider_parcel_no: "1" }))
+        .canCancel,
+    ).toBe(false);
     expect(
       shipmentActionAvailability(
         shipment({ status: "error", last_error_code: "CREATION_UNCERTAIN" }),

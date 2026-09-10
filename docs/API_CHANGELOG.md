@@ -30,7 +30,9 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Checkout: optional `shipping.location_code` and `shipping_quote_token` (required when `POSTEX_ENABLED`).
 - Order detail / public track: `shipments` plus shipping cost snapshots. `estimated_total` remains payable total (items + tax + customer shipping).
 - Product: optional `package_*_cm`, `shipping_is_fragile`, `shipping_is_liquid`, `shipping_class`.
-- New error codes: `SHIPPING_DATA_INCOMPLETE`, `SHIPPING_FREIGHT_REQUIRED`, `SHIPPING_UNAVAILABLE`, `SHIPPING_QUOTE_*`, `SHIPMENT_*`, `SHIPPING_PROVIDER_CUTOFF`.
+- New error codes: `SHIPPING_DATA_INCOMPLETE`, `SHIPPING_FREIGHT_REQUIRED`, `SHIPPING_UNAVAILABLE`, `SHIPPING_QUOTE_*`, `SHIPPING_QUOTE_STALE`, `SHIPMENT_*`, `SHIPPING_PROVIDER_CUTOFF`.
+- Shipment statuses include `cancellation_pending` (Postex cancel-request is not a confirmed cancel) and event status `provider_unknown` (unknown provider text is persisted, never inferred as in-transit/delivered).
+- Admin shipment view may include `cancellation_requested_at`.
 - Default `POSTEX_ENABLED=false`. No live Postex mutation in this change.
 
 ### 2026-08-02 — KB-REMEDIATION-11A Property Dictionary admin read (CR-012)

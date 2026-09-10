@@ -49,7 +49,10 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     canLabel: booked,
     canRefresh: booked,
     canEdit: booked && (shipment.status === "booked" || shipment.status === "ready_for_pickup"),
-    canCancel: !terminal,
+    canCancel:
+      !terminal &&
+      shipment.status !== "returned" &&
+      shipment.status !== "cancellation_pending",
     canRetrySafe: shipment.status === "error" && shipment.last_error_code !== "CREATION_UNCERTAIN",
   };
 }

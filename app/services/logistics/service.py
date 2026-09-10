@@ -24,9 +24,14 @@ from app.services.logistics.exceptions import (
     ShippingQuoteConsumedError,
     ShippingQuoteExpiredError,
     ShippingQuoteMismatchError,
+    ShippingQuoteStaleError,
     ShippingUnavailableError,
 )
-from app.services.logistics.fingerprints import cart_fingerprint, destination_fingerprint
+from app.services.logistics.fingerprints import (
+    canonical_cart_items,
+    cart_fingerprint,
+    destination_fingerprint,
+)
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
     SHIPMENT_STATUS_LABELS_FA,
@@ -185,6 +190,7 @@ async def create_quote(
     if not postex_enabled():
         raise ShippingUnavailableError("ارسال پستی فعال نیست.")
 
+    items = canonical_cart_items(items)
     quantities = {int(item["product_id"]): int(item["quantity"]) for item in items}
     for product_id in quantities:
         product = products.get(product_id)
@@ -244,6 +250,10 @@ async def create_quote(
         "is_fragile": package.is_fragile,
         "is_liquid": package.is_liquid,
         "declared_value_irr": str(declared_irr),
+        "product_unit_prices_toman": {
+            str(product_id): str(_to_decimal(products[product_id].base_price or 0))
+            for product_id in quantities
+        },
     }
     persisted: list[ShippingQuote] = []
     for option in quote.options:
@@ -325,6 +335,35 @@ async def consume_quote(
     return quote
 
 
+def assert_quote_prices_current(
+    quote: ShippingQuote,
+    products: dict[int, Product],
+    quantities: dict[int, int],
+) -> None:
+    """Fail closed when locked product prices no longer match the bound quote."""
+    snapshot = quote.package_snapshot or {}
+    stored_declared = snapshot.get("declared_value_irr")
+    lines = _quote_lines_from_products(products, quantities)
+    declared_toman = sum((line.unit_price_toman * line.quantity for line in lines), Decimal("0"))
+    declared_irr = toman_to_irr(declared_toman)
+    if stored_declared is None or Decimal(str(stored_declared)) != declared_irr:
+        raise ShippingQuoteStaleError(
+            "قیمت کالا تغییر کرده است. دوباره نرخ ارسال بگیرید."
+        )
+    stored_prices = snapshot.get("product_unit_prices_toman") or {}
+    for product_id in quantities:
+        product = products.get(product_id)
+        if product is None or product.base_price is None:
+            raise ShippingQuoteStaleError(
+                "قیمت کالا تغییر کرده است. دوباره نرخ ارسال بگیرید."
+            )
+        current = str(_to_decimal(product.base_price))
+        if str(stored_prices.get(str(product_id))) != current:
+            raise ShippingQuoteStaleError(
+                "قیمت کالا تغییر کرده است. دوباره نرخ ارسال بگیرید."
+            )
+
+
 async def bind_quote_to_order(db: AsyncSession, quote: ShippingQuote, order_id: int) -> None:
     await db.execute(
         update(ShippingQuote)
@@ -398,12 +437,15 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
 
 def _contact_from_order(order: Order) -> dict[str, str]:
     first, last = _split_name(order.customer_full_name)
-    return {
+    contact: dict[str, str] = {
         "first_name": first,
         "last_name": last,
         "mobile_no": order.customer_phone,
-        "company_name": order.company_name or settings.POSTEX_ORIGIN_COMPANY_NAME,
     }
+    company = (order.company_name or "").strip()
+    if company:
+        contact["company_name"] = company
+    return contact
 
 
 def build_parcel_create_request(order: Order, shipment: Shipment) -> dict[str, Any]:
@@ -647,6 +689,10 @@ async def ingest_tracking_events(db: AsyncSession, shipment: Shipment, events: l
         if can_advance(current, mapped.value):
             current = mapped.value
             shipment.status = mapped.value
+            if mapped == ShipmentStatus.CANCELLED and shipment.cancelled_at is None:
+                shipment.cancelled_at = datetime.now(UTC)
+            if mapped == ShipmentStatus.DELIVERED and shipment.delivered_at is None:
+                shipment.delivered_at = datetime.now(UTC)
     shipment.last_tracking_sync_at = datetime.now(UTC)
     await db.flush()
 
@@ -703,23 +749,23 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
             "last_tracking_sync_at": shipment.last_tracking_sync_at,
             "last_error_code": shipment.last_error_code,
             "last_error_message": shipment.last_error_message,
+            "cancellation_requested_at": shipment.cancellation_requested_at,
         }
     )
     return view
 
 
-async def get_shipment_for_order(db: AsyncSession, order_id: int, shipment_id: int) -> Shipment:
-    shipment = (
-        (
-            await db.execute(
-                select(Shipment)
-                .where(Shipment.id == shipment_id, Shipment.order_id == order_id)
-                .options(selectinload(Shipment.events))
-            )
-        )
-        .scalars()
-        .first()
+async def get_shipment_for_order(
+    db: AsyncSession, order_id: int, shipment_id: int, *, for_update: bool = False
+) -> Shipment:
+    stmt = (
+        select(Shipment)
+        .where(Shipment.id == shipment_id, Shipment.order_id == order_id)
+        .options(selectinload(Shipment.events))
     )
+    if for_update:
+        stmt = stmt.with_for_update()
+    shipment = (await db.execute(stmt)).scalars().first()
     if shipment is None:
         raise ShipmentNotFoundError("مرسوله یافت نشد")
     return shipment

@@ -172,7 +172,7 @@ Stable Karzar reference: `custom_order_no` = shipment public UUID. Lookup uses `
 |--------|------|---------|-------|
 | POST | `/parcels/mark-ready` | «آماده به ارسال کردن مرسوله». Body: array of `int64` parcel ids | Mutating. No cutoff documented. |
 | PATCH/PUT | `/parcels/{parcel-no}` | Edit (`UpdateParcelRequest`) | Mutating. **No cutoff documented.** |
-| POST | `/parcels/cancel-request/{parcel-no}` | «درخواست انصراف از ارسال». Body `CancelParcelRequest.reason` | Mutating. **No cutoff documented.** Failure after provider rejection is returned as a domain error, not faked. |
+| POST | `/parcels/cancel-request/{parcel-no}` | «درخواست انصراف از ارسال». Body `CancelParcelRequest.reason` | Mutating. Response is HTTP 200 **OK with no schema**. Official text is a **cancellation request**, not a documented final cancel. Karzar sets `cancellation_pending` + `cancellation_requested_at` and confirms `cancelled` only from later tracking/status. Provider 4xx is returned as cutoff. Already delivered/returned/cancelled → 409. |
 
 `POST /shipping/time-windows` exists (pickup/delivery windows). Request/response **not** specified. Isolated behind the provider; Karzar v1 does not expose it until the body schema is official.
 
@@ -231,7 +231,7 @@ Karzar client also accepts PascalCase `IsSuccess` / `Message` if returned. Non-J
 1. **GET / quotes:** bounded retry on timeout / 5xx / network.
 2. **POST /parcels/bulk, mark-ready, cancel, PATCH/PUT, wallet writes:** no generic automatic retry.
 3. If create returns a **definitive** 4xx validation/`isSuccess=false` before a parcel exists: record failure; safe to retry later.
-4. If create **times out** after the request may have reached Postex: mark shipment `creation_uncertain`. **Do not** POST bulk again. Reconcile with `GET /parcels/custom-order-no/{custom_order_no}`. Retry create only after lookup proves **no** parcel exists.
+4. If create **times out**, the TCP session resets, the remote protocol disconnects, a read fails after the body was sent, or an equivalent HTTPX transport error occurs, **or** a mutating call returns HTTP 5xx: the client cannot prove Postex did not receive the write. Mark shipment `creation_uncertain`. **Do not** POST bulk again. Reconcile with `GET /parcels/custom-order-no/{custom_order_no}`. Retry create only after **two** empty lookups. Definitive 4xx validation remains a local `error` (safe to retry create after correction).
 5. 404 on lookup after timeout: still `creation_uncertain` until a later poll also 404s **and** a documented empty result is observed (timeout may mean create succeeded but lookup lagged). Karzar waits a bounded backoff before treating 404 as “no parcel” for automatic retry.
 
 ## 9. Webhooks vs polling

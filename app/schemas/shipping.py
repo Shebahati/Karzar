@@ -86,6 +86,7 @@ class ShipmentAdminResponse(ShipmentPublicResponse):
     last_tracking_sync_at: datetime | None = None
     last_error_code: str | None = None
     last_error_message: str | None = None
+    cancellation_requested_at: datetime | None = None
 
 
 class ShipmentCancelRequest(BaseModel):

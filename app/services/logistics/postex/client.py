@@ -10,6 +10,7 @@ import httpx
 
 from app.core.logging import get_logger
 from app.services.logistics.exceptions import (
+    ProviderAmbiguousWriteError,
     ProviderAuthenticationError,
     ProviderConflictError,
     ProviderError,
@@ -121,10 +122,14 @@ class PostexClient:
                     duration_ms,
                     attempt,
                 )
+                if mutating:
+                    raise ProviderAmbiguousWriteError(
+                        f"Ambiguous mutating Postex request on {operation}",
+                    ) from exc
                 last_error = ProviderTransientError(
                     f"Postex network error on {operation}",
                 )
-                if mutating or attempt >= attempts:
+                if attempt >= attempts:
                     raise last_error from exc
                 await asyncio.sleep(0.25 * attempt)
                 continue
@@ -196,6 +201,11 @@ class PostexClient:
         if status in {400, 422}:
             raise ProviderValidationError(text, http_status=status)
         if status >= 500:
+            if mutating:
+                raise ProviderAmbiguousWriteError(
+                    f"Ambiguous Postex HTTP {status} on {operation}",
+                    http_status=status,
+                )
             raise ProviderTransientError(text, http_status=status, retryable=True)
         raise ProviderError(text, http_status=status)
 
