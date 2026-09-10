@@ -51,8 +51,17 @@ class OrderDetailResponse(OrderSummary):
     postal_tracking_code: str | None = None
     delivery_eta: datetime | None = None
     shipping_provider: str | None = None
-    shipping_customer_cost: str | None = None
-    shipping_provider_quoted_cost: str | None = None
+    shipping_customer_cost: str | None = Field(
+        None,
+        description="Customer-facing shipping charge in Toman (Karzar policy; v1 pass-through).",
+    )
+    shipping_provider_quoted_cost: str | None = Field(
+        None,
+        description=(
+            "Total logistics cost quoted by provider to Karzar in Toman "
+            "(service component + pickup when present)."
+        ),
+    )
     shipping_carrier_code: str | None = None
     shipping_service_code: str | None = None
     shipments: list[dict[str, Any]] = Field(default_factory=list)

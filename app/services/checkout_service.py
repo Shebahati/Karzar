@@ -20,6 +20,7 @@ from app.services.cart_service import clear_cart_for_checkout, resolve_checkout_
 from app.services.logistics.exceptions import LogisticsError
 from app.services.logistics.fingerprints import merge_line_quantities
 from app.services.logistics.models import Destination
+from app.services.logistics.money import provider_total_toman
 from app.services.logistics.service import (
     assert_quote_prices_current,
     bind_quote_to_order,
@@ -184,9 +185,14 @@ async def submit_checkout(
         shipping_provider=shipping_quote.provider if shipping_quote else None,
         shipping_quote_id=shipping_quote.id if shipping_quote else None,
         shipping_customer_cost=shipping_quote.customer_amount_toman if shipping_quote else None,
-        shipping_provider_quoted_cost=shipping_quote.provider_amount_toman
-        if shipping_quote
-        else None,
+        shipping_provider_quoted_cost=(
+            provider_total_toman(
+                provider_amount_toman=shipping_quote.provider_amount_toman,
+                pickup_amount_toman=shipping_quote.pickup_amount_toman,
+            )
+            if shipping_quote
+            else None
+        ),
         shipping_carrier_code=shipping_quote.carrier_code if shipping_quote else None,
         shipping_service_code=shipping_quote.service_code if shipping_quote else None,
     )

@@ -12286,7 +12286,8 @@
                 "type": "null"
               }
             ],
-            "title": "Shipping Customer Cost"
+            "title": "Shipping Customer Cost",
+            "description": "Customer-facing shipping charge in Toman (Karzar policy; v1 pass-through)."
           },
           "shipping_provider_quoted_cost": {
             "anyOf": [
@@ -12297,7 +12298,8 @@
                 "type": "null"
               }
             ],
-            "title": "Shipping Provider Quoted Cost"
+            "title": "Shipping Provider Quoted Cost",
+            "description": "Total logistics cost quoted by provider to Karzar in Toman (service component + pickup when present)."
           },
           "shipping_carrier_code": {
             "anyOf": [
@@ -14811,7 +14813,8 @@
                 "type": "null"
               }
             ],
-            "title": "Customer Shipping Cost"
+            "title": "Customer Shipping Cost",
+            "description": "Customer shipping charge snapshot in Toman (Karzar policy)."
           },
           "provider_quoted_cost": {
             "anyOf": [
@@ -14822,7 +14825,8 @@
                 "type": "null"
               }
             ],
-            "title": "Provider Quoted Cost"
+            "title": "Provider Quoted Cost",
+            "description": "Total provider logistics cost snapshot in Toman (service + pickup); inherited from order at shipment creation."
           },
           "provider_actual_cost": {
             "anyOf": [

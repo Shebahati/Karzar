@@ -58,7 +58,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
             <span className="tnum">{formatToman(order.shipping_customer_cost)}</span>
           </p>
           <p>
-            <span className="text-muted-foreground">نرخ ارائه‌دهنده: </span>
+            <span className="text-muted-foreground">هزینه کل ارائه‌دهنده به کارزار: </span>
             <span className="tnum">{formatToman(order.shipping_provider_quoted_cost)}</span>
           </p>
         </div>

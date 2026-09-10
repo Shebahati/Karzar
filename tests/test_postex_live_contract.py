@@ -17,7 +17,7 @@ from app.services.logistics.exceptions import (
     ShippingUnavailableError,
 )
 from app.services.logistics.models import Destination, OriginAddress, PackageSpec
-from app.services.logistics.money import IRR, irr_to_toman
+from app.services.logistics.money import IRR, irr_to_toman, provider_total_toman
 from app.services.logistics.postex.couriers import (
     MINIMAL_VALUE_ADDED_SERVICE,
     parse_quote_services_config,
@@ -45,12 +45,30 @@ def test_live_fixture_parses_money_and_display_fields():
     assert opt.provider_amount_toman == Decimal("129800.00")
     assert opt.customer_amount_toman == Decimal("249800.00")
     assert opt.customer_amount_toman == irr_to_toman(2498000)
+    assert opt.provider_total_toman == Decimal("249800.00")
+    assert opt.provider_total_toman != opt.provider_amount_toman
+    assert provider_total_toman(
+        provider_amount_toman=opt.provider_amount_toman,
+        pickup_amount_toman=opt.pickup_amount_toman,
+    ) == Decimal("249800.00")
     # pickup + service == total_cost (no VAT double-count)
     assert Decimal("1200000") + opt.provider_amount == Decimal("2498000")
     assert opt.service_name == "پست پیشتاز"
     assert opt.carrier_code == "IR_POST"
     assert opt.service_code == "EXPRESS"
     assert opt.eta_text == "از 84 تا 168 ساعت کاری"
+
+
+def test_provider_total_zero_pickup_equals_service_component():
+    total = provider_total_toman(
+        provider_amount_toman=Decimal("129800.00"),
+        pickup_amount_toman=None,
+    )
+    assert total == Decimal("129800.00")
+    assert total == provider_total_toman(
+        provider_amount_toman=Decimal("129800.00"),
+        pickup_amount_toman=Decimal("0"),
+    )
 
 
 def test_currency_read_from_response():

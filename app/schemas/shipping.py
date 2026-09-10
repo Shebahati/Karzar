@@ -78,8 +78,17 @@ class ShipmentAdminResponse(ShipmentPublicResponse):
     provider_parcel_no: str | None = None
     quote_id: int | None = None
     package: dict[str, Any] | None = None
-    customer_shipping_cost: str | None = None
-    provider_quoted_cost: str | None = None
+    customer_shipping_cost: str | None = Field(
+        None,
+        description="Customer shipping charge snapshot in Toman (Karzar policy).",
+    )
+    provider_quoted_cost: str | None = Field(
+        None,
+        description=(
+            "Total provider logistics cost snapshot in Toman "
+            "(service + pickup); inherited from order at shipment creation."
+        ),
+    )
     provider_actual_cost: str | None = None
     ready_to_accept: bool = False
     booking_attempts: int = 0

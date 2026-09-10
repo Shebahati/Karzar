@@ -236,6 +236,8 @@ def test_quote_and_checkout_includes_shipping_once(
             )
             assert order is not None
             assert order.shipping_customer_cost == Decimal("17000.00")
+            assert order.shipping_provider_quoted_cost == Decimal("17000.00")
+            assert order.shipping_provider_quoted_cost != Decimal("15000.00")
             assert order_amount_rials(order) == 1_170_000
 
     import asyncio
@@ -682,3 +684,100 @@ def test_ensure_shipment_not_duplicate(fake_provider, override_database):
     from sqlalchemy import select
 
     asyncio.run(run())
+
+
+def test_live_quote_provider_total_includes_pickup_on_order_and_shipment(
+    fake_provider, override_database, super_admin_headers, monkeypatch
+):
+    """Live fixture: service 129800 + pickup 120000 = provider total 249800 Toman."""
+    import asyncio
+    import json
+    from pathlib import Path
+
+    from app.db.models.commerce import Order, OrderStatus, PaymentStatus
+    from app.services.logistics.models import QuoteResult
+    from app.services.logistics.postex.mapper import parse_quotes
+    from app.services.logistics.service import ensure_shipment_for_paid_order
+    from sqlalchemy import select
+
+    from tests.conftest import TestingSessionLocal
+
+    live = json.loads(
+        (
+            Path(__file__).resolve().parent / "fixtures/postex/live-quote-2026-09-10.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    async def _quote(**kwargs):
+        parsed = parse_quotes(live)
+        return QuoteResult(
+            options=parsed.options,
+            package=kwargs["package"],
+            declared_value_irr=kwargs["declared_value_irr"],
+            raw_provider_response=live,
+            pickup_amount_toman=parsed.pickup_amount_toman,
+        )
+
+    monkeypatch.setattr(fake_provider, "quote", _quote)
+
+    client = TestClient(app)
+    product = _seed_parcel_product(client, super_admin_headers, sku="LIVE-PICKUP-1")
+    headers = customer_auth_headers()
+    quote = client.post(
+        "/api/v1/shipping/quotes",
+        json={
+            "items": [{"product_id": product["id"], "quantity": 1}],
+            "location_code": 8,
+            "postal_code": "1234567890",
+        },
+        headers=headers,
+    )
+    assert quote.status_code == 200, quote.text
+    options = quote.json()["options"]
+    assert len(options) == 1
+    chosen = options[0]
+    assert Decimal(chosen["amount_toman"]) == Decimal("249800.00")
+
+    checkout = client.post(
+        "/api/v1/checkout",
+        json={
+            "mode": "purchase",
+            "customer": {"full_name": "علی تست", "phone": "09125555555", "is_guest": False},
+            "items": [{"product_id": product["id"], "quantity": 1}],
+            "shipping": {
+                "province": "تهران",
+                "city": "تهران",
+                "postal_code": "1234567890",
+                "address_line": "خیابان آزادی پلاک ۱۲۳۴",
+                "location_code": 8,
+            },
+            "shipping_quote_token": chosen["quote_token"],
+        },
+        headers={**headers, "Idempotency-Key": "live-pickup-total"},
+    )
+    assert checkout.status_code == 201, checkout.text
+    body = checkout.json()
+    # items 100000 + tax 0 + shipping 249800 — SEP/customer total unchanged by this fix
+    assert Decimal(body["estimated_total"]) == Decimal("349800.00")
+
+    async def _assert_snapshots():
+        async with TestingSessionLocal() as session:
+            order = (
+                (await session.execute(select(Order).order_by(Order.id.desc()))).scalars().first()
+            )
+            assert order is not None
+            assert order.shipping_customer_cost == Decimal("249800.00")
+            assert order.shipping_provider_quoted_cost == Decimal("249800.00")
+            # Prove provider total is not the service-only component
+            assert order.shipping_provider_quoted_cost != Decimal("129800.00")
+            assert order_amount_rials(order) == 3_498_000
+
+            order.status = OrderStatus.PAID.value
+            order.payment_status = PaymentStatus.PAID.value
+            await session.flush()
+            shipment = await ensure_shipment_for_paid_order(session, order)
+            await session.commit()
+            assert shipment.provider_quoted_cost == Decimal("249800.00")
+            assert shipment.customer_shipping_cost == Decimal("249800.00")
+
+    asyncio.run(_assert_snapshots())

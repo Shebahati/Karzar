@@ -160,6 +160,16 @@ class ShippingServiceOption:
     pickup_amount_toman: Decimal | None = None
     eta_text: str | None = None
 
+    @property
+    def provider_total_toman(self) -> Decimal:
+        """Service + pickup; use for provider-cost snapshots (not customer policy)."""
+        from app.services.logistics.money import provider_total_toman as _total
+
+        return _total(
+            provider_amount_toman=self.provider_amount_toman,
+            pickup_amount_toman=self.pickup_amount_toman,
+        )
+
 
 @dataclass(frozen=True)
 class QuoteResult:

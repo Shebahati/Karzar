@@ -51,10 +51,32 @@ Never commit a real API key. Never return it from any API. Logs redact `x-api-ke
 5. Customer selects a service. Checkout sends `shipping_quote_token` (not an amount).
 6. Checkout re-verifies user, TTL, cart fingerprint, destination fingerprint, then **binds** the quote. Client amounts are never trusted.
 
-v1 price policy: **pass-through**. `customer_shipping_cost = provider quote` (Toman). No markup, subsidy, or COD. `provider_shipping_cost` and `customer_shipping_cost` are stored separately for a future policy.
+v1 price policy: **pass-through**. Customer shipping equals the **total** provider logistics cost in Toman (service component + pickup when Postex returns `pickup_price`). No markup, subsidy, or COD.
+
+Component storage on `shipping_quotes`:
+
+| Field | Meaning |
+|-------|---------|
+| `provider_amount_toman` | Carrier **service** component only |
+| `pickup_amount_toman` | Collection/pickup component (nullable) |
+| `customer_amount_toman` | Karzar customer shipping price (policy) |
+
+**Provider total** (what Karzar owes the provider for this quote) is computed centrally as:
+
+```text
+provider_total_toman = provider_amount_toman + COALESCE(pickup_amount_toman, 0)
+```
+
+Snapshots:
+
+- `orders.shipping_provider_quoted_cost` / `shipments.provider_quoted_cost` → **provider total**
+- `orders.shipping_customer_cost` / `shipments.customer_shipping_cost` → **customer policy price**
+
+v1 pass-through: these two snapshot totals are equal. Compute them independently so a future markup/subsidy policy can diverge without rewriting accounting.
+
+Live example (2026-09-10): service `1,298,000` IRR + pickup `1,200,000` IRR = `2,498,000` IRR = `249,800` Toman provider total.
 
 Payable total (purchase): **items + tax + customer shipping**. That sum is `orders.estimated_total` and is what SEP charges (×10 → Rial).
-
 ## Payment boundary
 
 Checkout payment remains **SEP**. Postex wallet/COD/top-up are out of scope. Parcel `payment_type` is official **`SENDER`** (sender/merchant pays the carrier). Karzar collects product+tax+shipping from the customer via SEP, then pays Postex from the merchant wallet.
