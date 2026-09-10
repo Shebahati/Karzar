@@ -7,7 +7,7 @@
 **OpenAPI:** `3.0.4` — title «مستندات فنی پستکس»  
 **Local snapshot for tests:** `tests/fixtures/postex/swagger-external-v1.json`
 
-This document records **only** what the official ReDoc/OpenAPI spec states. WooCommerce plugin behavior is labeled **cross-check only** and never overrides the official spec.
+This document records the official ReDoc/OpenAPI spec **and**, where labeled, Owner-authorized live production observations. WooCommerce plugin behavior is labeled **cross-check only** and never overrides the official spec or live evidence.
 
 ## 1. Auth
 
@@ -51,16 +51,31 @@ Staging/production: host **must** be `api.postex.ir` over HTTPS. Localhost overr
 | Wallet balance | `BalanceResponse.amount` | **Rial** (`int64`). Description: «مبلغ موجودی به **ریال** است.» |
 | Wallet top-up | `TopupRequest.amount` | Rial |
 
-### Quote response monetary unit — **AMBIGUITY**
+### Quote response monetary unit — **LIVE VERIFIED 2026-09-10**
 
-`POST /shipping/quotes` response is documented only as HTTP 200 **OK** with **no schema**. The official spec therefore **does not name** quote amount fields or their currency.
+`POST /shipping/quotes` response remains **undocumented** in OpenAPI (HTTP 200 OK, no schema).
 
-Karzar **does not invent** a second unit. Persist:
+**Live Owner-authorized read-only quote** (sanitized fixture `tests/fixtures/postex/live-quote-2026-09-10.json`) returned:
 
-- `provider_amount` = numeric value as returned
-- `provider_currency` = `IRR` when the payload has no currency field, because every **documented** Postex monetary field is Rial
+| Field | Observed |
+|-------|----------|
+| `currency` | **`"IRR"`** (top-level) |
+| `pickup_price` | `1200000` |
+| `shipping_prices[].service_price[].totalPrice` / `initPrice` | `1298000` |
+| nested `vat` | `100000` (already included in `totalPrice`) |
+| `total_cost` | `2498000` (= `pickup_price` + `totalPrice`) |
+| `serviceName` | `پست پیشتاز` |
+| `slaDays` | `از 84 تا 168 ساعت کاری` |
 
-Convert IRR → Toman with Karzar `TOMAN_TO_RIAL = 10`. **Owner must confirm one live read-only quote** before production enablement (activation checklist).
+Therefore quote monetary amounts are **CONFIRMED_IRR**. Convert IRR → Toman with Karzar `TOMAN_TO_RIAL = 10`.
+
+Karzar parser rules:
+
+- `currency == "IRR"` → parse with `irr_to_toman`
+- `currency` **absent** → explicit backward-compatible fallback to IRR (documented Postex money fields are Rial; historical fixtures)
+- `currency` present and **≠ IRR** → **fail closed** (`SHIPPING_PROVIDER_CURRENCY`)
+- Do **not** add nested `vat` / top-level `shipping_price_vat` on top of `totalPrice` (live identity: `pickup_price + totalPrice = total_cost`)
+- When a single-service quote includes `total_cost`, require `pickup_price + service totalPrice == total_cost`
 
 Cross-check only (WooCommerce plugin, not authority): response keys `pickup_price`, `shipping_prices[].custom_parcel_id`, `shipping_prices[].service_price[].initPrice`, `shipping_prices[].service_price[].totalPrice`. Karzar parsers accept these names **and** snake_case variants if the live API uses them, without treating the plugin as contract.
 
@@ -120,13 +135,20 @@ Relative to `POSTEX_BASE_URL` (which already includes `/api/v1`).
 
 **Request (official `GetShippingQuotesRequest`, required):** `collection_type`, `from_city_code`, `parcels`.
 
-Optional: `courier` (`GetQuotesCourier`), `value_added_service` (`OptionalServices`).
+Optional in OpenAPI: `courier` (`GetQuotesCourier`), `value_added_service` (`OptionalServices`).
+
+**Live-observed production behavior (2026-09-10):** omitting `courier` or `value_added_service` returns HTTP 400 `invalid_fields` requiring both. Karzar therefore **always** sends:
+
+- `courier`: `{ "courier_code": "<code>", "service_type": "<type>" }` for each enabled Postex quote service (`POSTEX_QUOTE_SERVICES`, default live-verified `IR_POST:EXPRESS`)
+- `value_added_service`: `{ "request_label": false, "request_packaging": false, "request_sms_notification": false }` (OpenAPI `OptionalServices`; minimal live-compatible object)
+
+OpenAPI vs live: treat OpenAPI as the field-name authority; treat live 400/200 evidence as the presence requirement for these two objects.
 
 Each parcel (`GetShippingQuotesQueryParcels`): `custom_parcel_id`, `to_city_code`, `payment_type`, `parcel_properties`.
 
 **Quote does not require** postal code or street address in the official request schema.
 
-**Response schema:** not in OpenAPI. See §3.
+**Response schema:** not in OpenAPI. See §3 (live-verified shape).
 
 ### 5.3 Parcel create (side effect — **no generic retry**)
 

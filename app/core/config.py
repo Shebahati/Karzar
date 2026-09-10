@@ -115,6 +115,8 @@ class Settings(BaseSettings):
     POSTEX_REFERENCE_CACHE_SECONDS: int = Field(default=3600, ge=60, le=86400)
     POSTEX_COLLECTION_TYPE: str = "pick_up"
     POSTEX_DEFAULT_PAYMENT_TYPE: str = "SENDER"
+    # Postex provider quote allowlist: comma-separated COURIER:SERVICE (live-verified v1 default).
+    POSTEX_QUOTE_SERVICES: str = "IR_POST:EXPRESS"
     POSTEX_ORIGIN_CITY_CODE: int | None = None
     POSTEX_ORIGIN_CITY_NAME: str | None = None
     POSTEX_ORIGIN_POSTAL_CODE: str | None = None
@@ -250,6 +252,14 @@ class Settings(BaseSettings):
         if normalized != "SENDER":
             raise ValueError("POSTEX_DEFAULT_PAYMENT_TYPE must be SENDER in v1 (no COD)")
         return normalized
+
+    @field_validator("POSTEX_QUOTE_SERVICES")
+    @classmethod
+    def validate_postex_quote_services(cls, v: str) -> str:
+        from app.services.logistics.postex.couriers import parse_quote_services_config
+
+        parse_quote_services_config(v)
+        return v.strip()
 
     @field_validator("POSTEX_BASE_URL")
     @classmethod

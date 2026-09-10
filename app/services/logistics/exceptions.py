@@ -90,6 +90,13 @@ class ProviderValidationError(ProviderError):
         super().__init__(message, error_code="SHIPPING_PROVIDER_VALIDATION", **kwargs)  # type: ignore[arg-type]
 
 
+class ProviderCurrencyError(ProviderError):
+    """Quote response currency is present but not IRR (fail closed)."""
+
+    def __init__(self, message: str, **kwargs: object) -> None:
+        super().__init__(message, error_code="SHIPPING_PROVIDER_CURRENCY", **kwargs)  # type: ignore[arg-type]
+
+
 class ProviderRateLimitError(ProviderError):
     def __init__(self, message: str = "Postex rate limited", **kwargs: object) -> None:
         kwargs.setdefault("retryable", True)

@@ -16,9 +16,17 @@ from app.services.logistics.models import (
     ParcelBooking,
     ParcelLookup,
     QuoteResult,
+    ShippingServiceOption,
     TrackingEvent,
 )
 from app.services.logistics.postex.client import PostexClient
+from app.services.logistics.postex.couriers import (
+    MINIMAL_VALUE_ADDED_SERVICE,
+    PostexCourierService,
+    parse_quote_services_config,
+    parse_shipping_methods,
+    select_quote_services,
+)
 from app.services.logistics.postex.mapper import (
     parse_boxes,
     parse_cities,
@@ -63,13 +71,44 @@ class PostexProvider:
 
     async def list_shipping_methods(self) -> list[dict[str, Any]]:
         payload = await self.client.get_json("/shipping-methods", operation="shipping_methods")
-        if isinstance(payload, list):
-            return [redact_secrets(item) if isinstance(item, dict) else item for item in payload]
-        if isinstance(payload, dict):
-            return [redact_secrets(payload)]
-        return []
+        methods = parse_shipping_methods(payload)
+        return [
+            {
+                "courier_code": m.courier_code,
+                "service_type": m.service_type,
+                "service_name": m.service_name,
+                "courier_service_id": m.courier_service_id,
+                "is_active": m.is_active,
+            }
+            for m in methods
+        ]
 
-    async def quote(
+    def _configured_quote_services(self) -> list[PostexCourierService]:
+        return parse_quote_services_config(settings.POSTEX_QUOTE_SERVICES)
+
+    async def _resolve_quote_services(self) -> list[PostexCourierService]:
+        configured = self._configured_quote_services()
+        try:
+            payload = await self.client.get_json(
+                "/shipping-methods", operation="shipping_methods"
+            )
+            catalog = parse_shipping_methods(payload)
+        except Exception:
+            # Quote must still send live-required courier; fall back to configured pairs.
+            catalog = None
+        selected = select_quote_services(configured, catalog)
+        if not selected:
+            # Catalog fetch succeeded but none of the configured pairs were active —
+            # do not invent carriers; use configured live-verified defaults only when
+            # catalog was unavailable.
+            if catalog is None:
+                return configured
+            raise ShippingUnavailableError(
+                "هیچ سرویس ارسال فعالی مطابق پیکربندی پستکس یافت نشد."
+            )
+        return selected
+
+    def _quote_request_body(
         self,
         *,
         origin: OriginAddress,
@@ -78,15 +117,18 @@ class PostexProvider:
         declared_value_irr: object,
         payment_type: str,
         collection_type: str,
-    ) -> QuoteResult:
-        if package.box_type_id is None:
-            raise ShippingUnavailableError("box_type_id is required by Postex ParcelPropertyDto")
-        body = {
+        courier: PostexCourierService,
+        custom_parcel_id: str = "checkout",
+    ) -> dict[str, Any]:
+        """Build live-compatible POST /shipping/quotes body (courier + value_added_service)."""
+        return {
             "collection_type": collection_type,
             "from_city_code": origin.city_code,
+            "courier": courier.as_quote_courier(),
+            "value_added_service": dict(MINIMAL_VALUE_ADDED_SERVICE),
             "parcels": [
                 {
-                    "custom_parcel_id": "checkout",
+                    "custom_parcel_id": custom_parcel_id,
                     "to_city_code": destination.location_code,
                     "payment_type": payment_type,
                     "parcel_properties": {
@@ -103,19 +145,70 @@ class PostexProvider:
                 }
             ],
         }
-        payload = await self.client.post_json(
-            "/shipping/quotes",
-            body,
-            operation="quotes",
-            mutating=False,
-        )
-        result = parse_quotes(payload)
+
+    async def quote(
+        self,
+        *,
+        origin: OriginAddress,
+        destination: Destination,
+        package: PackageSpec,
+        declared_value_irr: object,
+        payment_type: str,
+        collection_type: str,
+    ) -> QuoteResult:
+        if package.box_type_id is None:
+            raise ShippingUnavailableError("box_type_id is required by Postex ParcelPropertyDto")
+
+        services = await self._resolve_quote_services()
+        merged: list[ShippingServiceOption] = []
+        raw_responses: list[dict[str, Any]] = []
+        pickup_amount_toman = None
+        last_error: Exception | None = None
+
+        for svc in services:
+            body = self._quote_request_body(
+                origin=origin,
+                destination=destination,
+                package=package,
+                declared_value_irr=declared_value_irr,
+                payment_type=payment_type,
+                collection_type=collection_type,
+                courier=svc,
+            )
+            try:
+                payload = await self.client.post_json(
+                    "/shipping/quotes",
+                    body,
+                    operation="quotes",
+                    mutating=False,
+                )
+                result = parse_quotes(payload)
+            except Exception as exc:
+                last_error = exc
+                continue
+            merged.extend(result.options)
+            if isinstance(result.raw_provider_response, dict):
+                raw_responses.append(result.raw_provider_response)
+            if result.pickup_amount_toman is not None:
+                pickup_amount_toman = result.pickup_amount_toman
+
+        if not merged:
+            if last_error is not None:
+                raise last_error
+            raise ShippingUnavailableError("هیچ سرویس ارسالی برای این مقصد برگردانده نشد.")
+
+        raw: dict[str, Any]
+        if len(raw_responses) == 1:
+            raw = raw_responses[0]
+        else:
+            raw = {"quotes": raw_responses}
+
         return QuoteResult(
-            options=result_options(result),
+            options=merged,
             package=package,
             declared_value_irr=Decimal(str(declared_value_irr)),
-            raw_provider_response=result.raw_provider_response,
-            pickup_amount_toman=result.pickup_amount_toman,
+            raw_provider_response=raw,
+            pickup_amount_toman=pickup_amount_toman,
         )
 
     async def create_parcel(self, request: dict[str, Any]) -> ParcelBooking:

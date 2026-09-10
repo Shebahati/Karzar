@@ -6,7 +6,10 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-from app.services.logistics.exceptions import ShippingUnavailableError
+from app.services.logistics.exceptions import (
+    ProviderCurrencyError,
+    ShippingUnavailableError,
+)
 from app.services.logistics.models import (
     BoxType,
     LocationCity,
@@ -16,8 +19,12 @@ from app.services.logistics.models import (
     ShippingServiceOption,
     TrackingEvent,
 )
-from app.services.logistics.money import IRR, irr_to_toman
+from app.services.logistics.money import IRR, as_decimal, irr_to_toman
 from app.services.logistics.redaction import redact_secrets
+
+# When live/OpenAPI response omits $.currency, fall back to IRR only because every
+# documented Postex monetary field is Rial. Explicit non-IRR currency fails closed.
+QUOTE_CURRENCY_ABSENT_FALLBACK = IRR
 
 
 def _as_list(payload: Any) -> list[Any]:
@@ -122,14 +129,28 @@ def _service_fields(entry: dict[str, Any]) -> tuple[str, str, str, str | None]:
     )
     title = (
         _str(
-            entry.get("service_name")
+            entry.get("serviceName")
+            or entry.get("service_name")
             or entry.get("title")
             or entry.get("display_name")
             or entry.get("name")
         )
         or f"{carrier} {service}"
     )
-    eta = _str(entry.get("eta") or entry.get("sla") or entry.get("delivery_time"))
+    eta = _str(
+        entry.get("slaDays")
+        or entry.get("sla_days")
+        or entry.get("eta")
+        or entry.get("sla")
+        or entry.get("delivery_time")
+        or entry.get("estimated_delivery")
+    )
+    if not eta:
+        hours = entry.get("slaHours")
+        if hours is None:
+            hours = entry.get("sla_hours")
+        if hours is not None and str(hours).strip() != "":
+            eta = f"SLA {hours} hours"
     return carrier, service, title, eta
 
 
@@ -139,7 +160,6 @@ def _decimal_amount(entry: dict[str, Any]) -> Decimal | None:
         "total_price",
         "price",
         "amount",
-        "service_price",
         "total",
     ):
         value = entry.get(key)
@@ -152,19 +172,63 @@ def _decimal_amount(entry: dict[str, Any]) -> Decimal | None:
     return None
 
 
+def resolve_quote_currency(payload: dict[str, Any]) -> str:
+    """Read $.currency from live quote; fail closed on explicit non-IRR."""
+    raw = payload.get("currency")
+    if raw is None:
+        raw = payload.get("Currency")
+    if raw is None or str(raw).strip() == "":
+        return QUOTE_CURRENCY_ABSENT_FALLBACK
+    code = str(raw).strip().upper()
+    if code != IRR:
+        raise ProviderCurrencyError(
+            f"Postex quote currency {code!r} is not supported (expected IRR)"
+        )
+    return IRR
+
+
+def _validate_total_cost_consistency(
+    *,
+    pickup_irr: Decimal | None,
+    service_amounts_irr: list[Decimal],
+    payload: dict[str, Any],
+) -> None:
+    """When a single service quote returns total_cost, require pickup + service == total_cost."""
+    total_raw = payload.get("total_cost")
+    if total_raw is None:
+        total_raw = payload.get("totalCost")
+    if total_raw is None:
+        return
+    if len(service_amounts_irr) != 1:
+        return
+    pickup = pickup_irr if pickup_irr is not None else Decimal("0")
+    expected = pickup + service_amounts_irr[0]
+    actual = as_decimal(total_raw)
+    if expected != actual:
+        raise ShippingUnavailableError(
+            "Postex quote total_cost does not match pickup_price + service totalPrice "
+            f"(expected {expected}, got {actual})"
+        )
+
+
 def parse_quotes(payload: Any) -> QuoteResult:
     raw = redact_secrets(payload) if isinstance(payload, dict) else {"value": payload}
     if not isinstance(payload, dict):
         raise ShippingUnavailableError("پاسخ استعلام ارسال قابل تفسیر نیست.")
 
+    provider_currency = resolve_quote_currency(payload)
+
     pickup_raw = payload.get("pickup_price")
     if pickup_raw is None:
         pickup_raw = payload.get("pickupPrice")
+    pickup_irr: Decimal | None = None
     pickup_toman: Decimal | None = None
     if pickup_raw is not None:
-        pickup_toman = irr_to_toman(pickup_raw)
+        pickup_irr = as_decimal(pickup_raw)
+        pickup_toman = irr_to_toman(pickup_irr)
 
     options: list[ShippingServiceOption] = []
+    service_amounts_irr: list[Decimal] = []
     shipping_prices = payload.get("shipping_prices") or payload.get("shippingPrices") or []
     if not isinstance(shipping_prices, list):
         shipping_prices = []
@@ -186,16 +250,19 @@ def parse_quotes(payload: Any) -> QuoteResult:
             amount = _decimal_amount(service)
             if amount is None:
                 continue
+            # Do not add nested vat / shipping_price_vat — live totalPrice already includes VAT
+            # (pickup_price + totalPrice == total_cost).
             carrier, service_code, title, eta = _service_fields({**group, **service})
             toman = irr_to_toman(amount)
             customer = toman if pickup_toman is None else (toman + pickup_toman)
+            service_amounts_irr.append(amount)
             options.append(
                 ShippingServiceOption(
                     carrier_code=carrier,
                     service_code=service_code,
                     service_name=title,
                     provider_amount=amount,
-                    provider_currency=IRR,
+                    provider_currency=provider_currency,
                     provider_amount_toman=toman,
                     customer_amount_toman=customer,
                     pickup_amount_toman=pickup_toman,
@@ -205,6 +272,12 @@ def parse_quotes(payload: Any) -> QuoteResult:
 
     if not options:
         raise ShippingUnavailableError("هیچ سرویس ارسالی برای این مقصد برگردانده نشد.")
+
+    _validate_total_cost_consistency(
+        pickup_irr=pickup_irr,
+        service_amounts_irr=service_amounts_irr,
+        payload=payload,
+    )
 
     from app.services.logistics.models import PackageSpec
 
