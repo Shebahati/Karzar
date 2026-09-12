@@ -135,6 +135,7 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
             Shipment.status.notin_(
                 (
                     ShipmentStatus.AWAITING_PACKAGING.value,
+                    ShipmentStatus.READY_TO_BOOK.value,
                     ShipmentStatus.FREIGHT_REQUIRED.value,
                 )
             ),
@@ -293,6 +294,11 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         return None
 
     if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
+        await db.commit()
+        return None
+
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+        # Prepared receiver parcels require explicit admin /book — never auto-create.
         await db.commit()
         return None
 

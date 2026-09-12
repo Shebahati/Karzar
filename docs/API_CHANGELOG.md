@@ -26,8 +26,8 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - Provider-neutral `shipping_payment_mode`: `sender_prepaid` | `receiver_due` (persisted on order + shipment). Maps to Postex `SENDER` / `RECEIVER`. **COD unsupported.**
 - `GET /shipping/status` adds `shipping_payment_mode`, `checkout_quote_required`, `booking_enabled`.
-- Checkout: optional `shipping_payment_mode`; for `receiver_due` no `shipping_quote_token` / product package master data; `estimated_total` = items + tax; `shipping_customer_cost` NULL (≠ free).
-- Admin: `POST .../final-package`, `.../packed-quote`, `.../select-service`, `.../schedule-booking`. New shipment status `awaiting_packaging`.
+- Checkout: optional `shipping_payment_mode` from client is **forbidden**; server policy (`POSTEX_SHIPPING_PAYMENT_MODE` / default) is sole authority. `GET /shipping/status` exposes mode for presentation only.
+- Receiver prepare action moves to `ready_to_book` (worker never claims). Explicit admin `/book` is required for Postex create.
 - `POSTEX_BOOKING_ENABLED` (default false) gates parcel create / mark-ready / cancel / edit. Error `SHIPPING_BOOKING_DISABLED`.
 - Additive Alembic `j3k4l5m6n7o8` (not applied in this change).
 

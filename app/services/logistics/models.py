@@ -16,6 +16,7 @@ class ShippingClass(StrEnum):
 
 class ShipmentStatus(StrEnum):
     AWAITING_PACKAGING = "awaiting_packaging"
+    READY_TO_BOOK = "ready_to_book"
     PENDING_BOOKING = "pending_booking"
     BOOKING = "booking"
     BOOKED = "booked"
@@ -61,6 +62,7 @@ READY_ELIGIBLE_STATUSES = frozenset(
 )
 
 # States that already have (or must never obtain) a second Postex create.
+# ready_to_book is intentionally NOT here: admin /book may create once; workers must not claim it.
 BOOKING_CREATE_FORBIDDEN_STATUSES = frozenset(
     {
         ShipmentStatus.AWAITING_PACKAGING,
@@ -80,8 +82,17 @@ BOOKING_CREATE_FORBIDDEN_STATUSES = frozenset(
     }
 )
 
+# Admin may mutate package/quote/service only before any Postex create attempt.
+RECEIVER_PRE_CREATE_MUTABLE_STATUSES = frozenset(
+    {
+        ShipmentStatus.AWAITING_PACKAGING,
+        ShipmentStatus.READY_TO_BOOK,
+    }
+)
+
 SHIPMENT_STATUS_LABELS_FA: dict[str, str] = {
     ShipmentStatus.AWAITING_PACKAGING.value: "در انتظار بسته‌بندی",
+    ShipmentStatus.READY_TO_BOOK.value: "آماده ثبت مرسوله",
     ShipmentStatus.PENDING_BOOKING.value: "در انتظار رزرو ارسال",
     ShipmentStatus.BOOKING.value: "در حال ثبت مرسوله",
     ShipmentStatus.BOOKED.value: "مرسوله ثبت شد",

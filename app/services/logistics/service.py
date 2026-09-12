@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import secrets
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -21,7 +22,9 @@ from app.db.models.product import Product
 from app.services.logistics.exceptions import (
     LogisticsError,
     ShipmentNotFoundError,
+    ShipmentStateError,
     ShippingDataIncompleteError,
+    ShippingFreightRequiredError,
     ShippingQuoteConsumedError,
     ShippingQuoteExpiredError,
     ShippingQuoteMismatchError,
@@ -35,6 +38,7 @@ from app.services.logistics.fingerprints import (
 )
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
+    RECEIVER_PRE_CREATE_MUTABLE_STATUSES,
     SHIPMENT_STATUS_LABELS_FA,
     Destination,
     OriginAddress,
@@ -909,6 +913,46 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
     return view
 
 
+def package_quote_fingerprint(shipment: Shipment, order: Order) -> str:
+    """Deterministic fingerprint of measured parcel + destination for quote binding."""
+    shipping = order.shipping or {}
+    payload = {
+        "length_cm": shipment.package_length_cm,
+        "width_cm": shipment.package_width_cm,
+        "height_cm": shipment.package_height_cm,
+        "weight_grams": shipment.package_weight_grams,
+        "is_fragile": shipment.package_is_fragile,
+        "is_liquid": shipment.package_is_liquid,
+        "location_code": int(shipping.get("location_code") or 0),
+    }
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def clear_packed_quote_evidence(shipment: Shipment) -> None:
+    """Invalidate quote/service/box evidence after package measurement change."""
+    shipment.provider_box_type_id = None
+    shipment.provider_quoted_at = None
+    shipment.provider_quoted_cost = None
+    shipment.carrier_code = None
+    shipment.service_code = None
+    shipment.service_name = None
+    data = dict(shipment.provider_data or {})
+    data.pop("packed_quote", None)
+    pkg = dict(data.get("package") or {})
+    for key in ("box_type_id", "box_name", "quote_fingerprint"):
+        pkg.pop(key, None)
+    data["package"] = pkg
+    shipment.provider_data = data
+
+
+def _require_receiver_pre_create(shipment: Shipment) -> None:
+    if create_attempt_started_safe(shipment):
+        raise ShipmentStateError("پس از شروع ثبت مرسوله، تغییر بسته/نرخ مجاز نیست.")
+    if shipment.status not in {s.value for s in RECEIVER_PRE_CREATE_MUTABLE_STATUSES}:
+        raise ShipmentStateError("وضعیت مرسوله برای این عملیات مناسب نیست.")
+
+
 async def set_final_package(
     db: AsyncSession,
     *,
@@ -923,13 +967,13 @@ async def set_final_package(
     actor_user_id: int | None = None,
 ) -> Shipment:
     """Admin measures the sealed outbound parcel. No Postex HTTP."""
-    if shipment.status != ShipmentStatus.AWAITING_PACKAGING.value:
-        from app.services.logistics.exceptions import ShipmentStateError
-
-        raise ShipmentStateError("ثبت بسته فقط در وضعیت انتظار بسته‌بندی مجاز است.")
+    if shipment.status not in {
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.READY_TO_BOOK.value,
+        ShipmentStatus.FREIGHT_REQUIRED.value,
+    }:
+        raise ShipmentStateError("ثبت بسته فقط پیش از ایجاد مرسوله پستکس مجاز است.")
     if create_attempt_started_safe(shipment):
-        from app.services.logistics.exceptions import ShipmentStateError
-
         raise ShipmentStateError("مرسوله پس از شروع ثبت قابل اندازه‌گیری مجدد نیست.")
     for label, value in (
         ("length_cm", length_cm),
@@ -943,6 +987,9 @@ async def set_final_package(
                 error_code="VALIDATION_FAILED",
             )
 
+    clear_packed_quote_evidence(shipment)
+    shipment.status = ShipmentStatus.AWAITING_PACKAGING.value
+    shipment.booking_next_attempt_at = None
     shipment.package_length_cm = int(length_cm)
     shipment.package_width_cm = int(width_cm)
     shipment.package_height_cm = int(height_cm)
@@ -1009,6 +1056,7 @@ async def quote_packed_shipment(
             "نرخ‌گیری بسته‌بندی‌شده فقط برای پس‌کرایه است.",
             error_code="SHIPMENT_STATE_INVALID",
         )
+    _require_receiver_pre_create(shipment)
     if shipment.package_length_cm is None or shipment.package_weight_grams is None:
         raise ShippingDataIncompleteError(
             "ابتدا ابعاد و وزن نهایی را ثبت کنید.",
@@ -1020,7 +1068,6 @@ async def quote_packed_shipment(
             products=[{"shipment_id": shipment.id, "missing": ["hazards"]}],
         )
 
-    from app.services.logistics.exceptions import ShippingFreightRequiredError
     from app.services.logistics.models import PackageSpec
 
     package = PackageSpec(
@@ -1036,7 +1083,10 @@ async def quote_packed_shipment(
     try:
         fitted = select_box(package, boxes)
     except ShippingFreightRequiredError:
+        # Persist before the API layer commits and returns freight-required.
         shipment.status = ShipmentStatus.FREIGHT_REQUIRED.value
+        shipment.booking_next_attempt_at = None
+        clear_packed_quote_evidence(shipment)
         await db.flush()
         raise
 
@@ -1056,6 +1106,11 @@ async def quote_packed_shipment(
         payment_type=postex_payment_type_for_mode(ShippingPaymentMode.RECEIVER_DUE),
         collection_type=settings.POSTEX_COLLECTION_TYPE,
     )
+    fingerprint = package_quote_fingerprint(shipment, order)
+    # New quote invalidates prior service selection.
+    shipment.carrier_code = None
+    shipment.service_code = None
+    shipment.service_name = None
     shipment.provider_box_type_id = fitted.box_type_id
     shipment.provider_quoted_at = datetime.now(UTC)
     # Audit only — does not change order.estimated_total / SEP.
@@ -1071,6 +1126,7 @@ async def quote_packed_shipment(
     data["packed_quote"] = {
         "quoted_at": shipment.provider_quoted_at.isoformat(),
         "box_type_id": fitted.box_type_id,
+        "package_fingerprint": fingerprint,
         "options": [
             {
                 "carrier_code": o.carrier_code,
@@ -1089,6 +1145,7 @@ async def quote_packed_shipment(
         **(data.get("package") or {}),
         "box_type_id": fitted.box_type_id,
         "box_name": fitted.box_name,
+        "quote_fingerprint": fingerprint,
         # Keep measured dims (do not overwrite with box dims).
         "length_cm": package.length_cm,
         "width_cm": package.width_cm,
@@ -1098,10 +1155,14 @@ async def quote_packed_shipment(
         "is_liquid": package.is_liquid,
     }
     shipment.provider_data = data
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+        shipment.status = ShipmentStatus.AWAITING_PACKAGING.value
+        shipment.booking_next_attempt_at = None
     await db.flush()
     return {
         "shipment": admin_shipment_view(shipment),
         "options": data["packed_quote"]["options"],
+        "package_fingerprint": fingerprint,
         "order_estimated_total_unchanged": str(order.estimated_total)
         if order.estimated_total is not None
         else None,
@@ -1121,7 +1182,16 @@ async def select_packed_service(
             "انتخاب سرویس بسته‌بندی‌شده فقط برای پس‌کرایه است.",
             error_code="SHIPMENT_STATE_INVALID",
         )
-    options = ((shipment.provider_data or {}).get("packed_quote") or {}).get("options") or []
+    _require_receiver_pre_create(shipment)
+    packed = (shipment.provider_data or {}).get("packed_quote") or {}
+    stored_fp = packed.get("package_fingerprint")
+    current_fp = package_quote_fingerprint(shipment, order)
+    if not stored_fp or stored_fp != current_fp:
+        raise LogisticsError(
+            "نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد؛ دوباره نرخ بگیرید.",
+            error_code="SHIPPING_QUOTE_STALE",
+        )
+    options = packed.get("options") or []
     match = next(
         (
             o
@@ -1145,7 +1215,6 @@ async def select_packed_service(
             provider_amount_toman=D(str(match["provider_amount_toman"])),
             pickup_amount_toman=D(str(pickup)) if pickup is not None else None,
         )
-    # Still awaiting packaging until admin explicitly schedules booking.
     await db.flush()
     await _append_event(
         db,
@@ -1155,7 +1224,11 @@ async def select_packed_service(
         provider_status=None,
         provider_code=None,
         occurred_at=datetime.now(UTC),
-        payload={"carrier_code": carrier_code, "service_code": service_code},
+        payload={
+            "carrier_code": carrier_code,
+            "service_code": service_code,
+            "package_fingerprint": current_fp,
+        },
     )
     return shipment
 
@@ -1166,24 +1239,26 @@ async def schedule_receiver_booking(
     order: Order,
     shipment: Shipment,
 ) -> Shipment:
-    """Move receiver_due shipment to pending_booking after package+service ready."""
+    """Mark receiver_due shipment ready_to_book. Worker must NOT claim this status."""
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
-            "زمان‌بندی رزرو پس‌کرایه فقط برای receiver_due است.",
+            "آماده‌سازی رزرو پس‌کرایه فقط برای receiver_due است.",
             error_code="SHIPMENT_STATE_INVALID",
         )
-    if shipment.status not in {
-        ShipmentStatus.AWAITING_PACKAGING.value,
-        ShipmentStatus.ERROR.value,
-    }:
-        from app.services.logistics.exceptions import ShipmentStateError
-
-        raise ShipmentStateError("وضعیت مرسوله برای رزرو مناسب نیست.")
+    _require_receiver_pre_create(shipment)
     shipping = order.shipping or {}
     if not int(shipping.get("location_code") or 0):
         raise ShippingDataIncompleteError(
             "کد شهر مقصد الزامی است.",
             products=[{"missing": ["location_code"]}],
+        )
+    packed = (shipment.provider_data or {}).get("packed_quote") or {}
+    stored_fp = packed.get("package_fingerprint")
+    current_fp = package_quote_fingerprint(shipment, order)
+    if not stored_fp or stored_fp != current_fp:
+        raise LogisticsError(
+            "نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد؛ دوباره نرخ بگیرید.",
+            error_code="SHIPPING_QUOTE_STALE",
         )
     missing = receiver_due_booking_ready(shipment)
     if missing:
@@ -1191,18 +1266,22 @@ async def schedule_receiver_booking(
             "پیش‌نیاز رزرو ناقص است.",
             products=[{"missing": missing}],
         )
-    shipment.status = ShipmentStatus.PENDING_BOOKING.value
-    shipment.booking_next_attempt_at = datetime.now(UTC)
+    shipment.status = ShipmentStatus.READY_TO_BOOK.value
+    # Explicit admin /book only — never queue for the background worker.
+    shipment.booking_next_attempt_at = None
     await db.flush()
     await _append_event(
         db,
         shipment,
-        status=ShipmentStatus.PENDING_BOOKING.value,
-        description="مرسوله آماده رزرو پستکس شد",
+        status=ShipmentStatus.READY_TO_BOOK.value,
+        description="مرسوله آماده ثبت صریح در پستکس است",
         provider_status=None,
         provider_code=None,
         occurred_at=datetime.now(UTC),
-        payload={"shipping_payment_mode": ShippingPaymentMode.RECEIVER_DUE.value},
+        payload={
+            "shipping_payment_mode": ShippingPaymentMode.RECEIVER_DUE.value,
+            "package_fingerprint": current_fp,
+        },
     )
     return shipment
 

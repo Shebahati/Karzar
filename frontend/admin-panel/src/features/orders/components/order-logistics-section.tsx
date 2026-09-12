@@ -7,19 +7,42 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StepUpDialog } from "@/components/step-up-dialog";
-import { shipmentActionAvailability, type AdminShipment } from "@/features/orders/shipment-actions";
+import {
+  canSubmitFinalPackageHazards,
+  shipmentActionAvailability,
+  type AdminShipment,
+  type HazardChoice,
+} from "@/features/orders/shipment-actions";
 import { ApiError } from "@/lib/api-client";
 import { formatToman, toPersianDigits } from "@/lib/utils";
 import { shippingAdminService, type PackedQuoteOption } from "@/services/shipping";
 import { ordersKeys } from "@/features/orders/queries";
 import type { OrderDetail } from "@/types/order";
 
+type PackageFormState = {
+  length_cm: string;
+  width_cm: string;
+  height_cm: string;
+  weight_grams: string;
+  is_fragile: HazardChoice;
+  is_liquid: HazardChoice;
+};
+
+const EMPTY_PACKAGE_FORM: PackageFormState = {
+  length_cm: "",
+  width_cm: "",
+  height_cm: "",
+  weight_grams: "",
+  is_fragile: null,
+  is_liquid: null,
+};
+
 function ReceiverWorkflow({ shipment }: { shipment: AdminShipment }) {
   const packaged =
     (shipment.package?.length_cm ?? 0) > 0 && (shipment.package?.weight_grams ?? 0) > 0;
   const quoted = Boolean(shipment.package?.provider_box_type_id || shipment.provider_quoted_at);
   const selected = Boolean(shipment.carrier_code && shipment.service_code);
-  const scheduled = shipment.status !== "awaiting_packaging" && shipment.status !== "freight_required";
+  const readyToBook = shipment.status === "ready_to_book";
   const booked = Boolean(shipment.provider_parcel_no);
   const ready = shipment.status === "ready_for_pickup" || Boolean(shipment.ready_to_accept);
   const tracking = Boolean(shipment.tracking_code);
@@ -28,7 +51,8 @@ function ReceiverWorkflow({ shipment }: { shipment: AdminShipment }) {
     { label: "ثبت وزن و ابعاد نهایی", done: packaged },
     { label: "دریافت نرخ/سرویس پستکس", done: quoted },
     { label: "انتخاب سرویس", done: selected },
-    { label: "ثبت مرسوله", done: booked || scheduled },
+    { label: "آماده ثبت مرسوله", done: readyToBook || booked },
+    { label: "ثبت مرسوله", done: booked },
     { label: "آماده تحویل", done: ready },
     { label: "رهگیری", done: tracking },
   ];
@@ -44,6 +68,92 @@ function ReceiverWorkflow({ shipment }: { shipment: AdminShipment }) {
   );
 }
 
+function HazardSelect({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: HazardChoice;
+  onChange: (next: HazardChoice) => void;
+}) {
+  return (
+    <fieldset className="grid gap-1 text-xs">
+      <legend>{label} (الزامی)</legend>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant={value === true ? "default" : "outline"}
+          onClick={() => onChange(true)}
+        >
+          بله
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={value === false ? "default" : "outline"}
+          onClick={() => onChange(false)}
+        >
+          خیر
+        </Button>
+        {value === null && <span className="self-center text-muted-foreground">بررسی نشده</span>}
+      </div>
+    </fieldset>
+  );
+}
+
+function ShipmentPackageForm({
+  form,
+  pending,
+  onChange,
+  onSubmit,
+}: {
+  form: PackageFormState;
+  pending: boolean;
+  onChange: (next: PackageFormState) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <div className="grid gap-2 rounded-lg border border-dashed border-border/80 p-3 sm:grid-cols-2">
+      <p className="sm:col-span-2 text-xs text-muted-foreground">
+        ابعاد و وزن نهایی مرسوله بسته‌بندی‌شده (نه مشخصات کاتالوگ کالا)
+      </p>
+      {(
+        [
+          ["length_cm", "طول (cm)"],
+          ["width_cm", "عرض (cm)"],
+          ["height_cm", "ارتفاع (cm)"],
+          ["weight_grams", "وزن (g)"],
+        ] as const
+      ).map(([key, label]) => (
+        <label key={key} className="grid gap-1 text-xs">
+          {label}
+          <input
+            className="rounded-md border px-2 py-1 tnum"
+            inputMode="numeric"
+            value={form[key]}
+            onChange={(e) => onChange({ ...form, [key]: e.target.value })}
+          />
+        </label>
+      ))}
+      <HazardSelect
+        label="شکننده"
+        value={form.is_fragile}
+        onChange={(next) => onChange({ ...form, is_fragile: next })}
+      />
+      <HazardSelect
+        label="مایع"
+        value={form.is_liquid}
+        onChange={(next) => onChange({ ...form, is_liquid: next })}
+      />
+      <Button size="sm" className="sm:col-span-2" disabled={pending} onClick={onSubmit}>
+        ثبت وزن و ابعاد نهایی
+      </Button>
+    </div>
+  );
+}
+
 export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   const queryClient = useQueryClient();
   const { data: shipments = order.shipments ?? [] } = useQuery({
@@ -53,14 +163,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   });
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
-  const [packageForm, setPackageForm] = useState({
-    length_cm: "",
-    width_cm: "",
-    height_cm: "",
-    weight_grams: "",
-    is_fragile: false,
-    is_liquid: false,
-  });
+  const [packageForms, setPackageForms] = useState<Record<number, PackageFormState>>({});
   const [quoteOptions, setQuoteOptions] = useState<Record<number, PackedQuoteOption[]>>({});
 
   if (!order.shipping_provider && shipments.length === 0) {
@@ -68,6 +171,10 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   }
 
   const receiverDue = order.shipping_payment_mode === "receiver_due";
+
+  function formFor(shipmentId: number): PackageFormState {
+    return packageForms[shipmentId] ?? EMPTY_PACKAGE_FORM;
+  }
 
   async function run(label: string, fn: () => Promise<unknown>) {
     setPending(true);
@@ -102,13 +209,13 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
           <p>
             <span className="text-muted-foreground">هزینه مشتری: </span>
             <span className="tnum">
-              {receiverDue
-                ? "پس‌کرایه (از گیرنده)"
-                : formatToman(order.shipping_customer_cost)}
+              {receiverDue ? "پس‌کرایه (از گیرنده)" : formatToman(order.shipping_customer_cost)}
             </span>
           </p>
           <p>
-            <span className="text-muted-foreground">هزینه کل ارائه‌دهنده به کارزار: </span>
+            <span className="text-muted-foreground">
+              {receiverDue ? "کرایه برآوردی پستکس — پرداخت توسط گیرنده: " : "هزینه کل ارائه‌دهنده به کارزار: "}
+            </span>
             <span className="tnum">
               {order.shipping_provider_quoted_cost != null
                 ? formatToman(order.shipping_provider_quoted_cost)
@@ -120,6 +227,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
         {shipments.map((shipment) => {
           const actions = shipmentActionAvailability(shipment);
           const options = quoteOptions[shipment.internal_id] ?? [];
+          const form = formFor(shipment.internal_id);
           return (
             <div key={shipment.internal_id} className="space-y-3 rounded-xl border border-border/60 p-4">
               <div className="flex flex-wrap gap-2 text-sm">
@@ -152,76 +260,37 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                 <p className="text-xs text-destructive">{shipment.last_error_message}</p>
               )}
               {actions.canSetPackage && (
-                <div className="grid gap-2 rounded-lg border border-dashed border-border/80 p-3 sm:grid-cols-2">
-                  <p className="sm:col-span-2 text-xs text-muted-foreground">
-                    ابعاد و وزن نهایی مرسوله بسته‌بندی‌شده (نه مشخصات کاتالوگ کالا)
-                  </p>
-                  {(
-                    [
-                      ["length_cm", "طول (cm)"],
-                      ["width_cm", "عرض (cm)"],
-                      ["height_cm", "ارتفاع (cm)"],
-                      ["weight_grams", "وزن (g)"],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label key={key} className="grid gap-1 text-xs">
-                      {label}
-                      <input
-                        className="rounded-md border px-2 py-1 tnum"
-                        inputMode="numeric"
-                        value={packageForm[key]}
-                        onChange={(e) => setPackageForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                      />
-                    </label>
-                  ))}
-                  <label className="flex items-center gap-2 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={packageForm.is_fragile}
-                      onChange={(e) =>
-                        setPackageForm((prev) => ({ ...prev, is_fragile: e.target.checked }))
-                      }
-                    />
-                    شکننده
-                  </label>
-                  <label className="flex items-center gap-2 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={packageForm.is_liquid}
-                      onChange={(e) =>
-                        setPackageForm((prev) => ({ ...prev, is_liquid: e.target.checked }))
-                      }
-                    />
-                    مایع
-                  </label>
-                  <Button
-                    size="sm"
-                    className="sm:col-span-2"
-                    disabled={pending}
-                    onClick={() => {
-                      const length = Number(packageForm.length_cm);
-                      const width = Number(packageForm.width_cm);
-                      const height = Number(packageForm.height_cm);
-                      const weight = Number(packageForm.weight_grams);
-                      if ([length, width, height, weight].some((v) => !Number.isFinite(v) || v <= 0)) {
-                        toast.error("ابعاد و وزن باید بزرگ‌تر از صفر باشند.");
-                        return;
-                      }
-                      void run("بسته نهایی ثبت شد", () =>
-                        shippingAdminService.setFinalPackage(order.id, shipment.internal_id, {
-                          length_cm: length,
-                          width_cm: width,
-                          height_cm: height,
-                          weight_grams: weight,
-                          is_fragile: packageForm.is_fragile,
-                          is_liquid: packageForm.is_liquid,
-                        }),
-                      );
-                    }}
-                  >
-                    ثبت وزن و ابعاد نهایی
-                  </Button>
-                </div>
+                <ShipmentPackageForm
+                  form={form}
+                  pending={pending}
+                  onChange={(next) =>
+                    setPackageForms((prev) => ({ ...prev, [shipment.internal_id]: next }))
+                  }
+                  onSubmit={() => {
+                    const length = Number(form.length_cm);
+                    const width = Number(form.width_cm);
+                    const height = Number(form.height_cm);
+                    const weight = Number(form.weight_grams);
+                    if ([length, width, height, weight].some((v) => !Number.isFinite(v) || v <= 0)) {
+                      toast.error("ابعاد و وزن باید بزرگ‌تر از صفر باشند.");
+                      return;
+                    }
+                    if (!canSubmitFinalPackageHazards(form.is_fragile, form.is_liquid)) {
+                      toast.error("وضعیت شکننده و مایع باید صریحاً بله یا خیر انتخاب شود.");
+                      return;
+                    }
+                    void run("بسته نهایی ثبت شد", () =>
+                      shippingAdminService.setFinalPackage(order.id, shipment.internal_id, {
+                        length_cm: length,
+                        width_cm: width,
+                        height_cm: height,
+                        weight_grams: weight,
+                        is_fragile: form.is_fragile === true,
+                        is_liquid: form.is_liquid === true,
+                      }),
+                    );
+                  }}
+                />
               )}
               {options.length > 0 && (
                 <div className="space-y-2">
@@ -284,12 +353,12 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                     variant="outline"
                     disabled={pending}
                     onClick={() =>
-                      void run("آماده رزرو شد", () =>
+                      void run("آماده ثبت شد", () =>
                         shippingAdminService.scheduleBooking(order.id, shipment.internal_id),
                       )
                     }
                   >
-                    زمان‌بندی ثبت مرسوله
+                    آماده ثبت مرسوله
                   </Button>
                 )}
                 {(actions.canBook || actions.canRetrySafe) && (
@@ -298,12 +367,12 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                     variant="outline"
                     disabled={pending}
                     onClick={() =>
-                      void run("رزرو/تطبیق انجام شد", () =>
+                      void run("ثبت مرسوله انجام شد", () =>
                         shippingAdminService.book(order.id, shipment.internal_id),
                       )
                     }
                   >
-                    ایجاد / تطبیق مرسوله
+                    ثبت مرسوله در پستکس
                   </Button>
                 )}
                 {actions.canReady && (

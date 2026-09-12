@@ -112,8 +112,8 @@ On payment `VERIFIED`:
    - `sender_prepaid` → `pending_booking` (quote package snapshot present).
    - `receiver_due` → `awaiting_packaging` (`booking_next_attempt_at` unset; worker must not claim).
 2. Return the payment flow normally.
-3. For `receiver_due`, admin enters **final sealed parcel** measurements, obtains a packed quote (`payment_type=RECEIVER`), selects carrier/service, then explicitly schedules `pending_booking`. Only then may the worker claim.
-4. Background worker claims `pending_booking` only when `POSTEX_BOOKING_ENABLED`. **TX A** locks, marks `booking`, persists `create_attempted`, **commits**, then `POST /parcels/bulk` with **no** row lock held. **TX B** persists parcel/tracking (`booked`) or `creation_uncertain`. Admin manual book uses the same domain function.
+3. For `receiver_due`, admin enters **final sealed parcel** measurements, obtains a packed quote (`payment_type=RECEIVER`), selects carrier/service, then explicitly marks `ready_to_book` (still not worker-claimable). Only explicit admin `/book` may create the Postex parcel.
+4. Background worker claims `pending_booking` only when `POSTEX_BOOKING_ENABLED` (sender_prepaid path and recovery states). It never claims `ready_to_book` / `awaiting_packaging`. **TX A** locks, marks `booking`, persists `create_attempted`, **commits**, then `POST /parcels/bulk` with **no** row lock held. **TX B** persists parcel/tracking (`booked`) or `creation_uncertain`. Admin manual book uses the same domain function.
 5. Process death after Postex accepts create but before TX B leaves `booking` (never `pending_booking`). Restart looks up `custom_order_no` = `shipment.public_id` before any second create.
 
 `custom_order_no` = shipment UUID (lookup key). `custom_reference_no` = Karzar order tracking code.

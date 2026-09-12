@@ -136,10 +136,7 @@ def _receiver_checkout(
     product = _seed_product_without_logistics(client, super_admin_headers, sku=sku)
     response = client.post(
         "/api/v1/checkout",
-        json=_purchase_payload(
-            product["id"],
-            shipping_payment_mode="receiver_due",
-        ),
+        json=_purchase_payload(product["id"]),
         headers={
             **customer_auth_headers(),
             "Idempotency-Key": key,
@@ -205,14 +202,13 @@ def _prepare_receiver_booking(
         headers=super_admin_headers,
     )
     assert selected.status_code == 200, selected.text
-    scheduled = client.post(
+    prepared = client.post(
         f"/api/v1/orders/{order_id}/shipments/{shipment_id}/schedule-booking",
         headers=super_admin_headers,
     )
-    assert scheduled.status_code == 200, scheduled.text
-    assert scheduled.json()["status"] == ShipmentStatus.PENDING_BOOKING.value
+    assert prepared.status_code == 200, prepared.text
+    assert prepared.json()["status"] == ShipmentStatus.READY_TO_BOOK.value
     return order_id, shipment_id, original_total
-
 
 def _seed_worker_shipment(*, status: str, complete: bool) -> tuple[int, int]:
     async def seed() -> tuple[int, int]:
@@ -354,10 +350,7 @@ def test_receiver_checkout_requires_location_code_and_has_no_cod_path(
         super_admin_headers,
         sku="RECEIVER-LOCATION",
     )
-    missing_location = _purchase_payload(
-        product["id"],
-        shipping_payment_mode="receiver_due",
-    )
+    missing_location = _purchase_payload(product["id"])
     missing_location["shipping"]["location_code"] = None
     response = client.post(
         "/api/v1/checkout",
@@ -367,12 +360,63 @@ def test_receiver_checkout_requires_location_code_and_has_no_cod_path(
     assert response.status_code == 409
     assert response.json()["error_code"] == "SHIPPING_QUOTE_MISMATCH"
 
+    forbidden_mode = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"], shipping_payment_mode="receiver_due"),
+        headers={**customer_auth_headers(), "Idempotency-Key": "receiver-forbid-mode"},
+    )
+    assert forbidden_mode.status_code == 422
+
     cod = client.post(
         "/api/v1/checkout",
         json=_purchase_payload(product["id"], shipping_payment_mode="cod"),
         headers={**customer_auth_headers(), "Idempotency-Key": "receiver-cod"},
     )
     assert cod.status_code == 422
+
+
+def test_client_cannot_bypass_sender_prepaid_with_receiver_due_field(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+    monkeypatch,
+):
+    monkeypatch.setattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", "sender_prepaid")
+    client = TestClient(app)
+    product = _seed_parcel_product(client, super_admin_headers, sku="BYPASS-MODE")
+    # extra="forbid" rejects client authority field entirely.
+    blocked = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"], shipping_payment_mode="receiver_due"),
+        headers={**customer_auth_headers(), "Idempotency-Key": "bypass-mode"},
+    )
+    assert blocked.status_code == 422
+
+    # Without quote, sender_prepaid still requires shipping charge path.
+    no_quote = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"]),
+        headers={**customer_auth_headers(), "Idempotency-Key": "sender-needs-quote"},
+    )
+    assert no_quote.status_code in {400, 422}
+    assert no_quote.json()["error_code"] == "SHIPPING_QUOTE_REQUIRED"
+
+
+def test_client_cannot_force_sender_prepaid_when_server_is_receiver_due(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    product = _seed_product_without_logistics(
+        client, super_admin_headers, sku="FORCE-SENDER"
+    )
+    response = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"], shipping_payment_mode="sender_prepaid"),
+        headers={**customer_auth_headers(), "Idempotency-Key": "force-sender"},
+    )
+    assert response.status_code == 422
 
 
 def test_sender_prepaid_checkout_still_adds_shipping_once(
@@ -406,7 +450,6 @@ def test_sender_prepaid_checkout_still_adds_shipping_once(
         "/api/v1/checkout",
         json=_purchase_payload(
             product["id"],
-            shipping_payment_mode="sender_prepaid",
             shipping_quote_token=token,
         ),
         headers={**headers, "Idempotency-Key": "sender-money"},
@@ -425,7 +468,6 @@ def test_sender_prepaid_checkout_still_adds_shipping_once(
             assert order_amount_rials(order) == 1_170_000
 
     asyncio.run(check())
-
 
 def test_paid_receiver_order_waits_for_packaging_without_booking_schedule(
     fake_provider,
@@ -477,19 +519,182 @@ def test_admin_receiver_workflow_quotes_receiver_and_preserves_order_total(
             assert order is not None and shipment is not None
             assert order.estimated_total == original_total
             assert order.shipping_customer_cost is None
-            assert shipment.status == ShipmentStatus.PENDING_BOOKING.value
-            assert shipment.booking_next_attempt_at is not None
+            assert shipment.status == ShipmentStatus.READY_TO_BOOK.value
+            assert shipment.booking_next_attempt_at is None
             assert shipment.package_measured_at is not None
             assert shipment.provider_box_type_id == 1
             assert shipment.carrier_code == "IR_POST"
             assert shipment.service_code == "EXPRESS"
             assert shipment.customer_shipping_cost is None
             assert shipment.provider_quoted_cost == Decimal("17000.00")
+            assert (shipment.provider_data or {}).get("packed_quote", {}).get(
+                "package_fingerprint"
+            )
 
     asyncio.run(check())
 
 
-def test_persisted_receiver_mode_drives_create_payload_and_worker_booking(
+def test_package_remeasure_invalidates_quote_and_service(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    order_id, shipment_id, _ = _prepare_receiver_booking(
+        client,
+        super_admin_headers,
+        key="receiver-invalidate",
+        sku="RECEIVER-INVALIDATE",
+    )
+    remasure = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/final-package",
+        json={
+            "length_cm": 12,
+            "width_cm": 9,
+            "height_cm": 5,
+            "weight_grams": 300,
+            "is_fragile": True,
+            "is_liquid": False,
+        },
+        headers=super_admin_headers,
+    )
+    assert remasure.status_code == 200, remasure.text
+    assert remasure.json()["status"] == ShipmentStatus.AWAITING_PACKAGING.value
+    assert remasure.json()["carrier_code"] is None
+    assert remasure.json()["package"]["provider_box_type_id"] is None
+
+    stale = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/select-service",
+        json={"carrier_code": "IR_POST", "service_code": "EXPRESS"},
+        headers=super_admin_headers,
+    )
+    assert stale.status_code in {409, 422}
+
+
+def test_quote_and_service_blocked_after_booked(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+    monkeypatch,
+):
+    client = TestClient(app)
+    order_id, shipment_id, _ = _prepare_receiver_booking(
+        client,
+        super_admin_headers,
+        key="receiver-postbook",
+        sku="RECEIVER-POSTBOOK",
+    )
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+    booked = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/book",
+        headers=super_admin_headers,
+    )
+    assert booked.status_code == 200, booked.text
+    assert booked.json()["status"] == "booked"
+    assert fake_provider.create_calls == 1
+
+    quote = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/packed-quote",
+        headers=super_admin_headers,
+    )
+    assert quote.status_code == 409
+    select = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/select-service",
+        json={"carrier_code": "IR_POST", "service_code": "EXPRESS"},
+        headers=super_admin_headers,
+    )
+    assert select.status_code == 409
+
+
+def test_prepared_receiver_not_auto_booked_when_write_flag_enabled(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+    monkeypatch,
+):
+    client = TestClient(app)
+    prepared: list[tuple[int, int]] = []
+    for idx in range(3):
+        order_id, shipment_id, _ = _prepare_receiver_booking(
+            client,
+            super_admin_headers,
+            key=f"receiver-prep-{idx}",
+            sku=f"RECEIVER-PREP-{idx}",
+        )
+        prepared.append((order_id, shipment_id))
+
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+
+    async def run_worker() -> None:
+        async with TestingSessionLocal() as session:
+            assert await process_shipment_bookings(session) == 0
+            for _, shipment_id in prepared:
+                row = await session.get(Shipment, shipment_id)
+                assert row is not None
+                assert row.status == ShipmentStatus.READY_TO_BOOK.value
+                assert row.booking_attempts == 0
+                assert row.provider_parcel_no is None
+
+    asyncio.run(run_worker())
+    assert fake_provider.create_calls == 0
+
+    order_id, shipment_id = prepared[0]
+    explicit = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/book",
+        headers=super_admin_headers,
+    )
+    assert explicit.status_code == 200, explicit.text
+    assert fake_provider.create_calls == 1
+
+
+def test_freight_required_persists_after_oversized_quote(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+    monkeypatch,
+):
+    from app.services.logistics.models import BoxType
+
+    async def tiny_boxes(_provider):
+        return [BoxType(id=1, name="Tiny", length_cm=5, width_cm=5, height_cm=5)]
+
+    monkeypatch.setattr("app.services.logistics.service._cached_boxes", tiny_boxes)
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client, super_admin_headers, key="freight-persist", sku="FREIGHT-PERSIST"
+    )
+    order_id, shipment_id = _ensure_paid_receiver_shipment(checkout["order_id"])
+    package = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/final-package",
+        json={
+            "length_cm": 100,
+            "width_cm": 80,
+            "height_cm": 60,
+            "weight_grams": 5000,
+            "is_fragile": False,
+            "is_liquid": False,
+        },
+        headers=super_admin_headers,
+    )
+    assert package.status_code == 200, package.text
+    quote = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/packed-quote",
+        headers=super_admin_headers,
+    )
+    assert quote.status_code == 422
+    assert quote.json()["error_code"] == "SHIPPING_FREIGHT_REQUIRED"
+
+    async def check() -> None:
+        async with TestingSessionLocal() as session:
+            session.expire_all()
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            assert row.status == ShipmentStatus.FREIGHT_REQUIRED.value
+
+    asyncio.run(check())
+
+
+def test_persisted_receiver_mode_drives_create_payload_via_explicit_book(
     fake_provider,
     override_database,
     super_admin_headers,
@@ -507,7 +712,7 @@ def test_persisted_receiver_mode_drives_create_payload_and_worker_booking(
     monkeypatch.setattr(settings, "POSTEX_DEFAULT_PAYMENT_TYPE", "SENDER")
     monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
 
-    async def book_and_check() -> None:
+    async def build_check() -> None:
         async with TestingSessionLocal() as session:
             order = (
                 (
@@ -525,25 +730,36 @@ def test_persisted_receiver_mode_drives_create_payload_and_worker_booking(
             request = build_parcel_create_request(order, shipment)
             assert request["parcels"][0]["courier"]["payment_type"] == "RECEIVER"
 
-        async with TestingSessionLocal() as session:
-            processed = await process_shipment_bookings(session)
-            assert processed == 1
-            row = await session.get(Shipment, shipment_id)
-            assert row is not None
-            assert row.status == ShipmentStatus.BOOKED.value
+    asyncio.run(build_check())
 
-    asyncio.run(book_and_check())
+    # Worker must still ignore ready_to_book.
+    async def worker_noop() -> None:
+        async with TestingSessionLocal() as session:
+            assert await process_shipment_bookings(session) == 0
+
+    asyncio.run(worker_noop())
+    assert fake_provider.create_calls == 0
+
+    booked = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/book",
+        headers=super_admin_headers,
+    )
+    assert booked.status_code == 200, booked.text
     assert fake_provider.create_calls == 1
     assert fake_provider.create_requests[0]["parcels"][0]["courier"]["payment_type"] == "RECEIVER"
 
 
-def test_worker_never_claims_awaiting_packaging(
+def test_worker_never_claims_awaiting_packaging_or_ready_to_book(
     fake_provider,
     override_database,
     monkeypatch,
 ):
-    _, shipment_id = _seed_worker_shipment(
+    _, awaiting_id = _seed_worker_shipment(
         status=ShipmentStatus.AWAITING_PACKAGING.value,
+        complete=True,
+    )
+    _, ready_id = _seed_worker_shipment(
+        status=ShipmentStatus.READY_TO_BOOK.value,
         complete=True,
     )
     monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
@@ -551,10 +767,14 @@ def test_worker_never_claims_awaiting_packaging(
     async def run() -> None:
         async with TestingSessionLocal() as session:
             assert await process_shipment_bookings(session) == 0
-            row = await session.get(Shipment, shipment_id)
-            assert row is not None
-            assert row.status == ShipmentStatus.AWAITING_PACKAGING.value
-            assert row.booking_attempts == 0
+            for shipment_id, status in (
+                (awaiting_id, ShipmentStatus.AWAITING_PACKAGING.value),
+                (ready_id, ShipmentStatus.READY_TO_BOOK.value),
+            ):
+                row = await session.get(Shipment, shipment_id)
+                assert row is not None
+                assert row.status == status
+                assert row.booking_attempts == 0
 
     asyncio.run(run())
     assert fake_provider.create_calls == 0

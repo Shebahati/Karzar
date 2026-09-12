@@ -34,7 +34,6 @@ export interface DetailsResult {
     location_code?: number | null;
   };
   shipping_quote_token?: string | null;
-  shipping_payment_mode?: "sender_prepaid" | "receiver_due" | null;
 }
 
 /**
@@ -240,11 +239,6 @@ function ShippingForm({
       shipping_quote_token: shipping.checkoutQuoteRequired
         ? (shipping.selected?.quote_token ?? null)
         : null,
-      shipping_payment_mode: shipping.receiverDue
-        ? "receiver_due"
-        : shipping.enabled
-          ? "sender_prepaid"
-          : null,
     });
   };
 

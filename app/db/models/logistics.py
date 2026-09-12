@@ -36,6 +36,7 @@ class ShippingClass(str, enum.Enum):
 
 class ShipmentStatus(str, enum.Enum):
     AWAITING_PACKAGING = "awaiting_packaging"
+    READY_TO_BOOK = "ready_to_book"
     PENDING_BOOKING = "pending_booking"
     BOOKING = "booking"
     BOOKED = "booked"

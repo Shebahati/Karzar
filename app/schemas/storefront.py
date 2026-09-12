@@ -153,6 +153,10 @@ class ShippingAddress(BaseModel):
 
 
 class CheckoutRequest(BaseModel):
+    """Customer checkout payload. Shipping payment mode is server-owned — never client-set."""
+
+    model_config = ConfigDict(extra="forbid")
+
     mode: Literal["purchase", "inquiry"]
     customer: CheckoutCustomer
     items: list[CheckoutLineInput] = Field(..., min_length=1)
@@ -160,8 +164,6 @@ class CheckoutRequest(BaseModel):
     shipping: ShippingAddress | None = None
     company_name: str | None = Field(None, max_length=120)
     shipping_quote_token: str | None = Field(None, max_length=128)
-    # Provider-neutral: sender_prepaid | receiver_due. Blank → server default.
-    shipping_payment_mode: Literal["sender_prepaid", "receiver_due"] | None = None
 
 
 class CheckoutResponse(BaseModel):

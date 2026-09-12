@@ -29,7 +29,7 @@ from app.services.logistics.service import (
 )
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
-    resolve_checkout_shipping_payment_mode,
+    default_shipping_payment_mode,
 )
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import record_initial_status_event, status_label
@@ -81,9 +81,8 @@ async def submit_checkout(
     shipping_cost = Decimal("0")
     shipping_payment_mode: ShippingPaymentMode | None = None
     if is_purchase and postex_enabled():
-        shipping_payment_mode = resolve_checkout_shipping_payment_mode(
-            payload.shipping_payment_mode
-        )
+        # Server policy only — clients cannot choose who pays shipping.
+        shipping_payment_mode = default_shipping_payment_mode()
         if payload.shipping is None or payload.shipping.location_code is None:
             raise LogisticsError(
                 "کد شهر مقصد برای ارسال الزامی است.",

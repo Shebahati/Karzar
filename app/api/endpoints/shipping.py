@@ -40,6 +40,7 @@ from app.services.logistics.exceptions import (
     ProviderError,
     ShipmentStateError,
     ShippingDataIncompleteError,
+    ShippingFreightRequiredError,
 )
 from app.services.logistics.fingerprints import canonical_cart_items
 from app.services.logistics.models import (
@@ -57,12 +58,15 @@ from app.services.logistics.service import (
     ingest_tracking_events,
     last_success_timestamps,
     list_public_cities,
+    package_quote_fingerprint,
     postex_enabled,
     quote_packed_shipment,
+    receiver_due_booking_ready,
     require_postex_booking_enabled,
     schedule_receiver_booking,
     select_packed_service,
     set_final_package,
+    shipment_payment_mode,
 )
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
@@ -330,6 +334,10 @@ async def admin_packed_quote(
         )
     try:
         result = await quote_packed_shipment(db, order=order, shipment=shipment)
+    except ShippingFreightRequiredError as exc:
+        # Durable freight_required before returning the user-facing error.
+        await db.commit()
+        _raise_logistics(exc)
     except LogisticsError as exc:
         _raise_logistics(exc)
     await db.commit()
@@ -380,7 +388,7 @@ async def admin_schedule_receiver_booking(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
-    """Move receiver_due shipment to pending_booking after package+service ready."""
+    """Mark receiver_due shipment ready_to_book (not worker-claimable)."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
@@ -412,7 +420,7 @@ async def admin_book_shipment(
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -423,8 +431,47 @@ async def admin_book_shipment(
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
-            message="ابتدا بسته‌بندی، نرخ‌گیری و زمان‌بندی رزرو را تکمیل کنید.",
+            message="ابتدا بسته‌بندی، نرخ‌گیری و آماده‌سازی ثبت را تکمیل کنید.",
         )
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    if shipment_payment_mode(shipment, order) == ShippingPaymentMode.RECEIVER_DUE:
+        if shipment.status != ShipmentStatus.READY_TO_BOOK.value and shipment.status not in {
+            ShipmentStatus.ERROR.value,
+            ShipmentStatus.CREATION_UNCERTAIN.value,
+            ShipmentStatus.PENDING_BOOKING.value,
+            ShipmentStatus.BOOKING.value,
+        }:
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+                message="مرسوله پس‌کرایه باید در وضعیت آماده ثبت باشد.",
+            )
+        if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+            missing = receiver_due_booking_ready(shipment)
+            if missing:
+                raise api_error(
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    error_code=ErrorCode.SHIPPING_DATA_INCOMPLETE,
+                    message="پیش‌نیاز ثبت مرسوله ناقص است.",
+                    details=[{"field": "missing", "message": str(missing)}],
+                )
+            packed = (shipment.provider_data or {}).get("packed_quote") or {}
+            if packed.get("package_fingerprint") != package_quote_fingerprint(shipment, order):
+                raise api_error(
+                    status.HTTP_409_CONFLICT,
+                    error_code=ErrorCode.SHIPPING_QUOTE_STALE,
+                    message="نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد.",
+                )
+            # Explicit book only: do not set booking_next_attempt_at for worker claim.
+            shipment.status = ShipmentStatus.PENDING_BOOKING.value
+            shipment.booking_next_attempt_at = None
+            await db.flush()
     await book_shipment(db, shipment.id)
     await db.commit()
     await db.refresh(shipment, ["events"])

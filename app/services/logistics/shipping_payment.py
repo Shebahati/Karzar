@@ -81,10 +81,12 @@ def default_shipping_payment_mode() -> ShippingPaymentMode:
 def resolve_checkout_shipping_payment_mode(
     requested: str | None = None,
 ) -> ShippingPaymentMode:
-    """Checkout may request a mode; blank falls back to configured default."""
-    if requested is None or not str(requested).strip():
-        return default_shipping_payment_mode()
-    return ShippingPaymentMode(str(requested).strip().lower())
+    """Deprecated for client authority — checkout always uses default_shipping_payment_mode().
+
+    Kept for internal/test helpers. Any non-empty *requested* value is ignored.
+    """
+    del requested  # clients must not control who pays shipping
+    return default_shipping_payment_mode()
 
 
 def postex_booking_enabled() -> bool:

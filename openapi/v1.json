@@ -2131,6 +2131,8 @@
         "type": "object"
       },
       "CheckoutRequest": {
+        "additionalProperties": false,
+        "description": "Customer checkout payload. Shipping payment mode is server-owned — never client-set.",
         "properties": {
           "company_name": {
             "anyOf": [
@@ -2184,21 +2186,6 @@
                 "type": "null"
               }
             ]
-          },
-          "shipping_payment_mode": {
-            "anyOf": [
-              {
-                "enum": [
-                  "sender_prepaid",
-                  "receiver_due"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Shipping Payment Mode"
           },
           "shipping_quote_token": {
             "anyOf": [
@@ -13213,7 +13200,7 @@
     },
     "/api/v1/orders/{order_id}/shipments/{shipment_id}/schedule-booking": {
       "post": {
-        "description": "Move receiver_due shipment to pending_booking after package+service ready.",
+        "description": "Mark receiver_due shipment ready_to_book (not worker-claimable).",
         "operationId": "admin_schedule_receiver_booking_api_v1_orders__order_id__shipments__shipment_id__schedule_booking_post",
         "parameters": [
           {

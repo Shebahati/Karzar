@@ -43,6 +43,15 @@ export interface AdminShipment {
   events: AdminShipmentEvent[];
 }
 
+export type HazardChoice = null | boolean;
+
+export function canSubmitFinalPackageHazards(
+  isFragile: HazardChoice,
+  isLiquid: HazardChoice,
+): boolean {
+  return isFragile !== null && isLiquid !== null;
+}
+
 export function shipmentActionAvailability(shipment: AdminShipment) {
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
@@ -53,10 +62,20 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     shipment.package?.is_fragile != null &&
     shipment.package?.is_liquid != null;
   const serviceSelected = Boolean(shipment.carrier_code && shipment.service_code);
+  const preCreate =
+    shipment.status === "awaiting_packaging" ||
+    shipment.status === "ready_to_book" ||
+    shipment.status === "freight_required";
   return {
-    canSetPackage: shipment.status === "awaiting_packaging",
-    canPackedQuote: receiverDue && packaged && shipment.status === "awaiting_packaging",
-    canSelectService: receiverDue && packaged && shipment.status === "awaiting_packaging",
+    canSetPackage: preCreate && !booked,
+    canPackedQuote:
+      receiverDue &&
+      packaged &&
+      (shipment.status === "awaiting_packaging" || shipment.status === "ready_to_book"),
+    canSelectService:
+      receiverDue &&
+      packaged &&
+      (shipment.status === "awaiting_packaging" || shipment.status === "ready_to_book"),
     canScheduleBooking:
       receiverDue &&
       packaged &&
@@ -64,6 +83,7 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
       Boolean(shipment.package?.provider_box_type_id) &&
       shipment.status === "awaiting_packaging",
     canBook:
+      shipment.status === "ready_to_book" ||
       shipment.status === "pending_booking" ||
       shipment.status === "error" ||
       shipment.status === "creation_uncertain",
