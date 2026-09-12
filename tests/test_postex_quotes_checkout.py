@@ -249,7 +249,20 @@ def test_quote_and_checkout_includes_shipping_once(
     asyncio.run(_sep_amount())
 
 
-def test_quote_destination_mismatch(fake_provider, override_database, super_admin_headers):
+def test_quote_destination_mismatch(
+    fake_provider, override_database, super_admin_headers, monkeypatch
+):
+    from app.services.logistics.models import LocationCity
+    from app.services.logistics.service import clear_reference_caches
+
+    async def two_valid_cities():
+        return [
+            LocationCity(code=8, name="تهران", province_code=1, province_name="تهران"),
+            LocationCity(code=12, name="اصفهان", province_code=2, province_name="اصفهان"),
+        ]
+
+    monkeypatch.setattr(fake_provider, "list_cities", two_valid_cities)
+    clear_reference_caches()
     client = TestClient(app)
     product = _seed_parcel_product(client, super_admin_headers, sku="PARCEL-DEST")
     headers = customer_auth_headers()
@@ -270,7 +283,7 @@ def test_quote_destination_mismatch(fake_provider, override_database, super_admi
                 "city": "اصفهان",
                 "postal_code": "1234567890",
                 "address_line": "خیابان آزادی پلاک ۱۲۳۴",
-                "location_code": 99,
+                "location_code": 12,
             },
             "shipping_quote_token": token,
         },

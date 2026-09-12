@@ -457,6 +457,50 @@ def test_packed_quote_rejects_missing_width_before_provider_http(
     assert fake_provider.quote_requests == []
 
 
+def test_packed_quote_preserves_destination_invalid(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client,
+        super_admin_headers,
+        key="packed-dest-invalid",
+        sku="PACKED-DEST-INVALID",
+    )
+    order_id, shipment_id = _ensure_paid_receiver_shipment(checkout["order_id"])
+    package = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/final-package",
+        json={
+            "length_cm": 10,
+            "width_cm": 8,
+            "height_cm": 4,
+            "weight_grams": 250,
+            "is_fragile": False,
+            "is_liquid": False,
+        },
+        headers=super_admin_headers,
+    )
+    assert package.status_code == 200, package.text
+
+    async def poison_destination() -> None:
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            assert order is not None
+            order.shipping = {**(order.shipping or {}), "location_code": 99}
+            await session.commit()
+
+    asyncio.run(poison_destination())
+    quote = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/packed-quote",
+        headers=super_admin_headers,
+    )
+    assert quote.status_code == 409
+    assert quote.json()["error_code"] == "SHIPPING_DESTINATION_INVALID"
+    assert fake_provider.quote_requests == []
+
+
 def test_receiver_checkout_requires_location_code_and_has_no_cod_path(
     fake_provider,
     override_database,

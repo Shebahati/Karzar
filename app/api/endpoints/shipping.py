@@ -92,6 +92,10 @@ def _http_for(exc: LogisticsError) -> tuple[int, str]:
             ErrorCode.SHIPPING_UNAVAILABLE,
         ),
         "SHIPPING_QUOTE_EXPIRED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_EXPIRED),
+        "SHIPPING_DESTINATION_INVALID": (
+            status.HTTP_409_CONFLICT,
+            ErrorCode.SHIPPING_DESTINATION_INVALID,
+        ),
         "SHIPPING_QUOTE_MISMATCH": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_MISMATCH),
         "SHIPPING_QUOTE_CONSUMED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_CONSUMED),
         "SHIPPING_QUOTE_STALE": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_STALE),
