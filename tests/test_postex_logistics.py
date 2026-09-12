@@ -199,6 +199,9 @@ def test_purchase_without_quote_token_when_enabled(
         "package_length_cm": "10",
         "package_width_cm": "8",
         "package_height_cm": "4",
+        "shipping_class": "parcel",
+        "shipping_is_fragile": False,
+        "shipping_is_liquid": False,
     }
     created = client.post("/api/v1/products/", json=product, headers=super_admin_headers)
     assert created.status_code == 201, created.text

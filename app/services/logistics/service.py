@@ -122,9 +122,9 @@ def _quote_lines_from_products(
                 length_cm=product.package_length_cm,
                 width_cm=product.package_width_cm,
                 height_cm=product.package_height_cm,
-                is_fragile=bool(product.shipping_is_fragile),
-                is_liquid=bool(product.shipping_is_liquid),
-                shipping_class=product.shipping_class or "parcel",
+                is_fragile=product.shipping_is_fragile,
+                is_liquid=product.shipping_is_liquid,
+                shipping_class=product.shipping_class,
                 is_available=bool(product.is_available),
                 name=product.name,
             )

@@ -95,7 +95,18 @@ def build_package(lines: list[QuoteLine], boxes: list[BoxType] | None = None) ->
 
     for line in lines:
         missing: list[str] = []
+        if line.shipping_class is None:
+            missing.append("shipping_class")
+        elif line.shipping_class != ShippingClass.PARCEL.value:
+            # Non-freight unknown values are incomplete; freight already raised above.
+            missing.append("shipping_class")
+        if line.is_fragile is None:
+            missing.append("shipping_is_fragile")
+        if line.is_liquid is None:
+            missing.append("shipping_is_liquid")
         if line.weight_grams is None:
+            missing.append("weight_grams")
+        elif line.weight_grams <= 0:
             missing.append("weight_grams")
         if line.length_cm is None:
             missing.append("package_length_cm")
@@ -116,7 +127,9 @@ def build_package(lines: list[QuoteLine], boxes: list[BoxType] | None = None) ->
         assert line.length_cm is not None
         assert line.width_cm is not None
         assert line.height_cm is not None
-        if line.weight_grams < 0 or line.length_cm < 0 or line.width_cm < 0 or line.height_cm < 0:
+        assert line.is_fragile is not None
+        assert line.is_liquid is not None
+        if line.length_cm < 0 or line.width_cm < 0 or line.height_cm < 0:
             incomplete.append(
                 {
                     "product_id": line.product_id,

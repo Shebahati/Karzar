@@ -5,19 +5,20 @@ Revises: h1i2j3k4l5m6
 Create Date: 2026-09-10 06:40:00.000000
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "i2j3k4l5m6n7"
-down_revision: Union[str, None] = "h1i2j3k4l5m6"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "h1i2j3k4l5m6"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
+    # Package dims: NULL = unknown. Zero is invalid (package_builder rejects ≤0).
     op.add_column(
         "products",
         sa.Column("package_length_cm", sa.Numeric(precision=12, scale=2), nullable=True),
@@ -30,52 +31,39 @@ def upgrade() -> None:
         "products",
         sa.Column("package_height_cm", sa.Numeric(precision=12, scale=2), nullable=True),
     )
+    # Hazard + class: NULL = UNKNOWN / not reviewed. Do not fabricate false/parcel.
     op.add_column(
         "products",
-        sa.Column(
-            "shipping_is_fragile",
-            sa.Boolean(),
-            server_default="false",
-            nullable=False,
-        ),
+        sa.Column("shipping_is_fragile", sa.Boolean(), nullable=True),
     )
     op.add_column(
         "products",
-        sa.Column(
-            "shipping_is_liquid",
-            sa.Boolean(),
-            server_default="false",
-            nullable=False,
-        ),
+        sa.Column("shipping_is_liquid", sa.Boolean(), nullable=True),
     )
     op.add_column(
         "products",
-        sa.Column(
-            "shipping_class",
-            sa.String(length=32),
-            server_default="parcel",
-            nullable=False,
-        ),
+        sa.Column("shipping_class", sa.String(length=32), nullable=True),
     )
     op.create_check_constraint(
-        "ck_products_package_length_non_negative",
+        "ck_products_package_length_positive",
         "products",
-        "package_length_cm IS NULL OR package_length_cm >= 0",
+        "package_length_cm IS NULL OR package_length_cm > 0",
     )
     op.create_check_constraint(
-        "ck_products_package_width_non_negative",
+        "ck_products_package_width_positive",
         "products",
-        "package_width_cm IS NULL OR package_width_cm >= 0",
+        "package_width_cm IS NULL OR package_width_cm > 0",
     )
     op.create_check_constraint(
-        "ck_products_package_height_non_negative",
+        "ck_products_package_height_positive",
         "products",
-        "package_height_cm IS NULL OR package_height_cm >= 0",
+        "package_height_cm IS NULL OR package_height_cm > 0",
     )
+    # NULL passes CHECK in PostgreSQL; only non-null values must be parcel|freight_only.
     op.create_check_constraint(
         "ck_products_shipping_class",
         "products",
-        "shipping_class IN ('parcel', 'freight_only')",
+        "shipping_class IS NULL OR shipping_class IN ('parcel', 'freight_only')",
     )
 
     op.add_column("orders", sa.Column("shipping_provider", sa.String(length=32), nullable=True))
@@ -237,6 +225,11 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Destructive if quote/shipment rows exist.
+
+    Operational rollback is POSTEX_ENABLED=false — do not treat Alembic downgrade
+    as a safe production rollback after logistics data exists.
+    """
     op.drop_table("shipment_events")
     op.drop_index("uq_shipments_provider_tracking_code", table_name="shipments")
     op.drop_index("uq_shipments_provider_parcel_no", table_name="shipments")
@@ -248,10 +241,12 @@ def downgrade() -> None:
     op.drop_column("orders", "shipping_customer_cost")
     op.drop_column("orders", "shipping_quote_id")
     op.drop_column("orders", "shipping_provider")
+    # Destructive if quote/shipment rows exist. Operational rollback is POSTEX_ENABLED=false;
+    # do not treat Alembic downgrade as a safe production rollback after logistics data exists.
     op.drop_constraint("ck_products_shipping_class", "products", type_="check")
-    op.drop_constraint("ck_products_package_height_non_negative", "products", type_="check")
-    op.drop_constraint("ck_products_package_width_non_negative", "products", type_="check")
-    op.drop_constraint("ck_products_package_length_non_negative", "products", type_="check")
+    op.drop_constraint("ck_products_package_height_positive", "products", type_="check")
+    op.drop_constraint("ck_products_package_width_positive", "products", type_="check")
+    op.drop_constraint("ck_products_package_length_positive", "products", type_="check")
     op.drop_column("products", "shipping_class")
     op.drop_column("products", "shipping_is_liquid")
     op.drop_column("products", "shipping_is_fragile")

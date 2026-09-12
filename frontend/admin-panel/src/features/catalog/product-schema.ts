@@ -22,6 +22,25 @@ const optionalNumberString = (opts?: { min?: number; max?: number }) =>
       { message: "مقدار عددی معتبر وارد کنید." },
     );
 
+/** Blank allowed; when present must be strictly > 0 (package dims). */
+const optionalPositiveNumberString = () =>
+  z
+    .string()
+    .trim()
+    .refine(
+      (value) => {
+        if (value === "") return true;
+        const n = Number(value);
+        if (Number.isNaN(n)) return false;
+        return n > 0;
+      },
+      { message: "مقدار باید بزرگ‌تر از صفر باشد." },
+    );
+
+/** Tri-state logistics facts: unknown must not collapse to false/parcel. */
+export const logisticsTriStateSchema = z.enum(["unknown", "true", "false"]);
+export const shippingClassFormSchema = z.enum(["unknown", "parcel", "freight_only"]);
+
 const requiredNumberString = (opts?: { min?: number; max?: number }) =>
   z
     .string()
@@ -169,12 +188,12 @@ export function createProductFormSchema(template?: CategorySpecTemplate | null) 
       is_available: z.boolean(),
       stock_unit: z.enum(STOCK_UNITS),
       weight_grams: optionalNumberString({ min: 0 }),
-      package_length_cm: optionalNumberString({ min: 0 }),
-      package_width_cm: optionalNumberString({ min: 0 }),
-      package_height_cm: optionalNumberString({ min: 0 }),
-      shipping_is_fragile: z.boolean(),
-      shipping_is_liquid: z.boolean(),
-      shipping_class: z.enum(["parcel", "freight_only"]),
+      package_length_cm: optionalPositiveNumberString(),
+      package_width_cm: optionalPositiveNumberString(),
+      package_height_cm: optionalPositiveNumberString(),
+      shipping_is_fragile: logisticsTriStateSchema,
+      shipping_is_liquid: logisticsTriStateSchema,
+      shipping_class: shippingClassFormSchema,
       tax_percent: requiredNumberString({ min: 0, max: 100 }),
       warranty_text: z.string().max(255, { message: "حداکثر ۲۵۵ کاراکتر." }),
       pdf_catalog_url: z
@@ -242,9 +261,9 @@ export const productFormDefaults: ProductFormValues = {
   package_length_cm: "",
   package_width_cm: "",
   package_height_cm: "",
-  shipping_is_fragile: false,
-  shipping_is_liquid: false,
-  shipping_class: "parcel",
+  shipping_is_fragile: "unknown",
+  shipping_is_liquid: "unknown",
+  shipping_class: "unknown",
   tax_percent: String(DEFAULT_TAX_PERCENT),
   warranty_text: "",
   pdf_catalog_url: "",
@@ -335,9 +354,11 @@ export function toProductCreatePayload(
     package_length_cm: parseNullableNumber(values.package_length_cm),
     package_width_cm: parseNullableNumber(values.package_width_cm),
     package_height_cm: parseNullableNumber(values.package_height_cm),
-    shipping_is_fragile: values.shipping_is_fragile,
-    shipping_is_liquid: values.shipping_is_liquid,
-    shipping_class: values.shipping_class,
+    shipping_is_fragile:
+      values.shipping_is_fragile === "unknown" ? null : values.shipping_is_fragile === "true",
+    shipping_is_liquid:
+      values.shipping_is_liquid === "unknown" ? null : values.shipping_is_liquid === "true",
+    shipping_class: values.shipping_class === "unknown" ? null : values.shipping_class,
     tax_percent: Number(values.tax_percent),
     warranty_text: values.warranty_text?.trim() || null,
     pdf_catalog_url: values.pdf_catalog_url?.trim() || null,
@@ -418,9 +439,22 @@ export function productDetailToFormValues(detail: ProductDetail): ProductFormVal
     package_length_cm: detail.package_length_cm ?? "",
     package_width_cm: detail.package_width_cm ?? "",
     package_height_cm: detail.package_height_cm ?? "",
-    shipping_is_fragile: Boolean(detail.shipping_is_fragile),
-    shipping_is_liquid: Boolean(detail.shipping_is_liquid),
-    shipping_class: detail.shipping_class === "freight_only" ? "freight_only" : "parcel",
+    shipping_is_fragile:
+      detail.shipping_is_fragile === null || detail.shipping_is_fragile === undefined
+        ? "unknown"
+        : detail.shipping_is_fragile
+          ? "true"
+          : "false",
+    shipping_is_liquid:
+      detail.shipping_is_liquid === null || detail.shipping_is_liquid === undefined
+        ? "unknown"
+        : detail.shipping_is_liquid
+          ? "true"
+          : "false",
+    shipping_class:
+      detail.shipping_class === "parcel" || detail.shipping_class === "freight_only"
+        ? detail.shipping_class
+        : "unknown",
     tax_percent: detail.tax_percent,
     warranty_text: detail.warranty_text ?? "",
     pdf_catalog_url: detail.pdf_catalog_url ?? "",

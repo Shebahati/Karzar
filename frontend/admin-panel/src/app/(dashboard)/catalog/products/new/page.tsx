@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryLeafCombobox } from "@/features/catalog/components/category-leaf-combobox";
+import { LogisticsReadinessHint } from "@/features/catalog/components/logistics-readiness-hint";
 import { ProductDescriptionEditor } from "@/features/catalog/components/product-description-editor";
 import { ProductSpecificationsForm } from "@/features/catalog/components/product-specifications-form";
 import {
@@ -62,6 +63,13 @@ export default function NewProductPage() {
   } = form;
 
   const categoryId = useWatch({ control, name: "category_id" });
+  const logisticsClass = useWatch({ control, name: "shipping_class" });
+  const logisticsFragile = useWatch({ control, name: "shipping_is_fragile" });
+  const logisticsLiquid = useWatch({ control, name: "shipping_is_liquid" });
+  const logisticsWeight = useWatch({ control, name: "weight_grams" });
+  const logisticsLength = useWatch({ control, name: "package_length_cm" });
+  const logisticsWidth = useWatch({ control, name: "package_width_cm" });
+  const logisticsHeight = useWatch({ control, name: "package_height_cm" });
   const numericCategoryId = categoryId ? Number(categoryId) : 0;
 
   const { data: specTemplate, isPending: templateLoading } =
@@ -424,6 +432,7 @@ export default function NewProductPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 ابعاد مهندسی محصول در مشخصات فنی است. ابعاد زیر فقط برای بسته‌بندی پستی است.
+                فیلدهای کلاس/شکستنی/مایع در حالت «نامشخص» باقی می‌مانند تا صریحاً بررسی شوند.
               </p>
               <div className="grid grid-cols-3 gap-4">
                 <Field label="طول بسته (cm)" htmlFor="package_length_cm" error={errors.package_length_cm?.message}>
@@ -443,11 +452,12 @@ export default function NewProductPage() {
                   <Field label="کلاس ارسال">
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="نامشخص" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="parcel">مرسوله پستی</SelectItem>
-                        <SelectItem value="freight_only">فقط باربری / استعلام</SelectItem>
+                        <SelectItem value="unknown">نامشخص</SelectItem>
+                        <SelectItem value="parcel">ارسال بسته‌ای</SelectItem>
+                        <SelectItem value="freight_only">فقط باربری</SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
@@ -458,23 +468,48 @@ export default function NewProductPage() {
                   control={control}
                   name="shipping_is_fragile"
                   render={({ field }) => (
-                    <label className="flex items-center justify-between gap-2 rounded-xl bg-[#F7F7F7] px-4 py-3 text-sm">
-                      شکستنی
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </label>
+                    <Field label="شکستنی">
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="نامشخص" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unknown">نامشخص</SelectItem>
+                          <SelectItem value="true">بله</SelectItem>
+                          <SelectItem value="false">خیر</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
                   )}
                 />
                 <Controller
                   control={control}
                   name="shipping_is_liquid"
                   render={({ field }) => (
-                    <label className="flex items-center justify-between gap-2 rounded-xl bg-[#F7F7F7] px-4 py-3 text-sm">
-                      مایع
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </label>
+                    <Field label="مایع">
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="نامشخص" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unknown">نامشخص</SelectItem>
+                          <SelectItem value="true">بله</SelectItem>
+                          <SelectItem value="false">خیر</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
                   )}
                 />
               </div>
+              <LogisticsReadinessHint
+                shippingClass={logisticsClass}
+                fragile={logisticsFragile}
+                liquid={logisticsLiquid}
+                weight={logisticsWeight}
+                length={logisticsLength}
+                width={logisticsWidth}
+                height={logisticsHeight}
+              />
             </CardContent>
           </Card>
 

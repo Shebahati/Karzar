@@ -131,6 +131,8 @@ def _seed_parcel_product(client, super_admin_headers, sku="PARCEL-1"):
         "package_width_cm": "8",
         "package_height_cm": "4",
         "shipping_class": "parcel",
+        "shipping_is_fragile": False,
+        "shipping_is_liquid": False,
     }
     created = client.post("/api/v1/products/", json=payload, headers=super_admin_headers)
     assert created.status_code == 201, created.text

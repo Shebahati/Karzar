@@ -78,9 +78,9 @@ export interface ProductDetail {
   package_length_cm?: string | null;
   package_width_cm?: string | null;
   package_height_cm?: string | null;
-  shipping_is_fragile?: boolean;
-  shipping_is_liquid?: boolean;
-  shipping_class?: "parcel" | "freight_only";
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original: boolean;
   tax_percent: string;
   is_active: boolean;
@@ -112,9 +112,9 @@ export interface ProductCreatePayload {
   package_length_cm?: number | null;
   package_width_cm?: number | null;
   package_height_cm?: number | null;
-  shipping_is_fragile?: boolean;
-  shipping_is_liquid?: boolean;
-  shipping_class?: "parcel" | "freight_only";
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original: boolean;
   tax_percent: number;
   is_active: boolean;
@@ -141,9 +141,9 @@ export interface ProductUpdatePayload {
   package_length_cm?: number | null;
   package_width_cm?: number | null;
   package_height_cm?: number | null;
-  shipping_is_fragile?: boolean;
-  shipping_is_liquid?: boolean;
-  shipping_class?: "parcel" | "freight_only";
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original?: boolean;
   tax_percent?: number;
   is_active?: boolean;

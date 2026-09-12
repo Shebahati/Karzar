@@ -147,4 +147,9 @@ Allowed: whoami, cities/reference, shipping methods, boxes, quote. Forbidden: cr
 
 ## Rollback
 
-`POSTEX_ENABLED=false`. Purchase checkout no longer requires a quote token. Existing shipments remain for history.
+Operational rollback: `POSTEX_ENABLED=false`. Purchase checkout no longer requires a
+quote token. Existing shipments remain for history.
+
+**Not** an operational rollback: Alembic `downgrade` of `i2j3k4l5m6n7` after quote/shipment
+rows exist — that drop is destructive. Prefer forward-only schema changes unless Owner
+explicitly authorizes a destructive downgrade.

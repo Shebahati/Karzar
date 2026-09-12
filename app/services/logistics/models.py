@@ -118,9 +118,9 @@ class QuoteLine:
     length_cm: Decimal | None
     width_cm: Decimal | None
     height_cm: Decimal | None
-    is_fragile: bool
-    is_liquid: bool
-    shipping_class: str
+    is_fragile: bool | None
+    is_liquid: bool | None
+    shipping_class: str | None
     is_available: bool
     name: str
 

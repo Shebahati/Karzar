@@ -13499,23 +13499,41 @@
             "title": "Package Height Cm"
           },
           "shipping_is_fragile": {
-            "type": "boolean",
-            "title": "Shipping Is Fragile",
-            "default": false
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Is Fragile"
           },
           "shipping_is_liquid": {
-            "type": "boolean",
-            "title": "Shipping Is Liquid",
-            "default": false
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Is Liquid"
           },
           "shipping_class": {
-            "type": "string",
-            "enum": [
-              "parcel",
-              "freight_only"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "parcel",
+                  "freight_only"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ],
-            "title": "Shipping Class",
-            "default": "parcel"
+            "title": "Shipping Class"
           },
           "is_original": {
             "type": "boolean",
@@ -13812,19 +13830,37 @@
             "title": "Package Height Cm"
           },
           "shipping_is_fragile": {
-            "type": "boolean",
-            "title": "Shipping Is Fragile",
-            "default": false
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Is Fragile"
           },
           "shipping_is_liquid": {
-            "type": "boolean",
-            "title": "Shipping Is Liquid",
-            "default": false
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Is Liquid"
           },
           "shipping_class": {
-            "type": "string",
-            "title": "Shipping Class",
-            "default": "parcel"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Class"
           },
           "is_original": {
             "type": "boolean",

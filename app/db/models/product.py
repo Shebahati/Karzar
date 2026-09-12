@@ -141,19 +141,19 @@ class Product(Base):
         Index("ix_products_active_list", "is_active", "deleted_at"),
         CheckConstraint("stock_quantity >= 0", name="ck_products_stock_non_negative"),
         CheckConstraint(
-            "package_length_cm IS NULL OR package_length_cm >= 0",
-            name="ck_products_package_length_non_negative",
+            "package_length_cm IS NULL OR package_length_cm > 0",
+            name="ck_products_package_length_positive",
         ),
         CheckConstraint(
-            "package_width_cm IS NULL OR package_width_cm >= 0",
-            name="ck_products_package_width_non_negative",
+            "package_width_cm IS NULL OR package_width_cm > 0",
+            name="ck_products_package_width_positive",
         ),
         CheckConstraint(
-            "package_height_cm IS NULL OR package_height_cm >= 0",
-            name="ck_products_package_height_non_negative",
+            "package_height_cm IS NULL OR package_height_cm > 0",
+            name="ck_products_package_height_positive",
         ),
         CheckConstraint(
-            "shipping_class IN ('parcel', 'freight_only')",
+            "shipping_class IS NULL OR shipping_class IN ('parcel', 'freight_only')",
             name="ck_products_shipping_class",
         ),
         Index(
@@ -203,15 +203,10 @@ class Product(Base):
     package_length_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     package_width_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     package_height_cm: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
-    shipping_is_fragile: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default="false"
-    )
-    shipping_is_liquid: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default="false"
-    )
-    shipping_class: Mapped[str] = mapped_column(
-        String(32), nullable=False, default="parcel", server_default="parcel"
-    )
+    # NULL = UNKNOWN / not reviewed. Do not default to false or "parcel".
+    shipping_is_fragile: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    shipping_is_liquid: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    shipping_class: Mapped[str | None] = mapped_column(String(32), nullable=True)
     is_original: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     tax_percent: Mapped[Decimal] = mapped_column(
         Numeric(5, 2), default=Decimal("0.0"), server_default="0"

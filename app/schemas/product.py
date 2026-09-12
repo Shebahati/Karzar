@@ -60,9 +60,9 @@ class ProductCreate(BaseModel):
     package_length_cm: Decimal | None = None
     package_width_cm: Decimal | None = None
     package_height_cm: Decimal | None = None
-    shipping_is_fragile: bool = False
-    shipping_is_liquid: bool = False
-    shipping_class: Literal["parcel", "freight_only"] = "parcel"
+    shipping_is_fragile: bool | None = None
+    shipping_is_liquid: bool | None = None
+    shipping_class: Literal["parcel", "freight_only"] | None = None
     is_original: bool = True
     tax_percent: Decimal = Field(default=Decimal(str(DEFAULT_TAX_PERCENT)), ge=0, le=100)
     is_active: bool = True
@@ -79,14 +79,18 @@ class ProductCreate(BaseModel):
         "base_price",
         "weight_grams",
         "stock_quantity",
-        "package_length_cm",
-        "package_width_cm",
-        "package_height_cm",
     )
     @classmethod
     def check_non_negative(cls, v: Decimal | None, info) -> Decimal | None:
         if v is not None and v < Decimal("0.0"):
             raise ValueError(f"{info.field_name} cannot be negative")
+        return v
+
+    @field_validator("package_length_cm", "package_width_cm", "package_height_cm")
+    @classmethod
+    def check_package_dimension_positive(cls, v: Decimal | None, info) -> Decimal | None:
+        if v is not None and v <= Decimal("0.0"):
+            raise ValueError(f"{info.field_name} must be greater than zero when supplied")
         return v
 
     @field_validator("tax_percent")
@@ -182,6 +186,26 @@ class ProductUpdate(BaseModel):
             raise ValueError(f"stock_unit must be one of: {', '.join(sorted(VALID_STOCK_UNITS))}")
         return v
 
+    @field_validator(
+        "base_price",
+        "weight_grams",
+        "stock_quantity",
+        "original_price",
+        "tax_percent",
+    )
+    @classmethod
+    def check_non_negative_update(cls, v: Decimal | None, info) -> Decimal | None:
+        if v is not None and v < Decimal("0.0"):
+            raise ValueError(f"{info.field_name} cannot be negative")
+        return v
+
+    @field_validator("package_length_cm", "package_width_cm", "package_height_cm")
+    @classmethod
+    def check_package_dimension_positive(cls, v: Decimal | None, info) -> Decimal | None:
+        if v is not None and v <= Decimal("0.0"):
+            raise ValueError(f"{info.field_name} must be greater than zero when supplied")
+        return v
+
 
 class ProductSummaryResponse(BaseModel):
     """PLP card shape returned by GET /products."""
@@ -229,9 +253,9 @@ class ProductDetailResponse(BaseModel):
     package_length_cm: str | None = None
     package_width_cm: str | None = None
     package_height_cm: str | None = None
-    shipping_is_fragile: bool = False
-    shipping_is_liquid: bool = False
-    shipping_class: str = "parcel"
+    shipping_is_fragile: bool | None = None
+    shipping_is_liquid: bool | None = None
+    shipping_class: str | None = None
     is_original: bool
     tax_percent: str
     is_active: bool
