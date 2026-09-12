@@ -14,11 +14,13 @@ from app.core.logging import get_logger
 from app.db.models.commerce import Order
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import (
+    LogisticsError,
     ProviderConflictError,
     ProviderError,
     ProviderTimeoutError,
     ProviderValidationError,
     ShipmentStateError,
+    ShippingDataIncompleteError,
 )
 from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
@@ -30,6 +32,7 @@ from app.services.logistics.service import (
     get_provider,
     postex_enabled,
 )
+from app.services.logistics.shipping_payment import postex_booking_enabled
 
 logger = get_logger(__name__)
 
@@ -56,6 +59,15 @@ _CLAIMABLE_WITH_PARCEL = frozenset(
     }
 )
 
+_LOCAL_CANCEL_SAFE_STATUSES = frozenset(
+    {
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.READY_TO_BOOK.value,
+        ShipmentStatus.FREIGHT_REQUIRED.value,
+        ShipmentStatus.PENDING_BOOKING.value,
+    }
+)
+
 
 def create_attempt_started(shipment: Shipment) -> bool:
     """True when a Postex create may already have been sent or durably started."""
@@ -73,14 +85,14 @@ def create_attempt_started(shipment: Shipment) -> bool:
 
 
 def never_attempted_create(shipment: Shipment) -> bool:
-    """Local cancel is only safe when Karzar can prove no provider parcel can exist."""
+    """Local cancel is only safe when Karzar can prove no provider create was attempted."""
     if (shipment.provider_parcel_no or "").strip():
-        return False
-    if shipment.status != ShipmentStatus.PENDING_BOOKING.value:
         return False
     if int(shipment.booking_attempts or 0) > 0:
         return False
     if (shipment.provider_data or {}).get("create_attempted"):
+        return False
+    if shipment.status not in _LOCAL_CANCEL_SAFE_STATUSES:
         return False
     return True
 
@@ -120,11 +132,23 @@ def _patch_provider_data(shipment: Shipment, **updates: Any) -> dict[str, Any]:
 async def process_shipment_bookings(db: AsyncSession) -> int:
     if not postex_enabled():
         return 0
+    # Write gate: no parcel create / cancel mutations without POSTEX_BOOKING_ENABLED.
+    # awaiting_packaging is never claimable (_CLAIMABLE excludes it).
+    if not postex_booking_enabled():
+        return 0
     now = datetime.now(UTC)
     stmt = (
         select(Shipment.id)
         .where(
             Shipment.status.in_(_CLAIMABLE),
+            # Never claim awaiting_packaging / freight_required even if malformed.
+            Shipment.status.notin_(
+                (
+                    ShipmentStatus.AWAITING_PACKAGING.value,
+                    ShipmentStatus.READY_TO_BOOK.value,
+                    ShipmentStatus.FREIGHT_REQUIRED.value,
+                )
+            ),
             or_(
                 Shipment.booking_next_attempt_at.is_(None),
                 Shipment.booking_next_attempt_at <= now,
@@ -272,6 +296,22 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
             return None
         # Two empty lookups: fall through and durably start another create.
 
+    if not postex_booking_enabled():
+        shipment.last_error_code = "SHIPPING_BOOKING_DISABLED"
+        shipment.last_error_message = "ثبت مرسوله پستکس غیرفعال است."
+        shipment.booking_next_attempt_at = None
+        await db.commit()
+        return None
+
+    if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
+        await db.commit()
+        return None
+
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+        # Prepared receiver parcels require explicit admin /book — never auto-create.
+        await db.commit()
+        return None
+
     order = (
         (
             await db.execute(
@@ -289,7 +329,22 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         await db.commit()
         return None
 
-    request = build_parcel_create_request(order, shipment)
+    try:
+        request = build_parcel_create_request(order, shipment)
+    except ShippingDataIncompleteError as exc:
+        # Fail closed before any HTTP create — incomplete pending_booking must not mutate Postex.
+        shipment.status = ShipmentStatus.ERROR.value
+        shipment.last_error_code = "SHIPPING_DATA_INCOMPLETE"
+        shipment.last_error_message = str(exc)[:500]
+        shipment.booking_next_attempt_at = None
+        await db.commit()
+        logger.warning(
+            "postex create blocked incomplete shipment_id=%s missing=%s",
+            shipment.id,
+            getattr(exc, "products", None),
+        )
+        return None
+
     shipment.booking_attempts = int(shipment.booking_attempts or 0) + 1
     shipment.status = ShipmentStatus.BOOKING.value
     _patch_provider_data(
@@ -459,6 +514,13 @@ async def request_shipment_cancellation(
         shipment.cancelled_at = datetime.now(UTC)
         await db.commit()
         return shipment
+
+    if not postex_booking_enabled():
+        await db.commit()
+        raise LogisticsError(
+            "ثبت مرسوله پستکس غیرفعال است.",
+            error_code="SHIPPING_BOOKING_DISABLED",
+        )
 
     public_id = shipment.public_id
     parcel_no = (shipment.provider_parcel_no or "").strip() or None

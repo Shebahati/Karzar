@@ -34,14 +34,26 @@ Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer i
 
 ## Shipping (Postex)
 
-Parcel shipping is a provider-neutral Karzar logistics domain. Postex is the v1 provider, gated by `POSTEX_ENABLED` (safe default **false**). See [`integrations/postex/README.md`](integrations/postex/README.md).
+Parcel shipping is a provider-neutral Karzar logistics domain. Postex is the v1 provider, gated by `POSTEX_ENABLED` (safe default **false**). Parcel **create / mark-ready / cancel / edit** also require `POSTEX_BOOKING_ENABLED` (safe default **false**). See [`integrations/postex/README.md`](integrations/postex/README.md).
 
-- Purchase checkout with Postex on requires a server-owned `shipping_quote_token`. Inquiry is unchanged.
-- v1 price policy is pass-through: customer shipping cost = Postex quote (Toman). SEP charges `estimated_total` = items + tax + shipping **once**.
-- Parcel carrier `payment_type` is official `SENDER`. Karzar checkout payment remains SEP — no Postex COD/wallet.
+Provider-neutral shipping payment mode (persisted on order/shipment; **server-owned** — checkout clients cannot set it):
+
+| Mode | Postex `payment_type` | SEP / `estimated_total` | Checkout quote |
+|------|----------------------|-------------------------|----------------|
+| `sender_prepaid` (default) | `SENDER` | items + tax + shipping | Required |
+| `receiver_due` | `RECEIVER` (پس‌کرایه) | items + tax **only** | Not used |
+
+- Mode authority: `POSTEX_SHIPPING_PAYMENT_MODE` / legacy `POSTEX_DEFAULT_PAYMENT_TYPE`. Storefront may **read** `GET /shipping/status.shipping_payment_mode` for UX only.
+- `receiver_due` fulfillment: `awaiting_packaging` → measure → packed quote → select service → `ready_to_book` → **explicit** admin `/book`. Enabling `POSTEX_BOOKING_ENABLED` alone must not create prepared receiver parcels.
+
+- **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
+- Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.
+- `receiver_due` checkout still requires a normalized destination `location_code`. Product package master data is **not** required at checkout; final sealed-parcel L/W/H/weight/hazards are entered during fulfillment (`awaiting_packaging` → admin final-package → packed quote → select service → schedule booking → book).
 - Creating a Postex label/barcode is **not** order `shipped`. `SHIPPED` requires tracking evidence of physical handoff. `DELIVERED` only when all required shipments are delivered.
 
-Unresolved until Owner enablement: origin city code, catalog package-dimension coverage, one read-only live quote, staging verification.
+Config authority: prefer `POSTEX_SHIPPING_PAYMENT_MODE` (`sender_prepaid` \| `receiver_due`). Legacy `POSTEX_DEFAULT_PAYMENT_TYPE` (`SENDER` \| `RECEIVER`) is normalized once into that mode when the neutral setting is blank. COD / `FREE_SHIPPING` fail closed.
+
+Unresolved until Owner enablement: origin city code, catalog package-dimension coverage (sender_prepaid), live RECEIVER quote then sacrificial parcel (separate authorizations), staging verification.
 
 ## Payments
 

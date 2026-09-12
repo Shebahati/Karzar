@@ -26,6 +26,8 @@ from app.schemas.shipping import (
     ShipmentAdminResponse,
     ShipmentCancelRequest,
     ShipmentEditRequest,
+    ShipmentFinalPackageRequest,
+    ShipmentSelectServiceRequest,
     ShippingCityListResponse,
     ShippingCityResponse,
     ShippingQuoteRequest,
@@ -38,6 +40,7 @@ from app.services.logistics.exceptions import (
     ProviderError,
     ShipmentStateError,
     ShippingDataIncompleteError,
+    ShippingFreightRequiredError,
 )
 from app.services.logistics.fingerprints import canonical_cart_items
 from app.services.logistics.models import (
@@ -55,7 +58,20 @@ from app.services.logistics.service import (
     ingest_tracking_events,
     last_success_timestamps,
     list_public_cities,
+    package_quote_fingerprint,
     postex_enabled,
+    quote_packed_shipment,
+    receiver_due_booking_ready,
+    require_postex_booking_enabled,
+    schedule_receiver_booking,
+    select_packed_service,
+    set_final_package,
+    shipment_payment_mode,
+)
+from app.services.logistics.shipping_payment import (
+    ShippingPaymentMode,
+    default_shipping_payment_mode,
+    postex_booking_enabled,
 )
 
 router = APIRouter()
@@ -76,6 +92,10 @@ def _http_for(exc: LogisticsError) -> tuple[int, str]:
             ErrorCode.SHIPPING_UNAVAILABLE,
         ),
         "SHIPPING_QUOTE_EXPIRED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_EXPIRED),
+        "SHIPPING_DESTINATION_INVALID": (
+            status.HTTP_409_CONFLICT,
+            ErrorCode.SHIPPING_DESTINATION_INVALID,
+        ),
         "SHIPPING_QUOTE_MISMATCH": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_MISMATCH),
         "SHIPPING_QUOTE_CONSUMED": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_CONSUMED),
         "SHIPPING_QUOTE_STALE": (status.HTTP_409_CONFLICT, ErrorCode.SHIPPING_QUOTE_STALE),
@@ -88,6 +108,14 @@ def _http_for(exc: LogisticsError) -> tuple[int, str]:
             ErrorCode.VALIDATION_FAILED,
         ),
         "SHIPPING_PROVIDER_NOT_FOUND": (status.HTTP_404_NOT_FOUND, ErrorCode.NOT_FOUND),
+        "SHIPPING_BOOKING_DISABLED": (
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            ErrorCode.SHIPPING_BOOKING_DISABLED,
+        ),
+        "VALIDATION_FAILED": (
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            ErrorCode.VALIDATION_FAILED,
+        ),
     }
     code = getattr(exc, "error_code", "SHIPPING_ERROR")
     http_status, error_code = mapping.get(
@@ -120,9 +148,16 @@ async def _shipment_or_raise(
 
 @router.get("/shipping/status", response_model=ShippingStatusResponse)
 async def shipping_status() -> ShippingStatusResponse:
+    enabled = postex_enabled()
+    mode = default_shipping_payment_mode() if enabled else None
     return ShippingStatusResponse(
-        enabled=postex_enabled(),
+        enabled=enabled,
         quote_ttl_seconds=settings.POSTEX_QUOTE_TTL_SECONDS,
+        shipping_payment_mode=mode.value if mode else None,
+        checkout_quote_required=bool(
+            enabled and mode == ShippingPaymentMode.SENDER_PREPAID
+        ),
+        booking_enabled=postex_booking_enabled(),
     )
 
 
@@ -237,6 +272,145 @@ async def list_order_shipments(
 
 
 @router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/final-package",
+    tags=["Admin Shipping"],
+)
+async def admin_set_final_package(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentFinalPackageRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Record sealed outbound parcel measurements. No Postex HTTP."""
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await set_final_package(
+            db,
+            order=order,
+            shipment=shipment,
+            length_cm=payload.length_cm,
+            width_cm=payload.width_cm,
+            height_cm=payload.height_cm,
+            weight_grams=payload.weight_grams,
+            is_fragile=payload.is_fragile,
+            is_liquid=payload.is_liquid,
+            actor_user_id=current_user.id,
+        )
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/packed-quote",
+    tags=["Admin Shipping"],
+)
+async def admin_packed_quote(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    """Quote Postex for a measured receiver_due parcel (payment_type=RECEIVER)."""
+    if not postex_enabled():
+        raise api_error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            error_code=ErrorCode.SHIPPING_UNAVAILABLE,
+            message="ارسال پستی فعال نیست.",
+        )
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        result = await quote_packed_shipment(db, order=order, shipment=shipment)
+    except ShippingFreightRequiredError as exc:
+        # Durable freight_required before returning the user-facing error.
+        await db.commit()
+        _raise_logistics(exc)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    return result
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/select-service",
+    tags=["Admin Shipping"],
+)
+async def admin_select_packed_service(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentSelectServiceRequest,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await select_packed_service(
+            db,
+            order=order,
+            shipment=shipment,
+            carrier_code=payload.carrier_code,
+            service_code=payload.service_code,
+        )
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/schedule-booking",
+    tags=["Admin Shipping"],
+)
+async def admin_schedule_receiver_booking(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    """Mark receiver_due shipment ready_to_book (not worker-claimable)."""
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await schedule_receiver_booking(db, order=order, shipment=shipment)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
     "/orders/{order_id}/shipments/{shipment_id}/book",
     tags=["Admin Shipping"],
 )
@@ -246,13 +420,62 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    try:
+        require_postex_booking_enabled()
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="این مرسوله قابل رزرو مجدد نیست.",
         )
+    if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+            message="ابتدا بسته‌بندی، نرخ‌گیری و آماده‌سازی ثبت را تکمیل کنید.",
+        )
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    if shipment_payment_mode(shipment, order) == ShippingPaymentMode.RECEIVER_DUE:
+        if shipment.status != ShipmentStatus.READY_TO_BOOK.value and shipment.status not in {
+            ShipmentStatus.ERROR.value,
+            ShipmentStatus.CREATION_UNCERTAIN.value,
+            ShipmentStatus.PENDING_BOOKING.value,
+            ShipmentStatus.BOOKING.value,
+        }:
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+                message="مرسوله پس‌کرایه باید در وضعیت آماده ثبت باشد.",
+            )
+        if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+            missing = receiver_due_booking_ready(shipment)
+            if missing:
+                raise api_error(
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    error_code=ErrorCode.SHIPPING_DATA_INCOMPLETE,
+                    message="پیش‌نیاز ثبت مرسوله ناقص است.",
+                    details=[{"field": "missing", "message": str(missing)}],
+                )
+            packed = (shipment.provider_data or {}).get("packed_quote") or {}
+            if packed.get("package_fingerprint") != package_quote_fingerprint(shipment, order):
+                raise api_error(
+                    status.HTTP_409_CONFLICT,
+                    error_code=ErrorCode.SHIPPING_QUOTE_STALE,
+                    message="نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد.",
+                )
+            # Explicit book only: do not set booking_next_attempt_at for worker claim.
+            shipment.status = ShipmentStatus.PENDING_BOOKING.value
+            shipment.booking_next_attempt_at = None
+            await db.flush()
     await book_shipment(db, shipment.id)
     await db.commit()
     await db.refresh(shipment, ["events"])
@@ -269,6 +492,10 @@ async def admin_mark_ready(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    try:
+        require_postex_booking_enabled()
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if not shipment.provider_parcel_no:
         raise api_error(
@@ -374,6 +601,10 @@ async def admin_edit_shipment(
 ):
     from app.services.logistics.service import build_parcel_update_request
 
+    try:
+        require_postex_booking_enabled()
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     shipment = await _shipment_or_raise(db, order_id, shipment_id)
     if shipment.status not in _EDITABLE_STATUSES:
         raise api_error(
@@ -465,6 +696,8 @@ async def admin_cancel_shipment(
             ) from exc
         _raise_logistics(exc)
     except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    except LogisticsError as exc:
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])

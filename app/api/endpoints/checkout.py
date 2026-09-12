@@ -141,6 +141,7 @@ async def checkout(
         if code == "SHIPPING_UNAVAILABLE":
             http_status = status.HTTP_503_SERVICE_UNAVAILABLE
         elif code in {
+            "SHIPPING_DESTINATION_INVALID",
             "SHIPPING_QUOTE_EXPIRED",
             "SHIPPING_QUOTE_MISMATCH",
             "SHIPPING_QUOTE_CONSUMED",

@@ -103,6 +103,7 @@ def _to_detail(order: Order) -> OrderDetailResponse:
         postal_tracking_code=order.postal_tracking_code,
         delivery_eta=order.delivery_eta,
         shipping_provider=order.shipping_provider,
+        shipping_payment_mode=order.shipping_payment_mode,
         shipping_customer_cost=decimal_to_api_string(order.shipping_customer_cost),
         shipping_provider_quoted_cost=decimal_to_api_string(order.shipping_provider_quoted_cost),
         shipping_carrier_code=order.shipping_carrier_code,
@@ -169,6 +170,7 @@ async def track_order(tracking_code: str, request: Request, db: AsyncSession = D
         status=order.status,
         status_label=status_label(order.status),
         created_at=order.created_at,
+        shipping_payment_mode=order.shipping_payment_mode,
         items=[
             OrderTrackingItemResponse(
                 product_id=item.product_id,

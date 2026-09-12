@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import secrets
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -21,6 +22,10 @@ from app.db.models.product import Product
 from app.services.logistics.exceptions import (
     LogisticsError,
     ShipmentNotFoundError,
+    ShipmentStateError,
+    ShippingDataIncompleteError,
+    ShippingDestinationInvalidError,
+    ShippingFreightRequiredError,
     ShippingQuoteConsumedError,
     ShippingQuoteExpiredError,
     ShippingQuoteMismatchError,
@@ -34,6 +39,7 @@ from app.services.logistics.fingerprints import (
 )
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
+    RECEIVER_PRE_CREATE_MUTABLE_STATUSES,
     SHIPMENT_STATUS_LABELS_FA,
     Destination,
     OriginAddress,
@@ -41,9 +47,15 @@ from app.services.logistics.models import (
     ShipmentStatus,
 )
 from app.services.logistics.money import toman_to_irr
-from app.services.logistics.package_builder import build_package
+from app.services.logistics.package_builder import build_package, select_box
 from app.services.logistics.postex.provider import PostexProvider
 from app.services.logistics.redaction import redact_secrets
+from app.services.logistics.shipping_payment import (
+    ShippingPaymentMode,
+    default_shipping_payment_mode,
+    postex_booking_enabled,
+    postex_payment_type_for_mode,
+)
 from app.services.logistics.status_mapper import can_advance, map_provider_status
 from app.utils.decimal_utils import to_decimal as _to_decimal
 
@@ -65,6 +77,50 @@ def as_utc(value: datetime) -> datetime:
 
 def postex_enabled() -> bool:
     return bool(settings.POSTEX_ENABLED)
+
+
+def _postex_payment_type_for_quote() -> str:
+    return postex_payment_type_for_mode(default_shipping_payment_mode())
+
+
+def require_postex_booking_enabled() -> None:
+    if not postex_booking_enabled():
+        raise LogisticsError(
+            "ثبت مرسوله پستکس غیرفعال است.",
+            error_code="SHIPPING_BOOKING_DISABLED",
+        )
+
+
+def shipment_payment_mode(shipment: Shipment, order: Order | None = None) -> ShippingPaymentMode:
+    raw = (shipment.shipping_payment_mode or (order.shipping_payment_mode if order else None) or "").strip()
+    if raw:
+        return ShippingPaymentMode(raw)
+    # Legacy rows without snapshot: treat as sender_prepaid (historical SENDER-only).
+    return ShippingPaymentMode.SENDER_PREPAID
+
+
+def receiver_due_booking_ready(shipment: Shipment) -> list[str]:
+    """Return missing prerequisite codes for receiver_due PENDING_BOOKING."""
+    missing: list[str] = []
+    if shipment.package_length_cm is None or shipment.package_length_cm <= 0:
+        missing.append("package_length_cm")
+    if shipment.package_width_cm is None or shipment.package_width_cm <= 0:
+        missing.append("package_width_cm")
+    if shipment.package_height_cm is None or shipment.package_height_cm <= 0:
+        missing.append("package_height_cm")
+    if shipment.package_weight_grams is None or shipment.package_weight_grams <= 0:
+        missing.append("package_weight_grams")
+    if shipment.package_is_fragile is None:
+        missing.append("package_is_fragile")
+    if shipment.package_is_liquid is None:
+        missing.append("package_is_liquid")
+    if not (shipment.carrier_code or "").strip():
+        missing.append("carrier_code")
+    if not (shipment.service_code or "").strip():
+        missing.append("service_code")
+    if shipment.provider_box_type_id is None:
+        missing.append("provider_box_type_id")
+    return missing
 
 
 def origin_from_settings() -> OriginAddress:
@@ -160,6 +216,28 @@ def clear_reference_caches() -> None:
     _box_cache = None
 
 
+async def validate_postex_destination_location_code(location_code: int) -> None:
+    """Fail closed unless location_code exists in cached Postex city references.
+
+    Free-text city/province names do not make an unknown code valid.
+    """
+    if int(location_code) < 1:
+        raise ShippingDestinationInvalidError("کد شهر مقصد نامعتبر است.")
+    if not postex_enabled():
+        return
+    provider = get_provider()
+    try:
+        cities = await _cached_cities(provider)
+    except Exception as exc:
+        logger.exception("postex city reference lookup failed during destination validation")
+        raise ShippingDestinationInvalidError(
+            "سرویس تأیید شهر مقصد در دسترس نیست."
+        ) from exc
+    known = {int(city.code) for city in cities}
+    if int(location_code) not in known:
+        raise ShippingDestinationInvalidError("کد شهر مقصد در فهرست پستکس یافت نشد.")
+
+
 async def list_public_cities() -> list[dict[str, Any]]:
     if not postex_enabled():
         return []
@@ -221,7 +299,7 @@ async def create_quote(
             destination=destination,
             package=package,
             declared_value_irr=declared_irr,
-            payment_type=settings.POSTEX_DEFAULT_PAYMENT_TYPE,
+            payment_type=_postex_payment_type_for_quote(),
             collection_type=settings.POSTEX_COLLECTION_TYPE,
         )
         _note_success("quotes")
@@ -385,6 +463,8 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
     )
     if existing:
         return existing
+    mode_raw = (order.shipping_payment_mode or "").strip()
+    mode = ShippingPaymentMode(mode_raw) if mode_raw else ShippingPaymentMode.SENDER_PREPAID
     snapshot = {}
     quote_service_name = None
     if order.shipping_quote_id:
@@ -399,12 +479,51 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         )
         snapshot = (quote.package_snapshot if quote else {}) or {}
         quote_service_name = quote.service_name if quote else None
+
+    if mode == ShippingPaymentMode.RECEIVER_DUE:
+        shipment = Shipment(
+            public_id=str(uuid4()),
+            order_id=order.id,
+            quote_id=None,
+            provider=order.shipping_provider or PROVIDER_POSTEX,
+            status=ShipmentStatus.AWAITING_PACKAGING.value,
+            shipping_payment_mode=mode.value,
+            carrier_code=None,
+            service_code=None,
+            service_name=None,
+            provider_quoted_cost=None,
+            customer_shipping_cost=None,
+            package_length_cm=None,
+            package_width_cm=None,
+            package_height_cm=None,
+            package_weight_grams=None,
+            package_is_fragile=None,
+            package_is_liquid=None,
+            declared_value_irr=None,
+            booking_next_attempt_at=None,
+            provider_data={"payment_mode": mode.value},
+        )
+        db.add(shipment)
+        await db.flush()
+        await _append_event(
+            db,
+            shipment,
+            status=ShipmentStatus.AWAITING_PACKAGING.value,
+            description="پرداخت سفارش تأیید شد؛ مرسوله در انتظار بسته‌بندی و اندازه‌گیری است",
+            provider_status=None,
+            provider_code=None,
+            occurred_at=datetime.now(UTC),
+            payload={"order_id": order.id, "shipping_payment_mode": mode.value},
+        )
+        return shipment
+
     shipment = Shipment(
         public_id=str(uuid4()),
         order_id=order.id,
         quote_id=order.shipping_quote_id,
         provider=order.shipping_provider or PROVIDER_POSTEX,
         status=ShipmentStatus.PENDING_BOOKING.value,
+        shipping_payment_mode=mode.value,
         carrier_code=order.shipping_carrier_code,
         service_code=order.shipping_service_code,
         service_name=quote_service_name,
@@ -414,11 +533,14 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         package_width_cm=snapshot.get("width_cm"),
         package_height_cm=snapshot.get("height_cm"),
         package_weight_grams=snapshot.get("weight_grams"),
+        package_is_fragile=snapshot.get("is_fragile"),
+        package_is_liquid=snapshot.get("is_liquid"),
+        provider_box_type_id=snapshot.get("box_type_id"),
         declared_value_irr=Decimal(str(snapshot["declared_value_irr"]))
         if snapshot.get("declared_value_irr")
         else None,
         booking_next_attempt_at=datetime.now(UTC),
-        provider_data={"package": snapshot},
+        provider_data={"package": snapshot, "payment_mode": mode.value},
     )
     db.add(shipment)
     await db.flush()
@@ -430,7 +552,7 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         provider_status=None,
         provider_code=None,
         occurred_at=datetime.now(UTC),
-        payload={"order_id": order.id},
+        payload={"order_id": order.id, "shipping_payment_mode": mode.value},
     )
     return shipment
 
@@ -449,9 +571,50 @@ def _contact_from_order(order: Order) -> dict[str, str]:
 
 
 def build_parcel_create_request(order: Order, shipment: Shipment) -> dict[str, Any]:
+    missing = []
+    if shipment.package_length_cm is None or shipment.package_length_cm <= 0:
+        missing.append("package_length_cm")
+    if shipment.package_width_cm is None or shipment.package_width_cm <= 0:
+        missing.append("package_width_cm")
+    if shipment.package_height_cm is None or shipment.package_height_cm <= 0:
+        missing.append("package_height_cm")
+    if shipment.package_weight_grams is None or shipment.package_weight_grams <= 0:
+        missing.append("package_weight_grams")
+    if not (shipment.carrier_code or "").strip():
+        missing.append("carrier_code")
+    if not (shipment.service_code or "").strip():
+        missing.append("service_code")
+    box_type_id = shipment.provider_box_type_id or (shipment.provider_data or {}).get(
+        "package", {}
+    ).get("box_type_id")
+    if box_type_id is None:
+        missing.append("box_type_id")
+    mode = shipment_payment_mode(shipment, order)
+    # receiver_due requires explicit hazard booleans (admin final package).
+    # sender_prepaid may inherit from quote package snapshot (legacy bool()).
+    if mode == ShippingPaymentMode.RECEIVER_DUE:
+        if shipment.package_is_fragile is None and (shipment.provider_data or {}).get(
+            "package", {}
+        ).get("is_fragile") is None:
+            missing.append("is_fragile")
+        if shipment.package_is_liquid is None and (shipment.provider_data or {}).get(
+            "package", {}
+        ).get("is_liquid") is None:
+            missing.append("is_liquid")
+    if missing:
+        raise ShippingDataIncompleteError(
+            "اطلاعات بسته‌بندی مرسوله ناقص است.",
+            products=[{"shipment_id": shipment.id, "missing": missing}],
+        )
+
     origin = origin_from_settings()
     shipping = order.shipping or {}
     city_id = int(shipping.get("location_code") or shipping.get("city_id") or 0)
+    if city_id <= 0:
+        raise ShippingDataIncompleteError(
+            "کد شهر مقصد نامعتبر است.",
+            products=[{"missing": ["location_code"]}],
+        )
     dest_contact = _contact_from_order(order)
     items = []
     for item in order.items:
@@ -463,14 +626,25 @@ def build_parcel_create_request(order: Order, shipment: Shipment) -> dict[str, A
                 "price": int(toman_to_irr(item.unit_price or 0)),
             }
         )
+    pkg = (shipment.provider_data or {}).get("package") or {}
+    is_fragile = (
+        shipment.package_is_fragile
+        if shipment.package_is_fragile is not None
+        else bool(pkg.get("is_fragile"))
+    )
+    is_liquid = (
+        shipment.package_is_liquid
+        if shipment.package_is_liquid is not None
+        else bool(pkg.get("is_liquid"))
+    )
     parcel_properties = {
         "length": shipment.package_length_cm,
         "width": shipment.package_width_cm,
         "height": shipment.package_height_cm,
         "total_weight": shipment.package_weight_grams,
-        "box_type_id": (shipment.provider_data or {}).get("package", {}).get("box_type_id"),
-        "is_fragile": bool((shipment.provider_data or {}).get("package", {}).get("is_fragile")),
-        "is_liquid": bool((shipment.provider_data or {}).get("package", {}).get("is_liquid")),
+        "box_type_id": box_type_id,
+        "is_fragile": bool(is_fragile),
+        "is_liquid": bool(is_liquid),
         "total_value": int(shipment.declared_value_irr or 0),
         "total_value_currency": "IRR",
     }
@@ -510,7 +684,7 @@ def build_parcel_create_request(order: Order, shipment: Shipment) -> dict[str, A
                 "courier": {
                     "name": shipment.carrier_code or "",
                     "service_type": shipment.service_code or "",
-                    "payment_type": settings.POSTEX_DEFAULT_PAYMENT_TYPE,
+                    "payment_type": postex_payment_type_for_mode(mode),
                 },
                 "custom_order_no": shipment.public_id,
                 "custom_reference_no": order.tracking_code,
@@ -702,6 +876,7 @@ def public_shipment_view(shipment: Shipment) -> dict[str, Any]:
         "id": shipment.public_id,
         "status": shipment.status,
         "status_label": SHIPMENT_STATUS_LABELS_FA.get(shipment.status, shipment.status),
+        "shipping_payment_mode": shipment.shipping_payment_mode,
         "carrier_code": shipment.carrier_code,
         "service_code": shipment.service_code,
         "service_name": shipment.service_name,
@@ -729,11 +904,16 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
             "provider": shipment.provider,
             "provider_parcel_no": shipment.provider_parcel_no,
             "quote_id": shipment.quote_id,
+            "shipping_payment_mode": shipment.shipping_payment_mode,
             "package": {
                 "length_cm": shipment.package_length_cm,
                 "width_cm": shipment.package_width_cm,
                 "height_cm": shipment.package_height_cm,
                 "weight_grams": shipment.package_weight_grams,
+                "is_fragile": shipment.package_is_fragile,
+                "is_liquid": shipment.package_is_liquid,
+                "measured_at": shipment.package_measured_at,
+                "provider_box_type_id": shipment.provider_box_type_id,
             },
             "customer_shipping_cost": str(shipment.customer_shipping_cost)
             if shipment.customer_shipping_cost is not None
@@ -741,6 +921,7 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
             "provider_quoted_cost": str(shipment.provider_quoted_cost)
             if shipment.provider_quoted_cost is not None
             else None,
+            "provider_quoted_at": shipment.provider_quoted_at,
             "provider_actual_cost": str(shipment.provider_actual_cost)
             if shipment.provider_actual_cost is not None
             else None,
@@ -753,6 +934,389 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
         }
     )
     return view
+
+
+def package_quote_fingerprint(shipment: Shipment, order: Order) -> str:
+    """Deterministic fingerprint of measured parcel + destination for quote binding."""
+    shipping = order.shipping or {}
+    payload = {
+        "length_cm": shipment.package_length_cm,
+        "width_cm": shipment.package_width_cm,
+        "height_cm": shipment.package_height_cm,
+        "weight_grams": shipment.package_weight_grams,
+        "is_fragile": shipment.package_is_fragile,
+        "is_liquid": shipment.package_is_liquid,
+        "location_code": int(shipping.get("location_code") or 0),
+    }
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def clear_packed_quote_evidence(shipment: Shipment) -> None:
+    """Invalidate quote/service/box evidence after package measurement change."""
+    shipment.provider_box_type_id = None
+    shipment.provider_quoted_at = None
+    shipment.provider_quoted_cost = None
+    shipment.carrier_code = None
+    shipment.service_code = None
+    shipment.service_name = None
+    data = dict(shipment.provider_data or {})
+    data.pop("packed_quote", None)
+    pkg = dict(data.get("package") or {})
+    for key in ("box_type_id", "box_name", "quote_fingerprint"):
+        pkg.pop(key, None)
+    data["package"] = pkg
+    shipment.provider_data = data
+
+
+def _require_receiver_pre_create(shipment: Shipment) -> None:
+    if create_attempt_started_safe(shipment):
+        raise ShipmentStateError("پس از شروع ثبت مرسوله، تغییر بسته/نرخ مجاز نیست.")
+    if shipment.status not in {s.value for s in RECEIVER_PRE_CREATE_MUTABLE_STATUSES}:
+        raise ShipmentStateError("وضعیت مرسوله برای این عملیات مناسب نیست.")
+
+
+async def set_final_package(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+    length_cm: int,
+    width_cm: int,
+    height_cm: int,
+    weight_grams: int,
+    is_fragile: bool,
+    is_liquid: bool,
+    actor_user_id: int | None = None,
+) -> Shipment:
+    """Admin measures the sealed outbound parcel. No Postex HTTP."""
+    if shipment.status not in {
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.READY_TO_BOOK.value,
+        ShipmentStatus.FREIGHT_REQUIRED.value,
+    }:
+        raise ShipmentStateError("ثبت بسته فقط پیش از ایجاد مرسوله پستکس مجاز است.")
+    if create_attempt_started_safe(shipment):
+        raise ShipmentStateError("مرسوله پس از شروع ثبت قابل اندازه‌گیری مجدد نیست.")
+    for label, value in (
+        ("length_cm", length_cm),
+        ("width_cm", width_cm),
+        ("height_cm", height_cm),
+        ("weight_grams", weight_grams),
+    ):
+        if value is None or int(value) <= 0:
+            raise LogisticsError(
+                f"{label} باید بزرگ‌تر از صفر باشد.",
+                error_code="VALIDATION_FAILED",
+            )
+
+    clear_packed_quote_evidence(shipment)
+    shipment.status = ShipmentStatus.AWAITING_PACKAGING.value
+    shipment.booking_next_attempt_at = None
+    shipment.package_length_cm = int(length_cm)
+    shipment.package_width_cm = int(width_cm)
+    shipment.package_height_cm = int(height_cm)
+    shipment.package_weight_grams = int(weight_grams)
+    shipment.package_is_fragile = bool(is_fragile)
+    shipment.package_is_liquid = bool(is_liquid)
+    shipment.package_measured_at = datetime.now(UTC)
+    # Declared merchandise value from order items (IRR).
+    declared = Decimal("0")
+    for item in order.items:
+        if item.unit_price is not None:
+            declared += toman_to_irr(_to_decimal(item.unit_price) * item.quantity)
+    shipment.declared_value_irr = declared
+    data = dict(shipment.provider_data or {})
+    data["package"] = {
+        "length_cm": shipment.package_length_cm,
+        "width_cm": shipment.package_width_cm,
+        "height_cm": shipment.package_height_cm,
+        "weight_grams": shipment.package_weight_grams,
+        "is_fragile": shipment.package_is_fragile,
+        "is_liquid": shipment.package_is_liquid,
+        "measured_at": shipment.package_measured_at.isoformat(),
+        "actor_user_id": actor_user_id,
+    }
+    shipment.provider_data = data
+    await db.flush()
+    await _append_event(
+        db,
+        shipment,
+        status=shipment.status,
+        description="ابعاد و وزن نهایی مرسوله ثبت شد",
+        provider_status=None,
+        provider_code=None,
+        occurred_at=datetime.now(UTC),
+        payload=data["package"],
+    )
+    return shipment
+
+
+def create_attempt_started_safe(shipment: Shipment) -> bool:
+    if (shipment.provider_parcel_no or "").strip():
+        return True
+    if shipment.status in {
+        ShipmentStatus.BOOKING.value,
+        ShipmentStatus.CREATION_UNCERTAIN.value,
+        ShipmentStatus.BOOKED.value,
+    }:
+        return True
+    data = shipment.provider_data or {}
+    if data.get("create_attempted"):
+        return True
+    return int(shipment.booking_attempts or 0) > 0
+
+
+async def quote_packed_shipment(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+) -> dict[str, Any]:
+    """Quote Postex for a measured final parcel (RECEIVER payment_type). No create."""
+    if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
+        raise LogisticsError(
+            "نرخ‌گیری بسته‌بندی‌شده فقط برای پس‌کرایه است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    _require_receiver_pre_create(shipment)
+    missing_dims: list[str] = []
+    if shipment.package_length_cm is None or shipment.package_length_cm <= 0:
+        missing_dims.append("package_length_cm")
+    if shipment.package_width_cm is None or shipment.package_width_cm <= 0:
+        missing_dims.append("package_width_cm")
+    if shipment.package_height_cm is None or shipment.package_height_cm <= 0:
+        missing_dims.append("package_height_cm")
+    if shipment.package_weight_grams is None or shipment.package_weight_grams <= 0:
+        missing_dims.append("package_weight_grams")
+    if shipment.package_is_fragile is None:
+        missing_dims.append("package_is_fragile")
+    if shipment.package_is_liquid is None:
+        missing_dims.append("package_is_liquid")
+    if missing_dims:
+        raise ShippingDataIncompleteError(
+            "اطلاعات بسته‌بندی مرسوله ناقص است.",
+            products=[{"shipment_id": shipment.id, "missing": missing_dims}],
+        )
+
+    shipping = order.shipping or {}
+    city_id = int(shipping.get("location_code") or 0)
+    await validate_postex_destination_location_code(city_id)
+
+    from app.services.logistics.models import PackageSpec
+
+    package = PackageSpec(
+        length_cm=int(shipment.package_length_cm),
+        width_cm=int(shipment.package_width_cm),
+        height_cm=int(shipment.package_height_cm),
+        weight_grams=int(shipment.package_weight_grams),
+        is_fragile=bool(shipment.package_is_fragile),
+        is_liquid=bool(shipment.package_is_liquid),
+    )
+    provider = get_provider()
+    boxes = await _cached_boxes(provider)
+    try:
+        fitted = select_box(package, boxes)
+    except ShippingFreightRequiredError:
+        # Persist before the API layer commits and returns freight-required.
+        shipment.status = ShipmentStatus.FREIGHT_REQUIRED.value
+        shipment.booking_next_attempt_at = None
+        clear_packed_quote_evidence(shipment)
+        await db.flush()
+        raise
+
+    destination = Destination(
+        location_code=city_id,
+        city_name=shipping.get("city"),
+        province_name=shipping.get("province"),
+        postal_code=shipping.get("postal_code"),
+    )
+    quote = await provider.quote(
+        origin=origin_from_settings(),
+        destination=destination,
+        package=fitted,
+        declared_value_irr=shipment.declared_value_irr or Decimal("0"),
+        payment_type=postex_payment_type_for_mode(ShippingPaymentMode.RECEIVER_DUE),
+        collection_type=settings.POSTEX_COLLECTION_TYPE,
+    )
+    fingerprint = package_quote_fingerprint(shipment, order)
+    # New quote invalidates prior service selection.
+    shipment.carrier_code = None
+    shipment.service_code = None
+    shipment.service_name = None
+    shipment.provider_box_type_id = fitted.box_type_id
+    shipment.provider_quoted_at = datetime.now(UTC)
+    # Audit only — does not change order.estimated_total / SEP.
+    if quote.options:
+        from app.services.logistics.money import provider_total_toman
+
+        first = quote.options[0]
+        shipment.provider_quoted_cost = provider_total_toman(
+            provider_amount_toman=first.provider_amount_toman,
+            pickup_amount_toman=first.pickup_amount_toman,
+        )
+    data = dict(shipment.provider_data or {})
+    data["packed_quote"] = {
+        "quoted_at": shipment.provider_quoted_at.isoformat(),
+        "box_type_id": fitted.box_type_id,
+        "package_fingerprint": fingerprint,
+        "options": [
+            {
+                "carrier_code": o.carrier_code,
+                "service_code": o.service_code,
+                "service_name": o.service_name,
+                "customer_amount_toman": str(o.customer_amount_toman),
+                "provider_amount_toman": str(o.provider_amount_toman),
+                "pickup_amount_toman": str(o.pickup_amount_toman)
+                if o.pickup_amount_toman is not None
+                else None,
+            }
+            for o in quote.options
+        ],
+    }
+    data["package"] = {
+        **(data.get("package") or {}),
+        "box_type_id": fitted.box_type_id,
+        "box_name": fitted.box_name,
+        "quote_fingerprint": fingerprint,
+        # Keep measured dims (do not overwrite with box dims).
+        "length_cm": package.length_cm,
+        "width_cm": package.width_cm,
+        "height_cm": package.height_cm,
+        "weight_grams": package.weight_grams,
+        "is_fragile": package.is_fragile,
+        "is_liquid": package.is_liquid,
+    }
+    shipment.provider_data = data
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+        shipment.status = ShipmentStatus.AWAITING_PACKAGING.value
+        shipment.booking_next_attempt_at = None
+    await db.flush()
+    return {
+        "shipment": admin_shipment_view(shipment),
+        "options": data["packed_quote"]["options"],
+        "package_fingerprint": fingerprint,
+        "order_estimated_total_unchanged": str(order.estimated_total)
+        if order.estimated_total is not None
+        else None,
+    }
+
+
+async def select_packed_service(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+    carrier_code: str,
+    service_code: str,
+) -> Shipment:
+    if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
+        raise LogisticsError(
+            "انتخاب سرویس بسته‌بندی‌شده فقط برای پس‌کرایه است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    _require_receiver_pre_create(shipment)
+    packed = (shipment.provider_data or {}).get("packed_quote") or {}
+    stored_fp = packed.get("package_fingerprint")
+    current_fp = package_quote_fingerprint(shipment, order)
+    if not stored_fp or stored_fp != current_fp:
+        raise LogisticsError(
+            "نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد؛ دوباره نرخ بگیرید.",
+            error_code="SHIPPING_QUOTE_STALE",
+        )
+    options = packed.get("options") or []
+    match = next(
+        (
+            o
+            for o in options
+            if o.get("carrier_code") == carrier_code and o.get("service_code") == service_code
+        ),
+        None,
+    )
+    if match is None:
+        raise LogisticsError("سرویس انتخاب‌شده در نرخ‌گیری یافت نشد.", error_code="VALIDATION_FAILED")
+    shipment.carrier_code = carrier_code
+    shipment.service_code = service_code
+    shipment.service_name = match.get("service_name")
+    if match.get("provider_amount_toman") is not None:
+        from decimal import Decimal as D
+
+        from app.services.logistics.money import provider_total_toman
+
+        pickup = match.get("pickup_amount_toman")
+        shipment.provider_quoted_cost = provider_total_toman(
+            provider_amount_toman=D(str(match["provider_amount_toman"])),
+            pickup_amount_toman=D(str(pickup)) if pickup is not None else None,
+        )
+    await db.flush()
+    await _append_event(
+        db,
+        shipment,
+        status=shipment.status,
+        description=f"سرویس {carrier_code}/{service_code} انتخاب شد",
+        provider_status=None,
+        provider_code=None,
+        occurred_at=datetime.now(UTC),
+        payload={
+            "carrier_code": carrier_code,
+            "service_code": service_code,
+            "package_fingerprint": current_fp,
+        },
+    )
+    return shipment
+
+
+async def schedule_receiver_booking(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+) -> Shipment:
+    """Mark receiver_due shipment ready_to_book. Worker must NOT claim this status."""
+    if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
+        raise LogisticsError(
+            "آماده‌سازی رزرو پس‌کرایه فقط برای receiver_due است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    _require_receiver_pre_create(shipment)
+    shipping = order.shipping or {}
+    if not int(shipping.get("location_code") or 0):
+        raise ShippingDataIncompleteError(
+            "کد شهر مقصد الزامی است.",
+            products=[{"missing": ["location_code"]}],
+        )
+    packed = (shipment.provider_data or {}).get("packed_quote") or {}
+    stored_fp = packed.get("package_fingerprint")
+    current_fp = package_quote_fingerprint(shipment, order)
+    if not stored_fp or stored_fp != current_fp:
+        raise LogisticsError(
+            "نرخ ذخیره‌شده با بسته/مقصد فعلی هم‌خوانی ندارد؛ دوباره نرخ بگیرید.",
+            error_code="SHIPPING_QUOTE_STALE",
+        )
+    missing = receiver_due_booking_ready(shipment)
+    if missing:
+        raise ShippingDataIncompleteError(
+            "پیش‌نیاز رزرو ناقص است.",
+            products=[{"missing": missing}],
+        )
+    shipment.status = ShipmentStatus.READY_TO_BOOK.value
+    # Explicit admin /book only — never queue for the background worker.
+    shipment.booking_next_attempt_at = None
+    await db.flush()
+    await _append_event(
+        db,
+        shipment,
+        status=ShipmentStatus.READY_TO_BOOK.value,
+        description="مرسوله آماده ثبت صریح در پستکس است",
+        provider_status=None,
+        provider_code=None,
+        occurred_at=datetime.now(UTC),
+        payload={
+            "shipping_payment_mode": ShippingPaymentMode.RECEIVER_DUE.value,
+            "package_fingerprint": current_fp,
+        },
+    )
+    return shipment
 
 
 async def get_shipment_for_order(

@@ -43,6 +43,7 @@ async def create_order(
     shipping_provider_quoted_cost: Decimal | None = None,
     shipping_carrier_code: str | None = None,
     shipping_service_code: str | None = None,
+    shipping_payment_mode: str | None = None,
 ) -> Order:
     tracking_code = await generate_unique_tracking_code(db, tracking_prefix)
     order = Order(
@@ -64,6 +65,7 @@ async def create_order(
         shipping_provider_quoted_cost=shipping_provider_quoted_cost,
         shipping_carrier_code=shipping_carrier_code,
         shipping_service_code=shipping_service_code,
+        shipping_payment_mode=shipping_payment_mode,
     )
     db.add(order)
     await db.flush()
