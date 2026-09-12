@@ -170,7 +170,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
+    on_main: false
     notes: >-
       Package logistics authority (UNKNOWN/READY/INCOMPLETE/INVALID/BLOCKED)
       independent of price and availability; aligns with Postex product fields.
@@ -181,7 +181,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
+    on_main: false
     notes: >-
       Plan-only INSIZE logistics pilot specification; no APPLY by itself.
 
