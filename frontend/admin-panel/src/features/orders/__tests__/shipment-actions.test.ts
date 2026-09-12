@@ -79,6 +79,26 @@ describe("shipmentActionAvailability", () => {
     expect(display.providerQuotedCost).toBe("17000.00");
   });
 
+  it("prefers shipment operational fields over stale order checkout snapshot", () => {
+    const display = receiverFulfillmentDisplay(
+      {
+        shipping_carrier_code: "STALE_CARRIER",
+        shipping_service_code: "STALE_SERVICE",
+        shipping_provider_quoted_cost: "1.00",
+      },
+      [
+        shipment({
+          carrier_code: "IR_POST",
+          service_code: "EXPRESS",
+          provider_quoted_cost: "17000.00",
+        }),
+      ],
+    );
+    expect(display.carrierCode).toBe("IR_POST");
+    expect(display.serviceCode).toBe("EXPRESS");
+    expect(display.providerQuotedCost).toBe("17000.00");
+  });
+
   it("keeps package forms conceptually per shipment via internal_id keys", () => {
     const a = shipment({ internal_id: 11, status: "awaiting_packaging" });
     const b = shipment({ internal_id: 22, status: "awaiting_packaging" });

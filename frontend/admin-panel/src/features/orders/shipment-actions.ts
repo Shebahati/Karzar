@@ -63,10 +63,10 @@ export function receiverFulfillmentDisplay(
 ) {
   const primary = shipments[0];
   return {
-    carrierCode: order.shipping_carrier_code ?? primary?.carrier_code ?? null,
-    serviceCode: order.shipping_service_code ?? primary?.service_code ?? null,
+    carrierCode: primary?.carrier_code ?? order.shipping_carrier_code ?? null,
+    serviceCode: primary?.service_code ?? order.shipping_service_code ?? null,
     providerQuotedCost:
-      order.shipping_provider_quoted_cost ?? primary?.provider_quoted_cost ?? null,
+      primary?.provider_quoted_cost ?? order.shipping_provider_quoted_cost ?? null,
   };
 }
 
