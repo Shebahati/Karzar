@@ -14,6 +14,7 @@ from app.core.logging import get_logger
 from app.db.models.commerce import Order
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import (
+    LogisticsError,
     ProviderConflictError,
     ProviderError,
     ProviderTimeoutError,
@@ -58,6 +59,15 @@ _CLAIMABLE_WITH_PARCEL = frozenset(
     }
 )
 
+_LOCAL_CANCEL_SAFE_STATUSES = frozenset(
+    {
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.READY_TO_BOOK.value,
+        ShipmentStatus.FREIGHT_REQUIRED.value,
+        ShipmentStatus.PENDING_BOOKING.value,
+    }
+)
+
 
 def create_attempt_started(shipment: Shipment) -> bool:
     """True when a Postex create may already have been sent or durably started."""
@@ -75,14 +85,14 @@ def create_attempt_started(shipment: Shipment) -> bool:
 
 
 def never_attempted_create(shipment: Shipment) -> bool:
-    """Local cancel is only safe when Karzar can prove no provider parcel can exist."""
+    """Local cancel is only safe when Karzar can prove no provider create was attempted."""
     if (shipment.provider_parcel_no or "").strip():
-        return False
-    if shipment.status != ShipmentStatus.PENDING_BOOKING.value:
         return False
     if int(shipment.booking_attempts or 0) > 0:
         return False
     if (shipment.provider_data or {}).get("create_attempted"):
+        return False
+    if shipment.status not in _LOCAL_CANCEL_SAFE_STATUSES:
         return False
     return True
 
@@ -504,6 +514,13 @@ async def request_shipment_cancellation(
         shipment.cancelled_at = datetime.now(UTC)
         await db.commit()
         return shipment
+
+    if not postex_booking_enabled():
+        await db.commit()
+        raise LogisticsError(
+            "ثبت مرسوله پستکس غیرفعال است.",
+            error_code="SHIPPING_BOOKING_DISABLED",
+        )
 
     public_id = shipment.public_id
     parcel_no = (shipment.provider_parcel_no or "").strip() or None

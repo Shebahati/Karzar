@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StepUpDialog } from "@/components/step-up-dialog";
 import {
   canSubmitFinalPackageHazards,
+  receiverFulfillmentDisplay,
   shipmentActionAvailability,
   type AdminShipment,
   type HazardChoice,
@@ -171,6 +172,13 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   }
 
   const receiverDue = order.shipping_payment_mode === "receiver_due";
+  const fulfillment = receiverDue
+    ? receiverFulfillmentDisplay(order, shipments)
+    : {
+        carrierCode: order.shipping_carrier_code ?? null,
+        serviceCode: order.shipping_service_code ?? null,
+        providerQuotedCost: order.shipping_provider_quoted_cost ?? null,
+      };
 
   function formFor(shipmentId: number): PackageFormState {
     return packageForms[shipmentId] ?? EMPTY_PACKAGE_FORM;
@@ -204,7 +212,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
           )}
           <p>
             <span className="text-muted-foreground">سرویس: </span>
-            {order.shipping_carrier_code ?? "—"} {order.shipping_service_code ?? ""}
+            {fulfillment.carrierCode ?? "—"} {fulfillment.serviceCode ?? ""}
           </p>
           <p>
             <span className="text-muted-foreground">هزینه مشتری: </span>
@@ -217,8 +225,8 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
               {receiverDue ? "کرایه برآوردی پستکس — پرداخت توسط گیرنده: " : "هزینه کل ارائه‌دهنده به کارزار: "}
             </span>
             <span className="tnum">
-              {order.shipping_provider_quoted_cost != null
-                ? formatToman(order.shipping_provider_quoted_cost)
+              {fulfillment.providerQuotedCost != null
+                ? formatToman(fulfillment.providerQuotedCost)
                 : "—"}
             </span>
           </p>

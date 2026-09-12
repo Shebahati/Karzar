@@ -36,6 +36,10 @@ class ShippingQuoteExpiredError(LogisticsError):
     error_code = "SHIPPING_QUOTE_EXPIRED"
 
 
+class ShippingDestinationInvalidError(LogisticsError):
+    error_code = "SHIPPING_DESTINATION_INVALID"
+
+
 class ShippingQuoteMismatchError(LogisticsError):
     error_code = "SHIPPING_QUOTE_MISMATCH"
 

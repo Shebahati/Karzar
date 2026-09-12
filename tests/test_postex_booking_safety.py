@@ -910,6 +910,87 @@ def test_admin_and_worker_race_creates_one_parcel(
     asyncio.run(body())
 
 
+@pytest.mark.parametrize(
+    "status",
+    [
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.READY_TO_BOOK.value,
+        ShipmentStatus.FREIGHT_REQUIRED.value,
+    ],
+)
+def test_local_pre_create_cancel_zero_provider_calls(
+    fake_provider, override_database, step_up_headers, status, monkeypatch,
+):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", False)
+    order_id, shipment_id, _ = _seed_order_shipment(status=status)
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "cancelled"
+    assert fake_provider.cancel_calls == 0
+    assert fake_provider.lookup_calls == 0
+    assert fake_provider.create_calls == 0
+
+    async def check():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            assert row.status == ShipmentStatus.CANCELLED.value
+            assert row.cancelled_at is not None
+
+    asyncio.run(check())
+
+
+def test_cancel_creation_uncertain_booking_disabled_blocked(
+    fake_provider, override_database, step_up_headers, monkeypatch,
+):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", False)
+    order_id, shipment_id, _ = _seed_order_shipment(
+        status=ShipmentStatus.CREATION_UNCERTAIN.value,
+        booking_attempts=1,
+        provider_data={"create_attempted": True},
+    )
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 503
+    assert res.json()["error_code"] == "SHIPPING_BOOKING_DISABLED"
+    assert fake_provider.cancel_calls == 0
+    assert fake_provider.lookup_calls == 0
+
+
+def test_cancel_booked_booking_disabled_blocked(
+    fake_provider, override_database, step_up_headers, monkeypatch,
+):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", False)
+    order_id, shipment_id, _ = _seed_order_shipment(
+        status=ShipmentStatus.BOOKED.value,
+        parcel_no="1001",
+    )
+    client = TestClient(app)
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/cancel",
+        json={"reason": "customer_request"},
+        headers=step_up_headers,
+    )
+    assert res.status_code == 503
+    assert res.json()["error_code"] == "SHIPPING_BOOKING_DISABLED"
+    assert fake_provider.cancel_calls == 0
+
+
 def test_cancel_never_attempted_is_local(fake_provider, override_database, step_up_headers):
     order_id, shipment_id, _ = _seed_order_shipment(status=ShipmentStatus.PENDING_BOOKING.value)
     client = TestClient(app)

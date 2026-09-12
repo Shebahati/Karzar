@@ -682,7 +682,6 @@ async def admin_cancel_shipment(
         )
     await _shipment_or_raise(db, order_id, shipment_id)
     try:
-        require_postex_booking_enabled()
         shipment = await request_shipment_cancellation(db, shipment_id, payload.reason)
     except ProviderError as exc:
         if getattr(exc, "http_status", None) in {400, 409, 422}:
@@ -693,6 +692,8 @@ async def admin_cancel_shipment(
             ) from exc
         _raise_logistics(exc)
     except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    except LogisticsError as exc:
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])

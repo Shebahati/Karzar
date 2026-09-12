@@ -16,6 +16,7 @@ from app.services.logistics.booking_worker import process_shipment_bookings
 from app.services.logistics.models import ShipmentStatus
 from app.services.logistics.service import (
     build_parcel_create_request,
+    clear_reference_caches,
     ensure_shipment_for_paid_order,
 )
 from app.services.logistics.shipping_payment import (
@@ -337,6 +338,123 @@ def test_receiver_checkout_needs_no_quote_or_product_logistics_and_excludes_ship
             assert order_amount_rials(order) == 1_100_000
 
     asyncio.run(check())
+
+
+def test_receiver_checkout_rejects_unknown_positive_location_code(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    product = _seed_product_without_logistics(
+        client,
+        super_admin_headers,
+        sku="RECEIVER-BAD-CODE",
+    )
+    payload = _purchase_payload(product["id"])
+    payload["shipping"]["location_code"] = 99
+    response = client.post(
+        "/api/v1/checkout",
+        json=payload,
+        headers={**customer_auth_headers(), "Idempotency-Key": "receiver-bad-code"},
+    )
+    assert response.status_code == 409
+    assert response.json()["error_code"] == "SHIPPING_DESTINATION_INVALID"
+    assert fake_provider.quote_requests == []
+    assert fake_provider.create_calls == 0
+
+
+def test_receiver_checkout_rejects_fake_city_text_with_invalid_code(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    product = _seed_product_without_logistics(
+        client,
+        super_admin_headers,
+        sku="RECEIVER-FAKE-CITY",
+    )
+    response = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(
+            product["id"],
+            shipping={
+                "province": "تهران",
+                "city": "تهران",
+                "postal_code": "1234567890",
+                "address_line": "خیابان آزادی پلاک ۱۲۳۴",
+                "location_code": 4242,
+            },
+        ),
+        headers={**customer_auth_headers(), "Idempotency-Key": "receiver-fake-city"},
+    )
+    assert response.status_code == 409
+    assert response.json()["error_code"] == "SHIPPING_DESTINATION_INVALID"
+
+
+def test_receiver_checkout_city_reference_lookup_failure_fails_closed(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+    monkeypatch,
+):
+    clear_reference_caches()
+
+    async def boom(_provider):
+        raise RuntimeError("city cache unavailable")
+
+    monkeypatch.setattr("app.services.logistics.service._cached_cities", boom)
+    client = TestClient(app)
+    product = _seed_product_without_logistics(
+        client,
+        super_admin_headers,
+        sku="RECEIVER-CITY-DOWN",
+    )
+    response = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"]),
+        headers={**customer_auth_headers(), "Idempotency-Key": "receiver-city-down"},
+    )
+    assert response.status_code == 409
+    assert response.json()["error_code"] == "SHIPPING_DESTINATION_INVALID"
+    assert fake_provider.create_calls == 0
+
+
+def test_packed_quote_rejects_missing_width_before_provider_http(
+    fake_provider,
+    override_database,
+    super_admin_headers,
+):
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client,
+        super_admin_headers,
+        key="packed-missing-width",
+        sku="PACKED-MISS-WIDTH",
+    )
+    order_id, shipment_id = _ensure_paid_receiver_shipment(checkout["order_id"])
+
+    async def set_partial_package() -> None:
+        async with TestingSessionLocal() as session:
+            shipment = await session.get(Shipment, shipment_id)
+            assert shipment is not None
+            shipment.package_length_cm = 10
+            shipment.package_width_cm = None
+            shipment.package_height_cm = 4
+            shipment.package_weight_grams = 250
+            shipment.package_is_fragile = False
+            shipment.package_is_liquid = False
+            await session.commit()
+
+    asyncio.run(set_partial_package())
+    quote = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/packed-quote",
+        headers=super_admin_headers,
+    )
+    assert quote.status_code == 422
+    assert quote.json()["error_code"] == "SHIPPING_DATA_INCOMPLETE"
+    assert fake_provider.quote_requests == []
 
 
 def test_receiver_checkout_requires_location_code_and_has_no_cod_path(

@@ -52,6 +52,24 @@ export function canSubmitFinalPackageHazards(
   return isFragile !== null && isLiquid !== null;
 }
 
+/** Operational carrier/service/quote for receiver_due live on Shipment, not Order checkout snapshot. */
+export function receiverFulfillmentDisplay(
+  order: {
+    shipping_carrier_code?: string | null;
+    shipping_service_code?: string | null;
+    shipping_provider_quoted_cost?: string | null;
+  },
+  shipments: AdminShipment[],
+) {
+  const primary = shipments[0];
+  return {
+    carrierCode: order.shipping_carrier_code ?? primary?.carrier_code ?? null,
+    serviceCode: order.shipping_service_code ?? primary?.service_code ?? null,
+    providerQuotedCost:
+      order.shipping_provider_quoted_cost ?? primary?.provider_quoted_cost ?? null,
+  };
+}
+
 export function shipmentActionAvailability(shipment: AdminShipment) {
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
@@ -97,8 +115,7 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     canCancel:
       !terminal &&
       shipment.status !== "returned" &&
-      shipment.status !== "cancellation_pending" &&
-      shipment.status !== "awaiting_packaging",
+      shipment.status !== "cancellation_pending",
     canRetrySafe: shipment.status === "error" && shipment.last_error_code !== "CREATION_UNCERTAIN",
   };
 }

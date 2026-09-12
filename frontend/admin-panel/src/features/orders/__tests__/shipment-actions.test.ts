@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canSubmitFinalPackageHazards,
+  receiverFulfillmentDisplay,
   shipmentActionAvailability,
   type AdminShipment,
 } from "@/features/orders/shipment-actions";
@@ -46,6 +47,36 @@ describe("shipmentActionAvailability", () => {
     expect(canSubmitFinalPackageHazards(true, null)).toBe(false);
     expect(canSubmitFinalPackageHazards(true, false)).toBe(true);
     expect(canSubmitFinalPackageHazards(false, false)).toBe(true);
+  });
+
+  it("allows cancel for pre-create receiver statuses", () => {
+    expect(shipmentActionAvailability(shipment({ status: "awaiting_packaging" })).canCancel).toBe(
+      true,
+    );
+    expect(shipmentActionAvailability(shipment({ status: "ready_to_book" })).canCancel).toBe(true);
+    expect(shipmentActionAvailability(shipment({ status: "freight_required" })).canCancel).toBe(
+      true,
+    );
+  });
+
+  it("uses shipment operational fields for receiver_due display fallback", () => {
+    const display = receiverFulfillmentDisplay(
+      {
+        shipping_carrier_code: null,
+        shipping_service_code: null,
+        shipping_provider_quoted_cost: null,
+      },
+      [
+        shipment({
+          carrier_code: "IR_POST",
+          service_code: "EXPRESS",
+          provider_quoted_cost: "17000.00",
+        }),
+      ],
+    );
+    expect(display.carrierCode).toBe("IR_POST");
+    expect(display.serviceCode).toBe("EXPRESS");
+    expect(display.providerQuotedCost).toBe("17000.00");
   });
 
   it("keeps package forms conceptually per shipment via internal_id keys", () => {

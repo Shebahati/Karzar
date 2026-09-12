@@ -24,6 +24,7 @@ from app.services.logistics.exceptions import (
     ShipmentNotFoundError,
     ShipmentStateError,
     ShippingDataIncompleteError,
+    ShippingDestinationInvalidError,
     ShippingFreightRequiredError,
     ShippingQuoteConsumedError,
     ShippingQuoteExpiredError,
@@ -213,6 +214,28 @@ def clear_reference_caches() -> None:
     global _city_cache, _box_cache
     _city_cache = None
     _box_cache = None
+
+
+async def validate_postex_destination_location_code(location_code: int) -> None:
+    """Fail closed unless location_code exists in cached Postex city references.
+
+    Free-text city/province names do not make an unknown code valid.
+    """
+    if int(location_code) < 1:
+        raise ShippingDestinationInvalidError("کد شهر مقصد نامعتبر است.")
+    if not postex_enabled():
+        return
+    provider = get_provider()
+    try:
+        cities = await _cached_cities(provider)
+    except Exception as exc:
+        logger.exception("postex city reference lookup failed during destination validation")
+        raise ShippingDestinationInvalidError(
+            "سرویس تأیید شهر مقصد در دسترس نیست."
+        ) from exc
+    known = {int(city.code) for city in cities}
+    if int(location_code) not in known:
+        raise ShippingDestinationInvalidError("کد شهر مقصد در فهرست پستکس یافت نشد.")
 
 
 async def list_public_cities() -> list[dict[str, Any]]:
@@ -1057,23 +1080,35 @@ async def quote_packed_shipment(
             error_code="SHIPMENT_STATE_INVALID",
         )
     _require_receiver_pre_create(shipment)
-    if shipment.package_length_cm is None or shipment.package_weight_grams is None:
+    missing_dims: list[str] = []
+    if shipment.package_length_cm is None or shipment.package_length_cm <= 0:
+        missing_dims.append("package_length_cm")
+    if shipment.package_width_cm is None or shipment.package_width_cm <= 0:
+        missing_dims.append("package_width_cm")
+    if shipment.package_height_cm is None or shipment.package_height_cm <= 0:
+        missing_dims.append("package_height_cm")
+    if shipment.package_weight_grams is None or shipment.package_weight_grams <= 0:
+        missing_dims.append("package_weight_grams")
+    if shipment.package_is_fragile is None:
+        missing_dims.append("package_is_fragile")
+    if shipment.package_is_liquid is None:
+        missing_dims.append("package_is_liquid")
+    if missing_dims:
         raise ShippingDataIncompleteError(
-            "ابتدا ابعاد و وزن نهایی را ثبت کنید.",
-            products=[{"shipment_id": shipment.id, "missing": ["final_package"]}],
+            "اطلاعات بسته‌بندی مرسوله ناقص است.",
+            products=[{"shipment_id": shipment.id, "missing": missing_dims}],
         )
-    if shipment.package_is_fragile is None or shipment.package_is_liquid is None:
-        raise ShippingDataIncompleteError(
-            "پرچم شکننده/مایع باید صریح باشد.",
-            products=[{"shipment_id": shipment.id, "missing": ["hazards"]}],
-        )
+
+    shipping = order.shipping or {}
+    city_id = int(shipping.get("location_code") or 0)
+    await validate_postex_destination_location_code(city_id)
 
     from app.services.logistics.models import PackageSpec
 
     package = PackageSpec(
         length_cm=int(shipment.package_length_cm),
-        width_cm=int(shipment.package_width_cm or 0),
-        height_cm=int(shipment.package_height_cm or 0),
+        width_cm=int(shipment.package_width_cm),
+        height_cm=int(shipment.package_height_cm),
         weight_grams=int(shipment.package_weight_grams),
         is_fragile=bool(shipment.package_is_fragile),
         is_liquid=bool(shipment.package_is_liquid),
@@ -1090,8 +1125,6 @@ async def quote_packed_shipment(
         await db.flush()
         raise
 
-    shipping = order.shipping or {}
-    city_id = int(shipping.get("location_code") or 0)
     destination = Destination(
         location_code=city_id,
         city_name=shipping.get("city"),

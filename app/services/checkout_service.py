@@ -26,6 +26,7 @@ from app.services.logistics.service import (
     bind_quote_to_order,
     consume_quote,
     postex_enabled,
+    validate_postex_destination_location_code,
 )
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
@@ -88,6 +89,7 @@ async def submit_checkout(
                 "کد شهر مقصد برای ارسال الزامی است.",
                 error_code="SHIPPING_QUOTE_MISMATCH",
             )
+        await validate_postex_destination_location_code(payload.shipping.location_code)
         if shipping_payment_mode == ShippingPaymentMode.RECEIVER_DUE:
             # پس‌کرایه: no checkout quote; SEP excludes shipping; package measured later.
             shipping_cost = Decimal("0")
