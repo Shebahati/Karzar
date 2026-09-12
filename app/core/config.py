@@ -114,7 +114,15 @@ class Settings(BaseSettings):
     POSTEX_BOOKING_INTERVAL_SECONDS: int = Field(default=20, ge=5, le=600)
     POSTEX_REFERENCE_CACHE_SECONDS: int = Field(default=3600, ge=60, le=86400)
     POSTEX_COLLECTION_TYPE: str = "pick_up"
+    # Legacy Postex string. Prefer POSTEX_SHIPPING_PAYMENT_MODE (provider-neutral).
+    # Normalized once into sender_prepaid / receiver_due — do not set both to disagree.
     POSTEX_DEFAULT_PAYMENT_TYPE: str = "SENDER"
+    # Provider-neutral shipping payment mode. Empty → derive from POSTEX_DEFAULT_PAYMENT_TYPE.
+    # Values: sender_prepaid | receiver_due. COD is never accepted.
+    POSTEX_SHIPPING_PAYMENT_MODE: str = ""
+    # Separate write gate: parcel create / mark-ready / cancel / edit. Default safe-off.
+    # Reference/read/quote may run when POSTEX_ENABLED without this flag.
+    POSTEX_BOOKING_ENABLED: bool = False
     # Postex provider quote allowlist: comma-separated COURIER:SERVICE (live-verified v1 default).
     POSTEX_QUOTE_SERVICES: str = "IR_POST:EXPRESS"
     POSTEX_ORIGIN_CITY_CODE: int | None = None
@@ -248,9 +256,22 @@ class Settings(BaseSettings):
     @field_validator("POSTEX_DEFAULT_PAYMENT_TYPE")
     @classmethod
     def validate_postex_payment_type(cls, v: str) -> str:
-        normalized = v.strip().upper()
-        if normalized != "SENDER":
-            raise ValueError("POSTEX_DEFAULT_PAYMENT_TYPE must be SENDER in v1 (no COD)")
+        from app.services.logistics.shipping_payment import normalize_postex_payment_type
+
+        return normalize_postex_payment_type(v)
+
+    @field_validator("POSTEX_SHIPPING_PAYMENT_MODE")
+    @classmethod
+    def validate_postex_shipping_payment_mode(cls, v: str) -> str:
+        normalized = (v or "").strip().lower()
+        if not normalized:
+            return ""
+        allowed = {"sender_prepaid", "receiver_due"}
+        if normalized not in allowed:
+            raise ValueError(
+                "POSTEX_SHIPPING_PAYMENT_MODE must be empty, sender_prepaid, or receiver_due "
+                "(COD is not supported)"
+            )
         return normalized
 
     @field_validator("POSTEX_QUOTE_SERVICES")

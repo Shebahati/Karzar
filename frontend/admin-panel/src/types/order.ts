@@ -72,6 +72,7 @@ export interface OrderDetail extends OrderSummary {
   invoice?: OrderInvoice | null;
   timeline?: OrderTimelineEvent[];
   shipping_provider?: string | null;
+  shipping_payment_mode?: string | null;
   shipping_customer_cost?: string | null;
   shipping_provider_quoted_cost?: string | null;
   shipping_carrier_code?: string | null;
@@ -123,6 +124,7 @@ export interface OrderDetailBackend {
   invoice?: OrderInvoice | null;
   timeline?: OrderTimelineEvent[];
   shipping_provider?: string | null;
+  shipping_payment_mode?: string | null;
   shipping_customer_cost?: string | null;
   shipping_provider_quoted_cost?: string | null;
   shipping_carrier_code?: string | null;

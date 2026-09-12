@@ -49,6 +49,26 @@ class ShippingCityListResponse(BaseModel):
 class ShippingStatusResponse(BaseModel):
     enabled: bool
     quote_ttl_seconds: int
+    # Provider-neutral mode used for checkout when Postex is enabled.
+    shipping_payment_mode: str | None = None
+    # True only for sender_prepaid: storefront must call /shipping/quotes.
+    checkout_quote_required: bool = False
+    # Write-path gate (parcel create / mark-ready / cancel / edit). Safe default false.
+    booking_enabled: bool = False
+
+
+class ShipmentFinalPackageRequest(BaseModel):
+    length_cm: int = Field(..., gt=0)
+    width_cm: int = Field(..., gt=0)
+    height_cm: int = Field(..., gt=0)
+    weight_grams: int = Field(..., gt=0)
+    is_fragile: bool
+    is_liquid: bool
+
+
+class ShipmentSelectServiceRequest(BaseModel):
+    carrier_code: str = Field(..., min_length=1, max_length=64)
+    service_code: str = Field(..., min_length=1, max_length=64)
 
 
 class ShipmentEventPublic(BaseModel):
@@ -63,6 +83,7 @@ class ShipmentPublicResponse(BaseModel):
     id: str
     status: str
     status_label: str
+    shipping_payment_mode: str | None = None
     carrier_code: str | None = None
     service_code: str | None = None
     service_name: str | None = None
@@ -77,18 +98,24 @@ class ShipmentAdminResponse(ShipmentPublicResponse):
     provider: str
     provider_parcel_no: str | None = None
     quote_id: int | None = None
+    shipping_payment_mode: str | None = None
     package: dict[str, Any] | None = None
     customer_shipping_cost: str | None = Field(
         None,
-        description="Customer shipping charge snapshot in Toman (Karzar policy).",
+        description=(
+            "Customer shipping charge snapshot in Toman. "
+            "NULL for receiver_due means provider-collected (پس‌کرایه), not free shipping."
+        ),
     )
     provider_quoted_cost: str | None = Field(
         None,
         description=(
             "Total provider logistics cost snapshot in Toman "
-            "(service + pickup); inherited from order at shipment creation."
+            "(service + pickup). For receiver_due this is audit-only and does not "
+            "change order.estimated_total or SEP."
         ),
     )
+    provider_quoted_at: datetime | None = None
     provider_actual_cost: str | None = None
     ready_to_accept: bool = False
     booking_attempts: int = 0

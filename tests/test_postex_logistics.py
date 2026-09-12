@@ -47,6 +47,7 @@ BOXES = [BoxType(id=1, name="M", length_cm=40, width_cm=30, height_cm=20)]
 
 def _enable_postex(monkeypatch):
     monkeypatch.setattr(settings, "POSTEX_ENABLED", True)
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
     monkeypatch.setattr(settings, "POSTEX_API_KEY", "test-key-not-real")
     monkeypatch.setattr(settings, "POSTEX_ORIGIN_CITY_CODE", 1)
     monkeypatch.setattr(settings, "POSTEX_ORIGIN_CITY_NAME", "تهران")
@@ -57,13 +58,14 @@ def _enable_postex(monkeypatch):
     monkeypatch.setattr(settings, "POSTEX_ORIGIN_MOBILE", "09120000000")
     monkeypatch.setattr(settings, "POSTEX_COLLECTION_TYPE", "pick_up")
     monkeypatch.setattr(settings, "POSTEX_DEFAULT_PAYMENT_TYPE", "SENDER")
+    monkeypatch.setattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", "")
     monkeypatch.setattr(settings, "POSTEX_BASE_URL", "https://api.postex.ir/api/v1")
     clear_reference_caches()
 
 
 def test_postex_disabled_by_default():
     assert settings.POSTEX_ENABLED is False
-
+    assert settings.POSTEX_BOOKING_ENABLED is False
 
 def test_enabled_requires_origin(monkeypatch):
     monkeypatch.setenv("POSTGRES_USER", "test")

@@ -1,6 +1,11 @@
 export interface ShippingStatus {
   enabled: boolean;
   quote_ttl_seconds: number;
+  /** Provider-neutral: sender_prepaid | receiver_due */
+  shipping_payment_mode?: string | null;
+  /** False for receiver_due — do not call /shipping/quotes at checkout. */
+  checkout_quote_required?: boolean;
+  booking_enabled?: boolean;
 }
 
 export interface ShippingCity {

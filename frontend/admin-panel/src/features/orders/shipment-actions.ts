@@ -12,6 +12,7 @@ export interface AdminShipment {
   status: string;
   status_label: string;
   provider: string;
+  shipping_payment_mode?: string | null;
   carrier_code?: string | null;
   service_code?: string | null;
   service_name?: string | null;
@@ -23,9 +24,14 @@ export interface AdminShipment {
     width_cm?: number | null;
     height_cm?: number | null;
     weight_grams?: number | null;
+    is_fragile?: boolean | null;
+    is_liquid?: boolean | null;
+    measured_at?: string | null;
+    provider_box_type_id?: number | null;
   } | null;
   customer_shipping_cost?: string | null;
   provider_quoted_cost?: string | null;
+  provider_quoted_at?: string | null;
   provider_actual_cost?: string | null;
   ready_to_accept?: boolean;
   booking_attempts?: number;
@@ -40,19 +46,39 @@ export interface AdminShipment {
 export function shipmentActionAvailability(shipment: AdminShipment) {
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
+  const receiverDue = shipment.shipping_payment_mode === "receiver_due";
+  const packaged =
+    (shipment.package?.length_cm ?? 0) > 0 &&
+    (shipment.package?.weight_grams ?? 0) > 0 &&
+    shipment.package?.is_fragile != null &&
+    shipment.package?.is_liquid != null;
+  const serviceSelected = Boolean(shipment.carrier_code && shipment.service_code);
   return {
+    canSetPackage: shipment.status === "awaiting_packaging",
+    canPackedQuote: receiverDue && packaged && shipment.status === "awaiting_packaging",
+    canSelectService: receiverDue && packaged && shipment.status === "awaiting_packaging",
+    canScheduleBooking:
+      receiverDue &&
+      packaged &&
+      serviceSelected &&
+      Boolean(shipment.package?.provider_box_type_id) &&
+      shipment.status === "awaiting_packaging",
     canBook:
       shipment.status === "pending_booking" ||
       shipment.status === "error" ||
       shipment.status === "creation_uncertain",
-    canReady: booked && (shipment.status === "booked" || shipment.status === "ready_for_pickup") && !shipment.ready_to_accept,
+    canReady:
+      booked &&
+      (shipment.status === "booked" || shipment.status === "ready_for_pickup") &&
+      !shipment.ready_to_accept,
     canLabel: booked,
     canRefresh: booked,
     canEdit: booked && (shipment.status === "booked" || shipment.status === "ready_for_pickup"),
     canCancel:
       !terminal &&
       shipment.status !== "returned" &&
-      shipment.status !== "cancellation_pending",
+      shipment.status !== "cancellation_pending" &&
+      shipment.status !== "awaiting_packaging",
     canRetrySafe: shipment.status === "error" && shipment.last_error_code !== "CREATION_UNCERTAIN",
   };
 }

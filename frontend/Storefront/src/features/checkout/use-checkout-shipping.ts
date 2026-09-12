@@ -11,6 +11,8 @@ export function useCheckoutShipping(isPurchase: boolean) {
   const cart = useCartStore((s) => s.cart);
   const [enabled, setEnabled] = useState(false);
   const [statusLoaded, setStatusLoaded] = useState(false);
+  const [checkoutQuoteRequired, setCheckoutQuoteRequired] = useState(true);
+  const [shippingPaymentMode, setShippingPaymentMode] = useState<string | null>(null);
   const [cities, setCities] = useState<ShippingCity[]>([]);
   const [cityQuery, setCityQuery] = useState("");
   const [locationCode, setLocationCode] = useState<number | null>(null);
@@ -21,6 +23,8 @@ export function useCheckoutShipping(isPurchase: boolean) {
   const [error, setError] = useState<string | null>(null);
   const [unavailable, setUnavailable] = useState(false);
 
+  const receiverDue = shippingPaymentMode === "receiver_due";
+
   useEffect(() => {
     if (!isPurchase) return;
     let cancelled = false;
@@ -29,6 +33,11 @@ export function useCheckoutShipping(isPurchase: boolean) {
         const status = await shippingService.status();
         if (cancelled) return;
         setEnabled(status.enabled);
+        setCheckoutQuoteRequired(
+          status.checkout_quote_required ??
+            (status.enabled && status.shipping_payment_mode !== "receiver_due"),
+        );
+        setShippingPaymentMode(status.shipping_payment_mode ?? null);
         setStatusLoaded(true);
         if (!status.enabled) return;
         const rows = await shippingService.cities();
@@ -53,6 +62,13 @@ export function useCheckoutShipping(isPurchase: boolean) {
 
   const refreshQuotes = useCallback(
     async (code: number, postalCode?: string, cityName?: string, provinceName?: string) => {
+      if (!checkoutQuoteRequired) {
+        setOptions([]);
+        setSelected(null);
+        setExpiresAt(null);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError(null);
       setUnavailable(false);
@@ -90,7 +106,7 @@ export function useCheckoutShipping(isPurchase: boolean) {
         setLoading(false);
       }
     },
-    [items],
+    [items, checkoutQuoteRequired],
   );
 
   useEffect(() => {
@@ -106,13 +122,18 @@ export function useCheckoutShipping(isPurchase: boolean) {
 
   const filteredCities = useMemo(() => {
     const q = cityQuery.trim();
-    const list = q ? cities.filter((city) => city.name.includes(q) || (city.province_name ?? "").includes(q)) : cities;
+    const list = q
+      ? cities.filter((city) => city.name.includes(q) || (city.province_name ?? "").includes(q))
+      : cities;
     return list.slice(0, 80);
   }, [cities, cityQuery]);
 
   return {
     enabled,
     statusLoaded,
+    checkoutQuoteRequired,
+    shippingPaymentMode,
+    receiverDue,
     cities,
     cityQuery,
     setCityQuery,

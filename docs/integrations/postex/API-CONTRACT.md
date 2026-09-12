@@ -100,7 +100,13 @@ From `CreateBulkParcelCommand.collection_type` / `GetShippingQuotesRequest.colle
 | `FREE_SHIPPING` | ارسال رایگان |
 | `RECEIVER` | گیرنده یا پس‌کرایه |
 
-Karzar v1 uses **`SENDER` only**. COD / wallet / Postex payment products are out of scope.
+Karzar supports **`SENDER`** (`sender_prepaid`) and **`RECEIVER`** (`receiver_due` / پس‌کرایه).
+
+**`RECEIVER` ≠ `COD`.** Merchandise remains SEP-paid; only shipping is collected from the recipient by the carrier.
+
+`COD` and `FREE_SHIPPING` are **rejected** (fail closed). Do not label `receiver_due` as free shipping.
+
+Parcel create must use the **persisted** order/shipment payment-mode snapshot, not a mutable runtime env flip.
 
 ### Courier identity
 

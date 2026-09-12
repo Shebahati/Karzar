@@ -7,12 +7,42 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StepUpDialog } from "@/components/step-up-dialog";
-import { shipmentActionAvailability } from "@/features/orders/shipment-actions";
+import { shipmentActionAvailability, type AdminShipment } from "@/features/orders/shipment-actions";
 import { ApiError } from "@/lib/api-client";
 import { formatToman, toPersianDigits } from "@/lib/utils";
-import { shippingAdminService } from "@/services/shipping";
+import { shippingAdminService, type PackedQuoteOption } from "@/services/shipping";
 import { ordersKeys } from "@/features/orders/queries";
 import type { OrderDetail } from "@/types/order";
+
+function ReceiverWorkflow({ shipment }: { shipment: AdminShipment }) {
+  const packaged =
+    (shipment.package?.length_cm ?? 0) > 0 && (shipment.package?.weight_grams ?? 0) > 0;
+  const quoted = Boolean(shipment.package?.provider_box_type_id || shipment.provider_quoted_at);
+  const selected = Boolean(shipment.carrier_code && shipment.service_code);
+  const scheduled = shipment.status !== "awaiting_packaging" && shipment.status !== "freight_required";
+  const booked = Boolean(shipment.provider_parcel_no);
+  const ready = shipment.status === "ready_for_pickup" || Boolean(shipment.ready_to_accept);
+  const tracking = Boolean(shipment.tracking_code);
+  const steps = [
+    { label: "در انتظار بسته‌بندی", done: true },
+    { label: "ثبت وزن و ابعاد نهایی", done: packaged },
+    { label: "دریافت نرخ/سرویس پستکس", done: quoted },
+    { label: "انتخاب سرویس", done: selected },
+    { label: "ثبت مرسوله", done: booked || scheduled },
+    { label: "آماده تحویل", done: ready },
+    { label: "رهگیری", done: tracking },
+  ];
+  return (
+    <ol className="grid gap-1 text-xs text-muted-foreground">
+      {steps.map((step, idx) => (
+        <li key={step.label} className={step.done ? "text-foreground font-medium" : undefined}>
+          {toPersianDigits(idx + 1)}. {step.label}
+          {step.done ? " ✓" : ""}
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   const queryClient = useQueryClient();
@@ -23,10 +53,21 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   });
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
+  const [packageForm, setPackageForm] = useState({
+    length_cm: "",
+    width_cm: "",
+    height_cm: "",
+    weight_grams: "",
+    is_fragile: false,
+    is_liquid: false,
+  });
+  const [quoteOptions, setQuoteOptions] = useState<Record<number, PackedQuoteOption[]>>({});
 
   if (!order.shipping_provider && shipments.length === 0) {
     return null;
   }
+
+  const receiverDue = order.shipping_payment_mode === "receiver_due";
 
   async function run(label: string, fn: () => Promise<unknown>) {
     setPending(true);
@@ -49,26 +90,43 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-2 text-sm">
+          {receiverDue && (
+            <p className="rounded-lg bg-secondary/60 px-3 py-2 text-sm font-medium">
+              کرایه: پرداخت توسط گیرنده (پس‌کرایه)
+            </p>
+          )}
           <p>
             <span className="text-muted-foreground">سرویس: </span>
             {order.shipping_carrier_code ?? "—"} {order.shipping_service_code ?? ""}
           </p>
           <p>
             <span className="text-muted-foreground">هزینه مشتری: </span>
-            <span className="tnum">{formatToman(order.shipping_customer_cost)}</span>
+            <span className="tnum">
+              {receiverDue
+                ? "پس‌کرایه (از گیرنده)"
+                : formatToman(order.shipping_customer_cost)}
+            </span>
           </p>
           <p>
             <span className="text-muted-foreground">هزینه کل ارائه‌دهنده به کارزار: </span>
-            <span className="tnum">{formatToman(order.shipping_provider_quoted_cost)}</span>
+            <span className="tnum">
+              {order.shipping_provider_quoted_cost != null
+                ? formatToman(order.shipping_provider_quoted_cost)
+                : "—"}
+            </span>
           </p>
         </div>
 
         {shipments.map((shipment) => {
           const actions = shipmentActionAvailability(shipment);
+          const options = quoteOptions[shipment.internal_id] ?? [];
           return (
             <div key={shipment.internal_id} className="space-y-3 rounded-xl border border-border/60 p-4">
               <div className="flex flex-wrap gap-2 text-sm">
                 <span className="font-bold">{shipment.status_label}</span>
+                {shipment.shipping_payment_mode === "receiver_due" && (
+                  <span className="rounded-md bg-secondary px-2 py-0.5 text-xs">پس‌کرایه</span>
+                )}
                 {shipment.provider_parcel_no && (
                   <span className="tnum">Parcel {toPersianDigits(shipment.provider_parcel_no)}</span>
                 )}
@@ -76,19 +134,119 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                   <span className="tnum">رهگیری {toPersianDigits(shipment.tracking_code)}</span>
                 )}
               </div>
+              {shipment.shipping_payment_mode === "receiver_due" && <ReceiverWorkflow shipment={shipment} />}
               {shipment.package && (
                 <p className="text-xs text-muted-foreground tnum">
                   بسته {toPersianDigits(shipment.package.length_cm)}×{toPersianDigits(shipment.package.width_cm)}×
-                  {toPersianDigits(shipment.package.height_cm)} cm / {toPersianDigits(shipment.package.weight_grams)} g
+                  {toPersianDigits(shipment.package.height_cm)} cm / {toPersianDigits(shipment.package.weight_grams)}{" "}
+                  g
+                  {shipment.package.is_fragile != null
+                    ? ` · شکننده: ${shipment.package.is_fragile ? "بله" : "خیر"}`
+                    : ""}
+                  {shipment.package.is_liquid != null
+                    ? ` · مایع: ${shipment.package.is_liquid ? "بله" : "خیر"}`
+                    : ""}
                 </p>
               )}
               {shipment.last_error_message && (
                 <p className="text-xs text-destructive">{shipment.last_error_message}</p>
               )}
-              {shipment.last_tracking_sync_at && (
-                <p className="text-[11px] text-muted-foreground">
-                  آخرین همگام‌سازی: {new Date(shipment.last_tracking_sync_at).toLocaleString("fa-IR")}
-                </p>
+              {actions.canSetPackage && (
+                <div className="grid gap-2 rounded-lg border border-dashed border-border/80 p-3 sm:grid-cols-2">
+                  <p className="sm:col-span-2 text-xs text-muted-foreground">
+                    ابعاد و وزن نهایی مرسوله بسته‌بندی‌شده (نه مشخصات کاتالوگ کالا)
+                  </p>
+                  {(
+                    [
+                      ["length_cm", "طول (cm)"],
+                      ["width_cm", "عرض (cm)"],
+                      ["height_cm", "ارتفاع (cm)"],
+                      ["weight_grams", "وزن (g)"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="grid gap-1 text-xs">
+                      {label}
+                      <input
+                        className="rounded-md border px-2 py-1 tnum"
+                        inputMode="numeric"
+                        value={packageForm[key]}
+                        onChange={(e) => setPackageForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                      />
+                    </label>
+                  ))}
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={packageForm.is_fragile}
+                      onChange={(e) =>
+                        setPackageForm((prev) => ({ ...prev, is_fragile: e.target.checked }))
+                      }
+                    />
+                    شکننده
+                  </label>
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={packageForm.is_liquid}
+                      onChange={(e) =>
+                        setPackageForm((prev) => ({ ...prev, is_liquid: e.target.checked }))
+                      }
+                    />
+                    مایع
+                  </label>
+                  <Button
+                    size="sm"
+                    className="sm:col-span-2"
+                    disabled={pending}
+                    onClick={() => {
+                      const length = Number(packageForm.length_cm);
+                      const width = Number(packageForm.width_cm);
+                      const height = Number(packageForm.height_cm);
+                      const weight = Number(packageForm.weight_grams);
+                      if ([length, width, height, weight].some((v) => !Number.isFinite(v) || v <= 0)) {
+                        toast.error("ابعاد و وزن باید بزرگ‌تر از صفر باشند.");
+                        return;
+                      }
+                      void run("بسته نهایی ثبت شد", () =>
+                        shippingAdminService.setFinalPackage(order.id, shipment.internal_id, {
+                          length_cm: length,
+                          width_cm: width,
+                          height_cm: height,
+                          weight_grams: weight,
+                          is_fragile: packageForm.is_fragile,
+                          is_liquid: packageForm.is_liquid,
+                        }),
+                      );
+                    }}
+                  >
+                    ثبت وزن و ابعاد نهایی
+                  </Button>
+                </div>
+              )}
+              {options.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium">انتخاب سرویس پستکس</p>
+                  {options.map((opt) => (
+                    <Button
+                      key={`${opt.carrier_code}:${opt.service_code}`}
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      className="me-2"
+                      onClick={() =>
+                        void run("سرویس انتخاب شد", () =>
+                          shippingAdminService.selectService(order.id, shipment.internal_id, {
+                            carrier_code: opt.carrier_code,
+                            service_code: opt.service_code,
+                          }),
+                        )
+                      }
+                    >
+                      {opt.service_name || `${opt.carrier_code}/${opt.service_code}`} ·{" "}
+                      {formatToman(opt.provider_amount_toman)} (اطلاعاتی)
+                    </Button>
+                  ))}
+                </div>
               )}
               <ol className="space-y-2 border-s ps-3">
                 {shipment.events.map((event, idx) => (
@@ -99,12 +257,51 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                 ))}
               </ol>
               <div className="flex flex-wrap gap-2">
+                {actions.canPackedQuote && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={() =>
+                      void run("نرخ پس‌کرایه دریافت شد", async () => {
+                        const result = await shippingAdminService.packedQuote(
+                          order.id,
+                          shipment.internal_id,
+                        );
+                        setQuoteOptions((prev) => ({
+                          ...prev,
+                          [shipment.internal_id]: result.options,
+                        }));
+                      })
+                    }
+                  >
+                    دریافت نرخ پستکس
+                  </Button>
+                )}
+                {actions.canScheduleBooking && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={() =>
+                      void run("آماده رزرو شد", () =>
+                        shippingAdminService.scheduleBooking(order.id, shipment.internal_id),
+                      )
+                    }
+                  >
+                    زمان‌بندی ثبت مرسوله
+                  </Button>
+                )}
                 {(actions.canBook || actions.canRetrySafe) && (
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={pending}
-                    onClick={() => void run("رزرو/تطبیق انجام شد", () => shippingAdminService.book(order.id, shipment.internal_id))}
+                    onClick={() =>
+                      void run("رزرو/تطبیق انجام شد", () =>
+                        shippingAdminService.book(order.id, shipment.internal_id),
+                      )
+                    }
                   >
                     ایجاد / تطبیق مرسوله
                   </Button>
@@ -114,7 +311,11 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                     size="sm"
                     variant="outline"
                     disabled={pending}
-                    onClick={() => void run("آماده جمع‌آوری شد", () => shippingAdminService.markReady(order.id, shipment.internal_id))}
+                    onClick={() =>
+                      void run("آماده جمع‌آوری شد", () =>
+                        shippingAdminService.markReady(order.id, shipment.internal_id),
+                      )
+                    }
                   >
                     آماده جمع‌آوری
                   </Button>
@@ -124,7 +325,11 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                     size="sm"
                     variant="outline"
                     disabled={pending}
-                    onClick={() => void run("برچسب دریافت شد", () => shippingAdminService.downloadLabel(order.id, shipment.internal_id))}
+                    onClick={() =>
+                      void run("برچسب دریافت شد", () =>
+                        shippingAdminService.downloadLabel(order.id, shipment.internal_id),
+                      )
+                    }
                   >
                     دانلود برچسب
                   </Button>
@@ -134,7 +339,11 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                     size="sm"
                     variant="outline"
                     disabled={pending}
-                    onClick={() => void run("رهگیری به‌روز شد", () => shippingAdminService.refreshTracking(order.id, shipment.internal_id))}
+                    onClick={() =>
+                      void run("رهگیری به‌روز شد", () =>
+                        shippingAdminService.refreshTracking(order.id, shipment.internal_id),
+                      )
+                    }
                   >
                     تازه‌سازی رهگیری
                   </Button>
@@ -148,8 +357,10 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                       const shipping = order.shipping ?? {};
                       void run("آدرس مرسوله به‌روز شد", () =>
                         shippingAdminService.edit(order.id, shipment.internal_id, {
-                          address_line: typeof shipping.address_line === "string" ? shipping.address_line : null,
-                          postal_code: typeof shipping.postal_code === "string" ? shipping.postal_code : null,
+                          address_line:
+                            typeof shipping.address_line === "string" ? shipping.address_line : null,
+                          postal_code:
+                            typeof shipping.postal_code === "string" ? shipping.postal_code : null,
                         }),
                       );
                     }}
@@ -158,7 +369,12 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                   </Button>
                 )}
                 {actions.canCancel && (
-                  <Button size="sm" variant="outline" className="text-destructive" onClick={() => setCancelId(shipment.internal_id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    onClick={() => setCancelId(shipment.internal_id)}
+                  >
                     انصراف مرسوله
                   </Button>
                 )}

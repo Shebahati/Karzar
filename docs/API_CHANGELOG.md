@@ -22,13 +22,22 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-12 — Postex receiver-paid shipping (پس‌کرایه)
+
+- Provider-neutral `shipping_payment_mode`: `sender_prepaid` | `receiver_due` (persisted on order + shipment). Maps to Postex `SENDER` / `RECEIVER`. **COD unsupported.**
+- `GET /shipping/status` adds `shipping_payment_mode`, `checkout_quote_required`, `booking_enabled`.
+- Checkout: optional `shipping_payment_mode`; for `receiver_due` no `shipping_quote_token` / product package master data; `estimated_total` = items + tax; `shipping_customer_cost` NULL (≠ free).
+- Admin: `POST .../final-package`, `.../packed-quote`, `.../select-service`, `.../schedule-booking`. New shipment status `awaiting_packaging`.
+- `POSTEX_BOOKING_ENABLED` (default false) gates parcel create / mark-ready / cancel / edit. Error `SHIPPING_BOOKING_DISABLED`.
+- Additive Alembic `j3k4l5m6n7o8` (not applied in this change).
+
 ### 2026-09-10 — Postex logistics domain (safe-disabled)
 
 - New provider-neutral shipping endpoints: `GET /shipping/status`, `GET /shipping/cities`, `POST /shipping/quotes`.
 - Admin shipment actions under `/orders/{order_id}/shipments*` (book, ready, label PDF, refresh-tracking, edit, cancel).
 - Admin `GET /admin/shipping/health` and optional read-only wallet.
-- Checkout: optional `shipping.location_code` and `shipping_quote_token` (required when `POSTEX_ENABLED`).
-- Order detail / public track: `shipments` plus shipping cost snapshots. `estimated_total` remains payable total (items + tax + customer shipping).
+- Checkout: optional `shipping.location_code` and `shipping_quote_token` (required when `POSTEX_ENABLED` and `sender_prepaid`).
+- Order detail / public track: `shipments` plus shipping cost snapshots. `estimated_total` is SEP payable total (items + tax [+ shipping for sender_prepaid]).
 - Product: optional `package_*_cm` (must be `> 0` when set); `shipping_is_fragile` / `shipping_is_liquid` / `shipping_class` nullable (**NULL = UNKNOWN**, not defaulted to false/parcel).
 - New error codes: `SHIPPING_DATA_INCOMPLETE`, `SHIPPING_FREIGHT_REQUIRED`, `SHIPPING_UNAVAILABLE`, `SHIPPING_QUOTE_*`, `SHIPPING_QUOTE_STALE`, `SHIPMENT_*`, `SHIPPING_PROVIDER_CUTOFF`.
 - Shipment statuses include `cancellation_pending` (Postex cancel-request is not a confirmed cancel) and event status `provider_unknown` (unknown provider text is persisted, never inferred as in-transit/delivered).

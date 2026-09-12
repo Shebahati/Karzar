@@ -40,6 +40,9 @@ export function CheckoutView() {
   const [customer, setCustomer] = useState<ResolvedCustomer | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [shippingToman, setShippingToman] = useState<number | null>(null);
+  const [shippingDisplay, setShippingDisplay] = useState<"prepaid" | "receiver_due" | "none">(
+    "none",
+  );
   const [paying, setPaying] = useState(false);
   const [pendingPayOrder, setPendingPayOrder] = useState<{
     order_id: number;
@@ -119,6 +122,7 @@ export function CheckoutView() {
       note: result.note ?? null,
       shipping: result.shipping,
       shipping_quote_token: result.shipping_quote_token ?? null,
+      shipping_payment_mode: result.shipping_payment_mode ?? null,
       company_name: result.company_name ?? null,
     };
 
@@ -282,6 +286,7 @@ export function CheckoutView() {
               onSubmit={handleDetails}
               onBack={() => setStep("auth")}
               onQuoteChange={setShippingToman}
+              onShippingModeChange={setShippingDisplay}
             />
           )}
           {checkoutError && (
@@ -305,7 +310,12 @@ export function CheckoutView() {
 
         <div className="lg:col-span-1">
           <div className="sticky top-32">
-            <OrderSummary lines={lines} isInquiry={isInquiry} shippingToman={isInquiry ? null : shippingToman} />
+            <OrderSummary
+              lines={lines}
+              isInquiry={isInquiry}
+              shippingToman={isInquiry ? null : shippingToman}
+              shippingDisplay={isInquiry ? "none" : shippingDisplay}
+            />
           </div>
         </div>
       </div>

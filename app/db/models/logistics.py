@@ -35,6 +35,7 @@ class ShippingClass(str, enum.Enum):
 
 
 class ShipmentStatus(str, enum.Enum):
+    AWAITING_PACKAGING = "awaiting_packaging"
     PENDING_BOOKING = "pending_booking"
     BOOKING = "booking"
     BOOKED = "booked"
@@ -51,6 +52,7 @@ class ShipmentStatus(str, enum.Enum):
     PROVIDER_UNKNOWN = "provider_unknown"
     CREATION_UNCERTAIN = "creation_uncertain"
     ERROR = "error"
+    FREIGHT_REQUIRED = "freight_required"
 
 
 class ShippingQuote(Base):
@@ -132,10 +134,16 @@ class Shipment(Base):
     service_name: Mapped[str | None] = mapped_column(String(255))
     provider_parcel_no: Mapped[str | None] = mapped_column(String(64))
     tracking_code: Mapped[str | None] = mapped_column(String(64))
+    shipping_payment_mode: Mapped[str | None] = mapped_column(String(32))
     package_length_cm: Mapped[int | None] = mapped_column(Integer)
     package_width_cm: Mapped[int | None] = mapped_column(Integer)
     package_height_cm: Mapped[int | None] = mapped_column(Integer)
     package_weight_grams: Mapped[int | None] = mapped_column(Integer)
+    package_is_fragile: Mapped[bool | None] = mapped_column(Boolean)
+    package_is_liquid: Mapped[bool | None] = mapped_column(Boolean)
+    package_measured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    provider_box_type_id: Mapped[int | None] = mapped_column(Integer)
+    provider_quoted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     declared_value_irr: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     provider_quoted_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     provider_actual_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))

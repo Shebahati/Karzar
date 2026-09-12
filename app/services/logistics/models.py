@@ -15,6 +15,7 @@ class ShippingClass(StrEnum):
 
 
 class ShipmentStatus(StrEnum):
+    AWAITING_PACKAGING = "awaiting_packaging"
     PENDING_BOOKING = "pending_booking"
     BOOKING = "booking"
     BOOKED = "booked"
@@ -31,6 +32,7 @@ class ShipmentStatus(StrEnum):
     PROVIDER_UNKNOWN = "provider_unknown"
     CREATION_UNCERTAIN = "creation_uncertain"
     ERROR = "error"
+    FREIGHT_REQUIRED = "freight_required"
 
 
 TERMINAL_SHIPMENT_STATUSES = frozenset(
@@ -61,6 +63,8 @@ READY_ELIGIBLE_STATUSES = frozenset(
 # States that already have (or must never obtain) a second Postex create.
 BOOKING_CREATE_FORBIDDEN_STATUSES = frozenset(
     {
+        ShipmentStatus.AWAITING_PACKAGING,
+        ShipmentStatus.FREIGHT_REQUIRED,
         ShipmentStatus.BOOKED,
         ShipmentStatus.READY_FOR_PICKUP,
         ShipmentStatus.PICKED_UP,
@@ -77,6 +81,7 @@ BOOKING_CREATE_FORBIDDEN_STATUSES = frozenset(
 )
 
 SHIPMENT_STATUS_LABELS_FA: dict[str, str] = {
+    ShipmentStatus.AWAITING_PACKAGING.value: "در انتظار بسته‌بندی",
     ShipmentStatus.PENDING_BOOKING.value: "در انتظار رزرو ارسال",
     ShipmentStatus.BOOKING.value: "در حال ثبت مرسوله",
     ShipmentStatus.BOOKED.value: "مرسوله ثبت شد",
@@ -93,6 +98,7 @@ SHIPMENT_STATUS_LABELS_FA: dict[str, str] = {
     ShipmentStatus.PROVIDER_UNKNOWN.value: "وضعیت ارائه‌دهنده ناشناخته",
     ShipmentStatus.CREATION_UNCERTAIN.value: "ثبت مرسوله نامشخص — در حال تطبیق",
     ShipmentStatus.ERROR.value: "خطای لجستیک",
+    ShipmentStatus.FREIGHT_REQUIRED.value: "نیاز به باربری / رسیدگی دستی",
 }
 
 

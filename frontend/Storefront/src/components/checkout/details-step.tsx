@@ -34,6 +34,7 @@ export interface DetailsResult {
     location_code?: number | null;
   };
   shipping_quote_token?: string | null;
+  shipping_payment_mode?: "sender_prepaid" | "receiver_due" | null;
 }
 
 /**
@@ -49,6 +50,7 @@ export function DetailsStep({
   onSubmit,
   onBack,
   onQuoteChange,
+  onShippingModeChange,
 }: {
   isInquiry: boolean;
   customer: ResolvedCustomer | null;
@@ -57,6 +59,7 @@ export function DetailsStep({
   onSubmit: (result: DetailsResult) => void;
   onBack: () => void;
   onQuoteChange?: (amountToman: number | null) => void;
+  onShippingModeChange?: (mode: "prepaid" | "receiver_due" | "none") => void;
 }) {
   if (isInquiry) {
     return (
@@ -76,6 +79,7 @@ export function DetailsStep({
       onSubmit={onSubmit}
       onBack={onBack}
       onQuoteChange={onQuoteChange}
+      onShippingModeChange={onShippingModeChange}
     />
   );
 }
@@ -103,6 +107,7 @@ function ShippingForm({
   onSubmit,
   onBack,
   onQuoteChange,
+  onShippingModeChange,
 }: {
   customer: ResolvedCustomer | null;
   submitting: boolean;
@@ -110,6 +115,7 @@ function ShippingForm({
   onSubmit: (r: DetailsResult) => void;
   onBack: () => void;
   onQuoteChange?: (amountToman: number | null) => void;
+  onShippingModeChange?: (mode: "prepaid" | "receiver_due" | "none") => void;
 }) {
   const addresses = useAddressStore((s) => s.addresses);
   const getDefault = useAddressStore((s) => s.getDefault);
@@ -148,6 +154,7 @@ function ShippingForm({
 
   useEffect(() => {
     if (!shipping.enabled || shipping.locationCode == null) return;
+    if (!shipping.checkoutQuoteRequired) return;
     const timer = window.setTimeout(() => {
       void shipping.refreshQuotes(
         shipping.locationCode as number,
@@ -159,7 +166,15 @@ function ShippingForm({
     return () => window.clearTimeout(timer);
     // Re-bind quote to the current postal code; client amounts are never authority.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedPostal, shipping.locationCode, shipping.enabled]);
+  }, [watchedPostal, shipping.locationCode, shipping.enabled, shipping.checkoutQuoteRequired]);
+
+  useEffect(() => {
+    if (!shipping.enabled) {
+      onShippingModeChange?.("none");
+      return;
+    }
+    onShippingModeChange?.(shipping.receiverDue ? "receiver_due" : "prepaid");
+  }, [onShippingModeChange, shipping.enabled, shipping.receiverDue]);
 
   const applySaved = (addr: SavedAddress) => {
     form.reset({
@@ -204,6 +219,8 @@ function ShippingForm({
         quoteToken: shipping.selected?.quote_token ?? null,
         expiresAt: shipping.expiresAt,
         shippingUnavailable: shipping.unavailable,
+        checkoutQuoteRequired: shipping.checkoutQuoteRequired,
+        locationCode: shipping.locationCode,
       })
     ) {
       return;
@@ -220,15 +237,26 @@ function ShippingForm({
         address_line: v.address_line,
         location_code: shipping.locationCode,
       },
-      shipping_quote_token: shipping.selected?.quote_token ?? null,
+      shipping_quote_token: shipping.checkoutQuoteRequired
+        ? (shipping.selected?.quote_token ?? null)
+        : null,
+      shipping_payment_mode: shipping.receiverDue
+        ? "receiver_due"
+        : shipping.enabled
+          ? "sender_prepaid"
+          : null,
     });
   };
 
   useEffect(() => {
+    if (shipping.receiverDue) {
+      onQuoteChange?.(null);
+      return;
+    }
     onQuoteChange?.(
       shipping.selected ? Number(shipping.selected.amount_toman) : null,
     );
-  }, [onQuoteChange, shipping.selected]);
+  }, [onQuoteChange, shipping.selected, shipping.receiverDue]);
 
   const shippingReady =
     !shipping.enabled ||
@@ -237,6 +265,8 @@ function ShippingForm({
       quoteToken: shipping.selected?.quote_token ?? null,
       expiresAt: shipping.expiresAt,
       shippingUnavailable: shipping.unavailable,
+      checkoutQuoteRequired: shipping.checkoutQuoteRequired,
+      locationCode: shipping.locationCode,
     });
 
   return (
@@ -401,6 +431,11 @@ function ShippingForm({
           {shipping.enabled && (
             <div className="sm:col-span-2 space-y-3 rounded-xl border border-border/60 bg-secondary/40 p-4">
               <h3 className="text-sm font-bold text-foreground">روش ارسال</h3>
+              {shipping.receiverDue && (
+                <p className="text-sm leading-6 text-foreground">
+                  هزینه ارسال به‌صورت پس‌کرایه و هنگام تحویل از گیرنده دریافت می‌شود.
+                </p>
+              )}
               <Field label="شهر مقصد (کد شهر)">
                 <input
                   value={shipping.cityQuery}
@@ -427,12 +462,14 @@ function ShippingForm({
                         shipping.setLocationCode(city.code);
                         form.setValue("city", city.name);
                         if (city.province_name) form.setValue("province", city.province_name);
-                        void shipping.refreshQuotes(
-                          city.code,
-                          form.getValues("postal_code"),
-                          city.name,
-                          city.province_name ?? form.getValues("province"),
-                        );
+                        if (shipping.checkoutQuoteRequired) {
+                          void shipping.refreshQuotes(
+                            city.code,
+                            form.getValues("postal_code"),
+                            city.name,
+                            city.province_name ?? form.getValues("province"),
+                          );
+                        }
                       }}
                     >
                       {city.name}
@@ -441,13 +478,20 @@ function ShippingForm({
                   );
                 })}
               </div>
-              <ShippingOptions
-                options={shipping.options}
-                selectedToken={shipping.selected?.quote_token ?? null}
-                loading={shipping.loading}
-                error={shipping.error}
-                onSelect={(option: ShippingQuoteOption) => shipping.setSelected(option)}
-              />
+              {shipping.checkoutQuoteRequired ? (
+                <ShippingOptions
+                  options={shipping.options}
+                  selectedToken={shipping.selected?.quote_token ?? null}
+                  loading={shipping.loading}
+                  error={shipping.error}
+                  onSelect={(option: ShippingQuoteOption) => shipping.setSelected(option)}
+                />
+              ) : (
+                <p className="text-xs text-steel">
+                  مبلغ پرداخت اینترنتی فقط شامل محصولات و مالیات است؛ پس‌کرایه ارسال جداگانه از گیرنده
+                  دریافت می‌شود.
+                </p>
+              )}
             </div>
           )}
           <Field label="توضیحات (اختیاری)" className="sm:col-span-2">
@@ -471,7 +515,9 @@ function ShippingForm({
         )}
         {shipping.enabled && !shippingReady && (
           <p className="mt-3 text-sm text-destructive" role="alert">
-            برای ادامه خرید ابتدا شهر مقصد و سرویس ارسال را انتخاب کنید.
+            {shipping.receiverDue
+              ? "برای ادامه خرید ابتدا شهر مقصد را انتخاب کنید."
+              : "برای ادامه خرید ابتدا شهر مقصد و سرویس ارسال را انتخاب کنید."}
           </p>
         )}
       </form>

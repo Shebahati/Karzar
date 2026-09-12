@@ -8,7 +8,14 @@ import type {
 
 export const shippingService = {
   async status(): Promise<ShippingStatus> {
-    if (env.USE_MOCK) return { enabled: false, quote_ttl_seconds: 600 };
+    if (env.USE_MOCK) {
+      return {
+        enabled: false,
+        quote_ttl_seconds: 600,
+        checkout_quote_required: false,
+        booking_enabled: false,
+      };
+    }
     const { data } = await apiClient.get<ShippingStatus>("/shipping/status");
     return data;
   },

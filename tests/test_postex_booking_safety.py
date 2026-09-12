@@ -143,6 +143,8 @@ def test_recipient_company_omits_origin_brand(fake_provider, override_database):
                 order_id=order.id,
                 provider="postex",
                 status=ShipmentStatus.PENDING_BOOKING.value,
+                carrier_code="IR_POST",
+                service_code="EXPRESS",
                 package_length_cm=10,
                 package_width_cm=8,
                 package_height_cm=4,

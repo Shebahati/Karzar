@@ -52,6 +52,7 @@ export function mapOrderDetail(
     invoice: raw.invoice ?? null,
     timeline: raw.timeline ?? [],
     shipping_provider: raw.shipping_provider ?? null,
+    shipping_payment_mode: raw.shipping_payment_mode ?? null,
     shipping_customer_cost: raw.shipping_customer_cost ?? null,
     shipping_provider_quoted_cost: raw.shipping_provider_quoted_cost ?? null,
     shipping_carrier_code: raw.shipping_carrier_code ?? null,

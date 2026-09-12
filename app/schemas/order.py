@@ -51,9 +51,16 @@ class OrderDetailResponse(OrderSummary):
     postal_tracking_code: str | None = None
     delivery_eta: datetime | None = None
     shipping_provider: str | None = None
+    shipping_payment_mode: str | None = Field(
+        None,
+        description="sender_prepaid | receiver_due | NULL=legacy. Snapshot; not runtime env.",
+    )
     shipping_customer_cost: str | None = Field(
         None,
-        description="Customer-facing shipping charge in Toman (Karzar policy; v1 pass-through).",
+        description=(
+            "Customer-facing shipping charge in Toman. "
+            "NULL with shipping_payment_mode=receiver_due means پس‌کرایه (not free)."
+        ),
     )
     shipping_provider_quoted_cost: str | None = Field(
         None,
@@ -123,6 +130,7 @@ class OrderTrackingResponse(BaseModel):
     status: str
     status_label: str
     created_at: datetime
+    shipping_payment_mode: str | None = None
     items: list[OrderTrackingItemResponse] = Field(default_factory=list)
     timeline: list[OrderTrackingEvent] = Field(default_factory=list)
     shipments: list[dict[str, Any]] = Field(default_factory=list)

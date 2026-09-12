@@ -124,13 +124,17 @@ class Order(Base):
     shipping: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     postal_tracking_code: Mapped[str | None] = mapped_column(String(64))
     delivery_eta: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    # Logistics snapshots. estimated_total = items + tax + shipping_customer_cost.
+    # Logistics snapshots.
+    # sender_prepaid: estimated_total = items + tax + shipping_customer_cost
+    # receiver_due: estimated_total = items + tax only; shipping_customer_cost stays NULL
+    #   (NULL ≠ free shipping — see shipping_payment_mode)
     shipping_provider: Mapped[str | None] = mapped_column(String(32))
     shipping_quote_id: Mapped[int | None] = mapped_column(Integer)
     shipping_customer_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     shipping_provider_quoted_cost: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     shipping_carrier_code: Mapped[str | None] = mapped_column(String(64))
     shipping_service_code: Mapped[str | None] = mapped_column(String(64))
+    shipping_payment_mode: Mapped[str | None] = mapped_column(String(32))
     invoice: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     invoice_number: Mapped[str | None] = mapped_column(String(32))
     invoice_valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

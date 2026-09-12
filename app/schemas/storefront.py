@@ -160,6 +160,8 @@ class CheckoutRequest(BaseModel):
     shipping: ShippingAddress | None = None
     company_name: str | None = Field(None, max_length=120)
     shipping_quote_token: str | None = Field(None, max_length=128)
+    # Provider-neutral: sender_prepaid | receiver_due. Blank → server default.
+    shipping_payment_mode: Literal["sender_prepaid", "receiver_due"] | None = None
 
 
 class CheckoutResponse(BaseModel):
@@ -172,3 +174,6 @@ class CheckoutResponse(BaseModel):
     created_at: datetime
     payment_url: str | None = None
     authority: str | None = None
+    shipping_payment_mode: str | None = None
+    # Explicit presentation hint: prepaid | receiver_due | none (never "free" from amount=0)
+    shipping_display: Literal["prepaid", "receiver_due", "none"] | None = None

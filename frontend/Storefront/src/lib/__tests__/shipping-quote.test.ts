@@ -50,4 +50,37 @@ describe("shipping quote helpers", () => {
       }),
     ).toBe(true);
   });
+
+  it("allows receiver_due without a quote only after selecting a destination", () => {
+    expect(
+      canSubmitPurchaseShipping({
+        postexEnabled: true,
+        checkoutQuoteRequired: false,
+        locationCode: 8,
+        quoteToken: null,
+        expiresAt: null,
+        shippingUnavailable: false,
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitPurchaseShipping({
+        postexEnabled: true,
+        checkoutQuoteRequired: false,
+        locationCode: null,
+        quoteToken: null,
+        expiresAt: null,
+        shippingUnavailable: false,
+      }),
+    ).toBe(false);
+    expect(
+      canSubmitPurchaseShipping({
+        postexEnabled: true,
+        checkoutQuoteRequired: false,
+        locationCode: 8,
+        quoteToken: null,
+        expiresAt: null,
+        shippingUnavailable: true,
+      }),
+    ).toBe(false);
+  });
 });

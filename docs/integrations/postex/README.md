@@ -76,12 +76,31 @@ v1 pass-through: these two snapshot totals are equal. Compute them independently
 
 Live example (2026-09-10): service `1,298,000` IRR + pickup `1,200,000` IRR = `2,498,000` IRR = `249,800` Toman provider total.
 
-Payable total (purchase): **items + tax + customer shipping**. That sum is `orders.estimated_total` and is what SEP charges (×10 → Rial).
+Payable total (purchase):
+
+- **`sender_prepaid`:** items + tax + customer shipping → `orders.estimated_total` → SEP.
+- **`receiver_due` (پس‌کرایه):** items + tax only → `orders.estimated_total` → SEP. Shipping is collected by the carrier from the recipient. `shipping_customer_cost` stays **NULL** (not `0`; NULL ≠ free shipping). `shipping_provider_quoted_cost` stays NULL until a packed-parcel quote exists.
+
 ## Payment boundary
 
-Checkout payment remains **SEP**. Postex wallet/COD/top-up are out of scope. Parcel `payment_type` is official **`SENDER`** (sender/merchant pays the carrier). Karzar collects product+tax+shipping from the customer via SEP, then pays Postex from the merchant wallet.
+Checkout payment remains **SEP** for merchandise. Postex COD / wallet / top-up remain out of scope.
 
-SEP init/verify/callback still use `order.estimated_total` once. Shipping is not added again.
+Parcel `payment_type` mapping (provider-neutral Karzar mode → Postex):
+
+| Karzar mode | Postex | Meaning |
+|-------------|--------|---------|
+| `sender_prepaid` | `SENDER` | Karzar/customer prepaid shipping via SEP |
+| `receiver_due` | `RECEIVER` | پس‌کرایه — carrier collects shipping from recipient |
+
+**`RECEIVER` ≠ `COD`.** COD is rejected. Merchandise is never “پرداخت در محل” via Postex.
+
+Authority: persist `shipping_payment_mode` on the order/shipment at create time. `build_parcel_create_request` must use that snapshot — not mutable `settings.POSTEX_DEFAULT_PAYMENT_TYPE` at booking time.
+
+`POSTEX_SHIPPING_PAYMENT_MODE` is preferred. Legacy `POSTEX_DEFAULT_PAYMENT_TYPE` is normalized once into the neutral mode when the preferred setting is blank.
+
+Write gate: `POSTEX_BOOKING_ENABLED` (default **false**) must be true for parcel create / mark-ready / cancel / edit. Quotes/reference may run under `POSTEX_ENABLED` alone.
+
+SEP init/verify/callback still use `order.estimated_total` once. Shipping is not added again for `receiver_due`.
 
 ## Booking flow (after payment)
 
@@ -89,12 +108,17 @@ SEP verify **must not** wait on Postex.
 
 On payment `VERIFIED`:
 
-1. Create/ensure a `shipments` row (`pending_booking`) in the same DB transaction as paid state.
+1. Create/ensure a `shipments` row in the same DB transaction as paid state.
+   - `sender_prepaid` → `pending_booking` (quote package snapshot present).
+   - `receiver_due` → `awaiting_packaging` (`booking_next_attempt_at` unset; worker must not claim).
 2. Return the payment flow normally.
-3. Background worker (same lifespan style as order-expiry / SEP verify retry) claims the row. **TX A** locks, marks `booking`, persists `create_attempted`, **commits**, then `POST /parcels/bulk` with **no** row lock held. **TX B** persists parcel/tracking (`booked`) or `creation_uncertain`. Admin manual book uses the same domain function.
-4. Process death after Postex accepts create but before TX B leaves `booking` (never `pending_booking`). Restart looks up `custom_order_no` = `shipment.public_id` before any second create.
+3. For `receiver_due`, admin enters **final sealed parcel** measurements, obtains a packed quote (`payment_type=RECEIVER`), selects carrier/service, then explicitly schedules `pending_booking`. Only then may the worker claim.
+4. Background worker claims `pending_booking` only when `POSTEX_BOOKING_ENABLED`. **TX A** locks, marks `booking`, persists `create_attempted`, **commits**, then `POST /parcels/bulk` with **no** row lock held. **TX B** persists parcel/tracking (`booked`) or `creation_uncertain`. Admin manual book uses the same domain function.
+5. Process death after Postex accepts create but before TX B leaves `booking` (never `pending_booking`). Restart looks up `custom_order_no` = `shipment.public_id` before any second create.
 
 `custom_order_no` = shipment UUID (lookup key). `custom_reference_no` = Karzar order tracking code.
+
+Final outbound parcel must still be weighed/measured before booking in `receiver_due` mode.
 
 ## Idempotency / uncertain create
 

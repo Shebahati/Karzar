@@ -31,8 +31,10 @@ export interface CheckoutPayload {
   note?: string | null;
   /** Purchase mode only. */
   shipping?: ShippingAddress;
-  /** Bound server-side quote; required when Postex shipping is enabled. */
+  /** Bound server-side quote; required when Postex sender_prepaid shipping is enabled. */
   shipping_quote_token?: string | null;
+  /** Provider-neutral mode; blank uses server default. */
+  shipping_payment_mode?: "sender_prepaid" | "receiver_due" | null;
   /** Inquiry mode only (optional B2B company). */
   company_name?: string | null;
 }
