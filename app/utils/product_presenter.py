@@ -105,8 +105,7 @@ def _images(product: Product, *, audience: Audience = "storefront") -> list[Prod
         rows = [
             image
             for image in rows
-            if (image.image_url or "").strip()
-            and not is_placeholder_image_url(image.image_url)
+            if (image.image_url or "").strip() and not is_placeholder_image_url(image.image_url)
         ]
     return [
         ProductImageResponse(
@@ -163,13 +162,21 @@ def to_product_detail(
         original_price=decimal_to_api_string(product.original_price),
         discount_percent=compute_discount_percent(product.base_price, product.original_price),
         stock_quantity="0",
-        stock_unit=product.stock_unit.value if hasattr(product.stock_unit, "value") else str(product.stock_unit),
+        stock_unit=product.stock_unit.value
+        if hasattr(product.stock_unit, "value")
+        else str(product.stock_unit),
         stock_status=stock_status_label(available, audience=audience),
         low_stock=False,
         availability=available,
         is_available=bool(getattr(product, "is_available", True)),
         warranty_text=product.warranty_text,
         weight_grams=decimal_to_api_string(product.weight_grams),
+        package_length_cm=decimal_to_api_string(product.package_length_cm),
+        package_width_cm=decimal_to_api_string(product.package_width_cm),
+        package_height_cm=decimal_to_api_string(product.package_height_cm),
+        shipping_is_fragile=getattr(product, "shipping_is_fragile", None),
+        shipping_is_liquid=getattr(product, "shipping_is_liquid", None),
+        shipping_class=getattr(product, "shipping_class", None),
         is_original=product.is_original,
         tax_percent=decimal_to_api_string(product.tax_percent) or "0",
         is_active=product.is_active,

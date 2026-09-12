@@ -39,6 +39,7 @@ export function CheckoutView() {
   const [step, setStep] = useState<Step>("auth");
   const [customer, setCustomer] = useState<ResolvedCustomer | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [shippingToman, setShippingToman] = useState<number | null>(null);
   const [paying, setPaying] = useState(false);
   const [pendingPayOrder, setPendingPayOrder] = useState<{
     order_id: number;
@@ -117,6 +118,7 @@ export function CheckoutView() {
       items: currentLines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
       note: result.note ?? null,
       shipping: result.shipping,
+      shipping_quote_token: result.shipping_quote_token ?? null,
       company_name: result.company_name ?? null,
     };
 
@@ -279,6 +281,7 @@ export function CheckoutView() {
               canPay={canPay}
               onSubmit={handleDetails}
               onBack={() => setStep("auth")}
+              onQuoteChange={setShippingToman}
             />
           )}
           {checkoutError && (
@@ -302,7 +305,7 @@ export function CheckoutView() {
 
         <div className="lg:col-span-1">
           <div className="sticky top-32">
-            <OrderSummary lines={lines} isInquiry={isInquiry} />
+            <OrderSummary lines={lines} isInquiry={isInquiry} shippingToman={isInquiry ? null : shippingToman} />
           </div>
         </div>
       </div>

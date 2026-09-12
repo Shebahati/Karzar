@@ -11,7 +11,7 @@ import { OrderTimeline } from "@/components/orders/order-timeline";
 import { useOrderTracking, useMyOrders } from "@/features/orders/queries";
 import { useProductsByIds } from "@/features/catalog/queries";
 import { downloadOrderDocumentFromTracking } from "@/services/order-invoice";
-import { formatNumber, formatToman } from "@/lib/utils";
+import { formatNumber, formatToman, toPersianDigits } from "@/lib/utils";
 
 export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
   const { data, isPending, isError, refetch } = useOrderTracking(trackingCode);
@@ -204,6 +204,48 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
               />
             </div>
           ) : null}
+
+          {(data.shipments?.length ?? 0) > 0 && (
+            <div className="rounded-xl bg-card p-6 shadow-soft">
+              <h2 className="mb-4 text-base font-bold">وضعیت ارسال</h2>
+              <ul className="space-y-5">
+                {data.shipments?.map((shipment) => (
+                  <li key={shipment.id} className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-md bg-accent px-2 py-1 text-xs font-medium">
+                        {shipment.status_label}
+                      </span>
+                      {shipment.service_name && (
+                        <span className="text-xs text-muted-foreground">{shipment.service_name}</span>
+                      )}
+                    </div>
+                    {shipment.tracking_code && (
+                      <p className="text-sm tnum" dir="ltr">
+                        کد رهگیری: {toPersianDigits(shipment.tracking_code)}
+                      </p>
+                    )}
+                    {shipment.events.length > 0 && (
+                      <ol className="space-y-2 border-s border-border ps-4">
+                        {shipment.events.map((event, idx) => (
+                          <li key={`${shipment.id}-${idx}`}>
+                            <p className="text-sm font-medium">{event.status_label}</p>
+                            {event.description && (
+                              <p className="text-xs text-muted-foreground">{event.description}</p>
+                            )}
+                            {event.occurred_at && (
+                              <p className="text-[11px] text-muted-foreground tnum">
+                                {new Date(event.occurred_at).toLocaleString("fa-IR")}
+                              </p>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {downloadError && (
             <p className="text-sm text-destructive" role="alert">

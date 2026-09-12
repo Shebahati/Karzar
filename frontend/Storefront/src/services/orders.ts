@@ -28,6 +28,7 @@ interface TrackingBackendResponse {
     description?: string | null;
     actor?: string | null;
   }>;
+  shipments?: import("@/types/shipping").PublicShipment[];
 }
 
 function annotateTimeline(
@@ -84,6 +85,7 @@ export const orderService = {
       items: data.items ?? [],
       timeline,
       timeline_estimated: timelineEstimated,
+      shipments: data.shipments ?? [],
     };
   },
 

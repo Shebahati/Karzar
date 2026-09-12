@@ -31,6 +31,7 @@ from app.db.models.knowledge import (
     KnowledgePropertyDefinition,
     KnowledgeUnit,
 )
+from app.db.models.logistics import Shipment, ShipmentEvent, ShippingQuote
 from app.db.models.platform import (
     AdminAuditLog,
     Cart,
@@ -85,6 +86,9 @@ __all__ = [
     "PaymentStatus",
     "PaymentTransaction",
     "PaymentTransactionStatus",
+    "ShippingQuote",
+    "Shipment",
+    "ShipmentEvent",
     "HesabfaItemMapping",
     "HesabfaContactMapping",
     "HesabfaInvoiceRecord",

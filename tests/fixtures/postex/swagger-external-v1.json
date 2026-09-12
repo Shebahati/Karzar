@@ -1,0 +1,2119 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "مستندات فنی پستکس",
+    "description": "پستکس اولین هاب پستی ایران با ارائه دهنده خدمات آنلاین پست به صورت درب تا درب است که در آن متقاضیان این امکان را خواهند داشت تا از بین سرویس های پستی، حمل و نقل شهری و حمل و نقل سنگین و با توجه به مقایسه قیمت، سرعت و کیفیت به انتخاب سرویس مورد نظر خود بپردازند.\n# احراز هویت \nاحراز هویت API های پستکس با استفاده از API Key صورت می گیرد و  شما برای استفاده از سرویس های پستکس نیاز به API Key مختص به خود دارید.\nمقدار API Key می بایست در Header هر درخواست با اسم x-api-key ارسال گردد.>مقدار API Key را می بایست در Header با اسم x-api-key ارسال کنید",
+    "contact": {
+      "name": "پشتیبانی فنی پستکس",
+      "url": "https://api.postex.ir",
+      "email": "api@postex.ir"
+    }
+  },
+  "paths": {
+    "/api/v1/shipping/time-windows": {
+      "post": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت بازه‌های زمانی جمع آوری و توزیع",
+        "description": "این سرویس بازه‌های زمانی قابل انتخاب برای جمع‌آوری و توزیع مرسوله را برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/cancel-request/{parcel-no}": {
+      "post": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "درخواست انصراف از ارسال",
+        "description": "درخواست انصراف از ارسال مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "دلیل یا اطلاعات درخواست انصراف",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelParcelRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelParcelRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelParcelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/bulk": {
+      "post": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "ثبت مرسوله",
+        "description": "با فراخوانی این سرویس ، امکان ثبت چندین مرسوله در یک درخواست را دارید",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulkParcelCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulkParcelCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulkParcelCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/labels/bulk": {
+      "post": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "تولید برچسب پستی گروهی",
+        "requestBody": {
+          "description": "فهرست شناسه مرسوله‌ها",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/{parcel-no}": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت با شناسه مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "ویرایش جزییات مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "جزئیات جدید مرسوله",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "ویرایش مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "اطلاعات جدید مرسوله",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParcelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/custom-order-no/{custom-order-no}": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت با شماره سفارش مشتری",
+        "description": "با استفاده از این سرویس می توانید اطلاعات مرسوله خود شامل وضعیت و سایر اطلاعات را با استفاده از فیلدی custom_order_no که در هنگام ثبت سفارش ارسال کرده اید دریافت کنید",
+        "parameters": [
+          {
+            "name": "custom-order-no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/{parcel-no}/label": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "تولید برچسب پستی",
+        "description": "تولید برچسب پستی برای یک مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "فهرست مرسولات",
+        "description": "فهرست مرسوله‌های کاربر را با امکان فیلتر و صفحه‌بندی برمی‌گرداند.",
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "اندازه صفحه",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "page_index",
+            "in": "query",
+            "description": "تعداد صفحه",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Keyword",
+            "in": "query",
+            "description": "کلمه کلیدی",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location_keyword",
+            "in": "query",
+            "description": "محل یا لوکیشن",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from_city",
+            "in": "query",
+            "description": "شهر فرستنده",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "to_city",
+            "in": "query",
+            "description": "شهر گیرنده",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "courier_id",
+            "in": "query",
+            "description": "ای دی سرویس دهنده پستی",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "description": "ای دی سرویس پستی",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "to_mobile_no",
+            "in": "query",
+            "description": "موبایل فرستنئده",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to_postcode",
+            "in": "query",
+            "description": "کدپستی",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status_codes",
+            "in": "query",
+            "description": "وضعیت سفارش",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "مرتب سازی بر اساس",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/{parcel-no}/status": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت وضعیت مرسوله با شناسه مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/parcels/mark-ready": {
+      "post": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "آماده به ارسال کردن مرسوله",
+        "description": "آماده به ارسال کردن مرسوله",
+        "requestBody": {
+          "description": "فهرست شناسه مرسوله‌های آماده ارسال",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/tracking/events/{parcel-no}": {
+      "get": {
+        "tags": [
+          "رهگیری مرسولات"
+        ],
+        "summary": "رهگیری مرسوله با شناسه مرسوله",
+        "parameters": [
+          {
+            "name": "parcel-no",
+            "in": "path",
+            "description": "شناسه مرسوله",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/tracking/events/{courier}/{tracking-code}": {
+      "get": {
+        "tags": [
+          "رهگیری مرسولات"
+        ],
+        "summary": "رهگیری سفارش با بارکد",
+        "parameters": [
+          {
+            "name": "courier",
+            "in": "path",
+            "description": "شناسه یا کد شرکت حمل‌کننده",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tracking-code",
+            "in": "path",
+            "description": "بارکد یا کد رهگیری مرسوله",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/tracking/report": {
+      "get": {
+        "tags": [
+          "رهگیری مرسولات"
+        ],
+        "summary": "گزارش تغییر وضعیت های مرسوله",
+        "parameters": [
+          {
+            "name": "from_date",
+            "in": "query",
+            "description": "تاریخ شروع بازه گزارش",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to_date",
+            "in": "query",
+            "description": "تاریخ پایان بازه گزارش",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StatusChangeReport"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StatusChangeReport"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StatusChangeReport"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shipping/quotes": {
+      "post": {
+        "tags": [
+          "هزینه ارسال"
+        ],
+        "summary": "محاسبه هزینه جمع آوری و ارسال",
+        "description": "محاسبه هزینه جمع آوری و ارسال مرسوله",
+        "requestBody": {
+          "description": "مبدا، مقصد و مشخصات مرسوله برای محاسبه هزینه",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetShippingQuotesRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetShippingQuotesRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetShippingQuotesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/orders/{orderNo}": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت سفارش",
+        "description": "دریافت اطلاعات مرسوله با شناسه سفارش",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/orders/orders/{order-no}/labels": {
+      "get": {
+        "tags": [
+          "مرسولات"
+        ],
+        "summary": "دریافت برچسب پستی برای تمام مرسولات در یک سفارش",
+        "description": "تولید برچسب پستی برای یک مرسوله",
+        "parameters": [
+          {
+            "name": "order-no",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shipping-methods": {
+      "get": {
+        "tags": [
+          "شیوه های ارسال"
+        ],
+        "summary": "دریافت شیوه های ارسال",
+        "description": "فهرست کوریرها و روش‌های ارسال فعال را برای انتخاب هنگام ثبت مرسوله برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/user/access-token": {
+      "post": {
+        "tags": [
+          "حساب کاربری"
+        ],
+        "summary": "دریافت توکن دسترسی کاربر",
+        "description": "با استفاده از API Key، توکن دسترسی کاربر برای فراخوانی سرویس‌های نیازمند احراز هویت دریافت می‌شود.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/user/whoami": {
+      "get": {
+        "tags": [
+          "حساب کاربری"
+        ],
+        "summary": "دریافت اطلاعات کاربری",
+        "description": "اطلاعات حساب کاربری مرتبط با API Key ارسال‌شده را برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/balance": {
+      "get": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "موجودی کیف پول",
+        "description": "با استفاده از این سرویس می توانید موجودی ریالی کیف پول متصل به حساب کاربری خود را دریافت کنید ، توجه داشته باشید\nمبلغ موجودی به **ریال** است .\n> توجه داشته باشید پس از هر ثبت سفارش موفق ، مبلغ از کیف پول کسر شده و\n> در صورت عدم موجودی کافی کیف پول شما قادر به ثبت مرسوله نخواهید بود.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/transactions": {
+      "get": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "دریافت تراکنش ها",
+        "description": "تراکنش‌های کیف پول را با امکان فیلتر بر اساس بازه زمانی و نوع تراکنش برمی‌گرداند.",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "تاریخ شروع فیلتر تراکنش‌ها",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "تاریخ پایان فیلتر تراکنش‌ها",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "transactionTypeId",
+            "in": "query",
+            "description": "شناسه نوع تراکنش",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "actionTypeId",
+            "in": "query",
+            "description": "شناسه نوع عملیات",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "تعداد رکوردهای قابل نمایش",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "تعداد رکوردهای قابل رد شدن از ابتدای فهرست",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/top-up": {
+      "post": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "شارژ کیف پول",
+        "description": "از این متد برای شارژ مبلغ کیف پول در نزد پستکس به صورت آنلاین می توانید استفاده کنید",
+        "requestBody": {
+          "description": "مبلغ شارژ و نشانی‌های بازگشت پرداخت",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopupRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopupRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/withdraw": {
+      "post": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "درخواست برداشت از کیف پول",
+        "description": "مبلغ مشخص‌شده را از کیف پول برداشت و برای انتقال به حساب مقصد ثبت می‌کند.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletWithdrawCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletWithdrawCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletWithdrawCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/cash-out": {
+      "post": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "درخواست برداشت",
+        "description": "درخواست انتقال وجه از کیف پول به یکی از حساب‌های بانکی ثبت‌شده را ایجاد می‌کند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "کیف پول"
+        ],
+        "summary": "تاریخچه برداشت پول",
+        "parameters": [
+          {
+            "name": "fromDateTime",
+            "in": "query",
+            "description": "تاریخ شروع بازه جست‌وجو",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "toDateTime",
+            "in": "query",
+            "description": "تاریخ پایان بازه جست‌وجو",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "bankAccountId",
+            "in": "query",
+            "description": "شناسه حساب بانکی مقصد",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/bank-accounts": {
+      "post": {
+        "tags": [
+          "حساب های بانکی"
+        ],
+        "summary": "افزون حساب بانکی جدید",
+        "description": "اطلاعات حساب بانکی را دریافت و به حساب کاربری اضافه می‌کند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "حساب های بانکی"
+        ],
+        "summary": "دریافت حساب های",
+        "description": "دریافت فهرست حساب های بانکی ثبت شده شما در پستکس",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/bank-accounts/{id}": {
+      "delete": {
+        "tags": [
+          "حساب های بانکی"
+        ],
+        "summary": "حذف حساب بانکی",
+        "description": "با فراخوانی این سرویس حساب بانکی مورد نظر شما حذف",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "شناسه حساب بانکی",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/all": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "فهرست تمام شهرها",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/{province-code}": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "دریافت شهرهای استان",
+        "parameters": [
+          {
+            "name": "province-code",
+            "in": "path",
+            "description": "کد استان",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر شهرها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/countries": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "دریافت فهرست کشورها",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر کشورها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/from/all": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "فهرست شهرهای مبدا",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر شهرها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/from/{province-code}": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "دریافت شهرهای استان مبدا",
+        "parameters": [
+          {
+            "name": "province-code",
+            "in": "path",
+            "description": "کد استان مبدا",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر شهرها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/provinces": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "فهرست استان ها",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر استان‌ها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/to/all": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "فهرست شهرهای مقصد",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر شهرها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/locality/cities/to/{province-code}": {
+      "get": {
+        "tags": [
+          "تقسیمات جغرافیایی"
+        ],
+        "summary": "دریافت شهرهای استان مقصد",
+        "parameters": [
+          {
+            "name": "province-code",
+            "in": "path",
+            "description": "کد استان مقصد",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "عبارت جست‌وجوی اختیاری برای فیلتر شهرها",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/common/boxes": {
+      "get": {
+        "tags": [
+          "سرویس عمومی"
+        ],
+        "summary": "دریافت سایز جعبه ها",
+        "description": "فهرست ابعاد و انواع جعبه‌های استاندارد قابل استفاده برای بسته‌بندی مرسوله را برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/common/payment-methods": {
+      "get": {
+        "tags": [
+          "سرویس عمومی"
+        ],
+        "summary": "دریافت شیوه های پرداخت",
+        "description": "فهرست روش‌های پرداخت قابل استفاده در سرویس‌های پستکس را برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/common/shipping-methods": {
+      "get": {
+        "tags": [
+          "سرویس عمومی"
+        ],
+        "summary": "دریافت شیوه های ارسال",
+        "description": "فهرست سرویس‌ها و روش‌های ارسال فعال را برای استفاده در ثبت مرسوله برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/common/statuses": {
+      "get": {
+        "tags": [
+          "سرویس عمومی"
+        ],
+        "summary": "دریافت   وضعیت ها",
+        "description": "فهرست وضعیت‌های مورد استفاده برای نمایش وضعیت مرسوله را برمی‌گرداند.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/store/enroll": {
+      "post": {
+        "tags": [
+          "مدیریت فروشگاه ها"
+        ],
+        "summary": "ثبت‌نام فروشگاه در پستکس",
+        "description": "این سرویس اطلاعات فروشگاه را دریافت و آن را برای استفاده از خدمات پستکس ثبت می‌کند.\nساختار دقیق درخواست و پاسخ باید مطابق قرارداد سرویس Core تکمیل شود.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiResult": {
+        "type": "object",
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BalanceResponse": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "موجودی کیف پول کاربر به ریال",
+            "format": "int64",
+            "example": 1500000
+          },
+          "userID": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CancelParcelRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Contact": {
+        "required": [
+          "first_name",
+          "last_name",
+          "mobile_no"
+        ],
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نام"
+          },
+          "last_name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نام خانوادگی"
+          },
+          "mobile_no": {
+            "minLength": 1,
+            "type": "string",
+            "description": "تلفن همراه"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContactDto": {
+        "required": [
+          "first_name",
+          "last_name",
+          "mobile_no"
+        ],
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نام"
+          },
+          "last_name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نام خانوادگی"
+          },
+          "mobile_no": {
+            "minLength": 1,
+            "type": "string",
+            "description": "تلفن همراه"
+          },
+          "telephone_no": {
+            "type": "string",
+            "description": "تلفن ثابت",
+            "nullable": true
+          },
+          "email_address": {
+            "type": "string",
+            "description": "نشانی ایمیل",
+            "nullable": true
+          },
+          "company_name": {
+            "type": "string",
+            "description": "نام شرکت",
+            "nullable": true
+          },
+          "national_code": {
+            "type": "string",
+            "description": "کد ملی",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "اطلاعات تماس"
+      },
+      "CreateBulkParcelCommand": {
+        "type": "object",
+        "properties": {
+          "collection_type": {
+            "type": "string",
+            "description": "<h4>نحوه جمع آوری</h4>\n<p>\n  <b>pick_up:</b>  درخواست جمع آوری از محل فرستنده</p>\n<p>\n  <b>courier_drop_off:</b> تحویل حضوری به شرکت پستی</p>\n<p>\n  <b>postex_drop_off:</b> تحویل حضوری به پستکس</p>",
+            "nullable": true,
+            "example": "pick_up,courier_drop_off,postex_drop_off"
+          },
+          "remark": {
+            "type": "string",
+            "description": "توضیحات مربوط به سفارش",
+            "nullable": true
+          },
+          "custom_batch_no": {
+            "type": "string",
+            "description": "شناسه اختیاری",
+            "nullable": true
+          },
+          "custom_channel": {
+            "type": "string",
+            "description": "کانال ثبت سفارش",
+            "nullable": true,
+            "example": "api, instagram, etc"
+          },
+          "parcels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateParcelCommand"
+            },
+            "description": "فهرست مرسولات",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateParcelCommand": {
+        "required": [
+          "courier",
+          "from",
+          "parcel_items",
+          "parcel_properties",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/ParcelLocationDto"
+          },
+          "to": {
+            "$ref": "#/components/schemas/ParcelLocationDto"
+          },
+          "parcel_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParcelItemDto"
+            },
+            "description": "اطلاعات محتویات مرسوله"
+          },
+          "additional_data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "دیتاهای اضافی",
+            "nullable": true
+          },
+          "parcel_properties": {
+            "$ref": "#/components/schemas/ParcelPropertyDto"
+          },
+          "courier": {
+            "$ref": "#/components/schemas/CreateParcelCourierDto"
+          },
+          "added_service": {
+            "$ref": "#/components/schemas/OptionalServices"
+          },
+          "custom_order_no": {
+            "type": "string",
+            "description": "شناسه سفارش اختیاری",
+            "nullable": true,
+            "example": "\n                PTX-8846884\n            "
+          },
+          "custom_reference_no": {
+            "type": "string",
+            "description": "شناسه رهگیری سفارشی",
+            "nullable": true
+          },
+          "submit_channel": {
+            "type": "string",
+            "description": "چنل ثبت مرسوله",
+            "nullable": true
+          },
+          "ready_to_accept": {
+            "type": "boolean",
+            "description": "آماده به ارسال کردن سفارش خودکار بعد از ثبت مروسله"
+          },
+          "drop_off_location_id": {
+            "type": "integer",
+            "description": "موقعیت تحویل مرسوله",
+            "format": "int32",
+            "nullable": true,
+            "example": 123
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateParcelCourierDto": {
+        "required": [
+          "name",
+          "payment_type",
+          "service_type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "کد سرویس دهنده پستی",
+            "example": "IR_POST,CHAPAR,DEKAPOST,MAHEX,etc"
+          },
+          "service_type": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نوع سرویس پستی",
+            "example": "EXPRESS"
+          },
+          "payment_type": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نحوه پرداخت هزینه ارسال",
+            "example": "\n                SENDER (پرداخت توسط فرستنده)\n                COD (پرداخت در محل)\n                FREE_SHIPPING (ارسال رایگان)\n                RECEIVER (گیرنده یا پس کرایه)\n            "
+          }
+        },
+        "additionalProperties": false,
+        "description": "مشخصات سرویس حمل و نقل"
+      },
+      "GetQuotesCourier": {
+        "type": "object",
+        "properties": {
+          "courier_code": {
+            "type": "string",
+            "description": "سرویس دهنده IR_POST,MAHEX,etc",
+            "nullable": true
+          },
+          "service_type": {
+            "type": "string",
+            "description": "نوع سرویس EXPRESS,etc",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetShippingQuotesQueryParcels": {
+        "type": "object",
+        "properties": {
+          "custom_parcel_id": {
+            "type": "string",
+            "description": "شناسه اختیاری",
+            "nullable": true
+          },
+          "to_city_code": {
+            "type": "integer",
+            "description": "شناسه شهر مقصد",
+            "format": "int32"
+          },
+          "payment_type": {
+            "type": "string",
+            "description": "نحوه پرداخت مرسوله",
+            "nullable": true,
+            "example": "\n                SENDER (پرداخت توسط فرستنده)\n                COD (پرداخت در محل)\n                FREE_SHIPPING (ارسال رایگان)\n                RECEIVER (گیرنده یا پس کرایه)\n            "
+          },
+          "parcel_properties": {
+            "$ref": "#/components/schemas/ParcelPropertyDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetShippingQuotesRequest": {
+        "required": [
+          "collection_type",
+          "from_city_code",
+          "parcels"
+        ],
+        "type": "object",
+        "properties": {
+          "collection_type": {
+            "minLength": 1,
+            "type": "string",
+            "description": "<h4>نحوه جمع آوری</h4>\n<p>\n  <b>pick_up:</b>  درخواست جمع آوری از محل فرستنده</p>\n<p>\n  <b>courier_drop_off:</b> تحویل حضوری به شرکت پستی</p>\n<p>\n  <b>postex_drop_off:</b> تحویل حضوری به پستکس</p>",
+            "example": "pick_up,courier_drop_off,postex_drop_off"
+          },
+          "from_city_code": {
+            "type": "integer",
+            "description": "شناسه شهر مبدا",
+            "format": "int32"
+          },
+          "courier": {
+            "$ref": "#/components/schemas/GetQuotesCourier"
+          },
+          "parcels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetShippingQuotesQueryParcels"
+            },
+            "description": "مرسولات"
+          },
+          "value_added_service": {
+            "$ref": "#/components/schemas/OptionalServices"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Location": {
+        "required": [
+          "address"
+        ],
+        "type": "object",
+        "properties": {
+          "post_code": {
+            "type": "string",
+            "description": "مقدار کدپستی",
+            "nullable": true
+          },
+          "address": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نشانی کامل و دقیق پستی"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationDto": {
+        "required": [
+          "address",
+          "city_id"
+        ],
+        "type": "object",
+        "properties": {
+          "post_code": {
+            "type": "string",
+            "description": "مقدار کدپستی",
+            "nullable": true,
+            "example": "Example"
+          },
+          "country": {
+            "type": "string",
+            "description": "نام کشور",
+            "nullable": true
+          },
+          "city_id": {
+            "type": "integer",
+            "description": "کد شهر",
+            "format": "int32"
+          },
+          "city_name": {
+            "type": "string",
+            "description": "نام شهر (اختیاری)",
+            "nullable": true
+          },
+          "address": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نشانی کامل و دقیق پستی"
+          },
+          "lat": {
+            "type": "string",
+            "description": "طول جغرفایی",
+            "nullable": true
+          },
+          "lon": {
+            "type": "string",
+            "description": "عرض جغرافیایی",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "اطلاعات مکانی فرستنده یا گیرنده مرسوله"
+      },
+      "OptionalServices": {
+        "type": "object",
+        "properties": {
+          "request_label": {
+            "type": "boolean",
+            "description": "درخواست چاپ لیبل پستی"
+          },
+          "request_packaging": {
+            "type": "boolean",
+            "description": "درخواست بسته‌بندی"
+          },
+          "request_sms_notification": {
+            "type": "boolean",
+            "description": "درخواست اعلان پیامکی"
+          }
+        },
+        "additionalProperties": false,
+        "description": "سرویس هاس اختیاری"
+      },
+      "ParcelItemDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "نام مرسوله",
+            "nullable": true
+          },
+          "product_id": {
+            "type": "integer",
+            "description": "شناسه مرسوله - اختیاری",
+            "format": "int32",
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "مشخصات مرسوله - اختیاری",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "تعداد محصول - اختیاری",
+            "format": "int32",
+            "nullable": true
+          },
+          "sku": {
+            "type": "string",
+            "description": "شناسه SKU - اختیاری",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "description": "قیمت محول - اختیاری",
+            "format": "double",
+            "nullable": true
+          },
+          "weight": {
+            "type": "integer",
+            "description": "وزن محصول - اختیاری",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "محتویات مرسوله"
+      },
+      "ParcelLocationDto": {
+        "required": [
+          "contact",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/ContactDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationDto"
+          }
+        },
+        "additionalProperties": false,
+        "description": "اطلاعات مکانی مرسوله"
+      },
+      "ParcelPropertyDto": {
+        "required": [
+          "box_type_id",
+          "height",
+          "length",
+          "total_value",
+          "total_weight",
+          "width"
+        ],
+        "type": "object",
+        "properties": {
+          "length": {
+            "type": "integer",
+            "description": "طول مرسوله به سانتی متر",
+            "format": "int32"
+          },
+          "width": {
+            "type": "integer",
+            "description": "عرض مرسوله به سانتی متر",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "description": "ارتفاع مرسوله به سانتی متر",
+            "format": "int32"
+          },
+          "total_weight": {
+            "type": "integer",
+            "description": "وزن کلی مرسوله به گرم",
+            "format": "int64"
+          },
+          "is_fragile": {
+            "type": "boolean",
+            "description": "شکستنی بودن مرسوله",
+            "nullable": true
+          },
+          "is_liquid": {
+            "type": "boolean",
+            "description": "مایع بودن مرسوله",
+            "nullable": true
+          },
+          "total_value": {
+            "type": "number",
+            "description": "ارزش ریالی کل مرسوله",
+            "format": "double"
+          },
+          "pre_paid_amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "total_value_currency": {
+            "type": "string",
+            "description": "نوع ارز",
+            "nullable": true,
+            "example": "\n                IRR\n            "
+          },
+          "box_type_id": {
+            "type": "integer",
+            "description": "نوع باکس مرسوله",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "مشخصات مرسوله"
+      },
+      "StatusChangeReport": {
+        "type": "object",
+        "properties": {
+          "order_no": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tracking_no": {
+            "type": "string",
+            "nullable": true
+          },
+          "change_status_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "change_status_date_utc": {
+            "type": "string",
+            "nullable": true
+          },
+          "change_status_time": {
+            "type": "string",
+            "nullable": true
+          },
+          "change_status_time_utc": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_desc": {
+            "type": "string",
+            "nullable": true
+          },
+          "custom_order_no": {
+            "type": "string",
+            "nullable": true
+          },
+          "custom_reference_no": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "To": {
+        "required": [
+          "contact"
+        ],
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          }
+        },
+        "additionalProperties": false,
+        "description": "اطلاعات گیرنده"
+      },
+      "TopupRequest": {
+        "required": [
+          "amount",
+          "failedCallbackUrl",
+          "successfulCallbackUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "مبلغ شارژ به ریال",
+            "format": "int64"
+          },
+          "successfulCallbackUrl": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نشانی بازگشت پس از پرداخت موفق"
+          },
+          "failedCallbackUrl": {
+            "minLength": 1,
+            "type": "string",
+            "description": "نشانی بازگشت در صورت پرداخت ناموفق"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TopupResponse": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "مبلغ شارژ به ریال",
+            "format": "int64"
+          },
+          "paymentID": {
+            "type": "string",
+            "description": "شناسه پرداخت",
+            "format": "uuid"
+          },
+          "startPaymentUrl": {
+            "type": "string",
+            "description": "نشانی اینترنتی برای انتقال کاربر به درگاه پرداخت آنلاین",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateParcelRequest": {
+        "required": [
+          "parcel_items",
+          "parcel_properties",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "request_label": {
+            "type": "boolean",
+            "description": "درخواست برچسب برای مرسوله",
+            "nullable": true
+          },
+          "to": {
+            "$ref": "#/components/schemas/To"
+          },
+          "parcel_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParcelItemDto"
+            },
+            "description": "فهرست محتویات مرسوله"
+          },
+          "parcel_properties": {
+            "$ref": "#/components/schemas/ParcelPropertyDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WalletWithdrawCommand": {
+        "required": [
+          "parcel_no"
+        ],
+        "type": "object",
+        "properties": {
+          "parcel_no": {
+            "minLength": 1,
+            "type": "string",
+            "description": "remark"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "مرسولات"
+    },
+    {
+      "name": "رهگیری مرسولات"
+    },
+    {
+      "name": "هزینه ارسال"
+    },
+    {
+      "name": "شیوه های ارسال"
+    },
+    {
+      "name": "حساب کاربری"
+    },
+    {
+      "name": "کیف پول"
+    },
+    {
+      "name": "حساب های بانکی"
+    },
+    {
+      "name": "تقسیمات جغرافیایی"
+    },
+    {
+      "name": "سرویس عمومی"
+    },
+    {
+      "name": "مدیریت فروشگاه ها"
+    }
+  ]
+}

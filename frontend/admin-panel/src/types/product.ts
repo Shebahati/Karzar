@@ -75,6 +75,12 @@ export interface ProductDetail {
   is_available?: boolean;
   warranty_text: string | null;
   weight_grams: string | null;
+  package_length_cm?: string | null;
+  package_width_cm?: string | null;
+  package_height_cm?: string | null;
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original: boolean;
   tax_percent: string;
   is_active: boolean;
@@ -103,6 +109,12 @@ export interface ProductCreatePayload {
   stock_unit: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
+  package_length_cm?: number | null;
+  package_width_cm?: number | null;
+  package_height_cm?: number | null;
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original: boolean;
   tax_percent: number;
   is_active: boolean;
@@ -126,6 +138,12 @@ export interface ProductUpdatePayload {
   stock_unit?: StockUnit;
   warranty_text?: string | null;
   weight_grams?: number | null;
+  package_length_cm?: number | null;
+  package_width_cm?: number | null;
+  package_height_cm?: number | null;
+  shipping_is_fragile?: boolean | null;
+  shipping_is_liquid?: boolean | null;
+  shipping_class?: "parcel" | "freight_only" | null;
   is_original?: boolean;
   tax_percent?: number;
   is_active?: boolean;

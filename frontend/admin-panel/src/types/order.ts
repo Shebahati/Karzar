@@ -64,12 +64,19 @@ export interface OrderTimelineEvent {
 export interface OrderDetail extends OrderSummary {
   note: string | null;
   shipping_address: string | null;
+  shipping?: Record<string, unknown> | null;
   payment_status: string | null;
   items: OrderLineItem[];
   postal_tracking_code?: string | null;
   delivery_eta?: string | null;
   invoice?: OrderInvoice | null;
   timeline?: OrderTimelineEvent[];
+  shipping_provider?: string | null;
+  shipping_customer_cost?: string | null;
+  shipping_provider_quoted_cost?: string | null;
+  shipping_carrier_code?: string | null;
+  shipping_service_code?: string | null;
+  shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
 }
 
 export interface IssueQuotePayload {
@@ -115,4 +122,10 @@ export interface OrderDetailBackend {
   delivery_eta?: string | null;
   invoice?: OrderInvoice | null;
   timeline?: OrderTimelineEvent[];
+  shipping_provider?: string | null;
+  shipping_customer_cost?: string | null;
+  shipping_provider_quoted_cost?: string | null;
+  shipping_carrier_code?: string | null;
+  shipping_service_code?: string | null;
+  shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
 }

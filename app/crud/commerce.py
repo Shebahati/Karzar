@@ -9,7 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.models.commerce import Order, OrderItem, OrderMode, OrderStatus, OrderStatusEvent
+from app.db.models.logistics import Shipment
 from app.utils.tracking_code import generate_unique_tracking_code
+
+
+def _order_load_options():
+    return (
+        selectinload(Order.items),
+        selectinload(Order.status_events),
+        selectinload(Order.shipments).selectinload(Shipment.events),
+    )
 
 
 async def create_order(
@@ -28,6 +37,12 @@ async def create_order(
     shipping: dict[str, Any] | None,
     user_id: int | None,
     items: list[dict[str, Any]],
+    shipping_provider: str | None = None,
+    shipping_quote_id: int | None = None,
+    shipping_customer_cost: Decimal | None = None,
+    shipping_provider_quoted_cost: Decimal | None = None,
+    shipping_carrier_code: str | None = None,
+    shipping_service_code: str | None = None,
 ) -> Order:
     tracking_code = await generate_unique_tracking_code(db, tracking_prefix)
     order = Order(
@@ -43,6 +58,12 @@ async def create_order(
         note=note,
         shipping=shipping,
         user_id=user_id,
+        shipping_provider=shipping_provider,
+        shipping_quote_id=shipping_quote_id,
+        shipping_customer_cost=shipping_customer_cost,
+        shipping_provider_quoted_cost=shipping_provider_quoted_cost,
+        shipping_carrier_code=shipping_carrier_code,
+        shipping_service_code=shipping_service_code,
     )
     db.add(order)
     await db.flush()
@@ -98,7 +119,7 @@ async def get_order_by_id(db: AsyncSession, order_id: int) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.id == order_id, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -108,7 +129,7 @@ async def get_order_by_id_for_update(db: AsyncSession, order_id: int) -> Order |
     stmt = (
         select(Order)
         .where(Order.id == order_id, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
         .with_for_update()
     )
     result = await db.execute(stmt)
@@ -119,17 +140,19 @@ async def get_order_by_payment_authority(db: AsyncSession, authority: str) -> Or
     stmt = (
         select(Order)
         .where(Order.payment_authority == authority, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_order_by_payment_authority_for_update(db: AsyncSession, authority: str) -> Order | None:
+async def get_order_by_payment_authority_for_update(
+    db: AsyncSession, authority: str
+) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.payment_authority == authority, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
         .with_for_update()
     )
     result = await db.execute(stmt)
@@ -140,17 +163,19 @@ async def get_order_by_tracking_code(db: AsyncSession, tracking_code: str) -> Or
     stmt = (
         select(Order)
         .where(Order.tracking_code == tracking_code, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_order_by_tracking_code_for_update(db: AsyncSession, tracking_code: str) -> Order | None:
+async def get_order_by_tracking_code_for_update(
+    db: AsyncSession, tracking_code: str
+) -> Order | None:
     stmt = (
         select(Order)
         .where(Order.tracking_code == tracking_code, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
         .with_for_update()
     )
     result = await db.execute(stmt)
@@ -161,7 +186,7 @@ async def get_order_by_payment_ref_id(db: AsyncSession, ref_id: str) -> Order | 
     stmt = (
         select(Order)
         .where(Order.payment_ref_id == ref_id, Order.deleted_at.is_(None))
-        .options(selectinload(Order.items), selectinload(Order.status_events))
+        .options(*_order_load_options())
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -227,11 +252,7 @@ async def list_orders(
         order_by = [Order.estimated_total.desc().nulls_last(), Order.id.desc()]
 
     stmt = (
-        select(Order)
-        .options(selectinload(Order.items), selectinload(Order.status_events))
-        .order_by(*order_by)
-        .offset(skip)
-        .limit(limit)
+        select(Order).options(*_order_load_options()).order_by(*order_by).offset(skip).limit(limit)
     )
     if filters:
         stmt = stmt.where(*filters)

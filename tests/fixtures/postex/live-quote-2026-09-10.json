@@ -1,0 +1,39 @@
+{
+  "parcel_count": 1,
+  "currency": "IRR",
+  "pickup_price": 1200000,
+  "shipping_price": 1298000,
+  "shipping_price_vat": 0,
+  "value_added_service_price": 0,
+  "total_cost": 2498000,
+  "shipping_prices": [
+    {
+      "custom_parcel_id": "readonly-contract-verify-2",
+      "to_city_name": "",
+      "shipping_price": 1298000,
+      "shipping_price_vat": 0,
+      "total_shipping_price": 1298000,
+      "estimated_delivery": "",
+      "service_price": [
+        {
+          "courierLogo": "https://static.postex.ir/images/couriers/logos/small/IR_POST.png",
+          "courierName": "شرکت ملی پست",
+          "courierCode": "IR_POST",
+          "courierNameAlias": "شرکت ملی پست",
+          "courierCodeAlias": "IR_POST",
+          "serviceType": "EXPRESS",
+          "serviceName": "پست پیشتاز",
+          "slaDays": "از 84 تا 168 ساعت کاری",
+          "slaHours": 168,
+          "vat": 100000,
+          "discountAmount": 0,
+          "totalPrice": 1298000,
+          "initPrice": 1298000
+        }
+      ],
+      "value_added_service_price": {}
+    }
+  ],
+  "excluded_services": {},
+  "shipping_price_discount": 0
+}

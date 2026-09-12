@@ -140,6 +140,8 @@ class ShippingAddress(BaseModel):
     city: str = Field(..., min_length=2)
     postal_code: str
     address_line: str = Field(..., min_length=10)
+    # Provider-independent destination code required for Postex rate calculation.
+    location_code: int | None = Field(None, ge=1)
 
     @field_validator("postal_code")
     @classmethod
@@ -157,6 +159,7 @@ class CheckoutRequest(BaseModel):
     note: str | None = Field(None, max_length=500)
     shipping: ShippingAddress | None = None
     company_name: str | None = Field(None, max_length=120)
+    shipping_quote_token: str | None = Field(None, max_length=128)
 
 
 class CheckoutResponse(BaseModel):

@@ -146,7 +146,9 @@ async def initialize_order_payment(
     )
     return PaymentInitResult(
         authority=result.authority,
-        payment_url=build_gateway_payment_url(result.authority, provider_payment_url=result.payment_url),
+        payment_url=build_gateway_payment_url(
+            result.authority, provider_payment_url=result.payment_url
+        ),
     )
 
 
@@ -219,6 +221,9 @@ async def verify_order_payment(
             provider_data=result.provider_data,
         )
         await maybe_create_invoice_after_payment(db, order)
+        from app.services.logistics.service import ensure_shipment_for_paid_order
+
+        await ensure_shipment_for_paid_order(db, order)
     else:
         order.payment_status = PaymentStatus.FAILED.value
         await record_payment_failed(db, order, authority=authority, ip_address=ip_address)

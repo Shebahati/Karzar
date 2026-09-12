@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_optional_current_user
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.logging import get_logger
 from app.core.request_throttle import enforce_public_throttle
 from app.crud import platform as crud_platform
 from app.db.database import get_db
@@ -20,7 +21,9 @@ from app.services.checkout_service import (
     PurchaseCheckoutDisabledError,
     submit_checkout,
 )
+from app.services.logistics.exceptions import LogisticsError
 
+logger = get_logger(__name__)
 router = APIRouter()
 
 
@@ -79,7 +82,9 @@ async def checkout(
                 db, scope=idempotency_scope, key=normalized_key
             )
             if existing is not None and existing.status_code > 0:
-                return JSONResponse(status_code=existing.status_code, content=existing.response_body)
+                return JSONResponse(
+                    status_code=existing.status_code, content=existing.response_body
+                )
             raise api_error(
                 status.HTTP_409_CONFLICT,
                 error_code=ErrorCode.CONFLICT,
@@ -123,6 +128,30 @@ async def checkout(
             error_code=ErrorCode.PURCHASE_AUTH_REQUIRED,
             message="برای ثبت سفارش خرید باید وارد حساب کاربری شوید.",
         ) from exc
+    except LogisticsError as exc:
+        if idempotency_key and idempotency_key.strip():
+            await crud_platform.delete_idempotency_record(
+                db,
+                scope=idempotency_scope,
+                key=idempotency_key.strip(),
+            )
+            await db.commit()
+        code = getattr(exc, "error_code", ErrorCode.VALIDATION_FAILED)
+        http_status = status.HTTP_400_BAD_REQUEST
+        if code == "SHIPPING_UNAVAILABLE":
+            http_status = status.HTTP_503_SERVICE_UNAVAILABLE
+        elif code in {
+            "SHIPPING_QUOTE_EXPIRED",
+            "SHIPPING_QUOTE_MISMATCH",
+            "SHIPPING_QUOTE_CONSUMED",
+            "SHIPPING_QUOTE_STALE",
+        }:
+            http_status = status.HTTP_409_CONFLICT
+        raise api_error(
+            http_status,
+            error_code=code,
+            message=str(exc),
+        ) from exc
     except ValueError as exc:
         if idempotency_key and idempotency_key.strip():
             await crud_platform.delete_idempotency_record(
@@ -144,6 +173,7 @@ async def checkout(
                 key=idempotency_key.strip(),
             )
             await db.commit()
+        logger.exception("checkout_failed user_id=%s", getattr(current_user, "id", None))
         raise api_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code=ErrorCode.INTERNAL_ERROR,

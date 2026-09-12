@@ -1,6 +1,5 @@
 """Order endpoints: admin management, customer history, and public tracking."""
 
-
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
@@ -33,6 +32,7 @@ from app.schemas.order import (
     OrderTrackingResponse,
 )
 from app.services.audit_service import record_audit
+from app.services.logistics.service import admin_shipment_view, public_shipment_view
 from app.services.order_service import (
     allowed_next_statuses,
     build_invoice_response,
@@ -102,6 +102,12 @@ def _to_detail(order: Order) -> OrderDetailResponse:
         user_id=order.user_id,
         postal_tracking_code=order.postal_tracking_code,
         delivery_eta=order.delivery_eta,
+        shipping_provider=order.shipping_provider,
+        shipping_customer_cost=decimal_to_api_string(order.shipping_customer_cost),
+        shipping_provider_quoted_cost=decimal_to_api_string(order.shipping_provider_quoted_cost),
+        shipping_carrier_code=order.shipping_carrier_code,
+        shipping_service_code=order.shipping_service_code,
+        shipments=[admin_shipment_view(shipment) for shipment in (order.shipments or [])],
         invoice=build_invoice_response(order.invoice),
         items=[
             OrderItemResponse(
@@ -120,7 +126,9 @@ def _to_detail(order: Order) -> OrderDetailResponse:
     )
 
 
-@router.get("/me", response_model=OrderListResponse, summary="List the authenticated customer's orders")
+@router.get(
+    "/me", response_model=OrderListResponse, summary="List the authenticated customer's orders"
+)
 async def list_my_orders(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -136,7 +144,11 @@ async def list_my_orders(
     }
 
 
-@router.get("/track/{tracking_code}", response_model=OrderTrackingResponse, summary="Public order tracking by code")
+@router.get(
+    "/track/{tracking_code}",
+    response_model=OrderTrackingResponse,
+    summary="Public order tracking by code",
+)
 async def track_order(tracking_code: str, request: Request, db: AsyncSession = Depends(get_db)):
     await enforce_public_throttle(
         request,
@@ -168,6 +180,7 @@ async def track_order(tracking_code: str, request: Request, db: AsyncSession = D
             for item in order.items
         ],
         timeline=_build_timeline(order),
+        shipments=[public_shipment_view(shipment) for shipment in (order.shipments or [])],
     )
 
 
@@ -186,14 +199,21 @@ async def list_orders(
     customer_phone: str | None = Query(None),
     search: str | None = Query(None),
     sort: str = Query("newest"),
-    open: bool | None = Query(None, description="Filter to actionable open orders for the given mode"),
+    open: bool | None = Query(
+        None, description="Filter to actionable open orders for the given mode"
+    ),
 ):
     if sort not in _VALID_ORDER_SORTS:
         raise api_error(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             error_code=ErrorCode.VALIDATION_FAILED,
             message="Invalid sort key",
-            details=[{"field": "sort", "message": f"must be one of: {', '.join(sorted(_VALID_ORDER_SORTS))}"}],
+            details=[
+                {
+                    "field": "sort",
+                    "message": f"must be one of: {', '.join(sorted(_VALID_ORDER_SORTS))}",
+                }
+            ],
         )
 
     resolved_skip, resolved_limit = resolve_pagination(
@@ -258,7 +278,9 @@ async def get_order(
     return _to_detail(order)
 
 
-@router.patch("/{order_id}/status", response_model=OrderDetailResponse, summary="Update order status (admin)")
+@router.patch(
+    "/{order_id}/status", response_model=OrderDetailResponse, summary="Update order status (admin)"
+)
 async def update_order_status(
     order_id: int,
     payload: OrderStatusUpdateRequest,
@@ -333,7 +355,9 @@ async def update_order_status(
     return _to_detail(refreshed)
 
 
-@router.post("/{order_id}/quote", response_model=OrderDetailResponse, summary="Issue inquiry quote (admin)")
+@router.post(
+    "/{order_id}/quote", response_model=OrderDetailResponse, summary="Issue inquiry quote (admin)"
+)
 async def issue_quote(
     order_id: int,
     payload: IssueQuoteRequest,
@@ -371,7 +395,11 @@ async def issue_quote(
     return _to_detail(refreshed)
 
 
-@router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Archive order (soft delete, admin)")
+@router.delete(
+    "/{order_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Archive order (soft delete, admin)",
+)
 async def archive_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),

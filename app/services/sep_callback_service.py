@@ -196,7 +196,9 @@ async def _mark_failed(
         provider_data=fields.sanitized,
     )
     await db.flush()
-    return SepCallbackResult(outcome="failure", tracking_code=order.tracking_code, order_id=order.id)
+    return SepCallbackResult(
+        outcome="failure", tracking_code=order.tracking_code, order_id=order.id
+    )
 
 
 def _security_reject_details(
@@ -277,7 +279,9 @@ async def reserve_sep_callback(
     if order.payment_status == PaymentStatus.PAID.value:
         stored_ref = (order.payment_ref_id or "").strip()
         if fields.ref_num and stored_ref and stored_ref == fields.ref_num:
-            return SepCallbackResult(outcome="success", tracking_code=order.tracking_code, order_id=order.id)
+            return SepCallbackResult(
+                outcome="success", tracking_code=order.tracking_code, order_id=order.id
+            )
         return await _security_reject(
             db,
             order,
@@ -309,10 +313,14 @@ async def reserve_sep_callback(
             provider_data=fields.sanitized,
         )
         await db.flush()
-        return SepCallbackResult(outcome="verifying", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="verifying", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if not fields.token:
-        return await _mark_failed(db, order, fields=fields, ip_address=ip_address, reason="token_missing")
+        return await _mark_failed(
+            db, order, fields=fields, ip_address=ip_address, reason="token_missing"
+        )
 
     if not order.payment_authority or order.payment_authority != fields.token:
         return await _security_reject(
@@ -340,7 +348,9 @@ async def reserve_sep_callback(
         )
 
     if not fields.ref_num or len(fields.ref_num) > _MAX_REF_NUM_LEN:
-        return await _mark_failed(db, order, fields=fields, ip_address=ip_address, reason="ref_missing")
+        return await _mark_failed(
+            db, order, fields=fields, ip_address=ip_address, reason="ref_missing"
+        )
 
     if fields.amount == -1:
         return await _mark_failed(
@@ -413,7 +423,9 @@ async def reserve_sep_callback(
         ip_address=ip_address,
     )
     await db.flush()
-    return SepCallbackResult(outcome="verifying", tracking_code=order.tracking_code, order_id=order.id)
+    return SepCallbackResult(
+        outcome="verifying", tracking_code=order.tracking_code, order_id=order.id
+    )
 
 
 async def claim_sep_verify_job(db: AsyncSession, order_id: int) -> SepVerifyClaim | None:
@@ -491,10 +503,14 @@ async def apply_sep_verify_success(
         return SepCallbackResult(outcome="failure", tracking_code=claim.tracking_code)
 
     if order.payment_status == PaymentStatus.PAID.value:
-        return SepCallbackResult(outcome="success", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="success", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if order.payment_status != PaymentStatus.VERIFYING.value:
-        return SepCallbackResult(outcome="failure", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="failure", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if (order.payment_ref_id or "").strip() != claim.ref_num:
         return await _security_reject(
@@ -511,7 +527,9 @@ async def apply_sep_verify_success(
             db, order, authority=claim.authority, ref_id=claim.ref_num, ip_address=ip_address
         )
         await db.flush()
-        return SepCallbackResult(outcome="failure", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="failure", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if order.status == OrderStatus.PENDING_PAYMENT.value:
         await transition_order_status(db, order, OrderStatus.PAID.value)
@@ -531,8 +549,13 @@ async def apply_sep_verify_success(
         rrn=str(provider_data.get("RRN")) if provider_data.get("RRN") else None,
     )
     await maybe_create_invoice_after_payment(db, order)
+    from app.services.logistics.service import ensure_shipment_for_paid_order
+
+    await ensure_shipment_for_paid_order(db, order)
     await db.flush()
-    return SepCallbackResult(outcome="success", tracking_code=order.tracking_code, order_id=order.id)
+    return SepCallbackResult(
+        outcome="success", tracking_code=order.tracking_code, order_id=order.id
+    )
 
 
 async def apply_sep_verify_failure(
@@ -547,7 +570,9 @@ async def apply_sep_verify_failure(
         return SepCallbackResult(outcome="failure", tracking_code=claim.tracking_code)
 
     if order.payment_status == PaymentStatus.PAID.value:
-        return SepCallbackResult(outcome="success", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="success", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if isinstance(exc, PaymentAmountMismatchError):
         return await _handle_amount_mismatch(
@@ -567,24 +592,32 @@ async def apply_sep_verify_failure(
             provider_data={"error": str(getattr(exc, "message", exc))[:200]},
         )
         await db.flush()
-        return SepCallbackResult(outcome="failure", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="failure", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     if isinstance(exc, PaymentGatewayTimeoutError | PaymentGatewayError):
         order.payment_last_error = (
-            "verify_timeout" if isinstance(exc, PaymentGatewayTimeoutError) else "verify_gateway_error"
+            "verify_timeout"
+            if isinstance(exc, PaymentGatewayTimeoutError)
+            else "verify_gateway_error"
         )
         order.payment_next_verify_at = datetime.now(UTC) + timedelta(
             seconds=next_verify_backoff_seconds(claim.attempt)
         )
         await db.flush()
-        return SepCallbackResult(outcome="verifying", tracking_code=order.tracking_code, order_id=order.id)
+        return SepCallbackResult(
+            outcome="verifying", tracking_code=order.tracking_code, order_id=order.id
+        )
 
     order.payment_last_error = "verify_unexpected"
     order.payment_next_verify_at = datetime.now(UTC) + timedelta(
         seconds=next_verify_backoff_seconds(claim.attempt)
     )
     await db.flush()
-    return SepCallbackResult(outcome="verifying", tracking_code=order.tracking_code, order_id=order.id)
+    return SepCallbackResult(
+        outcome="verifying", tracking_code=order.tracking_code, order_id=order.id
+    )
 
 
 async def run_sep_verify_for_order(
@@ -603,7 +636,9 @@ async def run_sep_verify_for_order(
     if claim is None:
         order = await crud_commerce.get_order_by_id(db, order_id)
         if order and order.payment_status == PaymentStatus.PAID.value:
-            return SepCallbackResult(outcome="success", tracking_code=order.tracking_code, order_id=order.id)
+            return SepCallbackResult(
+                outcome="success", tracking_code=order.tracking_code, order_id=order.id
+            )
         if order and order.payment_status == PaymentStatus.RECONCILIATION_REQUIRED.value:
             return SepCallbackResult(
                 outcome="reconciliation", tracking_code=order.tracking_code, order_id=order.id

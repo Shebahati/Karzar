@@ -29,6 +29,8 @@ from app.core.security_middleware import (
 from app.core.startup import bootstrap_catalog_seed, bootstrap_super_admin
 from app.core.static_mime import ensure_image_static_mime_types
 from app.db.database import async_session_maker
+from app.services.logistics.booking_worker import process_shipment_bookings
+from app.services.logistics.tracking_worker import process_tracking_sync
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.sep_verify_retry_service import process_sep_verify_retries
 
@@ -56,9 +58,7 @@ if settings.SENTRY_DSN:
         )
         logger.info("Sentry initialized (environment=%s)", settings.APP_ENV)
     except ImportError:
-        logger.warning(
-            "SENTRY_DSN is set but sentry-sdk is not installed; skipping Sentry init"
-        )
+        logger.warning("SENTRY_DSN is set but sentry-sdk is not installed; skipping Sentry init")
 
 
 async def _order_expiry_worker(stop_event: asyncio.Event) -> None:
@@ -103,6 +103,42 @@ async def _sep_verify_retry_worker(stop_event: asyncio.Event) -> None:
             continue
 
 
+async def _postex_booking_worker(stop_event: asyncio.Event) -> None:
+    interval = max(5, int(settings.POSTEX_BOOKING_INTERVAL_SECONDS))
+    while not stop_event.is_set():
+        try:
+            if settings.POSTEX_ENABLED and await try_acquire_lock("postex_booking_sweep", interval):
+                async with async_session_maker() as session:
+                    processed = await process_shipment_bookings(session)
+                    if processed:
+                        await session.commit()
+        except Exception:
+            logger.exception("Postex booking sweep failed")
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=interval)
+        except TimeoutError:
+            continue
+
+
+async def _postex_tracking_worker(stop_event: asyncio.Event) -> None:
+    interval = max(15, int(settings.POSTEX_TRACKING_SYNC_INTERVAL_SECONDS))
+    while not stop_event.is_set():
+        try:
+            if settings.POSTEX_ENABLED and await try_acquire_lock(
+                "postex_tracking_sweep", interval
+            ):
+                async with async_session_maker() as session:
+                    processed = await process_tracking_sync(session)
+                    if processed:
+                        await session.commit()
+        except Exception:
+            logger.exception("Postex tracking sweep failed")
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=interval)
+        except TimeoutError:
+            continue
+
+
 def _background_workers_disabled() -> bool:
     """TestClient shares the CI Postgres URI with async_session_maker; workers must not race tests."""
     return os.environ.get("DISABLE_BACKGROUND_WORKERS", "").lower() in ("1", "true", "yes")
@@ -116,14 +152,18 @@ async def lifespan(app: FastAPI):
     stop_event = asyncio.Event()
     expiry_task = None
     sep_retry_task = None
+    postex_booking_task = None
+    postex_tracking_task = None
     if not _background_workers_disabled():
         expiry_task = asyncio.create_task(_order_expiry_worker(stop_event))
         sep_retry_task = asyncio.create_task(_sep_verify_retry_worker(stop_event))
+        postex_booking_task = asyncio.create_task(_postex_booking_worker(stop_event))
+        postex_tracking_task = asyncio.create_task(_postex_tracking_worker(stop_event))
     try:
         yield
     finally:
         stop_event.set()
-        for task in (expiry_task, sep_retry_task):
+        for task in (expiry_task, sep_retry_task, postex_booking_task, postex_tracking_task):
             if task is None:
                 continue
             task.cancel()
@@ -224,7 +264,9 @@ async def request_context_middleware(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+    )
     return response
 
 
@@ -275,7 +317,9 @@ async def readiness_check():
         content={
             "status": "not_ready",
             "database": "ok" if db_ok else "unavailable",
-            "redis": "ok" if redis_ok else ("disabled" if not settings.redis_enabled else "unavailable"),
+            "redis": "ok"
+            if redis_ok
+            else ("disabled" if not settings.redis_enabled else "unavailable"),
         },
     )
 
@@ -299,7 +343,9 @@ async def api_info():
 async def http_exception_handler(request, exc: StarletteHTTPException):
     """Normalize all HTTPException responses to the standard error envelope."""
     content = normalize_http_exception_detail(exc.status_code, exc.detail)
-    return JSONResponse(status_code=exc.status_code, content=content, headers=getattr(exc, "headers", None))
+    return JSONResponse(
+        status_code=exc.status_code, content=content, headers=getattr(exc, "headers", None)
+    )
 
 
 @app.exception_handler(RequestValidationError)
