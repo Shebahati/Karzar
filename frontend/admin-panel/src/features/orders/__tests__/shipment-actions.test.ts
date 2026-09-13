@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canSubmitFinalPackageHazards,
   receiverFulfillmentDisplay,
+  manualPortalStatusLabel,
   shipmentActionAvailability,
   type AdminShipment,
 } from "@/features/orders/shipment-actions";
@@ -108,5 +109,18 @@ describe("shipmentActionAvailability", () => {
     };
     expect(forms[a.internal_id]?.length_cm).toBe("10");
     expect(forms[b.internal_id]?.length_cm).toBe("40");
+  });
+
+  it("disables API receiver workflow for manual_portal shipments", () => {
+    const manual = shipment({
+      shipping_payment_mode: "receiver_due",
+      fulfillment_mode: "manual_portal",
+      status: "awaiting_packaging",
+    });
+    const actions = shipmentActionAvailability(manual);
+    expect(actions.canSetPackage).toBe(false);
+    expect(actions.canPackedQuote).toBe(false);
+    expect(actions.canManualRegister).toBe(true);
+    expect(manualPortalStatusLabel(manual)).toBe("در انتظار ثبت دستی در پنل پستکس");
   });
 });

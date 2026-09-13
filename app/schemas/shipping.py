@@ -55,6 +55,15 @@ class ShippingStatusResponse(BaseModel):
     checkout_quote_required: bool = False
     # Write-path gate (parcel create / mark-ready / cancel / edit). Safe default false.
     booking_enabled: bool = False
+    fulfillment_mode: str | None = None
+
+
+class ShipmentManualPortalRegistrationRequest(BaseModel):
+    tracking_code: str = Field(..., min_length=10, max_length=64)
+    provider_parcel_no: str | None = Field(None, max_length=64)
+    carrier_code: str | None = Field(None, max_length=64)
+    service_code: str | None = Field(None, max_length=64)
+    internal_note: str | None = Field(None, max_length=500)
 
 
 class ShipmentFinalPackageRequest(BaseModel):
@@ -123,6 +132,8 @@ class ShipmentAdminResponse(ShipmentPublicResponse):
     last_error_code: str | None = None
     last_error_message: str | None = None
     cancellation_requested_at: datetime | None = None
+    fulfillment_mode: str | None = None
+    registration_source: str | None = None
 
 
 class ShipmentCancelRequest(BaseModel):

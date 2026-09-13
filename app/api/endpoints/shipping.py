@@ -27,6 +27,7 @@ from app.schemas.shipping import (
     ShipmentCancelRequest,
     ShipmentEditRequest,
     ShipmentFinalPackageRequest,
+    ShipmentManualPortalRegistrationRequest,
     ShipmentSelectServiceRequest,
     ShippingCityListResponse,
     ShippingCityResponse,
@@ -35,6 +36,12 @@ from app.schemas.shipping import (
     ShippingStatusResponse,
 )
 from app.services.logistics.booking_worker import book_shipment, request_shipment_cancellation
+from app.services.logistics.fulfillment_mode import configured_fulfillment_mode
+from app.services.logistics.manual_portal_service import (
+    confirm_manual_delivery,
+    confirm_manual_physical_handoff,
+    register_manual_portal_shipment,
+)
 from app.services.logistics.exceptions import (
     LogisticsError,
     ProviderError,
@@ -158,6 +165,7 @@ async def shipping_status() -> ShippingStatusResponse:
             enabled and mode == ShippingPaymentMode.SENDER_PREPAID
         ),
         booking_enabled=postex_booking_enabled(),
+        fulfillment_mode=configured_fulfillment_mode().value if enabled else None,
     )
 
 
@@ -695,9 +703,112 @@ async def admin_cancel_shipment(
                 message="پستکس انصراف را در این مرحله نپذیرفت.",
             ) from exc
         _raise_logistics(exc)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_register(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentManualPortalRegistrationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Record Postex portal tracking/parcel refs. No Postex HTTP."""
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await register_manual_portal_shipment(
+            db,
+            order=order,
+            shipment=shipment,
+            tracking_code=payload.tracking_code,
+            provider_parcel_no=payload.provider_parcel_no,
+            carrier_code=payload.carrier_code,
+            service_code=payload.service_code,
+            internal_note=payload.internal_note,
+            actor_user_id=current_user.id,
+        )
     except ShipmentStateError as exc:
         _raise_logistics(exc)
-    except LogisticsError as exc:
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/handoff",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_handoff(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Confirm physical handoff to carrier. No Postex HTTP."""
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        order, shipment = await confirm_manual_physical_handoff(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/deliver",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_deliver(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Confirm customer delivery for manual-portal shipment. No Postex HTTP."""
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        order, shipment = await confirm_manual_delivery(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])

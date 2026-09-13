@@ -22,6 +22,14 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-13 — Manual Postex portal receiver-due MVP
+
+- `POSTEX_FULFILLMENT_MODE`: `api` (default) | `manual_portal`. Snapshotted on new shipments as `provider_data.fulfillment_mode` (no migration).
+- `GET /shipping/status` adds `fulfillment_mode`.
+- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`.
+- Shipment admin view adds `fulfillment_mode`, `registration_source`.
+- Order expiry sweep cancels expired `pending_payment` with `payment_status=failed` when authority expired, without cancelling verified/callback orders.
+
 ### 2026-09-12 — Postex receiver-paid shipping (پس‌کرایه)
 
 - Provider-neutral `shipping_payment_mode`: `sender_prepaid` | `receiver_due` (persisted on order + shipment). Maps to Postex `SENDER` / `RECEIVER`. **COD unsupported.**

@@ -44,7 +44,8 @@ Provider-neutral shipping payment mode (persisted on order/shipment; **server-ow
 | `receiver_due` | `RECEIVER` (پس‌کرایه) | items + tax **only** | Not used |
 
 - Mode authority: `POSTEX_SHIPPING_PAYMENT_MODE` / legacy `POSTEX_DEFAULT_PAYMENT_TYPE`. Storefront may **read** `GET /shipping/status.shipping_payment_mode` for UX only.
-- `receiver_due` fulfillment: `awaiting_packaging` → measure → packed quote → select service → `ready_to_book` → **explicit** admin `/book`. Enabling `POSTEX_BOOKING_ENABLED` alone must not create prepared receiver parcels.
+- `receiver_due` fulfillment (`POSTEX_FULFILLMENT_MODE=api`, default): `awaiting_packaging` → measure → packed quote → select service → `ready_to_book` → **explicit** admin `/book`. Enabling `POSTEX_BOOKING_ENABLED` alone must not create prepared receiver parcels.
+- `receiver_due` fulfillment (`POSTEX_FULFILLMENT_MODE=manual_portal`): staff create parcels in the external Postex panel; Karzar admin records tracking/parcel refs via `/manual-portal/*` (**no Postex HTTP**). Booking/tracking workers skip these shipments.
 
 - **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
 - Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.

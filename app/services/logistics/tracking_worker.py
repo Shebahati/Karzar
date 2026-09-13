@@ -20,6 +20,7 @@ from app.services.logistics.service import (
     ingest_tracking_events,
     postex_enabled,
 )
+from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
 
 logger = get_logger(__name__)
 
@@ -58,6 +59,8 @@ async def process_tracking_sync(db: AsyncSession) -> int:
     processed = 0
     provider = get_provider()
     for shipment in shipments:
+        if is_manual_portal_shipment(shipment):
+            continue
         if (
             shipment.last_tracking_sync_at is not None
             and as_utc(shipment.last_tracking_sync_at) > cutoff

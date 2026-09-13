@@ -22,6 +22,7 @@ from app.services.logistics.exceptions import (
     ShipmentStateError,
     ShippingDataIncompleteError,
 )
+from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
 from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
     ParcelBooking,
@@ -251,6 +252,10 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
     """
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
+        return None
+
+    if is_manual_portal_shipment(shipment):
+        await db.commit()
         return None
 
     if _already_created(shipment):

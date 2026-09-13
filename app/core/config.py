@@ -123,6 +123,8 @@ class Settings(BaseSettings):
     # Separate write gate: parcel create / mark-ready / cancel / edit. Default safe-off.
     # Reference/read/quote may run when POSTEX_ENABLED without this flag.
     POSTEX_BOOKING_ENABLED: bool = False
+    # api = automated quote/book/tracking; manual_portal = staff registers parcels in Postex UI.
+    POSTEX_FULFILLMENT_MODE: str = "api"
     # Postex provider quote allowlist: comma-separated COURIER:SERVICE (live-verified v1 default).
     POSTEX_QUOTE_SERVICES: str = "IR_POST:EXPRESS"
     POSTEX_ORIGIN_CITY_CODE: int | None = None
@@ -272,6 +274,15 @@ class Settings(BaseSettings):
                 "POSTEX_SHIPPING_PAYMENT_MODE must be empty, sender_prepaid, or receiver_due "
                 "(COD is not supported)"
             )
+        return normalized
+
+    @field_validator("POSTEX_FULFILLMENT_MODE")
+    @classmethod
+    def validate_postex_fulfillment_mode(cls, v: str) -> str:
+        normalized = (v or "api").strip().lower()
+        allowed = {"api", "manual_portal"}
+        if normalized not in allowed:
+            raise ValueError("POSTEX_FULFILLMENT_MODE must be api or manual_portal")
         return normalized
 
     @field_validator("POSTEX_QUOTE_SERVICES")
