@@ -46,6 +46,8 @@ function ManualPortalWorkflow({
   onRegister,
   onHandoff,
   onDeliver,
+  onCorrect,
+  onAbandon,
   actions,
 }: {
   shipment: AdminShipment;
@@ -60,6 +62,8 @@ function ManualPortalWorkflow({
   }) => Promise<void>;
   onHandoff: () => Promise<void>;
   onDeliver: () => Promise<void>;
+  onCorrect: (body: { tracking_code: string; provider_parcel_no?: string }) => Promise<void>;
+  onAbandon: () => void;
   actions: ReturnType<typeof shipmentActionAvailability>;
 }) {
   const [tracking, setTracking] = useState("");
@@ -149,6 +153,49 @@ function ManualPortalWorkflow({
       {actions.canManualDeliver && (
         <Button size="sm" variant="secondary" disabled={pending} onClick={() => void onDeliver()}>
           تأیید تحویل به مشتری
+        </Button>
+      )}
+      {actions.canManualCorrect && (
+        <div className="grid gap-2 rounded-lg border border-dashed p-3">
+          <p className="text-xs text-muted-foreground">اصلاح ثبت قبل از تحویل فیزیکی به پست</p>
+          <label className="grid gap-1 text-xs">
+            کد رهگیری
+            <input
+              className="rounded-md border px-2 py-1 tnum"
+              defaultValue={shipment.tracking_code ?? ""}
+              minLength={10}
+              id={`mp-correct-${orderId}-${shipment.internal_id}`}
+            />
+          </label>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pending}
+            onClick={() => {
+              const input = document.getElementById(
+                `mp-correct-${orderId}-${shipment.internal_id}`,
+              ) as HTMLInputElement | null;
+              const code = input?.value.trim() ?? "";
+              if (code.length < 10) {
+                toast.error("کد رهگیری باید حداقل ۱۰ رقم باشد.");
+                return;
+              }
+              void onCorrect({ tracking_code: code, provider_parcel_no: shipment.provider_parcel_no ?? undefined });
+            }}
+          >
+            ذخیره اصلاح
+          </Button>
+        </div>
+      )}
+      {actions.canManualAbandon && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-destructive"
+          disabled={pending}
+          onClick={onAbandon}
+        >
+          لغو ثبت دستی (بدون تماس پستکس)
         </Button>
       )}
     </div>
@@ -280,6 +327,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
     enabled: Boolean(order.shipping_provider || (order.shipments && order.shipments.length)),
   });
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [abandonId, setAbandonId] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
   const [packageForms, setPackageForms] = useState<Record<number, PackageFormState>>({});
   const [quoteOptions, setQuoteOptions] = useState<Record<number, PackedQuoteOption[]>>({});
@@ -390,6 +438,12 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                       shippingAdminService.manualPortalDeliver(order.id, shipment.internal_id),
                     )
                   }
+                  onCorrect={async (body) =>
+                    run("اصلاح ثبت ذخیره شد", () =>
+                      shippingAdminService.manualPortalCorrect(order.id, shipment.internal_id, body),
+                    )
+                  }
+                  onAbandon={() => setAbandonId(shipment.internal_id)}
                 />
               ) : (
                 shipment.shipping_payment_mode === "receiver_due" && (
@@ -624,6 +678,36 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
             void queryClient.invalidateQueries({ queryKey: ["order-shipments", order.id] });
           } catch (err) {
             toast.error(err instanceof ApiError ? err.message : "انصراف ناموفق بود.");
+          } finally {
+            setPending(false);
+          }
+        }}
+      />
+
+      <StepUpDialog
+        open={abandonId != null}
+        onOpenChange={(open) => {
+          if (!open) setAbandonId(null);
+        }}
+        title="لغو ثبت دستی مرسوله"
+        description="این عمل فقط در کارزار ثبت می‌شود و هیچ درخواستی به API پستکس ارسال نمی‌شود."
+        actionPending={pending}
+        onVerified={async (token) => {
+          if (abandonId == null) return;
+          setPending(true);
+          try {
+            await shippingAdminService.manualPortalAbandon(
+              order.id,
+              abandonId,
+              "admin manual abandon",
+              token,
+            );
+            toast.success("ثبت دستی لغو شد.");
+            setAbandonId(null);
+            void queryClient.invalidateQueries({ queryKey: ["order-shipments", order.id] });
+            void queryClient.invalidateQueries({ queryKey: ordersKeys.detail(order.id) });
+          } catch (err) {
+            toast.error(err instanceof ApiError ? err.message : "لغو ثبت ناموفق بود.");
           } finally {
             setPending(false);
           }

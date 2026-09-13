@@ -23,6 +23,7 @@ from app.services.logistics.exceptions import (
     ShippingDataIncompleteError,
 )
 from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
+from app.services.logistics.manual_portal_guard import reject_generic_postex_provider_path
 from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
     ParcelBooking,
@@ -495,6 +496,7 @@ async def request_shipment_cancellation(
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
         raise ShipmentStateError("مرسوله یافت نشد.")
+    reject_generic_postex_provider_path(shipment)
     if shipment.status in {
         ShipmentStatus.DELIVERED.value,
         ShipmentStatus.RETURNED.value,

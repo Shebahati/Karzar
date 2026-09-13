@@ -26,7 +26,10 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - `POSTEX_FULFILLMENT_MODE`: `api` (default) | `manual_portal`. Snapshotted on new shipments as `provider_data.fulfillment_mode` (no migration).
 - `GET /shipping/status` adds `fulfillment_mode`.
-- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`.
+- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`, `…/correct`, `…/abandon` (step-up; abandon is local-only).
+- Generic Postex admin paths (`book`, `ready`, `label`, `refresh-tracking`, `edit`, `cancel`) return **409** for `manual_portal` shipments (zero provider HTTP).
+- `POSTEX_FULFILLMENT_MODE=manual_portal` requires `POSTEX_SHIPPING_PAYMENT_MODE=receiver_due` at config validation.
+- Generic `PATCH /orders/{id}/status` rejects `shipped`/`delivered` when an active manual-portal shipment exists.
 - Shipment admin view adds `fulfillment_mode`, `registration_source`.
 - Order expiry sweep cancels expired `pending_payment` with `payment_status=failed` when authority expired, without cancelling verified/callback orders.
 

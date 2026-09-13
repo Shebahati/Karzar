@@ -13,16 +13,23 @@ from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import ShipmentStateError
 from app.services.logistics.fulfillment_mode import (
-    PostexFulfillmentMode,
     is_manual_portal_shipment,
     registration_source,
-    shipment_fulfillment_mode,
 )
+from app.services.logistics.manual_portal_guard import reject_generic_postex_provider_path
 from app.services.logistics.models import ShipmentStatus
 from app.services.logistics.shipping_payment import ShippingPaymentMode
 from app.services.order_service import transition_order_status
 
 _REGISTRATION_SOURCE = "manual_portal"
+
+_MANUAL_TERMINAL = frozenset(
+    {
+        ShipmentStatus.CANCELLED.value,
+        ShipmentStatus.DELIVERED.value,
+        ShipmentStatus.RETURNED.value,
+    }
+)
 
 
 def normalize_tracking_code(raw: str) -> str:
@@ -210,18 +217,7 @@ async def confirm_manual_physical_handoff(
     ):
         return order, shipment
 
-    if shipment.status == ShipmentStatus.BOOKED.value and order.status in {
-        OrderStatus.PAID.value,
-        OrderStatus.PROCESSING.value,
-    }:
-        if order.status == OrderStatus.PAID.value:
-            await transition_order_status(
-                db,
-                order,
-                OrderStatus.PROCESSING.value,
-                actor="admin",
-                event_description="آماده‌سازی برای تحویل به پست",
-            )
+    if shipment.status == ShipmentStatus.BOOKED.value and order.status == OrderStatus.PROCESSING.value:
         await transition_order_status(
             db,
             order,
@@ -229,6 +225,7 @@ async def confirm_manual_physical_handoff(
             actor="admin",
             postal_tracking_code=tracking,
             event_description="تحویل فیزیکی مرسوله به پست (ثبت دستی)",
+            allow_manual_portal_fulfillment=True,
         )
         shipment.status = ShipmentStatus.PICKED_UP.value
         if shipment.shipped_at is None:
@@ -304,15 +301,137 @@ async def confirm_manual_delivery(
         OrderStatus.DELIVERED.value,
         actor="admin",
         event_description="تحویل سفارش به مشتری (ثبت دستی)",
+        allow_manual_portal_fulfillment=True,
     )
     await db.flush()
     return order, shipment
 
 
-def assert_api_fulfillment_path_allowed(shipment: Shipment) -> None:
-    """Block packed-quote/booking API steps for manual-portal shipments."""
-    if shipment_fulfillment_mode(shipment) == PostexFulfillmentMode.MANUAL_PORTAL:
+async def correct_manual_portal_registration(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+    tracking_code: str,
+    provider_parcel_no: str | None = None,
+    carrier_code: str | None = None,
+    service_code: str | None = None,
+    internal_note: str | None = None,
+    actor_user_id: int | None = None,
+) -> Shipment:
+    from app.services.logistics.service import _append_event
+
+    _require_manual_receiver_shipment(order, shipment)
+    if registration_source(shipment) != _REGISTRATION_SOURCE:
         raise ShipmentStateError(
-            "این مرسوله از مسیر ثبت دستی پنل پستکس است؛ عملیات API غیرفعال است.",
+            "ابتدا ثبت اولیه مرسوله انجام شود.",
             error_code="SHIPMENT_STATE_INVALID",
         )
+    if shipment.status != ShipmentStatus.BOOKED.value:
+        raise ShipmentStateError(
+            "اصلاح فقط قبل از تحویل فیزیکی به پست مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    if shipment.shipped_at is not None:
+        raise ShipmentStateError(
+            "پس از تحویل فیزیکی اصلاح مجاز نیست.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+
+    tracking = normalize_tracking_code(tracking_code)
+    parcel = (provider_parcel_no or "").strip() or None
+    carrier = (carrier_code or "").strip() or None
+    service = (service_code or "").strip() or None
+    note = (internal_note or "").strip() or None
+    fingerprint = _registration_fingerprint(
+        tracking_code=tracking,
+        provider_parcel_no=parcel,
+        carrier_code=carrier,
+        service_code=service,
+        internal_note=note,
+    )
+    existing = _stored_registration(shipment)
+    if existing.get("fingerprint") == fingerprint:
+        return shipment
+
+    data = dict(shipment.provider_data or {})
+    data["manual_registration"] = {
+        "fingerprint": fingerprint,
+        "tracking_code": tracking,
+        "provider_parcel_no": parcel,
+        "carrier_code": carrier,
+        "service_code": service,
+        "internal_note": note,
+        "registered_at": existing.get("registered_at") or datetime.now(UTC).isoformat(),
+        "corrected_at": datetime.now(UTC).isoformat(),
+        "registered_by_user_id": existing.get("registered_by_user_id"),
+        "corrected_by_user_id": actor_user_id,
+    }
+    shipment.provider_data = data
+    shipment.tracking_code = tracking
+    shipment.provider_parcel_no = parcel
+    shipment.carrier_code = carrier
+    shipment.service_code = service
+    order.postal_tracking_code = tracking
+
+    await _append_event(
+        db,
+        shipment,
+        status=ShipmentStatus.BOOKED.value,
+        description="اصلاح اطلاعات ثبت دستی مرسوله پستکس",
+        provider_status=None,
+        provider_code="manual_portal",
+        occurred_at=datetime.now(UTC),
+        payload={"corrected_by_user_id": actor_user_id},
+    )
+    await db.flush()
+    return shipment
+
+
+async def abandon_manual_portal_shipment(
+    db: AsyncSession,
+    *,
+    order: Order,
+    shipment: Shipment,
+    reason: str | None,
+    actor_user_id: int | None = None,
+) -> Shipment:
+    from app.services.logistics.service import _append_event
+
+    _require_manual_receiver_shipment(order, shipment)
+    if shipment.status in _MANUAL_TERMINAL:
+        return shipment
+    if shipment.status not in {
+        ShipmentStatus.AWAITING_PACKAGING.value,
+        ShipmentStatus.BOOKED.value,
+    }:
+        raise ShipmentStateError(
+            "لغو محلی فقط قبل از تحویل فیزیکی به پست مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    shipment.status = ShipmentStatus.CANCELLED.value
+    shipment.cancelled_at = datetime.now(UTC)
+    data = dict(shipment.provider_data or {})
+    data["manual_abandon"] = {
+        "reason": (reason or "").strip() or None,
+        "abandoned_at": datetime.now(UTC).isoformat(),
+        "abandoned_by_user_id": actor_user_id,
+    }
+    shipment.provider_data = data
+    await _append_event(
+        db,
+        shipment,
+        status=ShipmentStatus.CANCELLED.value,
+        description="لغو محلی مرسوله (بدون تماس پستکس)",
+        provider_status=None,
+        provider_code="manual_portal",
+        occurred_at=datetime.now(UTC),
+        payload={"reason": (reason or "").strip() or None},
+    )
+    await db.flush()
+    return shipment
+
+
+def assert_api_fulfillment_path_allowed(shipment: Shipment) -> None:
+    """Block packed-quote/booking API steps for manual-portal shipments."""
+    reject_generic_postex_provider_path(shipment)

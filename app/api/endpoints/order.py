@@ -32,6 +32,7 @@ from app.schemas.order import (
     OrderTrackingResponse,
 )
 from app.services.audit_service import record_audit
+from app.services.logistics.manual_portal_guard import lock_order_for_status_update
 from app.services.logistics.service import admin_shipment_view, public_shipment_view
 from app.services.order_service import (
     allowed_next_statuses,
@@ -290,8 +291,8 @@ async def update_order_status(
     current_user: User = Depends(get_current_super_admin),
     x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
 ):
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if not order:
+    order = await lock_order_for_status_update(db, order_id)
+    if order is None:
         raise api_error(
             status.HTTP_404_NOT_FOUND,
             error_code=ErrorCode.NOT_FOUND,

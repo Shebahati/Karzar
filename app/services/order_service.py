@@ -137,6 +137,7 @@ async def transition_order_status(
     delivery_eta: datetime | None = None,
     actor: str = "admin",
     event_description: str | None = None,
+    allow_manual_portal_fulfillment: bool = False,
 ) -> Order:
     try:
         target = OrderStatus(target_status).value
@@ -149,6 +150,19 @@ async def transition_order_status(
 
     if not can_transition(current, target):
         raise ValueError(f"Cannot transition order from '{current}' to '{target}'")
+
+    if target in {OrderStatus.SHIPPED.value, OrderStatus.DELIVERED.value}:
+        from app.services.logistics.manual_portal_guard import (
+            order_has_active_manual_portal_shipment,
+        )
+
+        if (
+            not allow_manual_portal_fulfillment
+            and await order_has_active_manual_portal_shipment(db, order.id)
+        ):
+            raise ValueError(
+                "برای سفارش با ثبت دستی پستکس، ارسال/تحویل فقط از مسیر لجستیک دستی مجاز است."
+            )
 
     if target == OrderStatus.SHIPPED.value:
         tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()

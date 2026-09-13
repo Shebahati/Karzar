@@ -112,12 +112,18 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
       canLabel: false,
       canRefresh: false,
       canEdit: false,
-      canCancel: !terminal && shipment.status !== "cancellation_pending",
+      canCancel: false,
       canRetrySafe: false,
       canManualRegister:
         shipment.status === "awaiting_packaging" && !shipment.tracking_code && !manualRegistered,
       canManualHandoff: manualRegistered && shipment.status === "booked",
       canManualDeliver: shipment.status === "picked_up",
+      canManualCorrect:
+        manualRegistered &&
+        shipment.status === "booked" &&
+        shipment.registration_source === "manual_portal",
+      canManualAbandon:
+        shipment.status === "awaiting_packaging" || shipment.status === "booked",
     };
   }
 
@@ -157,5 +163,7 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     canManualRegister: false,
     canManualHandoff: false,
     canManualDeliver: false,
+    canManualCorrect: false,
+    canManualAbandon: false,
   };
 }

@@ -82,7 +82,24 @@ export function getWorkflowSteps(order: Pick<OrderDetail, "mode">): OrderStatus[
   return order.mode === "inquiry" ? INQUIRY_STEPS : PURCHASE_STEPS;
 }
 
+export function orderHasActiveManualPortalFulfillment(
+  order: Pick<OrderDetail, "shipments">,
+): boolean {
+  return (order.shipments ?? []).some(
+    (s) =>
+      s.fulfillment_mode === "manual_portal" &&
+      s.status !== "cancelled" &&
+      s.status !== "delivered" &&
+      s.status !== "returned",
+  );
+}
+
 export function getPrimaryAction(order: OrderDetail): OrderAction | null {
+  if (orderHasActiveManualPortalFulfillment(order)) {
+    if (order.status === "processing" || order.status === "shipped") {
+      return null;
+    }
+  }
   if (order.status === "cancelled" || order.status === "delivered" || order.status === "inquiry_closed") {
     return null;
   }

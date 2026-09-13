@@ -11,7 +11,7 @@ import httpx
 import pytest
 from app.core.config import settings
 from app.core.payment_url import is_allowed_payment_url
-from app.db.models.commerce import Order, PaymentStatus
+from app.db.models.commerce import Order, OrderStatus, PaymentStatus
 from app.main import app
 from app.services.payment_service import (
     PaymentAmountMismatchError,
@@ -391,6 +391,97 @@ def _mock_verify_ok(monkeypatch, *, amount_rials: int, ref_num: str = "REF-OK-1"
             return _Resp()
 
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
+
+
+def _mock_verify_rejected(monkeypatch):
+    class _Resp:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "ResultCode": -1,
+                "Success": False,
+                "ResultDescription": "rejected",
+            }
+
+    class _Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return None
+
+        async def post(self, url, json):
+            assert "VerifyTransaction" in url or "verify" in url.lower()
+            return _Resp()
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: _Client())
+
+
+@pytest.mark.usefixtures("override_database")
+def test_sep_callback_accepted_then_definitive_verify_failure_blocks_expiry(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    from app.services.order_expiry_service import cancel_expired_pending_payment_orders
+
+    token = _unique_token("VFAIL")
+    ref_num = _unique_ref("VFAIL")
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-VFAIL"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09121110099")
+    body = _checkout(product_id, headers, phone="09121110099")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    from app.services.payment_flow_service import order_amount_rials
+
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    _mock_verify_rejected(monkeypatch)
+
+    resp = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token,
+            "ResNum": tracking,
+            "RefNum": ref_num,
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": TERMINAL,
+            "Amount": str(amount_rials),
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "reason=failed" in resp.headers["location"]
+    order2 = asyncio.run(_get_order(order_id))
+    assert order2.payment_status == PaymentStatus.FAILED.value
+    assert order2.payment_callback_received_at is not None
+    assert order2.payment_last_error == "verify_rejected"
+
+    async def age_and_sweep():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Order, order_id)
+            row.created_at = datetime.now(UTC) - timedelta(hours=2)
+            row.payment_authority_expires_at = datetime.now(UTC) - timedelta(minutes=1)
+            await session.commit()
+        monkeypatch.setattr(
+            "app.services.order_expiry_service.pending_payment_cutoff",
+            lambda now=None: datetime.now(UTC) + timedelta(days=1),
+        )
+        async with TestingSessionLocal() as session:
+            cancelled = await cancel_expired_pending_payment_orders(session)
+            await session.commit()
+            row = await session.get(Order, order_id)
+            assert row.status == OrderStatus.PENDING_PAYMENT.value
+            return cancelled
+
+    assert asyncio.run(age_and_sweep()) == 0
 
 
 @pytest.mark.usefixtures("override_database")

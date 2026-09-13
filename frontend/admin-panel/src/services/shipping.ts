@@ -113,6 +113,38 @@ export const shippingAdminService = {
     return data;
   },
 
+  async manualPortalCorrect(
+    orderId: number,
+    shipmentId: number,
+    body: {
+      tracking_code: string;
+      provider_parcel_no?: string | null;
+      carrier_code?: string | null;
+      service_code?: string | null;
+      internal_note?: string | null;
+    },
+  ): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/correct`,
+      body,
+    );
+    return data;
+  },
+
+  async manualPortalAbandon(
+    orderId: number,
+    shipmentId: number,
+    reason: string,
+    stepUpToken: string,
+  ): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/abandon`,
+      { reason },
+      withStepUp(stepUpToken),
+    );
+    return data;
+  },
+
   async refreshTracking(orderId: number, shipmentId: number): Promise<AdminShipment> {
     const { data } = await apiClient.post<AdminShipment>(
       `/orders/${orderId}/shipments/${shipmentId}/refresh-tracking`,

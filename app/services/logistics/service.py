@@ -37,7 +37,10 @@ from app.services.logistics.fingerprints import (
     cart_fingerprint,
     destination_fingerprint,
 )
-from app.services.logistics.fulfillment_mode import configured_fulfillment_mode, shipment_fulfillment_mode
+from app.services.logistics.fulfillment_mode import (
+    configured_fulfillment_mode,
+    shipment_fulfillment_mode,
+)
 from app.services.logistics.manual_portal_service import assert_api_fulfillment_path_allowed
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,

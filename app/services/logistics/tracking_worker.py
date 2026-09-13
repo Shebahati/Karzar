@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.core.logging import get_logger
 from app.db.models.commerce import Order
 from app.db.models.logistics import Shipment
+from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
 from app.services.logistics.models import TERMINAL_SHIPMENT_STATUSES, ShipmentStatus
 from app.services.logistics.service import (
     apply_tracking_to_order,
@@ -20,7 +21,6 @@ from app.services.logistics.service import (
     ingest_tracking_events,
     postex_enabled,
 )
-from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
 
 logger = get_logger(__name__)
 
