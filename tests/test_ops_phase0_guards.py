@@ -33,6 +33,15 @@ def test_deploy_workflows_restore_backup_script_modes_and_have_freeze_gate():
         ) in text
 
 
+def test_deploy_staging_does_not_publish_cms_as_a_side_effect():
+    text = _read(".github/workflows/deploy-staging.yml")
+
+    assert "publish_seo003_articles.py" not in text
+    assert "KARZAR_ALLOW_PRODUCTION_WRITE" not in text
+    assert "KARZAR_INGESTION_CATEGORY" not in text
+    assert "smoke-staging.sh" in text
+
+
 def test_live_data_apply_workflows_honor_freeze():
     for workflow in (
         ".github/workflows/promote-measurement.yml",
