@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-pytest_plugins = ["tests.test_postex_receiver_due"]
-
 import asyncio
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -26,11 +24,42 @@ from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
 from tests.conftest import TestingSessionLocal, customer_auth_headers
+from tests.test_postex_logistics import _enable_postex
+from tests.test_postex_quotes_checkout import FakeProvider
 from tests.test_postex_receiver_due import (
     _purchase_payload,
     _receiver_checkout,
     _seed_product_without_logistics,
 )
+
+
+@pytest.fixture
+def fake_provider(monkeypatch):
+    _enable_postex(monkeypatch)
+    monkeypatch.setattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", "receiver_due")
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", False)
+    provider = FakeProvider()
+    provider.quote_requests = []
+    provider.create_requests = []
+
+    original_quote = provider.quote
+    original_create = provider.create_parcel
+
+    async def capture_quote(**kwargs):
+        provider.quote_requests.append(kwargs)
+        return await original_quote(**kwargs)
+
+    async def capture_create(request):
+        provider.create_requests.append(request)
+        return await original_create(request)
+
+    provider.quote = capture_quote
+    provider.create_parcel = capture_create
+    monkeypatch.setattr("app.services.logistics.service.get_provider", lambda: provider)
+    monkeypatch.setattr("app.services.logistics.booking_worker.get_provider", lambda: provider)
+    monkeypatch.setattr("app.services.logistics.tracking_worker.get_provider", lambda: provider)
+    monkeypatch.setattr("app.api.endpoints.shipping.get_provider", lambda: provider)
+    return provider
 
 
 @pytest.fixture
