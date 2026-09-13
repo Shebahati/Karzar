@@ -1,6 +1,6 @@
 -r requirements.txt
 pytest==8.3.4
-pytest-cov==5.0.0
+pytest-cov==7.1.0
 aiosqlite==0.20.0
 
 # Testing & DevEx (P5)
