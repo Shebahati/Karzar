@@ -9,6 +9,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
+from app.core.config import settings
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment, ShipmentEvent, ShippingQuote
 from app.db.models.product import Product
@@ -35,7 +36,11 @@ from sqlalchemy import inspect, select, text
 
 from tests.conftest import USE_POSTGRES_TESTS, TestingSessionLocal, customer_auth_headers
 from tests.test_postex_logistics import _enable_postex
-from tests.test_postex_quotes_checkout import FakeProvider, _seed_parcel_product
+from tests.test_postex_quotes_checkout import (
+    FakeProvider,
+    _seed_parcel_product,
+    provider_network_op_total,
+)
 
 
 @pytest.fixture
@@ -333,6 +338,102 @@ def test_definitive_4xx_is_error_not_uncertain(fake_provider, override_database)
             assert row.last_error_code == "PROVIDER_VALIDATION"
 
     asyncio.run(body())
+
+
+def test_direct_book_awaiting_packaging_is_noop_with_complete_payload(
+    fake_provider, override_database, monkeypatch
+):
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+
+    async def seed() -> tuple[int, int]:
+        async with TestingSessionLocal() as session:
+            order = Order(
+                tracking_code="KZ-APKG",
+                mode=OrderMode.PURCHASE,
+                status=OrderStatus.PROCESSING.value,
+                payment_status=PaymentStatus.PAID.value,
+                customer_full_name="علی تست",
+                customer_phone="09123333333",
+                shipping={
+                    "location_code": 8,
+                    "city": "تهران",
+                    "postal_code": "1234567890",
+                    "address_line": "خیابان تست پلاک ۱۲",
+                },
+                shipping_provider="postex",
+            )
+            session.add(order)
+            await session.flush()
+            shipment = Shipment(
+                public_id=str(uuid4()),
+                order_id=order.id,
+                provider="postex",
+                status=ShipmentStatus.AWAITING_PACKAGING.value,
+                carrier_code="IR_POST",
+                service_code="EXPRESS",
+                package_length_cm=10,
+                package_width_cm=8,
+                package_height_cm=4,
+                package_weight_grams=250,
+                package_is_fragile=False,
+                package_is_liquid=False,
+                declared_value_irr=Decimal("1000000"),
+                booking_attempts=0,
+                booking_next_attempt_at=datetime.now(UTC),
+                provider_data={"package": {"box_type_id": 1}},
+            )
+            session.add(shipment)
+            await session.commit()
+            return order.id, shipment.id
+
+    _, shipment_id = asyncio.run(seed())
+
+    async def run() -> tuple[bool, Shipment]:
+        async with TestingSessionLocal() as session:
+            handled = await book_shipment(session, shipment_id)
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            await session.commit()
+            return handled, row
+
+    handled, row = asyncio.run(run())
+    assert handled is False
+    assert row.status == ShipmentStatus.AWAITING_PACKAGING.value
+    assert row.booking_attempts == 0
+    assert provider_network_op_total(fake_provider) == 0
+
+
+def test_reconciliation_lookup_success_counts_as_processed(
+    fake_provider, override_database, monkeypatch
+):
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+    _, shipment_id, public_id = _seed_order_shipment(
+        status=ShipmentStatus.CREATION_UNCERTAIN.value
+    )
+    fake_provider.parcels[public_id] = ParcelBooking(
+        provider_parcel_no="1001",
+        tracking_code="1234567890123",
+        carrier_code="IR_POST",
+        service_code="EXPRESS",
+        provider_status="registered",
+        raw={},
+    )
+
+    async def run() -> tuple[int, Shipment]:
+        async with TestingSessionLocal() as session:
+            processed = await process_shipment_bookings(session)
+            await session.commit()
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            return processed, row
+
+    processed, row = asyncio.run(run())
+    assert processed == 1
+    assert fake_provider.lookup_calls == 1
+    assert fake_provider.create_calls == 0
+    assert row.status == ShipmentStatus.BOOKED.value
+    assert row.provider_parcel_no == "1001"
+    assert row.tracking_code == "1234567890123"
 
 
 def test_reconciliation_not_found_requires_two_lookups(fake_provider, override_database):

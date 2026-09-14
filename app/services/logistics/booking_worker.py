@@ -250,9 +250,21 @@ def _maybe_promote_booked(shipment: Shipment) -> None:
 
 
 async def book_shipment(db: AsyncSession, shipment_id: int) -> bool:
-    """Create at most one Postex parcel. Used by the worker and admin book."""
-    request, processed = await _commit_create_attempt(db, shipment_id)
-    if not processed:
+    """Run one booking/reconciliation cycle for a shipment (worker or admin).
+
+    Return value is ``count_as_processed`` for ``process_shipment_bookings``:
+
+    * **False** — blocked or true no-op: missing row; manual/corrupt fulfillment
+      snapshot; ``awaiting_packaging``; ``ready_to_book``; cancellation-pending
+      skip; active create lease with no new work; already complete with no durable
+      change.
+    * **True** — meaningful handling: reconciliation lookup attempted and applied
+      or durably recorded (including ``creation_uncertain`` / empty-lookup metadata);
+      durable ``ERROR`` for missing order or incomplete shipping data; create
+      attempt committed and/or Postex create executed.
+    """
+    request, count_as_processed = await _commit_create_attempt(db, shipment_id)
+    if not count_as_processed:
         return False
     if request is not None:
         await _execute_create(db, shipment_id, request)
@@ -269,7 +281,8 @@ async def _commit_create_attempt(
 ) -> tuple[dict[str, Any] | None, bool]:
     """TX A: durable BOOKING (+ attempt metadata) before any Postex create HTTP.
 
-    Returns the create body only after COMMIT. Never holds FOR UPDATE across the network.
+    Returns ``(create_body, count_as_processed)`` after COMMIT when applicable.
+    Never holds FOR UPDATE across the network.
     """
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
@@ -282,6 +295,14 @@ async def _commit_create_attempt(
             shipment_id,
             reason,
         )
+        await db.commit()
+        return None, False
+
+    if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
+        await db.commit()
+        return None, False
+
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
         await db.commit()
         return None, False
 
@@ -310,11 +331,11 @@ async def _commit_create_attempt(
             _apply_booking(shipment, lookup.booking)
             await db.commit()
             await _maybe_issue_pending_cancel(db, shipment_id)
-            return None, False
+            return None, True
         if lookup is None:
             await _mark_uncertain(shipment, "reconcile lookup failed")
             await db.commit()
-            return None, False
+            return None, True
         if _create_lease_active(shipment):
             await db.commit()
             return None, False
@@ -325,20 +346,13 @@ async def _commit_create_attempt(
         if empty_lookups < 2:
             await _mark_uncertain(shipment, "awaiting second empty custom-order lookup")
             await db.commit()
-            return None, False
+            return None, True
         # Two empty lookups: fall through and durably start another create.
 
     if not postex_booking_enabled():
         shipment.last_error_code = "SHIPPING_BOOKING_DISABLED"
         shipment.last_error_message = "ثبت مرسوله پستکس غیرفعال است."
         shipment.booking_next_attempt_at = None
-        await db.commit()
-        return None, False
-        await db.commit()
-        return None, False
-
-    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
-        # Prepared receiver parcels require explicit admin /book — never auto-create.
         await db.commit()
         return None, False
 
