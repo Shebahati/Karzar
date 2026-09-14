@@ -201,7 +201,7 @@ def test_booking_worker_reaches_api_pending_booking_behind_corrupt_rows(worker_f
 def test_cancel_reconcile_reaches_api_behind_corrupt_cancellation_pending(worker_fake_provider):
     async def seed() -> None:
         async with TestingSessionLocal() as session:
-            for _ in range(10):
+            for i in range(10):
                 order = await _seed_order()
                 session.add(order)
                 await session.flush()
@@ -212,7 +212,7 @@ def test_cancel_reconcile_reaches_api_behind_corrupt_cancellation_pending(worker
                         provider="postex",
                         status=ShipmentStatus.CANCELLATION_PENDING.value,
                         shipping_payment_mode="receiver_due",
-                        provider_parcel_no="PX-BAD",
+                        provider_parcel_no=f"PX-BAD-{i}",
                         provider_data={"fulfillment_mode": "manual-poratl"},
                     )
                 )
