@@ -63,25 +63,29 @@ Manual-portal **local abandon/cancel** is **deferred** in this MVP (no admin API
 
 - **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
 - Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.
-- `receiver_due` checkout still requires a normalized destination `location_code`. Product package master data is **not** required at checkout; final sealed-parcel L/W/H/weight/hazards are entered during fulfillment (`awaiting_packaging` → admin final-package → packed quote → select service → schedule booking → book).
+- `receiver_due` checkout still requires a normalized destination `location_code`.
+- **`POSTEX_FULFILLMENT_MODE=api`:** sealed-parcel length/width/height, weight, and hazards are entered in Karzar admin (`awaiting_packaging` → final-package → packed quote → select service → schedule booking → book) and drive Postex quote/booking.
+- **`POSTEX_FULFILLMENT_MODE=manual_portal`:** product package master data is not required in the Karzar catalog; dimensions and weight do not block checkout. When Postex requires them, the operator enters the actual sealed-parcel dimensions, weight, and required hazards in the **external Postex portal**. Karzar admin records parcel/tracking references, correction before handoff, handoff, and delivery — with **no** Postex quote or provider HTTP from Karzar. This does not remove Postex’s need for parcel data; it is deferred from catalog/checkout and captured manually during external portal fulfillment.
 - Creating a Postex label/barcode is **not** order `shipped`. `SHIPPED` requires tracking evidence of physical handoff. `DELIVERED` only when all required shipments are delivered.
 
 Config authority: prefer `POSTEX_SHIPPING_PAYMENT_MODE` (`sender_prepaid` \| `receiver_due`). Legacy `POSTEX_DEFAULT_PAYMENT_TYPE` (`SENDER` \| `RECEIVER`) is normalized once into that mode when the neutral setting is blank. COD / `FREE_SHIPPING` fail closed.
 
-Unresolved until Owner enablement: origin city code, catalog package-dimension coverage (sender_prepaid), live RECEIVER quote then sacrificial parcel (separate authorizations), staging verification.
+**API fulfillment path** — unresolved until Owner enablement: origin city code, catalog package-dimension coverage (`sender_prepaid`), live RECEIVER quote, API sacrificial parcel canary, and staging verification. These are **not** blockers for the `manual_portal` MVP.
+
+**Manual portal MVP** — after this release is deployed with `POSTEX_FULFILLMENT_MODE=manual_portal`, the combined production flow (paid order → external portal parcel → Karzar registration/handoff) still requires an Owner-approved post-deploy canary; it is not production-proven until that runs.
 
 ## Payments
 
 | Provider | Status |
 |----------|--------|
-| SEP (`PAYMENT_PROVIDER=sep`) | **Implemented** in API + callback + verify worker. A successful real or test charge is **not yet proven**. |
+| SEP (`PAYMENT_PROVIDER=sep`) | **Implemented** in API + callback + verify worker. **Production-proven (2026-09-13):** real SEP payment succeeded for **4,800,000 IRR**; callback received with successful state/status; automatic verify returned result code `0`; provider amount matched expected; provider reference persisted; order/payment reached **paid**. Core callback/verify pipeline is proven. **`report.sep.ir` financial reconciliation** remains an operational follow-up. The combined **`manual_portal` post-payment fulfillment flow** is not production-proven until PR #315 is deployed and the Owner-approved canary runs. Postex API booking is **not** claimed proven here. |
 | Mock | Local/dev only. **Production cannot boot** with `PAYMENT_PROVIDER=mock`. |
 | Zarinpal | Env-selectable; not the live default. |
 | Blu Pay | Out of scope until a separate Owner/Board node. |
 
 Production rollback is **revert the previous working SEP/env/image** (or disable checkout). Never set production to mock — the app refuses to start.
 
-Unresolved: first Owner-approved low-amount SEP charge + `report.sep.ir` reconciliation.
+Operational follow-up: `report.sep.ir` financial reconciliation (callback/verify already proven as above).
 
 ## Auth on commerce paths
 

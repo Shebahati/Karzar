@@ -897,4 +897,3 @@ async def admin_manual_portal_deliver(
     await db.commit()
     await db.refresh(shipment, ["events"])
     return ShipmentAdminResponse(**admin_shipment_view(shipment))
-
