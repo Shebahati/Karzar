@@ -1,0 +1,148 @@
+# Read-only VPS diagnostics from GitHub-hosted runners (no deploy, no mutation).
+# Manual trigger only — for incident diagnosis when self-hosted job logs are missing.
+# Safe to remove after the incident is closed.
+name: VPS Read-only Diagnose
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    name: VPS read-only diagnose
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout exact workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Run read-only diagnostics on VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -uo pipefail
+          : "${SSH_HOST:?SSH_HOST secret is required}"
+          : "${SSH_USER:?SSH_USER secret is required}"
+          : "${SSH_PRIVATE_KEY:?SSH_PRIVATE_KEY secret is required}"
+          SSH_PORT="${SSH_PORT:-22}"
+
+          ROOT="${GITHUB_WORKSPACE}"
+          KNOWN_HOSTS="${ROOT}/deploy/staging/ssh/known_hosts"
+          test -f "$KNOWN_HOSTS"
+          test -s "$KNOWN_HOSTS"
+
+          KEYFILE="$(mktemp)"
+          cleanup() {
+            rm -f "$KEYFILE"
+          }
+          trap cleanup EXIT
+
+          umask 077
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEYFILE"
+          if ! grep -q 'BEGIN .*PRIVATE KEY' "$KEYFILE"; then
+            echo "SSH_PRIVATE_KEY does not look like a private key block" >&2
+            exit 1
+          fi
+          chmod 600 "$KEYFILE"
+
+          ssh_base=(
+            ssh -4
+            -i "$KEYFILE"
+            -p "$SSH_PORT"
+            -o IdentitiesOnly=yes
+            -o PreferredAuthentications=publickey
+            -o PasswordAuthentication=no
+            -o KbdInteractiveAuthentication=no
+            -o UserKnownHostsFile="$KNOWN_HOSTS"
+            -o StrictHostKeyChecking=yes
+            -o BatchMode=yes
+            -o ConnectTimeout=25
+            -o ServerAliveInterval=10
+            -o ServerAliveCountMax=3
+          )
+
+          "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" 'bash -s' <<'REMOTE'
+          set -u
+
+          redact_logs() {
+            sed -E \
+              -e 's/(password|passwd|secret|token|api[_-]?key|authorization|bearer)[[:space:]]*[=:][[:space:]]*[^[:space:]]+/[REDACTED]/gi' \
+              -e 's#(postgres(ql)?|mysql|redis)://[^@[:space:]]+@[^[:space:]]+#[REDACTED_URI]#gi'
+          }
+
+          echo "=== 1. IDENTITY / HOST ==="
+          id || true
+          hostname || true
+          date -u || true
+
+          echo "=== 2. DEPLOYED SOURCE ==="
+          if cd /opt/karzar/Karzar; then
+            pwd || true
+            for f in app/core/config.py .dockerignore deploy/staging/scripts/deploy-backend.sh docker-entrypoint.sh; do
+              if test -f "$f"; then
+                echo "present: $f"
+              else
+                echo "missing: $f"
+              fi
+            done
+            grep -n 'POSTEX_FULFILLMENT_MODE' app/core/config.py || true
+            grep -nE '^(backups|rollout-backups|data/uploads|logs)$' .dockerignore || true
+          else
+            echo "DIAG: cannot cd /opt/karzar/Karzar"
+          fi
+
+          echo "=== 3. CONTAINER STATUS ==="
+          docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' || true
+          docker compose -f /opt/karzar/Karzar/docker-compose.yml -f /opt/karzar/Karzar/docker-compose.staging.yml ps || true
+          if test -f /opt/karzar/Karzar/docker-compose.image.yml; then
+            echo "docker-compose.image.yml=PRESENT"
+          fi
+
+          echo "=== 4. BACKEND CONTAINER STATE ==="
+          if docker inspect lathe_api --format 'name={{.Name}} status={{.State.Status}} running={{.State.Running}} restarting={{.State.Restarting}} exit_code={{.State.ExitCode}} error={{json .State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}' 2>/dev/null; then
+            :
+          else
+            echo "lathe_api: not found or inspect failed"
+            echo "Likely backend containers from docker ps -a (names only):"
+            docker ps -a --format '{{.Names}}' 2>/dev/null | grep -E 'api|lathe|karzar' || true
+          fi
+
+          echo "=== 5. API READY ==="
+          curl_exit=0
+          curl -sS -i --max-time 10 \
+            -H 'Host: karzartools.com' \
+            -H 'X-Forwarded-Proto: https' \
+            http://127.0.0.1:8000/ready || curl_exit=$?
+          echo "curl_exit_code=${curl_exit}"
+
+          echo "=== 6. BACKEND LOGS (tail 400, redacted) ==="
+          docker logs --tail 400 lathe_api 2>&1 | redact_logs || true
+
+          echo "=== 7. APPROVED NON-SECRET CONFIG ONLY ==="
+          if test -f /opt/karzar/Karzar/.env; then
+            grep -E '^(PURCHASE_CHECKOUT_ENABLED|POSTEX_ENABLED|POSTEX_FULFILLMENT_MODE|POSTEX_SHIPPING_PAYMENT_MODE|POSTEX_DEFAULT_PAYMENT_TYPE|POSTEX_BOOKING_ENABLED|APP_ENV)=' /opt/karzar/Karzar/.env 2>/dev/null || true
+          else
+            echo ".env: not present at /opt/karzar/Karzar/.env"
+          fi
+
+          echo "=== 8. DOCKER IMAGE INFORMATION ==="
+          docker image inspect karzar-app:staging --format 'image_id={{.Id}} created={{.Created}}' 2>/dev/null || true
+
+          echo "=== 9. FILE METADATA ==="
+          stat -c '%A %a %U:%G %n' \
+            /opt/karzar/Karzar \
+            /opt/karzar/Karzar/.dockerignore \
+            /opt/karzar/Karzar/deploy/staging/scripts/deploy-backend.sh \
+            2>/dev/null || true
+
+          echo "=== 10. FINAL MARKER ==="
+          echo "VPS_READONLY_DIAG_COMPLETE=YES"
+          REMOTE
