@@ -312,6 +312,7 @@ async def correct_manual_portal_registration(
     order: Order,
     shipment: Shipment,
     tracking_code: str,
+    update_fields: frozenset[str],
     provider_parcel_no: str | None = None,
     carrier_code: str | None = None,
     service_code: str | None = None,
@@ -337,11 +338,36 @@ async def correct_manual_portal_registration(
             error_code="SHIPMENT_STATE_INVALID",
         )
 
+    existing = _stored_registration(shipment)
     tracking = normalize_tracking_code(tracking_code)
-    parcel = (provider_parcel_no or "").strip() or None
-    carrier = (carrier_code or "").strip() or None
-    service = (service_code or "").strip() or None
-    note = (internal_note or "").strip() or None
+
+    def _prior_str(key: str, fallback: str | None) -> str | None:
+        raw = existing.get(key)
+        if raw is not None:
+            text = str(raw).strip()
+            return text or None
+        return (fallback or "").strip() or None
+
+    if "provider_parcel_no" in update_fields:
+        parcel = (provider_parcel_no or "").strip() or None
+    else:
+        parcel = _prior_str("provider_parcel_no", shipment.provider_parcel_no)
+
+    if "carrier_code" in update_fields:
+        carrier = (carrier_code or "").strip() or None
+    else:
+        carrier = _prior_str("carrier_code", shipment.carrier_code)
+
+    if "service_code" in update_fields:
+        service = (service_code or "").strip() or None
+    else:
+        service = _prior_str("service_code", shipment.service_code)
+
+    if "internal_note" in update_fields:
+        note = (internal_note or "").strip() or None
+    else:
+        note = _prior_str("internal_note", None)
+
     fingerprint = _registration_fingerprint(
         tracking_code=tracking,
         provider_parcel_no=parcel,
@@ -349,9 +375,22 @@ async def correct_manual_portal_registration(
         service_code=service,
         internal_note=note,
     )
-    existing = _stored_registration(shipment)
     if existing.get("fingerprint") == fingerprint:
         return shipment
+
+    audit_changes: dict[str, object] = {}
+    prior_tracking = _prior_str("tracking_code", shipment.tracking_code)
+    if tracking != prior_tracking:
+        audit_changes["tracking_code"] = {"before": prior_tracking, "after": tracking}
+    for key, new_val, prior in (
+        ("provider_parcel_no", parcel, _prior_str("provider_parcel_no", shipment.provider_parcel_no)),
+        ("carrier_code", carrier, _prior_str("carrier_code", shipment.carrier_code)),
+        ("service_code", service, _prior_str("service_code", shipment.service_code)),
+    ):
+        if key in update_fields and new_val != prior:
+            audit_changes[key] = {"before": prior, "after": new_val}
+    if "internal_note" in update_fields and note != _prior_str("internal_note", None):
+        audit_changes["internal_note"] = {"changed": True}
 
     data = dict(shipment.provider_data or {})
     data["manual_registration"] = {
@@ -381,51 +420,10 @@ async def correct_manual_portal_registration(
         provider_status=None,
         provider_code="manual_portal",
         occurred_at=datetime.now(UTC),
-        payload={"corrected_by_user_id": actor_user_id},
-    )
-    await db.flush()
-    return shipment
-
-
-async def abandon_manual_portal_shipment(
-    db: AsyncSession,
-    *,
-    order: Order,
-    shipment: Shipment,
-    reason: str | None,
-    actor_user_id: int | None = None,
-) -> Shipment:
-    from app.services.logistics.service import _append_event
-
-    _require_manual_receiver_shipment(order, shipment)
-    if shipment.status in _MANUAL_TERMINAL:
-        return shipment
-    if shipment.status not in {
-        ShipmentStatus.AWAITING_PACKAGING.value,
-        ShipmentStatus.BOOKED.value,
-    }:
-        raise ShipmentStateError(
-            "لغو محلی فقط قبل از تحویل فیزیکی به پست مجاز است.",
-            error_code="SHIPMENT_STATE_INVALID",
-        )
-    shipment.status = ShipmentStatus.CANCELLED.value
-    shipment.cancelled_at = datetime.now(UTC)
-    data = dict(shipment.provider_data or {})
-    data["manual_abandon"] = {
-        "reason": (reason or "").strip() or None,
-        "abandoned_at": datetime.now(UTC).isoformat(),
-        "abandoned_by_user_id": actor_user_id,
-    }
-    shipment.provider_data = data
-    await _append_event(
-        db,
-        shipment,
-        status=ShipmentStatus.CANCELLED.value,
-        description="لغو محلی مرسوله (بدون تماس پستکس)",
-        provider_status=None,
-        provider_code="manual_portal",
-        occurred_at=datetime.now(UTC),
-        payload={"reason": (reason or "").strip() or None},
+        payload={
+            "corrected_by_user_id": actor_user_id,
+            "changes": audit_changes,
+        },
     )
     await db.flush()
     return shipment

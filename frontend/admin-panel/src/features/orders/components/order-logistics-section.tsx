@@ -42,6 +42,7 @@ const EMPTY_PACKAGE_FORM: PackageFormState = {
 function ManualPortalWorkflow({
   shipment,
   orderId,
+  orderStatus,
   pending,
   onRegister,
   onHandoff,
@@ -51,6 +52,7 @@ function ManualPortalWorkflow({
 }: {
   shipment: AdminShipment;
   orderId: number;
+  orderStatus: string;
   pending: boolean;
   onRegister: (body: {
     tracking_code: string;
@@ -61,7 +63,7 @@ function ManualPortalWorkflow({
   }) => Promise<void>;
   onHandoff: () => Promise<void>;
   onDeliver: () => Promise<void>;
-  onRequestCorrect: (body: { tracking_code: string; provider_parcel_no?: string }) => void;
+  onRequestCorrect: (body: { tracking_code: string }) => void;
   actions: ReturnType<typeof shipmentActionAvailability>;
 }) {
   const [tracking, setTracking] = useState("");
@@ -143,10 +145,15 @@ function ManualPortalWorkflow({
           </Button>
         </div>
       )}
-      {actions.canManualHandoff && (
+      {actions.canManualHandoff && orderStatus === "processing" && (
         <Button size="sm" variant="secondary" disabled={pending} onClick={() => void onHandoff()}>
           تأیید تحویل فیزیکی به پست
         </Button>
+      )}
+      {actions.canManualHandoff && orderStatus !== "processing" && (
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          برای تحویل فیزیکی به پست، ابتدا از بالای صفحه سفارش «شروع پردازش» را بزنید.
+        </p>
       )}
       {actions.canManualDeliver && (
         <Button size="sm" variant="secondary" disabled={pending} onClick={() => void onDeliver()}>
@@ -178,10 +185,7 @@ function ManualPortalWorkflow({
                 toast.error("کد رهگیری باید حداقل ۱۰ رقم باشد.");
                 return;
               }
-              void onRequestCorrect({
-                tracking_code: code,
-                provider_parcel_no: shipment.provider_parcel_no ?? undefined,
-              });
+              void onRequestCorrect({ tracking_code: code });
             }}
           >
             ذخیره اصلاح (نیاز به PIN)
@@ -319,7 +323,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [correctRequest, setCorrectRequest] = useState<{
     shipmentId: number;
-    body: { tracking_code: string; provider_parcel_no?: string };
+    body: { tracking_code: string };
   } | null>(null);
   const [pending, setPending] = useState(false);
   const [packageForms, setPackageForms] = useState<Record<number, PackageFormState>>({});
@@ -414,6 +418,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                 <ManualPortalWorkflow
                   shipment={shipment}
                   orderId={order.id}
+                  orderStatus={order.status}
                   pending={pending}
                   actions={actions}
                   onRegister={async (body) =>

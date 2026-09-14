@@ -8643,7 +8643,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ShipmentManualPortalRegistrationRequest"
+                "$ref": "#/components/schemas/ShipmentManualPortalCorrectionRequest"
               }
             }
           }
@@ -8796,106 +8796,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentAdminResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/abandon": {
-      "post": {
-        "tags": [
-          "Shipping",
-          "Admin Shipping"
-        ],
-        "summary": "Admin Manual Portal Abandon",
-        "description": "Manual-portal local abandon is not supported in this MVP release.",
-        "operationId": "admin_manual_portal_abandon_api_v1_orders__order_id__shipments__shipment_id__manual_portal_abandon_post",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "order_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Order Id"
-            }
-          },
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Shipment Id"
-            }
-          },
-          {
-            "name": "X-Step-Up-Token",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Step-Up-Token"
-            }
-          },
-          {
-            "name": "karzar_access",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Karzar Access"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShipmentCancelRequest"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -15956,6 +15856,70 @@
           "is_liquid"
         ],
         "title": "ShipmentFinalPackageRequest"
+      },
+      "ShipmentManualPortalCorrectionRequest": {
+        "properties": {
+          "tracking_code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 10,
+            "title": "Tracking Code"
+          },
+          "provider_parcel_no": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Parcel No"
+          },
+          "carrier_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carrier Code"
+          },
+          "service_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Code"
+          },
+          "internal_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Internal Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tracking_code"
+        ],
+        "title": "ShipmentManualPortalCorrectionRequest",
+        "description": "Partial update: omitted optional fields preserve stored registration values."
       },
       "ShipmentManualPortalRegistrationRequest": {
         "properties": {

@@ -35,9 +35,13 @@ def shipment_fulfillment_mode(shipment: Shipment) -> PostexFulfillmentMode:
 
 
 def is_manual_portal_shipment(shipment: Shipment) -> bool:
+    data = shipment.provider_data or {}
+    raw = (data.get("fulfillment_mode") or "").strip().lower()
+    if not raw:
+        return False
     try:
-        return shipment_fulfillment_mode(shipment) == PostexFulfillmentMode.MANUAL_PORTAL
-    except ShipmentStateError:
+        return PostexFulfillmentMode(raw) == PostexFulfillmentMode.MANUAL_PORTAL
+    except ValueError:
         return False
 
 
@@ -51,6 +55,26 @@ def is_corrupt_fulfillment_snapshot(shipment: Shipment) -> bool:
         return False
     except ValueError:
         return True
+
+
+def provider_automation_blocked(shipment: Shipment) -> bool:
+    """True when workers/API must not call Postex (manual portal or corrupt snapshot)."""
+    data = shipment.provider_data or {}
+    raw = (data.get("fulfillment_mode") or "").strip().lower()
+    if not raw:
+        return False
+    try:
+        return PostexFulfillmentMode(raw) == PostexFulfillmentMode.MANUAL_PORTAL
+    except ValueError:
+        return True
+
+
+def provider_automation_block_reason(shipment: Shipment) -> str | None:
+    if is_corrupt_fulfillment_snapshot(shipment):
+        return "corrupt_fulfillment_snapshot"
+    if is_manual_portal_shipment(shipment):
+        return "manual_portal"
+    return None
 
 
 def assert_provider_path_allowed_for_fulfillment_snapshot(shipment: Shipment) -> None:

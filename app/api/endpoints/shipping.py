@@ -27,6 +27,7 @@ from app.schemas.shipping import (
     ShipmentCancelRequest,
     ShipmentEditRequest,
     ShipmentFinalPackageRequest,
+    ShipmentManualPortalCorrectionRequest,
     ShipmentManualPortalRegistrationRequest,
     ShipmentSelectServiceRequest,
     ShippingCityListResponse,
@@ -444,12 +445,12 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
     if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -517,12 +518,12 @@ async def admin_mark_ready(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
     if not shipment.provider_parcel_no:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -629,12 +630,12 @@ async def admin_edit_shipment(
 ):
     from app.services.logistics.service import build_parcel_update_request
 
+    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
-    _reject_generic_postex_provider_path(shipment)
     if shipment.status not in _EDITABLE_STATUSES:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -778,7 +779,7 @@ async def admin_manual_portal_register(
 async def admin_manual_portal_correct(
     order_id: int,
     shipment_id: int,
-    payload: ShipmentManualPortalRegistrationRequest,
+    payload: ShipmentManualPortalCorrectionRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
     x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
@@ -813,12 +814,14 @@ async def admin_manual_portal_correct(
         )
     except ShipmentStateError as exc:
         _raise_logistics(exc)
+    update_fields = frozenset(payload.model_fields_set)
     try:
         shipment = await correct_manual_portal_registration(
             db,
             order=order,
             shipment=shipment,
             tracking_code=payload.tracking_code,
+            update_fields=update_fields,
             provider_parcel_no=payload.provider_parcel_no,
             carrier_code=payload.carrier_code,
             service_code=payload.service_code,
@@ -894,29 +897,4 @@ async def admin_manual_portal_deliver(
     await db.commit()
     await db.refresh(shipment, ["events"])
     return ShipmentAdminResponse(**admin_shipment_view(shipment))
-
-
-@router.post(
-    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/abandon",
-    response_model=ShipmentAdminResponse,
-    tags=["Admin Shipping"],
-)
-async def admin_manual_portal_abandon(
-    order_id: int,
-    shipment_id: int,
-    payload: ShipmentCancelRequest,
-    db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_super_admin),
-    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
-):
-    """Manual-portal local abandon is not supported in this MVP release."""
-    _ = (order_id, shipment_id, payload, db, x_step_up_token)
-    raise api_error(
-        status.HTTP_409_CONFLICT,
-        error_code=ErrorCode.SHIPMENT_STATE_INVALID,
-        message=(
-            "لغو محلی مرسوله ثبت دستی در این نسخه پشتیبانی نمی‌شود؛ "
-            "پس از تحویل فیزیکی از مسیر تحویل/تسویه عملیاتی استفاده کنید."
-        ),
-    )
 

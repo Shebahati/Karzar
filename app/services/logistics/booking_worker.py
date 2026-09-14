@@ -22,7 +22,10 @@ from app.services.logistics.exceptions import (
     ShipmentStateError,
     ShippingDataIncompleteError,
 )
-from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
+from app.services.logistics.fulfillment_mode import (
+    provider_automation_block_reason,
+    provider_automation_blocked,
+)
 from app.services.logistics.manual_portal_guard import reject_generic_postex_provider_path
 from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
@@ -182,7 +185,13 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
         shipment = await db.get(Shipment, shipment_id)
         if shipment is None:
             continue
-        if is_manual_portal_shipment(shipment):
+        if provider_automation_blocked(shipment):
+            reason = provider_automation_block_reason(shipment)
+            logger.info(
+                "skip cancel reconcile shipment_id=%s reason=%s",
+                shipment_id,
+                reason,
+            )
             continue
         data = shipment.provider_data or {}
         if (
@@ -257,7 +266,13 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
     if shipment is None:
         return None
 
-    if is_manual_portal_shipment(shipment):
+    if provider_automation_blocked(shipment):
+        reason = provider_automation_block_reason(shipment)
+        logger.info(
+            "skip postex book shipment_id=%s reason=%s",
+            shipment_id,
+            reason,
+        )
         await db.commit()
         return None
 

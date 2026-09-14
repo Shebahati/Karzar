@@ -353,12 +353,16 @@ class Settings(BaseSettings):
 
         from app.services.logistics.shipping_payment import (
             ShippingPaymentMode,
-            default_shipping_payment_mode,
+            effective_shipping_payment_mode,
         )
 
         fulfillment = (self.POSTEX_FULFILLMENT_MODE or "api").strip().lower()
         if fulfillment == "manual_portal":
-            if default_shipping_payment_mode() != ShippingPaymentMode.RECEIVER_DUE:
+            mode = effective_shipping_payment_mode(
+                postex_shipping_payment_mode=self.POSTEX_SHIPPING_PAYMENT_MODE or "",
+                postex_default_payment_type=self.POSTEX_DEFAULT_PAYMENT_TYPE or "",
+            )
+            if mode != ShippingPaymentMode.RECEIVER_DUE:
                 raise ValueError(
                     "POSTEX_FULFILLMENT_MODE=manual_portal requires "
                     "POSTEX_SHIPPING_PAYMENT_MODE=receiver_due (or POSTEX_DEFAULT_PAYMENT_TYPE=RECEIVER)"

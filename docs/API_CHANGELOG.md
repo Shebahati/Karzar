@@ -26,11 +26,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - `POSTEX_FULFILLMENT_MODE`: `api` (default) | `manual_portal`. Snapshotted on new shipments as `provider_data.fulfillment_mode` (no migration).
 - `GET /shipping/status` adds `fulfillment_mode`.
-- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`, `…/correct`, `…/abandon` (step-up; abandon is local-only).
-- Generic Postex admin paths (`book`, `ready`, `label`, `refresh-tracking`, `edit`, `cancel`) return **409** for `manual_portal` shipments (zero provider HTTP).
-- `POSTEX_FULFILLMENT_MODE=manual_portal` requires `POSTEX_SHIPPING_PAYMENT_MODE=receiver_due` at config validation.
+- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`, `…/correct` (step-up on correct).
+- Generic Postex admin paths (`book`, `ready`, `label`, `refresh-tracking`, `edit`, `cancel`) return **409** for `manual_portal` shipments and for **invalid** `provider_data.fulfillment_mode` snapshots (zero provider HTTP; workers skip with logged reason).
+- `POST …/manual-portal/correct` uses partial-update semantics: omitted optional fields preserve stored registration; explicit JSON `null` clears a field.
+- `POSTEX_FULFILLMENT_MODE=manual_portal` requires effective receiver-due payment mode at config validation (derived from `POSTEX_SHIPPING_PAYMENT_MODE` / legacy `POSTEX_DEFAULT_PAYMENT_TYPE` only — no module-global settings during bootstrap).
 - Generic `PATCH /orders/{id}/status` rejects `shipped`/`delivered` when an active manual-portal shipment exists (409 `SHIPMENT_STATE_INVALID`).
-- Manual-portal **correction** is step-up protected; **local abandon** is unsupported in this MVP (409).
+- Manual-portal **local abandon/cancel** is **deferred** (no API route in this MVP); use operational handoff/deliver paths and support playbooks for edge cases.
 - Definitive SEP verify failure after accepted callback moves the order to `reconciliation_required` (not silent `failed` limbo).
 - Shipment admin view adds `fulfillment_mode`, `registration_source`.
 - Order expiry sweep cancels expired `pending_payment` with `payment_status=failed` when authority expired, without cancelling verified/callback orders.

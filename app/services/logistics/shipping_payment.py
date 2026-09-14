@@ -72,10 +72,24 @@ def default_shipping_payment_mode() -> ShippingPaymentMode:
     """
     from app.core.config import settings
 
-    explicit = (getattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", None) or "").strip()
+    return effective_shipping_payment_mode(
+        postex_shipping_payment_mode=getattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", None)
+        or "",
+        postex_default_payment_type=getattr(settings, "POSTEX_DEFAULT_PAYMENT_TYPE", None) or "",
+    )
+
+
+def effective_shipping_payment_mode(
+    *,
+    postex_shipping_payment_mode: str,
+    postex_default_payment_type: str,
+) -> ShippingPaymentMode:
+    """Resolve payment mode from explicit config fields only (no global settings)."""
+    explicit = (postex_shipping_payment_mode or "").strip()
     if explicit:
         return ShippingPaymentMode(explicit)
-    return mode_from_postex_payment_type(settings.POSTEX_DEFAULT_PAYMENT_TYPE)
+    legacy = (postex_default_payment_type or POSTEX_SENDER).strip()
+    return mode_from_postex_payment_type(legacy)
 
 
 def resolve_checkout_shipping_payment_mode(

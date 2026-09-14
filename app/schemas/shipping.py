@@ -66,6 +66,16 @@ class ShipmentManualPortalRegistrationRequest(BaseModel):
     internal_note: str | None = Field(None, max_length=500)
 
 
+class ShipmentManualPortalCorrectionRequest(BaseModel):
+    """Partial update: omitted optional fields preserve stored registration values."""
+
+    tracking_code: str = Field(..., min_length=10, max_length=64)
+    provider_parcel_no: str | None = Field(default=None, max_length=64)
+    carrier_code: str | None = Field(default=None, max_length=64)
+    service_code: str | None = Field(default=None, max_length=64)
+    internal_note: str | None = Field(default=None, max_length=500)
+
+
 class ShipmentFinalPackageRequest(BaseModel):
     length_cm: int = Field(..., gt=0)
     width_cm: int = Field(..., gt=0)

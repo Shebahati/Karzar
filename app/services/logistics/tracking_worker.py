@@ -12,7 +12,10 @@ from app.core.config import settings
 from app.core.logging import get_logger
 from app.db.models.commerce import Order
 from app.db.models.logistics import Shipment
-from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
+from app.services.logistics.fulfillment_mode import (
+    provider_automation_block_reason,
+    provider_automation_blocked,
+)
 from app.services.logistics.models import TERMINAL_SHIPMENT_STATUSES, ShipmentStatus
 from app.services.logistics.service import (
     apply_tracking_to_order,
@@ -59,7 +62,13 @@ async def process_tracking_sync(db: AsyncSession) -> int:
     processed = 0
     provider = get_provider()
     for shipment in shipments:
-        if is_manual_portal_shipment(shipment):
+        if provider_automation_blocked(shipment):
+            reason = provider_automation_block_reason(shipment)
+            logger.info(
+                "skip postex tracking shipment_id=%s reason=%s",
+                shipment.id,
+                reason,
+            )
             continue
         if (
             shipment.last_tracking_sync_at is not None
