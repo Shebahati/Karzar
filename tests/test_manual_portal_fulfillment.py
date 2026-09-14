@@ -685,6 +685,32 @@ def test_manual_correction_preserves_omitted_optional_fields(
 
 
 @pytest.mark.usefixtures("override_database")
+def test_manual_correction_explicit_null_clears_parcel(
+    super_admin_headers, manual_portal_env, step_up_headers
+):
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client, super_admin_headers, key=f"clr-{uuid4().hex}", sku="MP-CLR"
+    )
+    order_id, shipment_id = _mark_paid(checkout["order_id"])
+    client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+        json={
+            "tracking_code": "123456789012",
+            "provider_parcel_no": "PX-CLR",
+        },
+        headers=super_admin_headers,
+    )
+    cleared = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/correct",
+        json={"tracking_code": "123456789012", "provider_parcel_no": None},
+        headers=_fresh_step_up_headers(super_admin_headers),
+    )
+    assert cleared.status_code == 200
+    assert cleared.json()["provider_parcel_no"] is None
+
+
+@pytest.mark.usefixtures("override_database")
 def test_manual_correction_before_handoff_only(
     super_admin_headers, manual_portal_env, step_up_headers
 ):
