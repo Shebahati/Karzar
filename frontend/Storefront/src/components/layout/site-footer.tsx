@@ -51,7 +51,7 @@ function EnamadBadge() {
     <a
       referrerPolicy="origin"
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener"
       href={ENAMAD_TRUST_URL}
       className="inline-flex shrink-0 items-center justify-center"
       aria-label="نماد اعتماد الکترونیکی (اینماد)"
