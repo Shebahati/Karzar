@@ -143,6 +143,71 @@ jobs:
             /opt/karzar/Karzar/deploy/staging/scripts/deploy-backend.sh \
             2>/dev/null || true
 
-          echo "=== 10. FINAL MARKER ==="
+          echo "=== 10. REBUILD PREFLIGHT — FILES / ACCESS ==="
+          for f in \
+            /opt/karzar/Karzar/scripts/backup_db.sh \
+            /opt/karzar/Karzar/scripts/backup_uploads.sh \
+            /opt/karzar/Karzar/scripts/backup_offsite_sync.sh \
+            /opt/karzar/Karzar/.env \
+            /opt/karzar/Karzar/deploy/staging/Dockerfile.staging; do
+            if test -e "$f"; then
+              stat -c 'present %A %a %U:%G %n' "$f" 2>/dev/null || echo "stat_failed: $f"
+            else
+              echo "missing: $f"
+            fi
+          done
+
+          echo "=== 11. ENV SYNTAX / REQUIRED-KEY PRESENCE ==="
+          ENV_FILE=/opt/karzar/Karzar/.env
+          if test -f "$ENV_FILE"; then
+            if bash -n "$ENV_FILE" >/dev/null 2>&1; then
+              echo "env_syntax=PASS"
+            else
+              echo "env_syntax=FAIL"
+            fi
+            for key in SECRET_KEY POSTGRES_PASSWORD TRUSTED_HOSTS CORS_ORIGINS; do
+              if grep -qE "^${key}=.+" "$ENV_FILE" 2>/dev/null; then
+                echo "${key}=PRESENT_NONEMPTY"
+              elif grep -qE "^${key}=" "$ENV_FILE" 2>/dev/null; then
+                echo "${key}=PRESENT_EMPTY"
+              else
+                echo "${key}=MISSING"
+              fi
+            done
+          else
+            echo "env_syntax=NO_FILE"
+          fi
+
+          echo "=== 12. BUILD CONTEXT TOP-LEVEL METADATA ==="
+          find /opt/karzar/Karzar -mindepth 1 -maxdepth 1 -printf '%M %m %u:%g %f\n' 2>&1 | sort | redact_logs || true
+
+          echo "=== 13. KNOWN RETAINED PATHS ==="
+          for p in \
+            /opt/karzar/Karzar/.deploy-secrets \
+            /opt/karzar/Karzar/.env.staging.generated \
+            /opt/karzar/Karzar/backups \
+            /opt/karzar/Karzar/rollout-backups \
+            /opt/karzar/Karzar/data/uploads \
+            /opt/karzar/Karzar/logs \
+            /opt/karzar/Karzar/actions-runner \
+            /opt/karzar/Karzar/frontend; do
+            if test -e "$p"; then
+              stat -c '%A %a %U:%G %n' "$p" 2>/dev/null || echo "stat_failed: $p"
+              namei -l "$p" 2>/dev/null || true
+            else
+              echo "absent: $p"
+            fi
+          done
+
+          echo "=== 14. READ-ONLY CONTEXT WALK ERRORS ==="
+          # Capture only find(1) traversal errors in memory; no VPS temp file.
+          walk_err="$(find /opt/karzar/Karzar -xdev -type d -print 2>&1 >/dev/null || true)"
+          if [[ -n "$walk_err" ]]; then
+            printf '%s\n' "$walk_err" | redact_logs
+          else
+            echo "context_directory_walk=PASS"
+          fi
+
+          echo "=== 15. FINAL MARKER ==="
           echo "VPS_READONLY_DIAG_COMPLETE=YES"
           REMOTE
