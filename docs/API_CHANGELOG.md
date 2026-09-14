@@ -22,6 +22,20 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-13 — Manual Postex portal receiver-due MVP
+
+- `POSTEX_FULFILLMENT_MODE`: `api` (default) | `manual_portal`. Snapshotted on new shipments as `provider_data.fulfillment_mode` (no migration).
+- `GET /shipping/status` adds `fulfillment_mode`.
+- Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`, `…/correct` (step-up on correct).
+- Generic Postex admin paths (`book`, `ready`, `label`, `refresh-tracking`, `edit`, `cancel`) return **409** for `manual_portal` shipments and for **invalid** `provider_data.fulfillment_mode` snapshots (zero provider HTTP; workers exclude ineligible snapshots before batch `LIMIT`).
+- `POST …/manual-portal/correct` uses partial-update semantics: omitted optional fields preserve stored registration; explicit JSON `null` clears a field.
+- `POSTEX_FULFILLMENT_MODE=manual_portal` requires effective receiver-due payment mode at config validation (derived from `POSTEX_SHIPPING_PAYMENT_MODE` / legacy `POSTEX_DEFAULT_PAYMENT_TYPE` only — no module-global settings during bootstrap).
+- Generic `PATCH /orders/{id}/status` rejects `shipped`/`delivered` when an active manual-portal shipment exists (409 `SHIPMENT_STATE_INVALID`).
+- Manual-portal **local abandon/cancel** is **deferred** (no API route in this MVP); use operational handoff/deliver paths and support playbooks for edge cases.
+- Definitive SEP verify failure after accepted callback moves the order to `reconciliation_required` (not silent `failed` limbo).
+- Shipment admin view adds `fulfillment_mode`, `registration_source`.
+- Order expiry sweep cancels expired `pending_payment` with `payment_status=failed` when authority expired, without cancelling verified/callback orders.
+
 ### 2026-09-12 — Postex receiver-paid shipping (پس‌کرایه)
 
 - Provider-neutral `shipping_payment_mode`: `sender_prepaid` | `receiver_due` (persisted on order + shipment). Maps to Postex `SENDER` / `RECEIVER`. **COD unsupported.**

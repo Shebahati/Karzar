@@ -123,6 +123,8 @@ class Settings(BaseSettings):
     # Separate write gate: parcel create / mark-ready / cancel / edit. Default safe-off.
     # Reference/read/quote may run when POSTEX_ENABLED without this flag.
     POSTEX_BOOKING_ENABLED: bool = False
+    # api = automated quote/book/tracking; manual_portal = staff registers parcels in Postex UI.
+    POSTEX_FULFILLMENT_MODE: str = "api"
     # Postex provider quote allowlist: comma-separated COURIER:SERVICE (live-verified v1 default).
     POSTEX_QUOTE_SERVICES: str = "IR_POST:EXPRESS"
     POSTEX_ORIGIN_CITY_CODE: int | None = None
@@ -274,6 +276,15 @@ class Settings(BaseSettings):
             )
         return normalized
 
+    @field_validator("POSTEX_FULFILLMENT_MODE")
+    @classmethod
+    def validate_postex_fulfillment_mode(cls, v: str) -> str:
+        normalized = (v or "api").strip().lower()
+        allowed = {"api", "manual_portal"}
+        if normalized not in allowed:
+            raise ValueError("POSTEX_FULFILLMENT_MODE must be api or manual_portal")
+        return normalized
+
     @field_validator("POSTEX_QUOTE_SERVICES")
     @classmethod
     def validate_postex_quote_services(cls, v: str) -> str:
@@ -339,6 +350,23 @@ class Settings(BaseSettings):
                     if self.APP_ENV == "development" and host in {"localhost", "127.0.0.1"}:
                         continue
                     raise ValueError(f"{label} must be https://sep.shaparak.ir/…")
+
+        from app.services.logistics.shipping_payment import (
+            ShippingPaymentMode,
+            effective_shipping_payment_mode,
+        )
+
+        fulfillment = (self.POSTEX_FULFILLMENT_MODE or "api").strip().lower()
+        if fulfillment == "manual_portal":
+            mode = effective_shipping_payment_mode(
+                postex_shipping_payment_mode=self.POSTEX_SHIPPING_PAYMENT_MODE or "",
+                postex_default_payment_type=self.POSTEX_DEFAULT_PAYMENT_TYPE or "",
+            )
+            if mode != ShippingPaymentMode.RECEIVER_DUE:
+                raise ValueError(
+                    "POSTEX_FULFILLMENT_MODE=manual_portal requires "
+                    "POSTEX_SHIPPING_PAYMENT_MODE=receiver_due (or POSTEX_DEFAULT_PAYMENT_TYPE=RECEIVER)"
+                )
 
         if self.POSTEX_ENABLED:
             required = {

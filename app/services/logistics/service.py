@@ -37,6 +37,11 @@ from app.services.logistics.fingerprints import (
     cart_fingerprint,
     destination_fingerprint,
 )
+from app.services.logistics.fulfillment_mode import (
+    configured_fulfillment_mode,
+    shipment_fulfillment_mode,
+)
+from app.services.logistics.manual_portal_service import assert_api_fulfillment_path_allowed
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
     RECEIVER_PRE_CREATE_MUTABLE_STATUSES,
@@ -481,6 +486,7 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         quote_service_name = quote.service_name if quote else None
 
     if mode == ShippingPaymentMode.RECEIVER_DUE:
+        fulfillment = configured_fulfillment_mode()
         shipment = Shipment(
             public_id=str(uuid4()),
             order_id=order.id,
@@ -501,7 +507,10 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
             package_is_liquid=None,
             declared_value_irr=None,
             booking_next_attempt_at=None,
-            provider_data={"payment_mode": mode.value},
+            provider_data={
+                "payment_mode": mode.value,
+                "fulfillment_mode": fulfillment.value,
+            },
         )
         db.add(shipment)
         await db.flush()
@@ -540,7 +549,11 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         if snapshot.get("declared_value_irr")
         else None,
         booking_next_attempt_at=datetime.now(UTC),
-        provider_data={"package": snapshot, "payment_mode": mode.value},
+        provider_data={
+            "package": snapshot,
+            "payment_mode": mode.value,
+            "fulfillment_mode": configured_fulfillment_mode().value,
+        },
     )
     db.add(shipment)
     await db.flush()
@@ -931,6 +944,8 @@ def admin_shipment_view(shipment: Shipment) -> dict[str, Any]:
             "last_error_code": shipment.last_error_code,
             "last_error_message": shipment.last_error_message,
             "cancellation_requested_at": shipment.cancellation_requested_at,
+            "fulfillment_mode": shipment_fulfillment_mode(shipment).value,
+            "registration_source": (shipment.provider_data or {}).get("registration_source"),
         }
     )
     return view
@@ -990,6 +1005,7 @@ async def set_final_package(
     actor_user_id: int | None = None,
 ) -> Shipment:
     """Admin measures the sealed outbound parcel. No Postex HTTP."""
+    assert_api_fulfillment_path_allowed(shipment)
     if shipment.status not in {
         ShipmentStatus.AWAITING_PACKAGING.value,
         ShipmentStatus.READY_TO_BOOK.value,
@@ -1074,6 +1090,7 @@ async def quote_packed_shipment(
     shipment: Shipment,
 ) -> dict[str, Any]:
     """Quote Postex for a measured final parcel (RECEIVER payment_type). No create."""
+    assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
             "نرخ‌گیری بسته‌بندی‌شده فقط برای پس‌کرایه است.",
@@ -1210,6 +1227,7 @@ async def select_packed_service(
     carrier_code: str,
     service_code: str,
 ) -> Shipment:
+    assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
             "انتخاب سرویس بسته‌بندی‌شده فقط برای پس‌کرایه است.",
@@ -1273,6 +1291,7 @@ async def schedule_receiver_booking(
     shipment: Shipment,
 ) -> Shipment:
     """Mark receiver_due shipment ready_to_book. Worker must NOT claim this status."""
+    assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
             "آماده‌سازی رزرو پس‌کرایه فقط برای receiver_due است.",

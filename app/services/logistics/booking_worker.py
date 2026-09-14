@@ -22,6 +22,12 @@ from app.services.logistics.exceptions import (
     ShipmentStateError,
     ShippingDataIncompleteError,
 )
+from app.services.logistics.fulfillment_mode import (
+    provider_automation_block_reason,
+    provider_automation_blocked,
+    shipment_provider_automation_eligible_clause,
+)
+from app.services.logistics.manual_portal_guard import reject_generic_postex_provider_path
 from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
     ParcelBooking,
@@ -153,6 +159,7 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
                 Shipment.booking_next_attempt_at.is_(None),
                 Shipment.booking_next_attempt_at <= now,
             ),
+            shipment_provider_automation_eligible_clause(),
         )
         .order_by(Shipment.id)
         .limit(10)
@@ -160,8 +167,8 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
     ids = list((await db.execute(stmt)).scalars().all())
     processed = 0
     for shipment_id in ids:
-        await book_shipment(db, shipment_id)
-        processed += 1
+        if await book_shipment(db, shipment_id):
+            processed += 1
     processed += await _reconcile_pending_cancellations(db)
     return processed
 
@@ -170,7 +177,10 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
     """Lookup/cancel-request for pending cancels that never reached a final provider cancel."""
     stmt = (
         select(Shipment.id)
-        .where(Shipment.status == ShipmentStatus.CANCELLATION_PENDING.value)
+        .where(
+            Shipment.status == ShipmentStatus.CANCELLATION_PENDING.value,
+            shipment_provider_automation_eligible_clause(),
+        )
         .order_by(Shipment.id)
         .limit(10)
     )
@@ -179,6 +189,14 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
     for shipment_id in ids:
         shipment = await db.get(Shipment, shipment_id)
         if shipment is None:
+            continue
+        if provider_automation_blocked(shipment):
+            reason = provider_automation_block_reason(shipment)
+            logger.info(
+                "skip cancel reconcile shipment_id=%s reason=%s",
+                shipment_id,
+                reason,
+            )
             continue
         data = shipment.provider_data or {}
         if (
@@ -219,24 +237,42 @@ def _already_created(shipment: Shipment) -> bool:
     return shipment.status in {status.value for status in BOOKING_CREATE_FORBIDDEN_STATUSES}
 
 
-def _maybe_promote_booked(shipment: Shipment) -> None:
+def _maybe_promote_booked(shipment: Shipment) -> bool:
+    """Promote claimable rows that already have a parcel id. Returns True if status changed."""
     if not (shipment.provider_parcel_no or "").strip():
-        return
+        return False
     if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
-        return
+        return False
     if shipment.status in _CLAIMABLE_WITH_PARCEL:
         shipment.status = ShipmentStatus.BOOKED.value
         shipment.last_error_code = None
         shipment.last_error_message = None
         shipment.booking_next_attempt_at = None
+        return True
+    return False
 
 
-async def book_shipment(db: AsyncSession, shipment_id: int) -> None:
-    """Create at most one Postex parcel. Used by the worker and admin book."""
-    request = await _commit_create_attempt(db, shipment_id)
-    if request is None:
-        return
-    await _execute_create(db, shipment_id, request)
+async def book_shipment(db: AsyncSession, shipment_id: int) -> bool:
+    """Run one booking/reconciliation cycle for a shipment (worker or admin).
+
+    Return value is ``count_as_processed`` for ``process_shipment_bookings``:
+
+    * **False** — blocked or true no-op: missing row; manual/corrupt fulfillment
+      snapshot; ``awaiting_packaging``; ``ready_to_book``; cancellation-pending
+      skip; active create lease with no new work; already ``booked`` with no durable
+      change.
+    * **True** — meaningful handling: local promotion to ``booked`` when parcel id
+      exists; reconciliation lookup attempted and applied
+      or durably recorded (including ``creation_uncertain`` / empty-lookup metadata);
+      durable ``ERROR`` for missing order or incomplete shipping data; create
+      attempt committed and/or Postex create executed.
+    """
+    request, count_as_processed = await _commit_create_attempt(db, shipment_id)
+    if not count_as_processed:
+        return False
+    if request is not None:
+        await _execute_create(db, shipment_id, request)
+    return True
 
 
 async def _book_one(db: AsyncSession, shipment: Shipment) -> None:
@@ -244,23 +280,44 @@ async def _book_one(db: AsyncSession, shipment: Shipment) -> None:
     await book_shipment(db, shipment.id)
 
 
-async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str, Any] | None:
+async def _commit_create_attempt(
+    db: AsyncSession, shipment_id: int
+) -> tuple[dict[str, Any] | None, bool]:
     """TX A: durable BOOKING (+ attempt metadata) before any Postex create HTTP.
 
-    Returns the create body only after COMMIT. Never holds FOR UPDATE across the network.
+    Returns ``(create_body, count_as_processed)`` after COMMIT when applicable.
+    Never holds FOR UPDATE across the network.
     """
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
-        return None
+        return None, False
+
+    if provider_automation_blocked(shipment):
+        reason = provider_automation_block_reason(shipment)
+        logger.info(
+            "skip postex book shipment_id=%s reason=%s",
+            shipment_id,
+            reason,
+        )
+        await db.commit()
+        return None, False
+
+    if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
+        await db.commit()
+        return None, False
+
+    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
+        await db.commit()
+        return None, False
 
     if _already_created(shipment):
-        _maybe_promote_booked(shipment)
+        promoted = _maybe_promote_booked(shipment)
         await db.commit()
-        return None
+        return None, promoted
 
     if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
         await db.commit()
-        return None
+        return None, False
 
     if _must_lookup_before_create(shipment):
         public_id = shipment.public_id
@@ -268,24 +325,24 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         lookup = await _lookup_safe(get_provider(), public_id)
         shipment = await _lock_shipment(db, shipment_id)
         if shipment is None:
-            return None
+            return None, False
         if _already_created(shipment):
-            _maybe_promote_booked(shipment)
+            promoted = _maybe_promote_booked(shipment)
             await db.commit()
             await _maybe_issue_pending_cancel(db, shipment_id)
-            return None
+            return None, promoted
         if lookup is not None and lookup.found and lookup.booking:
             _apply_booking(shipment, lookup.booking)
             await db.commit()
             await _maybe_issue_pending_cancel(db, shipment_id)
-            return None
+            return None, True
         if lookup is None:
             await _mark_uncertain(shipment, "reconcile lookup failed")
             await db.commit()
-            return None
+            return None, True
         if _create_lease_active(shipment):
             await db.commit()
-            return None
+            return None, False
         data = dict(shipment.provider_data or {})
         empty_lookups = int(data.get("uncertain_empty_lookups") or 0) + 1
         data["uncertain_empty_lookups"] = empty_lookups
@@ -293,7 +350,7 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         if empty_lookups < 2:
             await _mark_uncertain(shipment, "awaiting second empty custom-order lookup")
             await db.commit()
-            return None
+            return None, True
         # Two empty lookups: fall through and durably start another create.
 
     if not postex_booking_enabled():
@@ -301,16 +358,7 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         shipment.last_error_message = "ثبت مرسوله پستکس غیرفعال است."
         shipment.booking_next_attempt_at = None
         await db.commit()
-        return None
-
-    if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
-        await db.commit()
-        return None
-
-    if shipment.status == ShipmentStatus.READY_TO_BOOK.value:
-        # Prepared receiver parcels require explicit admin /book — never auto-create.
-        await db.commit()
-        return None
+        return None, False
 
     order = (
         (
@@ -327,7 +375,7 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         shipment.status = ShipmentStatus.ERROR.value
         shipment.last_error_code = "ORDER_MISSING"
         await db.commit()
-        return None
+        return None, True
 
     try:
         request = build_parcel_create_request(order, shipment)
@@ -343,7 +391,7 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
             shipment.id,
             getattr(exc, "products", None),
         )
-        return None
+        return None, True
 
     shipment.booking_attempts = int(shipment.booking_attempts or 0) + 1
     shipment.status = ShipmentStatus.BOOKING.value
@@ -360,7 +408,7 @@ async def _commit_create_attempt(db: AsyncSession, shipment_id: int) -> dict[str
         order.id,
         shipment.booking_attempts,
     )
-    return request
+    return request, True
 
 
 async def _execute_create(db: AsyncSession, shipment_id: int, request: dict[str, Any]) -> None:
@@ -490,6 +538,7 @@ async def request_shipment_cancellation(
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
         raise ShipmentStateError("مرسوله یافت نشد.")
+    reject_generic_postex_provider_path(shipment)
     if shipment.status in {
         ShipmentStatus.DELIVERED.value,
         ShipmentStatus.RETURNED.value,

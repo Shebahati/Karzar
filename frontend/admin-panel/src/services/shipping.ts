@@ -81,6 +81,58 @@ export const shippingAdminService = {
     return data;
   },
 
+  async manualPortalRegister(
+    orderId: number,
+    shipmentId: number,
+    body: {
+      tracking_code: string;
+      provider_parcel_no?: string | null;
+      carrier_code?: string | null;
+      service_code?: string | null;
+      internal_note?: string | null;
+    },
+  ): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/register`,
+      body,
+    );
+    return data;
+  },
+
+  async manualPortalHandoff(orderId: number, shipmentId: number): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/handoff`,
+    );
+    return data;
+  },
+
+  async manualPortalDeliver(orderId: number, shipmentId: number): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/deliver`,
+    );
+    return data;
+  },
+
+  async manualPortalCorrect(
+    orderId: number,
+    shipmentId: number,
+    body: {
+      tracking_code: string;
+      provider_parcel_no?: string | null;
+      carrier_code?: string | null;
+      service_code?: string | null;
+      internal_note?: string | null;
+    },
+    stepUpToken: string,
+  ): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/correct`,
+      body,
+      withStepUp(stepUpToken),
+    );
+    return data;
+  },
+
   async refreshTracking(orderId: number, shipmentId: number): Promise<AdminShipment> {
     const { data } = await apiClient.post<AdminShipment>(
       `/orders/${orderId}/shipments/${shipmentId}/refresh-tracking`,

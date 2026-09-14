@@ -27,6 +27,8 @@ from app.schemas.shipping import (
     ShipmentCancelRequest,
     ShipmentEditRequest,
     ShipmentFinalPackageRequest,
+    ShipmentManualPortalCorrectionRequest,
+    ShipmentManualPortalRegistrationRequest,
     ShipmentSelectServiceRequest,
     ShippingCityListResponse,
     ShippingCityResponse,
@@ -43,6 +45,17 @@ from app.services.logistics.exceptions import (
     ShippingFreightRequiredError,
 )
 from app.services.logistics.fingerprints import canonical_cart_items
+from app.services.logistics.fulfillment_mode import configured_fulfillment_mode
+from app.services.logistics.manual_portal_guard import (
+    lock_order_and_shipment,
+    reject_generic_postex_provider_path,
+)
+from app.services.logistics.manual_portal_service import (
+    confirm_manual_delivery,
+    confirm_manual_physical_handoff,
+    correct_manual_portal_registration,
+    register_manual_portal_shipment,
+)
 from app.services.logistics.models import (
     READY_ELIGIBLE_STATUSES,
     TERMINAL_SHIPMENT_STATUSES,
@@ -137,6 +150,13 @@ def _raise_logistics(exc: LogisticsError) -> NoReturn:
     ) from exc
 
 
+def _reject_generic_postex_provider_path(shipment: Shipment) -> None:
+    try:
+        reject_generic_postex_provider_path(shipment)
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+
+
 async def _shipment_or_raise(
     db: AsyncSession, order_id: int, shipment_id: int, *, for_update: bool = False
 ) -> Shipment:
@@ -158,6 +178,7 @@ async def shipping_status() -> ShippingStatusResponse:
             enabled and mode == ShippingPaymentMode.SENDER_PREPAID
         ),
         booking_enabled=postex_booking_enabled(),
+        fulfillment_mode=configured_fulfillment_mode().value if enabled else None,
     )
 
 
@@ -284,6 +305,7 @@ async def admin_set_final_package(
 ):
     """Record sealed outbound parcel measurements. No Postex HTTP."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -329,6 +351,7 @@ async def admin_packed_quote(
             message="ارسال پستی فعال نیست.",
         )
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -360,6 +383,7 @@ async def admin_select_packed_service(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -394,6 +418,7 @@ async def admin_schedule_receiver_booking(
 ):
     """Mark receiver_due shipment ready_to_book (not worker-claimable)."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -420,11 +445,12 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if shipment.status in {status.value for status in TERMINAL_SHIPMENT_STATUSES}:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -492,11 +518,12 @@ async def admin_mark_ready(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     if not shipment.provider_parcel_no:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -535,6 +562,7 @@ async def admin_shipment_label(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    _reject_generic_postex_provider_path(shipment)
     if not shipment.provider_parcel_no:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -564,6 +592,7 @@ async def admin_refresh_tracking(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    _reject_generic_postex_provider_path(shipment)
     if not shipment.provider_parcel_no:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -601,11 +630,12 @@ async def admin_edit_shipment(
 ):
     from app.services.logistics.service import build_parcel_update_request
 
+    shipment = await _shipment_or_raise(db, order_id, shipment_id)
+    _reject_generic_postex_provider_path(shipment)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
         _raise_logistics(exc)
-    shipment = await _shipment_or_raise(db, order_id, shipment_id)
     if shipment.status not in _EDITABLE_STATUSES:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -684,7 +714,8 @@ async def admin_cancel_shipment(
             error_code=ErrorCode.STEP_UP_INVALID,
             message="Step-up token has already been used",
         )
-    await _shipment_or_raise(db, order_id, shipment_id)
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     try:
         shipment = await request_shipment_cancellation(db, shipment_id, payload.reason)
     except ProviderError as exc:
@@ -695,10 +726,174 @@ async def admin_cancel_shipment(
                 message="پستکس انصراف را در این مرحله نپذیرفت.",
             ) from exc
         _raise_logistics(exc)
-    except ShipmentStateError as exc:
-        _raise_logistics(exc)
     except LogisticsError as exc:
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])
     return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+    response_model=ShipmentAdminResponse,
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_register(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentManualPortalRegistrationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Record Postex portal tracking/parcel refs. No Postex HTTP."""
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    try:
+        shipment = await register_manual_portal_shipment(
+            db,
+            order=order,
+            shipment=shipment,
+            tracking_code=payload.tracking_code,
+            provider_parcel_no=payload.provider_parcel_no,
+            carrier_code=payload.carrier_code,
+            service_code=payload.service_code,
+            internal_note=payload.internal_note,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/correct",
+    response_model=ShipmentAdminResponse,
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_correct(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentManualPortalCorrectionRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
+):
+    if not x_step_up_token:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_REQUIRED,
+            message="Step-up authentication required to correct a manual-portal shipment",
+        )
+    step_up_payload = verify_step_up_token(x_step_up_token)
+    if step_up_payload.get("sub") != current_user.phone_number:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_MISMATCH,
+            message="Step-up token does not match the authenticated user",
+        )
+    consumed = await crud_platform.consume_step_up_jti(
+        db,
+        jti=step_up_payload["jti"],
+        expires_at=datetime.fromtimestamp(step_up_payload["exp"], tz=UTC),
+    )
+    if not consumed:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_INVALID,
+            message="Step-up token has already been used",
+        )
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    update_fields = frozenset(payload.model_fields_set)
+    try:
+        shipment = await correct_manual_portal_registration(
+            db,
+            order=order,
+            shipment=shipment,
+            tracking_code=payload.tracking_code,
+            update_fields=update_fields,
+            provider_parcel_no=payload.provider_parcel_no,
+            carrier_code=payload.carrier_code,
+            service_code=payload.service_code,
+            internal_note=payload.internal_note,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/handoff",
+    response_model=ShipmentAdminResponse,
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_handoff(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Confirm physical handoff to carrier. No Postex HTTP."""
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    try:
+        order, shipment = await confirm_manual_physical_handoff(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual-portal/deliver",
+    response_model=ShipmentAdminResponse,
+    tags=["Admin Shipping"],
+)
+async def admin_manual_portal_deliver(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    """Confirm customer delivery for manual-portal shipment. No Postex HTTP."""
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    try:
+        order, shipment = await confirm_manual_delivery(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))

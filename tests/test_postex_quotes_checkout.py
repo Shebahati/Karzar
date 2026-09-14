@@ -29,6 +29,8 @@ class FakeProvider:
         self.update_calls = 0
         self.label_calls = 0
         self.whoami_calls = 0
+        self.tracking_events_calls = 0
+        self.tracking_events_by_barcode_calls = 0
         self.parcels: dict[str, ParcelBooking] = {}
         self.op_log: list[str] = []
         self.tracking: list = []
@@ -82,26 +84,52 @@ class FakeProvider:
 
     async def fetch_label_pdf(self, parcel_no):
         self.label_calls += 1
+        self.op_log.append("label")
         return b"%PDF-1.4 test-label"
 
     async def mark_ready(self, parcel_nos):
         self.ready_calls += 1
+        self.op_log.append("ready")
         return {"ok": True}
 
     async def cancel_parcel(self, parcel_no, reason):
         self.cancel_calls += 1
+        self.op_log.append("cancel")
         return {"ok": True}
 
     async def update_parcel(self, parcel_no, body):
         self.update_calls += 1
+        self.op_log.append("update")
         return {"ok": True}
 
     async def tracking_events(self, parcel_no):
+        self.tracking_events_calls += 1
+        self.op_log.append("tracking_events")
+        return list(self.tracking)
+
+    async def tracking_events_by_barcode(self, carrier_code, barcode):
+        self.tracking_events_by_barcode_calls += 1
+        self.op_log.append("tracking_events_by_barcode")
         return list(self.tracking)
 
     async def whoami(self):
         self.whoami_calls += 1
+        self.op_log.append("whoami")
         return {"id": 1}
+
+
+def provider_network_op_total(provider: FakeProvider) -> int:
+    return (
+        provider.create_calls
+        + provider.lookup_calls
+        + provider.cancel_calls
+        + provider.ready_calls
+        + provider.update_calls
+        + provider.label_calls
+        + provider.whoami_calls
+        + provider.tracking_events_calls
+        + provider.tracking_events_by_barcode_calls
+    )
 
 
 @pytest.fixture
