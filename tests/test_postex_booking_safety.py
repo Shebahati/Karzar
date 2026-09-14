@@ -436,6 +436,45 @@ def test_reconciliation_lookup_success_counts_as_processed(
     assert row.tracking_code == "1234567890123"
 
 
+def test_worker_promotes_existing_parcel_to_booked_counts_once(
+    fake_provider, override_database, monkeypatch
+):
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+    _, shipment_id, _ = _seed_order_shipment(
+        status=ShipmentStatus.PENDING_BOOKING.value,
+        parcel_no="1001",
+    )
+
+    async def first_run() -> tuple[int, Shipment]:
+        async with TestingSessionLocal() as session:
+            processed = await process_shipment_bookings(session)
+            await session.commit()
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            return processed, row
+
+    processed, row = asyncio.run(first_run())
+    assert processed == 1
+    assert row.status == ShipmentStatus.BOOKED.value
+    assert row.provider_parcel_no == "1001"
+    assert row.tracking_code == "1234567890123"
+    assert provider_network_op_total(fake_provider) == 0
+
+    async def second_run() -> tuple[int, Shipment]:
+        async with TestingSessionLocal() as session:
+            processed = await process_shipment_bookings(session)
+            await session.commit()
+            row = await session.get(Shipment, shipment_id)
+            assert row is not None
+            return processed, row
+
+    processed_again, row_again = asyncio.run(second_run())
+    assert processed_again == 0
+    assert row_again.status == ShipmentStatus.BOOKED.value
+    assert row_again.provider_parcel_no == "1001"
+    assert provider_network_op_total(fake_provider) == 0
+
+
 def test_reconciliation_not_found_requires_two_lookups(fake_provider, override_database):
     _, shipment_id, _ = _seed_order_shipment(status=ShipmentStatus.CREATION_UNCERTAIN.value)
 

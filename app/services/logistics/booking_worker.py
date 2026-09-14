@@ -237,16 +237,19 @@ def _already_created(shipment: Shipment) -> bool:
     return shipment.status in {status.value for status in BOOKING_CREATE_FORBIDDEN_STATUSES}
 
 
-def _maybe_promote_booked(shipment: Shipment) -> None:
+def _maybe_promote_booked(shipment: Shipment) -> bool:
+    """Promote claimable rows that already have a parcel id. Returns True if status changed."""
     if not (shipment.provider_parcel_no or "").strip():
-        return
+        return False
     if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
-        return
+        return False
     if shipment.status in _CLAIMABLE_WITH_PARCEL:
         shipment.status = ShipmentStatus.BOOKED.value
         shipment.last_error_code = None
         shipment.last_error_message = None
         shipment.booking_next_attempt_at = None
+        return True
+    return False
 
 
 async def book_shipment(db: AsyncSession, shipment_id: int) -> bool:
@@ -256,9 +259,10 @@ async def book_shipment(db: AsyncSession, shipment_id: int) -> bool:
 
     * **False** — blocked or true no-op: missing row; manual/corrupt fulfillment
       snapshot; ``awaiting_packaging``; ``ready_to_book``; cancellation-pending
-      skip; active create lease with no new work; already complete with no durable
+      skip; active create lease with no new work; already ``booked`` with no durable
       change.
-    * **True** — meaningful handling: reconciliation lookup attempted and applied
+    * **True** — meaningful handling: local promotion to ``booked`` when parcel id
+      exists; reconciliation lookup attempted and applied
       or durably recorded (including ``creation_uncertain`` / empty-lookup metadata);
       durable ``ERROR`` for missing order or incomplete shipping data; create
       attempt committed and/or Postex create executed.
@@ -307,9 +311,9 @@ async def _commit_create_attempt(
         return None, False
 
     if _already_created(shipment):
-        _maybe_promote_booked(shipment)
+        promoted = _maybe_promote_booked(shipment)
         await db.commit()
-        return None, False
+        return None, promoted
 
     if shipment.status == ShipmentStatus.CANCELLATION_PENDING.value:
         await db.commit()
@@ -323,10 +327,10 @@ async def _commit_create_attempt(
         if shipment is None:
             return None, False
         if _already_created(shipment):
-            _maybe_promote_booked(shipment)
+            promoted = _maybe_promote_booked(shipment)
             await db.commit()
             await _maybe_issue_pending_cancel(db, shipment_id)
-            return None, False
+            return None, promoted
         if lookup is not None and lookup.found and lookup.booking:
             _apply_booking(shipment, lookup.booking)
             await db.commit()
