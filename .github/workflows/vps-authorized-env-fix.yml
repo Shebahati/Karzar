@@ -1,0 +1,171 @@
+name: VPS Authorized Env Fix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    name: Apply authorized VPS env fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout exact workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Apply only authorized .env changes
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          : "${SSH_HOST:?SSH_HOST secret is required}"
+          : "${SSH_USER:?SSH_USER secret is required}"
+          : "${SSH_PRIVATE_KEY:?SSH_PRIVATE_KEY secret is required}"
+          SSH_PORT="${SSH_PORT:-22}"
+
+          ROOT="${GITHUB_WORKSPACE}"
+          KNOWN_HOSTS="${ROOT}/deploy/staging/ssh/known_hosts"
+          test -f "$KNOWN_HOSTS"
+          test -s "$KNOWN_HOSTS"
+
+          KEYFILE="$(mktemp)"
+          cleanup() { rm -f "$KEYFILE"; }
+          trap cleanup EXIT
+          umask 077
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEYFILE"
+          chmod 600 "$KEYFILE"
+
+          ssh -4 \
+            -i "$KEYFILE" \
+            -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no \
+            -o UserKnownHostsFile="$KNOWN_HOSTS" \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            -o ConnectTimeout=25 \
+            -o ServerAliveInterval=10 \
+            -o ServerAliveCountMax=3 \
+            "${SSH_USER}@${SSH_HOST}" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+
+          ENV_FILE=/opt/karzar/Karzar/.env
+          test -f "$ENV_FILE"
+
+          echo "=== PREFLIGHT ==="
+          before_mode="$(stat -c '%a' "$ENV_FILE")"
+          before_owner="$(stat -c '%U' "$ENV_FILE")"
+          before_group="$(stat -c '%G' "$ENV_FILE")"
+          echo "env_mode_before=${before_mode}"
+          echo "env_owner_before=${before_owner}"
+          echo "env_group_before=${before_group}"
+
+          if [[ "$before_group" != "github-runner" ]]; then
+            echo "ERROR: .env group is not github-runner; refusing to widen scope with chgrp." >&2
+            exit 1
+          fi
+
+          mode_count="$(grep -c '^POSTEX_FULFILLMENT_MODE=' "$ENV_FILE" || true)"
+          if (( mode_count > 1 )); then
+            echo "ERROR: duplicate POSTEX_FULFILLMENT_MODE entries; refusing ambiguous edit." >&2
+            exit 1
+          fi
+
+          checkout_before="$(grep '^PURCHASE_CHECKOUT_ENABLED=' "$ENV_FILE" | tail -1 || true)"
+          postex_payment_before="$(grep '^POSTEX_SHIPPING_PAYMENT_MODE=' "$ENV_FILE" | tail -1 || true)"
+          booking_before="$(grep '^POSTEX_BOOKING_ENABLED=' "$ENV_FILE" | tail -1 || true)"
+
+          echo "=== APPLY AUTHORIZED CHANGES ==="
+          python3 - "$ENV_FILE" <<'PY'
+          import os
+          import sys
+          from pathlib import Path
+
+          path = Path(sys.argv[1])
+          st = path.stat()
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines(keepends=True)
+          key = "POSTEX_FULFILLMENT_MODE="
+          target = "POSTEX_FULFILLMENT_MODE=manual_portal\n"
+
+          matches = [i for i, line in enumerate(lines) if line.startswith(key)]
+          if len(matches) > 1:
+              raise SystemExit("duplicate POSTEX_FULFILLMENT_MODE entries")
+          if matches:
+              lines[matches[0]] = target
+          else:
+              if lines and not lines[-1].endswith("\n"):
+                  lines[-1] += "\n"
+              lines.append(target)
+
+          new_text = "".join(lines)
+          tmp = path.with_name(f".env.karzar-authorized-fix-{os.getpid()}")
+          fd = None
+          try:
+              fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+              with os.fdopen(fd, "w", encoding="utf-8") as f:
+                  fd = None
+                  f.write(new_text)
+                  f.flush()
+                  os.fsync(f.fileno())
+              os.chown(tmp, st.st_uid, st.st_gid)
+              os.chmod(tmp, 0o640)
+              os.replace(tmp, path)
+          finally:
+              if fd is not None:
+                  os.close(fd)
+              try:
+                  tmp.unlink()
+              except FileNotFoundError:
+                  pass
+          PY
+
+          echo "=== VERIFY ==="
+          mode_after="$(stat -c '%a' "$ENV_FILE")"
+          owner_after="$(stat -c '%U' "$ENV_FILE")"
+          group_after="$(stat -c '%G' "$ENV_FILE")"
+          fulfillment_after="$(grep '^POSTEX_FULFILLMENT_MODE=' "$ENV_FILE" | tail -1 || true)"
+          checkout_after="$(grep '^PURCHASE_CHECKOUT_ENABLED=' "$ENV_FILE" | tail -1 || true)"
+          postex_payment_after="$(grep '^POSTEX_SHIPPING_PAYMENT_MODE=' "$ENV_FILE" | tail -1 || true)"
+          booking_after="$(grep '^POSTEX_BOOKING_ENABLED=' "$ENV_FILE" | tail -1 || true)"
+
+          [[ "$mode_after" == "640" ]]
+          [[ "$owner_after" == "$before_owner" ]]
+          [[ "$group_after" == "github-runner" ]]
+          [[ "$fulfillment_after" == "POSTEX_FULFILLMENT_MODE=manual_portal" ]]
+          [[ "$checkout_after" == "$checkout_before" ]]
+          [[ "$postex_payment_after" == "$postex_payment_before" ]]
+          [[ "$booking_after" == "$booking_before" ]]
+
+          echo "env_mode_after=${mode_after}"
+          echo "env_owner_after=${owner_after}"
+          echo "env_group_after=${group_after}"
+          echo "$fulfillment_after"
+          echo "$checkout_after"
+          echo "$postex_payment_after"
+          echo "$booking_after"
+
+          if command -v runuser >/dev/null 2>&1; then
+            if runuser -u github-runner -- test -r "$ENV_FILE"; then
+              echo "github_runner_can_read_env=YES"
+            else
+              echo "ERROR: github-runner still cannot read .env" >&2
+              exit 1
+            fi
+          fi
+
+          echo "NO_DEPLOY=YES"
+          echo "NO_RESTART=YES"
+          echo "NO_DATABASE_MUTATION=YES"
+          echo "AUTHORIZED_ENV_FIX_COMPLETE=YES"
+          REMOTE
