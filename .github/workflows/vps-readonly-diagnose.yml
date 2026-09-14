@@ -200,16 +200,13 @@ jobs:
           done
 
           echo "=== 14. READ-ONLY CONTEXT WALK ERRORS ==="
-          # Do not read file contents. This only asks the filesystem to enumerate
-          # directory entries, approximating the permission surface BuildKit must walk.
-          walk_err="$(mktemp)"
-          find /opt/karzar/Karzar -xdev -type d -print >/dev/null 2>"$walk_err" || true
-          if test -s "$walk_err"; then
-            redact_logs < "$walk_err"
+          # Capture only find(1) traversal errors in memory; no VPS temp file.
+          walk_err="$(find /opt/karzar/Karzar -xdev -type d -print 2>&1 >/dev/null || true)"
+          if [[ -n "$walk_err" ]]; then
+            printf '%s\n' "$walk_err" | redact_logs
           else
             echo "context_directory_walk=PASS"
           fi
-          rm -f "$walk_err"
 
           echo "=== 15. FINAL MARKER ==="
           echo "VPS_READONLY_DIAG_COMPLETE=YES"
