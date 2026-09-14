@@ -22,3 +22,7 @@ tests
 docs
 README.md
 docs/ARCHITECTURE.md
+backups
+rollout-backups
+data/uploads
+logs
