@@ -57,7 +57,7 @@ Provider-neutral shipping payment mode (persisted on order/shipment; **server-ow
 
 Post-deploy smoke (after any production rollout): `GET /ready`, `GET /shipping/status`, and a sacrificial checkout — not part of this PR.
 
-Manual-portal **local abandon/cancel** is **deferred** in this MVP (no admin API route); generic Postex cancel and provider-side cancellation reconciliation do not apply to manual-portal or corrupt fulfillment snapshots.
+Manual-portal **local abandon/cancel** is **deferred** in this MVP (no admin API route); generic Postex cancel and provider-side cancellation reconciliation do not apply to manual-portal or corrupt fulfillment snapshots. **Invalid `fulfillment_mode` snapshot values cannot be repaired via `/manual-portal/correct`** (correction does not change `fulfillment_mode`); fix corrupt snapshots only through a separate Owner-authorized operational/data-repair workflow.
 
 - **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
 - Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.

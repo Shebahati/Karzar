@@ -83,6 +83,40 @@ def test_settings_rejects_manual_portal_with_legacy_sender():
         )
 
 
+def test_fresh_process_module_settings_manual_portal_receiver_due():
+    """First import of app.core.config.settings with manual_portal env already set."""
+    repo_root = __import__("pathlib").Path(__file__).resolve().parents[1]
+    env = {
+        **__import__("os").environ,
+        "POSTGRES_USER": "test",
+        "POSTGRES_PASSWORD": "test",
+        "POSTGRES_SERVER": "localhost",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "test",
+        "SECRET_KEY": "test-secret-key-with-at-least-32-characters",
+        "ADMIN_STEP_UP_PIN": "93827461",
+        "DEBUG": "true",
+        "REDIS_HOST": "",
+        "LOG_TO_FILE": "false",
+        "POSTEX_FULFILLMENT_MODE": "manual_portal",
+        "POSTEX_SHIPPING_PAYMENT_MODE": "receiver_due",
+    }
+    script = """
+from app.core.config import settings
+assert settings.POSTEX_FULFILLMENT_MODE == "manual_portal"
+assert settings.POSTEX_SHIPPING_PAYMENT_MODE == "receiver_due"
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(repo_root),
+        env=env,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+
+
 def test_fresh_process_settings_construct_manual_portal_receiver_due():
     """Simulate first Settings() during app bootstrap (no reliance on module global)."""
     script = """

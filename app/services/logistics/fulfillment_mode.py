@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from enum import StrEnum
 
+from sqlalchemy import func, or_
+
 from app.core.config import settings
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import ShipmentStateError
@@ -75,6 +77,33 @@ def provider_automation_block_reason(shipment: Shipment) -> str | None:
     if is_manual_portal_shipment(shipment):
         return "manual_portal"
     return None
+
+
+def shipment_provider_automation_eligible(shipment: Shipment) -> bool:
+    """Python mirror of worker SQL eligibility (legacy blank or explicit api only)."""
+    return not provider_automation_blocked(shipment)
+
+
+def _normalized_fulfillment_mode_sql():
+    """Lowercase trimmed fulfillment_mode from JSONB, empty when missing/null/blank."""
+    return func.lower(
+        func.trim(
+            func.coalesce(
+                Shipment.provider_data["fulfillment_mode"].astext,
+                "",
+            )
+        )
+    )
+
+
+def shipment_provider_automation_eligible_clause():
+    """SQL filter: shipments that may enter Postex automation worker batches."""
+    mode = _normalized_fulfillment_mode_sql()
+    return or_(
+        Shipment.provider_data.is_(None),
+        mode == "",
+        mode == PostexFulfillmentMode.API.value,
+    )
 
 
 def assert_provider_path_allowed_for_fulfillment_snapshot(shipment: Shipment) -> None:

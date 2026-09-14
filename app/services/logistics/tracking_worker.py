@@ -15,6 +15,7 @@ from app.db.models.logistics import Shipment
 from app.services.logistics.fulfillment_mode import (
     provider_automation_block_reason,
     provider_automation_blocked,
+    shipment_provider_automation_eligible_clause,
 )
 from app.services.logistics.models import TERMINAL_SHIPMENT_STATUSES, ShipmentStatus
 from app.services.logistics.service import (
@@ -53,6 +54,7 @@ async def process_tracking_sync(db: AsyncSession) -> int:
                 Shipment.provider_parcel_no.is_not(None),
                 Shipment.tracking_code.is_not(None),
             ),
+            shipment_provider_automation_eligible_clause(),
         )
         .order_by(Shipment.last_tracking_sync_at.nulls_first(), Shipment.id)
         .limit(10)
@@ -64,8 +66,8 @@ async def process_tracking_sync(db: AsyncSession) -> int:
     for shipment in shipments:
         if provider_automation_blocked(shipment):
             reason = provider_automation_block_reason(shipment)
-            logger.info(
-                "skip postex tracking shipment_id=%s reason=%s",
+            logger.warning(
+                "ineligible shipment in tracking batch shipment_id=%s reason=%s",
                 shipment.id,
                 reason,
             )
