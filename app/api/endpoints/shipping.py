@@ -50,7 +50,6 @@ from app.services.logistics.manual_portal_guard import (
     reject_generic_postex_provider_path,
 )
 from app.services.logistics.manual_portal_service import (
-    abandon_manual_portal_shipment,
     confirm_manual_delivery,
     confirm_manual_physical_handoff,
     correct_manual_portal_registration,
@@ -305,6 +304,7 @@ async def admin_set_final_package(
 ):
     """Record sealed outbound parcel measurements. No Postex HTTP."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -350,6 +350,7 @@ async def admin_packed_quote(
             message="ارسال پستی فعال نیست.",
         )
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -381,6 +382,7 @@ async def admin_select_packed_service(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -415,6 +417,7 @@ async def admin_schedule_receiver_booking(
 ):
     """Mark receiver_due shipment ready_to_book (not worker-claimable)."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    _reject_generic_postex_provider_path(shipment)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -778,7 +781,32 @@ async def admin_manual_portal_correct(
     payload: ShipmentManualPortalRegistrationRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
 ):
+    if not x_step_up_token:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_REQUIRED,
+            message="Step-up authentication required to correct a manual-portal shipment",
+        )
+    step_up_payload = verify_step_up_token(x_step_up_token)
+    if step_up_payload.get("sub") != current_user.phone_number:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_MISMATCH,
+            message="Step-up token does not match the authenticated user",
+        )
+    consumed = await crud_platform.consume_step_up_jti(
+        db,
+        jti=step_up_payload["jti"],
+        expires_at=datetime.fromtimestamp(step_up_payload["exp"], tz=UTC),
+    )
+    if not consumed:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_INVALID,
+            message="Step-up token has already been used",
+        )
     try:
         order, shipment = await lock_order_and_shipment(
             db, order_id=order_id, shipment_id=shipment_id
@@ -878,50 +906,17 @@ async def admin_manual_portal_abandon(
     shipment_id: int,
     payload: ShipmentCancelRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_super_admin),
+    _: User = Depends(get_current_super_admin),
     x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
 ):
-    """Local abandon for manual-portal shipments (no Postex HTTP)."""
-    if not x_step_up_token:
-        raise api_error(
-            status.HTTP_403_FORBIDDEN,
-            error_code=ErrorCode.STEP_UP_REQUIRED,
-            message="Step-up authentication required to abandon a manual-portal shipment",
-        )
-    step_up_payload = verify_step_up_token(x_step_up_token)
-    if step_up_payload.get("sub") != current_user.phone_number:
-        raise api_error(
-            status.HTTP_403_FORBIDDEN,
-            error_code=ErrorCode.STEP_UP_MISMATCH,
-            message="Step-up token does not match the authenticated user",
-        )
-    consumed = await crud_platform.consume_step_up_jti(
-        db,
-        jti=step_up_payload["jti"],
-        expires_at=datetime.fromtimestamp(step_up_payload["exp"], tz=UTC),
+    """Manual-portal local abandon is not supported in this MVP release."""
+    _ = (order_id, shipment_id, payload, db, x_step_up_token)
+    raise api_error(
+        status.HTTP_409_CONFLICT,
+        error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+        message=(
+            "لغو محلی مرسوله ثبت دستی در این نسخه پشتیبانی نمی‌شود؛ "
+            "پس از تحویل فیزیکی از مسیر تحویل/تسویه عملیاتی استفاده کنید."
+        ),
     )
-    if not consumed:
-        raise api_error(
-            status.HTTP_403_FORBIDDEN,
-            error_code=ErrorCode.STEP_UP_INVALID,
-            message="Step-up token has already been used",
-        )
-    try:
-        order, shipment = await lock_order_and_shipment(
-            db, order_id=order_id, shipment_id=shipment_id
-        )
-    except ShipmentStateError as exc:
-        _raise_logistics(exc)
-    try:
-        shipment = await abandon_manual_portal_shipment(
-            db,
-            order=order,
-            shipment=shipment,
-            reason=payload.reason,
-            actor_user_id=current_user.id,
-        )
-    except ShipmentStateError as exc:
-        _raise_logistics(exc)
-    await db.commit()
-    await db.refresh(shipment, ["events"])
-    return ShipmentAdminResponse(**admin_shipment_view(shipment))
+

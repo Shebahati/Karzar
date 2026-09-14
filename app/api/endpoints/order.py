@@ -35,6 +35,7 @@ from app.services.audit_service import record_audit
 from app.services.logistics.manual_portal_guard import lock_order_for_status_update
 from app.services.logistics.service import admin_shipment_view, public_shipment_view
 from app.services.order_service import (
+    ManualPortalOrderBypassError,
     allowed_next_statuses,
     build_invoice_response,
     issue_order_quote,
@@ -335,6 +336,13 @@ async def update_order_status(
             delivery_eta=payload.delivery_eta,
             actor="admin",
         )
+    except ManualPortalOrderBypassError as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+            message=str(exc),
+            details=[{"field": "status", "message": str(exc)}],
+        ) from exc
     except ValueError as exc:
         raise api_error(
             status.HTTP_409_CONFLICT,

@@ -182,6 +182,8 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
         shipment = await db.get(Shipment, shipment_id)
         if shipment is None:
             continue
+        if is_manual_portal_shipment(shipment):
+            continue
         data = shipment.provider_data or {}
         if (
             (shipment.provider_parcel_no or "").strip()

@@ -122,8 +122,7 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
         manualRegistered &&
         shipment.status === "booked" &&
         shipment.registration_source === "manual_portal",
-      canManualAbandon:
-        shipment.status === "awaiting_packaging" || shipment.status === "booked",
+      canManualAbandon: false,
     };
   }
 

@@ -123,23 +123,11 @@ export const shippingAdminService = {
       service_code?: string | null;
       internal_note?: string | null;
     },
+    stepUpToken: string,
   ): Promise<AdminShipment> {
     const { data } = await apiClient.post<AdminShipment>(
       `/orders/${orderId}/shipments/${shipmentId}/manual-portal/correct`,
       body,
-    );
-    return data;
-  },
-
-  async manualPortalAbandon(
-    orderId: number,
-    shipmentId: number,
-    reason: string,
-    stepUpToken: string,
-  ): Promise<AdminShipment> {
-    const { data } = await apiClient.post<AdminShipment>(
-      `/orders/${orderId}/shipments/${shipmentId}/manual-portal/abandon`,
-      { reason },
       withStepUp(stepUpToken),
     );
     return data;

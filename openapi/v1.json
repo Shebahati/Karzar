@@ -8606,6 +8606,22 @@
             }
           },
           {
+            "name": "X-Step-Up-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Step-Up-Token"
+            }
+          },
+          {
             "name": "karzar_access",
             "in": "cookie",
             "required": false,
@@ -8811,7 +8827,7 @@
           "Admin Shipping"
         ],
         "summary": "Admin Manual Portal Abandon",
-        "description": "Local abandon for manual-portal shipments (no Postex HTTP).",
+        "description": "Manual-portal local abandon is not supported in this MVP release.",
         "operationId": "admin_manual_portal_abandon_api_v1_orders__order_id__shipments__shipment_id__manual_portal_abandon_post",
         "security": [
           {

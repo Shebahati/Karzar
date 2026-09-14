@@ -29,7 +29,9 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Admin (super-admin, no Postex HTTP): `POST …/manual-portal/register`, `…/handoff`, `…/deliver`, `…/correct`, `…/abandon` (step-up; abandon is local-only).
 - Generic Postex admin paths (`book`, `ready`, `label`, `refresh-tracking`, `edit`, `cancel`) return **409** for `manual_portal` shipments (zero provider HTTP).
 - `POSTEX_FULFILLMENT_MODE=manual_portal` requires `POSTEX_SHIPPING_PAYMENT_MODE=receiver_due` at config validation.
-- Generic `PATCH /orders/{id}/status` rejects `shipped`/`delivered` when an active manual-portal shipment exists.
+- Generic `PATCH /orders/{id}/status` rejects `shipped`/`delivered` when an active manual-portal shipment exists (409 `SHIPMENT_STATE_INVALID`).
+- Manual-portal **correction** is step-up protected; **local abandon** is unsupported in this MVP (409).
+- Definitive SEP verify failure after accepted callback moves the order to `reconciliation_required` (not silent `failed` limbo).
 - Shipment admin view adds `fulfillment_mode`, `registration_source`.
 - Order expiry sweep cancels expired `pending_payment` with `payment_status=failed` when authority expired, without cancelling verified/callback orders.
 

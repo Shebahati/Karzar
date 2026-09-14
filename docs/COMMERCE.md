@@ -47,7 +47,17 @@ Provider-neutral shipping payment mode (persisted on order/shipment; **server-ow
 - `receiver_due` fulfillment (`POSTEX_FULFILLMENT_MODE=api`, default): `awaiting_packaging` → measure → packed quote → select service → `ready_to_book` → **explicit** admin `/book`. Enabling `POSTEX_BOOKING_ENABLED` alone must not create prepared receiver parcels.
 - `receiver_due` fulfillment (`POSTEX_FULFILLMENT_MODE=manual_portal`): staff create parcels in the external Postex panel; Karzar admin records tracking/parcel refs via `/manual-portal/*` (**no Postex HTTP**). Booking/tracking workers skip these shipments. **`manual_portal` requires `receiver_due`.** Generic Postex admin paths and generic order `shipped`/`delivered` status changes are rejected (409) for active manual-portal shipments.
 
-**Rollback (manual_portal):** set `POSTEX_FULFILLMENT_MODE=api` so **new** paid orders get API fulfillment; drain in-flight manual-portal shipments through handoff/deliver (or audited abandon); only then redeploy/revert to pre-feature code. Do not revert while non-terminal manual-portal shipments remain.
+**Rollback (manual_portal):**
+
+1. While this compatible release is still running, set `POSTEX_FULFILLMENT_MODE=api` so **new** paid orders resume API fulfillment snapshots.
+2. Recreate only the approved API container (`lathe_api`) after the Owner-authorized env change (requires temporary removal of `KARZAR_DEPLOY_FREEZE`, deploy from `main`, then immediate restoration of the freeze).
+3. Allow existing manual-portal shipments to retain their snapshotted workflow and complete handoff/delivery.
+4. Confirm no non-terminal manual-portal shipments remain.
+5. Only then may the previous pre-feature image be deployed.
+
+Post-deploy smoke (after any production rollout): `GET /ready`, `GET /shipping/status`, and a sacrificial checkout — not part of this PR.
+
+Manual-portal **local abandon/cancel** is unsupported in this MVP; generic Postex cancel and provider-side cancellation reconciliation do not apply to manual-portal snapshots.
 
 - **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
 - Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.

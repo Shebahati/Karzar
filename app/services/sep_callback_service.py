@@ -521,6 +521,16 @@ async def apply_sep_verify_success(
         )
 
     if not result.success:
+        if _order_has_callback_verify_evidence(order):
+            return await _mark_verify_reconciliation_required(
+                db,
+                order,
+                authority=claim.authority,
+                ref_num=claim.ref_num,
+                ip_address=ip_address,
+                reason="verify_rejected",
+                provider_data={"verify_success": False},
+            )
         order.payment_status = PaymentStatus.FAILED.value
         order.payment_next_verify_at = None
         await record_payment_failed(
@@ -580,6 +590,16 @@ async def apply_sep_verify_failure(
         )
 
     if isinstance(exc, PaymentVerifyFailedError):
+        if _order_has_callback_verify_evidence(order):
+            return await _mark_verify_reconciliation_required(
+                db,
+                order,
+                authority=claim.authority,
+                ref_num=claim.ref_num,
+                ip_address=ip_address,
+                reason="verify_rejected",
+                provider_data={"error": str(getattr(exc, "message", exc))[:200]},
+            )
         order.payment_status = PaymentStatus.FAILED.value
         order.payment_next_verify_at = None
         order.payment_last_error = "verify_rejected"
@@ -654,6 +674,41 @@ async def run_sep_verify_for_order(
         return await apply_sep_verify_failure(db, claim, exc=exc, ip_address=ip_address)
 
     return await apply_sep_verify_success(db, claim, result, ip_address=ip_address)
+
+
+def _order_has_callback_verify_evidence(order: Order) -> bool:
+    if order.payment_callback_received_at is not None:
+        return True
+    return bool((order.payment_ref_id or "").strip())
+
+
+async def _mark_verify_reconciliation_required(
+    db: AsyncSession,
+    order: Order,
+    *,
+    authority: str | None,
+    ref_num: str | None,
+    ip_address: str | None,
+    reason: str,
+    provider_data: dict[str, Any] | None = None,
+) -> SepCallbackResult:
+    order.payment_status = PaymentStatus.RECONCILIATION_REQUIRED.value
+    order.payment_next_verify_at = None
+    order.payment_last_error = reason
+    await record_payment_reconciliation_required(
+        db,
+        order,
+        authority=authority,
+        ref_id=ref_num,
+        ip_address=ip_address,
+        provider_data=provider_data or {"reason": reason},
+    )
+    await db.flush()
+    return SepCallbackResult(
+        outcome="reconciliation",
+        tracking_code=order.tracking_code,
+        order_id=order.id,
+    )
 
 
 async def _handle_amount_mismatch(

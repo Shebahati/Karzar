@@ -400,6 +400,7 @@ def test_generic_order_ship_blocked_for_manual_portal(
         headers=super_admin_headers,
     )
     assert ship.status_code == 409
+    assert ship.json()["error_code"] == "SHIPMENT_STATE_INVALID"
 
 
 @pytest.mark.usefixtures("override_database")
@@ -431,6 +432,7 @@ def test_generic_order_deliver_blocked_for_manual_portal(
         headers=super_admin_headers,
     )
     assert deliver.status_code == 409
+    assert deliver.json()["error_code"] == "SHIPMENT_STATE_INVALID"
 
 
 @pytest.mark.usefixtures("override_database")
@@ -572,9 +574,20 @@ def test_generic_cancel_rejects_manual_portal(
     assert manual_portal_env.create_requests == []
 
 
+def _fresh_step_up_headers(super_admin_headers: dict[str, str]) -> dict[str, str]:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/auth/verify-pin",
+        json={"pin": settings.ADMIN_STEP_UP_PIN},
+        headers=super_admin_headers,
+    )
+    assert response.status_code == 200
+    return {**super_admin_headers, "X-Step-Up-Token": response.json()["secure_token"]}
+
+
 @pytest.mark.usefixtures("override_database")
 def test_manual_correction_before_handoff_only(
-    super_admin_headers, manual_portal_env
+    super_admin_headers, manual_portal_env, step_up_headers
 ):
     client = TestClient(app)
     checkout = _receiver_checkout(
@@ -589,7 +602,7 @@ def test_manual_correction_before_handoff_only(
     fixed = client.post(
         f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/correct",
         json={"tracking_code": "123456789099"},
-        headers=super_admin_headers,
+        headers=step_up_headers,
     )
     assert fixed.status_code == 200
     assert fixed.json()["tracking_code"] == "123456789099"
@@ -605,9 +618,118 @@ def test_manual_correction_before_handoff_only(
     after = client.post(
         f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/correct",
         json={"tracking_code": "123456789088"},
-        headers=super_admin_headers,
+        headers=_fresh_step_up_headers(super_admin_headers),
     )
     assert after.status_code == 409
+
+
+@pytest.mark.usefixtures("override_database")
+def test_corrupt_fulfillment_snapshot_rejects_generic_postex(
+    super_admin_headers, manual_portal_env, monkeypatch
+):
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+
+    async def seed():
+        async with TestingSessionLocal() as session:
+            order = Order(
+                tracking_code=f"KZ-BAD-{uuid4().hex[:10]}",
+                mode=OrderMode.PURCHASE,
+                status=OrderStatus.PAID.value,
+                payment_status=PaymentStatus.PAID.value,
+                estimated_total=Decimal("100000"),
+                customer_full_name="تست",
+                customer_phone="09127777777",
+                shipping={"location_code": 8, "address_line": "x" * 12},
+                shipping_provider="postex",
+                shipping_payment_mode="receiver_due",
+            )
+            session.add(order)
+            await session.flush()
+            shipment = Shipment(
+                public_id=str(uuid4()),
+                order_id=order.id,
+                provider="postex",
+                status=ShipmentStatus.BOOKED.value,
+                shipping_payment_mode="receiver_due",
+                tracking_code="123456789012",
+                provider_data={"fulfillment_mode": "manual-poratl"},
+            )
+            session.add(shipment)
+            await session.commit()
+            return order.id, shipment.id
+
+    order_id, shipment_id = asyncio.run(seed())
+    manual_portal_env.create_requests.clear()
+    client = TestClient(app)
+    resp = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/book",
+        headers=super_admin_headers,
+    )
+    assert resp.status_code == 409
+    assert manual_portal_env.create_requests == []
+
+
+@pytest.mark.usefixtures("override_database")
+def test_manual_portal_rejects_receiver_api_prep_paths(
+    super_admin_headers, manual_portal_env, monkeypatch
+):
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client, super_admin_headers, key=f"prep-{uuid4().hex}", sku="MP-PREP"
+    )
+    order_id, shipment_id = _mark_paid(checkout["order_id"])
+    client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+        json={"tracking_code": "123456789012"},
+        headers=super_admin_headers,
+    )
+    manual_portal_env.create_requests.clear()
+    paths = [
+        (
+            "post",
+            f"/api/v1/orders/{order_id}/shipments/{shipment_id}/final-package",
+            {
+                "length_cm": 10,
+                "width_cm": 10,
+                "height_cm": 10,
+                "weight_grams": 100,
+                "is_fragile": False,
+                "is_liquid": False,
+            },
+        ),
+        ("post", f"/api/v1/orders/{order_id}/shipments/{shipment_id}/packed-quote", None),
+        (
+            "post",
+            f"/api/v1/orders/{order_id}/shipments/{shipment_id}/select-service",
+            {"carrier_code": "IR_POST", "service_code": "EXPRESS"},
+        ),
+        ("post", f"/api/v1/orders/{order_id}/shipments/{shipment_id}/schedule-booking", None),
+    ]
+    for method, url, body in paths:
+        if method == "post":
+            resp = client.post(url, json=body or {}, headers=super_admin_headers)
+        else:
+            resp = client.get(url, headers=super_admin_headers)
+        assert resp.status_code == 409, (url, resp.text)
+    assert manual_portal_env.create_requests == []
+
+
+@pytest.mark.usefixtures("override_database")
+def test_manual_portal_abandon_unsupported(
+    super_admin_headers, manual_portal_env, step_up_headers
+):
+    client = TestClient(app)
+    checkout = _receiver_checkout(
+        client, super_admin_headers, key=f"abn-{uuid4().hex}", sku="MP-ABN"
+    )
+    order_id, shipment_id = _mark_paid(checkout["order_id"])
+    resp = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/abandon",
+        json={"reason": "test"},
+        headers=step_up_headers,
+    )
+    assert resp.status_code == 409
 
 
 def test_settings_reject_manual_portal_without_receiver_due():

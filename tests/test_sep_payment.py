@@ -458,9 +458,10 @@ def test_sep_callback_accepted_then_definitive_verify_failure_blocks_expiry(
         follow_redirects=False,
     )
     assert resp.status_code == 303
-    assert "reason=failed" in resp.headers["location"]
+    assert "reason=reconciliation" in resp.headers["location"]
     order2 = asyncio.run(_get_order(order_id))
-    assert order2.payment_status == PaymentStatus.FAILED.value
+    assert order2.payment_status == PaymentStatus.RECONCILIATION_REQUIRED.value
+    assert order2.status == OrderStatus.PENDING_PAYMENT.value
     assert order2.payment_callback_received_at is not None
     assert order2.payment_last_error == "verify_rejected"
 

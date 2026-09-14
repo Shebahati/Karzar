@@ -16,7 +16,6 @@ from app.services.logistics.fulfillment_mode import (
     is_manual_portal_shipment,
     registration_source,
 )
-from app.services.logistics.manual_portal_guard import reject_generic_postex_provider_path
 from app.services.logistics.models import ShipmentStatus
 from app.services.logistics.shipping_payment import ShippingPaymentMode
 from app.services.order_service import transition_order_status
@@ -434,4 +433,8 @@ async def abandon_manual_portal_shipment(
 
 def assert_api_fulfillment_path_allowed(shipment: Shipment) -> None:
     """Block packed-quote/booking API steps for manual-portal shipments."""
-    reject_generic_postex_provider_path(shipment)
+    from app.services.logistics.fulfillment_mode import (
+        assert_provider_path_allowed_for_fulfillment_snapshot,
+    )
+
+    assert_provider_path_allowed_for_fulfillment_snapshot(shipment)

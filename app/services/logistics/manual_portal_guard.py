@@ -9,7 +9,11 @@ from sqlalchemy.orm import selectinload
 from app.db.models.commerce import Order
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import ShipmentStateError
-from app.services.logistics.fulfillment_mode import is_manual_portal_shipment
+from app.services.logistics.fulfillment_mode import (
+    assert_provider_path_allowed_for_fulfillment_snapshot,
+    is_corrupt_fulfillment_snapshot,
+    is_manual_portal_shipment,
+)
 from app.services.logistics.models import ShipmentStatus
 
 _MANUAL_TERMINAL = frozenset(
@@ -20,24 +24,17 @@ _MANUAL_TERMINAL = frozenset(
     }
 )
 
-_GENERIC_POSTEX_MESSAGE = (
-    "این مرسوله از مسیر ثبت دستی پنل پستکس است؛ عملیات API پستکس مجاز نیست."
-)
-
-
 def is_active_manual_portal_shipment(shipment: Shipment) -> bool:
+    if is_corrupt_fulfillment_snapshot(shipment):
+        return shipment.status not in _MANUAL_TERMINAL
     if not is_manual_portal_shipment(shipment):
         return False
     return shipment.status not in _MANUAL_TERMINAL
 
 
 def reject_generic_postex_provider_path(shipment: Shipment) -> None:
-    """Fail closed before any Postex HTTP for manual-portal shipments."""
-    if is_manual_portal_shipment(shipment):
-        raise ShipmentStateError(
-            _GENERIC_POSTEX_MESSAGE,
-            error_code="SHIPMENT_STATE_INVALID",
-        )
+    """Fail closed before any Postex HTTP for manual-portal or corrupt snapshots."""
+    assert_provider_path_allowed_for_fulfillment_snapshot(shipment)
 
 
 async def order_has_active_manual_portal_shipment(db: AsyncSession, order_id: int) -> bool:
