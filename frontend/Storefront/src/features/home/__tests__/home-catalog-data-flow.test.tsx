@@ -36,11 +36,18 @@ const mockListResponse: ProductListResponse = {
       stock_status: "موجود",
       availability: true,
       is_original: true,
+      thumbnail: null,
+      category: null,
+      brand: null,
     },
   ],
-  total: 1,
-  skip: 0,
-  limit: 48,
+  meta: {
+    total_count: 1,
+    skip: 0,
+    limit: 48,
+    has_next: false,
+    has_prev: false,
+  },
 };
 
 describe("home catalog product data flow", () => {
