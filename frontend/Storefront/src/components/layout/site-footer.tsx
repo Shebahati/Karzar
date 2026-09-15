@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Call, Location, Message, ShieldDone } from "react-iconly";
+import { FooterCredentials } from "@/components/layout/footer-credentials";
 import { Logo } from "@/components/layout/logo";
 import { StoreSocialLinks } from "@/components/social/store-social-links";
 import { Container } from "@/components/ui/container";
@@ -37,43 +38,9 @@ const COLUMNS = [
   },
 ];
 
-/**
- * Official eNamad (اینماد) badge — validation link and attributes must stay unchanged.
- */
-const ENAMAD_TRUST_URL =
-  "https://trustseal.enamad.ir/?id=6961566&Code=5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
-const ENAMAD_LOGO_URL =
-  "https://trustseal.enamad.ir/logo.aspx?id=6961566&Code=5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
-const ENAMAD_CODE = "5F01NsyiqBFfBjNyzpNxr70bt4r065sr";
-
-function EnamadBadge() {
-  return (
-    <a
-      referrerPolicy="origin"
-      target="_blank"
-      rel="noopener"
-      href={ENAMAD_TRUST_URL}
-      className="inline-flex shrink-0 items-center justify-center"
-      aria-label="نماد اعتماد الکترونیکی (اینماد)"
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element -- official enamad.ir embed */}
-      <img
-        referrerPolicy="origin"
-        src={ENAMAD_LOGO_URL}
-        alt="نماد اعتماد الکترونیکی"
-        style={{ cursor: "pointer" }}
-        width={80}
-        height={90}
-        className="h-auto max-h-[90px] w-[80px] object-contain"
-        {...({ code: ENAMAD_CODE } as React.ImgHTMLAttributes<HTMLImageElement>)}
-      />
-    </a>
-  );
-}
-
 export function SiteFooter() {
   return (
-    <footer className="relative mt-16 overflow-hidden bg-[#141615] text-white">
+    <footer className="relative mt-16 overflow-x-clip bg-[#141615] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(208,35,39,0.22),transparent_50%),radial-gradient(ellipse_60%_50%_at_0%_100%,rgba(94,95,94,0.2),transparent_45%)]"
@@ -201,11 +168,11 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom strip — eNamad + copyright in former tagline slot (no extra stacked band) */}
-        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-4 pb-5 text-xs text-white/40 sm:flex-row sm:items-center sm:gap-4 sm:pt-5 sm:pb-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <EnamadBadge />
-          </div>
+        <div className="mt-8 min-w-0 sm:mt-10">
+          <FooterCredentials />
+        </div>
+
+        <div className="mt-6 border-t border-white/10 pt-4 pb-5 text-center text-xs text-white/40 sm:mt-8 sm:pt-5 sm:pb-6 sm:text-start">
           <p className="font-bold text-white/55">
             © 1405 کارزار · تمامی حقوق محفوظ است
           </p>
