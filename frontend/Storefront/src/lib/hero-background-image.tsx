@@ -1,7 +1,10 @@
+"use client";
+
 import { getImageProps } from "next/image";
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { HERO_IMAGE_QUALITY } from "@/lib/cwv";
+import { cn } from "@/lib/utils";
 
 /** Intrinsic sizes for v2 hero art (Next image optimizer input dimensions). */
 const HERO_DESKTOP_INTRINSIC = { width: 1672, height: 941 } as const;
@@ -10,9 +13,10 @@ const HERO_MOBILE_INTRINSIC = { width: 941, height: 1672 } as const;
 export type HeroBackgroundPictureSources = {
   desktop: Pick<
     ReturnType<typeof getImageProps>["props"],
-    "src" | "srcSet" | "sizes"
+    "src" | "srcSet" | "sizes" | "width" | "height" | "decoding" | "fetchPriority"
   >;
   mobileSrcSet: string;
+  loading: "eager" | "lazy";
 };
 
 type BuildHeroBackgroundPictureSourcesArgs = {
@@ -51,12 +55,13 @@ export function buildHeroBackgroundPictureSources({
     ...perf,
   });
 
-  const { src, srcSet, sizes } = desktop.props;
+  const { src, srcSet, sizes, width, height, decoding, fetchPriority } = desktop.props;
   if (!srcSet || !mobile.props.srcSet) return null;
 
   return {
-    desktop: { src, srcSet, sizes },
+    desktop: { src, srcSet, sizes, width, height, decoding, fetchPriority },
     mobileSrcSet: mobile.props.srcSet,
+    loading: priority ? "eager" : "lazy",
   };
 }
 
@@ -70,6 +75,47 @@ type HeroBackgroundImageProps = {
   style?: CSSProperties;
   fallback?: ReactNode;
 };
+
+type HeroBackgroundPictureProps = {
+  picture: HeroBackgroundPictureSources;
+  className?: string;
+  style: CSSProperties;
+  fallback?: ReactNode;
+};
+
+function HeroBackgroundPicture({
+  picture,
+  className,
+  style,
+  fallback = null,
+}: HeroBackgroundPictureProps) {
+  const [failed, setFailed] = useState(false);
+  const { desktop, mobileSrcSet, loading } = picture;
+
+  if (failed) {
+    return <>{fallback}</>;
+  }
+
+  return (
+    <picture className="absolute inset-0 block">
+      <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+      <img
+        src={desktop.src}
+        srcSet={desktop.srcSet}
+        sizes={desktop.sizes}
+        width={desktop.width}
+        height={desktop.height}
+        alt=""
+        decoding={desktop.decoding}
+        fetchPriority={desktop.fetchPriority}
+        loading={loading}
+        className={cn("absolute inset-0 h-full w-full object-cover", className)}
+        style={style}
+        onError={() => setFailed(true)}
+      />
+    </picture>
+  );
+}
 
 /**
  * Full-bleed hero background: CSS art direction via `<picture>` with Next-optimized srcsets
@@ -113,22 +159,12 @@ export function HeroBackgroundImage({
     );
   }
 
-  const { desktop, mobileSrcSet } = picture;
-
   return (
-    <picture className="absolute inset-0 block">
-      <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
-      <img
-        src={desktop.src}
-        srcSet={desktop.srcSet}
-        sizes={desktop.sizes}
-        alt=""
-        decoding={priority ? "sync" : "async"}
-        fetchPriority={priority ? "high" : "auto"}
-        loading={priority ? "eager" : "lazy"}
-        className={className ?? "absolute inset-0 h-full w-full object-cover"}
-        style={objectStyle}
-      />
-    </picture>
+    <HeroBackgroundPicture
+      picture={picture}
+      className={className}
+      style={objectStyle}
+      fallback={fallback}
+    />
   );
 }
