@@ -225,6 +225,14 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: STORAGE-HOUSEKEEPING
+    path: docs/operations/STORAGE_HOUSEKEEPING.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+
   - id: SEP_PAYMENT_GATEWAY
     path: docs/SEP_PAYMENT_GATEWAY.md
     class: POLICY

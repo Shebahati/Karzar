@@ -35,7 +35,7 @@ Compose network `karzar`: Postgres `db:5432`, Redis `redis:6379`. Host maps: API
 sudo bash scripts/backup_offsite_sync.sh        # requires BACKUP_OFFSITE_URI
 ```
 
-On-host `./backups/` is **not** disaster recovery. Sync off-host after each dump. Suggested: 7 daily + 4 weekly. Cron installer: `deploy/staging/scripts/install-backup-cron.sh` (invokes scripts via `/bin/bash` because artifact download may strip +x).
+On-host `./backups/` is **not** disaster recovery. Sync off-host after each dump. Suggested: 7 daily + 4 weekly. Cron installer: `deploy/staging/scripts/install-backup-cron.sh` (invokes scripts via `/bin/bash` because artifact download may strip +x). Tiered on-host retention and BuildKit cache hygiene: [`operations/STORAGE_HOUSEKEEPING.md`](operations/STORAGE_HOUSEKEEPING.md) (`scripts/ops/vps_storage_housekeeping.sh`, default dry-run).
 
 Restore onto a scratch/staging target first. Suggested RPO ≤ 24h, RTO ≤ 2h.
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly Karzar VPS storage housekeeping
+Documentation=file:///opt/karzar/Karzar/docs/operations/STORAGE_HOUSEKEEPING.md
+
+[Timer]
+OnCalendar=Sun *-*-* 04:30:00
+RandomizedDelaySec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
