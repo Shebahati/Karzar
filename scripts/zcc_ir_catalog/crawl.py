@@ -16,6 +16,7 @@ from urllib.request import Request, urlopen
 
 from zcc_ir_catalog import USER_AGENT
 from zcc_ir_catalog.models import FetchResult
+from zcc_ir_catalog.normalize import encode_http_url
 from zcc_ir_catalog.parse import robots_allows
 
 ALLOWED_HOSTS = frozenset({"zcc.ir", "www.zcc.ir"})
@@ -122,9 +123,11 @@ class ReadOnlyFetcher:
         if not robots_allows(url, self.robots_rules):
             self.stats["denied"] += 1
             return FetchResult(url=url, ok=False, error="robots_disallowed")
+        request_url = encode_http_url(url)
         if use_cache:
-            cached = self.load_cache(url)
+            cached = self.load_cache(url) or self.load_cache(request_url)
             if cached is not None:
+                cached.url = url
                 self.stats["cache"] += 1
                 return cached
 
@@ -136,7 +139,7 @@ class ReadOnlyFetcher:
             started = self._clock()
             try:
                 req = Request(
-                    url,
+                    request_url,
                     headers={
                         "User-Agent": USER_AGENT,
                         "Accept": "text/html,application/xml,text/xml,application/json;q=0.9,*/*;q=0.8",
@@ -169,6 +172,8 @@ class ReadOnlyFetcher:
                         content_type=content_type,
                     )
                     self._store_cache(url, result, raw, encoding)
+                    if request_url != url:
+                        self._store_cache(request_url, result, raw, encoding)
                     self.stats["network"] += 1
                     return result
             except HTTPError as exc:

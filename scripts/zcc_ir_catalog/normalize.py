@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
-from urllib.parse import unquote, urlparse, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlunparse
 
 from catalog_target.core import convert_price, normalize_sku, parse_decimal
 
@@ -150,6 +150,16 @@ def karzar_alias_candidates(
     return out
 
 
+def encode_http_url(url: str) -> str:
+    """Percent-encode path so urllib can send the request line as ASCII."""
+    if not url:
+        return ""
+    parsed = urlparse(url)
+    path = quote(unquote(parsed.path or "/"), safe="/")
+    query = quote(unquote(parsed.query), safe="=&%")
+    return urlunparse((parsed.scheme, parsed.netloc, path, parsed.params, query, ""))
+
+
 def normalize_source_url(url: str | None) -> str:
     if not url:
         return ""
@@ -163,12 +173,7 @@ def normalize_source_url(url: str | None) -> str:
     host = (parsed.hostname or "").lower().rstrip(".")
     if host == "www.zcc.ir":
         host = "zcc.ir"
-    path = parsed.path or "/"
-    # Preserve trailing slash on product permalinks (WooCommerce canonical).
-    if path != "/" and not path.endswith("/"):
-        # Keep as-is; callers may add slash for product URLs.
-        pass
-    path = unquote(path)
+    path = quote(unquote(parsed.path or "/"), safe="/")
     # Rebuild without query/fragment — robots.txt disallows /*?*
     return urlunparse((scheme, host, path, "", "", ""))
 

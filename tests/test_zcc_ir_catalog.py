@@ -24,6 +24,7 @@ from zcc_ir_catalog.karzar_snapshot import products_from_public_json  # noqa: E4
 from zcc_ir_catalog.models import DiscoveryUrl  # noqa: E402
 from zcc_ir_catalog.normalize import (  # noqa: E402
     canonicalize_brand,
+    encode_http_url,
     extract_model_from_name,
     manufacturer_identity_key,
     normalize_source_url,
@@ -85,6 +86,9 @@ def test_sku_and_url_normalization() -> None:
     assert canonicalize_brand("STC") == "STC"
     assert extract_model_from_name("هلدر رو تراش ZCC مدل PWLNR2525M06 برای الماس") == "PWLNR2525M06"
     assert normalize_source_url("https://www.zcc.ir/product/dcmt11t312/") == "https://zcc.ir/product/dcmt11t312/"
+    encoded = encode_http_url("https://zcc.ir/product-category/turning/الماس/")
+    assert all(ord(ch) < 128 for ch in encoded)
+    assert "%D8%" in encoded.upper() or "%d8%" in encoded
 
 
 def test_listing_and_sitemap_parse() -> None:
