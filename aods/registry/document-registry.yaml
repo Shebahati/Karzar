@@ -191,7 +191,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: Read-only zcc.ir Phase 2 import plan operator guide (no APPLY).
 
   - id: DEVELOPMENT
