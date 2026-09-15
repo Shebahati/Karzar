@@ -19,6 +19,7 @@ import { HomeCategoryCarousel } from "@/components/home/home-category-carousel";
 import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import { DISCOUNTS_CATALOG_HREF } from "@/config/l1-categories";
 import { useArticles, useCategoryTree, useProducts } from "@/features/catalog/queries";
+import { HOME_CATALOG_PRODUCTS_PARAMS } from "@/features/home/home-catalog-params";
 import { useHomeLayoutPack } from "@/features/home/use-home-layout";
 import { defaultHomeLayoutPack } from "@/types/home-layout";
 import type { Brand, CategoryTreeNode } from "@/types/category";
@@ -49,7 +50,7 @@ export function HomeView({
   const sections =
     layoutQuery.data?.sections ?? defaultHomeLayoutPack().sections;
 
-  const catalog = useProducts({ limit: 48, sort: "newest" });
+  const catalog = useProducts(HOME_CATALOG_PRODUCTS_PARAMS);
   const articlesQuery = useArticles();
   const categoryTreeQuery = useCategoryTree();
   const products = catalog.data?.data;
