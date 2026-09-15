@@ -10,10 +10,9 @@ import {
 } from "@/config/trust-credentials";
 
 const CARD_CLASS =
-  "flex h-32 w-[calc(50%-0.25rem)] max-w-[7.15rem] min-w-0 flex-col items-center justify-between rounded-md border border-white/12 bg-white/[0.04] px-2 py-2 text-center no-underline outline-none transition-colors duration-150 motion-reduce:transition-none min-[380px]:w-[6.5rem] sm:w-[6.75rem] hover-fine:border-white/25 hover-fine:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/50";
+  "flex h-32 w-full flex-col items-center justify-between rounded-md border border-white/12 bg-white/[0.04] px-1.5 py-2 text-center no-underline outline-none transition-colors duration-150 motion-reduce:transition-none hover-fine:border-white/25 hover-fine:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/50";
 
-const VISUAL_SLOT_CLASS =
-  "grid h-[4.75rem] w-[4.75rem] shrink-0 place-items-center";
+const VISUAL_SLOT_CLASS = "grid h-16 w-16 shrink-0 place-items-center";
 
 function CredentialDocumentIcon({ className }: { className?: string }) {
   return (
@@ -61,12 +60,12 @@ function LicenseVisual({ credential }: { credential: TrustCredential }) {
       <img
         src={src}
         alt=""
-        width={72}
-        height={72}
+        width={64}
+        height={64}
         loading="lazy"
         decoding="async"
         onError={() => setBroken(true)}
-        className="h-[4.75rem] w-[4.75rem] object-contain"
+        className="h-16 w-16 object-contain"
       />
     </span>
   );
@@ -85,7 +84,10 @@ function EnamadMark({ credential }: { credential: TrustCredential }) {
         style={{ cursor: "pointer" }}
         width={80}
         height={90}
-        className="h-auto max-h-[76px] w-[68px] object-contain"
+        className="h-auto max-h-16 w-14 object-contain"
+        onError={(event) => {
+          event.currentTarget.style.visibility = "hidden";
+        }}
         {...({
           code: credential.enamadCode,
         } as React.ImgHTMLAttributes<HTMLImageElement>)}
@@ -99,7 +101,7 @@ function CredentialCard({ credential }: { credential: TrustCredential }) {
   if (!href) return null;
 
   return (
-    <li className="min-w-0">
+    <li className="w-[7rem] max-w-full shrink-0">
       <a
         href={href}
         target="_blank"
@@ -116,7 +118,7 @@ function CredentialCard({ credential }: { credential: TrustCredential }) {
         <span className="flex min-h-10 flex-col justify-end gap-0.5">
           <span
             aria-hidden
-            className="line-clamp-2 text-xs font-bold leading-tight text-white/85"
+            className="line-clamp-2 hyphens-none text-xs font-bold leading-snug text-white/85 [overflow-wrap:normal] [word-break:keep-all]"
           >
             {credential.title}
           </span>
