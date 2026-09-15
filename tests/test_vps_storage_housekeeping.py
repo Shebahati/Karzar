@@ -11,7 +11,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-
 from scripts.ops.backup_retention import (
     RetentionDeleteError,
     apply_retention_deletes,

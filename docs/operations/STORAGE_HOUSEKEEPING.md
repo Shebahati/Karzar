@@ -96,6 +96,8 @@ sudo systemctl daemon-reload
 # sudo systemctl enable --now karzar-storage-housekeeping.timer
 ```
 
+After this document is on `main`, set `on_main: true` for `STORAGE-HOUSEKEEPING` in `aods/registry/document-registry.yaml` (required by AODS registry gate).
+
 **Schedule:** `OnCalendar=Sun *-*-* 04:30:00` uses the **server local timezone** (`timedatectl`). On the production VPS (UTC), this is **04:30 UTC Sunday**, after daily backup cron (03:15 DB / 03:30 uploads UTC).
 
 Optional file logrotate template: `deploy/systemd/karzar-storage-housekeeping.logrotate`.
