@@ -4,7 +4,8 @@
  * Rules (aligned with seo-architecture-constitution + Google Product rich results):
  * - Emit Offer only when catalog `base_price` is present (inquiry SKUs → Product without Offer).
  * - Never invent aggregateRating / reviews.
- * - priceCurrency is always IRR; price SoT is catalog `base_price` (not Hesabfa).
+ * - Catalog `base_price` remains the price source of truth (Toman; not Hesabfa).
+ * - JSON-LD Offer declares priceCurrency IRR, so the emitted `price` is Toman × 10 (exact Rial).
  * - Prefer gallery images over thumbnail when available.
  */
 
@@ -39,6 +40,39 @@ export function wrapJsonLdGraph(nodes: JsonLdNode[]): JsonLdNode {
 /** True when catalog base_price is present (priced SKU). Empty/null → inquiry. */
 export function hasPresentPrice(basePrice: string | null | undefined): boolean {
   return basePrice != null && String(basePrice).trim() !== "";
+}
+
+function stripLeadingZeros(digits: string): string {
+  const stripped = digits.replace(/^0+(?=\d)/, "");
+  return stripped.length ? stripped : "0";
+}
+
+/**
+ * Exact catalog Toman → IRR string for Product JSON-LD (`priceCurrency: "IRR"`).
+ *
+ * 1 Toman = 10 Iranian Rial. Shifts the decimal point one place to the right
+ * (×10) with no binary floating-point arithmetic.
+ * Returns null for malformed non-empty strings (fail-closed; omit Offer).
+ */
+export function catalogTomanToJsonLdIrr(basePrice: string): string | null {
+  const trimmed = String(basePrice).trim();
+  const match = /^([+-])?(?:(\d+)(?:\.(\d*))?|\.(\d+))$/.exec(trimmed);
+  if (!match) return null;
+
+  const sign = match[1] === "-" ? "-" : "";
+  const intDigits = match[2] ?? "0";
+  const fracDigits = match[3] ?? match[4] ?? "";
+
+  if (fracDigits.length === 0) {
+    const n = stripLeadingZeros(intDigits);
+    if (n === "0") return `${sign}0`;
+    return `${sign}${n}0`;
+  }
+
+  const newInt = stripLeadingZeros(`${intDigits}${fracDigits[0]}`);
+  const newFrac = fracDigits.slice(1);
+  if (newFrac.length === 0) return `${sign}${newInt}`;
+  return `${sign}${newInt}.${newFrac}`;
 }
 
 /** Gallery first (primary sorted ahead), else thumbnail. */
@@ -197,17 +231,21 @@ export function buildProductNode(product: ProductDetail): JsonLdNode {
   }
 
   if (hasPresentPrice(product.base_price)) {
-    node.offers = {
-      "@type": "Offer",
-      url,
-      priceCurrency: "IRR",
-      price: String(product.base_price).trim(),
-      availability: product.availability
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-      seller: { "@id": ORG_ID },
-    };
+    const tomanPrice = String(product.base_price).trim();
+    const irrPrice = catalogTomanToJsonLdIrr(tomanPrice);
+    if (irrPrice != null) {
+      node.offers = {
+        "@type": "Offer",
+        url,
+        priceCurrency: "IRR",
+        price: irrPrice,
+        availability: product.availability
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@id": ORG_ID },
+      };
+    }
   }
 
   return node;

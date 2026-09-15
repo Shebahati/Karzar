@@ -6,6 +6,7 @@ import {
   buildProductNode,
   buildProductPageJsonLd,
   buildSitewideJsonLd,
+  catalogTomanToJsonLdIrr,
   hasPresentPrice,
   resolveProductImages,
 } from "@/lib/json-ld";
@@ -63,6 +64,29 @@ describe("hasPresentPrice", () => {
   });
 });
 
+describe("catalogTomanToJsonLdIrr", () => {
+  it("multiplies integer Toman strings by 10 without float arithmetic", () => {
+    expect(catalogTomanToJsonLdIrr("1250000")).toBe("12500000");
+    expect(catalogTomanToJsonLdIrr("480000")).toBe("4800000");
+    expect(catalogTomanToJsonLdIrr("100")).toBe("1000");
+    expect(catalogTomanToJsonLdIrr("0")).toBe("0");
+  });
+
+  it("shifts decimal Toman strings exactly (no IEEE-754 rounding)", () => {
+    expect(catalogTomanToJsonLdIrr("100.50")).toBe("1005.0");
+    expect(catalogTomanToJsonLdIrr("100.5")).toBe("1005");
+    expect(catalogTomanToJsonLdIrr("1.13")).toBe("11.3");
+    expect(catalogTomanToJsonLdIrr(".5")).toBe("5");
+    expect(String(Number("1.13") * 10)).not.toBe("11.3");
+  });
+
+  it("returns null for malformed non-empty catalog strings", () => {
+    expect(catalogTomanToJsonLdIrr("12abc")).toBeNull();
+    expect(catalogTomanToJsonLdIrr("1,000")).toBeNull();
+    expect(catalogTomanToJsonLdIrr("")).toBeNull();
+  });
+});
+
 describe("resolveProductImages", () => {
   it("prefers gallery with primary first", () => {
     const images = resolveProductImages({
@@ -89,18 +113,38 @@ describe("resolveProductImages", () => {
 });
 
 describe("buildProductNode / Offer gating", () => {
-  it("emits Offer with IRR price when base_price is present", () => {
+  it("emits Offer with IRR price converted from Toman base_price", () => {
     const node = buildProductNode(baseProduct());
     expect(node["@type"]).toBe("Product");
     expect(node.url).toBe(`${SITE_URL}/product/ins-1108-digital-caliper`);
     expect(node.offers).toMatchObject({
       "@type": "Offer",
       priceCurrency: "IRR",
-      price: "1250000",
+      price: "12500000",
       availability: "https://schema.org/InStock",
     });
     expect(node).not.toHaveProperty("aggregateRating");
     expect(node).not.toHaveProperty("review");
+  });
+
+  it("converts the production-style 480000 Toman example to 4800000 IRR", () => {
+    const node = buildProductNode(baseProduct({ base_price: "480000" }));
+    expect(node.offers).toMatchObject({
+      priceCurrency: "IRR",
+      price: "4800000",
+      availability: "https://schema.org/InStock",
+    });
+  });
+
+  it("maps unavailable to OutOfStock without changing the IRR conversion", () => {
+    const node = buildProductNode(
+      baseProduct({ base_price: "480000", availability: false }),
+    );
+    expect(node.offers).toMatchObject({
+      priceCurrency: "IRR",
+      price: "4800000",
+      availability: "https://schema.org/OutOfStock",
+    });
   });
 
   it("omits Offer for inquiry SKUs (null base_price)", () => {
@@ -108,6 +152,22 @@ describe("buildProductNode / Offer gating", () => {
     expect(node["@type"]).toBe("Product");
     expect(node.url).toBe(`${SITE_URL}/product/ins-1108-digital-caliper`);
     expect(node.offers).toBeUndefined();
+  });
+
+  it("omits Offer for empty/whitespace inquiry prices", () => {
+    expect(buildProductNode(baseProduct({ base_price: "" })).offers).toBeUndefined();
+    expect(
+      buildProductNode(baseProduct({ base_price: "   " })).offers,
+    ).toBeUndefined();
+  });
+
+  it("omits Offer when base_price is present but not a valid Toman decimal", () => {
+    const node = buildProductNode(baseProduct({ base_price: "not-a-price" }));
+    expect(node["@type"]).toBe("Product");
+    expect(node.offers).toBeUndefined();
+    expect(node).not.toMatchObject({
+      offers: { price: "not-a-price" },
+    });
   });
 
   it("uses gallery images on Product when available", () => {
