@@ -365,6 +365,7 @@ async def list_order_shipments(
 
 @router.post(
     "/orders/{order_id}/shipments/{shipment_id}/manual/register",
+    response_model=ShipmentAdminResponse,
     tags=["Admin Shipping"],
 )
 async def admin_manual_register(
@@ -399,11 +400,12 @@ async def admin_manual_register(
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])
-    return admin_shipment_view(shipment)
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
 
 
 @router.post(
     "/orders/{order_id}/shipments/{shipment_id}/manual/handoff",
+    response_model=ShipmentAdminResponse,
     tags=["Admin Shipping"],
 )
 async def admin_manual_handoff(
@@ -431,11 +433,12 @@ async def admin_manual_handoff(
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])
-    return admin_shipment_view(shipment)
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
 
 
 @router.post(
     "/orders/{order_id}/shipments/{shipment_id}/manual/deliver",
+    response_model=ShipmentAdminResponse,
     tags=["Admin Shipping"],
 )
 async def admin_manual_deliver(
@@ -463,7 +466,7 @@ async def admin_manual_deliver(
         _raise_logistics(exc)
     await db.commit()
     await db.refresh(shipment, ["events"])
-    return admin_shipment_view(shipment)
+    return ShipmentAdminResponse(**admin_shipment_view(shipment))
 
 
 @router.post(

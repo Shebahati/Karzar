@@ -24,6 +24,14 @@ _HANDOFF_DESCRIPTIONS: dict[str, str] = {
     "local_delivery": "بسته تحویل پیک شد",
 }
 
+_POST_HANDOFF_DELIVERY_STATUSES = frozenset(
+    {
+        ShipmentStatus.PICKED_UP.value,
+        ShipmentStatus.IN_TRANSIT.value,
+        ShipmentStatus.OUT_FOR_DELIVERY.value,
+    }
+)
+
 
 def is_manual_fulfillment_shipment(shipment: Shipment) -> bool:
     return (shipment.provider or "").strip() in MANUAL_FULFILLMENT_PROVIDERS
@@ -31,6 +39,15 @@ def is_manual_fulfillment_shipment(shipment: Shipment) -> bool:
 
 def _provider_data(shipment: Shipment) -> dict[str, Any]:
     return dict(shipment.provider_data or {})
+
+
+def _manual_meta(shipment: Shipment) -> dict[str, Any]:
+    return dict(_provider_data(shipment).get("manual") or {})
+
+
+def _strip_opt(value: str | None) -> str | None:
+    raw = (value or "").strip()
+    return raw or None
 
 
 async def manual_register(
@@ -55,35 +72,59 @@ async def manual_register(
         raise ShipmentStateError("ثبت اطلاعات ارسال در این وضعیت مجاز نیست.")
 
     provider = (shipment.provider or "").strip()
-    tracking = (tracking_code or "").strip() or None
-    new_ref = (provider_reference or "").strip() or None
+    tracking = _strip_opt(tracking_code)
+    new_ref = _strip_opt(provider_reference)
     if provider in {"tipax", "chapar"} and not tracking and not new_ref:
         raise ShipmentStateError("کد رهگیری یا شناسه مرجع حامل الزامی است.")
 
     data = _provider_data(shipment)
     manual = dict(data.get("manual") or {})
-    prev_tracking = (manual.get("tracking_code") or shipment.tracking_code or "").strip() or None
-    prev_ref = (manual.get("provider_reference") or "").strip() or None
+    prev_tracking = _strip_opt(manual.get("tracking_code") or shipment.tracking_code)
+    prev_ref = _strip_opt(manual.get("provider_reference"))
+    prev_courier_name = _strip_opt(manual.get("courier_name"))
+    prev_courier_phone = _strip_opt(manual.get("courier_phone"))
+    prev_mission = _strip_opt(manual.get("mission_reference"))
+    prev_note = _strip_opt(manual.get("note"))
 
     if prev_tracking and tracking and prev_tracking != tracking:
         raise ShippingMethodConflictError("کد رهگیری قبلاً با مقدار دیگری ثبت شده است.")
     if prev_ref and new_ref and prev_ref != new_ref:
         raise ShippingMethodConflictError("شناسه مرجع قبلاً با مقدار دیگری ثبت شده است.")
 
-    if courier_name:
-        manual["courier_name"] = courier_name.strip()
-    if courier_phone:
-        manual["courier_phone"] = courier_phone.strip()
-    if mission_reference:
-        manual["mission_reference"] = mission_reference.strip()
-    if note:
-        manual["note"] = note.strip()
-    if tracking:
-        manual["tracking_code"] = tracking
-        shipment.tracking_code = tracking
-    if new_ref:
-        manual["provider_reference"] = new_ref
-    manual["registered_at"] = datetime.now(UTC).isoformat()
+    next_courier_name = _strip_opt(courier_name) if courier_name is not None else prev_courier_name
+    next_courier_phone = _strip_opt(courier_phone) if courier_phone is not None else prev_courier_phone
+    next_mission = _strip_opt(mission_reference) if mission_reference is not None else prev_mission
+    next_note = _strip_opt(note) if note is not None else prev_note
+    next_tracking = tracking or prev_tracking
+    next_ref = new_ref or prev_ref
+
+    unchanged = (
+        shipment.status == ShipmentStatus.BOOKED.value
+        and next_tracking == prev_tracking
+        and next_ref == prev_ref
+        and next_courier_name == prev_courier_name
+        and next_courier_phone == prev_courier_phone
+        and next_mission == prev_mission
+        and next_note == prev_note
+    )
+    if unchanged:
+        return shipment
+
+    if next_courier_name:
+        manual["courier_name"] = next_courier_name
+    if next_courier_phone:
+        manual["courier_phone"] = next_courier_phone
+    if next_mission:
+        manual["mission_reference"] = next_mission
+    if next_note:
+        manual["note"] = next_note
+    if next_tracking:
+        manual["tracking_code"] = next_tracking
+        shipment.tracking_code = next_tracking
+    if next_ref:
+        manual["provider_reference"] = next_ref
+    if "registered_at" not in manual:
+        manual["registered_at"] = datetime.now(UTC).isoformat()
     if actor_user_id is not None:
         manual["registered_by_user_id"] = actor_user_id
 
@@ -94,23 +135,16 @@ async def manual_register(
         shipment.status = ShipmentStatus.BOOKED.value
 
     await db.flush()
-    changed = (
-        became_booked
-        or (tracking and tracking != prev_tracking)
-        or (new_ref and new_ref != prev_ref)
-        or bool(courier_name or courier_phone or mission_reference)
+    await _append_event(
+        db,
+        shipment,
+        status=shipment.status,
+        description="اطلاعات ارسال ثبت شد",
+        provider_status=None,
+        provider_code=None,
+        occurred_at=datetime.now(UTC),
+        payload={"manual": {k: v for k, v in manual.items() if k != "note"}},
     )
-    if changed:
-        await _append_event(
-            db,
-            shipment,
-            status=shipment.status,
-            description="اطلاعات ارسال ثبت شد",
-            provider_status=None,
-            provider_code=None,
-            occurred_at=datetime.now(UTC),
-            payload={"manual": {k: v for k, v in manual.items() if k != "note"}},
-        )
     return shipment
 
 
@@ -124,18 +158,30 @@ async def manual_handoff(
     if not is_manual_fulfillment_shipment(shipment):
         raise ShipmentStateError("این مرسوله از مسیر تحویل دستی پشتیبانی نمی‌شود.")
     provider = (shipment.provider or "").strip()
+
     if shipment.status == ShipmentStatus.PICKED_UP.value:
-        return shipment
-    if shipment.status not in {
-        ShipmentStatus.BOOKED.value,
-        ShipmentStatus.AWAITING_PACKAGING.value,
-    }:
-        raise ShipmentStateError("تحویل به حامل در این وضعیت مجاز نیست.")
+        if order.status == OrderStatus.SHIPPED.value:
+            return shipment
+        raise ShipmentStateError(
+            "وضعیت سفارش با مرسوله برای تحویل به حامل هم‌خوان نیست.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+
+    if order.status != OrderStatus.PROCESSING.value:
+        raise ShipmentStateError(
+            "تحویل به حامل فقط برای سفارش در وضعیت «در حال پردازش» مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    if shipment.status != ShipmentStatus.BOOKED.value:
+        raise ShipmentStateError(
+            "تحویل به حامل فقط پس از ثبت اطلاعات ارسال (وضعیت ثبت‌شده) مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
 
     if provider in {"tipax", "chapar"}:
-        manual = (_provider_data(shipment).get("manual") or {})
-        tracking = (shipment.tracking_code or manual.get("tracking_code") or "").strip()
-        reference = (manual.get("provider_reference") or "").strip()
+        manual = _manual_meta(shipment)
+        tracking = _strip_opt(shipment.tracking_code or manual.get("tracking_code"))
+        reference = _strip_opt(manual.get("provider_reference"))
         if not tracking and not reference:
             raise ShipmentStateError("ابتدا کد رهگیری یا شناسه مرجع حامل را ثبت کنید.")
 
@@ -154,31 +200,19 @@ async def manual_handoff(
         payload={"actor_user_id": actor_user_id},
     )
 
-    if order.status == OrderStatus.PROCESSING.value:
-        if provider == "local_delivery":
-            await transition_order_status(
-                db,
-                order,
-                OrderStatus.SHIPPED.value,
-                actor="admin",
-                postal_tracking_code=shipment.tracking_code,
-                event_description="مرسوله تحویل پیک شد",
-                via_shipment_lifecycle=True,
-            )
-        else:
-            manual = (_provider_data(shipment).get("manual") or {})
-            tracking = (shipment.tracking_code or manual.get("tracking_code") or "").strip()
-            reference = (manual.get("provider_reference") or "").strip()
-            postal = tracking or reference
-            await transition_order_status(
-                db,
-                order,
-                OrderStatus.SHIPPED.value,
-                actor="admin",
-                postal_tracking_code=postal,
-                event_description=_HANDOFF_DESCRIPTIONS.get(provider, "مرسوله ارسال شد"),
-                via_shipment_lifecycle=True,
-            )
+    manual = _manual_meta(shipment)
+    tracking = _strip_opt(shipment.tracking_code or manual.get("tracking_code"))
+    postal_for_order = tracking if tracking else None
+
+    await transition_order_status(
+        db,
+        order,
+        OrderStatus.SHIPPED.value,
+        actor="admin",
+        postal_tracking_code=postal_for_order,
+        event_description=_HANDOFF_DESCRIPTIONS.get(provider, "مرسوله ارسال شد"),
+        via_shipment_lifecycle=True,
+    )
     return shipment
 
 
@@ -191,15 +225,25 @@ async def manual_deliver(
 ) -> Shipment:
     if not is_manual_fulfillment_shipment(shipment):
         raise ShipmentStateError("این مرسوله از مسیر تحویل دستی پشتیبانی نمی‌شود.")
+
     if shipment.status == ShipmentStatus.DELIVERED.value:
-        return shipment
-    if shipment.status not in {
-        ShipmentStatus.PICKED_UP.value,
-        ShipmentStatus.IN_TRANSIT.value,
-        ShipmentStatus.OUT_FOR_DELIVERY.value,
-        ShipmentStatus.BOOKED.value,
-    }:
-        raise ShipmentStateError("ثبت تحویل در این وضعیت مجاز نیست.")
+        if order.status == OrderStatus.DELIVERED.value:
+            return shipment
+        raise ShipmentStateError(
+            "وضعیت سفارش با مرسوله برای تحویل هم‌خوان نیست.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+
+    if order.status != OrderStatus.SHIPPED.value:
+        raise ShipmentStateError(
+            "ثبت تحویل فقط برای سفارش در وضعیت «ارسال‌شده» مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
+    if shipment.status not in _POST_HANDOFF_DELIVERY_STATUSES:
+        raise ShipmentStateError(
+            "ثبت تحویل فقط پس از تحویل به حامل مجاز است.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
 
     shipment.status = ShipmentStatus.DELIVERED.value
     if shipment.delivered_at is None:
@@ -216,30 +260,12 @@ async def manual_deliver(
         payload={"actor_user_id": actor_user_id},
     )
 
-    if order.status == OrderStatus.SHIPPED.value:
-        await transition_order_status(
-            db,
-            order,
-            OrderStatus.DELIVERED.value,
-            actor="admin",
-            event_description="سفارش تحویل داده شد",
-            via_shipment_lifecycle=True,
-        )
-    elif order.status == OrderStatus.PROCESSING.value and shipment.provider == "local_delivery":
-        await transition_order_status(
-            db,
-            order,
-            OrderStatus.SHIPPED.value,
-            actor="admin",
-            event_description="مرسوله ارسال شد",
-            via_shipment_lifecycle=True,
-        )
-        await transition_order_status(
-            db,
-            order,
-            OrderStatus.DELIVERED.value,
-            actor="admin",
-            event_description="سفارش تحویل داده شد",
-            via_shipment_lifecycle=True,
-        )
+    await transition_order_status(
+        db,
+        order,
+        OrderStatus.DELIVERED.value,
+        actor="admin",
+        event_description="سفارش تحویل داده شد",
+        via_shipment_lifecycle=True,
+    )
     return shipment

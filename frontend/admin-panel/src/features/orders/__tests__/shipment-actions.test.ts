@@ -121,4 +121,28 @@ describe("shipmentActionAvailability", () => {
     expect(actions.canPackedQuote).toBe(false);
     expect(actions.canManualRegister).toBe(true);
   });
+
+  it("manual lifecycle actions respect shipment and order status", () => {
+    const tipax = (status: string, orderStatus?: string) =>
+      shipmentActionAvailability(
+        shipment({ provider: "tipax", shipping_payment_mode: "receiver_due", status }),
+        orderStatus,
+      );
+
+    expect(tipax("awaiting_packaging").canManualRegister).toBe(true);
+    expect(tipax("awaiting_packaging").canManualHandoff).toBe(false);
+    expect(tipax("awaiting_packaging").canManualDeliver).toBe(false);
+
+    expect(tipax("booked", "processing").canManualHandoff).toBe(true);
+    expect(tipax("booked", "processing").canManualDeliver).toBe(false);
+    expect(tipax("booked", "paid").canManualHandoff).toBe(false);
+
+    expect(tipax("picked_up", "shipped").canManualDeliver).toBe(true);
+    expect(tipax("picked_up", "processing").canManualDeliver).toBe(false);
+    expect(tipax("booked", "processing").canManualDeliver).toBe(false);
+
+    expect(tipax("delivered", "delivered").canManualRegister).toBe(false);
+    expect(tipax("delivered", "delivered").canManualHandoff).toBe(false);
+    expect(tipax("delivered", "delivered").canManualDeliver).toBe(false);
+  });
 });

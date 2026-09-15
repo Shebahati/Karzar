@@ -396,7 +396,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
         </div>
 
         {shipments.map((shipment) => {
-          const actions = shipmentActionAvailability(shipment);
+          const actions = shipmentActionAvailability(shipment, order.status);
           const manualPortal = shipment.fulfillment_mode === "manual_portal";
           const options = quoteOptions[shipment.internal_id] ?? [];
           const form = formFor(shipment.internal_id);
@@ -470,14 +470,30 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                       variant="outline"
                       disabled={pending}
                       onClick={() => {
-                        const tracking = window.prompt("کد رهگیری (در صورت وجود)") ?? "";
+                        const tracking =
+                          shipment.provider === "local_delivery"
+                            ? (window.prompt("کد رهگیری (در صورت وجود)") ?? "")
+                            : (window.prompt("کد رهگیری (یا خالی بگذارید)") ?? "");
+                        const providerRef =
+                          shipment.provider === "local_delivery"
+                            ? ""
+                            : (window.prompt("شناسه مرجع حامل (در صورت نبود رهگیری)") ?? "");
                         const courierName =
                           shipment.provider === "local_delivery"
                             ? (window.prompt("نام پیک") ?? "")
                             : "";
+                        if (
+                          shipment.provider !== "local_delivery" &&
+                          !tracking.trim() &&
+                          !providerRef.trim()
+                        ) {
+                          toast.error("کد رهگیری یا شناسه مرجع حامل الزامی است.");
+                          return;
+                        }
                         void run("اطلاعات ارسال ثبت شد", () =>
                           shippingAdminService.manualRegister(order.id, shipment.internal_id, {
                             tracking_code: tracking.trim() || null,
+                            provider_reference: providerRef.trim() || null,
                             courier_name: courierName.trim() || null,
                           }),
                         );
@@ -488,7 +504,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                         : "ثبت اطلاعات ارسال"}
                     </Button>
                   )}
-                  {actions.canManualHandoff && (
+                  {actions.canManualHandoff && order.status === "processing" && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -508,7 +524,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                             : "تحویل به حامل"}
                     </Button>
                   )}
-                  {actions.canManualDeliver && (
+                  {actions.canManualDeliver && order.status === "shipped" && (
                     <Button
                       size="sm"
                       disabled={pending}

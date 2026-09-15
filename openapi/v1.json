@@ -13732,7 +13732,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentAdminResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -13803,7 +13805,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentAdminResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -13884,7 +13888,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentAdminResponse"
+                }
               }
             },
             "description": "Successful Response"

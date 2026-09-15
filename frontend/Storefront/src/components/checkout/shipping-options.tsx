@@ -1,6 +1,6 @@
 "use client";
 
-import { formatToman } from "@/lib/utils";
+import { formatToman, toPersianDigits } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { methodOptionSubtitle } from "@/features/checkout/use-checkout-shipping";
 import type { ShippingMethodOption, ShippingQuoteOption } from "@/types/shipping";
@@ -123,6 +123,11 @@ export function ShippingOptions({
               <span className="font-bold text-foreground">{option.title}</span>
               <span className="tnum text-sm font-bold">{formatToman(option.amount_toman)}</span>
             </span>
+            {option.eta && (
+              <span className="mt-1 block text-xs text-steel">
+                زمان تقریبی: {toPersianDigits(option.eta)}
+              </span>
+            )}
           </button>
         );
       })}

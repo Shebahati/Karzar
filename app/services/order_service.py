@@ -215,12 +215,17 @@ async def transition_order_status(
     )
 
     if target == OrderStatus.SHIPPED.value:
-        tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
         provider = (order.shipping_provider or "").strip()
-        if provider == "local_delivery":
+        if via_shipment_lifecycle and provider in {"tipax", "chapar", "local_delivery"}:
+            tracking = (postal_tracking_code or "").strip()
+            if tracking:
+                order.postal_tracking_code = tracking
+        elif provider == "local_delivery":
+            tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
             if tracking:
                 order.postal_tracking_code = tracking
         else:
+            tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
             if len(tracking) < 10:
                 raise ValueError("برای ثبت ارسال، کد رهگیری پست الزامی است.")
             order.postal_tracking_code = tracking

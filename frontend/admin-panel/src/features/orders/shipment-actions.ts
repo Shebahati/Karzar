@@ -88,7 +88,11 @@ export function isManualFulfillmentProvider(provider: string | null | undefined)
   return MANUAL_PROVIDERS.has((provider || "").trim());
 }
 
-export function shipmentActionAvailability(shipment: AdminShipment) {
+export function shipmentActionAvailability(
+  shipment: AdminShipment,
+  orderStatus?: string | null,
+) {
+  const order = (orderStatus || "").trim().toLowerCase();
   const manual = isManualFulfillmentProvider(shipment.provider);
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
@@ -133,18 +137,17 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     };
   }
 
+  const handoffShipmentOk = shipment.status === "booked";
+  const deliverShipmentOk =
+    shipment.status === "picked_up" ||
+    shipment.status === "in_transit" ||
+    shipment.status === "out_for_delivery";
+
   return {
-    canManualRegister:
-      manual &&
-      (shipment.status === "awaiting_packaging" || shipment.status === "booked"),
+    canManualRegister: manual && shipment.status === "awaiting_packaging",
     canManualHandoff:
-      manual &&
-      (shipment.status === "booked" || shipment.status === "awaiting_packaging"),
-    canManualDeliver:
-      manual &&
-      (shipment.status === "picked_up" ||
-        shipment.status === "booked" ||
-        shipment.status === "in_transit"),
+      manual && handoffShipmentOk && order === "processing",
+    canManualDeliver: manual && deliverShipmentOk && order === "shipped",
     canSetPackage: !manual && preCreate && !booked,
     canPackedQuote:
       receiverDue &&
