@@ -25,8 +25,8 @@ Existing backup **creation** remains `scripts/backup_db.sh`, `scripts/backup_upl
 1. **Host identity** — expected hostname, `KARZAR_ROOT`, `lathe_api` + `lathe_postgres` running.
 2. **Lock** — `flock` on `/run/lock/karzar-storage-housekeeping.lock`.
 3. **Active build/deploy** — skips prune and retention delete if `Runner.Worker`, `docker build`, `buildctl`, or deploy scripts are active. Idle `Runner.Listener` is allowed.
-4. **BuildKit** — only `docker builder prune -a -f --filter until=168h` (configurable). If `--filter until=` is unsupported, **fail closed** on `--apply`.
-5. **Backup safety** — before any delete under `--apply`: latest canonical DB backup &lt; 36h, `gzip -t` OK, size &gt; 0, ≥2 valid DB backups, paths stay under canonical `backups/`.
+4. **BuildKit** — only `docker builder prune -a -f --filter until=168h` (configurable). Preflight checks Docker help text for `until`/`duration` filter semantics; **no** unrestricted prune fallback. If Docker rejects the filter at apply time, the run **fails closed**.
+5. **Backup safety** — before any delete under `--apply`: latest **canonical** DB backup (`karzar_YYYYMMDD_HHMMSS.sql.gz`) chosen by **filename UTC timestamp** (not filesystem `mtime`); must be &lt; 36h old by that timestamp, `gzip -t` OK, size &gt; 0, ≥2 valid canonical DB backups. Unknown/baseline names do not satisfy the freshness gate.
 
 ## Disk thresholds (reporting only)
 
@@ -92,9 +92,11 @@ Machine-readable summary lines are printed at exit (`KARZAR_HOUSEKEEPING_RESULT=
 sudo cp deploy/systemd/karzar-storage-housekeeping.service /etc/systemd/system/
 sudo cp deploy/systemd/karzar-storage-housekeeping.timer /etc/systemd/system/
 sudo systemctl daemon-reload
-# Owner activation only:
+# Owner activation only (enable the TIMER, not the oneshot service):
 # sudo systemctl enable --now karzar-storage-housekeeping.timer
 ```
+
+**Schedule:** `OnCalendar=Sun *-*-* 04:30:00` uses the **server local timezone** (`timedatectl`). On the production VPS (UTC), this is **04:30 UTC Sunday**, after daily backup cron (03:15 DB / 03:30 uploads UTC).
 
 Optional file logrotate template: `deploy/systemd/karzar-storage-housekeeping.logrotate`.
 

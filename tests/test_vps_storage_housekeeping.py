@@ -5,32 +5,38 @@ from __future__ import annotations
 import gzip
 import json
 import os
-import re
+import signal
 import subprocess
 import textwrap
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 
 from scripts.ops.backup_retention import (
+    RetentionDeleteError,
+    apply_retention_deletes,
     classify_file,
     plan_db_retention,
     plan_directory,
     plan_upload_retention,
 )
+from scripts.ops.backup_safety import evaluate_backup_safety_gate, parse_canonical_db_stamp
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HOUSEKEEPING_SH = REPO_ROOT / "scripts/ops/vps_storage_housekeeping.sh"
 LIB_SH = REPO_ROOT / "scripts/ops/vps_storage_housekeeping_lib.sh"
 RETENTION_PY = REPO_ROOT / "scripts/ops/backup_retention.py"
+BACKUP_SAFETY_PY = REPO_ROOT / "scripts/ops/backup_safety.py"
 
 
-def _touch_db(path: Path, day: datetime) -> None:
+def _touch_db(path: Path, day: datetime) -> Path:
     name = f"karzar_{day.strftime('%Y%m%d_%H%M%S')}.sql.gz"
     data = b"-- test\n"
     with gzip.open(path / name, "wb") as fh:
         fh.write(data)
+    return path / name
 
 
 def _touch_upload(path: Path, day: datetime) -> None:
@@ -144,14 +150,15 @@ class TestBackupSafetyGate:
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=PASS" in proc.stdout
 
-    def test_fail_stale_latest(self, tmp_path: Path):
+    def test_fail_stale_latest_by_filename_not_mtime(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
         old = datetime(2026, 9, 1, 3, 0, 0, tzinfo=timezone.utc)
-        _touch_db(backups, old)
-        _touch_db(backups, old - timedelta(days=1))
-        for p in backups.glob("karzar_*.sql.gz"):
-            os.utime(p, (old.timestamp(), old.timestamp()))
+        p1 = _touch_db(backups, old)
+        p2 = _touch_db(backups, old - timedelta(days=1))
+        now_ts = time.time()
+        os.utime(p1, (now_ts, now_ts))
+        os.utime(p2, (now_ts, now_ts))
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=FAIL" in proc.stdout
 
@@ -160,15 +167,17 @@ class TestBackupSafetyGate:
         backups.mkdir(parents=True, exist_ok=True)
         name = "karzar_20260915_031501.sql.gz"
         (backups / name).write_bytes(b"")
-        (backups / "karzar_20260914_031501.sql.gz").write_bytes(b"x")
+        with gzip.open(backups / "karzar_20260914_031501.sql.gz", "wb") as fh:
+            fh.write(b"x")
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=FAIL" in proc.stdout
 
-    def test_fail_broken_gzip(self, tmp_path: Path):
+    def test_fail_broken_gzip_on_latest_canonical(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
         (backups / "karzar_20260915_031501.sql.gz").write_bytes(b"not-gzip")
-        (backups / "karzar_20260914_031501.sql.gz").write_bytes(b"x")
+        with gzip.open(backups / "karzar_20260914_031501.sql.gz", "wb") as fh:
+            fh.write(b"x")
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=FAIL" in proc.stdout
 
@@ -179,6 +188,89 @@ class TestBackupSafetyGate:
         _touch_db(backups, now)
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=FAIL" in proc.stdout
+
+    def test_fail_future_filename_timestamp(self, tmp_path: Path):
+        backups = tmp_path / "backups"
+        backups.mkdir(parents=True, exist_ok=True)
+        future = datetime.now(timezone.utc) + timedelta(days=2)
+        _touch_db(backups, future)
+        _touch_db(backups, future - timedelta(days=1))
+        ok, reason = evaluate_backup_safety_gate(backups)
+        assert not ok
+        assert "future" in reason
+
+    def test_malformed_filename_ignored_for_canonical_count(self, tmp_path: Path):
+        backups = tmp_path / "backups"
+        backups.mkdir(parents=True, exist_ok=True)
+        (backups / "karzar_bad_000000.sql.gz").write_bytes(b"x")
+        now = datetime.now(timezone.utc)
+        _touch_db(backups, now)
+        ok, _ = evaluate_backup_safety_gate(backups)
+        assert not ok
+
+
+class TestBackupSafetyPython:
+    def test_parse_canonical(self):
+        dt = parse_canonical_db_stamp("karzar_20260915_031501.sql.gz")
+        assert dt == datetime(2026, 9, 15, 3, 15, 1, tzinfo=timezone.utc)
+        assert parse_canonical_db_stamp("karzar_prod_baseline_20260728_151651.sql.gz") is None
+
+
+class TestPathContainmentDeletes:
+    def _payload_delete(self, path: Path) -> dict:
+        return {
+            "rows": [
+                {
+                    "type": "db",
+                    "decision": "DELETE_CANDIDATE",
+                    "path": str(path),
+                    "size": 10,
+                }
+            ]
+        }
+
+    def test_normal_direct_child_allowed(self, tmp_path: Path):
+        f = _touch_db(tmp_path, datetime(2026, 1, 1, tzinfo=timezone.utc))
+        apply_retention_deletes(self._payload_delete(f), tmp_path)
+        assert not f.exists()
+
+    def test_symlink_refused(self, tmp_path: Path):
+        real = _touch_db(tmp_path, datetime(2026, 1, 2, tzinfo=timezone.utc))
+        link = tmp_path / "karzar_20260102_030000.sql.gz"
+        link.symlink_to(real.name)
+        with pytest.raises(RetentionDeleteError):
+            apply_retention_deletes(self._payload_delete(link), tmp_path)
+
+    def test_symlink_outside_root_refused(self, tmp_path: Path):
+        outside = tmp_path.parent / "outside.sql.gz"
+        outside.write_bytes(b"x")
+        link = tmp_path / "karzar_20260102_030000.sql.gz"
+        link.symlink_to(outside)
+        with pytest.raises(RetentionDeleteError):
+            apply_retention_deletes(self._payload_delete(link), tmp_path)
+
+    def test_traversal_refused(self, tmp_path: Path):
+        evil = tmp_path / ".." / "evil.sql.gz"
+        with pytest.raises(RetentionDeleteError):
+            apply_retention_deletes(self._payload_delete(evil), tmp_path)
+
+    def test_prefix_confusion_refused(self, tmp_path: Path):
+        evil_root = tmp_path.parent / f"{tmp_path.name}-evil"
+        evil_root.mkdir()
+        evil = evil_root / "karzar_20260102_030000.sql.gz"
+        with gzip.open(evil, "wb") as fh:
+            fh.write(b"x")
+        with pytest.raises(RetentionDeleteError):
+            apply_retention_deletes(self._payload_delete(evil), tmp_path)
+
+    def test_nested_subdirectory_refused(self, tmp_path: Path):
+        nested = tmp_path / "nested"
+        nested.mkdir()
+        f = nested / "karzar_20260102_030000.sql.gz"
+        with gzip.open(f, "wb") as fh:
+            fh.write(b"x")
+        with pytest.raises(RetentionDeleteError):
+            apply_retention_deletes(self._payload_delete(f), tmp_path)
 
 
 class TestHostAndBuildGates:
@@ -202,39 +294,126 @@ class TestHostAndBuildGates:
         )
         assert "FAIL" in proc.stdout
 
-    def test_active_build_runner_worker(self):
+    def test_host_gate_pass_with_mocks(self, tmp_path: Path):
+        root = tmp_path / "Karzar"
+        root.mkdir(parents=True)
         script = textwrap.dedent(
             r"""
             source "${LIB}"
-            KARZAR_HOUSEKEEPING_MOCK_ACTIVE_BUILD=1
-            if vsh_active_build_or_deploy; then echo YES; else echo NO; fi
+            vsh_verify_host_identity && echo HOST_IDENTITY_GATE=PASS || echo HOST_IDENTITY_GATE=FAIL
             """
         )
-        out = subprocess.run(
+        proc = subprocess.run(
             ["bash", "-c", script],
-            env={**os.environ, "LIB": str(LIB_SH)},
+            env={
+                **os.environ,
+                "LIB": str(LIB_SH),
+                "KARZAR_EXPECTED_HOSTNAME": "srv5944957438",
+                "KARZAR_HOUSEKEEPING_MOCK_HOSTNAME": "srv5944957438",
+                "KARZAR_ROOT": str(root),
+                "KARZAR_HOUSEKEEPING_MOCK_DOCKER_PS": "lathe_api,lathe_postgres",
+            },
             capture_output=True,
             text=True,
             check=True,
-        ).stdout
-        assert "YES" in out
+        )
+        assert "HOST_IDENTITY_GATE=PASS" in proc.stdout
+
+    def _detect_active(self, env_extra: dict | None = None) -> str:
+        script = textwrap.dedent(
+            r"""
+            source "${LIB}"
+            if vsh_active_build_or_deploy; then echo YES; else echo NO; fi
+            """
+        )
+        env = {**os.environ, "LIB": str(LIB_SH)}
+        if env_extra:
+            env.update(env_extra)
+        return subprocess.run(
+            ["bash", "-c", script],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
 
     def test_idle_listener_not_active(self):
-        script = textwrap.dedent(
-            r"""
-            source "${LIB}"
-            KARZAR_HOUSEKEEPING_MOCK_ACTIVE_BUILD=0
-            if vsh_active_build_or_deploy; then echo YES; else echo NO; fi
-            """
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a Runner.Listener sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
-        out = subprocess.run(
-            ["bash", "-c", script],
-            env={**os.environ, "LIB": str(LIB_SH)},
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout
-        assert "NO" in out
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "NO"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
+
+    def test_runner_worker_active(self):
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a Runner.Worker sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "YES"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
+
+    def test_deploy_backend_active(self):
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a deploy-backend.sh sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "YES"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
+
+    def test_deploy_frontend_active(self):
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a deploy-frontend.sh sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "YES"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
+
+    def test_deploy_staging_active(self):
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a deploy-staging sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "YES"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
+
+    def test_docker_build_active(self):
+        proc = subprocess.Popen(
+            ["bash", "-c", "exec -a 'docker build' sleep 300"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            time.sleep(0.2)
+            assert self._detect_active() == "YES"
+        finally:
+            proc.send_signal(signal.SIGTERM)
+            proc.wait(timeout=5)
 
 
 class TestDockerSafety:
@@ -260,6 +439,102 @@ class TestDockerSafety:
             body = "\n".join(lines)
             for cmd in self.FORBIDDEN:
                 assert cmd not in body, f"{cmd} found in {path}"
+
+
+class TestDryRunDestructive:
+    def _harness_env(self, tmp_path: Path) -> dict[str, str]:
+        root = tmp_path / "opt/karzar/Karzar"
+        backups = root / "backups"
+        backups.mkdir(parents=True)
+        now = datetime.now(timezone.utc)
+        _touch_db(backups, now)
+        _touch_db(backups, now - timedelta(days=1))
+
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        audit = tmp_path / "audit.log"
+        docker_stub = bin_dir / "docker"
+        docker_stub.write_text(
+            textwrap.dedent(
+                f"""#!/usr/bin/env bash
+set -euo pipefail
+echo "$@" >> "{audit}"
+if [[ "$1" == "builder" && "$2" == "prune" ]]; then
+  if [[ "${{3:-}}" == "--help" ]]; then
+    echo "--filter until=168h"
+    exit 0
+  fi
+  echo "DESTRUCTIVE_BUILDER_PRUNE" >> "{audit}"
+  exit 99
+fi
+if [[ "$1" == "ps" ]]; then
+  echo lathe_api
+  echo lathe_postgres
+  exit 0
+fi
+if [[ "$1" == "system" && "$2" == "df" ]]; then
+  echo "Build Cache     10        10        1MB     0B"
+  exit 0
+fi
+if [[ "$1" == "builder" && "$2" == "du" ]]; then
+  echo "Total: 1MB"
+  exit 0
+fi
+exit 0
+"""
+            )
+        )
+        docker_stub.chmod(0o755)
+
+        rm_stub = bin_dir / "rm"
+        rm_stub.write_text(
+            f"""#!/usr/bin/env bash
+echo "DESTRUCTIVE_RM" >> "{audit}"
+exit 99
+"""
+        )
+        rm_stub.chmod(0o755)
+
+        return {
+            "PATH": f"{bin_dir}:{os.environ.get('PATH', '')}",
+            "KARZAR_ROOT": str(root),
+            "KARZAR_BACKUP_DIR": str(backups),
+            "KARZAR_EXPECTED_HOSTNAME": "srv5944957438",
+            "KARZAR_HOUSEKEEPING_MOCK_HOSTNAME": "srv5944957438",
+            "KARZAR_HOUSEKEEPING_MOCK_DOCKER_PS": "lathe_api,lathe_postgres",
+            "KARZAR_HOUSEKEEPING_MOCK_ACTIVE_BUILD": "0",
+            "KARZAR_HOUSEKEEPING_LOCK_FILE": str(tmp_path / "housekeeping.lock"),
+            "AUDIT_LOG": str(audit),
+        }
+
+    def test_dry_run_no_destructive_commands(self, tmp_path: Path):
+        env = self._harness_env(tmp_path)
+        audit = Path(env["AUDIT_LOG"])
+        for args in ([], ["--dry-run"]):
+            subprocess.run(
+                [str(HOUSEKEEPING_SH), *args],
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            log = audit.read_text()
+            assert "DESTRUCTIVE_BUILDER_PRUNE" not in log
+            assert "DESTRUCTIVE_RM" not in log
+            assert "--apply-deletes" not in log
+
+    def test_default_invocation_is_dry_run(self, tmp_path: Path):
+        env = self._harness_env(tmp_path)
+        proc = subprocess.run(
+            [str(HOUSEKEEPING_SH)],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "MODE=dry-run" in proc.stdout
+        assert "docker builder prune" in proc.stdout
+        assert "DESTRUCTIVE_BUILDER_PRUNE" not in Path(env["AUDIT_LOG"]).read_text()
 
 
 class TestDryRunDefault:

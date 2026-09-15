@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import stat
 import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
@@ -233,6 +235,75 @@ def summarize(rows: list[Row]) -> dict[str, int]:
     }
 
 
+class RetentionDeleteError(Exception):
+    """Unsafe or invalid retention delete."""
+
+
+def _validate_delete_candidate(candidate: Path, backup_root: Path) -> Path:
+    """Fail closed unless candidate is a direct regular file child of backup_root."""
+    if ".." in candidate.parts:
+        raise RetentionDeleteError("path_traversal")
+
+    try:
+        lst = candidate.lstat()
+    except OSError as exc:
+        raise RetentionDeleteError(f"lstat_failed:{exc}") from exc
+
+    if stat.S_ISLNK(lst.st_mode):
+        raise RetentionDeleteError("symlink_refused")
+
+    if not stat.S_ISREG(lst.st_mode):
+        raise RetentionDeleteError("not_regular_file")
+
+    try:
+        root = backup_root.resolve(strict=True)
+        parent = candidate.parent.resolve()
+        resolved = candidate.resolve()
+    except OSError as exc:
+        raise RetentionDeleteError(f"resolve_failed:{exc}") from exc
+
+    if parent != root:
+        raise RetentionDeleteError("not_direct_child_of_backup_root")
+
+    try:
+        common = os.path.commonpath([str(resolved), str(root)])
+    except ValueError:
+        raise RetentionDeleteError("outside_backup_root")
+
+    if common != str(root):
+        raise RetentionDeleteError("outside_backup_root")
+
+    # Prefix-confusion guard (e.g. .../backups-evil/file).
+    if not str(resolved).startswith(str(root) + os.sep):
+        raise RetentionDeleteError("prefix_confusion")
+
+    return resolved
+
+
+def apply_retention_deletes(payload: dict, backup_dir: Path) -> dict[str, int]:
+    root = backup_dir.resolve()
+    db_deleted = 0
+    upload_deleted = 0
+    bytes_reclaimed = 0
+    for row in payload["rows"]:
+        if row["decision"] != "DELETE_CANDIDATE":
+            continue
+        original = Path(row["path"])
+        target = _validate_delete_candidate(original, root)
+        size = target.stat().st_size
+        os.remove(target)
+        bytes_reclaimed += size
+        if row["type"] == "db":
+            db_deleted += 1
+        elif row["type"] == "upload":
+            upload_deleted += 1
+    return {
+        "DB_BACKUPS_DELETED": db_deleted,
+        "UPLOAD_BACKUPS_DELETED": upload_deleted,
+        "BACKUP_BYTES_RECLAIMED": bytes_reclaimed,
+    }
+
+
 def plan_directory(backup_dir: Path) -> dict:
     if not backup_dir.is_dir():
         raise FileNotFoundError(f"backup directory missing: {backup_dir}")
@@ -256,9 +327,25 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Karzar backup retention plan (no deletes).")
     parser.add_argument("--backup-dir", type=Path, required=True)
     parser.add_argument("--json", action="store_true", help="Emit JSON only on stdout")
+    parser.add_argument(
+        "--apply-deletes",
+        action="store_true",
+        help="Apply DELETE_CANDIDATE rows (internal; requires JSON plan on stdin).",
+    )
     args = parser.parse_args()
+    backup_dir = args.backup_dir.resolve()
+    if args.apply_deletes:
+        payload = json.load(sys.stdin)
+        try:
+            result = apply_retention_deletes(payload, backup_dir)
+        except (RetentionDeleteError, OSError) as exc:
+            print(json.dumps({"error": str(exc)}), file=sys.stderr)
+            return 1
+        for key, value in result.items():
+            print(f"{key}={value}")
+        return 0
     try:
-        payload = plan_directory(args.backup_dir.resolve())
+        payload = plan_directory(backup_dir)
     except OSError as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 1

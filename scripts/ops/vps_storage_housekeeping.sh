@@ -127,7 +127,7 @@ BUILDKIT_UNTIL_HOURS="${KARZAR_BUILDKIT_CACHE_UNTIL_HOURS:-168}"
 if [[ "$ACTIVE_BUILD_OR_DEPLOY" == "YES" ]]; then
   vsh_log "WARN" "BUILDKIT_CLEANUP=SKIPPED active_build_or_deploy"
 elif ! vsh_docker_builder_until_supported; then
-  vsh_log "ERROR" "BUILDKIT_CLEANUP=UNSUPPORTED docker builder prune --filter until= not available"
+  vsh_log "ERROR" "BUILDKIT_CLEANUP=UNSUPPORTED docker builder prune help lacks until/duration filter semantics"
   BUILDKIT_CLEANUP="UNSUPPORTED"
   if [[ "$MODE" == "apply" ]]; then
     KARZAR_HOUSEKEEPING_RESULT="builder_unsupported"

@@ -17,6 +17,4 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=karzar-storage-housekeeping
 # Do not sandbox: requires Docker CLI access to the local daemon.
-
-[Install]
-WantedBy=multi-user.target
+# Enable the timer unit only — do not `systemctl enable` this service for boot.

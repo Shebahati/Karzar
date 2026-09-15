@@ -67,13 +67,24 @@ vsh_verify_host_identity() {
     vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL missing KARZAR_ROOT=${root}"
     return 1
   fi
-  if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'lathe_api'; then
-    vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_api container not running"
-    return 1
-  fi
-  if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'lathe_postgres'; then
-    vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_postgres container not running"
-    return 1
+  if [[ -n "${KARZAR_HOUSEKEEPING_MOCK_DOCKER_PS:-}" ]]; then
+    if ! tr ',' '\n' <<<"${KARZAR_HOUSEKEEPING_MOCK_DOCKER_PS}" | grep -qx 'lathe_api'; then
+      vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_api container not running (mock)"
+      return 1
+    fi
+    if ! tr ',' '\n' <<<"${KARZAR_HOUSEKEEPING_MOCK_DOCKER_PS}" | grep -qx 'lathe_postgres'; then
+      vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_postgres container not running (mock)"
+      return 1
+    fi
+  else
+    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'lathe_api'; then
+      vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_api container not running"
+      return 1
+    fi
+    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'lathe_postgres'; then
+      vsh_log "ERROR" "HOST_IDENTITY_GATE=FAIL lathe_postgres container not running"
+      return 1
+    fi
   fi
   local fs_type fs_size
   fs_type="$(df -PT / | awk 'NR==2 {print $2}')"
@@ -83,11 +94,25 @@ vsh_verify_host_identity() {
     return 1
   fi
   vsh_verbose "root_fs type=${fs_type} size=${fs_size}"
+  vsh_log "INFO" "HOST_IDENTITY_GATE=PASS"
   return 0
 }
 
-vsh_self_cmdline() {
-  tr '\0' ' ' < "/proc/$$/cmdline" 2>/dev/null || echo "vps_storage_housekeeping"
+# Match a process cmdline regex, excluding this shell and its parent (avoids pgrep self-match).
+vsh_process_cmdline_matches() {
+  local regex="$1"
+  local self=$$ ppid=${PPID:-0} pid cmd
+  local pid
+  while read -r pid; do
+    [[ -z "$pid" ]] && continue
+    [[ "$pid" == "$self" || "$pid" == "$ppid" ]] && continue
+    cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+    [[ -z "$cmd" ]] && continue
+    if [[ "$cmd" =~ $regex ]]; then
+      return 0
+    fi
+  done < <(pgrep -f "$regex" 2>/dev/null || true)
+  return 1
 }
 
 vsh_active_build_or_deploy() {
@@ -98,32 +123,27 @@ vsh_active_build_or_deploy() {
     return 1
   fi
 
-  local self
-  self="$(vsh_self_cmdline)"
-
-  if pgrep -f 'Runner\.Worker' >/dev/null 2>&1; then
+  # Runner.Listener idle daemon must not block housekeeping.
+  if vsh_process_cmdline_matches 'Runner\.Worker'; then
     return 0
   fi
-  if pgrep -f '[/ ]docker build( |$)' >/dev/null 2>&1; then
+  if vsh_process_cmdline_matches 'docker[[:space:]]+build([[:space:]]|$)'; then
     return 0
   fi
-  if pgrep -f 'docker buildx' >/dev/null 2>&1; then
+  if vsh_process_cmdline_matches 'docker[[:space:]]+buildx'; then
     return 0
   fi
-  if pgrep -f 'buildctl ' >/dev/null 2>&1; then
+  if vsh_process_cmdline_matches 'buildctl[[:space:]]'; then
     return 0
   fi
-  if pgrep -f 'deploy-backend\.sh' >/dev/null 2>&1; then
+  if vsh_process_cmdline_matches 'deploy-backend\.sh'; then
     return 0
   fi
-  if pgrep -f 'deploy-frontend\.sh' >/dev/null 2>&1; then
+  if vsh_process_cmdline_matches 'deploy-frontend\.sh'; then
     return 0
   fi
-  if pgrep -f 'deploy-staging' >/dev/null 2>&1; then
-    # exclude this housekeeping script if path contains deploy-staging in self - unlikely
-    if ! grep -q 'vps_storage_housekeeping' <<<"$self"; then
-      return 0
-    fi
+  if vsh_process_cmdline_matches 'deploy-staging'; then
+    return 0
   fi
   return 1
 }
@@ -135,7 +155,9 @@ vsh_docker_builder_until_supported() {
   if ! command -v docker >/dev/null 2>&1; then
     return 1
   fi
-  docker builder prune --help 2>&1 | grep -q -- '--filter'
+  # Presence of --filter alone is insufficient; we require until/duration semantics.
+  # Apply still fails closed if `docker builder prune --filter until=…` is rejected.
+  docker builder prune --help 2>&1 | grep -qiE 'until|duration'
 }
 
 vsh_capture_build_cache_summary() {
@@ -161,63 +183,25 @@ vsh_backup_dir_canonical() {
 }
 
 vsh_backup_safety_gate() {
-  # Sets BACKUP_SAFETY_GATE=PASS|FAIL
+  # Sets BACKUP_SAFETY_GATE=PASS|FAIL (canonical filename UTC timestamp is authoritative).
   BACKUP_SAFETY_GATE="FAIL"
-  local dir
+  local dir script_dir
   dir="$(vsh_backup_dir_canonical)" || {
     vsh_log "ERROR" "backup directory missing or not canonical"
     return 1
   }
-
-  local -a db_files=()
-  local f name mtime age_sec size
-  while IFS= read -r -d '' f; do
-    db_files+=("$f")
-  done < <(find "$dir" -maxdepth 1 -type f -name 'karzar_*.sql.gz' ! -type l -print0 2>/dev/null)
-
-  if ((${#db_files[@]} < 2)); then
-    vsh_log "ERROR" "backup safety: fewer than 2 DB backups"
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local gate_out
+  if ! gate_out="$(python3 "${script_dir}/backup_safety.py" "$dir" 2>&1)"; then
+    vsh_log "ERROR" "${gate_out}"
     return 1
   fi
-
-  local latest=""
-  local latest_mtime=0
-  for f in "${db_files[@]}"; do
-    name="$(basename "$f")"
-    if [[ ! "$name" =~ ^karzar_[0-9]{8}_[0-9]{6}\.sql\.gz$ ]]; then
-      continue
-    fi
-    mtime="$(stat -c %Y "$f")"
-    if (( mtime > latest_mtime )); then
-      latest_mtime=$mtime
-      latest="$f"
-    fi
-  done
-
-  if [[ -z "$latest" ]]; then
-    vsh_log "ERROR" "backup safety: no canonical latest DB backup"
-    return 1
+  if grep -q 'BACKUP_SAFETY_GATE=PASS' <<<"$gate_out"; then
+    BACKUP_SAFETY_GATE="PASS"
+    return 0
   fi
-
-  size="$(stat -c %s "$latest")"
-  if (( size <= 0 )); then
-    vsh_log "ERROR" "backup safety: latest DB backup zero bytes"
-    return 1
-  fi
-
-  age_sec=$(( $(date +%s) - latest_mtime ))
-  if (( age_sec > 36 * 3600 )); then
-    vsh_log "ERROR" "backup safety: latest DB backup older than 36h (${age_sec}s)"
-    return 1
-  fi
-
-  if ! gzip -t "$latest" 2>/dev/null; then
-    vsh_log "ERROR" "backup safety: gzip integrity failed for latest DB backup"
-    return 1
-  fi
-
-  BACKUP_SAFETY_GATE="PASS"
-  return 0
+  vsh_log "ERROR" "${gate_out}"
+  return 1
 }
 
 vsh_print_retention_table() {
@@ -239,29 +223,8 @@ PY
 vsh_apply_retention_deletes() {
   local json="$1"
   local backup_dir="$2"
-  python3 - "$json" "$backup_dir" <<'PY'
-import json, os, sys
-payload = json.loads(sys.argv[1])
-backup_dir = os.path.realpath(sys.argv[2])
-db_deleted = 0
-upload_deleted = 0
-bytes_reclaimed = 0
-for row in payload["rows"]:
-    if row["decision"] != "DELETE_CANDIDATE":
-        continue
-    path = os.path.realpath(row["path"])
-    if not path.startswith(backup_dir + os.sep):
-        raise SystemExit("path outside backup dir")
-    if os.path.islink(path):
-        raise SystemExit("refuse symlink delete")
-    os.remove(path)
-    bytes_reclaimed += int(row["size"])
-    if row["type"] == "db":
-        db_deleted += 1
-    elif row["type"] == "upload":
-        upload_deleted += 1
-print(f"DB_BACKUPS_DELETED={db_deleted}")
-print(f"UPLOAD_BACKUPS_DELETED={upload_deleted}")
-print(f"BACKUP_BYTES_RECLAIMED={bytes_reclaimed}")
-PY
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  printf '%s' "$json" | python3 "${script_dir}/backup_retention.py" \
+    --backup-dir "$backup_dir" --apply-deletes
 }
