@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import io
 import json
+import re
 import sys
 from decimal import Decimal
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import Request
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -20,7 +23,16 @@ from catalog_target.core import CurrentProduct, index_current_products, normaliz
 from zcc_ir_catalog.categories import map_source_category  # noqa: E402
 from zcc_ir_catalog.crawl import ReadOnlyFetcher  # noqa: E402
 from zcc_ir_catalog.discover import merge_product_universe  # noqa: E402
-from zcc_ir_catalog.karzar_snapshot import products_from_public_json  # noqa: E402
+from zcc_ir_catalog.karzar_snapshot import (  # noqa: E402
+    WRITE_METHODS,
+    KarzarApiBaseError,
+    _assert_get_only,
+    _get_json,
+    load_karzar_snapshot,
+    normalize_karzar_api_origin,
+    products_from_public_json,
+    resolve_karzar_public_origin,
+)
 from zcc_ir_catalog.models import DiscoveryUrl  # noqa: E402
 from zcc_ir_catalog.normalize import (  # noqa: E402
     canonicalize_brand,
@@ -38,7 +50,7 @@ from zcc_ir_catalog.parse import (  # noqa: E402
     parse_urlset,
     robots_allows,
 )
-from zcc_ir_catalog.pipeline import crawl_products  # noqa: E402
+from zcc_ir_catalog.pipeline import crawl_products, run_phase1  # noqa: E402
 from zcc_ir_catalog.quality import quality_report  # noqa: E402
 from zcc_ir_catalog.reconcile import (  # noqa: E402
     classify_match,
@@ -315,10 +327,12 @@ class ScriptedOpener:
         self.routes = routes
         self.failures = failures or {}
         self.calls: list[str] = []
+        self.methods: list[str] = []
 
     def __call__(self, req: Request, timeout: float) -> _FakeResp:
         url = req.full_url
         self.calls.append(url)
+        self.methods.append(req.get_method())
         remaining = self.failures.get(url, 0)
         if remaining:
             self.failures[url] = remaining - 1
@@ -389,3 +403,183 @@ def test_fetcher_refuses_robots_disallowed(tmp_path: Path) -> None:
     assert not result.ok
     assert result.error == "robots_disallowed"
     assert opener.calls == []
+
+
+def _sample_public_product_row() -> dict[str, object]:
+    return {
+        "id": 1,
+        "sku": "ZCC-DCMT11T312-XM-YBC203",
+        "name": "الماس",
+        "base_price": "1178000",
+        "availability": True,
+        "thumbnail": "https://x/a.jpg",
+        "brand": {"id": 8, "name": "ZCC.CT | زد سی‌سی"},
+        "category": {"id": 33, "name": "اینسرت تراش CNC"},
+    }
+
+
+def _public_catalog_opener(origin: str) -> ScriptedOpener:
+    empty = json.dumps({"data": [], "meta": {"has_next": False}})
+    brands = json.dumps(
+        {
+            "data": [
+                {"id": 8, "name": "ZCC.CT | زد سی‌سی", "product_count": 1},
+                {"id": 9, "name": "SAN OU", "product_count": 0},
+                {"id": 10, "name": "STC", "product_count": 0},
+            ]
+        }
+    )
+    products = json.dumps({"data": [_sample_public_product_row()], "meta": {"has_next": False}})
+    categories = json.dumps({"data": [{"id": 33, "name": "اینسرت تراش CNC"}]})
+    return ScriptedOpener(
+        {
+            f"{origin}/api/v1/brands/": brands,
+            f"{origin}/api/v1/brands/?storefront_product_counts=true": brands,
+            f"{origin}/api/v1/products/?brand_id=8&limit=100&skip=0": products,
+            f"{origin}/api/v1/products/?brand_id=9&limit=100&skip=0": empty,
+            f"{origin}/api/v1/products/?brand_id=10&limit=100&skip=0": empty,
+            f"{origin}/api/v1/categories/": categories,
+        }
+    )
+
+
+def test_no_hardcoded_public_api_origin() -> None:
+    snapshot = (SCRIPTS / "zcc_ir_catalog" / "karzar_snapshot.py").read_text(encoding="utf-8")
+    discover = (SCRIPTS / "zcc_ir_catalog_discover.py").read_text(encoding="utf-8")
+    pipeline = (SCRIPTS / "zcc_ir_catalog" / "pipeline.py").read_text(encoding="utf-8")
+    combined = snapshot + "\n" + discover + "\n" + pipeline
+    assert "PUBLIC_API_ORIGIN" not in combined
+    assert not re.search(
+        r"""(?:getenv|environ\.get)\(\s*["'][A-Z0-9_]+["']\s*,\s*["']https?://[^"']*karzartools\.com""",
+        combined,
+    )
+    assert not re.search(r"""\bdefault\s*=\s*["']https?://[^"']*karzartools\.com""", combined)
+    assert not re.search(
+        r"""^\s*[A-Za-z_][A-Za-z0-9_]*\s*=\s*["']https?://[^"']*karzartools\.com""",
+        combined,
+        re.M,
+    )
+
+
+def test_file_snapshot_works_without_api_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("live network must not be used")
+
+    monkeypatch.setattr("zcc_ir_catalog.karzar_snapshot.urlopen", boom)
+    path = tmp_path / "products.json"
+    path.write_text(json.dumps([_sample_public_product_row()]), encoding="utf-8")
+    products, meta = load_karzar_snapshot(products_json=str(path), fetch_public=True)
+    assert meta["scope"] == "file_public_json"
+    assert products[0].sku == "ZCC-DCMT11T312-XM-YBC203"
+    assert products[0].brand_key == "ZCC.CT"
+
+
+def test_public_fetch_fails_when_api_base_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+    with pytest.raises(KarzarApiBaseError, match="KARZAR_API_BASE"):
+        resolve_karzar_public_origin()
+    with pytest.raises(KarzarApiBaseError, match="KARZAR_API_BASE"):
+        load_karzar_snapshot(fetch_public=True)
+
+
+def test_cli_public_fetch_requires_api_base(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+    assert cli_main(["--output-dir", str(tmp_path / "unused")]) == 2
+    err = capsys.readouterr().err
+    assert "KARZAR_API_BASE" in err
+    assert "FATAL" in err
+
+
+def test_configured_api_base_is_used(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("live network must not be used")
+
+    monkeypatch.setattr("zcc_ir_catalog.karzar_snapshot.urlopen", boom)
+    origin = "http://karzar.test"
+    opener = _public_catalog_opener(origin)
+    products, meta = load_karzar_snapshot(
+        fetch_public=True,
+        karzar_api_base=origin,
+        opener=opener,
+    )
+    assert meta["origin"] == origin
+    assert origin in str(meta["provenance"])
+    assert "api.karzartools.com" not in str(meta["provenance"])
+    assert products[0].sku == "ZCC-DCMT11T312-XM-YBC203"
+    assert all(url.startswith(f"{origin}/api/v1/") for url in opener.calls)
+    assert getattr(opener, "methods", [])
+    assert set(opener.methods) == {"GET"}
+
+
+def test_env_api_base_and_trailing_slash_and_api_v1_suffix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+    monkeypatch.setattr(
+        "zcc_ir_catalog.karzar_snapshot.urlopen",
+        lambda *_a, **_k: (_ for _ in ()).throw(AssertionError("live network must not be used")),
+    )
+    origin = "http://karzar.test"
+    opener = _public_catalog_opener(origin)
+    monkeypatch.setenv("KARZAR_API_BASE", f"{origin}/api/v1/")
+    products, meta = load_karzar_snapshot(fetch_public=True, opener=opener)
+    assert products
+    assert meta["origin"] == origin
+    assert f"{origin}/api/v1/brands/" in opener.calls
+
+    assert normalize_karzar_api_origin(f"{origin}/") == origin
+    assert normalize_karzar_api_origin(f"{origin}/api/v1") == origin
+    assert normalize_karzar_api_origin(f"{origin}/api/v1/") == origin
+
+
+def test_invalid_api_base_rejected() -> None:
+    with pytest.raises(KarzarApiBaseError, match="http or https"):
+        normalize_karzar_api_origin("ftp://karzar.test")
+    with pytest.raises(KarzarApiBaseError, match="credentials"):
+        normalize_karzar_api_origin("https://user:pass@karzar.test")
+    with pytest.raises(KarzarApiBaseError, match="path"):
+        normalize_karzar_api_origin("http://karzar.test/other")
+    with pytest.raises(KarzarApiBaseError, match="query"):
+        normalize_karzar_api_origin("http://karzar.test/?x=1")
+    with pytest.raises(RuntimeError, match="unsupported_url"):
+        _get_json("ftp://karzar.test/api/v1/brands/")
+    with pytest.raises(RuntimeError, match="credentials_not_allowed"):
+        _get_json("https://user:pass@karzar.test/api/v1/brands/")
+
+
+def test_get_only_enforcement() -> None:
+    get_req = Request("http://karzar.test/api/v1/brands/", method="GET")
+    _assert_get_only(get_req)
+    for method in sorted(WRITE_METHODS):
+        req = Request("http://karzar.test/api/v1/brands/", method=method)
+        with pytest.raises(RuntimeError, match="write_method_forbidden"):
+            _assert_get_only(req)
+
+
+def test_pipeline_public_fetch_fails_closed_without_api_base(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("KARZAR_API_BASE", raising=False)
+    with pytest.raises(KarzarApiBaseError, match="KARZAR_API_BASE"):
+        run_phase1(
+            output_dir=tmp_path / "out",
+            cache_dir=tmp_path / "cache",
+            fetch_karzar_public=True,
+        )
+    assert not (tmp_path / "out").exists()
+
+
+def test_write_attempts_still_fail() -> None:
+    assert cli_main(["--apply"]) == 2
+    assert cli_main(["--write"]) == 2
+    assert cli_main(["--mutate"]) == 2
+    for flag in FORBIDDEN:
+        assert cli_main([flag]) == 2

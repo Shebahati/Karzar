@@ -11,7 +11,7 @@ from zcc_ir_catalog import PARSER_VERSION
 from zcc_ir_catalog.categories import category_mapping_rows
 from zcc_ir_catalog.crawl import ReadOnlyFetcher
 from zcc_ir_catalog.discover import discover_universe, fetch_robots
-from zcc_ir_catalog.karzar_snapshot import load_karzar_snapshot
+from zcc_ir_catalog.karzar_snapshot import load_karzar_snapshot, resolve_karzar_public_origin
 from zcc_ir_catalog.models import DiscoveryUrl, SourceProduct
 from zcc_ir_catalog.output import build_summary, write_artifacts, write_json
 from zcc_ir_catalog.parse import parse_product_html
@@ -110,11 +110,15 @@ def run_phase1(
     snapshot_csv: str | None = None,
     products_json: str | None = None,
     read_db: bool = False,
+    karzar_api_base: str | None = None,
     karzar_categories: list[dict[str, Any]] | None = None,
     opener=None,
     progress: ProgressFn | None = None,
 ) -> dict[str, Any]:
     log = progress or (lambda m: print(m, flush=True))
+    need_public = fetch_karzar_public and not (snapshot_csv or products_json or read_db)
+    if need_public:
+        resolve_karzar_public_origin(karzar_api_base)
     output_dir.mkdir(parents=True, exist_ok=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
@@ -150,7 +154,9 @@ def run_phase1(
         snapshot_csv=snapshot_csv,
         products_json=products_json,
         read_db=read_db,
-        fetch_public=fetch_karzar_public and not (snapshot_csv or products_json or read_db),
+        fetch_public=need_public,
+        karzar_api_base=karzar_api_base,
+        opener=opener,
     )
     cats = karzar_categories
     if cats is None:

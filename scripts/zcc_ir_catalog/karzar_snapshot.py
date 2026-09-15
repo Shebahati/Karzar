@@ -1,13 +1,16 @@
 """READ-ONLY Karzar catalog snapshot loaders.
 
-Public GET against api.karzartools.com is observation only (no POST/PUT/PATCH/DELETE).
-Production DB hosts are never opened here; local DB reuse goes through catalog_target.snapshot.
+Public GET against a configured KARZAR_API_BASE is observation only
+(no POST/PUT/PATCH/DELETE). There is no production URL default.
+
+Production DB hosts are never opened here; local DB reuse goes through
+catalog_target.snapshot.
 """
 
 from __future__ import annotations
 
 import json
-from decimal import Decimal
+import os
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -15,15 +18,74 @@ from urllib.request import Request, urlopen
 
 from catalog_target.core import CurrentProduct, canonicalize_brand, normalize_sku, parse_decimal
 from catalog_target.snapshot import load_current_catalog
+
 from zcc_ir_catalog import USER_AGENT
 from zcc_ir_catalog.normalize import canonicalize_brand as zcc_canonicalize_brand
 
-PUBLIC_API_ORIGIN = "https://api.karzartools.com"
+KARZAR_API_BASE_ENV = "KARZAR_API_BASE"
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+class KarzarApiBaseError(ValueError):
+    """Public HTTP snapshot requested without a usable, safe API base."""
 
 
 def _brand_key(name: str | None) -> str | None:
     return zcc_canonicalize_brand(name) or canonicalize_brand(name)
+
+
+def normalize_karzar_api_origin(value: str) -> str:
+    """Return scheme://host[:port] from KARZAR_API_BASE (origin or /api/v1 base)."""
+    raw = (value or "").strip()
+    if not raw:
+        raise KarzarApiBaseError(
+            "KARZAR_API_BASE is empty. Set an http(s) origin or /api/v1 base, "
+            "with no embedded credentials."
+        )
+    parsed = urlparse(raw)
+    if parsed.scheme not in {"http", "https"}:
+        raise KarzarApiBaseError(
+            f"KARZAR_API_BASE must use http or https, got {parsed.scheme!r}."
+        )
+    if parsed.username or parsed.password:
+        raise KarzarApiBaseError("KARZAR_API_BASE must not contain embedded credentials.")
+    if not parsed.netloc:
+        raise KarzarApiBaseError("KARZAR_API_BASE is missing a host.")
+    if parsed.query or parsed.fragment:
+        raise KarzarApiBaseError("KARZAR_API_BASE must not include a query or fragment.")
+    path = (parsed.path or "").rstrip("/")
+    if path not in {"", "/api/v1"}:
+        raise KarzarApiBaseError(
+            f"KARZAR_API_BASE path must be empty or /api/v1, got {parsed.path!r}."
+        )
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def resolve_karzar_public_origin(explicit: str | None = None) -> str:
+    """Require an explicit public API base (CLI or KARZAR_API_BASE). No code default."""
+    value = (explicit or "").strip() or os.environ.get(KARZAR_API_BASE_ENV, "").strip()
+    if not value:
+        raise KarzarApiBaseError(
+            "public Karzar snapshot requested but KARZAR_API_BASE is not set. "
+            "Export KARZAR_API_BASE to an http(s) origin or /api/v1 base (no credentials), "
+            "pass --karzar-api-base, or skip the public GET with --karzar-products-json, "
+            "--snapshot, --read-db, or --skip-karzar-public."
+        )
+    return normalize_karzar_api_origin(value)
+
+
+def _v1_url(origin: str, suffix: str) -> str:
+    return f"{origin.rstrip('/')}/api/v1/{suffix.lstrip('/')}"
+
+
+def _assert_get_only(request: Request) -> None:
+    method = (request.get_method() or "").upper()
+    if method in WRITE_METHODS:
+        raise RuntimeError(f"write_method_forbidden:{method}")
+    if method != "GET":
+        raise RuntimeError(f"only_get_allowed:{method}")
+    if request.data is not None:
+        raise RuntimeError("request_body_forbidden")
 
 
 def products_from_public_json(rows: list[dict[str, Any]], *, source: str) -> list[CurrentProduct]:
@@ -80,33 +142,40 @@ def _get_json(url: str, opener=None) -> dict[str, Any]:
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:
         raise RuntimeError(f"unsupported_url:{url}")
-    req = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, method="GET")
+    if parsed.username or parsed.password:
+        raise RuntimeError("credentials_not_allowed")
+    req = Request(
+        url,
+        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+        method="GET",
+    )
+    _assert_get_only(req)
     open_fn = opener or urlopen
     with open_fn(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def fetch_public_brands(*, opener=None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    all_counts = _get_json(f"{PUBLIC_API_ORIGIN}/api/v1/brands/", opener=opener)
+def fetch_public_brands(*, origin: str, opener=None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    all_counts = _get_json(_v1_url(origin, "brands/"), opener=opener)
     storefront = _get_json(
-        f"{PUBLIC_API_ORIGIN}/api/v1/brands/?storefront_product_counts=true",
+        _v1_url(origin, "brands/?storefront_product_counts=true"),
         opener=opener,
     )
     return list(all_counts.get("data") or []), list(storefront.get("data") or [])
 
 
-def fetch_public_categories(*, opener=None) -> list[dict[str, Any]]:
-    body = _get_json(f"{PUBLIC_API_ORIGIN}/api/v1/categories/", opener=opener)
+def fetch_public_categories(*, origin: str, opener=None) -> list[dict[str, Any]]:
+    body = _get_json(_v1_url(origin, "categories/"), opener=opener)
     return list(body.get("data") or body if isinstance(body, list) else [])
 
 
-def fetch_public_brand_products(brand_id: str, *, opener=None, limit: int = 100) -> list[dict[str, Any]]:
+def fetch_public_brand_products(
+    brand_id: str, *, origin: str, opener=None, limit: int = 100
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     skip = 0
     while True:
-        url = (
-            f"{PUBLIC_API_ORIGIN}/api/v1/products/?brand_id={brand_id}&limit={limit}&skip={skip}"
-        )
+        url = _v1_url(origin, f"products/?brand_id={brand_id}&limit={limit}&skip={skip}")
         body = _get_json(url, opener=opener)
         chunk = list(body.get("data") or [])
         rows.extend(chunk)
@@ -125,6 +194,7 @@ def load_karzar_snapshot(
     products_json: str | None = None,
     read_db: bool = False,
     fetch_public: bool = False,
+    karzar_api_base: str | None = None,
     opener=None,
 ) -> tuple[list[CurrentProduct], dict[str, Any]]:
     meta: dict[str, Any] = {
@@ -173,7 +243,8 @@ def load_karzar_snapshot(
         meta["provenance"] = note
         return remapped, meta
     if fetch_public:
-        all_brands, storefront_brands = fetch_public_brands(opener=opener)
+        origin = resolve_karzar_public_origin(karzar_api_base)
+        all_brands, storefront_brands = fetch_public_brands(origin=origin, opener=opener)
         meta["brands"] = {
             "all_counts": {b.get("name"): {"id": b.get("id"), "product_count": b.get("product_count")} for b in all_brands},
             "storefront_counts": {
@@ -188,17 +259,18 @@ def load_karzar_snapshot(
                 wanted_ids.append(str(brand.get("id")))
         rows: list[dict[str, Any]] = []
         for brand_id in wanted_ids:
-            rows.extend(fetch_public_brand_products(brand_id, opener=opener))
+            rows.extend(fetch_public_brand_products(brand_id, origin=origin, opener=opener))
         try:
-            cats = fetch_public_categories(opener=opener)
+            cats = fetch_public_categories(origin=origin, opener=opener)
             meta["categories_count"] = len(cats)
             meta["categories"] = cats
         except Exception as exc:  # noqa: BLE001
             meta["categories_error"] = str(exc)
         products = products_from_public_json(rows, source="public_api_storefront")
         meta["scope"] = "public_api_storefront"
+        meta["origin"] = origin
         meta["provenance"] = (
-            "GET https://api.karzartools.com/api/v1/products/?brand_id=… "
+            f"GET {origin}/api/v1/products/?brand_id=… "
             "(anonymous storefront catalog; inactive/non-public SKUs not included)"
         )
         return products, meta
