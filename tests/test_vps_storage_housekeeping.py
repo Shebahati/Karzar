@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import gzip
-import json
 import os
-import signal
 import subprocess
 import textwrap
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -18,7 +16,6 @@ from scripts.ops.backup_retention import (
     RetentionDeleteError,
     apply_retention_deletes,
     classify_file,
-    plan_db_retention,
     plan_directory,
     plan_upload_retention,
 )
@@ -71,7 +68,7 @@ class TestDiskClassification:
 
 class TestBackupRetention:
     def test_daily_weekly_monthly_union(self, tmp_path: Path):
-        base = datetime(2026, 9, 15, 3, 15, 0, tzinfo=timezone.utc)
+        base = datetime(2026, 9, 15, 3, 15, 0, tzinfo=UTC)
         for i in range(20):
             _touch_db(tmp_path, base - timedelta(days=i))
         payload = plan_directory(tmp_path)
@@ -81,7 +78,7 @@ class TestBackupRetention:
         assert len(deletes) == 20 - len(keeps)
 
     def test_upload_weekly_monthly_only(self, tmp_path: Path):
-        base = datetime(2026, 9, 15, 3, 30, 0, tzinfo=timezone.utc)
+        base = datetime(2026, 9, 15, 3, 30, 0, tzinfo=UTC)
         for i in range(100):
             _touch_upload(tmp_path, base - timedelta(days=i))
         payload = plan_directory(tmp_path)
@@ -103,7 +100,7 @@ class TestBackupRetention:
         assert row["decision"] in ("KEEP_UNKNOWN",)
 
     def test_newest_never_deleted_when_in_window(self, tmp_path: Path):
-        now = datetime(2026, 9, 15, 3, 15, 0, tzinfo=timezone.utc)
+        now = datetime(2026, 9, 15, 3, 15, 0, tzinfo=UTC)
         _touch_db(tmp_path, now)
         _touch_db(tmp_path, now - timedelta(days=1))
         payload = plan_directory(tmp_path)
@@ -144,7 +141,7 @@ class TestBackupSafetyGate:
     def test_pass_with_two_valid_backups(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         _touch_db(backups, now)
         _touch_db(backups, now - timedelta(days=1))
         proc = self._run_gate(tmp_path)
@@ -153,7 +150,7 @@ class TestBackupSafetyGate:
     def test_fail_stale_latest_by_filename_not_mtime(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
-        old = datetime(2026, 9, 1, 3, 0, 0, tzinfo=timezone.utc)
+        old = datetime(2026, 9, 1, 3, 0, 0, tzinfo=UTC)
         p1 = _touch_db(backups, old)
         p2 = _touch_db(backups, old - timedelta(days=1))
         now_ts = time.time()
@@ -184,7 +181,7 @@ class TestBackupSafetyGate:
     def test_fail_too_few_backups(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         _touch_db(backups, now)
         proc = self._run_gate(tmp_path)
         assert "BACKUP_SAFETY_GATE=FAIL" in proc.stdout
@@ -192,7 +189,7 @@ class TestBackupSafetyGate:
     def test_fail_future_filename_timestamp(self, tmp_path: Path):
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
-        future = datetime.now(timezone.utc) + timedelta(days=2)
+        future = datetime.now(UTC) + timedelta(days=2)
         _touch_db(backups, future)
         _touch_db(backups, future - timedelta(days=1))
         ok, reason = evaluate_backup_safety_gate(backups)
@@ -203,7 +200,7 @@ class TestBackupSafetyGate:
         backups = tmp_path / "backups"
         backups.mkdir(parents=True, exist_ok=True)
         (backups / "karzar_bad_000000.sql.gz").write_bytes(b"x")
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         _touch_db(backups, now)
         ok, _ = evaluate_backup_safety_gate(backups)
         assert not ok
@@ -212,7 +209,7 @@ class TestBackupSafetyGate:
 class TestBackupSafetyPython:
     def test_parse_canonical(self):
         dt = parse_canonical_db_stamp("karzar_20260915_031501.sql.gz")
-        assert dt == datetime(2026, 9, 15, 3, 15, 1, tzinfo=timezone.utc)
+        assert dt == datetime(2026, 9, 15, 3, 15, 1, tzinfo=UTC)
         assert parse_canonical_db_stamp("karzar_prod_baseline_20260728_151651.sql.gz") is None
 
 
@@ -230,12 +227,12 @@ class TestPathContainmentDeletes:
         }
 
     def test_normal_direct_child_allowed(self, tmp_path: Path):
-        f = _touch_db(tmp_path, datetime(2026, 1, 1, tzinfo=timezone.utc))
+        f = _touch_db(tmp_path, datetime(2026, 1, 1, tzinfo=UTC))
         apply_retention_deletes(self._payload_delete(f), tmp_path)
         assert not f.exists()
 
     def test_symlink_refused(self, tmp_path: Path):
-        real = _touch_db(tmp_path, datetime(2026, 1, 2, tzinfo=timezone.utc))
+        real = _touch_db(tmp_path, datetime(2026, 1, 2, tzinfo=UTC))
         link = tmp_path / "karzar_20260102_030000.sql.gz"
         link.symlink_to(real.name)
         with pytest.raises(RetentionDeleteError):
@@ -319,16 +316,18 @@ class TestHostAndBuildGates:
         )
         assert "HOST_IDENTITY_GATE=PASS" in proc.stdout
 
-    def _detect_active(self, env_extra: dict | None = None) -> str:
+    def _detect_active(self, process_lines: str) -> str:
         script = textwrap.dedent(
             r"""
             source "${LIB}"
             if vsh_active_build_or_deploy; then echo YES; else echo NO; fi
             """
         )
-        env = {**os.environ, "LIB": str(LIB_SH)}
-        if env_extra:
-            env.update(env_extra)
+        env = {
+            **os.environ,
+            "LIB": str(LIB_SH),
+            "KARZAR_HOUSEKEEPING_TEST_PROCESS_LINES": process_lines,
+        }
         return subprocess.run(
             ["bash", "-c", script],
             env=env,
@@ -338,82 +337,22 @@ class TestHostAndBuildGates:
         ).stdout.strip()
 
     def test_idle_listener_not_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a Runner.Listener sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "NO"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("4242|/opt/actions-runner/bin/Runner.Listener run") == "NO"
 
     def test_runner_worker_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a Runner.Worker sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "YES"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("5151|/opt/actions-runner/bin/Runner.Worker spawn") == "YES"
 
     def test_deploy_backend_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a deploy-backend.sh sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "YES"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("9001|bash deploy-backend.sh") == "YES"
 
     def test_deploy_frontend_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a deploy-frontend.sh sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "YES"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("9002|bash deploy-frontend.sh") == "YES"
 
     def test_deploy_staging_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a deploy-staging sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "YES"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("9003|bash deploy-staging workflow") == "YES"
 
     def test_docker_build_active(self):
-        proc = subprocess.Popen(
-            ["bash", "-c", "exec -a 'docker build' sleep 300"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            time.sleep(0.2)
-            assert self._detect_active() == "YES"
-        finally:
-            proc.send_signal(signal.SIGTERM)
-            proc.wait(timeout=5)
+        assert self._detect_active("9004|docker build -t karzar-app:staging .") == "YES"
 
 
 class TestDockerSafety:
@@ -446,7 +385,7 @@ class TestDryRunDestructive:
         root = tmp_path / "opt/karzar/Karzar"
         backups = root / "backups"
         backups.mkdir(parents=True)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         _touch_db(backups, now)
         _touch_db(backups, now - timedelta(days=1))
 
@@ -555,7 +494,7 @@ class TestDryRunDefault:
 
 class TestRetentionUploadPlan:
     def test_overlapping_slots_no_duplicate_delete(self, tmp_path: Path):
-        day = datetime(2026, 9, 10, 3, 30, 0, tzinfo=timezone.utc)
+        day = datetime(2026, 9, 10, 3, 30, 0, tzinfo=UTC)
         _touch_upload(tmp_path, day)
         _touch_upload(tmp_path, day + timedelta(hours=1))
         files = [classify_file(p) for p in tmp_path.iterdir()]

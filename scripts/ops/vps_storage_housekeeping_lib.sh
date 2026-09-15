@@ -123,6 +123,28 @@ vsh_active_build_or_deploy() {
     return 1
   fi
 
+  if [[ -n "${KARZAR_HOUSEKEEPING_TEST_PROCESS_LINES:-}" ]]; then
+    local line pid cmd regex
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      pid="${line%%|*}"
+      cmd="${line#*|}"
+      for regex in \
+        'Runner\.Worker' \
+        'docker[[:space:]]+build([[:space:]]|$)' \
+        'docker[[:space:]]+buildx' \
+        'buildctl[[:space:]]' \
+        'deploy-backend\.sh' \
+        'deploy-frontend\.sh' \
+        'deploy-staging'; do
+        if [[ "$cmd" =~ $regex ]]; then
+          return 0
+        fi
+      done
+    done <<<"${KARZAR_HOUSEKEEPING_TEST_PROCESS_LINES}"
+    return 1
+  fi
+
   # Runner.Listener idle daemon must not block housekeeping.
   if vsh_process_cmdline_matches 'Runner\.Worker'; then
     return 0
