@@ -375,14 +375,12 @@ async def admin_manual_register(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
         )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
     try:
         shipment = await manual_register(
             db,
@@ -414,14 +412,12 @@ async def admin_manual_handoff(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
         )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
     try:
         shipment = await manual_handoff(
             db,
@@ -447,14 +443,12 @@ async def admin_manual_deliver(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_super_admin),
 ):
-    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
+    try:
+        order, shipment = await lock_order_and_shipment(
+            db, order_id=order_id, shipment_id=shipment_id
         )
+    except ShipmentStateError as exc:
+        _raise_logistics(exc)
     try:
         shipment = await manual_deliver(
             db,

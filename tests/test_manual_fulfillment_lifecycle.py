@@ -3,7 +3,7 @@
 import asyncio
 
 import pytest
-from app.db.models.commerce import Order, OrderStatus
+from app.db.models.commerce import Order, OrderStatus, PaymentStatus
 from app.main import app
 from app.services.logistics.exceptions import ShipmentStateError
 from app.services.logistics.manual_fulfillment import (
@@ -301,6 +301,71 @@ def test_valid_duplicate_deliver_noop(
     order_status, shipment_status = asyncio.run(flow())
     assert order_status == OrderStatus.DELIVERED.value
     assert shipment_status == "delivered"
+
+
+def test_handoff_rejected_when_order_cancelled(
+    override_database, super_admin_headers, purchase_customer_headers, monkeypatch
+):
+    monkeypatch.setattr("app.core.config.settings.POSTEX_ENABLED", False)
+    client = TestClient(app)
+    order_id = _checkout_tipax(client, super_admin_headers, purchase_customer_headers)
+
+    async def flow():
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            order.status = OrderStatus.CANCELLED.value
+            order.payment_status = PaymentStatus.PAID.value
+            shipment = await ensure_shipment_for_paid_order(session, order)
+            await manual_register(session, order=order, shipment=shipment, tracking_code="1234567890123")
+            status_before = shipment.status
+            try:
+                await manual_handoff(session, order=order, shipment=shipment)
+                raise AssertionError("expected error")
+            except ShipmentStateError as exc:
+                assert exc.error_code == "SHIPMENT_STATE_INVALID"
+            await session.refresh(shipment)
+            assert shipment.status == status_before
+
+    asyncio.run(flow())
+
+
+def test_deliver_rejected_when_order_not_shipped(
+    override_database, super_admin_headers, purchase_customer_headers, monkeypatch
+):
+    monkeypatch.setattr("app.core.config.settings.POSTEX_ENABLED", False)
+    client = TestClient(app)
+    order_id = _checkout_tipax(client, super_admin_headers, purchase_customer_headers)
+
+    async def flow():
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            order.status = OrderStatus.PROCESSING.value
+            shipment = await ensure_shipment_for_paid_order(session, order)
+            await manual_register(session, order=order, shipment=shipment, tracking_code="1234567890123")
+            await manual_handoff(session, order=order, shipment=shipment)
+            order.status = OrderStatus.PROCESSING.value
+            shipment.status = "picked_up"
+            await session.flush()
+            try:
+                await manual_deliver(session, order=order, shipment=shipment)
+                raise AssertionError("expected error")
+            except ShipmentStateError:
+                pass
+            assert shipment.status == "picked_up"
+
+    asyncio.run(flow())
+
+
+def test_lock_order_and_shipment_orders_order_before_shipment():
+    import inspect
+
+    from app.services.logistics.manual_portal_guard import lock_order_and_shipment
+
+    source = inspect.getsource(lock_order_and_shipment)
+    order_pos = source.find("Order")
+    shipment_pos = source.find("Shipment")
+    assert order_pos >= 0 and shipment_pos > order_pos
+    assert "with_for_update" in source
 
 
 def test_duplicate_register_no_extra_event(
