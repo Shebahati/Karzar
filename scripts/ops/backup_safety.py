@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import gzip
-import os
 import re
 import sys
+import zlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -49,6 +49,20 @@ def list_canonical_db_backups(backup_dir: Path) -> list[CanonicalDbBackup]:
             continue
         out.append(CanonicalDbBackup(entry.resolve(), stamp))
     return out
+
+
+_GZIP_READ_CHUNK = 1024 * 1024
+
+
+def validate_gzip_integrity(path: Path) -> bool:
+    """Stream the entire gzip payload to EOF without loading it all into RAM."""
+    try:
+        with gzip.open(path, "rb") as fh:
+            while fh.read(_GZIP_READ_CHUNK):
+                pass
+    except (OSError, gzip.BadGzipFile, EOFError, zlib.error):
+        return False
+    return True
 
 
 def evaluate_backup_safety_gate(
@@ -95,10 +109,7 @@ def evaluate_backup_safety_gate(
     if size <= 0:
         return False, "latest_zero_bytes"
 
-    try:
-        with gzip.open(latest_path, "rb") as fh:
-            fh.read(1)
-    except (OSError, gzip.BadGzipFile):
+    if not validate_gzip_integrity(latest_path):
         return False, "gzip_integrity_failed"
 
     return True, "ok"

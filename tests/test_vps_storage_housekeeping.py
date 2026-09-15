@@ -18,7 +18,11 @@ from scripts.ops.backup_retention import (
     plan_directory,
     plan_upload_retention,
 )
-from scripts.ops.backup_safety import evaluate_backup_safety_gate, parse_canonical_db_stamp
+from scripts.ops.backup_safety import (
+    evaluate_backup_safety_gate,
+    parse_canonical_db_stamp,
+    validate_gzip_integrity,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HOUSEKEEPING_SH = REPO_ROOT / "scripts/ops/vps_storage_housekeeping.sh"
@@ -210,6 +214,68 @@ class TestBackupSafetyPython:
         dt = parse_canonical_db_stamp("karzar_20260915_031501.sql.gz")
         assert dt == datetime(2026, 9, 15, 3, 15, 1, tzinfo=UTC)
         assert parse_canonical_db_stamp("karzar_prod_baseline_20260728_151651.sql.gz") is None
+
+    def test_valid_complete_gzip_passes(self, tmp_path: Path):
+        path = _touch_db(tmp_path, datetime(2026, 9, 15, 3, 15, 1, tzinfo=UTC))
+        assert validate_gzip_integrity(path) is True
+        _touch_db(tmp_path, datetime(2026, 9, 14, 3, 15, 1, tzinfo=UTC))
+        ok, reason = evaluate_backup_safety_gate(
+            tmp_path,
+            now=datetime(2026, 9, 15, 12, 0, 0, tzinfo=UTC),
+        )
+        assert ok is True
+        assert reason == "ok"
+
+    def test_invalid_gzip_header_fails(self, tmp_path: Path):
+        path = tmp_path / "karzar_20260915_031501.sql.gz"
+        path.write_bytes(b"not-a-gzip-stream")
+        assert validate_gzip_integrity(path) is False
+
+    def test_truncated_gzip_fails_full_stream_while_read1_succeeds(self, tmp_path: Path):
+        stamp = datetime(2026, 9, 15, 3, 15, 1, tzinfo=UTC)
+        latest = tmp_path / f"karzar_{stamp.strftime('%Y%m%d_%H%M%S')}.sql.gz"
+        payload = b"-- sql dump\n" + (b"X" * (256 * 1024))
+        with gzip.open(latest, "wb") as fh:
+            fh.write(payload)
+        _touch_db(tmp_path, datetime(2026, 9, 14, 3, 15, 1, tzinfo=UTC))
+
+        raw = latest.read_bytes()
+        truncated = raw[:-32]
+        assert len(truncated) < len(raw)
+        latest.write_bytes(truncated)
+
+        with gzip.open(latest, "rb") as fh:
+            assert fh.read(1) != b""
+
+        assert validate_gzip_integrity(latest) is False
+        ok, reason = evaluate_backup_safety_gate(
+            tmp_path,
+            now=datetime(2026, 9, 15, 12, 0, 0, tzinfo=UTC),
+        )
+        assert ok is False
+        assert reason == "gzip_integrity_failed"
+
+    def test_corrupt_gzip_trailer_fails_full_stream(self, tmp_path: Path):
+        stamp = datetime(2026, 9, 15, 3, 15, 1, tzinfo=UTC)
+        latest = tmp_path / f"karzar_{stamp.strftime('%Y%m%d_%H%M%S')}.sql.gz"
+        with gzip.open(latest, "wb") as fh:
+            fh.write(b"-- trailer corruption regression\n" + (b"Y" * 8192))
+        _touch_db(tmp_path, datetime(2026, 9, 14, 3, 15, 1, tzinfo=UTC))
+
+        corrupted = bytearray(latest.read_bytes())
+        corrupted[-8:] = b"\xff" * 8
+        latest.write_bytes(corrupted)
+
+        with gzip.open(latest, "rb") as fh:
+            assert fh.read(1) != b""
+
+        assert validate_gzip_integrity(latest) is False
+        ok, reason = evaluate_backup_safety_gate(
+            tmp_path,
+            now=datetime(2026, 9, 15, 12, 0, 0, tzinfo=UTC),
+        )
+        assert ok is False
+        assert reason == "gzip_integrity_failed"
 
 
 class TestPathContainmentDeletes:
