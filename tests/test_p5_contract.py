@@ -62,6 +62,7 @@ class TestApiContractShapes:
                     "postal_code": "1234567890",
                     "address_line": "خیابان قرارداد",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=headers,
         )

@@ -82,7 +82,18 @@ export function receiverFulfillmentDisplay(
   };
 }
 
-export function shipmentActionAvailability(shipment: AdminShipment) {
+const MANUAL_PROVIDERS = new Set(["tipax", "chapar", "local_delivery"]);
+
+export function isManualFulfillmentProvider(provider: string | null | undefined): boolean {
+  return MANUAL_PROVIDERS.has((provider || "").trim());
+}
+
+export function shipmentActionAvailability(
+  shipment: AdminShipment,
+  orderStatus?: string | null,
+) {
+  const order = (orderStatus || "").trim().toLowerCase();
+  const manual = isManualFulfillmentProvider(shipment.provider);
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
   const receiverDue = shipment.shipping_payment_mode === "receiver_due";
@@ -126,8 +137,18 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     };
   }
 
+  const handoffShipmentOk = shipment.status === "booked";
+  const deliverShipmentOk =
+    shipment.status === "picked_up" ||
+    shipment.status === "in_transit" ||
+    shipment.status === "out_for_delivery";
+
   return {
-    canSetPackage: preCreate && !booked,
+    canManualRegister: manual && shipment.status === "awaiting_packaging",
+    canManualHandoff:
+      manual && handoffShipmentOk && order === "processing",
+    canManualDeliver: manual && deliverShipmentOk && order === "shipped",
+    canSetPackage: !manual && preCreate && !booked,
     canPackedQuote:
       receiverDue &&
       packaged &&
@@ -159,9 +180,6 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
       shipment.status !== "returned" &&
       shipment.status !== "cancellation_pending",
     canRetrySafe: shipment.status === "error" && shipment.last_error_code !== "CREATION_UNCERTAIN",
-    canManualRegister: false,
-    canManualHandoff: false,
-    canManualDeliver: false,
     canManualCorrect: false,
     canManualAbandon: false,
   };

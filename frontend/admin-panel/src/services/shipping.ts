@@ -167,6 +167,39 @@ export const shippingAdminService = {
     return data;
   },
 
+  async manualRegister(
+    orderId: number,
+    shipmentId: number,
+    body: {
+      tracking_code?: string | null;
+      provider_reference?: string | null;
+      note?: string | null;
+      courier_name?: string | null;
+      courier_phone?: string | null;
+      mission_reference?: string | null;
+    },
+  ): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual/register`,
+      body,
+    );
+    return data;
+  },
+
+  async manualHandoff(orderId: number, shipmentId: number): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual/handoff`,
+    );
+    return data;
+  },
+
+  async manualDeliver(orderId: number, shipmentId: number): Promise<AdminShipment> {
+    const { data } = await apiClient.post<AdminShipment>(
+      `/orders/${orderId}/shipments/${shipmentId}/manual/deliver`,
+    );
+    return data;
+  },
+
   async downloadLabel(orderId: number, shipmentId: number): Promise<void> {
     const { data } = await apiClient.get<Blob>(
       `/orders/${orderId}/shipments/${shipmentId}/label`,

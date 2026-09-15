@@ -161,6 +161,7 @@ def test_purchase_checkout_rejects_null_price(monkeypatch):
                 "postal_code": "1234567890",
                 "address_line": "خیابان تست پلاک ۱۰ واحد ۱",
             },
+            "shipping_method_code": "tipax_standard",
         }
     )
     user = SimpleNamespace(id=1, role=UserRole.B2C_CUSTOMER, company_name=None)
@@ -197,6 +198,7 @@ def test_paid_cancel_blocked_until_refund(
                 "postal_code": "1234567890",
                 "address_line": "خیابان تست پلاک ۱۰ واحد ۱",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=headers,
     )

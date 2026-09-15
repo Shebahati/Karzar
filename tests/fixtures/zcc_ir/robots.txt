@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-json/
+Disallow: /my-account/
+Disallow: /wishlist/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /search/
+Disallow: /*?*
+Disallow: /?*
+Allow: /wp-admin/admin-ajax.php
+
+Sitemap: https://zcc.ir/sitemap_index.xml

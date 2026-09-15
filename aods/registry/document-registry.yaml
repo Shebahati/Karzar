@@ -185,6 +185,15 @@ documents:
     notes: >-
       Plan-only INSIZE logistics pilot specification; no APPLY by itself.
 
+  - id: ZCC-IR-PHASE2-IMPORT-PLAN
+    path: docs/zcc_ir/PHASE2_IMPORT_PLAN.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+    notes: Read-only zcc.ir Phase 2 import plan operator guide (no APPLY).
+
   - id: DEVELOPMENT
     path: docs/DEVELOPMENT.md
     class: POLICY
@@ -220,6 +229,14 @@ documents:
   - id: OPERATIONS
     path: docs/OPERATIONS.md
     class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: true
+
+  - id: STORAGE-HOUSEKEEPING
+    path: docs/operations/STORAGE_HOUSEKEEPING.md
+    class: REFERENCE
     rank: 6
     status: current
     owner_role: R-DOC-ARCH

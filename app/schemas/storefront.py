@@ -140,7 +140,7 @@ class ShippingAddress(BaseModel):
     city: str = Field(..., min_length=2)
     postal_code: str
     address_line: str = Field(..., min_length=10)
-    # Provider-independent destination code required for Postex rate calculation.
+    # Legacy Postex city code — optional for Tipax/Chapar/Tehran Express checkout.
     location_code: int | None = Field(None, ge=1)
 
     @field_validator("postal_code")
@@ -164,6 +164,8 @@ class CheckoutRequest(BaseModel):
     shipping: ShippingAddress | None = None
     company_name: str | None = Field(None, max_length=120)
     shipping_quote_token: str | None = Field(None, max_length=128)
+    # Server resolves provider/service/payment from this code only.
+    shipping_method_code: str | None = Field(None, max_length=64)
 
 
 class CheckoutResponse(BaseModel):

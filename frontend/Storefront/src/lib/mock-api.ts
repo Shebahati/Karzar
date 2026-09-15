@@ -77,6 +77,8 @@ type MockOrder = {
   customer_name: string;
   postal_tracking_code?: string | null;
   delivery_eta?: string | null;
+  shipping_method_code?: string | null;
+  shipping_provider?: string | null;
   items: Array<{ product_id: number; quantity: number; unit_price: string | null }>;
 };
 
@@ -395,6 +397,16 @@ export const mockApi = {
     const status = isPurchase ? ("pending_payment" as const) : ("inquiry_review" as const);
     const statusLabel = ORDER_STATUS_LABELS[status];
 
+    const methodCode = payload.shipping_method_code ?? null;
+    const provider =
+      methodCode === "tehran_express"
+        ? "local_delivery"
+        : methodCode === "chapar_standard"
+          ? "chapar"
+          : methodCode === "tipax_standard"
+            ? "tipax"
+            : null;
+
     mockOrders.set(id, {
       order_id: id,
       tracking_code: tracking,
@@ -405,6 +417,8 @@ export const mockApi = {
       created_at: new Date().toISOString(),
       customer_phone: payload.customer.phone,
       customer_name: payload.customer.full_name,
+      shipping_method_code: methodCode,
+      shipping_provider: provider,
       items: payload.items.map((it) => {
         const p = PRODUCTS.find((x) => x.id === it.product_id);
         return {

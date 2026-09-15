@@ -1,0 +1,11 @@
+# Optional file log (if KARZAR_HOUSEKEEPING_LOG_FILE is enabled in a future revision).
+# Primary logging is journald via systemd (journalctl -u karzar-storage-housekeeping.service).
+/var/log/karzar/storage-housekeeping.log {
+    weekly
+    rotate 8
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root adm
+}

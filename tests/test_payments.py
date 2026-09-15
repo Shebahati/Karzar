@@ -17,7 +17,7 @@ from sqlalchemy import update
 
 from tests.conftest import TestingSessionLocal, customer_auth_headers
 
-pytestmark = pytest.mark.usefixtures("override_database")
+pytestmark = pytest.mark.usefixtures("override_database", "enable_storefront_shipping_methods")
 
 client = TestClient(app)
 
@@ -50,6 +50,7 @@ def _checkout_order(product_id: int, headers: dict) -> int:
                 "postal_code": "1234567890",
                 "address_line": "خیابان آزادی، پلاک ۱۰",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=headers,
     )
@@ -201,6 +202,7 @@ def test_guest_purchase_checkout_rejected(valid_product_data, super_admin_header
                 "postal_code": "1234567890",
                 "address_line": "خیابان آزادی، پلاک ۱۰",
             },
+            "shipping_method_code": "tipax_standard",
         },
     )
     assert checkout.status_code == 403

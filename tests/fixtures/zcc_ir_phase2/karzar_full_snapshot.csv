@@ -1,0 +1,6 @@
+id,sku,brand_id,brand,category_id,slug,name,base_price,is_active,is_available,deleted_at,primary_image_url,image_count
+1,ZCC-DCMT11T312-XM-YBC203,8,ZCC.CT | زد سی‌سی,33,dcmt11t312,الماس DCMT,1178000,true,true,,https://example/karzar/dcmt.jpg,1
+2,ZCC-PWLNR2525M06,8,ZCC.CT | زد سی‌سی,27,pwlnr2525m06,هلدر,500000,true,true,,https://example/karzar/holder.jpg,1
+3,SANOU-K11-315,9,SAN OU,116,k11-315,چاک SAN,900000,true,true,,https://example/karzar/san.jpg,1
+4,SANOU-INACTIVE-001,9,SAN OU,116,inactive-san,غیرفعال,100000,false,false,,https://example/karzar/san-inactive.jpg,1
+5,SANOU-INACTIVE-002,9,SAN OU,116,inactive-san-2,غیرفعال ۲,100000,false,false,,,0
