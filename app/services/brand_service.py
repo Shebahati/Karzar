@@ -34,15 +34,14 @@ class BrandService:
         storefront_product_counts: bool = False,
     ) -> list[BrandResponse]:
         brands = await crud_brand.list_brands(db)
-        responses: list[BrandResponse] = []
-        for brand in brands:
-            count = await crud_brand.count_products_for_brand(
-                db,
-                brand.id,
-                storefront_public_only=storefront_product_counts,
-            )
-            responses.append(brand_to_response(brand, count))
-        return responses
+        counts = await crud_brand.count_products_by_brand(
+            db,
+            storefront_public_only=storefront_product_counts,
+        )
+        return [
+            brand_to_response(brand, counts.get(brand.id, 0))
+            for brand in brands
+        ]
 
     @staticmethod
     async def create_brand(db: AsyncSession, payload: BrandCreate) -> BrandResponse:
