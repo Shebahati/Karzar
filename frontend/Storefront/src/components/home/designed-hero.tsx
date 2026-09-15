@@ -40,9 +40,8 @@ import {
   orbsFromPublishedDock,
   orbsFromRoots,
 } from "@/config/hero-orbs";
-import { SafeImage } from "@/components/ui/safe-image";
+import { HeroBackgroundImage } from "@/lib/hero-background-image";
 import { composeHeroForMobile, type MobileComposePreset } from "@/lib/mobile-hero-compose";
-import { HERO_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroConfig, DesignedHeroPack, DesignedHeroSlide } from "@/types/hero-design";
@@ -156,22 +155,17 @@ function SlideCanvas({
       {config.background.mode === "color" || !bgSrc ? (
         <div className="absolute inset-0" style={{ background: config.background.color }} />
       ) : (
-        <picture className="absolute inset-0 block">
-          {config.background.mobileImageUrl ? (
-            <source media="(max-width: 767px)" srcSet={config.background.mobileImageUrl} />
-          ) : null}
-          <SafeImage
-            src={bgSrc}
-            alt=""
-            fill
-            sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
-            className="object-cover"
-            style={{ objectPosition: config.background.focal || "center" }}
-            fallback={<div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />}
-            {...(priority ? lcpImageProps() : { loading: "lazy" as const })}
-            quality={HERO_IMAGE_QUALITY}
-          />
-        </picture>
+        <HeroBackgroundImage
+          desktopSrc={bgSrc}
+          mobileSrc={config.background.mobileImageUrl}
+          focal={config.background.focal || "center"}
+          priority={priority}
+          sizes={isMobile ? "100vw" : "(max-width: 1024px) 100vw, 100vw"}
+          className="object-cover"
+          fallback={
+            <div className="absolute inset-0" style={{ backgroundColor: HERO_SHEET_UNDERLAY }} />
+          }
+        />
       )}
 
       <div
