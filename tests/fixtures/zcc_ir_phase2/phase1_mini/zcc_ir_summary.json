@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-15T10:39:06Z",
+  "total_products": 3,
+  "karzar_snapshot": {
+    "categories": [
+      {
+        "id": 33,
+        "name": "\u0627\u06cc\u0646\u0633\u0631\u062a \u062a\u0631\u0627\u0634 CNC",
+        "parent_id": null
+      },
+      {
+        "id": 27,
+        "name": "\u0631\u0648 \u062a\u0631\u0627\u0634",
+        "parent_id": null
+      },
+      {
+        "id": 116,
+        "name": "\u0633\u0647 \u0646\u0638\u0627\u0645 \u0648 \u0644\u0648\u0627\u0632\u0645 \u062c\u0627\u0646\u0628\u06cc",
+        "parent_id": null
+      }
+    ]
+  }
+}
