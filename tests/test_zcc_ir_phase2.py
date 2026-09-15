@@ -15,7 +15,8 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.snapshot import load_snapshot_csv  # noqa: E402
-from zcc_ir_import_plan import FORBIDDEN, main as cli_main  # noqa: E402
+from zcc_ir_import_plan import FORBIDDEN  # noqa: E402
+from zcc_ir_import_plan import main as cli_main  # noqa: E402
 from zcc_ir_phase2.manifest import (  # noqa: E402
     ALLOWED_OPERATIONS,
     FORBIDDEN_OPERATIONS,
