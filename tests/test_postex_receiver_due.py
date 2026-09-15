@@ -305,6 +305,7 @@ def test_shipping_status_exposes_receiver_due_contract(fake_provider, override_d
         "shipping_payment_mode": "receiver_due",
         "checkout_quote_required": False,
         "booking_enabled": False,
+        "fulfillment_mode": "api",
     }
 
 

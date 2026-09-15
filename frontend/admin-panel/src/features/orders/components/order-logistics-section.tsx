@@ -10,6 +10,7 @@ import { StepUpDialog } from "@/components/step-up-dialog";
 import {
   canSubmitFinalPackageHazards,
   receiverFulfillmentDisplay,
+  manualPortalStatusLabel,
   shipmentActionAvailability,
   type AdminShipment,
   type HazardChoice,
@@ -37,6 +38,163 @@ const EMPTY_PACKAGE_FORM: PackageFormState = {
   is_fragile: null,
   is_liquid: null,
 };
+
+function ManualPortalWorkflow({
+  shipment,
+  orderId,
+  orderStatus,
+  pending,
+  onRegister,
+  onHandoff,
+  onDeliver,
+  onRequestCorrect,
+  actions,
+}: {
+  shipment: AdminShipment;
+  orderId: number;
+  orderStatus: string;
+  pending: boolean;
+  onRegister: (body: {
+    tracking_code: string;
+    provider_parcel_no?: string;
+    carrier_code?: string;
+    service_code?: string;
+    internal_note?: string;
+  }) => Promise<void>;
+  onHandoff: () => Promise<void>;
+  onDeliver: () => Promise<void>;
+  onRequestCorrect: (body: { tracking_code: string }) => void;
+  actions: ReturnType<typeof shipmentActionAvailability>;
+}) {
+  const [tracking, setTracking] = useState("");
+  const [parcelNo, setParcelNo] = useState("");
+  const [carrier, setCarrier] = useState("");
+  const [service, setService] = useState("");
+  const [note, setNote] = useState("");
+  const statusHint = manualPortalStatusLabel(shipment);
+
+  return (
+    <div className="grid gap-3 text-sm">
+      {statusHint && (
+        <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 font-medium">
+          {statusHint}
+        </p>
+      )}
+      <p className="text-xs text-muted-foreground">
+        پس از ثبت مرسوله در پنل پستکس، کد رهگیری را اینجا وارد کنید. هیچ تماس API با پستکس انجام
+        نمی‌شود.
+      </p>
+      {actions.canManualRegister && (
+        <div className="grid gap-2 rounded-lg border border-dashed p-3">
+          <label className="grid gap-1 text-xs">
+            کد رهگیری (الزامی)
+            <input
+              className="rounded-md border px-2 py-1 tnum"
+              value={tracking}
+              onChange={(e) => setTracking(e.target.value)}
+              minLength={10}
+            />
+          </label>
+          <label className="grid gap-1 text-xs">
+            شماره مرسوله پستکس (اختیاری)
+            <input
+              className="rounded-md border px-2 py-1 tnum"
+              value={parcelNo}
+              onChange={(e) => setParcelNo(e.target.value)}
+            />
+          </label>
+          <label className="grid gap-1 text-xs">
+            حامل (اختیاری)
+            <input
+              className="rounded-md border px-2 py-1"
+              value={carrier}
+              onChange={(e) => setCarrier(e.target.value)}
+            />
+          </label>
+          <label className="grid gap-1 text-xs">
+            سرویس (اختیاری)
+            <input
+              className="rounded-md border px-2 py-1"
+              value={service}
+              onChange={(e) => setService(e.target.value)}
+            />
+          </label>
+          <label className="grid gap-1 text-xs">
+            یادداشت داخلی (اختیاری)
+            <textarea
+              className="rounded-md border px-2 py-1"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={2}
+            />
+          </label>
+          <Button
+            size="sm"
+            disabled={pending || tracking.trim().length < 10}
+            onClick={() =>
+              void onRegister({
+                tracking_code: tracking.trim(),
+                provider_parcel_no: parcelNo.trim() || undefined,
+                carrier_code: carrier.trim() || undefined,
+                service_code: service.trim() || undefined,
+                internal_note: note.trim() || undefined,
+              })
+            }
+          >
+            ثبت اطلاعات مرسوله پستکس
+          </Button>
+        </div>
+      )}
+      {actions.canManualHandoff && orderStatus === "processing" && (
+        <Button size="sm" variant="secondary" disabled={pending} onClick={() => void onHandoff()}>
+          تأیید تحویل فیزیکی به پست
+        </Button>
+      )}
+      {actions.canManualHandoff && orderStatus !== "processing" && (
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          برای تحویل فیزیکی به پست، ابتدا از بالای صفحه سفارش «شروع پردازش» را بزنید.
+        </p>
+      )}
+      {actions.canManualDeliver && (
+        <Button size="sm" variant="secondary" disabled={pending} onClick={() => void onDeliver()}>
+          تأیید تحویل به مشتری
+        </Button>
+      )}
+      {actions.canManualCorrect && (
+        <div className="grid gap-2 rounded-lg border border-dashed p-3">
+          <p className="text-xs text-muted-foreground">اصلاح ثبت قبل از تحویل فیزیکی به پست</p>
+          <label className="grid gap-1 text-xs">
+            کد رهگیری
+            <input
+              className="rounded-md border px-2 py-1 tnum"
+              defaultValue={shipment.tracking_code ?? ""}
+              minLength={10}
+              id={`mp-correct-${orderId}-${shipment.internal_id}`}
+            />
+          </label>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pending}
+            onClick={() => {
+              const input = document.getElementById(
+                `mp-correct-${orderId}-${shipment.internal_id}`,
+              ) as HTMLInputElement | null;
+              const code = input?.value.trim() ?? "";
+              if (code.length < 10) {
+                toast.error("کد رهگیری باید حداقل ۱۰ رقم باشد.");
+                return;
+              }
+              void onRequestCorrect({ tracking_code: code });
+            }}
+          >
+            ذخیره اصلاح (نیاز به PIN)
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ReceiverWorkflow({ shipment }: { shipment: AdminShipment }) {
   const packaged =
@@ -163,6 +321,10 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
     enabled: Boolean(order.shipping_provider || (order.shipments && order.shipments.length)),
   });
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [correctRequest, setCorrectRequest] = useState<{
+    shipmentId: number;
+    body: { tracking_code: string };
+  } | null>(null);
   const [pending, setPending] = useState(false);
   const [packageForms, setPackageForms] = useState<Record<number, PackageFormState>>({});
   const [quoteOptions, setQuoteOptions] = useState<Record<number, PackedQuoteOption[]>>({});
@@ -234,12 +396,14 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
 
         {shipments.map((shipment) => {
           const actions = shipmentActionAvailability(shipment);
+          const manualPortal = shipment.fulfillment_mode === "manual_portal";
           const options = quoteOptions[shipment.internal_id] ?? [];
           const form = formFor(shipment.internal_id);
+          const portalLabel = manualPortalStatusLabel(shipment);
           return (
             <div key={shipment.internal_id} className="space-y-3 rounded-xl border border-border/60 p-4">
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="font-bold">{shipment.status_label}</span>
+                <span className="font-bold">{portalLabel ?? shipment.status_label}</span>
                 {shipment.shipping_payment_mode === "receiver_due" && (
                   <span className="rounded-md bg-secondary px-2 py-0.5 text-xs">پس‌کرایه</span>
                 )}
@@ -250,8 +414,38 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                   <span className="tnum">رهگیری {toPersianDigits(shipment.tracking_code)}</span>
                 )}
               </div>
-              {shipment.shipping_payment_mode === "receiver_due" && <ReceiverWorkflow shipment={shipment} />}
-              {shipment.package && (
+              {manualPortal && shipment.shipping_payment_mode === "receiver_due" ? (
+                <ManualPortalWorkflow
+                  shipment={shipment}
+                  orderId={order.id}
+                  orderStatus={order.status}
+                  pending={pending}
+                  actions={actions}
+                  onRegister={async (body) =>
+                    run("اطلاعات مرسوله ثبت شد", () =>
+                      shippingAdminService.manualPortalRegister(order.id, shipment.internal_id, body),
+                    )
+                  }
+                  onHandoff={async () =>
+                    run("تحویل به پست ثبت شد", () =>
+                      shippingAdminService.manualPortalHandoff(order.id, shipment.internal_id),
+                    )
+                  }
+                  onDeliver={async () =>
+                    run("تحویل مشتری ثبت شد", () =>
+                      shippingAdminService.manualPortalDeliver(order.id, shipment.internal_id),
+                    )
+                  }
+                  onRequestCorrect={(body) =>
+                    setCorrectRequest({ shipmentId: shipment.internal_id, body })
+                  }
+                />
+              ) : (
+                shipment.shipping_payment_mode === "receiver_due" && (
+                  <ReceiverWorkflow shipment={shipment} />
+                )
+              )}
+              {!manualPortal && shipment.package && (
                 <p className="text-xs text-muted-foreground tnum">
                   بسته {toPersianDigits(shipment.package.length_cm)}×{toPersianDigits(shipment.package.width_cm)}×
                   {toPersianDigits(shipment.package.height_cm)} cm / {toPersianDigits(shipment.package.weight_grams)}{" "}
@@ -479,6 +673,36 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
             void queryClient.invalidateQueries({ queryKey: ["order-shipments", order.id] });
           } catch (err) {
             toast.error(err instanceof ApiError ? err.message : "انصراف ناموفق بود.");
+          } finally {
+            setPending(false);
+          }
+        }}
+      />
+
+      <StepUpDialog
+        open={correctRequest != null}
+        onOpenChange={(open) => {
+          if (!open) setCorrectRequest(null);
+        }}
+        title="اصلاح ثبت دستی مرسوله"
+        description="اصلاح کد رهگیری قبل از تحویل فیزیکی به پست نیاز به تأیید PIN دارد."
+        actionPending={pending}
+        onVerified={async (token) => {
+          if (correctRequest == null) return;
+          setPending(true);
+          try {
+            await shippingAdminService.manualPortalCorrect(
+              order.id,
+              correctRequest.shipmentId,
+              correctRequest.body,
+              token,
+            );
+            toast.success("اصلاح ثبت ذخیره شد.");
+            setCorrectRequest(null);
+            void queryClient.invalidateQueries({ queryKey: ["order-shipments", order.id] });
+            void queryClient.invalidateQueries({ queryKey: ordersKeys.detail(order.id) });
+          } catch (err) {
+            toast.error(err instanceof ApiError ? err.message : "اصلاح ثبت ناموفق بود.");
           } finally {
             setPending(false);
           }

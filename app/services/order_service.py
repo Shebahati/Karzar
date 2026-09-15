@@ -13,6 +13,11 @@ from app.services.stock_ledger_service import record_return_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
+
+class ManualPortalOrderBypassError(ValueError):
+    """Generic order status transition blocked by manual-portal shipment workflow."""
+
+
 STATUS_LABELS_FA: dict[str, str] = {
     OrderStatus.PENDING_PAYMENT.value: "در انتظار پرداخت",
     OrderStatus.PAID.value: "پرداخت شده",
@@ -137,6 +142,7 @@ async def transition_order_status(
     delivery_eta: datetime | None = None,
     actor: str = "admin",
     event_description: str | None = None,
+    allow_manual_portal_fulfillment: bool = False,
 ) -> Order:
     try:
         target = OrderStatus(target_status).value
@@ -149,6 +155,19 @@ async def transition_order_status(
 
     if not can_transition(current, target):
         raise ValueError(f"Cannot transition order from '{current}' to '{target}'")
+
+    if target in {OrderStatus.SHIPPED.value, OrderStatus.DELIVERED.value}:
+        from app.services.logistics.manual_portal_guard import (
+            order_has_active_manual_portal_shipment,
+        )
+
+        if (
+            not allow_manual_portal_fulfillment
+            and await order_has_active_manual_portal_shipment(db, order.id)
+        ):
+            raise ManualPortalOrderBypassError(
+                "برای سفارش با ثبت دستی پستکس، ارسال/تحویل فقط از مسیر لجستیک دستی مجاز است."
+            )
 
     if target == OrderStatus.SHIPPED.value:
         tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()

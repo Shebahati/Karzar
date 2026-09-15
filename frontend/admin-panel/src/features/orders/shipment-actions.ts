@@ -41,6 +41,8 @@ export interface AdminShipment {
   shipped_at?: string | null;
   delivered_at?: string | null;
   events: AdminShipmentEvent[];
+  fulfillment_mode?: string | null;
+  registration_source?: string | null;
 }
 
 export type HazardChoice = null | boolean;
@@ -50,6 +52,16 @@ export function canSubmitFinalPackageHazards(
   isLiquid: HazardChoice,
 ): boolean {
   return isFragile !== null && isLiquid !== null;
+}
+
+export function manualPortalStatusLabel(shipment: AdminShipment): string | null {
+  if (shipment.fulfillment_mode !== "manual_portal") {
+    return null;
+  }
+  if (shipment.status === "awaiting_packaging" && !shipment.tracking_code) {
+    return "در انتظار ثبت دستی در پنل پستکس";
+  }
+  return null;
 }
 
 /** Operational carrier/service/quote for receiver_due live on Shipment, not Order checkout snapshot. */
@@ -74,6 +86,10 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
   const receiverDue = shipment.shipping_payment_mode === "receiver_due";
+  const manualPortal =
+    shipment.fulfillment_mode === "manual_portal" ||
+    shipment.registration_source === "manual_portal";
+  const manualRegistered = shipment.registration_source === "manual_portal" || booked;
   const packaged =
     (shipment.package?.length_cm ?? 0) > 0 &&
     (shipment.package?.weight_grams ?? 0) > 0 &&
@@ -84,6 +100,32 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
     shipment.status === "awaiting_packaging" ||
     shipment.status === "ready_to_book" ||
     shipment.status === "freight_required";
+
+  if (manualPortal && receiverDue) {
+    return {
+      canSetPackage: false,
+      canPackedQuote: false,
+      canSelectService: false,
+      canScheduleBooking: false,
+      canBook: false,
+      canReady: false,
+      canLabel: false,
+      canRefresh: false,
+      canEdit: false,
+      canCancel: false,
+      canRetrySafe: false,
+      canManualRegister:
+        shipment.status === "awaiting_packaging" && !shipment.tracking_code && !manualRegistered,
+      canManualHandoff: manualRegistered && shipment.status === "booked",
+      canManualDeliver: shipment.status === "picked_up",
+      canManualCorrect:
+        manualRegistered &&
+        shipment.status === "booked" &&
+        shipment.registration_source === "manual_portal",
+      canManualAbandon: false,
+    };
+  }
+
   return {
     canSetPackage: preCreate && !booked,
     canPackedQuote:
@@ -117,5 +159,10 @@ export function shipmentActionAvailability(shipment: AdminShipment) {
       shipment.status !== "returned" &&
       shipment.status !== "cancellation_pending",
     canRetrySafe: shipment.status === "error" && shipment.last_error_code !== "CREATION_UNCERTAIN",
+    canManualRegister: false,
+    canManualHandoff: false,
+    canManualDeliver: false,
+    canManualCorrect: false,
+    canManualAbandon: false,
   };
 }
