@@ -401,9 +401,12 @@ class TestAuthEndpoints:
         assert body["expires_in"] > 0
 
     def test_verify_pin_invalid(self, super_admin_headers):
+        invalid_pin = (
+            "000000" if settings.ADMIN_STEP_UP_PIN != "000000" else "111111"
+        )
         response = client.post(
             "/api/v1/auth/verify-pin",
-            json={"pin": "000000"},
+            json={"pin": invalid_pin},
             headers=super_admin_headers,
         )
         assert response.status_code == 403
@@ -413,14 +416,20 @@ class TestAuthEndpoints:
         monkeypatch.setattr(settings, "STEP_UP_MAX_ATTEMPTS", 2)
         monkeypatch.setattr(settings, "STEP_UP_ATTEMPT_WINDOW_SECONDS", 300)
 
+        invalid_pin = (
+            "000000" if settings.ADMIN_STEP_UP_PIN != "000000" else "111111"
+        )
+        other_invalid = (
+            "111111" if invalid_pin != "111111" else "222222"
+        )
         first = client.post(
             "/api/v1/auth/verify-pin",
-            json={"pin": "000000"},
+            json={"pin": invalid_pin},
             headers=super_admin_headers,
         )
         second = client.post(
             "/api/v1/auth/verify-pin",
-            json={"pin": "111111"},
+            json={"pin": other_invalid},
             headers=super_admin_headers,
         )
         third = client.post(

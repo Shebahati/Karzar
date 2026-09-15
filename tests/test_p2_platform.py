@@ -3,6 +3,7 @@
 import uuid
 
 import pytest
+from app.core.config import settings
 from app.db.models.product import StockUnitEnum
 from app.main import app
 from app.services import otp_service
@@ -239,7 +240,7 @@ def test_soft_delete_user_and_order(super_admin_headers, step_up_headers):
     # Step-up tokens are single-use; request a fresh one for the next destructive action.
     refresh_step_up = client.post(
         "/api/v1/auth/verify-pin",
-        json={"pin": "93827461"},
+        json={"pin": settings.ADMIN_STEP_UP_PIN},
         headers=super_admin_headers,
     )
     assert refresh_step_up.status_code == 200
@@ -351,6 +352,7 @@ def test_payment_refund_mock_flow(super_admin_headers, step_up_headers):
                 "postal_code": "1234567890",
                 "address_line": "خیابان تست پلاک ۱۲ واحد ۳",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=headers,
     )

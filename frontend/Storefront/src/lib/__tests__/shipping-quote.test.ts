@@ -16,9 +16,33 @@ describe("shipping quote helpers", () => {
     expect(isQuoteExpired("2099-01-01T00:00:00.000Z", Date.parse("2026-09-10"))).toBe(false);
   });
 
+  it("requires a shipping method when method selection is enabled", () => {
+    expect(
+      canSubmitPurchaseShipping({
+        shippingEnabled: true,
+        methodSelectionEnabled: true,
+        shippingMethodCode: null,
+        quoteToken: null,
+        expiresAt: null,
+        shippingUnavailable: false,
+      }),
+    ).toBe(false);
+    expect(
+      canSubmitPurchaseShipping({
+        shippingEnabled: true,
+        methodSelectionEnabled: true,
+        shippingMethodCode: "tipax_standard",
+        quoteToken: null,
+        expiresAt: null,
+        shippingUnavailable: false,
+      }),
+    ).toBe(true);
+  });
+
   it("blocks purchase until a live quote exists when Postex is on", () => {
     expect(
       canSubmitPurchaseShipping({
+        shippingEnabled: true,
         postexEnabled: true,
         quoteToken: null,
         expiresAt: null,

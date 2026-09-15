@@ -47,6 +47,7 @@ BOXES = [BoxType(id=1, name="M", length_cm=40, width_cm=30, height_cm=20)]
 
 def _enable_postex(monkeypatch):
     monkeypatch.setattr(settings, "POSTEX_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", True)
     monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
     monkeypatch.setattr(settings, "POSTEX_API_KEY", "test-key-not-real")
     monkeypatch.setattr(settings, "POSTEX_ORIGIN_CITY_CODE", 1)
@@ -221,6 +222,7 @@ def test_purchase_without_quote_token_when_enabled(
                 "address_line": "خیابان آزادی پلاک ۱۲",
                 "location_code": 1,
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers={**headers, "Idempotency-Key": "no-quote"},
     )

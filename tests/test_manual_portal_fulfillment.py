@@ -357,7 +357,7 @@ def test_workers_ignore_manual_portal_shipments(manual_portal_env, monkeypatch):
 
 @pytest.mark.usefixtures("override_database")
 def test_expired_failed_with_stock_restock_once(
-    super_admin_headers, monkeypatch
+    super_admin_headers, manual_portal_env, monkeypatch
 ):
     client = TestClient(app)
     checkout = _receiver_checkout(

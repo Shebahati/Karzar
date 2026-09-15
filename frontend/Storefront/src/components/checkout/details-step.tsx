@@ -12,7 +12,7 @@ import {
   type InquiryValues,
   type ShippingValues,
 } from "@/lib/validation";
-import { ShippingOptions } from "@/components/checkout/shipping-options";
+import { ShippingMethodOptions, ShippingOptions } from "@/components/checkout/shipping-options";
 import { useCheckoutShipping } from "@/features/checkout/use-checkout-shipping";
 import { canSubmitPurchaseShipping } from "@/lib/shipping-quote";
 import { isLoggedIn } from "@/lib/api-client";
@@ -34,6 +34,7 @@ export interface DetailsResult {
     location_code?: number | null;
   };
   shipping_quote_token?: string | null;
+  shipping_method_code?: string | null;
 }
 
 /**
@@ -150,6 +151,27 @@ function ShippingForm({
   const { errors } = form.formState;
   const formId = "checkout-shipping-form";
   const watchedPostal = form.watch("postal_code");
+  const watchedProvince = form.watch("province");
+  const watchedCity = form.watch("city");
+
+  useEffect(() => {
+    if (!shipping.enabled || !shipping.methodSelectionEnabled) return;
+    const timer = window.setTimeout(() => {
+      void shipping.refreshMethodOptions(
+        watchedProvince,
+        watchedCity,
+        watchedPostal,
+      );
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [
+    watchedProvince,
+    watchedCity,
+    watchedPostal,
+    shipping.enabled,
+    shipping.methodSelectionEnabled,
+    shipping.refreshMethodOptions,
+  ]);
 
   useEffect(() => {
     if (!shipping.enabled || shipping.locationCode == null) return;
@@ -214,7 +236,9 @@ function ShippingForm({
     if (
       shipping.enabled &&
       !canSubmitPurchaseShipping({
-        postexEnabled: true,
+        shippingEnabled: shipping.enabled,
+        methodSelectionEnabled: shipping.methodSelectionEnabled,
+        shippingMethodCode: shipping.selectedMethodCode,
         quoteToken: shipping.selected?.quote_token ?? null,
         expiresAt: shipping.expiresAt,
         shippingUnavailable: shipping.unavailable,
@@ -234,10 +258,13 @@ function ShippingForm({
         city: v.city,
         postal_code: v.postal_code,
         address_line: v.address_line,
-        location_code: shipping.locationCode,
+        location_code: shipping.methodSelectionEnabled ? null : shipping.locationCode,
       },
       shipping_quote_token: shipping.checkoutQuoteRequired
         ? (shipping.selected?.quote_token ?? null)
+        : null,
+      shipping_method_code: shipping.methodSelectionEnabled
+        ? (shipping.selectedMethodCode ?? null)
         : null,
     });
   };
@@ -255,7 +282,9 @@ function ShippingForm({
   const shippingReady =
     !shipping.enabled ||
     canSubmitPurchaseShipping({
-      postexEnabled: true,
+      shippingEnabled: shipping.enabled,
+      methodSelectionEnabled: shipping.methodSelectionEnabled,
+      shippingMethodCode: shipping.selectedMethodCode,
       quoteToken: shipping.selected?.quote_token ?? null,
       expiresAt: shipping.expiresAt,
       shippingUnavailable: shipping.unavailable,
@@ -425,66 +454,88 @@ function ShippingForm({
           {shipping.enabled && (
             <div className="sm:col-span-2 space-y-3 rounded-xl border border-border/60 bg-secondary/40 p-4">
               <h3 className="text-sm font-bold text-foreground">روش ارسال</h3>
-              {shipping.receiverDue && (
-                <p className="text-sm leading-6 text-foreground">
-                  هزینه ارسال به‌صورت پس‌کرایه و هنگام تحویل از گیرنده دریافت می‌شود.
-                </p>
-              )}
-              <Field label="شهر مقصد (کد شهر)">
-                <input
-                  value={shipping.cityQuery}
-                  onChange={(event) => shipping.setCityQuery(event.target.value)}
-                  className={fieldInputClass}
-                  placeholder="جستجوی شهر"
-                  autoComplete="off"
-                />
-              </Field>
-              <div className="max-h-40 overflow-y-auto space-y-1" role="listbox" aria-label="شهرهای ارسال">
-                {shipping.filteredCities.map((city) => {
-                  const active = shipping.locationCode === city.code;
-                  return (
-                    <button
-                      key={city.code}
-                      type="button"
-                      role="option"
-                      aria-selected={active}
-                      className={cn(
-                        "w-full rounded-lg px-3 py-2 text-start text-sm",
-                        active ? "bg-accent text-foreground" : "hover:bg-card",
-                      )}
-                      onClick={() => {
-                        shipping.setLocationCode(city.code);
-                        form.setValue("city", city.name);
-                        if (city.province_name) form.setValue("province", city.province_name);
-                        if (shipping.checkoutQuoteRequired) {
-                          void shipping.refreshQuotes(
-                            city.code,
-                            form.getValues("postal_code"),
-                            city.name,
-                            city.province_name ?? form.getValues("province"),
-                          );
-                        }
-                      }}
-                    >
-                      {city.name}
-                      {city.province_name ? ` — ${city.province_name}` : ""}
-                    </button>
-                  );
-                })}
-              </div>
-              {shipping.checkoutQuoteRequired ? (
-                <ShippingOptions
-                  options={shipping.options}
-                  selectedToken={shipping.selected?.quote_token ?? null}
-                  loading={shipping.loading}
-                  error={shipping.error}
-                  onSelect={(option: ShippingQuoteOption) => shipping.setSelected(option)}
-                />
+              {shipping.methodSelectionEnabled ? (
+                <>
+                  <p className="text-xs text-steel">
+                    مبلغ قابل پرداخت آنلاین فقط شامل کالاها و مالیات است؛ هزینه ارسال: پرداخت هنگام
+                    تحویل.
+                  </p>
+                  <ShippingMethodOptions
+                    options={shipping.methodOptions}
+                    selectedCode={shipping.selectedMethodCode}
+                    loading={shipping.loading}
+                    error={shipping.error}
+                    onSelect={(option) => shipping.setSelectedMethodCode(option.code)}
+                  />
+                </>
               ) : (
-                <p className="text-xs text-steel">
-                  مبلغ پرداخت اینترنتی فقط شامل محصولات و مالیات است؛ پس‌کرایه ارسال جداگانه از گیرنده
-                  دریافت می‌شود.
-                </p>
+                <>
+                  {shipping.receiverDue && (
+                    <p className="text-sm leading-6 text-foreground">
+                      هزینه ارسال به‌صورت پس‌کرایه و هنگام تحویل از گیرنده دریافت می‌شود.
+                    </p>
+                  )}
+                  <Field label="شهر مقصد (کد شهر)">
+                    <input
+                      value={shipping.cityQuery}
+                      onChange={(event) => shipping.setCityQuery(event.target.value)}
+                      className={fieldInputClass}
+                      placeholder="جستجوی شهر"
+                      autoComplete="off"
+                    />
+                  </Field>
+                  <div
+                    className="max-h-40 overflow-y-auto space-y-1"
+                    role="listbox"
+                    aria-label="شهرهای ارسال"
+                  >
+                    {shipping.filteredCities.map((city) => {
+                      const active = shipping.locationCode === city.code;
+                      return (
+                        <button
+                          key={city.code}
+                          type="button"
+                          role="option"
+                          aria-selected={active}
+                          className={cn(
+                            "w-full rounded-lg px-3 py-2 text-start text-sm",
+                            active ? "bg-accent text-foreground" : "hover:bg-card",
+                          )}
+                          onClick={() => {
+                            shipping.setLocationCode(city.code);
+                            form.setValue("city", city.name);
+                            if (city.province_name) form.setValue("province", city.province_name);
+                            if (shipping.checkoutQuoteRequired) {
+                              void shipping.refreshQuotes(
+                                city.code,
+                                form.getValues("postal_code"),
+                                city.name,
+                                city.province_name ?? form.getValues("province"),
+                              );
+                            }
+                          }}
+                        >
+                          {city.name}
+                          {city.province_name ? ` — ${city.province_name}` : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {shipping.checkoutQuoteRequired ? (
+                    <ShippingOptions
+                      options={shipping.options}
+                      selectedToken={shipping.selected?.quote_token ?? null}
+                      loading={shipping.loading}
+                      error={shipping.error}
+                      onSelect={(option: ShippingQuoteOption) => shipping.setSelected(option)}
+                    />
+                  ) : (
+                    <p className="text-xs text-steel">
+                      مبلغ پرداخت اینترنتی فقط شامل محصولات و مالیات است؛ پس‌کرایه ارسال جداگانه از
+                      گیرنده دریافت می‌شود.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -509,9 +560,11 @@ function ShippingForm({
         )}
         {shipping.enabled && !shippingReady && (
           <p className="mt-3 text-sm text-destructive" role="alert">
-            {shipping.receiverDue
-              ? "برای ادامه خرید ابتدا شهر مقصد را انتخاب کنید."
-              : "برای ادامه خرید ابتدا شهر مقصد و سرویس ارسال را انتخاب کنید."}
+            {shipping.methodSelectionEnabled
+              ? "برای ادامه خرید استان و شهر را تکمیل کنید و یک روش ارسال انتخاب کنید."
+              : shipping.receiverDue
+                ? "برای ادامه خرید ابتدا شهر مقصد را انتخاب کنید."
+                : "برای ادامه خرید ابتدا شهر مقصد و سرویس ارسال را انتخاب کنید."}
           </p>
         )}
       </form>

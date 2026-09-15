@@ -122,6 +122,7 @@ def _purchase_payload(product_id: int, **overrides) -> dict:
             "address_line": "خیابان آزادی پلاک ۱۲۳۴",
             "location_code": 8,
         },
+        "shipping_method_code": "tipax_standard",
     }
     payload.update(overrides)
     return payload
@@ -299,14 +300,14 @@ def test_settings_normalize_modes_and_keep_booking_safe_off():
 def test_shipping_status_exposes_receiver_due_contract(fake_provider, override_database):
     response = TestClient(app).get("/api/v1/shipping/status")
     assert response.status_code == 200, response.text
-    assert response.json() == {
-        "enabled": True,
-        "quote_ttl_seconds": settings.POSTEX_QUOTE_TTL_SECONDS,
-        "shipping_payment_mode": "receiver_due",
-        "checkout_quote_required": False,
-        "booking_enabled": False,
-        "fulfillment_mode": "api",
-    }
+    body = response.json()
+    assert body["enabled"] is True
+    assert body["quote_ttl_seconds"] == settings.POSTEX_QUOTE_TTL_SECONDS
+    assert body["shipping_payment_mode"] == "receiver_due"
+    assert body["checkout_quote_required"] is False
+    assert body["method_selection_enabled"] is False
+    assert body["booking_enabled"] is False
+    assert body["fulfillment_mode"] == "api"
 
 
 def test_receiver_checkout_needs_no_quote_or_product_logistics_and_excludes_shipping(

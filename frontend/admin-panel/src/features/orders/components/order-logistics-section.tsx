@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StepUpDialog } from "@/components/step-up-dialog";
 import {
   canSubmitFinalPackageHazards,
-  receiverFulfillmentDisplay,
   manualPortalStatusLabel,
+  receiverFulfillmentDisplay,
+  isManualFulfillmentProvider,
   shipmentActionAvailability,
   type AdminShipment,
   type HazardChoice,
@@ -395,7 +396,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
         </div>
 
         {shipments.map((shipment) => {
-          const actions = shipmentActionAvailability(shipment);
+          const actions = shipmentActionAvailability(shipment, order.status);
           const manualPortal = shipment.fulfillment_mode === "manual_portal";
           const options = quoteOptions[shipment.internal_id] ?? [];
           const form = formFor(shipment.internal_id);
@@ -460,6 +461,83 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
               )}
               {shipment.last_error_message && (
                 <p className="text-xs text-destructive">{shipment.last_error_message}</p>
+              )}
+              {isManualFulfillmentProvider(shipment.provider) && (
+                <div className="flex flex-wrap gap-2">
+                  {actions.canManualRegister && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() => {
+                        const tracking =
+                          shipment.provider === "local_delivery"
+                            ? (window.prompt("کد رهگیری (در صورت وجود)") ?? "")
+                            : (window.prompt("کد رهگیری (یا خالی بگذارید)") ?? "");
+                        const providerRef =
+                          shipment.provider === "local_delivery"
+                            ? ""
+                            : (window.prompt("شناسه مرجع حامل (در صورت نبود رهگیری)") ?? "");
+                        const courierName =
+                          shipment.provider === "local_delivery"
+                            ? (window.prompt("نام پیک") ?? "")
+                            : "";
+                        if (
+                          shipment.provider !== "local_delivery" &&
+                          !tracking.trim() &&
+                          !providerRef.trim()
+                        ) {
+                          toast.error("کد رهگیری یا شناسه مرجع حامل الزامی است.");
+                          return;
+                        }
+                        void run("اطلاعات ارسال ثبت شد", () =>
+                          shippingAdminService.manualRegister(order.id, shipment.internal_id, {
+                            tracking_code: tracking.trim() || null,
+                            provider_reference: providerRef.trim() || null,
+                            courier_name: courierName.trim() || null,
+                          }),
+                        );
+                      }}
+                    >
+                      {shipment.provider === "local_delivery"
+                        ? "ثبت پیک"
+                        : "ثبت اطلاعات ارسال"}
+                    </Button>
+                  )}
+                  {actions.canManualHandoff && order.status === "processing" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() =>
+                        void run("تحویل به حامل ثبت شد", () =>
+                          shippingAdminService.manualHandoff(order.id, shipment.internal_id),
+                        )
+                      }
+                    >
+                      {shipment.provider === "local_delivery"
+                        ? "تحویل به پیک"
+                        : shipment.provider === "tipax"
+                          ? "تحویل به تیپاکس"
+                          : shipment.provider === "chapar"
+                            ? "تحویل به چاپار"
+                            : "تحویل به حامل"}
+                    </Button>
+                  )}
+                  {actions.canManualDeliver && order.status === "shipped" && (
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() =>
+                        void run("تحویل به مشتری ثبت شد", () =>
+                          shippingAdminService.manualDeliver(order.id, shipment.internal_id),
+                        )
+                      }
+                    >
+                      تحویل به مشتری
+                    </Button>
+                  )}
+                </div>
               )}
               {actions.canSetPackage && (
                 <ShipmentPackageForm

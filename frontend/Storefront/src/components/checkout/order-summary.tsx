@@ -76,22 +76,20 @@ export function OrderSummary({
             <span className="tnum">{formatToman(itemsTotal)}</span>
           </div>
           <div className="flex items-center justify-between text-[#5E5F5E]">
-            <span>ارسال</span>
-            <span className="tnum text-end">
+            <span>هزینه ارسال</span>
+            <span className="text-end">
               {shippingDisplay === "receiver_due"
-                ? "پس‌کرایه"
+                ? "پرداخت هنگام تحویل"
                 : shippingToman == null
                   ? "پس از انتخاب سرویس"
                   : formatToman(shippingToman)}
             </span>
           </div>
           {shippingDisplay === "receiver_due" && (
-            <p className="text-xs leading-5 text-steel">
-              هزینه ارسال به‌صورت پس‌کرایه و هنگام تحویل از گیرنده دریافت می‌شود.
-            </p>
+            <p className="text-xs leading-5 text-steel">ارسال: پس‌کرایه (در مبلغ آنلاین لحاظ نمی‌شود)</p>
           )}
           <div className="flex items-center justify-between font-bold text-foreground">
-            <span>مبلغ پرداخت اینترنتی</span>
+            <span>مبلغ قابل پرداخت آنلاین</span>
             <span className="tnum">{formatToman(payable)}</span>
           </div>
         </div>

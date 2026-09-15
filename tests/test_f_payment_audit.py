@@ -7,8 +7,10 @@ import pytest
 from app.core.config import settings
 from app.core.constants import TOMAN_TO_RIAL
 from app.crud.payment_transaction import list_payment_transactions_for_order
-from app.db.models.commerce import Order
+from app.db.models.commerce import Order, OrderStatus
 from app.main import app
+from app.services.logistics.manual_fulfillment import manual_handoff, manual_register
+from app.services.logistics.service import ensure_shipment_for_paid_order
 from app.services.payment_flow_service import order_amount_rials
 from app.services.payment_service import reset_payment_provider_for_tests
 from fastapi.testclient import TestClient
@@ -32,6 +34,7 @@ def _checkout(product_id: int, headers: dict, *, phone: str) -> dict:
                 "postal_code": "1234567890",
                 "address_line": "خیابان تست پلاک ۱۰ واحد ۲",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=headers,
     )
@@ -184,13 +187,24 @@ def test_refund_works_after_shipped_fulfillment(
     )
     assert processing.status_code == 200, processing.text
 
-    shipped = client.patch(
-        f"/api/v1/orders/{order_id}/status",
-        json={"status": "shipped", "postal_tracking_code": "1234567890"},
-        headers=step_up_headers,
-    )
-    assert shipped.status_code == 200, shipped.text
-    assert shipped.json()["status"] == "shipped"
+    async def mark_shipped_via_manual_fulfillment() -> str:
+        async with TestingSessionLocal() as db:
+            order = (
+                await db.execute(select(Order).where(Order.id == order_id))
+            ).scalar_one()
+            shipment = await ensure_shipment_for_paid_order(db, order)
+            assert shipment is not None
+            await manual_register(
+                db,
+                order=order,
+                shipment=shipment,
+                tracking_code="1234567890123",
+            )
+            await manual_handoff(db, order=order, shipment=shipment)
+            await db.commit()
+            return order.status
+
+    assert asyncio.run(mark_shipped_via_manual_fulfillment()) == OrderStatus.SHIPPED.value
 
     refund = client.post(
         "/api/v1/payments/refund",

@@ -66,6 +66,7 @@ def _checkout(product_id: int, headers: dict, phone: str = "09121234567") -> dic
                 "postal_code": "1234567890",
                 "address_line": "خیابان آزادی، پلاک ۱۰",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=headers,
     )

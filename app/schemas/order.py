@@ -131,6 +131,9 @@ class OrderTrackingResponse(BaseModel):
     status_label: str
     created_at: datetime
     shipping_payment_mode: str | None = None
+    shipping_method_label: str | None = None
+    shipping_cost_label: str | None = None
+    postal_tracking_code: str | None = None
     items: list[OrderTrackingItemResponse] = Field(default_factory=list)
     timeline: list[OrderTrackingEvent] = Field(default_factory=list)
     shipments: list[dict[str, Any]] = Field(default_factory=list)
