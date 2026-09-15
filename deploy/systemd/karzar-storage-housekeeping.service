@@ -1,0 +1,22 @@
+[Unit]
+Description=Karzar VPS storage housekeeping (BuildKit cache + backup retention)
+Documentation=file:///opt/karzar/Karzar/docs/operations/STORAGE_HOUSEKEEPING.md
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=KARZAR_ROOT=/opt/karzar/Karzar
+Environment=KARZAR_EXPECTED_HOSTNAME=srv5944957438
+WorkingDirectory=/opt/karzar/Karzar
+ExecStart=/bin/bash /opt/karzar/Karzar/scripts/ops/vps_storage_housekeeping.sh --apply
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=karzar-storage-housekeeping
+# Do not sandbox: requires Docker CLI access to the local daemon.
+
+[Install]
+WantedBy=multi-user.target
