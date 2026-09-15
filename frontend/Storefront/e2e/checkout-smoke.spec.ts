@@ -68,6 +68,11 @@ test.describe("checkout smoke (mock)", () => {
     await shipping.getByLabel(/کد پستی/i).fill("1234567890");
     await shipping.getByLabel(/نشانی کامل/i).fill("خیابان ولیعصر پلاک ۱۲۳ واحد ۴");
 
+    const tipax = page.getByRole("radio", { name: /تیپاکس/i });
+    if (await tipax.isVisible().catch(() => false)) {
+      await tipax.click();
+    }
+
     await shipping.getByRole("button", { name: /انتقال به درگاه پرداخت/i }).click();
 
     // Assert URL state (not Playwright navigation "load") — callback may never

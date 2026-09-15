@@ -74,6 +74,8 @@ export interface OrderTracking {
   /** Not present on public tracking API — kept optional for UI compatibility. */
   estimated_total: string | null;
   created_at: string;
+  shipping_method_label?: string | null;
+  shipping_cost_label?: string | null;
   postal_tracking_code?: string | null;
   delivery_eta?: string | null;
   items?: OrderTrackingItem[];

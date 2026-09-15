@@ -1,10 +1,12 @@
 """Checkout and contact submission business logic."""
 
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.logging import get_logger
 from app.crud import commerce as crud_commerce
 from app.crud import content as crud_content
 from app.crud import product as crud_product
@@ -17,7 +19,11 @@ from app.schemas.storefront import (
     ContactResponse,
 )
 from app.services.cart_service import clear_cart_for_checkout, resolve_checkout_defaults
-from app.services.logistics.exceptions import LogisticsError
+from app.services.logistics.exceptions import (
+    LogisticsError,
+    ShippingMethodRequiredError,
+    ShippingUnavailableError,
+)
 from app.services.logistics.fingerprints import merge_line_quantities
 from app.services.logistics.models import Destination
 from app.services.logistics.money import provider_total_toman
@@ -25,8 +31,14 @@ from app.services.logistics.service import (
     assert_quote_prices_current,
     bind_quote_to_order,
     consume_quote,
-    postex_enabled,
     validate_postex_destination_location_code,
+)
+from app.services.logistics.shipping_methods import (
+    ShippingDestination,
+    postex_checkout_enabled,
+    public_purchase_shipping_available,
+    resolve_shipping_method,
+    storefront_shipping_enabled,
 )
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
@@ -38,6 +50,10 @@ from app.services.payment_flow_service import initialize_order_payment
 from app.services.stock_ledger_service import record_sale_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
+
+logger = get_logger(__name__)
+
+_NO_PUBLIC_SHIPPING_MSG = "در حال حاضر روش ارسال فعالی برای ثبت سفارش وجود ندارد."
 
 
 class PurchaseAuthRequiredError(ValueError):
@@ -77,12 +93,43 @@ async def submit_checkout(
         raise PurchaseAuthRequiredError()
     if is_purchase and payload.shipping is None:
         raise ValueError("shipping is required for purchase mode")
+    if is_purchase and not public_purchase_shipping_available():
+        raise ShippingUnavailableError(_NO_PUBLIC_SHIPPING_MSG)
 
     shipping_quote = None
     shipping_cost = Decimal("0")
     shipping_payment_mode: ShippingPaymentMode | None = None
-    if is_purchase and postex_enabled():
-        # Server policy only — clients cannot choose who pays shipping.
+    resolved_provider: str | None = None
+    resolved_carrier: str | None = None
+    resolved_service: str | None = None
+    resolved_method_code: str | None = None
+
+    if is_purchase and storefront_shipping_enabled():
+        if not (payload.shipping_method_code or "").strip():
+            raise ShippingMethodRequiredError("انتخاب روش ارسال الزامی است.")
+        assert payload.shipping is not None
+        resolved = resolve_shipping_method(
+            payload.shipping_method_code.strip(),
+            ShippingDestination(
+                province=payload.shipping.province,
+                city=payload.shipping.city,
+                postal_code=payload.shipping.postal_code,
+            ),
+        )
+        shipping_payment_mode = resolved.payment_mode
+        resolved_provider = resolved.provider
+        resolved_carrier = resolved.carrier_code
+        resolved_service = resolved.service_code
+        resolved_method_code = resolved.code.value
+        shipping_cost = Decimal("0")
+        logger.info(
+            "checkout_shipping_method_selected code=%s provider=%s service=%s payment_mode=%s",
+            resolved.code.value,
+            resolved.provider,
+            resolved.service_code,
+            resolved.payment_mode.value,
+        )
+    elif is_purchase and postex_checkout_enabled():
         shipping_payment_mode = default_shipping_payment_mode()
         if payload.shipping is None or payload.shipping.location_code is None:
             raise LogisticsError(
@@ -91,7 +138,6 @@ async def submit_checkout(
             )
         await validate_postex_destination_location_code(payload.shipping.location_code)
         if shipping_payment_mode == ShippingPaymentMode.RECEIVER_DUE:
-            # پس‌کرایه: no checkout quote; SEP excludes shipping; package measured later.
             shipping_cost = Decimal("0")
         else:
             if not payload.shipping_quote_token:
@@ -115,6 +161,8 @@ async def submit_checkout(
                 ),
             )
             shipping_cost = _to_decimal(shipping_quote.customer_amount_toman)
+    elif is_purchase:
+        raise ShippingUnavailableError(_NO_PUBLIC_SHIPPING_MSG)
 
     if is_purchase:
         await cancel_expired_pending_payment_orders(db)
@@ -136,13 +184,10 @@ async def submit_checkout(
         if not product or not product.is_active:
             raise ValueError(f"Product {product_id} is not available")
 
-        # Availability is boolean on site; warehouse counts live in Hesabfa only.
         if is_purchase and not getattr(product, "is_available", True):
             raise ValueError(f"Product {product_id} is not available")
 
         unit_price = product.base_price
-        # Dual-lane integrity: purchase checkout must never accept unpriced SKUs
-        # (cart upsert already blocks this; harden the direct checkout API path).
         if is_purchase and unit_price is None:
             raise ValueError(
                 f"Product {product_id} has no price and cannot be purchased; "
@@ -169,7 +214,6 @@ async def submit_checkout(
             }
         )
 
-    # sender_prepaid: include shipping once. receiver_due: items+tax only.
     if is_purchase and shipping_payment_mode != ShippingPaymentMode.RECEIVER_DUE:
         estimated_total += shipping_cost
 
@@ -182,6 +226,21 @@ async def submit_checkout(
     )
 
     receiver_due = shipping_payment_mode == ShippingPaymentMode.RECEIVER_DUE
+    if resolved_provider:
+        order_shipping_provider = resolved_provider
+    elif shipping_quote is not None:
+        order_shipping_provider = shipping_quote.provider
+    elif postex_checkout_enabled() and shipping_payment_mode is not None:
+        order_shipping_provider = "postex"
+    else:
+        order_shipping_provider = None
+
+    shipping_snapshot: dict[str, Any] | None = None
+    if payload.shipping is not None:
+        shipping_snapshot = payload.shipping.model_dump()
+        if resolved_method_code:
+            shipping_snapshot["shipping_method_code"] = resolved_method_code
+
     order = await crud_commerce.create_order(
         db,
         tracking_prefix="KZ-",
@@ -194,16 +253,11 @@ async def submit_checkout(
         customer_is_guest=customer_is_guest,
         company_name=company_name,
         note=payload.note,
-        shipping=payload.shipping.model_dump() if payload.shipping else None,
+        shipping=shipping_snapshot,
         user_id=current_user.id if current_user else None,
         items=line_items,
-        shipping_provider=(
-            "postex"
-            if is_purchase and postex_enabled() and shipping_payment_mode is not None
-            else (shipping_quote.provider if shipping_quote else None)
-        ),
+        shipping_provider=order_shipping_provider,
         shipping_quote_id=None if receiver_due else (shipping_quote.id if shipping_quote else None),
-        # NULL for receiver_due means provider-collected shipping — never "0 = free".
         shipping_customer_cost=(
             None if receiver_due else (shipping_quote.customer_amount_toman if shipping_quote else None)
         ),
@@ -220,10 +274,14 @@ async def submit_checkout(
             )
         ),
         shipping_carrier_code=(
-            None if receiver_due else (shipping_quote.carrier_code if shipping_quote else None)
+            resolved_carrier
+            if receiver_due and resolved_provider
+            else (None if receiver_due else (shipping_quote.carrier_code if shipping_quote else None))
         ),
         shipping_service_code=(
-            None if receiver_due else (shipping_quote.service_code if shipping_quote else None)
+            resolved_service
+            if receiver_due and resolved_provider
+            else (None if receiver_due else (shipping_quote.service_code if shipping_quote else None))
         ),
         shipping_payment_mode=shipping_payment_mode.value if shipping_payment_mode else None,
     )

@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StepUpDialog } from "@/components/step-up-dialog";
 import {
   canSubmitFinalPackageHazards,
-  receiverFulfillmentDisplay,
   manualPortalStatusLabel,
+  receiverFulfillmentDisplay,
+  isManualFulfillmentProvider,
   shipmentActionAvailability,
   type AdminShipment,
   type HazardChoice,
@@ -460,6 +461,67 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
               )}
               {shipment.last_error_message && (
                 <p className="text-xs text-destructive">{shipment.last_error_message}</p>
+              )}
+              {isManualFulfillmentProvider(shipment.provider) && (
+                <div className="flex flex-wrap gap-2">
+                  {actions.canManualRegister && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() => {
+                        const tracking = window.prompt("کد رهگیری (در صورت وجود)") ?? "";
+                        const courierName =
+                          shipment.provider === "local_delivery"
+                            ? (window.prompt("نام پیک") ?? "")
+                            : "";
+                        void run("اطلاعات ارسال ثبت شد", () =>
+                          shippingAdminService.manualRegister(order.id, shipment.internal_id, {
+                            tracking_code: tracking.trim() || null,
+                            courier_name: courierName.trim() || null,
+                          }),
+                        );
+                      }}
+                    >
+                      {shipment.provider === "local_delivery"
+                        ? "ثبت پیک"
+                        : "ثبت اطلاعات ارسال"}
+                    </Button>
+                  )}
+                  {actions.canManualHandoff && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() =>
+                        void run("تحویل به حامل ثبت شد", () =>
+                          shippingAdminService.manualHandoff(order.id, shipment.internal_id),
+                        )
+                      }
+                    >
+                      {shipment.provider === "local_delivery"
+                        ? "تحویل به پیک"
+                        : shipment.provider === "tipax"
+                          ? "تحویل به تیپاکس"
+                          : shipment.provider === "chapar"
+                            ? "تحویل به چاپار"
+                            : "تحویل به حامل"}
+                    </Button>
+                  )}
+                  {actions.canManualDeliver && (
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() =>
+                        void run("تحویل به مشتری ثبت شد", () =>
+                          shippingAdminService.manualDeliver(order.id, shipment.internal_id),
+                        )
+                      }
+                    >
+                      تحویل به مشتری
+                    </Button>
+                  )}
+                </div>
               )}
               {actions.canSetPackage && (
                 <ShipmentPackageForm

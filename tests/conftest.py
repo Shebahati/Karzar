@@ -332,6 +332,34 @@ def step_up_headers(super_admin_headers):
 
 
 @pytest.fixture
+def enable_storefront_shipping_methods(monkeypatch):
+    """Explicit opt-in for Tipax/Chapar/Tehran Express checkout tests."""
+    monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
+
+
+DEFAULT_TEST_SHIPPING_METHOD_CODE = "tipax_standard"
+
+
+@pytest.fixture(autouse=True)
+def _enable_carrier_shipping_for_legacy_purchase_tests(monkeypatch, request):
+    """Legacy purchase checkout tests expect an active public shipping path."""
+    mod = request.module.__name__
+    if (
+        mod.endswith("test_shipping_hardening")
+        or mod.endswith("test_manual_portal_fulfillment")
+        or "test_postex" in mod
+    ):
+        return
+    monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
+
+
+@pytest.fixture
 def valid_product_data():
     return {
         "sku": "TEST-001",

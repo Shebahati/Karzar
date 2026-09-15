@@ -32,6 +32,8 @@ from app.schemas.order import (
     OrderTrackingResponse,
 )
 from app.services.audit_service import record_audit
+from app.services.logistics.customer_shipping_display import customer_shipping_labels
+from app.services.logistics.exceptions import ShipmentStateError
 from app.services.logistics.manual_portal_guard import lock_order_for_status_update
 from app.services.logistics.service import admin_shipment_view, public_shipment_view
 from app.services.order_service import (
@@ -166,6 +168,18 @@ async def track_order(tracking_code: str, request: Request, db: AsyncSession = D
             error_code=ErrorCode.NOT_FOUND,
             message=f"Order '{tracking_code}' not found",
         )
+    method_label, cost_label = customer_shipping_labels(
+        shipping=order.shipping,
+        shipping_provider=order.shipping_provider,
+        shipping_service_code=order.shipping_service_code,
+        shipping_payment_mode=order.shipping_payment_mode,
+    )
+    tracking_display = order.postal_tracking_code
+    if not tracking_display and order.shipments:
+        for shipment in order.shipments:
+            if shipment.tracking_code:
+                tracking_display = shipment.tracking_code
+                break
     return OrderTrackingResponse(
         tracking_code=order.tracking_code,
         mode=order.mode.value if isinstance(order.mode, OrderMode) else str(order.mode),
@@ -173,6 +187,9 @@ async def track_order(tracking_code: str, request: Request, db: AsyncSession = D
         status_label=status_label(order.status),
         created_at=order.created_at,
         shipping_payment_mode=order.shipping_payment_mode,
+        shipping_method_label=method_label,
+        shipping_cost_label=cost_label,
+        postal_tracking_code=tracking_display,
         items=[
             OrderTrackingItemResponse(
                 product_id=item.product_id,
@@ -336,6 +353,13 @@ async def update_order_status(
             delivery_eta=payload.delivery_eta,
             actor="admin",
         )
+    except ShipmentStateError as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.SHIPMENT_STATE_INVALID,
+            message=str(exc),
+            details=[{"field": "status", "message": str(exc)}],
+        ) from exc
     except ManualPortalOrderBypassError as exc:
         raise api_error(
             status.HTTP_409_CONFLICT,

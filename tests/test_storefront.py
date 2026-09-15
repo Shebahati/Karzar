@@ -109,6 +109,7 @@ class TestStorefrontCheckout:
                     "postal_code": "1234567890",
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=auth_headers,
         )
@@ -159,6 +160,7 @@ class TestStorefrontCheckout:
                     "postal_code": "1234567890",
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
+                "shipping_method_code": "tipax_standard",
             },
         )
         assert response.status_code == 403
@@ -188,6 +190,7 @@ class TestStorefrontCheckout:
                     "postal_code": "1234567890",
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=auth_headers,
         )
@@ -220,6 +223,7 @@ class TestStorefrontCheckout:
                     "postal_code": "1234567890",
                     "address_line": "خیابان آزادی، پلاک ۱۰",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=auth_headers,
         )

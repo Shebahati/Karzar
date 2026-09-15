@@ -15,16 +15,23 @@ export function isQuoteExpired(expiresAt: string | null | undefined, now = Date.
 }
 
 export function canSubmitPurchaseShipping(params: {
-  postexEnabled: boolean;
+  shippingEnabled?: boolean;
+  methodSelectionEnabled?: boolean;
+  shippingMethodCode?: string | null;
+  /** @deprecated use shippingEnabled */
+  postexEnabled?: boolean;
   quoteToken: string | null;
   expiresAt: string | null;
   shippingUnavailable: boolean;
-  /** When true (receiver_due / پس‌کرایه), quote token is not required. */
   checkoutQuoteRequired?: boolean;
   locationCode?: number | null;
 }): boolean {
-  if (!params.postexEnabled) return true;
+  const enabled = params.shippingEnabled ?? params.postexEnabled ?? false;
+  if (!enabled) return true;
   if (params.shippingUnavailable) return false;
+  if (params.methodSelectionEnabled) {
+    return Boolean(params.shippingMethodCode?.trim());
+  }
   const quoteRequired = params.checkoutQuoteRequired !== false;
   if (!quoteRequired) {
     return params.locationCode != null && params.locationCode > 0;

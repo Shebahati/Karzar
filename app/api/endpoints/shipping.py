@@ -29,9 +29,13 @@ from app.schemas.shipping import (
     ShipmentFinalPackageRequest,
     ShipmentManualPortalCorrectionRequest,
     ShipmentManualPortalRegistrationRequest,
+    ShipmentManualRegisterRequest,
     ShipmentSelectServiceRequest,
     ShippingCityListResponse,
     ShippingCityResponse,
+    ShippingMethodOptionResponse,
+    ShippingOptionsRequest,
+    ShippingOptionsResponse,
     ShippingQuoteRequest,
     ShippingQuoteResponse,
     ShippingStatusResponse,
@@ -46,6 +50,11 @@ from app.services.logistics.exceptions import (
 )
 from app.services.logistics.fingerprints import canonical_cart_items
 from app.services.logistics.fulfillment_mode import configured_fulfillment_mode
+from app.services.logistics.manual_fulfillment import (
+    manual_deliver,
+    manual_handoff,
+    manual_register,
+)
 from app.services.logistics.manual_portal_guard import (
     lock_order_and_shipment,
     reject_generic_postex_provider_path,
@@ -80,6 +89,14 @@ from app.services.logistics.service import (
     select_packed_service,
     set_final_package,
     shipment_payment_mode,
+)
+from app.services.logistics.shipping_methods import (
+    RECEIVER_DUE_PRICE_LABEL,
+    ShippingDestination,
+    list_available_methods,
+    postex_checkout_enabled,
+    public_purchase_shipping_available,
+    storefront_shipping_enabled,
 )
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
@@ -129,6 +146,23 @@ def _http_for(exc: LogisticsError) -> tuple[int, str]:
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             ErrorCode.VALIDATION_FAILED,
         ),
+        "SHIPPING_METHOD_REQUIRED": (
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            ErrorCode.SHIPPING_METHOD_REQUIRED,
+        ),
+        "SHIPPING_METHOD_INVALID": (
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            ErrorCode.SHIPPING_METHOD_INVALID,
+        ),
+        "SHIPPING_METHOD_UNAVAILABLE": (
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            ErrorCode.SHIPPING_METHOD_UNAVAILABLE,
+        ),
+        "SHIPPING_METHOD_DESTINATION_NOT_ELIGIBLE": (
+            status.HTTP_409_CONFLICT,
+            ErrorCode.SHIPPING_METHOD_DESTINATION_NOT_ELIGIBLE,
+        ),
+        "CONFLICT": (status.HTTP_409_CONFLICT, ErrorCode.CONFLICT),
     }
     code = getattr(exc, "error_code", "SHIPPING_ERROR")
     http_status, error_code = mapping.get(
@@ -168,18 +202,55 @@ async def _shipment_or_raise(
 
 @router.get("/shipping/status", response_model=ShippingStatusResponse)
 async def shipping_status() -> ShippingStatusResponse:
-    enabled = postex_enabled()
-    mode = default_shipping_payment_mode() if enabled else None
+    methods_on = storefront_shipping_enabled()
+    postex_checkout_on = postex_checkout_enabled()
+    enabled = public_purchase_shipping_available()
+    mode = None
+    if methods_on:
+        mode = ShippingPaymentMode.RECEIVER_DUE
+    elif postex_checkout_on:
+        mode = default_shipping_payment_mode()
     return ShippingStatusResponse(
         enabled=enabled,
         quote_ttl_seconds=settings.POSTEX_QUOTE_TTL_SECONDS,
         shipping_payment_mode=mode.value if mode else None,
         checkout_quote_required=bool(
-            enabled and mode == ShippingPaymentMode.SENDER_PREPAID
+            postex_checkout_on
+            and not methods_on
+            and mode == ShippingPaymentMode.SENDER_PREPAID
         ),
         booking_enabled=postex_booking_enabled(),
-        fulfillment_mode=configured_fulfillment_mode().value if enabled else None,
+        method_selection_enabled=methods_on,
+        fulfillment_mode=(
+            configured_fulfillment_mode().value if postex_enabled() else None
+        ),
     )
+
+
+@router.post("/shipping/options", response_model=ShippingOptionsResponse)
+async def shipping_options(payload: ShippingOptionsRequest) -> ShippingOptionsResponse:
+    if not storefront_shipping_enabled():
+        raise api_error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            error_code=ErrorCode.SHIPPING_UNAVAILABLE,
+            message="سرویس ارسال فعال نیست.",
+        )
+    destination = ShippingDestination(
+        province=payload.province,
+        city=payload.city,
+        postal_code=payload.postal_code,
+    )
+    options = [
+        ShippingMethodOptionResponse(
+            code=m.code.value,
+            title=m.title,
+            payment_mode=m.payment_mode.value,
+            price=None,
+            price_label=m.price_label or RECEIVER_DUE_PRICE_LABEL,
+        )
+        for m in list_available_methods(destination)
+    ]
+    return ShippingOptionsResponse(options=options)
 
 
 @router.get("/shipping/cities", response_model=ShippingCityListResponse)
@@ -290,6 +361,109 @@ async def list_order_shipments(
         .all()
     )
     return [ShipmentAdminResponse(**admin_shipment_view(row)) for row in rows]
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual/register",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_register(
+    order_id: int,
+    shipment_id: int,
+    payload: ShipmentManualRegisterRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await manual_register(
+            db,
+            order=order,
+            shipment=shipment,
+            tracking_code=payload.tracking_code,
+            provider_reference=payload.provider_reference,
+            note=payload.note,
+            courier_name=payload.courier_name,
+            courier_phone=payload.courier_phone,
+            mission_reference=payload.mission_reference,
+            actor_user_id=current_user.id,
+        )
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual/handoff",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_handoff(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await manual_handoff(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
+
+
+@router.post(
+    "/orders/{order_id}/shipments/{shipment_id}/manual/deliver",
+    tags=["Admin Shipping"],
+)
+async def admin_manual_deliver(
+    order_id: int,
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+):
+    shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
+    order = await crud_commerce.get_order_by_id(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
+    try:
+        shipment = await manual_deliver(
+            db,
+            order=order,
+            shipment=shipment,
+            actor_user_id=current_user.id,
+        )
+    except LogisticsError as exc:
+        _raise_logistics(exc)
+    await db.commit()
+    await db.refresh(shipment, ["events"])
+    return admin_shipment_view(shipment)
 
 
 @router.post(

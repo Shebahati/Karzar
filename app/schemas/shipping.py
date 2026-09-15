@@ -46,6 +46,24 @@ class ShippingCityListResponse(BaseModel):
     data: list[ShippingCityResponse]
 
 
+class ShippingOptionsRequest(BaseModel):
+    province: str = Field(..., min_length=2)
+    city: str = Field(..., min_length=2)
+    postal_code: str | None = None
+
+
+class ShippingMethodOptionResponse(BaseModel):
+    code: str
+    title: str
+    payment_mode: str
+    price: str | None = None
+    price_label: str
+
+
+class ShippingOptionsResponse(BaseModel):
+    options: list[ShippingMethodOptionResponse]
+
+
 class ShippingStatusResponse(BaseModel):
     enabled: bool
     quote_ttl_seconds: int
@@ -55,6 +73,8 @@ class ShippingStatusResponse(BaseModel):
     checkout_quote_required: bool = False
     # Write-path gate (parcel create / mark-ready / cancel / edit). Safe default false.
     booking_enabled: bool = False
+    # Tipax / Chapar / Tehran Express method discovery at checkout.
+    method_selection_enabled: bool = False
     fulfillment_mode: str | None = None
 
 
@@ -144,6 +164,15 @@ class ShipmentAdminResponse(ShipmentPublicResponse):
     cancellation_requested_at: datetime | None = None
     fulfillment_mode: str | None = None
     registration_source: str | None = None
+
+
+class ShipmentManualRegisterRequest(BaseModel):
+    tracking_code: str | None = Field(None, max_length=64)
+    provider_reference: str | None = Field(None, max_length=128)
+    note: str | None = Field(None, max_length=500)
+    courier_name: str | None = Field(None, max_length=120)
+    courier_phone: str | None = Field(None, max_length=20)
+    mission_reference: str | None = Field(None, max_length=128)
 
 
 class ShipmentCancelRequest(BaseModel):
