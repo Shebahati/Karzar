@@ -10,7 +10,7 @@ import {
 } from "@/config/trust-credentials";
 
 const CARD_CLASS =
-  "flex h-32 w-full flex-col items-center justify-between rounded-md border border-white/12 bg-white/[0.04] px-1.5 py-2 text-center no-underline outline-none transition-colors duration-150 motion-reduce:transition-none hover-fine:border-white/25 hover-fine:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/50";
+  "flex h-32 w-full flex-col items-center justify-between rounded-md border border-white/12 bg-white/[0.04] px-1.5 py-2 text-center no-underline outline-none transition-colors duration-150 motion-reduce:transition-none hover-fine:border-white/25 hover-fine:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141615]";
 
 const VISUAL_SLOT_CLASS = "grid h-16 w-16 shrink-0 place-items-center";
 

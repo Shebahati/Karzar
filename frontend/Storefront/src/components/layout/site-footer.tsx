@@ -40,7 +40,7 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-16 overflow-hidden bg-[#141615] text-white">
+    <footer className="relative mt-16 overflow-x-clip bg-[#141615] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(208,35,39,0.22),transparent_50%),radial-gradient(ellipse_60%_50%_at_0%_100%,rgba(94,95,94,0.2),transparent_45%)]"
