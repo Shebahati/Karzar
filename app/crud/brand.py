@@ -95,6 +95,32 @@ async def update_brand(
     return brand
 
 
+async def count_products_by_brand(
+    db: AsyncSession,
+    *,
+    storefront_public_only: bool = False,
+) -> dict[int, int]:
+    """One grouped query: product counts per brand_id (brands with zero omitted)."""
+    filters = [
+        Product.deleted_at.is_(None),
+        Product.brand_id.isnot(None),
+    ]
+    if storefront_public_only:
+        filters.extend(
+            (
+                Product.is_active.is_(True),
+                public_image_exists_clause(),
+            )
+        )
+    stmt = (
+        select(Product.brand_id, func.count(Product.id))
+        .where(*filters)
+        .group_by(Product.brand_id)
+    )
+    rows = await db.execute(stmt)
+    return {int(brand_id): int(count) for brand_id, count in rows.all()}
+
+
 async def count_products_for_brand(
     db: AsyncSession,
     brand_id: int,
