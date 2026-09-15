@@ -6,6 +6,8 @@ export interface ShippingStatus {
   /** False for receiver_due — do not call /shipping/quotes at checkout. */
   checkout_quote_required?: boolean;
   booking_enabled?: boolean;
+  /** Tipax / Chapar / Tehran Express method cards at checkout. */
+  method_selection_enabled?: boolean;
 }
 
 export interface ShippingCity {
@@ -13,6 +15,14 @@ export interface ShippingCity {
   name: string;
   province_code: number | null;
   province_name: string | null;
+}
+
+export interface ShippingMethodOption {
+  code: string;
+  title: string;
+  payment_mode: string;
+  price: string | null;
+  price_label: string;
 }
 
 export interface ShippingQuoteOption {

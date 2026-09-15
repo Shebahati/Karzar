@@ -25,6 +25,8 @@ _MANUAL_TERMINAL = frozenset(
 )
 
 def is_active_manual_portal_shipment(shipment: Shipment) -> bool:
+    if (shipment.provider or "").strip() != "postex":
+        return False
     if is_corrupt_fulfillment_snapshot(shipment):
         return shipment.status not in _MANUAL_TERMINAL
     if not is_manual_portal_shipment(shipment):

@@ -62,13 +62,19 @@ test.describe("checkout smoke (mock)", () => {
     const shipping = page.locator("form").filter({
       has: page.getByRole("heading", { level: 2, name: "اطلاعات ارسال" }),
     });
-    await shipping.getByLabel(/نام و نام خانوادگی/i).fill("کاربر آزمایشی");
     await shipping.getByLabel(/^استان$/i).fill("تهران");
     await shipping.getByLabel(/^شهر$/i).fill("تهران");
     await shipping.getByLabel(/کد پستی/i).fill("1234567890");
     await shipping.getByLabel(/نشانی کامل/i).fill("خیابان ولیعصر پلاک ۱۲۳ واحد ۴");
+    await shipping.getByLabel(/نام و نام خانوادگی/i).fill("کاربر آزمایشی");
 
-    await shipping.getByRole("button", { name: /انتقال به درگاه پرداخت/i }).click();
+    const tipax = page.getByRole("radio", { name: /تیپاکس/i });
+    await expect(tipax).toBeVisible({ timeout: 15_000 });
+    await tipax.click();
+
+    const payButton = shipping.getByRole("button", { name: /انتقال به درگاه پرداخت/i });
+    await expect(payButton).toBeEnabled({ timeout: 15_000 });
+    await payButton.click();
 
     // Assert URL state (not Playwright navigation "load") — callback may never
     // fire window load under Next.js SPA routing; success remains mandatory.

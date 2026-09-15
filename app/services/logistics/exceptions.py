@@ -60,6 +60,26 @@ class ShipmentStateError(LogisticsError):
     error_code = "SHIPMENT_STATE_INVALID"
 
 
+class ShippingMethodRequiredError(LogisticsError):
+    error_code = "SHIPPING_METHOD_REQUIRED"
+
+
+class ShippingMethodInvalidError(LogisticsError):
+    error_code = "SHIPPING_METHOD_INVALID"
+
+
+class ShippingMethodUnavailableError(LogisticsError):
+    error_code = "SHIPPING_METHOD_UNAVAILABLE"
+
+
+class ShippingMethodDestinationIneligibleError(LogisticsError):
+    error_code = "SHIPPING_METHOD_DESTINATION_NOT_ELIGIBLE"
+
+
+class ShippingMethodConflictError(LogisticsError):
+    error_code = "CONFLICT"
+
+
 class ProviderCutoffError(LogisticsError):
     error_code = "SHIPPING_PROVIDER_CUTOFF"
 

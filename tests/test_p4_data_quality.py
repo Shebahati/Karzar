@@ -90,6 +90,7 @@ class TestAdminNoteDoesNotOverwriteCustomerNote:
                     "postal_code": "1234567890",
                     "address_line": "خیابان تست",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=headers,
         )

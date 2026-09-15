@@ -41,6 +41,7 @@ def _checkout_purchase(product_id, quantity=2, phone="09123333333", headers=None
                 "postal_code": "1234567890",
                 "address_line": "خیابان آزادی، پلاک ۱۰",
             },
+            "shipping_method_code": "tipax_standard",
         },
         headers=auth_headers,
     )

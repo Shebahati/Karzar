@@ -35,6 +35,7 @@ def _checkout_payload(product_id: int):
             "postal_code": "1234567890",
             "address_line": "خیابان آزادی، پلاک ۱۰",
         },
+        "shipping_method_code": "tipax_standard",
     }
 
 

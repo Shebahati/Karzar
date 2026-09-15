@@ -458,7 +458,7 @@ async def bind_quote_to_order(db: AsyncSession, quote: ShippingQuote, order_id: 
 
 async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Shipment | None:
     """Create the internal fulfillment row. Does not call Postex."""
-    if not postex_enabled() or not order.shipping_provider:
+    if not order.shipping_provider:
         return None
     await db.execute(select(Order).where(Order.id == order.id).with_for_update())
     existing = (
@@ -485,6 +485,10 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
         snapshot = (quote.package_snapshot if quote else {}) or {}
         quote_service_name = quote.service_name if quote else None
 
+    from app.services.logistics.shipping_methods import MANUAL_FULFILLMENT_PROVIDERS
+
+    manual_provider = (order.shipping_provider or "").strip() in MANUAL_FULFILLMENT_PROVIDERS
+
     if mode == ShippingPaymentMode.RECEIVER_DUE:
         fulfillment = configured_fulfillment_mode()
         shipment = Shipment(
@@ -494,8 +498,8 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
             provider=order.shipping_provider or PROVIDER_POSTEX,
             status=ShipmentStatus.AWAITING_PACKAGING.value,
             shipping_payment_mode=mode.value,
-            carrier_code=None,
-            service_code=None,
+            carrier_code=order.shipping_carrier_code if manual_provider else None,
+            service_code=order.shipping_service_code if manual_provider else None,
             service_name=None,
             provider_quoted_cost=None,
             customer_shipping_cost=None,
@@ -509,20 +513,46 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
             booking_next_attempt_at=None,
             provider_data={
                 "payment_mode": mode.value,
-                "fulfillment_mode": fulfillment.value,
+                **(
+                    {"fulfillment_mode": fulfillment.value} if not manual_provider else {}
+                ),
+                **(
+                    {
+                        "shipping_method_code": (order.shipping or {}).get(
+                            "shipping_method_code"
+                        )
+                    }
+                    if manual_provider and (order.shipping or {}).get("shipping_method_code")
+                    else {}
+                ),
             },
         )
         db.add(shipment)
         await db.flush()
+        event_desc = (
+            "پرداخت سفارش تأیید شد؛ مرسوله در انتظار ثبت ارسال است"
+            if manual_provider
+            else "پرداخت سفارش تأیید شد؛ مرسوله در انتظار بسته‌بندی و اندازه‌گیری است"
+        )
         await _append_event(
             db,
             shipment,
             status=ShipmentStatus.AWAITING_PACKAGING.value,
-            description="پرداخت سفارش تأیید شد؛ مرسوله در انتظار بسته‌بندی و اندازه‌گیری است",
+            description=event_desc,
             provider_status=None,
             provider_code=None,
             occurred_at=datetime.now(UTC),
-            payload={"order_id": order.id, "shipping_payment_mode": mode.value},
+            payload={
+                "order_id": order.id,
+                "shipping_payment_mode": mode.value,
+                "provider": order.shipping_provider,
+            },
+        )
+        logger.info(
+            "shipment_created_for_paid_order order_id=%s provider=%s manual=%s",
+            order.id,
+            order.shipping_provider,
+            manual_provider,
         )
         return shipment
 
@@ -836,6 +866,7 @@ async def apply_tracking_to_order(db: AsyncSession, order: Order) -> None:
             actor="system",
             postal_tracking_code=primary.tracking_code,
             event_description="شواهد رهگیری پستکس: مرسوله وارد شبکه ارسال شد",
+            via_shipment_lifecycle=True,
         )
         if primary.shipped_at is None:
             primary.shipped_at = datetime.now(UTC)
@@ -847,6 +878,7 @@ async def apply_tracking_to_order(db: AsyncSession, order: Order) -> None:
             OrderStatus.DELIVERED.value,
             actor="system",
             event_description="همه مرسوله‌های الزامی تحویل شدند",
+            via_shipment_lifecycle=True,
         )
         for shipment in required:
             if shipment.delivered_at is None:

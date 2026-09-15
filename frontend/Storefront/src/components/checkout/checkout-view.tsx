@@ -122,6 +122,7 @@ export function CheckoutView() {
       note: result.note ?? null,
       shipping: result.shipping,
       shipping_quote_token: result.shipping_quote_token ?? null,
+      shipping_method_code: result.shipping_method_code ?? null,
       company_name: result.company_name ?? null,
     };
 

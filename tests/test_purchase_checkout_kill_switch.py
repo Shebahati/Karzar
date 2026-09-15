@@ -36,6 +36,7 @@ def _purchase_payload(product_id: int, *, phone: str = "09125550909") -> dict:
             "postal_code": "1234567890",
             "address_line": "خیابان تست پلاک ۱",
         },
+        "shipping_method_code": "tipax_standard",
     }
 
 

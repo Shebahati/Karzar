@@ -3,11 +3,19 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import commerce as crud_commerce
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
+from app.db.models.logistics import Shipment
 from app.schemas.order import IssueQuoteRequest, OrderInvoiceResponse
+from app.services.logistics.exceptions import ShipmentStateError
+from app.services.logistics.models import TERMINAL_SHIPMENT_STATUSES
+from app.services.logistics.shipping_methods import (
+    MANUAL_FULFILLMENT_PROVIDERS,
+    PROVIDER_POSTEX,
+)
 from app.services.notification_service import notify_order_status_change
 from app.services.stock_ledger_service import record_return_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
@@ -132,6 +140,35 @@ async def record_initial_status_event(
     )
 
 
+async def _block_generic_shipment_bypass(
+    db: AsyncSession,
+    order: Order,
+    target: str,
+    *,
+    via_shipment_lifecycle: bool,
+) -> None:
+    if via_shipment_lifecycle:
+        return
+    if order.mode != OrderMode.PURCHASE:
+        return
+    if target not in {OrderStatus.SHIPPED.value, OrderStatus.DELIVERED.value}:
+        return
+    rows = (
+        (await db.execute(select(Shipment).where(Shipment.order_id == order.id)))
+        .scalars()
+        .all()
+    )
+    terminal = {s.value for s in TERMINAL_SHIPMENT_STATUSES}
+    active = [s for s in rows if s.status not in terminal]
+    if not active:
+        return
+    managed = MANUAL_FULFILLMENT_PROVIDERS | {PROVIDER_POSTEX}
+    if any((s.provider or "").strip() in managed for s in active):
+        raise ShipmentStateError(
+            "تغییر وضعیت سفارش باید از طریق چرخه مرسوله (ثبت/تحویل) انجام شود."
+        )
+
+
 async def transition_order_status(
     db: AsyncSession,
     order: Order,
@@ -142,6 +179,7 @@ async def transition_order_status(
     delivery_eta: datetime | None = None,
     actor: str = "admin",
     event_description: str | None = None,
+    via_shipment_lifecycle: bool = False,
     allow_manual_portal_fulfillment: bool = False,
 ) -> Order:
     try:
@@ -169,11 +207,28 @@ async def transition_order_status(
                 "برای سفارش با ثبت دستی پستکس، ارسال/تحویل فقط از مسیر لجستیک دستی مجاز است."
             )
 
+    await _block_generic_shipment_bypass(
+        db,
+        order,
+        target,
+        via_shipment_lifecycle=via_shipment_lifecycle or allow_manual_portal_fulfillment,
+    )
+
     if target == OrderStatus.SHIPPED.value:
-        tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
-        if len(tracking) < 10:
-            raise ValueError("برای ثبت ارسال، کد رهگیری پست الزامی است.")
-        order.postal_tracking_code = tracking
+        provider = (order.shipping_provider or "").strip()
+        if via_shipment_lifecycle and provider in {"tipax", "chapar", "local_delivery"}:
+            tracking = (postal_tracking_code or "").strip()
+            if tracking:
+                order.postal_tracking_code = tracking
+        elif provider == "local_delivery":
+            tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
+            if tracking:
+                order.postal_tracking_code = tracking
+        else:
+            tracking = (postal_tracking_code or order.postal_tracking_code or "").strip()
+            if len(tracking) < 10:
+                raise ValueError("برای ثبت ارسال، کد رهگیری پست الزامی است.")
+            order.postal_tracking_code = tracking
 
     if (
         order.mode == OrderMode.PURCHASE

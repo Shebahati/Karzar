@@ -32,9 +32,36 @@ Require `Idempotency-Key` on checkout and payment init.
 
 Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer is confirmed. Keep `PAYMENT_PROVIDER=sep` — do not flip back to mock.
 
-## Shipping (Postex)
+## Shipping (active storefront methods)
 
-Parcel shipping is a provider-neutral Karzar logistics domain. Postex is the v1 provider, gated by `POSTEX_ENABLED` (safe default **false**). Parcel **create / mark-ready / cancel / edit** also require `POSTEX_BOOKING_ENABLED` (safe default **false**). See [`integrations/postex/README.md`](integrations/postex/README.md).
+Public checkout offers **server-defined method codes** (client sends `shipping_method_code` only):
+
+| Method code | Label | Provider | Service | Eligibility | Payment |
+|-------------|-------|----------|---------|-------------|---------|
+| `tipax_standard` | تیپاکس | `tipax` | `standard` | Iran (MVP) | `receiver_due` |
+| `chapar_standard` | چاپار | `chapar` | `standard` | Iran (MVP) | `receiver_due` |
+| `tehran_express` | ارسال فوری تهران | `local_delivery` | `tehran_express` | **Tehran city** only | `receiver_due` |
+
+- Discovery: `POST /api/v1/shipping/options` (province + city; no quote/dimensions).
+- `receiver_due`: merchandise is prepaid via SEP; **shipping is not in `estimated_total`**. `shipping_customer_cost` stays **NULL** (not zero — not “free shipping”).
+- Fulfillment: manual register → handoff → deliver (`/orders/{id}/shipments/{id}/manual/*`). No external carrier API at checkout or shipment create.
+- Feature flags (MVP): `SHIPPING_TIPAX_ENABLED`, `SHIPPING_CHAPAR_ENABLED`, `SHIPPING_TEHRAN_EXPRESS_ENABLED` (application default **false** — explicit env required to activate). Legacy Postex quote checkout requires **`SHIPPING_POSTEX_CHECKOUT_ENABLED=true`** in addition to `POSTEX_ENABLED`; it is never implied automatically.
+
+**Intended production activation (ops — not applied by deploy alone):**
+
+```text
+POSTEX_ENABLED=false
+SHIPPING_TIPAX_ENABLED=true
+SHIPPING_CHAPAR_ENABLED=true
+SHIPPING_TEHRAN_EXPRESS_ENABLED=true
+SHIPPING_POSTEX_CHECKOUT_ENABLED=false
+```
+
+**Postex** remains in code and history for legacy orders but is **not** returned as a storefront option. `POSTEX_ENABLED` does not gate Tipax/Chapar/Tehran Express.
+
+## Shipping (Postex — legacy provider)
+
+Parcel shipping is a provider-neutral Karzar logistics domain. Postex is the v1 API provider, gated by `POSTEX_ENABLED` (safe default **false**). Parcel **create / mark-ready / cancel / edit** also require `POSTEX_BOOKING_ENABLED` (safe default **false**). See [`integrations/postex/README.md`](integrations/postex/README.md).
 
 Provider-neutral shipping payment mode (persisted on order/shipment; **server-owned** — checkout clients cannot set it):
 
@@ -63,7 +90,7 @@ Manual-portal **local abandon/cancel** is **deferred** in this MVP (no admin API
 
 - **`RECEIVER` ≠ COD.** Merchandise remains SEP-paid. Only the carrier shipping fee is collected from the recipient.
 - Do **not** treat `shipping_customer_cost = NULL` or amount `0` as free shipping. Free shipping is a separate Postex value (`FREE_SHIPPING`) and is **rejected**.
-- `receiver_due` checkout still requires a normalized destination `location_code`.
+- Postex `receiver_due` checkout still requires a normalized destination `location_code` when using quote checkout. Tipax/Chapar/Tehran Express checkout does **not** require `location_code`, quotes, or catalog dimensions.
 - **`POSTEX_FULFILLMENT_MODE=api`:** sealed-parcel length/width/height, weight, and hazards are entered in Karzar admin (`awaiting_packaging` → final-package → packed quote → select service → schedule booking → book) and drive Postex quote/booking.
 - **`POSTEX_FULFILLMENT_MODE=manual_portal`:** product package master data is not required in the Karzar catalog; dimensions and weight do not block checkout. When Postex requires them, the operator enters the actual sealed-parcel dimensions, weight, and required hazards in the **external Postex portal**. Karzar admin records parcel/tracking references, correction before handoff, handoff, and delivery — with **no** Postex quote or provider HTTP from Karzar. This does not remove Postex’s need for parcel data; it is deferred from catalog/checkout and captured manually during external portal fulfillment.
 - Creating a Postex label/barcode is **not** order `shipped`. `SHIPPED` requires tracking evidence of physical handoff. `DELIVERED` only when all required shipments are delivered.

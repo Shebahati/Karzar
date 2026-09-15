@@ -139,6 +139,27 @@ export function OrderDetailView({ trackingCode }: { trackingCode: string }) {
               {new Date(data.created_at).toLocaleDateString("fa-IR")}
             </p>
 
+            {data.mode === "purchase" && data.shipping_method_label && (
+              <div className="mt-4 space-y-1 border-t border-border pt-4 text-sm">
+                <p>
+                  <span className="text-muted-foreground">روش ارسال: </span>
+                  <span className="font-medium">{data.shipping_method_label}</span>
+                </p>
+                {data.shipping_cost_label && (
+                  <p>
+                    <span className="text-muted-foreground">هزینه ارسال: </span>
+                    <span>{data.shipping_cost_label}</span>
+                  </p>
+                )}
+                {data.postal_tracking_code && (
+                  <p className="tnum">
+                    <span className="text-muted-foreground">کد رهگیری: </span>
+                    {toPersianDigits(data.postal_tracking_code)}
+                  </p>
+                )}
+              </div>
+            )}
+
             {data.items?.length ? (
               <ul className="mt-4 space-y-3 border-t border-border pt-4">
                 {data.items.map((item) => {

@@ -138,6 +138,13 @@ class Settings(BaseSettings):
     POSTEX_ORIGIN_LAT: str | None = None
     POSTEX_ORIGIN_LON: str | None = None
 
+    # Active storefront carriers (receiver-due / manual fulfillment). Safe default OFF.
+    SHIPPING_TIPAX_ENABLED: bool = False
+    SHIPPING_CHAPAR_ENABLED: bool = False
+    SHIPPING_TEHRAN_EXPRESS_ENABLED: bool = False
+    # Explicit opt-in for legacy Postex quote checkout (never implied by POSTEX_ENABLED alone).
+    SHIPPING_POSTEX_CHECKOUT_ENABLED: bool = False
+
     PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
     ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
     ADMIN_STEP_UP_PIN: str = Field(

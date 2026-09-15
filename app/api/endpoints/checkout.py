@@ -146,8 +146,17 @@ async def checkout(
             "SHIPPING_QUOTE_MISMATCH",
             "SHIPPING_QUOTE_CONSUMED",
             "SHIPPING_QUOTE_STALE",
+            "SHIPPING_METHOD_DESTINATION_NOT_ELIGIBLE",
+            "CONFLICT",
         }:
             http_status = status.HTTP_409_CONFLICT
+        elif code in {
+            "SHIPPING_METHOD_REQUIRED",
+            "SHIPPING_METHOD_INVALID",
+        }:
+            http_status = status.HTTP_422_UNPROCESSABLE_CONTENT
+        elif code == "SHIPPING_METHOD_UNAVAILABLE":
+            http_status = status.HTTP_503_SERVICE_UNAVAILABLE
         raise api_error(
             http_status,
             error_code=code,

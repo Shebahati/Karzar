@@ -165,6 +165,7 @@ class TestP1AdminContract:
                     "postal_code": "1234567890",
                     "address_line": "خیابان جستجو پلاک ۱۲",
                 },
+                "shipping_method_code": "tipax_standard",
             },
             headers=auth_headers,
         )

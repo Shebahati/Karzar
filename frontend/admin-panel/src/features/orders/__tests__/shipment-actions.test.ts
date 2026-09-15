@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   canSubmitFinalPackageHazards,
   receiverFulfillmentDisplay,
-  manualPortalStatusLabel,
   shipmentActionAvailability,
   type AdminShipment,
 } from "@/features/orders/shipment-actions";
@@ -111,16 +110,39 @@ describe("shipmentActionAvailability", () => {
     expect(forms[b.internal_id]?.length_cm).toBe("40");
   });
 
-  it("disables API receiver workflow for manual_portal shipments", () => {
+  it("disables Postex receiver workflow for manual carrier shipments", () => {
     const manual = shipment({
+      provider: "tipax",
       shipping_payment_mode: "receiver_due",
-      fulfillment_mode: "manual_portal",
       status: "awaiting_packaging",
     });
     const actions = shipmentActionAvailability(manual);
     expect(actions.canSetPackage).toBe(false);
     expect(actions.canPackedQuote).toBe(false);
     expect(actions.canManualRegister).toBe(true);
-    expect(manualPortalStatusLabel(manual)).toBe("در انتظار ثبت دستی در پنل پستکس");
+  });
+
+  it("manual lifecycle actions respect shipment and order status", () => {
+    const tipax = (status: string, orderStatus?: string) =>
+      shipmentActionAvailability(
+        shipment({ provider: "tipax", shipping_payment_mode: "receiver_due", status }),
+        orderStatus,
+      );
+
+    expect(tipax("awaiting_packaging").canManualRegister).toBe(true);
+    expect(tipax("awaiting_packaging").canManualHandoff).toBe(false);
+    expect(tipax("awaiting_packaging").canManualDeliver).toBe(false);
+
+    expect(tipax("booked", "processing").canManualHandoff).toBe(true);
+    expect(tipax("booked", "processing").canManualDeliver).toBe(false);
+    expect(tipax("booked", "paid").canManualHandoff).toBe(false);
+
+    expect(tipax("picked_up", "shipped").canManualDeliver).toBe(true);
+    expect(tipax("picked_up", "processing").canManualDeliver).toBe(false);
+    expect(tipax("booked", "processing").canManualDeliver).toBe(false);
+
+    expect(tipax("delivered", "delivered").canManualRegister).toBe(false);
+    expect(tipax("delivered", "delivered").canManualHandoff).toBe(false);
+    expect(tipax("delivered", "delivered").canManualDeliver).toBe(false);
   });
 });
