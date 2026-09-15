@@ -4,6 +4,7 @@ import { HomeView } from "@/components/home/home-view";
 import { NAV_GROUPS, navGroupsFromApi } from "@/config/nav-groups";
 import { catalogKeys } from "@/features/catalog/keys";
 import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
+import { HOME_CATALOG_PRODUCTS_PARAMS } from "@/features/home/home-catalog-params";
 import { getQueryClient } from "@/lib/get-query-client";
 import { catalogService } from "@/services/catalog";
 import type { Brand, CategoryTreeNode } from "@/types/category";
@@ -11,9 +12,6 @@ import type { Brand, CategoryTreeNode } from "@/types/category";
 export const metadata: Metadata = {
   alternates: selfCanonicalAlternates(INDEXABLE_STATIC_CANONICALS.home),
 };
-
-const DISCOUNT_PARAMS = { limit: 12, sort: "newest" as const };
-const NEWEST_PARAMS = { limit: 10, sort: "newest" as const };
 
 export default async function HomePage() {
   const queryClient = getQueryClient();
@@ -36,12 +34,8 @@ export default async function HomePage() {
       queryFn: () => catalogService.listCategoriesTree(),
     }),
     queryClient.prefetchQuery({
-      queryKey: catalogKeys.products(DISCOUNT_PARAMS),
-      queryFn: () => catalogService.listProducts(DISCOUNT_PARAMS),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: catalogKeys.products(NEWEST_PARAMS),
-      queryFn: () => catalogService.listProducts(NEWEST_PARAMS),
+      queryKey: catalogKeys.products(HOME_CATALOG_PRODUCTS_PARAMS),
+      queryFn: () => catalogService.listProducts(HOME_CATALOG_PRODUCTS_PARAMS),
     }),
     queryClient.prefetchQuery({
       queryKey: catalogKeys.brands(),
