@@ -79,6 +79,12 @@ describe("catalogTomanToJsonLdIrr", () => {
     expect(catalogTomanToJsonLdIrr(".5")).toBe("5");
     expect(String(Number("1.13") * 10)).not.toBe("11.3");
   });
+
+  it("returns null for malformed non-empty catalog strings", () => {
+    expect(catalogTomanToJsonLdIrr("12abc")).toBeNull();
+    expect(catalogTomanToJsonLdIrr("1,000")).toBeNull();
+    expect(catalogTomanToJsonLdIrr("")).toBeNull();
+  });
 });
 
 describe("resolveProductImages", () => {
@@ -153,6 +159,15 @@ describe("buildProductNode / Offer gating", () => {
     expect(
       buildProductNode(baseProduct({ base_price: "   " })).offers,
     ).toBeUndefined();
+  });
+
+  it("omits Offer when base_price is present but not a valid Toman decimal", () => {
+    const node = buildProductNode(baseProduct({ base_price: "not-a-price" }));
+    expect(node["@type"]).toBe("Product");
+    expect(node.offers).toBeUndefined();
+    expect(node).not.toMatchObject({
+      offers: { price: "not-a-price" },
+    });
   });
 
   it("uses gallery images on Product when available", () => {

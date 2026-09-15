@@ -52,12 +52,12 @@ function stripLeadingZeros(digits: string): string {
  *
  * 1 Toman = 10 Iranian Rial. Shifts the decimal point one place to the right
  * (×10) with no binary floating-point arithmetic.
- * Malformed non-empty strings are returned unchanged so Offer gating stays intact.
+ * Returns null for malformed non-empty strings (fail-closed; omit Offer).
  */
-export function catalogTomanToJsonLdIrr(basePrice: string): string {
+export function catalogTomanToJsonLdIrr(basePrice: string): string | null {
   const trimmed = String(basePrice).trim();
   const match = /^([+-])?(?:(\d+)(?:\.(\d*))?|\.(\d+))$/.exec(trimmed);
-  if (!match) return trimmed;
+  if (!match) return null;
 
   const sign = match[1] === "-" ? "-" : "";
   const intDigits = match[2] ?? "0";
@@ -232,17 +232,20 @@ export function buildProductNode(product: ProductDetail): JsonLdNode {
 
   if (hasPresentPrice(product.base_price)) {
     const tomanPrice = String(product.base_price).trim();
-    node.offers = {
-      "@type": "Offer",
-      url,
-      priceCurrency: "IRR",
-      price: catalogTomanToJsonLdIrr(tomanPrice),
-      availability: product.availability
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-      seller: { "@id": ORG_ID },
-    };
+    const irrPrice = catalogTomanToJsonLdIrr(tomanPrice);
+    if (irrPrice != null) {
+      node.offers = {
+        "@type": "Offer",
+        url,
+        priceCurrency: "IRR",
+        price: irrPrice,
+        availability: product.availability
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@id": ORG_ID },
+      };
+    }
   }
 
   return node;
