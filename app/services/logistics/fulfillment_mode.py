@@ -14,6 +14,8 @@ from app.services.logistics.exceptions import ShipmentStateError
 class PostexFulfillmentMode(StrEnum):
     API = "api"
     MANUAL_PORTAL = "manual_portal"
+    # Storefront matrix carriers (Tipax/Chapar/Iran Post/local) — no Postex HTTP.
+    MANUAL = "manual"
 
 
 def configured_fulfillment_mode() -> PostexFulfillmentMode:
@@ -60,13 +62,14 @@ def is_corrupt_fulfillment_snapshot(shipment: Shipment) -> bool:
 
 
 def provider_automation_blocked(shipment: Shipment) -> bool:
-    """True when workers/API must not call Postex (manual portal or corrupt snapshot)."""
+    """True when workers/API must not call Postex (manual portal, matrix manual, corrupt snapshot)."""
     data = shipment.provider_data or {}
     raw = (data.get("fulfillment_mode") or "").strip().lower()
     if not raw:
         return False
     try:
-        return PostexFulfillmentMode(raw) == PostexFulfillmentMode.MANUAL_PORTAL
+        mode = PostexFulfillmentMode(raw)
+        return mode in (PostexFulfillmentMode.MANUAL_PORTAL, PostexFulfillmentMode.MANUAL)
     except ValueError:
         return True
 
@@ -104,6 +107,17 @@ def shipment_provider_automation_eligible_clause():
         mode == "",
         mode == PostexFulfillmentMode.API.value,
     )
+
+
+def is_manual_matrix_shipment(shipment: Shipment) -> bool:
+    data = shipment.provider_data or {}
+    raw = (data.get("fulfillment_mode") or "").strip().lower()
+    if not raw:
+        return False
+    try:
+        return PostexFulfillmentMode(raw) == PostexFulfillmentMode.MANUAL
+    except ValueError:
+        return False
 
 
 def assert_provider_path_allowed_for_fulfillment_snapshot(shipment: Shipment) -> None:

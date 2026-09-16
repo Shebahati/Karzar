@@ -12,6 +12,7 @@ import {
   manualPortalStatusLabel,
   receiverFulfillmentDisplay,
   isManualFulfillmentProvider,
+  usesPostexAutomationUi,
   shipmentActionAvailability,
   type AdminShipment,
   type HazardChoice,
@@ -335,6 +336,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
   }
 
   const receiverDue = order.shipping_payment_mode === "receiver_due";
+  const showPostexFreightSummary = shipments.some((s) => usesPostexAutomationUi(s));
   const fulfillment = receiverDue
     ? receiverFulfillmentDisplay(order, shipments)
     : {
@@ -383,21 +385,26 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
               {receiverDue ? "پس‌کرایه (از گیرنده)" : formatToman(order.shipping_customer_cost)}
             </span>
           </p>
-          <p>
-            <span className="text-muted-foreground">
-              {receiverDue ? "کرایه برآوردی پستکس — پرداخت توسط گیرنده: " : "هزینه کل ارائه‌دهنده به کارزار: "}
-            </span>
-            <span className="tnum">
-              {fulfillment.providerQuotedCost != null
-                ? formatToman(fulfillment.providerQuotedCost)
-                : "—"}
-            </span>
-          </p>
+          {(showPostexFreightSummary || !receiverDue) && (
+            <p>
+              <span className="text-muted-foreground">
+                {receiverDue && showPostexFreightSummary
+                  ? "کرایه برآوردی پستکس — پرداخت توسط گیرنده: "
+                  : "هزینه کل ارائه‌دهنده به کارزار: "}
+              </span>
+              <span className="tnum">
+                {fulfillment.providerQuotedCost != null
+                  ? formatToman(fulfillment.providerQuotedCost)
+                  : "—"}
+              </span>
+            </p>
+          )}
         </div>
 
         {shipments.map((shipment) => {
           const actions = shipmentActionAvailability(shipment, order.status);
           const manualPortal = shipment.fulfillment_mode === "manual_portal";
+          const postexAutomation = usesPostexAutomationUi(shipment);
           const options = quoteOptions[shipment.internal_id] ?? [];
           const form = formFor(shipment.internal_id);
           const portalLabel = manualPortalStatusLabel(shipment);
@@ -442,11 +449,12 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                   }
                 />
               ) : (
+                postexAutomation &&
                 shipment.shipping_payment_mode === "receiver_due" && (
                   <ReceiverWorkflow shipment={shipment} />
                 )
               )}
-              {!manualPortal && shipment.package && (
+              {postexAutomation && !manualPortal && shipment.package && (
                 <p className="text-xs text-muted-foreground tnum">
                   بسته {toPersianDigits(shipment.package.length_cm)}×{toPersianDigits(shipment.package.width_cm)}×
                   {toPersianDigits(shipment.package.height_cm)} cm / {toPersianDigits(shipment.package.weight_grams)}{" "}
@@ -521,7 +529,9 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                           ? "تحویل به تیپاکس"
                           : shipment.provider === "chapar"
                             ? "تحویل به چاپار"
-                            : "تحویل به حامل"}
+                            : shipment.provider === "iran_post"
+                              ? "تحویل به پست پیشتاز"
+                              : "تحویل به حامل"}
                     </Button>
                   )}
                   {actions.canManualDeliver && order.status === "shipped" && (
@@ -572,7 +582,7 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                   }}
                 />
               )}
-              {options.length > 0 && (
+              {postexAutomation && options.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-medium">انتخاب سرویس پستکس</p>
                   {options.map((opt) => (

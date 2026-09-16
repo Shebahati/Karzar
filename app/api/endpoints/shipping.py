@@ -58,6 +58,7 @@ from app.services.logistics.manual_fulfillment import (
 from app.services.logistics.manual_portal_guard import (
     lock_order_and_shipment,
     reject_generic_postex_provider_path,
+    reject_postex_admin_automation_path,
 )
 from app.services.logistics.manual_portal_service import (
     confirm_manual_delivery,
@@ -522,7 +523,10 @@ async def admin_packed_quote(
             message="ارسال پستی فعال نیست.",
         )
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
+    try:
+        reject_postex_admin_automation_path(shipment)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -554,7 +558,10 @@ async def admin_select_packed_service(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
+    try:
+        reject_postex_admin_automation_path(shipment)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -589,7 +596,10 @@ async def admin_schedule_receiver_booking(
 ):
     """Mark receiver_due shipment ready_to_book (not worker-claimable)."""
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
+    try:
+        reject_postex_admin_automation_path(shipment)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     order = await crud_commerce.get_order_by_id(db, order_id)
     if order is None:
         raise api_error(
@@ -617,7 +627,10 @@ async def admin_book_shipment(
     _: User = Depends(get_current_super_admin),
 ):
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
-    _reject_generic_postex_provider_path(shipment)
+    try:
+        reject_postex_admin_automation_path(shipment)
+    except LogisticsError as exc:
+        _raise_logistics(exc)
     try:
         require_postex_booking_enabled()
     except LogisticsError as exc:
