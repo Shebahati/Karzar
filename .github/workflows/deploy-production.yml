@@ -143,7 +143,7 @@ jobs:
             exit 1
           fi
           export ADMIN_SESSION_SECRET
-          bash deploy/staging/scripts/deploy-frontend.sh
+          bash deploy/staging/scripts/deploy-frontend-build-local.sh
 
           # OPS-20: hard smoke gate — admin must not soft-fail.
           API_BASE=http://127.0.0.1:8000 \

@@ -88,7 +88,7 @@ if [[ -z "${ADMIN_SESSION_SECRET:-}" || "${#ADMIN_SESSION_SECRET}" -lt 32 ]]; th
   fi
 fi
 export ADMIN_SESSION_SECRET
-bash deploy/staging/scripts/deploy-frontend.sh
+bash deploy/staging/scripts/deploy-frontend-build-local.sh
 
 echo "Smoke:"
 curl -sS http://127.0.0.1:8000/ready; echo

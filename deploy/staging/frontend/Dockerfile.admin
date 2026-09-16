@@ -2,10 +2,10 @@
 # Build context: admin-panel directory
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
+ARG NPM_REGISTRY=https://registry.npmjs.org/
 COPY package.json package-lock.json* ./
-# npmmirror is more reliable from Iranian VPS than registry.npmjs.org
-RUN npm config set registry https://registry.npmmirror.com \
- && npm install --no-audit --no-fund
+RUN npm config set registry "$NPM_REGISTRY" \
+ && npm ci --no-audit --no-fund
 
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
@@ -20,6 +20,12 @@ RUN npm run build
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
+ARG GIT_REVISION=unknown
+ARG IMAGE_SOURCE=https://github.com/Shebahati/Karzar
+ARG IMAGE_CREATED
+LABEL org.opencontainers.image.revision="${GIT_REVISION}"
+LABEL org.opencontainers.image.source="${IMAGE_SOURCE}"
+LABEL org.opencontainers.image.created="${IMAGE_CREATED}"
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3001
