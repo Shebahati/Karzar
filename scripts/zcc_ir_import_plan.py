@@ -21,7 +21,7 @@ if str(_SCRIPTS) not in sys.path:
 
 from zcc_ir_phase2 import FORBIDDEN_FLAGS  # noqa: E402
 from zcc_ir_phase2.pipeline import run_phase2_plan  # noqa: E402
-from zcc_ir_phase2.validate import validate_manifest  # noqa: E402
+from zcc_ir_phase2.validate import validate_manifest_layers  # noqa: E402
 
 
 def _reject_writes(argv: list[str]) -> int | None:
@@ -38,6 +38,14 @@ def _reject_writes(argv: list[str]) -> int | None:
 
 
 def cmd_plan(args: argparse.Namespace) -> int:
+    if args.read_db:
+        print(
+            "FATAL: Phase 2 approval planning requires --karzar-snapshot (file-backed catalog CSV). "
+            "--read-db is not supported for owner-bound import manifests. "
+            "Use catalog_target snapshot tooling separately, then pass the CSV path.",
+            file=sys.stderr,
+        )
+        return 2
     phase1_dir = Path(args.phase1_dir)
     output_dir = Path(args.output_dir)
     try:
@@ -64,10 +72,24 @@ def cmd_validate(args: argparse.Namespace) -> int:
     if not path.is_file():
         print(f"FATAL: manifest not found: {path}", file=sys.stderr)
         return 2
-    errors = validate_manifest(path)
-    if errors:
-        for err in errors:
-            print(f"INVALID: {err}", file=sys.stderr)
+    layers = validate_manifest_layers(path)
+    if layers.content_errors:
+        for err in layers.content_errors:
+            print(f"CONTENT_INVALID: {err}", file=sys.stderr)
+    if layers.commerce_errors:
+        for err in layers.commerce_errors:
+            print(f"COMMERCE_INVALID: {err}", file=sys.stderr)
+    print(
+        f"CONTENT_PLAN_VALID={layers.CONTENT_PLAN_VALID} "
+        f"COMMERCE_PLAN_VALID={layers.COMMERCE_PLAN_VALID} "
+        f"CONTENT_BLOCKING_ERROR_COUNT={layers.CONTENT_BLOCKING_ERROR_COUNT} "
+        f"CONTENT_DIAGNOSTIC_ROW_COUNT={layers.CONTENT_DIAGNOSTIC_ROW_COUNT} "
+        f"CONTENT_COLLISION_AFFECTED_ROW_COUNT={layers.CONTENT_COLLISION_AFFECTED_ROW_COUNT} "
+        f"LOGICAL_COLLISION_GROUP_COUNT={layers.LOGICAL_COLLISION_GROUP_COUNT} "
+        f"MUTATION_BLOCKING_COLLISION_GROUPS={layers.MUTATION_BLOCKING_COLLISION_GROUPS} "
+        f"CONTENT_MUTATION_PLAN_VALID={layers.CONTENT_MUTATION_PLAN_VALID}"
+    )
+    if layers.content_errors or layers.commerce_errors:
         return 1
     print("MANIFEST_VALID")
     return 0
@@ -94,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     plan.add_argument(
         "--read-db",
         action="store_true",
-        help="Local READ-ONLY DB snapshot via catalog_target (production refused)",
+        help="Rejected for Phase 2 plan (file-backed --karzar-snapshot required for SHA binding)",
     )
 
     validate = sub.add_parser("validate", help="Validate import manifest (read-only)")
