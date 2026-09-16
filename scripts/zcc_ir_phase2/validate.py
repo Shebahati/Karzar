@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256
 from zcc_ir_phase2.collision_clusters import build_logical_collision_clusters, index_to_cluster_id
+from zcc_ir_phase2.collision_policy import summarize_collision_impact
 from zcc_ir_phase2.manifest import ALLOWED_OPERATIONS, FORBIDDEN_OPERATIONS, manifest_sha256
 
 SKU_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._\-/]{0,120}$")
@@ -52,10 +53,35 @@ class ManifestValidationResult:
     commerce_errors: list[str] = field(default_factory=list)
     diagnostics: list[ValidationDiagnostic] = field(default_factory=list)
     logical_collision_clusters: list[Any] = field(default_factory=list)
+    collision_impact: Any | None = None
 
     @property
     def CONTENT_PLAN_VALID(self) -> bool:
         return not self.content_errors
+
+    @property
+    def CONTENT_SOURCE_QUALITY_VALID(self) -> bool:
+        if self.collision_impact is None:
+            return self.LOGICAL_COLLISION_GROUP_COUNT == 0
+        return self.collision_impact.CONTENT_SOURCE_QUALITY_VALID
+
+    @property
+    def CONTENT_MUTATION_PLAN_VALID(self) -> bool:
+        if self.collision_impact is None:
+            return True
+        return self.collision_impact.CONTENT_MUTATION_PLAN_VALID
+
+    @property
+    def MUTATION_BLOCKING_COLLISION_GROUPS(self) -> int:
+        if self.collision_impact is None:
+            return 0
+        return self.collision_impact.MUTATION_BLOCKING_COLLISION_GROUPS
+
+    @property
+    def MUTATION_BLOCKING_AFFECTED_ROWS(self) -> int:
+        if self.collision_impact is None:
+            return 0
+        return self.collision_impact.MUTATION_BLOCKING_AFFECTED_ROWS
 
     @property
     def COMMERCE_PLAN_VALID(self) -> bool:
@@ -99,7 +125,7 @@ class ManifestValidationResult:
     def all_errors(self) -> list[str]:
         return [*self.content_errors, *self.commerce_errors]
 
-    def summary_dict(self) -> dict[str, Any]:
+    def summary_dict(self, entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         blocking_urls = sorted(
             {d.source_url for d in self.diagnostics if d.layer == "content" and d.source_url}
         )
@@ -119,8 +145,15 @@ class ManifestValidationResult:
             }
             for c in self.logical_collision_clusters
         ]
+        collision_extra = (
+            self.collision_impact.as_dict(entries)
+            if self.collision_impact is not None and entries is not None
+            else {}
+        )
         return {
             "CONTENT_PLAN_VALID": self.CONTENT_PLAN_VALID,
+            "CONTENT_SOURCE_QUALITY_VALID": self.CONTENT_SOURCE_QUALITY_VALID,
+            "CONTENT_MUTATION_PLAN_VALID": self.CONTENT_MUTATION_PLAN_VALID,
             "COMMERCE_PLAN_VALID": self.COMMERCE_PLAN_VALID,
             "CONTENT_BLOCKING_ERROR_COUNT": self.CONTENT_BLOCKING_ERROR_COUNT,
             "COMMERCE_BLOCKING_ERROR_COUNT": self.COMMERCE_BLOCKING_ERROR_COUNT,
@@ -142,6 +175,7 @@ class ManifestValidationResult:
             "UNIQUE_BLOCKING_TARGET_SKUS": len(target_skus),
             "logical_collision_clusters": logical_clusters,
             "diagnostics": [d.as_dict() for d in self.diagnostics],
+            **collision_extra,
         }
 
 
@@ -189,6 +223,7 @@ def validate_manifest_layers(path: Path) -> ManifestValidationResult:
         return result
 
     result.logical_collision_clusters = build_logical_collision_clusters(entries)
+    result.collision_impact = summarize_collision_impact(entries)
     collision_by_index = index_to_cluster_id(result.logical_collision_clusters)
     seen_skus: set[str] = set()
     seen_identity: set[tuple[str, str]] = set()
@@ -369,10 +404,20 @@ def validate_manifest_layers(path: Path) -> ManifestValidationResult:
                 entry=None,
                 index=None,
             )
-    elif data.get("IMPORT_MANIFEST_SHA256"):
+    else:
+        add_diag(
+            layer="content",
+            error_type="MISSING_CANONICAL_HASH",
+            message="missing CANONICAL_IMPORT_PLAN_SHA256 (owner approval identity)",
+            entry=None,
+            index=None,
+        )
+
+    legacy = data.get("IMPORT_MANIFEST_SHA256")
+    if legacy:
         clone = dict(data)
         clone.pop("IMPORT_MANIFEST_SHA256", None)
-        if data.get("IMPORT_MANIFEST_SHA256") != manifest_sha256(clone):
+        if legacy != manifest_sha256(clone):
             add_diag(
                 layer="content",
                 error_type="LEGACY_HASH_MISMATCH",
@@ -380,14 +425,6 @@ def validate_manifest_layers(path: Path) -> ManifestValidationResult:
                 entry=None,
                 index=None,
             )
-    else:
-        add_diag(
-            layer="content",
-            error_type="MISSING_HASH",
-            message="missing CANONICAL_IMPORT_PLAN_SHA256 or IMPORT_MANIFEST_SHA256",
-            entry=None,
-            index=None,
-        )
 
     return result
 

@@ -91,17 +91,24 @@ def run_phase2_plan(
     read_db: bool = False,
     karzar_categories: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    if read_db:
+        raise ValueError(
+            "Phase 2 approval planning rejects --read-db: use --karzar-snapshot with an "
+            "immutable file-backed catalog CSV and SHA-256 binding (PHASE2_APPROVAL_INPUT="
+            "FILE_BACKED_SNAPSHOT_ONLY)"
+        )
+    if not karzar_snapshot:
+        raise ValueError(
+            "karzar_snapshot CSV path is required for Phase 2 approval manifests "
+            "(karzar_snapshot_sha256 binding)"
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
     products, phase1_meta = load_phase1_products(phase1_dir)
     phase1_reconcile = load_phase1_reconcile(phase1_dir)
     phase1_summary = load_phase1_summary(phase1_dir)
-    karzar, karzar_kind, karzar_note = load_karzar_catalog(snapshot_path=karzar_snapshot, read_db=read_db)
+    karzar, karzar_kind, karzar_note = load_karzar_catalog(snapshot_path=karzar_snapshot, read_db=False)
     if not karzar:
         raise RuntimeError(f"Karzar full catalog unavailable: {karzar_note}")
-    if not karzar_snapshot:
-        raise RuntimeError(
-            "karzar_snapshot CSV path is required to bind karzar_snapshot_sha256 in the import manifest"
-        )
     karzar_snapshot_sha256 = sha256_file(Path(karzar_snapshot))
 
     categories = karzar_categories

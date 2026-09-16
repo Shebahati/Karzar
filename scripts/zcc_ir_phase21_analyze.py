@@ -18,7 +18,10 @@ if str(_SCRIPTS) not in sys.path:
 
 from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256, sha256_file  # noqa: E402
 from zcc_ir_phase2.category_plan import category_by_url  # noqa: E402
-from zcc_ir_phase2.collision_clusters import build_logical_collision_clusters  # noqa: E402
+from zcc_ir_phase2.collision_policy import (  # noqa: E402
+    classify_collision_kind,
+    summarize_collision_impact,
+)
 from zcc_ir_phase2.load import load_phase1_products  # noqa: E402
 from zcc_ir_phase2.stc_hold import summarize_hold_brand_review  # noqa: E402
 from zcc_ir_phase2.validate import validate_manifest_layers  # noqa: E402
@@ -57,7 +60,7 @@ def _logical_collision_csv_rows(
             ident = entry.get("source_identity") or {}
             brand = str(ident.get("brand") or "")
             mfg = str(ident.get("manufacturer_code") or "")
-            classification = _classify_collision(entry, reasons_text)
+            classification = classify_collision_kind(entry, cluster, entries)
             rows.append(
                 {
                     "collision_group": cluster.cluster_id,
@@ -78,23 +81,12 @@ def _logical_collision_csv_rows(
     return rows
 
 
-def _classify_collision(entry: dict[str, Any], reason: str) -> str:
-    url = str(entry.get("source_url") or "")
-    if "%D8%" in url and reason == "manufacturer_identity":
-        return "ENCODING_DUPLICATE"
-    flags = entry.get("blocking_flags") or []
-    if "ambiguous_match" in flags:
-        return "TRUE_IDENTITY_CONFLICT"
-    if entry.get("karzar_product_id") or (entry.get("target_identity") or {}).get("karzar_id"):
-        return "KARZAR_EXISTING_DUPLICATE"
-    return "SOURCE_DUPLICATE"
-
-
 def _recommend_resolution(kind: str) -> str:
     return {
         "ENCODING_DUPLICATE": "KEEP_ONE_CANONICAL_SOURCE",
-        "SOURCE_DUPLICATE": "HOLD",
-        "ALIAS_OF_SAME_PRODUCT": "NOOP_EXISTING",
+        "MUTATION_IDENTITY_COLLISION": "HOLD",
+        "SOURCE_QUALITY_FORENSIC": "REVIEW_SOURCE_QUALITY",
+        "NOOP_EXISTING_MATCH": "NOOP_EXISTING",
         "KARZAR_EXISTING_DUPLICATE": "NOOP_EXISTING",
         "TRUE_IDENTITY_CONFLICT": "HOLD",
         "UNKNOWN_REVIEW": "HOLD",
@@ -178,7 +170,8 @@ def run_analysis(
     brand_conflict = stc_summary["NON_STC_BRAND_REVIEW_ROWS"]
     stc_invariant = stc_summary["COUNT_INVARIANT_VALID"]
 
-    logical_clusters = build_logical_collision_clusters(entries)
+    collision_impact = summarize_collision_impact(entries)
+    logical_clusters = collision_impact.all_logical_clusters
     dup_rows = _logical_collision_csv_rows(entries, logical_clusters)
     _write_csv(
         phase2_dir / "review_duplicate_identities.csv",
@@ -200,13 +193,8 @@ def run_analysis(
         dup_rows,
     )
 
-    collision_urls = {
-        entries[idx].get("source_url")
-        for cluster in logical_clusters
-        for idx in cluster.entry_indices
-        if entries[idx].get("operation") == "CREATE_PLAN"
-    }
-    collision_urls = {u for u in collision_urls if u}
+    collision_urls = collision_impact.create_blocking_urls(entries)
+    update_collision_urls = collision_impact.update_blocking_urls(entries)
     ops = Counter(e.get("operation") for e in entries)
     create_entries = [e for e in entries if e.get("operation") == "CREATE_PLAN"]
 
@@ -341,17 +329,14 @@ def run_analysis(
     )
 
     validation = validate_manifest_layers(manifest_path)
-    dup_summary = validation.summary_dict()
+    dup_summary = validation.summary_dict(entries)
     dup_summary["DUPLICATE_COLLISION_GROUPS_OWNER_REVIEW"] = len({r["collision_group"] for r in dup_rows})
     dup_summary["OWNER_REVIEW_UNIQUE_SOURCE_URLS"] = len({r["source_url"] for r in dup_rows})
     dup_summary["diagnostic_reconciliation"] = (
-        "CONTENT_BLOCKING_ERROR_COUNT = diagnostic messages (not row count). "
-        "CONTENT_DIAGNOSTIC_ROW_COUNT = unique source_url with content diagnostics. "
-        "LOGICAL_COLLISION_GROUP_COUNT = connected duplicate clusters (mfg OR SKU). "
-        "CONTENT_COLLISION_AFFECTED_ROW_COUNT = every source row in a logical cluster. "
-        "DUPLICATE_IDENTITY_DIAGNOSTICS / DUPLICATE_SKU_DIAGNOSTICS = per-reason message counts. "
-        "OWNER_REVIEW_UNIQUE_SOURCE_URLS = unique URLs in review_duplicate_identities.csv. "
-        "TOTAL_VALIDATOR_DIAGNOSTICS = content + commerce diagnostics."
+        "ALL_MANIFEST_* = full forensic collision graph (includes NOOP/HOLD-only clusters). "
+        "MUTATION_BLOCKING_* = clusters with CREATE_PLAN or UPDATE_CONTENT_PLAN members. "
+        "CREATE_BLOCKING_COLLISION_ROWS = CREATE_PLAN rows in mutation-blocking clusters. "
+        "CONTENT_DIAGNOSTIC_ROW_COUNT = rows with validator duplicate diagnostics."
     )
     dup_summary["readiness_create_plan"] = {
         "CREATE_PLAN": len(create_entries),
@@ -392,10 +377,22 @@ def run_analysis(
         "BRAND_REVIEW_NON_STC_ROWS": brand_conflict,
         "CATEGORY_READY_PRODUCTS": sum(1 for c in cat_map.values() if c.decision == "MAPPED_EXISTING"),
         "CATEGORY_HOLD_PRODUCTS": 729 - sum(1 for c in cat_map.values() if c.decision == "MAPPED_EXISTING"),
-        "UNRESOLVED_DUPLICATE_ROWS": len({r["source_url"] for r in dup_rows}),
+        "UNRESOLVED_DUPLICATE_ROWS": len(collision_urls),
+        "UPDATE_COLLISION_BLOCKED": len(update_collision_urls),
+        "ALL_COLLISION_GROUPS": collision_impact.ALL_MANIFEST_LOGICAL_COLLISION_GROUPS,
+        "MUTATION_BLOCKING_GROUPS": collision_impact.MUTATION_BLOCKING_COLLISION_GROUPS,
     }
 
-    _write_owner_v2(phase2_dir, summary, counts, validation, stc_packet, snapshot_sha, manifest)
+    _write_owner_v2(
+        phase2_dir,
+        summary,
+        counts,
+        validation,
+        stc_packet,
+        snapshot_sha,
+        manifest,
+        collision_impact,
+    )
 
     return {
         "counts": counts,
@@ -436,6 +433,7 @@ def _write_owner_v2(
     stc: dict[str, Any],
     snapshot_sha: str,
     manifest: dict[str, Any],
+    collision_impact: Any,
 ) -> None:
     text = f"""# ZCC.IR Phase 2.1 — Owner decision packet (V2)
 
@@ -481,25 +479,33 @@ Frozen inputs:
 - **IF_DEFERRED:** No availability writes (default)
 
 ## 6. CONTENT CREATE PLAN
-- **RECOMMENDED_OPTION:** **DEFER** while duplicate identity blockers remain ({validation.LOGICAL_COLLISION_GROUP_COUNT} logical collision groups)
-- **AFFECTED_ROWS:** {counts["CREATE_PLAN"]} CREATE_PLAN; {counts["CONTENT_CREATE_READY"]} content-create-ready
-- **RISK:** Duplicate manufacturer targets; validator content layer: {validation.CONTENT_PLAN_VALID}
+- **RECOMMENDED_OPTION:** **DEFER** while mutation-blocking collisions remain ({collision_impact.MUTATION_BLOCKING_COLLISION_GROUPS} groups; {counts["ALL_COLLISION_GROUPS"]} total forensic collision groups)
+- **AFFECTED_ROWS:** {counts["CREATE_PLAN"]} CREATE_PLAN; {counts["CONTENT_CREATE_READY"]} content-create-ready; {counts["UNRESOLVED_DUPLICATE_ROWS"]} CREATE rows blocked by mutation collisions
+- **RISK:** Duplicate manufacturer targets; CONTENT_MUTATION_PLAN_VALID={validation.CONTENT_MUTATION_PLAN_VALID}
 - **IF_APPROVED:** Future dry-run writer may create non-sellable products only
 - **IF_DEFERRED:** All creates remain plan-only
 
 ## 7. CONTENT UPDATE PLAN
 - **RECOMMENDED_OPTION:** **HUMAN_REVIEW_REQUIRED** for all 13 products (see `owner_update_review.csv`); approval does not apply updates
-- **AFFECTED_ROWS:** {counts["UPDATE_CONTENT_PLAN"]} products
+- **AFFECTED_ROWS:** {counts["UPDATE_CONTENT_PLAN"]} products; {counts["UPDATE_COLLISION_BLOCKED"]} UPDATE rows in mutation-blocking collision clusters
 - **RISK:** Title/spec overwrites on live Karzar PDPs
 - **IF_APPROVED:** Field-level updates per CSV recommendations
 - **IF_DEFERRED:** Karzar content unchanged
 
 CONTENT_PLAN_VALID = {validation.CONTENT_PLAN_VALID}
+CONTENT_SOURCE_QUALITY_VALID = {validation.CONTENT_SOURCE_QUALITY_VALID}
+CONTENT_MUTATION_PLAN_VALID = {validation.CONTENT_MUTATION_PLAN_VALID}
 COMMERCE_PLAN_VALID = {validation.COMMERCE_PLAN_VALID}
+ALL_MANIFEST_LOGICAL_COLLISION_GROUPS = {collision_impact.ALL_MANIFEST_LOGICAL_COLLISION_GROUPS}
+ALL_MANIFEST_COLLISION_AFFECTED_ROWS = {collision_impact.ALL_MANIFEST_COLLISION_AFFECTED_ROWS}
+MUTATION_BLOCKING_COLLISION_GROUPS = {collision_impact.MUTATION_BLOCKING_COLLISION_GROUPS}
+MUTATION_BLOCKING_AFFECTED_ROWS = {collision_impact.MUTATION_BLOCKING_AFFECTED_ROWS}
+CREATE_BLOCKING_COLLISION_ROWS = {counts["UNRESOLVED_DUPLICATE_ROWS"]}
+UPDATE_BLOCKING_COLLISION_ROWS = {counts["UPDATE_COLLISION_BLOCKED"]}
 CONTENT_BLOCKING_ERROR_COUNT = {validation.CONTENT_BLOCKING_ERROR_COUNT} (diagnostic messages)
 CONTENT_DIAGNOSTIC_ROW_COUNT = {validation.CONTENT_DIAGNOSTIC_ROW_COUNT} (rows with diagnostics)
-LOGICAL_COLLISION_GROUP_COUNT = {validation.LOGICAL_COLLISION_GROUP_COUNT}
-CONTENT_COLLISION_AFFECTED_ROW_COUNT = {validation.CONTENT_COLLISION_AFFECTED_ROW_COUNT} (all rows in logical clusters)
+DUPLICATE_IDENTITY_DIAGNOSTICS = {validation.DUPLICATE_IDENTITY_DIAGNOSTICS}
+DUPLICATE_SKU_DIAGNOSTICS = {validation.DUPLICATE_SKU_DIAGNOSTICS}
 PRICE_WRITE_READY = 0
 AVAILABILITY_WRITE_READY = 0
 
