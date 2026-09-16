@@ -51,7 +51,7 @@ test.describe("shipping method selection (mock)", () => {
     await expect(page.getByText("تیپاکس")).toBeVisible();
     await expect(page.getByText("پس‌کرایه").first()).toBeVisible();
     await page.getByRole("radio", { name: /ارسال فوری ۳ ساعته/i }).click();
-    await expect(page.getByText(/هزینه ارسال هنگام تحویل به پیک/i)).toBeVisible();
+    await expect(page.getByText(/هزینه ارسال هنگام تحویل به پیک/i).first()).toBeVisible();
   });
 
   async function completeCheckoutWithMethod(
