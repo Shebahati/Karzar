@@ -16,6 +16,13 @@ _TEHRAN_CITY_ALIASES = frozenset(
     }
 )
 
+_TEHRAN_PROVINCE_ALIASES = frozenset(
+    {
+        "تهران",
+        "tehran",
+    }
+)
+
 
 def normalize_geo_text(value: str | None) -> str:
     if not value:
@@ -24,6 +31,14 @@ def normalize_geo_text(value: str | None) -> str:
     text = text.translate(_ARABIC_TO_PERSIAN)
     text = re.sub(r"\s+", " ", text)
     return text.casefold()
+
+
+def is_tehran_province(province: str | None) -> bool:
+    """Tehran **province** (استان تهران) — eligibility uses province only, not city."""
+    province_norm = normalize_geo_text(province)
+    if not province_norm:
+        return False
+    return province_norm in {normalize_geo_text(a) for a in _TEHRAN_PROVINCE_ALIASES}
 
 
 def is_tehran_city(province: str | None, city: str | None) -> bool:

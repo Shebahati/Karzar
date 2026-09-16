@@ -331,13 +331,19 @@ def step_up_headers(super_admin_headers):
     return {**super_admin_headers, "X-Step-Up-Token": secure_token}
 
 
-@pytest.fixture
-def enable_storefront_shipping_methods(monkeypatch):
-    """Explicit opt-in for Tipax/Chapar/Tehran Express checkout tests."""
+def _enable_all_storefront_shipping_flags(monkeypatch) -> None:
     monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", True)
     monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", True)
-    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_POST_PISHTAZ_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED", True)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_3H_ENABLED", True)
     monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
+
+
+@pytest.fixture
+def enable_storefront_shipping_methods(monkeypatch):
+    """Explicit opt-in for storefront receiver-due shipping method checkout tests."""
+    _enable_all_storefront_shipping_flags(monkeypatch)
 
 
 DEFAULT_TEST_SHIPPING_METHOD_CODE = "tipax_standard"
@@ -353,10 +359,7 @@ def _enable_carrier_shipping_for_legacy_purchase_tests(monkeypatch, request):
         or "test_postex" in mod
     ):
         return
-    monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", True)
-    monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", True)
-    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", True)
-    monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
+    _enable_all_storefront_shipping_flags(monkeypatch)
 
 
 @pytest.fixture

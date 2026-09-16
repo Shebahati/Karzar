@@ -36,7 +36,7 @@ async function otpToShippingStep(page: Page) {
 test.describe("shipping method selection (mock)", () => {
   test.setTimeout(120_000);
 
-  test("Tehran address shows Tehran Express and receiver-due copy", async ({ page }) => {
+  test("Tehran province address shows five methods and receiver-due copy", async ({ page }) => {
     await otpToShippingStep(page);
     const shipping = page.locator("form").filter({
       has: page.getByRole("heading", { level: 2, name: "اطلاعات ارسال" }),
@@ -45,10 +45,12 @@ test.describe("shipping method selection (mock)", () => {
     await shipping.getByLabel(/^شهر$/i).fill("تهران");
     await shipping.getByLabel(/کد پستی/i).fill("1234567890");
     await shipping.getByLabel(/نشانی کامل/i).fill("خیابان ولیعصر پلاک ۱۲۳ واحد ۴");
-    await expect(page.getByText("ارسال فوری تهران")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("ارسال فوری ۳ ساعته")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("پیک موتوری حداکثر تا ۴۸ ساعت")).toBeVisible();
+    await expect(page.getByText("پست پیشتاز")).toBeVisible();
     await expect(page.getByText("تیپاکس")).toBeVisible();
     await expect(page.getByText("پس‌کرایه").first()).toBeVisible();
-    await page.getByRole("radio", { name: /ارسال فوری تهران/i }).click();
+    await page.getByRole("radio", { name: /ارسال فوری ۳ ساعته/i }).click();
     await expect(page.getByText(/هزینه ارسال هنگام تحویل به پیک/i)).toBeVisible();
   });
 
@@ -85,25 +87,17 @@ test.describe("shipping method selection (mock)", () => {
     });
   }
 
-  test("Tehran Express checkout snapshots method and merchandise-only total", async ({
+  test("Tehran express 3h checkout snapshots method and merchandise-only total", async ({
     page,
   }) => {
-    await completeCheckoutWithMethod(page, "تهران", /ارسال فوری تهران/i);
+    await completeCheckoutWithMethod(page, "تهران", /ارسال فوری ۳ ساعته/i);
     const order = await latestMockOrder(page);
     expect(order).toBeTruthy();
-    expect(order?.shipping_method_code).toBe("tehran_express");
+    expect(order?.shipping_method_code).toBe("tehran_express_3h");
     expect(order?.shipping_provider).toBe("local_delivery");
   });
 
-  test("non-Tehran Tipax checkout snapshots tipax provider", async ({ page }) => {
-    await completeCheckoutWithMethod(page, "شهریار", /تیپاکس/i);
-    const order = await latestMockOrder(page);
-    expect(order).toBeTruthy();
-    expect(order?.shipping_method_code).toBe("tipax_standard");
-    expect(order?.shipping_provider).toBe("tipax");
-  });
-
-  test("non-Tehran city hides Tehran Express", async ({ page }) => {
+  test("Shahriar in Tehran province still shows local express", async ({ page }) => {
     await otpToShippingStep(page);
     const shipping = page.locator("form").filter({
       has: page.getByRole("heading", { level: 2, name: "اطلاعات ارسال" }),
@@ -112,7 +106,21 @@ test.describe("shipping method selection (mock)", () => {
     await shipping.getByLabel(/^شهر$/i).fill("شهریار");
     await shipping.getByLabel(/کد پستی/i).fill("1234567890");
     await shipping.getByLabel(/نشانی کامل/i).fill("خیابان تست پلاک ۱");
+    await expect(page.getByText("ارسال فوری ۳ ساعته")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("تیپاکس")).toBeVisible();
+  });
+
+  test("non-Tehran province hides local methods", async ({ page }) => {
+    await otpToShippingStep(page);
+    const shipping = page.locator("form").filter({
+      has: page.getByRole("heading", { level: 2, name: "اطلاعات ارسال" }),
+    });
+    await shipping.getByLabel(/^استان$/i).fill("البرز");
+    await shipping.getByLabel(/^شهر$/i).fill("کرج");
+    await shipping.getByLabel(/کد پستی/i).fill("1234567890");
+    await shipping.getByLabel(/نشانی کامل/i).fill("خیابان تست پلاک ۱");
     await expect(page.getByText("تیپاکس")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("ارسال فوری تهران")).not.toBeVisible();
+    await expect(page.getByText("ارسال فوری ۳ ساعته")).not.toBeVisible();
+    await expect(page.getByText("پیک موتوری")).not.toBeVisible();
   });
 });

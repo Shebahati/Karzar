@@ -216,7 +216,7 @@ async def transition_order_status(
 
     if target == OrderStatus.SHIPPED.value:
         provider = (order.shipping_provider or "").strip()
-        if via_shipment_lifecycle and provider in {"tipax", "chapar", "local_delivery"}:
+        if via_shipment_lifecycle and provider in {"tipax", "chapar", "iran_post", "local_delivery"}:
             tracking = (postal_tracking_code or "").strip()
             if tracking:
                 order.postal_tracking_code = tracking

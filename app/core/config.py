@@ -141,7 +141,9 @@ class Settings(BaseSettings):
     # Active storefront carriers (receiver-due / manual fulfillment). Safe default OFF.
     SHIPPING_TIPAX_ENABLED: bool = False
     SHIPPING_CHAPAR_ENABLED: bool = False
-    SHIPPING_TEHRAN_EXPRESS_ENABLED: bool = False
+    SHIPPING_POST_PISHTAZ_ENABLED: bool = False
+    SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED: bool = False
+    SHIPPING_TEHRAN_EXPRESS_3H_ENABLED: bool = False
     # Explicit opt-in for legacy Postex quote checkout (never implied by POSTEX_ENABLED alone).
     SHIPPING_POSTEX_CHECKOUT_ENABLED: bool = False
 

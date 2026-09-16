@@ -5,13 +5,18 @@ from __future__ import annotations
 PROVIDER_LABELS_FA: dict[str, str] = {
     "tipax": "تیپاکس",
     "chapar": "چاپار",
-    "local_delivery": "ارسال فوری تهران",
+    "iran_post": "پست پیشتاز",
+    "local_delivery": "ارسال محلی",
     "postex": "پستکس",
 }
 
 SERVICE_LABELS_FA: dict[str, str] = {
     "standard": "استاندارد",
-    "tehran_express": "ارسال فوری تهران",
+    "pishtaz": "پست پیشتاز",
+    "motorcycle_48h": "پیک موتوری حداکثر تا ۴۸ ساعت",
+    "express_3h": "ارسال فوری ۳ ساعته",
+    # Legacy pre-activation local service code
+    "tehran_express": "ارسال فوری ۳ ساعته",
 }
 
 PAYMENT_MODE_LABELS_FA: dict[str, str] = {
@@ -21,8 +26,11 @@ PAYMENT_MODE_LABELS_FA: dict[str, str] = {
 
 
 def provider_label_fa(provider: str | None, service_code: str | None = None) -> str:
-    if provider == "local_delivery" and service_code == "tehran_express":
-        return PROVIDER_LABELS_FA["local_delivery"]
+    service = (service_code or "").strip()
+    if provider == "local_delivery" and service:
+        return SERVICE_LABELS_FA.get(service, PROVIDER_LABELS_FA["local_delivery"])
+    if provider == "iran_post":
+        return PROVIDER_LABELS_FA["iran_post"]
     if provider:
         return PROVIDER_LABELS_FA.get(provider, provider)
     return "—"

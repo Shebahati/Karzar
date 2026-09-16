@@ -399,13 +399,15 @@ export const mockApi = {
 
     const methodCode = payload.shipping_method_code ?? null;
     const provider =
-      methodCode === "tehran_express"
+      methodCode === "tehran_motorcycle_48h" || methodCode === "tehran_express_3h"
         ? "local_delivery"
-        : methodCode === "chapar_standard"
-          ? "chapar"
-          : methodCode === "tipax_standard"
-            ? "tipax"
-            : null;
+        : methodCode === "post_pishtaz"
+          ? "iran_post"
+          : methodCode === "chapar_standard"
+            ? "chapar"
+            : methodCode === "tipax_standard"
+              ? "tipax"
+              : null;
 
     mockOrders.set(id, {
       order_id: id,
