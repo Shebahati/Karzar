@@ -23,6 +23,7 @@ import { HOME_CATALOG_PRODUCTS_PARAMS } from "@/features/home/home-catalog-param
 import { useHomeLayoutPack } from "@/features/home/use-home-layout";
 import { defaultHomeLayoutPack } from "@/types/home-layout";
 import type { Brand, CategoryTreeNode } from "@/types/category";
+import type { DesignedHeroPack } from "@/types/hero-design";
 import type { ProductSummary } from "@/types/product";
 
 function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
@@ -42,9 +43,13 @@ function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
 export function HomeView({
   initialBrands = [],
   initialCategoryTree = [],
+  initialDesignedHeroPack = null,
+  initialDesignedHeroPackUpdatedAt,
 }: {
   initialBrands?: Brand[];
   initialCategoryTree?: CategoryTreeNode[];
+  initialDesignedHeroPack?: DesignedHeroPack | null;
+  initialDesignedHeroPackUpdatedAt?: number;
 }) {
   const layoutQuery = useHomeLayoutPack();
   const sections =
@@ -100,7 +105,10 @@ export function HomeView({
         Small viewport units stay locked to the chrome-expanded size.
       */}
       <div className="relative h-[62svh] max-w-full overflow-x-clip [overflow-anchor:none] md:h-[100svh]">
-        <Hero />
+        <Hero
+          initialDesignedHeroPack={initialDesignedHeroPack}
+          initialDesignedHeroPackUpdatedAt={initialDesignedHeroPackUpdatedAt}
+        />
       </div>
 
       <div className="relative mt-5 max-w-full overflow-x-clip bg-background pb-10 md:pb-16">
