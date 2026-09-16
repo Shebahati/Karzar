@@ -50,8 +50,10 @@ test.describe("shipping method selection (mock)", () => {
     await expect(page.getByText("پست پیشتاز")).toBeVisible();
     await expect(page.getByText("تیپاکس")).toBeVisible();
     await expect(page.getByText("پس‌کرایه").first()).toBeVisible();
-    await page.getByRole("radio", { name: /ارسال فوری ۳ ساعته/i }).click();
-    await expect(page.getByText(/هزینه ارسال هنگام تحویل به پیک/i).first()).toBeVisible();
+    const express3h = page.getByRole("radio", { name: /ارسال فوری ۳ ساعته/i });
+    await express3h.click();
+    await expect(express3h).toBeChecked();
+    await expect(express3h).toContainText("هزینه ارسال هنگام تحویل به پیک پرداخت می‌شود");
   });
 
   async function completeCheckoutWithMethod(
