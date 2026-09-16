@@ -37,6 +37,7 @@ import {
 import { orderedTaxonomyRoots, NAV_GROUPS } from "@/config/nav-groups";
 import { useCategoryTree, useHeroSlides, useNavGroupDefs } from "@/features/catalog/queries";
 import { useDesignedHeroPack } from "@/features/home/use-hero-design";
+import type { DesignedHeroPack } from "@/types/hero-design";
 import { HERO_IMAGE_QUALITY, lcpImageProps } from "@/lib/cwv";
 import { cn } from "@/lib/utils";
 import type { HeroSlide } from "@/types/content";
@@ -76,8 +77,17 @@ function buildOrbSlides(
   });
 }
 
-export function Hero() {
-  const designQuery = useDesignedHeroPack();
+export function Hero({
+  initialDesignedHeroPack = null,
+  initialDesignedHeroPackUpdatedAt,
+}: {
+  initialDesignedHeroPack?: DesignedHeroPack | null;
+  initialDesignedHeroPackUpdatedAt?: number;
+}) {
+  const designQuery = useDesignedHeroPack(
+    initialDesignedHeroPack,
+    initialDesignedHeroPackUpdatedAt,
+  );
   const cmsQuery = useHeroSlides();
   const treeQuery = useCategoryTree();
   const { data: navDefs = NAV_GROUPS } = useNavGroupDefs();
