@@ -1,27 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { fetchHeroDesignPack } from "@/features/home/hero-design";
 import type { DesignedHeroPack } from "@/types/hero-design";
 
-async function fetchHeroDesignPack(): Promise<DesignedHeroPack | null> {
-  try {
-    const res = await fetch("/hero-design.json", { cache: "no-store" });
-    if (!res.ok) return null;
-    const data = (await res.json()) as DesignedHeroPack;
-    if (!data || data.version !== 1 || !Array.isArray(data.slides) || !data.slides.length) {
-      return null;
-    }
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-export function useDesignedHeroPack() {
+export function useDesignedHeroPack(
+  initialData?: DesignedHeroPack | null,
+  initialDataUpdatedAt?: number,
+) {
+  const hasInitial = initialData != null;
   return useQuery({
     queryKey: ["hero-design-pack"],
     queryFn: fetchHeroDesignPack,
     staleTime: 30_000,
     retry: false,
+    initialData: hasInitial ? initialData : undefined,
+    initialDataUpdatedAt: hasInitial ? initialDataUpdatedAt : undefined,
   });
 }
