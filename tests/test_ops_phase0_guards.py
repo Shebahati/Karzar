@@ -1,5 +1,7 @@
 """Static regression checks for the Phase 0 deployment and backup guards."""
 
+import os
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +60,71 @@ def test_deploy_frontend_waits_for_http_readiness_after_container_start():
     admin_run = script.index("docker run -d --name karzar_admin")
     wait_at = script.index("wait-staging-frontends.sh")
     assert admin_run < wait_at
+
+
+def test_deploy_production_workflow_still_invokes_smoke_staging_directly():
+    text = _read(".github/workflows/deploy-production.yml")
+    assert "bash deploy/staging/scripts/smoke-staging.sh" in text
+    assert "run-smoke-staging.sh" not in text
+
+
+def test_wait_staging_http_canonicalizes_curl_connection_failure_code(tmp_path):
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_curl = fake_bin / "curl"
+    fake_curl.write_text(
+        "#!/usr/bin/env bash\n"
+        "printf '000'\n"
+        "exit 7\n",
+        encoding="utf-8",
+    )
+    fake_curl.chmod(0o755)
+
+    script = ROOT / "deploy/staging/scripts/wait-staging-http.sh"
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["READINESS_DEADLINE_SEC"] = "0"
+    env["POLL_INTERVAL_SEC"] = "1"
+
+    result = subprocess.run(
+        ["bash", str(script), "testsvc", "http://127.0.0.1:9/nope", "200"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "testsvc_READINESS_FAILED: last HTTP code 000" in result.stderr
+    assert "000000" not in result.stderr
+
+
+def test_wait_staging_http_accepts_http_200_from_curl(tmp_path):
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_curl = fake_bin / "curl"
+    fake_curl.write_text(
+        "#!/usr/bin/env bash\n"
+        "printf '200'\n"
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake_curl.chmod(0o755)
+
+    script = ROOT / "deploy/staging/scripts/wait-staging-http.sh"
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+
+    result = subprocess.run(
+        ["bash", str(script), "testsvc", "http://127.0.0.1:1/ok", "200"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "READY testsvc (HTTP 200)" in result.stdout
 
 
 def test_live_data_apply_workflows_honor_freeze():

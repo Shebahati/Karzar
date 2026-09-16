@@ -41,13 +41,18 @@ print_readiness_diagnostics() {
   echo "Diagnostics (no secrets):" >&2
   docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>/dev/null | head -20 >&2 || true
   if [[ -n "${WAIT_DOCKER_CONTAINER:-}" ]]; then
-    docker logs --tail=200 "$WAIT_DOCKER_CONTAINER" 2>&1 >&2 || true
+    docker logs --tail=200 "$WAIT_DOCKER_CONTAINER" > /dev/stderr 2>&1 || true
   fi
 }
 
 while true; do
   attempt=$((attempt + 1))
-  code="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' "$URL" 2>/dev/null || echo "000")"
+  code="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' "$URL" 2>/dev/null || true)"
+  code="${code//$'\n'/}"
+  code="${code//$'\r'/}"
+  if [[ -z "$code" ]]; then
+    code="000"
+  fi
   for expect in "${ACCEPT_CODES[@]}"; do
     if [[ "$code" == "$expect" ]]; then
       echo "READY ${SERVICE_LABEL} (HTTP ${code}) ${URL} after ${attempt} poll(s)"
