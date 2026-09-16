@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# Shared helpers for prebuilt staging frontend image handoff (GitHub-hosted → VPS).
+# Does not log secrets. Safe to source from push/load/selftest scripts.
+set -euo pipefail
+
+if [[ -n "${KARZAR_FRONTEND_IMAGE_LIB_LOADED:-}" ]]; then
+  return 0 2>/dev/null || exit 0
+fi
+KARZAR_FRONTEND_IMAGE_LIB_LOADED=1
+
+KARZAR_FRONTEND_IMAGES_SUBDIR="${KARZAR_FRONTEND_IMAGES_SUBDIR:-frontend-images}"
+KARZAR_FRONTEND_BUNDLE_NAME="${KARZAR_FRONTEND_BUNDLE_NAME:-frontend-images.tar}"
+KARZAR_FRONTEND_CHECKSUM_NAME="${KARZAR_FRONTEND_CHECKSUM_NAME:-frontend-images.sha256}"
+KARZAR_FRONTEND_IMAGES_MARKER="${KARZAR_FRONTEND_IMAGES_MARKER:-FRONTEND_IMAGES_HANDOFF_COMPLETE}"
+KARZAR_IMAGE_SOURCE_DEFAULT="${KARZAR_IMAGE_SOURCE_DEFAULT:-https://github.com/Shebahati/Karzar}"
+KARZAR_OCI_REVISION_LABEL="${KARZAR_OCI_REVISION_LABEL:-org.opencontainers.image.revision}"
+KARZAR_OCI_SOURCE_LABEL="${KARZAR_OCI_SOURCE_LABEL:-org.opencontainers.image.source}"
+
+karzar_frontend_shop_image_tag() {
+  local sha="${1:?sha required}"
+  echo "karzar-shop:sha-${sha}"
+}
+
+karzar_frontend_admin_image_tag() {
+  local sha="${1:?sha required}"
+  echo "karzar-admin:sha-${sha}"
+}
+
+karzar_staging_shop_alias() {
+  echo "${KARZAR_STAGING_SHOP_ALIAS:-karzar-shop:staging}"
+}
+
+karzar_staging_admin_alias() {
+  echo "${KARZAR_STAGING_ADMIN_ALIAS:-karzar-admin:staging}"
+}
+
+karzar_frontend_images_incoming_dir() {
+  local sha="${1:?sha required}"
+  local base="${KARZAR_INCOMING_BASE:-/opt/karzar/incoming}"
+  echo "${base}/${sha}/${KARZAR_FRONTEND_IMAGES_SUBDIR}"
+}
+
+karzar_docker_image_revision() {
+  local ref="${1:?image ref required}"
+  if [[ -n "${KARZAR_MOCK_REVISION_MAP:-}" ]]; then
+    local line key val
+    while IFS= read -r line; do
+      key="${line%%=*}"
+      val="${line#*=}"
+      if [[ "$key" == "$ref" ]]; then
+        echo "$val"
+        return 0
+      fi
+    done <<< "$KARZAR_MOCK_REVISION_MAP"
+    echo ""
+    return 0
+  fi
+  docker image inspect --format "{{ index .Config.Labels \"${KARZAR_OCI_REVISION_LABEL}\" }}" "$ref" 2>/dev/null || true
+}
+
+karzar_verify_image_revision() {
+  local image_ref="$1"
+  local expected_sha="$2"
+  local actual
+  actual="$(karzar_docker_image_revision "$image_ref")"
+  if [[ -z "$actual" || "$actual" == "<no value>" ]]; then
+    echo "VERIFY=FAIL missing ${KARZAR_OCI_REVISION_LABEL} on ${image_ref}" >&2
+    return 1
+  fi
+  if [[ "$actual" != "$expected_sha" ]]; then
+    echo "VERIFY=FAIL ${image_ref} revision=${actual} expected=${expected_sha}" >&2
+    return 1
+  fi
+  return 0
+}
+
+karzar_write_frontend_images_handoff_marker() {
+  local dir="$1"
+  local sha="$2"
+  local bundle_sha="$3"
+  local shop_tag="$4"
+  local admin_tag="$5"
+  if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "refuse to write ${KARZAR_FRONTEND_IMAGES_MARKER}: invalid sha" >&2
+    return 1
+  fi
+  if [[ ! "$bundle_sha" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "refuse to write ${KARZAR_FRONTEND_IMAGES_MARKER}: invalid bundle sha256" >&2
+    return 1
+  fi
+  cat > "${dir}/${KARZAR_FRONTEND_IMAGES_MARKER}" <<EOF
+sha=${sha}
+bundle_sha256=${bundle_sha}
+shop_image=${shop_tag}
+admin_image=${admin_tag}
+transport=rsync-ssh-ipv4
+EOF
+}
+
+karzar_read_frontend_images_handoff_marker() {
+  local marker="$1"
+  local line key val
+  KARZAR_FE_HANDOFF_SHA=""
+  KARZAR_FE_HANDOFF_BUNDLE_SHA=""
+  KARZAR_FE_HANDOFF_SHOP=""
+  KARZAR_FE_HANDOFF_ADMIN=""
+  if [[ ! -f "$marker" ]]; then
+    echo "${KARZAR_FRONTEND_IMAGES_MARKER} absent" >&2
+    return 1
+  fi
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == *$'\r'* ]]; then
+      echo "${KARZAR_FRONTEND_IMAGES_MARKER} contains CR" >&2
+      return 1
+    fi
+    key="${line%%=*}"
+    val="${line#*=}"
+    case "$key" in
+      sha) KARZAR_FE_HANDOFF_SHA="$val" ;;
+      bundle_sha256) KARZAR_FE_HANDOFF_BUNDLE_SHA="$val" ;;
+      shop_image) KARZAR_FE_HANDOFF_SHOP="$val" ;;
+      admin_image) KARZAR_FE_HANDOFF_ADMIN="$val" ;;
+      transport) ;;
+      *) echo "${KARZAR_FRONTEND_IMAGES_MARKER} unknown key" >&2; return 1 ;;
+    esac
+  done < "$marker"
+  [[ -n "$KARZAR_FE_HANDOFF_SHA" && -n "$KARZAR_FE_HANDOFF_BUNDLE_SHA" ]] || {
+    echo "${KARZAR_FRONTEND_IMAGES_MARKER} incomplete" >&2
+    return 1
+  }
+  if [[ "$KARZAR_FE_HANDOFF_SHA" != "${EXPECTED_SHA:-$GITHUB_SHA}" ]]; then
+    echo "${KARZAR_FRONTEND_IMAGES_MARKER} sha mismatch" >&2
+    return 1
+  fi
+  return 0
+}
+
+karzar_ssh_handoff_options() {
+  local keyfile="$1"
+  local port="$2"
+  local known_hosts="$3"
+  printf '%s\0' \
+    ssh -4 \
+    -i "$keyfile" \
+    -p "$port" \
+    -o IdentitiesOnly=yes \
+    -o PreferredAuthentications=publickey \
+    -o PasswordAuthentication=no \
+    -o KbdInteractiveAuthentication=no \
+    -o UserKnownHostsFile="$known_hosts" \
+    -o StrictHostKeyChecking=yes \
+    -o BatchMode=yes \
+    -o ConnectTimeout=25 \
+    -o ServerAliveInterval=10 \
+    -o ServerAliveCountMax=3
+}
+
+karzar_build_ssh_cmd_string() {
+  local keyfile="$1"
+  local port="$2"
+  local known_hosts="$3"
+  printf 'ssh -4 -i %q -p %s -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o UserKnownHostsFile=%q -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=25 -o ServerAliveInterval=10 -o ServerAliveCountMax=3' \
+    "$keyfile" "$port" "$known_hosts"
+}
