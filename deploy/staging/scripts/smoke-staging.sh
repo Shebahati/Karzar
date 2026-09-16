@@ -20,6 +20,16 @@ fi
 API_PROBE_HOST="${API_PROBE_HOST:-${TRUSTED_HOSTS%%,*}}"
 API_PROBE_HOST="${API_PROBE_HOST// /}"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Readiness before functional smoke (avoids false failures during container restart).
+if [[ -n "${API_PROBE_HOST:-}" ]]; then
+  STAGING_HTTP_PROBE_HOST="$API_PROBE_HOST" WAIT_DOCKER_CONTAINER=lathe_api \
+    "$SCRIPT_DIR/wait-staging-http.sh" api "${API_BASE}/ready" 200
+fi
+
+"$SCRIPT_DIR/wait-staging-frontends.sh"
+
 fail=0
 
 check() {
@@ -102,3 +112,4 @@ if [[ "$fail" -ne 0 ]]; then
   exit 1
 fi
 echo "Smoke passed."
+echo "DEPLOY_FE_SMOKE_OK"

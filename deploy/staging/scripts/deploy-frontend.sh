@@ -101,4 +101,8 @@ docker run -d --name karzar_admin --restart unless-stopped \
   -e "ADMIN_SESSION_SECRET=$ADMIN_SESSION_SECRET" \
   karzar-admin:staging
 
+echo "Frontends containers started; waiting for HTTP readiness ..."
+SHOP_BASE="${SHOP_BASE:-http://127.0.0.1:3000}"
+ADMIN_BASE="${ADMIN_BASE:-http://127.0.0.1:3001}"
+bash "$ROOT_DIR/deploy/staging/scripts/wait-staging-frontends.sh"
 echo "Frontends up on 127.0.0.1:3000 (shop) and :3001 (admin)"
