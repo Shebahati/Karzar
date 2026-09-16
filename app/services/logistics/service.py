@@ -38,6 +38,7 @@ from app.services.logistics.fingerprints import (
     destination_fingerprint,
 )
 from app.services.logistics.fulfillment_mode import (
+    PostexFulfillmentMode,
     configured_fulfillment_mode,
     shipment_fulfillment_mode,
 )
@@ -514,7 +515,9 @@ async def ensure_shipment_for_paid_order(db: AsyncSession, order: Order) -> Ship
             provider_data={
                 "payment_mode": mode.value,
                 **(
-                    {"fulfillment_mode": fulfillment.value} if not manual_provider else {}
+                    {"fulfillment_mode": PostexFulfillmentMode.MANUAL.value}
+                    if manual_provider
+                    else {"fulfillment_mode": fulfillment.value}
                 ),
                 **(
                     {

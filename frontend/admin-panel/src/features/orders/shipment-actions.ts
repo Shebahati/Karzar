@@ -82,10 +82,18 @@ export function receiverFulfillmentDisplay(
   };
 }
 
-const MANUAL_PROVIDERS = new Set(["tipax", "chapar", "local_delivery"]);
+const MANUAL_PROVIDERS = new Set(["tipax", "chapar", "iran_post", "local_delivery"]);
 
 export function isManualFulfillmentProvider(provider: string | null | undefined): boolean {
   return MANUAL_PROVIDERS.has((provider || "").trim());
+}
+
+/** Legacy Postex API quote/book UI — not storefront matrix carriers. */
+export function usesPostexAutomationUi(shipment: AdminShipment): boolean {
+  if (shipment.fulfillment_mode === "manual_portal") {
+    return false;
+  }
+  return (shipment.provider || "").trim() === "postex";
 }
 
 export function shipmentActionAvailability(
@@ -94,6 +102,7 @@ export function shipmentActionAvailability(
 ) {
   const order = (orderStatus || "").trim().toLowerCase();
   const manual = isManualFulfillmentProvider(shipment.provider);
+  const postexAutomation = usesPostexAutomationUi(shipment);
   const booked = Boolean(shipment.provider_parcel_no);
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
   const receiverDue = shipment.shipping_payment_mode === "receiver_due";
@@ -148,26 +157,30 @@ export function shipmentActionAvailability(
     canManualHandoff:
       manual && handoffShipmentOk && order === "processing",
     canManualDeliver: manual && deliverShipmentOk && order === "shipped",
-    canSetPackage: !manual && preCreate && !booked,
+    canSetPackage: postexAutomation && preCreate && !booked,
     canPackedQuote:
+      postexAutomation &&
       receiverDue &&
       packaged &&
       (shipment.status === "awaiting_packaging" || shipment.status === "ready_to_book"),
     canSelectService:
+      postexAutomation &&
       receiverDue &&
       packaged &&
       (shipment.status === "awaiting_packaging" || shipment.status === "ready_to_book"),
     canScheduleBooking:
+      postexAutomation &&
       receiverDue &&
       packaged &&
       serviceSelected &&
       Boolean(shipment.package?.provider_box_type_id) &&
       shipment.status === "awaiting_packaging",
     canBook:
-      shipment.status === "ready_to_book" ||
-      shipment.status === "pending_booking" ||
-      shipment.status === "error" ||
-      shipment.status === "creation_uncertain",
+      postexAutomation &&
+      (shipment.status === "ready_to_book" ||
+        shipment.status === "pending_booking" ||
+        shipment.status === "error" ||
+        shipment.status === "creation_uncertain"),
     canReady:
       booked &&
       (shipment.status === "booked" || shipment.status === "ready_for_pickup") &&

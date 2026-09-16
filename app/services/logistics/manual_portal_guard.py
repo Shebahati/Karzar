@@ -35,8 +35,20 @@ def is_active_manual_portal_shipment(shipment: Shipment) -> bool:
 
 
 def reject_generic_postex_provider_path(shipment: Shipment) -> None:
-    """Fail closed before any Postex HTTP for manual-portal or corrupt snapshots."""
+    """Fail closed before any Postex HTTP for manual-portal, matrix manual, or corrupt snapshots."""
     assert_provider_path_allowed_for_fulfillment_snapshot(shipment)
+
+
+def reject_postex_admin_automation_path(shipment: Shipment) -> None:
+    """Block Postex quote/book/schedule for manual fulfillment matrix carriers."""
+    from app.services.logistics.manual_fulfillment import is_manual_fulfillment_shipment
+
+    reject_generic_postex_provider_path(shipment)
+    if is_manual_fulfillment_shipment(shipment):
+        raise ShipmentStateError(
+            "این مرسوله از مسیر ثبت دستی حامل است؛ عملیات API پستکس مجاز نیست.",
+            error_code="SHIPMENT_STATE_INVALID",
+        )
 
 
 async def order_has_active_manual_portal_shipment(db: AsyncSession, order_id: int) -> bool:

@@ -430,9 +430,7 @@ async def correct_manual_portal_registration(
 
 
 def assert_api_fulfillment_path_allowed(shipment: Shipment) -> None:
-    """Block packed-quote/booking API steps for manual-portal shipments."""
-    from app.services.logistics.fulfillment_mode import (
-        assert_provider_path_allowed_for_fulfillment_snapshot,
-    )
+    """Block packed-quote/booking API steps for manual-portal and matrix manual shipments."""
+    from app.services.logistics.manual_portal_guard import reject_postex_admin_automation_path
 
-    assert_provider_path_allowed_for_fulfillment_snapshot(shipment)
+    reject_postex_admin_automation_path(shipment)

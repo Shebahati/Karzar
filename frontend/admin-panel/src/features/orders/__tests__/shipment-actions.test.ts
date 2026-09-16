@@ -122,6 +122,42 @@ describe("shipmentActionAvailability", () => {
     expect(actions.canManualRegister).toBe(true);
   });
 
+  it("treats iran_post as manual fulfillment (no Postex quote path)", () => {
+    const pishtaz = shipment({
+      provider: "iran_post",
+      shipping_payment_mode: "receiver_due",
+      status: "awaiting_packaging",
+      fulfillment_mode: "manual",
+    });
+    const actions = shipmentActionAvailability(pishtaz);
+    expect(actions.canPackedQuote).toBe(false);
+    expect(actions.canSetPackage).toBe(false);
+    expect(actions.canManualRegister).toBe(true);
+  });
+
+  it("enables Postex automation UI only for provider postex", () => {
+    const postex = shipment({
+      provider: "postex",
+      shipping_payment_mode: "receiver_due",
+      status: "awaiting_packaging",
+      fulfillment_mode: "api",
+      package: {
+        length_cm: 10,
+        width_cm: 8,
+        height_cm: 4,
+        weight_grams: 200,
+        is_fragile: false,
+        is_liquid: false,
+      },
+    });
+    expect(shipmentActionAvailability(postex).canPackedQuote).toBe(true);
+    expect(
+      shipmentActionAvailability(
+        shipment({ provider: "tipax", shipping_payment_mode: "receiver_due", status: "awaiting_packaging" }),
+      ).canPackedQuote,
+    ).toBe(false);
+  });
+
   it("manual lifecycle actions respect shipment and order status", () => {
     const tipax = (status: string, orderStatus?: string) =>
       shipmentActionAvailability(
