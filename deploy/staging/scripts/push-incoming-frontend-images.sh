@@ -99,30 +99,33 @@ if ! timeout --foreground "${RSYNC_TIMEOUT_SECONDS}s" \
   exit 124
 fi
 
-echo "Verifying bundle checksum on VPS before handoff marker"
-timeout --foreground "${META_TIMEOUT_SECONDS}s" \
-  "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s <<REMOTE
-set -euo pipefail
-cd '${REMOTE_DIR}'
-test -f '${KARZAR_FRONTEND_BUNDLE_NAME}'
-test -f '${KARZAR_FRONTEND_CHECKSUM_NAME}'
-sha256sum -c '${KARZAR_FRONTEND_CHECKSUM_NAME}'
-REMOTE
-
+echo "Normalizing frontend bundle permissions and finalizing handoff on VPS"
 if [[ "${KARZAR_SKIP_REMOTE_MARKER:-}" != "1" ]]; then
-  timeout --foreground "${META_TIMEOUT_SECONDS}s" \
-    "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s <<REMOTE
-set -euo pipefail
-BUNDLE_SHA='${BUNDLE_SHA}'
-cat > '${REMOTE_DIR}/${KARZAR_FRONTEND_IMAGES_MARKER}' <<EOF
-sha=${GITHUB_SHA}
-bundle_sha256=\${BUNDLE_SHA}
-shop_image=${SHOP_TAG}
-admin_image=${ADMIN_TAG}
-transport=rsync-ssh-ipv4
-EOF
-chmod 644 '${REMOTE_DIR}/${KARZAR_FRONTEND_IMAGES_MARKER}'
-REMOTE
+  {
+    karzar_stream_frontend_handoff_shell_functions
+    printf 'set -euo pipefail\n'
+    printf 'KARZAR_FRONTEND_BUNDLE_NAME=%q\n' "$KARZAR_FRONTEND_BUNDLE_NAME"
+    printf 'KARZAR_FRONTEND_CHECKSUM_NAME=%q\n' "$KARZAR_FRONTEND_CHECKSUM_NAME"
+    printf 'KARZAR_FRONTEND_IMAGES_MARKER=%q\n' "$KARZAR_FRONTEND_IMAGES_MARKER"
+    printf 'KARZAR_SELF_HOSTED_DEPLOY_USER=%q\n' "${KARZAR_SELF_HOSTED_DEPLOY_USER:-github-runner}"
+    printf 'KARZAR_SELF_HOSTED_DEPLOY_GROUP=%q\n' "${KARZAR_SELF_HOSTED_DEPLOY_GROUP:-github-runner}"
+    printf 'karzar_finalize_frontend_images_incoming_handoff %q %q %q %q %q\n' \
+      "$REMOTE_DIR" "$GITHUB_SHA" "$BUNDLE_SHA" "$SHOP_TAG" "$ADMIN_TAG"
+  } | timeout --foreground "${META_TIMEOUT_SECONDS}s" \
+    "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s
+else
+  {
+    karzar_stream_frontend_handoff_shell_functions
+    printf 'set -euo pipefail\n'
+    printf 'KARZAR_FRONTEND_BUNDLE_NAME=%q\n' "$KARZAR_FRONTEND_BUNDLE_NAME"
+    printf 'KARZAR_FRONTEND_CHECKSUM_NAME=%q\n' "$KARZAR_FRONTEND_CHECKSUM_NAME"
+    printf 'KARZAR_SELF_HOSTED_DEPLOY_USER=%q\n' "${KARZAR_SELF_HOSTED_DEPLOY_USER:-github-runner}"
+    printf 'KARZAR_SELF_HOSTED_DEPLOY_GROUP=%q\n' "${KARZAR_SELF_HOSTED_DEPLOY_GROUP:-github-runner}"
+    printf 'karzar_normalize_frontend_images_permissions %q\n' "$REMOTE_DIR"
+    printf 'karzar_verify_frontend_bundle_digest %q >/dev/null\n' "$REMOTE_DIR"
+    printf 'karzar_verify_frontend_bundle_readable_by_deploy_user %q\n' "$REMOTE_DIR"
+  } | timeout --foreground "${META_TIMEOUT_SECONDS}s" \
+    "${ssh_base[@]}" "${SSH_USER}@${SSH_HOST}" bash -s
 fi
 
 echo "FRONTEND_IMAGES_HANDOFF_OK sha=${GITHUB_SHA} bundle_sha256=${BUNDLE_SHA}"
