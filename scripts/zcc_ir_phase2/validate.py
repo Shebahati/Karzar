@@ -10,6 +10,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256
+from zcc_ir_phase2.collision_clusters import build_logical_collision_clusters, index_to_cluster_id
 from zcc_ir_phase2.manifest import ALLOWED_OPERATIONS, FORBIDDEN_OPERATIONS, manifest_sha256
 
 SKU_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._\-/]{0,120}$")
@@ -50,6 +51,7 @@ class ManifestValidationResult:
     content_errors: list[str] = field(default_factory=list)
     commerce_errors: list[str] = field(default_factory=list)
     diagnostics: list[ValidationDiagnostic] = field(default_factory=list)
+    logical_collision_clusters: list[Any] = field(default_factory=list)
 
     @property
     def CONTENT_PLAN_VALID(self) -> bool:
@@ -68,21 +70,23 @@ class ManifestValidationResult:
         return sum(1 for d in self.diagnostics if d.layer == "commerce")
 
     @property
-    def CONTENT_BLOCKING_ROW_COUNT(self) -> int:
-        urls = {d.source_url for d in self.diagnostics if d.layer == "content" and d.source_url}
-        manifest_only = any(
-            d.layer == "content" and d.source_url is None for d in self.diagnostics
-        )
-        return len(urls) + (1 if manifest_only else 0)
+    def CONTENT_DIAGNOSTIC_ROW_COUNT(self) -> int:
+        return len({d.source_url for d in self.diagnostics if d.layer == "content" and d.source_url})
 
     @property
-    def CONTENT_COLLISION_GROUP_COUNT(self) -> int:
-        groups = {
-            d.collision_group
-            for d in self.diagnostics
-            if d.layer == "content" and d.collision_group
-        }
-        return len(groups)
+    def CONTENT_COLLISION_AFFECTED_ROW_COUNT(self) -> int:
+        urls: set[str] = set()
+        for cluster in self.logical_collision_clusters:
+            urls.update(cluster.source_urls)
+        return len(urls)
+
+    @property
+    def LOGICAL_COLLISION_GROUP_COUNT(self) -> int:
+        return len(self.logical_collision_clusters)
+
+    @property
+    def COLLISION_AFFECTED_SOURCE_ROWS(self) -> int:
+        return self.CONTENT_COLLISION_AFFECTED_ROW_COUNT
 
     @property
     def DUPLICATE_IDENTITY_DIAGNOSTICS(self) -> int:
@@ -106,17 +110,28 @@ class ManifestValidationResult:
                 if d.error_type == "DUPLICATE_TARGET_SKU" and d.proposed_target_sku
             }
         )
+        logical_clusters = [
+            {
+                "cluster_id": c.cluster_id,
+                "source_urls": list(c.source_urls),
+                "reasons": list(c.reasons),
+                "size": c.size,
+            }
+            for c in self.logical_collision_clusters
+        ]
         return {
             "CONTENT_PLAN_VALID": self.CONTENT_PLAN_VALID,
             "COMMERCE_PLAN_VALID": self.COMMERCE_PLAN_VALID,
             "CONTENT_BLOCKING_ERROR_COUNT": self.CONTENT_BLOCKING_ERROR_COUNT,
             "COMMERCE_BLOCKING_ERROR_COUNT": self.COMMERCE_BLOCKING_ERROR_COUNT,
-            "CONTENT_BLOCKING_ROW_COUNT": self.CONTENT_BLOCKING_ROW_COUNT,
-            "CONTENT_COLLISION_GROUP_COUNT": self.CONTENT_COLLISION_GROUP_COUNT,
+            "CONTENT_DIAGNOSTIC_ROW_COUNT": self.CONTENT_DIAGNOSTIC_ROW_COUNT,
+            "CONTENT_COLLISION_AFFECTED_ROW_COUNT": self.CONTENT_COLLISION_AFFECTED_ROW_COUNT,
+            "LOGICAL_COLLISION_GROUP_COUNT": self.LOGICAL_COLLISION_GROUP_COUNT,
+            "COLLISION_AFFECTED_SOURCE_ROWS": self.COLLISION_AFFECTED_SOURCE_ROWS,
             "DUPLICATE_IDENTITY_DIAGNOSTICS": self.DUPLICATE_IDENTITY_DIAGNOSTICS,
             "DUPLICATE_SKU_DIAGNOSTICS": self.DUPLICATE_SKU_DIAGNOSTICS,
             "TOTAL_VALIDATOR_DIAGNOSTICS": len(self.diagnostics),
-            "UNIQUE_BLOCKING_SOURCE_ROWS": len(blocking_urls),
+            "CONTENT_DIAGNOSTIC_SOURCE_ROWS": len(blocking_urls),
             "UNIQUE_BLOCKING_TARGET_IDENTITIES": len(
                 {
                     d.manufacturer_identity
@@ -125,6 +140,7 @@ class ManifestValidationResult:
                 }
             ),
             "UNIQUE_BLOCKING_TARGET_SKUS": len(target_skus),
+            "logical_collision_clusters": logical_clusters,
             "diagnostics": [d.as_dict() for d in self.diagnostics],
         }
 
@@ -151,39 +167,6 @@ def _sku_proposal(entry: dict[str, Any]) -> str | None:
     return str(sku) if sku else None
 
 
-def _assign_collision_groups(entries: list[dict[str, Any]]) -> dict[int, str]:
-    """Map entry index -> collision_group id for CREATE_PLAN duplicate clusters."""
-    by_mfg: dict[tuple[str, str], list[int]] = {}
-    by_sku: dict[str, list[int]] = {}
-    for i, entry in enumerate(entries):
-        if entry.get("operation") != "CREATE_PLAN":
-            continue
-        key = _mfg_key(entry)
-        if key:
-            by_mfg.setdefault(key, []).append(i)
-        sku = _sku_proposal(entry)
-        if sku:
-            by_sku.setdefault(sku, []).append(i)
-
-    groups: dict[int, str] = {}
-    gid = 0
-    for key, indices in sorted(by_mfg.items()):
-        if len(indices) < 2:
-            continue
-        gid += 1
-        group = f"MFG:{key[0]}:{key[1]}:{gid}"
-        for idx in indices:
-            groups[idx] = group
-    for sku, indices in sorted(by_sku.items()):
-        if len(indices) < 2:
-            continue
-        gid += 1
-        group = f"SKU:{sku}:{gid}"
-        for idx in indices:
-            groups.setdefault(idx, group)
-    return groups
-
-
 def validate_manifest_layers(path: Path) -> ManifestValidationResult:
     """Validate manifest; split factual content planning from commerce sellability."""
     result = ManifestValidationResult()
@@ -205,7 +188,8 @@ def validate_manifest_layers(path: Path) -> ManifestValidationResult:
         )
         return result
 
-    collision_by_index = _assign_collision_groups(entries)
+    result.logical_collision_clusters = build_logical_collision_clusters(entries)
+    collision_by_index = index_to_cluster_id(result.logical_collision_clusters)
     seen_skus: set[str] = set()
     seen_identity: set[tuple[str, str]] = set()
     diag_seq = 0
@@ -364,6 +348,15 @@ def validate_manifest_layers(path: Path) -> ManifestValidationResult:
                 entry=entry,
                 index=i,
             )
+
+    if not data.get("karzar_snapshot_sha256"):
+        add_diag(
+            layer="content",
+            error_type="MISSING_SNAPSHOT_SHA",
+            message="missing karzar_snapshot_sha256 (required for approval binding)",
+            entry=None,
+            index=None,
+        )
 
     canonical = data.get("CANONICAL_IMPORT_PLAN_SHA256")
     if canonical:

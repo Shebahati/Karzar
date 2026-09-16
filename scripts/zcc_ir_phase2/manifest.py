@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from typing import Any
 
 from zcc_ir_phase2 import PHASE2_VERSION
-from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256
+from zcc_ir_phase2.canonical_hash import (
+    canonical_import_plan_sha256,
+    write_manifest_sidecar_sha256,
+)
 from zcc_ir_phase2.payloads import CreatePlanRow, UpdatePlanRow
 from zcc_ir_phase2.readiness import ReadinessRow
 from zcc_ir_phase2.reconcile import Phase2ReconcileRow
@@ -84,8 +88,18 @@ def build_manifest_entries(
 
 
 def manifest_sha256(manifest: dict[str, Any]) -> str:
+    """Legacy self-description hash (entire JSON object minus IMPORT_MANIFEST_SHA256 only)."""
     payload = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def seal_manifest_hashes(body: dict[str, Any]) -> dict[str, Any]:
+    """Attach CANONICAL_IMPORT_PLAN_SHA256 and legacy IMPORT_MANIFEST_SHA256."""
+    body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
+    legacy_payload = dict(body)
+    legacy_payload.pop("IMPORT_MANIFEST_SHA256", None)
+    body["IMPORT_MANIFEST_SHA256"] = manifest_sha256(legacy_payload)
+    return body
 
 
 def build_import_manifest(
@@ -94,14 +108,18 @@ def build_import_manifest(
     git_sha: str,
     karzar_provenance: str,
     karzar_timestamp: str,
+    karzar_snapshot_sha256: str | None,
     source_crawl_timestamp: str,
     phase1_baseline: dict[str, Any],
 ) -> dict[str, Any]:
+    if not karzar_snapshot_sha256:
+        raise ValueError("karzar_snapshot_sha256 is required for import manifest binding")
     body = {
         "phase2_version": PHASE2_VERSION,
         "git_sha": git_sha,
         "karzar_snapshot_provenance": karzar_provenance,
         "karzar_snapshot_timestamp": karzar_timestamp,
+        "karzar_snapshot_sha256": karzar_snapshot_sha256,
         "source_crawl_timestamp": source_crawl_timestamp,
         "phase1_baseline_reference": phase1_baseline,
         "entries": entries,
@@ -112,7 +130,11 @@ def build_import_manifest(
         op = entry["operation"]
         counts[op] = counts.get(op, 0) + 1
     body["operation_counts"] = counts
-    body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
-    # Legacy field: same as canonical identity (volatile metadata excluded).
-    body["IMPORT_MANIFEST_SHA256"] = body["CANONICAL_IMPORT_PLAN_SHA256"]
-    return body
+    return seal_manifest_hashes(body)
+
+
+def write_import_manifest(path: Path, manifest: dict[str, Any]) -> str:
+    """Persist manifest JSON and sidecar SHA256 of final file bytes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return write_manifest_sidecar_sha256(path)

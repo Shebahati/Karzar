@@ -7,7 +7,7 @@ import argparse
 import csv
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -16,16 +16,12 @@ _SCRIPTS = Path(__file__).resolve().parent
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
-from zcc_ir_phase2.canonical_hash import (  # noqa: E402
-    attach_manifest_hashes,
-    canonical_import_plan_sha256,
-    raw_manifest_file_sha256,
-)
+from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256, sha256_file  # noqa: E402
 from zcc_ir_phase2.category_plan import category_by_url  # noqa: E402
+from zcc_ir_phase2.collision_clusters import build_logical_collision_clusters  # noqa: E402
 from zcc_ir_phase2.load import load_phase1_products  # noqa: E402
+from zcc_ir_phase2.stc_hold import summarize_hold_brand_review  # noqa: E402
 from zcc_ir_phase2.validate import validate_manifest_layers  # noqa: E402
-
-SNAPSHOT_SHA = "815a47f525cfb31d3696ab11a991456bbb675ea7bfadf0ac9601d645bdf69a60"
 
 
 def _write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, Any]]) -> None:
@@ -49,74 +45,37 @@ def _invalid_price(product: Any) -> bool:
         return True
 
 
-def _collision_groups_from_manifest(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    by_mfg: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-    by_sku: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for entry in entries:
-        if entry.get("operation") != "CREATE_PLAN":
-            continue
-        ident = entry.get("source_identity") or {}
-        brand = str(ident.get("brand") or "")
-        mfg = str(ident.get("manufacturer_code") or "")
-        if brand and mfg:
-            by_mfg[(brand, mfg)].append(entry)
-        planned = entry.get("planned_fields") or {}
-        sku = (planned.get("identity") or {}).get("sku_proposal")
-        if sku:
-            by_sku[str(sku)].append(entry)
-
+def _logical_collision_csv_rows(
+    entries: list[dict[str, Any]],
+    clusters: list[Any],
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    group_id = 0
-    for (brand, mfg), group in sorted(by_mfg.items()):
-        if len(group) < 2:
-            continue
-        group_id += 1
-        gid = f"MFG-{brand}-{mfg}-{group_id}"
-        for entry in group:
-            rows.append(_collision_row(gid, entry, "manufacturer_identity", brand, mfg))
-    for sku, group in sorted(by_sku.items()):
-        if len(group) < 2:
-            continue
-        group_id += 1
-        gid = f"SKU-{sku}-{group_id}"
-        for entry in group:
+    for cluster in clusters:
+        reasons_text = "|".join(cluster.reasons)
+        for idx in cluster.entry_indices:
+            entry = entries[idx]
             ident = entry.get("source_identity") or {}
+            brand = str(ident.get("brand") or "")
+            mfg = str(ident.get("manufacturer_code") or "")
+            classification = _classify_collision(entry, reasons_text)
             rows.append(
-                _collision_row(
-                    gid,
-                    entry,
-                    "target_sku",
-                    str(ident.get("brand") or ""),
-                    str(ident.get("manufacturer_code") or ""),
-                )
+                {
+                    "collision_group": cluster.cluster_id,
+                    "source_row": entry.get("source_url"),
+                    "source_url": entry.get("source_url"),
+                    "source_brand": brand,
+                    "manufacturer_code": mfg,
+                    "source_sku": ident.get("source_internal_sku"),
+                    "normalized_identity": f"{brand}|{mfg}" if brand and mfg else "",
+                    "phase2_operation": entry.get("operation"),
+                    "karzar_product_id": (entry.get("target_identity") or {}).get("karzar_id"),
+                    "karzar_sku": (entry.get("target_identity") or {}).get("karzar_sku"),
+                    "collision_kind": classification,
+                    "recommended_resolution": _recommend_resolution(classification),
+                    "reason": reasons_text,
+                }
             )
     return rows
-
-
-def _collision_row(
-    collision_group: str,
-    entry: dict[str, Any],
-    reason: str,
-    brand: str,
-    mfg: str,
-) -> dict[str, Any]:
-    ident = entry.get("source_identity") or {}
-    classification = _classify_collision(entry, reason)
-    return {
-        "collision_group": collision_group,
-        "source_row": entry.get("source_url"),
-        "source_url": entry.get("source_url"),
-        "source_brand": brand,
-        "manufacturer_code": mfg,
-        "source_sku": ident.get("source_internal_sku") or ident.get("sku_proposal"),
-        "normalized_identity": f"{brand}|{mfg}",
-        "phase2_operation": entry.get("operation"),
-        "karzar_product_id": (entry.get("target_identity") or {}).get("karzar_id"),
-        "karzar_sku": (entry.get("target_identity") or {}).get("karzar_sku"),
-        "collision_kind": classification,
-        "recommended_resolution": _recommend_resolution(classification),
-        "reason": reason,
-    }
 
 
 def _classify_collision(entry: dict[str, Any], reason: str) -> str:
@@ -152,9 +111,16 @@ def run_analysis(
     products, _ = load_phase1_products(phase1_dir)
     by_url = {p.source_url: p for p in products}
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    raw_bytes = manifest_path.read_bytes()
-    attach_manifest_hashes(manifest, raw_file_bytes=raw_bytes)
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    bound_sha = str(manifest.get("karzar_snapshot_sha256") or "")
+    if not bound_sha:
+        raise ValueError("manifest missing karzar_snapshot_sha256")
+    if bound_sha != snapshot_sha:
+        raise ValueError(
+            f"karzar_snapshot_sha256 mismatch: manifest={bound_sha} supplied={snapshot_sha}"
+        )
+    sidecar = manifest_path.with_name(manifest_path.name + ".sha256")
+    on_disk_sha = sha256_file(manifest_path)
+    file_sha_reported = sidecar.read_text(encoding="utf-8").strip() if sidecar.is_file() else None
 
     entries = manifest.get("entries") or []
     reconcile = json.loads((phase2_dir / "full_catalog_reconciliation.json").read_text(encoding="utf-8"))
@@ -207,11 +173,13 @@ def run_analysis(
         stc_rows,
     )
 
-    true_stc = sum(1 for r in hold_brand if r.get("brand_normalized") == "STC")
-    brand_conflict = sum(1 for r in hold_brand if not r.get("brand_normalized"))
-    stc_invariant = true_stc + brand_conflict == len(hold_brand)
+    stc_summary = summarize_hold_brand_review(reconcile)
+    true_stc = stc_summary["TRUE_STC_ROWS"]
+    brand_conflict = stc_summary["NON_STC_BRAND_REVIEW_ROWS"]
+    stc_invariant = stc_summary["COUNT_INVARIANT_VALID"]
 
-    dup_rows = _collision_groups_from_manifest(entries)
+    logical_clusters = build_logical_collision_clusters(entries)
+    dup_rows = _logical_collision_csv_rows(entries, logical_clusters)
     _write_csv(
         phase2_dir / "review_duplicate_identities.csv",
         [
@@ -232,7 +200,13 @@ def run_analysis(
         dup_rows,
     )
 
-    collision_urls = {r["source_url"] for r in dup_rows}
+    collision_urls = {
+        entries[idx].get("source_url")
+        for cluster in logical_clusters
+        for idx in cluster.entry_indices
+        if entries[idx].get("operation") == "CREATE_PLAN"
+    }
+    collision_urls = {u for u in collision_urls if u}
     ops = Counter(e.get("operation") for e in entries)
     create_entries = [e for e in entries if e.get("operation") == "CREATE_PLAN"]
 
@@ -371,11 +345,12 @@ def run_analysis(
     dup_summary["DUPLICATE_COLLISION_GROUPS_OWNER_REVIEW"] = len({r["collision_group"] for r in dup_rows})
     dup_summary["OWNER_REVIEW_UNIQUE_SOURCE_URLS"] = len({r["source_url"] for r in dup_rows})
     dup_summary["diagnostic_reconciliation"] = (
-        "CONTENT_BLOCKING_ERROR_COUNT counts diagnostic messages (e.g. one URL may emit "
-        "both DUPLICATE_MANUFACTURER_IDENTITY and DUPLICATE_TARGET_SKU). "
-        "CONTENT_BLOCKING_ROW_COUNT counts unique source_url values with content-layer findings. "
-        "OWNER_REVIEW_UNIQUE_SOURCE_URLS counts unique URLs in review_duplicate_identities.csv "
-        "(encoding-duplicate CREATE clusters). "
+        "CONTENT_BLOCKING_ERROR_COUNT = diagnostic messages (not row count). "
+        "CONTENT_DIAGNOSTIC_ROW_COUNT = unique source_url with content diagnostics. "
+        "LOGICAL_COLLISION_GROUP_COUNT = connected duplicate clusters (mfg OR SKU). "
+        "CONTENT_COLLISION_AFFECTED_ROW_COUNT = every source row in a logical cluster. "
+        "DUPLICATE_IDENTITY_DIAGNOSTICS / DUPLICATE_SKU_DIAGNOSTICS = per-reason message counts. "
+        "OWNER_REVIEW_UNIQUE_SOURCE_URLS = unique URLs in review_duplicate_identities.csv. "
         "TOTAL_VALIDATOR_DIAGNOSTICS = content + commerce diagnostics."
     )
     dup_summary["readiness_create_plan"] = {
@@ -442,9 +417,12 @@ def run_analysis(
             "rows": len(dup_rows),
         },
         "manifest": {
-            "RAW_MANIFEST_FILE_SHA256": raw_manifest_file_sha256(raw_bytes),
+            "import_manifest_file_sha256": on_disk_sha,
+            "import_manifest_sidecar_sha256": file_sha_reported,
+            "sidecar_matches_file": file_sha_reported == on_disk_sha if file_sha_reported else None,
             "CANONICAL_IMPORT_PLAN_SHA256": canonical_import_plan_sha256(manifest),
             "legacy_IMPORT_MANIFEST_SHA256": manifest.get("IMPORT_MANIFEST_SHA256"),
+            "karzar_snapshot_sha256": bound_sha,
         },
         "validation": dup_summary,
     }
@@ -503,7 +481,7 @@ Frozen inputs:
 - **IF_DEFERRED:** No availability writes (default)
 
 ## 6. CONTENT CREATE PLAN
-- **RECOMMENDED_OPTION:** **DEFER** while duplicate identity blockers remain ({validation.CONTENT_COLLISION_GROUP_COUNT} collision groups)
+- **RECOMMENDED_OPTION:** **DEFER** while duplicate identity blockers remain ({validation.LOGICAL_COLLISION_GROUP_COUNT} logical collision groups)
 - **AFFECTED_ROWS:** {counts["CREATE_PLAN"]} CREATE_PLAN; {counts["CONTENT_CREATE_READY"]} content-create-ready
 - **RISK:** Duplicate manufacturer targets; validator content layer: {validation.CONTENT_PLAN_VALID}
 - **IF_APPROVED:** Future dry-run writer may create non-sellable products only
@@ -518,9 +496,10 @@ Frozen inputs:
 
 CONTENT_PLAN_VALID = {validation.CONTENT_PLAN_VALID}
 COMMERCE_PLAN_VALID = {validation.COMMERCE_PLAN_VALID}
-CONTENT_BLOCKING_ERROR_COUNT = {validation.CONTENT_BLOCKING_ERROR_COUNT}
-CONTENT_BLOCKING_ROW_COUNT = {validation.CONTENT_BLOCKING_ROW_COUNT}
-CONTENT_COLLISION_GROUP_COUNT = {validation.CONTENT_COLLISION_GROUP_COUNT}
+CONTENT_BLOCKING_ERROR_COUNT = {validation.CONTENT_BLOCKING_ERROR_COUNT} (diagnostic messages)
+CONTENT_DIAGNOSTIC_ROW_COUNT = {validation.CONTENT_DIAGNOSTIC_ROW_COUNT} (rows with diagnostics)
+LOGICAL_COLLISION_GROUP_COUNT = {validation.LOGICAL_COLLISION_GROUP_COUNT}
+CONTENT_COLLISION_AFFECTED_ROW_COUNT = {validation.CONTENT_COLLISION_AFFECTED_ROW_COUNT} (all rows in logical clusters)
 PRICE_WRITE_READY = 0
 AVAILABILITY_WRITE_READY = 0
 
@@ -541,13 +520,29 @@ def main(argv: list[str] | None = None) -> int:
         "--manifest",
         default=str(root / "data" / "zcc_ir_phase2" / "import_manifest.json"),
     )
-    parser.add_argument("--snapshot-sha256", default=SNAPSHOT_SHA)
+    parser.add_argument(
+        "--karzar-snapshot",
+        default=None,
+        help="Full catalog CSV path (required unless --snapshot-sha256 is set)",
+    )
+    parser.add_argument(
+        "--snapshot-sha256",
+        default=None,
+        help="Expected karzar_snapshot_sha256 bound in manifest",
+    )
     args = parser.parse_args(argv)
+    if args.snapshot_sha256:
+        snapshot_sha = args.snapshot_sha256.strip()
+    elif args.karzar_snapshot:
+        snapshot_sha = sha256_file(Path(args.karzar_snapshot))
+    else:
+        print("FATAL: provide --karzar-snapshot or --snapshot-sha256", file=sys.stderr)
+        return 2
     result = run_analysis(
         phase1_dir=Path(args.phase1_dir),
         phase2_dir=Path(args.phase2_dir),
         manifest_path=Path(args.manifest),
-        snapshot_sha=args.snapshot_sha256,
+        snapshot_sha=snapshot_sha,
     )
     print(json.dumps(result, indent=2))
     return 0

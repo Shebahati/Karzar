@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from zcc_ir_phase2 import PHASE2_VERSION
+from zcc_ir_phase2.canonical_hash import sha256_file
 from zcc_ir_phase2.category_plan import build_category_plan, category_by_url
 from zcc_ir_phase2.commerce import analyze_availability, analyze_prices
 from zcc_ir_phase2.images import build_image_manifest
@@ -19,7 +20,11 @@ from zcc_ir_phase2.load import (
     load_phase1_reconcile,
     load_phase1_summary,
 )
-from zcc_ir_phase2.manifest import build_import_manifest, build_manifest_entries
+from zcc_ir_phase2.manifest import (
+    build_import_manifest,
+    build_manifest_entries,
+    write_import_manifest,
+)
 from zcc_ir_phase2.payloads import build_create_plans, build_update_plans
 from zcc_ir_phase2.readiness import build_readiness
 from zcc_ir_phase2.reconcile import reconcile_phase2
@@ -93,6 +98,11 @@ def run_phase2_plan(
     karzar, karzar_kind, karzar_note = load_karzar_catalog(snapshot_path=karzar_snapshot, read_db=read_db)
     if not karzar:
         raise RuntimeError(f"Karzar full catalog unavailable: {karzar_note}")
+    if not karzar_snapshot:
+        raise RuntimeError(
+            "karzar_snapshot CSV path is required to bind karzar_snapshot_sha256 in the import manifest"
+        )
+    karzar_snapshot_sha256 = sha256_file(Path(karzar_snapshot))
 
     categories = karzar_categories
     if categories is None:
@@ -129,6 +139,7 @@ def run_phase2_plan(
         git_sha=_git_sha(),
         karzar_provenance=f"{karzar_kind}:{karzar_note}",
         karzar_timestamp=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        karzar_snapshot_sha256=karzar_snapshot_sha256,
         source_crawl_timestamp=str(crawl_ts),
         phase1_baseline=PHASE1_BASELINE_REFERENCE,
     )
@@ -220,7 +231,7 @@ def run_phase2_plan(
     )
     holds = [r.as_dict() for r in reconcile if r.primary_state.startswith("HOLD_")]
     _write_csv(output_dir / "holds.csv", rec_fields, holds)
-    _write_json(output_dir / "import_manifest.json", manifest)
+    write_import_manifest(output_dir / "import_manifest.json", manifest)
 
     from collections import Counter
 

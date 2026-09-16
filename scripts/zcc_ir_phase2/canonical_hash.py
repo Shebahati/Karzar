@@ -5,9 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 from copy import deepcopy
+from pathlib import Path
 from typing import Any
 
-# Top-level manifest keys excluded from owner approval identity.
+# Top-level manifest keys excluded from owner approval identity (non-semantic metadata).
 VOLATILE_MANIFEST_KEYS = frozenset(
     {
         "git_sha",
@@ -15,12 +16,24 @@ VOLATILE_MANIFEST_KEYS = frozenset(
         "generated_at",
         "IMPORT_MANIFEST_SHA256",
         "CANONICAL_IMPORT_PLAN_SHA256",
-        "RAW_MANIFEST_FILE_SHA256",
     }
 )
 
-# Per-entry keys that may vary between runs without changing execution semantics.
+# Per-entry `source_timestamp` is excluded: crawl provenance is bound at manifest level via
+# `source_crawl_timestamp` (semantic). Row timestamps are run metadata only.
 VOLATILE_ENTRY_KEYS = frozenset({"source_timestamp"})
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def canonical_operation_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -53,13 +66,9 @@ def canonical_import_plan_sha256(manifest: dict[str, Any]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def raw_manifest_file_sha256(file_bytes: bytes) -> str:
-    return hashlib.sha256(file_bytes).hexdigest()
-
-
-def attach_manifest_hashes(manifest: dict[str, Any], *, raw_file_bytes: bytes | None = None) -> dict[str, Any]:
-    """Add CANONICAL_IMPORT_PLAN_SHA256 and optional RAW_MANIFEST_FILE_SHA256 in-place."""
-    manifest["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(manifest)
-    if raw_file_bytes is not None:
-        manifest["RAW_MANIFEST_FILE_SHA256"] = raw_manifest_file_sha256(raw_file_bytes)
-    return manifest
+def write_manifest_sidecar_sha256(manifest_path: Path) -> str:
+    """Write import_manifest.json.sha256 for the final on-disk bytes. Returns digest."""
+    digest = sha256_file(manifest_path)
+    sidecar = manifest_path.with_name(manifest_path.name + ".sha256")
+    sidecar.write_text(digest + "\n", encoding="utf-8")
+    return digest

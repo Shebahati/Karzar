@@ -17,14 +17,29 @@ if str(SCRIPTS) not in sys.path:
 from catalog_target.snapshot import load_snapshot_csv  # noqa: E402
 from zcc_ir_import_plan import FORBIDDEN  # noqa: E402
 from zcc_ir_import_plan import main as cli_main  # noqa: E402
-from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256  # noqa: E402
+from zcc_ir_phase2.canonical_hash import (  # noqa: E402
+    canonical_import_plan_sha256,
+    sha256_file,
+)
 from zcc_ir_phase2.manifest import (  # noqa: E402
     ALLOWED_OPERATIONS,
     FORBIDDEN_OPERATIONS,
+    write_import_manifest,
 )
 from zcc_ir_phase2.pipeline import run_phase2_plan  # noqa: E402
 from zcc_ir_phase2.snapshot_stats import brand_catalog_stats  # noqa: E402
+from zcc_ir_phase2.stc_hold import summarize_hold_brand_review  # noqa: E402
 from zcc_ir_phase2.validate import validate_manifest, validate_manifest_layers  # noqa: E402
+
+SNAPSHOT_SHA_FIXTURE = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+
+def _manifest_body_with_entry(entry: dict) -> dict:
+    return {
+        "phase2_version": "test",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
+        "entries": [entry],
+    }
 
 
 def test_no_hardcoded_production_url_in_phase2_scripts() -> None:
@@ -62,9 +77,14 @@ def test_phase2_plan_and_manifest_determinism(tmp_path: Path) -> None:
     )
     manifest_path = out / "import_manifest.json"
     assert manifest_path.is_file()
+    sidecar = manifest_path.with_name(manifest_path.name + ".sha256")
+    assert sidecar.is_file()
+    assert sidecar.read_text(encoding="utf-8").strip() == sha256_file(manifest_path)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["CANONICAL_IMPORT_PLAN_SHA256"]
-    assert manifest["IMPORT_MANIFEST_SHA256"] == manifest["CANONICAL_IMPORT_PLAN_SHA256"]
+    assert manifest["IMPORT_MANIFEST_SHA256"]
+    assert manifest["IMPORT_MANIFEST_SHA256"] != manifest["CANONICAL_IMPORT_PLAN_SHA256"]
+    assert manifest["karzar_snapshot_sha256"] == sha256_file(FIXTURES / "karzar_full_snapshot.csv")
     assert validate_manifest(manifest_path) == []
     run_phase2_plan(
         phase1_dir=FIXTURES / "phase1_mini",
@@ -91,6 +111,7 @@ def test_validator_rejects_forbidden_operation(tmp_path: Path) -> None:
             }
         ],
         "IMPORT_MANIFEST_SHA256": "deadbeef",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
     }
     path = tmp_path / "bad.json"
     path.write_text(json.dumps(bad), encoding="utf-8")
@@ -111,7 +132,11 @@ def test_validator_rejects_zero_price_create(tmp_path: Path) -> None:
         },
         "primary_state": "CREATE_CANDIDATE",
     }
-    body = {"entries": [entry], "phase2_version": "test"}
+    body = {
+        "entries": [entry],
+        "phase2_version": "test",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
+    }
     body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
     path = tmp_path / "zero.json"
     path.write_text(json.dumps(body), encoding="utf-8")
@@ -143,8 +168,8 @@ def test_stc_brand_proposal_present(tmp_path: Path) -> None:
     assert stc["decision_status"] in {"READY_FOR_OWNER_APPROVAL", "REVIEW_REQUIRED"}
 
 
-def test_validator_duplicate_diagnostics_vs_blocking_rows(tmp_path: Path) -> None:
-    """Two diagnostics on one row must not imply two blocking products."""
+def test_validator_duplicate_pair_collision_affected_rows(tmp_path: Path) -> None:
+    """Diagnostics attach to later occurrences; both rows count as collision-affected."""
     shared = {
         "operation": "CREATE_PLAN",
         "source_identity": {"brand": "ZCC.CT", "manufacturer_code": "DUP-1"},
@@ -158,7 +183,11 @@ def test_validator_duplicate_diagnostics_vs_blocking_rows(tmp_path: Path) -> Non
     }
     first = {**shared, "source_url": "https://zcc.ir/product/first/"}
     second = {**shared, "source_url": "https://zcc.ir/product/second/"}
-    body = {"entries": [first, second], "phase2_version": "test"}
+    body = {
+        "entries": [first, second],
+        "phase2_version": "test",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
+    }
     body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
     path = tmp_path / "dup.json"
     path.write_text(json.dumps(body), encoding="utf-8")
@@ -166,12 +195,28 @@ def test_validator_duplicate_diagnostics_vs_blocking_rows(tmp_path: Path) -> Non
     assert layers.DUPLICATE_IDENTITY_DIAGNOSTICS == 1
     assert layers.DUPLICATE_SKU_DIAGNOSTICS == 1
     assert layers.CONTENT_BLOCKING_ERROR_COUNT == 2
-    assert layers.CONTENT_BLOCKING_ROW_COUNT == 1
-    assert layers.CONTENT_COLLISION_GROUP_COUNT >= 1
+    assert layers.CONTENT_DIAGNOSTIC_ROW_COUNT == 1
+    assert layers.CONTENT_COLLISION_AFFECTED_ROW_COUNT == 2
+    assert layers.LOGICAL_COLLISION_GROUP_COUNT == 1
+    cluster = layers.logical_collision_clusters[0]
+    assert "DUPLICATE_MANUFACTURER_IDENTITY" in cluster.reasons
+    assert "DUPLICATE_TARGET_SKU" in cluster.reasons
 
 
-def test_stc_hold_brand_review_invariant() -> None:
-    assert 53 + 12 == 65
+def test_stc_hold_brand_review_invariant_from_classification() -> None:
+    rows: list[dict] = []
+    rows.extend(
+        {"primary_state": "HOLD_BRAND_REVIEW", "brand_normalized": "STC"} for _ in range(53)
+    )
+    rows.extend(
+        {"primary_state": "HOLD_BRAND_REVIEW", "brand_normalized": None} for _ in range(12)
+    )
+    rows.append({"primary_state": "CREATE_CANDIDATE", "brand_normalized": "ZCC.CT"})
+    summary = summarize_hold_brand_review(rows)
+    assert summary["TRUE_STC_ROWS"] == 53
+    assert summary["NON_STC_BRAND_REVIEW_ROWS"] == 12
+    assert summary["HOLD_BRAND_REVIEW_TOTAL"] == 65
+    assert summary["COUNT_INVARIANT_VALID"] is True
 
 
 def test_canonical_hash_ignores_volatile_metadata(tmp_path: Path) -> None:
@@ -187,13 +232,19 @@ def test_canonical_hash_ignores_volatile_metadata(tmp_path: Path) -> None:
         "phase2_version": "zcc_ir_phase2/1.0.0",
         "git_sha": "aaa",
         "karzar_snapshot_timestamp": "t1",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
         "entries": [base_entry],
         "operation_counts": {"NOOP": 1},
     }
     m2 = dict(m1)
     m2["git_sha"] = "bbb"
     m2["karzar_snapshot_timestamp"] = "t2"
+    m2["generated_at"] = "2026-01-01T00:00:00Z"
     assert canonical_import_plan_sha256(m1) == canonical_import_plan_sha256(m2)
+
+    m_snap = dict(m1)
+    m_snap["karzar_snapshot_sha256"] = "b" * 64
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m_snap)
 
     m3 = dict(m1)
     m3["entries"] = [
@@ -235,6 +286,26 @@ def test_canonical_hash_ignores_volatile_metadata(tmp_path: Path) -> None:
         }
     ]
     assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m8)
+
+    m9 = dict(m1)
+    m9["entries"] = [{**base_entry, "blocking_flags": ["ambiguous_match"]}]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m9)
+
+    m_ts = dict(m1)
+    m_ts["entries"] = [{**base_entry, "source_timestamp": "row-only-ts"}]
+    assert canonical_import_plan_sha256(m1) == canonical_import_plan_sha256(m_ts)
+
+
+def test_manifest_sidecar_matches_on_disk_bytes(tmp_path: Path) -> None:
+    body = {
+        "phase2_version": "test",
+        "karzar_snapshot_sha256": SNAPSHOT_SHA_FIXTURE,
+        "entries": [],
+    }
+    path = tmp_path / "import_manifest.json"
+    write_import_manifest(path, body)
+    sidecar = path.with_name(path.name + ".sha256")
+    assert sidecar.read_text(encoding="utf-8").strip() == sha256_file(path)
 
 
 def test_aods_ingestion_boundary_still_passes() -> None:

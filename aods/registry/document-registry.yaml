@@ -194,6 +194,15 @@ documents:
     on_main: true
     notes: Read-only zcc.ir Phase 2 import plan operator guide (no APPLY).
 
+  - id: ZCC-IR-PHASE21-HARDENING
+    path: docs/zcc_ir/PHASE21_HARDENING.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    notes: Phase 2.1 approval manifest hashing and layered validation (no APPLY).
+
   - id: DEVELOPMENT
     path: docs/DEVELOPMENT.md
     class: POLICY
