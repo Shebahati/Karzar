@@ -43,6 +43,12 @@ else
   pass "FRONTEND_IMAGE_HANDOFF_REQUIRED"
 fi
 
+if ! grep -q 'karzar_finalize_frontend_images_incoming_handoff' "${SCRIPT_DIR}/push-incoming-frontend-images.sh"; then
+  fail "push must finalize handoff (normalize → verify → marker)"
+else
+  pass "PUSH_FINALIZE_HANDOFF_ORDER"
+fi
+
 if ! grep -q 'load-incoming-frontend-images.sh' "$WF"; then
   fail "workflow must load frontend images on VPS"
 else
@@ -219,6 +225,76 @@ if GITHUB_SHA="$SHA" KARZAR_FE_VERIFY_ONLY=1 bash "${SCRIPT_DIR}/load-incoming-f
 else
   fail "verify-only mode failed on valid bundle"
 fi
+
+# --- permission handoff regressions ---
+PERM_TMP="$(mktemp -d)"
+PERM_IN="${PERM_TMP}/incoming/${SHA}/${KARZAR_FRONTEND_IMAGES_SUBDIR}"
+mkdir -p "$PERM_IN"
+printf 'perm-test-payload' > "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}"
+PERM_BUNDLE_SHA="$(sha256sum "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" | awk '{print $1}')"
+echo "${PERM_BUNDLE_SHA}  ${KARZAR_FRONTEND_BUNDLE_NAME}" > "${PERM_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+chmod 0600 "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" "${PERM_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+
+export KARZAR_SELF_HOSTED_DEPLOY_USER
+KARZAR_SELF_HOSTED_DEPLOY_USER="$(id -un)"
+export KARZAR_SKIP_FRONTEND_CHOWN=1
+if karzar_finalize_frontend_images_incoming_handoff "$PERM_IN" "$SHA" "$PERM_BUNDLE_SHA" "$SHOP_TAG" "$ADMIN_TAG"; then
+  pass "NORMALIZE_600_THEN_FINALIZE"
+else
+  fail "could not normalize mode-600 bundle and finalize"
+fi
+if [[ -f "${PERM_IN}/${KARZAR_FRONTEND_IMAGES_MARKER}" ]] \
+  && karzar_verify_frontend_bundle_integrity "$PERM_IN" >/dev/null; then
+  pass "MARKER_AFTER_SUCCESSFUL_VERIFY"
+else
+  fail "marker missing or integrity failed after finalize"
+fi
+stat -c '%a' "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" | grep -qE '^64[04]$' \
+  && pass "BUNDLE_MODE_LEAST_PRIV" \
+  || fail "bundle mode not 640 after normalize"
+
+UNREAD_TMP="$(mktemp -d)"
+UNREAD_IN="${UNREAD_TMP}/incoming/${SHA}/${KARZAR_FRONTEND_IMAGES_SUBDIR}"
+mkdir -p "$UNREAD_IN"
+cp "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" "${UNREAD_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}"
+cp "${PERM_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}" "${UNREAD_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+chmod 0600 "${UNREAD_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" "${UNREAD_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+export KARZAR_SELF_HOSTED_DEPLOY_USER=nobody
+unset KARZAR_SKIP_FRONTEND_CHOWN
+if karzar_finalize_frontend_images_incoming_handoff "$UNREAD_IN" "$SHA" "$PERM_BUNDLE_SHA" "$SHOP_TAG" "$ADMIN_TAG" 2>/dev/null; then
+  fail "finalize succeeded when deploy user cannot read bundle"
+else
+  pass "UNREADABLE_BUNDLE_FAILS_BEFORE_MARKER"
+fi
+if [[ -f "${UNREAD_IN}/${KARZAR_FRONTEND_IMAGES_MARKER}" ]]; then
+  fail "marker present when verification could not succeed"
+else
+  pass "NO_MARKER_WHEN_VERIFY_IMPOSSIBLE"
+fi
+
+BAD_TMP="$(mktemp -d)"
+BAD_IN="${BAD_TMP}/incoming/${SHA}/${KARZAR_FRONTEND_IMAGES_SUBDIR}"
+mkdir -p "$BAD_IN"
+cp "${PERM_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" "${BAD_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}"
+echo "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  ${KARZAR_FRONTEND_BUNDLE_NAME}" \
+  > "${BAD_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+chmod 0600 "${BAD_IN}/${KARZAR_FRONTEND_BUNDLE_NAME}" "${BAD_IN}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+export KARZAR_SELF_HOSTED_DEPLOY_USER="$(id -un)"
+export KARZAR_SKIP_FRONTEND_CHOWN=1
+if karzar_finalize_frontend_images_incoming_handoff "$BAD_IN" "$SHA" "$PERM_BUNDLE_SHA" "$SHOP_TAG" "$ADMIN_TAG" 2>/dev/null; then
+  fail "finalize accepted checksum mismatch"
+else
+  pass "DIGEST_MISMATCH_NO_MARKER"
+fi
+if [[ -f "${BAD_IN}/${KARZAR_FRONTEND_IMAGES_MARKER}" ]]; then
+  fail "marker written before checksum verification"
+else
+  pass "MARKER_ABSENT_ON_DIGEST_FAIL"
+fi
+
+rm -rf "$PERM_TMP" "$UNREAD_TMP" "$BAD_TMP"
+export KARZAR_SELF_HOSTED_DEPLOY_USER="$(id -un)"
+unset KARZAR_SKIP_FRONTEND_CHOWN
 
 if grep -vE '^\s*#' "${SCRIPT_DIR}/deploy-frontend.sh" | grep -qE 'docker build'; then
   fail "deploy-frontend.sh must not docker build"
