@@ -34,18 +34,24 @@ Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer i
 
 ## Shipping (active storefront methods)
 
-Public checkout offers **server-defined method codes** (client sends `shipping_method_code` only):
+Public checkout offers **server-defined method codes** (client sends `shipping_method_code` only). All methods below are **`receiver_due`** (`price_label` = پس‌کرایه; `shipping_customer_cost` **NULL** at checkout; SEP = merchandise + tax only).
 
-| Method code | Label | Provider | Service | Eligibility | Payment |
-|-------------|-------|----------|---------|-------------|---------|
-| `tipax_standard` | تیپاکس | `tipax` | `standard` | Iran (MVP) | `receiver_due` |
-| `chapar_standard` | چاپار | `chapar` | `standard` | Iran (MVP) | `receiver_due` |
-| `tehran_express` | ارسال فوری تهران | `local_delivery` | `tehran_express` | **Tehran city** only | `receiver_due` |
+**Tehran province** (استان تهران — province normalization; **not** Tehran city only):
 
-- Discovery: `POST /api/v1/shipping/options` (province + city; no quote/dimensions).
-- `receiver_due`: merchandise is prepaid via SEP; **shipping is not in `estimated_total`**. `shipping_customer_cost` stays **NULL** (not zero — not “free shipping”).
-- Fulfillment: manual register → handoff → deliver (`/orders/{id}/shipments/{id}/manual/*`). No external carrier API at checkout or shipment create.
-- Feature flags (MVP): `SHIPPING_TIPAX_ENABLED`, `SHIPPING_CHAPAR_ENABLED`, `SHIPPING_TEHRAN_EXPRESS_ENABLED` (application default **false** — explicit env required to activate). Legacy Postex quote checkout requires **`SHIPPING_POSTEX_CHECKOUT_ENABLED=true`** in addition to `POSTEX_ENABLED`; it is never implied automatically.
+| Order | Method code | Label | Provider | Service |
+|------|-------------|-------|----------|---------|
+| 1 | `tipax_standard` | تیپاکس | `tipax` | `standard` |
+| 2 | `chapar_standard` | چاپار | `chapar` | `standard` |
+| 3 | `post_pishtaz` | پست پیشتاز | `iran_post` | `pishtaz` |
+| 4 | `tehran_motorcycle_48h` | پیک موتوری حداکثر تا ۴۸ ساعت | `local_delivery` | `motorcycle_48h` |
+| 5 | `tehran_express_3h` | ارسال فوری ۳ ساعته | `local_delivery` | `express_3h` |
+
+**Other provinces:** `tipax_standard`, `chapar_standard`, `post_pishtaz` only (same order).
+
+- Discovery: `POST /api/v1/shipping/options` (province + city; local methods use **province** = Tehran).
+- `post_pishtaz` is manual receiver-due fulfillment (`iran_post`); it does **not** use Postex quote checkout and does **not** require `POSTEX_ENABLED`.
+- Fulfillment: manual register → handoff → deliver (`/orders/{id}/shipments/{id}/manual/*`). External carriers (`tipax`, `chapar`, `iran_post`) require tracking/provider reference before handoff; `local_delivery` uses courier fields.
+- Feature flags (default **false**): `SHIPPING_TIPAX_ENABLED`, `SHIPPING_CHAPAR_ENABLED`, `SHIPPING_POST_PISHTAZ_ENABLED`, `SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED`, `SHIPPING_TEHRAN_EXPRESS_3H_ENABLED`. Legacy Postex quote checkout: **`SHIPPING_POSTEX_CHECKOUT_ENABLED=true`** plus `POSTEX_ENABLED`; never implied automatically.
 
 **Intended production activation (ops — not applied by deploy alone):**
 
@@ -53,11 +59,13 @@ Public checkout offers **server-defined method codes** (client sends `shipping_m
 POSTEX_ENABLED=false
 SHIPPING_TIPAX_ENABLED=true
 SHIPPING_CHAPAR_ENABLED=true
-SHIPPING_TEHRAN_EXPRESS_ENABLED=true
+SHIPPING_POST_PISHTAZ_ENABLED=true
+SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED=true
+SHIPPING_TEHRAN_EXPRESS_3H_ENABLED=true
 SHIPPING_POSTEX_CHECKOUT_ENABLED=false
 ```
 
-**Postex** remains in code and history for legacy orders but is **not** returned as a storefront option. `POSTEX_ENABLED` does not gate Tipax/Chapar/Tehran Express.
+**Postex** remains in code and history for legacy orders but is **not** returned as a storefront option. `POSTEX_ENABLED` does not gate the receiver-due matrix above.
 
 ## Shipping (Postex — legacy provider)
 

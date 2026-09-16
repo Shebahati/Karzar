@@ -22,6 +22,7 @@ _HANDOFF_DESCRIPTIONS: dict[str, str] = {
     "tipax": "بسته تحویل تیپاکس شد",
     "chapar": "بسته تحویل چاپار شد",
     "local_delivery": "بسته تحویل پیک شد",
+    "iran_post": "بسته تحویل پست پیشتاز شد",
 }
 
 _POST_HANDOFF_DELIVERY_STATUSES = frozenset(
@@ -74,7 +75,7 @@ async def manual_register(
     provider = (shipment.provider or "").strip()
     tracking = _strip_opt(tracking_code)
     new_ref = _strip_opt(provider_reference)
-    if provider in {"tipax", "chapar"} and not tracking and not new_ref:
+    if provider in {"tipax", "chapar", "iran_post"} and not tracking and not new_ref:
         raise ShipmentStateError("کد رهگیری یا شناسه مرجع حامل الزامی است.")
 
     data = _provider_data(shipment)

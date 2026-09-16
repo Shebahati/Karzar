@@ -7,6 +7,34 @@ import type {
   ShippingStatus,
 } from "@/types/shipping";
 
+function isTehranProvince(province: string): boolean {
+  const p = province.trim().normalize("NFKC").replace(/ي/g, "ی").replace(/ك/g, "ک").toLowerCase();
+  return p === "تهران" || p === "tehran";
+}
+
+const NATIONWIDE_METHODS: ShippingMethodOption[] = [
+  { code: "tipax_standard", title: "تیپاکس", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
+  { code: "chapar_standard", title: "چاپار", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
+  { code: "post_pishtaz", title: "پست پیشتاز", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
+];
+
+const TEHRAN_LOCAL_METHODS: ShippingMethodOption[] = [
+  {
+    code: "tehran_motorcycle_48h",
+    title: "پیک موتوری حداکثر تا ۴۸ ساعت",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
+  {
+    code: "tehran_express_3h",
+    title: "ارسال فوری ۳ ساعته",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
+];
+
 export const shippingService = {
   async status(): Promise<ShippingStatus> {
     if (env.USE_MOCK) {
@@ -35,18 +63,10 @@ export const shippingService = {
     postal_code?: string;
   }): Promise<ShippingMethodOption[]> {
     if (env.USE_MOCK) {
-      const tehran = payload.city.trim() === "تهران" && payload.province.trim() === "تهران";
-      const base = [
-        { code: "tipax_standard", title: "تیپاکس", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
-        { code: "chapar_standard", title: "چاپار", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
-      ];
-      if (tehran) {
-        return [
-          { code: "tehran_express", title: "ارسال فوری تهران", payment_mode: "receiver_due", price: null, price_label: "پس‌کرایه" },
-          ...base,
-        ];
+      if (isTehranProvince(payload.province)) {
+        return [...NATIONWIDE_METHODS, ...TEHRAN_LOCAL_METHODS];
       }
-      return base;
+      return [...NATIONWIDE_METHODS];
     }
     const { data } = await apiClient.post<{ options: ShippingMethodOption[] }>(
       "/shipping/options",

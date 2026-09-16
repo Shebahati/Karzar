@@ -21,7 +21,9 @@ pytestmark = pytest.mark.usefixtures("purchase_customer_headers")
 def test_shipping_flags_default_false():
     assert settings.SHIPPING_TIPAX_ENABLED is False
     assert settings.SHIPPING_CHAPAR_ENABLED is False
-    assert settings.SHIPPING_TEHRAN_EXPRESS_ENABLED is False
+    assert settings.SHIPPING_POST_PISHTAZ_ENABLED is False
+    assert settings.SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED is False
+    assert settings.SHIPPING_TEHRAN_EXPRESS_3H_ENABLED is False
     assert settings.SHIPPING_POSTEX_CHECKOUT_ENABLED is False
 
 
@@ -63,7 +65,9 @@ def test_purchase_rejected_when_no_shipping_enabled(
     monkeypatch.setattr(settings, "POSTEX_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", False)
-    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_POST_PISHTAZ_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_3H_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
     client = TestClient(app)
     pid = _seed(client, super_admin_headers)
@@ -85,7 +89,9 @@ def test_postex_enabled_does_not_activate_checkout_without_explicit_flag(
     monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", False)
-    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_POST_PISHTAZ_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_3H_ENABLED", False)
     client = TestClient(app)
     pid = _seed(client, super_admin_headers, sku="POSTEX-NO-PUB")
     res = client.post(
@@ -100,7 +106,9 @@ def test_postex_enabled_does_not_activate_checkout_without_explicit_flag(
 def test_shipping_options_empty_when_flags_off(override_database, monkeypatch):
     monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", False)
     monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", False)
-    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_POST_PISHTAZ_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_3H_ENABLED", False)
     client = TestClient(app)
     res = client.post(
         "/api/v1/shipping/options",
@@ -194,7 +202,7 @@ def test_local_delivery_handoff_without_tracking(
     pid = _seed(client, super_admin_headers, sku="LOCAL-HANDOFF")
     checkout = client.post(
         "/api/v1/checkout",
-        json=_checkout_body(pid, "tehran_express"),
+        json=_checkout_body(pid, "tehran_express_3h"),
         headers=purchase_customer_headers,
     )
     order_id = checkout.json()["order_id"]

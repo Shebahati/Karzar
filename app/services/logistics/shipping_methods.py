@@ -6,23 +6,26 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from app.core.config import settings
-from app.services.logistics.geo import is_tehran_city
+from app.services.logistics.geo import is_tehran_province
 from app.services.logistics.shipping_payment import ShippingPaymentMode
 
 
 class ShippingMethodCode(StrEnum):
     TIPAX_STANDARD = "tipax_standard"
     CHAPAR_STANDARD = "chapar_standard"
-    TEHRAN_EXPRESS = "tehran_express"
+    POST_PISHTAZ = "post_pishtaz"
+    TEHRAN_MOTORCYCLE_48H = "tehran_motorcycle_48h"
+    TEHRAN_EXPRESS_3H = "tehran_express_3h"
 
 
 PROVIDER_TIPAX = "tipax"
 PROVIDER_CHAPAR = "chapar"
+PROVIDER_IRAN_POST = "iran_post"
 PROVIDER_LOCAL_DELIVERY = "local_delivery"
 PROVIDER_POSTEX = "postex"
 
 MANUAL_FULFILLMENT_PROVIDERS = frozenset(
-    {PROVIDER_TIPAX, PROVIDER_CHAPAR, PROVIDER_LOCAL_DELIVERY}
+    {PROVIDER_TIPAX, PROVIDER_CHAPAR, PROVIDER_IRAN_POST, PROVIDER_LOCAL_DELIVERY}
 )
 
 RECEIVER_DUE_PRICE_LABEL = "پس‌کرایه"
@@ -56,10 +59,10 @@ class ShippingMethodDefinition:
     payment_mode: ShippingPaymentMode
     enabled: bool
     sort_order: int
-    tehran_only: bool = False
+    tehran_province_only: bool = False
 
     def is_eligible(self, destination: ShippingDestination) -> bool:
-        if self.tehran_only and not is_tehran_city(destination.province, destination.city):
+        if self.tehran_province_only and not is_tehran_province(destination.province):
             return False
         return True
 
@@ -78,17 +81,6 @@ class ShippingMethodDefinition:
 def _registry() -> list[ShippingMethodDefinition]:
     return [
         ShippingMethodDefinition(
-            code=ShippingMethodCode.TEHRAN_EXPRESS,
-            title="ارسال فوری تهران",
-            provider=PROVIDER_LOCAL_DELIVERY,
-            carrier_code=None,
-            service_code="tehran_express",
-            payment_mode=ShippingPaymentMode.RECEIVER_DUE,
-            enabled=bool(settings.SHIPPING_TEHRAN_EXPRESS_ENABLED),
-            sort_order=0,
-            tehran_only=True,
-        ),
-        ShippingMethodDefinition(
             code=ShippingMethodCode.TIPAX_STANDARD,
             title="تیپاکس",
             provider=PROVIDER_TIPAX,
@@ -96,7 +88,7 @@ def _registry() -> list[ShippingMethodDefinition]:
             service_code="standard",
             payment_mode=ShippingPaymentMode.RECEIVER_DUE,
             enabled=bool(settings.SHIPPING_TIPAX_ENABLED),
-            sort_order=1,
+            sort_order=0,
         ),
         ShippingMethodDefinition(
             code=ShippingMethodCode.CHAPAR_STANDARD,
@@ -106,7 +98,39 @@ def _registry() -> list[ShippingMethodDefinition]:
             service_code="standard",
             payment_mode=ShippingPaymentMode.RECEIVER_DUE,
             enabled=bool(settings.SHIPPING_CHAPAR_ENABLED),
+            sort_order=1,
+        ),
+        ShippingMethodDefinition(
+            code=ShippingMethodCode.POST_PISHTAZ,
+            title="پست پیشتاز",
+            provider=PROVIDER_IRAN_POST,
+            carrier_code=PROVIDER_IRAN_POST,
+            service_code="pishtaz",
+            payment_mode=ShippingPaymentMode.RECEIVER_DUE,
+            enabled=bool(settings.SHIPPING_POST_PISHTAZ_ENABLED),
             sort_order=2,
+        ),
+        ShippingMethodDefinition(
+            code=ShippingMethodCode.TEHRAN_MOTORCYCLE_48H,
+            title="پیک موتوری حداکثر تا ۴۸ ساعت",
+            provider=PROVIDER_LOCAL_DELIVERY,
+            carrier_code=None,
+            service_code="motorcycle_48h",
+            payment_mode=ShippingPaymentMode.RECEIVER_DUE,
+            enabled=bool(settings.SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED),
+            sort_order=3,
+            tehran_province_only=True,
+        ),
+        ShippingMethodDefinition(
+            code=ShippingMethodCode.TEHRAN_EXPRESS_3H,
+            title="ارسال فوری ۳ ساعته",
+            provider=PROVIDER_LOCAL_DELIVERY,
+            carrier_code=None,
+            service_code="express_3h",
+            payment_mode=ShippingPaymentMode.RECEIVER_DUE,
+            enabled=bool(settings.SHIPPING_TEHRAN_EXPRESS_3H_ENABLED),
+            sort_order=4,
+            tehran_province_only=True,
         ),
     ]
 

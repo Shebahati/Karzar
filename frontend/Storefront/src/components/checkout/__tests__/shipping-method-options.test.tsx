@@ -2,14 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ShippingMethodOptions } from "@/components/checkout/shipping-options";
 
-const tehranOptions = [
-  {
-    code: "tehran_express",
-    title: "ارسال فوری تهران",
-    payment_mode: "receiver_due",
-    price: null,
-    price_label: "پس‌کرایه",
-  },
+const tehranProvinceOptions = [
   {
     code: "tipax_standard",
     title: "تیپاکس",
@@ -17,21 +10,50 @@ const tehranOptions = [
     price: null,
     price_label: "پس‌کرایه",
   },
+  {
+    code: "chapar_standard",
+    title: "چاپار",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
+  {
+    code: "post_pishtaz",
+    title: "پست پیشتاز",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
+  {
+    code: "tehran_motorcycle_48h",
+    title: "پیک موتوری حداکثر تا ۴۸ ساعت",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
+  {
+    code: "tehran_express_3h",
+    title: "ارسال فوری ۳ ساعته",
+    payment_mode: "receiver_due",
+    price: null,
+    price_label: "پس‌کرایه",
+  },
 ];
 
 describe("ShippingMethodOptions", () => {
-  it("renders Tehran Express and receiver-due labels without free shipping", () => {
+  it("renders receiver-due labels without free shipping", () => {
     const html = renderToStaticMarkup(
       <ShippingMethodOptions
-        options={tehranOptions}
+        options={tehranProvinceOptions}
         selectedCode="tipax_standard"
         loading={false}
         error={null}
         onSelect={() => {}}
       />,
     );
-    expect(html).toContain("ارسال فوری تهران");
     expect(html).toContain("تیپاکس");
+    expect(html).toContain("پست پیشتاز");
+    expect(html).toContain("ارسال فوری ۳ ساعته");
     expect(html).toContain("پس‌کرایه");
     expect(html).not.toContain("رایگان");
     expect(html).not.toContain("0 تومان");

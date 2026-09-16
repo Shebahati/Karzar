@@ -125,7 +125,7 @@ def test_local_delivery_deliver_from_booked_rejected(
     pid = _seed(client, super_admin_headers, sku="LOCAL-DELIVER-BLOCK")
     order_id = client.post(
         "/api/v1/checkout",
-        json=_checkout_body(pid, "tehran_express"),
+        json=_checkout_body(pid, "tehran_express_3h"),
         headers=purchase_customer_headers,
     ).json()["order_id"]
 

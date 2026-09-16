@@ -7,15 +7,19 @@ import { shippingService } from "@/services/shipping";
 import { useCartStore } from "@/store/cart-store";
 import type { ShippingCity, ShippingMethodOption, ShippingQuoteOption } from "@/types/shipping";
 
+const RECEIVER_DUE_COPY = "هزینه ارسال هنگام تحویل از گیرنده دریافت می‌شود";
+const LOCAL_RECEIVER_DUE_COPY = "هزینه ارسال هنگام تحویل به پیک پرداخت می‌شود";
+
 export function methodOptionSubtitle(code: string): string {
-  if (code === "tehran_express") {
-    return "هزینه ارسال هنگام تحویل به پیک پرداخت می‌شود";
+  if (code === "tehran_motorcycle_48h" || code === "tehran_express_3h") {
+    return LOCAL_RECEIVER_DUE_COPY;
   }
-  if (code === "tipax_standard") {
-    return "هزینه ارسال هنگام تحویل از گیرنده دریافت می‌شود";
-  }
-  if (code === "chapar_standard") {
-    return "هزینه ارسال هنگام تحویل از گیرنده دریافت می‌شود";
+  if (
+    code === "tipax_standard" ||
+    code === "chapar_standard" ||
+    code === "post_pishtaz"
+  ) {
+    return RECEIVER_DUE_COPY;
   }
   return "پرداخت هزینه ارسال هنگام تحویل";
 }
