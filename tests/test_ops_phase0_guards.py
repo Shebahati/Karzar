@@ -39,7 +39,25 @@ def test_deploy_staging_does_not_publish_cms_as_a_side_effect():
     assert "publish_seo003_articles.py" not in text
     assert "KARZAR_ALLOW_PRODUCTION_WRITE" not in text
     assert "KARZAR_INGESTION_CATEGORY" not in text
-    assert "smoke-staging.sh" in text
+    assert "run-smoke-staging.sh" in text
+
+
+def test_smoke_staging_gates_on_readiness_before_functional_checks():
+    smoke = _read("deploy/staging/scripts/smoke-staging.sh")
+    assert "wait-staging-frontends.sh" in smoke
+    assert "DEPLOY_FE_SMOKE_OK" in smoke
+    wait_at = smoke.index("wait-staging-frontends.sh")
+    checks_at = smoke.index('check "api_health"')
+    assert wait_at < checks_at
+
+
+def test_deploy_frontend_waits_for_http_readiness_after_container_start():
+    script = _read("deploy/staging/scripts/deploy-frontend.sh")
+    assert "wait-staging-frontends.sh" in script
+    assert "docker run -d --name karzar_admin" in script
+    admin_run = script.index("docker run -d --name karzar_admin")
+    wait_at = script.index("wait-staging-frontends.sh")
+    assert admin_run < wait_at
 
 
 def test_live_data_apply_workflows_honor_freeze():

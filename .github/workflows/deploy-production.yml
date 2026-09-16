@@ -149,4 +149,4 @@ jobs:
           API_BASE=http://127.0.0.1:8000 \
           SHOP_BASE=http://127.0.0.1:3000 \
           ADMIN_BASE=http://127.0.0.1:3001 \
-            bash deploy/staging/scripts/smoke-staging.sh
+            bash deploy/staging/scripts/run-smoke-staging.sh
