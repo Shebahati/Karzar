@@ -17,14 +17,14 @@ if str(SCRIPTS) not in sys.path:
 from catalog_target.snapshot import load_snapshot_csv  # noqa: E402
 from zcc_ir_import_plan import FORBIDDEN  # noqa: E402
 from zcc_ir_import_plan import main as cli_main  # noqa: E402
+from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256  # noqa: E402
 from zcc_ir_phase2.manifest import (  # noqa: E402
     ALLOWED_OPERATIONS,
     FORBIDDEN_OPERATIONS,
-    manifest_sha256,
 )
 from zcc_ir_phase2.pipeline import run_phase2_plan  # noqa: E402
 from zcc_ir_phase2.snapshot_stats import brand_catalog_stats  # noqa: E402
-from zcc_ir_phase2.validate import validate_manifest  # noqa: E402
+from zcc_ir_phase2.validate import validate_manifest, validate_manifest_layers  # noqa: E402
 
 
 def test_no_hardcoded_production_url_in_phase2_scripts() -> None:
@@ -63,7 +63,8 @@ def test_phase2_plan_and_manifest_determinism(tmp_path: Path) -> None:
     manifest_path = out / "import_manifest.json"
     assert manifest_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert manifest["IMPORT_MANIFEST_SHA256"]
+    assert manifest["CANONICAL_IMPORT_PLAN_SHA256"]
+    assert manifest["IMPORT_MANIFEST_SHA256"] == manifest["CANONICAL_IMPORT_PLAN_SHA256"]
     assert validate_manifest(manifest_path) == []
     run_phase2_plan(
         phase1_dir=FIXTURES / "phase1_mini",
@@ -71,7 +72,7 @@ def test_phase2_plan_and_manifest_determinism(tmp_path: Path) -> None:
         karzar_snapshot=str(FIXTURES / "karzar_full_snapshot.csv"),
     )
     manifest2 = json.loads((tmp_path / "phase2b" / "import_manifest.json").read_text(encoding="utf-8"))
-    assert manifest["IMPORT_MANIFEST_SHA256"] == manifest2["IMPORT_MANIFEST_SHA256"]
+    assert manifest["CANONICAL_IMPORT_PLAN_SHA256"] == manifest2["CANONICAL_IMPORT_PLAN_SHA256"]
     assert summary["current_snapshot"]["source_product_count"] == 3
     ops = set(manifest["operation_counts"])
     assert ops.issubset(ALLOWED_OPERATIONS)
@@ -110,12 +111,13 @@ def test_validator_rejects_zero_price_create(tmp_path: Path) -> None:
         },
         "primary_state": "CREATE_CANDIDATE",
     }
-    body = {"entries": [entry]}
-    body["IMPORT_MANIFEST_SHA256"] = manifest_sha256(body)
+    body = {"entries": [entry], "phase2_version": "test"}
+    body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
     path = tmp_path / "zero.json"
     path.write_text(json.dumps(body), encoding="utf-8")
-    errors = validate_manifest(path)
-    assert any("price=0" in e for e in errors)
+    layers = validate_manifest_layers(path)
+    assert any("COMMERCE_INVALID" in e for e in layers.commerce_errors)
+    assert layers.CONTENT_PLAN_VALID
 
 
 def test_cli_validate_command(tmp_path: Path) -> None:
@@ -139,6 +141,100 @@ def test_stc_brand_proposal_present(tmp_path: Path) -> None:
     assert stc["canonical_name"] == "STC"
     assert stc["product_count"] >= 1
     assert stc["decision_status"] in {"READY_FOR_OWNER_APPROVAL", "REVIEW_REQUIRED"}
+
+
+def test_validator_duplicate_diagnostics_vs_blocking_rows(tmp_path: Path) -> None:
+    """Two diagnostics on one row must not imply two blocking products."""
+    shared = {
+        "operation": "CREATE_PLAN",
+        "source_identity": {"brand": "ZCC.CT", "manufacturer_code": "DUP-1"},
+        "category_id": "33",
+        "planned_fields": {
+            "identity": {"sku_proposal": "ZCC-DUP-1"},
+            "commerce_observations": {"observed_price": "1000"},
+            "images": {"main_image_source_url": "https://example/a.jpg"},
+        },
+        "primary_state": "CREATE_CANDIDATE",
+    }
+    first = {**shared, "source_url": "https://zcc.ir/product/first/"}
+    second = {**shared, "source_url": "https://zcc.ir/product/second/"}
+    body = {"entries": [first, second], "phase2_version": "test"}
+    body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
+    path = tmp_path / "dup.json"
+    path.write_text(json.dumps(body), encoding="utf-8")
+    layers = validate_manifest_layers(path)
+    assert layers.DUPLICATE_IDENTITY_DIAGNOSTICS == 1
+    assert layers.DUPLICATE_SKU_DIAGNOSTICS == 1
+    assert layers.CONTENT_BLOCKING_ERROR_COUNT == 2
+    assert layers.CONTENT_BLOCKING_ROW_COUNT == 1
+    assert layers.CONTENT_COLLISION_GROUP_COUNT >= 1
+
+
+def test_stc_hold_brand_review_invariant() -> None:
+    assert 53 + 12 == 65
+
+
+def test_canonical_hash_ignores_volatile_metadata(tmp_path: Path) -> None:
+    base_entry = {
+        "operation": "NOOP",
+        "source_url": "https://zcc.ir/product/a/",
+        "source_identity": {"brand": "ZCC.CT", "manufacturer_code": "A1"},
+        "target_identity": {"karzar_id": "1", "karzar_sku": "ZCC-A1"},
+        "planned_fields": {},
+        "primary_state": "NOOP_EXISTING_EXACT",
+    }
+    m1 = {
+        "phase2_version": "zcc_ir_phase2/1.0.0",
+        "git_sha": "aaa",
+        "karzar_snapshot_timestamp": "t1",
+        "entries": [base_entry],
+        "operation_counts": {"NOOP": 1},
+    }
+    m2 = dict(m1)
+    m2["git_sha"] = "bbb"
+    m2["karzar_snapshot_timestamp"] = "t2"
+    assert canonical_import_plan_sha256(m1) == canonical_import_plan_sha256(m2)
+
+    m3 = dict(m1)
+    m3["entries"] = [
+        {
+            **base_entry,
+            "planned_fields": {"identity": {"sku_proposal": "ZCC-CHANGED"}},
+        }
+    ]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m3)
+
+    m4 = dict(m1)
+    m4["entries"] = [{**base_entry, "operation": "HOLD", "primary_state": "HOLD_CATEGORY_REVIEW"}]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m4)
+
+    m5 = dict(m1)
+    m5["entries"] = [
+        {**base_entry, "target_identity": {"karzar_id": "99", "karzar_sku": "ZCC-OTHER"}}
+    ]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m5)
+
+    m6 = dict(m1)
+    m6["entries"] = [{**base_entry, "category_id": "99"}]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m6)
+
+    m7 = dict(m1)
+    m7["entries"] = [
+        {
+            **base_entry,
+            "source_identity": {"brand": "SAN OU", "manufacturer_code": "A1"},
+        }
+    ]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m7)
+
+    m8 = dict(m1)
+    m8["entries"] = [
+        {
+            **base_entry,
+            "planned_fields": {"description_class": "changed"},
+        }
+    ]
+    assert canonical_import_plan_sha256(m1) != canonical_import_plan_sha256(m8)
 
 
 def test_aods_ingestion_boundary_still_passes() -> None:

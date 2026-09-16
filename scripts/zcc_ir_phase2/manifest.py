@@ -7,6 +7,7 @@ import json
 from typing import Any
 
 from zcc_ir_phase2 import PHASE2_VERSION
+from zcc_ir_phase2.canonical_hash import canonical_import_plan_sha256
 from zcc_ir_phase2.payloads import CreatePlanRow, UpdatePlanRow
 from zcc_ir_phase2.readiness import ReadinessRow
 from zcc_ir_phase2.reconcile import Phase2ReconcileRow
@@ -111,5 +112,7 @@ def build_import_manifest(
         op = entry["operation"]
         counts[op] = counts.get(op, 0) + 1
     body["operation_counts"] = counts
-    body["IMPORT_MANIFEST_SHA256"] = manifest_sha256(body)
+    body["CANONICAL_IMPORT_PLAN_SHA256"] = canonical_import_plan_sha256(body)
+    # Legacy field: same as canonical identity (volatile metadata excluded).
+    body["IMPORT_MANIFEST_SHA256"] = body["CANONICAL_IMPORT_PLAN_SHA256"]
     return body
