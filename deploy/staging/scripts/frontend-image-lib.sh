@@ -58,6 +58,24 @@ karzar_docker_image_revision() {
   docker image inspect --format "{{ index .Config.Labels \"${KARZAR_OCI_REVISION_LABEL}\" }}" "$ref" 2>/dev/null || true
 }
 
+karzar_docker_image_source() {
+  local ref="${1:?image ref required}"
+  if [[ -n "${KARZAR_MOCK_SOURCE_MAP:-}" ]]; then
+    local line key val
+    while IFS= read -r line; do
+      key="${line%%=*}"
+      val="${line#*=}"
+      if [[ "$key" == "$ref" ]]; then
+        echo "$val"
+        return 0
+      fi
+    done <<< "$KARZAR_MOCK_SOURCE_MAP"
+    echo ""
+    return 0
+  fi
+  docker image inspect --format "{{ index .Config.Labels \"${KARZAR_OCI_SOURCE_LABEL}\" }}" "$ref" 2>/dev/null || true
+}
+
 karzar_verify_image_revision() {
   local image_ref="$1"
   local expected_sha="$2"
@@ -69,6 +87,53 @@ karzar_verify_image_revision() {
   fi
   if [[ "$actual" != "$expected_sha" ]]; then
     echo "VERIFY=FAIL ${image_ref} revision=${actual} expected=${expected_sha}" >&2
+    return 1
+  fi
+  return 0
+}
+
+# Require marker + bundle + checksum; actual digest == checksum file == marker bundle_sha256.
+karzar_verify_frontend_bundle_integrity() {
+  local dir="${1:?incoming frontend-images dir required}"
+  local marker="${dir}/${KARZAR_FRONTEND_IMAGES_MARKER}"
+  local bundle="${dir}/${KARZAR_FRONTEND_BUNDLE_NAME}"
+  local checksum="${dir}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
+
+  [[ -f "$marker" ]] || { echo "VERIFY=FAIL missing ${KARZAR_FRONTEND_IMAGES_MARKER}" >&2; return 1; }
+  [[ -f "$bundle" ]] || { echo "VERIFY=FAIL missing bundle" >&2; return 1; }
+  [[ -f "$checksum" ]] || { echo "VERIFY=FAIL missing checksum file" >&2; return 1; }
+
+  karzar_read_frontend_images_handoff_marker "$marker"
+
+  local nonempty line_count
+  nonempty="$(grep -cve '^[[:space:]]*$' "$checksum" || true)"
+  if [[ "$nonempty" != "1" ]]; then
+    echo "VERIFY=FAIL checksum file must contain exactly one non-empty line" >&2
+    return 1
+  fi
+
+  local file_digest file_name actual_digest
+  read -r file_digest file_name < "$checksum"
+  if [[ "$file_name" != "${KARZAR_FRONTEND_BUNDLE_NAME}" ]]; then
+    echo "VERIFY=FAIL checksum names unexpected bundle file (${file_name:-empty})" >&2
+    return 1
+  fi
+  if [[ ! "$file_digest" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "VERIFY=FAIL checksum digest must be 64 lowercase hex chars" >&2
+    return 1
+  fi
+
+  actual_digest="$(sha256sum "$bundle" | awk '{print $1}')"
+  if [[ "$actual_digest" != "$file_digest" ]]; then
+    echo "VERIFY=FAIL bundle digest does not match checksum file" >&2
+    return 1
+  fi
+  if [[ "$actual_digest" != "$KARZAR_FE_HANDOFF_BUNDLE_SHA" ]]; then
+    echo "VERIFY=FAIL marker bundle_sha256 does not match bundle digest" >&2
+    return 1
+  fi
+  if [[ ! "$KARZAR_FE_HANDOFF_BUNDLE_SHA" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "VERIFY=FAIL marker bundle_sha256 format" >&2
     return 1
   fi
   return 0

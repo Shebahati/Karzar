@@ -1,0 +1,85 @@
+name: Staging frontend image preflight
+
+# Real cold Docker builds for staging frontend images (not covered by frontend-ci path filters).
+on:
+  pull_request:
+    paths:
+      - deploy/staging/frontend/**
+      - deploy/staging/scripts/build-staging-frontend-images.sh
+      - deploy/staging/scripts/frontend-image-lib.sh
+      - deploy/staging/scripts/push-incoming-frontend-images.sh
+      - deploy/staging/scripts/load-incoming-frontend-images.sh
+      - deploy/staging/scripts/prepare-frontend-build-source.sh
+      - deploy/staging/scripts/deploy-frontend.sh
+      - deploy/staging/scripts/deploy-frontend-build-local.sh
+      - deploy/staging/scripts/test-prebuilt-frontend-handoff.sh
+      - .github/workflows/deploy-staging.yml
+      - .github/workflows/staging-frontend-image-preflight.yml
+      - frontend/Storefront/package.json
+      - frontend/Storefront/package-lock.json
+      - frontend/admin-panel/package.json
+      - frontend/admin-panel/package-lock.json
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  preflight:
+    name: Staging frontend image preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout PR HEAD
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build staging frontend images
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          IMAGE_SOURCE: https://github.com/${{ github.repository }}
+          NEXT_PUBLIC_API_BASE_URL: https://api.karzartools.com/api/v1
+          NEXT_PUBLIC_SITE_URL: https://www.karzartools.com
+          NEXT_PUBLIC_SEO_INDEXABLE: true
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: G-NT8ZT3G6HC
+        run: |
+          set -euo pipefail
+          if [[ ! "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::GITHUB_SHA must be 40-char hex (got ${GITHUB_SHA})"
+            exit 1
+          fi
+          chmod +x deploy/staging/scripts/*.sh
+          bash deploy/staging/scripts/build-staging-frontend-images.sh
+
+      - name: Verify OCI labels and package bundle locally
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          IMAGE_SOURCE: https://github.com/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=deploy/staging/scripts/frontend-image-lib.sh
+          source deploy/staging/scripts/frontend-image-lib.sh
+          SHOP_TAG="$(karzar_frontend_shop_image_tag "$GITHUB_SHA")"
+          ADMIN_TAG="$(karzar_frontend_admin_image_tag "$GITHUB_SHA")"
+          docker image inspect "$SHOP_TAG" >/dev/null
+          docker image inspect "$ADMIN_TAG" >/dev/null
+          karzar_verify_image_revision "$SHOP_TAG" "$GITHUB_SHA"
+          karzar_verify_image_revision "$ADMIN_TAG" "$GITHUB_SHA"
+          src="$(karzar_docker_image_source "$SHOP_TAG")"
+          if [[ "$src" != "$IMAGE_SOURCE" ]]; then
+            echo "::error::shop image source label=${src} expected=${IMAGE_SOURCE}"
+            exit 1
+          fi
+          src="$(karzar_docker_image_source "$ADMIN_TAG")"
+          if [[ "$src" != "$IMAGE_SOURCE" ]]; then
+            echo "::error::admin image source label=${src} expected=${IMAGE_SOURCE}"
+            exit 1
+          fi
+          BUNDLE="${RUNNER_TEMP}/frontend-images.tar"
+          docker save -o "$BUNDLE" "$SHOP_TAG" "$ADMIN_TAG"
+          sha256sum "$BUNDLE" | tee "${RUNNER_TEMP}/frontend-images.sha256"
+          echo "PREFLIGHT_BUNDLE_OK bytes=$(stat -c%s "$BUNDLE")"

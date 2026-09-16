@@ -11,10 +11,14 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 SHOP_DIR="$FRONTEND_ROOT/Storefront"
 ADMIN_DIR="$FRONTEND_ROOT/admin-panel"
-NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmjs.org/}"
+# Legacy VPS/production local build: preserve npmmirror default (Iranian VPS egress).
+# GitHub-hosted staging prebuild uses registry.npmjs.org via build-staging-frontend-images.sh.
+NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmmirror.com}"
 GIT_REVISION="${GIT_REVISION:-local-build}"
 IMAGE_SOURCE="${IMAGE_SOURCE:-https://github.com/Shebahati/Karzar}"
 IMAGE_CREATED="${IMAGE_CREATED:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
+
+bash "${SCRIPT_DIR}/prepare-frontend-build-source.sh"
 
 common_build_args=(
   --build-arg "GIT_REVISION=${GIT_REVISION}"

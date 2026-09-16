@@ -43,6 +43,9 @@ common_build_args=(
 
 [[ -d "$SHOP_DIR" && -d "$ADMIN_DIR" ]] || { echo "missing frontend directories under $ROOT/frontend" >&2; exit 1; }
 
+export FRONTEND_ROOT="${ROOT}/frontend"
+bash "${SCRIPT_DIR}/prepare-frontend-build-source.sh"
+
 if [[ "${KARZAR_SKIP_DOCKER_BUILD:-}" == "1" ]]; then
   echo "KARZAR_SKIP_DOCKER_BUILD=1 — skipping docker build (selftest)"
   exit 0

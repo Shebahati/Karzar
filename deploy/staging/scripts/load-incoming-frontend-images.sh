@@ -19,35 +19,20 @@ if [[ "$EXPECTED_SHA" != "$GITHUB_SHA" ]]; then
 fi
 
 DIR="$(karzar_frontend_images_incoming_dir "$GITHUB_SHA")"
-MARKER="${DIR}/${KARZAR_FRONTEND_IMAGES_MARKER}"
-BUNDLE="${DIR}/${KARZAR_FRONTEND_BUNDLE_NAME}"
-CHECKSUM="${DIR}/${KARZAR_FRONTEND_CHECKSUM_NAME}"
 
 if [[ "${KARZAR_FE_VERIFY_ONLY:-}" == "1" ]]; then
-  test -f "$MARKER"
-  test -f "$BUNDLE"
-  test -f "$CHECKSUM"
-  karzar_read_frontend_images_handoff_marker "$MARKER"
+  karzar_verify_frontend_bundle_integrity "$DIR"
   echo "FRONTEND_IMAGES_VERIFY_OK sha=${GITHUB_SHA}"
   exit 0
 fi
 
-test -f "$MARKER" || { echo "VERIFY=FAIL missing ${KARZAR_FRONTEND_IMAGES_MARKER}" >&2; exit 1; }
-test -f "$BUNDLE" || { echo "VERIFY=FAIL missing bundle" >&2; exit 1; }
-test -f "$CHECKSUM" || { echo "VERIFY=FAIL missing checksum file" >&2; exit 1; }
-
-karzar_read_frontend_images_handoff_marker "$MARKER"
-
-(
-  cd "$DIR"
-  sha256sum -c "${KARZAR_FRONTEND_CHECKSUM_NAME}"
-)
+karzar_verify_frontend_bundle_integrity "$DIR"
 
 SHOP_TAG="${KARZAR_FE_HANDOFF_SHOP:-$(karzar_frontend_shop_image_tag "$GITHUB_SHA")}"
 ADMIN_TAG="${KARZAR_FE_HANDOFF_ADMIN:-$(karzar_frontend_admin_image_tag "$GITHUB_SHA")}"
 
 if [[ "${KARZAR_SKIP_DOCKER_LOAD:-}" != "1" ]]; then
-  docker load -i "$BUNDLE"
+  docker load -i "${DIR}/${KARZAR_FRONTEND_BUNDLE_NAME}"
 fi
 
 karzar_verify_image_revision "$SHOP_TAG" "$GITHUB_SHA"
