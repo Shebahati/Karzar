@@ -200,7 +200,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     notes: Phase 2.1 approval manifest hashing and layered validation (no APPLY).
 
   - id: DEVELOPMENT
