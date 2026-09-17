@@ -22,8 +22,11 @@ export const shippingSchema = z.object({
   city: z.string().min(2, "شهر را وارد کنید."),
   postal_code: z
     .string()
-    .transform((v) => toEnglishDigits(v).trim())
-    .refine((v) => /^\d{10}$/.test(v), "کد پستی باید ۱۰ رقم باشد."),
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => toEnglishDigits((v ?? "").trim()))
+    .refine((v) => v === "" || /^\d{10}$/.test(v), "کد پستی باید ۱۰ رقم باشد.")
+    .transform((v) => (v === "" ? undefined : v)),
   address_line: z.string().min(10, "نشانی کامل را وارد کنید."),
   note: z.string().max(500, "حداکثر ۵۰۰ کاراکتر.").optional().or(z.literal("")),
 });

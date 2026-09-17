@@ -29,7 +29,7 @@ export interface DetailsResult {
   shipping?: {
     province: string;
     city: string;
-    postal_code: string;
+    postal_code?: string | null;
     address_line: string;
     location_code?: number | null;
   };
@@ -95,7 +95,7 @@ function sameShipping(
     a.phone.trim() === b.phone.trim() &&
     a.province.trim() === b.province.trim() &&
     a.city.trim() === b.city.trim() &&
-    a.postal_code.trim() === b.postal_code.trim() &&
+    (a.postal_code ?? "").trim() === (b.postal_code ?? "").trim() &&
     a.address_line.trim() === b.address_line.trim()
   );
 }
@@ -226,7 +226,7 @@ function ShippingForm({
       phone: v.phone,
       province: v.province,
       city: v.city,
-      postal_code: v.postal_code,
+      postal_code: v.postal_code ?? "",
       address_line: v.address_line,
       is_default: addresses.length === 0,
     });
@@ -256,7 +256,7 @@ function ShippingForm({
       shipping: {
         province: v.province,
         city: v.city,
-        postal_code: v.postal_code,
+        postal_code: v.postal_code?.trim() ? v.postal_code.trim() : null,
         address_line: v.address_line,
         location_code: shipping.methodSelectionEnabled ? null : shipping.locationCode,
       },

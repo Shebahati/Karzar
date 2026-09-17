@@ -46,6 +46,27 @@ describe("shippingSchema", () => {
     expect(parsed.postal_code).toBe("1234567890");
   });
 
+  it("accepts omitted or empty postal code", () => {
+    const withoutField = shippingSchema.parse({
+      full_name: "علی رضایی",
+      phone: "09120000000",
+      province: "تهران",
+      city: "تهران",
+      address_line: "خیابان ولیعصر، پلاک ۱۲۳",
+    });
+    expect(withoutField.postal_code).toBeUndefined();
+
+    const empty = shippingSchema.parse({
+      full_name: "علی رضایی",
+      phone: "09120000000",
+      province: "تهران",
+      city: "تهران",
+      postal_code: "",
+      address_line: "خیابان ولیعصر، پلاک ۱۲۳",
+    });
+    expect(empty.postal_code).toBeUndefined();
+  });
+
   it("rejects bad postal codes", () => {
     expect(() =>
       shippingSchema.parse({
