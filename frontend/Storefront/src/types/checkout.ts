@@ -19,7 +19,7 @@ export interface CheckoutCustomer {
 export interface ShippingAddress {
   province: string;
   city: string;
-  postal_code: string;
+  postal_code?: string | null;
   address_line: string;
   location_code?: number | null;
 }

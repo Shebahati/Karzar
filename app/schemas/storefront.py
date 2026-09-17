@@ -1,5 +1,6 @@
 """Storefront content and commerce response schemas."""
 
+import re
 from datetime import datetime
 from typing import Any, Literal
 
@@ -138,17 +139,21 @@ class CheckoutCustomer(BaseModel):
 class ShippingAddress(BaseModel):
     province: str = Field(..., min_length=2)
     city: str = Field(..., min_length=2)
-    postal_code: str
+    postal_code: str | None = None
     address_line: str = Field(..., min_length=10)
     # Legacy Postex city code — optional for Tipax/Chapar/Tehran Express checkout.
     location_code: int | None = Field(None, ge=1)
 
-    @field_validator("postal_code")
+    @field_validator("postal_code", mode="before")
     @classmethod
-    def validate_postal_code(cls, value: str) -> str:
-        normalized = value.strip()
-        if not normalized.isdigit() or len(normalized) != 10:
-            raise ValueError("postal_code must be exactly 10 digits")
+    def validate_postal_code(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = str(value).strip()
+        if not normalized:
+            return None
+        if re.fullmatch(r"[0-9]{10}", normalized) is None:
+            raise ValueError("postal_code must be exactly 10 ASCII digits")
         return normalized
 
 
