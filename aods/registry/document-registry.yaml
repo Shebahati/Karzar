@@ -251,6 +251,14 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: ZCC-CATEGORY-B-RUNBOOK
+    path: docs/operations/ZCC-CATEGORY-B-RUNBOOK.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+
   - id: SEP_PAYMENT_GATEWAY
     path: docs/SEP_PAYMENT_GATEWAY.md
     class: POLICY
