@@ -1,13 +1,14 @@
 """Safety regressions for the Category A ZCC draft writer."""
 import sys
-from pathlib import Path
-import unittest
-from unittest.mock import patch
 import tempfile
+import unittest
+from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from zcc_ir_import import build_plan, proposed_sku, apply_plan, digest, NoRedirect
+
+from zcc_ir_import import NoRedirect, apply_plan, build_plan, digest, proposed_sku
 
 
 class ImportTests(unittest.TestCase):
@@ -52,7 +53,8 @@ class ImportTests(unittest.TestCase):
         entries = self.plan([self.row(), self.row(part_number='SECOND', source_url='https://zcc.ir/product/b/')])
         plan = {'entries': entries}
         with tempfile.TemporaryDirectory() as d, patch.dict('os.environ', {'KARZAR_LOCAL_ADMIN_TOKEN': 'test'}):
-            backup = Path(d) / 'backup'; backup.write_bytes(b'local backup')
+            backup = Path(d) / 'backup'
+            backup.write_bytes(b'local backup')
             journal = Path(d) / 'audit'
             with patch('zcc_ir_import.http', side_effect=RuntimeError('uncertain')) as http:
                 with self.assertRaises(RuntimeError):
@@ -62,7 +64,9 @@ class ImportTests(unittest.TestCase):
             self.assertNotIn('"event": "created"', journal.read_text())
 
     def test_redirect_refused(self):
-        with self.assertRaises(RuntimeError): NoRedirect().redirect_request(None)
+        with self.assertRaises(RuntimeError):
+            NoRedirect().redirect_request(None)
 
 
-if __name__ == '__main__': unittest.main()
+if __name__ == '__main__':
+    unittest.main()
