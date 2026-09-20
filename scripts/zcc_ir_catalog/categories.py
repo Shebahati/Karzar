@@ -10,7 +10,7 @@ from zcc_ir_catalog.normalize import fold_text
 # Exact English path suffixes that are semantically unambiguous vs Karzar leaves.
 # Anything that mixes grooving/parting, insert vs holder, or end-mill form stays REVIEW.
 SAFE_PATH_RULES: tuple[tuple[tuple[str, ...], str, str, str], ...] = (
-    (("turning", "turning-insert"), "33", "اینسرت › اینسرت تراش CNC", "turning inserts → CNC turning inserts"),
+    (("turning", "turning-insert"), "166", "اینسرت › اینسرت تراش CNC", "turning inserts → CNC turning inserts"),
     (
         ("turning", "turning-tool-holder", "external-turning-holders"),
         "27",

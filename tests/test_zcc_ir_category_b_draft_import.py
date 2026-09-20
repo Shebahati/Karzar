@@ -59,7 +59,7 @@ class FakeTransport:
         sku_response_shape=None,
     ) -> None:
         self.brands = [{"id": 8, "name": "ZCC.CT"}] if brands is None else brands
-        self.categories = [{"id": 33, "is_selectable": True}] if categories is None else categories
+        self.categories = [{"id": 166, "is_selectable": True}] if categories is None else categories
         self.brands_raw = brands_raw
         self.categories_raw = categories_raw
         self.sku_response_shape = sku_response_shape
@@ -125,7 +125,7 @@ def scope_count(monkeypatch):
     return _set
 
 
-def mini_record(sku: str = "ZCC-A", brand: str = "ZCC.CT", category_id: int = 33) -> dict:
+def mini_record(sku: str = "ZCC-A", brand: str = "ZCC.CT", category_id: int = 166) -> dict:
     return {
         "sku": sku,
         "brand": brand,
@@ -354,7 +354,7 @@ def test_no_post_before_destination_prechecks(tmp_path: Path, scope_count) -> No
             transport,
         )
     assert transport.posts == 0
-    transport = FakeTransport(categories=[{"id": 33, "is_selectable": False}])
+    transport = FakeTransport(categories=[{"id": 166, "is_selectable": False}])
     with pytest.raises(RuntimeError, match="not selectable"):
         apply(
             plan,
@@ -363,6 +363,20 @@ def test_no_post_before_destination_prechecks(tmp_path: Path, scope_count) -> No
             backup,
             backup_sha,
             tmp_path / "audit-bad-cat",
+            "a" * 40,
+            transport,
+        )
+    assert transport.posts == 0
+    stale = mini_plan([mini_record(category_id=33)])
+    transport = FakeTransport(categories=[{"id": 166, "is_selectable": True}])
+    with pytest.raises(RuntimeError, match=r"missing or not selectable: 33"):
+        apply(
+            stale,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-stale-cat-33",
             "a" * 40,
             transport,
         )
@@ -865,11 +879,31 @@ def test_apply_uses_bilingual_brand_and_still_posts_only_after_precheck(
     assert transport.posted[0]["brand_id"] == 8
 
 
-def test_deterministic_plan_sha_unchanged_by_brand_match_fix() -> None:
+def test_pinned_category_distribution_rejects_stale_33() -> None:
+    from collections import Counter
+
     plan = build_draft_plan(
         DEFAULT_EXECUTION_INPUT,
         DEFAULT_ALLOWLIST,
         PINNED_SOURCE_SHA256,
         PINNED_ALLOWLIST_SHA256,
     )
-    assert digest(plan) == "c1993d2439a17af83547a2cd21698d915d953421dd90e1128b3b66695146aec7"
+    distribution = Counter(entry["category_id"] for entry in plan["entries"])
+    assert dict(distribution) == {166: 245, 22: 24, 25: 2, 27: 37, 45: 1}
+    assert 33 not in distribution
+    assert plan["count"] == 309
+    allowlist_text = DEFAULT_ALLOWLIST.read_text(encoding="utf-8")
+    assert "| 33 |" not in allowlist_text
+    assert "| 166 |" in allowlist_text
+    document = json.loads(DEFAULT_EXECUTION_INPUT.read_text(encoding="utf-8"))
+    assert 33 not in {row["category_id"] for row in document["records"]}
+
+
+def test_deterministic_plan_sha_after_category_remap_33_to_166() -> None:
+    plan = build_draft_plan(
+        DEFAULT_EXECUTION_INPUT,
+        DEFAULT_ALLOWLIST,
+        PINNED_SOURCE_SHA256,
+        PINNED_ALLOWLIST_SHA256,
+    )
+    assert digest(plan) == "8a286737d05349ea4158e2933bbe5a872966aa9b4fc4e552f0e936a18359f5a9"

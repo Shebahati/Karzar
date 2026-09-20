@@ -256,7 +256,7 @@ def test_reconcile_karzar_only() -> None:
 
 def test_category_mapping_safety() -> None:
     index = {
-        "اینسرتتراشcnc": ("33", "اینسرت › اینسرت تراش CNC"),
+        "اینسرتتراشcnc": ("166", "اینسرت › اینسرت تراش CNC"),
         "روتراش": ("27", "رو تراش"),
     }
     status, _conf, reason, kid, _path = map_source_category(
@@ -265,7 +265,7 @@ def test_category_mapping_safety() -> None:
         karzar_by_folded_name=index,
     )
     assert status == "SAFE_RULE"
-    assert kid == "33"
+    assert kid == "166"
 
     grooving, *_rest = map_source_category(
         path_names=["برش"],
