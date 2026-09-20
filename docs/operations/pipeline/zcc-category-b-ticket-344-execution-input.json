@@ -3,13 +3,13 @@
   "mode": "CATEGORY_B_INACTIVE_DRAFT_ONLY",
   "source_rows": 721,
   "source_sha256": "69505ee9874e5abc6d50f8c640226293e04101072a6d0233e81d5e7be69703d3",
-  "allowlist_sha256": "abd0c6871ad5fe31d10f1b63321bc5b7e16a7c011ccaf75642560059c8ec2b98",
+  "allowlist_sha256": "750cffc203e2a0c2b5835ef0ed8ff461652fc0707749e8c91b16ba261e71f3db",
   "count": 309,
   "records": [
     {
       "sku": "ZCC-CCGT030102L-FF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgt030102/",
       "name": "الماس تراشکاری ZCC مدل CCGT030102L-FF YBG202",
       "source_timestamp": "2026-09-17T08:16:59Z",
@@ -18,7 +18,7 @@
     {
       "sku": "ZCC-CCGT030104L-FF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgt030104l/",
       "name": "الماس تراشکاری ZCC مدل CCGT030104L-FF YBG202",
       "source_timestamp": "2026-09-17T08:17:01Z",
@@ -27,7 +27,7 @@
     {
       "sku": "ZCC-CCGT040102L-FF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgt040102l/",
       "name": "الماس تراشکاری ZCC مدل CCGT040102L-FF YBG202",
       "source_timestamp": "2026-09-17T08:17:03Z",
@@ -36,7 +36,7 @@
     {
       "sku": "ZCC-CCGT040104L-FF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgt040104/",
       "name": "الماس تراشکاری ZCC مدل CCGT040104L-FF YB9320",
       "source_timestamp": "2026-09-17T08:17:05Z",
@@ -45,7 +45,7 @@
     {
       "sku": "ZCC-CCGT09T304-SF-YNG151",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgt09t304-2/",
       "name": "الماس تراشکاری ZCC مدل CCGT09T304-SF YNG151",
       "source_timestamp": "2026-09-17T08:17:07Z",
@@ -54,7 +54,7 @@
     {
       "sku": "ZCC-CCGW120404AS02020-2-YCB121",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgw120404as02020-2/",
       "name": "الماس تراشکاری ZCC مدل CCGW120404AS02020-2 YCB121",
       "source_timestamp": "2026-09-17T08:17:12Z",
@@ -63,7 +63,7 @@
     {
       "sku": "ZCC-CCGX060202-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx060202/",
       "name": "الماس تراشکاری ZCC مدل CCGX060202-LC YD101",
       "source_timestamp": "2026-09-17T08:17:15Z",
@@ -72,7 +72,7 @@
     {
       "sku": "ZCC-CCGX060204-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx060204/",
       "name": "الماس تراشکاری ZCC مدل CCGX060204-LH YD101",
       "source_timestamp": "2026-09-17T08:17:17Z",
@@ -81,7 +81,7 @@
     {
       "sku": "ZCC-CCGX060208-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx060208/",
       "name": "الماس تراشکاری ZCC مدل CCGX060208-LH YD101",
       "source_timestamp": "2026-09-17T08:17:19Z",
@@ -90,7 +90,7 @@
     {
       "sku": "ZCC-CCGX09T302-LC-YBG101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-ccgx09t302-lc-ybg101/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T302-LC YBG101",
       "source_timestamp": "2026-09-17T08:07:05Z",
@@ -99,7 +99,7 @@
     {
       "sku": "ZCC-CCGX09T302-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx09t302/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T302-LH YD101",
       "source_timestamp": "2026-09-17T08:17:21Z",
@@ -108,7 +108,7 @@
     {
       "sku": "ZCC-CCGX09T304-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-ccgx09t304-lc-yd101/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T304-LC YD101",
       "source_timestamp": "2026-09-17T08:07:07Z",
@@ -117,7 +117,7 @@
     {
       "sku": "ZCC-CCGX09T304-LH-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-ccgx09t304-lh-ybg102/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T304-LH YBG102",
       "source_timestamp": "2026-09-17T08:07:09Z",
@@ -126,7 +126,7 @@
     {
       "sku": "ZCC-CCGX09T304-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx09t304/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T304-LH YD101",
       "source_timestamp": "2026-09-17T08:17:23Z",
@@ -135,7 +135,7 @@
     {
       "sku": "ZCC-CCGX09T308-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx09t308/",
       "name": "الماس تراشکاری ZCC مدل CCGX09T308-LH YD101",
       "source_timestamp": "2026-09-17T08:17:25Z",
@@ -144,7 +144,7 @@
     {
       "sku": "ZCC-CCGX120404-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx120404/",
       "name": "الماس تراشکاری ZCC مدل CCGX120404-LC YD101",
       "source_timestamp": "2026-09-17T08:17:27Z",
@@ -153,7 +153,7 @@
     {
       "sku": "ZCC-CCGX120404-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-ccgx120404-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل CCGX120404-LH YD101",
       "source_timestamp": "2026-09-17T08:07:11Z",
@@ -162,7 +162,7 @@
     {
       "sku": "ZCC-CCGX120408-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-ccgx120408-lc-yd101/",
       "name": "الماس تراشکاری ZCC مدل CCGX120408-LC YD101",
       "source_timestamp": "2026-09-17T08:07:14Z",
@@ -171,7 +171,7 @@
     {
       "sku": "ZCC-CCGX120408-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccgx120408/",
       "name": "الماس تراشکاری ZCC مدل CCGX120408-LH YD101",
       "source_timestamp": "2026-09-17T08:17:29Z",
@@ -180,7 +180,7 @@
     {
       "sku": "ZCC-CCMT060202-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt060202/",
       "name": "الماس تراشکاری ZCC مدل CCMT060202-EF YBG205",
       "source_timestamp": "2026-09-17T08:17:31Z",
@@ -189,7 +189,7 @@
     {
       "sku": "ZCC-CCMT060204-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt060204/",
       "name": "الماس تراشکاری ZCC مدل CCMT060204-AHF YB9320",
       "source_timestamp": "2026-09-17T08:17:33Z",
@@ -198,7 +198,7 @@
     {
       "sku": "ZCC-CCMT060208-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt060208/",
       "name": "الماس تراشکاری ZCC مدل CCMT060208-EM YBG202",
       "source_timestamp": "2026-09-17T08:17:35Z",
@@ -207,7 +207,7 @@
     {
       "sku": "ZCC-CCMT09T302-HF-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt09t302/",
       "name": "الماس تراشکاری ZCC مدل CCMT09T302-HF YBC251",
       "source_timestamp": "2026-09-17T08:17:37Z",
@@ -216,7 +216,7 @@
     {
       "sku": "ZCC-CCMT09T304-AHF-YNT251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt09t304/",
       "name": "الماس تراشکاری ZCC مدل CCMT09T304-AHF YNT251",
       "source_timestamp": "2026-09-17T08:17:39Z",
@@ -225,7 +225,7 @@
     {
       "sku": "ZCC-CCMT09T308-HF-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt09t308/",
       "name": "الماس تراشکاری ZCC مدل CCMT09T308-HF YBD152",
       "source_timestamp": "2026-09-17T08:17:40Z",
@@ -234,7 +234,7 @@
     {
       "sku": "ZCC-CCMT120404-HM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt120404/",
       "name": "الماس تراشکاری ZCC مدل CCMT120404-HM YBC351",
       "source_timestamp": "2026-09-17T08:17:43Z",
@@ -243,7 +243,7 @@
     {
       "sku": "ZCC-CCMT120412-HR-YBD151",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ccmt120412/",
       "name": "الماس تراشکاری ZCC مدل CCMT120412-HR YBD151",
       "source_timestamp": "2026-09-17T08:17:45Z",
@@ -252,7 +252,7 @@
     {
       "sku": "ZCC-CNEG120408-NF-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/cnmg120408/",
       "name": "الماس تراشکاری ZCC مدل CNEG120408-NF YBG102",
       "source_timestamp": "2026-09-17T08:18:04Z",
@@ -261,7 +261,7 @@
     {
       "sku": "ZCC-CNGA120412T03020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-cnga120412t03020/",
       "name": "الماس تراشکاری ZCC مدل CNGA120412T03020 CN1000",
       "source_timestamp": "2026-09-17T08:07:16Z",
@@ -270,7 +270,7 @@
     {
       "sku": "ZCC-CNGN120412T03020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/cngn120412t03020/",
       "name": "الماس تراشکاری ZCC مدل CNGN120412T03020 CN1000",
       "source_timestamp": "2026-09-17T08:17:49Z",
@@ -279,7 +279,7 @@
     {
       "sku": "ZCC-CNMA120412-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/cnma120412/",
       "name": "الماس تراشکاری ZCC مدل CNMA120412 YBD152",
       "source_timestamp": "2026-09-17T08:17:53Z",
@@ -288,7 +288,7 @@
     {
       "sku": "ZCC-CNMG090304-EF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/cnmg090304/",
       "name": "الماس تراشکاری ZCC مدل CNMG090304-EF YBG202",
       "source_timestamp": "2026-09-17T08:18:01Z",
@@ -297,7 +297,7 @@
     {
       "sku": "ZCC-D-DCGW11T308T01525-2-YCB121",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/d-dcgw11t308t01525-2-ycb121/",
       "name": "الماس تراشکاری ZCC مدل D-DCGW11T308T01525-2 YCB121",
       "source_timestamp": "2026-09-17T08:18:21Z",
@@ -306,7 +306,7 @@
     {
       "sku": "ZCC-DCGT0702005R-USF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgt0702005r/",
       "name": "الماس تراشکاری ZCC مدل DCGT0702005R-USF YBG202",
       "source_timestamp": "2026-09-17T08:18:23Z",
@@ -315,7 +315,7 @@
     {
       "sku": "ZCC-DCGW11T304-YCD511",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304-ycd511/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304 YCD511",
       "source_timestamp": "2026-09-17T08:18:33Z",
@@ -324,7 +324,7 @@
     {
       "sku": "ZCC-DCGW11T304AF-YCD011",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304af-ycd011/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304AF YCD011",
       "source_timestamp": "2026-09-17T08:18:35Z",
@@ -333,7 +333,7 @@
     {
       "sku": "ZCC-DCGW11T304AS01020-2-YCB012",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304as01020-ycb012/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304AS01020-2 YCB012",
       "source_timestamp": "2026-09-17T08:18:37Z",
@@ -342,7 +342,7 @@
     {
       "sku": "ZCC-DCGW11T304AS01225-2-BHC3511",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304as01225-2-bhc3511/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304AS01225-2 BHC3511",
       "source_timestamp": "2026-09-17T08:18:39Z",
@@ -351,7 +351,7 @@
     {
       "sku": "ZCC-DCGW11T304AS01735-2-BHC3511",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304as01735-2-bhc3511/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304AS01735-2 BHC3511",
       "source_timestamp": "2026-09-17T08:18:41Z",
@@ -360,7 +360,7 @@
     {
       "sku": "ZCC-DCGW11T304AT01515-2-YCB211",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t304at01525-2-ycb211/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T304AT01515-2 YCB211",
       "source_timestamp": "2026-09-17T08:18:43Z",
@@ -369,7 +369,7 @@
     {
       "sku": "ZCC-DCGW11T308AF-DN1021-PCD",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t308af-dn1021/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T308AF DN1021 PCD",
       "source_timestamp": "2026-09-17T08:18:45Z",
@@ -378,7 +378,7 @@
     {
       "sku": "ZCC-DCGW11T308AS02020-2-YCB121",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgw11t308as02020-2-ycb121/",
       "name": "الماس تراشکاری ZCC مدل DCGW11T308AS02020-2 YCB121",
       "source_timestamp": "2026-09-17T08:18:47Z",
@@ -387,7 +387,7 @@
     {
       "sku": "ZCC-DCGX070202-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgx070202/",
       "name": "الماس تراشکاری ZCC مدل DCGX070202-LH YD101",
       "source_timestamp": "2026-09-17T08:18:49Z",
@@ -396,7 +396,7 @@
     {
       "sku": "ZCC-DCGX070208-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgx070208/",
       "name": "الماس تراشکاری ZCC مدل DCGX070208-LC YD101",
       "source_timestamp": "2026-09-17T08:18:51Z",
@@ -405,7 +405,7 @@
     {
       "sku": "ZCC-DCGX11T302-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-dcgx11t302-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل DCGX11T302-LH YD101",
       "source_timestamp": "2026-09-17T08:07:19Z",
@@ -414,7 +414,7 @@
     {
       "sku": "ZCC-DCGX11T304-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgx11t304/",
       "name": "الماس تراشکاری ZCC مدل DCGX11T304-LC YD101",
       "source_timestamp": "2026-09-17T08:18:55Z",
@@ -423,7 +423,7 @@
     {
       "sku": "ZCC-DCGX11T304-LH-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-dcgx11t304-lh-ybg102/",
       "name": "الماس تراشکاری ZCC مدل DCGX11T304-LH YBG102",
       "source_timestamp": "2026-09-17T08:07:21Z",
@@ -432,7 +432,7 @@
     {
       "sku": "ZCC-DCGX11T308-LC-YBG101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-dcgx11t308-lc-ybg101/",
       "name": "الماس تراشکاری ZCC مدل DCGX11T308-LC YBG101",
       "source_timestamp": "2026-09-17T08:07:23Z",
@@ -441,7 +441,7 @@
     {
       "sku": "ZCC-DCGX11T308-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcgx11t308/",
       "name": "الماس تراشکاری ZCC مدل DCGX11T308-LH YD101",
       "source_timestamp": "2026-09-17T08:18:57Z",
@@ -513,7 +513,7 @@
     {
       "sku": "ZCC-DCMT070204-AHF-YB9315",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt070204/",
       "name": "الماس تراشکاری ZCC مدل DCMT070204-AHF YB9315",
       "source_timestamp": "2026-09-17T08:19:17Z",
@@ -522,7 +522,7 @@
     {
       "sku": "ZCC-DCMT070208-HF-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt070208/",
       "name": "الماس تراشکاری ZCC مدل DCMT070208-HF YBC251",
       "source_timestamp": "2026-09-17T08:19:19Z",
@@ -531,7 +531,7 @@
     {
       "sku": "ZCC-DCMT11T302-AHF-YB6315",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt11t302/",
       "name": "الماس تراشکاری ZCC مدل DCMT11T302-AHF YB6315",
       "source_timestamp": "2026-09-17T08:19:21Z",
@@ -540,7 +540,7 @@
     {
       "sku": "ZCC-DCMT11T308-EF-YBG105",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt11t308/",
       "name": "الماس تراشکاری ZCC مدل DCMT11T308-EF YBG105",
       "source_timestamp": "2026-09-17T08:19:25Z",
@@ -549,7 +549,7 @@
     {
       "sku": "ZCC-DCMT11T312-XM-YBC203",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt11t312/",
       "name": "الماس تراشکاری ZCC مدل DCMT11T312-XM YBC203",
       "source_timestamp": "2026-09-17T08:19:27Z",
@@ -558,7 +558,7 @@
     {
       "sku": "ZCC-DCMT150404-EM-YBM153",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dcmt150404/",
       "name": "الماس تراشکاری ZCC مدل DCMT150404-EM YBM153",
       "source_timestamp": "2026-09-17T08:19:29Z",
@@ -585,7 +585,7 @@
     {
       "sku": "ZCC-DNGN150716T02020-CA1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-dngn150716t02020/",
       "name": "الماس تراشکاری ZCC مدل DNGN150716T02020 CA1000",
       "source_timestamp": "2026-09-17T08:07:25Z",
@@ -594,7 +594,7 @@
     {
       "sku": "ZCC-DNMG150604-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dnmg150604/",
       "name": "الماس تراشکاری ZCC مدل DNMG150604-PM YBD152",
       "source_timestamp": "2026-09-17T08:19:51Z",
@@ -603,7 +603,7 @@
     {
       "sku": "ZCC-DNMM150616-HDR-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dnmm150616/",
       "name": "الماس تراشکاری ZCC مدل DNMM150616-HDR YBC351",
       "source_timestamp": "2026-09-17T08:19:59Z",
@@ -612,7 +612,7 @@
     {
       "sku": "ZCC-DNMX150612-WG-YBC152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/dnmx150612/",
       "name": "الماس تراشکاری ZCC مدل DNMX150612-WG YBC152",
       "source_timestamp": "2026-09-17T08:20:01Z",
@@ -801,7 +801,7 @@
     {
       "sku": "ZCC-KNUX160405L12",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/knux160405l12/",
       "name": "الماس تراشکاری ZCC مدل KNUX160405L12",
       "source_timestamp": "2026-09-17T08:20:47Z",
@@ -810,7 +810,7 @@
     {
       "sku": "ZCC-KNUX160410L11-YBM251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/knux160410l11/",
       "name": "الماس تراشکاری ZCC مدل KNUX160410L11 YBM251",
       "source_timestamp": "2026-09-17T08:20:49Z",
@@ -819,7 +819,7 @@
     {
       "sku": "ZCC-KNUX160410R11",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/knux160410r11/",
       "name": "الماس تراشکاری ZCC مدل KNUX160410R11",
       "source_timestamp": "2026-09-17T08:20:51Z",
@@ -981,7 +981,7 @@
     {
       "sku": "ZCC-RCGX0803MO-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcgx0803mo/",
       "name": "الماس تراشکاری ZCC مدل RCGX0803MO-LH YD101",
       "source_timestamp": "2026-09-17T08:22:21Z",
@@ -990,7 +990,7 @@
     {
       "sku": "ZCC-RCGX1204MO-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-rcgx1204mo-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل RCGX1204MO-LH YD101",
       "source_timestamp": "2026-09-17T08:07:36Z",
@@ -999,7 +999,7 @@
     {
       "sku": "ZCC-RCMT0803MO-YBD102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcmt0803mo/",
       "name": "الماس تراشکاری ZCC مدل RCMT0803MO YBD102",
       "source_timestamp": "2026-09-17T08:22:29Z",
@@ -1008,7 +1008,7 @@
     {
       "sku": "ZCC-RCMT10T3MO-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-rcmt10t3mo-ybc251/",
       "name": "الماس تراشکاری ZCC مدل RCMT10T3MO YBC251",
       "source_timestamp": "2026-09-17T08:07:37Z",
@@ -1017,7 +1017,7 @@
     {
       "sku": "ZCC-RCMT10T3MO-YBD102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcmt10t3mo/",
       "name": "الماس تراشکاری ZCC مدل RCMT10T3MO YBD102",
       "source_timestamp": "2026-09-17T08:22:31Z",
@@ -1026,7 +1026,7 @@
     {
       "sku": "ZCC-RCMT1204MO-YBD052",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-rcmt1204mo-ybd052/",
       "name": "الماس تراشکاری ZCC مدل RCMT1204MO YBD052",
       "source_timestamp": "2026-09-17T08:07:40Z",
@@ -1035,7 +1035,7 @@
     {
       "sku": "ZCC-RCMX0803MO-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcmx0803mo/",
       "name": "الماس تراشکاری ZCC مدل RCMX0803MO YBC251",
       "source_timestamp": "2026-09-17T08:22:35Z",
@@ -1044,7 +1044,7 @@
     {
       "sku": "ZCC-RCMX0803MO-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-rcmx0803mo-ybc351/",
       "name": "الماس تراشکاری ZCC مدل RCMX0803MO YBC351",
       "source_timestamp": "2026-09-17T08:07:41Z",
@@ -1053,7 +1053,7 @@
     {
       "sku": "ZCC-RCMX1003MO-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcmx1003mo/",
       "name": "الماس تراشکاری ZCC مدل RCMX1003MO YBC251",
       "source_timestamp": "2026-09-17T08:22:37Z",
@@ -1062,7 +1062,7 @@
     {
       "sku": "ZCC-RCMX1204MO-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/rcmx1204mo/",
       "name": "الماس تراشکاری ZCC مدل RCMX1204MO YBC251",
       "source_timestamp": "2026-09-17T08:22:39Z",
@@ -1071,7 +1071,7 @@
     {
       "sku": "ZCC-RCMX3209MO-PV-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-rcmx3209mo-pv-ybc251/",
       "name": "الماس تراشکاری ZCC مدل RCMX3209MO-PV YBC251",
       "source_timestamp": "2026-09-17T08:07:43Z",
@@ -1080,7 +1080,7 @@
     {
       "sku": "ZCC-SCGX09T302-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scgx09t302/",
       "name": "الماس تراشکاری ZCC مدل SCGX09T302-LH YD101",
       "source_timestamp": "2026-09-17T08:23:09Z",
@@ -1089,7 +1089,7 @@
     {
       "sku": "ZCC-SCGX09T304-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scgx09t304/",
       "name": "الماس تراشکاری ZCC مدل SCGX09T304-LC YD101",
       "source_timestamp": "2026-09-17T08:23:11Z",
@@ -1098,7 +1098,7 @@
     {
       "sku": "ZCC-SCGX09T308-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-scgx09t308-lc-yd101/",
       "name": "الماس تراشکاری ZCC مدل SCGX09T308-LC YD101",
       "source_timestamp": "2026-09-17T08:07:46Z",
@@ -1107,7 +1107,7 @@
     {
       "sku": "ZCC-SCGX09T308-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scgx09t308/",
       "name": "الماس تراشکاری ZCC مدل SCGX09T308-LH YD101",
       "source_timestamp": "2026-09-17T08:23:13Z",
@@ -1116,7 +1116,7 @@
     {
       "sku": "ZCC-SCGX120408-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scgx120408/",
       "name": "الماس تراشکاری ZCC مدل SCGX120408-LC YD101",
       "source_timestamp": "2026-09-17T08:23:15Z",
@@ -1125,7 +1125,7 @@
     {
       "sku": "ZCC-SCGX120408-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-scgx120408-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل SCGX120408-LH YD101",
       "source_timestamp": "2026-09-17T08:07:47Z",
@@ -1134,7 +1134,7 @@
     {
       "sku": "ZCC-SCMT09T304-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt09t304/",
       "name": "الماس تراشکاری ZCC مدل SCMT09T304-AHF YB9320",
       "source_timestamp": "2026-09-17T08:23:17Z",
@@ -1143,7 +1143,7 @@
     {
       "sku": "ZCC-SCMT09T308-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt09t308/",
       "name": "الماس تراشکاری ZCC مدل SCMT09T308-AHF YB9320",
       "source_timestamp": "2026-09-17T08:23:19Z",
@@ -1152,7 +1152,7 @@
     {
       "sku": "ZCC-SCMT09T312-HR-YBC252",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt09t312/",
       "name": "الماس تراشکاری ZCC مدل SCMT09T312-HR YBC252",
       "source_timestamp": "2026-09-17T08:23:21Z",
@@ -1161,7 +1161,7 @@
     {
       "sku": "ZCC-SCMT120404-HM-YBD151",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt120404/",
       "name": "الماس تراشکاری ZCC مدل SCMT120404-HM YBD151",
       "source_timestamp": "2026-09-17T08:23:23Z",
@@ -1170,7 +1170,7 @@
     {
       "sku": "ZCC-SCMT120408-HM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt120408/",
       "name": "الماس تراشکاری ZCC مدل SCMT120408-HM YBD152",
       "source_timestamp": "2026-09-17T08:23:25Z",
@@ -1179,7 +1179,7 @@
     {
       "sku": "ZCC-SCMT120412-HR-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/scmt120412/",
       "name": "الماس تراشکاری ZCC مدل SCMT120412-HR YBD152",
       "source_timestamp": "2026-09-17T08:23:27Z",
@@ -1314,7 +1314,7 @@
     {
       "sku": "ZCC-SNGA150612T02020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snga150612t02020/",
       "name": "الماس تراشکاری ZCC مدل SNGA150612T02020 CN1000",
       "source_timestamp": "2026-09-17T08:07:50Z",
@@ -1323,7 +1323,7 @@
     {
       "sku": "ZCC-SNGN120708T02020-CN2000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-sngn120708t02020/",
       "name": "الماس تراشکاری ZCC مدل SNGN120708T02020 CN2000",
       "source_timestamp": "2026-09-17T08:07:51Z",
@@ -1332,7 +1332,7 @@
     {
       "sku": "ZCC-SNMA120412-YBD152C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snma120412/",
       "name": "الماس تراشکاری ZCC مدل SNMA120412 YBD152C",
       "source_timestamp": "2026-09-17T08:24:21Z",
@@ -1341,7 +1341,7 @@
     {
       "sku": "ZCC-SNMA150612-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snma150612/",
       "name": "الماس تراشکاری ZCC مدل SNMA150612 YBD152",
       "source_timestamp": "2026-09-17T08:24:23Z",
@@ -1350,7 +1350,7 @@
     {
       "sku": "ZCC-SNMA190612-YBD151",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snma190612/",
       "name": "الماس تراشکاری ZCC مدل SNMA190612 YBD151",
       "source_timestamp": "2026-09-17T08:24:25Z",
@@ -1359,7 +1359,7 @@
     {
       "sku": "ZCC-SNMG120404-ADF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg120404/",
       "name": "الماس تراشکاری ZCC مدل SNMG120404-ADF YB9320",
       "source_timestamp": "2026-09-17T08:24:27Z",
@@ -1368,7 +1368,7 @@
     {
       "sku": "ZCC-SNMG120404-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120404-ef-ybg205/",
       "name": "الماس تراشکاری ZCC مدل SNMG120404-EF YBG205",
       "source_timestamp": "2026-09-17T08:07:54Z",
@@ -1377,7 +1377,7 @@
     {
       "sku": "ZCC-SNMG120404-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120404-em-ybg202/",
       "name": "الماس تراشکاری ZCC مدل SNMG120404-EM YBG202",
       "source_timestamp": "2026-09-17T08:07:56Z",
@@ -1386,7 +1386,7 @@
     {
       "sku": "ZCC-SNMG120404-PM-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120404-pm-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG120404-PM YBC251",
       "source_timestamp": "2026-09-17T08:07:58Z",
@@ -1395,7 +1395,7 @@
     {
       "sku": "ZCC-SNMG120408-ADF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-adf-yb9320/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-ADF YB9320",
       "source_timestamp": "2026-09-17T08:08:00Z",
@@ -1404,7 +1404,7 @@
     {
       "sku": "ZCC-SNMG120408-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-em-ybg202/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-EM YBG202",
       "source_timestamp": "2026-09-17T08:08:02Z",
@@ -1413,7 +1413,7 @@
     {
       "sku": "ZCC-SNMG120408-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-EM YBG205",
       "source_timestamp": "2026-09-17T08:08:04Z",
@@ -1422,7 +1422,7 @@
     {
       "sku": "ZCC-SNMG120408-PM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-pm-ybc351/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-PM YBC351",
       "source_timestamp": "2026-09-17T08:08:06Z",
@@ -1431,7 +1431,7 @@
     {
       "sku": "ZCC-SNMG120408-PM-YBD052",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-pm-ybd052/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-PM YBD052",
       "source_timestamp": "2026-09-17T08:08:08Z",
@@ -1440,7 +1440,7 @@
     {
       "sku": "ZCC-SNMG120408-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-pm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-PM YBD152",
       "source_timestamp": "2026-09-17T08:08:10Z",
@@ -1449,7 +1449,7 @@
     {
       "sku": "ZCC-SNMG120408-SNR-YBG105",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-snr-ybg105/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-SNR YBG105",
       "source_timestamp": "2026-09-17T08:08:12Z",
@@ -1458,7 +1458,7 @@
     {
       "sku": "ZCC-SNMG120408-SNR-YBS103",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-snr-ybs103/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-SNR YBS103",
       "source_timestamp": "2026-09-17T08:08:14Z",
@@ -1467,7 +1467,7 @@
     {
       "sku": "ZCC-SNMG120408-TC-YBD152C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120408-tc-ybd152c/",
       "name": "الماس تراشکاری ZCC مدل SNMG120408-TC YBD152C",
       "source_timestamp": "2026-09-17T08:08:16Z",
@@ -1476,7 +1476,7 @@
     {
       "sku": "ZCC-SNMG120412-DM-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-dm-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-DM YBC251",
       "source_timestamp": "2026-09-17T08:08:18Z",
@@ -1485,7 +1485,7 @@
     {
       "sku": "ZCC-SNMG120412-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-em-ybg202/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-EM YBG202",
       "source_timestamp": "2026-09-17T08:08:20Z",
@@ -1494,7 +1494,7 @@
     {
       "sku": "ZCC-SNMG120412-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-EM YBG205",
       "source_timestamp": "2026-09-17T08:08:22Z",
@@ -1503,7 +1503,7 @@
     {
       "sku": "ZCC-SNMG120412-PM-YBD102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-pm-ybd102/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-PM YBD102",
       "source_timestamp": "2026-09-17T08:08:24Z",
@@ -1512,7 +1512,7 @@
     {
       "sku": "ZCC-SNMG120412-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-pm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-PM YBD152",
       "source_timestamp": "2026-09-17T08:08:26Z",
@@ -1521,7 +1521,7 @@
     {
       "sku": "ZCC-SNMG120412-PM-YBD152C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-pm-ybd152c/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-PM YBD152C",
       "source_timestamp": "2026-09-17T08:08:28Z",
@@ -1530,7 +1530,7 @@
     {
       "sku": "ZCC-SNMG120412-PM-YBD252",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120412-pm-ybd252/",
       "name": "الماس تراشکاری ZCC مدل SNMG120412-PM YBD252",
       "source_timestamp": "2026-09-17T08:08:30Z",
@@ -1539,7 +1539,7 @@
     {
       "sku": "ZCC-SNMG120416-DM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120416-dm-ybc351/",
       "name": "الماس تراشکاری ZCC مدل SNMG120416-DM YBC351",
       "source_timestamp": "2026-09-17T08:08:32Z",
@@ -1548,7 +1548,7 @@
     {
       "sku": "ZCC-SNMG120416-DR-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120416-dr-ybc351/",
       "name": "الماس تراشکاری ZCC مدل SNMG120416-DR YBC351",
       "source_timestamp": "2026-09-17T08:08:34Z",
@@ -1557,7 +1557,7 @@
     {
       "sku": "ZCC-SNMG120416-PM-YBD052",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg120416/",
       "name": "الماس تراشکاری ZCC مدل SNMG120416-PM YBD052",
       "source_timestamp": "2026-09-17T08:24:29Z",
@@ -1566,7 +1566,7 @@
     {
       "sku": "ZCC-SNMG120416-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg120416-pm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل SNMG120416-PM YBD152",
       "source_timestamp": "2026-09-17T08:08:36Z",
@@ -1575,7 +1575,7 @@
     {
       "sku": "ZCC-SNMG150608-15-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150608-15-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG150608-15 YBC251",
       "source_timestamp": "2026-09-17T08:08:38Z",
@@ -1584,7 +1584,7 @@
     {
       "sku": "ZCC-SNMG150608-DM-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg150608/",
       "name": "الماس تراشکاری ZCC مدل SNMG150608-DM YBC251",
       "source_timestamp": "2026-09-17T08:24:31Z",
@@ -1593,7 +1593,7 @@
     {
       "sku": "ZCC-SNMG150608-EF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150608-ef-ybg202/",
       "name": "الماس تراشکاری ZCC مدل SNMG150608-EF YBG202",
       "source_timestamp": "2026-09-17T08:08:40Z",
@@ -1602,7 +1602,7 @@
     {
       "sku": "ZCC-SNMG150612-15-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150612-15-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG150612-15 YBC251",
       "source_timestamp": "2026-09-17T08:08:42Z",
@@ -1611,7 +1611,7 @@
     {
       "sku": "ZCC-SNMG150612-DR-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150612-dr-ybd152/",
       "name": "الماس تراشکاری ZCC مدل SNMG150612-DR YBD152",
       "source_timestamp": "2026-09-17T08:08:44Z",
@@ -1620,7 +1620,7 @@
     {
       "sku": "ZCC-SNMG150612-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150612-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل SNMG150612-EM YBG205",
       "source_timestamp": "2026-09-17T08:08:46Z",
@@ -1629,7 +1629,7 @@
     {
       "sku": "ZCC-SNMG150612-PM-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150612-pm-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG150612-PM YBC251",
       "source_timestamp": "2026-09-17T08:08:48Z",
@@ -1638,7 +1638,7 @@
     {
       "sku": "ZCC-SNMG150616-DR-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150616-dr-ybd152/",
       "name": "الماس تراشکاری ZCC مدل SNMG150616-DR YBD152",
       "source_timestamp": "2026-09-17T08:08:50Z",
@@ -1647,7 +1647,7 @@
     {
       "sku": "ZCC-SNMG150616-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg150616/",
       "name": "الماس تراشکاری ZCC مدل SNMG150616-EM YBG205",
       "source_timestamp": "2026-09-17T08:24:35Z",
@@ -1656,7 +1656,7 @@
     {
       "sku": "ZCC-SNMG150616-XM-YBC103",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg150616-xm-ybc103/",
       "name": "الماس تراشکاری ZCC مدل SNMG150616-XM YBC103",
       "source_timestamp": "2026-09-17T08:08:52Z",
@@ -1665,7 +1665,7 @@
     {
       "sku": "ZCC-SNMG190608-15-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg190608-15-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG190608-15 YBC251",
       "source_timestamp": "2026-09-17T08:08:54Z",
@@ -1674,7 +1674,7 @@
     {
       "sku": "ZCC-SNMG190612-PM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg190612/",
       "name": "الماس تراشکاری ZCC مدل SNMG190612-PM YBC351",
       "source_timestamp": "2026-09-17T08:24:37Z",
@@ -1683,7 +1683,7 @@
     {
       "sku": "ZCC-SNMG190612-PM-YBD052",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg190612-pm-ybd052/",
       "name": "الماس تراشکاری ZCC مدل SNMG190612-PM YBD052",
       "source_timestamp": "2026-09-17T08:08:56Z",
@@ -1692,7 +1692,7 @@
     {
       "sku": "ZCC-SNMG190616-PM-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-snmg190616-pm-ybc251/",
       "name": "الماس تراشکاری ZCC مدل SNMG190616-PM YBC251",
       "source_timestamp": "2026-09-17T08:08:58Z",
@@ -1701,7 +1701,7 @@
     {
       "sku": "ZCC-SNMG190624-DR-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmg190624/",
       "name": "الماس تراشکاری ZCC مدل SNMG190624-DR YBC351",
       "source_timestamp": "2026-09-17T08:24:41Z",
@@ -1710,7 +1710,7 @@
     {
       "sku": "ZCC-SNMM190624-HPR-YBC252",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmm190624/",
       "name": "الماس تراشکاری ZCC مدل SNMM190624-HPR YBC252",
       "source_timestamp": "2026-09-17T08:24:45Z",
@@ -1719,7 +1719,7 @@
     {
       "sku": "ZCC-SNMM250924-ZR-YBC203",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/snmm250924/",
       "name": "الماس تراشکاری ZCC مدل SNMM250924-ZR YBC203",
       "source_timestamp": "2026-09-17T08:24:49Z",
@@ -1728,7 +1728,7 @@
     {
       "sku": "ZCC-SPMW120408-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/spmw120408/",
       "name": "الماس تراشکاری ZCC مدل SPMW120408 YBD152",
       "source_timestamp": "2026-09-17T08:25:27Z",
@@ -1737,7 +1737,7 @@
     {
       "sku": "ZCC-TBGH060102L-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tbgh060102l/",
       "name": "الماس تراشکاری ZCC مدل TBGH060102L YBG102",
       "source_timestamp": "2026-09-17T08:25:29Z",
@@ -1746,7 +1746,7 @@
     {
       "sku": "ZCC-TBGH060104L-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tbgh060104l/",
       "name": "الماس تراشکاری ZCC مدل TBGH060104L YBG102",
       "source_timestamp": "2026-09-17T08:25:31Z",
@@ -1755,7 +1755,7 @@
     {
       "sku": "ZCC-TCGT06T102-SF-YNG151C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgt06t102-2/",
       "name": "الماس تراشکاری ZCC مدل TCGT06T102-SF YNG151C",
       "source_timestamp": "2026-09-17T08:25:33Z",
@@ -1764,7 +1764,7 @@
     {
       "sku": "ZCC-TCGX090202-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx090202/",
       "name": "الماس تراشکاری ZCC مدل TCGX090202-LH YD101",
       "source_timestamp": "2026-09-17T08:25:39Z",
@@ -1773,7 +1773,7 @@
     {
       "sku": "ZCC-TCGX090204-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx090204/",
       "name": "الماس تراشکاری ZCC مدل TCGX090204-LH YD101",
       "source_timestamp": "2026-09-17T08:25:41Z",
@@ -1782,7 +1782,7 @@
     {
       "sku": "ZCC-TCGX110202-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx110202/",
       "name": "الماس تراشکاری ZCC مدل TCGX110202-LC YD101",
       "source_timestamp": "2026-09-17T08:25:43Z",
@@ -1791,7 +1791,7 @@
     {
       "sku": "ZCC-TCGX110204-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx110204/",
       "name": "الماس تراشکاری ZCC مدل TCGX110204-LC YD101",
       "source_timestamp": "2026-09-17T08:25:45Z",
@@ -1800,7 +1800,7 @@
     {
       "sku": "ZCC-TCGX110204-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcgx110204-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل TCGX110204-LH YD101",
       "source_timestamp": "2026-09-17T08:09:00Z",
@@ -1809,7 +1809,7 @@
     {
       "sku": "ZCC-TCGX110208-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx110208/",
       "name": "الماس تراشکاری ZCC مدل TCGX110208-LH YD101",
       "source_timestamp": "2026-09-17T08:25:47Z",
@@ -1818,7 +1818,7 @@
     {
       "sku": "ZCC-TCGX16T302-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx16t302/",
       "name": "الماس تراشکاری ZCC مدل TCGX16T302-LH YD101",
       "source_timestamp": "2026-09-17T08:25:49Z",
@@ -1827,7 +1827,7 @@
     {
       "sku": "ZCC-TCGX16T304-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx16t304/",
       "name": "الماس تراشکاری ZCC مدل TCGX16T304-LH YD101",
       "source_timestamp": "2026-09-17T08:25:51Z",
@@ -1836,7 +1836,7 @@
     {
       "sku": "ZCC-TCGX16T308-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcgx16t308/",
       "name": "الماس تراشکاری ZCC مدل TCGX16T308-LC YD101",
       "source_timestamp": "2026-09-17T08:25:53Z",
@@ -1845,7 +1845,7 @@
     {
       "sku": "ZCC-TCMT090202-HF-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt090202/",
       "name": "الماس تراشکاری ZCC مدل TCMT090202-HF YBC251",
       "source_timestamp": "2026-09-17T08:25:55Z",
@@ -1854,7 +1854,7 @@
     {
       "sku": "ZCC-TCMT090208-HM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt090208/",
       "name": "الماس تراشکاری ZCC مدل TCMT090208-HM YBC351",
       "source_timestamp": "2026-09-17T08:25:59Z",
@@ -1863,7 +1863,7 @@
     {
       "sku": "ZCC-TCMT110202-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt110202-ef/",
       "name": "الماس تراشکاری ZCC مدل TCMT110202-EF YBG205",
       "source_timestamp": "2026-09-17T08:26:01Z",
@@ -1872,7 +1872,7 @@
     {
       "sku": "ZCC-TCMT110204-EF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt110204/",
       "name": "الماس تراشکاری ZCC مدل TCMT110204-EF YBG202",
       "source_timestamp": "2026-09-17T08:26:03Z",
@@ -1881,7 +1881,7 @@
     {
       "sku": "ZCC-TCMT110208-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt110208-ahf-yb9320/",
       "name": "الماس تراشکاری ZCC مدل TCMT110208-AHF YB9320",
       "source_timestamp": "2026-09-17T08:09:02Z",
@@ -1890,7 +1890,7 @@
     {
       "sku": "ZCC-TCMT110208-HM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt110208/",
       "name": "الماس تراشکاری ZCC مدل TCMT110208-HM YBD152",
       "source_timestamp": "2026-09-17T08:26:05Z",
@@ -1899,7 +1899,7 @@
     {
       "sku": "ZCC-TCMT16T304-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt16t304/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T304-AHF YB9320",
       "source_timestamp": "2026-09-17T08:26:07Z",
@@ -1908,7 +1908,7 @@
     {
       "sku": "ZCC-TCMT16T308-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt16t308-em-ybg202/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T308-EM YBG202",
       "source_timestamp": "2026-09-17T08:09:04Z",
@@ -1917,7 +1917,7 @@
     {
       "sku": "ZCC-TCMT16T308-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt16t308-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T308-EM YBG205",
       "source_timestamp": "2026-09-17T08:09:06Z",
@@ -1926,7 +1926,7 @@
     {
       "sku": "ZCC-TCMT16T308-HM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt16t308-hm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T308-HM YBD152",
       "source_timestamp": "2026-09-17T08:09:08Z",
@@ -1935,7 +1935,7 @@
     {
       "sku": "ZCC-TCMT16T312-HM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt16t312/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T312-HM YBC351",
       "source_timestamp": "2026-09-17T08:26:11Z",
@@ -1944,7 +1944,7 @@
     {
       "sku": "ZCC-TCMT16T312-HR-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt16t312-hr-ybd152/",
       "name": "الماس تراشکاری ZCC مدل TCMT16T312-HR YBD152",
       "source_timestamp": "2026-09-17T08:09:10Z",
@@ -1953,7 +1953,7 @@
     {
       "sku": "ZCC-TCMT220408-HR-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tcmt220408/",
       "name": "الماس تراشکاری ZCC مدل TCMT220408-HR YBC351",
       "source_timestamp": "2026-09-17T08:26:13Z",
@@ -1962,7 +1962,7 @@
     {
       "sku": "ZCC-TCMT220408-HR-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tcmt220408-hr-ybd152/",
       "name": "الماس تراشکاری ZCC مدل TCMT220408-HR YBD152",
       "source_timestamp": "2026-09-17T08:09:12Z",
@@ -1971,7 +1971,7 @@
     {
       "sku": "ZCC-TNGN160404T02020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tngn160404t02020/",
       "name": "الماس تراشکاری ZCC مدل TNGN160404T02020 CN1000",
       "source_timestamp": "2026-09-17T08:26:19Z",
@@ -1980,7 +1980,7 @@
     {
       "sku": "ZCC-TNGN160408T02020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tngn160408t2020-cn1000/",
       "name": "الماس تراشکاری ZCC مدل TNGN160408T02020 CN1000",
       "source_timestamp": "2026-09-17T08:26:21Z",
@@ -1989,7 +1989,7 @@
     {
       "sku": "ZCC-TNGN160412T03020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tngn160412t03020/",
       "name": "الماس تراشکاری ZCC مدل TNGN160412T03020 CN1000",
       "source_timestamp": "2026-09-17T08:26:23Z",
@@ -1998,7 +1998,7 @@
     {
       "sku": "ZCC-TNGN160708T02020-CA1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tngn160708t02020-2/",
       "name": "الماس تراشکاری ZCC مدل TNGN160708T02020 CA1000",
       "source_timestamp": "2026-09-17T08:26:25Z",
@@ -2007,7 +2007,7 @@
     {
       "sku": "ZCC-TNGN160712T02020-CA1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tngn160712t02020/",
       "name": "الماس تراشکاری ZCC مدل TNGN160712T02020 CA1000",
       "source_timestamp": "2026-09-17T08:26:27Z",
@@ -2016,7 +2016,7 @@
     {
       "sku": "ZCC-TNMA160404-YBD052",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnma160404/",
       "name": "الماس تراشکاری ZCC مدل TNMA160404 YBD052",
       "source_timestamp": "2026-09-17T08:26:29Z",
@@ -2025,7 +2025,7 @@
     {
       "sku": "ZCC-TNMA160412-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnma160412/",
       "name": "الماس تراشکاری ZCC مدل TNMA160412 YBD152",
       "source_timestamp": "2026-09-17T08:26:31Z",
@@ -2034,7 +2034,7 @@
     {
       "sku": "ZCC-TNMA220408-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnma220408-ybd152/",
       "name": "الماس تراشکاری ZCC مدل TNMA220408 YBD152",
       "source_timestamp": "2026-09-17T08:09:14Z",
@@ -2043,7 +2043,7 @@
     {
       "sku": "ZCC-TNMA220408-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnma220408/",
       "name": "الماس تراشکاری ZCC مدل TNMA220408 YD101",
       "source_timestamp": "2026-09-17T08:26:37Z",
@@ -2052,7 +2052,7 @@
     {
       "sku": "ZCC-TNMG160404-ADF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmg160404/",
       "name": "الماس تراشکاری ZCC مدل TNMG160404-ADF YB9320",
       "source_timestamp": "2026-09-17T08:26:39Z",
@@ -2061,7 +2061,7 @@
     {
       "sku": "ZCC-TNMG160404-DM-YBM251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg160404-dm-ybm251/",
       "name": "الماس تراشکاری ZCC مدل TNMG160404-DM YBM251",
       "source_timestamp": "2026-09-17T08:09:16Z",
@@ -2070,7 +2070,7 @@
     {
       "sku": "ZCC-TNMG160404-PM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg160404-pm-ybc351/",
       "name": "الماس تراشکاری ZCC مدل TNMG160404-PM YBC351",
       "source_timestamp": "2026-09-17T08:09:18Z",
@@ -2079,7 +2079,7 @@
     {
       "sku": "ZCC-TNMG160404-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg160404-pm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل TNMG160404-PM YBD152",
       "source_timestamp": "2026-09-17T08:09:20Z",
@@ -2088,7 +2088,7 @@
     {
       "sku": "ZCC-TNMG160404ZMA-YB6425",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg160404zma-yb6425/",
       "name": "الماس تراشکاری ZCC مدل TNMG160404ZMA YB6425",
       "source_timestamp": "2026-09-17T08:09:22Z",
@@ -2097,7 +2097,7 @@
     {
       "sku": "ZCC-TNMG160408-XLR-YBC203",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg160408-xlr-ybc203/",
       "name": "الماس تراشکاری ZCC مدل TNMG160408-XLR YBC203",
       "source_timestamp": "2026-09-17T08:09:26Z",
@@ -2106,7 +2106,7 @@
     {
       "sku": "ZCC-TNMG220404-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-tnmg220404-ef-ybg205/",
       "name": "الماس تراشکاری ZCC مدل TNMG220404-EF YBG205",
       "source_timestamp": "2026-09-17T08:09:28Z",
@@ -2115,7 +2115,7 @@
     {
       "sku": "ZCC-TNMG220416-XM-YBC103",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmg220416/",
       "name": "الماس تراشکاری ZCC مدل TNMG220416-XM YBC103",
       "source_timestamp": "2026-09-17T08:26:47Z",
@@ -2124,7 +2124,7 @@
     {
       "sku": "ZCC-TNMG270608-DR-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmg270608/",
       "name": "الماس تراشکاری ZCC مدل TNMG270608-DR YBC351",
       "source_timestamp": "2026-09-17T08:26:51Z",
@@ -2133,7 +2133,7 @@
     {
       "sku": "ZCC-TNMG270616-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmg270616/",
       "name": "الماس تراشکاری ZCC مدل TNMG270616 YBC251",
       "source_timestamp": "2026-09-17T08:26:51Z",
@@ -2142,7 +2142,7 @@
     {
       "sku": "ZCC-TNMX160404-WGF-YBC152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmx160404/",
       "name": "الماس تراشکاری ZCC مدل TNMX160404-WGF YBC152",
       "source_timestamp": "2026-09-17T08:26:57Z",
@@ -2151,7 +2151,7 @@
     {
       "sku": "ZCC-TNMX160408-WGF-YBC152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tnmx160408/",
       "name": "الماس تراشکاری ZCC مدل TNMX160408-WGF YBC152",
       "source_timestamp": "2026-09-17T08:26:59Z",
@@ -2160,7 +2160,7 @@
     {
       "sku": "ZCC-TPGH090202L-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpgh090202l/",
       "name": "الماس تراشکاری ZCC مدل TPGH090202L YBG102",
       "source_timestamp": "2026-09-17T08:27:03Z",
@@ -2169,7 +2169,7 @@
     {
       "sku": "ZCC-TPGH090204L-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpgh090204l/",
       "name": "الماس تراشکاری ZCC مدل TPGH090204L YBG102",
       "source_timestamp": "2026-09-17T08:27:05Z",
@@ -2178,7 +2178,7 @@
     {
       "sku": "ZCC-TPGH110304L-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpgh110304l/",
       "name": "الماس تراشکاری ZCC مدل TPGH110304L YBG102",
       "source_timestamp": "2026-09-17T08:27:07Z",
@@ -2187,7 +2187,7 @@
     {
       "sku": "ZCC-TPGT090204-SF-YBG102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpgt090204/",
       "name": "الماس تراشکاری ZCC مدل TPGT090204-SF YBG102",
       "source_timestamp": "2026-09-17T08:27:11Z",
@@ -2196,7 +2196,7 @@
     {
       "sku": "ZCC-TPGT110304-SF-YNG151C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpgt110304/",
       "name": "الماس تراشکاری ZCC مدل TPGT110304-SF YNG151C",
       "source_timestamp": "2026-09-17T08:27:13Z",
@@ -2205,7 +2205,7 @@
     {
       "sku": "ZCC-TPMT080204-DM-CQP2025G",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpmt080204/",
       "name": "الماس تراشکاری ZCC مدل TPMT080204-DM CQP2025G",
       "source_timestamp": "2026-09-17T08:27:41Z",
@@ -2214,7 +2214,7 @@
     {
       "sku": "ZCC-TPMT16T312TR-23",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpmt16t312tr-231025/",
       "name": "الماس تراشکاری ZCC مدل TPMT16T312TR-23 1025",
       "source_timestamp": "2026-09-17T08:27:43Z",
@@ -2223,7 +2223,7 @@
     {
       "sku": "ZCC-TPMT220612TR-23",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/tpmt220612tr-251025/",
       "name": "الماس تراشکاری ZCC مدل TPMT220612TR-23 1025",
       "source_timestamp": "2026-09-17T08:27:45Z",
@@ -2232,7 +2232,7 @@
     {
       "sku": "ZCC-VBMT110202-HF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110202-hf/",
       "name": "الماس تراشکاری ZCC مدل VBMT110202-HF YBG202",
       "source_timestamp": "2026-09-17T08:27:53Z",
@@ -2241,7 +2241,7 @@
     {
       "sku": "ZCC-VBMT110204-HF-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110204/",
       "name": "الماس تراشکاری ZCC مدل VBMT110204-HF YBC251",
       "source_timestamp": "2026-09-17T08:27:55Z",
@@ -2250,7 +2250,7 @@
     {
       "sku": "ZCC-VBMT110204-HF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vbmt110204-hf-ybg202/",
       "name": "الماس تراشکاری ZCC مدل VBMT110204-HF YBG202",
       "source_timestamp": "2026-09-17T08:09:38Z",
@@ -2259,7 +2259,7 @@
     {
       "sku": "ZCC-VBMT110208-HF-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110208/",
       "name": "الماس تراشکاری ZCC مدل VBMT110208-HF YBC251",
       "source_timestamp": "2026-09-17T08:27:57Z",
@@ -2268,7 +2268,7 @@
     {
       "sku": "ZCC-VBMT110302-EF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110302-ef-ybg202/",
       "name": "الماس تراشکاری ZCC مدل VBMT110302-EF YBG202",
       "source_timestamp": "2026-09-17T08:27:59Z",
@@ -2277,7 +2277,7 @@
     {
       "sku": "ZCC-VBMT110304-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110304-2/",
       "name": "الماس تراشکاری ZCC مدل VBMT110304-EF YBG205",
       "source_timestamp": "2026-09-17T08:28:01Z",
@@ -2286,7 +2286,7 @@
     {
       "sku": "ZCC-VBMT110308-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vbmt110308/",
       "name": "الماس تراشکاری ZCC مدل VBMT110308-EM YBG202",
       "source_timestamp": "2026-09-17T08:28:03Z",
@@ -2295,7 +2295,7 @@
     {
       "sku": "ZCC-VBMT160402-AHF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vbmt160402/",
       "name": "الماس تراشکاری ZCC مدل VBMT160402-AHF YB9320",
       "source_timestamp": "2026-09-17T08:09:39Z",
@@ -2304,7 +2304,7 @@
     {
       "sku": "ZCC-VBMT160404-HM-YBD102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vbmt160404/",
       "name": "الماس تراشکاری ZCC مدل VBMT160404-HM YBD102",
       "source_timestamp": "2026-09-17T08:09:40Z",
@@ -2313,7 +2313,7 @@
     {
       "sku": "ZCC-VCGT110301L-USF-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgt110301l-usf-ybg202/",
       "name": "الماس تراشکاری ZCC مدل VCGT110301L-USF YBG202",
       "source_timestamp": "2026-09-17T08:09:42Z",
@@ -2322,7 +2322,7 @@
     {
       "sku": "ZCC-VCGT160408-NF-YBG105",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgt160408-nf-ybg105/",
       "name": "الماس تراشکاری ZCC مدل VCGT160408-NF YBG105",
       "source_timestamp": "2026-09-17T08:09:44Z",
@@ -2331,7 +2331,7 @@
     {
       "sku": "ZCC-VCGX110204-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx110204/",
       "name": "الماس تراشکاری ZCC مدل VCGX110204-LH YD101",
       "source_timestamp": "2026-09-17T08:28:05Z",
@@ -2340,7 +2340,7 @@
     {
       "sku": "ZCC-VCGX110302-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx110302/",
       "name": "الماس تراشکاری ZCC مدل VCGX110302-LH YD101",
       "source_timestamp": "2026-09-17T08:28:07Z",
@@ -2349,7 +2349,7 @@
     {
       "sku": "ZCC-VCGX110304-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx110304/",
       "name": "الماس تراشکاری ZCC مدل VCGX110304-LH YD101",
       "source_timestamp": "2026-09-17T08:28:09Z",
@@ -2358,7 +2358,7 @@
     {
       "sku": "ZCC-VCGX110308-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx110308-2/",
       "name": "الماس تراشکاری ZCC مدل VCGX110308-LC YD101",
       "source_timestamp": "2026-09-17T08:28:11Z",
@@ -2367,7 +2367,7 @@
     {
       "sku": "ZCC-VCGX160402-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx160402/",
       "name": "الماس تراشکاری ZCC مدل VCGX160402-LC YD101",
       "source_timestamp": "2026-09-17T08:28:13Z",
@@ -2376,7 +2376,7 @@
     {
       "sku": "ZCC-VCGX160404-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgx160404-lc-yd101/",
       "name": "الماس تراشکاری ZCC مدل VCGX160404-LC YD101",
       "source_timestamp": "2026-09-17T08:09:46Z",
@@ -2385,7 +2385,7 @@
     {
       "sku": "ZCC-VCGX160404-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx160404/",
       "name": "الماس تراشکاری ZCC مدل VCGX160404-LH YD101",
       "source_timestamp": "2026-09-17T08:28:15Z",
@@ -2394,7 +2394,7 @@
     {
       "sku": "ZCC-VCGX160408-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgx160408-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل VCGX160408-LH YD101",
       "source_timestamp": "2026-09-17T08:09:48Z",
@@ -2403,7 +2403,7 @@
     {
       "sku": "ZCC-VCGX160412-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx160412/",
       "name": "الماس تراشکاری ZCC مدل VCGX160412-LC YD101",
       "source_timestamp": "2026-09-17T08:28:17Z",
@@ -2412,7 +2412,7 @@
     {
       "sku": "ZCC-VCGX160412-LH-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgx160412-lh-yd101/",
       "name": "الماس تراشکاری ZCC مدل VCGX160412-LH YD101",
       "source_timestamp": "2026-09-17T08:09:50Z",
@@ -2421,7 +2421,7 @@
     {
       "sku": "ZCC-VCGX220530-LC-YD101",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcgx220530/",
       "name": "الماس تراشکاری ZCC مدل VCGX220530-LC YD101",
       "source_timestamp": "2026-09-17T08:28:19Z",
@@ -2430,7 +2430,7 @@
     {
       "sku": "ZCC-VCGX220530-LH-YD201",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vcgx220530-lh-yd201/",
       "name": "الماس تراشکاری ZCC مدل VCGX220530-LH YD201",
       "source_timestamp": "2026-09-17T08:09:52Z",
@@ -2439,7 +2439,7 @@
     {
       "sku": "ZCC-VCMT160404-EM-YBM153",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcmt160404/",
       "name": "الماس تراشکاری ZCC مدل VCMT160404-EM YBM153",
       "source_timestamp": "2026-09-17T08:28:21Z",
@@ -2448,7 +2448,7 @@
     {
       "sku": "ZCC-VCMT160408-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vcmt160408/",
       "name": "الماس تراشکاری ZCC مدل VCMT160408-EM YBG202",
       "source_timestamp": "2026-09-17T08:28:23Z",
@@ -2457,7 +2457,7 @@
     {
       "sku": "ZCC-VNMG160404-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-vnmg160404-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل VNMG160404-EM YBG205",
       "source_timestamp": "2026-09-17T08:09:54Z",
@@ -2466,7 +2466,7 @@
     {
       "sku": "ZCC-VNMG160404-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vnmg160404/",
       "name": "الماس تراشکاری ZCC مدل VNMG160404-PM YBD152",
       "source_timestamp": "2026-09-17T08:28:29Z",
@@ -2475,7 +2475,7 @@
     {
       "sku": "ZCC-VNMG160412-EF-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/vnmg160412/",
       "name": "الماس تراشکاری ZCC مدل VNMG160412-EF YBG205",
       "source_timestamp": "2026-09-17T08:28:33Z",
@@ -2484,7 +2484,7 @@
     {
       "sku": "ZCC-WNGA080416T02020-CN1000",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnga080416t02020/",
       "name": "الماس تراشکاری ZCC مدل WNGA080416T02020 CN1000",
       "source_timestamp": "2026-09-17T08:28:45Z",
@@ -2493,7 +2493,7 @@
     {
       "sku": "ZCC-WNMA080404-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-wnma080404-ybd152/",
       "name": "الماس تراشکاری ZCC مدل WNMA080404 YBD152",
       "source_timestamp": "2026-09-17T08:10:04Z",
@@ -2502,7 +2502,7 @@
     {
       "sku": "ZCC-WNMA080408-YBD102",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnma080408/",
       "name": "الماس تراشکاری ZCC مدل WNMA080408 YBD102",
       "source_timestamp": "2026-09-17T08:28:47Z",
@@ -2511,7 +2511,7 @@
     {
       "sku": "ZCC-WNMA080412-YBD152C",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnma080412/",
       "name": "الماس تراشکاری ZCC مدل WNMA080412 YBD152C",
       "source_timestamp": "2026-09-17T08:28:49Z",
@@ -2520,7 +2520,7 @@
     {
       "sku": "ZCC-WNMG060404-EM-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnmg060404/",
       "name": "الماس تراشکاری ZCC مدل WNMG060404-EM YBG202",
       "source_timestamp": "2026-09-17T08:28:51Z",
@@ -2529,7 +2529,7 @@
     {
       "sku": "ZCC-WNMG060408-EM-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-wnmg060408-em-ybg205/",
       "name": "الماس تراشکاری ZCC مدل WNMG060408-EM YBG205",
       "source_timestamp": "2026-09-17T08:10:06Z",
@@ -2538,7 +2538,7 @@
     {
       "sku": "ZCC-WNMG080404-ADF-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnmg080404/",
       "name": "الماس تراشکاری ZCC مدل WNMG080404-ADF YB9320",
       "source_timestamp": "2026-09-17T08:28:55Z",
@@ -2547,7 +2547,7 @@
     {
       "sku": "ZCC-WNMG080408-PM-YBC351",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-wnmg080408-pm-ybc351/",
       "name": "الماس تراشکاری ZCC مدل WNMG080408-PM YBC351",
       "source_timestamp": "2026-09-17T08:10:08Z",
@@ -2556,7 +2556,7 @@
     {
       "sku": "ZCC-WNMG080408-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-wnmg080408-pm-ybd152/",
       "name": "الماس تراشکاری ZCC مدل WNMG080408-PM YBD152",
       "source_timestamp": "2026-09-17T08:10:10Z",
@@ -2565,7 +2565,7 @@
     {
       "sku": "ZCC-WNMG080408-XMH-YBC103",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnmg080408/",
       "name": "الماس تراشکاری ZCC مدل WNMG080408-XMH YBC103",
       "source_timestamp": "2026-09-17T08:28:57Z",
@@ -2574,7 +2574,7 @@
     {
       "sku": "ZCC-WNMG080412-TC-YB7315",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnmg080412/",
       "name": "الماس تراشکاری ZCC مدل WNMG080412-TC YB7315",
       "source_timestamp": "2026-09-17T08:28:59Z",
@@ -2583,7 +2583,7 @@
     {
       "sku": "ZCC-WNMG080416-PM-YBD152",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/wnmg080416/",
       "name": "الماس تراشکاری ZCC مدل WNMG080416-PM YBD152",
       "source_timestamp": "2026-09-17T08:29:01Z",
@@ -2592,7 +2592,7 @@
     {
       "sku": "ZCC-X3-115008-PM-YB9320-N331",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-x3-115008/",
       "name": "الماس تراشکاری ZCC مدل X3-115008-PM YB9320 N331",
       "source_timestamp": "2026-09-17T08:10:22Z",
@@ -2601,7 +2601,7 @@
     {
       "sku": "ZCC-XEEC120904-YBG105",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/%D8%A7%D9%84%D9%85%D8%A7%D8%B3-%D8%AA%D8%B1%D8%A7%D8%B4%DA%A9%D8%A7%D8%B1%DB%8C-zcc-%D9%85%D8%AF%D9%84-xeec120904-2/",
       "name": "الماس تراشکاری ZCC مدل XEEC120904 YBG105",
       "source_timestamp": "2026-09-17T08:10:24Z",
@@ -2637,7 +2637,7 @@
     {
       "sku": "ZCC-ZPFD0302-MG-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zpfd0302/",
       "name": "الماس تراشکاری ZCC مدل ZPFD0302-MG YB9320",
       "source_timestamp": "2026-09-17T08:29:08Z",
@@ -2646,7 +2646,7 @@
     {
       "sku": "ZCC-ZPGS0402-MG-YBG302",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zpgs0402/",
       "name": "الماس تراشکاری ZCC مدل ZPGS0402-MG YBG302",
       "source_timestamp": "2026-09-17T08:29:09Z",
@@ -2655,7 +2655,7 @@
     {
       "sku": "ZCC-ZQMX4N11-1E-YBC401",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zqmx4n11-1e/",
       "name": "الماس تراشکاری ZCC مدل ZQMX4N11-1E YBC401",
       "source_timestamp": "2026-09-17T08:29:11Z",
@@ -2664,7 +2664,7 @@
     {
       "sku": "ZCC-ZQMX5N11-1E-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zqmx5n11-1e/",
       "name": "الماس تراشکاری ZCC مدل ZQMX5N11-1E YBC251",
       "source_timestamp": "2026-09-17T08:29:13Z",
@@ -2673,7 +2673,7 @@
     {
       "sku": "ZCC-ZQMX6N11-1E-YBC251",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zqmx6n11-1e-2/",
       "name": "الماس تراشکاری ZCC مدل ZQMX6N11-1E YBC251",
       "source_timestamp": "2026-09-17T08:29:15Z",
@@ -2682,7 +2682,7 @@
     {
       "sku": "ZCC-ZRBD02-EG-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zrbd02/",
       "name": "الماس تراشکاری ZCC مدل ZRBD02-EG YBG205",
       "source_timestamp": "2026-09-17T08:29:17Z",
@@ -2691,7 +2691,7 @@
     {
       "sku": "ZCC-ZRHD05-MG-YBG205",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zrhd05/",
       "name": "الماس تراشکاری ZCC مدل ZRHD05-MG YBG205",
       "source_timestamp": "2026-09-17T08:29:21Z",
@@ -2700,7 +2700,7 @@
     {
       "sku": "ZCC-ZRKD06-MG-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zrkd06/",
       "name": "الماس تراشکاری ZCC مدل ZRKD06-MG YBG202",
       "source_timestamp": "2026-09-17T08:29:23Z",
@@ -2718,7 +2718,7 @@
     {
       "sku": "ZCC-ZTBD02002-MM-YB9320",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztbd02002/",
       "name": "الماس تراشکاری ZCC مدل ZTBD02002-MM YB9320",
       "source_timestamp": "2026-09-17T08:29:45Z",
@@ -2727,7 +2727,7 @@
     {
       "sku": "ZCC-ZTCD01402-EG-YBG302",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztcd01402/",
       "name": "الماس تراشکاری ZCC مدل ZTCD01402-EG YBG302",
       "source_timestamp": "2026-09-17T08:29:47Z",
@@ -2736,7 +2736,7 @@
     {
       "sku": "ZCC-ZTCD01502-EG-YBG302",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztcd01502/",
       "name": "الماس تراشکاری ZCC مدل ZTCD01502-EG YBG302",
       "source_timestamp": "2026-09-17T08:29:49Z",
@@ -2745,7 +2745,7 @@
     {
       "sku": "ZCC-ZTCD01503-EG-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztcd01503/",
       "name": "الماس تراشکاری ZCC مدل ZTCD01503-EG YBG202",
       "source_timestamp": "2026-09-17T08:29:51Z",
@@ -2754,7 +2754,7 @@
     {
       "sku": "ZCC-ZTCD02002-EG-YBG302",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztcd02002/",
       "name": "الماس تراشکاری ZCC مدل ZTCD02002-EG YBG302",
       "source_timestamp": "2026-09-17T08:29:53Z",
@@ -2763,7 +2763,7 @@
     {
       "sku": "ZCC-ZTCD02302-EG-YBG302",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztcd02302/",
       "name": "الماس تراشکاری ZCC مدل ZTCD02302-EG YBG302",
       "source_timestamp": "2026-09-17T08:29:55Z",
@@ -2772,7 +2772,7 @@
     {
       "sku": "ZCC-ZTED02503-MG-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/zted02503/",
       "name": "الماس تراشکاری ZCC مدل ZTED02503-MG YBG202",
       "source_timestamp": "2026-09-17T08:29:57Z",
@@ -2781,7 +2781,7 @@
     {
       "sku": "ZCC-ZTKD0608-MG-YBG202",
       "brand": "ZCC.CT",
-      "category_id": 33,
+      "category_id": 166,
       "source_url": "https://zcc.ir/product/ztkd0608/",
       "name": "الماس تراشکاری ZCC مدل ZTKD0608-MG YBG202",
       "source_timestamp": "2026-09-17T08:30:04Z",
