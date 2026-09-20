@@ -23,6 +23,7 @@ from zcc_ir_category_b_draft_import import (  # noqa: E402
     ReadOnlyUrlTransport,
     UrlTransport,
     apply,
+    brand_match_keys,
     build_draft_plan,
     digest,
     draft_payload,
@@ -30,6 +31,7 @@ from zcc_ir_category_b_draft_import import (  # noqa: E402
     precheck_only,
     redact_secrets,
     run_destination_precheck,
+    unique_brand_ids,
 )
 from zcc_ir_category_b_execution_input import (  # noqa: E402
     DEFAULT_ALLOWLIST,
@@ -759,3 +761,115 @@ def test_run_destination_precheck_direct_counts(scope_count) -> None:
     assert result.sku_checked == 2
     assert transport.posts == 0
     assert transport.sku_lookups == 2
+
+
+def test_brand_match_keys_exact_and_bilingual_segments() -> None:
+    assert brand_match_keys("ZCC.CT") == frozenset({"zcc.ct"})
+    assert "zcc.ct" in brand_match_keys("ZCC.CT | زد سی‌سی")
+    assert "زد سی‌سی".casefold() in brand_match_keys("ZCC.CT | زد سی‌سی")
+    # whitespace around the literal bilingual delimiter is trimmed per segment
+    assert "zcc.ct" in brand_match_keys("  ZCC.CT  |  زد سی‌سی  ")
+    # Unicode-safe casefold on Latin segment
+    assert "zcc.ct" in brand_match_keys("zcc.ct | FA")
+    # no punctuation folding / fuzzy / substring keys
+    assert "zccct" not in brand_match_keys("ZCC.CT | زد سی‌سی")
+    assert "zcc" not in brand_match_keys("ZCC.CT | زد سی‌سی")
+
+
+def test_unique_brand_ids_monolingual_and_bilingual() -> None:
+    assert unique_brand_ids([{"id": 8, "name": "ZCC.CT"}], {"ZCC.CT"}) == {"ZCC.CT": 8}
+    assert unique_brand_ids([{"id": 8, "name": "ZCC.CT | زد سی‌سی"}], {"ZCC.CT"}) == {"ZCC.CT": 8}
+    assert unique_brand_ids([{"id": 8, "name": "  ZCC.CT  |  زد سی‌سی  "}], {"ZCC.CT"}) == {
+        "ZCC.CT": 8
+    }
+    assert unique_brand_ids([{"id": 8, "name": "zcc.ct | زد سی‌سی"}], {"ZCC.CT"}) == {"ZCC.CT": 8}
+
+
+def test_unique_brand_ids_rejects_punctuation_or_similar_names() -> None:
+    with pytest.raises(RuntimeError, match="brand missing"):
+        unique_brand_ids([{"id": 8, "name": "ZCC-CT | زد سی‌سی"}], {"ZCC.CT"})
+    with pytest.raises(RuntimeError, match="brand missing"):
+        unique_brand_ids([{"id": 8, "name": "ZCC CT | زد سی‌سی"}], {"ZCC.CT"})
+    with pytest.raises(RuntimeError, match="brand missing"):
+        unique_brand_ids([{"id": 8, "name": "ZCC | زد سی‌سی"}], {"ZCC.CT"})
+    with pytest.raises(RuntimeError, match="brand missing"):
+        unique_brand_ids([{"id": 8, "name": "Something ZCC.CT Extra"}], {"ZCC.CT"})
+
+
+def test_unique_brand_ids_duplicate_bilingual_keys_fail_closed() -> None:
+    brands = [
+        {"id": 8, "name": "ZCC.CT | زد سی‌سی"},
+        {"id": 9, "name": "ZCC.CT | alternate"},
+    ]
+    with pytest.raises(RuntimeError, match="not unique"):
+        unique_brand_ids(brands, {"ZCC.CT"})
+    with pytest.raises(RuntimeError, match="not unique"):
+        unique_brand_ids(
+            [{"id": 8, "name": "ZCC.CT"}, {"id": 9, "name": "ZCC.CT | زد سی‌سی"}],
+            {"ZCC.CT"},
+        )
+
+
+def test_precheck_resolves_bilingual_zcc_brand_id_8(tmp_path: Path, scope_count) -> None:
+    scope_count(1)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan([mini_record(brand="ZCC.CT")])
+    transport = FakeTransport(brands=[{"id": 8, "name": "ZCC.CT | زد سی‌سی"}])
+    result = precheck_only(
+        plan,
+        "https://api.karzartools.com/api/v1",
+        "token",
+        backup,
+        backup_sha,
+        tmp_path / "audit-bilingual-brand",
+        "a" * 40,
+        transport,
+    )
+    assert result.brand_ids == {"ZCC.CT": 8}
+    assert result.brands_resolved == 1
+    assert transport.posts == 0
+    assert "POST" not in transport.methods_called
+
+
+def test_apply_uses_bilingual_brand_and_still_posts_only_after_precheck(
+    tmp_path: Path, scope_count
+) -> None:
+    scope_count(1)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan([mini_record(brand="ZCC.CT")])
+    transport = FakeTransport(brands=[{"id": 8, "name": "ZCC.CT | زد سی‌سی"}])
+    posts_during_precheck: list[int] = []
+    original = writer.run_destination_precheck
+
+    def wrapped(plan_arg, transport_arg):
+        result = original(plan_arg, transport_arg)
+        posts_during_precheck.append(transport_arg.posts)
+        return result
+
+    writer.run_destination_precheck = wrapped  # type: ignore[assignment]
+    try:
+        apply(
+            plan,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-bilingual-apply",
+            "a" * 40,
+            transport,
+        )
+    finally:
+        writer.run_destination_precheck = original  # type: ignore[assignment]
+    assert posts_during_precheck == [0]
+    assert transport.posts == 1
+    assert transport.posted[0]["brand_id"] == 8
+
+
+def test_deterministic_plan_sha_unchanged_by_brand_match_fix() -> None:
+    plan = build_draft_plan(
+        DEFAULT_EXECUTION_INPUT,
+        DEFAULT_ALLOWLIST,
+        PINNED_SOURCE_SHA256,
+        PINNED_ALLOWLIST_SHA256,
+    )
+    assert digest(plan) == "c1993d2439a17af83547a2cd21698d915d953421dd90e1128b3b66695146aec7"
