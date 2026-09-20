@@ -2,10 +2,14 @@
 """Ticket #344 Category B writer for the pinned 309-SKU ZCC draft input.
 
 Default mode is offline plan generation from the Git-tracked execution input.
-``--apply`` is fail-closed: production URL, ADR-012 env vars, backup artifact,
-deployed Git SHA, confirmed plan hash/count, admin token, and an exclusive
-audit directory are all required. It creates inactive unavailable drafts only.
+``--precheck-only`` performs authenticated destination GETs only and writes an
+exclusive audit with ``writes_performed=false``. ``--apply`` is fail-closed:
+production URL, ADR-012 env vars, backup artifact, deployed Git SHA, confirmed
+plan hash/count, admin token, and an exclusive audit directory are all
+required. It creates inactive unavailable drafts only. ``--precheck-only`` and
+``--apply`` are mutually exclusive.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -14,8 +18,11 @@ import json
 import os
 import re
 import sys
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 from urllib import error, parse, request
 
 SCRIPTS = Path(__file__).resolve().parent
@@ -31,6 +38,7 @@ from zcc_ir_category_b_execution_input import (  # noqa: E402
     DEFAULT_EXECUTION_INPUT,
     EXPECTED_COUNT,
     PINNED_ALLOWLIST_SHA256,
+    PINNED_EXECUTION_INPUT_SHA256,
     PINNED_SOURCE_SHA256,
     TICKET,
     bind_allowlist,
@@ -64,10 +72,32 @@ FORBIDDEN_PAYLOAD_KEYS = frozenset(
 BACKUP_NAME = re.compile(r"^karzar_\d{8}_\d{6}\.sql\.gz$")
 GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 RECONCILIATION_STATE = "MANUAL_RECONCILIATION_OR_DB_ROLLBACK_REQUIRED"
+EXECUTION_INPUT_LOGICAL_ID = (
+    "docs/operations/pipeline/zcc-category-b-ticket-344-execution-input.json"
+)
+ADMIN_TOKEN_ENV = "KARZAR_CATEGORY_B_ADMIN_TOKEN"
+SECRET_PATTERNS = (
+    re.compile(r"(?i)authorization\s*[:=]\s*bearer\s+\S+"),
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-+=/]+"),
+    re.compile(r"(?i)KARZAR_CATEGORY_B_ADMIN_TOKEN\s*[:=]\s*\S+"),
+)
 
 
 def digest(value: object) -> str:
-    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    return hashlib.sha256(
+        json.dumps(value, ensure_ascii=False, sort_keys=True).encode()
+    ).hexdigest()
+
+
+def utc_now() -> str:
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def redact_secrets(text: str) -> str:
+    redacted = text
+    for pattern in SECRET_PATTERNS:
+        redacted = pattern.sub("[REDACTED]", redacted)
+    return redacted
 
 
 def draft_payload(record: dict) -> dict:
@@ -109,6 +139,9 @@ def build_draft_plan(
     bind_allowlist(document, allowlist)
     if document["source_sha256"] != source_sha or document["allowlist_sha256"] != allowlist_sha:
         raise ValueError("execution input hashes do not match pinned values")
+    file_digest = sha256(execution_input)
+    if file_digest != PINNED_EXECUTION_INPUT_SHA256:
+        raise ValueError("execution input SHA-256 mismatch")
     entries = []
     for record in document["records"]:
         entries.append(
@@ -127,7 +160,8 @@ def build_draft_plan(
         "mode": "CATEGORY_B_INACTIVE_DRAFT_ONLY",
         "source_sha256": source_sha,
         "allowlist_sha256": allowlist_sha,
-        "execution_input": str(execution_input),
+        "execution_input": EXECUTION_INPUT_LOGICAL_ID,
+        "execution_input_sha256": PINNED_EXECUTION_INPUT_SHA256,
         "count": len(entries),
         "entries": entries,
         "commerce_fields": "OMITTED",
@@ -141,12 +175,32 @@ class NoRedirect(request.HTTPRedirectHandler):
 
 
 class UrlTransport:
+    """Authenticated HTTP transport. Mutations are allowed unless subclassed."""
+
+    allow_mutations = True
+
     def __init__(self, api_base: str, token: str) -> None:
         self.api_base = api_base.rstrip("/")
         self.token = token
         self.posts = 0
+        self.gets = 0
+        self.sku_lookups = 0
+        self.methods_called: list[str] = []
 
     def _call(self, method: str, path: str, data: object | None = None) -> object:
+        method_upper = method.upper()
+        self.methods_called.append(method_upper)
+        if method_upper != "GET":
+            if not self.allow_mutations:
+                raise RuntimeError(
+                    f"read-only transport forbids {method_upper} before network dispatch"
+                )
+            if method_upper not in {"POST", "PUT", "PATCH", "DELETE"}:
+                raise RuntimeError(f"unsupported HTTP method: {method_upper}")
+        elif data is not None:
+            raise RuntimeError("GET requests must not carry a body")
+        if data is not None and not self.allow_mutations:
+            raise RuntimeError("read-only transport forbids request bodies")
         body = None if data is None else json.dumps(data).encode()
         headers = {"Authorization": f"Bearer {self.token}", "Accept": "application/json"}
         if body is not None:
@@ -154,18 +208,24 @@ class UrlTransport:
         opener = request.build_opener(request.ProxyHandler({}), NoRedirect())
         try:
             with opener.open(
-                request.Request(self.api_base + path, data=body, headers=headers, method=method),
+                request.Request(
+                    self.api_base + path, data=body, headers=headers, method=method_upper
+                ),
                 timeout=30,
             ) as response:
                 return json.load(response)
         except error.HTTPError as exc:
-            detail = exc.read(500).decode("utf-8", errors="replace")
-            raise RuntimeError(f"API {method} {path} failed HTTP {exc.code}: {detail}") from None
+            detail = redact_secrets(exc.read(500).decode("utf-8", errors="replace"))
+            raise RuntimeError(
+                f"API {method_upper} {path} failed HTTP {exc.code}: {detail}"
+            ) from None
 
     def get(self, path: str) -> object:
+        self.gets += 1
         return self._call("GET", path)
 
     def get_product_by_sku(self, sku: str) -> dict | None:
+        self.sku_lookups += 1
         path = "/products/sku/" + parse.quote(sku, safe="")
         try:
             payload = self._call("GET", path)
@@ -178,6 +238,8 @@ class UrlTransport:
         return payload
 
     def post_product(self, payload: dict) -> dict:
+        if not self.allow_mutations:
+            raise RuntimeError("read-only transport forbids POST before network dispatch")
         self.posts += 1
         created = self._call("POST", "/products/", payload)
         if not isinstance(created, dict):
@@ -185,8 +247,29 @@ class UrlTransport:
         return created
 
 
+class ReadOnlyUrlTransport(UrlTransport):
+    """Hard GET-only transport for authenticated destination prechecks."""
+
+    allow_mutations = False
+
+    def post_product(self, payload: dict) -> dict:
+        raise RuntimeError("read-only transport forbids POST before network dispatch")
+
+
+@dataclass(frozen=True)
+class DestinationPrecheckResult:
+    brand_ids: dict[str, int]
+    sku_checked: int
+    brands_required: int
+    categories_required: int
+    brands_resolved: int
+    categories_selectable_matched: int
+
+
 def data_list(value: object, label: str) -> list[dict]:
-    values = value.get("data") if isinstance(value, dict) else None
+    if not isinstance(value, dict):
+        raise RuntimeError(f"unexpected {label} response shape")
+    values = value.get("data")
     if not isinstance(values, list):
         raise RuntimeError(f"unexpected {label} response")
     return values
@@ -195,6 +278,8 @@ def data_list(value: object, label: str) -> list[dict]:
 def unique_brand_ids(brands: list[dict], required: set[str]) -> dict[str, int]:
     grouped: dict[str, list[int]] = {}
     for item in brands:
+        if not isinstance(item, dict):
+            raise RuntimeError("unexpected brands response shape")
         name = str(item.get("name") or "").strip()
         brand_id = item.get("id")
         if not name or not isinstance(brand_id, int):
@@ -212,7 +297,13 @@ def unique_brand_ids(brands: list[dict], required: set[str]) -> dict[str, int]:
 
 
 def selectable_category_ids(categories: list[dict]) -> set[int]:
-    return {item.get("id") for item in categories if item.get("is_selectable") and isinstance(item.get("id"), int)}
+    selectable: set[int] = set()
+    for item in categories:
+        if not isinstance(item, dict):
+            raise RuntimeError("unexpected categories response shape")
+        if item.get("is_selectable") and isinstance(item.get("id"), int):
+            selectable.add(item["id"])
+    return selectable
 
 
 def validate_backup(backup: Path, expected_sha256: str) -> None:
@@ -253,29 +344,182 @@ def assert_created_postcondition(created: dict, payload: dict) -> None:
         raise RuntimeError(f"postcondition failed for {payload['sku']}: thumbnail")
 
 
-def precheck_destination(plan: dict, transport: UrlTransport) -> dict[str, int]:
+def assert_plan_scope(plan: dict) -> None:
+    if plan.get("ticket") != TICKET or plan.get("count") != EXPECTED_COUNT:
+        raise RuntimeError("apply plan is not the approved 309-SKU ticket 344 scope")
+    entries = plan.get("entries")
+    if not isinstance(entries, list) or len(entries) != EXPECTED_COUNT:
+        raise RuntimeError("Category B scope must be exactly 309 unique SKUs")
+    skus = [entry.get("sku") for entry in entries]
+    if len(set(skus)) != EXPECTED_COUNT or any(not sku for sku in skus):
+        raise RuntimeError("Category B scope must be exactly 309 unique SKUs")
+
+
+def run_destination_precheck(plan: dict, transport: UrlTransport) -> DestinationPrecheckResult:
+    """Shared destination validation used by --precheck-only and --apply.
+
+    Completes all brand/category/SKU checks before returning. Never POSTs.
+    """
+    assert_plan_scope(plan)
     if getattr(transport, "posts", 0):
         raise RuntimeError("destination prechecks must run before any POST")
     brands = data_list(transport.get("/brands/"), "brands")
     categories = data_list(transport.get("/categories/"), "categories")
     required_brands = {entry["brand"] for entry in plan["entries"]}
+    required_categories = {entry["category_id"] for entry in plan["entries"]}
     brand_ids = unique_brand_ids(brands, required_brands)
     selectable = selectable_category_ids(categories)
-    missing_categories = sorted(
-        {entry["category_id"] for entry in plan["entries"] if entry["category_id"] not in selectable}
-    )
+    missing_categories = sorted(required_categories - selectable)
     if missing_categories:
-        raise RuntimeError("allowlist category is missing or not selectable: " + ",".join(map(str, missing_categories)))
+        raise RuntimeError(
+            "allowlist category is missing or not selectable: "
+            + ",".join(map(str, missing_categories))
+        )
     existing = []
     for entry in plan["entries"]:
         found = transport.get_product_by_sku(entry["sku"])
         if found is not None:
             existing.append(entry["sku"])
+    sku_checked = int(getattr(transport, "sku_lookups", len(plan["entries"])))
+    if sku_checked != len(plan["entries"]):
+        raise RuntimeError("destination SKU precheck did not cover every plan entry")
     if existing:
         raise RuntimeError("destination SKU already exists: " + ",".join(existing[:10]))
     if getattr(transport, "posts", 0):
         raise RuntimeError("POST occurred during destination prechecks")
-    return brand_ids
+    methods = getattr(transport, "methods_called", [])
+    if any(method != "GET" for method in methods):
+        raise RuntimeError("non-GET method observed during destination prechecks")
+    return DestinationPrecheckResult(
+        brand_ids=brand_ids,
+        sku_checked=sku_checked,
+        brands_required=len(required_brands),
+        categories_required=len(required_categories),
+        brands_resolved=len(brand_ids),
+        categories_selectable_matched=len(required_categories),
+    )
+
+
+def _audit_record(audit, event: dict) -> None:
+    safe = json.loads(redact_secrets(json.dumps(event, ensure_ascii=False)))
+    audit.write(json.dumps(safe, ensure_ascii=False) + "\n")
+    audit.flush()
+    os.fsync(audit.fileno())
+
+
+def write_precheck_audit(
+    audit_dir: Path,
+    *,
+    plan: dict,
+    deployed_git_sha: str,
+    backup: Path,
+    backup_sha256: str,
+    started_at: str,
+    result: DestinationPrecheckResult | None,
+    error: str | None,
+) -> Path:
+    audit_dir.mkdir(parents=True, exist_ok=False)
+    audit_path = audit_dir / "precheck-audit.jsonl"
+    ended_at = utc_now()
+    with audit_path.open("x", encoding="utf-8") as audit:
+        _audit_record(
+            audit,
+            {
+                "event": "precheck_begin",
+                "mode": "precheck-only",
+                "ticket": TICKET,
+                "plan_sha256": digest(plan),
+                "execution_input": EXECUTION_INPUT_LOGICAL_ID,
+                "execution_input_sha256": plan.get("execution_input_sha256"),
+                "source_sha256": plan.get("source_sha256"),
+                "allowlist_sha256": plan.get("allowlist_sha256"),
+                "deployed_git_sha": deployed_git_sha,
+                "backup": str(backup),
+                "backup_sha256": backup_sha256,
+                "count": plan.get("count"),
+                "writes_performed": False,
+                "started_at": started_at,
+            },
+        )
+        if error is None and result is not None:
+            _audit_record(
+                audit,
+                {
+                    "event": "precheck_complete",
+                    "mode": "precheck-only",
+                    "writes_performed": False,
+                    "sku_checked": result.sku_checked,
+                    "skus_absent": result.sku_checked,
+                    "brands_required": result.brands_required,
+                    "brands_resolved": result.brands_resolved,
+                    "categories_required": result.categories_required,
+                    "categories_selectable_matched": result.categories_selectable_matched,
+                    "started_at": started_at,
+                    "ended_at": ended_at,
+                },
+            )
+        else:
+            _audit_record(
+                audit,
+                {
+                    "event": "precheck_failed",
+                    "mode": "precheck-only",
+                    "writes_performed": False,
+                    "error": redact_secrets(error or "unknown"),
+                    "started_at": started_at,
+                    "ended_at": ended_at,
+                },
+            )
+    return audit_path
+
+
+def precheck_only(
+    plan: dict,
+    api_base: str,
+    token: str,
+    backup: Path,
+    backup_sha256: str,
+    audit_dir: Path,
+    deployed_git_sha: str,
+    transport: UrlTransport | None = None,
+) -> DestinationPrecheckResult:
+    assert_plan_scope(plan)
+    validate_backup(backup, backup_sha256)
+    if not GIT_SHA.fullmatch(deployed_git_sha):
+        raise RuntimeError("--deployed-git-sha must be a 40-character Git SHA")
+    client = transport or ReadOnlyUrlTransport(api_base, token)
+    if hasattr(client, "allow_mutations"):
+        client.allow_mutations = False  # type: ignore[misc]
+    started_at = utc_now()
+    try:
+        result = run_destination_precheck(plan, client)
+        if getattr(client, "posts", 0):
+            raise RuntimeError("POST occurred during destination prechecks")
+        write_precheck_audit(
+            audit_dir,
+            plan=plan,
+            deployed_git_sha=deployed_git_sha,
+            backup=backup,
+            backup_sha256=backup_sha256,
+            started_at=started_at,
+            result=result,
+            error=None,
+        )
+        return result
+    except Exception as exc:
+        failure = redact_secrets(str(exc))
+        if not audit_dir.exists():
+            write_precheck_audit(
+                audit_dir,
+                plan=plan,
+                deployed_git_sha=deployed_git_sha,
+                backup=backup,
+                backup_sha256=backup_sha256,
+                started_at=started_at,
+                result=None,
+                error=failure,
+            )
+        raise RuntimeError(failure) from None
 
 
 def apply(
@@ -288,19 +532,24 @@ def apply(
     deployed_git_sha: str,
     transport: UrlTransport | None = None,
 ) -> None:
-    if plan["ticket"] != TICKET or plan["count"] != EXPECTED_COUNT:
-        raise RuntimeError("apply plan is not the approved 309-SKU ticket 344 scope")
+    assert_plan_scope(plan)
     validate_backup(backup, backup_sha256)
-    client = transport or UrlTransport(api_base, token)
-    brand_ids = precheck_destination(plan, client)
+    if transport is None:
+        precheck_client: UrlTransport = ReadOnlyUrlTransport(api_base, token)
+        write_client: UrlTransport = UrlTransport(api_base, token)
+    else:
+        precheck_client = transport
+        write_client = transport
+    precheck = run_destination_precheck(plan, precheck_client)
+    if getattr(precheck_client, "posts", 0) or getattr(write_client, "posts", 0):
+        raise RuntimeError("POST occurred during destination prechecks")
+    brand_ids = precheck.brand_ids
     audit_dir.mkdir(parents=True, exist_ok=False)
     created: list[dict] = []
     with (audit_dir / "audit.jsonl").open("x", encoding="utf-8") as audit:
 
         def record(event: dict) -> None:
-            audit.write(json.dumps(event, ensure_ascii=False) + "\n")
-            audit.flush()
-            os.fsync(audit.fileno())
+            _audit_record(audit, event)
 
         try:
             record(
@@ -308,10 +557,14 @@ def apply(
                     "event": "begin",
                     "ticket": TICKET,
                     "plan_sha256": digest(plan),
+                    "execution_input": EXECUTION_INPUT_LOGICAL_ID,
+                    "execution_input_sha256": plan.get("execution_input_sha256"),
                     "deployed_git_sha": deployed_git_sha,
-                    "backup": str(backup.resolve()),
+                    "backup": str(backup),
                     "backup_sha256": backup_sha256,
                     "count": plan["count"],
+                    "precheck_sku_checked": precheck.sku_checked,
+                    "writes_performed": False,
                 }
             )
             for entry in plan["entries"]:
@@ -321,12 +574,18 @@ def apply(
                 extra = set(payload) - ALLOWED_PAYLOAD_KEYS
                 if extra or set(payload) & FORBIDDEN_PAYLOAD_KEYS:
                     raise RuntimeError(f"refusing forbidden fields for {entry['sku']}")
-                record({"event": "create_intent", "sku": entry["sku"], "source_url": entry["source_url"]})
-                created_product = client.post_product(payload)
+                record(
+                    {
+                        "event": "create_intent",
+                        "sku": entry["sku"],
+                        "source_url": entry["source_url"],
+                    }
+                )
+                created_product = write_client.post_product(payload)
                 assert_created_postcondition(created_product, payload)
                 created.append({"sku": entry["sku"], "id": created_product.get("id")})
                 record({"event": "created", "sku": entry["sku"], "id": created_product.get("id")})
-            record({"event": "complete", "created": plan["count"]})
+            record({"event": "complete", "created": plan["count"], "writes_performed": True})
         except Exception as exc:
             record(
                 {
@@ -336,7 +595,7 @@ def apply(
                     "created_skus": [item["sku"] for item in created],
                     "created_count": len(created),
                     "remaining_count": plan["count"] - len(created),
-                    "error": str(exc),
+                    "error": redact_secrets(str(exc)),
                 }
             )
             raise
@@ -351,10 +610,41 @@ def require_production_apply_env(api_base: str) -> str:
         raise RuntimeError("KARZAR_API_BASE must match --api-base")
     if not is_production_base(explicit):
         raise RuntimeError("Category B writer requires explicit production KARZAR_API_BASE")
-    if os.getenv(ALLOW_ENV, "").strip() != "1" or os.getenv(CATEGORY_ENV, "").strip().upper() != "B":
+    if (
+        os.getenv(ALLOW_ENV, "").strip() != "1"
+        or os.getenv(CATEGORY_ENV, "").strip().upper() != "B"
+    ):
         raise RuntimeError("both ADR-012 Category B environment variables must be present")
     assert_destination_allowed(explicit, label="KARZAR_API_BASE")
     return explicit
+
+
+def _require_live_gates(
+    parser: argparse.ArgumentParser, args: argparse.Namespace, plan_sha: str
+) -> str:
+    if args.confirm_count != EXPECTED_COUNT or args.confirm_plan_sha256 != plan_sha:
+        parser.error("confirmed plan hash and count must match the generated 309-SKU plan")
+    if (
+        not args.backup
+        or not args.backup_sha256
+        or not args.audit_dir
+        or not args.deployed_git_sha
+        or not args.api_base
+    ):
+        parser.error(
+            "live mode requires backup, backup SHA-256, audit directory, deployed Git SHA, and --api-base"
+        )
+    if not GIT_SHA.fullmatch(args.deployed_git_sha):
+        parser.error("--deployed-git-sha must be a 40-character Git SHA")
+    try:
+        validate_backup(args.backup, args.backup_sha256)
+        api_base = require_production_apply_env(args.api_base)
+    except RuntimeError as exc:
+        parser.error(str(exc))
+    token = os.getenv(ADMIN_TOKEN_ENV, "")
+    if not token:
+        parser.error(f"{ADMIN_TOKEN_ENV} is required; never supply admin passwords")
+    return api_base
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -365,7 +655,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allowlist-sha256", required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--ticket", required=True)
-    parser.add_argument("--apply", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--apply", action="store_true")
+    mode.add_argument("--precheck-only", action="store_true")
     parser.add_argument("--confirm-plan-sha256")
     parser.add_argument("--confirm-count", type=int)
     parser.add_argument("--backup", type=Path)
@@ -384,24 +676,36 @@ def main(argv: list[str] | None = None) -> int:
     )
     plan_sha = digest(plan)
     args.output.mkdir(parents=True, exist_ok=False)
-    (args.output / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"ticket": TICKET, "count": plan["count"], "plan_sha256": plan_sha, "applied": False}))
-    if not args.apply:
+    (args.output / "plan.json").write_text(
+        json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    summary: dict[str, Any] = {
+        "ticket": TICKET,
+        "count": plan["count"],
+        "plan_sha256": plan_sha,
+        "execution_input": EXECUTION_INPUT_LOGICAL_ID,
+        "execution_input_sha256": PINNED_EXECUTION_INPUT_SHA256,
+        "applied": False,
+        "writes_performed": False,
+    }
+    if args.precheck_only:
+        summary["mode"] = "precheck-only"
+    print(json.dumps(summary))
+    if not args.apply and not args.precheck_only:
         return 0
-    if args.confirm_count != EXPECTED_COUNT or args.confirm_plan_sha256 != plan_sha:
-        parser.error("confirmed plan hash and count must match the generated 309-SKU plan")
-    if not args.backup or not args.backup_sha256 or not args.audit_dir or not args.deployed_git_sha or not args.api_base:
-        parser.error("--apply requires backup, backup SHA-256, audit directory, deployed Git SHA, and --api-base")
-    if not GIT_SHA.fullmatch(args.deployed_git_sha):
-        parser.error("--deployed-git-sha must be a 40-character Git SHA")
-    try:
-        validate_backup(args.backup, args.backup_sha256)
-        api_base = require_production_apply_env(args.api_base)
-    except RuntimeError as exc:
-        parser.error(str(exc))
-    token = os.getenv("KARZAR_CATEGORY_B_ADMIN_TOKEN", "")
-    if not token:
-        parser.error("KARZAR_CATEGORY_B_ADMIN_TOKEN is required; never supply admin passwords")
+    api_base = _require_live_gates(parser, args, plan_sha)
+    token = os.getenv(ADMIN_TOKEN_ENV, "")
+    if args.precheck_only:
+        precheck_only(
+            plan,
+            api_base,
+            token,
+            args.backup,
+            args.backup_sha256,
+            args.audit_dir,
+            args.deployed_git_sha,
+        )
+        return 0
     apply(
         plan,
         api_base,
