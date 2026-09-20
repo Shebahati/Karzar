@@ -1,8 +1,10 @@
 """Safety tests for the pinned ZCC Category B draft writer."""
+
 from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -14,13 +16,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import zcc_ir_category_b_draft_import as writer  # noqa: E402
 from zcc_ir_category_b_draft_import import (  # noqa: E402
     ALLOWED_PAYLOAD_KEYS,
+    EXECUTION_INPUT_LOGICAL_ID,
     EXPECTED_COUNT,
     FORBIDDEN_PAYLOAD_KEYS,
     RECONCILIATION_STATE,
+    ReadOnlyUrlTransport,
+    UrlTransport,
     apply,
     build_draft_plan,
+    digest,
     draft_payload,
     main,
+    precheck_only,
+    redact_secrets,
+    run_destination_precheck,
 )
 from zcc_ir_category_b_execution_input import (  # noqa: E402
     DEFAULT_ALLOWLIST,
@@ -43,29 +52,52 @@ class FakeTransport:
         existing=None,
         created=None,
         fail_on=None,
+        brands_raw=None,
+        categories_raw=None,
+        sku_response_shape=None,
     ) -> None:
         self.brands = [{"id": 8, "name": "ZCC.CT"}] if brands is None else brands
         self.categories = [{"id": 33, "is_selectable": True}] if categories is None else categories
+        self.brands_raw = brands_raw
+        self.categories_raw = categories_raw
+        self.sku_response_shape = sku_response_shape
         self.existing = set(existing or [])
         self.created_template = created or {}
         self.fail_on = fail_on
         self.posts = 0
+        self.gets = 0
+        self.sku_lookups = 0
+        self.methods_called: list[str] = []
         self.posted: list[dict] = []
+        self.allow_mutations = True
 
     def get(self, path: str):
+        self.gets += 1
+        self.methods_called.append("GET")
         if path == "/brands/":
+            if self.brands_raw is not None:
+                return self.brands_raw
             return {"data": self.brands}
         if path == "/categories/":
+            if self.categories_raw is not None:
+                return self.categories_raw
             return {"data": self.categories}
         raise AssertionError(path)
 
     def get_product_by_sku(self, sku: str):
+        self.sku_lookups += 1
+        self.methods_called.append("GET")
+        if self.sku_response_shape is not None:
+            return self.sku_response_shape
         if sku in self.existing:
             return {"sku": sku, "id": 1}
         return None
 
     def post_product(self, payload: dict) -> dict:
+        if not self.allow_mutations:
+            raise RuntimeError("read-only transport forbids POST before network dispatch")
         self.posts += 1
+        self.methods_called.append("POST")
         self.posted.append(payload)
         if self.fail_on == payload["sku"]:
             raise RuntimeError("forced create failure")
@@ -121,6 +153,9 @@ def mini_plan(records: list[dict] | None = None) -> dict:
         "entries": entries,
         "source_sha256": PINNED_SOURCE_SHA256,
         "allowlist_sha256": PINNED_ALLOWLIST_SHA256,
+        "execution_input": EXECUTION_INPUT_LOGICAL_ID,
+        "execution_input_sha256": PINNED_EXECUTION_INPUT_SHA256,
+        "writes_performed": False,
     }
 
 
@@ -142,7 +177,10 @@ def test_pinned_execution_input_has_exactly_309_unique_records() -> None:
     assert len(set(skus)) == 309
     assert document["source_sha256"] == PINNED_SOURCE_SHA256
     assert document["allowlist_sha256"] == PINNED_ALLOWLIST_SHA256
-    assert hashlib.sha256(DEFAULT_EXECUTION_INPUT.read_bytes()).hexdigest() == PINNED_EXECUTION_INPUT_SHA256
+    assert (
+        hashlib.sha256(DEFAULT_EXECUTION_INPUT.read_bytes()).hexdigest()
+        == PINNED_EXECUTION_INPUT_SHA256
+    )
 
 
 def test_hash_mismatch_rejection(tmp_path: Path) -> None:
@@ -188,6 +226,70 @@ def test_forbidden_commerce_publication_fields() -> None:
     assert "original_price" not in payload
     assert set(payload) <= ALLOWED_PAYLOAD_KEYS
     assert not (set(payload) & FORBIDDEN_PAYLOAD_KEYS)
+
+
+def test_plan_hash_independent_of_filesystem_root(tmp_path: Path) -> None:
+    hashes = []
+    for name in ("root-a", "root-b"):
+        root = tmp_path / name
+        docs = root / "docs" / "operations" / "pipeline"
+        docs.mkdir(parents=True)
+        allow_dir = root / "docs" / "operations"
+        allow_dir.mkdir(parents=True, exist_ok=True)
+        execution = docs / "zcc-category-b-ticket-344-execution-input.json"
+        allowlist = allow_dir / "ZCC-CATEGORY-B-ALLOWLIST-20260919.md"
+        shutil.copyfile(DEFAULT_EXECUTION_INPUT, execution)
+        shutil.copyfile(DEFAULT_ALLOWLIST, allowlist)
+        plan = build_draft_plan(execution, allowlist, PINNED_SOURCE_SHA256, PINNED_ALLOWLIST_SHA256)
+        assert plan["execution_input"] == EXECUTION_INPUT_LOGICAL_ID
+        assert plan["execution_input_sha256"] == PINNED_EXECUTION_INPUT_SHA256
+        assert not Path(plan["execution_input"]).is_absolute()
+        hashes.append(digest(plan))
+    assert hashes[0] == hashes[1]
+
+
+def test_precheck_only_and_apply_are_mutually_exclusive(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "--execution-input",
+                str(DEFAULT_EXECUTION_INPUT),
+                "--allowlist",
+                str(DEFAULT_ALLOWLIST),
+                "--source-sha256",
+                PINNED_SOURCE_SHA256,
+                "--allowlist-sha256",
+                PINNED_ALLOWLIST_SHA256,
+                "--output",
+                str(tmp_path / "plan-mutex"),
+                "--ticket",
+                "344",
+                "--apply",
+                "--precheck-only",
+            ]
+        )
+
+
+def test_readonly_transport_rejects_non_get_before_network() -> None:
+    transport = ReadOnlyUrlTransport("https://api.karzartools.com/api/v1", "secret-token-value")
+    with pytest.raises(RuntimeError, match="forbids POST"):
+        transport._call("POST", "/products/", {"sku": "ZCC-A"})
+    with pytest.raises(RuntimeError, match="forbids PUT"):
+        transport._call("PUT", "/products/1", {"sku": "ZCC-A"})
+    with pytest.raises(RuntimeError, match="forbids PATCH"):
+        transport._call("PATCH", "/products/1", {"sku": "ZCC-A"})
+    with pytest.raises(RuntimeError, match="forbids DELETE"):
+        transport._call("DELETE", "/products/1")
+    with pytest.raises(RuntimeError, match="forbids POST"):
+        transport.post_product({"sku": "ZCC-A"})
+    assert transport.posts == 0
+    assert transport.methods_called == ["POST", "PUT", "PATCH", "DELETE"]
+    # Method names are recorded for auditability, but network dispatch never occurs.
+
+
+def test_writable_transport_still_allows_post_method_listing() -> None:
+    transport = UrlTransport("https://api.karzartools.com/api/v1", "token")
+    assert transport.allow_mutations is True
 
 
 def test_missing_production_gates(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -327,6 +429,34 @@ def test_invalid_or_missing_brand_or_category_rejection(tmp_path: Path, scope_co
     assert transport.posts == 0
 
 
+def test_response_shape_rejection(tmp_path: Path, scope_count) -> None:
+    scope_count(1)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan()
+    with pytest.raises(RuntimeError, match="unexpected brands response"):
+        precheck_only(
+            plan,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-shape-brands",
+            "a" * 40,
+            FakeTransport(brands_raw=["not-a-dict"]),
+        )
+    with pytest.raises(RuntimeError, match="unexpected categories response"):
+        precheck_only(
+            plan,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-shape-cats",
+            "a" * 40,
+            FakeTransport(categories_raw={"items": []}),
+        )
+
+
 def test_backup_validation_rejection(tmp_path: Path, scope_count) -> None:
     scope_count(1)
     plan = mini_plan()
@@ -389,7 +519,10 @@ def test_partial_failure_audit_contents(tmp_path: Path, scope_count) -> None:
             "a" * 40,
             transport,
         )
-    events = [json.loads(line) for line in (audit_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()]
+    events = [
+        json.loads(line)
+        for line in (audit_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     assert events[0]["event"] == "begin"
     assert any(event["event"] == "create_intent" for event in events)
     assert any(event["event"] == "created" and event["sku"] == "ZCC-A" for event in events)
@@ -419,13 +552,210 @@ def test_successful_response_postcondition_validation(tmp_path: Path, scope_coun
             "a" * 40,
             transport,
         )
-    failure = [json.loads(line) for line in (audit_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()][-1]
+    failure = [
+        json.loads(line)
+        for line in (audit_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()
+    ][-1]
     assert failure["event"] == "terminal_failure"
     assert failure["created_count"] == 0
     ok = FakeTransport()
-    apply(plan, "https://api.karzartools.com/api/v1", "token", backup, backup_sha, tmp_path / "audit-ok", "a" * 40, ok)
+    apply(
+        plan,
+        "https://api.karzartools.com/api/v1",
+        "token",
+        backup,
+        backup_sha,
+        tmp_path / "audit-ok",
+        "a" * 40,
+        ok,
+    )
     assert ok.posts == 1
     assert ok.posted[0]["is_active"] is False
     assert ok.posted[0]["is_available"] is False
     assert ok.posted[0]["base_price"] is None
     assert ok.posted[0]["stock_quantity"] == 0
+
+
+def test_precheck_only_covers_all_skus_with_zero_mutations(tmp_path: Path, scope_count) -> None:
+    scope_count(3)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan([mini_record("ZCC-A"), mini_record("ZCC-B"), mini_record("ZCC-C")])
+    transport = FakeTransport()
+    result = precheck_only(
+        plan,
+        "https://api.karzartools.com/api/v1",
+        "super-secret-admin-token",
+        backup,
+        backup_sha,
+        tmp_path / "audit-precheck-ok",
+        "a" * 40,
+        transport,
+    )
+    assert result.sku_checked == 3
+    assert transport.sku_lookups == 3
+    assert transport.posts == 0
+    assert "POST" not in transport.methods_called
+    assert all(method == "GET" for method in transport.methods_called)
+    events = [
+        json.loads(line)
+        for line in (tmp_path / "audit-precheck-ok" / "precheck-audit.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert events[0]["writes_performed"] is False
+    assert events[-1]["event"] == "precheck_complete"
+    assert events[-1]["writes_performed"] is False
+    assert events[-1]["sku_checked"] == 3
+    assert events[-1]["skus_absent"] == 3
+    blob = (tmp_path / "audit-precheck-ok" / "precheck-audit.jsonl").read_text(encoding="utf-8")
+    assert "super-secret-admin-token" not in blob
+    assert "Authorization" not in blob
+
+
+def test_precheck_only_full_309_sku_lookups(tmp_path: Path) -> None:
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = build_draft_plan(
+        DEFAULT_EXECUTION_INPUT,
+        DEFAULT_ALLOWLIST,
+        PINNED_SOURCE_SHA256,
+        PINNED_ALLOWLIST_SHA256,
+    )
+    category_ids = sorted({entry["category_id"] for entry in plan["entries"]})
+    brand_names = sorted({entry["brand"] for entry in plan["entries"]})
+    transport = FakeTransport(
+        brands=[{"id": index + 1, "name": name} for index, name in enumerate(brand_names)],
+        categories=[{"id": category_id, "is_selectable": True} for category_id in category_ids],
+    )
+    result = precheck_only(
+        plan,
+        "https://api.karzartools.com/api/v1",
+        "token",
+        backup,
+        backup_sha,
+        tmp_path / "audit-precheck-309",
+        "b" * 40,
+        transport,
+    )
+    assert plan["count"] == 309
+    assert result.sku_checked == 309
+    assert transport.sku_lookups == 309
+    assert transport.posts == 0
+    assert "POST" not in transport.methods_called
+    assert result.brands_resolved == len(brand_names)
+    assert result.categories_selectable_matched == len(category_ids)
+
+
+def test_precheck_only_failure_audit_writes_performed_false(tmp_path: Path, scope_count) -> None:
+    scope_count(1)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan()
+    transport = FakeTransport(existing={"ZCC-A"})
+    with pytest.raises(RuntimeError, match="already exists"):
+        precheck_only(
+            plan,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-precheck-fail",
+            "a" * 40,
+            transport,
+        )
+    events = [
+        json.loads(line)
+        for line in (tmp_path / "audit-precheck-fail" / "precheck-audit.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert events[-1]["event"] == "precheck_failed"
+    assert events[-1]["writes_performed"] is False
+    assert transport.posts == 0
+
+
+def test_precheck_rejects_bad_deployed_sha_and_plan_confirm(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+    monkeypatch.setenv("KARZAR_ALLOW_PRODUCTION_WRITE", "1")
+    monkeypatch.setenv("KARZAR_INGESTION_CATEGORY", "B")
+    monkeypatch.setenv("KARZAR_CATEGORY_B_ADMIN_TOKEN", "token")
+    backup, backup_sha = valid_backup(tmp_path)
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "--execution-input",
+                str(DEFAULT_EXECUTION_INPUT),
+                "--allowlist",
+                str(DEFAULT_ALLOWLIST),
+                "--source-sha256",
+                PINNED_SOURCE_SHA256,
+                "--allowlist-sha256",
+                PINNED_ALLOWLIST_SHA256,
+                "--output",
+                str(tmp_path / "plan-bad-sha"),
+                "--ticket",
+                "344",
+                "--precheck-only",
+                "--confirm-plan-sha256",
+                "0" * 64,
+                "--confirm-count",
+                "309",
+                "--backup",
+                str(backup),
+                "--backup-sha256",
+                backup_sha,
+                "--audit-dir",
+                str(tmp_path / "audit-bad-confirm"),
+                "--deployed-git-sha",
+                "not-a-git-sha",
+                "--api-base",
+                "https://api.karzartools.com/api/v1",
+            ]
+        )
+
+
+def test_secret_redaction_helper() -> None:
+    text = "Authorization: Bearer super-secret-admin-token failed"
+    assert "super-secret-admin-token" not in redact_secrets(text)
+    assert "[REDACTED]" in redact_secrets(text)
+
+
+def test_apply_consumes_shared_precheck_before_any_post(tmp_path: Path, scope_count) -> None:
+    scope_count(2)
+    backup, backup_sha = valid_backup(tmp_path)
+    plan = mini_plan([mini_record("ZCC-A"), mini_record("ZCC-B")])
+    transport = FakeTransport()
+    posts_during_precheck = []
+
+    original = writer.run_destination_precheck
+
+    def wrapped(plan_arg, transport_arg):
+        result = original(plan_arg, transport_arg)
+        posts_during_precheck.append(transport_arg.posts)
+        return result
+
+    writer.run_destination_precheck = wrapped  # type: ignore[assignment]
+    try:
+        apply(
+            plan,
+            "https://api.karzartools.com/api/v1",
+            "token",
+            backup,
+            backup_sha,
+            tmp_path / "audit-shared-precheck",
+            "a" * 40,
+            transport,
+        )
+    finally:
+        writer.run_destination_precheck = original  # type: ignore[assignment]
+    assert posts_during_precheck == [0]
+    assert transport.posts == 2
+    assert transport.sku_lookups == 2
+
+
+def test_run_destination_precheck_direct_counts(scope_count) -> None:
+    scope_count(2)
+    plan = mini_plan([mini_record("ZCC-A"), mini_record("ZCC-B")])
+    transport = FakeTransport()
+    result = run_destination_precheck(plan, transport)
+    assert result.sku_checked == 2
+    assert transport.posts == 0
+    assert transport.sku_lookups == 2
