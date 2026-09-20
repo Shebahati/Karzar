@@ -275,19 +275,46 @@ def data_list(value: object, label: str) -> list[dict]:
     return values
 
 
+def brand_match_keys(label: str) -> frozenset[str]:
+    """Conservative destination brand keys: full trimmed label + ``|`` segments.
+
+    Keys are Unicode-casefolded after trim. No punctuation stripping, fuzzy
+    matching, transliteration, substring matching, or SKU-prefix guessing.
+    """
+    text = str(label or "").strip()
+    if not text:
+        return frozenset()
+    keys = {text.casefold()}
+    for segment in text.split("|"):
+        part = segment.strip()
+        if part:
+            keys.add(part.casefold())
+    return frozenset(keys)
+
+
 def unique_brand_ids(brands: list[dict], required: set[str]) -> dict[str, int]:
-    grouped: dict[str, list[int]] = {}
+    """Resolve required brand labels to destination IDs via conservative keys.
+
+    A required label matches when its casefolded trimmed form equals any
+    destination key from the full bilingual label or an exact ``|`` segment.
+    Zero matches → missing; multiple distinct destination IDs → ambiguous.
+    """
+    key_to_ids: dict[str, set[int]] = {}
     for item in brands:
         if not isinstance(item, dict):
             raise RuntimeError("unexpected brands response shape")
-        name = str(item.get("name") or "").strip()
+        name = str(item.get("name") or "")
         brand_id = item.get("id")
-        if not name or not isinstance(brand_id, int):
+        if not isinstance(brand_id, int):
             continue
-        grouped.setdefault(name, []).append(brand_id)
-    resolved = {}
+        for key in brand_match_keys(name):
+            key_to_ids.setdefault(key, set()).add(brand_id)
+    resolved: dict[str, int] = {}
     for name in sorted(required):
-        ids = grouped.get(name) or []
+        key = str(name or "").strip().casefold()
+        if not key:
+            raise RuntimeError(f"approved brand missing on destination: {name}")
+        ids = sorted(key_to_ids.get(key) or [])
         if len(ids) == 0:
             raise RuntimeError(f"approved brand missing on destination: {name}")
         if len(ids) != 1:
