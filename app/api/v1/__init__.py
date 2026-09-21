@@ -11,6 +11,7 @@ from app.api.endpoints import (
     cms,
     hesabfa,
     knowledge,
+    knowledge_facts,
     order,
     payment,
     product,
@@ -37,6 +38,11 @@ api_router.include_router(cms.router, prefix="/cms", tags=["CMS"])
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge"])
 api_router.include_router(
     product_type_definitions.router,
+    prefix="/knowledge",
+    tags=["Knowledge"],
+)
+api_router.include_router(
+    knowledge_facts.router,
     prefix="/knowledge",
     tags=["Knowledge"],
 )

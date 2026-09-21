@@ -919,9 +919,11 @@ Table `knowledge_units`: dimension, canonical code, aliases, conversion table ve
 
 | Entity | Norm |
 |--------|------|
-| `knowledge_facts` | `fact_id`, `entity_id=products.id`, `definition_id`, `value` JSONB, `unit`, `qualifier`, `status` (`asserted` \| `published` \| `rejected` \| `deprecated`), provenance |
+| `knowledge_facts` | `fact_id`, `entity_id=products.id`, `definition_id`, `value` JSONB, `unit`, `qualifier`, `status` (`asserted` \| `published` \| `disputed` \| `deprecated`), provenance |
 | `knowledge_fact_revisions` | Append-only history on value/status changes |
 | Publish | Metrology-critical / compliance Facts SHOULD require Evidence (Bible P4 · property SPEC §9) |
+
+**Vocabulary alignment (Accepted Canon):** Fact statuses are **`asserted` \| `published` \| `disputed` \| `deprecated`** per Accepted Property Dictionary / Domain / PKE specs. Edges separately use **`rejected`**. **Fact `disputed` ≠ Edge `rejected`.** This Proposed Master KB contract follows Accepted Fact vocabulary; it does not change Edge lifecycle.
 
 ### 10.5 Evidence artifacts & links
 
@@ -1222,7 +1224,7 @@ This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **K
 | **Current remediation gate** | **Prompt 01** — raw `/edges` and raw neighborhood admin-only (this Gate 0+1) |
 | Next remediation waves after Prompt 01 | Prompt **02** (publication) → **03** (public PKE DTO) → … per §12 |
 | PT-W2 (Definition + Attribute Membership) | **Future** — required before Prompts 12–13 |
-| Facts / Evidence / taxonomy runtime (Prompts 12–13 / A4–A5) | **Gated** until PT-W2 ownership is implemented and approved; Facts status vocabulary (`rejected` vs Accepted Property Dictionary `disputed`) remains an open owner/Board decision — not resolved here |
+| Facts / Evidence / taxonomy runtime (Prompts 12–13 / A4–A5) | **Gated** until PT-W2 ownership is implemented and approved; Fact status vocabulary is **`asserted` \| `published` \| `disputed` \| `deprecated`** (Accepted Property/PKE/Domain) — not Edge `rejected` |
 
 ---
 

@@ -249,7 +249,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
 
   - id: STORAGE-HOUSEKEEPING
     path: docs/operations/STORAGE_HOUSEKEEPING.md

@@ -2,7 +2,8 @@
 
 KB-001: knowledge_edges (Board Day-2 freeze types).
 Prompt 11A: Property Dictionary units / definitions / aliases.
-No Facts dual-write in this module.
+Prompt 12 / A4: knowledge_facts + knowledge_fact_revisions.
+No JSONB dual-write in this module.
 """
 
 from __future__ import annotations
@@ -234,3 +235,114 @@ class KnowledgePropertyAlias(Base):
     source_kind: Mapped[str] = mapped_column(String(32), nullable=False, default="seed_inline")
     language: Mapped[str | None] = mapped_column(String(16))
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+
+
+# --- Prompt 12 / Master KB A4 Facts (Accepted: asserted|published|disputed|deprecated) ---
+
+FACT_STATUSES = ("asserted", "published", "disputed", "deprecated")
+PUBLIC_FACT_STATUSES = frozenset({"published"})
+
+
+class KnowledgeFact(Base):
+    """Current Fact value for one Product × Property (ADR-013 / ADR-014).
+
+    entity_id = products.id (PKE join). definition_id = Property Dictionary stable id.
+    product_type_definition_id pins the Definition used for validation/publication.
+    """
+
+    __tablename__ = "knowledge_facts"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('asserted','published','disputed','deprecated')",
+            name="ck_knowledge_facts_status",
+        ),
+        CheckConstraint(
+            "confidence IS NULL OR (confidence >= 0 AND confidence <= 1)",
+            name="ck_knowledge_facts_confidence",
+        ),
+        UniqueConstraint(
+            "entity_id",
+            "definition_id",
+            name="uq_knowledge_facts_entity_definition",
+        ),
+        Index("ix_knowledge_facts_entity_id", "entity_id"),
+        Index("ix_knowledge_facts_definition_id", "definition_id"),
+        Index("ix_knowledge_facts_status", "status"),
+        Index("ix_knowledge_facts_entity_status", "entity_id", "status"),
+        Index("ix_knowledge_facts_definition_status", "definition_id", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    entity_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("products.id"),
+        nullable=False,
+    )
+    definition_id: Mapped[str] = mapped_column(
+        String(64),
+        ForeignKey("knowledge_property_definitions.definition_id"),
+        nullable=False,
+    )
+    product_type_definition_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("product_type_definitions.id"),
+        nullable=True,
+    )
+    value: Mapped[Any] = mapped_column(JSONB, nullable=False)
+    unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    qualifier: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="asserted",
+        server_default="asserted",
+    )
+    # Provenance identity/reference for Prompt 12 — not an EvidenceArtifact FK.
+    source_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    recorder: Mapped[str] = mapped_column(String(128), nullable=False)
+
+
+class KnowledgeFactRevision(Base):
+    """Append-only historical snapshot of a Fact after create/mutation/transition."""
+
+    __tablename__ = "knowledge_fact_revisions"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('asserted','published','disputed','deprecated')",
+            name="ck_knowledge_fact_revisions_status",
+        ),
+        CheckConstraint(
+            "revision_number >= 1",
+            name="ck_knowledge_fact_revisions_revision_positive",
+        ),
+        UniqueConstraint(
+            "fact_id",
+            "revision_number",
+            name="uq_knowledge_fact_revisions_fact_revision",
+        ),
+        Index("ix_knowledge_fact_revisions_fact_id", "fact_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    fact_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_facts.id"),
+        nullable=False,
+    )
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    value: Mapped[Any] = mapped_column(JSONB, nullable=False)
+    unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    qualifier: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+    product_type_definition_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("product_type_definitions.id"),
+        nullable=True,
+    )
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    recorder: Mapped[str] = mapped_column(String(128), nullable=False)
+    change_reason: Mapped[str | None] = mapped_column(Text, nullable=True)

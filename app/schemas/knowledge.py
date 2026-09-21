@@ -237,3 +237,78 @@ class ProductTypeDefinitionActivateRequest(BaseModel):
     """Activation payload. Reviewer identity comes from auth, not this body."""
 
     change_reason: str = Field(min_length=1, max_length=4000)
+
+
+# --- Prompt 12 Facts + Revisions (admin) ---
+
+FactStatus = Literal["asserted", "published", "disputed", "deprecated"]
+
+
+class KnowledgeFactResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entity_id: int
+    definition_id: str
+    product_type_definition_id: int | None = None
+    value: Any
+    unit: str | None = None
+    qualifier: str | None = None
+    status: FactStatus
+    source_id: str
+    confidence: Decimal | None = None
+    recorded_at: datetime
+    recorder: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class KnowledgeFactListResponse(BaseModel):
+    items: list[KnowledgeFactResponse]
+    total: int
+
+
+class KnowledgeFactCreateRequest(BaseModel):
+    definition_id: str = Field(min_length=1, max_length=64)
+    value: Any
+    unit: str | None = Field(default=None, max_length=32)
+    qualifier: str | None = Field(default=None, max_length=64)
+    source_id: str = Field(min_length=1, max_length=255)
+    confidence: Decimal | None = Field(default=None, ge=0, le=1)
+
+
+class KnowledgeFactUpdateRequest(BaseModel):
+    value: Any | None = None
+    unit: str | None = Field(default=None, max_length=32)
+    qualifier: str | None = Field(default=None, max_length=64)
+    source_id: str | None = Field(default=None, min_length=1, max_length=255)
+    confidence: Decimal | None = Field(default=None, ge=0, le=1)
+    change_reason: str | None = Field(default=None, max_length=4000)
+
+
+class KnowledgeFactLifecycleRequest(BaseModel):
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class KnowledgeFactRevisionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    fact_id: int
+    revision_number: int
+    value: Any
+    unit: str | None = None
+    qualifier: str | None = None
+    status: FactStatus
+    source_id: str
+    confidence: Decimal | None = None
+    product_type_definition_id: int | None = None
+    recorded_at: datetime
+    recorder: str
+    change_reason: str | None = None
+    created_at: datetime
+
+
+class KnowledgeFactRevisionListResponse(BaseModel):
+    items: list[KnowledgeFactRevisionResponse]
+    total: int
