@@ -86,3 +86,40 @@ def test_media_plane_mismatch_fails():
             postgres_db="karzar_catalog_staging",
             media_plane="live",
         )
+
+
+def test_sentinel_mismatch_fails_for_catalog_staging():
+    from app.core.data_plane import assert_db_sentinel_matches_plane
+
+    with pytest.raises(ValueError, match="marker mismatch"):
+        assert_db_sentinel_matches_plane(
+            declared_plane="catalog_staging",
+            sentinel_plane="live",
+        )
+
+
+def test_sentinel_match_allows_catalog_staging():
+    from app.core.data_plane import assert_db_sentinel_matches_plane
+
+    assert_db_sentinel_matches_plane(
+        declared_plane="catalog_staging",
+        sentinel_plane="catalog_staging",
+    )
+
+
+def test_live_declared_skips_staging_sentinel_requirement():
+    from app.core.data_plane import assert_db_sentinel_matches_plane
+
+    assert_db_sentinel_matches_plane(declared_plane="live", sentinel_plane="live")
+    assert_db_sentinel_matches_plane(declared_plane="live", sentinel_plane=None)
+
+
+def test_production_mutate_without_authorization_fails():
+    identity = validate_data_plane(
+        app_env="staging",
+        data_plane_explicit="live",
+        postgres_db="karzar_staging",
+        media_plane="live",
+    )
+    with pytest.raises(ValueError, match="Catalog mutation refused"):
+        assert_catalog_mutate_allowed(identity, allow_live_catalog_writes=False)

@@ -1,7 +1,28 @@
 # Catalog staging isolation
 
-Status: **repository foundation** (not deployed).  
+Status: **isolated Compose project + fail-closed data-plane guards** (provision on a non-live host / additive stack only).  
 Related: `CR-011` (current live topology), ADR-012 (ingestion boundary), `docs/OPERATIONS.md`.
+
+## CRITICAL NAMING WARNING (CR-011)
+
+The existing **CR-011 live** environment historically uses:
+
+```text
+APP_ENV=staging
+database=karzar_staging
+container=lathe_postgres
+volume=karzar_postgres_data (Compose) / karzar_karzar_uploads
+public API=api.karzartools.com
+```
+
+**These names DO NOT make it a staging environment.**
+
+```text
+ENVIRONMENT_ROLE = PRODUCTION
+LEGACY_LABEL = staging
+```
+
+Treat CR-011 live as Production for all catalog safety decisions. Never use it as a rehearsal target for ZCC APPLY.
 
 ## CURRENT UNSAFE STATE
 
@@ -206,3 +227,43 @@ Do **not** run these against the live public VPS without Owner deployment author
 - Unset `KARZAR_DATA_PLANE` with `APP_ENV=staging` still infers `live` (CR-011 compatible).
 - No production secrets in git; examples use placeholders only.
 - Storefront code paths unchanged; catalog data untouched by this PR.
+
+## Environment identity sentinel
+
+Alembic revision `l5m6n7o8p9q0` adds table `environment_identity` (singleton row `id=1`).
+
+| Plane value | Meaning |
+| ----------- | ------- |
+| `live` | Default after migration / CR-011 live |
+| `catalog_staging` | Set only by `scripts/bootstrap_catalog_staging_identity.sh` on the isolated DB |
+| `development` | Local optional |
+
+Catalog writers that declare `KARZAR_DATA_PLANE=catalog_staging` must also see `environment_identity.plane=catalog_staging` (`assert_db_sentinel_matches_plane`).
+
+## Catalog-only seed (no PII)
+
+Allowlist tables:
+
+```text
+brands
+categories
+product_types
+products
+product_images
+```
+
+Excluded: users, orders, payments, OTP/refresh tokens, shipments, carts, admin audit, Hesabfa mappings, etc.
+
+```bash
+# 1) read-only export from live (hashes under /tmp — do not commit)
+bash scripts/catalog_staging_export_live_catalog_readonly.sh /tmp/catalog-seed-$TS
+
+# 2) restore into isolated catalog-staging only
+export KARZAR_DATA_PLANE=catalog_staging
+# POSTGRES_* must target 127.0.0.1:5436 / karzar_catalog_staging
+bash scripts/catalog_staging_seed_restore.sh /tmp/catalog-seed-$TS/catalog_only.dump
+```
+
+## Catalog rehearsal prohibition
+
+Do **not** run ZCC Production APPLY against CR-011 live until Owner authorization **and** isolated staging rehearsal succeeds. The Production create preflight manifest is plan-only.

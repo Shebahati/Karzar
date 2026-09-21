@@ -59,6 +59,9 @@ services:
       PAYMENT_PROVIDER: mock
       HESABFA_ENABLED: "false"
       POSTEX_ENABLED: "false"
+      # No remote mutation workers / sweeps in catalog rehearsal.
+      DISABLE_BACKGROUND_WORKERS: "1"
+      SMS_PROVIDER: console
     volumes:
       - catalog_staging_uploads:/app/data/uploads
       - catalog_staging_logs:/app/logs

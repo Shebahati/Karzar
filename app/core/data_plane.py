@@ -213,3 +213,28 @@ def assert_catalog_mutate_allowed(
         f"POSTGRES_DB={CATALOG_STAGING_DB_NAME_DEFAULT}) "
         "or pass an explicit live-write confirmation after ADR-012 Category B."
     )
+
+
+def assert_db_sentinel_matches_plane(
+    *,
+    declared_plane: str,
+    sentinel_plane: str | None,
+) -> None:
+    """Fail closed when ``environment_identity.plane`` disagrees with declaration.
+
+    ``sentinel_plane=None`` means the marker table/row is absent (pre-migration).
+    Catalog-staging writes require an explicit matching sentinel.
+    """
+    declared = normalize_data_plane(declared_plane)
+    if declared is None:
+        raise ValueError("declared data plane is required for sentinel validation")
+    if declared != "catalog_staging":
+        # Live/development do not require the staging sentinel.
+        return
+    sentinel = normalize_data_plane(sentinel_plane)
+    if sentinel != "catalog_staging":
+        raise ValueError(
+            "KARZAR_DATA_PLANE=catalog_staging but environment_identity.plane="
+            f"{sentinel_plane!r}. Refusing write: declared staging / actual DB "
+            "marker mismatch (CR-011 live mislabel class)."
+        )
