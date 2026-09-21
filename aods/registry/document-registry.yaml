@@ -243,6 +243,14 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: true
 
+  - id: CATALOG-STAGING-ISOLATION
+    path: docs/CATALOG_STAGING_ISOLATION.md
+    class: POLICY
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+
   - id: STORAGE-HOUSEKEEPING
     path: docs/operations/STORAGE_HOUSEKEEPING.md
     class: REFERENCE

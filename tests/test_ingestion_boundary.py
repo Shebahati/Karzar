@@ -27,6 +27,10 @@ def ib(monkeypatch):
     monkeypatch.delenv("KARZAR_INGESTION_CATEGORY", raising=False)
     monkeypatch.delenv("KARZAR_API_BASE", raising=False)
     monkeypatch.delenv("PUBLIC_ASSET_BASE", raising=False)
+    monkeypatch.delenv("KARZAR_DATA_PLANE", raising=False)
+    monkeypatch.delenv("KARZAR_MEDIA_PLANE", raising=False)
+    monkeypatch.delenv("KARZAR_REQUIRE_DATA_PLANE", raising=False)
+    monkeypatch.delenv("KARZAR_CATALOG_STAGING_DB_NAME", raising=False)
     return _load()
 
 
@@ -60,3 +64,32 @@ def test_production_allow_without_category_fails(ib, monkeypatch):
 def test_is_production_base(ib):
     assert ib.is_production_base("https://api.karzartools.com/api/v1")
     assert not ib.is_production_base("http://127.0.0.1:8000/api/v1")
+
+
+def test_catalog_staging_plane_rejects_production_api(ib, monkeypatch):
+    monkeypatch.setenv("KARZAR_DATA_PLANE", "catalog_staging")
+    monkeypatch.setenv("POSTGRES_DB", "karzar_catalog_staging")
+    monkeypatch.setenv("KARZAR_MEDIA_PLANE", "catalog_staging")
+    monkeypatch.setenv("KARZAR_API_BASE", "https://api.karzartools.com/api/v1")
+    monkeypatch.setenv("KARZAR_ALLOW_PRODUCTION_WRITE", "1")
+    monkeypatch.setenv("KARZAR_INGESTION_CATEGORY", "B")
+    with pytest.raises(SystemExit) as exc:
+        ib.resolve_api_base()
+    assert exc.value.code == 2
+
+
+def test_catalog_staging_plane_allows_isolated_api(ib, monkeypatch):
+    monkeypatch.setenv("KARZAR_DATA_PLANE", "catalog_staging")
+    monkeypatch.setenv("POSTGRES_DB", "karzar_catalog_staging")
+    monkeypatch.setenv("KARZAR_MEDIA_PLANE", "catalog_staging")
+    monkeypatch.setenv("KARZAR_API_BASE", "http://127.0.0.1:8010/api/v1")
+    assert ib.resolve_api_base() == "http://127.0.0.1:8010/api/v1"
+
+
+def test_catalog_staging_plane_with_live_db_fails(ib, monkeypatch):
+    monkeypatch.setenv("KARZAR_DATA_PLANE", "catalog_staging")
+    monkeypatch.setenv("POSTGRES_DB", "karzar_staging")
+    monkeypatch.setenv("KARZAR_MEDIA_PLANE", "catalog_staging")
+    with pytest.raises(SystemExit) as exc:
+        ib.resolve_api_base()
+    assert exc.value.code == 2

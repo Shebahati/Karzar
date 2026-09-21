@@ -1,0 +1,130 @@
+# Isolated catalog-staging stack (NOT the live VPS "staging" compose).
+#
+# Live public traffic continues to use:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml
+# which shares postgres_data / karzar_uploads (CR-011 — not isolated).
+#
+# This file is a SEPARATE Compose project with its own network, containers,
+# Postgres volume, and uploads volume. It must never reuse live volume names.
+#
+# Usage (local or dedicated host — Owner-authorized only; do NOT run on live
+# without an approved deployment plan):
+#   cp .env.catalog-staging.example .env.catalog-staging   # fill secrets
+#   docker compose -f docker-compose.catalog-staging.yml --env-file .env.catalog-staging up -d --build
+#
+# Verify isolation before any catalog APPLY:
+#   python scripts/print_catalog_env_identity.py
+#   python scripts/assert_catalog_data_plane.py --expect catalog_staging
+#
+# See docs/CATALOG_STAGING_ISOLATION.md.
+
+name: karzar_catalog_staging
+
+services:
+  app:
+    build:
+      context: .
+    # No hard-coded container_name: Compose project `karzar_catalog_staging`
+    # scopes service names (avoids orphan global-name conflicts on re-up).
+    ports:
+      - "127.0.0.1:${CATALOG_STAGING_API_PORT:-8010}:8000"
+    env_file:
+      - path: .env.catalog-staging
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      APP_ENV: staging
+      KARZAR_DATA_PLANE: catalog_staging
+      KARZAR_MEDIA_PLANE: catalog_staging
+      KARZAR_CATALOG_STAGING_DB_NAME: ${KARZAR_CATALOG_STAGING_DB_NAME:-karzar_catalog_staging}
+      DEBUG: "false"
+      ENABLE_API_DOCS: "true"
+      OTP_DEV_ECHO: "false"
+      APP_SERVER: gunicorn
+      ENABLE_METRICS: "true"
+      # Isolated rehearsal — do not assume public TLS termination.
+      ENFORCE_HTTPS: "${CATALOG_STAGING_ENFORCE_HTTPS:-false}"
+      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-1}"
+      PURCHASE_CHECKOUT_ENABLED: "false"
+      PAYMENT_PROVIDER: mock
+      HESABFA_ENABLED: "false"
+      POSTEX_ENABLED: "false"
+      # No remote mutation workers / sweeps in catalog rehearsal.
+      DISABLE_BACKGROUND_WORKERS: "1"
+      SMS_PROVIDER: console
+    volumes:
+      - catalog_staging_uploads:/app/data/uploads
+      - catalog_staging_logs:/app/logs
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "probe_host=\"$${API_PROBE_HOST:-$${TRUSTED_HOSTS%%,*}}\"; curl -fsS -H \"Host: $${probe_host:-localhost}\" http://127.0.0.1:8000/ready",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - karzar_catalog_staging
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "127.0.0.1:${CATALOG_STAGING_DB_PORT:-5436}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-karzar_catalog_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.catalog-staging}
+      POSTGRES_DB: ${POSTGRES_DB:-karzar_catalog_staging}
+    volumes:
+      - catalog_staging_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-karzar_catalog_staging} -d ${POSTGRES_DB:-karzar_catalog_staging}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - karzar_catalog_staging
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:${CATALOG_STAGING_REDIS_PORT:-6380}:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - karzar_catalog_staging
+
+networks:
+  karzar_catalog_staging:
+    driver: bridge
+    name: karzar_catalog_staging_net
+
+volumes:
+  catalog_staging_postgres_data:
+    name: karzar_catalog_staging_postgres_data
+  catalog_staging_uploads:
+    name: karzar_catalog_staging_uploads
+  catalog_staging_logs:
+    name: karzar_catalog_staging_logs

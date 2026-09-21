@@ -7,12 +7,13 @@ Runbook for environments, backup, deploy, and incidents. Commerce/payment policy
 | Env | `APP_ENV` | Compose | Notes |
 |-----|-----------|---------|-------|
 | Development | `development` | `docker-compose.yml` + `docker-compose.dev.yml` | Bind-mount; OTP echo OK when `DEBUG=true` |
-| Staging | `staging` | `docker-compose.yml` + `docker-compose.staging.yml` | No bind-mount; `DEBUG=false`; HTTPS |
+| Staging (label) | `staging` | `docker-compose.yml` + `docker-compose.staging.yml` | No bind-mount; `DEBUG=false`; HTTPS |
 | Production | `production` | `docker-compose.yml` + secrets | Redis required; **mock payment forbidden** |
+| Catalog staging (isolated) | `staging` + `KARZAR_DATA_PLANE=catalog_staging` | `docker-compose.catalog-staging.yml` | Separate DB + uploads; see [`CATALOG_STAGING_ISOLATION.md`](CATALOG_STAGING_ISOLATION.md) |
 
-Templates: `.env.example`, `.env.staging.example`. Never commit real secrets.
+Templates: `.env.example`, `.env.staging.example`, `.env.catalog-staging.example`. Never commit real secrets.
 
-**Topology:** staging deploy targets the **same VPS** as public traffic (`karzartools.com`). There is no isolated staging host (`CR-011`).
+**Topology:** the historic “staging” deploy targets the **same VPS** as public traffic (`karzartools.com`). That stack is the **live** data plane (`CR-011`): `APP_ENV=staging` is a process label; default `KARZAR_DATA_PLANE` is `live`. It is **not** safe for catalog APPLY rehearsal. Use the isolated catalog-staging Compose project for that work.
 
 ## Networking
 
