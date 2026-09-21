@@ -6011,8 +6011,13 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "List knowledge edges (KB-001 freeze types)",
+        "summary": "List knowledge edges (KB-001 freeze types, super-admin)",
         "operationId": "list_knowledge_edges_api_v1_knowledge_edges_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "edge_type",
@@ -6134,6 +6139,22 @@
               "default": 100,
               "title": "Limit"
             }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
           }
         ],
         "responses": {
@@ -6165,8 +6186,14 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Depth-1 knowledge neighborhood for a product",
+        "summary": "Depth-1 knowledge neighborhood for a product (super-admin; raw edge DTO)",
+        "description": "Admin-only until Prompt 03 introduces a public PKE read-model DTO.",
         "operationId": "product_neighborhood_api_v1_knowledge_products__product_id__neighborhood_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "product_id",
@@ -6175,6 +6202,22 @@
             "schema": {
               "type": "integer",
               "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
             }
           }
         ],

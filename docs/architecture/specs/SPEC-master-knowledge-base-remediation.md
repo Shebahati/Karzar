@@ -1,6 +1,6 @@
 ---
 id: SPEC-master-knowledge-base-remediation
-version: 0.4.1
+version: 0.4.2
 status: Proposed
 date: 2026-08-02
 governing_parents:
@@ -29,7 +29,7 @@ canonical_authority: not_accepted_canon
 
 **Status:** **Proposed** (document lifecycle) — **owner implementation approval recorded** for Prompts 01–14, **subject to the Product Type gate in §12.1**
 **Document type:** Implementation contract (Plane B)
-**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification remains **PROPOSED**. Path is present on `main` as of PR #192 (`on_main=true`); v0.4.1 Product Type sequencing is on `main` via PR #193. Owner implementation approval authorizes Prompts 01–14 execution **except** where §12.1 gates apply — it does **not** upgrade Canon.
+**Authority:** This document does **not** claim Architecture Board acceptance and is **not** Accepted Canon. AODS registry classification is **PROPOSED** / `proposed` (`SPEC-MASTER-KNOWLEDGE-BASE-REMEDIATION`). Path is present on `main` as of PR #192 (`on_main=true`); v0.4.1 Product Type sequencing is on `main` via PR #193; v0.4.2 corrects registry drift and records Prompt 01 execution state. Owner implementation approval authorizes Prompts 01–14 execution **except** where §12.1 gates apply — it does **not** upgrade Canon.
 **Non-goals of this SPEC file:** Code · Alembic · tests · frontend · editing Accepted ADRs · dual-write authorization · graph database introduction · inventing a parallel public product ID · claiming Board acceptance of Product Type.
 
 ---
@@ -1202,16 +1202,27 @@ This gate does **not** renumber Prompts 01–14. Insertion prompts/waves are **K
 | Field | Value |
 |-------|-------|
 | Document lifecycle status | **Proposed** |
-| Version | **0.4.1** |
+| Version | **0.4.2** |
 | Owner implementation approval | **Approved for Prompts 01–14** (2026-08-02) — subject to Product Type gates §12.1 — approver: Mohammad Shebahati |
 | Product Type architecture amendment | **KB-PT-00** (v0.4.0) + **KB-PT-00A** (v0.4.1 final owner-review corrections) |
 | Architecture Board acceptance | **Not granted** |
 | Canonical authority | **Not Accepted Canon** — MUST NOT be treated as binding Canon until a Board minute + Canon Lock row |
-| AODS registry class/status | **PROPOSED** / `proposed` (`SPEC-MASTER-KB-REMEDIATION`) |
-| Registry `on_main` | **true** (path on `main` via PR #192; v0.4.1 content on `main` via PR #193) |
-| Next gate | **KB-PT-01** (PT-W1) after this Board Accept merges → Prompt 11A → PT-W2 → Prompts 12–13 |
+| AODS registry class/status | **PROPOSED** / `proposed` (`SPEC-MASTER-KNOWLEDGE-BASE-REMEDIATION`) |
+| Registry `on_main` | **true** (path on `main` via PR #192; v0.4.1 content on `main` via PR #193; registry class corrected to PROPOSED in Gate 0+1) |
 | Supersedes | None for Canon. Supersedes SPEC v0.4.0 contradictory sequencing via KB-PT-00A; preserves 00/00A/00B/00C and KB-PT-00 history. |
-| KB-PT-00B | Board minute **Accepted** Option A (`AB-ADR-015-2026-08-02`); **KB-PT-01 may start** after merge |
+| KB-PT-00B | Board minute **Accepted** Option A (`AB-ADR-015-2026-08-02`); KB-PT-01 / PT-W1 was unblocked and has since merged |
+
+### 14.1 Execution state (factual — not a Canon upgrade)
+
+| Area | State on `main` (as of Gate 0+1) |
+|------|----------------------------------|
+| KB-001 edge overlay (3 freeze types + projector + sync) | **Implemented** |
+| PT-W1 (`product_types` + nullable `products.product_type_id`) | **Implemented** (PR #195) |
+| Prompt 11A Property Dictionary (units / definitions / aliases) | **Implemented** (PR #197) |
+| **Current remediation gate** | **Prompt 01** — raw `/edges` and raw neighborhood admin-only (this Gate 0+1) |
+| Next remediation waves after Prompt 01 | Prompt **02** (publication) → **03** (public PKE DTO) → … per §12 |
+| PT-W2 (Definition + Attribute Membership) | **Future** — required before Prompts 12–13 |
+| Facts / Evidence / taxonomy runtime (Prompts 12–13 / A4–A5) | **Gated** until PT-W2 ownership is implemented and approved; Facts status vocabulary (`rejected` vs Accepted Property Dictionary `disputed`) remains an open owner/Board decision — not resolved here |
 
 ---
 
