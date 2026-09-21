@@ -11,7 +11,7 @@ No Facts, Evidence, assignment, readout persistence, or JSONB dual-write.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, NoReturn
 
 from fastapi import status
 from sqlalchemy import select
@@ -23,9 +23,12 @@ from app.crud import product_type_definition as ptd_crud
 from app.db.models.knowledge import KnowledgePropertyDefinition
 from app.db.models.product_type import (
     ALLOWED_VALIDATION_OVERRIDE_KEYS,
+    ENUM_SUBSET_DATA_TYPES,
     EVIDENCE_REQUIREMENT_OVERRIDES,
     FORBIDDEN_VALIDATION_OVERRIDE_KEYS,
+    LENGTH_BOUND_DATA_TYPES,
     MEMBERSHIP_REQUIREDNESS,
+    NUMERIC_BOUND_DATA_TYPES,
     MembershipRequiredness,
     ProductType,
     ProductTypeAttributeMembership,
@@ -78,6 +81,11 @@ def _validate_applicability_condition(
     requiredness: str,
     condition: dict[str, Any] | None,
 ) -> dict[str, Any]:
+    """Store a machine-readable condition payload for later runtime evaluation.
+
+    PT-W2 does not evaluate a rules DSL here — only requires a non-empty object
+    when requiredness is conditional.
+    """
     cond = condition if isinstance(condition, dict) else {}
     if requiredness == MembershipRequiredness.CONDITIONAL.value:
         if not cond:
@@ -100,7 +108,75 @@ def _validate_applicability_condition(
     return cond
 
 
-def _validate_validation_overrides(overrides: dict[str, Any] | None) -> dict[str, Any]:
+def _override_field_error(field: str, message: str) -> NoReturn:
+    raise api_error(
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        error_code=ErrorCode.VALIDATION_FAILED,
+        message="validation_overrides violate narrowing rules",
+        details=[{"field": f"validation_overrides.{field}", "message": message}],
+    )
+
+
+def _as_comparable_number(value: Any, *, field: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        _override_field_error(field, "must be a number")
+    return float(value)
+
+
+def _as_non_negative_int(value: Any, *, field: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        _override_field_error(field, "must be an integer")
+    if value < 0:
+        _override_field_error(field, "must be >= 0")
+    return value
+
+
+def _canonical_enum_codes(enum_values: list[Any] | None) -> set[str]:
+    """Normalize 11A enum_values to comparable codes.
+
+    Runtime seed shape: [{"code": "...", "label_en": "...", "label_fa": "..."}, ...]
+    Also accept plain string codes for defensive compatibility.
+    """
+    if not enum_values:
+        return set()
+    codes: set[str] = set()
+    for item in enum_values:
+        if isinstance(item, dict):
+            code = item.get("code")
+            if not isinstance(code, str) or not code:
+                raise api_error(
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    error_code=ErrorCode.VALIDATION_FAILED,
+                    message="canonical Property enum_values has invalid entries",
+                    details=[
+                        {
+                            "field": "enum_values",
+                            "message": "each entry requires non-empty string code",
+                        }
+                    ],
+                )
+            codes.add(code)
+        elif isinstance(item, str) and item:
+            codes.add(item)
+        else:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="canonical Property enum_values has invalid entries",
+                details=[{"field": "enum_values", "message": "unsupported entry shape"}],
+            )
+    return codes
+
+
+def validate_membership_overrides(
+    property_definition: KnowledgePropertyDefinition,
+    overrides: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Enforce narrowing-only validation_overrides against a Property Definition.
+
+    Supported keys (monotonic): min, max, min_length, max_length, enum_subset.
+    Ambiguous keys are rejected rather than accepted as potentially widening.
+    """
     data = overrides if isinstance(overrides, dict) else {}
     if not isinstance(data, dict):
         raise api_error(
@@ -109,6 +185,7 @@ def _validate_validation_overrides(overrides: dict[str, Any] | None) -> dict[str
             message="validation_overrides must be a JSON object",
             details=[{"field": "validation_overrides", "message": "must be object"}],
         )
+
     for key in data:
         if key in FORBIDDEN_VALIDATION_OVERRIDE_KEYS:
             raise api_error(
@@ -128,7 +205,10 @@ def _validate_validation_overrides(overrides: dict[str, Any] | None) -> dict[str
             raise api_error(
                 status.HTTP_422_UNPROCESSABLE_CONTENT,
                 error_code=ErrorCode.VALIDATION_FAILED,
-                message="unknown validation_overrides key",
+                message=(
+                    "validation_overrides key is unsupported or lacks a proven "
+                    "narrowing rule"
+                ),
                 details=[
                     {
                         "field": f"validation_overrides.{key}",
@@ -138,6 +218,149 @@ def _validate_validation_overrides(overrides: dict[str, Any] | None) -> dict[str
                     }
                 ],
             )
+
+    canonical = (
+        property_definition.validation
+        if isinstance(property_definition.validation, dict)
+        else {}
+    )
+    data_type = property_definition.data_type
+
+    effective_min: float | None = None
+    effective_max: float | None = None
+    if "min" in canonical and canonical["min"] is not None:
+        effective_min = _as_comparable_number(canonical["min"], field="canonical.min")
+    if "max" in canonical and canonical["max"] is not None:
+        effective_max = _as_comparable_number(canonical["max"], field="canonical.max")
+
+    if "min" in data:
+        if data_type not in NUMERIC_BOUND_DATA_TYPES:
+            _override_field_error(
+                "min",
+                f"not applicable to data_type '{data_type}'",
+            )
+        member_min = _as_comparable_number(data["min"], field="min")
+        if effective_min is not None and member_min < effective_min:
+            _override_field_error(
+                "min",
+                f"widens canonical min={effective_min}; membership min must be >=",
+            )
+        effective_min = member_min
+
+    if "max" in data:
+        if data_type not in NUMERIC_BOUND_DATA_TYPES:
+            _override_field_error(
+                "max",
+                f"not applicable to data_type '{data_type}'",
+            )
+        member_max = _as_comparable_number(data["max"], field="max")
+        if effective_max is not None and member_max > effective_max:
+            _override_field_error(
+                "max",
+                f"widens canonical max={effective_max}; membership max must be <=",
+            )
+        effective_max = member_max
+
+    if (
+        effective_min is not None
+        and effective_max is not None
+        and effective_min > effective_max
+    ):
+        _override_field_error(
+            "min",
+            f"effective min ({effective_min}) > effective max ({effective_max})",
+        )
+
+    effective_min_len: int | None = None
+    effective_max_len: int | None = None
+    if "min_length" in canonical and canonical["min_length"] is not None:
+        effective_min_len = _as_non_negative_int(
+            canonical["min_length"], field="canonical.min_length"
+        )
+    if "max_length" in canonical and canonical["max_length"] is not None:
+        effective_max_len = _as_non_negative_int(
+            canonical["max_length"], field="canonical.max_length"
+        )
+
+    if "min_length" in data:
+        if data_type not in LENGTH_BOUND_DATA_TYPES:
+            _override_field_error(
+                "min_length",
+                f"not applicable to data_type '{data_type}'",
+            )
+        member_min_len = _as_non_negative_int(data["min_length"], field="min_length")
+        if effective_min_len is not None and member_min_len < effective_min_len:
+            _override_field_error(
+                "min_length",
+                (
+                    f"widens canonical min_length={effective_min_len}; "
+                    "membership min_length must be >="
+                ),
+            )
+        effective_min_len = member_min_len
+
+    if "max_length" in data:
+        if data_type not in LENGTH_BOUND_DATA_TYPES:
+            _override_field_error(
+                "max_length",
+                f"not applicable to data_type '{data_type}'",
+            )
+        member_max_len = _as_non_negative_int(data["max_length"], field="max_length")
+        if effective_max_len is not None and member_max_len > effective_max_len:
+            _override_field_error(
+                "max_length",
+                (
+                    f"widens canonical max_length={effective_max_len}; "
+                    "membership max_length must be <="
+                ),
+            )
+        effective_max_len = member_max_len
+
+    if (
+        effective_min_len is not None
+        and effective_max_len is not None
+        and effective_min_len > effective_max_len
+    ):
+        _override_field_error(
+            "min_length",
+            (
+                f"effective min_length ({effective_min_len}) > "
+                f"effective max_length ({effective_max_len})"
+            ),
+        )
+
+    if "enum_subset" in data:
+        if data_type not in ENUM_SUBSET_DATA_TYPES:
+            _override_field_error(
+                "enum_subset",
+                f"not applicable to data_type '{data_type}'",
+            )
+        subset = data["enum_subset"]
+        if not isinstance(subset, list) or not subset:
+            _override_field_error(
+                "enum_subset",
+                "must be a non-empty list of enum codes",
+            )
+        if not all(isinstance(code, str) and code for code in subset):
+            _override_field_error(
+                "enum_subset",
+                "each entry must be a non-empty string code",
+            )
+        canonical_codes = _canonical_enum_codes(property_definition.enum_values)
+        if not canonical_codes:
+            _override_field_error(
+                "enum_subset",
+                "canonical Property has no enum_values to subset",
+            )
+        unknown = sorted({code for code in subset if code not in canonical_codes})
+        if unknown:
+            _override_field_error(
+                "enum_subset",
+                f"codes not in canonical enum_values: {unknown}",
+            )
+        # Deduplicate while preserving order for stable storage.
+        data = {**data, "enum_subset": list(dict.fromkeys(subset))}
+
     return data
 
 
@@ -318,9 +541,9 @@ async def add_membership(
     condition = _validate_applicability_condition(
         requiredness, applicability_condition
     )
-    overrides = _validate_validation_overrides(validation_overrides)
     evidence = _validate_evidence_override(evidence_requirement_override)
-    await _get_property_for_draft(db, property_definition_id)
+    prop = await _get_property_for_draft(db, property_definition_id)
+    overrides = validate_membership_overrides(prop, validation_overrides)
 
     membership = ProductTypeAttributeMembership(
         product_type_definition_id=definition.id,
@@ -387,7 +610,6 @@ async def update_membership(
 
     if "property_definition_id" in patch and patch["property_definition_id"] is not None:
         new_prop_id = patch["property_definition_id"]
-        await _get_property_for_draft(db, new_prop_id)
         membership.property_definition_id = new_prop_id
 
     requiredness = membership.requiredness
@@ -405,9 +627,15 @@ async def update_membership(
             requiredness, membership.applicability_condition
         )
 
+    prop = await _get_property_for_draft(db, membership.property_definition_id)
     if "validation_overrides" in patch:
-        membership.validation_overrides = _validate_validation_overrides(
-            patch["validation_overrides"]
+        membership.validation_overrides = validate_membership_overrides(
+            prop, patch["validation_overrides"]
+        )
+    else:
+        # Property identity may have changed — re-check stored overrides.
+        membership.validation_overrides = validate_membership_overrides(
+            prop, membership.validation_overrides
         )
 
     for field in (
@@ -491,7 +719,6 @@ async def _validate_memberships_for_activation(
 
         _validate_requiredness(m.requiredness)
         _validate_applicability_condition(m.requiredness, m.applicability_condition)
-        _validate_validation_overrides(m.validation_overrides)
         _validate_evidence_override(m.evidence_requirement_override)
 
         prop = (
@@ -531,6 +758,8 @@ async def _validate_memberships_for_activation(
                     }
                 ],
             )
+        # Revalidate narrowing against *current* canonical validation/enum_values.
+        validate_membership_overrides(prop, m.validation_overrides)
 
 
 async def activate_definition(

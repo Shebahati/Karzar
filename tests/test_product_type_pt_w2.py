@@ -42,14 +42,18 @@ async def _seed_property(
     definition_id: str,
     key: str,
     status: str = "active",
+    data_type: str = "string",
+    validation: dict | None = None,
+    enum_values: list | None = None,
 ) -> KnowledgePropertyDefinition:
     prop = KnowledgePropertyDefinition(
         definition_id=definition_id,
         key=key,
-        data_type="string",
+        data_type=data_type,
         label_en=key,
         label_fa=key,
-        validation={},
+        validation=validation if validation is not None else {},
+        enum_values=enum_values,
         version="1.0.0",
         status=status,
         comparable=False,
@@ -684,7 +688,13 @@ def test_validation_overrides_cannot_redefine_identity(admin_headers):
     async def seed():
         async with TestingSessionLocal() as session:
             pt = await _seed_product_type(session)
-            await _seed_property(session, definition_id="def.vo", key="prop_vo")
+            await _seed_property(
+                session,
+                definition_id="def.vo",
+                key="prop_vo",
+                data_type="number",
+                validation={"min": 0, "max": 100},
+            )
             await session.commit()
             return pt.id
 
@@ -712,11 +722,322 @@ def test_validation_overrides_cannot_redefine_identity(admin_headers):
             json={
                 "property_definition_id": "def.vo",
                 "requiredness": "optional",
-                "validation_overrides": {"min": 0, "max": 10},
+                "validation_overrides": {"unit_dimension": "length"},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    # Ambiguous / unproven narrowing keys are rejected (not silently accepted).
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+            json={
+                "property_definition_id": "def.vo",
+                "requiredness": "optional",
+                "validation_overrides": {"pattern": ".*"},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+
+
+def test_numeric_override_narrowing_accepted(admin_headers):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.num",
+                key="prop_num",
+                data_type="number",
+                validation={"min": 0, "max": 100},
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    resp = client.post(
+        f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+        json={
+            "property_definition_id": "def.num",
+            "requiredness": "optional",
+            "validation_overrides": {"min": 10, "max": 90},
+        },
+        headers=admin_headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["validation_overrides"] == {"min": 10, "max": 90}
+
+
+def test_numeric_override_widening_rejected(admin_headers):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.wide",
+                key="prop_wide",
+                data_type="number",
+                validation={"min": 0, "max": 100},
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+            json={
+                "property_definition_id": "def.wide",
+                "requiredness": "optional",
+                "validation_overrides": {"min": -1},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+            json={
+                "property_definition_id": "def.wide",
+                "requiredness": "optional",
+                "validation_overrides": {"max": 101},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    # Previously accepted widening pair must now fail.
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+            json={
+                "property_definition_id": "def.wide",
+                "requiredness": "optional",
+                "validation_overrides": {"min": -100, "max": 1000},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+
+
+def test_numeric_override_may_introduce_absent_bound(admin_headers):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.addmin",
+                key="prop_addmin",
+                data_type="number",
+                validation={"type": "number"},
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    resp = client.post(
+        f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+        json={
+            "property_definition_id": "def.addmin",
+            "requiredness": "optional",
+            "validation_overrides": {"min": 0},
+        },
+        headers=admin_headers,
+    )
+    assert resp.status_code == 201
+
+
+def test_length_override_narrowing_and_widening(admin_headers):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.len",
+                key="prop_len",
+                data_type="string",
+                validation={"min_length": 2, "max_length": 20},
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+            json={
+                "property_definition_id": "def.len",
+                "requiredness": "optional",
+                "validation_overrides": {"min_length": 4, "max_length": 10},
             },
             headers=admin_headers,
         ).status_code
         == 201
+    )
+    d2 = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d2['id']}/memberships",
+            json={
+                "property_definition_id": "def.len",
+                "requiredness": "optional",
+                "validation_overrides": {"min_length": 1},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d2['id']}/memberships",
+            json={
+                "property_definition_id": "def.len",
+                "requiredness": "optional",
+                "validation_overrides": {"max_length": 21},
+            },
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+
+
+def test_enum_subset_must_be_canonical_subset(admin_headers):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.enum",
+                key="prop_enum",
+                data_type="enum",
+                validation={"type": "enum"},
+                enum_values=[
+                    {"code": "A", "label_en": "A", "label_fa": "الف"},
+                    {"code": "B", "label_en": "B", "label_fa": "ب"},
+                    {"code": "C", "label_en": "C", "label_fa": "ج"},
+                ],
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    ok = client.post(
+        f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+        json={
+            "property_definition_id": "def.enum",
+            "requiredness": "optional",
+            "validation_overrides": {"enum_subset": ["A", "C"]},
+        },
+        headers=admin_headers,
+    )
+    assert ok.status_code == 201
+    assert ok.json()["validation_overrides"]["enum_subset"] == ["A", "C"]
+
+    d2 = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    bad = client.post(
+        f"/api/v1/knowledge/product-type-definitions/{d2['id']}/memberships",
+        json={
+            "property_definition_id": "def.enum",
+            "requiredness": "optional",
+            "validation_overrides": {"enum_subset": ["A", "X"]},
+        },
+        headers=admin_headers,
+    )
+    assert bad.status_code == 422
+
+
+def test_activation_rejects_stale_override_after_canonical_change(admin_headers):
+    """Draft override valid at authoring must revalidate against current Property."""
+
+    async def seed():
+        async with TestingSessionLocal() as session:
+            pt = await _seed_product_type(session)
+            await _seed_property(
+                session,
+                definition_id="def.stale",
+                key="prop_stale",
+                data_type="number",
+                validation={"min": 0, "max": 100},
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    d = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    added = client.post(
+        f"/api/v1/knowledge/product-type-definitions/{d['id']}/memberships",
+        json={
+            "property_definition_id": "def.stale",
+            "requiredness": "optional",
+            "validation_overrides": {"min": 10, "max": 90},
+        },
+        headers=admin_headers,
+    )
+    assert added.status_code == 201
+
+    async def tighten_canonical():
+        async with TestingSessionLocal() as session:
+            prop = (
+                await session.execute(
+                    select(KnowledgePropertyDefinition).where(
+                        KnowledgePropertyDefinition.definition_id == "def.stale"
+                    )
+                )
+            ).scalar_one()
+            # Membership min=10 now widens the new canonical min=20.
+            prop.validation = {"min": 20, "max": 80}
+            await session.commit()
+
+    _run(tighten_canonical())
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{d['id']}/activate",
+            json={"change_reason": "stale override must fail"},
+            headers=admin_headers,
+        ).status_code
+        == 422
     )
 
 

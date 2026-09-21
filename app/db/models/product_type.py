@@ -61,6 +61,9 @@ MEMBERSHIP_REQUIREDNESS = frozenset(s.value for s in MembershipRequiredness)
 EVIDENCE_REQUIREMENT_OVERRIDES = frozenset({"required", "recommended", "not_required"})
 
 # validation_overrides may narrow constraints only — never redefine identity.
+# Only keys with proven monotonic narrowing rules are accepted (PT-W2).
+# Ambiguous keys (pattern, precision, scale, min_inclusive, max_inclusive)
+# are rejected until a contract-backed narrowing rule exists.
 FORBIDDEN_VALIDATION_OVERRIDE_KEYS = frozenset(
     {
         "data_type",
@@ -77,16 +80,14 @@ ALLOWED_VALIDATION_OVERRIDE_KEYS = frozenset(
     {
         "min",
         "max",
-        "min_inclusive",
-        "max_inclusive",
-        "enum_subset",
-        "pattern",
-        "max_length",
         "min_length",
-        "precision",
-        "scale",
+        "max_length",
+        "enum_subset",
     }
 )
+NUMERIC_BOUND_DATA_TYPES = frozenset({"integer", "number", "quantity", "range"})
+LENGTH_BOUND_DATA_TYPES = frozenset({"string", "string_array"})
+ENUM_SUBSET_DATA_TYPES = frozenset({"enum"})
 
 
 class ProductType(Base):
