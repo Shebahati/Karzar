@@ -477,9 +477,9 @@ documents:
 
   - id: SPEC-MASTER-KNOWLEDGE-BASE-REMEDIATION
     path: docs/architecture/specs/SPEC-master-knowledge-base-remediation.md
-    class: CANON
-    rank: 2
-    status: accepted
+    class: PROPOSED
+    rank: 6
+    status: proposed
     owner_role: R-DOC-ARCH
     on_main: true
 
