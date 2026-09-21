@@ -147,3 +147,93 @@ class KnowledgePropertyDefinitionListResponse(BaseModel):
 class KnowledgePropertyAliasListResponse(BaseModel):
     items: list[KnowledgePropertyAliasResponse]
     total: int
+
+
+# --- PT-W2 Product Type Definitions + Attribute Memberships (admin) ---
+
+DefinitionStatus = Literal["draft", "active", "retired"]
+MembershipRequirednessLiteral = Literal[
+    "required", "optional", "conditional", "forbidden"
+]
+EvidenceRequirementOverride = Literal["required", "recommended", "not_required"]
+
+
+class ProductTypeAttributeMembershipResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    product_type_definition_id: int
+    property_definition_id: str
+    requiredness: MembershipRequirednessLiteral
+    applicability_condition: dict[str, Any] = Field(default_factory=dict)
+    validation_overrides: dict[str, Any] = Field(default_factory=dict)
+    public_visibility_default: bool | None = None
+    filterable: bool | None = None
+    comparable: bool | None = None
+    display_group: str | None = None
+    display_order: int | None = None
+    evidence_requirement_override: EvidenceRequirementOverride | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class ProductTypeDefinitionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    product_type_id: int
+    version: int
+    status: DefinitionStatus
+    change_reason: str | None = None
+    reviewed_by_user_id: int | None = None
+    activated_at: datetime | None = None
+    notes: str | None = None
+    memberships: list[ProductTypeAttributeMembershipResponse] = Field(
+        default_factory=list
+    )
+    created_at: datetime
+    updated_at: datetime
+
+
+class ProductTypeDefinitionListResponse(BaseModel):
+    items: list[ProductTypeDefinitionResponse]
+    total: int
+
+
+class ProductTypeDefinitionCreateRequest(BaseModel):
+    """Create a draft Definition. Version omitted => max(existing)+1 (or 1)."""
+
+    notes: str | None = None
+    version: int | None = Field(default=None, ge=1)
+
+
+class ProductTypeAttributeMembershipCreateRequest(BaseModel):
+    property_definition_id: str = Field(min_length=1, max_length=64)
+    requiredness: MembershipRequirednessLiteral
+    applicability_condition: dict[str, Any] = Field(default_factory=dict)
+    validation_overrides: dict[str, Any] = Field(default_factory=dict)
+    public_visibility_default: bool | None = None
+    filterable: bool | None = None
+    comparable: bool | None = None
+    display_group: str | None = Field(default=None, max_length=64)
+    display_order: int | None = None
+    evidence_requirement_override: EvidenceRequirementOverride | None = None
+
+
+class ProductTypeAttributeMembershipUpdateRequest(BaseModel):
+    property_definition_id: str | None = Field(default=None, min_length=1, max_length=64)
+    requiredness: MembershipRequirednessLiteral | None = None
+    applicability_condition: dict[str, Any] | None = None
+    validation_overrides: dict[str, Any] | None = None
+    public_visibility_default: bool | None = None
+    filterable: bool | None = None
+    comparable: bool | None = None
+    display_group: str | None = Field(default=None, max_length=64)
+    display_order: int | None = None
+    evidence_requirement_override: EvidenceRequirementOverride | None = None
+
+
+class ProductTypeDefinitionActivateRequest(BaseModel):
+    """Activation payload. Reviewer identity comes from auth, not this body."""
+
+    change_reason: str = Field(min_length=1, max_length=4000)

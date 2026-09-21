@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import inspect
 
 import pytest
 from app.db.models import ProductType, ProductTypeStatus
@@ -496,24 +495,32 @@ def test_specifications_unchanged_when_assigning_type(
     _run(assign())
 
 
-def test_no_public_product_type_endpoint_introduced():
-    routes = {getattr(route, "path", None) for route in app.routes}
-    offending = {
-        path
-        for path in routes
-        if path
-        and (
-            "/product-types" in path
-            or "/product_types" in path
-            or path.rstrip("/").endswith("/product-type")
+def test_no_public_product_type_catalogue_endpoint():
+    """PT-W1: no public Product Type catalogue API.
+
+    PT-W2 adds *admin* Definition/Membership routes under /knowledge only.
+    """
+    paths = set(app.openapi()["paths"])
+    public_offenders = {
+        p
+        for p in paths
+        if (
+            p.startswith("/api/v1/product-types")
+            or p.startswith("/api/v1/product_types")
+            or p.rstrip("/").endswith("/product-type")
         )
     }
-    assert offending == set()
-    import app.api.v1 as v1_module
+    assert public_offenders == set()
 
-    src = inspect.getsource(v1_module)
-    assert "product_type" not in src.lower()
-    assert "product-types" not in src.lower()
+    admin_definition_paths = {
+        p for p in paths if "/knowledge/product-type" in p or "/knowledge/product-types" in p
+    }
+    # PT-W2 surface may be present; every such path must advertise bearer auth.
+    for path in admin_definition_paths:
+        for method, op in app.openapi()["paths"][path].items():
+            if method.startswith("x-"):
+                continue
+            assert op.get("security"), f"{method.upper()} {path} missing security"
 
 
 def test_migration_fk_has_no_cascade_or_set_null():
