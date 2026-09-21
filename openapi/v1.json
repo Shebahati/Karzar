@@ -6843,6 +6843,463 @@
         }
       }
     },
+    "/api/v1/knowledge/product-types": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Create draft Product Type (super-admin)",
+        "operationId": "create_product_type_api_v1_knowledge_product_types_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductTypeCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List Product Types (super-admin)",
+        "operationId": "list_product_types_api_v1_knowledge_product_types_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/product-types/{product_type_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get Product Type (super-admin)",
+        "operationId": "get_product_type_api_v1_knowledge_product_types__product_type_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_type_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Type Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Update draft Product Type metadata (super-admin)",
+        "operationId": "update_product_type_api_v1_knowledge_product_types__product_type_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_type_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Type Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductTypeUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/product-types/{product_type_id}/activate": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Activate draft Product Type (super-admin; requires active Definition)",
+        "operationId": "activate_product_type_api_v1_knowledge_product_types__product_type_id__activate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_type_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Type Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductTypeActivateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/products/{product_id}/product-type-assignment": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get Product Type assignment (super-admin)",
+        "operationId": "get_product_type_assignment_api_v1_knowledge_products__product_id__product_type_assignment_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeAssignmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Manually assign/reassign/clear Product Type (super-admin)",
+        "operationId": "set_product_type_assignment_api_v1_knowledge_products__product_id__product_type_assignment_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductTypeAssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeAssignmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge/product-types/{product_type_id}/definitions": {
       "post": {
         "tags": [
@@ -16780,6 +17237,143 @@
         "title": "ProductSummaryResponse",
         "description": "PLP card shape returned by GET /products."
       },
+      "ProductTypeActivateRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "ProductTypeActivateRequest",
+        "description": "Activation payload. Actor identity comes from auth, not this body."
+      },
+      "ProductTypeAssignmentRequest": {
+        "properties": {
+          "product_type_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type Id"
+          },
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "ProductTypeAssignmentRequest",
+        "description": "Manual reviewed assignment. null clears when allowed."
+      },
+      "ProductTypeAssignmentResponse": {
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "title": "Product Id"
+          },
+          "current_product_type_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Product Type Id"
+          },
+          "product_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeAssignmentSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "active_definition_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Definition Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "ProductTypeAssignmentResponse"
+      },
+      "ProductTypeAssignmentSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name_fa": {
+            "type": "string",
+            "title": "Name Fa"
+          },
+          "name_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name En"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "slug",
+          "name_fa",
+          "status"
+        ],
+        "title": "ProductTypeAssignmentSummary"
+      },
       "ProductTypeAttributeMembershipCreateRequest": {
         "properties": {
           "property_definition_id": {
@@ -17147,6 +17741,59 @@
         "type": "object",
         "title": "ProductTypeAttributeMembershipUpdateRequest"
       },
+      "ProductTypeCreateRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Code"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Slug"
+          },
+          "name_fa": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name Fa"
+          },
+          "name_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name En"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "slug",
+          "name_fa"
+        ],
+        "title": "ProductTypeCreateRequest",
+        "description": "Create always starts as draft. status is not accepted."
+      },
       "ProductTypeDefinitionActivateRequest": {
         "properties": {
           "change_reason": {
@@ -17310,6 +17957,143 @@
           "updated_at"
         ],
         "title": "ProductTypeDefinitionResponse"
+      },
+      "ProductTypeListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProductTypeResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "ProductTypeListResponse"
+      },
+      "ProductTypeResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name_fa": {
+            "type": "string",
+            "title": "Name Fa"
+          },
+          "name_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name En"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "slug",
+          "name_fa",
+          "status"
+        ],
+        "title": "ProductTypeResponse"
+      },
+      "ProductTypeUpdateRequest": {
+        "properties": {
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "name_fa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Fa"
+          },
+          "name_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name En"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "title": "ProductTypeUpdateRequest",
+        "description": "Draft-only presentation metadata. code/status are not editable here."
       },
       "ProductUpdate": {
         "properties": {
