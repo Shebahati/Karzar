@@ -9,7 +9,8 @@ Non-dry-run mutations are allowed only on:
   - KARZAR_DATA_PLANE=development
   - KARZAR_DATA_PLANE=catalog_staging with matching environment_identity sentinel
 
-Live (including historic APP_ENV=staging + POSTGRES_DB=karzar_staging) is refused.
+Live DBs (including historic POSTGRES_DB=karzar_staging / CR-011) are refused
+regardless of claimed KARZAR_DATA_PLANE. Extra names via KARZAR_LIVE_DB_DENYLIST.
 Does not touch Products, Facts, or JSONB dual-write. No --force-production switch.
 """
 
@@ -131,7 +132,9 @@ async def _run(seed: Path, dry_run: bool) -> int:
         try:
             sentinel = await _read_environment_identity_plane(session)
             assert_dictionary_seed_import_allowed(
-                identity, sentinel_plane=sentinel
+                identity,
+                sentinel_plane=sentinel,
+                extra_live_db_names=os.environ.get("KARZAR_LIVE_DB_DENYLIST"),
             )
             result = await import_property_dictionary(
                 session, seed_path=seed, dry_run=False

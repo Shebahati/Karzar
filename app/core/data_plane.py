@@ -244,12 +244,25 @@ def assert_dictionary_seed_import_allowed(
     identity: DataPlaneIdentity,
     *,
     sentinel_plane: str | None,
+    extra_live_db_names: str | None = None,
 ) -> None:
     """Non-dry-run Property Dictionary import gate.
 
-    Allowed planes: ``development``, ``catalog_staging`` (with matching sentinel).
-    Live is always refused here — no force-production switch on this path.
+    Order:
+      1. Reject any postgres_db in the live DB denylist (plane-independent)
+      2. Refuse live plane (no force-production switch)
+      3. Require matching environment_identity for catalog_staging
+
+    Allowed planes after denylist: ``development``, ``catalog_staging``.
     """
+    deny = live_db_denylist(extra=extra_live_db_names)
+    db_lower = (identity.postgres_db or "").strip().lower()
+    if db_lower in deny:
+        raise ValueError(
+            "Property Dictionary import refused: "
+            f"database {identity.postgres_db!r} is classified as LIVE and cannot "
+            "be mutated by this importer, regardless of KARZAR_DATA_PLANE."
+        )
     assert_catalog_mutate_allowed(identity, allow_live_catalog_writes=False)
     assert_db_sentinel_matches_plane(
         declared_plane=identity.data_plane,
