@@ -239,6 +239,76 @@ class ProductTypeDefinitionActivateRequest(BaseModel):
     change_reason: str = Field(min_length=1, max_length=4000)
 
 
+# --- PT-W3A Product Type stewardship + manual assignment (admin) ---
+
+ProductTypeLifecycleStatus = Literal["draft", "active", "retired"]
+
+
+class ProductTypeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    code: str
+    slug: str
+    name_fa: str
+    name_en: str | None = None
+    description: str | None = None
+    status: ProductTypeLifecycleStatus
+
+
+class ProductTypeListResponse(BaseModel):
+    items: list[ProductTypeResponse]
+    total: int
+
+
+class ProductTypeCreateRequest(BaseModel):
+    """Create always starts as draft. status is not accepted."""
+
+    code: str = Field(min_length=1, max_length=64)
+    slug: str = Field(min_length=1, max_length=200)
+    name_fa: str = Field(min_length=1, max_length=255)
+    name_en: str | None = Field(default=None, max_length=255)
+    description: str | None = None
+
+
+class ProductTypeUpdateRequest(BaseModel):
+    """Draft-only presentation metadata. code/status are not editable here."""
+
+    slug: str | None = Field(default=None, min_length=1, max_length=200)
+    name_fa: str | None = Field(default=None, min_length=1, max_length=255)
+    name_en: str | None = Field(default=None, max_length=255)
+    description: str | None = None
+
+
+class ProductTypeActivateRequest(BaseModel):
+    """Activation payload. Actor identity comes from auth, not this body."""
+
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class ProductTypeAssignmentSummary(BaseModel):
+    id: int
+    code: str
+    slug: str
+    name_fa: str
+    name_en: str | None = None
+    status: ProductTypeLifecycleStatus
+
+
+class ProductTypeAssignmentResponse(BaseModel):
+    product_id: int
+    current_product_type_id: int | None = None
+    product_type: ProductTypeAssignmentSummary | None = None
+    active_definition_id: int | None = None
+
+
+class ProductTypeAssignmentRequest(BaseModel):
+    """Manual reviewed assignment. null clears when allowed."""
+
+    product_type_id: int | None = None
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
 # --- Prompt 12 Facts + Revisions (admin) ---
 
 FactStatus = Literal["asserted", "published", "disputed", "deprecated"]
