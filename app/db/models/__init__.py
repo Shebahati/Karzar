@@ -27,6 +27,8 @@ from app.db.models.hesabfa import (
 )
 from app.db.models.knowledge import (
     KnowledgeEdge,
+    KnowledgeFact,
+    KnowledgeFactRevision,
     KnowledgePropertyAlias,
     KnowledgePropertyDefinition,
     KnowledgeUnit,
@@ -82,6 +84,8 @@ __all__ = [
     "KnowledgeUnit",
     "KnowledgePropertyDefinition",
     "KnowledgePropertyAlias",
+    "KnowledgeFact",
+    "KnowledgeFactRevision",
     "HeroSlide",
     "MegamenuNavGroup",
     "ContactSubmission",
