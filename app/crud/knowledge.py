@@ -13,9 +13,20 @@ from app.db.models.knowledge import (
     KnowledgeUnit,
 )
 
+# Admin raw list/neighborhood default: internal active candidates (not public).
+ADMIN_ACTIVE_EDGE_STATUSES: tuple[str, ...] = ("asserted", "published")
+# Public knowledge (Prompt 03+) must use published-only; Prompt 02 establishes the primitive.
+PUBLIC_EDGE_STATUSES: tuple[str, ...] = ("published",)
 
-def _visible_statuses() -> tuple[str, ...]:
-    return ("asserted", "published")
+
+def admin_active_statuses() -> tuple[str, ...]:
+    """Statuses shown by default on admin raw edge reads (asserted + published)."""
+    return ADMIN_ACTIVE_EDGE_STATUSES
+
+
+def public_edge_statuses() -> tuple[str, ...]:
+    """Statuses eligible for future public Product Knowledge DTOs."""
+    return PUBLIC_EDGE_STATUSES
 
 
 async def list_edges(
@@ -31,6 +42,7 @@ async def list_edges(
     skip: int = 0,
     limit: int = 100,
 ) -> tuple[list[KnowledgeEdge], int]:
+    """Admin raw edge listing. Pass ``status`` to inspect rejected/deprecated."""
     if edge_type is not None and edge_type not in KB001_EDGE_TYPES:
         return [], 0
 
@@ -51,7 +63,7 @@ async def list_edges(
         if status is not None:
             q = q.where(KnowledgeEdge.status == status)
         elif not include_inactive:
-            q = q.where(KnowledgeEdge.status.in_(_visible_statuses()))
+            q = q.where(KnowledgeEdge.status.in_(admin_active_statuses()))
         return q
 
     stmt = apply_filters(stmt).order_by(KnowledgeEdge.id).offset(skip).limit(limit)
@@ -66,8 +78,8 @@ async def get_product_neighborhood(
     db: AsyncSession,
     product_id: int,
 ) -> dict[str, KnowledgeEdge | list[KnowledgeEdge] | None]:
-    """Depth-1 neighborhood for a commerce product (ADR-014 join key)."""
-    visible = _visible_statuses()
+    """Admin depth-1 neighborhood (raw DTOs). Active = asserted|published."""
+    visible = admin_active_statuses()
 
     outbound = (
         await db.execute(
