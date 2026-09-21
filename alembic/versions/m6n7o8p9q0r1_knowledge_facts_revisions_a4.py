@@ -1,11 +1,14 @@
 """Prompt 12 / Master KB A4 — knowledge_facts + knowledge_fact_revisions.
 
-Revision ID: l5m6n7o8p9q0
-Revises: k4l5m6n7o8p9
+Revision ID: m6n7o8p9q0r1
+Revises: l5m6n7o8p9q0 (environment_identity marker from #362)
 Create Date: 2026-09-21 16:00:00.000000
 
 Facts store values; Property Dictionary owns meaning; PT Definition owns
 applicability. No Evidence tables, no JSONB dual-write, no Product assignment.
+
+Note: originally drafted as l5m6n7o8p9q0; renumbered after #362 claimed that
+revision id for environment_identity so the linear Alembic chain stays unique.
 """
 
 from __future__ import annotations
@@ -14,8 +17,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision: str = "l5m6n7o8p9q0"
-down_revision: str | None = "k4l5m6n7o8p9"
+revision: str = "m6n7o8p9q0r1"
+down_revision: str | None = "l5m6n7o8p9q0"
 branch_labels = None
 depends_on = None
 
