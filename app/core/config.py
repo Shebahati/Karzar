@@ -160,6 +160,15 @@ class Settings(BaseSettings):
     IDEMPOTENCY_TTL_HOURS: int = Field(default=24, ge=1, le=168)
 
     APP_ENV: str = "development"
+    # Mutable data-plane identity (independent of APP_ENV label). See
+    # app/core/data_plane.py and docs/CATALOG_STAGING_ISOLATION.md.
+    # Unset → inferred: development→development; staging|production→live.
+    KARZAR_DATA_PLANE: str | None = None
+    KARZAR_MEDIA_PLANE: str | None = None
+    # Expected POSTGRES_DB when KARZAR_DATA_PLANE=catalog_staging.
+    KARZAR_CATALOG_STAGING_DB_NAME: str = "karzar_catalog_staging"
+    # Comma-separated extra live DB names that catalog_staging must never use.
+    KARZAR_LIVE_DB_DENYLIST: str = ""
     LOG_TO_FILE: bool = True
     LOG_FILE: str = "logs/app.log"
     ENABLE_METRICS: bool = False
@@ -310,6 +319,19 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_production_security(self) -> Self:
         """Reject weak security settings for non-debug and production runtimes."""
+        from app.core.data_plane import validate_data_plane
+
+        # Fail closed when a claimed catalog-staging plane resolves to a live DB.
+        validate_data_plane(
+            app_env=self.APP_ENV,
+            data_plane_explicit=self.KARZAR_DATA_PLANE,
+            postgres_db=self.POSTGRES_DB,
+            postgres_server=self.POSTGRES_SERVER,
+            media_plane=self.KARZAR_MEDIA_PLANE,
+            catalog_staging_db_name=self.KARZAR_CATALOG_STAGING_DB_NAME,
+            extra_live_db_names=self.KARZAR_LIVE_DB_DENYLIST or None,
+        )
+
         weak_pins = {
             "000000",
             "123456",

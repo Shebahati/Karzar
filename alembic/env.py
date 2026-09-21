@@ -12,9 +12,22 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 sys.path.append(os.getcwd())
 
-from app.core.config import settings
-from app.db.models.base import Base
 import app.db.models  # noqa: F401 — register all ORM models with Base.metadata
+from app.core.config import settings
+from app.core.data_plane import format_identity_report, validate_data_plane
+from app.db.models.base import Base
+
+# Non-secret destination identity before any migration mutation.
+_migration_identity = validate_data_plane(
+    app_env=settings.APP_ENV,
+    data_plane_explicit=settings.KARZAR_DATA_PLANE,
+    postgres_db=settings.POSTGRES_DB,
+    postgres_server=settings.POSTGRES_SERVER,
+    media_plane=settings.KARZAR_MEDIA_PLANE,
+    catalog_staging_db_name=settings.KARZAR_CATALOG_STAGING_DB_NAME,
+    extra_live_db_names=settings.KARZAR_LIVE_DB_DENYLIST or None,
+)
+print("Alembic target identity:\n" + format_identity_report(_migration_identity))
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI)
