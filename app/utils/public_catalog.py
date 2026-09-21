@@ -112,6 +112,20 @@ def product_has_storefront_public_image(product: Product) -> bool:
     return True
 
 
+def is_product_storefront_public(product: Product) -> bool:
+    """True when a non-admin PDP read would expose this product row.
+
+    Matches ``_guard_inactive_product`` for non-admin callers plus soft-delete:
+    active, not soft-deleted, and storefront-public image eligibility.
+    Knowledge publication gates MUST reuse this predicate (Prompt 02 / MKB-R8a).
+    """
+    if product.deleted_at is not None:
+        return False
+    if not product.is_active:
+        return False
+    return product_has_storefront_public_image(product)
+
+
 def filter_storefront_public_products(products: list[Product]) -> list[Product]:
     return [product for product in products if product_has_storefront_public_image(product)]
 
