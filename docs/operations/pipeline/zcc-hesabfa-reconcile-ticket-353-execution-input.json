@@ -1,0 +1,1221 @@
+{
+  "apply_audit_path": "/opt/karzar/catalog-apply-backups/zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl",
+  "apply_audit_sha256": "8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31",
+  "apply_commit": "d8f540e6cd0ab09a6c3f23ba0f74b0ddc9f6ed33",
+  "count": 201,
+  "failure_class_counts": {
+    "getItems_failed_before_save": 166,
+    "save_returned_failure_lookup_first": 35
+  },
+  "mode": "HESABFA_ITEM_SHELL_RECONCILE_ONLY",
+  "parent_ticket": "344",
+  "records": [
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7362,
+      "sku": "ZCC-FMA01-063-A22-SE12-05",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7363,
+      "sku": "ZCC-FMA04-050-A22-0D06-04C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7364,
+      "sku": "ZCC-FMA04-100-B32-OF05-07",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7366,
+      "sku": "ZCC-FMA07-063-A22-ON06-06C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7367,
+      "sku": "ZCC-FMA11-080-A27-SN15-06C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7369,
+      "sku": "ZCC-FMA12-080-A27-0N08-06",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7370,
+      "sku": "ZCC-FMD02-100-B32-PN11-10",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7372,
+      "sku": "ZCC-FME02-080-A27-SP12-06",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7373,
+      "sku": "ZCC-FMP12-063-A22-WN08-04C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7374,
+      "sku": "ZCC-FMP12-080-A27-WN08-05C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7375,
+      "sku": "ZCC-FMP17-125-B40-SN12-10",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7377,
+      "sku": "ZCC-FMR02-063-A22-RC12-04",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7378,
+      "sku": "ZCC-FMR04-080-B27-RD16-05",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7379,
+      "sku": "ZCC-KNUX160405L12",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7380,
+      "sku": "ZCC-KNUX160410L11-YBM251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7381,
+      "sku": "ZCC-KNUX160410R11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7382,
+      "sku": "ZCC-PTFNL1616H16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7385,
+      "sku": "ZCC-PTFNR2020K16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7386,
+      "sku": "ZCC-PTFNR2525M22",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7388,
+      "sku": "ZCC-PTGNL2525M16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7389,
+      "sku": "ZCC-PTGNR2020K16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7390,
+      "sku": "ZCC-PTTNL2020K16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7391,
+      "sku": "ZCC-PTTNR1616H16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7392,
+      "sku": "ZCC-PTTNR2020K16",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7393,
+      "sku": "ZCC-PWLNL2020K06",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7394,
+      "sku": "ZCC-PWLNL2020K08",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7395,
+      "sku": "ZCC-PWLNR2020K06",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7396,
+      "sku": "ZCC-PWLNR2020K08",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7397,
+      "sku": "ZCC-QEFS26N",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7398,
+      "sku": "ZCC-QZS2526",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7399,
+      "sku": "ZCC-RCGX0803MO-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7400,
+      "sku": "ZCC-RCGX1204MO-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7401,
+      "sku": "ZCC-RCMT0803MO-YBD102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7402,
+      "sku": "ZCC-RCMT10T3MO-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7403,
+      "sku": "ZCC-RCMT10T3MO-YBD102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7404,
+      "sku": "ZCC-RCMT1204MO-YBD052",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7405,
+      "sku": "ZCC-RCMX0803MO-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7406,
+      "sku": "ZCC-RCMX0803MO-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7407,
+      "sku": "ZCC-RCMX1003MO-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7408,
+      "sku": "ZCC-RCMX1204MO-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7409,
+      "sku": "ZCC-RCMX3209MO-PV-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7410,
+      "sku": "ZCC-SCGX09T302-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7411,
+      "sku": "ZCC-SCGX09T304-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7412,
+      "sku": "ZCC-SCGX09T308-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7413,
+      "sku": "ZCC-SCGX09T308-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7414,
+      "sku": "ZCC-SCGX120408-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7415,
+      "sku": "ZCC-SCGX120408-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7416,
+      "sku": "ZCC-SCMT09T304-AHF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7417,
+      "sku": "ZCC-SCMT09T308-AHF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7418,
+      "sku": "ZCC-SCMT09T312-HR-YBC252",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7419,
+      "sku": "ZCC-SCMT120404-HM-YBD151",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7420,
+      "sku": "ZCC-SCMT120408-HM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7421,
+      "sku": "ZCC-SCMT120412-HR-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7422,
+      "sku": "ZCC-SDJCL1616H11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7423,
+      "sku": "ZCC-SDJCL2020K11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7424,
+      "sku": "ZCC-SDJCL2525M11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7425,
+      "sku": "ZCC-SDJCR1212H07",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7426,
+      "sku": "ZCC-SDJCR1616H07",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7427,
+      "sku": "ZCC-SDJCR1616H11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7428,
+      "sku": "ZCC-SDJCR2525M11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7429,
+      "sku": "ZCC-SDNCN1010E07",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7430,
+      "sku": "ZCC-SDNCN1212F07",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7431,
+      "sku": "ZCC-SDNCN1212H11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7432,
+      "sku": "ZCC-SDNCN1616H11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7433,
+      "sku": "ZCC-SDNCN2020K11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7434,
+      "sku": "ZCC-SDNCN2525M11",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7435,
+      "sku": "ZCC-SMP01-063",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7436,
+      "sku": "ZCC-SNGA150612T02020-CN1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7437,
+      "sku": "ZCC-SNGN120708T02020-CN2000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7438,
+      "sku": "ZCC-SNMA120412-YBD152C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7439,
+      "sku": "ZCC-SNMA150612-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7440,
+      "sku": "ZCC-SNMA190612-YBD151",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7441,
+      "sku": "ZCC-SNMG120404-ADF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7442,
+      "sku": "ZCC-SNMG120404-EF-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7443,
+      "sku": "ZCC-SNMG120404-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7444,
+      "sku": "ZCC-SNMG120404-PM-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7445,
+      "sku": "ZCC-SNMG120408-ADF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7446,
+      "sku": "ZCC-SNMG120408-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7447,
+      "sku": "ZCC-SNMG120408-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7448,
+      "sku": "ZCC-SNMG120408-PM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7449,
+      "sku": "ZCC-SNMG120408-PM-YBD052",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7450,
+      "sku": "ZCC-SNMG120408-PM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7451,
+      "sku": "ZCC-SNMG120408-SNR-YBG105",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7452,
+      "sku": "ZCC-SNMG120408-SNR-YBS103",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7453,
+      "sku": "ZCC-SNMG120408-TC-YBD152C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7454,
+      "sku": "ZCC-SNMG120412-DM-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7455,
+      "sku": "ZCC-SNMG120412-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7456,
+      "sku": "ZCC-SNMG120412-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7457,
+      "sku": "ZCC-SNMG120412-PM-YBD102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7458,
+      "sku": "ZCC-SNMG120412-PM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7459,
+      "sku": "ZCC-SNMG120412-PM-YBD152C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7460,
+      "sku": "ZCC-SNMG120412-PM-YBD252",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7461,
+      "sku": "ZCC-SNMG120416-DM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7462,
+      "sku": "ZCC-SNMG120416-DR-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7463,
+      "sku": "ZCC-SNMG120416-PM-YBD052",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7464,
+      "sku": "ZCC-SNMG120416-PM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7465,
+      "sku": "ZCC-SNMG150608-15-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7466,
+      "sku": "ZCC-SNMG150608-DM-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7467,
+      "sku": "ZCC-SNMG150608-EF-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7468,
+      "sku": "ZCC-SNMG150612-15-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7469,
+      "sku": "ZCC-SNMG150612-DR-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7470,
+      "sku": "ZCC-SNMG150612-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7471,
+      "sku": "ZCC-SNMG150612-PM-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7472,
+      "sku": "ZCC-SNMG150616-DR-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7473,
+      "sku": "ZCC-SNMG150616-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7474,
+      "sku": "ZCC-SNMG150616-XM-YBC103",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7475,
+      "sku": "ZCC-SNMG190608-15-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7476,
+      "sku": "ZCC-SNMG190612-PM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7477,
+      "sku": "ZCC-SNMG190612-PM-YBD052",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7478,
+      "sku": "ZCC-SNMG190616-PM-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7479,
+      "sku": "ZCC-SNMG190624-DR-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7480,
+      "sku": "ZCC-SNMM190624-HPR-YBC252",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7481,
+      "sku": "ZCC-SNMM250924-ZR-YBC203",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7482,
+      "sku": "ZCC-SPMW120408-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7483,
+      "sku": "ZCC-TBGH060102L-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7484,
+      "sku": "ZCC-TBGH060104L-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7485,
+      "sku": "ZCC-TCGT06T102-SF-YNG151C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7486,
+      "sku": "ZCC-TCGX090202-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7487,
+      "sku": "ZCC-TCGX090204-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7488,
+      "sku": "ZCC-TCGX110202-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7489,
+      "sku": "ZCC-TCGX110204-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7490,
+      "sku": "ZCC-TCGX110204-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7491,
+      "sku": "ZCC-TCGX110208-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7492,
+      "sku": "ZCC-TCGX16T302-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7493,
+      "sku": "ZCC-TCGX16T304-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7494,
+      "sku": "ZCC-TCGX16T308-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7495,
+      "sku": "ZCC-TCMT090202-HF-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7496,
+      "sku": "ZCC-TCMT090208-HM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7497,
+      "sku": "ZCC-TCMT110202-EF-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7498,
+      "sku": "ZCC-TCMT110204-EF-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7499,
+      "sku": "ZCC-TCMT110208-AHF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7500,
+      "sku": "ZCC-TCMT110208-HM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7501,
+      "sku": "ZCC-TCMT16T304-AHF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7502,
+      "sku": "ZCC-TCMT16T308-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7503,
+      "sku": "ZCC-TCMT16T308-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7504,
+      "sku": "ZCC-TCMT16T308-HM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7505,
+      "sku": "ZCC-TCMT16T312-HM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7506,
+      "sku": "ZCC-TCMT16T312-HR-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7507,
+      "sku": "ZCC-TCMT220408-HR-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7508,
+      "sku": "ZCC-TCMT220408-HR-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7509,
+      "sku": "ZCC-TNGN160404T02020-CN1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7510,
+      "sku": "ZCC-TNGN160408T02020-CN1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7511,
+      "sku": "ZCC-TNGN160412T03020-CN1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7513,
+      "sku": "ZCC-TNGN160712T02020-CA1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7514,
+      "sku": "ZCC-TNMA160404-YBD052",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7515,
+      "sku": "ZCC-TNMA160412-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7516,
+      "sku": "ZCC-TNMA220408-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7517,
+      "sku": "ZCC-TNMA220408-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7518,
+      "sku": "ZCC-TNMG160404-ADF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7519,
+      "sku": "ZCC-TNMG160404-DM-YBM251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7520,
+      "sku": "ZCC-TNMG160404-PM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7521,
+      "sku": "ZCC-TNMG160404-PM-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7523,
+      "sku": "ZCC-TNMG160408-XLR-YBC203",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7524,
+      "sku": "ZCC-TNMG220404-EF-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7525,
+      "sku": "ZCC-TNMG220416-XM-YBC103",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7526,
+      "sku": "ZCC-TNMG270608-DR-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7527,
+      "sku": "ZCC-TNMG270616-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7528,
+      "sku": "ZCC-TNMX160404-WGF-YBC152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7529,
+      "sku": "ZCC-TNMX160408-WGF-YBC152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7530,
+      "sku": "ZCC-TPGH090202L-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7531,
+      "sku": "ZCC-TPGH090204L-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7532,
+      "sku": "ZCC-TPGH110304L-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7533,
+      "sku": "ZCC-TPGT090204-SF-YBG102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7535,
+      "sku": "ZCC-TPMT080204-DM-CQP2025G",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7536,
+      "sku": "ZCC-TPMT16T312TR-23",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7537,
+      "sku": "ZCC-TPMT220612TR-23",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7538,
+      "sku": "ZCC-VBMT110202-HF-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7542,
+      "sku": "ZCC-VBMT110302-EF-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7543,
+      "sku": "ZCC-VBMT110304-EF-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7544,
+      "sku": "ZCC-VBMT110308-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7545,
+      "sku": "ZCC-VBMT160402-AHF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7546,
+      "sku": "ZCC-VBMT160404-HM-YBD102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7547,
+      "sku": "ZCC-VCGT110301L-USF-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7548,
+      "sku": "ZCC-VCGT160408-NF-YBG105",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7550,
+      "sku": "ZCC-VCGX110302-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7551,
+      "sku": "ZCC-VCGX110304-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7555,
+      "sku": "ZCC-VCGX160404-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7556,
+      "sku": "ZCC-VCGX160408-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7557,
+      "sku": "ZCC-VCGX160412-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7558,
+      "sku": "ZCC-VCGX160412-LH-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7559,
+      "sku": "ZCC-VCGX220530-LC-YD101",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7560,
+      "sku": "ZCC-VCGX220530-LH-YD201",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7561,
+      "sku": "ZCC-VCMT160404-EM-YBM153",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7565,
+      "sku": "ZCC-VNMG160412-EF-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7566,
+      "sku": "ZCC-WNGA080416T02020-CN1000",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7567,
+      "sku": "ZCC-WNMA080404-YBD152",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7568,
+      "sku": "ZCC-WNMA080408-YBD102",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7569,
+      "sku": "ZCC-WNMA080412-YBD152C",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7570,
+      "sku": "ZCC-WNMG060404-EM-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7571,
+      "sku": "ZCC-WNMG060408-EM-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7572,
+      "sku": "ZCC-WNMG080404-ADF-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7573,
+      "sku": "ZCC-WNMG080408-PM-YBC351",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7587,
+      "sku": "ZCC-ZQMX6N11-1E-YBC251",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7588,
+      "sku": "ZCC-ZRBD02-EG-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7589,
+      "sku": "ZCC-ZRHD05-MG-YBG205",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7590,
+      "sku": "ZCC-ZRKD06-MG-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7592,
+      "sku": "ZCC-ZTBD02002-MM-YB9320",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7593,
+      "sku": "ZCC-ZTCD01402-EG-YBG302",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "save_returned_failure_lookup_first",
+      "product_id": 7594,
+      "sku": "ZCC-ZTCD01502-EG-YBG302",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7595,
+      "sku": "ZCC-ZTCD01503-EG-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    },
+    {
+      "failure_class": "getItems_failed_before_save",
+      "product_id": 7598,
+      "sku": "ZCC-ZTED02503-MG-YBG202",
+      "source_audit": "zcc-category-b-ticket-344-apply-20260920T132326Z/audit.jsonl#sha256:8fabe6d565ba7855203bc0c69934cbe914ffa7a0aeb1d50307a165864aa7ed31"
+    }
+  ],
+  "ticket": "353"
+}

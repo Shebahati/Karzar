@@ -12,6 +12,7 @@ from app.services.hesabfa.invoices import (
 from app.services.hesabfa.item_push import (
     ensure_product_in_hesabfa,
     push_all_site_products_to_hesabfa,
+    reconcile_product_item_shell,
 )
 from app.services.hesabfa.mapping import sync_item_mappings_by_sku
 from app.services.hesabfa.sales import get_sales_summary
@@ -22,6 +23,7 @@ __all__ = [
     "reset_hesabfa_client_for_tests",
     "sync_item_mappings_by_sku",
     "ensure_product_in_hesabfa",
+    "reconcile_product_item_shell",
     "push_all_site_products_to_hesabfa",
     "create_invoice_for_paid_order",
     "maybe_create_invoice_after_payment",

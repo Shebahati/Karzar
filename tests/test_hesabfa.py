@@ -94,6 +94,8 @@ def test_client_raises_on_success_false(monkeypatch):
         with pytest.raises(HesabfaApiError) as exc:
             await hf.get_items()
         assert exc.value.error_code == 101
+        assert "ErrorCode=101" in str(exc.value)
+        assert "ErrorMessage=bad" in str(exc.value)
 
     asyncio.run(run())
 

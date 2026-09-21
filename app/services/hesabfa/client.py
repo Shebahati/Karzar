@@ -91,10 +91,27 @@ class HesabfaClient:
             raise HesabfaApiError(f"Hesabfa unexpected payload type for {path}")
 
         if not data.get("Success", False):
-            raise HesabfaApiError(
-                data.get("ErrorMessage") or f"Hesabfa call failed: {path}",
-                error_code=data.get("ErrorCode"),
+            error_code = data.get("ErrorCode")
+            error_message = data.get("ErrorMessage")
+            # Retain vendor ErrorCode/ErrorMessage in the exception text for ops
+            # diagnosis; never include auth fields (apiKey/loginToken/password).
+            parts = [f"Hesabfa call failed: {path}"]
+            if error_code is not None and str(error_code).strip() != "":
+                parts.append(f"ErrorCode={error_code}")
+            if error_message is not None and str(error_message).strip() != "":
+                parts.append(f"ErrorMessage={error_message}")
+            logger.warning(
+                "Hesabfa Success=false path=%s ErrorCode=%s ErrorMessage=%s",
+                path,
+                error_code,
+                error_message,
             )
+            parsed_code: int | None = None
+            if isinstance(error_code, int):
+                parsed_code = error_code
+            elif isinstance(error_code, str) and error_code.strip().isdigit():
+                parsed_code = int(error_code.strip())
+            raise HesabfaApiError(" | ".join(parts), error_code=parsed_code)
         return data.get("Result")
 
     async def get_items(
