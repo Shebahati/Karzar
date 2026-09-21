@@ -238,3 +238,20 @@ def assert_db_sentinel_matches_plane(
             f"{sentinel_plane!r}. Refusing write: declared staging / actual DB "
             "marker mismatch (CR-011 live mislabel class)."
         )
+
+
+def assert_dictionary_seed_import_allowed(
+    identity: DataPlaneIdentity,
+    *,
+    sentinel_plane: str | None,
+) -> None:
+    """Non-dry-run Property Dictionary import gate.
+
+    Allowed planes: ``development``, ``catalog_staging`` (with matching sentinel).
+    Live is always refused here — no force-production switch on this path.
+    """
+    assert_catalog_mutate_allowed(identity, allow_live_catalog_writes=False)
+    assert_db_sentinel_matches_plane(
+        declared_plane=identity.data_plane,
+        sentinel_plane=sentinel_plane,
+    )
