@@ -1,10 +1,14 @@
-"""KB-001 wave-1: project 3 edge types + queryable read path."""
+"""KB-001 wave-1: project 3 edge types + admin-only raw read path (Prompt 01)."""
 
 from datetime import UTC, datetime
 
 import pytest
+from app.api.deps import get_current_super_admin
+from app.core.security import create_access_token
 from app.main import app
 from fastapi.testclient import TestClient
+
+from tests.conftest import customer_auth_headers, override_super_admin
 
 pytestmark = pytest.mark.usefixtures("override_database")
 
@@ -46,6 +50,69 @@ def test_sync_requires_admin():
     assert anon.status_code in (401, 403)
 
 
+def test_raw_edges_anonymous_unauthorized():
+    response = client.get("/api/v1/knowledge/edges")
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "UNAUTHORIZED"
+
+
+def test_raw_edges_non_super_admin_forbidden():
+    customer = customer_auth_headers("09124445555")
+    response = client.get("/api/v1/knowledge/edges", headers=customer)
+    assert response.status_code == 403
+    assert response.json()["error_code"] == "FORBIDDEN"
+
+
+def test_raw_neighborhood_anonymous_unauthorized():
+    response = client.get("/api/v1/knowledge/products/1/neighborhood")
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "UNAUTHORIZED"
+
+
+def test_raw_neighborhood_non_super_admin_forbidden():
+    customer = customer_auth_headers("09124446666")
+    response = client.get(
+        "/api/v1/knowledge/products/1/neighborhood",
+        headers=customer,
+    )
+    assert response.status_code == 403
+    assert response.json()["error_code"] == "FORBIDDEN"
+
+
+def test_raw_edges_super_admin_ok_and_schema(super_admin_headers, valid_product_data):
+    product = _create_product(super_admin_headers, valid_product_data, sku="KB-AUTH")
+    sync = client.post(
+        "/api/v1/knowledge/projections/sync",
+        json={"product_ids": [product["id"]], "article_ids": []},
+        headers=super_admin_headers,
+    )
+    assert sync.status_code == 200
+
+    edges = client.get(
+        "/api/v1/knowledge/edges",
+        params={"from_type": "product", "from_id": product["id"]},
+        headers=super_admin_headers,
+    )
+    assert edges.status_code == 200
+    body = edges.json()
+    assert "items" in body and "total" in body
+    assert body["total"] >= 1
+    sample = body["items"][0]
+    for field in (
+        "id",
+        "edge_type",
+        "from_node_type",
+        "from_node_id",
+        "to_node_type",
+        "to_node_id",
+        "status",
+        "source_kind",
+        "recorded_at",
+        "recorder",
+    ):
+        assert field in sample
+
+
 def test_sync_as_admin_projects_edges(super_admin_headers, valid_product_data):
     product = _create_product(super_admin_headers, valid_product_data)
     sync = client.post(
@@ -71,6 +138,7 @@ def test_project_brand_and_category_edges(super_admin_headers, valid_product_dat
     edges = client.get(
         "/api/v1/knowledge/edges",
         params={"from_type": "product", "from_id": product["id"]},
+        headers=super_admin_headers,
     )
     assert edges.status_code == 200
     items = edges.json()["items"]
@@ -108,7 +176,12 @@ def test_project_article_explains_product(super_admin_headers, valid_product_dat
 
     edges = client.get(
         "/api/v1/knowledge/edges",
-        params={"edge_type": "ARTICLE_EXPLAINS_PRODUCT", "from_type": "article", "from_id": article["id"]},
+        params={
+            "edge_type": "ARTICLE_EXPLAINS_PRODUCT",
+            "from_type": "article",
+            "from_id": article["id"],
+        },
+        headers=super_admin_headers,
     )
     assert edges.status_code == 200
     items = edges.json()["items"]
@@ -116,12 +189,17 @@ def test_project_article_explains_product(super_admin_headers, valid_product_dat
     assert all(e["status"] == "asserted" for e in items)
     assert {e["to_node_id"] for e in items} == {p1["id"], p2["id"]}
 
-    neighborhood = client.get(f"/api/v1/knowledge/products/{p1['id']}/neighborhood")
+    neighborhood = client.get(
+        f"/api/v1/knowledge/products/{p1['id']}/neighborhood",
+        headers=super_admin_headers,
+    )
     assert neighborhood.status_code == 200
     body = neighborhood.json()
     assert body["product_id"] == p1["id"]
     assert body["belongs_to_category"] is not None
     assert body["branded_as"] is not None
+    assert body["belongs_to_category"]["source_kind"] == "projection"
+    assert body["belongs_to_category"]["recorder"]
     assert len(body["explained_by_articles"]) == 1
     assert body["explained_by_articles"][0]["from_node_id"] == article["id"]
 
@@ -143,6 +221,7 @@ def test_sync_idempotent(super_admin_headers, valid_product_data):
     edges = client.get(
         "/api/v1/knowledge/edges",
         params={"from_type": "product", "from_id": product["id"]},
+        headers=super_admin_headers,
     )
     # still exactly one of each commerce projection type
     items = edges.json()["items"]
@@ -150,10 +229,11 @@ def test_sync_idempotent(super_admin_headers, valid_product_data):
     assert sum(1 for e in items if e["edge_type"] == "PRODUCT_BRANDED_AS") == 1
 
 
-def test_rejects_unknown_edge_type_filter():
+def test_rejects_unknown_edge_type_filter(super_admin_headers):
     response = client.get(
         "/api/v1/knowledge/edges",
         params={"edge_type": "FREE_STRING_NOT_ALLOWED"},
+        headers=super_admin_headers,
     )
     assert response.status_code == 422
     assert response.json()["error_code"] == "INVALID_EDGE_TYPE"
@@ -177,7 +257,56 @@ def test_no_brand_edge_when_brand_null(super_admin_headers, valid_product_data):
     edges = client.get(
         "/api/v1/knowledge/edges",
         params={"from_type": "product", "from_id": product_id},
+        headers=super_admin_headers,
     )
     types = {e["edge_type"] for e in edges.json()["items"]}
     assert "PRODUCT_BELONGS_TO_CATEGORY" in types
     assert "PRODUCT_BRANDED_AS" not in types
+
+
+def test_raw_edges_auth_matrix_without_dependency_override(valid_product_data):
+    """Prove 401/403/200 against real get_current_super_admin (no override)."""
+    # Super-admin path still needs the seeded admin user from override_database;
+    # use token for that user without replacing the dependency.
+    app.dependency_overrides.pop(get_current_super_admin, None)
+
+    anon = client.get("/api/v1/knowledge/edges")
+    assert anon.status_code == 401
+
+    customer = customer_auth_headers("09124447777")
+    forbidden = client.get("/api/v1/knowledge/edges", headers=customer)
+    assert forbidden.status_code == 403
+
+    # Create product + sync via temporary override, then read with real admin token.
+    app.dependency_overrides[get_current_super_admin] = override_super_admin
+    try:
+        admin_headers = {
+            "Authorization": f"Bearer {create_access_token(subject='09120000001')}"
+        }
+        product = _create_product(admin_headers, valid_product_data, sku="KB-MATRIX")
+        sync = client.post(
+            "/api/v1/knowledge/projections/sync",
+            json={"product_ids": [product["id"]], "article_ids": []},
+            headers=admin_headers,
+        )
+        assert sync.status_code == 200
+    finally:
+        app.dependency_overrides.pop(get_current_super_admin, None)
+
+    admin_headers = {
+        "Authorization": f"Bearer {create_access_token(subject='09120000001')}"
+    }
+    ok = client.get(
+        "/api/v1/knowledge/edges",
+        params={"from_type": "product", "from_id": product["id"]},
+        headers=admin_headers,
+    )
+    assert ok.status_code == 200
+    assert ok.json()["total"] >= 1
+
+    neigh = client.get(
+        f"/api/v1/knowledge/products/{product['id']}/neighborhood",
+        headers=admin_headers,
+    )
+    assert neigh.status_code == 200
+    assert neigh.json()["product_id"] == product["id"]

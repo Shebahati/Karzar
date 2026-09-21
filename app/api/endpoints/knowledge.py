@@ -1,5 +1,6 @@
 """Knowledge Graph wave-1 read + projection sync (KB-001 / ADR-013 / ADR-014).
 
+Prompt 01: raw edge DTOs (list + neighborhood) are super-admin only.
 Prompt 11A adds super-admin Property Dictionary read endpoints (no HTTP import).
 """
 
@@ -35,7 +36,7 @@ router = APIRouter()
 @router.get(
     "/edges",
     response_model=KnowledgeEdgeListResponse,
-    summary="List knowledge edges (KB-001 freeze types)",
+    summary="List knowledge edges (KB-001 freeze types, super-admin)",
 )
 async def list_knowledge_edges(
     edge_type: str | None = Query(
@@ -50,6 +51,7 @@ async def list_knowledge_edges(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
 ) -> KnowledgeEdgeListResponse:
     if edge_type is not None and edge_type not in KB001_EDGE_TYPES:
         raise api_error(
@@ -78,12 +80,14 @@ async def list_knowledge_edges(
 @router.get(
     "/products/{product_id}/neighborhood",
     response_model=ProductNeighborhoodResponse,
-    summary="Depth-1 knowledge neighborhood for a product",
+    summary="Depth-1 knowledge neighborhood for a product (super-admin; raw edge DTO)",
 )
 async def product_neighborhood(
     product_id: int,
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
 ) -> ProductNeighborhoodResponse:
+    """Admin-only until Prompt 03 introduces a public PKE read-model DTO."""
     data = await knowledge_crud.get_product_neighborhood(db, product_id)
     return ProductNeighborhoodResponse(
         product_id=product_id,
