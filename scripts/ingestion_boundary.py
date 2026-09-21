@@ -7,8 +7,14 @@ Category B (controlled production): requires BOTH
   KARZAR_INGESTION_CATEGORY=B
 and an explicit production-host base (never a silent default).
 
-See docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md
-and docs/architecture/data-ingestion-policy.md §6–§7.
+Data-plane isolation (CATALOG_STAGING_ISOLATION):
+  When ``KARZAR_DATA_PLANE=catalog_staging``, production API hosts are always
+  refused (even with Category B). Direct DB writers should call
+  ``assert_data_plane_destination`` / ``assert_catalog_mutate_destination``.
+
+See docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md,
+docs/architecture/data-ingestion-policy.md §6–§7, and
+docs/CATALOG_STAGING_ISOLATION.md.
 """
 
 from __future__ import annotations
@@ -36,7 +42,19 @@ def assert_destination_allowed(url: str, *, label: str = "destination") -> None:
     Local / non-production hosts always pass. Production requires:
     - ``KARZAR_ALLOW_PRODUCTION_WRITE=1``
     - ``KARZAR_INGESTION_CATEGORY=B``
+
+    Catalog-staging data plane never targets production hosts.
     """
+    plane = os.getenv("KARZAR_DATA_PLANE", "").strip().lower()
+    if plane == "catalog_staging" and is_production_base(url):
+        print(
+            f"FATAL (data-plane fail-closed): {label} targets production ({url}) "
+            "while KARZAR_DATA_PLANE=catalog_staging. Use the isolated catalog-staging "
+            "API base (e.g. http://127.0.0.1:8010/api/v1).",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
     if not is_production_base(url):
         return
 
@@ -60,12 +78,54 @@ def assert_destination_allowed(url: str, *, label: str = "destination") -> None:
     raise SystemExit(2)
 
 
+def assert_data_plane_destination() -> None:
+    """Validate POSTGRES_* / KARZAR_DATA_PLANE consistency (fail closed)."""
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from app.core.data_plane import identity_from_mapping
+
+    try:
+        identity_from_mapping(os.environ)
+    except ValueError as exc:
+        print(f"FATAL (data-plane): {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+
+
+def assert_catalog_mutate_destination(*, allow_live: bool = False) -> None:
+    """Fail closed for catalog APPLY unless plane is non-live (or allow_live)."""
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from app.core.data_plane import assert_catalog_mutate_allowed, identity_from_mapping
+
+    try:
+        identity = identity_from_mapping(os.environ)
+        assert_catalog_mutate_allowed(identity, allow_live_catalog_writes=allow_live)
+    except ValueError as exc:
+        print(f"FATAL (catalog mutate): {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+
+
 def resolve_api_base(
     *,
     env_var: str = "KARZAR_API_BASE",
     default: str = LOCAL_API_DEFAULT,
+    require_data_plane: bool | None = None,
 ) -> str:
-    """Resolve ``KARZAR_API_BASE`` (local default) and enforce the production guard."""
+    """Resolve ``KARZAR_API_BASE`` (local default) and enforce the production guard.
+
+    When ``KARZAR_DATA_PLANE`` is set (or ``require_data_plane=True``), also
+    validate PostgreSQL data-plane identity if ``POSTGRES_DB`` is present.
+    """
+    if require_data_plane is None:
+        require_data_plane = bool(os.getenv("KARZAR_DATA_PLANE", "").strip()) or bool(
+            os.getenv("POSTGRES_DB", "").strip()
+            and os.getenv("KARZAR_REQUIRE_DATA_PLANE", "").strip() in {"1", "true", "yes"}
+        )
+    if require_data_plane and os.getenv("POSTGRES_DB", "").strip():
+        assert_data_plane_destination()
+
     base = os.getenv(env_var, default).rstrip("/")
     assert_destination_allowed(base, label=env_var)
     return base

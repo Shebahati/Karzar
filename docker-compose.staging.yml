@@ -2,6 +2,14 @@
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
 #
+# WARNING (CR-011): This overlay labels APP_ENV=staging but shares the base
+# compose volumes (`postgres_data`, `karzar_uploads`) and containers with the
+# live public VPS. Catalog writes here ARE live writes.
+#
+# For a truly isolated catalog rehearsal stack, use:
+#   docker-compose.catalog-staging.yml
+# See docs/CATALOG_STAGING_ISOLATION.md.
+#
 # On a VPS behind Nginx/Caddy: API/DB/Redis bind to loopback only.
 # Compose v2 `!override` replaces base `ports` (do not append public 0.0.0.0 binds).
 services:
