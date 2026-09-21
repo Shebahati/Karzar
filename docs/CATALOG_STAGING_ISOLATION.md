@@ -89,13 +89,13 @@ Both resolve destination via Settings / env. Guards require `KARZAR_DATA_PLANE=c
 | Resource | Live | Catalog staging |
 | -------- | ---- | --------------- |
 | Compose project | default / historic | `name: karzar_catalog_staging` |
-| API container | `lathe_api` | `karzar_catalog_staging_api` |
-| DB container | `lathe_postgres` | `karzar_catalog_staging_db` |
+| API container | `lathe_api` | Compose service `app` (project `karzar_catalog_staging`) |
+| DB container | `lathe_postgres` | Compose service `db` (project `karzar_catalog_staging`) |
 | Network | `karzar` | `karzar_catalog_staging_net` |
 | Postgres volume | `postgres_data` | `karzar_catalog_staging_postgres_data` |
 | Uploads volume | `karzar_uploads` | `karzar_catalog_staging_uploads` |
-| Loopback API port | `127.0.0.1:8000` | `127.0.0.1:8010` |
-| Loopback DB port | `127.0.0.1:5435` | `127.0.0.1:5436` |
+| Loopback API port | host `:8000` (live bind may be broader) | `127.0.0.1:8010` |
+| Loopback DB port | host `:5435` | `127.0.0.1:5436` |
 
 ## WRITE GUARDS
 

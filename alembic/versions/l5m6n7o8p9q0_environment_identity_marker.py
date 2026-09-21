@@ -1,7 +1,7 @@
 """Add environment_identity sentinel table.
 
 Revision ID: l5m6n7o8p9q0
-Revises: j3k4l5m6n7o8
+Revises: k4l5m6n7o8p9
 Create Date: 2026-09-21
 
 Durable non-secret marker so catalog writers can fail closed when a process
@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "l5m6n7o8p9q0"
-down_revision = "j3k4l5m6n7o8"
+down_revision = "k4l5m6n7o8p9"
 branch_labels = None
 depends_on = None
 
