@@ -221,7 +221,7 @@ async def run_precheck(
     circuit_breaker: int,
     sleep_fn: Callable[[float], Any] | None = None,
 ) -> dict[str, Any]:
-    from app.db.database import AsyncSessionLocal
+    from app.db.database import async_session_maker
     from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
 
     if not hesabfa_integration_active():
@@ -257,7 +257,7 @@ async def run_precheck(
                 "started_at": started,
             },
         )
-        async with AsyncSessionLocal() as db:
+        async with async_session_maker() as db:
             for index, entry in enumerate(plan["entries"]):
                 sku = entry["sku"]
                 product_id = entry["product_id"]
@@ -328,7 +328,7 @@ async def run_apply(
     circuit_breaker: int,
     sleep_fn: Callable[[float], Any] | None = None,
 ) -> dict[str, Any]:
-    from app.db.database import AsyncSessionLocal
+    from app.db.database import async_session_maker
     from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
     from app.services.hesabfa.item_push import reconcile_product_item_shell
 
@@ -367,7 +367,7 @@ async def run_apply(
             },
         )
         try:
-            async with AsyncSessionLocal() as db:
+            async with async_session_maker() as db:
                 for index, entry in enumerate(plan["entries"]):
                     product, _mapping = await _load_product_and_mapping(
                         db, entry["product_id"], entry["sku"]
