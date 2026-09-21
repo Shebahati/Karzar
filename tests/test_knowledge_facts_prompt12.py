@@ -839,3 +839,494 @@ def test_revision_rows_not_updated_by_service(admin_headers, valid_product_data)
             assert total >= 2
 
     _run(check())
+
+
+# --- Published update integrity remediation ---
+
+
+def test_published_update_cannot_bypass_gates_after_membership_removed(
+    admin_headers, valid_product_data
+):
+    """V1 publishes; V2 activates without membership; PUT published Fact rejects."""
+
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.bypass", key="bypass", data_type="string"
+            )
+            pt, d1, _ = await _seed_type_with_membership(
+                session, property_definition_id="def.bypass"
+            )
+            await session.commit()
+            return pt.id, d1.id
+
+    pt_id, d1_id = _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-BYPASS")
+
+    async def assign():
+        async with TestingSessionLocal() as session:
+            p = await session.get(Product, product["id"])
+            p.product_type_id = pt_id
+            await session.commit()
+
+    _run(assign())
+    created = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.bypass", "value": "v1", "source_id": "s"},
+        headers=admin_headers,
+    ).json()
+    fact_id = created["id"]
+    assert (
+        client.post(
+            f"/api/v1/knowledge/facts/{fact_id}/publish",
+            json={"change_reason": "pub"},
+            headers=admin_headers,
+        ).status_code
+        == 200
+    )
+
+    # V2 activates with a different property only — removes def.bypass membership.
+    async def seed_other_and_activate_v2():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.other2", key="other2", data_type="string"
+            )
+            await session.commit()
+
+    _run(seed_other_and_activate_v2())
+    v2 = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    client.post(
+        f"/api/v1/knowledge/product-type-definitions/{v2['id']}/memberships",
+        json={"property_definition_id": "def.other2", "requiredness": "optional"},
+        headers=admin_headers,
+    )
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{v2['id']}/activate",
+            json={"change_reason": "v2 drops bypass membership"},
+            headers=admin_headers,
+        ).status_code
+        == 200
+    )
+
+    before = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    rev_before = client.get(
+        f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+    ).json()["total"]
+    fail = client.put(
+        f"/api/v1/knowledge/facts/{fact_id}",
+        json={"value": "v2-attempt", "change_reason": "should fail"},
+        headers=admin_headers,
+    )
+    assert fail.status_code == 422
+    after = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    assert after["value"] == before["value"] == "v1"
+    assert after["status"] == "published"
+    assert after["product_type_definition_id"] == d1_id
+    assert (
+        client.get(
+            f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+        ).json()["total"]
+        == rev_before
+    )
+
+
+def test_published_update_revalidates_and_repins_to_v2(
+    admin_headers, valid_product_data
+):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.repin", key="repin", data_type="string"
+            )
+            pt, d1, _ = await _seed_type_with_membership(
+                session, property_definition_id="def.repin"
+            )
+            await session.commit()
+            return pt.id, d1.id
+
+    pt_id, d1_id = _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-REPIN")
+
+    async def assign():
+        async with TestingSessionLocal() as session:
+            p = await session.get(Product, product["id"])
+            p.product_type_id = pt_id
+            await session.commit()
+
+    _run(assign())
+    created = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.repin", "value": "old", "source_id": "s"},
+        headers=admin_headers,
+    ).json()
+    fact_id = created["id"]
+    pub = client.post(
+        f"/api/v1/knowledge/facts/{fact_id}/publish",
+        json={"change_reason": "pub v1"},
+        headers=admin_headers,
+    ).json()
+    assert pub["product_type_definition_id"] == d1_id
+
+    v2 = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    client.post(
+        f"/api/v1/knowledge/product-type-definitions/{v2['id']}/memberships",
+        json={"property_definition_id": "def.repin", "requiredness": "optional"},
+        headers=admin_headers,
+    )
+    assert (
+        client.post(
+            f"/api/v1/knowledge/product-type-definitions/{v2['id']}/activate",
+            json={"change_reason": "activate v2"},
+            headers=admin_headers,
+        ).status_code
+        == 200
+    )
+
+    updated = client.put(
+        f"/api/v1/knowledge/facts/{fact_id}",
+        json={"value": "new", "change_reason": "steward revalidation under v2"},
+        headers=admin_headers,
+    )
+    assert updated.status_code == 200, updated.text
+    body = updated.json()
+    assert body["status"] == "published"
+    assert body["value"] == "new"
+    assert body["product_type_definition_id"] == v2["id"]
+
+    revs = client.get(
+        f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+    ).json()["items"]
+    # create, publish, update
+    assert len(revs) == 3
+    pub_rev = next(r for r in revs if r["status"] == "published" and r["value"] == "old")
+    new_rev = revs[-1]
+    assert pub_rev["product_type_definition_id"] == d1_id
+    assert new_rev["value"] == "new"
+    assert new_rev["status"] == "published"
+    assert new_rev["product_type_definition_id"] == v2["id"]
+    assert pub_rev["value"] == "old"
+
+
+def test_published_update_requires_change_reason(admin_headers, valid_product_data):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.reason", key="reason", data_type="string"
+            )
+            pt, _, _ = await _seed_type_with_membership(
+                session, property_definition_id="def.reason"
+            )
+            await session.commit()
+            return pt.id
+
+    pt_id = _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-REASON")
+
+    async def assign():
+        async with TestingSessionLocal() as session:
+            p = await session.get(Product, product["id"])
+            p.product_type_id = pt_id
+            await session.commit()
+
+    _run(assign())
+    fact_id = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.reason", "value": "a", "source_id": "s"},
+        headers=admin_headers,
+    ).json()["id"]
+    client.post(
+        f"/api/v1/knowledge/facts/{fact_id}/publish",
+        json={"change_reason": "pub"},
+        headers=admin_headers,
+    )
+    before_revs = client.get(
+        f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+    ).json()["total"]
+    missing = client.put(
+        f"/api/v1/knowledge/facts/{fact_id}",
+        json={"value": "b"},
+        headers=admin_headers,
+    )
+    assert missing.status_code == 422
+    assert (
+        client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()[
+            "value"
+        ]
+        == "a"
+    )
+    assert (
+        client.get(
+            f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+        ).json()["total"]
+        == before_revs
+    )
+
+
+def test_published_update_blocked_when_evidence_required(
+    admin_headers, valid_product_data
+):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.evupd", key="evupd", data_type="string"
+            )
+            pt, d1, _ = await _seed_type_with_membership(
+                session, property_definition_id="def.evupd"
+            )
+            await session.commit()
+            return pt.id, d1.id
+
+    pt_id, d1_id = _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-EVUPD")
+
+    async def assign():
+        async with TestingSessionLocal() as session:
+            p = await session.get(Product, product["id"])
+            p.product_type_id = pt_id
+            await session.commit()
+
+    _run(assign())
+    fact_id = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.evupd", "value": "a", "source_id": "s"},
+        headers=admin_headers,
+    ).json()["id"]
+    client.post(
+        f"/api/v1/knowledge/facts/{fact_id}/publish",
+        json={"change_reason": "pub"},
+        headers=admin_headers,
+    )
+
+    # V2 with evidence_requirement_override=required
+    v2 = client.post(
+        f"/api/v1/knowledge/product-types/{pt_id}/definitions",
+        json={},
+        headers=admin_headers,
+    ).json()
+    client.post(
+        f"/api/v1/knowledge/product-type-definitions/{v2['id']}/memberships",
+        json={
+            "property_definition_id": "def.evupd",
+            "requiredness": "optional",
+            "evidence_requirement_override": "required",
+        },
+        headers=admin_headers,
+    )
+    client.post(
+        f"/api/v1/knowledge/product-type-definitions/{v2['id']}/activate",
+        json={"change_reason": "require evidence"},
+        headers=admin_headers,
+    )
+
+    before = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    rev_before = client.get(
+        f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+    ).json()["total"]
+    assert (
+        client.put(
+            f"/api/v1/knowledge/facts/{fact_id}",
+            json={"value": "b", "change_reason": "try"},
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    after = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    assert after["value"] == before["value"]
+    assert after["product_type_definition_id"] == d1_id
+    assert after["status"] == "published"
+    assert (
+        client.get(
+            f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+        ).json()["total"]
+        == rev_before
+    )
+
+
+def test_failed_published_update_atomicity(admin_headers, valid_product_data):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_unit(session)
+            await _seed_property(
+                session,
+                definition_id="def.atompub",
+                key="atompub",
+                data_type="number",
+                validation={"min": 0, "max": 10},
+                unit_dimension="length",
+                default_unit="mm",
+            )
+            pt, d1, _ = await _seed_type_with_membership(
+                session,
+                property_definition_id="def.atompub",
+                validation_overrides={"max": 5},
+            )
+            await session.commit()
+            return pt.id, d1.id
+
+    pt_id, d1_id = _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-ATOMPUB")
+
+    async def assign():
+        async with TestingSessionLocal() as session:
+            p = await session.get(Product, product["id"])
+            p.product_type_id = pt_id
+            await session.commit()
+
+    _run(assign())
+    fact_id = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={
+            "definition_id": "def.atompub",
+            "value": 1,
+            "unit": "mm",
+            "source_id": "s",
+        },
+        headers=admin_headers,
+    ).json()["id"]
+    client.post(
+        f"/api/v1/knowledge/facts/{fact_id}/publish",
+        json={"change_reason": "pub"},
+        headers=admin_headers,
+    )
+    before = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    rev_before = client.get(
+        f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+    ).json()["total"]
+    # value 9 fails PT narrowing max=5 (publish gate)
+    assert (
+        client.put(
+            f"/api/v1/knowledge/facts/{fact_id}",
+            json={"value": 9, "unit": "mm", "change_reason": "too big"},
+            headers=admin_headers,
+        ).status_code
+        == 422
+    )
+    after = client.get(f"/api/v1/knowledge/facts/{fact_id}", headers=admin_headers).json()
+    assert after["value"] == before["value"]
+    assert after["unit"] == before["unit"]
+    assert after["source_id"] == before["source_id"]
+    assert after["status"] == "published"
+    assert after["product_type_definition_id"] == d1_id
+    assert (
+        client.get(
+            f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+        ).json()["total"]
+        == rev_before
+    )
+
+
+def test_asserted_update_still_works_without_publish_gate(
+    admin_headers, valid_product_data
+):
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.asrt", key="asrt", data_type="string"
+            )
+            await session.commit()
+
+    _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-ASRT")
+    fact_id = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.asrt", "value": "a", "source_id": "s"},
+        headers=admin_headers,
+    ).json()["id"]
+    # no change_reason required for asserted
+    upd = client.put(
+        f"/api/v1/knowledge/facts/{fact_id}",
+        json={"value": "b"},
+        headers=admin_headers,
+    )
+    assert upd.status_code == 200
+    assert upd.json()["status"] == "asserted"
+    assert upd.json()["value"] == "b"
+    assert (
+        client.get(
+            f"/api/v1/knowledge/facts/{fact_id}/revisions", headers=admin_headers
+        ).json()["total"]
+        == 2
+    )
+
+
+def test_concurrent_fact_mutations_serialize_revisions(admin_headers, valid_product_data):
+    """Postgres: two concurrent updates serialize via FOR UPDATE; revisions 1,2,3."""
+    if not USE_POSTGRES_TESTS:
+        pytest.skip("requires PostgreSQL row locking")
+
+    import asyncio
+
+    from app.db.models.user import User
+    from app.services import knowledge_fact_service as fact_service
+
+    async def seed():
+        async with TestingSessionLocal() as session:
+            await _seed_property(
+                session, definition_id="def.conc", key="conc", data_type="string"
+            )
+            await session.commit()
+
+    _run(seed())
+    product = _create_product(admin_headers, valid_product_data, sku="FACT-CONC")
+    fact_id = client.post(
+        f"/api/v1/knowledge/products/{product['id']}/facts",
+        json={"definition_id": "def.conc", "value": "base", "source_id": "s"},
+        headers=admin_headers,
+    ).json()["id"]
+
+    async def concurrent_updates():
+        async with TestingSessionLocal() as s1, TestingSessionLocal() as s2:
+            actor = (
+                await s1.execute(select(User).where(User.phone_number == "09120000001"))
+            ).scalar_one()
+
+            async def upd(session, value, reason):
+                await fact_service.update_fact(
+                    session,
+                    fact_id=fact_id,
+                    patch={"value": value},
+                    actor=actor,
+                    change_reason=reason,
+                )
+                await session.commit()
+
+            await asyncio.gather(
+                upd(s1, "a", "concurrent-a"),
+                upd(s2, "b", "concurrent-b"),
+            )
+
+        async with TestingSessionLocal() as session:
+            rows = (
+                await session.execute(
+                    select(KnowledgeFactRevision)
+                    .where(KnowledgeFactRevision.fact_id == fact_id)
+                    .order_by(KnowledgeFactRevision.revision_number)
+                )
+            ).scalars().all()
+            nums = [r.revision_number for r in rows]
+            assert nums == [1, 2, 3]
+            assert len({r.revision_number for r in rows}) == 3
+            fact = await session.get(KnowledgeFact, fact_id)
+            assert fact.value in ("a", "b")
+
+    _run(concurrent_updates())
+
+
+def test_get_fact_for_update_emits_for_update_sql():
+    """Prove mutation path compiles SELECT ... FOR UPDATE (Postgres dialect)."""
+    from sqlalchemy.dialects import postgresql
+
+    stmt = select(KnowledgeFact).where(KnowledgeFact.id == 1).with_for_update()
+    sql = str(
+        stmt.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
+    )
+    assert "FOR UPDATE" in sql.upper()

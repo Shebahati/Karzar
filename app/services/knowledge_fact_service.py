@@ -5,11 +5,14 @@ Ownership:
   Product Type Definition — applicability / narrowing
   Fact — product-specific value
 
+Published Fact mutations re-run the full publish gate (candidate-first).
+Existing-Fact mutations lock the Fact row (FOR UPDATE) to serialize revisions.
 No JSONB dual-write. No Evidence tables. No Product Type assignment.
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
@@ -45,6 +48,17 @@ ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "disputed": frozenset({"deprecated"}),
     "deprecated": frozenset(),
 }
+
+
+@dataclass(frozen=True, slots=True)
+class PublishValidationResult:
+    """Outcome of the single authoritative publication validation path."""
+
+    normalized_value: Any
+    normalized_unit: str | None
+    product_type_definition_id: int
+    source_id: str
+    confidence: Decimal | None
 
 
 def recorder_from_user(user: User) -> str:
@@ -170,7 +184,7 @@ def _assert_applicability_for_write(
     membership: ProductTypeAttributeMembership | None,
     property_definition_id: str,
 ) -> None:
-    """Asserted Facts: enforce forbidden/missing membership when Definition exists."""
+    """Asserted/disputed Facts: enforce forbidden/missing membership when Definition exists."""
     if product.product_type_id is None:
         return
     if active_definition is None:
@@ -226,6 +240,7 @@ async def _append_revision(
     *,
     change_reason: str | None,
 ) -> KnowledgeFactRevision:
+    """Append next revision. Caller MUST hold Fact row lock for existing Facts."""
     current_max = (
         await db.execute(
             select(func.max(KnowledgeFactRevision.revision_number)).where(
@@ -265,6 +280,25 @@ async def get_fact(db: AsyncSession, fact_id: int) -> KnowledgeFact:
     return fact
 
 
+async def get_fact_for_update(db: AsyncSession, fact_id: int) -> KnowledgeFact:
+    """Load Fact with row lock to serialize mutations/revision numbering."""
+    fact = (
+        await db.execute(
+            select(KnowledgeFact)
+            .where(KnowledgeFact.id == fact_id)
+            .with_for_update()
+        )
+    ).scalar_one_or_none()
+    if fact is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="Fact not found",
+            details=[{"field": "fact_id", "message": "not found"}],
+        )
+    return fact
+
+
 async def list_facts_for_product(
     db: AsyncSession,
     product_id: int,
@@ -293,6 +327,95 @@ async def list_revisions(
         )
         .scalars()
         .all()
+    )
+
+
+async def validate_publish_candidate(
+    db: AsyncSession,
+    *,
+    entity_id: int,
+    definition_id: str,
+    value: Any,
+    unit: str | None,
+    source_id: str,
+    confidence: Decimal | float | None,
+) -> PublishValidationResult:
+    """Single authoritative publication validation path (candidate-first; no ORM mutate)."""
+    product = await _get_product(db, entity_id)
+    prop = await _get_active_property(db, definition_id)
+    source = _require_source_id(source_id)
+    conf = _validate_confidence(confidence)
+
+    if product.product_type_id is None:
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="Cannot publish Fact for Product without product_type_id",
+            details=[{"field": "product_type_id", "message": "required for publish"}],
+        )
+
+    active_definition = await _get_active_definition(db, product.product_type_id)
+    if active_definition is None:
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="Cannot publish Fact without an active Product Type Definition",
+            details=[
+                {
+                    "field": "product_type_definition_id",
+                    "message": "no active Definition",
+                }
+            ],
+        )
+
+    membership = _membership_for(active_definition, definition_id)
+    if membership is None:
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="Property is not a member of the active Product Type Definition",
+            details=[{"field": "definition_id", "message": "missing membership"}],
+        )
+    if membership.requiredness == MembershipRequiredness.FORBIDDEN.value:
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message="Cannot publish forbidden Property for this Product Type",
+            details=[{"field": "definition_id", "message": "forbidden"}],
+        )
+    _evaluate_conditional_or_fail(membership)
+
+    if membership.evidence_requirement_override == "required":
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            error_code=ErrorCode.VALIDATION_FAILED,
+            message=(
+                "Membership requires Evidence before publish; "
+                "Evidence runtime is Prompt 13 — fail closed"
+            ),
+            details=[
+                {
+                    "field": "evidence_requirement_override",
+                    "message": "required",
+                }
+            ],
+        )
+
+    units = await _list_units_for_dimension(db, prop.unit_dimension)
+    normalized, resolved_unit = validate_fact_payload(
+        property_definition=prop,
+        value=value,
+        unit=unit,
+        units=units,
+        overrides=membership.validation_overrides,
+        for_publish=True,
+    )
+    return PublishValidationResult(
+        normalized_value=normalized,
+        normalized_unit=resolved_unit,
+        product_type_definition_id=active_definition.id,
+        source_id=source,
+        confidence=conf,
     )
 
 
@@ -380,7 +503,7 @@ async def update_fact(
     actor: User,
     change_reason: str | None = None,
 ) -> KnowledgeFact:
-    fact = await get_fact(db, fact_id)
+    fact = await get_fact_for_update(db, fact_id)
     if fact.status == "deprecated":
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -396,23 +519,58 @@ async def update_fact(
             details=[{"field": "status", "message": "not allowed on update"}],
         )
 
-    product = await _get_product(db, fact.entity_id)
-    prop = await _get_active_property(db, fact.definition_id)
-
-    value = patch["value"] if "value" in patch else fact.value
-    unit = patch["unit"] if "unit" in patch else fact.unit
-    qualifier = patch["qualifier"] if "qualifier" in patch else fact.qualifier
-    source_id = (
+    # Candidate-first: assemble proposed state before any ORM mutation.
+    candidate_value = patch["value"] if "value" in patch else fact.value
+    candidate_unit = patch["unit"] if "unit" in patch else fact.unit
+    candidate_qualifier = (
+        patch["qualifier"] if "qualifier" in patch else fact.qualifier
+    )
+    candidate_source = (
         _require_source_id(patch["source_id"])
         if "source_id" in patch
         else fact.source_id
     )
-    confidence = (
+    candidate_confidence = (
         _validate_confidence(patch.get("confidence"))
         if "confidence" in patch
         else fact.confidence
     )
 
+    if fact.status == "published":
+        reason = (change_reason or "").strip()
+        if not reason:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="change_reason is required when updating a published Fact",
+                details=[{"field": "change_reason", "message": "required"}],
+            )
+        publish_result = await validate_publish_candidate(
+            db,
+            entity_id=fact.entity_id,
+            definition_id=fact.definition_id,
+            value=candidate_value,
+            unit=candidate_unit,
+            source_id=candidate_source,
+            confidence=candidate_confidence,
+        )
+        fact.value = publish_result.normalized_value
+        fact.unit = publish_result.normalized_unit
+        fact.qualifier = candidate_qualifier
+        fact.source_id = publish_result.source_id
+        fact.confidence = publish_result.confidence
+        fact.product_type_definition_id = publish_result.product_type_definition_id
+        # status remains published
+        fact.recorded_at = datetime.now(UTC)
+        fact.recorder = recorder_from_user(actor)
+        await db.flush()
+        await _append_revision(db, fact, change_reason=reason)
+        await db.refresh(fact)
+        return fact
+
+    # asserted / disputed: assertion-time validation (not full publish gate)
+    product = await _get_product(db, fact.entity_id)
+    prop = await _get_active_property(db, fact.definition_id)
     active_definition: ProductTypeDefinition | None = None
     membership: ProductTypeAttributeMembership | None = None
     if product.product_type_id is not None:
@@ -429,8 +587,8 @@ async def update_fact(
     overrides = membership.validation_overrides if membership else None
     normalized, resolved_unit = validate_fact_payload(
         property_definition=prop,
-        value=value,
-        unit=unit,
+        value=candidate_value,
+        unit=candidate_unit,
         units=units,
         overrides=overrides,
         for_publish=False,
@@ -438,10 +596,9 @@ async def update_fact(
 
     fact.value = normalized
     fact.unit = resolved_unit
-    fact.qualifier = qualifier
-    fact.source_id = source_id
-    fact.confidence = confidence
-    # Keep historical pin for published/disputed; refresh pin for asserted when Definition exists.
+    fact.qualifier = candidate_qualifier
+    fact.source_id = candidate_source
+    fact.confidence = candidate_confidence
     if fact.status == "asserted" and active_definition is not None:
         fact.product_type_definition_id = active_definition.id
     fact.recorded_at = datetime.now(UTC)
@@ -480,7 +637,7 @@ async def _transition(
             details=[{"field": "change_reason", "message": "required"}],
         )
 
-    fact = await get_fact(db, fact_id)
+    fact = await get_fact_for_update(db, fact_id)
     allowed = ALLOWED_TRANSITIONS.get(fact.status, frozenset())
     if to_status not in allowed:
         raise api_error(
@@ -496,7 +653,20 @@ async def _transition(
         )
 
     if to_status == "published":
-        await _enforce_publish_gates(db, fact)
+        publish_result = await validate_publish_candidate(
+            db,
+            entity_id=fact.entity_id,
+            definition_id=fact.definition_id,
+            value=fact.value,
+            unit=fact.unit,
+            source_id=fact.source_id,
+            confidence=fact.confidence,
+        )
+        fact.value = publish_result.normalized_value
+        fact.unit = publish_result.normalized_unit
+        fact.source_id = publish_result.source_id
+        fact.confidence = publish_result.confidence
+        fact.product_type_definition_id = publish_result.product_type_definition_id
 
     fact.status = to_status
     fact.recorded_at = datetime.now(UTC)
@@ -505,81 +675,6 @@ async def _transition(
     await _append_revision(db, fact, change_reason=reason)
     await db.refresh(fact)
     return fact
-
-
-async def _enforce_publish_gates(db: AsyncSession, fact: KnowledgeFact) -> None:
-    product = await _get_product(db, fact.entity_id)
-    prop = await _get_active_property(db, fact.definition_id)
-
-    if product.product_type_id is None:
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message="Cannot publish Fact for Product without product_type_id",
-            details=[{"field": "product_type_id", "message": "required for publish"}],
-        )
-
-    active_definition = await _get_active_definition(db, product.product_type_id)
-    if active_definition is None:
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message="Cannot publish Fact without an active Product Type Definition",
-            details=[
-                {
-                    "field": "product_type_definition_id",
-                    "message": "no active Definition",
-                }
-            ],
-        )
-
-    membership = _membership_for(active_definition, fact.definition_id)
-    if membership is None:
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message="Property is not a member of the active Product Type Definition",
-            details=[{"field": "definition_id", "message": "missing membership"}],
-        )
-    if membership.requiredness == MembershipRequiredness.FORBIDDEN.value:
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message="Cannot publish forbidden Property for this Product Type",
-            details=[{"field": "definition_id", "message": "forbidden"}],
-        )
-    _evaluate_conditional_or_fail(membership)
-
-    if membership.evidence_requirement_override == "required":
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message=(
-                "Membership requires Evidence before publish; "
-                "Evidence runtime is Prompt 13 — fail closed"
-            ),
-            details=[
-                {
-                    "field": "evidence_requirement_override",
-                    "message": "required",
-                }
-            ],
-        )
-
-    units = await _list_units_for_dimension(db, prop.unit_dimension)
-    validate_fact_payload(
-        property_definition=prop,
-        value=fact.value,
-        unit=fact.unit,
-        units=units,
-        overrides=membership.validation_overrides,
-        for_publish=True,
-    )
-    _require_source_id(fact.source_id)
-
-    # Pin the active Definition used for this publication (do not rewrite older pins
-    # on already-published Facts from prior versions — this Fact is asserted→published).
-    fact.product_type_definition_id = active_definition.id
 
 
 async def publish_fact(
