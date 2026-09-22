@@ -458,6 +458,62 @@ class EvidenceLinkCreateRequest(BaseModel):
     notes: str | None = None
 
 
+# --- Prompt 41 governed SKU-unit batch assert ---
+
+
+class KnowledgeBatchAssertFactItem(BaseModel):
+    definition_id: str = Field(min_length=1, max_length=64)
+    value: Any
+    unit: str | None = Field(default=None, max_length=32)
+    qualifier: str | None = Field(default=None, max_length=64)
+    source_id: str = Field(min_length=1, max_length=255)
+    confidence: Decimal | None = Field(default=None, ge=0, le=1)
+
+
+class KnowledgeBatchAssertEvidenceItem(BaseModel):
+    artifact_id: int
+    locator: dict[str, Any]
+    notes: str | None = None
+
+
+class KnowledgeBatchAssertRequest(BaseModel):
+    """Immutable Batch 1 SKU unit payload (manifest-pinned)."""
+
+    manifest_sha256: str = Field(min_length=64, max_length=64)
+    sku: str = Field(min_length=1, max_length=50)
+    product_type_id: int
+    definition_id: int
+    facts: list[KnowledgeBatchAssertFactItem]
+    evidence_links: list[KnowledgeBatchAssertEvidenceItem]
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class KnowledgeBatchAssertFactSummary(BaseModel):
+    id: int
+    definition_id: str
+    status: FactStatus
+    source_id: str
+
+
+class KnowledgeBatchAssertLinkSummary(BaseModel):
+    id: int
+    fact_id: int | None = None
+    artifact_id: int
+    relation_type: Literal["FACT_SUPPORTED_BY", "EDGE_SUPPORTED_BY"]
+
+
+class KnowledgeBatchAssertResponse(BaseModel):
+    product_id: int
+    sku: str
+    product_type_id: int | None = None
+    definition_id: int
+    manifest_sha256: str
+    facts: list[KnowledgeBatchAssertFactSummary]
+    evidence_links: list[KnowledgeBatchAssertLinkSummary]
+    published_count: int
+    specifications_fingerprint: str
+
+
 class EvidenceLinkResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

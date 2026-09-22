@@ -11,6 +11,7 @@ from app.api.endpoints import (
     cms,
     hesabfa,
     knowledge,
+    knowledge_batch,
     knowledge_evidence,
     knowledge_facts,
     knowledge_taxonomy,
@@ -51,6 +52,11 @@ api_router.include_router(
 )
 api_router.include_router(
     knowledge_facts.router,
+    prefix="/knowledge",
+    tags=["Knowledge"],
+)
+api_router.include_router(
+    knowledge_batch.router,
     prefix="/knowledge",
     tags=["Knowledge"],
 )
