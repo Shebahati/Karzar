@@ -8338,6 +8338,80 @@
         }
       }
     },
+    "/api/v1/knowledge/products/{product_id}/kb-batch-assert": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Atomic SKU KB unit: assign GEN_CALIPER + assert 3 Facts + 3 Evidence links",
+        "description": "Single commit for one Product KB assertion unit (Prompt 41).\n\nNever publishes Facts. Never creates Evidence Artifacts. Never mutates JSONB.",
+        "operationId": "kb_batch_assert_api_v1_knowledge_products__product_id__kb_batch_assert_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeBatchAssertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeBatchAssertResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge/evidence/artifacts": {
       "post": {
         "tags": [
@@ -15256,6 +15330,296 @@
           "items"
         ],
         "title": "IssueQuoteRequest"
+      },
+      "KnowledgeBatchAssertEvidenceItem": {
+        "properties": {
+          "artifact_id": {
+            "type": "integer",
+            "title": "Artifact Id"
+          },
+          "locator": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Locator"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "locator"
+        ],
+        "title": "KnowledgeBatchAssertEvidenceItem"
+      },
+      "KnowledgeBatchAssertFactItem": {
+        "properties": {
+          "definition_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Definition Id"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "qualifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualifier"
+          },
+          "source_id": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Source Id"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "definition_id",
+          "value",
+          "source_id"
+        ],
+        "title": "KnowledgeBatchAssertFactItem"
+      },
+      "KnowledgeBatchAssertFactSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "definition_id": {
+            "type": "string",
+            "title": "Definition Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "asserted",
+              "published",
+              "disputed",
+              "deprecated"
+            ],
+            "title": "Status"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "definition_id",
+          "status",
+          "source_id"
+        ],
+        "title": "KnowledgeBatchAssertFactSummary"
+      },
+      "KnowledgeBatchAssertLinkSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "fact_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Id"
+          },
+          "artifact_id": {
+            "type": "integer",
+            "title": "Artifact Id"
+          },
+          "relation_type": {
+            "type": "string",
+            "enum": [
+              "FACT_SUPPORTED_BY",
+              "EDGE_SUPPORTED_BY"
+            ],
+            "title": "Relation Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "artifact_id",
+          "relation_type"
+        ],
+        "title": "KnowledgeBatchAssertLinkSummary"
+      },
+      "KnowledgeBatchAssertRequest": {
+        "properties": {
+          "manifest_sha256": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Manifest Sha256"
+          },
+          "sku": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Sku"
+          },
+          "product_type_id": {
+            "type": "integer",
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "type": "integer",
+            "title": "Definition Id"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertFactItem"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "evidence_links": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertEvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence Links"
+          },
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "manifest_sha256",
+          "sku",
+          "product_type_id",
+          "definition_id",
+          "facts",
+          "evidence_links",
+          "change_reason"
+        ],
+        "title": "KnowledgeBatchAssertRequest",
+        "description": "Immutable Batch 1 SKU unit payload (manifest-pinned)."
+      },
+      "KnowledgeBatchAssertResponse": {
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "title": "Product Id"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "product_type_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "type": "integer",
+            "title": "Definition Id"
+          },
+          "manifest_sha256": {
+            "type": "string",
+            "title": "Manifest Sha256"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertFactSummary"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "evidence_links": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertLinkSummary"
+            },
+            "type": "array",
+            "title": "Evidence Links"
+          },
+          "published_count": {
+            "type": "integer",
+            "title": "Published Count"
+          },
+          "specifications_fingerprint": {
+            "type": "string",
+            "title": "Specifications Fingerprint"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "sku",
+          "definition_id",
+          "manifest_sha256",
+          "facts",
+          "evidence_links",
+          "published_count",
+          "specifications_fingerprint"
+        ],
+        "title": "KnowledgeBatchAssertResponse"
       },
       "KnowledgeEdgeListResponse": {
         "properties": {
