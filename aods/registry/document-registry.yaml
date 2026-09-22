@@ -665,7 +665,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
 
   - id: PROMPT-41-RESULT
     path: audit/insize-phase3/PROMPT_41_RESULT.md
@@ -673,4 +673,4 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
