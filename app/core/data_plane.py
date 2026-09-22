@@ -219,24 +219,74 @@ def assert_db_sentinel_matches_plane(
     *,
     declared_plane: str,
     sentinel_plane: str | None,
+    require_match: bool = False,
 ) -> None:
     """Fail closed when ``environment_identity.plane`` disagrees with declaration.
 
     ``sentinel_plane=None`` means the marker table/row is absent (pre-migration).
-    Catalog-staging writes require an explicit matching sentinel.
+
+    Default behavior (``require_match=False``): catalog-staging writes require an
+    explicit matching sentinel; live/development skip (historical path for the
+    ordinary dictionary importer).
+
+    ``require_match=True``: declared plane must equal sentinel exactly (used by
+    the live-only dictionary importer). Missing sentinel refuses.
     """
     declared = normalize_data_plane(declared_plane)
     if declared is None:
         raise ValueError("declared data plane is required for sentinel validation")
-    if declared != "catalog_staging":
-        # Live/development do not require the staging sentinel.
-        return
     sentinel = normalize_data_plane(sentinel_plane)
+    if require_match:
+        if sentinel is None:
+            raise ValueError(
+                f"environment_identity.plane is missing/absent but "
+                f"KARZAR_DATA_PLANE={declared!r} requires an exact sentinel match. "
+                "Refusing write (run migration that creates environment_identity)."
+            )
+        if sentinel != declared:
+            raise ValueError(
+                f"KARZAR_DATA_PLANE={declared!r} but environment_identity.plane="
+                f"{sentinel_plane!r}. Refusing write: declared / DB marker mismatch."
+            )
+        return
+    if declared != "catalog_staging":
+        # Live/development do not require the staging sentinel (ordinary importer).
+        return
     if sentinel != "catalog_staging":
         raise ValueError(
             "KARZAR_DATA_PLANE=catalog_staging but environment_identity.plane="
             f"{sentinel_plane!r}. Refusing write: declared staging / actual DB "
             "marker mismatch (CR-011 live mislabel class)."
+        )
+
+
+def assert_live_db_sentinel(*, sentinel_plane: str | None) -> None:
+    """Live Dictionary import: require environment_identity.plane == live."""
+    assert_db_sentinel_matches_plane(
+        declared_plane="live",
+        sentinel_plane=sentinel_plane,
+        require_match=True,
+    )
+
+
+def assert_category_b_production_write(
+    *,
+    allow_production_write: str | None,
+    ingestion_category: str | None,
+) -> None:
+    """Require ADR-012 Category B pair (exact env spellings)."""
+    allow = (allow_production_write or "").strip()
+    category = (ingestion_category or "").strip().upper()
+    errors: list[str] = []
+    if allow != "1":
+        errors.append("set KARZAR_ALLOW_PRODUCTION_WRITE=1")
+    if category != "B":
+        errors.append("set KARZAR_INGESTION_CATEGORY=B")
+    if errors:
+        raise ValueError(
+            "Live Property Dictionary import refused: Category B incomplete — "
+            + "; ".join(errors)
+            + "."
         )
 
 
@@ -246,7 +296,7 @@ def assert_dictionary_seed_import_allowed(
     sentinel_plane: str | None,
     extra_live_db_names: str | None = None,
 ) -> None:
-    """Non-dry-run Property Dictionary import gate.
+    """Non-dry-run Property Dictionary import gate (ordinary importer).
 
     Order:
       1. Reject any postgres_db in the live DB denylist (plane-independent)
@@ -268,3 +318,45 @@ def assert_dictionary_seed_import_allowed(
         declared_plane=identity.data_plane,
         sentinel_plane=sentinel_plane,
     )
+
+
+def assert_live_dictionary_seed_import_allowed(
+    identity: DataPlaneIdentity,
+    *,
+    sentinel_plane: str | None,
+    allow_production_write: str | None,
+    ingestion_category: str | None,
+    extra_live_db_names: str | None = None,
+) -> None:
+    """Non-dry-run LIVE-only Property Dictionary import gate.
+
+    Order:
+      1. Require explicit KARZAR_DATA_PLANE=live (no inferred plane)
+      2. Require postgres_db ∈ live denylist (known live target)
+      3. Require ADR-012 Category B + production-write flag
+      4. Require environment_identity.plane == live
+    """
+    if identity.inferred_data_plane:
+        raise ValueError(
+            "Live Property Dictionary import refused: KARZAR_DATA_PLANE must be "
+            "set explicitly to 'live' (inferred plane is not accepted)."
+        )
+    if identity.data_plane != "live":
+        raise ValueError(
+            "Live Property Dictionary import refused: KARZAR_DATA_PLANE must be "
+            f"'live' (got {identity.data_plane!r}). Use "
+            "scripts/seed_property_dictionary.py for development/catalog_staging."
+        )
+    deny = live_db_denylist(extra=extra_live_db_names)
+    db_lower = (identity.postgres_db or "").strip().lower()
+    if db_lower not in deny:
+        raise ValueError(
+            "Live Property Dictionary import refused: POSTGRES_DB="
+            f"{identity.postgres_db!r} is not a recognized LIVE database. "
+            f"Approved live names: {', '.join(sorted(deny))}."
+        )
+    assert_category_b_production_write(
+        allow_production_write=allow_production_write,
+        ingestion_category=ingestion_category,
+    )
+    assert_live_db_sentinel(sentinel_plane=sentinel_plane)
