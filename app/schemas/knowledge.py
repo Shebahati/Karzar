@@ -382,3 +382,173 @@ class KnowledgeFactRevisionResponse(BaseModel):
 class KnowledgeFactRevisionListResponse(BaseModel):
     items: list[KnowledgeFactRevisionResponse]
     total: int
+
+
+# --- Prompt 13 Evidence + Taxonomy (admin) ---
+
+EvidenceArtifactKind = Literal[
+    "oem_catalogue",
+    "datasheet",
+    "standard",
+    "certificate",
+    "lab_report",
+    "manual",
+    "other",
+]
+
+TaxonomyDimension = Literal[
+    "domain",
+    "family",
+    "application",
+    "industry",
+    "technical",
+    "commerce_category",
+]
+
+TaxonomyStatus = Literal["draft", "active", "deprecated"]
+
+ClassificationAssignmentRole = Literal[
+    "application",
+    "industry",
+    "technical",
+    "secondary_domain",
+    "product_type_bridge",
+]
+
+
+class EvidenceArtifactCreateRequest(BaseModel):
+    artifact_id: str = Field(min_length=1, max_length=64)
+    kind: EvidenceArtifactKind
+    title: str | None = Field(default=None, max_length=255)
+    source_url: str | None = Field(default=None, max_length=1024)
+    source_ref: str | None = Field(default=None, max_length=255)
+    checksum_sha256: str | None = Field(default=None, max_length=64)
+    publisher: str | None = Field(default=None, max_length=255)
+    document_version: str | None = Field(default=None, max_length=64)
+    notes: str | None = None
+
+
+class EvidenceArtifactResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    artifact_id: str
+    kind: EvidenceArtifactKind
+    title: str | None = None
+    source_url: str | None = None
+    source_ref: str | None = None
+    checksum_sha256: str | None = None
+    publisher: str | None = None
+    document_version: str | None = None
+    recorded_at: datetime
+    recorder: str
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class EvidenceArtifactListResponse(BaseModel):
+    items: list[EvidenceArtifactResponse]
+    total: int
+
+
+class EvidenceLinkCreateRequest(BaseModel):
+    artifact_id: int
+    locator: dict[str, Any] | None = None
+    notes: str | None = None
+
+
+class EvidenceLinkResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    artifact_id: int
+    target_type: Literal["fact", "edge"]
+    fact_id: int | None = None
+    edge_id: int | None = None
+    relation_type: Literal["FACT_SUPPORTED_BY", "EDGE_SUPPORTED_BY"]
+    locator: dict[str, Any]
+    locator_fingerprint: str
+    recorded_at: datetime
+    recorder: str
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class EvidenceLinkListResponse(BaseModel):
+    items: list[EvidenceLinkResponse]
+    total: int
+
+
+class TaxonomyNodeCreateRequest(BaseModel):
+    node_id: str = Field(min_length=1, max_length=64)
+    dimension: TaxonomyDimension
+    node_type: str = Field(min_length=1, max_length=64)
+    slug: str = Field(min_length=1, max_length=128)
+    name_fa: str = Field(min_length=1, max_length=255)
+    name_en: str | None = Field(default=None, max_length=255)
+    parent_id: int | None = None
+    synonyms: list[Any] | None = None
+    seo_meta_title: str | None = Field(default=None, max_length=255)
+    seo_meta_description: str | None = None
+    commerce_category_id: int | None = None
+    product_type_id: int | None = None
+    sort_order: int | None = None
+    steward: str | None = Field(default=None, max_length=128)
+
+
+class TaxonomyNodeStatusRequest(BaseModel):
+    status: TaxonomyStatus
+
+
+class TaxonomyNodeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    node_id: str
+    dimension: TaxonomyDimension
+    node_type: str
+    slug: str
+    name_fa: str
+    name_en: str | None = None
+    parent_id: int | None = None
+    status: TaxonomyStatus
+    synonyms: list[Any]
+    seo_meta_title: str | None = None
+    seo_meta_description: str | None = None
+    commerce_category_id: int | None = None
+    product_type_id: int | None = None
+    sort_order: int | None = None
+    steward: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class ClassificationAssignmentCreateRequest(BaseModel):
+    taxonomy_node_id: int
+    assignment_role: ClassificationAssignmentRole
+    is_primary: bool = False
+    source_ref: str | None = Field(default=None, max_length=255)
+    notes: str | None = None
+
+
+class ClassificationAssignmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    product_id: int
+    taxonomy_node_id: int
+    assignment_role: ClassificationAssignmentRole
+    is_primary: bool
+    source_ref: str | None = None
+    recorded_at: datetime
+    recorder: str
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class ClassificationAssignmentListResponse(BaseModel):
+    items: list[ClassificationAssignmentResponse]
+    total: int

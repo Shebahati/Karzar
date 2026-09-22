@@ -4,10 +4,11 @@ Ownership:
   Property Dictionary — canonical meaning
   Product Type Definition — applicability / narrowing
   Fact — product-specific value
+  Evidence (Prompt 13) — required when membership.evidence_requirement_override=required
 
 Published Fact mutations re-run the full publish gate (candidate-first).
 Existing-Fact mutations lock the Fact row (FOR UPDATE) to serialize revisions.
-No JSONB dual-write. No Evidence tables. No Product Type assignment.
+No JSONB dual-write. No Product Type assignment in this module.
 """
 
 from __future__ import annotations
@@ -40,6 +41,7 @@ from app.db.models.product_type import (
     ProductTypeDefinitionStatus,
 )
 from app.db.models.user import User
+from app.services import knowledge_evidence_service as evidence_service
 from app.services.fact_validation import validate_fact_payload
 
 ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
@@ -339,6 +341,7 @@ async def validate_publish_candidate(
     unit: str | None,
     source_id: str,
     confidence: Decimal | float | None,
+    fact_id: int | None = None,
 ) -> PublishValidationResult:
     """Single authoritative publication validation path (candidate-first; no ORM mutate)."""
     product = await _get_product(db, entity_id)
@@ -385,21 +388,40 @@ async def validate_publish_candidate(
         )
     _evaluate_conditional_or_fail(membership)
 
+    # Evidence requirement (Prompt 13):
+    #   required     → at least one FACT_SUPPORTED_BY link to an existing Artifact
+    #   recommended  → publish allowed without Evidence
+    #   not_required → publish allowed without Evidence
+    #   null         → default: no Evidence gate
     if membership.evidence_requirement_override == "required":
-        raise api_error(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            error_code=ErrorCode.VALIDATION_FAILED,
-            message=(
-                "Membership requires Evidence before publish; "
-                "Evidence runtime is Prompt 13 — fail closed"
-            ),
-            details=[
-                {
-                    "field": "evidence_requirement_override",
-                    "message": "required",
-                }
-            ],
-        )
+        resolved_fact_id = fact_id
+        if resolved_fact_id is None:
+            resolved_fact_id = await db.scalar(
+                select(KnowledgeFact.id).where(
+                    KnowledgeFact.entity_id == entity_id,
+                    KnowledgeFact.definition_id == definition_id,
+                )
+            )
+        has_evidence = False
+        if resolved_fact_id is not None:
+            has_evidence = await evidence_service.fact_has_supporting_evidence(
+                db, resolved_fact_id
+            )
+        if not has_evidence:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message=(
+                    "Membership requires Evidence before publish; "
+                    "link a FACT_SUPPORTED_BY Evidence Artifact to this Fact"
+                ),
+                details=[
+                    {
+                        "field": "evidence_requirement_override",
+                        "message": "required",
+                    }
+                ],
+            )
 
     units = await _list_units_for_dimension(db, prop.unit_dimension)
     normalized, resolved_unit = validate_fact_payload(
@@ -553,6 +575,7 @@ async def update_fact(
             unit=candidate_unit,
             source_id=candidate_source,
             confidence=candidate_confidence,
+            fact_id=fact.id,
         )
         fact.value = publish_result.normalized_value
         fact.unit = publish_result.normalized_unit
@@ -661,6 +684,7 @@ async def _transition(
             unit=fact.unit,
             source_id=fact.source_id,
             confidence=fact.confidence,
+            fact_id=fact.id,
         )
         fact.value = publish_result.normalized_value
         fact.unit = publish_result.normalized_unit
