@@ -148,38 +148,127 @@ async def _read_environment_identity_plane(session: AsyncSession) -> str | None:
 async def _post_write_verify(
     session: AsyncSession,
     *,
+    seed_data: dict[str, Any],
     expected_sha256: str,
-    expected_units: int,
-    expected_definitions: int,
-    expected_aliases: int,
 ) -> dict[str, Any]:
+    """Verify approved seed rows inside the open transaction (subset, not exclusivity).
+
+    Extra governed Dictionary rows outside this seed are allowed and reported only
+    via global totals. Does not delete or require a closed world.
+    """
     from app.db.models.knowledge import (
         KnowledgePropertyAlias,
         KnowledgePropertyDefinition,
         KnowledgeUnit,
     )
+    from app.services.property_dictionary_service import (
+        _definition_payload,
+        _unit_payload,
+        normalize_alias,
+    )
     from sqlalchemy import func, select
 
-    units = int(
-        (await session.execute(select(func.count()).select_from(KnowledgeUnit))).scalar_one()
+    seed_version = str(seed_data["version"])
+    sha = expected_sha256.strip().lower()
+    unit_fields = (
+        "dimension",
+        "canonical_code",
+        "aliases",
+        "conversion_table_version",
+        "label_en",
+        "label_fa",
+        "status",
+        "seed_version",
+        "seed_checksum",
     )
-    defs = int(
-        (
-            await session.execute(select(func.count()).select_from(KnowledgePropertyDefinition))
-        ).scalar_one()
+    def_fields = (
+        "definition_id",
+        "key",
+        "data_type",
+        "unit_dimension",
+        "default_unit",
+        "status",
+        "seed_version",
+        "seed_checksum",
     )
-    aliases = int(
-        (
-            await session.execute(select(func.count()).select_from(KnowledgePropertyAlias))
-        ).scalar_one()
-    )
-    if units != expected_units or defs != expected_definitions or aliases != expected_aliases:
-        raise ValueError(
-            "Live Property Dictionary post-write verification failed: "
-            f"counts units={units} defs={defs} aliases={aliases}; "
-            f"expected units={expected_units} defs={expected_definitions} "
-            f"aliases={expected_aliases}."
-        )
+
+    units_verified = 0
+    for unit in seed_data.get("units") or []:
+        payload = _unit_payload(unit, seed_version=seed_version, seed_checksum=sha)
+        row = (
+            await session.execute(
+                select(KnowledgeUnit).where(
+                    KnowledgeUnit.dimension == payload["dimension"],
+                    KnowledgeUnit.canonical_code == payload["canonical_code"],
+                )
+            )
+        ).scalar_one_or_none()
+        if row is None:
+            raise ValueError(
+                "Live Property Dictionary verification failed: missing unit "
+                f"{payload['dimension']}/{payload['canonical_code']}."
+            )
+        for field in unit_fields:
+            if getattr(row, field) != payload[field]:
+                raise ValueError(
+                    "Live Property Dictionary verification failed: unit "
+                    f"{payload['dimension']}/{payload['canonical_code']} "
+                    f"field {field} mismatch."
+                )
+        units_verified += 1
+
+    defs_verified = 0
+    for defn in seed_data.get("definitions") or []:
+        payload = _definition_payload(defn, seed_version=seed_version, seed_checksum=sha)
+        row = (
+            await session.execute(
+                select(KnowledgePropertyDefinition).where(
+                    KnowledgePropertyDefinition.definition_id == payload["definition_id"]
+                )
+            )
+        ).scalar_one_or_none()
+        if row is None:
+            raise ValueError(
+                "Live Property Dictionary verification failed: missing definition "
+                f"{payload['definition_id']}."
+            )
+        for field in def_fields:
+            if getattr(row, field) != payload[field]:
+                raise ValueError(
+                    "Live Property Dictionary verification failed: definition "
+                    f"{payload['definition_id']} field {field} mismatch."
+                )
+        defs_verified += 1
+
+    aliases_verified = 0
+    for defn in seed_data.get("definitions") or []:
+        definition_id = defn["definition_id"]
+        for alias in defn.get("aliases") or []:
+            norm = normalize_alias(alias)
+            row = (
+                await session.execute(
+                    select(KnowledgePropertyAlias).where(
+                        KnowledgePropertyAlias.alias_normalized == norm
+                    )
+                )
+            ).scalar_one_or_none()
+            if row is None:
+                raise ValueError(
+                    "Live Property Dictionary verification failed: missing alias "
+                    f"{alias!r} ({norm})."
+                )
+            if (
+                row.definition_id != definition_id
+                or row.status != "active"
+                or row.source_kind != "seed_inline"
+            ):
+                raise ValueError(
+                    "Live Property Dictionary verification failed: alias "
+                    f"{alias!r} binding/status/source_kind mismatch "
+                    f"(definition_id={row.definition_id!r}, status={row.status!r}, "
+                    f"source_kind={row.source_kind!r})."
+                )
+            aliases_verified += 1
 
     active_ids = {
         row[0]
@@ -192,33 +281,36 @@ async def _post_write_verify(
             )
         ).all()
     }
-    missing = [d for d in REQUIRED_ACTIVE_DEFINITIONS if d not in active_ids]
-    if missing:
+    missing_pilot = [d for d in REQUIRED_ACTIVE_DEFINITIONS if d not in active_ids]
+    if missing_pilot:
         raise ValueError(
-            "Live Property Dictionary post-write verification failed: "
-            f"missing active definitions {missing}."
+            "Live Property Dictionary verification failed: "
+            f"missing active pilot definitions {missing_pilot}."
         )
 
-    checksum_rows = (
-        await session.execute(
-            select(KnowledgePropertyDefinition.seed_checksum).where(
-                KnowledgePropertyDefinition.definition_id.in_(REQUIRED_ACTIVE_DEFINITIONS)
-            )
-        )
-    ).all()
-    bad = [r[0] for r in checksum_rows if (r[0] or "").lower() != expected_sha256.lower()]
-    if bad:
-        raise ValueError(
-            "Live Property Dictionary post-write verification failed: "
-            "seed_checksum on imported definitions does not match actual seed SHA."
-        )
+    units_total = int(
+        (await session.execute(select(func.count()).select_from(KnowledgeUnit))).scalar_one()
+    )
+    defs_total = int(
+        (
+            await session.execute(select(func.count()).select_from(KnowledgePropertyDefinition))
+        ).scalar_one()
+    )
+    aliases_total = int(
+        (
+            await session.execute(select(func.count()).select_from(KnowledgePropertyAlias))
+        ).scalar_one()
+    )
 
     return {
-        "knowledge_units": units,
-        "knowledge_property_definitions": defs,
-        "knowledge_property_aliases": aliases,
-        "required_active_definitions": list(REQUIRED_ACTIVE_DEFINITIONS),
+        "seed_units_verified": units_verified,
+        "seed_definitions_verified": defs_verified,
+        "seed_aliases_verified": aliases_verified,
         "seed_checksum_verified": True,
+        "required_active_definitions": list(REQUIRED_ACTIVE_DEFINITIONS),
+        "knowledge_units": units_total,
+        "knowledge_property_definitions": defs_total,
+        "knowledge_property_aliases": aliases_total,
     }
 
 
@@ -235,11 +327,6 @@ async def _run_live_import(
     data = load_seed(seed)
     validate_seed(data)
     actual_sha = file_checksum(seed)
-    expected_units = len(data.get("units") or [])
-    expected_definitions = len(data.get("definitions") or [])
-    expected_aliases = sum(
-        len(d.get("aliases") or []) for d in (data.get("definitions") or []) if isinstance(d, dict)
-    )
 
     # 3–4: checksum authorization
     assert_seed_sha_authorization(
@@ -279,7 +366,7 @@ async def _run_live_import(
         ingestion_category=os.environ.get("KARZAR_INGESTION_CATEGORY"),
     )
 
-    # 13–14: operator refs (before DB open; audit gates only)
+    # Operator refs (before DB open; audit gates only)
     assert_operator_references(
         backup_reference=backup_reference,
         restore_drill_reference=restore_drill_reference,
@@ -291,7 +378,7 @@ async def _run_live_import(
 
     async with async_session_maker() as session:
         try:
-            # 10–12: session + live sentinel (require_match)
+            # Session + live sentinel (require_match)
             sentinel = await _read_environment_identity_plane(session)
             assert_live_dictionary_seed_import_allowed(
                 identity,
@@ -300,19 +387,16 @@ async def _run_live_import(
                 ingestion_category=os.environ.get("KARZAR_INGESTION_CATEGORY"),
                 extra_live_db_names=extra,
             )
-            # Defensive re-check of sentinel helper (same rule, explicit name).
             assert_live_db_sentinel(sentinel_plane=sentinel)
-            # 15–16: transactional import + commit
+            # Import → flush → verify (same txn) → commit only if verify OK
             result = await import_property_dictionary(session, seed_path=seed, dry_run=False)
-            await session.commit()
-            # 17: post-write verification
+            await session.flush()
             verification = await _post_write_verify(
                 session,
+                seed_data=data,
                 expected_sha256=actual_sha,
-                expected_units=expected_units,
-                expected_definitions=expected_definitions,
-                expected_aliases=expected_aliases,
             )
+            await session.commit()
         except Exception:
             await session.rollback()
             raise

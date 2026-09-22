@@ -292,9 +292,8 @@ def test_import_failure_rolls_back(live_mod):
     session = MagicMock()
     session.rollback = AsyncMock()
     session.commit = AsyncMock()
-    session.execute = AsyncMock(
-        return_value=MagicMock(first=MagicMock(return_value=("live",)))
-    )
+    session.flush = AsyncMock()
+    session.execute = AsyncMock(return_value=MagicMock(first=MagicMock(return_value=("live",))))
 
     cm = MagicMock()
     cm.__aenter__ = AsyncMock(return_value=session)
@@ -331,6 +330,75 @@ def test_import_failure_rolls_back(live_mod):
     session.commit.assert_not_awaited()
 
 
+def test_verification_failure_after_successful_import_rolls_back(live_mod):
+    """Import succeeds but in-txn verification fails => no commit."""
+    sha = file_checksum(DEFAULT_SEED_PATH)
+    session = MagicMock()
+    session.rollback = AsyncMock()
+    session.commit = AsyncMock()
+    session.flush = AsyncMock()
+    session.execute = AsyncMock(return_value=MagicMock(first=MagicMock(return_value=("live",))))
+
+    cm = MagicMock()
+    cm.__aenter__ = AsyncMock(return_value=session)
+    cm.__aexit__ = AsyncMock(return_value=None)
+
+    env = {
+        "APP_ENV": "staging",
+        "KARZAR_DATA_PLANE": "live",
+        "KARZAR_MEDIA_PLANE": "live",
+        "POSTGRES_DB": "karzar_staging",
+        "POSTGRES_SERVER": "db",
+        "KARZAR_ALLOW_PRODUCTION_WRITE": "1",
+        "KARZAR_INGESTION_CATEGORY": "B",
+    }
+    with (
+        patch.object(live_mod.os, "environ", env),
+        patch("app.db.database.async_session_maker", return_value=cm),
+        patch(
+            "app.services.property_dictionary_service.import_property_dictionary",
+            AsyncMock(
+                return_value={
+                    "dry_run": False,
+                    "seed_version": "0.1.0",
+                    "seed_checksum": sha,
+                    "counters": {},
+                }
+            ),
+        ),
+        patch.object(
+            live_mod,
+            "_post_write_verify",
+            AsyncMock(side_effect=ValueError("verify boom")),
+        ),
+    ):
+        with pytest.raises(ValueError, match="verify boom"):
+            asyncio.run(
+                live_mod._run_live_import(
+                    seed=DEFAULT_SEED_PATH,
+                    expected_sha256=sha,
+                    confirm_seed_sha256=sha,
+                    backup_reference="karzar_20260922_031501.sql.gz",
+                    restore_drill_reference="restore-drill-reviewed-2026-09-22",
+                )
+            )
+    session.flush.assert_awaited()
+    session.commit.assert_not_awaited()
+    session.rollback.assert_awaited()
+
+
+def test_post_write_verify_signature_is_seed_subset_not_exclusive(live_mod):
+    """Verification API takes seed_data + SHA; not exclusive global totals."""
+    import inspect
+
+    params = inspect.signature(live_mod._post_write_verify).parameters
+    assert "seed_data" in params
+    assert "expected_sha256" in params
+    assert "expected_units" not in params
+    assert "expected_definitions" not in params
+    assert "expected_aliases" not in params
+
+
 # --- Ordinary importer regression (#364) ---
 
 
@@ -347,3 +415,58 @@ def test_ordinary_importer_still_allows_development():
         postgres_db="karzar_db",
     )
     assert_dictionary_seed_import_allowed(identity, sentinel_plane=None)
+
+
+@pytest.mark.usefixtures("override_database")
+def test_seed_verification_allows_extra_unrelated_definition(live_mod):
+    """Approved seed rows verify even when an unrelated governed definition exists."""
+    from app.db.models.knowledge import KnowledgePropertyDefinition
+    from app.services.property_dictionary_service import (
+        import_property_dictionary,
+        load_seed,
+    )
+
+    from tests.conftest import TestingSessionLocal
+
+    sha = file_checksum(DEFAULT_SEED_PATH)
+    seed_data = load_seed(DEFAULT_SEED_PATH)
+
+    async def body():
+        async with TestingSessionLocal() as session:
+            await import_property_dictionary(session, seed_path=DEFAULT_SEED_PATH)
+            session.add(
+                KnowledgePropertyDefinition(
+                    definition_id="def.unrelated_extra",
+                    key="unrelated_extra",
+                    data_type="string",
+                    unit_dimension=None,
+                    default_unit=None,
+                    label_en="Unrelated",
+                    label_fa="متفرقه",
+                    validation={"type": "string"},
+                    comparable=False,
+                    filterable=False,
+                    customer_facing=False,
+                    version="1.0.0",
+                    status="active",
+                    seed_version="extra",
+                    seed_checksum="00" * 32,
+                )
+            )
+            await session.flush()
+            verification = await live_mod._post_write_verify(
+                session,
+                seed_data=seed_data,
+                expected_sha256=sha,
+            )
+            await session.commit()
+            return verification
+
+    verification = asyncio.run(body())
+    assert verification["seed_units_verified"] == 2
+    assert verification["seed_definitions_verified"] == 9
+    assert verification["seed_aliases_verified"] == 36
+    assert verification["seed_checksum_verified"] is True
+    assert verification["knowledge_property_definitions"] >= 10
+    assert verification["knowledge_units"] >= 2
+    assert verification["knowledge_property_aliases"] >= 36
