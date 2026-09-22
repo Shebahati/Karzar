@@ -6,7 +6,9 @@
 # Optional (S3 / S3-compatible):
 #   BACKUP_S3_ENDPOINT_URL    https://… endpoint (required for most non-AWS S3-compatible providers)
 #   BACKUP_S3_REGION          sets AWS_DEFAULT_REGION for the aws invocation only
-# Credentials: standard AWS CLI mechanisms (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY, profile, etc.)
+# Credentials: standard AWS CLI mechanisms ONLY (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY /
+#   AWS_SESSION_TOKEN, profile, etc.). NEVER embed credentials in BACKUP_OFFSITE_URI or
+#   BACKUP_S3_ENDPOINT_URL (no userinfo, query, or fragment).
 # Optional:
 #   BACKUP_LOCAL_DIR          default: <repository>/backups
 #   BACKUP_RETENTION_DAYS     default: 14 (LOCAL only; does NOT enforce remote retention)
@@ -26,7 +28,8 @@
 #
 # Usage:
 #   bash scripts/backup_offsite_sync.sh
-#   bash scripts/backup_offsite_sync.sh --preflight   # non-mutating config / head-bucket probe
+#   bash scripts/backup_offsite_sync.sh --preflight
+#     Read-only: no markers, no lock, no retention, no sync/upload/delete.
 #
 # Prerequisites: aws CLI (for s3://) or rsync (for rsync:// / ssh paths).
 set -euo pipefail
@@ -46,7 +49,7 @@ for arg in "$@"; do
   case "$arg" in
     --preflight) PREFLIGHT=1 ;;
     -h|--help)
-      sed -n '1,35p' "$0"
+      sed -n '1,40p' "$0"
       exit 0
       ;;
     *)
@@ -57,7 +60,8 @@ for arg in "$@"; do
 done
 
 sanitize_offsite_destination() {
-  # Minimal sanitizer: strip userinfo / query / fragment; never log credentials.
+  # Logging-only sanitizer for rsync/SSH destinations (may contain user@host).
+  # S3 URIs are validated separately and must already be credential-free.
   local raw="${1:-}"
   local out="$raw"
   out="${out%%\?*}"
@@ -70,30 +74,93 @@ sanitize_offsite_destination() {
   printf '%s' "$out"
 }
 
-sanitize_endpoint_for_log() {
-  # Prefer scheme://host only (no userinfo, query, path secrets).
-  local raw="${1:-}"
-  local cleaned
-  cleaned="$(sanitize_offsite_destination "$raw")"
-  if [[ "$cleaned" == https://* ]]; then
-    local rest="${cleaned#https://}"
-    printf 'https://%s' "${rest%%/*}"
-  elif [[ "$cleaned" == http://* ]]; then
-    local rest="${cleaned#http://}"
-    printf 'http://%s' "${rest%%/*}"
-  else
-    printf '%s' "$cleaned"
+write_marker() {
+  local path="$1"
+  local status="$2"
+  local summary="$3"
+  shift 3 || true
+  mkdir -p "$(dirname "$path")"
+  {
+    echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "exit_status=${status}"
+    echo "summary=${summary}"
+    local extra
+    for extra in "$@"; do
+      printf '%s\n' "$extra"
+    done
+  } >"$path"
+}
+
+record_failure() {
+  # Sync-mode only. Preflight never writes markers.
+  local status="$1"
+  local summary="$2"
+  shift 2 || true
+  if [[ "$PREFLIGHT" -eq 1 ]]; then
+    return 0
+  fi
+  if [[ -d "$LOCAL_DIR" ]] || mkdir -p "$LOCAL_DIR" 2>/dev/null; then
+    write_marker "$FAILURE_MARKER" "$status" "$summary" "$@"
   fi
 }
 
+fail_safe() {
+  # Print safe stderr message, optionally write failure marker (sync only), exit.
+  local status="$1"
+  local message="$2"
+  local marker_summary="${3:-$message}"
+  shift 3 || true
+  echo "$message" >&2
+  if [[ "$PREFLIGHT" -eq 0 ]]; then
+    record_failure "$status" "$marker_summary" "$@"
+  fi
+  exit "$status"
+}
+
+require_aws_cli() {
+  if ! command -v aws >/dev/null 2>&1; then
+    return 1
+  fi
+  return 0
+}
+
+run_aws() {
+  # Invoke aws with optional per-call region; never print credentials;
+  # never pass access keys as argv (AWS CLI env/credential chain only).
+  local -a cmd=("aws")
+  cmd+=("$@")
+  if [[ -n "$S3_REGION" ]]; then
+    AWS_DEFAULT_REGION="$S3_REGION" "${cmd[@]}"
+  else
+    "${cmd[@]}"
+  fi
+}
+
+validate_clean_s3_uri() {
+  # Fail closed if URI embeds credentials, query, or fragment.
+  # Do not echo the raw URI.
+  local uri="$1"
+  if [[ "$uri" != s3://* ]]; then
+    return 1
+  fi
+  if [[ "$uri" == *"@"* || "$uri" == *"?"* || "$uri" == *"#"* ]]; then
+    return 1
+  fi
+  local rest="${uri#s3://}"
+  if [[ -z "$rest" || "$rest" == /* ]]; then
+    return 1
+  fi
+  local bucket="${rest%%/*}"
+  if [[ -z "$bucket" ]]; then
+    return 1
+  fi
+  return 0
+}
+
 extract_s3_bucket() {
+  # Call only after validate_clean_s3_uri succeeds.
   local uri="$1"
   local rest="${uri#s3://}"
-  rest="${rest%%\?*}"
-  rest="${rest%%\#*}"
-  if [[ "$rest" == *@* ]]; then
-    rest="${rest#*@}"
-  fi
   local bucket="${rest%%/*}"
   if [[ -z "$bucket" ]]; then
     return 1
@@ -102,6 +169,7 @@ extract_s3_bucket() {
 }
 
 validate_s3_endpoint_url() {
+  # Empty is OK (native AWS default). Otherwise https only, no @ ? #.
   local ep="$1"
   if [[ -z "$ep" ]]; then
     return 0
@@ -114,9 +182,12 @@ validate_s3_endpoint_url() {
     echo "BACKUP_S3_ENDPOINT_URL must be an https:// URL." >&2
     return 1
   fi
-  local host
-  host="$(sanitize_endpoint_for_log "$ep")"
-  host="${host#https://}"
+  if [[ "$ep" == *"@"* || "$ep" == *"?"* || "$ep" == *"#"* ]]; then
+    echo "BACKUP_S3_ENDPOINT_URL must not contain credentials, query parameters, or fragments. Use standard AWS CLI credential mechanisms." >&2
+    return 1
+  fi
+  local host="${ep#https://}"
+  host="${host%%/*}"
   if [[ -z "$host" || "$host" == *" "* ]]; then
     echo "BACKUP_S3_ENDPOINT_URL host is missing or malformed." >&2
     return 1
@@ -124,101 +195,65 @@ validate_s3_endpoint_url() {
   return 0
 }
 
-write_marker() {
-  local path="$1"
-  local status="$2"
-  local summary="$3"
-  shift 3 || true
-  mkdir -p "$(dirname "$path")"
-  {
-    echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    echo "exit_status=${status}"
-    echo "summary=${summary}"
-    # Extra non-secret metadata lines (optional).
-    local extra
-    for extra in "$@"; do
-      printf '%s\n' "$extra"
-    done
-  } >"$path"
-}
-
-record_failure() {
-  local status="$1"
-  local summary="$2"
-  shift 2 || true
-  if [[ -d "$LOCAL_DIR" ]] || mkdir -p "$LOCAL_DIR" 2>/dev/null; then
-    write_marker "$FAILURE_MARKER" "$status" "$summary" "$@"
+endpoint_for_log() {
+  # Valid endpoints are already credential-free; still strip path for display.
+  local ep="$1"
+  if [[ -z "$ep" ]]; then
+    printf 'aws-default'
+    return 0
   fi
-}
-
-require_aws_cli() {
-  if ! command -v aws >/dev/null 2>&1; then
-    echo "Offsite S3 sync refused: aws CLI not installed" >&2
-    return 1
-  fi
-  return 0
-}
-
-run_aws() {
-  # Invoke aws with optional per-call region; never print credentials.
-  local -a cmd=("aws")
-  cmd+=("$@")
-  if [[ -n "$S3_REGION" ]]; then
-    AWS_DEFAULT_REGION="$S3_REGION" "${cmd[@]}"
-  else
-    "${cmd[@]}"
-  fi
+  local host="${ep#https://}"
+  host="${host%%/*}"
+  printf 'https://%s' "$host"
 }
 
 if [[ -z "$URI" ]]; then
-  echo "BACKUP_OFFSITE_URI is not set — refusing to pretend offsite backup succeeded." >&2
-  echo "Configure S3/S3-compatible/rsync destination in host secrets (/opt/karzar/.deploy-secrets), then re-run." >&2
-  record_failure 1 "BACKUP_OFFSITE_URI unset"
-  exit 1
+  fail_safe 1 \
+    "BACKUP_OFFSITE_URI is not set — refusing to pretend offsite backup succeeded." \
+    "BACKUP_OFFSITE_URI unset"
 fi
 
 if [[ "$PREFLIGHT" -eq 0 && ! -d "$LOCAL_DIR" ]]; then
-  echo "Local backup dir missing: $LOCAL_DIR" >&2
-  record_failure 1 "local backup dir missing"
-  exit 1
+  fail_safe 1 "Local backup dir missing: $LOCAL_DIR" "local backup dir missing"
 fi
 
-DEST_DESC="$(sanitize_offsite_destination "$URI")"
-
+# Sync-only lock. Preflight must not create/open the lock file.
 if [[ "$PREFLIGHT" -eq 0 ]]; then
-  # Non-overlap guard (util-linux flock; present on current Ubuntu VPS bootstrap).
   mkdir -p "$(dirname "$LOCK_FILE")" 2>/dev/null || true
   exec 9>"$LOCK_FILE"
   if ! flock -n 9; then
-    echo "Offsite sync already running (lock: $LOCK_FILE)." >&2
-    record_failure 1 "offsite sync lock busy"
-    exit 1
+    fail_safe 1 "Offsite sync already running (lock: $LOCK_FILE)." "offsite sync lock busy"
   fi
 fi
 
 # --- S3 / S3-compatible -------------------------------------------------------
 if [[ "$URI" == s3://* ]]; then
+  if ! validate_clean_s3_uri "$URI"; then
+    fail_safe 1 \
+      "S3 destination URI must not contain credentials, query parameters, or fragments. Use standard AWS CLI credential mechanisms." \
+      "invalid s3 destination URI"
+  fi
+
+  DEST_DESC="$URI"
+
   if ! require_aws_cli; then
-    record_failure 1 "aws CLI not installed"
-    exit 1
+    fail_safe 1 "Offsite S3 sync refused: aws CLI not installed" "aws CLI not installed"
   fi
 
   if ! validate_s3_endpoint_url "$S3_ENDPOINT"; then
-    record_failure 1 "invalid BACKUP_S3_ENDPOINT_URL"
-    exit 1
+    fail_safe 1 \
+      "Invalid BACKUP_S3_ENDPOINT_URL (must be https:// without credentials, query, or fragment)." \
+      "invalid BACKUP_S3_ENDPOINT_URL"
   fi
 
-  ENDPOINT_DESC="aws-default"
+  ENDPOINT_DESC="$(endpoint_for_log "$S3_ENDPOINT")"
   if [[ -n "$S3_ENDPOINT" ]]; then
-    ENDPOINT_DESC="$(sanitize_endpoint_for_log "$S3_ENDPOINT")"
     echo "S3 endpoint: ${ENDPOINT_DESC}"
   fi
 
   BUCKET="$(extract_s3_bucket "$URI" || true)"
   if [[ -z "$BUCKET" ]]; then
-    echo "Malformed BACKUP_OFFSITE_URI: empty S3 bucket (sanitized: ${DEST_DESC})." >&2
-    record_failure 1 "malformed s3 URI empty bucket"
-    exit 1
+    fail_safe 1 "Malformed S3 destination URI: empty bucket." "malformed s3 URI empty bucket"
   fi
 
   if [[ "$PREFLIGHT" -eq 1 ]]; then
@@ -234,13 +269,9 @@ if [[ "$URI" == s3://* ]]; then
     set -e
     if [[ "$PF_RC" -ne 0 ]]; then
       echo "Preflight head-bucket failed (exit ${PF_RC})." >&2
-      record_failure "$PF_RC" "preflight head-bucket failed" \
-        "destination_type=s3" \
-        "destination=${DEST_DESC}" \
-        "endpoint=${ENDPOINT_DESC}"
       exit "$PF_RC"
     fi
-    echo "Preflight OK (non-mutating; no sync)."
+    echo "Preflight OK (read-only: no sync, markers, lock, or retention)."
     exit 0
   fi
 
@@ -281,10 +312,10 @@ fi
 
 # --- rsync / SSH-style --------------------------------------------------------
 if [[ "$URI" == rsync://* ]] || [[ "$URI" == *:* ]]; then
+  DEST_DESC="$(sanitize_offsite_destination "$URI")"
+
   if ! command -v rsync >/dev/null 2>&1; then
-    echo "Offsite rsync sync refused: rsync not installed" >&2
-    record_failure 1 "rsync not installed"
-    exit 1
+    fail_safe 1 "Offsite rsync sync refused: rsync not installed" "rsync not installed"
   fi
 
   if [[ "$PREFLIGHT" -eq 1 ]]; then
@@ -294,13 +325,12 @@ if [[ "$URI" == rsync://* ]] || [[ "$URI" == *:* ]]; then
     else
       echo "ssh: absent (may be required for SSH-style destinations)"
     fi
-    echo "Preflight OK (local tooling only; no remote mutation)."
+    echo "Preflight OK (read-only: local tooling only; no remote mutation)."
     exit 0
   fi
 
   echo "Syncing $LOCAL_DIR → ${DEST_DESC}"
   set +e
-  # --delete: remote tree mirrors currently retained local files (see header).
   rsync -az --delete "$LOCAL_DIR"/ "$URI"
   SYNC_RC=$?
   set -e
@@ -327,6 +357,6 @@ if [[ "$URI" == rsync://* ]] || [[ "$URI" == *:* ]]; then
   exit 0
 fi
 
-echo "Unsupported BACKUP_OFFSITE_URI scheme (sanitized): ${DEST_DESC}" >&2
-record_failure 1 "unsupported BACKUP_OFFSITE_URI scheme"
-exit 1
+fail_safe 1 \
+  "Unsupported BACKUP_OFFSITE_URI scheme." \
+  "unsupported BACKUP_OFFSITE_URI scheme"

@@ -81,14 +81,18 @@ BACKUP_S3_REGION=<region>
 # Standard AWS CLI credentials (never commit; never put in cron):
 AWS_ACCESS_KEY_ID=<secret>
 AWS_SECRET_ACCESS_KEY=<secret>
+# optional:
+# AWS_SESSION_TOKEN=<secret>
 ```
 
+- `BACKUP_OFFSITE_URI` and `BACKUP_S3_ENDPOINT_URL` must **never** contain credentials, tokens, query secrets, or fragments (`@`, `?`, `#` are refused for S3 URI/endpoint). Do not silently rewrite; the sync fails closed.
+- Credentials belong **only** in standard AWS CLI credential mechanisms (env vars, shared credentials file, or profile) — never on the `aws` process argv via URI/endpoint fields.
 - `BACKUP_S3_ENDPOINT_URL` must be `https://` (http refused).
-- Credentials use ordinary AWS CLI mechanisms (env vars, shared credentials file, or profile) — no Karzar-specific credential names.
-- Preflight (non-mutating): `bash scripts/backup_offsite_sync.sh --preflight` (`aws s3api head-bucket` for S3; local tooling check for rsync). Never runs `aws s3 sync`.
+- `--preflight` is **read-only**: no success/failure markers, no lock file, no local retention, no `aws s3 sync`, no upload/delete. For S3 it may run `aws s3api head-bucket` only; for rsync it checks local tooling only.
 - aws CLI is a **VPS host prerequisite** for S3 destinations (not an application Python dependency). Install only under Owner-authorized ops.
 
 **Non-binding recommendation:** evaluate Backblaze B2 S3-compatible storage first (lifecycle, server-side encryption, Object Lock/retention). Provider setup remains Owner-side; this repo has no provider-specific SDK or account automation.
+
 
 ### Retention and encryption
 

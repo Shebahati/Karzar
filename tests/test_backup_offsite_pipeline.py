@@ -112,7 +112,16 @@ def test_offsite_sync_fails_closed_when_uri_unset(tmp_path: Path):
     assert not (local / "offsite-last-success.txt").exists()
 
 
-def test_offsite_destination_logging_is_sanitized(tmp_path: Path):
+def _snapshot_paths(root: Path) -> set[str]:
+    return {str(p.relative_to(root)) for p in root.rglob("*") if p.is_file() or p.is_dir()}
+
+
+def _assert_no_secrets(text: str, *secrets: str) -> None:
+    for secret in secrets:
+        assert secret not in text
+
+
+def test_offsite_default_aws_s3_sync_no_endpoint(tmp_path: Path):
     local = tmp_path / "backups"
     local.mkdir()
     (local / "karzar_20260922_031500.sql.gz").write_bytes(b"x")
@@ -131,10 +140,7 @@ def test_offsite_destination_logging_is_sanitized(tmp_path: Path):
     env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
     env["BACKUP_LOCAL_DIR"] = str(local)
     env["BACKUP_OFFSITE_LOCK"] = str(lock)
-    env["BACKUP_OFFSITE_URI"] = (
-        "s3://user:secret-token@my-bucket/karzar-backups?X-Amz-Signature=leak"
-    )
-    # Ensure endpoint vars do not leak into this default-AWS case.
+    env["BACKUP_OFFSITE_URI"] = "s3://my-bucket/karzar-backups"
     env.pop("BACKUP_S3_ENDPOINT_URL", None)
     env.pop("BACKUP_S3_REGION", None)
     result = _run(
@@ -142,19 +148,14 @@ def test_offsite_destination_logging_is_sanitized(tmp_path: Path):
         env=env,
     )
     assert result.returncode == 0, result.stderr + result.stdout
-    combined = result.stdout + result.stderr
-    assert "secret-token" not in combined
-    assert "X-Amz-Signature" not in combined
-    assert "user:secret" not in combined
-    assert "s3://my-bucket/karzar-backups" in combined
     success = (local / "offsite-last-success.txt").read_text(encoding="utf-8")
     assert "exit_status=0" in success
     assert "destination_type=s3" in success
     assert "endpoint=aws-default" in success
-    assert "secret-token" not in success
     aws_argv = argv_log.read_text(encoding="utf-8")
     assert "s3 sync" in aws_argv
     assert "--endpoint-url" not in aws_argv
+    assert "s3://my-bucket/karzar-backups" in aws_argv
 
 
 def test_s3_compatible_endpoint_and_region_propagated(tmp_path: Path):
@@ -200,7 +201,13 @@ def test_http_s3_endpoint_is_refused(tmp_path: Path):
     lock = tmp_path / "offsite.lock"
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
-    _write_exec(fake_bin / "aws", "#!/usr/bin/env bash\nexit 0\n")
+    argv_log = tmp_path / "aws-argv.log"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
     env = os.environ.copy()
     env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
     env["BACKUP_LOCAL_DIR"] = str(local)
@@ -213,45 +220,203 @@ def test_http_s3_endpoint_is_refused(tmp_path: Path):
     )
     assert result.returncode != 0
     assert "https://" in result.stderr
+    assert not argv_log.exists()
     failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
     assert "invalid BACKUP_S3_ENDPOINT_URL" in failure
 
 
-def test_s3_endpoint_userinfo_and_query_sanitized(tmp_path: Path):
+def test_s3_destination_userinfo_refused_before_aws(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
+    secret = "super-secret-userinfo"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["BACKUP_LOCAL_DIR"] = str(local)
+    env["BACKUP_OFFSITE_LOCK"] = str(lock)
+    env["BACKUP_OFFSITE_URI"] = f"s3://user:{secret}@bucket/prefix"
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
+        env=env,
+    )
+    assert result.returncode != 0
+    assert not argv_log.exists()
+    combined = result.stdout + result.stderr
+    _assert_no_secrets(combined, secret, "user:", "@bucket")
+    failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
+    assert "invalid s3 destination URI" in failure
+    _assert_no_secrets(failure, secret)
+
+
+def test_s3_destination_query_refused_before_aws(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
+    secret = "query-token-secret"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["BACKUP_LOCAL_DIR"] = str(local)
+    env["BACKUP_OFFSITE_LOCK"] = str(lock)
+    env["BACKUP_OFFSITE_URI"] = f"s3://bucket/prefix?token={secret}"
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
+        env=env,
+    )
+    assert result.returncode != 0
+    assert not argv_log.exists()
+    combined = result.stdout + result.stderr
+    _assert_no_secrets(combined, secret)
+    failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
+    assert "invalid s3 destination URI" in failure
+    _assert_no_secrets(failure, secret)
+
+
+def test_s3_destination_fragment_refused_before_aws(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
+    secret = "fragment-secret"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["BACKUP_LOCAL_DIR"] = str(local)
+    env["BACKUP_OFFSITE_LOCK"] = str(lock)
+    env["BACKUP_OFFSITE_URI"] = f"s3://bucket/prefix#{secret}"
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
+        env=env,
+    )
+    assert result.returncode != 0
+    assert not argv_log.exists()
+    _assert_no_secrets(result.stdout + result.stderr, secret)
+
+
+def test_s3_endpoint_userinfo_refused_before_aws(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
+    secret = "endpoint-password"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["BACKUP_LOCAL_DIR"] = str(local)
+    env["BACKUP_OFFSITE_LOCK"] = str(lock)
+    env["BACKUP_OFFSITE_URI"] = "s3://bucket/prefix"
+    env["BACKUP_S3_ENDPOINT_URL"] = f"https://user:{secret}@s3.example.invalid"
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
+        env=env,
+    )
+    assert result.returncode != 0
+    assert not argv_log.exists()
+    combined = result.stdout + result.stderr
+    _assert_no_secrets(combined, secret)
+    failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
+    assert "invalid BACKUP_S3_ENDPOINT_URL" in failure
+    _assert_no_secrets(failure, secret)
+
+
+def test_s3_endpoint_query_refused_before_aws(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
+    secret = "endpoint-query-secret"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    env["BACKUP_LOCAL_DIR"] = str(local)
+    env["BACKUP_OFFSITE_LOCK"] = str(lock)
+    env["BACKUP_OFFSITE_URI"] = "s3://bucket/prefix"
+    env["BACKUP_S3_ENDPOINT_URL"] = f"https://s3.example.invalid?token={secret}"
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
+        env=env,
+    )
+    assert result.returncode != 0
+    assert not argv_log.exists()
+    _assert_no_secrets(result.stdout + result.stderr, secret)
+    failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
+    assert "invalid BACKUP_S3_ENDPOINT_URL" in failure
+
+
+def test_standard_aws_credentials_succeed_but_stay_off_argv(tmp_path: Path):
     local = tmp_path / "backups"
     local.mkdir()
     (local / "karzar_20260922_031500.sql.gz").write_bytes(b"x")
     lock = tmp_path / "offsite.lock"
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
-    _write_exec(fake_bin / "aws", "#!/usr/bin/env bash\nexit 0\n")
+    argv_log = tmp_path / "aws-argv.log"
+    access = "AKIAEXAMPLEKEYNOTREAL"
+    secret = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    _write_exec(
+        fake_bin / "aws",
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
+        "exit 0\n",
+    )
     env = os.environ.copy()
     env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
     env["BACKUP_LOCAL_DIR"] = str(local)
     env["BACKUP_OFFSITE_LOCK"] = str(lock)
     env["BACKUP_OFFSITE_URI"] = "s3://bucket/prefix"
-    env["BACKUP_S3_ENDPOINT_URL"] = (
-        "https://user:password@s3.example.invalid?token=secret"
-    )
-    env["AWS_ACCESS_KEY_ID"] = "AKIAEXAMPLEKEY"
-    env["AWS_SECRET_ACCESS_KEY"] = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    env["BACKUP_S3_ENDPOINT_URL"] = "https://s3.example.invalid"
+    env["AWS_ACCESS_KEY_ID"] = access
+    env["AWS_SECRET_ACCESS_KEY"] = secret
     result = _run(
         ["bash", str(ROOT / "scripts/backup_offsite_sync.sh")],
         env=env,
     )
     assert result.returncode == 0, result.stderr + result.stdout
-    combined = result.stdout + result.stderr
-    assert "password" not in combined
-    assert "token=secret" not in combined
-    assert "user:password" not in combined
-    assert "AKIAEXAMPLEKEY" not in combined
-    assert "wJalrXUtnFEMI" not in combined
-    assert "S3 endpoint: https://s3.example.invalid" in combined
+    aws_argv = argv_log.read_text(encoding="utf-8")
+    combined = result.stdout + result.stderr + aws_argv
     success = (local / "offsite-last-success.txt").read_text(encoding="utf-8")
-    assert "password" not in success
-    assert "token=secret" not in success
-    assert "AKIAEXAMPLEKEY" not in success
-    assert "endpoint=https://s3.example.invalid" in success
+    _assert_no_secrets(combined + success, access, secret)
+    assert "--access-key" not in aws_argv
+    assert access not in aws_argv
+    assert secret not in aws_argv
 
 
 ESSENTIAL_BINARIES = (
@@ -369,6 +534,7 @@ def test_preflight_s3_uses_head_bucket_not_sync(tmp_path: Path):
     env["BACKUP_OFFSITE_LOCK"] = str(lock)
     env["BACKUP_OFFSITE_URI"] = "s3://bucket/prefix"
     env["BACKUP_S3_ENDPOINT_URL"] = "https://s3.example.invalid"
+    before = _snapshot_paths(tmp_path)
     result = _run(
         ["bash", str(ROOT / "scripts/backup_offsite_sync.sh"), "--preflight"],
         env=env,
@@ -379,19 +545,27 @@ def test_preflight_s3_uses_head_bucket_not_sync(tmp_path: Path):
     assert "--endpoint-url https://s3.example.invalid" in aws_argv
     assert "s3 sync" not in aws_argv
     assert "Preflight OK" in result.stdout
-    # Preflight must not claim a successful sync via success marker.
     assert not (local / "offsite-last-success.txt").exists()
+    assert not (local / "offsite-last-failure.txt").exists()
+    assert not lock.exists()
+    after = _snapshot_paths(tmp_path)
+    # Only the mocked aws argv log may appear as a new file under tmp_path.
+    new_paths = after - before
+    assert new_paths <= {str(argv_log.relative_to(tmp_path))}
 
 
-def test_preflight_s3_head_bucket_failure(tmp_path: Path):
+def test_preflight_head_bucket_failure_is_filesystem_readonly(tmp_path: Path):
     local = tmp_path / "backups"
     local.mkdir()
+    (local / "karzar_20260922_031500.sql.gz").write_bytes(b"seed")
     lock = tmp_path / "offsite.lock"
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
+    argv_log = tmp_path / "aws-argv.log"
     _write_exec(
         fake_bin / "aws",
         "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{argv_log}'\n"
         "if [[ \"$*\" == *'head-bucket'* ]]; then exit 255; fi\n"
         "exit 0\n",
     )
@@ -400,15 +574,66 @@ def test_preflight_s3_head_bucket_failure(tmp_path: Path):
     env["BACKUP_LOCAL_DIR"] = str(local)
     env["BACKUP_OFFSITE_LOCK"] = str(lock)
     env["BACKUP_OFFSITE_URI"] = "s3://bucket/prefix"
+    before = _snapshot_paths(tmp_path)
+    before_backup_files = {p.name for p in local.iterdir()}
     result = _run(
         ["bash", str(ROOT / "scripts/backup_offsite_sync.sh"), "--preflight"],
         env=env,
     )
     assert result.returncode == 255
     assert "head-bucket failed" in result.stderr
-    failure = (local / "offsite-last-failure.txt").read_text(encoding="utf-8")
-    assert "preflight head-bucket failed" in failure
     assert not (local / "offsite-last-success.txt").exists()
+    assert not (local / "offsite-last-failure.txt").exists()
+    assert not lock.exists()
+    assert {p.name for p in local.iterdir()} == before_backup_files
+    aws_argv = argv_log.read_text(encoding="utf-8")
+    assert "s3 sync" not in aws_argv
+    after = _snapshot_paths(tmp_path)
+    new_paths = after - before
+    assert new_paths <= {str(argv_log.relative_to(tmp_path))}
+
+
+def test_preflight_missing_uri_no_marker_no_lock(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    before = _snapshot_paths(tmp_path)
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh"), "--preflight"],
+        env={
+            "BACKUP_LOCAL_DIR": str(local),
+            "BACKUP_OFFSITE_LOCK": str(lock),
+            "BACKUP_OFFSITE_URI": "",
+        },
+    )
+    assert result.returncode != 0
+    assert not (local / "offsite-last-success.txt").exists()
+    assert not (local / "offsite-last-failure.txt").exists()
+    assert not lock.exists()
+    assert _snapshot_paths(tmp_path) == before
+
+
+def test_preflight_missing_aws_no_marker_no_lock(tmp_path: Path):
+    local = tmp_path / "backups"
+    local.mkdir()
+    lock = tmp_path / "offsite.lock"
+    isolated = _isolated_path(tmp_path)
+    before_backup = {p.name for p in local.iterdir()}
+    result = _run(
+        ["bash", str(ROOT / "scripts/backup_offsite_sync.sh"), "--preflight"],
+        env={
+            "PATH": str(isolated),
+            "BACKUP_LOCAL_DIR": str(local),
+            "BACKUP_OFFSITE_LOCK": str(lock),
+            "BACKUP_OFFSITE_URI": "s3://bucket/prefix",
+        },
+    )
+    assert result.returncode != 0
+    assert "aws CLI not installed" in result.stderr
+    assert not (local / "offsite-last-success.txt").exists()
+    assert not (local / "offsite-last-failure.txt").exists()
+    assert not lock.exists()
+    assert {p.name for p in local.iterdir()} == before_backup
 
 
 def test_offsite_failure_marker_after_prior_success(tmp_path: Path):
