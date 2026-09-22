@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from typing import Any
+from typing import Any, NoReturn
 
 from fastapi import status
 from sqlalchemy import select, text
@@ -60,7 +60,7 @@ FACT_DEFINITION_ORDER = (
 )
 
 
-def _conflict(message: str, *, field: str) -> None:
+def _conflict(message: str, *, field: str) -> NoReturn:
     raise api_error(
         status.HTTP_409_CONFLICT,
         error_code=ErrorCode.CONFLICT,
@@ -69,7 +69,7 @@ def _conflict(message: str, *, field: str) -> None:
     )
 
 
-def _validation(message: str, *, field: str) -> None:
+def _validation(message: str, *, field: str) -> NoReturn:
     raise api_error(
         status.HTTP_422_UNPROCESSABLE_CONTENT,
         error_code=ErrorCode.VALIDATION_FAILED,
