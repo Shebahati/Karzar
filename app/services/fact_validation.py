@@ -115,6 +115,90 @@ def _numeric_probe(data_type: str, value: Any) -> float | None:
     return None
 
 
+def _as_bound_number(raw: Any, *, field: str) -> float:
+    if not _is_number(raw):
+        _fail("validation", f"canonical validation.{field} must be numeric")
+    return float(raw)
+
+
+def _resolve_lower_bound(canon: dict[str, Any]) -> tuple[float, bool] | None:
+    """Return (bound, exclusive) using the strictest lower constraint."""
+    candidates: list[tuple[float, bool]] = []
+    if "min" in canon and canon["min"] is not None:
+        candidates.append((_as_bound_number(canon["min"], field="min"), False))
+    if "exclusive_min" in canon and canon["exclusive_min"] is not None:
+        candidates.append(
+            (_as_bound_number(canon["exclusive_min"], field="exclusive_min"), True)
+        )
+    if not candidates:
+        return None
+    best = candidates[0]
+    for cand in candidates[1:]:
+        if cand[0] > best[0] or (cand[0] == best[0] and cand[1] and not best[1]):
+            best = cand
+    return best
+
+
+def _resolve_upper_bound(canon: dict[str, Any]) -> tuple[float, bool] | None:
+    """Return (bound, exclusive) using the strictest upper constraint."""
+    candidates: list[tuple[float, bool]] = []
+    if "max" in canon and canon["max"] is not None:
+        candidates.append((_as_bound_number(canon["max"], field="max"), False))
+    if "exclusive_max" in canon and canon["exclusive_max"] is not None:
+        candidates.append(
+            (_as_bound_number(canon["exclusive_max"], field="exclusive_max"), True)
+        )
+    if not candidates:
+        return None
+    best = candidates[0]
+    for cand in candidates[1:]:
+        if cand[0] < best[0] or (cand[0] == best[0] and cand[1] and not best[1]):
+            best = cand
+    return best
+
+
+def _assert_bounds_consistent(
+    lower: tuple[float, bool] | None,
+    upper: tuple[float, bool] | None,
+) -> None:
+    if lower is None or upper is None:
+        return
+    lo, lo_ex = lower
+    hi, hi_ex = upper
+    if lo > hi:
+        _fail(
+            "validation",
+            f"canonical lower/upper bounds contradict (lower={lo}, upper={hi})",
+        )
+    if lo == hi and (lo_ex or hi_ex):
+        _fail(
+            "validation",
+            "canonical exclusive bounds leave an empty numeric domain",
+        )
+
+
+def _check_probe_against_bounds(
+    probe: float,
+    *,
+    lower: tuple[float, bool] | None,
+    upper: tuple[float, bool] | None,
+) -> None:
+    if lower is not None:
+        bound, exclusive = lower
+        if exclusive:
+            if probe <= bound:
+                _fail("value", f"value {probe} must be > exclusive_min={bound}")
+        elif probe < bound:
+            _fail("value", f"value {probe} below effective min={bound}")
+    if upper is not None:
+        bound, exclusive = upper
+        if exclusive:
+            if probe >= bound:
+                _fail("value", f"value {probe} must be < exclusive_max={bound}")
+        elif probe > bound:
+            _fail("value", f"value {probe} above effective max={bound}")
+
+
 def apply_bound_constraints(
     *,
     data_type: str,
@@ -122,17 +206,40 @@ def apply_bound_constraints(
     canonical_validation: dict[str, Any],
     overrides: dict[str, Any] | None,
 ) -> None:
-    """Apply canonical Property constraints then PT-W2 narrowing overrides."""
+    """Apply canonical Property constraints then PT-W2 narrowing overrides.
+
+    Canonical operators: min, max, exclusive_min, exclusive_max.
+    PT-W2 override operators remain: min, max (narrowing only; no exclusive_*).
+    """
     overrides = overrides if isinstance(overrides, dict) else {}
     canon = canonical_validation if isinstance(canonical_validation, dict) else {}
 
     if data_type in NUMERIC_BOUND_DATA_TYPES:
-        eff_min = canon.get("min")
-        eff_max = canon.get("max")
-        if "min" in overrides:
-            eff_min = overrides["min"]
-        if "max" in overrides:
-            eff_max = overrides["max"]
+        lower = _resolve_lower_bound(canon)
+        upper = _resolve_upper_bound(canon)
+        _assert_bounds_consistent(lower, upper)
+
+        # PT-W2 min/max further narrow (intersection). exclusive_* not overridable.
+        if "min" in overrides and overrides["min"] is not None:
+            ov_min = float(overrides["min"])
+            if lower is None:
+                lower = (ov_min, False)
+            else:
+                lo, _lo_ex = lower
+                if ov_min > lo:
+                    lower = (ov_min, False)
+                # ov_min == lo with exclusive lower: keep exclusive (stricter)
+        if "max" in overrides and overrides["max"] is not None:
+            ov_max = float(overrides["max"])
+            if upper is None:
+                upper = (ov_max, False)
+            else:
+                hi, _hi_ex = upper
+                if ov_max < hi:
+                    upper = (ov_max, False)
+                # ov_max == hi with exclusive upper: keep exclusive (stricter)
+
+        _assert_bounds_consistent(lower, upper)
 
         probes: list[float] = []
         if data_type == "range" and isinstance(value, dict):
@@ -143,10 +250,7 @@ def apply_bound_constraints(
                 probes = [probe]
 
         for probe in probes:
-            if eff_min is not None and float(probe) < float(eff_min):
-                _fail("value", f"value {probe} below effective min={eff_min}")
-            if eff_max is not None and float(probe) > float(eff_max):
-                _fail("value", f"value {probe} above effective max={eff_max}")
+            _check_probe_against_bounds(probe, lower=lower, upper=upper)
 
     if data_type in LENGTH_BOUND_DATA_TYPES:
         eff_min_len = canon.get("min_length")
@@ -167,6 +271,38 @@ def apply_bound_constraints(
                 _fail("value", f"length {length} below effective min_length={eff_min_len}")
             if eff_max_len is not None and length > int(eff_max_len):
                 _fail("value", f"length {length} above effective max_length={eff_max_len}")
+
+
+def apply_qualifier_constraints(
+    *,
+    data_type: str,
+    value: Any,
+    canonical_validation: dict[str, Any],
+) -> None:
+    """Enforce allow_qualifier allowlist from canonical Property validation.
+
+    Presence of allow_qualifier does not require a qualifier; when present, the
+    qualifier must be a member of the Property-defined allowlist.
+    """
+    if data_type != "quantity" or not isinstance(value, dict):
+        return
+    canon = canonical_validation if isinstance(canonical_validation, dict) else {}
+    if "allow_qualifier" not in canon:
+        return
+    allowed = canon["allow_qualifier"]
+    if not isinstance(allowed, list) or not all(isinstance(i, str) for i in allowed):
+        _fail(
+            "validation.allow_qualifier",
+            "canonical allow_qualifier must be a list of strings",
+        )
+    if "qualifier" not in value or value["qualifier"] is None:
+        return
+    qualifier = value["qualifier"]
+    if qualifier not in allowed:
+        _fail(
+            "value.qualifier",
+            f"qualifier {qualifier!r} not in allow_qualifier={allowed}",
+        )
 
 
 def apply_enum_constraints(
@@ -252,6 +388,11 @@ def validate_fact_payload(
         value=normalized,
         canonical_validation=property_definition.validation or {},
         overrides=overrides,
+    )
+    apply_qualifier_constraints(
+        data_type=property_definition.data_type,
+        value=normalized,
+        canonical_validation=property_definition.validation or {},
     )
     if property_definition.data_type == "enum":
         apply_enum_constraints(property_definition, normalized, overrides)
