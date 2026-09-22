@@ -34,6 +34,7 @@ Compose network `karzar`: Postgres `db:5432`, Redis `redis:6379`. Host maps: API
 ./scripts/backup_uploads.sh                     # → backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
 ./scripts/restore_uploads.sh backups/karzar_uploads_….tar.gz
 ./scripts/backup_offsite_sync.sh                # requires BACKUP_OFFSITE_URI (host secrets)
+./scripts/backup_offsite_sync.sh --preflight    # non-mutating S3 head-bucket / rsync tooling check
 ./scripts/check_backup_health.sh                # read-only local + offsite evidence
 ```
 
@@ -66,11 +67,34 @@ Jobs are separate cron entries: offsite failure does **not** stop DB/uploads. Of
 - Never put them in `/etc/cron.d/karzar-backup`.
 - Cron loads env in order: repository `./.env` (if present), then `/opt/karzar/.deploy-secrets` (if present; overrides). Missing `.deploy-secrets` does not fail cron install; offsite sync fails at runtime until the URI is set.
 
+#### S3 / S3-compatible host-secret contract (placeholders only)
+
+```bash
+# Required for any offsite destination:
+BACKUP_OFFSITE_URI=s3://<bucket>/<prefix>   # or rsync://… / user@host:/path/
+
+# S3-compatible providers (Backblaze B2, Cloudflare R2, Wasabi, etc.):
+# endpoint is normally REQUIRED. Native AWS S3: endpoint optional (omit for default).
+BACKUP_S3_ENDPOINT_URL=https://<provider-endpoint>
+BACKUP_S3_REGION=<region>
+
+# Standard AWS CLI credentials (never commit; never put in cron):
+AWS_ACCESS_KEY_ID=<secret>
+AWS_SECRET_ACCESS_KEY=<secret>
+```
+
+- `BACKUP_S3_ENDPOINT_URL` must be `https://` (http refused).
+- Credentials use ordinary AWS CLI mechanisms (env vars, shared credentials file, or profile) — no Karzar-specific credential names.
+- Preflight (non-mutating): `bash scripts/backup_offsite_sync.sh --preflight` (`aws s3api head-bucket` for S3; local tooling check for rsync). Never runs `aws s3 sync`.
+- aws CLI is a **VPS host prerequisite** for S3 destinations (not an application Python dependency). Install only under Owner-authorized ops.
+
+**Non-binding recommendation:** evaluate Backblaze B2 S3-compatible storage first (lifecycle, server-side encryption, Object Lock/retention). Provider setup remains Owner-side; this repo has no provider-specific SDK or account automation.
+
 ### Retention and encryption
 
 - **Local retention:** `BACKUP_RETENTION_DAYS` (default 14) applies only under `./backups/`.
-- **Remote retention:** destination-side. `BACKUP_RETENTION_DAYS` does **not** enforce remote retention.
-- **rsync `--delete`:** remote tree mirrors the currently retained local set; remote history beyond local retention is removed by that mirror.
+- **Remote retention:** destination-side. `BACKUP_RETENTION_DAYS` does **not** enforce remote retention. Before production activation the Owner must prove remote retention/lifecycle, at-rest encryption, and immutability/Object Lock (or equivalent) read-only — this sync script never mutates bucket lifecycle/Object Lock.
+- **rsync `--delete`:** remote tree mirrors the currently retained local set; remote history beyond local retention is removed by that mirror. `--delete` runs before the script’s local retention deletion, so a file removed locally in that same run may remain remotely until the next successful sync.
 - **Encryption:** transport and at-rest encryption depend on the destination/configuration (TLS/SSH, bucket SSE, disk encryption). This pipeline does **not** claim encryption-at-rest is solved.
 
 ### Media coverage
