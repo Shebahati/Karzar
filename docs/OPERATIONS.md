@@ -31,16 +31,55 @@ Compose network `karzar`: Postgres `db:5432`, Redis `redis:6379`. Host maps: API
 ```bash
 ./scripts/backup_db.sh                          # → backups/karzar_YYYYMMDD_HHMMSS.sql.gz
 ./scripts/restore_db.sh backups/karzar_….sql.gz
-./scripts/backup_uploads.sh                     # volume karzar_uploads → /app/data/uploads
+./scripts/backup_uploads.sh                     # → backups/karzar_uploads_YYYYMMDD_HHMMSS.tar.gz
 ./scripts/restore_uploads.sh backups/karzar_uploads_….tar.gz
-sudo bash scripts/backup_offsite_sync.sh        # requires BACKUP_OFFSITE_URI
+./scripts/backup_offsite_sync.sh                # requires BACKUP_OFFSITE_URI (host secrets)
+./scripts/check_backup_health.sh                # read-only local + offsite evidence
 ```
 
-On-host `./backups/` is **not** disaster recovery. Sync off-host after each dump. Suggested: 7 daily + 4 weekly. Cron installer: `deploy/staging/scripts/install-backup-cron.sh` (invokes scripts via `/bin/bash` because artifact download may strip +x). Tiered on-host retention and BuildKit cache hygiene: [`operations/STORAGE_HOUSEKEEPING.md`](operations/STORAGE_HOUSEKEEPING.md) (`scripts/ops/vps_storage_housekeeping.sh`, default dry-run).
+### Readiness tiers (do not collapse these)
+
+| Tier | Meaning | Current truth |
+|------|---------|---------------|
+| `LOCAL_BACKUP_READY` | Daily on-host DB + uploads dumps exist and can be restored onto scratch | **Proven** — DB restore drill `restore-drill-db-2026-09-22-9126775872ce` (2026-09-22) |
+| `OFFSITE_SYNC_CONFIGURED` | Cron schedules offsite sync; `BACKUP_OFFSITE_URI` in host secrets | **Design in repo** — URI still operator-owned; not claimed live-configured by docs alone |
+| `OFFSITE_SYNC_PROVEN` | A real offsite sync has succeeded (success marker + destination evidence) | **Not yet proven** |
+| `OFFSITE_RECOVERY_PROVEN` | Restore from an offsite artifact onto scratch succeeded | **Not yet proven** |
+
+Issue [#247](https://github.com/Shebahati/Karzar/issues/247) is **CLOSED on GitHub** while offsite sync/recovery criteria remain incomplete. Do **not** treat #247 as fully satisfied. A future Owner decision may reopen it or open a follow-up ops issue. `EXTERNAL_ALERTING` (backup failure → external monitor) is **NOT IMPLEMENTED**; `check_backup_health.sh` is the local hook an uptime/cron monitor can call later.
+
+### Scheduled pipeline (UTC)
+
+Installed by `deploy/staging/scripts/install-backup-cron.sh` into `/etc/cron.d/karzar-backup`:
+
+| Time (UTC) | Job |
+|------------|-----|
+| 03:15 | DB dump (`backup_db.sh`) |
+| 03:30 | uploads archive (`backup_uploads.sh`) |
+| 03:45 | offsite sync (`backup_offsite_sync.sh`) |
+
+Jobs are separate cron entries: offsite failure does **not** stop DB/uploads. Offsite refuses (exit non-zero) when `BACKUP_OFFSITE_URI` is unset — fail closed.
+
+### Secrets
+
+- Never commit `BACKUP_OFFSITE_URI`, AWS keys, SSH passwords, or tokens.
+- Never put them in `/etc/cron.d/karzar-backup`.
+- Cron loads env in order: repository `./.env` (if present), then `/opt/karzar/.deploy-secrets` (if present; overrides). Missing `.deploy-secrets` does not fail cron install; offsite sync fails at runtime until the URI is set.
+
+### Retention and encryption
+
+- **Local retention:** `BACKUP_RETENTION_DAYS` (default 14) applies only under `./backups/`.
+- **Remote retention:** destination-side. `BACKUP_RETENTION_DAYS` does **not** enforce remote retention.
+- **rsync `--delete`:** remote tree mirrors the currently retained local set; remote history beyond local retention is removed by that mirror.
+- **Encryption:** transport and at-rest encryption depend on the destination/configuration (TLS/SSH, bucket SSE, disk encryption). This pipeline does **not** claim encryption-at-rest is solved.
+
+### Media coverage
+
+Offsite source is `<repo>/backups`, which holds both filename families from `backup_db.sh` and `backup_uploads.sh`. Future offsite recovery drills must cover DB **and** media.
+
+On-host `./backups/` alone is **not** disaster recovery. Suggested local keep: 7 daily + 4 weekly. Tiered on-host retention and BuildKit cache hygiene: [`operations/STORAGE_HOUSEKEEPING.md`](operations/STORAGE_HOUSEKEEPING.md) (`scripts/ops/vps_storage_housekeeping.sh`, default dry-run). Cron invokes scripts via `/bin/bash` because artifact download may strip +x.
 
 Restore onto a scratch/staging target first. Suggested RPO ≤ 24h, RTO ≤ 2h.
-
-Unresolved: a recorded restore-drill result (issue [#247](https://github.com/Shebahati/Karzar/issues/247)).
 
 ## Migrations
 
