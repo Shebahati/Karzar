@@ -16,7 +16,9 @@ def test_backup_cron_survives_github_artifact_mode_normalization():
 
     assert '/bin/bash "$DB_SCRIPT"' in cron
     assert '/bin/bash "$UPLOADS_SCRIPT"' in cron
-    assert 'chmod +x "$DB_SCRIPT" "$UPLOADS_SCRIPT"' in cron
+    assert '/bin/bash "$OFFSITE_SCRIPT"' in cron
+    assert 'chmod +x "$DB_SCRIPT" "$UPLOADS_SCRIPT" "$OFFSITE_SCRIPT"' in cron
+    assert "45 3 * * * root" in cron
 
 
 def test_deploy_workflows_restore_backup_script_modes_and_have_freeze_gate():
