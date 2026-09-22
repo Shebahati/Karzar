@@ -3,6 +3,7 @@
 KB-001: knowledge_edges (Board Day-2 freeze types).
 Prompt 11A: Property Dictionary units / definitions / aliases.
 Prompt 12 / A4: knowledge_facts + knowledge_fact_revisions.
+Prompt 13 / A5: evidence artifacts/links + taxonomy + classification assignments.
 No JSONB dual-write in this module.
 """
 
@@ -13,6 +14,7 @@ from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -346,3 +348,260 @@ class KnowledgeFactRevision(Base):
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     recorder: Mapped[str] = mapped_column(String(128), nullable=False)
     change_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+# --- Prompt 13 / Master KB A5 Evidence + Taxonomy ---
+
+EVIDENCE_ARTIFACT_KINDS = (
+    "oem_catalogue",
+    "datasheet",
+    "standard",
+    "certificate",
+    "lab_report",
+    "manual",
+    "other",
+)
+
+EVIDENCE_TARGET_TYPES = ("fact", "edge")
+EVIDENCE_RELATION_TYPES = ("FACT_SUPPORTED_BY", "EDGE_SUPPORTED_BY")
+
+TAXONOMY_DIMENSIONS = (
+    "domain",
+    "family",
+    "application",
+    "industry",
+    "technical",
+    "commerce_category",
+)
+
+TAXONOMY_STATUSES = ("draft", "active", "deprecated")
+
+TAXONOMY_NODE_TYPES = (
+    "industrial_domain",
+    "tool_family",
+    "knowledge_category",
+    "product_subcategory",
+    "product_type",
+    "application",
+    "industry",
+    "technical_class",
+    "commerce_category",
+)
+
+CLASSIFICATION_ASSIGNMENT_ROLES = (
+    "application",
+    "industry",
+    "technical",
+    "secondary_domain",
+    "product_type_bridge",
+)
+
+
+class KnowledgeEvidenceArtifact(Base):
+    """Source document/artifact provenance (Prompt 13). No blob storage."""
+
+    __tablename__ = "knowledge_evidence_artifacts"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ("
+            "'oem_catalogue','datasheet','standard','certificate',"
+            "'lab_report','manual','other'"
+            ")",
+            name="ck_knowledge_evidence_artifacts_kind",
+        ),
+        # SHA256 hex format enforced in service + Alembic (Postgres regex).
+        CheckConstraint(
+            "source_url IS NOT NULL OR source_ref IS NOT NULL OR checksum_sha256 IS NOT NULL",
+            name="ck_knowledge_evidence_artifacts_provenance",
+        ),
+        UniqueConstraint(
+            "artifact_id",
+            name="uq_knowledge_evidence_artifacts_artifact_id",
+        ),
+        Index("ix_knowledge_evidence_artifacts_kind", "kind"),
+        Index("ix_knowledge_evidence_artifacts_checksum", "checksum_sha256"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    artifact_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str | None] = mapped_column(String(255))
+    source_url: Mapped[str | None] = mapped_column(String(1024))
+    source_ref: Mapped[str | None] = mapped_column(String(255))
+    checksum_sha256: Mapped[str | None] = mapped_column(String(64))
+    publisher: Mapped[str | None] = mapped_column(String(255))
+    document_version: Mapped[str | None] = mapped_column(String(64))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    recorder: Mapped[str] = mapped_column(String(128), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class KnowledgeEvidenceLink(Base):
+    """Governed Evidence link from an Artifact to a Fact or Edge."""
+
+    __tablename__ = "knowledge_evidence_links"
+    __table_args__ = (
+        CheckConstraint(
+            "target_type IN ('fact','edge')",
+            name="ck_knowledge_evidence_links_target_type",
+        ),
+        CheckConstraint(
+            "relation_type IN ('FACT_SUPPORTED_BY','EDGE_SUPPORTED_BY')",
+            name="ck_knowledge_evidence_links_relation_type",
+        ),
+        CheckConstraint(
+            "("
+            "target_type = 'fact' AND fact_id IS NOT NULL AND edge_id IS NULL "
+            "AND relation_type = 'FACT_SUPPORTED_BY'"
+            ") OR ("
+            "target_type = 'edge' AND edge_id IS NOT NULL AND fact_id IS NULL "
+            "AND relation_type = 'EDGE_SUPPORTED_BY'"
+            ")",
+            name="ck_knowledge_evidence_links_target_shape",
+        ),
+        Index("ix_knowledge_evidence_links_fact_id", "fact_id"),
+        Index("ix_knowledge_evidence_links_edge_id", "edge_id"),
+        Index("ix_knowledge_evidence_links_artifact_id", "artifact_id"),
+        Index(
+            "uq_knowledge_evidence_links_fact",
+            "artifact_id",
+            "fact_id",
+            "relation_type",
+            "locator_fingerprint",
+            unique=True,
+            postgresql_where=text("target_type = 'fact'"),
+        ),
+        Index(
+            "uq_knowledge_evidence_links_edge",
+            "artifact_id",
+            "edge_id",
+            "relation_type",
+            "locator_fingerprint",
+            unique=True,
+            postgresql_where=text("target_type = 'edge'"),
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    artifact_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_evidence_artifacts.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    target_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    fact_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_facts.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    edge_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_edges.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    relation_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    locator: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    locator_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    recorder: Mapped[str] = mapped_column(String(128), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class KnowledgeTaxonomyNode(Base):
+    """Industrial taxonomy node (Prompt 13). Not a second commerce Category DAG."""
+
+    __tablename__ = "knowledge_taxonomy_nodes"
+    __table_args__ = (
+        CheckConstraint(
+            "dimension IN ("
+            "'domain','family','application','industry','technical','commerce_category'"
+            ")",
+            name="ck_knowledge_taxonomy_nodes_dimension",
+        ),
+        CheckConstraint(
+            "status IN ('draft','active','deprecated')",
+            name="ck_knowledge_taxonomy_nodes_status",
+        ),
+        UniqueConstraint("node_id", name="uq_knowledge_taxonomy_nodes_node_id"),
+        UniqueConstraint(
+            "dimension",
+            "slug",
+            name="uq_knowledge_taxonomy_nodes_dimension_slug",
+        ),
+        Index("ix_knowledge_taxonomy_nodes_dimension_status", "dimension", "status"),
+        Index("ix_knowledge_taxonomy_nodes_parent_id", "parent_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    node_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    dimension: Mapped[str] = mapped_column(String(32), nullable=False)
+    node_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    slug: Mapped[str] = mapped_column(String(128), nullable=False)
+    name_fa: Mapped[str] = mapped_column(String(255), nullable=False)
+    name_en: Mapped[str | None] = mapped_column(String(255))
+    parent_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_taxonomy_nodes.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="draft")
+    synonyms: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    seo_meta_title: Mapped[str | None] = mapped_column(String(255))
+    seo_meta_description: Mapped[str | None] = mapped_column(Text)
+    commerce_category_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    product_type_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("product_types.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    sort_order: Mapped[int | None] = mapped_column(Integer)
+    steward: Mapped[str | None] = mapped_column(String(128))
+
+
+class KnowledgeClassificationAssignment(Base):
+    """Secondary multi-dimensional classification of a Product/PKE.
+
+    Primary Product Type identity remains products.product_type_id (ADR-015 Hybrid).
+    PRODUCT_CLASSIFIED_AS edge projection is deferred — assignment table is runtime source.
+    """
+
+    __tablename__ = "knowledge_classification_assignments"
+    __table_args__ = (
+        CheckConstraint(
+            "assignment_role IN ("
+            "'application','industry','technical',"
+            "'secondary_domain','product_type_bridge'"
+            ")",
+            name="ck_knowledge_classification_assignments_role",
+        ),
+        UniqueConstraint(
+            "product_id",
+            "taxonomy_node_id",
+            "assignment_role",
+            name="uq_knowledge_classification_assignments_identity",
+        ),
+        Index("ix_knowledge_classification_assignments_product_id", "product_id"),
+        Index("ix_knowledge_classification_assignments_node_id", "taxonomy_node_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("products.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    taxonomy_node_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("knowledge_taxonomy_nodes.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    assignment_role: Mapped[str] = mapped_column(String(32), nullable=False)
+    is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    source_ref: Mapped[str | None] = mapped_column(String(255))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    recorder: Mapped[str] = mapped_column(String(128), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)

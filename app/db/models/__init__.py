@@ -26,11 +26,15 @@ from app.db.models.hesabfa import (
     HesabfaItemMapping,
 )
 from app.db.models.knowledge import (
+    KnowledgeClassificationAssignment,
     KnowledgeEdge,
+    KnowledgeEvidenceArtifact,
+    KnowledgeEvidenceLink,
     KnowledgeFact,
     KnowledgeFactRevision,
     KnowledgePropertyAlias,
     KnowledgePropertyDefinition,
+    KnowledgeTaxonomyNode,
     KnowledgeUnit,
 )
 from app.db.models.logistics import Shipment, ShipmentEvent, ShippingQuote
@@ -86,6 +90,10 @@ __all__ = [
     "KnowledgePropertyAlias",
     "KnowledgeFact",
     "KnowledgeFactRevision",
+    "KnowledgeEvidenceArtifact",
+    "KnowledgeEvidenceLink",
+    "KnowledgeTaxonomyNode",
+    "KnowledgeClassificationAssignment",
     "HeroSlide",
     "MegamenuNavGroup",
     "ContactSubmission",
