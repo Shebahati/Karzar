@@ -52,6 +52,15 @@ docker compose exec app alembic downgrade -1   # non-prod first
 
 Never downgrade production past a column-drop without a backup. Prefer forward-fix migrations.
 
+**Live deploy ↔ migration coupling (current architecture):** the API container
+entrypoint (`docker-entrypoint.sh`) always runs `alembic upgrade head` before
+starting the server. On the CR-011 live VPS compose stack this means a normal
+**live deploy currently cannot be authorized independently of pending schema
+migrations**: shipping a new image/tree that includes new Alembic revisions will
+apply those revisions on container start. Do not assume “code-only” live deploy
+is available without changing that entrypoint (out of scope unless Owner orders
+a deliberate split). Review pending revisions before authorizing Deploy Staging.
+
 ## VPS bootstrap (unique host facts)
 
 Live tree on the VPS is `/opt/karzar/Karzar`. First-time host setup:
@@ -70,7 +79,7 @@ DNS A records historically used `api` / `shop` / `admin`. Public shop today is `
 2. Update [`API_CHANGELOG.md`](API_CHANGELOG.md) if the contract changed.
 3. Owner: set Actions variable `KARZAR_DEPLOY_FREEZE=false` only for the window needed.
 4. Run **Deploy Staging** via GitHub Actions `workflow_dispatch` on `main` — **not** push-auto-deploy (`.github/workflows/deploy-staging.yml`).
-5. Compose on the VPS: `docker compose -f docker-compose.yml -f docker-compose.staging.yml`. Entrypoint runs `alembic upgrade head`.
+5. Compose on the VPS: `docker compose -f docker-compose.yml -f docker-compose.staging.yml`. Entrypoint runs `alembic upgrade head` (see **Live deploy ↔ migration coupling** above — live deploy applies pending migrations).
 6. Smoke: `deploy/staging/scripts/smoke-staging.sh` (`GET /ready`, admin session, checkout against the **configured** provider). Do **not** switch production/staging-live to mock to smoke.
 7. Restore `KARZAR_DEPLOY_FREEZE=true` immediately.
 8. Watch error rate and `/metrics` for 15 minutes.
