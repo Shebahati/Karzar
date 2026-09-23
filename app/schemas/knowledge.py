@@ -610,7 +610,7 @@ class ClassificationAssignmentListResponse(BaseModel):
     total: int
 
 
-# --- Knowledge Wave Registry PR1/PR2 (Draft / Reviewed / Sealed) ---
+# --- Knowledge Wave Registry PR1/PR2/PR3/PR3-B.1 ---
 
 WaveStatusPR1 = Literal["Draft", "Reviewed"]
 WaveStatusPR2 = Literal["Draft", "Reviewed", "Sealed"]
@@ -622,6 +622,21 @@ WaveStatusPR3 = Literal[
     "Asserted",
     "Failed",
     "Aborted",
+]
+# PR3-B.1 lifecycle vocabulary (additive; no new endpoints in this PR).
+WaveStatusPR3B = Literal[
+    "Draft",
+    "Reviewed",
+    "Sealed",
+    "Executing",
+    "Asserted",
+    "EvidenceValidated",
+    "Publishing",
+    "Published",
+    "Failed",
+    "Aborted",
+    "Superseded",
+    "Archived",
 ]
 
 
@@ -677,7 +692,7 @@ class KnowledgeWaveValidateIssue(BaseModel):
 class KnowledgeWaveValidateResponse(BaseModel):
     wave_pk: int
     wave_id: str
-    status: WaveStatusPR2
+    status: WaveStatusPR3B
     validation_tier: Literal["basic", "pre_seal", "execution_readiness"]
     ok: bool
     issues: list[KnowledgeWaveValidateIssue] = Field(default_factory=list)
@@ -690,7 +705,7 @@ class KnowledgeWaveResponse(BaseModel):
 
     id: int
     wave_id: str
-    status: WaveStatusPR3
+    status: WaveStatusPR3B
     manifest_sha256: str | None = None
     brand: str
     product_type_id: int
@@ -732,7 +747,7 @@ class KnowledgeWaveExecuteResponse(BaseModel):
     wave_run_id: int
     wave_id: str
     wave_pk: int
-    wave_status: WaveStatusPR3
+    wave_status: WaveStatusPR3B
     status: str
     manifest_sha256: str | None = None
     created_items: list[KnowledgeWaveRunItemSummary]
@@ -749,7 +764,7 @@ class KnowledgeWaveResumeRequest(BaseModel):
 class KnowledgeWaveRunWaveSummary(BaseModel):
     id: int
     wave_id: str
-    status: WaveStatusPR3
+    status: WaveStatusPR3B
     manifest_sha256: str | None = None
     brand: str
     product_type_id: int

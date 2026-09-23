@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-23 — Knowledge Wave Registry PR3-B.1 (lifecycle foundation)
+
+- Additive Alembic `s2t3u4v5w6x7`: wave `status` CHECK expands to include `EvidenceValidated|Publishing|Published|Superseded|Archived` (no new endpoints).
+- Single-source transition map in `app/services/knowledge_wave_lifecycle.py` (deny-by-default); review/seal/execute call `assert_transition`.
+- Response schema status Literal widened to `WaveStatusPR3B` (OpenAPI enum). No validate-evidence / publish APIs in this change.
+
 ### 2026-09-23 — Knowledge Wave Registry PR3-A (Execute)
 
 - Additive status vocabulary (Alembic `q0r1s2t3u4v5`): wave `Executing|Asserted|Failed|Aborted`; run `created|running|completed|failed|aborted`; item `pending|running|success|failed|skipped` + ledger columns.
