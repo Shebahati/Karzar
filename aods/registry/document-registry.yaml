@@ -728,3 +728,21 @@ documents:
     owner_role: R-DOC-ARCH
     on_main: false
     branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-70-RESULT
+    path: audit/insize-phase3/PROMPT_70_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-71-RESULT
+    path: audit/insize-phase3/PROMPT_71_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
