@@ -583,16 +583,16 @@ chmod 0600 "$Z_IN/${KARZAR_MANIFEST_NAME}"
 pass "NORMALIZE_CLEAN_SHELL"
 
 WF="$(cd "${SCRIPT_DIR}/../../.." && pwd)/.github/workflows/deploy-staging.yml"
-if grep -A20 '^  cleanup:' "$WF" | grep -q 'needs: deploy' \
-  && grep -A20 '^  cleanup:' "$WF" | grep -q 'runs-on: ubuntu-latest' \
-  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'karzar-vps' \
-  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'self-hosted'; then
+if grep -A25 '^  cleanup:' "$WF" | grep -q 'needs: deploy' \
+  && grep -A25 '^  cleanup:' "$WF" | grep -qE 'karzar-vps|self-hosted' \
+  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'SSH_PRIVATE_KEY' \
+  && ! grep -A40 '^  cleanup:' "$WF" | grep -q 'ubuntu-latest'; then
   pass "WORKFLOW_DEPENDENCY"
 else
-  fail "cleanup job must need deploy and run on ubuntu-latest, not karzar-vps"
+  fail "cleanup job must need deploy, run on self-hosted karzar-vps, and not use SSH secrets"
 fi
-if grep -A20 '^  cleanup:' "$WF" | grep -q "needs.deploy.result == 'success'" \
-  && ! grep -A20 '^  cleanup:' "$WF" | grep -q 'always()'; then
+if grep -A25 '^  cleanup:' "$WF" | grep -q "needs.deploy.result == 'success'" \
+  && ! grep -A25 '^  cleanup:' "$WF" | grep -q 'always()'; then
   pass "FAILED_DEPLOY_PRESERVES_INCOMING"
 else
   fail "cleanup must run only when deploy succeeds (no always())"
@@ -601,5 +601,14 @@ if awk '/^  deploy:/,/^  cleanup:/ { if ($0 ~ /rm -rf .*incoming/) found=1 } END
   fail "self-hosted deploy job still deletes incoming"
 fi
 pass "SELF_HOSTED_CLEANUP_REMOVED"
+
+# Package must be self-hosted local path, not GitHub SSH rsync.
+if grep -A30 '^  package:' "$WF" | grep -q 'karzar-vps' \
+  && grep -q 'package-incoming-local.sh' "$WF" \
+  && ! grep -qE 'push-incoming-source\.sh|push-incoming-frontend-images\.sh' "$WF"; then
+  pass "WORKFLOW_SELF_HOSTED_PACKAGE"
+else
+  fail "package job must run on karzar-vps via package-incoming-local (no SSH push)"
+fi
 
 echo "ALL_HANDOFF_SELFTESTS_OK count=${PASS}"

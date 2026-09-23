@@ -199,13 +199,14 @@ karzar_verify_frontend_bundle_readable_by_deploy_user() {
   return 0
 }
 
-# rsync → normalize → digest verify → deploy-user verify → marker (push path).
+# rsync or local save → normalize → digest verify → deploy-user verify → marker.
 karzar_finalize_frontend_images_incoming_handoff() {
   local dir="${1:?dir required}"
   local sha="${2:?sha required}"
   local expected_bundle_sha="${3:?expected bundle sha256 required}"
   local shop_tag="${4:?shop tag required}"
   local admin_tag="${5:?admin tag required}"
+  local transport="${6:-rsync-ssh-ipv4}"
   local marker="${dir}/${KARZAR_FRONTEND_IMAGES_MARKER}"
   local actual_sha
 
@@ -220,7 +221,7 @@ karzar_finalize_frontend_images_incoming_handoff() {
 
   karzar_verify_frontend_bundle_readable_by_deploy_user "$dir" || return 1
 
-  karzar_write_frontend_images_handoff_marker "$dir" "$sha" "$actual_sha" "$shop_tag" "$admin_tag"
+  karzar_write_frontend_images_handoff_marker "$dir" "$sha" "$actual_sha" "$shop_tag" "$admin_tag" "$transport"
   chmod 0644 "$marker"
 }
 
@@ -264,6 +265,8 @@ karzar_write_frontend_images_handoff_marker() {
   local bundle_sha="$3"
   local shop_tag="$4"
   local admin_tag="$5"
+  # Optional 6th arg: transport. Default preserves legacy GitHub→VPS SSH push path.
+  local transport="${6:-rsync-ssh-ipv4}"
   if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
     echo "refuse to write ${KARZAR_FRONTEND_IMAGES_MARKER}: invalid sha" >&2
     return 1
@@ -272,12 +275,19 @@ karzar_write_frontend_images_handoff_marker() {
     echo "refuse to write ${KARZAR_FRONTEND_IMAGES_MARKER}: invalid bundle sha256" >&2
     return 1
   fi
+  case "$transport" in
+    rsync-ssh-ipv4|local-package) ;;
+    *)
+      echo "refuse to write ${KARZAR_FRONTEND_IMAGES_MARKER}: unsupported transport=${transport}" >&2
+      return 1
+      ;;
+  esac
   cat > "${dir}/${KARZAR_FRONTEND_IMAGES_MARKER}" <<EOF
 sha=${sha}
 bundle_sha256=${bundle_sha}
 shop_image=${shop_tag}
 admin_image=${admin_tag}
-transport=rsync-ssh-ipv4
+transport=${transport}
 EOF
 }
 
