@@ -681,7 +681,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-65-RESULT
@@ -690,7 +690,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-66-RESULT
@@ -699,7 +699,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-67-RESULT
@@ -708,7 +708,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-68-RESULT
@@ -717,7 +717,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-69-RESULT
@@ -726,7 +726,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-70-RESULT
@@ -735,7 +735,7 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-71-RESULT
@@ -744,5 +744,5 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
+    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
