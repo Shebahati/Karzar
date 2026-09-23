@@ -78,31 +78,60 @@ def _validation(message: str, *, field: str) -> NoReturn:
     )
 
 
-async def _assert_safety_gates(db: AsyncSession) -> None:
-    freeze = (os.environ.get("KARZAR_DEPLOY_FREEZE") or "").strip().lower()
-    if freeze != "true":
-        _conflict(
-            "KARZAR_DEPLOY_FREEZE must be true for kb-batch-assert",
-            field="KARZAR_DEPLOY_FREEZE",
-        )
+async def _assert_safety_gates(
+    db: AsyncSession, *, pins: dict[str, Any] | None = None
+) -> None:
+    required_freeze = True
+    required_plane = REQUIRED_PLANE
+    required_alembic = REQUIRED_ALEMBIC
+    if pins:
+        required_freeze = bool(pins.get("freeze_required", True))
+        required_plane = str(pins.get("plane") or REQUIRED_PLANE)
+        required_alembic = str(pins.get("alembic") or REQUIRED_ALEMBIC)
+
+    if required_freeze:
+        freeze = (os.environ.get("KARZAR_DEPLOY_FREEZE") or "").strip().lower()
+        if freeze != "true":
+            _conflict(
+                "KARZAR_DEPLOY_FREEZE must be true for kb-batch-assert",
+                field="KARZAR_DEPLOY_FREEZE",
+            )
 
     plane_row = (
         await db.execute(
             text("SELECT plane FROM environment_identity WHERE id = 1")
         )
     ).first()
-    if plane_row is None or str(plane_row[0]) != REQUIRED_PLANE:
+    if plane_row is None or str(plane_row[0]) != required_plane:
         _conflict(
-            f"environment_identity.plane must be {REQUIRED_PLANE!r}",
+            f"environment_identity.plane must be {required_plane!r}",
             field="environment_identity.plane",
         )
 
     alembic_row = (await db.execute(text("SELECT version_num FROM alembic_version"))).first()
-    if alembic_row is None or str(alembic_row[0]) != REQUIRED_ALEMBIC:
+    if alembic_row is None or str(alembic_row[0]) != required_alembic:
         _conflict(
-            f"alembic_version must be {REQUIRED_ALEMBIC!r}",
+            f"alembic_version must be {required_alembic!r}",
             field="alembic_version",
         )
+
+
+async def assert_environment_gates(
+    db: AsyncSession, *, pins: dict[str, Any] | None = None
+) -> None:
+    """Public freeze/plane/alembic gates (Batch-1 defaults or wave pins)."""
+    await _assert_safety_gates(db, pins=pins)
+
+
+def _brand_matches(brand: Brand | None, expected: str) -> bool:
+    if brand is None:
+        return False
+    exp = (expected or "").strip().upper()
+    name = (brand.name or "").upper()
+    slug = (brand.slug or "").lower()
+    if not exp:
+        return _brand_is_insize(brand)
+    return exp in name or exp.lower() in slug or _brand_is_insize(brand)
 
 
 def _brand_is_insize(brand: Brand | None) -> bool:
@@ -125,7 +154,13 @@ def _specs_fingerprint(specifications: Any) -> str:
 
 
 async def _load_product_for_batch(
-    db: AsyncSession, *, product_id: int, expected_sku: str
+    db: AsyncSession,
+    *,
+    product_id: int,
+    expected_sku: str,
+    brand_expected: str | None = None,
+    allow_existing_assignment: bool = False,
+    expected_product_type_id: int | None = None,
 ) -> Product:
     product = (
         await db.execute(
@@ -151,9 +186,21 @@ async def _load_product_for_batch(
         _conflict("Product is deleted", field="deleted_at")
     if not product.is_active:
         _conflict("Product is not active", field="is_active")
-    if not _brand_is_insize(product.brand):
+    if brand_expected:
+        if not _brand_matches(product.brand, brand_expected):
+            _conflict(
+                f"Product brand must match wave brand {brand_expected!r}",
+                field="brand",
+            )
+    elif not _brand_is_insize(product.brand):
         _conflict("Product brand must be INSIZE", field="brand")
     if product.product_type_id is not None:
+        if (
+            allow_existing_assignment
+            and expected_product_type_id is not None
+            and product.product_type_id == expected_product_type_id
+        ):
+            return product
         _conflict(
             "Product already has a Product Type assignment",
             field="product_type_id",
@@ -161,24 +208,40 @@ async def _load_product_for_batch(
     return product
 
 
-async def _assert_product_type_and_definition(db: AsyncSession) -> ProductTypeDefinition:
-    pt = await db.get(ProductType, REQUIRED_PRODUCT_TYPE_ID)
-    if (
-        pt is None
+async def _assert_product_type_and_definition(
+    db: AsyncSession,
+    *,
+    product_type_id: int = REQUIRED_PRODUCT_TYPE_ID,
+    definition_id: int = REQUIRED_DEFINITION_ID,
+    require_gen_caliper_literals: bool = True,
+) -> ProductTypeDefinition:
+    pt = await db.get(ProductType, product_type_id)
+    if pt is None or pt.status != ProductTypeStatus.ACTIVE.value:
+        _conflict(
+            "Product Type must be active",
+            field="product_type_id",
+        )
+    if require_gen_caliper_literals and (
+        product_type_id != REQUIRED_PRODUCT_TYPE_ID
         or pt.code != REQUIRED_PRODUCT_TYPE_CODE
-        or pt.status != ProductTypeStatus.ACTIVE.value
     ):
         _conflict(
             "GEN_CALIPER Product Type id=1 must be active",
             field="product_type_id",
         )
 
-    definition = await db.get(ProductTypeDefinition, REQUIRED_DEFINITION_ID)
+    definition = await db.get(ProductTypeDefinition, definition_id)
     if (
         definition is None
-        or definition.product_type_id != REQUIRED_PRODUCT_TYPE_ID
-        or definition.version != 1
+        or definition.product_type_id != product_type_id
         or definition.status != ProductTypeDefinitionStatus.ACTIVE.value
+    ):
+        _conflict(
+            "Product Type Definition must be active for product_type_id",
+            field="definition_id",
+        )
+    if require_gen_caliper_literals and (
+        definition_id != REQUIRED_DEFINITION_ID or definition.version != 1
     ):
         _conflict(
             "Product Type Definition id=1 version=1 must be active",
@@ -302,54 +365,150 @@ async def execute_kb_batch_assert(
     evidence_links: list[dict[str, Any]],
     change_reason: str,
     actor: User,
+    wave_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run one SKU KB unit on ``db`` without committing.
 
-    Caller (HTTP endpoint) must commit once on success or rollback on error.
-    """
-    await _assert_safety_gates(db)
+    Caller (HTTP endpoint / wave executor) must commit once on success
+    or rollback on error.
 
-    if (manifest_sha256 or "").strip().lower() != BATCH1_MANIFEST_SHA256:
-        _conflict(
-            "manifest_sha256 does not match immutable Batch 1 execution manifest",
-            field="manifest_sha256",
-        )
-    if product_type_id != REQUIRED_PRODUCT_TYPE_ID:
-        _validation(
-            "product_type_id must be 1 (GEN_CALIPER)",
-            field="product_type_id",
-        )
-    if definition_id != REQUIRED_DEFINITION_ID:
-        _validation(
-            "definition_id must be 1 (GEN_CALIPER Definition V1)",
-            field="definition_id",
-        )
+    When ``wave_context`` is provided (PR3-A), pins / brand / PT come from
+    the sealed wave; Batch-1 SHA literal check is skipped. Fact/Evidence
+    creation still uses existing services only.
+    """
+    pins = None
+    resume_facts = False
+    resume_assignment = False
+    brand_expected: str | None = None
+    if wave_context:
+        pins = wave_context.get("environment_pins") or {}
+        rules = wave_context.get("validation_rules") or {}
+        resume_facts = bool(rules.get("resume_existing_facts", True))
+        resume_assignment = bool(rules.get("resume_existing_assignment", True))
+        brand_expected = str(wave_context.get("brand") or "")
+        expected_sha = str(wave_context.get("manifest_sha256") or "").lower()
+        if (manifest_sha256 or "").strip().lower() != expected_sha:
+            _conflict(
+                "manifest_sha256 does not match sealed wave",
+                field="manifest_sha256",
+            )
+        if product_type_id != int(wave_context["product_type_id"]):
+            _validation(
+                "product_type_id must match sealed wave",
+                field="product_type_id",
+            )
+        if definition_id != int(wave_context["definition_id"]):
+            _validation(
+                "definition_id must match sealed wave",
+                field="definition_id",
+            )
+    else:
+        await _assert_safety_gates(db)
+        if (manifest_sha256 or "").strip().lower() != BATCH1_MANIFEST_SHA256:
+            _conflict(
+                "manifest_sha256 does not match immutable Batch 1 execution manifest",
+                field="manifest_sha256",
+            )
+        if product_type_id != REQUIRED_PRODUCT_TYPE_ID:
+            _validation(
+                "product_type_id must be 1 (GEN_CALIPER)",
+                field="product_type_id",
+            )
+        if definition_id != REQUIRED_DEFINITION_ID:
+            _validation(
+                "definition_id must be 1 (GEN_CALIPER Definition V1)",
+                field="definition_id",
+            )
+
+    if wave_context:
+        await _assert_safety_gates(db, pins=pins)
 
     reason = (change_reason or "").strip()
     if not reason:
         _validation("change_reason is required", field="change_reason")
 
+    # Wave path still uses Batch-1 fact shape for PR3-A (3 defs); keeps
+    # evidence/artifact rules via same normalizers.
     ordered_facts = _normalize_facts(facts)
     ordered_links = _normalize_evidence_links(
         evidence_links,
         ordered_definition_ids=[f["definition_id"] for f in ordered_facts],
     )
 
-    product = await _load_product_for_batch(db, product_id=product_id, expected_sku=sku)
+    product = await _load_product_for_batch(
+        db,
+        product_id=product_id,
+        expected_sku=sku,
+        brand_expected=brand_expected,
+        allow_existing_assignment=resume_assignment if wave_context else False,
+        expected_product_type_id=product_type_id if wave_context else None,
+    )
     specs_before = _specs_fingerprint(product.specifications)
 
-    await _assert_product_type_and_definition(db)
+    await _assert_product_type_and_definition(
+        db,
+        product_type_id=product_type_id,
+        definition_id=definition_id,
+        require_gen_caliper_literals=wave_context is None,
+    )
     await _assert_artifact(db)
-    await _assert_no_existing_facts(db, product_id=product.id)
+
+    existing_defs = (
+        await db.execute(
+            select(KnowledgeFact.definition_id).where(
+                KnowledgeFact.entity_id == product.id,
+                KnowledgeFact.definition_id.in_(REQUIRED_FACT_DEFINITIONS),
+            )
+        )
+    ).scalars().all()
+    if existing_defs:
+        if wave_context and resume_facts and set(existing_defs) == REQUIRED_FACT_DEFINITIONS:
+            existing_facts = (
+                await db.execute(
+                    select(KnowledgeFact).where(
+                        KnowledgeFact.entity_id == product.id,
+                        KnowledgeFact.definition_id.in_(REQUIRED_FACT_DEFINITIONS),
+                    )
+                )
+            ).scalars().all()
+            by_def = {f.definition_id: f for f in existing_facts}
+            ordered_existing = [by_def[d] for d in FACT_DEFINITION_ORDER]
+            return {
+                "product_id": product.id,
+                "sku": product.sku,
+                "product_type_id": product.product_type_id,
+                "definition_id": definition_id,
+                "manifest_sha256": (manifest_sha256 or "").strip().lower(),
+                "resumed": True,
+                "facts": [
+                    {
+                        "id": f.id,
+                        "definition_id": f.definition_id,
+                        "status": f.status,
+                        "source_id": f.source_id,
+                    }
+                    for f in ordered_existing
+                ],
+                "evidence_links": [],
+                "published_count": 0,
+                "specifications_fingerprint": specs_before,
+            }
+        await _assert_no_existing_facts(db, product_id=product.id)
 
     # --- mutation block (still uncommitted) ---
-    await assignment_service.assign_product_type(
-        db,
-        product_id=product.id,
-        product_type_id=REQUIRED_PRODUCT_TYPE_ID,
-        change_reason=reason,
-        actor=actor,
-    )
+    if product.product_type_id is None:
+        await assignment_service.assign_product_type(
+            db,
+            product_id=product.id,
+            product_type_id=product_type_id,
+            change_reason=reason,
+            actor=actor,
+        )
+    elif product.product_type_id != product_type_id:
+        _conflict(
+            "Product Type assignment does not match wave",
+            field="product_type_id",
+        )
 
     created_facts: list[KnowledgeFact] = []
     for fact_payload in ordered_facts:
@@ -370,7 +529,7 @@ async def execute_kb_batch_assert(
     for fact, link_payload in zip(created_facts, ordered_links, strict=True):
         link = await evidence_service.link_artifact_to_fact(
             db,
-            artifact_pk=REQUIRED_ARTIFACT_DB_ID,
+            artifact_pk=int(link_payload["artifact_id"]),
             fact_id=fact.id,
             locator=link_payload["locator"],
             notes=link_payload.get("notes"),
@@ -378,9 +537,8 @@ async def execute_kb_batch_assert(
         )
         created_links.append(link)
 
-    # Postconditions (still before caller commit)
     await db.refresh(product)
-    if product.product_type_id != REQUIRED_PRODUCT_TYPE_ID:
+    if product.product_type_id != product_type_id:
         _conflict("postcondition failed: product_type_id", field="product_type_id")
     if _specs_fingerprint(product.specifications) != specs_before:
         _conflict("postcondition failed: specifications JSONB mutated", field="specifications")
@@ -389,7 +547,7 @@ async def execute_kb_batch_assert(
         await db.refresh(fact)
         if fact.status != "asserted":
             _conflict("postcondition failed: Fact not asserted", field="facts")
-        if fact.product_type_definition_id != REQUIRED_DEFINITION_ID:
+        if fact.product_type_definition_id != definition_id:
             _conflict(
                 "postcondition failed: product_type_definition_id",
                 field="facts",
@@ -399,8 +557,9 @@ async def execute_kb_batch_assert(
         "product_id": product.id,
         "sku": product.sku,
         "product_type_id": product.product_type_id,
-        "definition_id": REQUIRED_DEFINITION_ID,
-        "manifest_sha256": BATCH1_MANIFEST_SHA256,
+        "definition_id": definition_id,
+        "manifest_sha256": (manifest_sha256 or "").strip().lower(),
+        "resumed": False,
         "facts": [
             {
                 "id": f.id,

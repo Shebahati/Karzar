@@ -674,3 +674,57 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     on_main: true
+
+  - id: PROMPT-64-RESULT
+    path: audit/insize-phase3/PROMPT_64_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-65-RESULT
+    path: audit/insize-phase3/PROMPT_65_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-66-RESULT
+    path: audit/insize-phase3/PROMPT_66_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-67-RESULT
+    path: audit/insize-phase3/PROMPT_67_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-68-RESULT
+    path: audit/insize-phase3/PROMPT_68_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a
+
+  - id: PROMPT-69-RESULT
+    path: audit/insize-phase3/PROMPT_69_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    on_main: false
+    branch: feat/knowledge-wave-registry-pr3a

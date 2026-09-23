@@ -9193,6 +9193,674 @@
         }
       }
     },
+    "/api/v1/knowledge/waves": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Create Draft knowledge wave (super-admin)",
+        "operationId": "create_wave_api_v1_knowledge_waves_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List knowledge waves (super-admin)",
+        "operationId": "list_waves_api_v1_knowledge_waves_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/waves/{wave_pk}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get knowledge wave by id (super-admin)",
+        "operationId": "get_wave_api_v1_knowledge_waves__wave_pk__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_pk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Wave Pk"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Patch Draft wave fields (super-admin; Sealed immutable)",
+        "operationId": "patch_draft_wave_api_v1_knowledge_waves__wave_pk__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_pk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Wave Pk"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/waves/{wave_pk}/review": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Transition Draft↔Reviewed (super-admin)",
+        "operationId": "review_wave_api_v1_knowledge_waves__wave_pk__review_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_pk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Wave Pk"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/waves/{wave_pk}/seal": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Seal Reviewed wave (super-admin; stores manifest_sha256)",
+        "operationId": "seal_wave_api_v1_knowledge_waves__wave_pk__seal_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_pk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Wave Pk"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveSealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/waves/{wave_pk}/validate": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Validate wave by status tier (super-admin; no execution)",
+        "operationId": "validate_wave_api_v1_knowledge_waves__wave_pk__validate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_pk",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Wave Pk"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/waves/{wave_id}/execute": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Execute Sealed wave assert (super-admin; sync SKU loop)",
+        "operationId": "execute_wave_api_v1_knowledge_waves__wave_id__execute_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wave Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveExecuteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveExecuteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/wave-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get wave run ledger (super-admin)",
+        "operationId": "get_wave_run_api_v1_knowledge_wave_runs__run_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/wave-runs/{run_id}/resume": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Resume failed wave run (super-admin; new run_id)",
+        "operationId": "resume_wave_run_api_v1_knowledge_wave_runs__run_id__resume_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveResumeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveExecuteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/hesabfa/status": {
       "get": {
         "tags": [
@@ -16592,6 +17260,905 @@
           "status"
         ],
         "title": "KnowledgeUnitResponse"
+      },
+      "KnowledgeWaveCreateRequest": {
+        "properties": {
+          "wave_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Wave Id"
+          },
+          "brand": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Brand"
+          },
+          "product_type_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Definition Id"
+          },
+          "policy_json": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Policy Json"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveProductItem"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "wave_id",
+          "brand",
+          "product_type_id",
+          "definition_id"
+        ],
+        "title": "KnowledgeWaveCreateRequest"
+      },
+      "KnowledgeWaveExecuteRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          },
+          "sku_units": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveSkuUnitRequest"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sku Units"
+          },
+          "stop_on_first_failure": {
+            "type": "boolean",
+            "title": "Stop On First Failure",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason",
+          "sku_units"
+        ],
+        "title": "KnowledgeWaveExecuteRequest"
+      },
+      "KnowledgeWaveExecuteResponse": {
+        "properties": {
+          "wave_run_id": {
+            "type": "integer",
+            "title": "Wave Run Id"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "wave_pk": {
+            "type": "integer",
+            "title": "Wave Pk"
+          },
+          "wave_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "Failed",
+              "Aborted"
+            ],
+            "title": "Wave Status"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "created_items": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveRunItemSummary"
+            },
+            "type": "array",
+            "title": "Created Items"
+          },
+          "progress": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Progress"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "wave_run_id",
+          "wave_id",
+          "wave_pk",
+          "wave_status",
+          "status",
+          "created_items",
+          "progress"
+        ],
+        "title": "KnowledgeWaveExecuteResponse"
+      },
+      "KnowledgeWaveListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "KnowledgeWaveListResponse"
+      },
+      "KnowledgeWaveProductItem": {
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Product Id"
+          },
+          "sku_snapshot": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Sku Snapshot"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "sku_snapshot"
+        ],
+        "title": "KnowledgeWaveProductItem"
+      },
+      "KnowledgeWaveProductResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "wave_id": {
+            "type": "integer",
+            "title": "Wave Id"
+          },
+          "product_id": {
+            "type": "integer",
+            "title": "Product Id"
+          },
+          "sku_snapshot": {
+            "type": "string",
+            "title": "Sku Snapshot"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "wave_id",
+          "product_id",
+          "sku_snapshot",
+          "created_at"
+        ],
+        "title": "KnowledgeWaveProductResponse"
+      },
+      "KnowledgeWaveResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "Failed",
+              "Aborted"
+            ],
+            "title": "Status"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "brand": {
+            "type": "string",
+            "title": "Brand"
+          },
+          "product_type_id": {
+            "type": "integer",
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "type": "integer",
+            "title": "Definition Id"
+          },
+          "policy_json": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Policy Json"
+          },
+          "created_by": {
+            "type": "integer",
+            "title": "Created By"
+          },
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveProductResponse"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "wave_id",
+          "status",
+          "brand",
+          "product_type_id",
+          "definition_id",
+          "policy_json",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "KnowledgeWaveResponse"
+      },
+      "KnowledgeWaveResumeRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          },
+          "sku_units": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/KnowledgeWaveSkuUnitRequest"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Units"
+          },
+          "stop_on_first_failure": {
+            "type": "boolean",
+            "title": "Stop On First Failure",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "KnowledgeWaveResumeRequest"
+      },
+      "KnowledgeWaveReviewRequest": {
+        "properties": {
+          "to_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed"
+            ],
+            "title": "To Status"
+          },
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "to_status",
+          "change_reason"
+        ],
+        "title": "KnowledgeWaveReviewRequest",
+        "description": "Draft↔Reviewed only (Sealed via /seal)."
+      },
+      "KnowledgeWaveRunItemDetail": {
+        "properties": {
+          "run_item_id": {
+            "type": "integer",
+            "title": "Run Item Id"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "sku_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Snapshot"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "resumed": {
+            "type": "boolean",
+            "title": "Resumed",
+            "default": false
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_item_id",
+          "status"
+        ],
+        "title": "KnowledgeWaveRunItemDetail"
+      },
+      "KnowledgeWaveRunItemSummary": {
+        "properties": {
+          "run_item_id": {
+            "type": "integer",
+            "title": "Run Item Id"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "sku_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Snapshot"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_item_id",
+          "status"
+        ],
+        "title": "KnowledgeWaveRunItemSummary"
+      },
+      "KnowledgeWaveRunResponse": {
+        "properties": {
+          "run_id": {
+            "type": "integer",
+            "title": "Run Id"
+          },
+          "run_type": {
+            "type": "string",
+            "title": "Run Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_by": {
+            "type": "integer",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "manifest_sha256_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256 Snapshot"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
+          "wave": {
+            "$ref": "#/components/schemas/KnowledgeWaveRunWaveSummary"
+          },
+          "progress": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Progress"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveRunItemDetail"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "run_type",
+          "status",
+          "created_by",
+          "created_at",
+          "wave",
+          "progress",
+          "items"
+        ],
+        "title": "KnowledgeWaveRunResponse"
+      },
+      "KnowledgeWaveRunWaveSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "Failed",
+              "Aborted"
+            ],
+            "title": "Status"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "brand": {
+            "type": "string",
+            "title": "Brand"
+          },
+          "product_type_id": {
+            "type": "integer",
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "type": "integer",
+            "title": "Definition Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "wave_id",
+          "status",
+          "brand",
+          "product_type_id",
+          "definition_id"
+        ],
+        "title": "KnowledgeWaveRunWaveSummary"
+      },
+      "KnowledgeWaveSealRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "KnowledgeWaveSealRequest"
+      },
+      "KnowledgeWaveSkuUnitRequest": {
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Product Id"
+          },
+          "sku": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Sku"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertFactItem"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "evidence_links": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeBatchAssertEvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "sku",
+          "facts",
+          "evidence_links"
+        ],
+        "title": "KnowledgeWaveSkuUnitRequest"
+      },
+      "KnowledgeWaveUpdateRequest": {
+        "properties": {
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "product_type_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type Id"
+          },
+          "definition_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition Id"
+          },
+          "policy_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Json"
+          },
+          "products": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/KnowledgeWaveProductItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "title": "KnowledgeWaveUpdateRequest"
+      },
+      "KnowledgeWaveValidateIssue": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "title": "Severity",
+            "default": "error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "message"
+        ],
+        "title": "KnowledgeWaveValidateIssue"
+      },
+      "KnowledgeWaveValidateResponse": {
+        "properties": {
+          "wave_pk": {
+            "type": "integer",
+            "title": "Wave Pk"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed"
+            ],
+            "title": "Status"
+          },
+          "validation_tier": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "pre_seal",
+              "execution_readiness"
+            ],
+            "title": "Validation Tier"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveValidateIssue"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "preview_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Manifest Sha256"
+          },
+          "stored_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stored Manifest Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "wave_pk",
+          "wave_id",
+          "status",
+          "validation_tier",
+          "ok"
+        ],
+        "title": "KnowledgeWaveValidateResponse"
       },
       "NavGroupListResponse": {
         "properties": {

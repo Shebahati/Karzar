@@ -22,6 +22,31 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-23 — Knowledge Wave Registry PR3-A (Execute)
+
+- Additive status vocabulary (Alembic `q0r1s2t3u4v5`): wave `Executing|Asserted|Failed|Aborted`; run `created|running|completed|failed|aborted`; item `pending|running|success|failed|skipped` + ledger columns.
+- `POST /api/v1/knowledge/waves/{wave_id}/execute` — Sealed only; freeze/plane/alembic/SHA gates; sync SKU loop via `kb-batch-assert`; Sealed→Executing→Asserted|Failed.
+- `GET /api/v1/knowledge/wave-runs/{run_id}` — run ledger.
+- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` — failed runs only; new run_id; no Fact duplication.
+- Audit: `wave.execute`, `wave.run.start|complete|fail|resume`, `wave.item.success|fail`.
+
+### 2026-09-23 — Knowledge Wave Registry PR2 (Seal + validate)
+
+- Additive CHECK: wave `status` may be `Draft|Reviewed|Sealed` (Alembic `p9q0r1s2t3u4`).
+- `POST /api/v1/knowledge/waves/{id}/seal` — Reviewed → Sealed; stores deterministic `manifest_sha256` from canonical manifest payload; rejects Draft and mutation after seal.
+- `POST /api/v1/knowledge/waves/{id}/validate` — tiered validation (`basic` / `pre_seal` / `execution_readiness`); no execution.
+- Audit actions: `wave.seal`, `wave.validate`.
+
+### 2026-09-23 — Knowledge Wave Registry PR1 (Draft/Review)
+
+- Additive schema only: `knowledge_waves`, `knowledge_wave_products`, `knowledge_wave_runs`, `knowledge_wave_run_items` (Alembic `o8p9q0r1s2t3`). No Fact/Evidence/Product/JSONB mutation; no Sealed/execute/publish orchestration.
+- Super-admin endpoints under `/api/v1/knowledge/waves`:
+  - `POST /waves` — create Draft
+  - `GET /waves`, `GET /waves/{id}`
+  - `PATCH /waves/{id}` — Draft fields only
+  - `POST /waves/{id}/review` — Draft↔Reviewed (`to_status` + `change_reason`)
+- Audit actions: `knowledge_wave.create`, `knowledge_wave.update_draft`, `knowledge_wave.review`.
+
 ### 2026-09-13 — Manual Postex portal receiver-due MVP
 
 - `POSTEX_FULFILLMENT_MODE`: `api` (default) | `manual_portal`. Snapshotted on new shipments as `provider_data.fulfillment_mode` (no migration).
