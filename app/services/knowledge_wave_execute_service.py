@@ -20,13 +20,16 @@ from app.db.models.product_type import ProductType, ProductTypeDefinition
 from app.db.models.user import User
 from app.services import knowledge_batch_assert_service as batch_service
 from app.services.audit_service import record_audit
-from app.services.knowledge_wave_service import (
+from app.services.knowledge_wave_lifecycle import (
     WAVE_STATUS_ASSERTED,
     WAVE_STATUS_DRAFT,
     WAVE_STATUS_EXECUTING,
     WAVE_STATUS_FAILED,
     WAVE_STATUS_REVIEWED,
     WAVE_STATUS_SEALED,
+    assert_transition,
+)
+from app.services.knowledge_wave_service import (
     build_canonical_manifest_payload,
     compute_manifest_sha256,
 )
@@ -308,6 +311,7 @@ async def _finalize_success(
     run.status = RUN_COMPLETED
     run.finished_at = datetime.now(UTC)
     run.stop_reason = None
+    assert_transition(wave.status, WAVE_STATUS_ASSERTED)
     wave.status = WAVE_STATUS_ASSERTED
     await db.flush()
     await record_audit(
@@ -337,6 +341,7 @@ async def _finalize_failure(
     run.status = RUN_FAILED
     run.finished_at = datetime.now(UTC)
     run.stop_reason = stop_reason
+    assert_transition(wave.status, WAVE_STATUS_FAILED)
     wave.status = WAVE_STATUS_FAILED
     await db.flush()
     await record_audit(
@@ -460,6 +465,7 @@ async def execute_wave(
         )
     await db.flush()
 
+    assert_transition(wave.status, WAVE_STATUS_EXECUTING)
     wave.status = WAVE_STATUS_EXECUTING
     run.status = RUN_RUNNING
     run.started_at = now
@@ -735,6 +741,7 @@ async def resume_wave_run(
     # Force Sealed-equivalent execute path: temporarily set Failed→Sealed surface
     # by calling internal loop. Reuse execute_wave mechanics via Sealed status.
     if wave.status == WAVE_STATUS_FAILED:
+        assert_transition(WAVE_STATUS_FAILED, WAVE_STATUS_SEALED)
         wave.status = WAVE_STATUS_SEALED
         await db.flush()
         await db.commit()

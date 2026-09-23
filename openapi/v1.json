@@ -17358,8 +17358,13 @@
               "Sealed",
               "Executing",
               "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
               "Failed",
-              "Aborted"
+              "Aborted",
+              "Superseded",
+              "Archived"
             ],
             "title": "Wave Status"
           },
@@ -17510,8 +17515,13 @@
               "Sealed",
               "Executing",
               "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
               "Failed",
-              "Aborted"
+              "Aborted",
+              "Superseded",
+              "Archived"
             ],
             "title": "Status"
           },
@@ -17900,8 +17910,13 @@
               "Sealed",
               "Executing",
               "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
               "Failed",
-              "Aborted"
+              "Aborted",
+              "Superseded",
+              "Archived"
             ],
             "title": "Status"
           },
@@ -18103,7 +18118,16 @@
             "enum": [
               "Draft",
               "Reviewed",
-              "Sealed"
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
             ],
             "title": "Status"
           },

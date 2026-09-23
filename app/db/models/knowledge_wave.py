@@ -27,16 +27,17 @@ _JsonType = JSON().with_variant(JSONB(astext_type=Text()), "postgresql")
 
 
 class KnowledgeWave(Base):
-    """Governed ingestion wave — PR3-A: Draft…Aborted lifecycle."""
+    """Governed ingestion wave — PR3-B.1 lifecycle vocabulary (execute + future evidence/publish)."""
 
     __tablename__ = "knowledge_waves"
     __table_args__ = (
         CheckConstraint(
             "status IN ("
             "'Draft', 'Reviewed', 'Sealed', 'Executing', "
-            "'Asserted', 'Failed', 'Aborted'"
+            "'Asserted', 'EvidenceValidated', 'Publishing', 'Published', "
+            "'Failed', 'Aborted', 'Superseded', 'Archived'"
             ")",
-            name="ck_knowledge_waves_status_pr3",
+            name="ck_knowledge_waves_status_pr3b",
         ),
         UniqueConstraint("wave_id", name="uq_knowledge_waves_wave_id"),
         UniqueConstraint(

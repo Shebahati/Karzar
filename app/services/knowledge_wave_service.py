@@ -18,14 +18,17 @@ from app.db.models.product import Product
 from app.db.models.product_type import ProductType, ProductTypeDefinition
 from app.db.models.user import User
 from app.services.audit_service import record_audit
-
-WAVE_STATUS_DRAFT = "Draft"
-WAVE_STATUS_REVIEWED = "Reviewed"
-WAVE_STATUS_SEALED = "Sealed"
-WAVE_STATUS_EXECUTING = "Executing"
-WAVE_STATUS_ASSERTED = "Asserted"
-WAVE_STATUS_FAILED = "Failed"
-WAVE_STATUS_ABORTED = "Aborted"
+from app.services.knowledge_wave_lifecycle import (
+    WAVE_STATUS_ABORTED,
+    WAVE_STATUS_ASSERTED,
+    WAVE_STATUS_DRAFT,
+    WAVE_STATUS_EXECUTING,
+    WAVE_STATUS_FAILED,
+    WAVE_STATUS_REVIEWED,
+    WAVE_STATUS_SEALED,
+    assert_mutable_pre_seal,
+    assert_transition,
+)
 
 MANIFEST_SCHEMA = "kb.wave.manifest.v1"
 
@@ -295,13 +298,7 @@ async def update_draft_wave(
     actor: User,
 ) -> KnowledgeWave:
     wave = await _get_wave_or_404(db, wave_pk)
-    if wave.status == WAVE_STATUS_SEALED:
-        raise api_error(
-            status.HTTP_409_CONFLICT,
-            error_code=ErrorCode.CONFLICT,
-            message="Sealed waves are immutable",
-            details=[{"field": "status", "message": WAVE_STATUS_SEALED}],
-        )
+    assert_mutable_pre_seal(wave.status)
     if wave.status != WAVE_STATUS_DRAFT:
         raise api_error(
             status.HTTP_409_CONFLICT,
@@ -400,36 +397,38 @@ async def review_wave(
     wave = await _get_wave_or_404(db, wave_pk)
     from_status = wave.status
 
-    if from_status == WAVE_STATUS_SEALED:
+    if from_status not in (WAVE_STATUS_DRAFT, WAVE_STATUS_REVIEWED):
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.CONFLICT,
             message="Sealed waves cannot transition via review",
-            details=[{"field": "status", "message": WAVE_STATUS_SEALED}],
+            details=[{"field": "status", "message": from_status}],
         )
 
     if from_status == target:
         if target == WAVE_STATUS_REVIEWED:
             wave.reviewed_by = actor.id
         await db.flush()
-    elif from_status == WAVE_STATUS_DRAFT and target == WAVE_STATUS_REVIEWED:
-        wave.status = WAVE_STATUS_REVIEWED
-        wave.reviewed_by = actor.id
-        await db.flush()
-    elif from_status == WAVE_STATUS_REVIEWED and target == WAVE_STATUS_DRAFT:
-        wave.status = WAVE_STATUS_DRAFT
-        wave.reviewed_by = None
-        await db.flush()
     else:
-        raise api_error(
-            status.HTTP_409_CONFLICT,
-            error_code=ErrorCode.CONFLICT,
-            message=f"Illegal review transition {from_status} → {target}",
-            details=[
-                {"field": "status", "message": from_status},
-                {"field": "to_status", "message": target},
-            ],
-        )
+        assert_transition(from_status, target)
+        if from_status == WAVE_STATUS_DRAFT and target == WAVE_STATUS_REVIEWED:
+            wave.status = WAVE_STATUS_REVIEWED
+            wave.reviewed_by = actor.id
+            await db.flush()
+        elif from_status == WAVE_STATUS_REVIEWED and target == WAVE_STATUS_DRAFT:
+            wave.status = WAVE_STATUS_DRAFT
+            wave.reviewed_by = None
+            await db.flush()
+        else:
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.CONFLICT,
+                message=f"Illegal review transition {from_status} → {target}",
+                details=[
+                    {"field": "status", "message": from_status},
+                    {"field": "to_status", "message": target},
+                ],
+            )
 
     await record_audit(
         db,
@@ -671,6 +670,7 @@ async def seal_wave(
             message=f"Cannot seal wave from status '{wave.status}'",
             details=[{"field": "status", "message": wave.status}],
         )
+    assert_transition(WAVE_STATUS_REVIEWED, WAVE_STATUS_SEALED)
 
     issues, preview_sha = await _collect_validation_issues(
         db, wave, tier="pre_seal"
