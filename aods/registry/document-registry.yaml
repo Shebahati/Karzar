@@ -1,8 +1,10 @@
 # AODS Document Registry — active surface after documentation consolidation
 meta:
-  version: 1.1.0
+  version: 1.1.1
   status: accepted
-  notes: Historical corpus lives under docs/archive/ and is excluded from authority scans.
+  notes: >
+    Historical corpus lives under docs/archive/ and is excluded from authority scans.
+    Branch membership is git (origin/main), not a registry on_main boolean.
 
 unclassified_allow:
   - "**/node_modules/**"
@@ -23,7 +25,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PULL_REQUEST_TEMPLATE
     path: .github/pull_request_template.md
@@ -31,7 +32,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: AGENTS
     path: AGENTS.md
@@ -39,7 +39,6 @@ documents:
     rank: 7
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: README
     path: README.md
@@ -47,7 +46,6 @@ documents:
     rank: 7
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SECURITY
     path: SECURITY.md
@@ -55,7 +53,6 @@ documents:
     rank: 7
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: CONFLICT-REGISTER
     path: aods/10-repository-intelligence/CONFLICT-REGISTER.md
@@ -63,7 +60,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION
     path: aods/90-governance/BOARD-MINUTE-ADR-015-HYBRID-PRODUCT-TYPE-CLARIFICATION.md
@@ -71,7 +67,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BOARD-MINUTE-AODS-ACCEPTANCE
     path: aods/90-governance/BOARD-MINUTE-AODS-ACCEPTANCE.md
@@ -79,7 +74,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BOARD-MINUTE-AODS-PHASE4-CI
     path: aods/90-governance/BOARD-MINUTE-AODS-PHASE4-CI.md
@@ -87,7 +81,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BOARD-MINUTE-AODS-SIMPLIFICATION
     path: aods/90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md
@@ -95,7 +88,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01
     path: aods/90-governance/BOARD-MINUTE-KNOWLEDGE-FOUNDATION-ACCEPT-2026-08-01.md
@@ -103,7 +95,6 @@ documents:
     rank: 4
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: AODS-CHARTER
     path: aods/AODS-CHARTER.md
@@ -111,7 +102,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: AODS-README
     path: aods/README.md
@@ -119,7 +109,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: API_CHANGELOG
     path: docs/API_CHANGELOG.md
@@ -127,7 +116,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: API_CONTRACT
     path: docs/API_CONTRACT.md
@@ -135,7 +123,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ARCHITECTURE
     path: docs/ARCHITECTURE.md
@@ -143,7 +130,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: COMMERCE
     path: docs/COMMERCE.md
@@ -151,7 +137,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SUPPLIER-STOCK-AUTHORITY
     path: docs/catalog/SUPPLIER_STOCK_AUTHORITY.md
@@ -159,7 +144,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     notes: >-
       Supplier stock authority contract and Owner-scoped brand inventory
       exceptions.
@@ -170,7 +154,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     notes: >-
       Package logistics authority (UNKNOWN/READY/INCOMPLETE/INVALID/BLOCKED)
       independent of price and availability; aligns with Postex product fields.
@@ -181,7 +164,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     notes: >-
       Plan-only INSIZE logistics pilot specification; no APPLY by itself.
 
@@ -191,7 +173,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     notes: Read-only zcc.ir Phase 2 import plan operator guide (no APPLY).
 
   - id: ZCC-IR-PHASE21-HARDENING
@@ -200,7 +181,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     notes: Phase 2.1 approval manifest hashing and layered validation (no APPLY).
 
   - id: DEVELOPMENT
@@ -209,7 +189,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: HESABFA
     path: docs/HESABFA.md
@@ -217,7 +196,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: POSTEX-README
     path: docs/integrations/postex/README.md
@@ -225,7 +203,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: POSTEX-API-CONTRACT
     path: docs/integrations/postex/API-CONTRACT.md
@@ -233,7 +210,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: OPERATIONS
     path: docs/OPERATIONS.md
@@ -241,7 +217,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: CATALOG-STAGING-ISOLATION
     path: docs/CATALOG_STAGING_ISOLATION.md
@@ -249,7 +224,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: STORAGE-HOUSEKEEPING
     path: docs/operations/STORAGE_HOUSEKEEPING.md
@@ -257,7 +231,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ZCC-CATEGORY-B-RUNBOOK
     path: docs/operations/ZCC-CATEGORY-B-RUNBOOK.md
@@ -265,7 +238,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ZCC-CATEGORY-B-ALLOWLIST-20260919
     path: docs/operations/ZCC-CATEGORY-B-ALLOWLIST-20260919.md
@@ -273,7 +245,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SEP_PAYMENT_GATEWAY
     path: docs/SEP_PAYMENT_GATEWAY.md
@@ -281,7 +252,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: CANON-LOCK
     path: docs/architecture/CANON-LOCK.md
@@ -289,7 +259,6 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ADR-010
     path: docs/architecture/adr/ADR-010-seo-url-contract.md
@@ -297,7 +266,6 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ADR-012
     path: docs/architecture/adr/ADR-012-ingestion-boundary-local-vs-production.md
@@ -305,7 +273,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ADR-013
     path: docs/architecture/adr/ADR-013-knowledge-edge-fact-storage.md
@@ -313,7 +280,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ADR-014
     path: docs/architecture/adr/ADR-014-product-knowledge-entity-identity.md
@@ -321,7 +287,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ADR-015
     path: docs/architecture/adr/ADR-015-product-type-engineering-classification.md
@@ -329,7 +294,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-ARCHITECTURE-ADR-README
     path: docs/architecture/adr/README.md
@@ -337,7 +301,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: INGESTION-POLICY
     path: docs/architecture/data-ingestion-policy.md
@@ -345,7 +308,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-ARCHITECTURE-INFORMATION-ARCHITECTURE-README
     path: docs/architecture/information-architecture/README.md
@@ -353,7 +315,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: BRAND-HUB-PAGE-CONTRACT
     path: docs/architecture/information-architecture/brand-hub-page-contract.md
@@ -361,7 +322,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: EPIC1-IA-READINESS
     path: docs/architecture/information-architecture/epic1-ia-readiness.md
@@ -369,7 +329,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: KARZAR-INFORMATION-ARCHITECTURE
     path: docs/architecture/information-architecture/karzar-information-architecture.md
@@ -377,7 +336,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: URL-MAP
     path: docs/architecture/information-architecture/url-map.md
@@ -385,7 +343,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ARCH-BIBLE
     path: docs/architecture/karzar-knowledge-platform-master-architecture.md
@@ -393,7 +350,6 @@ documents:
     rank: 1
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-ARCHITECTURE-RFC-README
     path: docs/architecture/rfc/README.md
@@ -401,7 +357,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: RFC-004
     path: docs/architecture/rfc/RFC-004-slug-migration-and-redirects.md
@@ -409,7 +364,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: RFC-005
     path: docs/architecture/rfc/RFC-005-brand-hub-launch.md
@@ -417,7 +371,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-ARCHITECTURE-SPECS-README
     path: docs/architecture/specs/README.md
@@ -425,7 +378,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-CANONICAL-PRODUCT-TYPE-MODEL
     path: docs/architecture/specs/SPEC-canonical-product-type-model.md
@@ -433,7 +385,6 @@ documents:
     rank: 6
     status: proposed
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-DATA-TRANSFORMATION-ARCHITECTURE
     path: docs/architecture/specs/SPEC-data-transformation-architecture.md
@@ -441,7 +392,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-DOMAIN-MODEL
     path: docs/architecture/specs/SPEC-domain-model.md
@@ -449,7 +399,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-INDUSTRIAL-TAXONOMY-MASTER-SEED
     path: docs/architecture/specs/SPEC-industrial-taxonomy-master-seed.md
@@ -457,7 +406,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-INDUSTRIAL-TAXONOMY-MODEL
     path: docs/architecture/specs/SPEC-industrial-taxonomy-model.md
@@ -465,7 +413,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-KNOWLEDGE-GRAPH-MODEL
     path: docs/architecture/specs/SPEC-knowledge-graph-model.md
@@ -473,7 +420,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-KNOWLEDGE-GRAPH-REGISTRY
     path: docs/architecture/specs/SPEC-knowledge-graph-registry.md
@@ -481,7 +427,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-MASTER-KNOWLEDGE-BASE-REMEDIATION
     path: docs/architecture/specs/SPEC-master-knowledge-base-remediation.md
@@ -489,7 +434,6 @@ documents:
     rank: 6
     status: proposed
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-PRODUCT-IMPORT-ENRICHMENT-PLAYBOOK
     path: docs/architecture/specs/SPEC-product-import-enrichment-playbook.md
@@ -497,7 +441,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-PRODUCT-KNOWLEDGE-ENTITY-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
@@ -505,7 +448,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SPEC-PROPERTY-DICTIONARY-SYSTEM
     path: docs/architecture/specs/SPEC-property-dictionary-system.md
@@ -513,7 +455,6 @@ documents:
     rank: 2
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-ARCHITECTURE-SPECS-SEEDS-README
     path: docs/architecture/specs/seeds/README.md
@@ -521,7 +462,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: GIT-WORKFLOW
     path: docs/development/git-development-workflow.md
@@ -529,7 +469,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCS-DEVELOPMENT-STANDARDS-README
     path: docs/development/standards/README.md
@@ -537,7 +476,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: ALEMBIC-AND-SCHEMA-CHANGE-RULES
     path: docs/development/standards/alembic-and-schema-change-rules.md
@@ -545,7 +483,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: API-CHANGE-RULES
     path: docs/development/standards/api-change-rules.md
@@ -553,7 +490,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DEFINITION-OF-DONE
     path: docs/development/standards/definition-of-done.md
@@ -561,7 +497,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: DOCUMENTATION-CITATION-RULES
     path: docs/development/standards/documentation-citation-rules.md
@@ -569,7 +504,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: FRONTEND-CHANGE-RULES
     path: docs/development/standards/frontend-change-rules.md
@@ -577,7 +511,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: KARZAR-DEVELOPER-STANDARDS
     path: docs/development/standards/karzar-developer-standards.md
@@ -585,7 +518,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: LOCAL-DEVELOPMENT-AND-ENRICHMENT
     path: docs/development/standards/local-development-and-enrichment.md
@@ -593,7 +525,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PR-CHECKLIST
     path: docs/development/standards/pr-checklist.md
@@ -601,7 +532,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: SECURITY-AND-SECRETS
     path: docs/development/standards/security-and-secrets.md
@@ -609,7 +539,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: TESTING-AND-VERIFICATION
     path: docs/development/standards/testing-and-verification.md
@@ -617,7 +546,6 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: FRONTEND-README
     path: frontend/README.md
@@ -625,7 +553,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: FRONTEND-STOREFRONT-README
     path: frontend/Storefront/README.md
@@ -633,7 +560,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: FRONTEND-ADMIN-PANEL-AGENTS
     path: frontend/admin-panel/AGENTS.md
@@ -641,7 +567,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: FRONTEND-ADMIN-PANEL-README
     path: frontend/admin-panel/README.md
@@ -649,7 +574,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PROJECT-MANAGEMENT-README
     path: project-management/README.md
@@ -657,7 +581,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PROMPT-41-ATOMIC-BATCH-IMPLEMENTATION
     path: audit/insize-phase3/PROMPT_41_ATOMIC_BATCH_IMPLEMENTATION.md
@@ -665,7 +588,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PROMPT-41-RESULT
     path: audit/insize-phase3/PROMPT_41_RESULT.md
@@ -673,7 +595,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
 
   - id: PROMPT-64-RESULT
     path: audit/insize-phase3/PROMPT_64_RESULT.md
@@ -681,7 +602,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-65-RESULT
@@ -690,7 +610,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-66-RESULT
@@ -699,7 +618,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-67-RESULT
@@ -708,7 +626,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-68-RESULT
@@ -717,7 +634,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-69-RESULT
@@ -726,7 +642,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-70-RESULT
@@ -735,7 +650,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-71-RESULT
@@ -744,7 +658,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/knowledge-wave-registry-pr3a
 
   - id: PROMPT-81-RESULT
@@ -753,7 +666,6 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: true
     branch: feat/self-hosted-package-phase1
 
   - id: PROMPT-85-RESULT
@@ -762,5 +674,12 @@ documents:
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    on_main: false
     branch: feat/self-hosted-deploy-cutover
+
+  - id: PROMPT-87-RESULT
+    path: audit/insize-phase3/PROMPT_87_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/aods-remove-on-main

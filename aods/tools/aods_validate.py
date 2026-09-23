@@ -216,22 +216,11 @@ def gate_registry(_: argparse.Namespace) -> GateResult:
         if not doc.get("class"):
             result.fail(path, "registry row has no 'class'")
 
-    # `on_main` is a claim about the base branch, not about the working tree. An AODS document
-    # can legitimately exist locally while `on_main: false` — that is every document on this
-    # very branch. Verify it against git so the field means what it says.
+    # Registered paths must exist in the working tree. Branch membership is git's
+    # job (origin/main), not a hand-synced registry boolean.
     for path, doc in registered.items():
-        on_main = doc.get("on_main")
-        in_worktree = (REPO / path).exists()
-        actually_on_main = resolves_on_base(path, "origin/main")
-        if not in_worktree and on_main is not False:
+        if not (REPO / path).exists():
             result.fail(path, f"registered document is missing from the working tree (id {doc.get('id')})")
-        if on_main is True and not actually_on_main:
-            result.fail(path, f"row claims on_main: true but the path is absent from origin/main (id {doc.get('id')})")
-        if on_main is False and actually_on_main:
-            result.fail(
-                path,
-                f"row claims on_main: false but the path IS on origin/main (id {doc.get('id')}) — stale row",
-            )
 
     for rel in tracked_files("*.md"):
         result.checked += 1
@@ -244,16 +233,15 @@ def gate_registry(_: argparse.Namespace) -> GateResult:
 def gate_links(_: argparse.Namespace) -> GateResult:
     """Relative markdown links resolve to something that exists.
 
-    A link whose target is a registered document with `on_main: false` gets a distinct
-    message: it is not a typo but the CR-001 condition (binding documents cited from a
-    branch that has not merged). Same failure, far more useful diagnosis.
+    When a missing target is a registered path that is absent from origin/main,
+    report the CR-001-style diagnosis using git (not a registry boolean).
     """
     result = GateResult("links")
-    unmerged: dict[str, str] = {}
+    registered_paths: set[str] = set()
     try:
         for doc in load_registry()["documents"]:
-            if isinstance(doc, dict) and doc.get("on_main") is False and doc.get("path"):
-                unmerged[str(doc["path"])] = str(doc.get("branch") or "unmerged branch")
+            if isinstance(doc, dict) and doc.get("path"):
+                registered_paths.add(str(doc["path"]))
     except (OSError, ValueError, aods_yaml.YamlSubsetError):
         pass
 
@@ -283,11 +271,10 @@ def gate_links(_: argparse.Namespace) -> GateResult:
             if not resolved.exists():
                 line = text[: match.start()].count("\n") + 1
                 target_rel = str(resolved.relative_to(REPO))
-                if target_rel in unmerged:
+                if target_rel in registered_paths and not resolves_on_base(target_rel, "origin/main"):
                     result.fail(
                         f"{rel}:{line}",
-                        f"link target is registered but not on main: {target} "
-                        f"(lives on {unmerged[target_rel]} — CR-001)",
+                        f"link target is registered but not on main: {target} (CR-001)",
                     )
                 else:
                     result.fail(f"{rel}:{line}", f"broken link: {target} (CR-023)")
