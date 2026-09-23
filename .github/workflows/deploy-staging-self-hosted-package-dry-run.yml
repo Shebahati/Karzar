@@ -1,0 +1,67 @@
+# Self-hosted package dry-run (Phase 1/2)
+
+# CR-011: does NOT deploy. No docker compose, alembic, live rsync, or DB writes.
+# Proves local package → /opt/karzar/incoming/<sha> on karzar-vps.
+name: Deploy Staging Self-Hosted Package Dry-Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact 40-hex commit to package (default = current main Wave tip)
+        required: false
+        default: "5524453824d49ed40b154bc10ab8bd0e018efb4c"
+      cleanup_after:
+        description: Remove incoming/<sha> after successful verify (1/0)
+        required: false
+        default: "1"
+
+concurrency:
+  group: self-hosted-package-dry-run
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    name: Self-hosted package dry-run
+    runs-on: [self-hosted, karzar-vps]
+    if: github.repository == 'Shebahati/Karzar'
+    timeout-minutes: 45
+    steps:
+      - name: Checkout workflow scripts at dispatch ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: workflow-src
+
+      - name: Run dry-run package (no docker / no live mutate)
+        env:
+          TARGET_SHA: ${{ inputs.target_sha }}
+          KARZAR_PACKAGE_CLEANUP_AFTER: ${{ inputs.cleanup_after }}
+          FORCE_REPACKAGE: "1"
+          KARZAR_PACKAGE_DRY_RUN: "1"
+          KARZAR_SKIP_DOCKER_BUILD: "1"
+        run: |
+          set -euo pipefail
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "invalid target_sha" >&2
+            exit 1
+          fi
+          # Refuse accidental live mutate helpers
+          chmod +x workflow-src/deploy/staging/scripts/*.sh
+          # Safe cwd for github-runner (never inherit inaccessible dirs)
+          cd /opt/karzar/workspace
+          # Snapshot live tree heads before (advisory)
+          LIVE_BEFORE="$(stat -c '%Y' /opt/karzar/Karzar 2>/dev/null || echo 0)"
+          FE_BEFORE="$(stat -c '%Y' /opt/karzar/frontend 2>/dev/null || echo 0)"
+
+          bash "${GITHUB_WORKSPACE}/workflow-src/deploy/staging/scripts/dry-run-self-hosted-package.sh" "$TARGET_SHA"
+
+          LIVE_AFTER="$(stat -c '%Y' /opt/karzar/Karzar 2>/dev/null || echo 0)"
+          FE_AFTER="$(stat -c '%Y' /opt/karzar/frontend 2>/dev/null || echo 0)"
+          if [[ "$LIVE_BEFORE" != "$LIVE_AFTER" || "$FE_BEFORE" != "$FE_AFTER" ]]; then
+            echo "::warning::live tree mtime changed during dry-run (investigate; should be unrelated)"
+          fi
+          echo "DRY_RUN_WORKFLOW_OK sha=${TARGET_SHA}"
