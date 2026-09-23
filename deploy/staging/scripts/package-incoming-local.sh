@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Self-hosted local package → /opt/karzar/incoming/<sha> (no GitHub SSH).
 #
-# Default DRY_RUN=1 skips docker/frontend image build and never touches live trees.
-# Set KARZAR_PACKAGE_DRY_RUN=0 only when a later phase authorizes FE image build
-# (still does not rsync live / compose up — that remains deploy job).
+# KARZAR_PACKAGE_DRY_RUN=1 (default): skip FE docker image build (Phase 1/2 dry-run).
+# KARZAR_PACKAGE_DRY_RUN=0: build FE images on this host from the workspace checkout,
+# docker-save into incoming/<sha>/frontend-images, write FRONTEND_IMAGES_HANDOFF_COMPLETE.
+# Still does not rsync live trees / compose up / alembic — that remains the deploy job.
 #
 # Does not: docker compose up, alembic, live rsync, Wave ops.
 set -euo pipefail
@@ -110,9 +111,33 @@ sha=${GITHUB_SHA}
 EOF
   echo "FRONTEND_IMAGES=SKIPPED (dry-run; no docker)"
 else
-  echo "FRONTEND image build not implemented in Phase 1 dry-run path" >&2
-  echo "Set KARZAR_PACKAGE_DRY_RUN=1 for Phase 1/2" >&2
-  exit 1
+  # Build FE images on self-hosted from the same workspace SHA (no GitHub→VPS SSH).
+  # shellcheck source=frontend-image-lib.sh
+  source "${SCRIPT_DIR}/frontend-image-lib.sh"
+  FE_DIR="${PARTIAL}/${KARZAR_FRONTEND_IMAGES_SUBDIR}"
+  mkdir -p "$FE_DIR"
+  (
+    cd "$WORKDIR"
+    export GITHUB_SHA
+    export KARZAR_USE_GHA_CACHE="${KARZAR_USE_GHA_CACHE:-0}"
+    export IMAGE_SOURCE="${IMAGE_SOURCE:-https://github.com/Shebahati/Karzar}"
+    export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-https://api.karzartools.com/api/v1}"
+    export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://www.karzartools.com}"
+    export NEXT_PUBLIC_SEO_INDEXABLE="${NEXT_PUBLIC_SEO_INDEXABLE:-true}"
+    export NEXT_PUBLIC_GA_MEASUREMENT_ID="${NEXT_PUBLIC_GA_MEASUREMENT_ID:-G-NT8ZT3G6HC}"
+    bash deploy/staging/scripts/build-staging-frontend-images.sh
+  )
+  SHOP_TAG="$(karzar_frontend_shop_image_tag "$GITHUB_SHA")"
+  ADMIN_TAG="$(karzar_frontend_admin_image_tag "$GITHUB_SHA")"
+  docker save -o "${FE_DIR}/${KARZAR_FRONTEND_BUNDLE_NAME}" "$SHOP_TAG" "$ADMIN_TAG"
+  (cd "$FE_DIR" && sha256sum "${KARZAR_FRONTEND_BUNDLE_NAME}" > "${KARZAR_FRONTEND_CHECKSUM_NAME}")
+  BUNDLE_SHA="$(awk '{print $1}' "${FE_DIR}/${KARZAR_FRONTEND_CHECKSUM_NAME}")"
+  [[ "$BUNDLE_SHA" =~ ^[0-9a-f]{64}$ ]]
+  # Already owned by github-runner on self-hosted package path.
+  KARZAR_SKIP_FRONTEND_CHOWN=1 \
+    karzar_finalize_frontend_images_incoming_handoff \
+      "$FE_DIR" "$GITHUB_SHA" "$BUNDLE_SHA" "$SHOP_TAG" "$ADMIN_TAG" "local-package"
+  echo "FRONTEND_IMAGES_HANDOFF_OK sha=${GITHUB_SHA} bundle_sha256=${BUNDLE_SHA} transport=local-package"
 fi
 
 EXPECTED_MANIFEST_SHA="$KARZAR_MANIFEST_SHA"

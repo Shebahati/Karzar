@@ -3,12 +3,12 @@ name: Deploy Staging
 # Staging = live VPS serving karzartools.com (single host until prod is split).
 # CR-011 Option B (2026-07-30): NO push-to-main auto-deploy — human must
 # Actions → Deploy Staging → Run workflow (workflow_dispatch) on `main`.
-# Handoff: GitHub-hosted builds a deploy tree + SHA-256 manifest, seeds
-# /opt/karzar/incoming/<sha>/tree from live (non-mutating), then delta-rsyncs
-# over IPv4 SSH. Frontend Docker images are built on GitHub-hosted runners and
-# transferred as docker save bundles (no VPS npm/registry). karzar-vps only
-# reads local incoming paths after handoff markers. Do not checkout or download
-# Actions artifacts on karzar-vps (VPS→github.com 504s / hangs). Never on fork PRs.
+#
+# Handoff (Prompt 85 cutover): GitHub-hosted freeze/authorization only.
+# Self-hosted karzar-vps packages from local git mirror → workspace → tracked
+# tree + frontend image bundle → /opt/karzar/incoming/<sha> (transport=local-package).
+# Deploy job verifies markers, live-rsyncs, rebuilds, smokes. Cleanup is local
+# on karzar-vps (no GitHub→VPS SSH). Never on fork PRs.
 on:
   workflow_dispatch:
 
@@ -18,7 +18,6 @@ concurrency:
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
   deploy-freeze:
@@ -41,59 +40,51 @@ jobs:
           fi
 
   package:
-    name: Prepare and rsync sources
+    name: Self-hosted package + FE images
     needs: deploy-freeze
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 120
     if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
-    # No cross-job outputs. Self-hosted verify reads HANDOFF_COMPLETE and
+    # No cross-job outputs. Deploy verify reads HANDOFF_COMPLETE and
     # FRONTEND_IMAGES_HANDOFF_COMPLETE on disk.
     steps:
-      - name: Checkout exact workflow SHA
+      - name: Checkout workflow scripts at dispatch SHA
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          path: workflow-src
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build staging frontend images (GitHub-hosted)
+      - name: Ensure mirror + local package into incoming
         env:
           GITHUB_SHA: ${{ github.sha }}
+          EXPECTED_SHA: ${{ github.sha }}
+          KARZAR_PACKAGE_DRY_RUN: "0"
+          FORCE_REPACKAGE: "1"
+          KARZAR_PACKAGE_CLEANUP_AFTER: "0"
+          KARZAR_USE_GHA_CACHE: "0"
           IMAGE_SOURCE: https://github.com/${{ github.repository }}
           NEXT_PUBLIC_API_BASE_URL: https://api.karzartools.com/api/v1
           NEXT_PUBLIC_SITE_URL: https://www.karzartools.com
-          NEXT_PUBLIC_SEO_INDEXABLE: true
+          NEXT_PUBLIC_SEO_INDEXABLE: "true"
           NEXT_PUBLIC_GA_MEASUREMENT_ID: G-NT8ZT3G6HC
         run: |
           set -euo pipefail
-          chmod +x deploy/staging/scripts/*.sh || true
-          bash deploy/staging/scripts/build-staging-frontend-images.sh
-
-      - name: Delta-rsync deploy tree to VPS incoming
-        id: push
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-          EXPECTED_SHA: ${{ github.sha }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-          bash deploy/staging/scripts/push-incoming-source.sh
-
-      - name: Rsync prebuilt frontend images to VPS incoming
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-          EXPECTED_SHA: ${{ github.sha }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-          bash deploy/staging/scripts/push-incoming-frontend-images.sh
+          if [[ ! "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "invalid GITHUB_SHA" >&2
+            exit 1
+          fi
+          cd /opt/karzar/workspace
+          chmod +x "${GITHUB_WORKSPACE}/workflow-src/deploy/staging/scripts/"*.sh
+          SCRIPTS="${GITHUB_WORKSPACE}/workflow-src/deploy/staging/scripts"
+          bash "${SCRIPTS}/ensure-git-mirror.sh" "$GITHUB_SHA"
+          bash "${SCRIPTS}/package-incoming-local.sh"
+          IN="/opt/karzar/incoming/${GITHUB_SHA}"
+          test -f "$IN/HANDOFF_COMPLETE"
+          test -f "$IN/deploy-manifest.sha256"
+          test -d "$IN/tree"
+          test -f "$IN/frontend-images/FRONTEND_IMAGES_HANDOFF_COMPLETE"
+          test -f "$IN/frontend-images/frontend-images.tar"
+          echo "PACKAGE_JOB_OK sha=${GITHUB_SHA}"
 
   deploy:
     name: Sync + rebuild staging
@@ -226,31 +217,34 @@ jobs:
           ADMIN_BASE=http://127.0.0.1:3001 \
             bash deploy/staging/scripts/run-smoke-staging.sh
 
-  # Incoming/<sha> is created by SSH_USER. The self-hosted runner can read it
-  # (#282) but must not delete it (run 34041875626: deploy/smoke passed, rm failed).
+  # Incoming/<sha> is created by github-runner on the VPS. Cleanup is local
+  # (no GitHub→VPS SSH). Failed deploys retain incoming for diagnosis.
   cleanup:
     name: Cleanup incoming package
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, karzar-vps]
     timeout-minutes: 5
     if: >
       github.event_name == 'workflow_dispatch' &&
       github.repository == 'Shebahati/Karzar' &&
       needs.deploy.result == 'success'
     steps:
-      - name: Checkout exact workflow SHA
+      - name: Checkout cleanup script at dispatch SHA
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          path: workflow-src
 
-      - name: Delete incoming handoff via SSH
+      - name: Delete incoming handoff locally
         env:
           GITHUB_SHA: ${{ github.sha }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          KARZAR_INCOMING_BASE: /opt/karzar/incoming
         run: |
           set -euo pipefail
-          chmod +x deploy/staging/scripts/cleanup-incoming-source.sh
-          bash deploy/staging/scripts/cleanup-incoming-source.sh
+          cd /opt/karzar/workspace
+          chmod +x "${GITHUB_WORKSPACE}/workflow-src/deploy/staging/scripts/cleanup-incoming-source.sh"
+          # Unset SSH_HOST so cleanup uses local delete (not SSH path).
+          env -u SSH_HOST \
+            GITHUB_SHA="$GITHUB_SHA" \
+            KARZAR_INCOMING_BASE="$KARZAR_INCOMING_BASE" \
+            bash "${GITHUB_WORKSPACE}/workflow-src/deploy/staging/scripts/cleanup-incoming-source.sh"

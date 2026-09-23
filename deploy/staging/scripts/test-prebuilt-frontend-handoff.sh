@@ -25,10 +25,12 @@ else
   pass "NO_VPS_FRONTEND_BUILD"
 fi
 
-if ! grep -q 'build-staging-frontend-images.sh' "$WF"; then
-  fail "workflow must build frontend images on GitHub-hosted runner"
+# Package job (self-hosted) builds FE images locally; deploy job only loads the bundle.
+if ! grep -q 'build-staging-frontend-images.sh' "$WF" \
+  && ! grep -q 'KARZAR_PACKAGE_DRY_RUN: "0"' "$WF"; then
+  fail "workflow must build frontend images during self-hosted package (DRY_RUN=0)"
 else
-  pass "GITHUB_HOSTED_FRONTEND_BUILD"
+  pass "PACKAGE_FRONTEND_BUILD"
 fi
 
 if ! grep -q 'staging-frontend-image-preflight.yml' "$PREFLIGHT_WF" 2>/dev/null || [[ ! -f "$PREFLIGHT_WF" ]]; then
@@ -37,16 +39,23 @@ else
   pass "PREFLIGHT_WORKFLOW_PRESENT"
 fi
 
-if ! grep -q 'push-incoming-frontend-images.sh' "$WF"; then
-  fail "workflow must push frontend image handoff"
+if ! grep -q 'package-incoming-local.sh' "$WF"; then
+  fail "workflow must use local package handoff (no GitHub SSH push)"
 else
-  pass "FRONTEND_IMAGE_HANDOFF_REQUIRED"
+  pass "LOCAL_PACKAGE_HANDOFF_REQUIRED"
 fi
 
-if ! grep -q 'karzar_finalize_frontend_images_incoming_handoff' "${SCRIPT_DIR}/push-incoming-frontend-images.sh"; then
-  fail "push must finalize handoff (normalize → verify → marker)"
+if grep -qE 'push-incoming-source\.sh|push-incoming-frontend-images\.sh' "$WF"; then
+  fail "workflow must not use GitHub-hosted SSH push scripts"
 else
-  pass "PUSH_FINALIZE_HANDOFF_ORDER"
+  pass "NO_GITHUB_SSH_PUSH"
+fi
+
+if ! grep -q 'karzar_finalize_frontend_images_incoming_handoff' "${SCRIPT_DIR}/package-incoming-local.sh" \
+  && ! grep -q 'karzar_finalize_frontend_images_incoming_handoff' "${SCRIPT_DIR}/frontend-image-lib.sh"; then
+  fail "local package must finalize FE handoff (normalize → verify → marker)"
+else
+  pass "PACKAGE_FINALIZE_HANDOFF_ORDER"
 fi
 
 if ! grep -q 'load-incoming-frontend-images.sh' "$WF"; then

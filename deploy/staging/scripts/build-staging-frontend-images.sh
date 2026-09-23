@@ -60,7 +60,7 @@ build_one() {
   local extra_args=("$@")
   local cache_from=()
   local cache_to=()
-  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+  if [[ -n "${GITHUB_ACTIONS:-}" && "${KARZAR_USE_GHA_CACHE:-1}" == "1" ]]; then
     cache_from=(--cache-from "type=gha,scope=${cache_scope}")
     cache_to=(--cache-to "type=gha,mode=max,scope=${cache_scope}")
   fi
