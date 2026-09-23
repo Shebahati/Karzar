@@ -14,13 +14,15 @@ Architecture Board minute [`90-governance/BOARD-MINUTE-AODS-SIMPLIFICATION.md`](
 
 | Gate | Proves |
 |------|--------|
-| `registry` | Active markdown is classified or explicitly allowed; registered paths exist |
+| `registry` | Active markdown is classified or explicitly allowed; registered paths exist in the worktree |
 | `links` | Relative markdown links in **active** docs resolve (archive excluded) |
 | `naming` | Tracked filenames avoid reserved `final`/`latest`/`copy` stems |
 | `openapi` | `openapi/v1.json` path set matches `app.openapi()` |
 | `ingestion-boundary` | `scripts/*.py` do not default to `karzartools.com` (ADR-012) |
 
 Optional gates (`citation`, `pmo`, `prompts`, `graph`, `allowlist`) remain in the tool and skip when their artifacts are absent. `pmo` / `prompts` / `graph` are **not** current required ceremony. Use `citation` when the change cites authority.
+
+Branch membership (`is this path on origin/main?`) is determined by **git**, not a registry `on_main` boolean. Do not add post-merge registry flips for merge-base membership.
 
 ```bash
 python3 aods/tools/aods_validate.py

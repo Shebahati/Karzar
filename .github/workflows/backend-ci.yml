@@ -60,7 +60,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch origin/main for registry/on_main checks
+      - name: Fetch origin/main for merge-base checks
         run: git fetch --no-tags origin main:refs/remotes/origin/main
 
       - name: Setup Python
