@@ -608,3 +608,176 @@ class ClassificationAssignmentResponse(BaseModel):
 class ClassificationAssignmentListResponse(BaseModel):
     items: list[ClassificationAssignmentResponse]
     total: int
+
+
+# --- Knowledge Wave Registry PR1/PR2 (Draft / Reviewed / Sealed) ---
+
+WaveStatusPR1 = Literal["Draft", "Reviewed"]
+WaveStatusPR2 = Literal["Draft", "Reviewed", "Sealed"]
+WaveStatusPR3 = Literal[
+    "Draft",
+    "Reviewed",
+    "Sealed",
+    "Executing",
+    "Asserted",
+    "Failed",
+    "Aborted",
+]
+
+
+class KnowledgeWaveProductItem(BaseModel):
+    product_id: int = Field(ge=1)
+    sku_snapshot: str = Field(min_length=1, max_length=50)
+
+
+class KnowledgeWaveProductResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    wave_id: int
+    product_id: int
+    sku_snapshot: str
+    created_at: datetime
+
+
+class KnowledgeWaveCreateRequest(BaseModel):
+    wave_id: str = Field(min_length=1, max_length=128)
+    brand: str = Field(min_length=1, max_length=255)
+    product_type_id: int = Field(ge=1)
+    definition_id: int = Field(ge=1)
+    policy_json: dict[str, Any] = Field(default_factory=dict)
+    products: list[KnowledgeWaveProductItem] = Field(default_factory=list)
+
+
+class KnowledgeWaveUpdateRequest(BaseModel):
+    brand: str | None = Field(default=None, min_length=1, max_length=255)
+    product_type_id: int | None = Field(default=None, ge=1)
+    definition_id: int | None = Field(default=None, ge=1)
+    policy_json: dict[str, Any] | None = None
+    products: list[KnowledgeWaveProductItem] | None = None
+
+
+class KnowledgeWaveReviewRequest(BaseModel):
+    """Draft↔Reviewed only (Sealed via /seal)."""
+
+    to_status: WaveStatusPR1
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class KnowledgeWaveSealRequest(BaseModel):
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class KnowledgeWaveValidateIssue(BaseModel):
+    field: str
+    message: str
+    severity: Literal["error", "warning"] = "error"
+
+
+class KnowledgeWaveValidateResponse(BaseModel):
+    wave_pk: int
+    wave_id: str
+    status: WaveStatusPR2
+    validation_tier: Literal["basic", "pre_seal", "execution_readiness"]
+    ok: bool
+    issues: list[KnowledgeWaveValidateIssue] = Field(default_factory=list)
+    preview_manifest_sha256: str | None = None
+    stored_manifest_sha256: str | None = None
+
+
+class KnowledgeWaveResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    wave_id: str
+    status: WaveStatusPR3
+    manifest_sha256: str | None = None
+    brand: str
+    product_type_id: int
+    definition_id: int
+    policy_json: dict[str, Any]
+    created_by: int
+    reviewed_by: int | None = None
+    created_at: datetime
+    updated_at: datetime
+    products: list[KnowledgeWaveProductResponse] = Field(default_factory=list)
+
+
+class KnowledgeWaveListResponse(BaseModel):
+    items: list[KnowledgeWaveResponse]
+    total: int
+
+
+class KnowledgeWaveSkuUnitRequest(BaseModel):
+    product_id: int = Field(ge=1)
+    sku: str = Field(min_length=1, max_length=50)
+    facts: list[KnowledgeBatchAssertFactItem]
+    evidence_links: list[KnowledgeBatchAssertEvidenceItem]
+
+
+class KnowledgeWaveExecuteRequest(BaseModel):
+    change_reason: str = Field(min_length=1, max_length=4000)
+    sku_units: list[KnowledgeWaveSkuUnitRequest] = Field(min_length=1)
+    stop_on_first_failure: bool = True
+
+
+class KnowledgeWaveRunItemSummary(BaseModel):
+    run_item_id: int
+    product_id: int | None = None
+    sku_snapshot: str | None = None
+    status: str
+
+
+class KnowledgeWaveExecuteResponse(BaseModel):
+    wave_run_id: int
+    wave_id: str
+    wave_pk: int
+    wave_status: WaveStatusPR3
+    status: str
+    manifest_sha256: str | None = None
+    created_items: list[KnowledgeWaveRunItemSummary]
+    progress: dict[str, int]
+    stop_reason: str | None = None
+
+
+class KnowledgeWaveResumeRequest(BaseModel):
+    change_reason: str = Field(min_length=1, max_length=4000)
+    sku_units: list[KnowledgeWaveSkuUnitRequest] | None = None
+    stop_on_first_failure: bool = True
+
+
+class KnowledgeWaveRunWaveSummary(BaseModel):
+    id: int
+    wave_id: str
+    status: WaveStatusPR3
+    manifest_sha256: str | None = None
+    brand: str
+    product_type_id: int
+    definition_id: int
+
+
+class KnowledgeWaveRunItemDetail(BaseModel):
+    run_item_id: int
+    product_id: int | None = None
+    sku_snapshot: str | None = None
+    status: str
+    resumed: bool = False
+    error_message: str | None = None
+    result: dict[str, Any] | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class KnowledgeWaveRunResponse(BaseModel):
+    run_id: int
+    run_type: str
+    status: str
+    created_by: int
+    created_at: datetime
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    manifest_sha256_snapshot: str | None = None
+    stop_reason: str | None = None
+    wave: KnowledgeWaveRunWaveSummary
+    progress: dict[str, int]
+    items: list[KnowledgeWaveRunItemDetail]

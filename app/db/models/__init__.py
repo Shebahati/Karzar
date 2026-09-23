@@ -37,6 +37,12 @@ from app.db.models.knowledge import (
     KnowledgeTaxonomyNode,
     KnowledgeUnit,
 )
+from app.db.models.knowledge_wave import (
+    KnowledgeWave,
+    KnowledgeWaveProduct,
+    KnowledgeWaveRun,
+    KnowledgeWaveRunItem,
+)
 from app.db.models.logistics import Shipment, ShipmentEvent, ShippingQuote
 from app.db.models.platform import (
     AdminAuditLog,
@@ -94,6 +100,10 @@ __all__ = [
     "KnowledgeEvidenceLink",
     "KnowledgeTaxonomyNode",
     "KnowledgeClassificationAssignment",
+    "KnowledgeWave",
+    "KnowledgeWaveProduct",
+    "KnowledgeWaveRun",
+    "KnowledgeWaveRunItem",
     "HeroSlide",
     "MegamenuNavGroup",
     "ContactSubmission",

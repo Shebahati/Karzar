@@ -15,6 +15,8 @@ from app.api.endpoints import (
     knowledge_evidence,
     knowledge_facts,
     knowledge_taxonomy,
+    knowledge_wave_runs,
+    knowledge_waves,
     order,
     payment,
     product,
@@ -67,6 +69,16 @@ api_router.include_router(
 )
 api_router.include_router(
     knowledge_taxonomy.router,
+    prefix="/knowledge",
+    tags=["Knowledge"],
+)
+api_router.include_router(
+    knowledge_waves.router,
+    prefix="/knowledge",
+    tags=["Knowledge"],
+)
+api_router.include_router(
+    knowledge_wave_runs.router,
     prefix="/knowledge",
     tags=["Knowledge"],
 )
