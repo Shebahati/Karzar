@@ -209,6 +209,9 @@ karzar_is_sha256() {
 
 karzar_write_handoff_complete() {
   local incoming="$1" sha="$2" manifest_sha="$3"
+  # Optional 4th arg: transport label. Default preserves SSH delta-rsync path.
+  # local-package = self-hosted Phase 1+ writer (no GitHub→VPS SSH).
+  local transport="${4:-rsync-delta}"
   local tree="$incoming/tree"
   local count bytes
   if ! karzar_is_git_sha "$sha"; then
@@ -219,6 +222,13 @@ karzar_write_handoff_complete() {
     echo "refuse to write HANDOFF_COMPLETE: manifest is not 64 lowercase hex" >&2
     return 1
   fi
+  case "$transport" in
+    rsync-delta|local-package) ;;
+    *)
+      echo "refuse to write HANDOFF_COMPLETE: unsupported transport=${transport}" >&2
+      return 1
+      ;;
+  esac
   count="$(karzar_tree_file_count "$tree")"
   bytes="$(karzar_tree_total_bytes "$tree")"
   if [[ ! "$count" =~ ^[0-9]+$ || ! "$bytes" =~ ^[0-9]+$ ]]; then
@@ -228,7 +238,7 @@ karzar_write_handoff_complete() {
   umask 022
   cat > "$incoming/${KARZAR_HANDOFF_MARKER}" <<EOF
 sha=${sha}
-transport=rsync-delta
+transport=${transport}
 files=${count}
 bytes=${bytes}
 manifest=${manifest_sha}
@@ -311,10 +321,13 @@ karzar_read_handoff_complete() {
     echo "HANDOFF_COMPLETE invalid sha" >&2
     return 1
   fi
-  if [[ "$transport" != "rsync-delta" ]]; then
-    echo "HANDOFF_COMPLETE wrong transport" >&2
-    return 1
-  fi
+  case "$transport" in
+    rsync-delta|local-package) ;;
+    *)
+      echo "HANDOFF_COMPLETE wrong transport" >&2
+      return 1
+      ;;
+  esac
   if ! karzar_is_sha256 "$manifest"; then
     echo "HANDOFF_COMPLETE invalid manifest" >&2
     return 1
@@ -394,10 +407,17 @@ karzar_verify_incoming_tree() {
 
   karzar_assert_structural_files "$tree"
 
-  local files bytes
+  local files bytes transport_label="rsync-delta"
   files="$(karzar_tree_file_count "$tree")"
   bytes="$(karzar_tree_total_bytes "$tree")"
-  echo "HANDOFF_OK sha=${expected_sha} transport=rsync-delta files=${files} bytes=${bytes}"
+  # Prefer transport from marker when present (local-package or rsync-delta).
+  if [[ -n "${KARZAR_HANDOFF_TRANSPORT:-}" ]]; then
+    transport_label="$KARZAR_HANDOFF_TRANSPORT"
+  elif [[ -f "$incoming/${KARZAR_HANDOFF_MARKER}" ]]; then
+    karzar_read_handoff_complete "$incoming/${KARZAR_HANDOFF_MARKER}" || true
+    transport_label="${KARZAR_HANDOFF_TRANSPORT:-rsync-delta}"
+  fi
+  echo "HANDOFF_OK sha=${expected_sha} transport=${transport_label} files=${files} bytes=${bytes}"
 }
 
 # GitHub-hosted remote verify: expected manifest SHA is local to this SSH session.
