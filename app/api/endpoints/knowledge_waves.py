@@ -10,6 +10,8 @@ from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.knowledge import (
     KnowledgeWaveCreateRequest,
+    KnowledgeWaveEvidenceValidateRequest,
+    KnowledgeWaveEvidenceValidateResponse,
     KnowledgeWaveExecuteRequest,
     KnowledgeWaveExecuteResponse,
     KnowledgeWaveListResponse,
@@ -19,6 +21,7 @@ from app.schemas.knowledge import (
     KnowledgeWaveUpdateRequest,
     KnowledgeWaveValidateResponse,
 )
+from app.services import knowledge_wave_evidence_service as evidence_wave_service
 from app.services import knowledge_wave_execute_service as execute_service
 from app.services import knowledge_wave_service as wave_service
 
@@ -187,3 +190,34 @@ async def execute_wave(
     )
     # execute_wave commits internally per SKU
     return KnowledgeWaveExecuteResponse.model_validate(result)
+
+
+@router.post(
+    "/waves/{wave_id}/validate-evidence",
+    response_model=KnowledgeWaveEvidenceValidateResponse,
+    summary="Validate evidence and transition Asserted→EvidenceValidated (super-admin)",
+)
+async def validate_wave_evidence(
+    wave_id: str,
+    body: KnowledgeWaveEvidenceValidateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+) -> KnowledgeWaveEvidenceValidateResponse:
+    result = await evidence_wave_service.validate_wave_evidence(
+        db,
+        wave_id=wave_id,
+        change_reason=body.change_reason,
+        actor=current_user,
+    )
+    await db.commit()
+    wave = KnowledgeWaveResponse.model_validate(result["wave"])
+    return KnowledgeWaveEvidenceValidateResponse(
+        ok=bool(result["ok"]),
+        wave_id=str(result["wave_id"]),
+        previous_status=result["previous_status"],
+        new_status=result["new_status"],
+        manifest_sha256=result.get("manifest_sha256"),
+        stats=result.get("stats") or {},
+        issues=result.get("issues") or [],
+        wave=wave,
+    )
