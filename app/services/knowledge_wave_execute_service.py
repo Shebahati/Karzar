@@ -250,6 +250,7 @@ async def execute_run_item(
     sku_unit: dict[str, Any],
     policy: dict[str, Any],
     actor: User,
+    actor_user_id: int,
     change_reason: str,
 ) -> dict[str, Any]:
     """Execute one allowlist SKU via kb-batch-assert (no commit)."""
@@ -286,7 +287,7 @@ async def execute_run_item(
 
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.item.success",
         entity_type="knowledge_wave_run_item",
         entity_id=item.id,
@@ -306,7 +307,7 @@ async def _finalize_success(
     *,
     wave: KnowledgeWave,
     run: KnowledgeWaveRun,
-    actor: User,
+    actor_user_id: int,
 ) -> None:
     run.status = RUN_COMPLETED
     run.finished_at = datetime.now(UTC)
@@ -316,7 +317,7 @@ async def _finalize_success(
     await db.flush()
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.run.complete",
         entity_type="knowledge_wave_run",
         entity_id=run.id,
@@ -334,7 +335,7 @@ async def _finalize_failure(
     *,
     wave: KnowledgeWave,
     run: KnowledgeWaveRun,
-    actor: User,
+    actor_user_id: int,
     stop_reason: str,
     failed_item: KnowledgeWaveRunItem | None = None,
 ) -> None:
@@ -346,7 +347,7 @@ async def _finalize_failure(
     await db.flush()
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.run.fail",
         entity_type="knowledge_wave_run",
         entity_id=run.id,
@@ -387,6 +388,170 @@ def _serialize_execute_result(
     }
 
 
+async def _mark_item_failed_and_finalize(
+    db: AsyncSession,
+    *,
+    run_id: int,
+    wave_id: str,
+    item_id: int,
+    err_msg: str,
+    actor_user_id: int,
+    stop_on_first_failure: bool,
+) -> dict[str, Any] | None:
+    """Failure finalization using only immutable actor_user_id (safe after rollback).
+
+    Returns serialized result when stop_on_first_failure, else None to continue.
+    Never raises after rollback — last-resort status force if audit fails.
+    """
+    try:
+        run = await _get_run_or_404(db, run_id)
+        wave = await _get_wave_by_wave_id(db, wave_id)
+        failed = next(i for i in run.items if i.id == item_id)
+        failed.status = ITEM_FAILED
+        failed.error_message = err_msg
+        failed.finished_at = datetime.now(UTC)
+        await record_audit(
+            db,
+            actor_user_id=actor_user_id,
+            action="wave.item.fail",
+            entity_type="knowledge_wave_run_item",
+            entity_id=failed.id,
+            details={
+                "run_id": run.id,
+                "product_id": failed.product_id,
+                "sku": failed.sku_snapshot,
+                "error_message": failed.error_message,
+            },
+        )
+        if stop_on_first_failure:
+            await _finalize_failure(
+                db,
+                wave=wave,
+                run=run,
+                actor_user_id=actor_user_id,
+                stop_reason=failed.error_message or "sku failed",
+                failed_item=failed,
+            )
+            await db.commit()
+            run = await _get_run_or_404(db, run_id)
+            wave = await _get_wave_by_wave_id(db, wave_id)
+            return _serialize_execute_result(wave=wave, run=run)
+        await db.commit()
+        return None
+    except Exception:  # noqa: BLE001 — never leave Executing/running stranded
+        await db.rollback()
+        run = await _get_run_or_404(db, run_id)
+        wave = await _get_wave_by_wave_id(db, wave_id)
+        failed = next((i for i in run.items if i.id == item_id), None)
+        if failed is not None and failed.status != ITEM_FAILED:
+            failed.status = ITEM_FAILED
+            failed.error_message = err_msg[:2000]
+            failed.finished_at = datetime.now(UTC)
+        run.status = RUN_FAILED
+        run.finished_at = datetime.now(UTC)
+        run.stop_reason = err_msg[:2000]
+        if wave.status == WAVE_STATUS_EXECUTING:
+            wave.status = WAVE_STATUS_FAILED
+        await db.commit()
+        run = await _get_run_or_404(db, run_id)
+        wave = await _get_wave_by_wave_id(db, wave_id)
+        return _serialize_execute_result(wave=wave, run=run)
+
+
+async def _process_assert_items(
+    db: AsyncSession,
+    *,
+    wave_id: str,
+    run_id: int,
+    units: dict[tuple[int, str], dict[str, Any]],
+    policy: dict[str, Any],
+    actor: User,
+    actor_user_id: int,
+    change_reason: str,
+    stop_on_first_failure: bool,
+    only_incomplete: bool,
+) -> dict[str, Any]:
+    """Drive pending/running (or all) assert items to completion or failure."""
+    run = await _get_run_or_404(db, run_id)
+    wave = await _get_wave_by_wave_id(db, wave_id)
+    policy = resolve_wave_policy(wave)
+    items = sorted(run.items, key=lambda i: (i.product_id or 0, i.id))
+
+    for item in items:
+        if only_incomplete and item.status in (ITEM_SUCCESS, ITEM_SKIPPED):
+            continue
+        if only_incomplete and item.status == ITEM_FAILED:
+            # Interrupted resume: leave prior failures alone unless re-queued as pending
+            continue
+        item_id = item.id
+        key = (int(item.product_id or 0), str(item.sku_snapshot or ""))
+        sku_unit = units.get(key)
+        if sku_unit is None:
+            continue
+        # Stuck "running" from prior crash: reset to pending before retry
+        if item.status == ITEM_RUNNING:
+            item.status = ITEM_PENDING
+            item.started_at = None
+            item.error_message = None
+            await db.flush()
+        try:
+            await execute_run_item(
+                db,
+                wave=wave,
+                run=run,
+                item=item,
+                sku_unit=sku_unit,
+                policy=policy,
+                actor=actor,
+                actor_user_id=actor_user_id,
+                change_reason=change_reason,
+            )
+            await db.commit()
+            run = await _get_run_or_404(db, run_id)
+            wave = await _get_wave_by_wave_id(db, wave_id)
+            policy = resolve_wave_policy(wave)
+        except Exception as exc:  # noqa: BLE001 — SKU failure → ledger + stop
+            await db.rollback()
+            detail = getattr(exc, "detail", None)
+            if isinstance(detail, dict):
+                err_msg = str(detail.get("message") or detail)[:2000]
+            else:
+                err_msg = str(detail or exc)[:2000]
+            stopped = await _mark_item_failed_and_finalize(
+                db,
+                run_id=run_id,
+                wave_id=wave_id,
+                item_id=item_id,
+                err_msg=err_msg,
+                actor_user_id=actor_user_id,
+                stop_on_first_failure=stop_on_first_failure,
+            )
+            if stopped is not None:
+                return stopped
+            run = await _get_run_or_404(db, run_id)
+            wave = await _get_wave_by_wave_id(db, wave_id)
+            policy = resolve_wave_policy(wave)
+
+    run = await _get_run_or_404(db, run_id)
+    wave = await _get_wave_by_wave_id(db, wave_id)
+    if any(i.status == ITEM_FAILED for i in run.items):
+        await _finalize_failure(
+            db,
+            wave=wave,
+            run=run,
+            actor_user_id=actor_user_id,
+            stop_reason="one or more SKUs failed",
+        )
+    else:
+        await _finalize_success(
+            db, wave=wave, run=run, actor_user_id=actor_user_id
+        )
+    await db.commit()
+    run = await _get_run_or_404(db, run_id)
+    wave = await _get_wave_by_wave_id(db, wave_id)
+    return _serialize_execute_result(wave=wave, run=run)
+
+
 async def execute_wave(
     db: AsyncSession,
     *,
@@ -397,6 +562,8 @@ async def execute_wave(
     stop_on_first_failure: bool = True,
 ) -> dict[str, Any]:
     """Sealed → Executing → Asserted|Failed via kb-batch-assert per SKU."""
+    # Capture before any commit/rollback — ORM User may expire after rollback.
+    actor_user_id = int(actor.id)
     reason = (change_reason or "").strip()
     if not reason:
         raise api_error(
@@ -442,7 +609,7 @@ async def execute_wave(
         wave_id=wave.id,
         run_type=RUN_TYPE_ASSERT,
         status=RUN_CREATED,
-        created_by=actor.id,
+        created_by=actor_user_id,
         manifest_sha256_snapshot=wave.manifest_sha256,
         request_snapshot_json={"sku_units": sku_units, "change_reason": reason},
         started_at=None,
@@ -473,7 +640,7 @@ async def execute_wave(
 
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.execute",
         entity_type="knowledge_wave",
         entity_id=wave.id,
@@ -488,7 +655,7 @@ async def execute_wave(
     )
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.run.start",
         entity_type="knowledge_wave_run",
         entity_id=run.id,
@@ -500,88 +667,18 @@ async def execute_wave(
     )
     await db.commit()
 
-    # Reload after commit for SKU loop
-    run_id = run.id
-    run = await _get_run_or_404(db, run_id)
-    wave = await _get_wave_by_wave_id(db, wave_id)
-    policy = resolve_wave_policy(wave)
-    items = sorted(run.items, key=lambda i: (i.product_id or 0, i.id))
-
-    for item in items:
-        item_id = item.id
-        key = (int(item.product_id or 0), str(item.sku_snapshot or ""))
-        sku_unit = units.get(key)
-        if sku_unit is None:
-            continue
-        try:
-            await execute_run_item(
-                db,
-                wave=wave,
-                run=run,
-                item=item,
-                sku_unit=sku_unit,
-                policy=policy,
-                actor=actor,
-                change_reason=reason,
-            )
-            await db.commit()
-        except Exception as exc:  # noqa: BLE001 — SKU failure → ledger + stop
-            await db.rollback()
-            run = await _get_run_or_404(db, run_id)
-            wave = await _get_wave_by_wave_id(db, wave_id)
-            failed = next(i for i in run.items if i.id == item_id)
-            detail = getattr(exc, "detail", None)
-            if isinstance(detail, dict):
-                err_msg = str(detail.get("message") or detail)[:2000]
-            else:
-                err_msg = str(detail or exc)[:2000]
-            failed.status = ITEM_FAILED
-            failed.error_message = err_msg
-            failed.finished_at = datetime.now(UTC)
-            await record_audit(
-                db,
-                actor_user_id=actor.id,
-                action="wave.item.fail",
-                entity_type="knowledge_wave_run_item",
-                entity_id=failed.id,
-                details={
-                    "run_id": run.id,
-                    "product_id": failed.product_id,
-                    "sku": failed.sku_snapshot,
-                    "error_message": failed.error_message,
-                },
-            )
-            if stop_on_first_failure:
-                await _finalize_failure(
-                    db,
-                    wave=wave,
-                    run=run,
-                    actor=actor,
-                    stop_reason=failed.error_message or "sku failed",
-                    failed_item=failed,
-                )
-                await db.commit()
-                run = await _get_run_or_404(db, run_id)
-                wave = await _get_wave_by_wave_id(db, wave_id)
-                return _serialize_execute_result(wave=wave, run=run)
-            await db.commit()
-
-    run = await _get_run_or_404(db, run_id)
-    wave = await _get_wave_by_wave_id(db, wave_id)
-    if any(i.status == ITEM_FAILED for i in run.items):
-        await _finalize_failure(
-            db,
-            wave=wave,
-            run=run,
-            actor=actor,
-            stop_reason="one or more SKUs failed",
-        )
-    else:
-        await _finalize_success(db, wave=wave, run=run, actor=actor)
-    await db.commit()
-    run = await _get_run_or_404(db, run_id)
-    wave = await _get_wave_by_wave_id(db, wave_id)
-    return _serialize_execute_result(wave=wave, run=run)
+    return await _process_assert_items(
+        db,
+        wave_id=wave_id,
+        run_id=run.id,
+        units=units,
+        policy=policy,
+        actor=actor,
+        actor_user_id=actor_user_id,
+        change_reason=reason,
+        stop_on_first_failure=stop_on_first_failure,
+        only_incomplete=False,
+    )
 
 
 async def get_wave_run(db: AsyncSession, run_id: int) -> dict[str, Any]:
@@ -629,6 +726,85 @@ async def get_wave_run(db: AsyncSession, run_id: int) -> dict[str, Any]:
     }
 
 
+async def _resume_interrupted_assert_run(
+    db: AsyncSession,
+    *,
+    source: KnowledgeWaveRun,
+    wave: KnowledgeWave,
+    sku_units: list[dict[str, Any]],
+    change_reason: str,
+    actor: User,
+    actor_user_id: int,
+    stop_on_first_failure: bool,
+) -> dict[str, Any]:
+    """Continue an interrupted Executing + running assert run in place.
+
+    Preserves success/skipped items and existing Facts/links (batch-assert
+    resume_existing_facts). Does not create a parallel run.
+    """
+    policy = resolve_wave_policy(wave)
+    await _verify_manifest_sha(db, wave)
+    if source.manifest_sha256_snapshot != wave.manifest_sha256:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message="Source run manifest snapshot does not match wave",
+            details=[{"field": "manifest_sha256", "message": "changed"}],
+        )
+    if source.run_type != RUN_TYPE_ASSERT:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message="Only assert runs may use interrupted resume",
+            details=[{"field": "run_type", "message": source.run_type}],
+        )
+    await batch_service.assert_environment_gates(db, pins=policy["environment_pins"])
+    _validate_units_against_allowlist(policy=policy, sku_units=sku_units)
+
+    units = _unit_map(sku_units)
+    pending = sum(
+        1
+        for i in source.items
+        if i.status in (ITEM_PENDING, ITEM_RUNNING)
+    )
+    await record_audit(
+        db,
+        actor_user_id=actor_user_id,
+        action="wave.run.resume",
+        entity_type="knowledge_wave_run",
+        entity_id=source.id,
+        details={
+            "source_run_id": source.id,
+            "wave_id": wave.wave_id,
+            "change_reason": change_reason,
+            "interrupted": True,
+            "same_run": True,
+            "pending_or_running": pending,
+            "progress": _progress(list(source.items)),
+        },
+    )
+    # Refresh request snapshot so subsequent resumes keep current units
+    snap = dict(source.request_snapshot_json or {})
+    snap["sku_units"] = sku_units
+    snap["change_reason"] = change_reason
+    source.request_snapshot_json = snap
+    await db.flush()
+    await db.commit()
+
+    return await _process_assert_items(
+        db,
+        wave_id=wave.wave_id,
+        run_id=source.id,
+        units=units,
+        policy=policy,
+        actor=actor,
+        actor_user_id=actor_user_id,
+        change_reason=change_reason,
+        stop_on_first_failure=stop_on_first_failure,
+        only_incomplete=True,
+    )
+
+
 async def resume_wave_run(
     db: AsyncSession,
     *,
@@ -638,7 +814,8 @@ async def resume_wave_run(
     sku_units: list[dict[str, Any]] | None = None,
     stop_on_first_failure: bool = True,
 ) -> dict[str, Any]:
-    """Resume from a failed run: new run_id, skip prior successes, no Fact dupes."""
+    """Resume a failed assert run (new run) or continue an interrupted running run."""
+    actor_user_id = int(actor.id)
     reason = (change_reason or "").strip()
     if not reason:
         raise api_error(
@@ -649,14 +826,6 @@ async def resume_wave_run(
         )
 
     source = await _get_run_or_404(db, run_id)
-    if source.status != RUN_FAILED:
-        raise api_error(
-            status.HTTP_409_CONFLICT,
-            error_code=ErrorCode.CONFLICT,
-            message="Only failed runs may be resumed",
-            details=[{"field": "status", "message": source.status}],
-        )
-
     wave = await _get_wave_by_wave_id(
         db,
         (
@@ -665,8 +834,43 @@ async def resume_wave_run(
             )
         ).scalar_one(),
     )
-    # Reload with products
     wave = await _get_wave_by_wave_id(db, wave.wave_id)
+
+    if sku_units is None:
+        snap = source.request_snapshot_json or {}
+        sku_units = list(snap.get("sku_units") or [])
+
+    # Interrupted Executing + running: continue same run (INSIZE_WAVE_003 recovery)
+    if (
+        source.status == RUN_RUNNING
+        and wave.status == WAVE_STATUS_EXECUTING
+        and source.run_type == RUN_TYPE_ASSERT
+    ):
+        if not sku_units:
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="sku_units required when source run has no request snapshot",
+                details=[{"field": "sku_units", "message": "required"}],
+            )
+        return await _resume_interrupted_assert_run(
+            db,
+            source=source,
+            wave=wave,
+            sku_units=sku_units,
+            change_reason=reason,
+            actor=actor,
+            actor_user_id=actor_user_id,
+            stop_on_first_failure=stop_on_first_failure,
+        )
+
+    if source.status != RUN_FAILED:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message="Only failed or interrupted running runs may be resumed",
+            details=[{"field": "status", "message": source.status}],
+        )
 
     policy = resolve_wave_policy(wave)
     if wave.status not in (WAVE_STATUS_FAILED, WAVE_STATUS_SEALED):
@@ -695,9 +899,6 @@ async def resume_wave_run(
     await batch_service.assert_environment_gates(db, pins=policy["environment_pins"])
     await _assert_no_running_run(db, wave.id)
 
-    if sku_units is None:
-        snap = source.request_snapshot_json or {}
-        sku_units = list(snap.get("sku_units") or [])
     if not sku_units:
         raise api_error(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -707,27 +908,9 @@ async def resume_wave_run(
         )
     _validate_units_against_allowlist(policy=policy, sku_units=sku_units)
 
-    # Prior successes for this wave+manifest across assert runs
-    prior_success_products: set[int] = set()
-    prior_runs = (
-        await db.execute(
-            select(KnowledgeWaveRun)
-            .options(selectinload(KnowledgeWaveRun.items))
-            .where(
-                KnowledgeWaveRun.wave_id == wave.id,
-                KnowledgeWaveRun.run_type == RUN_TYPE_ASSERT,
-                KnowledgeWaveRun.manifest_sha256_snapshot == wave.manifest_sha256,
-            )
-        )
-    ).scalars().all()
-    for pr in prior_runs:
-        for it in pr.items:
-            if it.status in (ITEM_SUCCESS, ITEM_SKIPPED) and it.product_id is not None:
-                prior_success_products.add(int(it.product_id))
-
     await record_audit(
         db,
-        actor_user_id=actor.id,
+        actor_user_id=actor_user_id,
         action="wave.run.resume",
         entity_type="knowledge_wave_run",
         entity_id=source.id,
@@ -735,6 +918,8 @@ async def resume_wave_run(
             "source_run_id": source.id,
             "wave_id": wave.wave_id,
             "change_reason": reason,
+            "interrupted": False,
+            "same_run": False,
         },
     )
 
@@ -746,7 +931,8 @@ async def resume_wave_run(
         await db.flush()
         await db.commit()
 
-    # execute_wave requires Sealed — call it
+    # execute_wave requires Sealed — call it (creates a new run; prior successes
+    # are skipped via batch-assert resume_existing_facts)
     return await execute_wave(
         db,
         wave_id=wave.wave_id,
