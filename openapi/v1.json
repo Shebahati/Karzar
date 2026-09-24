@@ -9798,6 +9798,79 @@
         }
       }
     },
+    "/api/v1/knowledge/waves/{wave_id}/publish": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Publish Wave Facts EvidenceValidated→Publishing→Published (super-admin)",
+        "operationId": "publish_wave_api_v1_knowledge_waves__wave_id__publish_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wave Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWavePublishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWavePublishResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge/wave-runs/{run_id}": {
       "get": {
         "tags": [
@@ -17686,6 +17759,146 @@
           "created_at"
         ],
         "title": "KnowledgeWaveProductResponse"
+      },
+      "KnowledgeWavePublishRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          },
+          "stop_on_first_failure": {
+            "type": "boolean",
+            "title": "Stop On First Failure",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "KnowledgeWavePublishRequest",
+        "description": "PR3-B.3 EvidenceValidated → Publishing → Published."
+      },
+      "KnowledgeWavePublishResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "wave_pk": {
+            "type": "integer",
+            "title": "Wave Pk"
+          },
+          "run_id": {
+            "type": "integer",
+            "title": "Run Id"
+          },
+          "previous_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "Previous Status"
+          },
+          "new_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "New Status"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "published": {
+            "type": "integer",
+            "title": "Published"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "progress": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Progress"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
+          "wave": {
+            "$ref": "#/components/schemas/KnowledgeWaveResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "wave_id",
+          "wave_pk",
+          "run_id",
+          "previous_status",
+          "new_status",
+          "total",
+          "published",
+          "skipped",
+          "failed",
+          "wave"
+        ],
+        "title": "KnowledgeWavePublishResponse"
       },
       "KnowledgeWaveResponse": {
         "properties": {

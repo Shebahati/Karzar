@@ -707,3 +707,11 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: fix/kb-wave-alembic-pin-compatibility
+
+  - id: PROMPT-109-RESULT
+    path: audit/insize-phase3/PROMPT_109_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/kb-wave-pr3b3-publish

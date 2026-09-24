@@ -22,6 +22,16 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-24 — Knowledge Wave Registry PR3-B.3 (Publish orchestration)
+
+- `POST /api/v1/knowledge/waves/{wave_id}/publish` — EvidenceValidated → Publishing → Published (super-admin); body `{ change_reason, stop_on_first_failure? }`.
+- Orchestrates existing `knowledge_fact_service.publish_fact` over sealed Wave Fact scope only (`FACT_DEFINITION_ORDER`); already-`published` Facts are skipped (no duplicate revisions).
+- Run ledger: `knowledge_wave_runs.run_type=publish` + per-product run items (reuse PR3-A schema; **Migration: NONE**).
+- Resume: Failed after a prior publish run may call publish again (Failed → Publishing); asserts still re-seal via PR3-A. Partial success is not rolled back.
+- Audit: `wave.publish`, `wave.publish.start`, `wave.publish.complete`, `wave.publish.fail`.
+- **Wave Published means:** all Facts in the governed Wave scope are confirmed published under Wave orchestration; already-published Facts may be safely resumed/skipped without creating duplicate revisions.
+- Sync HTTP loop over Wave allowlist only (not catalog-wide); same scale boundary as execute — suitable for pilot/~50 SKUs; larger Waves need a future worker on this ledger.
+
 ### 2026-09-24 — Wave environment_pins.alembic lineage compatibility
 
 - Behavioral clarification (no OpenAPI shape change): sealed `environment_pins.alembic` is a **minimum compatible Alembic lineage pin**. Runtime must equal the sealed revision or be a descendant of it in the Alembic revision graph (via `is_runtime_revision_compatible`). Plane and `freeze_required` remain exact. Shared SSOT: `assert_environment_gates` (execute, evidence validate, batch assert).

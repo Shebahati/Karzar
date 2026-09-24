@@ -740,6 +740,30 @@ class KnowledgeWaveEvidenceValidateResponse(BaseModel):
     wave: KnowledgeWaveResponse
 
 
+class KnowledgeWavePublishRequest(BaseModel):
+    """PR3-B.3 EvidenceValidated → Publishing → Published."""
+
+    change_reason: str = Field(min_length=1, max_length=4000)
+    stop_on_first_failure: bool = True
+
+
+class KnowledgeWavePublishResponse(BaseModel):
+    ok: bool
+    wave_id: str
+    wave_pk: int
+    run_id: int
+    previous_status: WaveStatusPR3B
+    new_status: WaveStatusPR3B
+    total: int
+    published: int
+    skipped: int
+    failed: int
+    manifest_sha256: str | None = None
+    progress: dict[str, int] = Field(default_factory=dict)
+    stop_reason: str | None = None
+    wave: KnowledgeWaveResponse
+
+
 class KnowledgeWaveListResponse(BaseModel):
     items: list[KnowledgeWaveResponse]
     total: int
