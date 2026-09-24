@@ -2,8 +2,9 @@
 # SAFETY: BEGIN READ ONLY only. No INSERT/UPDATE/DELETE/restart/deploy.
 #
 # Triggers on push to the audit branch (self-hosted runner already has live
-# compose). Does not use actions/checkout (known hang on this runner); fetches
-# the audit script from raw.githubusercontent.com for this commit SHA.
+# compose). Does not use actions/checkout (known hang on this runner).
+# Artifact upload to Actions blob storage fails on this VPS (TLS); results are
+# committed back to audit/ on this branch instead.
 name: Product Status Audit Read-only
 
 on:
@@ -16,8 +17,7 @@ on:
       - "scripts/audit_product_status_production_readonly.py"
 
 permissions:
-  contents: read
-  actions: write
+  contents: write
 
 concurrency:
   group: product-status-audit-readonly
@@ -60,7 +60,6 @@ jobs:
           DEST="/tmp/karzar-product-status-audit"
           mkdir -p "$DEST"
           SCRIPT="$DEST/audit_product_status_production_readonly.py"
-          # Use GitHub Contents API (raw) with job token — reliable on VPS.
           curl -fsSL \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.raw" \
@@ -90,7 +89,7 @@ jobs:
           docker cp lathe_api:/tmp/karzar-product-status-out/. "$OUT_HOST/"
           ls -la "$OUT_HOST"
           python3 - <<PY
-          import json, pathlib, sys
+          import json, pathlib
           d = pathlib.Path("${OUT_HOST}")
           ident = json.loads((d/"IDENTITY_PROBE.json").read_text())
           print("IDENTITY_OK", ident.get("ok"), ident.get("errors"))
@@ -98,13 +97,52 @@ jobs:
           print("LIVE", summary["live_products"], "VISIBLE", summary["visible"], "SELLABLE", summary["sellable"])
           assert summary["production_identity_proven"] is True
           assert summary["read_only_proven"] is True
+          print("---SUMMARY_JSON_BEGIN---")
+          print((d/"SUMMARY.json").read_text())
+          print("---SUMMARY_JSON_END---")
           PY
           echo "OUT_HOST=${OUT_HOST}" >> "$GITHUB_ENV"
 
-      - name: Upload audit artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: karzar-product-status-2026-09-24
-          path: ${{ env.OUT_HOST }}
-          if-no-files-found: error
-          retention-days: 30
+      - name: Commit audit artifacts to branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "${OUT_HOST:-}"
+          test -d "$OUT_HOST"
+          WORK="/tmp/karzar-product-status-audit/git-${GITHUB_SHA}"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          cd "$WORK"
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF_NAME}"
+          git checkout -q -B "${GITHUB_REF_NAME}" FETCH_HEAD
+          mkdir -p audit
+          cp -f \
+            "$OUT_HOST/KARZAR_PRODUCT_STATUS_REPORT_2026-09-24.md" \
+            "$OUT_HOST/KARZAR_BRAND_STATUS_2026-09-24.csv" \
+            "$OUT_HOST/KARZAR_PRODUCT_STATUS_MASTER_2026-09-24.csv" \
+            "$OUT_HOST/KARZAR_COMMERCIAL_GAPS_2026-09-24.csv" \
+            "$OUT_HOST/KARZAR_TECHNICAL_GAPS_2026-09-24.csv" \
+            "$OUT_HOST/SUMMARY.json" \
+            "$OUT_HOST/IDENTITY_PROBE.json" \
+            audit/
+          # Keep insize-phase3; do not delete other audit files.
+          git add \
+            audit/KARZAR_PRODUCT_STATUS_REPORT_2026-09-24.md \
+            audit/KARZAR_BRAND_STATUS_2026-09-24.csv \
+            audit/KARZAR_PRODUCT_STATUS_MASTER_2026-09-24.csv \
+            audit/KARZAR_COMMERCIAL_GAPS_2026-09-24.csv \
+            audit/KARZAR_TECHNICAL_GAPS_2026-09-24.csv \
+            audit/SUMMARY.json \
+            audit/IDENTITY_PROBE.json
+          if git diff --cached --quiet; then
+            echo "No artifact changes to commit"
+            exit 0
+          fi
+          git -c user.name="karzar-vps-readonly-audit" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore(audit): Production product status snapshot 2026-09-24 (read-only)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "ARTIFACTS_COMMITTED=YES"
