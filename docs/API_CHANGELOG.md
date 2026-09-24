@@ -22,6 +22,10 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-24 — Wave environment_pins.alembic lineage compatibility
+
+- Behavioral clarification (no OpenAPI shape change): sealed `environment_pins.alembic` is a **minimum compatible Alembic lineage pin**. Runtime must equal the sealed revision or be a descendant of it in the Alembic revision graph (via `is_runtime_revision_compatible`). Plane and `freeze_required` remain exact. Shared SSOT: `assert_environment_gates` (execute, evidence validate, batch assert).
+
 ### 2026-09-24 — Knowledge Wave Registry PR3-B.2 (Evidence validation)
 
 - `POST /api/v1/knowledge/waves/{wave_id}/validate-evidence` — Asserted → EvidenceValidated (super-admin); read-only Fact/Evidence/assert-run checks; SHA + env pins; deny-by-default via `knowledge_wave_lifecycle.assert_transition`.
