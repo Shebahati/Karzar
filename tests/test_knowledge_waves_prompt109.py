@@ -14,7 +14,7 @@ from app.db.models.product import Product
 from app.db.models.user import User
 from app.main import app
 from fastapi.testclient import TestClient
-from sqlalchemy import func, select, text
+from sqlalchemy import delete, func, select, text
 
 from tests.conftest import TestingSessionLocal, customer_auth_headers, override_super_admin
 from tests.test_knowledge_waves_prompt68 import (
@@ -33,26 +33,20 @@ def _run(coro):
 
 
 async def _delete_fact_with_deps(session, fact: KnowledgeFact) -> None:
-    """Postgres-safe Fact removal for test setup (revisions + evidence links)."""
-    links = (
-        await session.execute(
-            select(KnowledgeEvidenceLink).where(
-                KnowledgeEvidenceLink.fact_id == fact.id
-            )
-        )
-    ).scalars().all()
-    for link in links:
-        await session.delete(link)
-    revs = (
-        await session.execute(
-            select(KnowledgeFactRevision).where(
-                KnowledgeFactRevision.fact_id == fact.id
-            )
-        )
-    ).scalars().all()
-    for rev in revs:
-        await session.delete(rev)
-    await session.delete(fact)
+    """Postgres-safe Fact removal for test setup (revisions + evidence links).
+
+    Use bulk DELETE + flush so SQLAlchemy does not emit DELETE on
+    knowledge_facts before dependent revisions/links (UoW ordering).
+    """
+    fact_id = int(fact.id)
+    await session.execute(
+        delete(KnowledgeEvidenceLink).where(KnowledgeEvidenceLink.fact_id == fact_id)
+    )
+    await session.execute(
+        delete(KnowledgeFactRevision).where(KnowledgeFactRevision.fact_id == fact_id)
+    )
+    await session.flush()
+    await session.execute(delete(KnowledgeFact).where(KnowledgeFact.id == fact_id))
 
 
 @pytest.fixture
