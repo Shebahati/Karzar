@@ -156,7 +156,10 @@ def test_environment_gate_plane_still_exact(monkeypatch):
 
     async def _go():
         async with TestingSessionLocal() as session:
-            await _ensure_gates(session, plane="staging", alembic="s2t3u4v5w6x7")
+            # Allowed by ck_environment_identity_plane, but not the sealed pin.
+            await _ensure_gates(
+                session, plane="catalog_staging", alembic="s2t3u4v5w6x7"
+            )
             await session.commit()
             with pytest.raises(HTTPException) as exc:
                 await assert_environment_gates(
