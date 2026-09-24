@@ -132,18 +132,26 @@ async def _assert_no_running_publish(db: AsyncSession, wave_pk: int) -> None:
         )
 
 
-async def _prior_publish_run_exists(db: AsyncSession, wave_pk: int) -> bool:
+async def _latest_run_is_failed_publish(db: AsyncSession, wave_pk: int) -> bool:
+    """True iff the newest wave run is a failed publish (safe publish-resume).
+
+    A prior publish run alone is insufficient: after Failed→Sealed→assert
+    re-execute, the latest run is assert and publish must stay closed until
+    EvidenceValidated again.
+    """
     row = (
         await db.execute(
-            select(KnowledgeWaveRun.id)
-            .where(
-                KnowledgeWaveRun.wave_id == wave_pk,
-                KnowledgeWaveRun.run_type == RUN_TYPE_PUBLISH,
-            )
+            select(KnowledgeWaveRun)
+            .where(KnowledgeWaveRun.wave_id == wave_pk)
+            .order_by(KnowledgeWaveRun.id.desc())
             .limit(1)
         )
-    ).first()
-    return row is not None
+    ).scalar_one_or_none()
+    return (
+        row is not None
+        and row.run_type == RUN_TYPE_PUBLISH
+        and row.status == RUN_FAILED
+    )
 
 
 async def _load_scope_facts(
@@ -302,13 +310,13 @@ async def publish_wave(
         )
 
     if previous_status == WAVE_STATUS_FAILED:
-        if not await _prior_publish_run_exists(db, wave.id):
+        if not await _latest_run_is_failed_publish(db, wave.id):
             raise api_error(
                 status.HTTP_409_CONFLICT,
                 error_code=ErrorCode.CONFLICT,
                 message=(
-                    "Failed waves may publish-resume only after a prior publish run "
-                    "(assert Failed must re-seal via PR3-A resume)"
+                    "Failed waves may publish-resume only when the latest run is a "
+                    "failed publish (assert Failed must re-seal via PR3-A resume)"
                 ),
                 details=[{"field": "status", "message": previous_status}],
             )
@@ -317,7 +325,7 @@ async def publish_wave(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.CONFLICT,
             message="Only EvidenceValidated waves may publish "
-            "(or Failed after a prior publish run)",
+            "(or Failed after a failed publish run)",
             details=[{"field": "status", "message": previous_status}],
         )
 

@@ -37,7 +37,9 @@ Facts were published before Wave Registry existed).
 - Already `published` Facts: skip; no second `publish_fact`; no new revision.
 - `asserted` Facts: call canonical `publish_fact`.
 - Missing/invalid/conflict: fail closed; Wave → Failed; no silent Published.
-- Resume: POST publish again from Failed (prior publish run required); skips already-published Facts.
+- Resume: POST publish again from Failed **only when the latest wave run is a
+  failed `publish` run**; skips already-published Facts. Assert Failed (latest
+  run = assert) must re-seal via PR3-A — publish stays closed.
 
 ## Scale
 

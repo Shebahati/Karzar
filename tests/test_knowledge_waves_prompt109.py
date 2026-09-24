@@ -9,8 +9,9 @@ import pytest
 from app.api.deps import get_current_super_admin
 from app.core.security import create_access_token
 from app.db.models.knowledge import KnowledgeEvidenceLink, KnowledgeFact, KnowledgeFactRevision
-from app.db.models.knowledge_wave import KnowledgeWave
+from app.db.models.knowledge_wave import KnowledgeWave, KnowledgeWaveRun
 from app.db.models.product import Product
+from app.db.models.user import User
 from app.main import app
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select, text
@@ -29,6 +30,29 @@ pytestmark = pytest.mark.usefixtures("override_database")
 
 def _run(coro):
     return asyncio.run(coro)
+
+
+async def _delete_fact_with_deps(session, fact: KnowledgeFact) -> None:
+    """Postgres-safe Fact removal for test setup (revisions + evidence links)."""
+    links = (
+        await session.execute(
+            select(KnowledgeEvidenceLink).where(
+                KnowledgeEvidenceLink.fact_id == fact.id
+            )
+        )
+    ).scalars().all()
+    for link in links:
+        await session.delete(link)
+    revs = (
+        await session.execute(
+            select(KnowledgeFactRevision).where(
+                KnowledgeFactRevision.fact_id == fact.id
+            )
+        )
+    ).scalars().all()
+    for rev in revs:
+        await session.delete(rev)
+    await session.delete(fact)
 
 
 @pytest.fixture
@@ -298,17 +322,7 @@ def test_missing_fact_fails_closed(admin_headers, valid_product_data):
                     )
                 )
             ).scalar_one()
-            # Remove evidence links first
-            links = (
-                await session.execute(
-                    select(KnowledgeEvidenceLink).where(
-                        KnowledgeEvidenceLink.fact_id == fact.id
-                    )
-                )
-            ).scalars().all()
-            for link in links:
-                await session.delete(link)
-            await session.delete(fact)
+            await _delete_fact_with_deps(session, fact)
             await session.commit()
 
     _run(_drop_one())
@@ -322,6 +336,66 @@ def test_missing_fact_fails_closed(admin_headers, valid_product_data):
     assert body["ok"] is False
     assert body["new_status"] == "Failed"
     assert body["failed"] >= 1
+
+
+def test_assert_failed_cannot_publish_resume_when_latest_run_is_assert(
+    admin_headers, valid_product_data
+):
+    """Failed after assert re-execute must not enter publish (even with old publish run)."""
+    _run(_seed())
+    product = _create_product(admin_headers, valid_product_data, "W109-AF")
+    _assert_and_evidence(admin_headers, wave_id="PUB-AF-001", product=product)
+
+    async def _drop_accuracy():
+        async with TestingSessionLocal() as session:
+            fact = (
+                await session.execute(
+                    select(KnowledgeFact).where(
+                        KnowledgeFact.entity_id == product["id"],
+                        KnowledgeFact.definition_id == "def.accuracy",
+                    )
+                )
+            ).scalar_one()
+            await _delete_fact_with_deps(session, fact)
+            await session.commit()
+
+    _run(_drop_accuracy())
+    fail = client.post(
+        "/api/v1/knowledge/waves/PUB-AF-001/publish",
+        json={"change_reason": "first publish fail"},
+        headers=admin_headers,
+    )
+    assert fail.status_code == 200, fail.text
+    assert fail.json()["new_status"] == "Failed"
+
+    async def _inject_newer_assert_failed_run():
+        async with TestingSessionLocal() as session:
+            wave = (
+                await session.execute(
+                    select(KnowledgeWave).where(KnowledgeWave.wave_id == "PUB-AF-001")
+                )
+            ).scalar_one()
+            actor = (await session.execute(select(User).limit(1))).scalar_one()
+            session.add(
+                KnowledgeWaveRun(
+                    wave_id=wave.id,
+                    run_type="assert",
+                    status="failed",
+                    created_by=actor.id,
+                    manifest_sha256_snapshot=wave.manifest_sha256,
+                    request_snapshot_json={},
+                )
+            )
+            await session.commit()
+
+    _run(_inject_newer_assert_failed_run())
+    resp = client.post(
+        "/api/v1/knowledge/waves/PUB-AF-001/publish",
+        json={"change_reason": "should reject"},
+        headers=admin_headers,
+    )
+    assert resp.status_code == 409, resp.text
+    assert _run(_wave_status("PUB-AF-001")) == "Failed"
 
 
 def test_resume_after_partial_does_not_duplicate_revisions(
@@ -355,16 +429,6 @@ def test_resume_after_partial_does_not_duplicate_revisions(
         async with TestingSessionLocal() as session:
             fact = await session.get(KnowledgeFact, by_def["def.accuracy"])
             assert fact is not None
-            links = (
-                await session.execute(
-                    select(KnowledgeEvidenceLink).where(
-                        KnowledgeEvidenceLink.fact_id == fact.id
-                    )
-                )
-            ).scalars().all()
-            for link in links:
-                await session.delete(link)
-            # Keep a snapshot to recreate
             snap = {
                 "entity_id": fact.entity_id,
                 "definition_id": fact.definition_id,
@@ -377,7 +441,7 @@ def test_resume_after_partial_does_not_duplicate_revisions(
                 "recorded_at": fact.recorded_at,
                 "recorder": fact.recorder,
             }
-            await session.delete(fact)
+            await _delete_fact_with_deps(session, fact)
             await session.commit()
             return snap
 
