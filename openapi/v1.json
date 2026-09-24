@@ -9725,6 +9725,79 @@
         }
       }
     },
+    "/api/v1/knowledge/waves/{wave_id}/validate-evidence": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Validate evidence and transition Asserted→EvidenceValidated (super-admin)",
+        "operationId": "validate_wave_evidence_api_v1_knowledge_waves__wave_id__validate_evidence_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wave Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWaveEvidenceValidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWaveEvidenceValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge/wave-runs/{run_id}": {
       "get": {
         "tags": [
@@ -17306,6 +17379,123 @@
           "definition_id"
         ],
         "title": "KnowledgeWaveCreateRequest"
+      },
+      "KnowledgeWaveEvidenceValidateIssue": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "message"
+        ],
+        "title": "KnowledgeWaveEvidenceValidateIssue"
+      },
+      "KnowledgeWaveEvidenceValidateRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "KnowledgeWaveEvidenceValidateRequest",
+        "description": "PR3-B.2 Asserted → EvidenceValidated."
+      },
+      "KnowledgeWaveEvidenceValidateResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "previous_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "Previous Status"
+          },
+          "new_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "New Status"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "stats": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Stats"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeWaveEvidenceValidateIssue"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "wave": {
+            "$ref": "#/components/schemas/KnowledgeWaveResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "wave_id",
+          "previous_status",
+          "new_status",
+          "wave"
+        ],
+        "title": "KnowledgeWaveEvidenceValidateResponse"
       },
       "KnowledgeWaveExecuteRequest": {
         "properties": {

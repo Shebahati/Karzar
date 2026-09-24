@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-24 — Knowledge Wave Registry PR3-B.2 (Evidence validation)
+
+- `POST /api/v1/knowledge/waves/{wave_id}/validate-evidence` — Asserted → EvidenceValidated (super-admin); read-only Fact/Evidence/assert-run checks; SHA + env pins; deny-by-default via `knowledge_wave_lifecycle.assert_transition`.
+- Audit: `wave.evidence_validate`, `wave.evidence_validate.fail`.
+- No publish orchestration; no Fact/Evidence mutation on success path beyond wave status.
+
 ### 2026-09-23 — Knowledge Wave Registry PR3-B.1 (lifecycle foundation)
 
 - Additive Alembic `s2t3u4v5w6x7`: wave `status` CHECK expands to include `EvidenceValidated|Publishing|Published|Superseded|Archived` (no new endpoints).

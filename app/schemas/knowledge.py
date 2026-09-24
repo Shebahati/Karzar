@@ -683,6 +683,17 @@ class KnowledgeWaveSealRequest(BaseModel):
     change_reason: str = Field(min_length=1, max_length=4000)
 
 
+class KnowledgeWaveEvidenceValidateRequest(BaseModel):
+    """PR3-B.2 Asserted → EvidenceValidated."""
+
+    change_reason: str = Field(min_length=1, max_length=4000)
+
+
+class KnowledgeWaveEvidenceValidateIssue(BaseModel):
+    field: str
+    message: str
+
+
 class KnowledgeWaveValidateIssue(BaseModel):
     field: str
     message: str
@@ -716,6 +727,17 @@ class KnowledgeWaveResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     products: list[KnowledgeWaveProductResponse] = Field(default_factory=list)
+
+
+class KnowledgeWaveEvidenceValidateResponse(BaseModel):
+    ok: bool
+    wave_id: str
+    previous_status: WaveStatusPR3B
+    new_status: WaveStatusPR3B
+    manifest_sha256: str | None = None
+    stats: dict[str, Any] = Field(default_factory=dict)
+    issues: list[KnowledgeWaveEvidenceValidateIssue] = Field(default_factory=list)
+    wave: KnowledgeWaveResponse
 
 
 class KnowledgeWaveListResponse(BaseModel):
