@@ -59,10 +59,10 @@ ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
         {WAVE_STATUS_PUBLISHED, WAVE_STATUS_FAILED}
     ),
     WAVE_STATUS_PUBLISHED: frozenset({WAVE_STATUS_ARCHIVED}),
-    # Failed → Sealed: PR3-A resume re-approve (same SHA, new run).
     WAVE_STATUS_FAILED: frozenset(
         {
-            WAVE_STATUS_SEALED,
+            WAVE_STATUS_SEALED,  # PR3-A assert resume re-approve
+            WAVE_STATUS_PUBLISHING,  # PR3-B.3 publish resume
             WAVE_STATUS_SUPERSEDED,
             WAVE_STATUS_ARCHIVED,
         }
