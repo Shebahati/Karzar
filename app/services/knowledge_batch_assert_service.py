@@ -201,8 +201,8 @@ async def _load_product_for_batch(
         )
     if product.deleted_at is not None:
         _conflict("Product is deleted", field="deleted_at")
-    if not product.is_active:
-        _conflict("Product is not active", field="is_active")
+    # Knowledge assertion is orthogonal to storefront commercial state.
+    # is_active / is_available / price must not gate Fact assertion.
     if brand_expected:
         if not _brand_matches(product.brand, brand_expected):
             _conflict(

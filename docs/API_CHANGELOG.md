@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-24 — Knowledge Wave execute failure harden + interrupted resume (Prompt 117)
+
+- Failure finalization after assert errors uses an immutable `actor_user_id` captured before commit/rollback (avoids SQLAlchemy `MissingGreenlet` on expired ORM `User`).
+- Canonical `kb-batch-assert` no longer rejects products solely for `is_active=false` (KB vs storefront orthogonality). Soft-delete, SKU identity, Product Type, allowlist, manifest, and environment pins remain fail-closed.
+- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` now also accepts an **interrupted** assert run (`run.status=running` + `wave.status=Executing`): continues the **same** `run_id`, skips prior `success`/`skipped` items, idempotently resumes existing Facts/links, and must not leave orphan `running` runs. Failed-run resume (new `run_id` after re-Seal) unchanged.
+- OpenAPI request/response shapes unchanged (behavior + summary only).
+
 ### 2026-09-24 — Knowledge Wave Registry PR3-B.3 (Publish orchestration)
 
 - `POST /api/v1/knowledge/waves/{wave_id}/publish` — EvidenceValidated → Publishing → Published (super-admin); body `{ change_reason, stop_on_first_failure? }`.
@@ -53,7 +60,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Additive status vocabulary (Alembic `q0r1s2t3u4v5`): wave `Executing|Asserted|Failed|Aborted`; run `created|running|completed|failed|aborted`; item `pending|running|success|failed|skipped` + ledger columns.
 - `POST /api/v1/knowledge/waves/{wave_id}/execute` — Sealed only; freeze/plane/alembic/SHA gates; sync SKU loop via `kb-batch-assert`; Sealed→Executing→Asserted|Failed.
 - `GET /api/v1/knowledge/wave-runs/{run_id}` — run ledger.
-- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` — failed runs only; new run_id; no Fact duplication.
+- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` — failed runs (new run_id) or interrupted Executing+running assert runs (same run_id); no Fact duplication.
 - Audit: `wave.execute`, `wave.run.start|complete|fail|resume`, `wave.item.success|fail`.
 
 ### 2026-09-23 — Knowledge Wave Registry PR2 (Seal + validate)

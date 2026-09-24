@@ -1281,7 +1281,7 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Set product availability (موجود / ناموجود)",
+        "summary": "Set product availability (\u0645\u0648\u062c\u0648\u062f / \u0646\u0627\u0645\u0648\u062c\u0648\u062f)",
         "operationId": "set_availability_api_v1_products__product_id__availability_put",
         "security": [
           {
@@ -1304,10 +1304,10 @@
             "required": true,
             "schema": {
               "type": "boolean",
-              "description": "True = موجود, False = ناموجود",
+              "description": "True = \u0645\u0648\u062c\u0648\u062f, False = \u0646\u0627\u0645\u0648\u062c\u0648\u062f",
               "title": "Is Available"
             },
-            "description": "True = موجود, False = ناموجود"
+            "description": "True = \u0645\u0648\u062c\u0648\u062f, False = \u0646\u0627\u0645\u0648\u062c\u0648\u062f"
           },
           {
             "name": "reason",
@@ -1405,10 +1405,10 @@
                   "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
                 }
               ],
-              "description": "Deprecated. Positive → available, zero/negative → unavailable",
+              "description": "Deprecated. Positive \u2192 available, zero/negative \u2192 unavailable",
               "title": "Quantity Delta"
             },
-            "description": "Deprecated. Positive → available, zero/negative → unavailable"
+            "description": "Deprecated. Positive \u2192 available, zero/negative \u2192 unavailable"
           },
           {
             "name": "karzar_access",
@@ -1457,7 +1457,7 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Deprecated: bulk quantity delta → binary availability",
+        "summary": "Deprecated: bulk quantity delta \u2192 binary availability",
         "operationId": "bulk_adjust_stock_api_v1_products_bulk_stock_adjust_post",
         "deprecated": true,
         "security": [
@@ -1732,7 +1732,7 @@
           "Products"
         ],
         "summary": "Get product by public slug (EPIC 1 / RFC-004)",
-        "description": "Storefront canonical resolve — must be registered before `/{product_id}`.",
+        "description": "Storefront canonical resolve \u2014 must be registered before `/{product_id}`.",
         "operationId": "read_product_by_slug_api_v1_products_slug__slug__get",
         "security": [
           {},
@@ -4457,7 +4457,7 @@
           "Payments"
         ],
         "summary": "Verify payment callback",
-        "description": "Verify a gateway return by authority (order resolved server-side).\nOptional order_id must match the bound order when supplied.\nAuth is optional — authority is a capability token (same model as GET /callback).\nAuthenticated owners are still ownership-checked when the order has a user_id.",
+        "description": "Verify a gateway return by authority (order resolved server-side).\nOptional order_id must match the bound order when supplied.\nAuth is optional \u2014 authority is a capability token (same model as GET /callback).\nAuthenticated owners are still ownership-checked when the order has a user_id.",
         "operationId": "payment_verify_api_v1_payments_verify_post",
         "security": [
           {},
@@ -9448,7 +9448,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Transition Draft↔Reviewed (super-admin)",
+        "summary": "Transition Draft\u2194Reviewed (super-admin)",
         "operationId": "review_wave_api_v1_knowledge_waves__wave_pk__review_post",
         "security": [
           {
@@ -9730,7 +9730,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Validate evidence and transition Asserted→EvidenceValidated (super-admin)",
+        "summary": "Validate evidence and transition Asserted\u2192EvidenceValidated (super-admin)",
         "operationId": "validate_wave_evidence_api_v1_knowledge_waves__wave_id__validate_evidence_post",
         "security": [
           {
@@ -9803,7 +9803,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Publish Wave Facts EvidenceValidated→Publishing→Published (super-admin)",
+        "summary": "Publish Wave Facts EvidenceValidated\u2192Publishing\u2192Published (super-admin)",
         "operationId": "publish_wave_api_v1_knowledge_waves__wave_id__publish_post",
         "security": [
           {
@@ -9939,7 +9939,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Resume failed wave run (super-admin; new run_id)",
+        "summary": "Resume failed or interrupted wave assert run (super-admin)",
         "operationId": "resume_wave_run_api_v1_knowledge_wave_runs__run_id__resume_post",
         "security": [
           {
@@ -10192,7 +10192,7 @@
         "tags": [
           "Hesabfa"
         ],
-        "summary": "Deprecated: Hesabfa→site quantity pull is disabled",
+        "summary": "Deprecated: Hesabfa\u2192site quantity pull is disabled",
         "operationId": "sync_stock_api_v1_hesabfa_stock_sync_post",
         "deprecated": true,
         "security": [
@@ -10248,7 +10248,7 @@
           "Hesabfa"
         ],
         "summary": "Website-only paid sales (Hesabfa admin reads disabled)",
-        "description": "Website paid totals only — never returns Hesabfa invoice/sales figures.",
+        "description": "Website paid totals only \u2014 never returns Hesabfa invoice/sales figures.",
         "operationId": "sales_summary_api_v1_hesabfa_sales_summary_get",
         "security": [
           {
@@ -10456,7 +10456,7 @@
           "Storefront"
         ],
         "summary": "List Nav Groups Public",
-        "description": "Enabled megamenu groups for the storefront (empty → FE hardcoded fallback).",
+        "description": "Enabled megamenu groups for the storefront (empty \u2192 FE hardcoded fallback).",
         "operationId": "list_nav_groups_public_api_v1_nav_groups__get",
         "responses": {
           "200": {
@@ -12322,7 +12322,7 @@
           "System"
         ],
         "summary": "Health check",
-        "description": "Liveness probe — returns 200 when the process is running.",
+        "description": "Liveness probe \u2014 returns 200 when the process is running.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {
@@ -12342,7 +12342,7 @@
           "System"
         ],
         "summary": "Readiness check",
-        "description": "Readiness probe — verifies database (and Redis when configured).",
+        "description": "Readiness probe \u2014 verifies database (and Redis when configured).",
         "operationId": "readiness_check_ready_get",
         "responses": {
           "200": {
@@ -12846,7 +12846,7 @@
             "type": "string",
             "maxLength": 100,
             "title": "Author",
-            "default": "تیم فنی کارزار"
+            "default": "\u062a\u06cc\u0645 \u0641\u0646\u06cc \u06a9\u0627\u0631\u0632\u0627\u0631"
           },
           "tags": {
             "items": {
@@ -14595,7 +14595,7 @@
           "items"
         ],
         "title": "CheckoutRequest",
-        "description": "Customer checkout payload. Shipping payment mode is server-owned — never client-set."
+        "description": "Customer checkout payload. Shipping payment mode is server-owned \u2014 never client-set."
       },
       "CheckoutResponse": {
         "properties": {
@@ -17485,7 +17485,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWaveEvidenceValidateRequest",
-        "description": "PR3-B.2 Asserted → EvidenceValidated."
+        "description": "PR3-B.2 Asserted \u2192 EvidenceValidated."
       },
       "KnowledgeWaveEvidenceValidateResponse": {
         "properties": {
@@ -17779,7 +17779,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWavePublishRequest",
-        "description": "PR3-B.3 EvidenceValidated → Publishing → Published."
+        "description": "PR3-B.3 EvidenceValidated \u2192 Publishing \u2192 Published."
       },
       "KnowledgeWavePublishResponse": {
         "properties": {
@@ -18061,7 +18061,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWaveReviewRequest",
-        "description": "Draft↔Reviewed only (Sealed via /seal)."
+        "description": "Draft\u2194Reviewed only (Sealed via /seal)."
       },
       "KnowledgeWaveRunItemDetail": {
         "properties": {
@@ -18941,7 +18941,7 @@
               }
             ],
             "title": "Shipping Customer Cost",
-            "description": "Customer-facing shipping charge in Toman. NULL with shipping_payment_mode=receiver_due means پس‌کرایه (not free)."
+            "description": "Customer-facing shipping charge in Toman. NULL with shipping_payment_mode=receiver_due means \u067e\u0633\u200c\u06a9\u0631\u0627\u06cc\u0647 (not free)."
           },
           "shipping_provider_quoted_cost": {
             "anyOf": [
@@ -22417,7 +22417,7 @@
               }
             ],
             "title": "Customer Shipping Cost",
-            "description": "Customer shipping charge snapshot in Toman. NULL for receiver_due means provider-collected (پس‌کرایه), not free shipping."
+            "description": "Customer shipping charge snapshot in Toman. NULL for receiver_due means provider-collected (\u067e\u0633\u200c\u06a9\u0631\u0627\u06cc\u0647), not free shipping."
           },
           "provider_quoted_cost": {
             "anyOf": [
