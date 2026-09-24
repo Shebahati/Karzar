@@ -1,0 +1,110 @@
+# Read-only Production product-status audit on karzar-vps.
+# SAFETY: BEGIN READ ONLY only. No INSERT/UPDATE/DELETE/restart/deploy.
+#
+# Triggers on push to the audit branch (self-hosted runner already has live
+# compose). Does not use actions/checkout (known hang on this runner); fetches
+# the audit script from raw.githubusercontent.com for this commit SHA.
+name: Product Status Audit Read-only
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/product-status-audit-readonly-3e1b
+    paths:
+      - ".github/workflows/product-status-audit-readonly.yml"
+      - "scripts/audit_product_status_production_readonly.py"
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: product-status-audit-readonly
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Production product status (read-only)
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 45
+    steps:
+      - name: Host + container identity (read-only)
+        id: identity
+        run: |
+          set -euo pipefail
+          HOST="$(hostname)"
+          echo "hostname=${HOST}"
+          test "${HOST}" = "srv5944957438"
+          docker inspect lathe_postgres --format '{{.Name}}' | grep -q lathe_postgres
+          DB_NAME="$(docker exec lathe_postgres printenv POSTGRES_DB || true)"
+          echo "postgres_db=${DB_NAME}"
+          test "${DB_NAME}" = "karzar_staging"
+          VOL="$(docker inspect lathe_postgres --format '{{range .Mounts}}{{println .Name}}{{end}}' | tr '\n' ' ')"
+          echo "volumes=${VOL}"
+          echo "${VOL}" | grep -q 'karzar_postgres_data\|postgres_data'
+          APP_ENV="$(docker exec lathe_api printenv APP_ENV || true)"
+          PLANE="$(docker exec lathe_api printenv KARZAR_DATA_PLANE || true)"
+          echo "APP_ENV=${APP_ENV}"
+          echo "KARZAR_DATA_PLANE=${PLANE}"
+          echo "HOST_PROOF=${HOST}" >> "$GITHUB_ENV"
+          echo "CONTAINER_PROOF=lathe_postgres" >> "$GITHUB_ENV"
+          echo "VOLUME_PROOF=${VOL}" >> "$GITHUB_ENV"
+
+      - name: Fetch audit script for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA}"
+          DEST="/tmp/karzar-product-status-audit"
+          mkdir -p "$DEST"
+          SCRIPT="$DEST/audit_product_status_production_readonly.py"
+          # Use GitHub Contents API (raw) with job token — reliable on VPS.
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/scripts/audit_product_status_production_readonly.py?ref=${SHA}" \
+            -o "$SCRIPT"
+          test -s "$SCRIPT"
+          head -n 5 "$SCRIPT"
+          wc -l "$SCRIPT"
+
+      - name: Run read-only audit inside lathe_api
+        run: |
+          set -euo pipefail
+          OUT_HOST="/tmp/karzar-product-status-audit/out-${GITHUB_SHA}"
+          rm -rf "$OUT_HOST"
+          mkdir -p "$OUT_HOST"
+          docker cp /tmp/karzar-product-status-audit/audit_product_status_production_readonly.py \
+            lathe_api:/tmp/audit_product_status_production_readonly.py
+          docker exec \
+            -e KARZAR_HOST_PROOF="${HOST_PROOF}" \
+            -e KARZAR_CONTAINER_PROOF="${CONTAINER_PROOF}" \
+            -e KARZAR_VOLUME_PROOF="${VOLUME_PROOF}" \
+            lathe_api \
+            python /tmp/audit_product_status_production_readonly.py \
+              --out-dir /tmp/karzar-product-status-out \
+              --upload-root /app/data/uploads
+          docker cp lathe_api:/tmp/karzar-product-status-out/. "$OUT_HOST/"
+          ls -la "$OUT_HOST"
+          python3 - <<PY
+          import json, pathlib, sys
+          d = pathlib.Path("${OUT_HOST}")
+          ident = json.loads((d/"IDENTITY_PROBE.json").read_text())
+          print("IDENTITY_OK", ident.get("ok"), ident.get("errors"))
+          summary = json.loads((d/"SUMMARY.json").read_text())
+          print("LIVE", summary["live_products"], "VISIBLE", summary["visible"], "SELLABLE", summary["sellable"])
+          assert summary["production_identity_proven"] is True
+          assert summary["read_only_proven"] is True
+          PY
+          echo "OUT_HOST=${OUT_HOST}" >> "$GITHUB_ENV"
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: karzar-product-status-2026-09-24
+          path: ${{ env.OUT_HOST }}
+          if-no-files-found: error
+          retention-days: 30
