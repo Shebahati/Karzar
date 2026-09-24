@@ -32,6 +32,7 @@ from app.db.models.user import User
 from app.services import knowledge_evidence_service as evidence_service
 from app.services import knowledge_fact_service as fact_service
 from app.services import product_type_assignment_service as assignment_service
+from app.services.alembic_revision_compat import is_runtime_revision_compatible
 
 # Immutable Batch 1 execution manifest (Prompt 38).
 BATCH1_MANIFEST_SHA256 = (
@@ -109,9 +110,20 @@ async def _assert_safety_gates(
         )
 
     alembic_row = (await db.execute(text("SELECT version_num FROM alembic_version"))).first()
-    if alembic_row is None or str(alembic_row[0]) != required_alembic:
+    if alembic_row is None or not str(alembic_row[0] or "").strip():
         _conflict(
-            f"alembic_version must be {required_alembic!r}",
+            "alembic_version is missing",
+            field="alembic_version",
+        )
+    runtime_alembic = str(alembic_row[0]).strip()
+    # Sealed pin = minimum compatible lineage revision (equal or descendant).
+    if not is_runtime_revision_compatible(required_alembic, runtime_alembic):
+        _conflict(
+            (
+                f"alembic_version {runtime_alembic!r} is not compatible with "
+                f"sealed pin {required_alembic!r} "
+                f"(runtime must equal or descend from the sealed revision)"
+            ),
             field="alembic_version",
         )
 
@@ -119,7 +131,12 @@ async def _assert_safety_gates(
 async def assert_environment_gates(
     db: AsyncSession, *, pins: dict[str, Any] | None = None
 ) -> None:
-    """Public freeze/plane/alembic gates (Batch-1 defaults or wave pins)."""
+    """Public freeze/plane/alembic gates (Batch-1 defaults or wave pins).
+
+    ``environment_pins.alembic`` is a minimum compatible Alembic lineage pin:
+    runtime must equal the sealed revision or be a descendant of it in the
+    Alembic revision graph. Plane and freeze_required remain exact checks.
+    """
     await _assert_safety_gates(db, pins=pins)
 
 

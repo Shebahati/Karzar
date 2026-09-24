@@ -699,3 +699,11 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: feat/kb-wave-pr3b2-evidence-validate
+
+  - id: PROMPT-107-RESULT
+    path: audit/insize-phase3/PROMPT_107_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/kb-wave-alembic-pin-compatibility
