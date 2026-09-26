@@ -765,3 +765,11 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: docs/kb-equivalent-facts-compact-reason
+
+  - id: TERMA-PRICE-150-AUDIT
+    path: audit/terma-price-150/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/terma-price-150-2a10
