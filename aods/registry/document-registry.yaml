@@ -309,6 +309,16 @@ documents:
     status: accepted
     owner_role: R-DOC-ARCH
 
+  - id: PRODUCT-IDENTITY-EQUIVALENCE-POLICY
+    path: docs/architecture/PRODUCT_IDENTITY_EQUIVALENCE_POLICY.md
+    class: POLICY
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >-
+      RESOLVED_EQUIVALENT_FACTS governance: required V1 Facts may be asserted
+      when residual OEM variants are fact-equivalent; exact suffix remains unresolved.
+
   - id: DOCS-ARCHITECTURE-INFORMATION-ARCHITECTURE-README
     path: docs/architecture/information-architecture/README.md
     class: CANON
@@ -723,3 +733,27 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: fix/kb-wave-execute-recovery
+
+  - id: PROMPT-126-RESULT
+    path: audit/insize-phase8/PROMPT_126_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
+
+  - id: INSIZE-SUFFIX-SEMANTICS
+    path: audit/insize-phase8/SUFFIX_SEMANTICS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
+
+  - id: PROMPT-130-RESULT
+    path: audit/insize-phase12/PROMPT_130_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
