@@ -99,9 +99,19 @@ Runtime code / Alembic / OpenAPI: **unchanged**.
 
 | Gate | Result |
 |------|--------|
-| AODS full (registry / links / naming / ingestion-boundary) | **PASS** |
-| OpenAPI | SKIP locally (fastapi not installed in this shell; unchanged surface — no API edit) |
+| AODS full (registry / links / naming / ingestion-boundary) | **PASS** (local + CI `aods`) |
+| OpenAPI | SKIP locally (fastapi not installed; unchanged surface — no API edit) |
 | Ingestion-boundary (standalone) | **PASS** |
+| CI lint | **PASS** |
+| CI test | pending at publish time (docs-only; no runtime change) |
+
+## COMMIT / PR
+
+| Field | Value |
+|-------|--------|
+| Commit | `dad44e369f8080832e7c55e34604efff1df58a0e` |
+| PR | https://github.com/Shebahati/Karzar/pull/384 |
+| Merge | **NOT** performed |
 
 ## SAFETY
 
