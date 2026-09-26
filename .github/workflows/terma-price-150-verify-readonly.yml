@@ -101,16 +101,47 @@ jobs:
           # Live stack binds host :8000 to lathe_api in CR-011 topology.
           curl -fsS "http://127.0.0.1:8000/api/v1/products/?ids=${IDS}&limit=20" \
             -o "${OUT_HOST}/api_loopback_products.json"
-          docker run --rm -v "${OUT_HOST}:/out" python:3.12-alpine \
-            python -c 'import json; from decimal import Decimal; report=json.load(open("/out/VERIFY_REPORT.json")); api=json.load(open("/out/api_loopback_products.json")); by_id={int(c["product_id"]): c for c in report.get("API_CANDIDATES") or []}; rows=api.get("data") or []; mismatches=[]; matches=[]
-for row in rows:
- pid=int(row["id"]);
- if pid not in by_id: continue
- db=Decimal(str(by_id[pid]["base_price"])); ap=Decimal(str(row["base_price"])); item={"product_id":pid,"sku":row.get("sku"),"db":str(db),"api":str(ap)}
- (matches if db==ap else mismatches).append(item)
-out={"loopback_checked":len(matches)+len(mismatches),"matches":matches,"mismatches":mismatches}
-open("/out/API_LOOPBACK_COMPARE.json","w").write(json.dumps(out,indent=2)+"\n"); print(json.dumps(out,indent=2)[:8000]);
-raise SystemExit(4 if mismatches else 0)'
+          cat > /tmp/terma_api_loopback_compare.py <<'PY'
+          import json
+          from decimal import Decimal
+
+          report = json.load(open("/out/VERIFY_REPORT.json"))
+          api = json.load(open("/out/api_loopback_products.json"))
+          by_id = {int(c["product_id"]): c for c in report.get("API_CANDIDATES") or []}
+          rows = api.get("data") or []
+          mismatches = []
+          matches = []
+          for row in rows:
+              pid = int(row["id"])
+              if pid not in by_id:
+                  continue
+              db = Decimal(str(by_id[pid]["base_price"]))
+              ap = Decimal(str(row["base_price"]))
+              item = {
+                  "product_id": pid,
+                  "sku": row.get("sku"),
+                  "db": str(db),
+                  "api": str(ap),
+              }
+              if db == ap:
+                  matches.append(item)
+              else:
+                  mismatches.append(item)
+          out = {
+              "loopback_checked": len(matches) + len(mismatches),
+              "matches": matches,
+              "mismatches": mismatches,
+          }
+          open("/out/API_LOOPBACK_COMPARE.json", "w").write(json.dumps(out, indent=2) + "\n")
+          print(json.dumps(out, indent=2)[:8000])
+          raise SystemExit(4 if mismatches else 0)
+          PY
+          # Strip leading spaces introduced by YAML block indentation.
+          sed -i 's/^          //' /tmp/terma_api_loopback_compare.py
+          docker run --rm \
+            -v "${OUT_HOST}:/out" \
+            -v /tmp/terma_api_loopback_compare.py:/compare.py:ro \
+            python:3.12-alpine python /compare.py
 
       - name: Commit VERIFY artifacts to branch
         if: always()
