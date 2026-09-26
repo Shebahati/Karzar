@@ -1,0 +1,146 @@
+# READ-ONLY verification of TERMA +50% APPLY outcome on karzar-vps.
+# SAFETY: BEGIN READ ONLY only. No INSERT/UPDATE/DELETE/deploy/APPLY.
+name: TERMA Price +50% VERIFY Read-only
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/terma-price-150-2a10
+    paths:
+      - ".github/workflows/terma-price-150-verify-readonly.yml"
+      - "scripts/ops/terma_price_150_verify_readonly.py"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: terma-price-150-verify-readonly
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: TERMA +50% read-only verify
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 30
+    steps:
+      - name: Host + container identity (read-only)
+        run: |
+          set -euo pipefail
+          HOST="$(hostname)"
+          echo "hostname=${HOST}"
+          test "${HOST}" = "srv5944957438"
+          docker inspect lathe_postgres --format '{{.Name}}' | grep -q lathe_postgres
+          DB_NAME="$(docker exec lathe_postgres printenv POSTGRES_DB || true)"
+          echo "postgres_db=${DB_NAME}"
+          test "${DB_NAME}" = "karzar_staging"
+          VOL="$(docker inspect lathe_postgres --format '{{range .Mounts}}{{println .Name}}{{end}}' | tr '\n' ' ')"
+          echo "volumes=${VOL}"
+          echo "${VOL}" | grep -q 'karzar_postgres_data\|postgres_data'
+          echo "HOST_PROOF=${HOST}" >> "$GITHUB_ENV"
+          echo "CONTAINER_PROOF=lathe_postgres" >> "$GITHUB_ENV"
+          echo "VOLUME_PROOF=${VOL}" >> "$GITHUB_ENV"
+
+      - name: Fetch VERIFY script for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          DEST="/tmp/karzar-terma-price-150-verify"
+          mkdir -p "$DEST"
+          SCRIPT="$DEST/terma_price_150_verify_readonly.py"
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/scripts/ops/terma_price_150_verify_readonly.py?ref=${GITHUB_SHA}" \
+            -o "$SCRIPT"
+          test -s "$SCRIPT"
+          head -n 8 "$SCRIPT"
+
+      - name: Run READ-ONLY verify inside lathe_api
+        run: |
+          set -euo pipefail
+          OUT_HOST="/tmp/karzar-terma-price-150-verify/out-${GITHUB_SHA}"
+          rm -rf "$OUT_HOST"
+          mkdir -p "$OUT_HOST"
+
+          docker cp /tmp/karzar-terma-price-150-verify/terma_price_150_verify_readonly.py \
+            lathe_api:/tmp/terma_price_150_verify_readonly.py
+
+          docker exec \
+            -e KARZAR_HOST_PROOF="${HOST_PROOF}" \
+            -e KARZAR_CONTAINER_PROOF="${CONTAINER_PROOF}" \
+            -e KARZAR_VOLUME_PROOF="${VOLUME_PROOF}" \
+            -e KARZAR_GIT_SHA="${GITHUB_SHA}" \
+            lathe_api \
+            python /tmp/terma_price_150_verify_readonly.py \
+              --out-dir /tmp/karzar-terma-price-150-verify-out
+
+          docker cp lathe_api:/tmp/karzar-terma-price-150-verify-out/. "$OUT_HOST/"
+          ls -la "$OUT_HOST"
+
+          # Prefer docker python for host-side JSON pretty-print (python3 may be absent).
+          docker run --rm -v "${OUT_HOST}:/out:ro" python:3.12-alpine \
+            python -c 'import json,pathlib; p=pathlib.Path("/out/VERIFY_REPORT.json"); print(p.read_text()[:25000])'
+
+          echo "OUT_HOST=${OUT_HOST}" >> "$GITHUB_ENV"
+
+      - name: Local loopback API price check (read-only)
+        run: |
+          set -euo pipefail
+          test -n "${OUT_HOST:-}"
+          IDS="$(docker run --rm -v "${OUT_HOST}:/out:ro" python:3.12-alpine \
+            python -c 'import json; d=json.load(open("/out/VERIFY_REPORT.json")); print(",".join(str(c["product_id"]) for c in (d.get("API_CANDIDATES") or [])[:12]))')"
+          echo "IDS=${IDS}"
+          if [ -z "${IDS}" ]; then
+            echo "No API candidates; skipping loopback API check"
+            exit 0
+          fi
+          # Live stack binds host :8000 to lathe_api in CR-011 topology.
+          curl -fsS "http://127.0.0.1:8000/api/v1/products/?ids=${IDS}&limit=20" \
+            -o "${OUT_HOST}/api_loopback_products.json"
+          docker run --rm -v "${OUT_HOST}:/out" python:3.12-alpine \
+            python -c 'import json; from decimal import Decimal; report=json.load(open("/out/VERIFY_REPORT.json")); api=json.load(open("/out/api_loopback_products.json")); by_id={int(c["product_id"]): c for c in report.get("API_CANDIDATES") or []}; rows=api.get("data") or []; mismatches=[]; matches=[]
+for row in rows:
+ pid=int(row["id"]);
+ if pid not in by_id: continue
+ db=Decimal(str(by_id[pid]["base_price"])); ap=Decimal(str(row["base_price"])); item={"product_id":pid,"sku":row.get("sku"),"db":str(db),"api":str(ap)}
+ (matches if db==ap else mismatches).append(item)
+out={"loopback_checked":len(matches)+len(mismatches),"matches":matches,"mismatches":mismatches}
+open("/out/API_LOOPBACK_COMPARE.json","w").write(json.dumps(out,indent=2)+"\n"); print(json.dumps(out,indent=2)[:8000]);
+raise SystemExit(4 if mismatches else 0)'
+
+      - name: Commit VERIFY artifacts to branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "${OUT_HOST:-}"
+          test -d "$OUT_HOST"
+          WORK="/tmp/karzar-terma-price-150-verify/git-${GITHUB_SHA}"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          cd "$WORK"
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF_NAME}"
+          git checkout -q -B "${GITHUB_REF_NAME}" FETCH_HEAD
+          mkdir -p audit/terma-price-150
+          cp -f "$OUT_HOST"/VERIFY_REPORT.json audit/terma-price-150/ || true
+          cp -f "$OUT_HOST"/VERIFY_REPORT.md audit/terma-price-150/ || true
+          cp -f "$OUT_HOST"/IDENTITY_PROBE.json audit/terma-price-150/VERIFY_IDENTITY_PROBE.json || true
+          cp -f "$OUT_HOST"/api_loopback_products.json audit/terma-price-150/ || true
+          cp -f "$OUT_HOST"/API_LOOPBACK_COMPARE.json audit/terma-price-150/ || true
+          git add audit/terma-price-150
+          if git diff --cached --quiet; then
+            echo "No artifact changes to commit"
+            exit 0
+          fi
+          git -c user.name="karzar-vps-terma-verify" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore(ops): TERMA +50% READ-ONLY verify artifacts $(date -u +%Y-%m-%dT%H%MZ)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "ARTIFACTS_COMMITTED=YES"
