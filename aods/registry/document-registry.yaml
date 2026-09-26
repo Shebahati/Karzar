@@ -757,3 +757,11 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: docs/kb-equivalent-facts-governance
+
+  - id: PROMPT-132-RESULT
+    path: audit/insize-phase12/PROMPT_132_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-compact-reason
