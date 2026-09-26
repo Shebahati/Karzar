@@ -1,0 +1,14 @@
+product_id,db_sku,proposed_product_type,residual_candidates_suffix,residual_oem_full,definition_token,compact_change_reason,char_count,utf8_bytes,fits_255,planning_only_def_pending,notes
+1795,1120-150,INTERNAL_GROOVE_CALIPER,A|AWL,1120-150A|1120-150AWL,3v1,EQF sku=1120-150 id=1795 cand=A|AWL pt=INTERNAL_GROOVE_CALIPER def=3v1 req=equal audit=P126/P130,96,96,yes,no,PT exists
+1796,1120-200,INTERNAL_GROOVE_CALIPER,A|AWL,1120-200A|1120-200AWL,3v1,EQF sku=1120-200 id=1796 cand=A|AWL pt=INTERNAL_GROOVE_CALIPER def=3v1 req=equal audit=P126/P130,96,96,yes,no,PT exists
+1797,1120-300,INTERNAL_GROOVE_CALIPER,A|AWL,1120-300A|1120-300AWL,3v1,EQF sku=1120-300 id=1797 cand=A|AWL pt=INTERNAL_GROOVE_CALIPER def=3v1 req=equal audit=P126/P130,96,96,yes,no,PT exists
+1799,1121-150,INTERNAL_POINT_CALIPER,A|AWL,1121-150A|1121-150AWL,pending,EQF sku=1121-150 id=1799 cand=A|AWL pt=INTERNAL_POINT_CALIPER def=pending req=equal audit=P126/P130,99,99,yes,yes,PT pending
+1835,1185-150,EXTERNAL_GROOVE_CALIPER,A|AWL,1185-150A|1185-150AWL,pending,EQF sku=1185-150 id=1835 cand=A|AWL pt=EXTERNAL_GROOVE_CALIPER def=pending req=equal audit=P126/P130,100,100,yes,yes,PT pending
+1839,1187-150,EXTERNAL_GROOVE_CALIPER,A|AWL,1187-150A|1187-150AWL,pending,EQF sku=1187-150 id=1839 cand=A|AWL pt=EXTERNAL_GROOVE_CALIPER def=pending req=equal audit=P126/P130,100,100,yes,yes,PT pending
+1801,1123-150,INSIDE_KNIFE_EDGE_CALIPER,A|AWL,1123-150A|1123-150AWL,pending,EQF sku=1123-150 id=1801 cand=A|AWL pt=INSIDE_KNIFE_EDGE_CALIPER def=pending req=equal audit=P126/P130,102,102,yes,yes,PT pending
+1827,1161-150,TUBE_THICKNESS_CALIPER,A|AWL,1161-150A|1161-150AWL,pending,EQF sku=1161-150 id=1827 cand=A|AWL pt=TUBE_THICKNESS_CALIPER def=pending req=equal audit=P126/P130,99,99,yes,yes,PT pending
+1834,1183-150,POINT_CALIPER,A|AWL,1183-150A|1183-150AWL,6v1,EQF sku=1183-150 id=1834 cand=A|AWL pt=POINT_CALIPER def=6v1 req=equal audit=P126/P130,86,86,yes,no,PILOT ingested
+1836,1186-150,OFFSET_CALIPER,A|AWL,1186-150A|1186-150AWL,pending,EQF sku=1186-150 id=1836 cand=A|AWL pt=OFFSET_CALIPER def=pending req=equal audit=P126/P130,91,91,yes,yes,PT pending
+1837,1186-200,OFFSET_CALIPER,A|AWL,1186-200A|1186-200AWL,pending,EQF sku=1186-200 id=1837 cand=A|AWL pt=OFFSET_CALIPER def=pending req=equal audit=P126/P130,91,91,yes,yes,PT pending
+1838,1186-300,OFFSET_CALIPER,A|AWL,1186-300A|1186-300AWL,pending,EQF sku=1186-300 id=1838 cand=A|AWL pt=OFFSET_CALIPER def=pending req=equal audit=P126/P130,91,91,yes,yes,PT pending
+1840,1188-150,BLADE_CALIPER,A|AWL,1188-150A|1188-150AWL,pending,EQF sku=1188-150 id=1840 cand=A|AWL pt=BLADE_CALIPER def=pending req=equal audit=P126/P130,90,90,yes,yes,PT pending
