@@ -181,19 +181,94 @@ The locator must still point at the exact OEM page/table that supports the Fact.
 
 ---
 
-## 8. Wave `change_reason` / audit requirement
+## 8. Wave `change_reason` / audit requirement (three layers)
 
-Any Wave (or SKU unit) that includes RESOLVED_EQUIVALENT_FACTS products MUST include recoverable narrative covering:
+Recoverability for RESOLVED_EQUIVALENT_FACTS is **distributed**. It does **not** require a single free-text `change_reason` to reproduce the full forensic analysis.
 
-1. Exact DB SKU (and `product_id`)
-2. Unresolved residual OEM candidate set
-3. Why non-equivalent variants were excluded (or that OEM lists only the residual set)
-4. Confirmation that all residual variants share required Facts under the Definition version used
-5. Reference to the identity audit artifact (path + date/prompt id)
+Runtime product / assignment paths that persist `change_reason` into `product_change_logs.reason` are limited to **varchar(255)**. Wave schema fields may allow longer text (up to 4000), but operators MUST still use the compact contract below for portability across both surfaces.
 
-Example fragment:
+### Layer 1 — Runtime `change_reason` (compact operational index)
 
-> DB SKU 1183-150 (id 1834): residual OEM 1183-150A|1183-150AWL; exact suffix unresolved; OEM 108A pdf72 lists only A/AWL with identical V1 triad 0–150 / 0.01 / ±0.03; wireless/data_output not asserted; identity audit `audit/insize-phase8/PROMPT_126_RESULT.md` / Prompt 130 matrix.
+Normative compact form (**≤255 characters**, ASCII preferred):
+
+```text
+EQF sku=<db_sku> id=<product_id> cand=<suffix_set> pt=<PT_CODE> def=<definition_id>v<version> req=equal audit=<short_ref>
+```
+
+| Token | Meaning |
+|-------|---------|
+| `EQF` | Identity state = **RESOLVED_EQUIVALENT_FACTS** (exact suffix unresolved) |
+| `sku=` | Exact DB SKU (bare commerce code; not rewritten) |
+| `id=` | `products.id` |
+| `cand=` | Residual suffix tokens only (e.g. `A\|AWL`), **not** a proven exact OEM model |
+| `pt=` | Product Type code |
+| `def=` | Active Definition id + version used for ingestion (e.g. `6v1`) |
+| `req=equal` | Required Facts under that Definition are identical across residual candidates |
+| `audit=` | Short immutable audit reference (e.g. `P126/P130`) |
+
+**Pilot example (1183-150):**
+
+```text
+EQF sku=1183-150 id=1834 cand=A|AWL pt=POINT_CALIPER def=6v1 req=equal audit=P126/P130
+```
+
+Character count: **86** (fits varchar(255)).
+
+#### Candidate encoding (`cand=`)
+
+`cand=A|AWL` is allowed **only when**:
+
+1. `sku=<db_sku>` is present in the same reason string, and
+2. Evidence locator carries **full** OEM codes in `model_candidates` (e.g. `1183-150A|1183-150AWL`), and
+3. Compact suffixes are never treated as a proven exact model claim.
+
+Do **not** write `cand=1183-150A` as if A were proven.
+
+#### Planning-only placeholder
+
+Before a Product Type / Definition exists, planning artifacts MAY use `def=pending`.  
+**Runtime** reasons MUST use the real `def=<id>v<version>` after Definition activation.
+
+### Layer 2 — Evidence locator (full source identity)
+
+Locator MUST include (see §7):
+
+- `model=<base>[A|AWL]` (non-deceptive family form)
+- `model_candidates=<fullA>|<fullAWL>`
+- `identity_state=RESOLVED_EQUIVALENT_FACTS`
+- exact `pdf_page` / `printed_page` / `property`
+
+This layer carries the full residual OEM code set and source cell precision.
+
+### Layer 3 — Audit artifact (full reasoning)
+
+Immutable audit / matrix artifacts MUST retain:
+
+1. Why non-equivalent variants were excluded (or that OEM lists only the residual set)
+2. Policy A–F eligibility proof
+3. Optional / suffix-sensitive prohibitions
+4. Definition-version dependency notes
+5. Paths such as `audit/insize-phase8/PROMPT_126_RESULT.md`, Prompt 130 compliance matrix, and this policy
+
+### Recoverability rule
+
+**Recoverability requires Layers 1 + 2 + 3 together.**
+
+- Layer 1 indexes the decision under the runtime field limit.
+- Layer 2 states residual OEM identity without collapsing uncertainty.
+- Layer 3 holds exclusion forensic detail.
+
+The runtime reason alone is **not** required to reproduce complete narrowing analysis.  
+Do **not** weaken candidate-set disclosure, identity-state disclosure, Definition-version dependency, or the optional-property prohibition.
+
+### Runtime change_reason compact encoding
+
+See Layer 1 above. Cohort templates: `audit/insize-phase12/EQUIVALENT_FACTS_CHANGE_REASON_MATRIX.csv`.
+
+### Migration decision
+
+`varchar(255)` remains **sufficient** under this compact contract.  
+**Schema migration to widen `change_reason` / `product_change_logs.reason` is NOT REQUIRED.**
 
 ---
 
