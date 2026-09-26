@@ -91,6 +91,14 @@ Matrix: [`EQUIVALENT_FACTS_CHANGE_REASON_MATRIX.csv`](./EQUIVALENT_FACTS_CHANGE_
 DB / Wave / Product / Fact / Evidence writes: **NONE**  
 Migration: **NO** · Deploy: **NO** · Ingestion of remaining 12: **NOT STARTED**
 
+## COMMIT / PR
+
+| Field | Value |
+|-------|--------|
+| Commit | `e7bd00cd193891f81297418d26a4dfa2a4c49680` |
+| PR | https://github.com/Shebahati/Karzar/pull/385 |
+| Merge | **NOT** performed |
+
 ## VERDICT
 
 **READY_FOR_COMPACT_POLICY_MERGE**
