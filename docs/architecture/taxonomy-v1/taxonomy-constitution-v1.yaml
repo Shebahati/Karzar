@@ -159,14 +159,15 @@ naming:
     synonyms: ["هلی‌کویل", "Helicoil", "HELICOIL"]
 
 authority_hierarchy:
-  - specialist_international_standard
-  - general_product_data_standard_principles
-  - oem_technical_documentation
-  - established_engineering_terminology
-  - cross_industry_classification_labels
-  - major_manufacturer_technical_consensus
-  - market_vocabulary
-  - existing_karzar_commerce_labels
+  ordered:
+    - specialist_international_standard
+    - general_product_data_standard_principles
+    - oem_technical_documentation
+    - established_engineering_terminology
+    - cross_industry_classification_labels
+    - major_manufacturer_technical_consensus
+    - market_vocabulary
+    - existing_karzar_commerce_labels
   domain_override: "ISO 13399 concepts outrank generic ECLASS labels for cutting items"
 
 external_crosswalk:
