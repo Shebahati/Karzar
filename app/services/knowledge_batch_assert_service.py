@@ -33,6 +33,11 @@ from app.services import knowledge_evidence_service as evidence_service
 from app.services import knowledge_fact_service as fact_service
 from app.services import product_type_assignment_service as assignment_service
 from app.services.alembic_revision_compat import is_runtime_revision_compatible
+from app.services.knowledge_wave_fact_contract import (
+    WaveFactContract,
+    resolve_definition_fact_contract,
+    wave_require_evidence_from_policy,
+)
 
 # Immutable Batch 1 execution manifest (Prompt 38).
 BATCH1_MANIFEST_SHA256 = (
@@ -282,7 +287,8 @@ async def _assert_artifact(db: AsyncSession) -> KnowledgeEvidenceArtifact:
     return artifact
 
 
-def _normalize_facts(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _normalize_facts_batch1(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Historical non-Wave Batch-1 GEN_CALIPER triad contract."""
     if len(facts) != 3:
         _validation("Exactly 3 Facts are required", field="facts")
     seen: set[str] = set()
@@ -306,15 +312,78 @@ def _normalize_facts(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [by_def[d] for d in FACT_DEFINITION_ORDER]
 
 
-def _normalize_evidence_links(
-    links: list[dict[str, Any]], *, ordered_definition_ids: list[str]
+def _normalize_facts_for_wave(
+    facts: list[dict[str, Any]],
+    *,
+    contract: WaveFactContract,
 ) -> list[dict[str, Any]]:
-    if len(links) != 3:
-        _validation("Exactly 3 Evidence links are required", field="evidence_links")
-    property_by_def = {
-        "def.measurement_range": "measurement_range",
-        "def.resolution": "resolution",
-        "def.accuracy": "accuracy",
+    """Wave path: exactly one Fact per required Definition membership."""
+    required = set(contract.required_definition_ids)
+    expected_n = contract.required_count
+    if len(facts) != expected_n:
+        _validation(
+            f"Exactly {expected_n} Facts are required for this Definition "
+            f"(got {len(facts)}; required={list(contract.required_definition_ids)})",
+            field="facts",
+        )
+    seen: set[str] = set()
+    by_def: dict[str, dict[str, Any]] = {}
+    for item in facts:
+        def_id = item.get("definition_id")
+        if not isinstance(def_id, str) or not def_id:
+            _validation("definition_id is required", field="facts.definition_id")
+        if def_id not in required:
+            _validation(
+                f"Unexpected definition_id {def_id!r}; "
+                f"required={list(contract.required_definition_ids)}",
+                field="facts.definition_id",
+            )
+        if def_id in seen:
+            _validation(f"Duplicate definition_id {def_id!r}", field="facts")
+        seen.add(def_id)
+        by_def[def_id] = item
+    missing = required - seen
+    if missing:
+        _validation(
+            f"Missing required Fact definition_id(s): {sorted(missing)}",
+            field="facts",
+        )
+    return [by_def[d] for d in contract.required_definition_ids]
+
+
+def _normalize_evidence_links(
+    links: list[dict[str, Any]],
+    *,
+    ordered_definition_ids: list[str],
+    property_key_by_definition_id: dict[str, str],
+    evidence_required_definition_ids: frozenset[str] | set[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Normalize Evidence links aligned to ordered Fact definition_ids.
+
+    When ``evidence_required_definition_ids`` is set, only those Facts must
+    have links; others may omit Evidence. Return list parallel to
+    ``ordered_definition_ids`` (None placeholder skipped — callers zip facts
+    that need links separately). For Batch-1 / default Wave, pass all
+    ordered ids as evidence-required.
+    """
+    required_evidence = (
+        set(evidence_required_definition_ids)
+        if evidence_required_definition_ids is not None
+        else set(ordered_definition_ids)
+    )
+    expected_link_n = len(required_evidence)
+    if len(links) != expected_link_n:
+        _validation(
+            f"Exactly {expected_link_n} Evidence links are required "
+            f"(got {len(links)}; properties needing evidence="
+            f"{sorted(property_key_by_definition_id[d] for d in required_evidence)})",
+            field="evidence_links",
+        )
+
+    allowed_props = {
+        property_key_by_definition_id[d]
+        for d in ordered_definition_ids
+        if d in property_key_by_definition_id
     }
     by_prop: dict[str, dict[str, Any]] = {}
     for item in links:
@@ -327,9 +396,10 @@ def _normalize_evidence_links(
         if not isinstance(locator, dict):
             _validation("locator must be an object", field="evidence_links.locator")
         prop = locator.get("property")
-        if prop not in property_by_def.values():
+        if prop not in allowed_props:
             _validation(
-                f"Unsupported locator.property {prop!r}",
+                f"Unsupported locator.property {prop!r}; "
+                f"allowed={sorted(allowed_props)}",
                 field="evidence_links.locator.property",
             )
         if prop in by_prop:
@@ -344,7 +414,9 @@ def _normalize_evidence_links(
 
     ordered: list[dict[str, Any]] = []
     for def_id in ordered_definition_ids:
-        prop = property_by_def[def_id]
+        if def_id not in required_evidence:
+            continue
+        prop = property_key_by_definition_id[def_id]
         if prop not in by_prop:
             _validation(
                 f"Missing Evidence link for property {prop!r}",
@@ -354,12 +426,17 @@ def _normalize_evidence_links(
     return ordered
 
 
-async def _assert_no_existing_facts(db: AsyncSession, *, product_id: int) -> None:
+async def _assert_no_existing_facts(
+    db: AsyncSession,
+    *,
+    product_id: int,
+    definition_ids: frozenset[str] | set[str] | tuple[str, ...],
+) -> None:
     existing = (
         await db.execute(
             select(KnowledgeFact.definition_id).where(
                 KnowledgeFact.entity_id == product_id,
-                KnowledgeFact.definition_id.in_(REQUIRED_FACT_DEFINITIONS),
+                KnowledgeFact.definition_id.in_(list(definition_ids)),
             )
         )
     ).scalars().all()
@@ -444,13 +521,50 @@ async def execute_kb_batch_assert(
     if not reason:
         _validation("change_reason is required", field="change_reason")
 
-    # Wave path still uses Batch-1 fact shape for PR3-A (3 defs); keeps
-    # evidence/artifact rules via same normalizers.
-    ordered_facts = _normalize_facts(facts)
-    ordered_links = _normalize_evidence_links(
-        evidence_links,
-        ordered_definition_ids=[f["definition_id"] for f in ordered_facts],
-    )
+    # Resolve Fact contract: Wave = sealed Definition memberships; Batch-1 = triad.
+    wave_contract: WaveFactContract | None = None
+    if wave_context:
+        require_evidence = wave_require_evidence_from_policy(
+            {
+                "require_evidence": wave_context.get("require_evidence"),
+                "validation_rules": wave_context.get("validation_rules"),
+            }
+        )
+        wave_contract = await resolve_definition_fact_contract(
+            db,
+            definition_id,
+            require_evidence=require_evidence,
+        )
+        if wave_contract.definition_id != int(definition_id):
+            _conflict(
+                "resolved Fact contract definition_id mismatch",
+                field="definition_id",
+            )
+        required_def_ids = list(wave_contract.required_definition_ids)
+        property_keys = wave_contract.property_key_by_definition_id
+        evidence_required = frozenset(wave_contract.evidence_required_definition_ids)
+        ordered_facts = _normalize_facts_for_wave(facts, contract=wave_contract)
+        ordered_links = _normalize_evidence_links(
+            evidence_links,
+            ordered_definition_ids=required_def_ids,
+            property_key_by_definition_id=property_keys,
+            evidence_required_definition_ids=evidence_required,
+        )
+    else:
+        required_def_ids = list(FACT_DEFINITION_ORDER)
+        property_keys = {
+            "def.measurement_range": "measurement_range",
+            "def.resolution": "resolution",
+            "def.accuracy": "accuracy",
+        }
+        evidence_required = frozenset(REQUIRED_FACT_DEFINITIONS)
+        ordered_facts = _normalize_facts_batch1(facts)
+        ordered_links = _normalize_evidence_links(
+            evidence_links,
+            ordered_definition_ids=required_def_ids,
+            property_key_by_definition_id=property_keys,
+            evidence_required_definition_ids=evidence_required,
+        )
 
     product = await _load_product_for_batch(
         db,
@@ -470,26 +584,28 @@ async def execute_kb_batch_assert(
     )
     await _assert_artifact(db)
 
-    existing_defs = (
+    expected_set = frozenset(required_def_ids)
+    existing_facts = (
         await db.execute(
-            select(KnowledgeFact.definition_id).where(
+            select(KnowledgeFact).where(
                 KnowledgeFact.entity_id == product.id,
-                KnowledgeFact.definition_id.in_(REQUIRED_FACT_DEFINITIONS),
+                KnowledgeFact.definition_id.in_(required_def_ids),
             )
         )
     ).scalars().all()
+    existing_defs = [f.definition_id for f in existing_facts]
     if existing_defs:
-        if wave_context and resume_facts and set(existing_defs) == REQUIRED_FACT_DEFINITIONS:
-            existing_facts = (
-                await db.execute(
-                    select(KnowledgeFact).where(
-                        KnowledgeFact.entity_id == product.id,
-                        KnowledgeFact.definition_id.in_(REQUIRED_FACT_DEFINITIONS),
-                    )
-                )
-            ).scalars().all()
+        if (
+            wave_context
+            and resume_facts
+            and set(existing_defs) == expected_set
+            and all(
+                f.product_type_definition_id == definition_id for f in existing_facts
+            )
+            and len(existing_facts) == len(expected_set)
+        ):
             by_def = {f.definition_id: f for f in existing_facts}
-            ordered_existing = [by_def[d] for d in FACT_DEFINITION_ORDER]
+            ordered_existing = [by_def[d] for d in required_def_ids]
             return {
                 "product_id": product.id,
                 "sku": product.sku,
@@ -510,7 +626,11 @@ async def execute_kb_batch_assert(
                 "published_count": 0,
                 "specifications_fingerprint": specs_before,
             }
-        await _assert_no_existing_facts(db, product_id=product.id)
+        await _assert_no_existing_facts(
+            db,
+            product_id=product.id,
+            definition_ids=expected_set,
+        )
 
     # --- mutation block (still uncommitted) ---
     if product.product_type_id is None:
@@ -543,7 +663,13 @@ async def execute_kb_batch_assert(
         created_facts.append(fact)
 
     created_links = []
-    for fact, link_payload in zip(created_facts, ordered_links, strict=True):
+    link_queue = list(ordered_links)
+    link_i = 0
+    for fact, fact_payload in zip(created_facts, ordered_facts, strict=True):
+        if fact_payload["definition_id"] not in evidence_required:
+            continue
+        link_payload = link_queue[link_i]
+        link_i += 1
         link = await evidence_service.link_artifact_to_fact(
             db,
             artifact_pk=int(link_payload["artifact_id"]),
@@ -553,6 +679,11 @@ async def execute_kb_batch_assert(
             actor=actor,
         )
         created_links.append(link)
+    if link_i != len(link_queue):
+        _conflict(
+            "internal Evidence link alignment failure",
+            field="evidence_links",
+        )
 
     await db.refresh(product)
     if product.product_type_id != product_type_id:

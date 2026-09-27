@@ -22,6 +22,14 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-27 — Knowledge Wave Fact scope is Definition-driven (Prompt 138)
+
+- Wave assert / evidence validate / publish derive required Fact `definition_id`s from the sealed `wave.definition_id` → Product Type Definition → `required` attribute memberships (ordered by `display_order ASC NULLS LAST`, then membership `id`).
+- Removes the Wave-path hardcode that required exactly `def.measurement_range` / `def.resolution` / `def.accuracy` (exactly 3 Facts). Historical non-Wave `kb-batch-assert` (Batch-1 GEN_CALIPER triad) is unchanged when `wave_context` is absent.
+- Evidence locator `property` is matched to the Property Definition canonical `key` (not a hardcoded triad map). Wave Evidence still requires OEM Artifact pk=1 / 108A checksum.
+- Optional / conditional / forbidden memberships are **not** Wave-required Facts in this change. OpenAPI list cardinality for `facts` / `evidence_links` was already unbounded (no `minItems`/`maxItems=3`).
+- Active Product Type Definitions remain immutable after activation (new draft version required for membership changes) — Wave seal safety depends on this.
+
 ### 2026-09-24 — Knowledge Wave execute failure harden + interrupted resume (Prompt 117)
 
 - Failure finalization after assert errors uses an immutable `actor_user_id` captured before commit/rollback (avoids SQLAlchemy `MissingGreenlet` on expired ORM `User`).
@@ -32,7 +40,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 ### 2026-09-24 — Knowledge Wave Registry PR3-B.3 (Publish orchestration)
 
 - `POST /api/v1/knowledge/waves/{wave_id}/publish` — EvidenceValidated → Publishing → Published (super-admin); body `{ change_reason, stop_on_first_failure? }`.
-- Orchestrates existing `knowledge_fact_service.publish_fact` over sealed Wave Fact scope only (`FACT_DEFINITION_ORDER`); already-`published` Facts are skipped (no duplicate revisions).
+- Orchestrates existing `knowledge_fact_service.publish_fact` over sealed Wave Fact scope derived from the Wave's Product Type Definition required memberships (historically the length triad; Prompt 138 generalizes); already-`published` Facts are skipped (no duplicate revisions).
 - Run ledger: `knowledge_wave_runs.run_type=publish` + per-product run items (reuse PR3-A schema; **Migration: NONE**).
 - Resume: Failed after a prior publish run may call publish again (Failed → Publishing); asserts still re-seal via PR3-A. Partial success is not rolled back.
 - Audit: `wave.publish`, `wave.publish.start`, `wave.publish.complete`, `wave.publish.fail`.
