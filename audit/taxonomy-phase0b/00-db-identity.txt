@@ -1,0 +1,14 @@
+snapshot_time=2026-09-27T10:06:26Z
+current_database=karzar_staging
+current_user=karzar_staging
+inet_server_addr=172.18.0.2/32
+inet_server_port=5432
+transaction_read_only=on
+default_transaction_read_only=on
+alembic_revision=s2t3u4v5w6x7
+app_env=staging
+karzar_data_plane=None
+host_proof=srv5944957438
+container_proof=lathe_postgres
+volume_proof=karzar_postgres_data  
+pg_version=PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit

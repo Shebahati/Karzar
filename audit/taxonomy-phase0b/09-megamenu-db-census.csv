@@ -1,0 +1,7 @@
+id,slug,label,sort_order,enabled,highlight,root_category_ids,resolved_root_names
+31,metrology,اندازه‌گیری,0,True,False,56|87|81,اندازه گیری دقیق | اندازه گیری آزمایشگاهی | اندازه گیری فرز CNC
+32,cutting,براده‌برداری,1,True,False,2|165|4|5|6,ابزار اینسرتی | اینسرت | ابزار انگشتی | مته | قلاویز
+33,holding,ابزارگیر و گیرشی,2,True,False,1|8,ابزارگیر | ابزار گیرشی
+34,machines,دستگاه‌های صنعتی,3,True,False,9,دستگاه‌های صنعتی
+35,accessories,لوازم جانبی,4,True,False,154,لوازم جانبی صنعتی
+36,helicoil,هلی کویل,5,True,False,186|187|188,فنر هلی کویل | قلاویز هلی کویل | کیت کامل هلی کویل

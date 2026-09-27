@@ -1,0 +1,38 @@
+id,code,slug,name_fa,name_en,status,live_product_count,active_product_count,visible_product_count,definition_versions,active_definition_version,definition_count
+1,GEN_CALIPER,general-purpose-caliper,کولیس عمومی,General-purpose Caliper,active,72,63,63,1:active,1,1
+2,DEPTH_GAUGE,depth-gauge,عمق‌سنج,Depth Gauge,active,33,25,25,1:active,1,1
+3,INTERNAL_GROOVE_CALIPER,internal-groove-caliper,کولیس شیار داخلی,Internal Groove Caliper,active,8,6,6,1:active,1,1
+4,INTERCHANGEABLE_POINT_CALIPER,interchangeable-point-caliper,کولیس نوک‌دار تعویض‌شونده,Interchangeable Point Caliper,active,2,1,1,1:active,1,1
+5,HOOK_CALIPER,hook-caliper,کولیس قلاب‌دار,Hook Caliper,active,1,1,1,1:active,1,1
+6,POINT_CALIPER,point-caliper,کولیس نوک‌تیز,Point Caliper,active,2,2,2,1:active,1,1
+7,INSIDE_KNIFE_EDGE_CALIPER,inside-knife-edge-caliper,کولیس لبه‌چاقویی داخلی,Inside Knife Edge Caliper,active,2,1,1,1:active,1,1
+8,INTERNAL_POINT_CALIPER,internal-point-caliper,کولیس نوک‌تیز داخلی,Internal Point Caliper,active,1,1,1,1:active,1,1
+9,EXTERNAL_GROOVE_CALIPER,external-groove-caliper,کولیس شیار خارجی,External Groove Caliper,active,2,2,2,1:active,1,1
+10,OFFSET_CALIPER,offset-caliper,کولیس آفست,Offset Caliper,active,3,1,1,1:active,1,1
+11,TUBE_THICKNESS_CALIPER,tube-thickness-caliper,کولیس ضخامت لوله,Tube Thickness Caliper,active,1,1,1,1:active,1,1
+12,BLADE_CALIPER,blade-caliper,کولیس تیغه‌ای,Blade Caliper,active,1,1,1,1:active,1,1
+13,OUTSIDE_MICROMETER,outside-micrometer,میکرومتر خارج‌سنج,Outside Micrometer,active,91,46,46,1:active,1,1
+14,HEIGHT_GAUGE,height-gauge,ارتفاع‌سنج,Height Gauge,active,11,10,10,1:active,1,1
+15,DEPTH_MICROMETER,depth-micrometer,میکرومتر عمق‌سنج,Depth Micrometer,active,4,4,4,1:active,1,1
+16,TEST_INDICATOR,test-indicator,ساعت اهرمی,Test Indicator,active,5,5,5,1:active,1,1
+17,DIAL_INDICATOR,dial-indicator,ساعت اندازه‌گیری,Dial Indicator,active,24,24,24,1:active,1,1
+18,BORE_GAUGE,bore-gauge,بورگیج / گیج داخل سیلندر,Bore Gauge,active,18,8,8,1:active,1,1
+19,INSIDE_MICROMETER,inside-micrometer,میکرومتر داخل‌سنج,Inside Micrometer,active,55,55,55,1:active,1,1
+20,PROTRACTOR,protractor,زاویه‌سنج,Protractor,active,17,16,16,1:active,1,1
+21,INDICATING_CALIPER,indicating-caliper,پرگار نشان‌گر,Indicating Caliper,active,16,16,16,1:active,1,1
+22,SHAFT_GAUGE,shaft-gauge,گیج شفت,Shaft Gauge,active,2,2,2,1:active,1,1
+23,THICKNESS_GAUGE,thickness-gauge,ضخامت‌سنج,Thickness Gauge,active,17,14,14,1:active,1,1
+24,PIN_GAUGE,pin-gauge,پین گیج,Pin Gauge,active,25,25,25,1:active,1,1
+25,FEELER_GAUGE_SET,feeler-gauge-set,ست فیلر,Feeler Gauge Set,active,6,6,6,1:active,1,1
+26,FEELER_GAUGE,feeler-gauge,فیلر نواری,Feeler Gauge Stock,active,22,22,22,1:active,1,1
+27,LEVEL,level,تراز,Level,active,16,13,13,1:active,1,1
+28,DIGITAL_LEVEL,digital-level,تراز دیجیتال,Digital Level,active,2,2,2,1:active,1,1
+29,STEEL_RULE,steel-rule,خط‌کش فلزی,Steel Rule,active,9,9,9,1:active,1,1
+30,MEASURING_TAPE,measuring-tape,متر نواری,Measuring Tape,active,4,4,4,1:active,1,1
+31,TAPER_GAUGE,taper-gauge,گیج مخروطی / شیار,Taper / Slot Gauge,active,8,8,8,1:active,1,1
+32,THREAD_RING_GAUGE,thread-ring-gauge,گیج رینگی رزوه,Thread Ring Gauge,active,10,0,0,1:active,1,1
+33,THREAD_PLUG_GAUGE,thread-plug-gauge,گیج رزوه توپی,Thread Plug Gauge,active,15,0,0,1:active,1,1
+34,CHAMFER_GAUGE,chamfer-gauge,گیج پخ,Chamfer Gauge,active,1,1,1,1:active,1,1
+35,ENGINEERS_SQUARE,engineers-square,گونیا مهندسی,Engineer's Square,active,18,18,18,1:active,1,1
+36,STRAIGHT_EDGE,straight-edge,خط‌کش صافی/لبه صاف,Straight Edge,active,1,1,1,1:active,1,1
+37,V_BLOCK,v-block,وی‌بلوک,V-Block,active,2,2,2,1:active,1,1
