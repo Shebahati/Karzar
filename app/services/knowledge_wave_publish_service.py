@@ -35,6 +35,10 @@ from app.services import knowledge_batch_assert_service as batch_service
 from app.services import knowledge_fact_service as fact_service
 from app.services.audit_service import record_audit
 from app.services.knowledge_wave_execute_service import resolve_wave_policy
+from app.services.knowledge_wave_fact_contract import (
+    resolve_definition_fact_contract,
+    wave_require_evidence_from_policy,
+)
 from app.services.knowledge_wave_lifecycle import (
     WAVE_STATUS_EVIDENCE_VALIDATED,
     WAVE_STATUS_FAILED,
@@ -197,9 +201,10 @@ async def _publish_product_facts(
     sku_snapshot: str,
     actor: User,
     change_reason: str,
+    required_definition_ids: list[str],
 ) -> dict[str, Any]:
     """Publish or skip Facts for one Wave product. Returns item outcome payload."""
-    required = list(batch_service.FACT_DEFINITION_ORDER)
+    required = list(required_definition_ids)
     by_def = await _load_scope_facts(
         db, product_id=product_id, definition_ids=required
     )
@@ -388,7 +393,16 @@ async def publish_wave(
 
     run_id = run.id
     totals = {"total": 0, "published": 0, "skipped": 0, "failed": 0}
-    required_n = len(batch_service.FACT_DEFINITION_ORDER)
+    require_evidence = wave_require_evidence_from_policy(
+        wave.policy_json if isinstance(wave.policy_json, dict) else {}
+    )
+    contract = await resolve_definition_fact_contract(
+        db,
+        int(wave.definition_id),
+        require_evidence=require_evidence,
+    )
+    required_definition_ids = list(contract.required_definition_ids)
+    required_n = len(required_definition_ids)
     totals["total"] = len(wave.products) * required_n
 
     run = (
@@ -416,6 +430,7 @@ async def publish_wave(
                 sku_snapshot=sku,
                 actor=actor,
                 change_reason=reason,
+                required_definition_ids=required_definition_ids,
             )
             item = next(i for i in run.items if i.id == item_id)
             item.status = outcome["item_status"]
