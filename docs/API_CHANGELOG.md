@@ -22,11 +22,19 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-27 — Knowledge Wave Evidence sources are manifest-driven (Prompt 141)
+
+- Wave Evidence Artifact authorization is sealed in `policy_json.evidence_artifacts`: each pin is `{artifact_pk, artifact_id, checksum_sha256}` and must match the DB Artifact row on all three axes.
+- Pins live inside existing `policy_json` (already part of the canonical Wave manifest payload) — no manifest schema / migration change. Changing pins changes `manifest_sha256`.
+- New Waves with `require_evidence=true` must pin sources before seal (no silent fallback). Historical already-sealed Waves without the field keep Artifact pk=1 / `insize-108a-catalogue-v1` / 108A checksum compatibility fallback at execute / resume / Evidence Validate.
+- Multi-Artifact allowlists are supported (authorization only; Facts still use one `FACT_SUPPORTED_BY` source). Wave path no longer hardcodes Artifact pk=1. Historical non-Wave `kb-batch-assert` Batch-1 GEN_CALIPER / Artifact-1 contract is unchanged when `wave_context` is absent.
+- OpenAPI: no request/response shape change (`policy_json` remains a generic object).
+
 ### 2026-09-27 — Knowledge Wave Fact scope is Definition-driven (Prompt 138)
 
 - Wave assert / evidence validate / publish derive required Fact `definition_id`s from the sealed `wave.definition_id` → Product Type Definition → `required` attribute memberships (ordered by `display_order ASC NULLS LAST`, then membership `id`).
 - Removes the Wave-path hardcode that required exactly `def.measurement_range` / `def.resolution` / `def.accuracy` (exactly 3 Facts). Historical non-Wave `kb-batch-assert` (Batch-1 GEN_CALIPER triad) is unchanged when `wave_context` is absent.
-- Evidence locator `property` is matched to the Property Definition canonical `key` (not a hardcoded triad map). Wave Evidence still requires OEM Artifact pk=1 / 108A checksum.
+- Evidence locator `property` is matched to the Property Definition canonical `key` (not a hardcoded triad map). Wave Evidence Artifact sources are governed separately (Prompt 141: manifest/policy pins).
 - Optional / conditional / forbidden memberships are **not** Wave-required Facts in this change. OpenAPI list cardinality for `facts` / `evidence_links` was already unbounded (no `minItems`/`maxItems=3`).
 - Active Product Type Definitions remain immutable after activation (new draft version required for membership changes) — Wave seal safety depends on this.
 

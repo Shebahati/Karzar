@@ -20,6 +20,10 @@ from app.db.models.product_type import ProductType, ProductTypeDefinition
 from app.db.models.user import User
 from app.services import knowledge_batch_assert_service as batch_service
 from app.services.audit_service import record_audit
+from app.services.knowledge_wave_evidence_artifact_contract import (
+    resolve_wave_evidence_artifact_contract,
+)
+from app.services.knowledge_wave_fact_contract import wave_require_evidence_from_policy
 from app.services.knowledge_wave_lifecycle import (
     WAVE_STATUS_ASSERTED,
     WAVE_STATUS_DRAFT,
@@ -60,6 +64,11 @@ def resolve_wave_policy(wave: KnowledgeWave) -> dict[str, Any]:
         ),
         key=lambda row: (row["product_id"], row["sku_snapshot"]),
     )
+    # Sealed Waves may omit evidence_artifacts (historical); legacy Artifact-1 pin.
+    evidence_pins = resolve_wave_evidence_artifact_contract(
+        policy,
+        allow_legacy_fallback=True,
+    )
     return {
         "wave_id": wave.wave_id,
         "wave_pk": wave.id,
@@ -67,6 +76,7 @@ def resolve_wave_policy(wave: KnowledgeWave) -> dict[str, Any]:
         "brand": wave.brand,
         "product_type_id": wave.product_type_id,
         "definition_id": wave.definition_id,
+        "require_evidence": wave_require_evidence_from_policy(policy),
         "environment_pins": {
             "plane": str(pins.get("plane") or "live"),
             "alembic": str(pins.get("alembic") or batch_service.REQUIRED_ALEMBIC),
@@ -81,6 +91,7 @@ def resolve_wave_policy(wave: KnowledgeWave) -> dict[str, Any]:
             "allow_partial_execute": bool(rules.get("allow_partial_execute", False)),
         },
         "allowlist": allowlist,
+        "evidence_artifacts": [p.as_dict() for p in evidence_pins],
     }
 
 

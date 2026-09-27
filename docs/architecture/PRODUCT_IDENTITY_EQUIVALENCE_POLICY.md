@@ -123,11 +123,13 @@ Explicitly prohibit:
 
 ## 6. Evidence hierarchy
 
-1. **OEM catalogue / authoritative artifact** (e.g. INSIZE 108A) — Fact values and candidate enumeration  
+1. **OEM catalogue / authoritative artifact** (e.g. INSIZE 108A / 108B) — Fact values and candidate enumeration  
 2. **Product image / physical markings** — identity narrowing  
 3. **Source dimensions / button metadata / import attributes** — narrowing only  
 4. **Legacy `products.specifications` JSONB** — narrowing / conflict detection only; **never** Fact authority  
 5. **Category / marketing title** — non-authority for identity or Facts
+
+Wave Fact scope is Definition-driven (sealed `wave.definition_id` → required memberships). Wave Evidence **sources** are manifest/policy-driven: each allowed Artifact is pinned in sealed `policy_json.evidence_artifacts` by `artifact_pk` + stable `artifact_id` + `checksum_sha256` (all three must match the DB row). Historical sealed Waves without that field keep Artifact-1 / 108A compatibility fallback; new Waves must pin sources explicitly before seal.
 
 ---
 
