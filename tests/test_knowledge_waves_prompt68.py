@@ -286,6 +286,13 @@ def _policy_json() -> dict[str, Any]:
             "resume_from_failed": True,
             "allow_partial_execute": False,
         },
+        "evidence_artifacts": [
+            {
+                "artifact_pk": 1,
+                "artifact_id": "insize-108a-catalogue-v1",
+                "checksum_sha256": OEM_SHA,
+            }
+        ],
     }
 
 

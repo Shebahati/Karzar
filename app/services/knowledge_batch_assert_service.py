@@ -33,6 +33,13 @@ from app.services import knowledge_evidence_service as evidence_service
 from app.services import knowledge_fact_service as fact_service
 from app.services import product_type_assignment_service as assignment_service
 from app.services.alembic_revision_compat import is_runtime_revision_compatible
+from app.services.knowledge_wave_evidence_artifact_contract import (
+    EvidenceArtifactContractError,
+    assert_db_matches_evidence_artifact_pins,
+    parse_evidence_artifact_pins,
+    raise_contract_as_validation,
+    resolve_wave_evidence_artifact_contract,
+)
 from app.services.knowledge_wave_fact_contract import (
     WaveFactContract,
     resolve_definition_fact_contract,
@@ -357,6 +364,7 @@ def _normalize_evidence_links(
     ordered_definition_ids: list[str],
     property_key_by_definition_id: dict[str, str],
     evidence_required_definition_ids: frozenset[str] | set[str] | None = None,
+    allowed_artifact_pks: frozenset[int] | set[int] | None = None,
 ) -> list[dict[str, Any]]:
     """Normalize Evidence links aligned to ordered Fact definition_ids.
 
@@ -365,6 +373,9 @@ def _normalize_evidence_links(
     ``ordered_definition_ids`` (None placeholder skipped — callers zip facts
     that need links separately). For Batch-1 / default Wave, pass all
     ordered ids as evidence-required.
+
+    ``allowed_artifact_pks``: Wave sealed Evidence Artifact allowlist. When
+    None, historical non-Wave Batch-1 requires Artifact DB id=1 only.
     """
     required_evidence = (
         set(evidence_required_definition_ids)
@@ -380,6 +391,13 @@ def _normalize_evidence_links(
             field="evidence_links",
         )
 
+    allowed_pks = (
+        frozenset(allowed_artifact_pks)
+        if allowed_artifact_pks is not None
+        else frozenset({REQUIRED_ARTIFACT_DB_ID})
+    )
+    wave_scoped = allowed_artifact_pks is not None
+
     allowed_props = {
         property_key_by_definition_id[d]
         for d in ordered_definition_ids
@@ -387,7 +405,14 @@ def _normalize_evidence_links(
     }
     by_prop: dict[str, dict[str, Any]] = {}
     for item in links:
-        if item.get("artifact_id") != REQUIRED_ARTIFACT_DB_ID:
+        artifact_pk = item.get("artifact_id")
+        if artifact_pk not in allowed_pks:
+            if wave_scoped:
+                _validation(
+                    "artifact_id must be a Wave-allowed Evidence Artifact pin "
+                    f"(allowed={sorted(allowed_pks)}; got={artifact_pk!r})",
+                    field="evidence_links.artifact_id",
+                )
             _validation(
                 "artifact_id must be 1 (reuse existing OEM catalogue Artifact)",
                 field="evidence_links.artifact_id",
@@ -523,6 +548,7 @@ async def execute_kb_batch_assert(
 
     # Resolve Fact contract: Wave = sealed Definition memberships; Batch-1 = triad.
     wave_contract: WaveFactContract | None = None
+    wave_artifact_pins = None
     if wave_context:
         require_evidence = wave_require_evidence_from_policy(
             {
@@ -540,6 +566,21 @@ async def execute_kb_batch_assert(
                 "resolved Fact contract definition_id mismatch",
                 field="definition_id",
             )
+        try:
+            if (
+                "evidence_artifacts" in wave_context
+                and wave_context.get("evidence_artifacts") is not None
+            ):
+                wave_artifact_pins = parse_evidence_artifact_pins(
+                    wave_context.get("evidence_artifacts")
+                )
+            else:
+                wave_artifact_pins = resolve_wave_evidence_artifact_contract(
+                    wave_context,
+                    allow_legacy_fallback=True,
+                )
+        except EvidenceArtifactContractError as exc:
+            raise_contract_as_validation(exc)
         required_def_ids = list(wave_contract.required_definition_ids)
         property_keys = wave_contract.property_key_by_definition_id
         evidence_required = frozenset(wave_contract.evidence_required_definition_ids)
@@ -549,6 +590,9 @@ async def execute_kb_batch_assert(
             ordered_definition_ids=required_def_ids,
             property_key_by_definition_id=property_keys,
             evidence_required_definition_ids=evidence_required,
+            allowed_artifact_pks=frozenset(
+                p.artifact_pk for p in wave_artifact_pins
+            ),
         )
     else:
         required_def_ids = list(FACT_DEFINITION_ORDER)
@@ -582,7 +626,10 @@ async def execute_kb_batch_assert(
         definition_id=definition_id,
         require_gen_caliper_literals=wave_context is None,
     )
-    await _assert_artifact(db)
+    if wave_artifact_pins is not None:
+        await assert_db_matches_evidence_artifact_pins(db, wave_artifact_pins)
+    else:
+        await _assert_artifact(db)
 
     expected_set = frozenset(required_def_ids)
     existing_facts = (

@@ -29,6 +29,13 @@ from app.db.models.product_type import ProductType, ProductTypeDefinition
 from app.db.models.user import User
 from app.services import knowledge_batch_assert_service as batch_service
 from app.services.audit_service import record_audit
+from app.services.knowledge_wave_evidence_artifact_contract import (
+    EvidenceArtifactContractError,
+    WaveEvidenceArtifactPin,
+    assert_db_matches_evidence_artifact_pins,
+    pin_lookup_by_pk,
+    resolve_wave_evidence_artifact_contract,
+)
 from app.services.knowledge_wave_fact_contract import (
     resolve_definition_fact_contract,
     wave_require_evidence_from_policy,
@@ -192,6 +199,27 @@ async def collect_evidence_validation_issues(
         else:
             issues.append(_issue("environment_pins", "environment gate failed"))
 
+    artifact_pin_by_pk: dict[int, WaveEvidenceArtifactPin] = {}
+    try:
+        evidence_pins = resolve_wave_evidence_artifact_contract(
+            policy,
+            allow_legacy_fallback=True,
+        )
+        artifact_pin_by_pk = pin_lookup_by_pk(evidence_pins)
+        await assert_db_matches_evidence_artifact_pins(db, evidence_pins)
+    except EvidenceArtifactContractError as exc:
+        issues.append(_issue(exc.field, exc.message))
+    except HTTPException as exc:
+        if isinstance(exc.detail, dict):
+            msg = str(exc.detail.get("message") or "evidence artifact pin failed")
+            field = "evidence_artifacts"
+            details = exc.detail.get("details") or []
+            if details and isinstance(details[0], dict) and details[0].get("field"):
+                field = str(details[0]["field"])
+            issues.append(_issue(field, msg))
+        else:
+            issues.append(_issue("evidence_artifacts", "evidence artifact pin failed"))
+
     # Latest completed assert run for this wave
     run = (
         await db.execute(
@@ -335,12 +363,30 @@ async def collect_evidence_validation_issues(
                         )
                     )
                     continue
+                pin = artifact_pin_by_pk.get(int(artifact.id))
+                if pin is None:
+                    issues.append(
+                        _issue(
+                            "artifact",
+                            f"artifact pk={artifact.id} not in Wave evidence_artifacts "
+                            f"allowlist (allowed={sorted(artifact_pin_by_pk)})",
+                        )
+                    )
+                    continue
+                if (artifact.artifact_id or "") != pin.artifact_id:
+                    issues.append(
+                        _issue(
+                            "artifact.artifact_id",
+                            f"artifact pk={artifact.id} stable artifact_id mismatch "
+                            f"(pinned={pin.artifact_id!r}, db={artifact.artifact_id!r})",
+                        )
+                    )
                 checksum = (artifact.checksum_sha256 or "").lower()
-                if checksum != batch_service.REQUIRED_ARTIFACT_CHECKSUM:
+                if checksum != pin.checksum_sha256:
                     issues.append(
                         _issue(
                             "artifact.checksum_sha256",
-                            f"artifact pk={artifact.id} checksum mismatch",
+                            f"artifact pk={artifact.id} checksum mismatch vs sealed pin",
                         )
                     )
                 locator = link.locator if isinstance(link.locator, dict) else None

@@ -18,6 +18,9 @@ from app.db.models.product import Product
 from app.db.models.product_type import ProductType, ProductTypeDefinition
 from app.db.models.user import User
 from app.services.audit_service import record_audit
+from app.services.knowledge_wave_evidence_artifact_contract import (
+    collect_wave_evidence_artifact_preseal_issues,
+)
 from app.services.knowledge_wave_lifecycle import (
     WAVE_STATUS_ABORTED,
     WAVE_STATUS_ASSERTED,
@@ -541,6 +544,11 @@ async def _collect_validation_issues(
                         "severity": "warning",
                     }
                 )
+
+    if tier == "pre_seal" and _policy_is_valid(wave.policy_json):
+        issues.extend(
+            await collect_wave_evidence_artifact_preseal_issues(db, wave.policy_json)
+        )
 
     if tier == "execution_readiness":
         if wave.status not in (

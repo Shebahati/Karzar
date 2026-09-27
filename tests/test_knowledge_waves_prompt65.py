@@ -118,6 +118,10 @@ def _create_product(admin_headers, valid_product_data, sku="WAVE65-SKU-1"):
     return resp.json()
 
 
+# Seal/validate tests here are lifecycle mechanics — not Evidence ingestion.
+# Explicitly disable Evidence requirement so pre-seal does not demand Artifact pins.
+_SEAL_POLICY = {"plane": "test", "b": 2, "a": 1, "require_evidence": False}
+
 def _seed_wave_deps(admin_headers, valid_product_data, *, sku="WAVE65-SKU-1", code="WAVE_PT65"):
     product = _create_product(admin_headers, valid_product_data, sku=sku)
 
@@ -146,7 +150,7 @@ def _create_reviewed_wave(admin_headers, valid_product_data, *, wave_id, sku, co
             "brand": "INSIZE",
             "product_type_id": pt_id,
             "definition_id": def_id,
-            "policy_json": {"plane": "test", "b": 2, "a": 1},
+            "policy_json": _SEAL_POLICY,
             "products": [{"product_id": product_id, "sku_snapshot": sku_val}],
         },
         headers=admin_headers,
@@ -246,7 +250,7 @@ def test_manifest_sha_deterministic_same_payload(admin_headers, valid_product_da
         brand="INSIZE",
         product_type=_PT(ctx["pt_id"], ctx["pt_code"]),
         definition=_Def(ctx["def_id"], ctx["def_version"]),
-        policy_json={"plane": "test", "b": 2, "a": 1},
+        policy_json=_SEAL_POLICY,
         products=[_Prod(ctx["product_id"], ctx["sku"])],
     )
     # Same logical payload with different key insertion order
@@ -255,7 +259,7 @@ def test_manifest_sha_deterministic_same_payload(admin_headers, valid_product_da
         brand="INSIZE",
         product_type=_PT(ctx["pt_id"], ctx["pt_code"]),
         definition=_Def(ctx["def_id"], ctx["def_version"]),
-        policy_json={"a": 1, "b": 2, "plane": "test"},
+        policy_json={"a": 1, "b": 2, "plane": "test", "require_evidence": False},
         products=[_Prod(ctx["product_id"], ctx["sku"])],
     )
     sha_a = compute_manifest_sha256(payload_a)
@@ -329,6 +333,7 @@ def test_validate_endpoint_tiers(admin_headers, valid_product_data):
             "brand": "INSIZE",
             "product_type_id": pt_id,
             "definition_id": def_id,
+            "policy_json": {"require_evidence": False},
             "products": [{"product_id": product_id, "sku_snapshot": sku}],
         },
         headers=admin_headers,
