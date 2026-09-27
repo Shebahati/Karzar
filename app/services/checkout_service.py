@@ -136,15 +136,20 @@ async def submit_checkout(
                 "کد شهر مقصد برای ارسال الزامی است.",
                 error_code="SHIPPING_QUOTE_MISMATCH",
             )
+        # Reject incomplete sender-prepaid requests before any Postex I/O so
+        # structurally invalid checkouts do not depend on provider availability.
+        if (
+            shipping_payment_mode != ShippingPaymentMode.RECEIVER_DUE
+            and not payload.shipping_quote_token
+        ):
+            raise LogisticsError(
+                "انتخاب سرویس ارسال الزامی است.",
+                error_code="SHIPPING_QUOTE_REQUIRED",
+            )
         await validate_postex_destination_location_code(payload.shipping.location_code)
         if shipping_payment_mode == ShippingPaymentMode.RECEIVER_DUE:
             shipping_cost = Decimal("0")
         else:
-            if not payload.shipping_quote_token:
-                raise LogisticsError(
-                    "انتخاب سرویس ارسال الزامی است.",
-                    error_code="SHIPPING_QUOTE_REQUIRED",
-                )
             shipping_quote = await consume_quote(
                 db,
                 token=payload.shipping_quote_token,
