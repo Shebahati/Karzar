@@ -49,20 +49,26 @@ For each entity: Definition · Purpose · Cardinality · Identity · Parent · N
 | **Create when** | New long-lived industrial pillar with distinct stewardship + families. |
 | **NOT create when** | Temporary campaign, brand, single family, or property cluster. |
 
-**Domain candidates (Phase 1A):**
+**Target Domains for Phase 1B (Steward freeze 2026-09-27):**
+
+| # | Domain (EN) | Domain (FA) | Status |
+|---|-------------|-------------|--------|
+| 1 | Metrology & Inspection | اندازه‌گیری و بازرسی | RECOMMENDED — frozen target |
+| 2 | Cutting Tools | ابزارهای برشی | RECOMMENDED — frozen target |
+| 3 | Toolholding | ابزارگیر | RECOMMENDED — frozen target |
+| 4 | Workholding & Fixturing | گیرش قطعه و فیکسچر | RECOMMENDED — frozen target |
+| 5 | Industrial Machines & Equipment | ماشین‌آلات و تجهیزات صنعتی | RECOMMENDED — frozen target |
+| 6 | Thread Repair & Thread Inserts | تعمیر رزوه و اینسرت‌های رزوه | RECOMMENDED — frozen target |
+| 7 | Metalworking Fluids & Lubricants | سیالات فلزکاری و روانکارها | RECOMMENDED — frozen target |
 
 | Candidate | Status | Reason |
 |-----------|--------|--------|
-| Metrology & Inspection | RECOMMENDED | Flagship; dense assortment; Accepted SPEC examples |
-| Cutting Tools | RECOMMENDED | Inserts, solid tools, drills — ISO 13399-relevant |
-| Toolholding | RECOMMENDED | Adaptive/tool items distinct from workholding |
-| Workholding & Fixturing | RECOMMENDED | Vises, chucks, clamps — distinct force application |
-| Industrial Machines & Equipment | RECOMMENDED | Devices vs consumable tools |
-| Fastening & Thread Repair | RECOMMENDED | Wire thread inserts / repair systems |
-| Metalworking Fluids & Lubrication | PLAUSIBLE | Small assortment today; keep if assortment grows |
-| Workshop / Hand Tools | PLAUSIBLE | Catch-all risk; tighten before freeze |
+| Workshop / Hand Tools (ابزارهای کارگاهی و دستی) | **REJECTED — OWNER SCOPE DECISION** (`TX-OWNER-001`) | Outside Karzar catalog scope; no target Domain/L1; no replacement catch-all |
 | Holding & Fixturing (merge tool+work) | REJECTED as Domain merge | Distinct engineering concerns; may share megamenu |
 | Brand domains | REJECTED | Brand ≠ Domain |
+| General Tools / Miscellaneous / سایر / ابزار عمومی | **REJECTED** | Forbidden replacement catch-alls (`TX-OWNER-001`) |
+
+**Owner scope rule (`TX-OWNER-001`):** Products/categories whose genuine semantic scope is Workshop Tools, Hand Tools, General Hand Tools, or Woodworking Tools → Category `DEPRECATE/REMOVE`, Product `CATALOG_EXIT`. Rehome forbidden by default. Do **not** confuse legitimate industrial accessories (toolholding/workholding/cutting/metrology/thread repair/fluids/machines) with workshop/hand tools — analyze descendants/products, not only parent names.
 
 ### 1.2 Product Family
 
@@ -97,24 +103,32 @@ Family does **not** own Product Type Definitions; Product Type does.
 
 ### 1.3 Knowledge Category
 
-**CONSTITUTIONAL AMENDMENT PROPOSAL**
+**STEWARD-APPROVED AMENDMENT (2026-09-27)**
 
-Accepted SPEC describes:
+Accepted SPEC currently describes:
 
 ```text
 Domain → Family → Knowledge Category → Product Type
 ```
 
-Phase 1A finds **no compelling use case** that cannot be represented by **nested Family** + Product Type.
+**Normative target hierarchy (Steward-approved):**
+
+```text
+Domain
+→ Family
+→ optional nested Family
+→ Product Type
+```
+
+`Knowledge Category` is **NOT** a mandatory hierarchy level. It MUST NOT be required for classification completeness.
 
 | Field | Rule |
 |-------|------|
-| **Definition (legacy)** | Intermediate node between Family and Product Type. |
-| **Purpose claimed** | Extra grouping layer. |
-| **Verdict** | **Not mandatory.** Prefer `Domain → Family(+nest) → Product Type`. |
-| **If retained** | Optional organizational label only; MUST NOT be required for classification completeness. |
+| **Definition (legacy/optional)** | Intermediate organizational node between Family and Product Type. |
+| **Verdict** | **Not mandatory** — Steward-approved. Prefer nested Family. |
+| **If retained** | Optional organizational concept only if a future use case genuinely requires it. |
 
-See `11-PHASE-1A-DECISIONS.md` D8.
+Accepted SPEC text is **not** edited in place here; formal Board amendment of the Accepted document remains pending. See `11-PHASE-1A-DECISIONS.md` D8.
 
 ### 1.4 Product Type
 
@@ -123,7 +137,7 @@ See `11-PHASE-1A-DECISIONS.md` D8.
 | **Definition** | The engineering class answering: **What fundamentally IS this product?** Shares a core property schema and working principle. |
 | **Purpose** | Primary engineering classification; owns versioned Definition (attribute membership, requiredness, validation). |
 | **Cardinality** | Product: **exactly 0 or 1** primary (`products.product_type_id`). Unassigned allowed during migration. |
-| **Identity** | Published immutable `code` (e.g. `GEN_CALIPER`) + DB surrogate; future opaque UUID optional. Prefix convention `KZ.PT.` for new codes. |
+| **Identity** | Published immutable `code` (e.g. `GEN_CALIPER` / `KZ.PT.*`) + internal DB surrogate (`id`). Opaque UUID/ULID is a **future optional** enhancement — **not** required for Phase 1B or initial Commerce migration. |
 | **Parent** | Knowledge membership under Family (bridge), not Commerce Category parent. |
 | **Naming** | Singular engineering class; no brand; no stuffed synonyms; no material/interface-only names. |
 | **Examples** | General-purpose Caliper; Outside Micrometer; Turning Insert; Square End Mill; Indexable Drill; Machine Vise; Wire Thread Insert. |

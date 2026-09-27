@@ -2,10 +2,11 @@
 
 **Status:** Design (Proposed) — not Accepted Canon  
 **Phase:** 1A — Scientific Taxonomy Constitution + Stable Identity Contract  
+**Steward review:** **APPROVED WITH AMENDMENTS** (2026-09-27) — see `13-STEWARD-DECISION-TX-OWNER-001.md`  
 **Date:** 2026-09-27  
 **Safety:** READ-ONLY against Production; no catalog/taxonomy APPLY; no deploy  
 
-This pack **defines the law** for future taxonomy work. It does **not** disposition all 138 live Commerce Categories (that is Phase 1B).
+This pack **defines the law** for future taxonomy work. It does **not** disposition all 138 live Commerce Categories (that is Phase 1B). Accepted SPECs/ADRs are **not** edited in place; Steward-approved amendments are recorded here as Proposed until Board formalization.
 
 ## Authoritative inputs
 
@@ -33,6 +34,7 @@ This pack **defines the law** for future taxonomy work. It does **not** disposit
 | `10-ARCHITECTURE-GAP-MATRIX.csv` | Support status per constitutional rule |
 | `11-PHASE-1A-DECISIONS.md` | D1–D15 + proposed amendments |
 | `12-PHASE-1B-ENTRY-GATE.md` | Gate before 138-category disposition |
+| `13-STEWARD-DECISION-TX-OWNER-001.md` | Owner scope: Workshop/Hand Tools removed |
 | `taxonomy-constitution-v1.yaml` | Machine-readable constitution |
 
 ## Non-goals (Phase 1A)
@@ -46,4 +48,4 @@ This pack **defines the law** for future taxonomy work. It does **not** disposit
 
 1. Start with `01-TAXONOMY-CONSTITUTION-V1.md` and `11-PHASE-1A-DECISIONS.md`.
 2. Apply tests from `02` / `03` to any disputed concept.
-3. Do **not** start Phase 1B until Steward review of this pack.
+3. Steward review of Phase 1A is **APPROVED WITH AMENDMENTS** — Phase 1B design drafting may begin when explicitly authorized; do **not** auto-start Phase 1B; do **not** Production APPLY.

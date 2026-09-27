@@ -1,29 +1,49 @@
 # Stable Identity Contract
 
-**Status:** Proposed design (Phase 1A)  
+**Status:** Proposed design (Phase 1A) — Steward sequencing approved 2026-09-27  
 **Phase 0B fact:** Commerce Category `STABLE_SEMANTIC_ID = MISSING`; Product Type `code`, Knowledge `node_id`, Property `definition_id` exist.
 
 ---
 
-## 1. Chosen model — Hybrid
+## 1. Chosen model — Hybrid (Wave 1)
 
-**Decision (D10):** Karzar SHALL use a **hybrid** identity model:
+**Decision (D10) + Steward sequencing (Gate 8 APPROVED FOR THIS SEQUENCING):**
 
 | Layer | Role | Mutability |
 |-------|------|------------|
-| **Opaque identity** | True immutable surrogate (UUID/ULID preferred; integer PK acceptable only as *internal* surrogate, never as semantic import key) | Immutable; never reused |
-| **Published code** | Human-auditable stable handle (`KZ.PT.GEN_CALIPER`, `GEN_CALIPER`, `dom.measurement`) | **Immutable after publication**; wrong codes → deprecate + replace, never rename-in-place |
+| **Internal DB surrogate** | Runtime row identity (`categories.id`, `product_types.id`, …) | Immutable as PK; never used as semantic import key |
+| **Published code** | Immutable published semantic identity (`KZ.CAT.*`, `KZ.PT.*` / grandfathered `GEN_CALIPER`, …) | **Immutable after publication**; wrong codes → deprecate + replace, never rename-in-place |
 | **Labels** (`name_fa`/`name_en`) | Display | Mutable |
 | **Slug** | URL convenience | Mutable with redirect; **not** identity |
 | **Parent path** | Hierarchy | Mutable; **not** identity |
 
+### Wave 1 (required for Commerce migration)
+
+```text
+categories.id
+= internal DB surrogate
+
+categories.code / KZ.CAT.*
+= immutable published semantic identity
+```
+
+`KZ.CAT.*` is the **required** immutable published semantic identity for Commerce Categories.
+
+### Future optional enhancement
+
+```text
+opaque UUID/ULID
+```
+
+may later become a deeper immutable object identity if justified. It is **NOT** required before Phase 1B or the initial Commerce taxonomy migration. Do **not** treat UUID/ULID introduction as a Phase 1B prerequisite.
+
 **Rationale:**
 
 - ECLASS IRDI and ETIM EC/EF codes prove language-independent published IDs work in industry (**STANDARD-BACKED** principles).
-- Opaque UUID alone harms ops/import review; semantic-only codes risk collisions without registry discipline.
-- Hybrid matches as-built direction (`product_types.code`, `node_id`, `definition_id`) while closing the Commerce gap.
+- Wave-1 published codes close the Commerce semantic gap without blocking design/migration on UUID schema work.
+- Hybrid matches as-built direction (`product_types.code`, `node_id`, `definition_id`).
 
-**KARZAR-GOVERNANCE-DECISION:** Until UUID columns exist, treat published **codes** as the external stable identity; integer PKs remain internal only.
+**KARZAR-GOVERNANCE-DECISION:** Treat published **codes** (`KZ.CAT.*` / `KZ.PT.*`) as the external stable semantic identity; integer PKs remain internal only.
 
 ---
 
@@ -44,9 +64,32 @@
 
 ---
 
-## 3. Commerce Category identity gap
+## 3. Commerce Category identity — approved sequencing
 
-**Required later (schema):** `categories.code` UNIQUE NOT NULL (after backfill) — `KZ.CAT.*`.
+**Do NOT implement schema in Phase 1A / 1A.1.**
+
+Required sequencing (Steward-approved):
+
+```text
+Phase 1B
+Design KZ.CAT.* for all live target categories
+        ↓
+Freeze Current → Target mapping manifest
+        ↓
+Later schema migration:
+categories.code nullable + UNIQUE
+        ↓
+Backfill codes
+        ↓
+Validate completeness / uniqueness
+        ↓
+Make code mandatory for active categories
+        ↓
+Refactor importers:
+semantic code → runtime DB id
+        ↓
+CI forbids new bare numeric category semantic dependencies
+```
 
 **Until then:**
 
@@ -89,7 +132,7 @@
 ## 6. External crosswalk fields (design)
 
 ```text
-karzar_concept_id   # published code or opaque id
+karzar_concept_id   # published code (Wave 1) or opaque id (future optional)
 scheme              # ECLASS | ETIM | ISO13399 | OEM | OTHER
 scheme_version
 external_identifier

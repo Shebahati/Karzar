@@ -1,7 +1,9 @@
 # Phase 1A Decisions (D1–D15)
 
-**Status:** Proposed — awaiting Steward / Board review  
-**Date:** 2026-09-27
+**Status:** Steward review **APPROVED WITH AMENDMENTS** (2026-09-27)  
+**Date:** 2026-09-27  
+**Owner decision:** `13-STEWARD-DECISION-TX-OWNER-001.md` (`TX-OWNER-001`)  
+**Note:** Accepted architecture SPECs/ADRs are **not** edited in place; amendments below remain Proposed for Board formalization.
 
 ---
 
@@ -55,7 +57,8 @@ Commerce leaves MAY remain short-term (`KEEP_AS_CATEGORY` / prefer facet later).
 ## D6. When does geometry justify a new Product Type?
 
 **Answer:** When geometry changes **working principle or engagement identity** and breaks a shared required schema (e.g. Square vs Ball Nose End Mill; Blade vs General Caliper).  
-Mere size/tolerance/corner radius usually Property.
+Mere size/tolerance/corner radius usually Property.  
+Syntactic `property=value` alone does **not** force SAME_PRODUCT_TYPE — see PTST-1 “merely” guard.
 
 **Class:** ENGINEERING-INFERENCE + OEM-BACKED
 
@@ -72,17 +75,27 @@ Mere size/tolerance/corner radius usually Property.
 
 ## D8. Is Knowledge Category necessary?
 
-**Answer:** **No — not mandatory.**
+**Answer:** **No — not mandatory.** **STEWARD-APPROVED** (2026-09-27). Gate 7 = **APPROVED**.
 
-### PROPOSED AMENDMENT (Accepted SPEC-industrial-taxonomy-model)
+### STEWARD-APPROVED AMENDMENT (Accepted SPEC-industrial-taxonomy-model — formal Board edit pending)
 
 ```text
-CONSTITUTIONAL AMENDMENT PROPOSAL:
-Knowledge Category should not be a mandatory level.
-Prefer: Domain → Family (nestable) → Product Type.
+Knowledge Category is NOT a mandatory hierarchy level.
+
+Target scientific hierarchy:
+Domain
+→ Family
+→ optional nested Family
+→ Product Type
+
+Domain → Family → Knowledge Category → Product Type
+must NOT be required.
+
+Knowledge Category MAY remain available as an optional organizational
+concept if a future use case genuinely requires it.
 ```
 
-Do not alter runtime schema in Phase 1A.
+Do not alter runtime schema in Phase 1A. Do not mark Accepted SPECs amended in place yet.
 
 ---
 
@@ -100,9 +113,22 @@ Clarify SPEC §3.5 examples so material/interface are **Property-first**, with T
 
 ## D10. Immutable identifier model?
 
-**Answer:** **Hybrid** — opaque internal id + immutable published code (`KZ.*` / grandfathered `GEN_CALIPER`).  
+**Answer:** **Hybrid Wave 1** — internal DB surrogate (`id`) + immutable published code (`KZ.*` / grandfathered `GEN_CALIPER`).  
 Labels/slugs/paths are not identity.  
-Commerce requires new `category_code` (**SCHEMA_EXTENSION_REQUIRED**).
+Commerce requires `categories.code` / `KZ.CAT.*` (**SCHEMA_EXTENSION_REQUIRED** — later; not a Phase 1B blocker for design).
+
+**Steward sequencing (Gate 8 = APPROVED FOR THIS SEQUENCING):**
+
+```text
+Phase 1B design KZ.CAT.* for live target categories
+→ Freeze Current → Target mapping manifest
+→ Later schema: categories.code nullable + UNIQUE
+→ Backfill → validate → make mandatory for active
+→ Importers: semantic code → runtime DB id
+→ CI forbids new bare numeric category semantic dependencies
+```
+
+Opaque UUID/ULID is a **future optional** enhancement — **not** required before Phase 1B or initial Commerce migration.
 
 ---
 
@@ -115,7 +141,7 @@ Commerce MAY project Property distinctions without creating Types (CCT-1).
 
 ## D12. HELICOIL terminology?
 
-**Answer:**
+**Answer:** **Unchanged.**
 
 ```text
 Preferred EN: Wire Thread Insert (Thread Repair Insert)
@@ -124,7 +150,7 @@ Synonyms: هلی‌کویل, Helicoil, HELICOIL (trade)
 Brand association: Böllhoff (when applicable)
 ```
 
-Components (spring / tap / kit) are related Types + relationships — not Domains.
+HELICOIL is not the generic scientific concept. Components (spring / tap / kit) are related Types + relationships — not Domains.
 
 ---
 
@@ -158,17 +184,49 @@ No production reassignment in 1A.
 
 ## D15. Is current Proposed Master Seed still valid?
 
-**Answer:** **No as-is.** Requires amendment (see `08-MASTER-SEED-REVIEW.md`) before any load.
+**Answer:** **No as-is.** Requires amendment (see `08-MASTER-SEED-REVIEW.md`) before any load.  
+Any Workshop / Hand Tools Domain proposal is **REJECTED** (`TX-OWNER-001`). Concepts mapping solely to that scope → `OUT_OF_SCOPE`.
+
+---
+
+## D16. Owner scope — Workshop / Hand Tools (`TX-OWNER-001`)
+
+**Answer:** **REJECTED — OWNER SCOPE DECISION.**
+
+```text
+Workshop & Hand Tools is outside Karzar target scope.
+No target Domain or Commerce L1.
+No replacement catch-all (General Tools / Workshop Tools / Miscellaneous / سایر / …).
+Scoped categories → DEPRECATE/REMOVE candidates.
+Products genuinely in scope → CATALOG_EXIT.
+Rehome forbidden by default.
+Accessories under broad parents must be decomposed by product meaning — not mass-deleted.
+```
+
+**Approved by:** Owner / Taxonomy Steward · **Date:** 2026-09-27  
+**APPLY:** Forbidden in Phase 1A.1 — Phase 1B manifests first; later deletion needs explicit APPLY authorization.
+
+---
+
+## Target Domains after Owner decision (Phase 1B)
+
+1. Metrology & Inspection — اندازه‌گیری و بازرسی  
+2. Cutting Tools — ابزارهای برشی  
+3. Toolholding — ابزارگیر  
+4. Workholding & Fixturing — گیرش قطعه و فیکسچر  
+5. Industrial Machines & Equipment — ماشین‌آلات و تجهیزات صنعتی  
+6. Thread Repair & Thread Inserts — تعمیر رزوه و اینسرت‌های رزوه  
+7. Metalworking Fluids & Lubricants — سیالات فلزکاری و روانکارها  
 
 ---
 
 ## Proposed amendments to Accepted documents
 
-| Target | Amendment |
-|--------|-----------|
-| SPEC-industrial-taxonomy-model | Knowledge Category not mandatory; Technical Class Property-first clarification |
-| SPEC-industrial-taxonomy-master-seed | Rewrite caliper/drill/holder type rows (Proposed doc — edit after Board) |
-| None applied in-place in Phase 1A | Record only |
+| Target | Amendment | Steward status |
+|--------|-----------|----------------|
+| SPEC-industrial-taxonomy-model | Knowledge Category not mandatory; Technical Class Property-first clarification | Steward-approved for KC; Board formalization pending |
+| SPEC-industrial-taxonomy-master-seed | Rewrite caliper/drill/holder type rows; mark Workshop/Hand/`dom.power` OUT_OF_SCOPE | Proposed doc — edit after Board |
+| None applied in-place in Phase 1A / 1A.1 | Record only | — |
 
 ---
 

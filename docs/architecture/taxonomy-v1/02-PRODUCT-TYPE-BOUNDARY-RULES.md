@@ -42,15 +42,40 @@ Apply **in order**. Stop at first decisive terminal rule.
 | Q4 | Geometry difference **defines identity** (not size/tolerance)? | Continue | — |
 | Q5 | Authoritative technical standard treats as different classes/types? | Strong NEW signal | — |
 | Q6 | Combining makes required properties meaningless or heavily conditional? | Strong NEW signal | — |
-| Q7 | Distinction is merely a **value of an existing Property**? | **SAME_PRODUCT_TYPE** (terminal) | — |
-| Q8 | Distinction is merely **Application/context**? | **SAME_PRODUCT_TYPE** (terminal) | — |
-| Q9 | Distinction is merely **interface/compatibility size or standard family** without holding-principle change? | Prefer Property/TechClass; usually **SAME** holder PT | — |
-| Q10 | Distinction is marketing / brand / series / trade vocabulary? | **SAME_PRODUCT_TYPE** (terminal) | — |
+| Q7 | Distinction is **merely** a **value of an existing Property**? | **SAME_PRODUCT_TYPE** (terminal) | — |
+| Q8 | Distinction is **merely** **Application/context**? | **SAME_PRODUCT_TYPE** (terminal) | — |
+| Q9 | Distinction is **merely** **interface/compatibility size or standard family** without holding-principle change? | Prefer Property/TechClass; usually **SAME** holder PT | — |
+| Q10 | Distinction is **merely** marketing / brand / series / trade vocabulary? | **SAME_PRODUCT_TYPE** (terminal) | — |
+
+### Normative guard on “merely” (Q7–Q10)
+
+The word **merely** is normative. Q7–Q10 are terminal `SAME_PRODUCT_TYPE` rules **only** where the distinction is **merely** that dimension and does **not** independently satisfy the identity-changing conditions in Q1–Q6.
+
+A concept is **NOT** automatically reduced to a Property merely because it can syntactically be expressed as `property=value`.
+
+**Counterexample (do not misapply Q7):**
+
+```text
+end_geometry = ball_nose
+```
+
+does **NOT** automatically prove:
+
+```text
+Square End Mill = Ball Nose End Mill
+```
+
+because end geometry may define engagement identity, working geometry, required schema, and engineering function (Q1/Q3/Q4/Q6) — justifying distinct Product Types (see PBT-1).
+
+**Agent anti-misapplication rule:** Never short-circuit to Q7–Q10 before evaluating whether Q1–Q6 already establish a material identity change. Syntactic expressibility as `property=value` is insufficient by itself.
 
 ### Deterministic decision rule
 
 ```text
-IF Q7 OR Q8 OR Q10 = YES → SAME_PRODUCT_TYPE
+IF (Q7 OR Q8 OR Q10) = YES
+   AND the distinction does NOT independently satisfy identity-changing
+       conditions in Q1–Q6
+   → SAME_PRODUCT_TYPE
 ELSE IF Q9 = YES AND Q1–Q4 all NO → SAME_PRODUCT_TYPE
    (represent as Property / Compatibility / Technical Class)
 ELSE IF (Q1 OR Q2) AND (Q3 OR Q6) → NEW_PRODUCT_TYPE

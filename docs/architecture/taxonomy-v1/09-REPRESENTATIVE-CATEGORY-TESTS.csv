@@ -20,8 +20,13 @@ category_id,category_name,live_direct,visible,cct1,ptst_or_pbt_summary,suggested
 168,اینسرت فرز CNC,213,66,KEEP_AS_CATEGORY,PT Milling Insert,PT Milling Insert,CUTTING,PT Milling Insert
 170,اینسرت شیار و برش,29,0,KEEP_AS_CATEGORY,PT Grooving/Parting Insert,PT Grooving/Parting Insert,CUTTING,PT Grooving/Parting Insert
 172,اینسرت رزوه‌زنی,98,0,KEEP_AS_CATEGORY,PT Threading Insert,PT Threading Insert,CUTTING,PT Threading Insert
-186,فنر هلی کویل,0,0,KEEP_AS_CATEGORY,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B,PT Wire Thread Insert,FASTENING,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B
-187,قلاویز هلی کویل,0,0,KEEP_AS_CATEGORY,Related tool Type + REQUIRES wire insert system,Related tool Type + REQUIRES wire insert system,FASTENING,Related tool Type + REQUIRES wire insert system
-188,کیت کامل هلی کویل,0,0,KEEP_AS_CATEGORY,Kit/PART_OF system; not Domain,Kit/PART_OF system,FASTENING,Kit/PART_OF system; not Domain
-158,ابزار دستی عمومی,196,0,BETTER_AS_FACET,Catch-all; CCT-1 weak; rehome products,Catch-all,WORKSHOP,Catch-all; CCT-1 weak; rehome products
-154,لوازم جانبی صنعتی,0,0,KEEP_AS_CATEGORY,Accessory bucket L1; tighten children; lubricants alias drift,Accessory bucket L1,ACCESSORY,Accessory bucket L1; tighten children; lubricants alias drift
+186,فنر هلی کویل,0,0,KEEP_AS_CATEGORY,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B,PT Wire Thread Insert,THREAD_REPAIR,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B
+187,قلاویز هلی کویل,0,0,KEEP_AS_CATEGORY,Related tool Type + REQUIRES wire insert system,Related tool Type + REQUIRES wire insert system,THREAD_REPAIR,Related tool Type + REQUIRES wire insert system
+188,کیت کامل هلی کویل,0,0,KEEP_AS_CATEGORY,Kit/PART_OF system; not Domain,Kit/PART_OF system,THREAD_REPAIR,Kit/PART_OF system; not Domain
+154,لوازم جانبی صنعتی,0,0,KEEP_AS_CATEGORY,DECOMPOSE in 1B — not mass-delete; fluids/hand/wood children diverge; accessories ≠ workshop tools,Decompose by product meaning,MIXED_ACCESSORY_PARENT,"OWNER note: current bad parent ≠ automatic product deletion; analyze descendants (155/156 fluids OK→FLUIDS; 157/158 hand OUT; 159/160 wood OUT)"
+155,روغن و روانکار,0,0,KEEP_AS_CATEGORY,Parent hub under 154; map to Metalworking Fluids Domain,Metalworking Fluids hub,FLUIDS,In-scope industrial fluids — not workshop tools
+156,روغن صنعتی,27,0,KEEP_AS_CATEGORY,PT/Family under Metalworking Fluids & Lubricants,Industrial oil / lubricant PT,FLUIDS,In-scope; keep under Fluids domain target
+157,ابزار دستی,0,0,DEPRECATE_REMOVE,OWNER_SCOPE TX-OWNER-001 Hand Tools parent; 196 descendants via 158,N/A — CATALOG_EXIT products,REJECTED_WORKSHOP,"TARGET_CATEGORY_DISPOSITION=REMOVE/DEPRECATE; PRODUCT_DISPOSITION=CATALOG_EXIT; OWNER_SCOPE_DECISION=YES; rehome forbidden"
+158,ابزار دستی عمومی,196,0,DEPRECATE_REMOVE,OWNER_SCOPE TX-OWNER-001 General Hand Tools; not BETTER_AS_FACET; no rehome,N/A — CATALOG_EXIT products,REJECTED_WORKSHOP,"TARGET_CATEGORY_DISPOSITION=REMOVE/DEPRECATE; PRODUCT_DISPOSITION=CATALOG_EXIT; OWNER_SCOPE_DECISION=YES; rehome forbidden; replacement catch-all forbidden"
+159,ابزار چوبی,0,0,DEPRECATE_REMOVE,OWNER_SCOPE TX-OWNER-001 Woodworking Tools parent; 66 descendants via 160,N/A — CATALOG_EXIT products,REJECTED_WORKSHOP,"TARGET_CATEGORY_DISPOSITION=REMOVE/DEPRECATE; PRODUCT_DISPOSITION=CATALOG_EXIT; OWNER_SCOPE_DECISION=YES; rehome forbidden"
+160,ابزار آلات چوبی,66,0,DEPRECATE_REMOVE,OWNER_SCOPE TX-OWNER-001 Woodworking tools leaf,N/A — CATALOG_EXIT products,REJECTED_WORKSHOP,"TARGET_CATEGORY_DISPOSITION=REMOVE/DEPRECATE; PRODUCT_DISPOSITION=CATALOG_EXIT; OWNER_SCOPE_DECISION=YES; rehome forbidden"

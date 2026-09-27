@@ -33,9 +33,11 @@ Commerce **MAY** expose buyer-useful distinctions that are **Properties** at the
 2. No cycles; unique `(parent_id, name)`.
 3. Every Category MUST have immutable `category_code` once schema lands (Phase later).
 4. Imports MUST map via `category_code` or stewarded mapping table — **not** bare integer PK (governance; schema later).
-5. Catch-all leaves («عمومی») are debt; CCT-1 → prefer remove after reassignment.
+5. Catch-all leaves («عمومی») are debt; CCT-1 → prefer remove after reassignment **except** where Owner scope (`TX-OWNER-001`) mandates `DEPRECATE/REMOVE` + product `CATALOG_EXIT` (no rehome).
 6. Megamenu groups L1 roots only; does not invent ontology.
 7. Renames/moves require redirect impact review (`CATEGORY_SLUG_REDIRECTS` / SEO Reviewer).
+8. Workshop / Hand Tools / Woodworking scope is **out of catalog** (`TX-OWNER-001`) — no target Domain/L1; no replacement catch-all.
+9. Parent Category name alone ≠ product deletion: decompose accessories (e.g. لوازم جانبی صنعتی) by descendant/product meaning.
 
 ---
 
@@ -62,7 +64,17 @@ Evaluate candidate Category C:
 | `BETTER_AS_PRODUCT_TYPE` | Distinction is engineering identity (rare for Category-only proposals) |
 | `BETTER_AS_APPLICATION` | Use-context tag |
 | `BETTER_AS_SYNONYM` | Alias of another Category/Type |
+| `DEPRECATE_REMOVE` | Target Category disposition: leave catalog (Owner scope or CCT-1 debt) — **no APPLY in 1A** |
 | `NOT_ENOUGH_EVIDENCE` | Defer |
+
+**Owner scope dispositions (Phase 1B manifests; not APPLY here):**
+
+| Field | Value when Workshop/Hand/Woodworking scope |
+|-------|---------------------------------------------|
+| `TARGET_CATEGORY_DISPOSITION` | `REMOVE` / `DEPRECATE` |
+| `PRODUCT_DISPOSITION` | `CATALOG_EXIT` |
+| `OWNER_SCOPE_DECISION` | `YES` (`TX-OWNER-001`) |
+| Rehome | **Forbidden** by default (exception: explicit future Owner override on specific SKU/category) |
 
 **No hard minimum product count** as scientific truth. Empty selectable leaves are SEO-toxic (Phase 0: empty hubs 404) — operationally avoid publishing empty indexable hubs.
 
@@ -80,7 +92,10 @@ Live L1 roots (15) are **not** Domains. Mapping examples (illustrative):
 | ابزارگیر | Toolholding |
 | ابزار گیرشی | Workholding |
 | دستگاه‌های صنعتی | Industrial Machines |
-| لوازم جانبی صنعتی | Often Facet/Accessories — tighten |
-| هلی‌کویل L1 leaves | Fastening & Thread Repair (and fix selectable depth) |
+| لوازم جانبی صنعتی | **Decompose** — fluids → Metalworking Fluids; hand/woodworking children → `CATALOG_EXIT`; legitimate industrial accessories may rehome to Toolholding/Workholding/Cutting/Metrology/Thread Repair/Machines |
+| هلی‌کویل L1 leaves | Thread Repair & Thread Inserts (and fix selectable depth) |
+| ابزار دستی / ابزار دستی عمومی / ابزار چوبی | **REJECTED scope** — `DEPRECATE_REMOVE` + products `CATALOG_EXIT` (`TX-OWNER-001`) |
 
-Phase 1B will disposition all 138 nodes under CCT-1 + PTST-1.
+**Target Domains for Phase 1B (7):** Metrology & Inspection · Cutting Tools · Toolholding · Workholding & Fixturing · Industrial Machines & Equipment · Thread Repair & Thread Inserts · Metalworking Fluids & Lubricants.
+
+Phase 1B will disposition all 138 nodes under CCT-1 + PTST-1 + Owner scope.

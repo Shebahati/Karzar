@@ -1,12 +1,76 @@
-version: "1.0.0"
+version: "1.0.1"
 status: proposed
-phase: "1A"
+phase: "1A.1"
+steward_review: "APPROVED_WITH_AMENDMENTS"
 date: "2026-09-27"
 claim_posture:
   eclass: ECLASS-INSPIRED
   etim: ETIM-INSPIRED
   iso_13399: ISO-ALIGNED
   compliance_claim_forbidden_unless_proven: true
+
+steward_gates:
+  phase_1a_review: APPROVED
+  knowledge_category_amendment: APPROVED
+  commerce_stable_id_sequencing: APPROVED_FOR_THIS_SEQUENCING
+  workshop_hand_tools_removal: APPROVED  # TX-OWNER-001
+
+target_domains:
+  - code_hint: KZ.DOM.METROLOGY
+    en: Metrology & Inspection
+    fa: اندازه‌گیری و بازرسی
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.CUTTING
+    en: Cutting Tools
+    fa: ابزارهای برشی
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.TOOLHOLDING
+    en: Toolholding
+    fa: ابزارگیر
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.WORKHOLDING
+    en: Workholding & Fixturing
+    fa: گیرش قطعه و فیکسچر
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.MACHINES
+    en: Industrial Machines & Equipment
+    fa: ماشین‌آلات و تجهیزات صنعتی
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.THREAD_REPAIR
+    en: Thread Repair & Thread Inserts
+    fa: تعمیر رزوه و اینسرت‌های رزوه
+    status: RECOMMENDED
+  - code_hint: KZ.DOM.FLUIDS
+    en: Metalworking Fluids & Lubricants
+    fa: سیالات فلزکاری و روانکارها
+    status: RECOMMENDED
+
+rejected_domains:
+  - en: Workshop & Hand Tools
+    fa: ابزارهای کارگاهی و دستی
+    status: REJECTED_OWNER_SCOPE_DECISION
+    decision_id: TX-OWNER-001
+    no_commerce_l1: true
+    no_replacement_catchall: true
+    product_disposition: CATALOG_EXIT
+    category_disposition: DEPRECATE_REMOVE
+    rehome_default: forbidden
+  - en: General Tools / Workshop Tools / Miscellaneous / Other Tools
+    fa: ابزار عمومی / ابزار کارگاهی / لوازم جانبی عمومی / سایر
+    status: REJECTED
+    reason: forbidden_replacement_catchall
+    decision_id: TX-OWNER-001
+
+owner_scope_decision:
+  id: TX-OWNER-001
+  title: Remove Workshop / Hand Tools domain and all scoped catalog products
+  approved_by: Owner / Taxonomy Steward
+  date: "2026-09-27"
+  document: 13-STEWARD-DECISION-TX-OWNER-001.md
+  accessories_note: >
+    Current bad parent Category ≠ automatic product deletion.
+    Decompose لوازم جانبی صنعتی and similar by descendant/product meaning.
+  apply_forbidden_in_phase_1a: true
 
 entities:
   domain:
@@ -25,7 +89,12 @@ entities:
     seo_hub_default: false
   knowledge_category:
     mandatory: false
-    amendment: "CONSTITUTIONAL AMENDMENT PROPOSAL — not a mandatory level"
+    steward_status: APPROVED
+    amendment: >
+      STEWARD-APPROVED — Knowledge Category is NOT a mandatory hierarchy level.
+      Target: Domain → Family (optional nested Family) → Product Type.
+      Domain → Family → Knowledge Category → Product Type must NOT be required.
+      MAY remain as optional organizational concept if a future use case requires it.
     prefer: "Domain → Family(nestable) → Product Type"
   product_type:
     definition: "Engineering identity — what the product fundamentally IS"
@@ -86,6 +155,7 @@ relationships_preferred_over_taxonomy:
 product_type_split_test:
   id: PTST-1
   order: [Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10]
+  merely_is_normative: true
   questions:
     Q1: "Fundamentally different engineering functions?"
     Q2: "Fundamentally different physical or measurement principles?"
@@ -93,12 +163,25 @@ product_type_split_test:
     Q4: "Geometry defines identity (not mere size)?"
     Q5: "Authoritative standard treats as different classes?"
     Q6: "Combining makes required properties meaningless/highly conditional?"
-    Q7: "Merely a value of an existing property?"
-    Q8: "Merely application/context?"
-    Q9: "Merely interface/compatibility without holding-principle change?"
-    Q10: "Merely marketing/brand/series/trade vocabulary?"
+    Q7: "Merely a value of an existing property? (merely is normative)"
+    Q8: "Merely application/context? (merely is normative)"
+    Q9: "Merely interface/compatibility without holding-principle change? (merely is normative)"
+    Q10: "Merely marketing/brand/series/trade vocabulary? (merely is normative)"
+  guard: >
+    Q7–Q10 are terminal SAME_PRODUCT_TYPE rules only where the distinction
+    is merely that dimension and does not independently satisfy the
+    identity-changing conditions in Q1–Q6. Syntactic expressibility as
+    property=value does NOT automatically force SAME_PRODUCT_TYPE.
+    Example: end_geometry=ball_nose does NOT prove Square End Mill =
+    Ball Nose End Mill when geometry defines engagement identity,
+    working geometry, required schema, or engineering function.
+  anti_misapplication: >
+    Never short-circuit to Q7–Q10 before evaluating whether Q1–Q6 already
+    establish a material identity change.
   decision_rule: |
-    IF Q7 OR Q8 OR Q10 THEN SAME_PRODUCT_TYPE
+    IF (Q7 OR Q8 OR Q10)
+       AND distinction does NOT independently satisfy Q1–Q6 identity-changing conditions
+       THEN SAME_PRODUCT_TYPE
     ELSE IF Q9 AND NOT (Q1 OR Q2 OR Q3 OR Q4) THEN SAME_PRODUCT_TYPE
     ELSE IF (Q1 OR Q2) AND (Q3 OR Q6) THEN NEW_PRODUCT_TYPE
     ELSE IF Q5 AND (Q3 OR Q4 OR Q6) THEN NEW_PRODUCT_TYPE
@@ -126,15 +209,21 @@ commerce_category_test:
     - BETTER_AS_PRODUCT_TYPE
     - BETTER_AS_APPLICATION
     - BETTER_AS_SYNONYM
+    - DEPRECATE_REMOVE
     - NOT_ENOUGH_EVIDENCE
   hard_min_product_count: null
   notes: "Soft scale signals only; empty indexable hubs operationally avoided"
+  owner_scope_dispositions:
+    category: DEPRECATE_REMOVE
+    product: CATALOG_EXIT
+    rehome_default: forbidden
 
 stable_identity:
-  model: hybrid
+  model: hybrid_wave_1
   layers:
-    opaque: "UUID/ULID preferred; integer PK internal surrogate only"
-    published_code: "immutable after publication; never reused"
+    internal_db_surrogate: "categories.id / product_types.id — runtime only; never semantic import key"
+    published_code: "KZ.CAT.* / KZ.PT.* — immutable published semantic identity after publication; never reused"
+    opaque_uuid_ulid: "FUTURE OPTIONAL enhancement — NOT required before Phase 1B or initial Commerce migration"
     labels: mutable
     slug: "mutable with redirect; not identity"
     parent_path: "mutable; not identity"
@@ -147,6 +236,16 @@ stable_identity:
     industry: "KZ.IND.*"
     technical: "KZ.TECH.*"
   commerce_category_code_status: SCHEMA_EXTENSION_REQUIRED
+  commerce_sequencing_steward_approved:
+    - "Phase 1B: Design KZ.CAT.* for all live target categories"
+    - "Freeze Current → Target mapping manifest"
+    - "Later schema: categories.code nullable + UNIQUE"
+    - "Backfill codes"
+    - "Validate completeness / uniqueness"
+    - "Make code mandatory for active categories"
+    - "Refactor importers: semantic code → runtime DB id"
+    - "CI forbids new bare numeric category semantic dependencies"
+  do_not_implement_schema_in_phase_1a: true
 
 naming:
   name_fa: "single preferred term; no synonym stuffing"
@@ -157,6 +256,7 @@ naming:
     preferred_en: "Wire Thread Insert"
     preferred_fa_candidates: ["اینسرت رزوه‌ای سیمی", "فنر رزوه‌ای"]
     synonyms: ["هلی‌کویل", "Helicoil", "HELICOIL"]
+    note: "HELICOIL is trade/market vocabulary — not the generic scientific concept (unchanged)"
 
 authority_hierarchy:
   ordered:
@@ -250,7 +350,11 @@ key_verdicts:
   mechanical_vs_hydraulic_vise: property
   turning_vs_milling_insert: product_type
   helicoil_terminology: trade_synonym_of_wire_thread_insert
+  knowledge_category_mandatory: false
+  workshop_hand_tools_domain: REJECTED_OWNER_SCOPE_DECISION
 
 phase_1b:
   auto_start: false
+  ready_for_design_drafting: true
+  ready_for_production_apply: false
   entry_gate_file: "12-PHASE-1B-ENTRY-GATE.md"
