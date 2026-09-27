@@ -1,0 +1,27 @@
+category_id,category_name,live_direct,visible,cct1,ptst_or_pbt_summary,suggested_product_type_or_property,domain_candidate,notes
+57,انواع کولیس,446,185,KEEP_AS_CATEGORY,Family CALIPER; PT GEN_CALIPER etc.; readout facet,Family CALIPER,METROLOGY,Family CALIPER; PT GEN_CALIPER etc.; readout facet
+58,انواع میکرومتر,440,154,KEEP_AS_CATEGORY,Family MICROMETER; PTs outside/inside/depth,Family MICROMETER,METROLOGY,Family MICROMETER; PTs outside/inside/depth
+66,راپورتر(گیج بلوک-گیج بلاک),46,14,KEEP_AS_CATEGORY,Rename preferred بلوک گیج; synonyms; PT Gauge Block (future),Rename preferred بلوک گیج,METROLOGY,Rename preferred بلوک گیج; synonyms; PT Gauge Block (future)
+35,انگشتی سرتخت کارباید,270,0,KEEP_AS_CATEGORY,PT Square End Mill; material Property carbide; commerce projects material,PT Square End Mill,CUTTING,PT Square End Mill; material Property carbide; commerce projects material
+36,انگشتی سر گرد کارباید(بال نوز),111,0,KEEP_AS_CATEGORY,PT Ball Nose End Mill; material Property,PT Ball Nose End Mill,CUTTING,PT Ball Nose End Mill; material Property
+39,انگشتی پخ زن(45 درجه و 60 درجه),40,0,KEEP_AS_CATEGORY,PT Chamfer Mill; angle Property not Category-only forever,PT Chamfer Mill,CUTTING,PT Chamfer Mill; angle Property not Category-only forever
+41,مته کارباید(الماس),260,24,KEEP_AS_CATEGORY,PT Twist Drill; material Property — not PT Carbide Drill,PT Twist Drill,CUTTING,PT Twist Drill; material Property — not PT Carbide Drill
+43,مته پشت گرد HSS,36,0,KEEP_AS_CATEGORY,PT Twist Drill; material HSS; shank Property,PT Twist Drill,CUTTING,PT Twist Drill; material HSS; shank Property
+45,مته سی ان سی(U_Drill),1,0,KEEP_AS_CATEGORY,PT Indexable Drill; children 2D-5D are facets,PT Indexable Drill,CUTTING,PT Indexable Drill; children 2D-5D are facets
+29,U-Drill 2D,27,0,BETTER_AS_FACET,Property length_ratio; parent U-Drill hub preferred long-term,Property length_ratio,CUTTING,Property length_ratio; parent U-Drill hub preferred long-term
+30,U-Drill 3D,0,0,BETTER_AS_FACET,same,same,CUTTING,same
+31,U-Drill 4D,0,0,BETTER_AS_FACET,same,same,CUTTING,same
+32,U-Drill 5D,0,0,BETTER_AS_FACET,same,same,CUTTING,same
+13,کولت BT و فشنگی و آچار,97,0,KEEP_AS_CATEGORY,Commerce projects interface BT; PT=Collet Chuck / holder kind; Property taper_interface,Commerce projects interface BT,TOOLHOLDING,Commerce projects interface BT; PT=Collet Chuck / holder kind; Property taper_interface
+16,کولت HSK و فشنگی و آچار,0,0,KEEP_AS_CATEGORY,same with HSK,same with HSK,TOOLHOLDING,same with HSK
+99,گیره مکانیک,62,14,KEEP_AS_CATEGORY,PT Machine Vise; Property actuation=mechanical,PT Machine Vise,WORKHOLDING,PT Machine Vise; Property actuation=mechanical
+115,سه نظام هیدرولیک,11,0,KEEP_AS_CATEGORY,PT 3-Jaw Chuck; Property actuation=hydraulic,PT 3-Jaw Chuck,WORKHOLDING,PT 3-Jaw Chuck; Property actuation=hydraulic
+166,اینسرت تراش CNC,448,60,KEEP_AS_CATEGORY,PT Turning Insert; live id 166,PT Turning Insert,CUTTING,PT Turning Insert; live id 166
+168,اینسرت فرز CNC,213,66,KEEP_AS_CATEGORY,PT Milling Insert,PT Milling Insert,CUTTING,PT Milling Insert
+170,اینسرت شیار و برش,29,0,KEEP_AS_CATEGORY,PT Grooving/Parting Insert,PT Grooving/Parting Insert,CUTTING,PT Grooving/Parting Insert
+172,اینسرت رزوه‌زنی,98,0,KEEP_AS_CATEGORY,PT Threading Insert,PT Threading Insert,CUTTING,PT Threading Insert
+186,فنر هلی کویل,0,0,KEEP_AS_CATEGORY,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B,PT Wire Thread Insert,FASTENING,PT Wire Thread Insert; trade synonym HELICOIL; fix depth-1 selectable issue in 1B
+187,قلاویز هلی کویل,0,0,KEEP_AS_CATEGORY,Related tool Type + REQUIRES wire insert system,Related tool Type + REQUIRES wire insert system,FASTENING,Related tool Type + REQUIRES wire insert system
+188,کیت کامل هلی کویل,0,0,KEEP_AS_CATEGORY,Kit/PART_OF system; not Domain,Kit/PART_OF system,FASTENING,Kit/PART_OF system; not Domain
+158,ابزار دستی عمومی,196,0,BETTER_AS_FACET,Catch-all; CCT-1 weak; rehome products,Catch-all,WORKSHOP,Catch-all; CCT-1 weak; rehome products
+154,لوازم جانبی صنعتی,0,0,KEEP_AS_CATEGORY,Accessory bucket L1; tighten children; lubricants alias drift,Accessory bucket L1,ACCESSORY,Accessory bucket L1; tighten children; lubricants alias drift

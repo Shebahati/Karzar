@@ -1,0 +1,255 @@
+version: "1.0.0"
+status: proposed
+phase: "1A"
+date: "2026-09-27"
+claim_posture:
+  eclass: ECLASS-INSPIRED
+  etim: ETIM-INSPIRED
+  iso_13399: ISO-ALIGNED
+  compliance_claim_forbidden_unless_proven: true
+
+entities:
+  domain:
+    definition: "Broad long-lived engineering pillar"
+    product_direct_assignment: false
+    hierarchical: true
+    multi_value: false
+    stable_id_prefix: "KZ.DOM"
+    seo_hub_default: false
+  family:
+    definition: "Ontological neighborhood under a Domain; nestable"
+    product_direct_assignment: false
+    hierarchical: true
+    multi_value: false
+    stable_id_prefix: "KZ.FAM"
+    seo_hub_default: false
+  knowledge_category:
+    mandatory: false
+    amendment: "CONSTITUTIONAL AMENDMENT PROPOSAL — not a mandatory level"
+    prefer: "Domain → Family(nestable) → Product Type"
+  product_type:
+    definition: "Engineering identity — what the product fundamentally IS"
+    product_direct_assignment: "0..1 primary"
+    hierarchical: false
+    multi_value: false
+    stable_id_prefix: "KZ.PT"
+    legacy_codes_grandfathered: true
+    seo_hub_default: false
+    owns: ["product_type_definitions", "attribute_memberships"]
+  commerce_category:
+    definition: "Buyer-facing merchandising and SEO hub node"
+    product_direct_assignment: true
+    hierarchical: true
+    max_depth: 3
+    selectable_leaf_depths: [2, 3]
+    multi_value: false
+    stable_id_prefix: "KZ.CAT"
+    stable_id_status: MISSING_IN_PRODUCTION
+    seo_hub_default: true
+    must_not_be: "engineering_source_of_truth"
+  property_definition:
+    stable_id: ["definition_id", "key"]
+    product_direct_assignment: "via facts"
+  property_value:
+    storage: "facts or enum members"
+  application:
+    stable_id_prefix: "KZ.APP"
+    multi_value: true
+    product_direct_assignment: "secondary"
+  industry:
+    stable_id_prefix: "KZ.IND"
+    multi_value: true
+  technical_classification:
+    stable_id_prefix: "KZ.TECH"
+    prefer_property_when: "reducible to property=value"
+  brand:
+    table: brands
+    must_not_be: ["domain", "family", "product_type"]
+  synonym:
+    has_own_stable_id: false
+    attached_to: "parent_concept"
+  trade_name:
+    never_default_product_type_name: true
+  megamenu_group:
+    presentation_only: true
+    ontology_authority: false
+
+relationships_preferred_over_taxonomy:
+  - ACCESSORY_OF
+  - COMPATIBLE_WITH
+  - REQUIRES
+  - REPLACEMENT_FOR
+  - SUCCESSOR_OF
+  - CONSUMABLE_FOR
+  - PART_OF
+
+product_type_split_test:
+  id: PTST-1
+  order: [Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10]
+  questions:
+    Q1: "Fundamentally different engineering functions?"
+    Q2: "Fundamentally different physical or measurement principles?"
+    Q3: "Materially different required property schema?"
+    Q4: "Geometry defines identity (not mere size)?"
+    Q5: "Authoritative standard treats as different classes?"
+    Q6: "Combining makes required properties meaningless/highly conditional?"
+    Q7: "Merely a value of an existing property?"
+    Q8: "Merely application/context?"
+    Q9: "Merely interface/compatibility without holding-principle change?"
+    Q10: "Merely marketing/brand/series/trade vocabulary?"
+  decision_rule: |
+    IF Q7 OR Q8 OR Q10 THEN SAME_PRODUCT_TYPE
+    ELSE IF Q9 AND NOT (Q1 OR Q2 OR Q3 OR Q4) THEN SAME_PRODUCT_TYPE
+    ELSE IF (Q1 OR Q2) AND (Q3 OR Q6) THEN NEW_PRODUCT_TYPE
+    ELSE IF Q5 AND (Q3 OR Q4 OR Q6) THEN NEW_PRODUCT_TYPE
+    ELSE IF Q4 AND Q3 THEN NEW_PRODUCT_TYPE
+    ELSE IF any(Q1..Q6) with thin evidence THEN NEEDS_DOMAIN_REVIEW
+    ELSE SAME_PRODUCT_TYPE
+  results: [SAME_PRODUCT_TYPE, NEW_PRODUCT_TYPE, NEEDS_DOMAIN_REVIEW]
+
+property_boundary_rules:
+  id: PBT-1
+  defaults:
+    readout_digital_vernier_dial: property
+    cutting_material_carbide_hss: property
+    u_drill_length_ratio_2d_5d: property
+    taper_interface_bt_hsk: property_or_technical_class_not_product_type
+    vise_actuation: property
+    turning_vs_milling_insert: product_type
+    square_vs_ball_nose_end_mill: product_type
+
+commerce_category_test:
+  id: CCT-1
+  results:
+    - KEEP_AS_CATEGORY
+    - BETTER_AS_FACET
+    - BETTER_AS_PRODUCT_TYPE
+    - BETTER_AS_APPLICATION
+    - BETTER_AS_SYNONYM
+    - NOT_ENOUGH_EVIDENCE
+  hard_min_product_count: null
+  notes: "Soft scale signals only; empty indexable hubs operationally avoided"
+
+stable_identity:
+  model: hybrid
+  layers:
+    opaque: "UUID/ULID preferred; integer PK internal surrogate only"
+    published_code: "immutable after publication; never reused"
+    labels: mutable
+    slug: "mutable with redirect; not identity"
+    parent_path: "mutable; not identity"
+  namespaces:
+    domain: "KZ.DOM.*"
+    family: "KZ.FAM.*"
+    product_type: "KZ.PT.* (legacy codes grandfathered)"
+    commerce_category: "KZ.CAT.*"
+    application: "KZ.APP.*"
+    industry: "KZ.IND.*"
+    technical: "KZ.TECH.*"
+  commerce_category_code_status: SCHEMA_EXTENSION_REQUIRED
+
+naming:
+  name_fa: "single preferred term; no synonym stuffing"
+  name_en: "singular engineering class; no brand"
+  synonyms: "array; search/import only"
+  trade_names: "never canonical Product Type name"
+  helicoil:
+    preferred_en: "Wire Thread Insert"
+    preferred_fa_candidates: ["اینسرت رزوه‌ای سیمی", "فنر رزوه‌ای"]
+    synonyms: ["هلی‌کویل", "Helicoil", "HELICOIL"]
+
+authority_hierarchy:
+  - specialist_international_standard
+  - general_product_data_standard_principles
+  - oem_technical_documentation
+  - established_engineering_terminology
+  - cross_industry_classification_labels
+  - major_manufacturer_technical_consensus
+  - market_vocabulary
+  - existing_karzar_commerce_labels
+  domain_override: "ISO 13399 concepts outrank generic ECLASS labels for cutting items"
+
+external_crosswalk:
+  fields:
+    - karzar_concept_id
+    - scheme
+    - scheme_version
+    - external_identifier
+    - external_label
+    - relation
+    - evidence_source
+    - verified_at
+    - notes
+  relations: [EXACT, NARROWER_THAN, BROADER_THAN, RELATED, CANDIDATE]
+  default_unverified_relation: CANDIDATE
+  no_licensed_bulk_copy: true
+
+deprecation_rules:
+  no_id_reuse: true
+  retain:
+    - old_identity
+    - status
+    - replacement_identity
+    - reason
+    - effective_date
+    - redirect_if_public_url
+    - migration_mapping
+  historic_examples: ["category_33", "category_34"]
+
+versioning_rules:
+  rename: identity_unchanged
+  move: identity_unchanged
+  semantic_redefinition: new_identity_plus_deprecate
+  split: new_identities_plus_mapping
+  merge: survivor_kept_others_deprecated
+
+null_semantics:
+  tokens: [UNKNOWN, NOT_PROVIDED, NOT_APPLICABLE, NOT_VERIFIED, CONFLICTING_EVIDENCE]
+  must_not_all_collapse_to_sql_null_conceptually: true
+
+governance:
+  roles:
+    - Taxonomy Steward
+    - Domain Steward
+    - Property Steward
+    - SEO Reviewer
+    - Engineering Reviewer
+    - Data Migration Reviewer
+  change_gate_minimum:
+    - semantic_review
+    - impact_analysis
+    - redirect_impact
+    - import_impact
+    - product_type_impact
+    - property_impact
+    - affected_product_count
+    - migration_plan
+    - rollback_plan
+  conflict_procedure: TCR-1
+
+ci_rules_design_only:
+  - duplicate_stable_id
+  - reused_deprecated_id
+  - missing_preferred_name
+  - synonym_embedded_in_preferred_name
+  - trademark_as_generic_canonical_type
+  - product_type_without_active_definition
+  - product_type_code_changed_without_deprecate_flow
+  - invalid_crosswalk_relation
+  - importer_hardcoded_category_integer
+  - taxonomy_cycle
+  - deprecated_concept_assigned_to_new_product
+
+key_verdicts:
+  digital_vs_vernier_caliper: property
+  carbide_vs_hss_drill: property
+  square_vs_ball_nose_end_mill: product_type
+  u_drill_2d_vs_5d: property
+  bt_vs_hsk: property_or_technical_class
+  mechanical_vs_hydraulic_vise: property
+  turning_vs_milling_insert: product_type
+  helicoil_terminology: trade_synonym_of_wire_thread_insert
+
+phase_1b:
+  auto_start: false
+  entry_gate_file: "12-PHASE-1B-ENTRY-GATE.md"
