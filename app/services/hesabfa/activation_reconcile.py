@@ -33,14 +33,13 @@ from app.services.hesabfa.mapping import _normalize_sku
 ITEM_SAVE_CONTRACT = "UNKNOWN"
 ACTIVATION_APPLY_STATUS = "BLOCKED_PENDING_API_CONFIRMATION"
 ITEM_SAVE_CONTRACT_EVIDENCE = (
-    "HesabfaClient.save_item posts the caller-supplied dict to item/save "
-    "(app/services/hesabfa/client.py). No repository document proves merge "
-    "versus full replacement. build_hesabfa_item_payload always sends "
-    "sellPrice=0.0 and buyPrice=0 and omits quantity fields. The client "
-    "docstring says stock defaults to 0 when quantity is not set, which "
-    "describes create behavior only. Activating an existing item by saving "
-    "that shell body could zero prices or warehouse quantities. "
-    "Activation-only APPLY is BLOCKED_PENDING_API_CONFIRMATION."
+    "Official Hesabfa item/save docs (https://www.hesabfa.com/help/api/item) "
+    "say an existing code edits the item, name and itemType are required, and "
+    "buyPrice/sellPrice are optional. Stock is not an item/save field. The "
+    "page does not say whether an update replaces omitted fields or whether "
+    "explicit buyPrice=0 and sellPrice=0 overwrite existing prices. "
+    "Repository inference is not a proven contract. "
+    "Activation APPLY stays BLOCKED_PENDING_API_CONFIRMATION."
 )
 
 ACTIONS = (
@@ -138,8 +137,17 @@ class DryRunSession:
         if isinstance(statement, Select):
             return
         if isinstance(statement, TextClause):
-            sql = str(statement).strip().lower()
+            sql = " ".join(str(statement).strip().lower().split())
             if sql.startswith("select"):
+                return
+            # Session controls that enforce read-only. They are not data writes.
+            if sql in {
+                "set transaction read only",
+                "show transaction_read_only",
+                "pragma query_only = on",
+                "pragma query_only = off",
+                "pragma query_only",
+            }:
                 return
         self.database_writes += 1
         raise ReadOnlyStatementRejected("dry-run forbids non-SELECT SQL")
@@ -345,6 +353,13 @@ def classify_product(
     remote_code = _remote_code(remote) if remote else ""
     remote_pc = _remote_product_code(remote) if remote else ""
     active_current = parse_remote_active(remote) if remote else None
+    if remote is not None and not remote_code:
+        return finish(
+            "ERROR",
+            "remote_code_missing",
+            product_code=remote_pc,
+            active_current=active_current,
+        )
 
     if mapping is not None:
         if _normalize_sku(mapping.sku) != sku_norm:
@@ -505,6 +520,7 @@ def summarize(
         ),
         "REMOTE_ALREADY_ACTIVE": count(lambda row: row.hesabfa_active_current is True),
         "REMOTE_INACTIVE": count(lambda row: row.hesabfa_active_current is False),
+        "REMOTE_ACTIVE_UNKNOWN": count(lambda row: row.reason == "remote_active_unknown"),
         "REMOTE_MISSING": count(lambda row: not row.hesabfa_item_present),
         "MAPPING_MISSING_REMOTE_FOUND": count(
             lambda row: (not row.hesabfa_mapping_present)
@@ -516,6 +532,119 @@ def summarize(
         "WOULD_ACTIVATE": count(lambda row: row.action == "ACTIVATE_EXISTING"),
         "WOULD_CREATE": count(lambda row: row.action == "CREATE_MISSING_ACTIVE"),
         "WOULD_LINK": would_link,
+        "AMBIGUITY_BREAKDOWN": ambiguity_breakdown(rows),
+        "ERROR_BREAKDOWN": error_breakdown(rows),
+        "COHORTS": cohort_counts(rows),
+    }
+
+
+_AMBIGUITY_LABELS = {
+    "duplicate_site_sku": "DUPLICATE_SITE_SKU",
+    "duplicate_remote_product_code": "DUPLICATE_REMOTE_PRODUCT_CODE",
+    "duplicate_local_mappings": "DUPLICATE_LOCAL_MAPPING",
+    "mapping_sku_mismatch": "MAPPING_SKU_MISMATCH",
+    "mapping_product_code_mismatch": "MAPPING_PRODUCT_CODE_MISMATCH",
+    "mapping_code_mismatch": "MAPPING_CODE_MISMATCH",
+    "hesabfa_code_owned_by_other_product": "HESABFA_CODE_OWNED_BY_OTHER_PRODUCT",
+}
+
+_ERROR_LABELS = {
+    "empty_sku": "EMPTY_SKU",
+    "mapping_remote_missing": "MAPPING_REMOTE_MISSING",
+    "remote_active_unknown": "REMOTE_ACTIVE_UNKNOWN",
+    "remote_code_missing": "REMOTE_CODE_MISSING",
+    "pagination_error": "PAGINATION_ERROR",
+    "api_read_error": "API_READ_ERROR",
+}
+
+
+def _samples(rows: Sequence[ReconciliationRow], *, limit: int = 20) -> list[dict[str, Any]]:
+    return [
+        {"site_product_id": row.site_product_id, "sku": row.sku}
+        for row in sorted(rows, key=lambda item: item.site_product_id)[:limit]
+    ]
+
+
+def ambiguity_breakdown(rows: Sequence[ReconciliationRow]) -> dict[str, Any]:
+    """Group AMBIGUOUS rows by reason. Does not repair identity."""
+    grouped: dict[str, list[ReconciliationRow]] = defaultdict(list)
+    for row in rows:
+        if row.action != "AMBIGUOUS":
+            continue
+        label = _AMBIGUITY_LABELS.get(row.reason, "OTHER_AMBIGUITY")
+        grouped[label].append(row)
+    labels = list(_AMBIGUITY_LABELS.values()) + ["OTHER_AMBIGUITY"]
+    return {
+        label: {"count": len(grouped.get(label, [])), "samples": _samples(grouped.get(label, []))}
+        for label in labels
+    }
+
+
+def error_breakdown(rows: Sequence[ReconciliationRow]) -> dict[str, Any]:
+    """Group ERROR rows by reason. Does not repair them."""
+    grouped: dict[str, list[ReconciliationRow]] = defaultdict(list)
+    for row in rows:
+        if row.action != "ERROR":
+            continue
+        label = _ERROR_LABELS.get(row.reason, "OTHER_ERROR")
+        grouped[label].append(row)
+    labels = list(_ERROR_LABELS.values()) + ["OTHER_ERROR"]
+    return {
+        label: {"count": len(grouped.get(label, [])), "samples": _samples(grouped.get(label, []))}
+        for label in labels
+    }
+
+
+def cohort_counts(rows: Sequence[ReconciliationRow]) -> dict[str, int]:
+    """Read-only migration cohorts. Missing remote items are not inactive."""
+
+    def n(predicate: Any) -> int:
+        return sum(1 for row in rows if predicate(row))
+
+    def inactive_remote(row: ReconciliationRow) -> bool:
+        return row.hesabfa_active_current is False
+
+    def missing(row: ReconciliationRow) -> bool:
+        return not row.hesabfa_item_present
+
+    return {
+        "SITE_INACTIVE__HF_ACTIVE": n(
+            lambda row: (not row.site_is_active) and row.hesabfa_active_current is True
+        ),
+        "SITE_INACTIVE__HF_INACTIVE": n(lambda row: (not row.site_is_active) and inactive_remote(row)),
+        "SITE_UNAVAILABLE__HF_INACTIVE": n(
+            lambda row: (not row.site_is_available) and inactive_remote(row)
+        ),
+        "SITE_UNPRICED__HF_INACTIVE": n(
+            lambda row: (not row.site_price_present) and inactive_remote(row)
+        ),
+        "SITE_ACTIVE__HF_MISSING": n(lambda row: row.site_is_active and missing(row)),
+        "SITE_INACTIVE__HF_MISSING": n(lambda row: (not row.site_is_active) and missing(row)),
+    }
+
+
+def remote_inventory_stats(items: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    """Counts for a complete item/getItems read. No secrets."""
+    codes: set[str] = set()
+    product_codes: list[str] = []
+    blank = 0
+    for item in items:
+        code = _remote_code(item)
+        if code:
+            codes.add(code)
+        product_code = _normalize_sku(_remote_product_code(item))
+        if not product_code:
+            blank += 1
+        else:
+            product_codes.append(product_code)
+    grouped: dict[str, int] = defaultdict(int)
+    for product_code in product_codes:
+        grouped[product_code] += 1
+    return {
+        "UNIQUE_CODE": len(codes),
+        "UNIQUE_PRODUCT_CODE": len(grouped),
+        "BLANK_PRODUCT_CODE": blank,
+        "DUPLICATE_PRODUCT_CODE_GROUPS": sum(1 for count in grouped.values() if count > 1),
     }
 
 
@@ -639,20 +768,174 @@ async def fetch_catalog_page(
     return int(total), products, mappings, duplicate_skus
 
 
-async def load_remote_items(client: DryRunHesabfaClient, *, page_size: int = 100) -> list[dict[str, Any]]:
-    """Page item/getItems. Never calls a write method."""
-    items: list[dict[str, Any]] = []
-    skip = 0
-    while True:
-        page = await client.get_items(take=page_size, skip=skip)
-        batch = [dict(item) for item in (page.get("List") or [])]
-        if not batch:
-            break
-        items.extend(batch)
-        total = int(page.get("TotalCount") or 0)
-        skip += len(batch)
-        if skip >= total or len(batch) < page_size:
-            break
+async def enforce_database_read_only(session: SupportsExecute) -> str:
+    """Start a database-enforced read-only transaction.
+
+    PostgreSQL: ``SET TRANSACTION READ ONLY`` then ``SHOW transaction_read_only``.
+    SQLite tests: ``PRAGMA query_only=ON``. Other dialects fail closed.
+    Call this before catalog SELECTs and roll the transaction back afterward.
+    """
+    from sqlalchemy import text
+
+    bind = _session_bind(session)
+    dialect = bind.dialect.name if bind is not None else ""
+    if dialect == "postgresql":
+        await session.execute(text("SET TRANSACTION READ ONLY"))
+        shown = (await session.execute(text("SHOW transaction_read_only"))).scalar_one()
+        if str(shown).strip().lower() != "on":
+            raise RuntimeError(f"PostgreSQL transaction_read_only is {shown!r}")
+        return "postgresql:transaction_read_only=on"
+    if dialect == "sqlite":
+        await session.execute(text("PRAGMA query_only = ON"))
+        flag = (await session.execute(text("PRAGMA query_only"))).scalar_one()
+        if int(flag) != 1:
+            raise RuntimeError(f"SQLite query_only is {flag!r}")
+        return "sqlite:query_only=1"
+    raise RuntimeError(f"no database-enforced read-only mode for dialect {dialect or 'unknown'}")
+
+
+def _session_bind(session: SupportsExecute) -> Any:
+    inner = getattr(session, "inner", session)
+    bind = getattr(inner, "bind", None)
+    if bind is None:
+        get_bind = getattr(inner, "get_bind", None)
+        if callable(get_bind):
+            bind = get_bind()
+    return bind
+
+
+async def release_database_read_only(session: SupportsExecute, mode: str) -> None:
+    """End the read-only transaction. SQLite query_only is cleared so the pooled connection is usable.
+
+    Rollback goes to the real session. ``DryRunSession.rollback`` is not used:
+    that method counts a database write and raises.
+    """
+    from sqlalchemy import text
+
+    if mode.startswith("sqlite"):
+        await session.execute(text("PRAGMA query_only = OFF"))
+    target = getattr(session, "inner", session)
+    rollback = getattr(target, "rollback", None)
+    if rollback is not None:
+        await rollback()
+
+
+async def fetch_catalog_snapshot(session: SupportsExecute) -> dict[str, Any]:
+    """Load the non-deleted catalog once. Caller must already be read-only."""
+    from sqlalchemy import and_, case, func, select
+
+    from app.db.models.hesabfa import HesabfaItemMapping
+    from app.db.models.product import Product
+
+    non_deleted = Product.deleted_at.is_(None)
+    baseline_row = (
+        await session.execute(
+            select(
+                func.count(Product.id),
+                func.coalesce(func.sum(case((non_deleted, 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Product.deleted_at.is_not(None), 1), else_=0)), 0),
+                func.coalesce(
+                    func.sum(case((and_(non_deleted, Product.is_active.is_(True)), 1), else_=0)),
+                    0,
+                ),
+                func.coalesce(
+                    func.sum(case((and_(non_deleted, Product.is_active.is_(False)), 1), else_=0)),
+                    0,
+                ),
+                func.coalesce(
+                    func.sum(
+                        case((and_(non_deleted, Product.is_available.is_(True)), 1), else_=0)
+                    ),
+                    0,
+                ),
+                func.coalesce(
+                    func.sum(
+                        case((and_(non_deleted, Product.is_available.is_(False)), 1), else_=0)
+                    ),
+                    0,
+                ),
+                func.coalesce(
+                    func.sum(case((and_(non_deleted, Product.base_price.is_not(None)), 1), else_=0)),
+                    0,
+                ),
+                func.coalesce(
+                    func.sum(case((and_(non_deleted, Product.base_price.is_(None)), 1), else_=0)),
+                    0,
+                ),
+            )
+        )
+    ).one()
+    baseline = {
+        "TOTAL_PRODUCTS": int(baseline_row[0]),
+        "TOTAL_NON_DELETED": int(baseline_row[1]),
+        "TOTAL_SOFT_DELETED": int(baseline_row[2]),
+        "NON_DELETED_ACTIVE": int(baseline_row[3]),
+        "NON_DELETED_INACTIVE": int(baseline_row[4]),
+        "NON_DELETED_AVAILABLE": int(baseline_row[5]),
+        "NON_DELETED_UNAVAILABLE": int(baseline_row[6]),
+        "NON_DELETED_PRICED": int(baseline_row[7]),
+        "NON_DELETED_UNPRICED": int(baseline_row[8]),
+    }
+    product_rows = (
+        await session.execute(
+            select(
+                Product.id,
+                Product.sku,
+                Product.is_active,
+                Product.is_available,
+                Product.base_price,
+            )
+            .where(non_deleted)
+            .order_by(Product.id.asc())
+        )
+    ).all()
+    products = [
+        SiteProductView(
+            id=int(row.id),
+            sku=str(row.sku),
+            is_active=bool(row.is_active),
+            is_available=bool(row.is_available),
+            price_present=row.base_price is not None,
+        )
+        for row in product_rows
+    ]
+    if len(products) != baseline["TOTAL_NON_DELETED"]:
+        raise RuntimeError(
+            "catalog snapshot count mismatch "
+            f"rows={len(products)} TOTAL_NON_DELETED={baseline['TOTAL_NON_DELETED']}"
+        )
+    counts: dict[str, int] = defaultdict(int)
+    for product in products:
+        key = _normalize_sku(product.sku)
+        if key:
+            counts[key] += 1
+    duplicate_skus = {key for key, count in counts.items() if count > 1}
+    mapping_rows = (await session.execute(select(HesabfaItemMapping))).scalars().all()
+    mappings = [
+        MappingView(
+            product_id=int(row.product_id),
+            sku=str(row.sku),
+            hesabfa_code=str(row.hesabfa_code),
+            hesabfa_product_code=row.hesabfa_product_code,
+        )
+        for row in mapping_rows
+    ]
+    return {
+        "baseline": baseline,
+        "products": products,
+        "mappings": mappings,
+        "duplicate_skus": duplicate_skus,
+    }
+
+
+async def load_remote_items(client: DryRunHesabfaClient, *, page_size: int = 100) -> Any:
+    """Page every item/getItems row. Never calls a write method.
+
+    Raises if fetched rows do not equal reported TotalCount.
+    """
+    from app.services.hesabfa.item_push import paginate_get_items
+
+    page = await paginate_get_items(client, page_size=page_size)
     if client.remote_writes != 0:
         raise RuntimeError("remote item load performed a write")
-    return items
+    return page

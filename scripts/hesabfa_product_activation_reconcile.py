@@ -197,6 +197,8 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.batch_size < 1:
         parser.error("--batch-size must be >= 1")
+    if args.page_size < 1:
+        parser.error("--page-size must be >= 1")
     if args.after_id < 0:
         parser.error("--after-id must be >= 0")
     if args.apply and args.dry_run:
@@ -230,7 +232,7 @@ def _refuse_apply(args: argparse.Namespace) -> int | None:
     return 3
 
 
-async def _load_live_remote() -> tuple[list[dict[str, Any]], DryRunHesabfaClient]:
+async def _load_live_remote(page_size: int) -> tuple[Any, DryRunHesabfaClient]:
     from app.services.hesabfa.client import get_hesabfa_client, hesabfa_integration_active
 
     if not hesabfa_integration_active():
@@ -240,8 +242,8 @@ async def _load_live_remote() -> tuple[list[dict[str, Any]], DryRunHesabfaClient
             "offline read-only index."
         )
     client = DryRunHesabfaClient(get_hesabfa_client())
-    items = await load_remote_items(client)
-    return items, client
+    page = await load_remote_items(client, page_size=page_size)
+    return page, client
 
 
 async def _scan_database(
@@ -252,51 +254,69 @@ async def _scan_database(
     remote_items: list[dict[str, Any]],
     prior_rows: list[ReconciliationRow],
     output: Path,
-) -> tuple[list[ReconciliationRow], int, int]:
+) -> tuple[list[ReconciliationRow], int, int, dict[str, Any]]:
     from app.db.database import async_session_maker
-    from app.services.hesabfa.activation_reconcile import fetch_catalog_page
+    from app.services.hesabfa.activation_reconcile import (
+        enforce_database_read_only,
+        fetch_catalog_snapshot,
+        release_database_read_only,
+    )
 
     rows = list(prior_rows)
     seen = {row.site_product_id for row in rows}
     remote_writes = 0
     database_writes = 0
-    cursor = after_id
-    batches = 0
-    population = 0
     async with async_session_maker() as session:
         guard = DryRunSession(session)
-        while max_batches is None or batches < max_batches:
-            total, products, mappings, duplicate_skus = await fetch_catalog_page(
-                guard,
-                after_id=cursor,
-                batch_size=batch_size,
-            )
-            population = total
-            database_writes = guard.database_writes
-            if not products:
-                break
-            fresh = [product for product in products if product.id not in seen]
-            classified = classify_catalog(
-                fresh,
-                mappings,
-                remote_items,
-                duplicate_skus=duplicate_skus,
-            )
-            rows.extend(classified)
-            seen.update(row.site_product_id for row in classified)
-            cursor = products[-1].id
-            batches += 1
-            _write_checkpoint(output / CHECKPOINT_NAME, cursor)
-            summary = summarize(
-                rows,
-                population_total=population,
-                remote_writes=remote_writes,
-                database_writes=database_writes,
-            )
-            assert_dry_run_safe(remote_writes=remote_writes, database_writes=database_writes)
-            write_artifacts(output, rows, summary)
-        await session.rollback()
-    return rows, population, database_writes
+        mode = await enforce_database_read_only(guard)
+        snapshot = await fetch_catalog_snapshot(guard)
+        database_writes = guard.database_writes
+        await release_database_read_only(guard, mode)
+    products = snapshot["products"]
+    mappings = snapshot["mappings"]
+    duplicate_skus = snapshot["duplicate_skus"]
+    population = int(snapshot["baseline"]["TOTAL_NON_DELETED"])
+    if population != len(products):
+        raise RuntimeError("TOTAL_SITE_NON_DELETED does not match the product row count")
+    pending = [product for product in products if product.id > after_id]
+    batches = 0
+    offset = 0
+    while offset < len(pending) and (max_batches is None or batches < max_batches):
+        chunk = pending[offset : offset + batch_size]
+        offset += batch_size
+        fresh = [product for product in chunk if product.id not in seen]
+        classified = classify_catalog(
+            fresh,
+            mappings,
+            remote_items,
+            duplicate_skus=duplicate_skus,
+        )
+        rows.extend(classified)
+        seen.update(row.site_product_id for row in classified)
+        batches += 1
+        if chunk:
+            _write_checkpoint(output / CHECKPOINT_NAME, chunk[-1].id)
+        summary = summarize(
+            rows,
+            population_total=population,
+            remote_writes=remote_writes,
+            database_writes=database_writes,
+        )
+        summary["CATALOG_BASELINE"] = snapshot["baseline"]
+        summary["DATABASE_READ_ONLY"] = mode
+        assert_dry_run_safe(remote_writes=remote_writes, database_writes=database_writes)
+        write_artifacts(output, rows, summary)
+    if not pending and not rows:
+        summary = summarize(
+            [],
+            population_total=population,
+            remote_writes=0,
+            database_writes=database_writes,
+        )
+        summary["CATALOG_BASELINE"] = snapshot["baseline"]
+        summary["DATABASE_READ_ONLY"] = mode
+        write_artifacts(output, rows, summary)
+    return rows, population, database_writes, snapshot["baseline"]
 
 
 def _scan_snapshots(
@@ -404,9 +424,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         remote_writes = 0
         database_writes = 0
+        live_extra: dict[str, Any] = {}
     else:
-        remote_items, client = asyncio.run(_load_live_remote())
-        rows, population, database_writes = asyncio.run(
+        remote_page, client = asyncio.run(_load_live_remote(args.page_size))
+        remote_items = list(remote_page.items)
+        rows, population, database_writes, baseline = asyncio.run(
             _scan_database(
                 after_id=after_id,
                 batch_size=args.batch_size,
@@ -417,6 +439,19 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         remote_writes = client.remote_writes
+        if int(baseline["TOTAL_NON_DELETED"]) != population:
+            raise SystemExit("FATAL: reconciliation population disagrees with the database count")
+        from app.services.hesabfa.activation_reconcile import remote_inventory_stats
+
+        live_extra = {
+            "CATALOG_BASELINE": baseline,
+            "HESABFA_REPORTED_TOTAL": remote_page.reported_total,
+            "HESABFA_ITEMS_FETCHED": len(remote_page.items),
+            "HESABFA_PAGES_FETCHED": remote_page.pages_fetched,
+            "HESABFA_INDEX": remote_inventory_stats(remote_page.items),
+            "PAGINATION_COMPLETE": len(remote_page.items) == remote_page.reported_total,
+            "LAST_PRODUCT_ID": max((row.site_product_id for row in rows), default=None),
+        }
 
     assert_dry_run_safe(remote_writes=remote_writes, database_writes=database_writes)
     summary = summarize(
@@ -425,6 +460,7 @@ def main(argv: list[str] | None = None) -> int:
         remote_writes=remote_writes,
         database_writes=database_writes,
     )
+    summary.update(live_extra)
     write_artifacts(output, rows, summary)
     print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
     return 0

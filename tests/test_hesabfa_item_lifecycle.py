@@ -346,6 +346,19 @@ def test_classifier_actions_and_summary(tmp_path: Path) -> None:
     assert summary["DATABASE_WRITES"] == 0
     assert summary["ACTIVATION_APPLY"] == ACTIVATION_APPLY_STATUS
     assert summary["ITEM_SAVE_CONTRACT"] == "UNKNOWN"
+    assert summary["REMOTE_ACTIVE_UNKNOWN"] == 0
+    assert summary["AMBIGUITY_BREAKDOWN"]["DUPLICATE_REMOTE_PRODUCT_CODE"]["count"] == 1
+    assert summary["AMBIGUITY_BREAKDOWN"]["MAPPING_CODE_MISMATCH"]["count"] == 1
+    assert summary["AMBIGUITY_BREAKDOWN"]["DUPLICATE_SITE_SKU"]["count"] == 0
+    assert summary["ERROR_BREAKDOWN"]["MAPPING_REMOTE_MISSING"]["count"] == 1
+    assert summary["ERROR_BREAKDOWN"]["REMOTE_ACTIVE_UNKNOWN"]["count"] == 0
+    cohorts = summary["COHORTS"]
+    assert cohorts["SITE_INACTIVE__HF_ACTIVE"] == 1
+    assert cohorts["SITE_INACTIVE__HF_INACTIVE"] == 1
+    assert cohorts["SITE_UNAVAILABLE__HF_INACTIVE"] == 2
+    assert cohorts["SITE_UNPRICED__HF_INACTIVE"] == 1
+    assert cohorts["SITE_ACTIVE__HF_MISSING"] == 0
+    assert cohorts["SITE_INACTIVE__HF_MISSING"] == 3
 
     from app.services.hesabfa.activation_reconcile import write_artifacts
 
@@ -378,8 +391,10 @@ def test_dry_run_client_blocks_item_save() -> None:
         ]
     )
     client = DryRunHesabfaClient(inner)
-    items = asyncio.run(load_remote_items(client, page_size=1))
-    assert len(items) == 1
+    page = asyncio.run(load_remote_items(client, page_size=1))
+    assert len(page.items) == 1
+    assert page.reported_total == 1
+    assert page.pages_fetched == 1
     assert client.remote_writes == 0
 
     async def forbidden() -> None:
@@ -388,6 +403,99 @@ def test_dry_run_client_blocks_item_save() -> None:
     with pytest.raises(RuntimeError, match="item/save"):
         asyncio.run(forbidden())
     assert client.remote_writes == 1
+
+
+def test_unknown_active_is_separate_from_duplicate_product_code() -> None:
+    products = [
+        SiteProductView(1, "UNK", True, True, True),
+        SiteProductView(2, "DUP", False, False, False),
+    ]
+    remote = [
+        {"Code": "C1", "ProductCode": "UNK", "Name": "no-flag"},
+        {"Code": "A", "ProductCode": "DUP", "Active": True},
+        {"Code": "B", "ProductCode": "DUP", "Active": False},
+    ]
+    rows = classify_catalog(products, [], remote)
+    summary = summarize(rows, population_total=2)
+    assert summary["REMOTE_ACTIVE_UNKNOWN"] == 1
+    assert summary["AMBIGUOUS"] == 1
+    assert summary["ERROR_BREAKDOWN"]["REMOTE_ACTIVE_UNKNOWN"]["samples"] == [
+        {"site_product_id": 1, "sku": "UNK"}
+    ]
+    assert summary["AMBIGUITY_BREAKDOWN"]["DUPLICATE_REMOTE_PRODUCT_CODE"]["count"] == 1
+    assert summary["COHORTS"]["SITE_ACTIVE__HF_MISSING"] == 0
+    assert summary["COHORTS"]["SITE_INACTIVE__HF_MISSING"] == 0
+
+
+def test_product_code_lookup_reads_past_the_first_page() -> None:
+    import inspect
+
+    from app.services.hesabfa.item_push import _find_hesabfa_item_by_product_code
+
+    source = inspect.getsource(_find_hesabfa_item_by_product_code)
+    assert "take=100" not in source
+    assert "skip=0" not in source
+
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        side_effect=[
+            {"List": [{"Code": "1", "ProductCode": "AAA"}], "TotalCount": 2},
+            {"List": [{"Code": "2", "ProductCode": "TARGET"}], "TotalCount": 2},
+        ]
+    )
+
+    async def run() -> dict:
+        return await _find_hesabfa_item_by_product_code(client, "target", page_size=1)
+
+    found = asyncio.run(run())
+    assert found["Code"] == "2"
+    assert client.get_items.await_count == 2
+
+
+def test_incomplete_pagination_does_not_report_missing() -> None:
+    from app.services.hesabfa.item_push import _find_hesabfa_item_by_product_code
+
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        return_value={"List": [{"Code": "1", "ProductCode": "AAA"}], "TotalCount": 5}
+    )
+
+    async def run() -> None:
+        await _find_hesabfa_item_by_product_code(client, "TARGET")
+
+    with pytest.raises(HesabfaError, match="pagination incomplete"):
+        asyncio.run(run())
+
+
+def test_duplicate_product_code_across_pages_raises() -> None:
+    from app.services.hesabfa.item_push import _find_hesabfa_item_by_product_code
+
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        side_effect=[
+            {"List": [{"Code": "1", "ProductCode": "SKU"}], "TotalCount": 2},
+            {"List": [{"Code": "2", "ProductCode": "sku"}], "TotalCount": 2},
+        ]
+    )
+
+    async def run() -> None:
+        await _find_hesabfa_item_by_product_code(client, "SKU", page_size=1)
+
+    with pytest.raises(HesabfaError, match="ambiguous"):
+        asyncio.run(run())
+
+
+def test_get_items_without_total_count_raises() -> None:
+    from app.services.hesabfa.item_push import paginate_get_items
+
+    client = MagicMock()
+    client.get_items = AsyncMock(return_value={"List": []})
+
+    async def run() -> None:
+        await paginate_get_items(client, page_size=1)
+
+    with pytest.raises(HesabfaError, match="TotalCount"):
+        asyncio.run(run())
 
 
 def test_dry_run_session_rejects_writes() -> None:
@@ -438,6 +546,116 @@ def test_catalog_page_includes_inactive_and_skips_deleted(
     total, skus = asyncio.run(run())
     assert total >= 1
     assert skus == ["KEEP-OFF"]
+
+
+@pytest.mark.usefixtures("override_database")
+def test_read_only_transaction_rejects_update(
+    monkeypatch: pytest.MonkeyPatch, valid_product_data: dict
+) -> None:
+    from app.services.hesabfa.activation_reconcile import (
+        enforce_database_read_only,
+        fetch_catalog_snapshot,
+        release_database_read_only,
+    )
+    from sqlalchemy.exc import OperationalError
+
+    _mock_hesabfa(monkeypatch)
+
+    async def run() -> dict:
+        async with TestingSessionLocal() as session:
+            kept = await ProductService.create_product_with_validation(
+                session,
+                ProductCreate(
+                    **{
+                        **valid_product_data,
+                        "sku": "KEEP-OFF",
+                        "is_active": False,
+                        "base_price": None,
+                    }
+                ),
+            )
+            kept_sku = kept.sku
+            removed = await ProductService.create_product_with_validation(
+                session,
+                ProductCreate(**{**valid_product_data, "sku": "REMOVED", "is_active": True}),
+            )
+            assert await ProductService.delete_product(session, removed.id) is True
+            guard = DryRunSession(session)
+            mode = await enforce_database_read_only(guard)
+            try:
+                snapshot = await fetch_catalog_snapshot(guard)
+                with pytest.raises(OperationalError):
+                    await session.execute(text("UPDATE products SET name = name"))
+            finally:
+                await release_database_read_only(guard, mode)
+            flag = (await session.execute(text("PRAGMA query_only"))).scalar_one()
+            assert int(flag) == 0
+            assert guard.database_writes == 0
+            skus = {row.sku for row in snapshot["products"]}
+            return {
+                "mode": mode,
+                "baseline": snapshot["baseline"],
+                "row_count": len(snapshot["products"]),
+                "has_kept": kept_sku in skus,
+                "has_removed": "REMOVED" in skus,
+            }
+
+    result = asyncio.run(run())
+    assert result["mode"] == "sqlite:query_only=1"
+    assert result["has_kept"] is True
+    assert result["has_removed"] is False
+    baseline = result["baseline"]
+    assert baseline["TOTAL_PRODUCTS"] == baseline["TOTAL_NON_DELETED"] + baseline["TOTAL_SOFT_DELETED"]
+    assert result["row_count"] == baseline["TOTAL_NON_DELETED"]
+    assert baseline["TOTAL_SOFT_DELETED"] >= 1
+    assert baseline["NON_DELETED_INACTIVE"] >= 1
+    assert (
+        baseline["NON_DELETED_ACTIVE"] + baseline["NON_DELETED_INACTIVE"]
+        == baseline["TOTAL_NON_DELETED"]
+    )
+
+
+def test_read_only_enforcement_fails_closed_for_unknown_dialect() -> None:
+    from app.services.hesabfa.activation_reconcile import enforce_database_read_only
+
+    class Foreign:
+        bind = SimpleNamespace(dialect=SimpleNamespace(name="mysql"))
+
+        async def execute(self, _statement: object, *_args: object, **_kwargs: object) -> object:
+            raise AssertionError("unknown dialect must not run SQL")
+
+    with pytest.raises(RuntimeError, match="no database-enforced read-only"):
+        asyncio.run(enforce_database_read_only(Foreign()))
+
+
+def test_postgres_read_only_requires_show_on() -> None:
+    from app.services.hesabfa.activation_reconcile import enforce_database_read_only
+
+    class Result:
+        def __init__(self, value: str) -> None:
+            self.value = value
+
+        def scalar_one(self) -> str:
+            return self.value
+
+    class Postgres:
+        def __init__(self, shown: str) -> None:
+            self.shown = shown
+            self.sql: list[str] = []
+            self.bind = SimpleNamespace(dialect=SimpleNamespace(name="postgresql"))
+
+        async def execute(self, statement: object, *_args: object, **_kwargs: object) -> Result:
+            self.sql.append(str(statement))
+            return Result(self.shown)
+
+    accepted = Postgres("on")
+    mode = asyncio.run(enforce_database_read_only(accepted))
+    assert mode == "postgresql:transaction_read_only=on"
+    assert accepted.sql == ["SET TRANSACTION READ ONLY", "SHOW transaction_read_only"]
+
+    refused = Postgres("off")
+    with pytest.raises(RuntimeError, match="transaction_read_only"):
+        asyncio.run(enforce_database_read_only(refused))
 
 
 def _reconcile_cli():

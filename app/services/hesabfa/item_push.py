@@ -112,36 +112,80 @@ def _require_unique_product_code_match(
     return None
 
 
+@dataclass(frozen=True)
+class HesabfaItemPages:
+    """Complete item/getItems read. ``items`` length equals ``reported_total``."""
+
+    items: tuple[dict[str, Any], ...]
+    reported_total: int
+    pages_fetched: int
+
+
+async def paginate_get_items(
+    client: Any, *, page_size: int = 100
+) -> HesabfaItemPages:
+    """Read every Hesabfa item via item/getItems.
+
+    Stops only when fetched rows equal reported TotalCount. A short page or a
+    missing TotalCount is an error, not proof that later ProductCodes are absent.
+    """
+    if page_size < 1:
+        raise HesabfaError("item/getItems page_size must be >= 1")
+    items: list[dict[str, Any]] = []
+    skip = 0
+    pages = 0
+    reported: int | None = None
+    while True:
+        page = await client.get_items(take=page_size, skip=skip)
+        if not isinstance(page, dict):
+            raise HesabfaError("item/getItems returned a non-object page")
+        if page.get("TotalCount") is None:
+            raise HesabfaError("item/getItems omitted TotalCount")
+        total = int(page["TotalCount"])
+        if reported is None:
+            reported = total
+        elif total != reported:
+            raise HesabfaError(
+                f"item/getItems TotalCount changed from {reported} to {total}"
+            )
+        batch = [dict(item) for item in (page.get("List") or [])]
+        pages += 1
+        if not batch:
+            break
+        items.extend(batch)
+        skip += len(batch)
+        if skip >= total or len(batch) < page_size:
+            break
+        if pages > 100000:
+            raise HesabfaError("item/getItems pagination did not terminate")
+    if reported is None:
+        reported = 0
+    if len(items) != reported:
+        raise HesabfaError(
+            "item/getItems pagination incomplete "
+            f"fetched={len(items)} TotalCount={reported} pages={pages}"
+        )
+    return HesabfaItemPages(tuple(items), reported, pages)
+
+
 async def _find_hesabfa_item_by_product_code(
-    client: HesabfaClient, sku: str
+    client: HesabfaClient, sku: str, *, page_size: int = 100
 ) -> dict[str, Any] | None:
+    """Find ProductCode=SKU by reading the full item list.
+
+    The previous filter-plus-first-100 fallback could report a real item as
+    missing when it was past the first page, and could miss a duplicate on a
+    later page. Official list filters are not a proven exact ProductCode
+    query (the published example uses operator ``*``). Absence is proven only
+    after a complete read.
+    """
     normalized = _normalize_sku(sku)
     if not normalized:
         return None
-    page = await client.get_items(
-        take=20,
-        skip=0,
-        filters=[
-            {
-                "Property": "ProductCode",
-                "Operator": 1,
-                "Value": sku,
-            }
-        ],
+    pages = await paginate_get_items(client, page_size=page_size)
+    return _require_unique_product_code_match(
+        _exact_product_code_matches(list(pages.items), normalized), sku
     )
-    listed = list(page.get("List") or [])
-    match = _require_unique_product_code_match(
-        _exact_product_code_matches(listed, normalized), sku
-    )
-    if match is not None:
-        return match
-    if not listed:
-        page = await client.get_items(take=100, skip=0)
-        listed = list(page.get("List") or [])
-        return _require_unique_product_code_match(
-            _exact_product_code_matches(listed, normalized), sku
-        )
-    return None
 
 
 @dataclass(frozen=True)

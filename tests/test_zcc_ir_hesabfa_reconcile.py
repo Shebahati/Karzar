@@ -199,7 +199,6 @@ def test_reconcile_creates_when_absent_then_rereads(monkeypatch):
     client.get_items = AsyncMock(
         side_effect=[
             {"List": [], "TotalCount": 0},
-            {"List": [], "TotalCount": 0},
             {"List": [{"Code": "HF-9", "ProductCode": product.sku}], "TotalCount": 1},
         ]
     )
