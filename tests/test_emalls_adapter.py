@@ -411,15 +411,24 @@ class TestEmallsEligibilityAndAvailability:
 
 
 class TestEmallsPriceAndFields:
-    def test_price_pass_through_toman_no_x10(self):
+    def test_price_pass_through_toman_and_old_price_contract(self):
         async def seed():
             async with TestingSessionLocal() as session:
-                product = await _seed_product(
+                discounted = await _seed_product(
+                    session,
+                    _product(
+                        sku="PRICE-DISC",
+                        base_price=Decimal("2500000"),
+                        original_price=Decimal("3000000"),
+                    ),
+                    _valid_image(0),
+                )
+                no_discount = await _seed_product(
                     session,
                     _product(
                         sku="PRICE-2500K",
                         base_price=Decimal("2500000"),
-                        original_price=Decimal("3000000"),
+                        original_price=None,
                     ),
                     _valid_image(0),
                 )
@@ -429,17 +438,53 @@ class TestEmallsPriceAndFields:
                     _valid_image(0),
                 )
                 await session.commit()
-                return product.id, null_price.id
+                return discounted.id, no_discount.id, null_price.id
 
-        priced_id, null_id = asyncio.run(seed())
+        discounted_id, no_discount_id, null_id = asyncio.run(seed())
         body = _post_json({"token": VALID_TOKEN, "page": 1, "limit": 50}).json()
         by_id = {row["page_unique"]: row for row in body["products"]}
-        assert by_id[priced_id]["current_price"] == "2500000"
-        assert by_id[priced_id]["old_price"] == "3000000"
-        assert by_id[priced_id]["current_price"] != "25000000"
-        assert by_id[priced_id]["current_price"] != "250000"
+
+        # Discounted: current=base, old=original
+        assert by_id[discounted_id]["current_price"] == "2500000"
+        assert by_id[discounted_id]["old_price"] == "3000000"
+
+        # No discount: WC regular-price parity → old_price == current_price
+        assert by_id[no_discount_id]["current_price"] == "2500000"
+        assert by_id[no_discount_id]["old_price"] == "2500000"
+        assert by_id[no_discount_id]["current_price"] != "25000000"
+        assert by_id[no_discount_id]["current_price"] != "250000"
+
+        # Unpriced
         assert by_id[null_id]["current_price"] == ""
         assert by_id[null_id]["old_price"] == ""
+
+    def test_storefront_product_api_unchanged_by_emalls_old_price_fallback(self):
+        """Emalls old_price fallback must not alter storefront Product representations."""
+        async def seed():
+            async with TestingSessionLocal() as session:
+                product = await _seed_product(
+                    session,
+                    _product(
+                        sku="STORE-NO-DISC",
+                        base_price=Decimal("2500000"),
+                        original_price=None,
+                    ),
+                    _valid_image(0),
+                )
+                await session.commit()
+                return product.id
+
+        product_id = asyncio.run(seed())
+        storefront = client.get(f"/api/v1/products/{product_id}")
+        assert storefront.status_code == 200
+        data = storefront.json()
+        assert data["base_price"] == "2500000"
+        assert data["original_price"] is None
+
+        emalls = _post_json({"token": VALID_TOKEN, "page": 1, "limit": 50}).json()
+        row = next(r for r in emalls["products"] if r["page_unique"] == product_id)
+        assert row["current_price"] == "2500000"
+        assert row["old_price"] == "2500000"
 
     def test_urls_images_warranty_timestamps_specs_features(self):
         async def seed():

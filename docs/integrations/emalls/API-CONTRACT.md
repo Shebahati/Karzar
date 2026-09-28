@@ -78,8 +78,8 @@ Fake WordPress/PHP/WooCommerce metadata is **not** included.
 | `subtitle` | `""` (no English title field; do not invent) |
 | `parent_id` | `0` |
 | `page_unique` | `product.id` (stable) |
-| `current_price` | `product.base_price` as decimal string (TOMAN) |
-| `old_price` | `product.original_price` as decimal string (TOMAN) or `""` |
+| `current_price` | `product.base_price` as decimal string (TOMAN); `""` if null |
+| `old_price` | `product.original_price` when present; otherwise `base_price` (Emalls/WooCommerce regular-price parity); `""` if both null |
 | `availability` | `product_is_available(product)` → `instock` / `outofstock` |
 | `category_name` | assigned category `name` (leaf/current; not breadcrumb) |
 | `image_link` | first valid public image (primary-first), absolutized |
@@ -93,17 +93,23 @@ Fake WordPress/PHP/WooCommerce metadata is **not** included.
 | `date_updated` | `updated_at` ISO-8601 |
 | `product_type` | `"simple"` |
 
-### Null price behavior
+### Null / no-discount price behavior
 
-If `base_price` is `null`, `current_price` is `""` (empty string). Karzar does **not** fabricate `"0"`. Inquiry/unpriced SKUs remain exportable when storefront-public.
+| Karzar | Emalls `current_price` | Emalls `old_price` |
+|--------|------------------------|--------------------|
+| `base_price` set, `original_price` null (no discount) | `base_price` | `base_price` (regular-price parity) |
+| `base_price` set, `original_price` set (discount) | `base_price` | `original_price` |
+| both null | `""` | `""` |
+
+Adapter-only fallback: do **not** write `original_price` in the DB and do **not** change storefront discount semantics. Inquiry/unpriced SKUs remain exportable when storefront-public.
 
 ## 6. Price unit = TOMAN
 
 Site catalog prices are **TOMAN**.
 
 ```
-current_price = base_price        # exact pass-through
-old_price     = original_price    # exact pass-through when present
+current_price = base_price                          # exact pass-through
+old_price     = original_price or base_price or ""  # WC regular-price parity
 ```
 
 - Do **not** multiply or divide by 10.

@@ -34,6 +34,19 @@ def _price_string(value: Decimal | None) -> str:
     return text if text is not None else ""
 
 
+def _emalls_old_price(product: Product) -> str:
+    """Map Emalls old_price to WooCommerce regular-price semantics.
+
+    Karzar ``original_price`` is the strike-through/pre-discount value and is
+    normally NULL when there is no discount. Official Emalls/WooCommerce
+    ``get_regular_price()`` equals ``get_price()`` for non-sale products, so
+    fall back to ``base_price`` only inside this adapter — do not mutate DB.
+    """
+    if product.original_price is not None:
+        return _price_string(product.original_price)
+    return _price_string(product.base_price)
+
+
 def _availability_label(product: Product) -> str:
     return "instock" if product_is_available(product) else "outofstock"
 
@@ -145,7 +158,7 @@ def present_emalls_product(product: Product) -> EmallsProduct:
         parent_id=0,
         page_unique=product.id,
         current_price=_price_string(product.base_price),
-        old_price=_price_string(product.original_price),
+        old_price=_emalls_old_price(product),
         availability=_availability_label(product),
         category_name=category_name,
         image_link=images[0] if images else "",
