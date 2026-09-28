@@ -125,8 +125,8 @@ class Order(Base):
     postal_tracking_code: Mapped[str | None] = mapped_column(String(64))
     delivery_eta: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Logistics snapshots.
-    # Merchandise uses final customer-facing unit_price (tax-inclusive gross).
-    # tax_percent on lines is accounting metadata and must NOT inflate estimated_total.
+    # Merchandise uses final customer-facing unit_price (payable ignores tax_percent).
+    # tax_percent on lines is snapshotted metadata and must NOT inflate estimated_total.
     # sender_prepaid: estimated_total = merchandise + shipping_customer_cost
     # receiver_due: estimated_total = merchandise only; shipping_customer_cost stays NULL
     #   (NULL ≠ free shipping — see shipping_payment_mode)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_FLOOR, ROUND_HALF_UP, Decimal
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,16 +55,22 @@ def _inclusive_net_unit_and_tax(
 ) -> tuple[Decimal, Decimal]:
     """Decompose tax-inclusive gross into Hesabfa unitPrice (net) + line tax.
 
-    Karzar ``unit_price`` / ``base_price`` is the final customer-facing gross.
+    Available for use ONLY after Owner/accounting confirms that
+    ``OrderItem.tax_percent`` is authoritative VAT embedded in the gross
+    customer price. Until that decision, ``create_invoice_for_paid_order``
+    must NOT call this helper — inventing net/tax from unproven catalog
+    defaults would misclassify accounting while the paid total stays correct.
+
     Hesabfa invoice lines are exclusive: ``unitPrice * quantity + tax - discount``.
-    We therefore extract tax from the gross so the Hesabfa merchandise total
-    equals the Karzar paid merchandise total (within currency quantum).
+    When enabled, extraction keeps ``unitPrice * qty + tax == gross_line``.
 
     Rounding policy (deterministic):
     1. ``gross_line = gross_unit * quantity`` (gross_unit already quantized).
     2. ``net_line = round_half_up(gross_line / (1 + r))``.
-    3. ``net_unit = round_half_up(net_line / quantity)``.
-    4. ``tax = gross_line - net_unit * quantity`` (residual — exact reconciliation).
+    3. ``net_unit = floor(net_line / quantity)`` to the currency quantum
+       (avoids ``net_unit * qty > gross_line`` and negative tax).
+    4. ``tax = gross_line - net_unit * quantity`` (residual — exact reconciliation;
+       always ``>= 0`` when ``net_line <= gross_line``).
     """
     qty = Decimal(quantity)
     gross_line = gross_unit * qty
@@ -73,9 +79,29 @@ def _inclusive_net_unit_and_tax(
     rate = tax_percent / Decimal("100")
     quantum = _hesabfa_quantum()
     net_line = (gross_line / (Decimal("1") + rate)).quantize(quantum, rounding=ROUND_HALF_UP)
-    net_unit = (net_line / qty).quantize(quantum, rounding=ROUND_HALF_UP)
+    net_unit = (net_line / qty).quantize(quantum, rounding=ROUND_FLOOR)
     tax = gross_line - (net_unit * qty)
     return net_unit, tax
+
+
+def _invoice_unit_price_and_tax(
+    gross_unit: Decimal,
+    quantity: int,
+    tax_percent: Decimal,
+) -> tuple[Decimal, Decimal]:
+    """Fail-safe Hesabfa line money until tax_percent semantics are Owner-proven.
+
+    Customer payable is independent of tax_percent (see checkout). For accounting
+    we currently send the full gross as ``unitPrice`` with ``tax=0`` so:
+
+        unitPrice × quantity + tax == paid merchandise line
+
+    without inventing a VAT split from catalog defaults (ProductCreate/admin
+    default 9 vs ORM/DB 0). Inclusive extraction remains in
+    ``_inclusive_net_unit_and_tax`` for a future Owner-authorized enablement.
+    """
+    del quantity, tax_percent  # snapshotted for future accounting; unused until proven
+    return gross_unit, Decimal("0")
 
 
 async def create_invoice_for_paid_order(
@@ -185,7 +211,8 @@ async def create_invoice_for_paid_order(
                     f"Order item product_id={item.product_id} has no snapshotted unit_price"
                 )
             gross_unit = _to_hesabfa_money(unit_toman)
-            net_unit, tax = _inclusive_net_unit_and_tax(
+            # Fail-safe: do not invent VAT from unproven tax_percent metadata.
+            unit_price, tax = _invoice_unit_price_and_tax(
                 gross_unit,
                 item.quantity,
                 Decimal(str(item.tax_percent or 0)),
@@ -197,7 +224,7 @@ async def create_invoice_for_paid_order(
                     "itemCode": mapping.hesabfa_code,
                     "unit": "عدد",
                     "quantity": item.quantity,
-                    "unitPrice": float(net_unit),
+                    "unitPrice": float(unit_price),
                     "discount": 0,
                     "tax": float(tax),
                 }

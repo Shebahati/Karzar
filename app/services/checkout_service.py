@@ -201,8 +201,8 @@ async def submit_checkout(
 
         if unit_price is not None:
             has_priced_item = True
-            # base_price is the final customer-facing gross sale price.
-            # tax_percent is accounting metadata only — never add it on top.
+            # base_price is the final customer-facing sale price.
+            # tax_percent must never surcharge payable (accounting metadata only).
             line_total = _to_decimal(unit_price) * quantity
             estimated_total += line_total
 
@@ -216,7 +216,7 @@ async def submit_checkout(
                 "unit_price": unit_price,
                 "product_name": product.name,
                 "product_sku": product.sku,
-                # Snapshotted for accounting (Hesabfa inclusive-tax extraction).
+                # Snapshotted for future Owner-gated accounting; does not affect payable.
                 "tax_percent": product.tax_percent or Decimal("0"),
             }
         )

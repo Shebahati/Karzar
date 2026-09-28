@@ -24,9 +24,9 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 ### 2026-09-28 — Final customer price is tax-inclusive (commerce)
 
-- **Binding:** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` is accounting metadata only.
-- Checkout `estimated_total` no longer adds `tax_percent` on top of merchandise. Receiver-due SEP = merchandise only; sender-prepaid SEP = merchandise + shipping.
-- Hesabfa sale invoices extract net/`tax` from the inclusive gross so invoice merchandise reconciles to the paid order total (see `docs/HESABFA.md`).
+- **Binding (customer):** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` must not be added on top at cart/checkout/payment.
+- Checkout `estimated_total` no longer adds `tax_percent` on merchandise. Receiver-due SEP = merchandise only; sender-prepaid SEP = merchandise + shipping.
+- **Accounting:** `tax_percent` is **not** proven authoritative embedded-VAT metadata (create/admin default 9 vs ORM/DB 0). Hesabfa sale invoices currently send gross `unitPrice` with `tax=0` so invoice merchandise equals paid total; inclusive net/tax extraction is Owner-gated follow-up (`docs/HESABFA.md`).
 - Response shapes unchanged (no new fields). Docs: `COMMERCE.md`, `HESABFA.md`, Postex shipping payable wording.
 
 ### 2026-09-27 — Knowledge Wave Evidence sources are manifest-driven (Prompt 141)

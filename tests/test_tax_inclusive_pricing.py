@@ -252,14 +252,22 @@ def test_sender_prepaid_adds_shipping_once_without_tax_surcharge(
 
 
 @pytest.mark.parametrize("tax_percent", [Decimal("0"), Decimal("9"), Decimal("10")])
-@pytest.mark.parametrize("quantity", [1, 3])
-def test_inclusive_tax_extraction_reconciles(tax_percent, quantity, monkeypatch):
-    monkeypatch.setattr(settings, "HESABFA_CURRENCY_UNIT", "rial")
-    gross_unit_toman = Decimal("1000000")
-    gross_unit = _to_hesabfa_money(gross_unit_toman)
+@pytest.mark.parametrize("quantity", [1, 2, 3, 7])
+@pytest.mark.parametrize("currency_unit", ["rial", "toman"])
+@pytest.mark.parametrize(
+    "gross_toman",
+    [Decimal("1000000"), Decimal("1100000"), Decimal("999999"), Decimal("1234567")],
+)
+def test_inclusive_tax_extraction_reconciles(
+    tax_percent, quantity, currency_unit, gross_toman, monkeypatch
+):
+    """Helper retained for Owner-gated enablement; must reconcile exactly."""
+    monkeypatch.setattr(settings, "HESABFA_CURRENCY_UNIT", currency_unit)
+    gross_unit = _to_hesabfa_money(gross_toman)
     net_unit, tax = _inclusive_net_unit_and_tax(gross_unit, quantity, tax_percent)
     gross_line = gross_unit * quantity
     assert net_unit * quantity + tax == gross_line
+    assert tax >= 0
 
 
 def test_inclusive_tax_extraction_awkward_fraction(monkeypatch):
@@ -267,13 +275,12 @@ def test_inclusive_tax_extraction_awkward_fraction(monkeypatch):
     gross_unit = _to_hesabfa_money(Decimal("999999"))
     net_unit, tax = _inclusive_net_unit_and_tax(gross_unit, 1, Decimal("10"))
     assert net_unit + tax == gross_unit
-    # Explicit residual policy: tax absorbs rounding so totals match.
     expected_net = (gross_unit / Decimal("1.1")).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
     assert net_unit == expected_net
 
 
 @pytest.mark.usefixtures("override_database")
-def test_hesabfa_invoice_reconciles_to_tax_inclusive_gross(
+def test_hesabfa_invoice_uses_gross_failsafe_until_tax_metadata_proven(
     super_admin_headers, valid_product_data, monkeypatch
 ):
     from app.services.hesabfa.client import reset_hesabfa_client_for_tests
@@ -358,31 +365,58 @@ def test_hesabfa_invoice_reconciles_to_tax_inclusive_gross(
     result, payload = asyncio.run(run())
     assert result.status == "created"
     line = payload["invoiceItems"][0]
-    unit = Decimal(str(line["unitPrice"]))
-    tax = Decimal(str(line["tax"]))
-    qty = Decimal(str(line["quantity"]))
-    merchandise = unit * qty + tax
+    # Fail-safe: full gross unitPrice, tax=0 (do not invent VAT from tax_percent=10).
+    assert Decimal(str(line["unitPrice"])) == Decimal("11000000")
+    assert Decimal(str(line["tax"])) == Decimal("0")
+    assert line["quantity"] == 3
+    merchandise = Decimal(str(line["unitPrice"])) * line["quantity"] + Decimal(str(line["tax"]))
     freight = Decimal(str(payload["freight"]))
-    assert merchandise == Decimal("33000000")  # 3_300_000 toman × 10
+    assert merchandise == Decimal("33000000")  # equals paid merchandise in rial
     assert merchandise + freight == Decimal("33000000")
-    # Must NOT be additive gross+tax (would be 36_300_000 rial).
+    # Must NOT be additive gross+tax surcharge (36_300_000) nor extracted-net mis-split.
     assert merchandise != Decimal("36300000")
     reset_hesabfa_client_for_tests()
 
 
+@pytest.mark.usefixtures("enable_storefront_shipping_methods")
 @pytest.mark.parametrize(
     ("price", "qty", "tax"),
     [
-        (Decimal("0"), 1, Decimal("0")),
-        (Decimal("100"), 1, Decimal("9")),
-        (Decimal("999999"), 2, Decimal("10")),
-        (Decimal("1234567"), 5, Decimal("9")),
-        (Decimal("50"), 7, Decimal("100")),
+        ("1000000", 1, "0"),
+        ("1000000", 1, "9"),
+        ("999999", 2, "10"),
+        ("1234567", 5, "9"),
+        ("50000", 7, "100"),
     ],
 )
-def test_payable_invariant_independent_of_tax(price, qty, tax):
-    """Property-style: merchandise payable = price × qty for any valid tax metadata."""
-    assert price * qty == price * qty + Decimal("0") * tax
-    # Mirror checkout formula explicitly.
-    estimated = price * qty
-    assert estimated == price * qty
+def test_checkout_production_path_payable_invariant(
+    price,
+    qty,
+    tax,
+    override_database,
+    super_admin_headers,
+    purchase_customer_headers,
+    monkeypatch,
+):
+    """Invoke real POST /checkout so restoring tax surcharge fails CI."""
+    monkeypatch.setattr(settings, "POSTEX_ENABLED", False)
+    client = TestClient(app)
+    product = _seed_product(
+        client,
+        super_admin_headers,
+        sku=f"INV-{price}-{qty}-{tax}",
+        base_price=price,
+        tax_percent=tax,
+    )
+    body = _checkout(
+        client,
+        purchase_customer_headers,
+        product_id=product["id"],
+        quantity=qty,
+        key=f"inv-{price}-{qty}-{tax}",
+    )
+    expected = Decimal(price) * qty
+    assert Decimal(body["estimated_total"]) == expected
+    assert order_amount_rials(
+        type("O", (), {"estimated_total": Decimal(body["estimated_total"])})()
+    ) == int(expected * TOMAN_TO_RIAL)
