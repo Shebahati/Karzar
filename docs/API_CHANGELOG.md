@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-28 — Final customer price is tax-inclusive (commerce)
+
+- **Binding (customer):** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` must not be added on top at cart/checkout/payment.
+- Checkout `estimated_total` no longer adds `tax_percent` on merchandise. Receiver-due SEP = merchandise only; sender-prepaid SEP = merchandise + shipping.
+- **Accounting:** `tax_percent` is **not** proven authoritative embedded-VAT metadata (create/admin default 9 vs ORM/DB 0). Hesabfa sale invoices currently send gross `unitPrice` with `tax=0` so invoice merchandise equals paid total; inclusive net/tax extraction is Owner-gated follow-up (`docs/HESABFA.md`).
+- Response shapes unchanged (no new fields). Docs: `COMMERCE.md`, `HESABFA.md`, Postex shipping payable wording.
+
 ### 2026-09-28 — Emalls product extraction adapter (read-only)
 
 - New endpoint: `POST /api/v1/integrations/emalls/products` — Emalls-compatible product feed.
