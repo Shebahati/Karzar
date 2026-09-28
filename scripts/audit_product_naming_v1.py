@@ -696,6 +696,36 @@ def main(argv: list[str] | None = None) -> int:
         for (br, code), ids in list(dup_codes.items())[:15]:
             lines.append(f"  - {br} / `{code}` → ids {ids}")
     lines.append("")
+
+    # Collision detail CSVs
+    coll_name_rows = [
+        {
+            "proposed_name": n,
+            "product_ids": "|".join(str(i) for i in ids),
+            "count": len(ids),
+        }
+        for n, ids in sorted(dup_names.items(), key=lambda x: -len(x[1]))
+    ]
+    _csv_write(
+        output_dir / "COLLISIONS_PROPOSED_NAME.csv",
+        ["proposed_name", "product_ids", "count"],
+        coll_name_rows,
+    )
+    coll_code_rows = [
+        {
+            "brand_en": br,
+            "manufacturer_code": code,
+            "product_ids": "|".join(str(i) for i in ids),
+            "count": len(ids),
+        }
+        for (br, code), ids in sorted(dup_codes.items(), key=lambda x: -len(x[1]))
+    ]
+    _csv_write(
+        output_dir / "COLLISIONS_BRAND_MANUFACTURER_CODE.csv",
+        ["brand_en", "manufacturer_code", "product_ids", "count"],
+        coll_code_rows,
+    )
+
     lines.append("## Example proposals / holds")
     lines.append("")
     for key in [

@@ -25,9 +25,9 @@
     "HOLD_MISSING_MANUFACTURER_CODE:none": 1,
     "HOLD_IDENTITY_CONFLICT:none": 3
   },
+  "rename_safe_high": 0,
   "rename_safe_medium": 255,
   "rename_safe_low": 253,
-  "rename_safe_high": 0,
   "meta_title_blank": 682,
   "serp_would_change": 280,
   "proposed_name_collisions": 0,
