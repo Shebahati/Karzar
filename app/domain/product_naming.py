@@ -6,8 +6,9 @@ No network, no DB writes, no AI. Structured identity → display name.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 from app.utils.seo_descriptions import display_brand_name, split_bilingual_label
 
@@ -363,7 +364,7 @@ def _resolve_range_pair(facts: Mapping[str, Any] | None) -> tuple[Any, Any] | No
     raw = facts.get("measurement_range") or facts.get("range") or facts.get("measuring_range")
     if isinstance(raw, dict) and {"min", "max"} <= set(raw.keys()):
         return raw["min"], raw["max"]
-    if isinstance(raw, (list, tuple)) and len(raw) == 2:
+    if isinstance(raw, list | tuple) and len(raw) == 2:
         return raw[0], raw[1]
     if isinstance(raw, str):
         m = _RANGE_IN_SPECS_RE.search(raw.replace("/", " "))
@@ -379,7 +380,7 @@ def _format_variant(key_group: tuple[str, ...], value: Any, facts: Mapping[str, 
             return format_measurement_range_mm(pair[0], pair[1])
         if isinstance(value, dict) and {"min", "max"} <= set(value.keys()):
             return format_measurement_range_mm(value["min"], value["max"])
-        if isinstance(value, (list, tuple)) and len(value) == 2:
+        if isinstance(value, list | tuple) and len(value) == 2:
             return format_measurement_range_mm(value[0], value[1])
         if isinstance(value, str):
             m = _RANGE_IN_SPECS_RE.search(value.replace("/", " "))
@@ -408,7 +409,7 @@ def _format_variant(key_group: tuple[str, ...], value: Any, facts: Mapping[str, 
                 cap = facts.get("capacity")
         if cap is None and value is not None:
             cap = value
-        if isinstance(cap, (int, float)):
+        if isinstance(cap, int | float):
             return f"{_num(cap)} میلی‌متر"
         if isinstance(cap, str) and cap.strip():
             cm = _CAPACITY_MM_RE.search(cap) or re.search(r"(?P<n>\d+(?:\.\d+)?)", cap)
@@ -416,7 +417,7 @@ def _format_variant(key_group: tuple[str, ...], value: Any, facts: Mapping[str, 
                 return f"{_num(cm.group('n'))} میلی‌متر"
 
     if any(k in key_group for k in ("diameter", "cutting_diameter", "diameter_mm")):
-        if isinstance(value, (int, float, str)) and str(value).strip():
+        if isinstance(value, int | float | str) and str(value).strip():
             try:
                 float(str(value).replace("mm", "").strip())
                 return format_diameter_mm(str(value).replace("mm", "").strip())
