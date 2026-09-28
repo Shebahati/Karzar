@@ -18,17 +18,34 @@ from app.services.emalls.exceptions import (
     EmallsTokenInvalidError,
     EmallsValidationUnavailableError,
 )
+from app.services.emalls.request_parser import parse_emalls_products_request
 from app.services.emalls.service import list_emalls_products
 
 logger = get_logger(__name__)
 
 router = APIRouter()
 
+_REQUEST_SCHEMA = EmallsProductsRequest.model_json_schema()
+
 
 @router.post(
     "/products",
     response_model=EmallsProductsResponse,
     summary="Emalls product extraction (read-only)",
+    openapi_extra={
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {"schema": _REQUEST_SCHEMA},
+                "application/x-www-form-urlencoded": {"schema": _REQUEST_SCHEMA},
+            },
+            "description": (
+                "Emalls-compatible params (`token`, `page`, `limit`, `variation`). "
+                "Accepts JSON or form-urlencoded bodies; query params are also merged "
+                "(WordPress WP_REST_Request::get_param parity)."
+            ),
+        }
+    },
     responses={
         401: {"description": "Invalid Emalls token"},
         422: {"description": "Invalid page/limit/request body"},
@@ -39,7 +56,7 @@ router = APIRouter()
 )
 async def emalls_products(
     request: Request,
-    body: EmallsProductsRequest,
+    body: EmallsProductsRequest = Depends(parse_emalls_products_request),
     db: AsyncSession = Depends(get_db),
 ) -> EmallsProductsResponse:
     """Export public storefront products in Emalls-compatible shape.

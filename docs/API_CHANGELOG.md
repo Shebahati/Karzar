@@ -25,7 +25,9 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 ### 2026-09-28 — Emalls product extraction adapter (read-only)
 
 - New endpoint: `POST /api/v1/integrations/emalls/products` — Emalls-compatible product feed.
-- Auth: Emalls-supplied `token` validated against `emalls.ir` (positive Redis/in-memory cache TTL 1h). Fail closed on validator outage without cache.
+- Request encodings: `application/json` and `application/x-www-form-urlencoded` (plus query-param merge) for WP plugin parity.
+- Auth: Emalls-supplied `token` validated against `emalls.ir` with exact message `the token is valid` (positive Redis/in-memory cache TTL 1h). Fail closed on validator outage without cache.
+- `NeedSession=true` after fresh remote validation; `NeedSession=false` on cache hit. Response `Version` / validator `version` use `EMALLS_COMPAT_VERSION` (default `1.3.0`).
 - Eligibility reuses `storefront_public_product_filters()` (active, not deleted, valid public image). Availability maps `product_is_available` → `instock`/`outofstock`. Prices pass through site TOMAN (`base_price` / `original_price`) with no ×10/÷10 conversion.
 - Does **not** change `GET /api/v1/products/` or storefront ProductSummary/Detail shapes.
 - Contract detail: [`integrations/emalls/API-CONTRACT.md`](integrations/emalls/API-CONTRACT.md).

@@ -198,7 +198,10 @@ class Settings(BaseSettings):
     EMALLS_SHOP_DOMAIN: str = "karzartools.com"
     EMALLS_PUBLIC_SITE_ORIGIN: str = "https://www.karzartools.com"
     EMALLS_HTTP_TIMEOUT_SECONDS: float = Field(default=8.0, ge=1.0, le=30.0)
-    EMALLS_ADAPTER_VERSION: str = "1.0.0"
+    # Protocol version sent to Emalls wp_plugin.ashx (official plugin = 1.3.0).
+    EMALLS_COMPAT_VERSION: str = "1.3.0"
+    # Internal Karzar adapter software version (logs/docs only — not the validator).
+    EMALLS_ADAPTER_SOFTWARE_VERSION: str = "1.0.0"
 
     # Security middleware
     MAX_REQUEST_BODY_BYTES: int = Field(default=1_048_576, ge=1024, le=10_485_760)

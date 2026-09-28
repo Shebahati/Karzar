@@ -30,14 +30,20 @@ Emalls must **not** consume `GET /api/v1/products/` directly. This adapter owns 
 
 ## 3. Request contract
 
-JSON body (WooCommerce plugin-compatible field names):
+WordPress-plugin-compatible field names. Accepted encodings (WP `get_param` parity):
+
+1. `application/json`
+2. `application/x-www-form-urlencoded`
+3. Equivalent POST query parameters (merged; body overlays query)
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `token` | string | yes | Supplied by Emalls. Never logged. |
+| `token` | string | yes | Supplied by Emalls. Never logged. Never echoed. |
 | `page` | int | no | Default `1`, minimum `1` |
 | `limit` | int | no | Default `50`, minimum `1`, **maximum `100`** |
 | `variation` | any | no | Accepted and **ignored** (Karzar has no WC variations) |
+
+Malformed page/limit/token still return Karzar's standard **422** envelope.
 
 ## 4. Response contract
 
@@ -46,14 +52,21 @@ JSON body (WooCommerce plugin-compatible field names):
   "count": 1234,
   "max_pages": 25,
   "products": [ /* EmallsProduct */ ],
-  "Version": "1.0.0",
-  "NeedSession": false
+  "Version": "1.3.0",
+  "NeedSession": true
 }
 ```
 
+| Field | Semantics (official plugin v1.3.0) |
+|-------|-------------------------------------|
+| `Version` | Emalls **compatibility/protocol** version (`EMALLS_COMPAT_VERSION`, default `1.3.0`) — not the internal Karzar adapter software version |
+| `NeedSession` | `true` after a fresh remote token validation; `false` when served from a still-valid positive cache hit |
+
 ### Security decision: `TokenSendByEmalls`
 
-Official WordPress plugin responses may echo `TokenSendByEmalls`. Karzar **does not** return the raw token in the response. Emalls already sent it; reflecting secrets is unnecessary and unsafe. Compatibility testing can add it later only if Emalls proves it is required.
+Official WordPress plugin responses may echo `TokenSendByEmalls`. Karzar **does not** return the raw token in the response. Emalls already sent it; reflecting secrets is unnecessary and unsafe.
+
+**EXTERNAL_COMPATIBILITY_GATE:** Does Emalls require `TokenSendByEmalls` in custom integrations? Verify during staging/live-token handoff. Reintroduce only in a separately reviewed change if Emalls proves it is required.
 
 Fake WordPress/PHP/WooCommerce metadata is **not** included.
 
@@ -73,7 +86,7 @@ Fake WordPress/PHP/WooCommerce metadata is **not** included.
 | `image_links` | all valid public images, primary first, no duplicates/placeholders |
 | `page_url` | `{EMALLS_PUBLIC_SITE_ORIGIN}/product/{slug}` |
 | `short_desc` | `product.short_description` or `""` |
-| `spec` | `[{ ...public specs..., "شناسه کالا": sku }]` or `[]` |
+| `spec` | `[{ ...public technical_specs, dimensions, features..., "شناسه کالا": sku }]` |
 | `guarantee` | `product.warranty_text` or `""` |
 | `registry` | `""` (no regulated registry field) |
 | `date_added` | `created_at` ISO-8601 |
@@ -129,13 +142,13 @@ Ordering: `Product.id DESC` (stable pagination; no duplicates across adjacent pa
 
 ## 9. Token validation flow
 
-1. Emalls POSTs `token` (+ page/limit).
+1. Emalls POSTs `token` (+ page/limit) as JSON **or** form-urlencoded (query params also merged).
 2. Cache lookup: key `emalls:token:<sha256(token + normalized_domain)>`.
-3. Cache hit → serve products (no outbound call).
-4. Cache miss → `POST` to `EMALLS_VALIDATION_URL` with `token`, `shop_domain`, `version`.
-5. Success (`success=true`, message indicates valid) → cache positive marker for TTL → serve products.
-6. Invalid → HTTP **401**.
-7. Timeout / 5xx / network error with **no** valid cache → fail closed HTTP **503**.
+3. Cache hit → serve products with `NeedSession=false` (no outbound call).
+4. Cache miss → `POST` to `EMALLS_VALIDATION_URL` with `token`, `shop_domain`, `version=EMALLS_COMPAT_VERSION` (default `1.3.0`).
+5. Success **only** when `success === true` **and** normalized message equals exactly `the token is valid` → cache positive marker for TTL → serve products with `NeedSession=true`.
+6. Any other success/message combination → HTTP **401** (invalid token). Invalid tokens are never positively cached.
+7. Timeout / 5xx / network / malformed JSON with **no** valid cache → fail closed HTTP **503**.
 
 Raw tokens are never logged, never stored in Postgres, and never returned in responses.
 
@@ -151,7 +164,7 @@ Raw tokens are never logged, never stored in Postgres, and never returned in res
 
 | HTTP | When |
 |------|------|
-| 422 | Invalid page/limit/body (Pydantic) |
+| 422 | Invalid page/limit/body/content-type (Pydantic / parser) |
 | 401 | Emalls token invalid |
 | 429 | Per-IP throttle exceeded |
 | 503 | Validator unavailable and no valid cache |
@@ -161,6 +174,7 @@ Raw tokens are never logged, never stored in Postgres, and never returned in res
 
 - Redact token from logs (`[redacted]`).
 - Do not echo secrets in error bodies.
+- Do not log raw request bodies.
 - Body size limited by existing `MAX_REQUEST_BODY_BYTES` middleware.
 - Dedicated throttle: `PUBLIC_THROTTLE_EMALLS_MAX` / `WINDOW` (default 120 / 60s).
 - No admin auth dependency.
@@ -171,17 +185,19 @@ Raw tokens are never logged, never stored in Postgres, and never returned in res
 
 1. Point client at local/staging API base (`http://127.0.0.1:8000/api/v1`).
 2. Use a **test** Emalls token (never commit real tokens).
-3. Run `python scripts/emalls_preflight.py --base-url ... --token "$TOKEN"`.
+3. Run `python scripts/emalls_preflight.py --request-format form --base-url ... --token "$TOKEN"` (form is the default external-compat mode).
 4. Confirm PRICE / AVAILABILITY / URL / IMAGE / SKU canary against known products.
 5. Paginate with `limit=100` and verify `count`, `max_pages`, no duplicate `page_unique`.
+6. Only label a run **FULL FEED PREFLIGHT** when executed against a real local/staging catalog snapshot — not a two-row fixture.
 
 ## 14. Production handoff procedure
 
 1. Merge PR; Owner-authorized deploy separately (not part of this change).
-2. Set env: `EMALLS_SHOP_DOMAIN`, `EMALLS_PUBLIC_SITE_ORIGIN`, Redis available for cache.
+2. Set env: `EMALLS_SHOP_DOMAIN`, `EMALLS_PUBLIC_SITE_ORIGIN`, `EMALLS_COMPAT_VERSION=1.3.0`, Redis available for cache.
 3. Register endpoint URL with Emalls: `https://api.karzartools.com/api/v1/integrations/emalls/products`.
 4. Emalls supplies live token; validate with preflight against staging first if possible.
 5. Confirm price-unit expectation with Emalls (TOMAN vs IRR) before go-live claims.
+6. Confirm whether `TokenSendByEmalls` is required for custom integrations.
 
 ## 15. Rollback procedure
 
@@ -198,7 +214,8 @@ Raw tokens are never logged, never stored in Postgres, and never returned in res
 | `EMALLS_SHOP_DOMAIN` | `karzartools.com` | Validator shop_domain |
 | `EMALLS_PUBLIC_SITE_ORIGIN` | `https://www.karzartools.com` | PDP URL origin |
 | `EMALLS_HTTP_TIMEOUT_SECONDS` | `8` | Outbound timeout |
-| `EMALLS_ADAPTER_VERSION` | `1.0.0` | Response `Version` |
+| `EMALLS_COMPAT_VERSION` | `1.3.0` | Protocol version for validator + response `Version` |
+| `EMALLS_ADAPTER_SOFTWARE_VERSION` | `1.0.0` | Internal software version (logs/docs only) |
 | `PUBLIC_THROTTLE_EMALLS_MAX` | `120` | Per-IP request budget |
 | `PUBLIC_THROTTLE_EMALLS_WINDOW` | `60` | Throttle window seconds |
 

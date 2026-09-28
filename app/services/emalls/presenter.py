@@ -65,8 +65,23 @@ def _public_image_urls(product: Product) -> list[str]:
     return urls
 
 
+def _feature_value_string(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int | float):
+        return str(value)
+    if isinstance(value, str):
+        text = value.strip()
+        return text or None
+    return None
+
+
 def _flatten_public_specs(product: Product) -> dict[str, str]:
-    """Build a flat Emalls spec object from storefront-normalized specs only."""
+    """Build a flat Emalls spec object from storefront-normalized specs only.
+
+    Includes public ``technical_specs``, ``dimensions``, and scalar ``features``.
+    Does not leak unknown root JSONB keys or optional_accessories.
+    """
     normalized = normalize_specifications_for_api(
         dict(product.specifications or {}),
         audience="storefront",
@@ -88,6 +103,17 @@ def _flatten_public_specs(product: Product) -> dict[str, str]:
                 continue
             if key not in flat:
                 flat[key] = text
+
+    features = normalized.get("features") or {}
+    if isinstance(features, dict):
+        for key, value in features.items():
+            feature_key = str(key).strip()
+            if not feature_key or feature_key in flat:
+                continue
+            text = _feature_value_string(value)
+            if text is None:
+                continue
+            flat[feature_key] = text
     return flat
 
 

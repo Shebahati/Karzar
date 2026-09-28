@@ -123,6 +123,8 @@ async def list_emalls_products(
     """Authenticate via Emalls token, then return one page of public products."""
     started = time.perf_counter()
     cache_hit = await ensure_emalls_token(token, client=client, cache=cache)
+    # Official v1.3.0: fresh remote validation → NeedSession=true; cache hit → false.
+    need_session = not cache_hit
 
     skip = (page - 1) * limit
     products, total = await _count_and_page(db, skip=skip, limit=limit)
@@ -139,8 +141,11 @@ async def list_emalls_products(
             count=total,
             max_pages=max_pages,
             cache_hit=cache_hit,
+            NeedSession=need_session,
             validation_result="ok",
             duration_ms=duration_ms,
+            adapter_software_version=settings.EMALLS_ADAPTER_SOFTWARE_VERSION,
+            compat_version=settings.EMALLS_COMPAT_VERSION,
         ),
     )
 
@@ -148,6 +153,6 @@ async def list_emalls_products(
         count=total,
         max_pages=max_pages,
         products=payload,
-        Version=settings.EMALLS_ADAPTER_VERSION,
-        NeedSession=False,
+        Version=settings.EMALLS_COMPAT_VERSION,
+        NeedSession=need_session,
     )

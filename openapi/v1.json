@@ -10306,10 +10306,80 @@
         "description": "Export public storefront products in Emalls-compatible shape.\n\nAuthenticated solely via Emalls token validation (cached). Performs no\ncatalog, price, availability, image, or KB writes.",
         "operationId": "emalls_products_api_v1_integrations_emalls_products_post",
         "requestBody": {
+          "description": "Emalls-compatible params (`token`, `page`, `limit`, `variation`). Accepts JSON or form-urlencoded bodies; query params are also merged (WordPress WP_REST_Request::get_param parity).",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EmallsProductsRequest"
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "title": "Token",
+                    "description": "Token supplied by Emalls"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1.0,
+                    "title": "Page",
+                    "description": "1-based page index",
+                    "default": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100.0,
+                    "minimum": 1.0,
+                    "title": "Limit",
+                    "description": "Page size (default 50, hard cap 100)",
+                    "default": 50
+                  },
+                  "variation": {
+                    "title": "Variation",
+                    "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "title": "EmallsProductsRequest",
+                "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "title": "Token",
+                    "description": "Token supplied by Emalls"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1.0,
+                    "title": "Page",
+                    "description": "1-based page index",
+                    "default": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100.0,
+                    "minimum": 1.0,
+                    "title": "Limit",
+                    "description": "Page size (default 50, hard cap 100)",
+                    "default": 50
+                  },
+                  "variation": {
+                    "title": "Variation",
+                    "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "title": "EmallsProductsRequest",
+                "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
               }
             }
           },
@@ -15227,41 +15297,6 @@
         ],
         "title": "EmallsProduct",
         "description": "Single product payload for Emalls consumption."
-      },
-      "EmallsProductsRequest": {
-        "properties": {
-          "token": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Token",
-            "description": "Token supplied by Emalls"
-          },
-          "page": {
-            "type": "integer",
-            "minimum": 1.0,
-            "title": "Page",
-            "description": "1-based page index",
-            "default": 1
-          },
-          "limit": {
-            "type": "integer",
-            "maximum": 100.0,
-            "minimum": 1.0,
-            "title": "Limit",
-            "description": "Page size (default 50, hard cap 100)",
-            "default": 50
-          },
-          "variation": {
-            "title": "Variation",
-            "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
-          }
-        },
-        "type": "object",
-        "required": [
-          "token"
-        ],
-        "title": "EmallsProductsRequest",
-        "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
       },
       "EmallsProductsResponse": {
         "properties": {

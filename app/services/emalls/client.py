@@ -15,7 +15,8 @@ from app.services.emalls.exceptions import (
 
 logger = get_logger(__name__)
 
-ADAPTER_VERSION_FOR_VALIDATOR = "1.0.0"
+# Official Emalls plugin v1.3.0 exact acceptance message (case-insensitive after trim).
+_VALID_TOKEN_MESSAGE = "the token is valid"
 
 
 class EmallsClient:
@@ -41,12 +42,16 @@ class EmallsClient:
             else settings.EMALLS_HTTP_TIMEOUT_SECONDS
         )
         self.timeout = httpx.Timeout(timeout, connect=min(5.0, timeout))
-        self.version = version if version is not None else ADAPTER_VERSION_FOR_VALIDATOR
+        # Protocol compatibility version (official plugin sends 1.3.0).
+        self.version = (
+            version if version is not None else settings.EMALLS_COMPAT_VERSION
+        )
 
     async def validate_token(self, token: str) -> None:
         """Validate token with Emalls. Raises on invalid or transport failure.
 
         Never logs the raw token.
+        Accepts only success=true AND message exactly ``the token is valid``.
         """
         form: dict[str, Any] = {
             "token": token,
@@ -98,19 +103,28 @@ class EmallsClient:
                 "Emalls token validation returned non-JSON"
             ) from exc
 
-        success = False
-        message = ""
-        if isinstance(payload, dict):
-            success = bool(payload.get("success") is True or payload.get("Success") is True)
-            raw_message = payload.get("message")
-            if raw_message is None:
-                raw_message = payload.get("Message")
-            message = str(raw_message or "").strip().lower()
+        if not isinstance(payload, dict):
+            logger.warning("integration=emalls validation_result=non_object")
+            raise EmallsValidationUnavailableError(
+                "Emalls token validation returned unexpected payload"
+            )
 
-        if success and ("valid" in message or message == ""):
+        success_raw = payload.get("success")
+        if success_raw is None:
+            success_raw = payload.get("Success")
+        success = success_raw is True
+
+        raw_message = payload.get("message")
+        if raw_message is None:
+            raw_message = payload.get("Message")
+        message = str(raw_message or "").strip().lower()
+
+        if success and message == _VALID_TOKEN_MESSAGE:
             logger.info(
-                "integration=emalls validation_result=success shop_domain=%s",
+                "integration=emalls validation_result=success shop_domain=%s "
+                "compat_version=%s",
                 self.shop_domain,
+                self.version,
             )
             return
 
