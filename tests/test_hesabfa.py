@@ -205,7 +205,9 @@ def test_ensure_product_in_hesabfa_creates_mapping(super_admin_headers, valid_pr
     mock_client.save_item.assert_awaited_once()
     payload = mock_client.save_item.await_args.args[0]
     assert payload["productCode"] == product["sku"]
-    assert "Stock" not in payload
+    assert payload["active"] is True
+    for key in ("Stock", "stock", "Quantity", "quantity", "openingQty", "OpeningQuantity"):
+        assert key not in payload
 
 
 @pytest.mark.usefixtures("override_database")

@@ -1,7 +1,11 @@
-"""Push site products into Hesabfa as item shells (stock/qty = 0).
+"""Push site products into Hesabfa as item shells (quantity fields omitted).
 
-Site remains source of truth for catalog/prices. Hesabfa receives the item
-record so warehouse quantities can be managed only there.
+Site remains source of truth for catalog publication and prices. Hesabfa
+receives the accounting item so warehouse quantities stay there.
+
+The website publication lifecycle and Hesabfa accounting item lifecycle are
+intentionally independent: item shells are kept active regardless of site
+``is_active`` / ``is_available``.
 """
 
 from __future__ import annotations
@@ -23,6 +27,7 @@ from app.services.hesabfa.client import (
     hesabfa_integration_active,
 )
 from app.services.hesabfa.exceptions import HesabfaError
+from app.services.hesabfa.item_lifecycle import hesabfa_item_should_be_active
 from app.services.hesabfa.mapping import _normalize_sku
 
 logger = get_logger(__name__)
@@ -56,13 +61,23 @@ def build_hesabfa_item_payload(
     *,
     hesabfa_code: str | None = None,
 ) -> dict[str, Any]:
-    """Build item/save body. Does not set opening stock (defaults to 0 in Hesabfa)."""
+    """Build item/save body for a catalog item shell.
+
+    Does not send opening stock or warehouse quantity. Hesabfa may default a
+    brand-new item's quantity to 0; this payload omits those fields so the
+    integration does not overwrite warehouse counts.
+
+    ``active`` comes only from :func:`hesabfa_item_should_be_active`. The
+    website publication lifecycle and Hesabfa accounting item lifecycle are
+    intentionally independent: site ``is_active``, ``is_available``, price,
+    and stock do not change this flag.
+    """
     item: dict[str, Any] = {
         "name": product.name[:200],
         "itemType": ITEM_TYPE_PRODUCT,
         "productCode": product.sku,
         "unit": _unit_label(product),
-        "active": bool(product.is_active),
+        "active": hesabfa_item_should_be_active(product),
         "sellPrice": 0.0,
         "buyPrice": 0,
         "tag": f"karzar:{product.id}",
@@ -71,6 +86,30 @@ def build_hesabfa_item_payload(
     if hesabfa_code:
         item["code"] = hesabfa_code
     return item
+
+
+def _exact_product_code_matches(
+    items: list[dict[str, Any]], normalized: str
+) -> list[dict[str, Any]]:
+    matches: list[dict[str, Any]] = []
+    for item in items:
+        code = _normalize_sku(str(item.get("ProductCode") or item.get("productCode") or ""))
+        if code == normalized:
+            matches.append(item)
+    return matches
+
+
+def _require_unique_product_code_match(
+    matches: list[dict[str, Any]], sku: str
+) -> dict[str, Any] | None:
+    """Fail closed when more than one Hesabfa item shares ProductCode."""
+    if len(matches) > 1:
+        raise HesabfaError(
+            f"ambiguous Hesabfa ProductCode sku={sku} matches={len(matches)}"
+        )
+    if len(matches) == 1:
+        return matches[0]
+    return None
 
 
 async def _find_hesabfa_item_by_product_code(
@@ -90,16 +129,18 @@ async def _find_hesabfa_item_by_product_code(
             }
         ],
     )
-    for item in page.get("List") or []:
-        code = _normalize_sku(str(item.get("ProductCode") or item.get("productCode") or ""))
-        if code == normalized:
-            return item
-    if not (page.get("List") or []):
+    listed = list(page.get("List") or [])
+    match = _require_unique_product_code_match(
+        _exact_product_code_matches(listed, normalized), sku
+    )
+    if match is not None:
+        return match
+    if not listed:
         page = await client.get_items(take=100, skip=0)
-        for item in page.get("List") or []:
-            code = _normalize_sku(str(item.get("ProductCode") or item.get("productCode") or ""))
-            if code == normalized:
-                return item
+        listed = list(page.get("List") or [])
+        return _require_unique_product_code_match(
+            _exact_product_code_matches(listed, normalized), sku
+        )
     return None
 
 
@@ -151,6 +192,8 @@ async def ensure_product_in_hesabfa(
     if not hesabfa_integration_active():
         return None
     if product.deleted_at is not None:
+        # Soft-deleted site rows are not pushed. Skipping means do not touch
+        # Hesabfa; it must not deactivate the accounting item.
         return None
 
     api = client or get_hesabfa_client()
@@ -203,6 +246,10 @@ async def reconcile_product_item_shell(
     If a verified remote item already exists for ProductCode=SKU, write/refresh the
     local mapping only. If absent and ``allow_save`` is true, call ``item/save``
     once, re-read by ProductCode, then write the local mapping. Never sets stock.
+
+    Commerce gates (active, available, priced, or non-zero site stock) refuse the
+    operation. Those gates limit which draft rows this reconciler may touch; they
+    do not set Hesabfa ``active``. A shell that is saved is active.
     """
     if not hesabfa_integration_active():
         return ItemReconcileResult("skipped", None, None, False)
@@ -267,8 +314,17 @@ async def reconcile_product_item_shell(
         return ItemReconcileResult("skipped", existing, None, False)
 
     payload = build_hesabfa_item_payload(product, hesabfa_code=None)
-    # Force inactive zero-price shell regardless of any stale product flags already checked.
-    payload["active"] = False
+    # Operation gates above decide whether this draft shell may be saved.
+    # They do not decide Hesabfa activation. The website publication lifecycle
+    # and Hesabfa accounting item lifecycle are intentionally independent, so
+    # a new shell is active even when the site row is inactive, unavailable,
+    # or unpriced. Zero shell prices apply only to this create-missing path
+    # after lookup proved no remote ProductCode; they are not an activation
+    # update of an existing priced item.
+    if payload.get("active") is not True:
+        raise HesabfaError(
+            f"Hesabfa item shell must stay active sku={product.sku}"
+        )
     payload["sellPrice"] = 0.0
     payload["buyPrice"] = 0
     saved = await api.save_item(payload)
@@ -324,7 +380,18 @@ async def push_all_site_products_to_hesabfa(
     client: HesabfaClient | None = None,
     limit: int | None = None,
 ) -> ItemPushResult:
-    """Backfill: upsert every active site product into Hesabfa (stock left at 0)."""
+    """Upsert every non-deleted site product into Hesabfa.
+
+    Population is ``Product.deleted_at IS NULL``. Site ``is_active`` and
+    ``is_available`` do not filter this set. Hesabfa ``active`` is always true
+    and is independent of site publication state. Quantity fields are omitted.
+
+    This request-scoped backfill is not the activation campaign: it has no
+    resume cursor, it resends shell sell/buy prices of 0, and duplicate
+    ProductCode handling is limited to one lookup page. Use
+    ``scripts/hesabfa_product_activation_reconcile.py`` for a read-only report.
+    Activation APPLY stays blocked until item/save update semantics are proven.
+    """
     api = client or get_hesabfa_client()
     stmt = (
         select(Product)
