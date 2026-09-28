@@ -557,7 +557,7 @@ def test_read_only_transaction_rejects_update(
         fetch_catalog_snapshot,
         release_database_read_only,
     )
-    from sqlalchemy.exc import OperationalError
+    from sqlalchemy.exc import DBAPIError
 
     _mock_hesabfa(monkeypatch)
 
@@ -584,12 +584,15 @@ def test_read_only_transaction_rejects_update(
             mode = await enforce_database_read_only(guard)
             try:
                 snapshot = await fetch_catalog_snapshot(guard)
-                with pytest.raises(OperationalError):
+                # SQLite: OperationalError "readonly database".
+                # PostgreSQL: DBAPIError ReadOnlySQLTransactionError.
+                with pytest.raises(DBAPIError, match="read-?only"):
                     await session.execute(text("UPDATE products SET name = name"))
             finally:
                 await release_database_read_only(guard, mode)
-            flag = (await session.execute(text("PRAGMA query_only"))).scalar_one()
-            assert int(flag) == 0
+            if mode.startswith("sqlite"):
+                flag = (await session.execute(text("PRAGMA query_only"))).scalar_one()
+                assert int(flag) == 0
             assert guard.database_writes == 0
             skus = {row.sku for row in snapshot["products"]}
             return {
@@ -601,7 +604,10 @@ def test_read_only_transaction_rejects_update(
             }
 
     result = asyncio.run(run())
-    assert result["mode"] == "sqlite:query_only=1"
+    assert result["mode"] in {
+        "sqlite:query_only=1",
+        "postgresql:transaction_read_only=on",
+    }
     assert result["has_kept"] is True
     assert result["has_removed"] is False
     baseline = result["baseline"]
