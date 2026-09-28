@@ -201,9 +201,10 @@ async def submit_checkout(
 
         if unit_price is not None:
             has_priced_item = True
+            # base_price is the final customer-facing gross sale price.
+            # tax_percent is accounting metadata only — never add it on top.
             line_total = _to_decimal(unit_price) * quantity
-            tax_rate = _to_decimal(product.tax_percent or 0) / Decimal("100")
-            estimated_total += line_total + (line_total * tax_rate)
+            estimated_total += line_total
 
         if is_purchase:
             stock_reservations.append((product_id, quantity))
@@ -215,6 +216,7 @@ async def submit_checkout(
                 "unit_price": unit_price,
                 "product_name": product.name,
                 "product_sku": product.sku,
+                # Snapshotted for accounting (Hesabfa inclusive-tax extraction).
                 "tax_percent": product.tax_percent or Decimal("0"),
             }
         )

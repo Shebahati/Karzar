@@ -74,3 +74,31 @@ Hesabfa `item/save` supports `nodeFamily`, but site categories are **not synced*
 ## Payment hook
 
 `verify_order_payment` → `maybe_create_invoice_after_payment`. Failures never roll back payment. `HESABFA_TEST_MODE=true` → skip with status `skipped`.
+
+## Invoice money / tax (tax-inclusive catalog prices)
+
+Karzar `OrderItem.unit_price` is the **final customer-facing gross** (same meaning as `Product.base_price`). Hesabfa sale invoice lines are **tax-exclusive**:
+
+```text
+line_total = unitPrice × quantity − discount + tax
+invoice_total ≈ Σ(line_total) + freight
+```
+
+Therefore Karzar **extracts** VAT from the gross before sending:
+
+| Field | Meaning |
+|-------|---------|
+| `unitPrice` | Net unit amount after extracting tax from gross |
+| `tax` | Absolute line tax residual so `unitPrice × qty + tax == gross_line` |
+| `freight` | `shipping_customer_cost` (0 / omitted for `receiver_due`) |
+| `discount` | Always `0` on web sale invoices today |
+
+Rounding (deterministic, `ROUND_HALF_UP`):
+
+1. Convert gross unit toman → Hesabfa money (`HESABFA_CURRENCY_UNIT`: rial = ×10 integer; toman = 0.01).
+2. `gross_line = gross_unit × quantity`.
+3. `net_line = round(gross_line / (1 + tax_percent/100))`.
+4. `net_unit = round(net_line / quantity)`.
+5. `tax = gross_line − net_unit × quantity` (residual guarantees reconciliation).
+
+Never send `unitPrice = gross` together with `tax = gross × rate` — that double-counts tax and makes the Hesabfa invoice larger than the amount the customer paid.

@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-28 — Final customer price is tax-inclusive (commerce)
+
+- **Binding:** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` is accounting metadata only.
+- Checkout `estimated_total` no longer adds `tax_percent` on top of merchandise. Receiver-due SEP = merchandise only; sender-prepaid SEP = merchandise + shipping.
+- Hesabfa sale invoices extract net/`tax` from the inclusive gross so invoice merchandise reconciles to the paid order total (see `docs/HESABFA.md`).
+- Response shapes unchanged (no new fields). Docs: `COMMERCE.md`, `HESABFA.md`, Postex shipping payable wording.
+
 ### 2026-09-27 — Knowledge Wave Evidence sources are manifest-driven (Prompt 141)
 
 - Wave Evidence Artifact authorization is sealed in `policy_json.evidence_artifacts`: each pin is `{artifact_pk, artifact_id, checksum_sha256}` and must match the DB Artifact row on all three axes.

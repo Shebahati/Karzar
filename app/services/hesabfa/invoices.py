@@ -34,6 +34,10 @@ class InvoiceSyncResult:
     message: str | None = None
 
 
+def _hesabfa_quantum() -> Decimal:
+    return Decimal("1") if settings.HESABFA_CURRENCY_UNIT == "rial" else Decimal("0.01")
+
+
 def _to_hesabfa_money(amount_toman: Decimal) -> Decimal:
     unit = settings.HESABFA_CURRENCY_UNIT
     if unit == "rial":
@@ -44,14 +48,34 @@ def _to_hesabfa_money(amount_toman: Decimal) -> Decimal:
     return amount_toman.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-def _line_tax(unit_price: Decimal, quantity: int, tax_percent: Decimal) -> Decimal:
+def _inclusive_net_unit_and_tax(
+    gross_unit: Decimal,
+    quantity: int,
+    tax_percent: Decimal,
+) -> tuple[Decimal, Decimal]:
+    """Decompose tax-inclusive gross into Hesabfa unitPrice (net) + line tax.
+
+    Karzar ``unit_price`` / ``base_price`` is the final customer-facing gross.
+    Hesabfa invoice lines are exclusive: ``unitPrice * quantity + tax - discount``.
+    We therefore extract tax from the gross so the Hesabfa merchandise total
+    equals the Karzar paid merchandise total (within currency quantum).
+
+    Rounding policy (deterministic):
+    1. ``gross_line = gross_unit * quantity`` (gross_unit already quantized).
+    2. ``net_line = round_half_up(gross_line / (1 + r))``.
+    3. ``net_unit = round_half_up(net_line / quantity)``.
+    4. ``tax = gross_line - net_unit * quantity`` (residual — exact reconciliation).
+    """
+    qty = Decimal(quantity)
+    gross_line = gross_unit * qty
     if tax_percent <= 0:
-        return Decimal("0")
-    base = unit_price * Decimal(quantity)
-    return (base * tax_percent / Decimal("100")).quantize(
-        Decimal("1") if settings.HESABFA_CURRENCY_UNIT == "rial" else Decimal("0.01"),
-        rounding=ROUND_HALF_UP,
-    )
+        return gross_unit, Decimal("0")
+    rate = tax_percent / Decimal("100")
+    quantum = _hesabfa_quantum()
+    net_line = (gross_line / (Decimal("1") + rate)).quantize(quantum, rounding=ROUND_HALF_UP)
+    net_unit = (net_line / qty).quantize(quantum, rounding=ROUND_HALF_UP)
+    tax = gross_line - (net_unit * qty)
+    return net_unit, tax
 
 
 async def create_invoice_for_paid_order(
@@ -160,9 +184,9 @@ async def create_invoice_for_paid_order(
                 raise ValueError(
                     f"Order item product_id={item.product_id} has no snapshotted unit_price"
                 )
-            unit_price = _to_hesabfa_money(unit_toman)
-            tax = _line_tax(
-                unit_price,
+            gross_unit = _to_hesabfa_money(unit_toman)
+            net_unit, tax = _inclusive_net_unit_and_tax(
+                gross_unit,
                 item.quantity,
                 Decimal(str(item.tax_percent or 0)),
             )
@@ -173,7 +197,7 @@ async def create_invoice_for_paid_order(
                     "itemCode": mapping.hesabfa_code,
                     "unit": "عدد",
                     "quantity": item.quantity,
-                    "unitPrice": float(unit_price),
+                    "unitPrice": float(net_unit),
                     "discount": 0,
                     "tax": float(tax),
                 }
