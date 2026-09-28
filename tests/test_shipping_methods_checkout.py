@@ -117,7 +117,7 @@ def test_checkout_tipax_receiver_due_totals(
     )
     assert res.status_code == 201, res.text
     body = res.json()
-    assert body["estimated_total"] in {"110000", "110000.00"}
+    assert body["estimated_total"] in {"100000", "100000.00"}
     assert body["shipping_display"] == "receiver_due"
 
 
@@ -159,7 +159,7 @@ def test_sep_amount_excludes_receiver_due_shipping(
     order = asyncio.run(_load())
     assert order is not None
     assert order.shipping_customer_cost is None
-    expected_toman = Decimal("110000")
+    expected_toman = Decimal("100000")
     assert Decimal(str(order.estimated_total)) == expected_toman
     assert order_amount_rials(order) == int(expected_toman * 10)
 

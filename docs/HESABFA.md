@@ -125,3 +125,61 @@ Hesabfa `item/save` supports `nodeFamily`, but site categories are **not synced*
 ## Payment hook
 
 `verify_order_payment` → `maybe_create_invoice_after_payment`. Failures never roll back payment. `HESABFA_TEST_MODE=true` → skip with status `skipped`.
+
+## Invoice money / tax
+
+Karzar `OrderItem.unit_price` is the **final customer-facing gross** (same meaning as
+`Product.base_price` for payment). Hesabfa sale invoice lines are tax-exclusive in
+the public plugin contract:
+
+```text
+line_total = unitPrice × quantity − discount + tax
+invoice_total ≈ Σ(line_total) + freight
+```
+
+Evidence (official WooCommerce Hesabfa plugin `ssbhesabfa`):
+
+| Field | Plugin meaning |
+|-------|----------------|
+| `UnitPrice` | WooCommerce line `subtotal / quantity` (net of line tax) |
+| `Discount` | `subtotal − total` |
+| `Tax` | absolute `subtotal_tax` |
+| `Freight` | `shipping_total + shipping_tax` |
+
+### Current Karzar fail-safe (accounting tax unproven)
+
+`product.tax_percent` / snapped `OrderItem.tax_percent` is **not** proven to be
+authoritative embedded-VAT metadata (create/admin default `9` vs ORM/DB `0`;
+imports often omit an intentional accounting choice). Inventing a net/tax split
+from that field would misclassify VAT while the customer already paid the gross.
+
+Until Owner/accounting confirms the metadata:
+
+| Field | Karzar behavior |
+|-------|-----------------|
+| `unitPrice` | Full gross (paid) unit amount in Hesabfa money |
+| `tax` | `0` |
+| `freight` | `shipping_customer_cost` (0 for `receiver_due`) |
+| `discount` | `0` |
+
+This keeps:
+
+```text
+Σ(unitPrice × quantity) + freight == order.estimated_total
+```
+
+(within currency conversion), without claiming a VAT breakdown.
+
+### Future Owner-gated inclusive extraction
+
+Helper `_inclusive_net_unit_and_tax` implements:
+
+1. Convert gross unit toman → Hesabfa money (`rial` = ×10 integer; `toman` = 0.01).
+2. `gross_line = gross_unit × quantity`.
+3. `net_line = round(gross_line / (1 + tax_percent/100))` (`ROUND_HALF_UP`).
+4. `net_unit = floor(net_line / quantity)` to the currency quantum (keeps `tax >= 0`).
+5. `tax = gross_line − net_unit × quantity`.
+
+Enable only after Owner confirms `tax_percent` means VAT already included in
+`base_price`. Never send `unitPrice = gross` together with `tax = gross × rate`
+(that double-counts tax).

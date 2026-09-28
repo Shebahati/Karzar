@@ -92,6 +92,9 @@ export function OrderSummary({
             <span>مبلغ قابل پرداخت آنلاین</span>
             <span className="tnum">{formatToman(payable)}</span>
           </div>
+          <p className="text-xs leading-5 text-steel">
+            قیمت کالا، قیمت نهایی فروش است (مالیات جداگانه اضافه نمی‌شود).
+          </p>
         </div>
       )}
     </div>
