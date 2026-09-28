@@ -22,6 +22,14 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-28 — Emalls product extraction adapter (read-only)
+
+- New endpoint: `POST /api/v1/integrations/emalls/products` — Emalls-compatible product feed.
+- Auth: Emalls-supplied `token` validated against `emalls.ir` (positive Redis/in-memory cache TTL 1h). Fail closed on validator outage without cache.
+- Eligibility reuses `storefront_public_product_filters()` (active, not deleted, valid public image). Availability maps `product_is_available` → `instock`/`outofstock`. Prices pass through site TOMAN (`base_price` / `original_price`) with no ×10/÷10 conversion.
+- Does **not** change `GET /api/v1/products/` or storefront ProductSummary/Detail shapes.
+- Contract detail: [`integrations/emalls/API-CONTRACT.md`](integrations/emalls/API-CONTRACT.md).
+
 ### 2026-09-27 — Knowledge Wave Evidence sources are manifest-driven (Prompt 141)
 
 - Wave Evidence Artifact authorization is sealed in `policy_json.evidence_artifacts`: each pin is `{artifact_pk, artifact_id, checksum_sha256}` and must match the DB Artifact row on all three axes.

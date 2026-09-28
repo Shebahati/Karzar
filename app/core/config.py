@@ -188,6 +188,17 @@ class Settings(BaseSettings):
     PUBLIC_THROTTLE_TRACKING_WINDOW: int = Field(default=60, ge=10, le=3600)
     PUBLIC_THROTTLE_PLP_MAX: int = Field(default=120, ge=1, le=5000)
     PUBLIC_THROTTLE_PLP_WINDOW: int = Field(default=60, ge=10, le=3600)
+    # Emalls crawl budget: enough for paginated full-catalog sync, not anonymous scrape.
+    PUBLIC_THROTTLE_EMALLS_MAX: int = Field(default=120, ge=1, le=5000)
+    PUBLIC_THROTTLE_EMALLS_WINDOW: int = Field(default=60, ge=10, le=3600)
+
+    # Emalls read-only product extraction adapter (no catalog mutation).
+    EMALLS_VALIDATION_URL: str = "https://emalls.ir/swservice/wp_plugin.ashx"
+    EMALLS_TOKEN_CACHE_TTL_SECONDS: int = Field(default=3600, ge=60, le=86400)
+    EMALLS_SHOP_DOMAIN: str = "karzartools.com"
+    EMALLS_PUBLIC_SITE_ORIGIN: str = "https://www.karzartools.com"
+    EMALLS_HTTP_TIMEOUT_SECONDS: float = Field(default=8.0, ge=1.0, le=30.0)
+    EMALLS_ADAPTER_VERSION: str = "1.0.0"
 
     # Security middleware
     MAX_REQUEST_BODY_BYTES: int = Field(default=1_048_576, ge=1024, le=10_485_760)

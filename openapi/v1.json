@@ -1281,7 +1281,7 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Set product availability (\u0645\u0648\u062c\u0648\u062f / \u0646\u0627\u0645\u0648\u062c\u0648\u062f)",
+        "summary": "Set product availability (موجود / ناموجود)",
         "operationId": "set_availability_api_v1_products__product_id__availability_put",
         "security": [
           {
@@ -1304,10 +1304,10 @@
             "required": true,
             "schema": {
               "type": "boolean",
-              "description": "True = \u0645\u0648\u062c\u0648\u062f, False = \u0646\u0627\u0645\u0648\u062c\u0648\u062f",
+              "description": "True = موجود, False = ناموجود",
               "title": "Is Available"
             },
-            "description": "True = \u0645\u0648\u062c\u0648\u062f, False = \u0646\u0627\u0645\u0648\u062c\u0648\u062f"
+            "description": "True = موجود, False = ناموجود"
           },
           {
             "name": "reason",
@@ -1405,10 +1405,10 @@
                   "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
                 }
               ],
-              "description": "Deprecated. Positive \u2192 available, zero/negative \u2192 unavailable",
+              "description": "Deprecated. Positive → available, zero/negative → unavailable",
               "title": "Quantity Delta"
             },
-            "description": "Deprecated. Positive \u2192 available, zero/negative \u2192 unavailable"
+            "description": "Deprecated. Positive → available, zero/negative → unavailable"
           },
           {
             "name": "karzar_access",
@@ -1457,7 +1457,7 @@
           "Products",
           "Stock Management"
         ],
-        "summary": "Deprecated: bulk quantity delta \u2192 binary availability",
+        "summary": "Deprecated: bulk quantity delta → binary availability",
         "operationId": "bulk_adjust_stock_api_v1_products_bulk_stock_adjust_post",
         "deprecated": true,
         "security": [
@@ -1732,7 +1732,7 @@
           "Products"
         ],
         "summary": "Get product by public slug (EPIC 1 / RFC-004)",
-        "description": "Storefront canonical resolve \u2014 must be registered before `/{product_id}`.",
+        "description": "Storefront canonical resolve — must be registered before `/{product_id}`.",
         "operationId": "read_product_by_slug_api_v1_products_slug__slug__get",
         "security": [
           {},
@@ -4457,7 +4457,7 @@
           "Payments"
         ],
         "summary": "Verify payment callback",
-        "description": "Verify a gateway return by authority (order resolved server-side).\nOptional order_id must match the bound order when supplied.\nAuth is optional \u2014 authority is a capability token (same model as GET /callback).\nAuthenticated owners are still ownership-checked when the order has a user_id.",
+        "description": "Verify a gateway return by authority (order resolved server-side).\nOptional order_id must match the bound order when supplied.\nAuth is optional — authority is a capability token (same model as GET /callback).\nAuthenticated owners are still ownership-checked when the order has a user_id.",
         "operationId": "payment_verify_api_v1_payments_verify_post",
         "security": [
           {},
@@ -9448,7 +9448,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Transition Draft\u2194Reviewed (super-admin)",
+        "summary": "Transition Draft↔Reviewed (super-admin)",
         "operationId": "review_wave_api_v1_knowledge_waves__wave_pk__review_post",
         "security": [
           {
@@ -9730,7 +9730,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Validate evidence and transition Asserted\u2192EvidenceValidated (super-admin)",
+        "summary": "Validate evidence and transition Asserted→EvidenceValidated (super-admin)",
         "operationId": "validate_wave_evidence_api_v1_knowledge_waves__wave_id__validate_evidence_post",
         "security": [
           {
@@ -9803,7 +9803,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Publish Wave Facts EvidenceValidated\u2192Publishing\u2192Published (super-admin)",
+        "summary": "Publish Wave Facts EvidenceValidated→Publishing→Published (super-admin)",
         "operationId": "publish_wave_api_v1_knowledge_waves__wave_id__publish_post",
         "security": [
           {
@@ -10192,7 +10192,7 @@
         "tags": [
           "Hesabfa"
         ],
-        "summary": "Deprecated: Hesabfa\u2192site quantity pull is disabled",
+        "summary": "Deprecated: Hesabfa→site quantity pull is disabled",
         "operationId": "sync_stock_api_v1_hesabfa_stock_sync_post",
         "deprecated": true,
         "security": [
@@ -10248,7 +10248,7 @@
           "Hesabfa"
         ],
         "summary": "Website-only paid sales (Hesabfa admin reads disabled)",
-        "description": "Website paid totals only \u2014 never returns Hesabfa invoice/sales figures.",
+        "description": "Website paid totals only — never returns Hesabfa invoice/sales figures.",
         "operationId": "sales_summary_api_v1_hesabfa_sales_summary_get",
         "security": [
           {
@@ -10293,6 +10293,53 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/emalls/products": {
+      "post": {
+        "tags": [
+          "Integrations — Emalls"
+        ],
+        "summary": "Emalls product extraction (read-only)",
+        "description": "Export public storefront products in Emalls-compatible shape.\n\nAuthenticated solely via Emalls token validation (cached). Performs no\ncatalog, price, availability, image, or KB writes.",
+        "operationId": "emalls_products_api_v1_integrations_emalls_products_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmallsProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmallsProductsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Emalls token"
+          },
+          "422": {
+            "description": "Invalid page/limit/request body"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "502": {
+            "description": "Emalls validation service unavailable"
+          },
+          "503": {
+            "description": "Emalls validation service unavailable"
           }
         }
       }
@@ -10456,7 +10503,7 @@
           "Storefront"
         ],
         "summary": "List Nav Groups Public",
-        "description": "Enabled megamenu groups for the storefront (empty \u2192 FE hardcoded fallback).",
+        "description": "Enabled megamenu groups for the storefront (empty → FE hardcoded fallback).",
         "operationId": "list_nav_groups_public_api_v1_nav_groups__get",
         "responses": {
           "200": {
@@ -12322,7 +12369,7 @@
           "System"
         ],
         "summary": "Health check",
-        "description": "Liveness probe \u2014 returns 200 when the process is running.",
+        "description": "Liveness probe — returns 200 when the process is running.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {
@@ -12342,7 +12389,7 @@
           "System"
         ],
         "summary": "Readiness check",
-        "description": "Readiness probe \u2014 verifies database (and Redis when configured).",
+        "description": "Readiness probe — verifies database (and Redis when configured).",
         "operationId": "readiness_check_ready_get",
         "responses": {
           "200": {
@@ -12846,7 +12893,7 @@
             "type": "string",
             "maxLength": 100,
             "title": "Author",
-            "default": "\u062a\u06cc\u0645 \u0641\u0646\u06cc \u06a9\u0627\u0631\u0632\u0627\u0631"
+            "default": "تیم فنی کارزار"
           },
           "tags": {
             "items": {
@@ -14595,7 +14642,7 @@
           "items"
         ],
         "title": "CheckoutRequest",
-        "description": "Customer checkout payload. Shipping payment mode is server-owned \u2014 never client-set."
+        "description": "Customer checkout payload. Shipping payment mode is server-owned — never client-set."
       },
       "CheckoutResponse": {
         "properties": {
@@ -15071,6 +15118,188 @@
         },
         "type": "object",
         "title": "DimensionsTemplate"
+      },
+      "EmallsProduct": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subtitle": {
+            "type": "string",
+            "title": "Subtitle",
+            "default": ""
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "default": 0
+          },
+          "page_unique": {
+            "type": "integer",
+            "title": "Page Unique"
+          },
+          "current_price": {
+            "type": "string",
+            "title": "Current Price"
+          },
+          "old_price": {
+            "type": "string",
+            "title": "Old Price"
+          },
+          "availability": {
+            "type": "string",
+            "title": "Availability"
+          },
+          "category_name": {
+            "type": "string",
+            "title": "Category Name"
+          },
+          "image_link": {
+            "type": "string",
+            "title": "Image Link"
+          },
+          "image_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Image Links"
+          },
+          "page_url": {
+            "type": "string",
+            "title": "Page Url"
+          },
+          "short_desc": {
+            "type": "string",
+            "title": "Short Desc"
+          },
+          "spec": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Spec"
+          },
+          "date_added": {
+            "type": "string",
+            "title": "Date Added"
+          },
+          "date_updated": {
+            "type": "string",
+            "title": "Date Updated"
+          },
+          "product_type": {
+            "type": "string",
+            "title": "Product Type",
+            "default": "simple"
+          },
+          "registry": {
+            "type": "string",
+            "title": "Registry",
+            "default": ""
+          },
+          "guarantee": {
+            "type": "string",
+            "title": "Guarantee",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "page_unique",
+          "current_price",
+          "old_price",
+          "availability",
+          "category_name",
+          "image_link",
+          "image_links",
+          "page_url",
+          "short_desc",
+          "spec",
+          "date_added",
+          "date_updated"
+        ],
+        "title": "EmallsProduct",
+        "description": "Single product payload for Emalls consumption."
+      },
+      "EmallsProductsRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Token",
+            "description": "Token supplied by Emalls"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page",
+            "description": "1-based page index",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "description": "Page size (default 50, hard cap 100)",
+            "default": 50
+          },
+          "variation": {
+            "title": "Variation",
+            "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "EmallsProductsRequest",
+        "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
+      },
+      "EmallsProductsResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "max_pages": {
+            "type": "integer",
+            "title": "Max Pages"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/EmallsProduct"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "Version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "NeedSession": {
+            "type": "boolean",
+            "title": "Needsession",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "count",
+          "max_pages",
+          "products",
+          "Version"
+        ],
+        "title": "EmallsProductsResponse",
+        "description": "Root Emalls extraction response."
       },
       "EvidenceArtifactCreateRequest": {
         "properties": {
@@ -17485,7 +17714,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWaveEvidenceValidateRequest",
-        "description": "PR3-B.2 Asserted \u2192 EvidenceValidated."
+        "description": "PR3-B.2 Asserted → EvidenceValidated."
       },
       "KnowledgeWaveEvidenceValidateResponse": {
         "properties": {
@@ -17779,7 +18008,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWavePublishRequest",
-        "description": "PR3-B.3 EvidenceValidated \u2192 Publishing \u2192 Published."
+        "description": "PR3-B.3 EvidenceValidated → Publishing → Published."
       },
       "KnowledgeWavePublishResponse": {
         "properties": {
@@ -18061,7 +18290,7 @@
           "change_reason"
         ],
         "title": "KnowledgeWaveReviewRequest",
-        "description": "Draft\u2194Reviewed only (Sealed via /seal)."
+        "description": "Draft↔Reviewed only (Sealed via /seal)."
       },
       "KnowledgeWaveRunItemDetail": {
         "properties": {
@@ -18941,7 +19170,7 @@
               }
             ],
             "title": "Shipping Customer Cost",
-            "description": "Customer-facing shipping charge in Toman. NULL with shipping_payment_mode=receiver_due means \u067e\u0633\u200c\u06a9\u0631\u0627\u06cc\u0647 (not free)."
+            "description": "Customer-facing shipping charge in Toman. NULL with shipping_payment_mode=receiver_due means پس‌کرایه (not free)."
           },
           "shipping_provider_quoted_cost": {
             "anyOf": [
@@ -22417,7 +22646,7 @@
               }
             ],
             "title": "Customer Shipping Cost",
-            "description": "Customer shipping charge snapshot in Toman. NULL for receiver_due means provider-collected (\u067e\u0633\u200c\u06a9\u0631\u0627\u06cc\u0647), not free shipping."
+            "description": "Customer shipping charge snapshot in Toman. NULL for receiver_due means provider-collected (پس‌کرایه), not free shipping."
           },
           "provider_quoted_cost": {
             "anyOf": [
