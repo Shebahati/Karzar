@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     # FarazSMS / IranPayamak — docs: https://docs.iranpayamak.com / https://docs.farazsms.com
     SMS_FARAZ_API_KEY: str | None = None
     SMS_FARAZ_LINE_NUMBER: str | None = None
+    # Auth OTP patterns. Order/inquiry SMS must not use these.
+    SMS_FARAZ_LOGIN_OTP_PATTERN_CODE: str | None = None
+    SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE: str | None = None
+    # Deprecated auth-only fallback. Used for login, then password reset, when the
+    # event-specific code above is empty. Never used for transactional SMS.
     SMS_FARAZ_OTP_PATTERN_CODE: str | None = None
     SMS_FARAZ_OTP_ATTR: str = "code"
     SMS_FARAZ_BASE_URL: str = "https://api.iranpayamak.com"
