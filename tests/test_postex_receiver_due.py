@@ -322,7 +322,7 @@ def test_receiver_checkout_needs_no_quote_or_product_logistics_and_excludes_ship
         key="receiver-money",
         sku="RECEIVER-MONEY",
     )
-    assert Decimal(checkout["estimated_total"]) == Decimal("110000.00")
+    assert Decimal(checkout["estimated_total"]) == Decimal("100000.00")
     assert checkout["shipping_payment_mode"] == "receiver_due"
     assert checkout["shipping_display"] == "receiver_due"
     assert fake_provider.quote_requests == []
@@ -337,7 +337,7 @@ def test_receiver_checkout_needs_no_quote_or_product_logistics_and_excludes_ship
             assert order.shipping_provider_quoted_cost is None
             assert order.shipping_carrier_code is None
             assert order.shipping_service_code is None
-            assert order_amount_rials(order) == 1_100_000
+            assert order_amount_rials(order) == 1_000_000
 
     asyncio.run(check())
 

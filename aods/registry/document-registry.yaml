@@ -211,6 +211,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: EMALLS-API-CONTRACT
+    path: docs/integrations/emalls/API-CONTRACT.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: OPERATIONS
     path: docs/OPERATIONS.md
     class: POLICY

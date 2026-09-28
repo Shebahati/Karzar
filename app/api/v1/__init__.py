@@ -9,6 +9,7 @@ from app.api.endpoints import (
     cart,
     category,
     cms,
+    emalls,
     hesabfa,
     knowledge,
     knowledge_batch,
@@ -83,5 +84,10 @@ api_router.include_router(
     tags=["Knowledge"],
 )
 api_router.include_router(hesabfa.router, prefix="/hesabfa", tags=["Hesabfa"])
+api_router.include_router(
+    emalls.router,
+    prefix="/integrations/emalls",
+    tags=["Integrations — Emalls"],
+)
 api_router.include_router(storefront.router, tags=["Storefront"])
 api_router.include_router(shipping.router, tags=["Shipping"])

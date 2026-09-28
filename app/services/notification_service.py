@@ -3,7 +3,7 @@
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.db.models.commerce import OrderStatus
-from app.services.sms_service import SmsMessage, get_sms_provider
+from app.services.sms_service import SmsEvent, SmsMessage, get_sms_provider
 
 logger = get_logger(__name__)
 
@@ -27,6 +27,15 @@ _STATUS_TEMPLATES: dict[str, str] = {
     OrderStatus.CANCELLED.value: "سفارش {tracking_code} لغو شد.",
 }
 
+_STATUS_EVENTS: dict[str, SmsEvent] = {
+    OrderStatus.PAID.value: SmsEvent.ORDER_PAID,
+    OrderStatus.PROCESSING.value: SmsEvent.ORDER_PROCESSING,
+    OrderStatus.SHIPPED.value: SmsEvent.ORDER_SHIPPED,
+    OrderStatus.DELIVERED.value: SmsEvent.ORDER_DELIVERED,
+    OrderStatus.INQUIRY_QUOTED.value: SmsEvent.INQUIRY_QUOTED,
+    OrderStatus.CANCELLED.value: SmsEvent.ORDER_CANCELLED,
+}
+
 
 async def notify_order_status_change(
     *,
@@ -34,18 +43,21 @@ async def notify_order_status_change(
     tracking_code: str,
     status: str,
 ) -> None:
-    if status not in _NOTIFY_STATUSES:
+    event = _STATUS_EVENTS.get(status)
+    if event is None or status not in _NOTIFY_STATUSES:
         return
     template = _STATUS_TEMPLATES.get(status)
     if not template:
         return
     body = template.format(tracking_code=tracking_code)
     try:
-        await get_sms_provider().send(SmsMessage(receptor=phone, body=body))
-    except Exception:
-        logger.exception(
-            "Order status SMS failed tracking=%s status=%s provider=%s",
+        await get_sms_provider().send(SmsMessage(receptor=phone, body=body, event=event))
+    except Exception as exc:
+        logger.error(
+            "Order status SMS failed tracking=%s status=%s event=%s provider=%s error_type=%s",
             tracking_code,
             status,
+            event.value,
             settings.SMS_PROVIDER,
+            type(exc).__name__,
         )
