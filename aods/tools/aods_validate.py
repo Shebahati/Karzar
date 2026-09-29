@@ -90,7 +90,12 @@ RESERVED_NAME = re.compile(
     r"(^|[-_.])(final|latest|new|old|copy\d*|temp|tmp|wip|bak|draft\d+|untitled)([-_.]|$)",
     re.IGNORECASE,
 )
-NAMING_ALLOW = {"openapi/v1.json"}
+NAMING_ALLOW = {
+    "openapi/v1.json",
+    # Immutable Phase 0B historical evidence; "final" is part of the frozen
+    # 2026-09-27 artifact name and SHA-256 registry — do not rename.
+    "audit/taxonomy-phase0b/14-phase0b-final-report.md",
+}
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 

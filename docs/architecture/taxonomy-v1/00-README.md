@@ -15,7 +15,7 @@ This pack **defines the law** for future taxonomy work. It does **not** disposit
 | `SPEC-industrial-taxonomy-model.md` (Accepted) | Multi-dimensional taxonomy model |
 | `ADR-015` (Accepted) | Product Type hybrid primary FK; readout orthogonality |
 | `ADR-010` (Accepted) | SEO URL contract for `/categories/{slug}` |
-| Phase 0B audit (`audit/taxonomy-phase0b/` on branch `cursor/taxonomy-phase0b-db-census-a062`) | Observational Production evidence only |
+| Phase 0B audit ([`audit/taxonomy-phase0b/`](../../../audit/taxonomy-phase0b/README.md)) | Observational Production evidence only (historical snapshot 2026-09-27) |
 | Public ECLASS 16.0 / ETIM / ISO 13399 principles | Structural inspiration — **ISO-ALIGNED / INSPIRED**, not licensed bulk copy |
 
 ## Pack contents
