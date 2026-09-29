@@ -11,11 +11,19 @@ from app.api.deps import get_optional_current_user
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
+from app.core.purchase_checkout import (
+    PURCHASE_CHECKOUT_DISABLED_MESSAGE,
+    raise_if_purchase_checkout_disabled,
+)
 from app.core.request_throttle import enforce_public_throttle
 from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User
-from app.schemas.storefront import CheckoutRequest, CheckoutResponse
+from app.schemas.storefront import (
+    CheckoutRequest,
+    CheckoutResponse,
+    PurchaseCheckoutStatusResponse,
+)
 from app.services.checkout_service import (
     PurchaseAuthRequiredError,
     PurchaseCheckoutDisabledError,
@@ -25,6 +33,21 @@ from app.services.logistics.exceptions import LogisticsError
 
 logger = get_logger(__name__)
 router = APIRouter()
+
+
+@router.get(
+    "/commerce/purchase-status",
+    response_model=PurchaseCheckoutStatusResponse,
+    tags=["Storefront"],
+    summary="Whether online purchase checkout is currently accepted",
+)
+async def purchase_checkout_status() -> PurchaseCheckoutStatusResponse:
+    """Read-only. Does not touch orders, payments, catalog, or inventory."""
+    enabled = bool(settings.PURCHASE_CHECKOUT_ENABLED)
+    return PurchaseCheckoutStatusResponse(
+        purchase_checkout_enabled=enabled,
+        message=None if enabled else PURCHASE_CHECKOUT_DISABLED_MESSAGE,
+    )
 
 
 @router.post(
@@ -55,15 +78,8 @@ async def checkout(
         window_seconds=settings.PUBLIC_THROTTLE_CHECKOUT_WINDOW,
     )
     # Endpoint-level kill switch: reject before any idempotency DB work.
-    if payload.mode == "purchase" and not settings.PURCHASE_CHECKOUT_ENABLED:
-        raise api_error(
-            status.HTTP_503_SERVICE_UNAVAILABLE,
-            error_code=ErrorCode.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED,
-            message=(
-                "خرید آنلاین موقتاً در حال به‌روزرسانی است. "
-                "لطفاً کمی بعد دوباره تلاش کنید یا درخواست استعلام ثبت کنید."
-            ),
-        )
+    if payload.mode == "purchase":
+        raise_if_purchase_checkout_disabled()
     if idempotency_key and idempotency_key.strip():
         normalized_key = idempotency_key.strip()
         cached = await crud_platform.get_idempotency_record(
@@ -110,10 +126,7 @@ async def checkout(
         raise api_error(
             status.HTTP_503_SERVICE_UNAVAILABLE,
             error_code=ErrorCode.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED,
-            message=(
-                "خرید آنلاین موقتاً در حال به‌روزرسانی است. "
-                "لطفاً کمی بعد دوباره تلاش کنید یا درخواست استعلام ثبت کنید."
-            ),
+            message=PURCHASE_CHECKOUT_DISABLED_MESSAGE,
         ) from exc
     except PurchaseAuthRequiredError as exc:
         if idempotency_key and idempotency_key.strip():

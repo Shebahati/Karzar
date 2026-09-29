@@ -16,6 +16,8 @@ export function MobileCartDock({
   unitCount,
   lines = [],
   checkoutDisabled = false,
+  purchasePaused = false,
+  holdLabel,
 }: {
   mode: "cart" | "quote";
   total: number;
@@ -26,8 +28,12 @@ export function MobileCartDock({
   unitCount?: number;
   /** Cart lines for login-gated sample proforma (cart mode only). */
   lines?: CartLine[];
-  /** When true, block checkout CTA (e.g. any OOS line). */
+  /** When true, block checkout CTA (e.g. any OOS line or purchase freeze). */
   checkoutDisabled?: boolean;
+  /** Online purchase is paused. Do not link into payment checkout. */
+  purchasePaused?: boolean;
+  /** Disabled-button label while purchase status is still loading. */
+  holdLabel?: string;
 }) {
   if (itemCount === 0) return null;
   const units = unitCount ?? itemCount;
@@ -61,9 +67,9 @@ export function MobileCartDock({
             )}
           </div>
           {mode === "cart" ? (
-            checkoutDisabled ? (
+            purchasePaused || checkoutDisabled ? (
               <Button size="lg" className="shrink-0 px-5" disabled>
-                تکمیل خرید
+                {purchasePaused ? "سفارش آنلاین متوقف است" : holdLabel ?? "تکمیل خرید"}
               </Button>
             ) : (
               <Link href="/checkout" className="shrink-0">

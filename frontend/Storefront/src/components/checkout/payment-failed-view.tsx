@@ -6,12 +6,17 @@ import { motion } from "framer-motion";
 import { CloseSquare, TimeCircle } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { PurchasePausedNotice } from "@/components/commerce/purchase-paused-notice";
+import { usePurchaseCheckoutStatus } from "@/features/commerce/use-purchase-checkout-status";
 
 const VERIFYING_COPY =
   "نتیجهٔ پرداخت از بانک دریافت شده و در حال بررسی نهایی است. لطفاً پرداخت را تکرار نکنید. نتیجه از طریق سفارش‌های شما قابل پیگیری است.";
 
 export function PaymentFailedView() {
   const sp = useSearchParams();
+  const purchaseStatus = usePurchaseCheckoutStatus();
+  const purchasePaused = purchaseStatus.data?.purchase_checkout_enabled === false;
+  const holdCheckoutLink = purchasePaused || purchaseStatus.isPending;
   const reason = sp.get("reason");
   const isVerifying = reason === "verifying";
   const isReconciliation = reason === "reconciliation";
@@ -51,13 +56,18 @@ export function PaymentFailedView() {
         </span>
         <h1 className="mt-6 text-2xl font-bold text-foreground">{title}</h1>
         <p className="mt-2 text-sm leading-7 text-muted-foreground">{message}</p>
+        {purchasePaused && (
+          <div className="mt-6 text-start">
+            <PurchasePausedNotice message={purchaseStatus.data?.message} />
+          </div>
+        )}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link href="/account/orders" className="flex-1">
             <Button size="lg" className="w-full">
               پیگیری از سفارش‌های من
             </Button>
           </Link>
-          {!isVerifying && (
+          {!isVerifying && !holdCheckoutLink && (
             <Link href="/checkout" className="flex-1">
               <Button variant="soft" size="lg" className="w-full">
                 بازگشت به تسویه‌حساب

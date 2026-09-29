@@ -1,0 +1,457 @@
+# One-shot owner-authorized purchase freeze.
+# Runs on the VPS runner (GitHub-hosted SSH to this host is timing out).
+# Sets PURCHASE_CHECKOUT_ENABLED=false in /opt/karzar/Karzar/.env and recreates
+# only the API container when the running process does not already have that
+# value. Does not deploy this branch, run migrations, or restart Postgres/Redis.
+name: VPS Purchase Checkout Freeze
+
+on:
+  push:
+    branches:
+      - cursor/commerce-freeze-kill-switch-45d9
+    paths:
+      - .github/workflows/vps-purchase-checkout-freeze.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-purchase-checkout-freeze
+  cancel-in-progress: false
+
+jobs:
+  freeze:
+    name: Apply purchase checkout kill switch
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 15
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/commerce-freeze-kill-switch-45d9' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Set kill switch and recreate API only
+        env:
+          FREEZE_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          case "${FREEZE_RUN_ID}" in
+            ''|*[!0-9]*) echo "refusing non-numeric run id" >&2; exit 1 ;;
+          esac
+          echo "runner_user=$(id -un)"
+          freeze_script="$(mktemp)"
+          cleanup() { rm -f "$freeze_script"; }
+          trap cleanup EXIT
+          cat > "$freeze_script" <<'REMOTE'
+          set -euo pipefail
+          run_id="${1:-0}"
+          case "$run_id" in
+            ''|*[!0-9]*) echo "ERROR: bad run id" >&2; exit 1 ;;
+          esac
+
+          ENV_FILE=/opt/karzar/Karzar/.env
+          ROOT=/opt/karzar/Karzar
+          test -f "$ENV_FILE"
+          test -d "$ROOT"
+
+          echo "=== PREFLIGHT ==="
+          if ! docker inspect lathe_api >/dev/null 2>&1; then
+            echo "ERROR: lathe_api not found; refusing to guess another container" >&2
+            exit 1
+          fi
+
+          before_mode="$(stat -c '%a' "$ENV_FILE")"
+          before_owner="$(stat -c '%U' "$ENV_FILE")"
+          before_group="$(stat -c '%G' "$ENV_FILE")"
+          echo "env_mode_before=${before_mode}"
+          echo "env_owner_before=${before_owner}"
+          echo "env_group_before=${before_group}"
+
+          api_started_before="$(docker inspect -f '{{.State.StartedAt}}' lathe_api)"
+          pg_started_before="$(docker inspect -f '{{.State.StartedAt}}' lathe_postgres)"
+          redis_started_before="$(docker inspect -f '{{.State.StartedAt}}' lathe_redis)"
+          echo "api_started_before_set=YES"
+          echo "postgres_started_before_set=YES"
+          echo "redis_started_before_set=YES"
+
+          alembic_before="$(docker exec lathe_api alembic current 2>/dev/null | awk '/^[0-9a-f]/ {print $1; exit}' || true)"
+          echo "alembic_revision_before_captured=YES"
+
+          runtime_raw="$(docker exec lathe_api printenv PURCHASE_CHECKOUT_ENABLED || true)"
+          case "$runtime_raw" in
+            true|false|"") runtime_before="${runtime_raw:-unset}" ;;
+            *) echo "ERROR: running PURCHASE_CHECKOUT_ENABLED is not a boolean; refusing" >&2; exit 1 ;;
+          esac
+          echo "runtime_before=${runtime_before}"
+
+          editor_py="$(mktemp)"
+          cat > "$editor_py" <<'PY'
+          import os
+          import sys
+          from pathlib import Path
+
+          path = Path(sys.argv[1])
+          st = path.stat()
+          text = path.read_bytes().decode("utf-8")
+          lines = text.splitlines(keepends=True)
+          key = "PURCHASE_CHECKOUT_ENABLED="
+
+          def is_entry(line: str) -> bool:
+              stripped = line.lstrip(" \t")
+              if stripped.startswith("#"):
+                  return False
+              return stripped.startswith(key)
+
+          indexes = [i for i, line in enumerate(lines) if is_entry(line)]
+          if len(indexes) > 1:
+              print("duplicate_PURCHASE_CHECKOUT_ENABLED=YES")
+              print("duplicate_count=%s" % len(indexes))
+              print("WRITE=NO")
+              raise SystemExit(2)
+
+          def parse_bool(raw: str):
+              value = raw.strip()
+              if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                  value = value[1:-1].strip()
+              lowered = value.lower()
+              if lowered in {"true", "1", "yes"}:
+                  return True
+              if lowered in {"false", "0", "no"}:
+                  return False
+              return None
+
+          old_lines = list(lines)
+          if not indexes:
+              print("PURCHASE_CHECKOUT_ENABLED_before=false")
+              print("before_source=absent_key_default_false")
+              if lines and not lines[-1].endswith("\n"):
+                  lines[-1] = lines[-1] + "\n"
+              lines.append(key + "false\n")
+          else:
+              idx = indexes[0]
+              body = lines[idx].lstrip(" \t")
+              raw_value = body.split("=", 1)[1]
+              raw_value = raw_value.split("#", 1)[0]
+              parsed = parse_bool(raw_value.strip())
+              if parsed is None:
+                  print("PURCHASE_CHECKOUT_ENABLED_before=unparseable")
+                  print("WRITE=NO")
+                  raise SystemExit(3)
+              print("PURCHASE_CHECKOUT_ENABLED_before=%s" % ("true" if parsed else "false"))
+              print("before_source=file")
+              ending = "\n"
+              if lines[idx].endswith("\r\n"):
+                  ending = "\r\n"
+              elif not lines[idx].endswith("\n"):
+                  ending = ""
+              lines[idx] = key + "false" + ending
+
+          new_text = "".join(lines)
+          if new_text == text:
+              print("WRITE=NO")
+              print("PURCHASE_CHECKOUT_ENABLED_after=false")
+              raise SystemExit(0)
+
+          written_preview = new_text.splitlines(keepends=True)
+          if indexes:
+              for i, (old, new) in enumerate(zip(old_lines, written_preview)):
+                  if i == indexes[0]:
+                      continue
+                  if old != new:
+                      print("WRITE=NO")
+                      raise SystemExit("non-target line would change")
+              if len(old_lines) != len(written_preview):
+                  print("WRITE=NO")
+                  raise SystemExit("line count would change")
+          else:
+              expected = list(old_lines)
+              if expected and not expected[-1].endswith("\n"):
+                  expected[-1] = expected[-1] + "\n"
+              if written_preview[:-1] != expected:
+                  print("WRITE=NO")
+                  raise SystemExit("non-target line would change while appending")
+
+          tmp = path.with_name(".env.purchase-freeze-%s" % os.getpid())
+          fd = None
+          try:
+              fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+              with os.fdopen(fd, "wb") as handle:
+                  fd = None
+                  handle.write(new_text.encode("utf-8"))
+                  handle.flush()
+                  os.fsync(handle.fileno())
+              os.chown(tmp, st.st_uid, st.st_gid)
+              os.chmod(tmp, st.st_mode & 0o777)
+              os.replace(tmp, path)
+          finally:
+              if fd is not None:
+                  os.close(fd)
+              try:
+                  tmp.unlink()
+              except FileNotFoundError:
+                  pass
+          print("WRITE=YES")
+          print("PURCHASE_CHECKOUT_ENABLED_after=false")
+          PY
+          if [[ -w "$ENV_FILE" ]]; then
+            echo "env_write=direct"
+            python3 "$editor_py" "$ENV_FILE"
+          else
+            echo "env_write=docker_root"
+            docker run --rm --network none --user 0 --entrypoint python3 \
+              -v /opt/karzar/Karzar:/hostkarzar \
+              -v "$editor_py":/editor.py:ro \
+              karzar-app:staging /editor.py /hostkarzar/.env
+          fi
+          rm -f "$editor_py"
+
+          after_mode="$(stat -c '%a' "$ENV_FILE")"
+          after_owner="$(stat -c '%U' "$ENV_FILE")"
+          after_group="$(stat -c '%G' "$ENV_FILE")"
+          echo "env_mode_after=${after_mode}"
+          echo "env_owner_after=${after_owner}"
+          echo "env_group_after=${after_group}"
+          if [[ "$after_mode" != "$before_mode" || "$after_owner" != "$before_owner" || "$after_group" != "$before_group" ]]; then
+            echo "ERROR: owner/group/mode changed" >&2
+            exit 1
+          fi
+
+          file_line="$(grep -c '^PURCHASE_CHECKOUT_ENABLED=false$' "$ENV_FILE" || true)"
+          if [[ "$file_line" != "1" ]]; then
+            echo "ERROR: file does not contain exactly one exact kill-switch line" >&2
+            exit 1
+          fi
+          echo "file_exact_line=YES"
+
+          recreate=NO
+          if [[ "$runtime_before" != "false" ]]; then
+            recreate=YES
+          fi
+          echo "api_recreate=${recreate}"
+          echo "migrations_invoked=NO"
+
+          if [[ "$recreate" == "YES" ]]; then
+            cat > /tmp/karzar-purchase-freeze-no-migrate.yml <<'EOF'
+          services:
+            app:
+              entrypoint:
+                - /bin/sh
+                - -c
+                - |
+                  echo "purchase-freeze recreate: alembic not invoked"
+                  if [ "$APP_SERVER" = "gunicorn" ]; then
+                    exec gunicorn app.main:app -c /app/gunicorn_conf.py
+                  fi
+                  exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+          EOF
+            COMPOSE=(docker compose -f "$ROOT/docker-compose.yml" -f "$ROOT/docker-compose.staging.yml")
+            if [[ -f "$ROOT/docker-compose.image.yml" ]]; then
+              COMPOSE+=(-f "$ROOT/docker-compose.image.yml")
+            fi
+            COMPOSE+=(-f /tmp/karzar-purchase-freeze-no-migrate.yml)
+            (
+              cd "$ROOT"
+              "${COMPOSE[@]}" up -d --no-deps --no-build --force-recreate app
+            )
+            rm -f /tmp/karzar-purchase-freeze-no-migrate.yml
+            echo "api_recreate_result=OK"
+          else
+            echo "api_recreate_result=SKIPPED_ALREADY_FALSE"
+          fi
+
+          pg_started_after="$(docker inspect -f '{{.State.StartedAt}}' lathe_postgres)"
+          redis_started_after="$(docker inspect -f '{{.State.StartedAt}}' lathe_redis)"
+          if [[ "$pg_started_after" != "$pg_started_before" ]]; then
+            echo "postgres_restarted=YES" >&2
+            exit 1
+          fi
+          if [[ "$redis_started_after" != "$redis_started_before" ]]; then
+            echo "redis_restarted=YES" >&2
+            exit 1
+          fi
+          echo "postgres_restarted=NO"
+          echo "redis_restarted=NO"
+
+          probe_host="$(python3 - "$ENV_FILE" <<'PY'
+          import sys
+          from pathlib import Path
+          host = ""
+          for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+              if line.startswith("TRUSTED_HOSTS="):
+                  raw = line.split("=", 1)[1].strip().strip('"').strip("'")
+                  host = raw.split(",")[0].strip()
+                  break
+          if not host:
+              host = "api.karzartools.com"
+          print(host)
+          PY
+          )"
+
+          echo "=== READY ==="
+          ready_code="000"
+          for _ in $(seq 1 45); do
+            ready_code="$(curl -sS -o /tmp/karzar-ready.json -w '%{http_code}' --max-time 5 \
+              -H "Host: ${probe_host}" \
+              -H "X-Forwarded-Proto: https" \
+              http://127.0.0.1:8000/ready || true)"
+            if [[ "$ready_code" == "200" ]]; then
+              break
+            fi
+            sleep 2
+          done
+          echo "ready_http=${ready_code}"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("/tmp/karzar-ready.json")
+          if not path.exists():
+              print("ready_status=missing")
+              raise SystemExit(0)
+          try:
+              data = json.loads(path.read_text(encoding="utf-8"))
+          except Exception:
+              print("ready_status=unparsed")
+              raise SystemExit(0)
+          print("ready_status=%s" % data.get("status"))
+          print("ready_database=%s" % data.get("database"))
+          print("ready_redis=%s" % data.get("redis"))
+          PY
+          rm -f /tmp/karzar-ready.json
+          if [[ "$ready_code" != "200" ]]; then
+            echo "ERROR: API /ready did not return 200" >&2
+            exit 1
+          fi
+
+          runtime_after="$(docker exec lathe_api printenv PURCHASE_CHECKOUT_ENABLED || true)"
+          case "$runtime_after" in
+            true|false|"") echo "runtime_after=${runtime_after:-unset}" ;;
+            *) echo "ERROR: runtime value after recreate is not a boolean" >&2; exit 1 ;;
+          esac
+          if [[ "$runtime_after" != "false" && "$runtime_before" != "false" && "$runtime_after" != "" ]]; then
+            echo "ERROR: API process is not fail-closed; refusing checkout probe" >&2
+            exit 1
+          fi
+
+          guard=NO
+          if docker exec lathe_api grep -q 'PURCHASE_CHECKOUT_ENABLED' /app/app/api/endpoints/checkout.py \
+            || docker exec lathe_api grep -q 'raise_if_purchase_checkout_disabled' /app/app/api/endpoints/checkout.py; then
+            guard=YES
+          fi
+          echo "checkout_guard_present=${guard}"
+          if [[ "$guard" != "YES" ]]; then
+            echo "ERROR: deployed checkout guard missing; refusing live purchase probe" >&2
+            exit 1
+          fi
+          if [[ "$runtime_after" == "true" ]]; then
+            echo "ERROR: runtime still true; refusing live purchase probe" >&2
+            exit 1
+          fi
+
+          alembic_after="$(docker exec lathe_api alembic current 2>/dev/null | awk '/^[0-9a-f]/ {print $1; exit}' || true)"
+          if [[ -n "$alembic_before" && -n "$alembic_after" && "$alembic_before" != "$alembic_after" ]]; then
+            echo "alembic_revision_unchanged=NO"
+            echo "ERROR: alembic revision changed during freeze" >&2
+            exit 1
+          fi
+          if [[ -n "$alembic_before" && "$alembic_before" == "$alembic_after" ]]; then
+            echo "alembic_revision_unchanged=YES"
+          else
+            echo "alembic_revision_unchanged=UNKNOWN"
+          fi
+
+          echo "=== CHECKOUT REJECTION ==="
+          cat > /tmp/karzar-freeze-snapshot.sql <<'SQL'
+          SELECT
+            (SELECT count(*) FROM orders),
+            (SELECT count(*) FROM payment_transactions),
+            (SELECT count(*) FROM idempotency_keys),
+            (SELECT count(*) FROM stock_movements),
+            (SELECT count(*) FROM products),
+            (SELECT count(*) FROM products WHERE is_available),
+            (SELECT md5(coalesce(string_agg(
+              id::text || ':' || coalesce(base_price::text, '') || ':' || is_available::text || ':' || stock_quantity::text,
+              ',' ORDER BY id), '')) FROM products);
+          SQL
+          snapshot() {
+            docker exec -i lathe_postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA -F "|" -f -' \
+              < /tmp/karzar-freeze-snapshot.sql
+          }
+          before_snap="$(snapshot)"
+          echo "snapshot_before_captured=YES"
+
+          checkout_code="$(curl -sS -o /tmp/karzar-checkout.json -w '%{http_code}' --max-time 20 \
+            -H "Host: ${probe_host}" \
+            -H "X-Forwarded-Proto: https" \
+            -H "Content-Type: application/json" \
+            -H "Idempotency-Key: commerce-freeze-${run_id}" \
+            -X POST \
+            --data '{"mode":"purchase","customer":{"full_name":"تست مسدود","phone":"09120000000"},"items":[{"product_id":1,"quantity":1}],"shipping":{"province":"تهران","city":"تهران","postal_code":"1234567890","address_line":"خیابان تست پلاک ۱"},"shipping_method_code":"tipax_standard"}' \
+            http://127.0.0.1:8000/api/v1/checkout || true)"
+          echo "checkout_http=${checkout_code}"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("/tmp/karzar-checkout.json")
+          expected = (
+              "خرید آنلاین موقتاً در حال به‌روزرسانی است. "
+              "لطفاً کمی بعد دوباره تلاش کنید یا درخواست استعلام ثبت کنید."
+          )
+          try:
+              data = json.loads(path.read_text(encoding="utf-8"))
+          except Exception:
+              print("checkout_error_code=unparsed")
+              print("checkout_message_match=NO")
+              raise SystemExit(0)
+          code = str(data.get("error_code", ""))
+          print("checkout_error_code=%s" % code)
+          print("checkout_message_match=%s" % ("YES" if data.get("message") == expected else "NO"))
+          PY
+          rm -f /tmp/karzar-checkout.json
+
+          after_snap="$(snapshot)"
+          echo "snapshot_after_captured=YES"
+          python3 - "$before_snap" "$after_snap" <<'PY'
+          import sys
+          before = sys.argv[1].strip().split("|")
+          after = sys.argv[2].strip().split("|")
+          labels = [
+              "orders",
+              "payment_transactions",
+              "idempotency_keys",
+              "stock_movements",
+              "products",
+              "available_products",
+              "price_availability_stock_fingerprint",
+          ]
+          if len(before) != 7 or len(after) != 7:
+              print("delta_parse=NO")
+              raise SystemExit(1)
+          for label, b, a in zip(labels, before, after):
+              if label.endswith("fingerprint"):
+                  print("%s_unchanged=%s" % (label, "YES" if a == b else "NO"))
+                  continue
+              print("%s_before=%s" % (label, b))
+              print("%s_after=%s" % (label, a))
+              print("%s_delta=%s" % (label, int(a) - int(b)))
+          PY
+
+          if [[ "$checkout_code" != "503" ]]; then
+            echo "ERROR: purchase checkout was not rejected with 503" >&2
+            exit 1
+          fi
+
+          api_started_after="$(docker inspect -f '{{.State.StartedAt}}' lathe_api)"
+          if [[ "$recreate" == "YES" && "$api_started_after" == "$api_started_before" ]]; then
+            echo "ERROR: API container start time did not change" >&2
+            exit 1
+          fi
+          echo "api_restarted=$([[ "$api_started_after" != "$api_started_before" ]] && echo YES || echo NO)"
+          echo "price_mutation=NO"
+          echo "availability_mutation=NO"
+          echo "database_write_by_this_job=NO"
+          echo "hesabfa_mutation=NO"
+          echo "sep_callback_disabled=NO"
+          echo "sep_verify_disabled=NO"
+          echo "existing_orders_cancelled=NO"
+          rm -f /tmp/karzar-freeze-snapshot.sql
+          echo "PURCHASE_FREEZE_COMPLETE=YES"
+          REMOTE
+          chmod 700 "$freeze_script"
+          echo "privilege=runner_docker"
+          bash "$freeze_script" "${FREEZE_RUN_ID}"
