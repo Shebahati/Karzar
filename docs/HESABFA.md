@@ -96,7 +96,7 @@ Create-missing shell prices are not invoice line prices. Invoice lines stay gros
 
 A mapped item whose remote `Active` is false is classified `RECONCILIATION_REQUIRED`. This PR reports it for a later controlled correction. It does not correct it. `--apply` stays refused. No environment flag enables mass activation.
 
-POLICY IMPLEMENTED: storefront lifecycle does not write Hesabfa activation. CURRENT REMOTE STATE: not claimed active until a read-only reconciliation says so.
+POLICY IMPLEMENTED: storefront lifecycle does not write Hesabfa activation. A read-only reconciliation on 2026-09-29 classified the live catalog and did not correct mapped inactive items (`audit/hesabfa-activation-reconcile-2026-09-29/README.md`). That snapshot is evidence. It is not a claim that every Hesabfa item is active, and it does not authorize APPLY.
 
 ## Activation reconciliation (dry-run only)
 

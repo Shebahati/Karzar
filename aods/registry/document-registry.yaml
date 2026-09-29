@@ -958,3 +958,14 @@ documents:
     notes: >
       Product-status historical result report (2026-09-24 snapshot).
       Not current live catalog state.
+
+  - id: HESABFA-ACTIVATION-RECONCILE-20260929
+    path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only Production reconciliation of Hesabfa item activation on
+      2026-09-29. Evidence only. Not Canon. Does not authorize item/save
+      or activation APPLY.
