@@ -1,0 +1,38 @@
+# Owner-authorized purchase reopen.
+# Sets PURCHASE_CHECKOUT_ENABLED=true in the live VPS env and recreates only
+# lathe_api with the no-migration entrypoint override. Does not deploy this
+# branch, run migrations, or restart Postgres, Redis, storefront, or admin.
+name: VPS Commerce Reopen
+
+on:
+  push:
+    branches:
+      - cursor/commerce-reopen-45d9
+    paths:
+      - .github/workflows/vps-commerce-reopen.yml
+      - scripts/ops/run_commerce_reopen.sh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-commerce-reopen
+  cancel-in-progress: false
+
+jobs:
+  reopen:
+    name: Reopen purchase checkout
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/commerce-reopen-45d9' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout reopen script
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: Change the purchase flag and recreate API only
+        env:
+          KARZAR_COMMERCE_REOPEN_CONFIRM: owner_reopen_purchase_checkout_2026_09_29
+        run: bash scripts/ops/run_commerce_reopen.sh
