@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { STORE_PHONE_DISPLAY, STORE_PHONE_E164 } from "@/lib/store-location";
 
 /** Same copy as the API kill switch (`PURCHASE_CHECKOUT_DISABLED_MESSAGE`). */
 export const PURCHASE_PAUSED_MESSAGE =
@@ -13,9 +14,25 @@ export function PurchasePausedNotice({ message }: { message?: string | null }) {
       <p className="font-bold">سفارش آنلاین موقتاً متوقف است</p>
       <p className="mt-1">{message?.trim() || PURCHASE_PAUSED_MESSAGE}</p>
       <p className="mt-2 text-[#5E5F5E]">سبد خرید شما حفظ می‌شود. درخواست استعلام همچنان باز است.</p>
-      <Link href="/quote" className="mt-3 inline-block font-bold text-primary">
-        ثبت درخواست استعلام
-      </Link>
+      <p className="mt-2">
+        برای استعلام قیمت می‌توانید از طریق سایت درخواست استعلام ثبت کنید یا با پشتیبانی کارزار به
+        شماره{" "}
+        <span dir="ltr" className="inline-block tabular-nums tracking-wide">
+          {STORE_PHONE_DISPLAY}
+        </span>{" "}
+        تماس بگیرید.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Link href="/quote" className="font-bold text-primary">
+          ثبت درخواست استعلام
+        </Link>
+        <a
+          href={`tel:${STORE_PHONE_E164}`}
+          className="font-medium text-[#5E5F5E] underline-offset-4 hover:text-primary hover:underline"
+        >
+          تماس با پشتیبانی
+        </a>
+      </div>
     </div>
   );
 }
