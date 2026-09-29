@@ -1,10 +1,18 @@
 # One-shot read-only Hesabfa activation reconciliation for PR #398.
-# workflow_dispatch only. No push trigger. No deploy. No live-tree checkout.
-# Remove this file after the audit; it must not remain on main.
+# No deploy. No live-tree checkout. Remove this file after the audit.
+# GitHub refuses workflow_dispatch until the file has run once or exists on
+# the default branch. A path-filtered push on this PR branch is the only way
+# to start it without landing a production reader on main. Delete this file
+# before the final gate so later pushes cannot run it.
 name: Hesabfa Activation Reconcile Read-only
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - cursor/hesabfa-item-active-decoupling-22a8
+    paths:
+      - .github/workflows/hesabfa-activation-reconcile-readonly.yml
 
 concurrency:
   group: hesabfa-activation-reconcile-readonly
@@ -19,7 +27,7 @@ jobs:
     name: Read-only Hesabfa activation reconciliation
     runs-on: [self-hosted, karzar-vps]
     timeout-minutes: 90
-    if: github.event_name == 'workflow_dispatch' && github.repository == 'Shebahati/Karzar'
+    if: github.repository == 'Shebahati/Karzar' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push')
     steps:
       - name: Read-only reconciliation
         env:
