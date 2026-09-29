@@ -199,7 +199,6 @@ def test_reconcile_creates_when_absent_then_rereads(monkeypatch):
     client.get_items = AsyncMock(
         side_effect=[
             {"List": [], "TotalCount": 0},
-            {"List": [], "TotalCount": 0},
             {"List": [{"Code": "HF-9", "ProductCode": product.sku}], "TotalCount": 1},
         ]
     )
@@ -233,9 +232,11 @@ def test_reconcile_creates_when_absent_then_rereads(monkeypatch):
     client.save_item.assert_awaited_once()
     payload = client.save_item.await_args.args[0]
     assert payload["productCode"] == product.sku
-    assert payload["active"] is False
+    assert payload["active"] is True
     assert payload["sellPrice"] == 0.0
     assert payload["buyPrice"] == 0
+    for key in ("Stock", "stock", "Quantity", "quantity", "openingQty", "OpeningQuantity"):
+        assert key not in payload
 
 
 def test_reconcile_refuses_active_product(monkeypatch):
