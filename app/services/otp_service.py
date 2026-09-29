@@ -13,7 +13,7 @@ from app.db.models.content import OtpPurpose
 from app.db.models.user import User, UserRole
 from app.schemas.auth import CustomerBrief, OtpRequestResponse, OtpVerifyResponse
 from app.services.auth_token_service import issue_auth_tokens, logout_user
-from app.services.sms_service import SmsMessage, get_sms_provider
+from app.services.sms_service import SmsEvent, SmsMessage, get_sms_provider
 
 
 def _generate_otp_code() -> str:
@@ -30,7 +30,14 @@ async def request_otp(db: AsyncSession, phone: str) -> OtpRequestResponse:
     await db.commit()
 
     body = settings.OTP_MESSAGE_TEMPLATE.format(code=code)
-    await get_sms_provider().send(SmsMessage(receptor=phone, body=body, template_token=code))
+    await get_sms_provider().send(
+        SmsMessage(
+            receptor=phone,
+            body=body,
+            event=SmsEvent.AUTH_LOGIN_OTP,
+            attributes={"code": code},
+        )
+    )
 
     response = OtpRequestResponse(
         phone=phone,
@@ -100,7 +107,14 @@ async def request_password_reset(db: AsyncSession, phone: str) -> OtpRequestResp
     await db.commit()
 
     body = f"کد بازیابی رمز عبور کارزار: {code}"
-    await get_sms_provider().send(SmsMessage(receptor=phone, body=body, template_token=code))
+    await get_sms_provider().send(
+        SmsMessage(
+            receptor=phone,
+            body=body,
+            event=SmsEvent.AUTH_PASSWORD_RESET,
+            attributes={"code": code},
+        )
+    )
 
     response = OtpRequestResponse(phone=phone, expires_in=settings.OTP_EXPIRE_SECONDS)
     if settings.DEBUG and settings.OTP_DEV_ECHO:
@@ -115,9 +129,7 @@ async def confirm_password_reset(
     code: str,
     new_password: str,
 ) -> None:
-    otp = await crud_otp.get_valid_otp(
-        db, phone, code, purpose=OtpPurpose.PASSWORD_RESET
-    )
+    otp = await crud_otp.get_valid_otp(db, phone, code, purpose=OtpPurpose.PASSWORD_RESET)
     if not otp:
         raise ValueError("Invalid or expired reset code")
 

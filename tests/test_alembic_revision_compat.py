@@ -109,6 +109,21 @@ def test_real_graph_pr3b1_descendant_of_r1():
     )
 
 
+def test_real_graph_prompt150_descendant_of_s2():
+    """Prompt 150: sealed s2… remains compatible with runtime t3… (direct child)."""
+    script = get_alembic_script_directory()
+    assert is_runtime_revision_compatible(
+        "s2t3u4v5w6x7",
+        "t3u4v5w6x7y8",
+        script_directory=script,
+    )
+    assert not is_runtime_revision_compatible(
+        "t3u4v5w6x7y8",
+        "s2t3u4v5w6x7",
+        script_directory=script,
+    )
+
+
 def test_environment_gate_allows_descendant(monkeypatch):
     monkeypatch.setenv("KARZAR_DEPLOY_FREEZE", "true")
 

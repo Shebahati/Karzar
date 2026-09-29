@@ -15,6 +15,40 @@ Site inventory is **binary** `is_available` (موجود / ناموجود).
 
 The **site** is source of truth for catalog prices. Do not push site prices to Hesabfa as primary. Price jobs are a separate commercial path from spec enrichment.
 
+### Price authority (binding)
+
+**Customer pricing (authoritative):**
+
+`Product.base_price` is the **final customer-facing unit sale price**.
+
+`tax_percent` **MUST NOT** be added on top of `base_price` during cart, checkout,
+order-total, or payment-gateway calculation — regardless of what value
+`tax_percent` holds.
+
+```text
+item_payable           = base_price × quantity
+merchandise_total      = Σ(base_price × quantity)
+receiver_due online    = merchandise_total
+sender_prepaid online  = merchandise_total + shipping_customer_cost
+```
+
+**Accounting tax classification (not yet Owner-proven as embedded VAT):**
+
+`tax_percent` is catalog/order **metadata**. Repository defaults diverge
+(ProductCreate/admin form default `9`, ORM/DB `server_default` `0`), and bulk
+enrichment scripts are forbidden from writing it. Until Owner/accounting
+confirms that stored `tax_percent` values intentionally describe VAT already
+included in `base_price`, do **not** treat that field as authoritative
+embedded-tax evidence for Hesabfa.
+
+When Hesabfa needs a tax-exclusive split and Owner has confirmed the metadata,
+tax may be **extracted** from the gross (`net = G / (1 + r)`, `tax = G − net`).
+Until then, sale invoices use gross `unitPrice` with `tax = 0` so the invoice
+merchandise total still equals the amount paid. See [`HESABFA.md`](HESABFA.md).
+
+Do not mass-normalize catalog `tax_percent` values as part of payment correctness —
+payable totals must be independent of tax metadata.
+
 ## Dual-lane checkout
 
 | Lane | Condition | Path |
@@ -34,7 +68,7 @@ Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer i
 
 ## Shipping (active storefront methods)
 
-Public checkout offers **server-defined method codes** (client sends `shipping_method_code` only). All methods below are **`receiver_due`** (`price_label` = پس‌کرایه; `shipping_customer_cost` **NULL** at checkout; SEP = merchandise + tax only).
+Public checkout offers **server-defined method codes** (client sends `shipping_method_code` only). All methods below are **`receiver_due`** (`price_label` = پس‌کرایه; `shipping_customer_cost` **NULL** at checkout; SEP = final merchandise total only — no tax surcharge).
 
 **Tehran province** (استان تهران — province normalization; **not** Tehran city only):
 
@@ -75,8 +109,8 @@ Provider-neutral shipping payment mode (persisted on order/shipment; **server-ow
 
 | Mode | Postex `payment_type` | SEP / `estimated_total` | Checkout quote |
 |------|----------------------|-------------------------|----------------|
-| `sender_prepaid` (default) | `SENDER` | items + tax + shipping | Required |
-| `receiver_due` | `RECEIVER` (پس‌کرایه) | items + tax **only** | Not used |
+| `sender_prepaid` (default) | `SENDER` | final merchandise + shipping | Required |
+| `receiver_due` | `RECEIVER` (پس‌کرایه) | final merchandise only | Not used |
 
 - Mode authority: `POSTEX_SHIPPING_PAYMENT_MODE` / legacy `POSTEX_DEFAULT_PAYMENT_TYPE`. Storefront may **read** `GET /shipping/status.shipping_payment_mode` for UX only.
 - `receiver_due` fulfillment (`POSTEX_FULFILLMENT_MODE=api`, default): `awaiting_packaging` → measure → packed quote → select service → `ready_to_book` → **explicit** admin `/book`. Enabling `POSTEX_BOOKING_ENABLED` alone must not create prepared receiver parcels.
