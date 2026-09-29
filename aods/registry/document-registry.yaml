@@ -480,6 +480,85 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  # Phase 1A Scientific Taxonomy Constitution pack (Proposed design).
+  # Steward-approved for Phase 1B drafting; does NOT override Accepted CANON/ADR/SPEC.
+  - id: TAXONOMY-V1-README
+    path: docs/architecture/taxonomy-v1/00-README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-CONSTITUTION
+    path: docs/architecture/taxonomy-v1/01-TAXONOMY-CONSTITUTION-V1.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PRODUCT-TYPE-BOUNDARY-RULES
+    path: docs/architecture/taxonomy-v1/02-PRODUCT-TYPE-BOUNDARY-RULES.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-COMMERCE-CATEGORY-RULES
+    path: docs/architecture/taxonomy-v1/03-COMMERCE-CATEGORY-RULES.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-STABLE-IDENTITY-CONTRACT
+    path: docs/architecture/taxonomy-v1/04-STABLE-IDENTITY-CONTRACT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-NAMING-SYNONYM-CONTRACT
+    path: docs/architecture/taxonomy-v1/05-NAMING-AND-SYNONYM-CONTRACT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-EXTERNAL-STANDARDS-ALIGNMENT
+    path: docs/architecture/taxonomy-v1/06-EXTERNAL-STANDARDS-ALIGNMENT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-MASTER-SEED-REVIEW
+    path: docs/architecture/taxonomy-v1/08-MASTER-SEED-REVIEW.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PHASE1A-DECISIONS
+    path: docs/architecture/taxonomy-v1/11-PHASE-1A-DECISIONS.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PHASE1B-ENTRY-GATE
+    path: docs/architecture/taxonomy-v1/12-PHASE-1B-ENTRY-GATE.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-TX-OWNER-001
+    path: docs/architecture/taxonomy-v1/13-STEWARD-DECISION-TX-OWNER-001.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
+    owner_role: R-DOC-ARCH
+
   - id: GIT-WORKFLOW
     path: docs/development/git-development-workflow.md
     class: POLICY
