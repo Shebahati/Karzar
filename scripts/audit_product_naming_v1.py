@@ -587,9 +587,9 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         # Capture examples
-        def _ex(key: str) -> None:
+        def _ex(key: str, row: dict[str, Any] = census_row) -> None:
             if key not in examples:
-                examples[key] = census_row
+                examples[key] = row
 
         if sku in {"1108-150", "1108-200", "1108-300"}:
             _ex(f"pilot_{sku}")
@@ -649,7 +649,7 @@ def main(argv: list[str] | None = None) -> int:
     lines.append("**Mode:** READ-ONLY / APPLY disabled")
     lines.append(f"**Engine:** `{NAMING_STANDARD_VERSION}`")
     lines.append(f"**Snapshot products:** {len(products)}")
-    lines.append(f"**product_type_governed:** always `False` (not in public API) → RENAME_SAFE confidence ≤ MEDIUM")
+    lines.append("**product_type_governed:** always `False` (not in public API) → RENAME_SAFE confidence ≤ MEDIUM")
     lines.append("")
     lines.append("## State census")
     lines.append("")
