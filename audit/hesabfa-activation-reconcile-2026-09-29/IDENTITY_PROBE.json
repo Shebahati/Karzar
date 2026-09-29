@@ -1,0 +1,16 @@
+{
+  "APP_ENV": "staging",
+  "DATABASE_READ_ONLY": "postgresql:transaction_read_only=on",
+  "DATABASE_WRITES": 0,
+  "KARZAR_DATA_PLANE": "unset",
+  "REMOTE_WRITES": 0,
+  "alembic": "t3u4v5w6x7y8",
+  "api_container": "lathe_api",
+  "checkout_sha": "5c3505845386d12c01f2ea6b88377a4b004be59b",
+  "database": "karzar_staging",
+  "db_container": "lathe_postgres",
+  "host": "srv5944957438",
+  "identity_plane": "live",
+  "transaction_read_only": "on",
+  "volume": "karzar_postgres_data"
+}

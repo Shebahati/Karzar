@@ -1,0 +1,134 @@
+{
+  "ACTIVATION_APPLY": "BLOCKED_PENDING_API_CONFIRMATION",
+  "AMBIGUITY_BREAKDOWN": {
+    "DUPLICATE_LOCAL_MAPPING": {
+      "count": 0,
+      "samples": []
+    },
+    "DUPLICATE_REMOTE_PRODUCT_CODE": {
+      "count": 2,
+      "samples": [
+        {
+          "site_product_id": 1627,
+          "sku": "6112-1287"
+        },
+        {
+          "site_product_id": 2297,
+          "sku": "103-143"
+        }
+      ]
+    },
+    "DUPLICATE_SITE_SKU": {
+      "count": 0,
+      "samples": []
+    },
+    "HESABFA_CODE_OWNED_BY_OTHER_PRODUCT": {
+      "count": 0,
+      "samples": []
+    },
+    "MAPPING_CODE_MISMATCH": {
+      "count": 1,
+      "samples": [
+        {
+          "site_product_id": 3685,
+          "sku": "4824-16"
+        }
+      ]
+    },
+    "MAPPING_PRODUCT_CODE_MISMATCH": {
+      "count": 0,
+      "samples": []
+    },
+    "MAPPING_SKU_MISMATCH": {
+      "count": 0,
+      "samples": []
+    },
+    "OTHER_AMBIGUITY": {
+      "count": 0,
+      "samples": []
+    }
+  },
+  "AMBIGUOUS": 3,
+  "CATALOG_BASELINE": {
+    "NON_DELETED_ACTIVE": 1585,
+    "NON_DELETED_AVAILABLE": 3755,
+    "NON_DELETED_INACTIVE": 4951,
+    "NON_DELETED_PRICED": 4552,
+    "NON_DELETED_UNAVAILABLE": 2781,
+    "NON_DELETED_UNPRICED": 1984,
+    "TOTAL_NON_DELETED": 6536,
+    "TOTAL_PRODUCTS": 6537,
+    "TOTAL_SOFT_DELETED": 1
+  },
+  "COHORTS": {
+    "SITE_ACTIVE__HF_MISSING": 668,
+    "SITE_INACTIVE__HF_ACTIVE": 101,
+    "SITE_INACTIVE__HF_INACTIVE": 2629,
+    "SITE_INACTIVE__HF_MISSING": 2219,
+    "SITE_UNAVAILABLE__HF_INACTIVE": 941,
+    "SITE_UNPRICED__HF_INACTIVE": 897
+  },
+  "DATABASE_READ_ONLY": "postgresql:transaction_read_only=on",
+  "DATABASE_WRITES": 0,
+  "DRY_RUN": true,
+  "ERRORS": 0,
+  "ERROR_BREAKDOWN": {
+    "API_READ_ERROR": {
+      "count": 0,
+      "samples": []
+    },
+    "EMPTY_SKU": {
+      "count": 0,
+      "samples": []
+    },
+    "MAPPING_REMOTE_MISSING": {
+      "count": 0,
+      "samples": []
+    },
+    "OTHER_ERROR": {
+      "count": 0,
+      "samples": []
+    },
+    "PAGINATION_ERROR": {
+      "count": 0,
+      "samples": []
+    },
+    "REMOTE_ACTIVE_UNKNOWN": {
+      "count": 0,
+      "samples": []
+    },
+    "REMOTE_CODE_MISSING": {
+      "count": 0,
+      "samples": []
+    }
+  },
+  "HESABFA_INDEX": {
+    "BLANK_PRODUCT_CODE": 56,
+    "DUPLICATE_PRODUCT_CODE_GROUPS": 2,
+    "UNIQUE_CODE": 3774,
+    "UNIQUE_PRODUCT_CODE": 3716
+  },
+  "HESABFA_ITEMS_FETCHED": 3774,
+  "HESABFA_PAGES_FETCHED": 38,
+  "HESABFA_REPORTED_TOTAL": 3774,
+  "ITEM_SAVE_CONTRACT": "UNKNOWN",
+  "LAST_PRODUCT_ID": 7734,
+  "MAPPED": 3639,
+  "MAPPING_MISSING_REMOTE_FOUND": 10,
+  "MAPPING_STALE": 1,
+  "PAGINATION_COMPLETE": true,
+  "PRICE_RISK": 0,
+  "RECONCILIATION_REQUIRED": 2629,
+  "REMOTE_ACTIVE_UNKNOWN": 0,
+  "REMOTE_ALREADY_ACTIVE": 1018,
+  "REMOTE_INACTIVE": 2629,
+  "REMOTE_MATCHED": 3647,
+  "REMOTE_MISSING": 2887,
+  "REMOTE_WRITES": 0,
+  "SCANNED": 6536,
+  "SCAN_COMPLETE": true,
+  "TOTAL_SITE_NON_DELETED": 6536,
+  "WOULD_ACTIVATE": 0,
+  "WOULD_CREATE": 2887,
+  "WOULD_LINK": 10
+}

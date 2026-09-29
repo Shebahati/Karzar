@@ -35,6 +35,8 @@ class ProductService:
         logger.info(f"Product created successfully: {product.id}")
 
         try:
+            # Site is_active / is_available do not control Hesabfa item activation.
+            # A new shell may be created active. An existing mapped item is not saved.
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, product)
@@ -156,6 +158,8 @@ class ProductService:
         logger.info(f"Product updated successfully: {product_id}")
 
         try:
+            # Deactivating or hiding the site product must not deactivate Hesabfa
+            # and must not send shell prices onto an already mapped item.
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, updated_product)
@@ -248,6 +252,8 @@ class ProductService:
         *,
         actor_user_id: int | None = None,
     ) -> bool:
+        # Soft delete does not call Hesabfa. Leaving the accounting item untouched
+        # is required: deleted_at must not deactivate it.
         deleted = await crud_product.delete_product_soft(db, product_id)
         if deleted:
             await crud_platform.record_audit_log(

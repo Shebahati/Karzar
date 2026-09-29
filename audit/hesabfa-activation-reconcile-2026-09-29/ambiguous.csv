@@ -1,0 +1,4 @@
+site_product_id,sku,site_is_active,site_is_available,site_price_present,hesabfa_mapping_present,hesabfa_item_present,hesabfa_code,hesabfa_product_code,hesabfa_active_current,desired_hesabfa_active,action,reason,price_risk
+1627,6112-1287,false,true,true,true,true,,,,true,AMBIGUOUS,duplicate_remote_product_code,false
+2297,103-143,false,true,true,true,true,,,,true,AMBIGUOUS,duplicate_remote_product_code,false
+3685,4824-16,true,true,true,true,true,000893,4824-16,true,true,AMBIGUOUS,mapping_code_mismatch,false
