@@ -1,0 +1,38 @@
+# One-shot read-only census of live non-INSIZE prices.
+# Runs on the VPS runner. Does not deploy, migrate, or write catalog rows.
+name: VPS Non-INSIZE Price Audit
+
+on:
+  push:
+    branches:
+      - cursor/non-insize-price-audit-45d9
+    paths:
+      - .github/workflows/vps-non-insize-price-audit.yml
+      - scripts/ops/run_non_insize_price_audit.sh
+      - scripts/ops/non_insize_price_audit_brand.sql
+      - scripts/ops/non_insize_price_audit_census.sql
+      - scripts/ops/non_insize_price_audit_fingerprint.sql
+      - scripts/ops/non_insize_price_audit_global.sql
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-non-insize-price-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Read-only non-INSIZE price census
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/non-insize-price-audit-45d9' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout audit scripts
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: Run read-only census
+        run: bash scripts/ops/run_non_insize_price_audit.sh
