@@ -249,9 +249,9 @@ Do NOT execute changes from this report. READ-ONLY audit only.
 
 ## Artifacts
 
-- `audit/KARZAR_PRODUCT_STATUS_REPORT_2026-09-24.md`
-- `audit/KARZAR_BRAND_STATUS_2026-09-24.csv`
-- `audit/KARZAR_PRODUCT_STATUS_MASTER_2026-09-24.csv`
-- `audit/KARZAR_COMMERCIAL_GAPS_2026-09-24.csv`
-- `audit/KARZAR_TECHNICAL_GAPS_2026-09-24.csv`
+- `audit/product-status-2026-09-24/KARZAR_PRODUCT_STATUS_REPORT_2026-09-24.md`
+- `audit/product-status-2026-09-24/KARZAR_BRAND_STATUS_2026-09-24.csv`
+- `audit/product-status-2026-09-24/KARZAR_PRODUCT_STATUS_MASTER_2026-09-24.csv`
+- `audit/product-status-2026-09-24/KARZAR_COMMERCIAL_GAPS_2026-09-24.csv`
+- `audit/product-status-2026-09-24/KARZAR_TECHNICAL_GAPS_2026-09-24.csv`
 

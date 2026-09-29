@@ -937,3 +937,24 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-STATUS-AUDIT-20260924
+    path: audit/product-status-2026-09-24/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Authoritative read-only Production product-status census snapshot from
+      2026-09-24; historical observational evidence only.
+      Not Canon; does not authorize product/price/availability APPLY.
+
+  - id: PRODUCT-STATUS-AUDIT-REPORT-20260924
+    path: audit/product-status-2026-09-24/KARZAR_PRODUCT_STATUS_REPORT_2026-09-24.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Product-status historical result report (2026-09-24 snapshot).
+      Not current live catalog state.
