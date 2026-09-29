@@ -1,7 +1,8 @@
 # One-shot owner-authorized purchase freeze.
-# Sets PURCHASE_CHECKOUT_ENABLED=false on the live VPS .env and recreates only
-# the API container when the running process does not already have that value.
-# Does not deploy this branch, run migrations, or restart Postgres/Redis.
+# Runs on the VPS runner (GitHub-hosted SSH to this host is timing out).
+# Sets PURCHASE_CHECKOUT_ENABLED=false in /opt/karzar/Karzar/.env and recreates
+# only the API container when the running process does not already have that
+# value. Does not deploy this branch, run migrations, or restart Postgres/Redis.
 name: VPS Purchase Checkout Freeze
 
 on:
@@ -21,61 +22,23 @@ concurrency:
 jobs:
   freeze:
     name: Apply purchase checkout kill switch
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, karzar-vps]
     timeout-minutes: 15
     if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/commerce-freeze-kill-switch-45d9' && github.repository == 'Shebahati/Karzar'
     steps:
-      - name: Checkout workflow SHA
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
       - name: Set kill switch and recreate API only
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           FREEZE_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          : "${SSH_HOST:?SSH_HOST secret is required}"
-          : "${SSH_USER:?SSH_USER secret is required}"
-          : "${SSH_PRIVATE_KEY:?SSH_PRIVATE_KEY secret is required}"
-          SSH_PORT="${SSH_PORT:-22}"
           case "${FREEZE_RUN_ID}" in
             ''|*[!0-9]*) echo "refusing non-numeric run id" >&2; exit 1 ;;
           esac
-
-          ROOT="${GITHUB_WORKSPACE}"
-          KNOWN_HOSTS="${ROOT}/deploy/staging/ssh/known_hosts"
-          test -f "$KNOWN_HOSTS"
-          test -s "$KNOWN_HOSTS"
-
-          KEYFILE="$(mktemp)"
-          cleanup() { rm -f "$KEYFILE"; }
+          echo "runner_user=$(id -un)"
+          freeze_script="$(mktemp)"
+          cleanup() { rm -f "$freeze_script"; }
           trap cleanup EXIT
-          umask 077
-          printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEYFILE"
-          chmod 600 "$KEYFILE"
-
-          ssh_ok=0
-          for attempt in 1 2 3; do
-            echo "ssh_attempt=${attempt}"
-            if ssh -4 \
-              -i "$KEYFILE" \
-              -p "$SSH_PORT" \
-              -o IdentitiesOnly=yes \
-              -o PreferredAuthentications=publickey \
-              -o PasswordAuthentication=no \
-              -o KbdInteractiveAuthentication=no \
-              -o UserKnownHostsFile="$KNOWN_HOSTS" \
-              -o StrictHostKeyChecking=yes \
-              -o BatchMode=yes \
-              -o ConnectTimeout=25 \
-              -o ServerAliveInterval=10 \
-              -o ServerAliveCountMax=3 \
-              "${SSH_USER}@${SSH_HOST}" "bash -s -- ${FREEZE_RUN_ID}" <<'REMOTE'
+          cat > "$freeze_script" <<'REMOTE'
           set -euo pipefail
           run_id="${1:-0}"
           case "$run_id" in
@@ -477,14 +440,14 @@ jobs:
           rm -f /tmp/karzar-freeze-snapshot.sql
           echo "PURCHASE_FREEZE_COMPLETE=YES"
           REMOTE
-          then
-            ssh_ok=1
-            break
-          fi
-          echo "ssh_attempt_failed=${attempt}"
-          sleep 15
-          done
-          if [[ "$ssh_ok" != "1" ]]; then
-            echo "ERROR: SSH to VPS failed" >&2
+          chmod 700 "$freeze_script"
+          if [[ "$(id -u)" -eq 0 ]]; then
+            echo "privilege=root"
+            bash "$freeze_script" "${FREEZE_RUN_ID}"
+          elif sudo -n true; then
+            echo "privilege=sudo_n"
+            sudo -n bash "$freeze_script" "${FREEZE_RUN_ID}"
+          else
+            echo "ERROR: not root and sudo -n unavailable; .env not modified" >&2
             exit 1
           fi
