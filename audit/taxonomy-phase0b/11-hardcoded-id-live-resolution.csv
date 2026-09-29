@@ -1,0 +1,33 @@
+numeric_id,exists,live_name,current_breadcrumb,files_referencing,semantic_dependency,reachability,risk
+1,True,ابزارگیر,ابزارگیر,tests/fixtures; mock L1,test/mock,TEST_ONLY,OK_EXISTS
+2,True,ابزار اینسرتی,ابزار اینسرتی,seed SPEC_TEMPLATE_KEYS; fixtures,seed template,MANUAL_OPERATION_ONLY,OK_EXISTS
+3,False,,,seed root اینسرت; conftest default,seed/test,TEST_ONLY,MISSING_NON_RUNTIME
+4,True,ابزار انگشتی,ابزار انگشتی,seed SPEC_TEMPLATE_KEYS,seed template,MANUAL_OPERATION_ONLY,OK_EXISTS
+5,True,مته,مته,seed SPEC_TEMPLATE_KEYS,seed template,MANUAL_OPERATION_ONLY,OK_EXISTS
+7,False,,,promote_measurement_to_l1 FORMER_HUB_ID,ops script,MANUAL_OPERATION_ONLY,MISSING_NON_RUNTIME
+13,True,کولت BT و فشنگی و آچار,ابزارگیر › ابزارگیر فرز CNC › کولت BT و فشنگی و آچار,azarsanat hold map,import keyword,ACTIVE_IMPORT,OK_EXISTS
+22,True,کف تراش,ابزار اینسرتی › هولدر فرز CNC › کف تراش,zcc SAFE_PATH_RULES; Cat-B pin,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+25,True,برش(Q CUT),ابزار اینسرتی › هولدر تراش CNC › برش(Q CUT),zcc SAFE_PATH_RULES; Cat-B pin,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+26,True,داخل تراش,ابزار اینسرتی › هولدر تراش CNC › داخل تراش,zcc SAFE_PATH_RULES,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+27,True,رو تراش,ابزار اینسرتی › هولدر تراش CNC › رو تراش,zcc SAFE_PATH_RULES; Cat-B; azarsanat,ZCC/AST import,ACTIVE_IMPORT,OK_EXISTS
+33,False,,,seed; azarsanat DEPTH2; zcc tests/fixtures,historic leaf,ACTIVE_IMPORT,MISSING_ID_STILL_REFERENCED
+34,False,,,seed; azarsanat DEPTH2,historic leaf,ACTIVE_IMPORT,MISSING_ID_STILL_REFERENCED
+35,True,انگشتی سرتخت کارباید,ابزار انگشتی › انگشتی سرتخت کارباید,azarsanat endmill map,import keyword,ACTIVE_IMPORT,OK_EXISTS
+45,True,مته سی ان سی(U_Drill),مته › مته سی ان سی(U_Drill),zcc SAFE_PATH_RULES; Cat-B,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+56,True,اندازه گیری دقیق,اندازه گیری دقیق,seed; mitutoyo default parent; taxonomy bridge,import/docs,ACTIVE_IMPORT,OK_EXISTS
+57,True,انواع کولیس,اندازه گیری دقیق › انواع کولیس,insize/mitutoyo/dasqua default leaf,import keyword,ACTIVE_IMPORT,OK_EXISTS
+58,True,انواع میکرومتر,اندازه گیری دقیق › انواع میکرومتر,insize/mitutoyo maps,import keyword,ACTIVE_IMPORT,OK_EXISTS
+77,True,متر,اندازه گیری دقیق › متر,insize tests; classification map,import/test,ACTIVE_IMPORT,OK_EXISTS
+80,True,قطعات یدکی,اندازه گیری دقیق › قطعات یدکی,parse_price_list_pdfs hard assign,PDF review CSV,MANUAL_OPERATION_ONLY,OK_EXISTS
+81,True,اندازه گیری فرز CNC,اندازه گیری فرز CNC,promote measurement; taxonomy bridge,ops/docs,MANUAL_OPERATION_ONLY,OK_EXISTS
+87,True,اندازه گیری آزمایشگاهی,اندازه گیری آزمایشگاهی,promote measurement; taxonomy bridge,ops/docs,MANUAL_OPERATION_ONLY,OK_EXISTS
+116,True,سه نظام و لوازم جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › سه نظام و لوازم جانبی,zcc SAFE_PATH_RULES,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+117,True,چهار نظام و لوازم جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › چهار نظام و لوازم جانبی,zcc SAFE_PATH_RULES,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+121,True,دستگاه ابزار تیزکن,دستگاه‌های صنعتی › دستگاه ابزار تیزکن,zcc SAFE_PATH_RULES; azarsanat,import,ACTIVE_IMPORT,OK_EXISTS
+154,True,لوازم جانبی صنعتی,لوازم جانبی صنعتی,live accessories L1 (storefront alias),live L1,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS
+165,True,اینسرت,اینسرت,live inserts root (replaces seed 3),live L1,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS
+166,True,اینسرت تراش CNC,اینسرت › اینسرت تراش CNC,zcc SAFE_PATH_RULES; Cat-B 245 SKUs,ZCC import,ACTIVE_IMPORT,OK_EXISTS
+168,True,اینسرت فرز CNC,اینسرت › اینسرت فرز CNC,live اینسرت فرز CNC (successor of 34),live leaf,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS
+186,True,فنر هلی کویل,فنر هلی کویل,helicoil L1 leaf,live L1,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS
+187,True,قلاویز هلی کویل,قلاویز هلی کویل,helicoil L1 leaf,live L1,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS
+188,True,کیت کامل هلی کویل,کیت کامل هلی کویل,helicoil L1 leaf,live L1,ACTIVE_PRODUCTION_RUNTIME,OK_EXISTS

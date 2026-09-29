@@ -1,0 +1,38 @@
+code,name_en,name_fa,status,live_product_count,visible_product_count,review_class,notes
+GEN_CALIPER,General-purpose Caliper,کولیس عمومی,active,72,63,CONSTITUTIONALLY_SOUND,Pilot pattern; readout as property — matches ADR-015
+DEPTH_GAUGE,Depth Gauge,عمق‌سنج,active,33,25,CONSTITUTIONALLY_SOUND,Sound; distinct from DEPTH_MICROMETER
+INTERNAL_GROOVE_CALIPER,Internal Groove Caliper,کولیس شیار داخلی,active,8,6,CONSTITUTIONALLY_SOUND,
+INTERCHANGEABLE_POINT_CALIPER,Interchangeable Point Caliper,کولیس نوک‌دار تعویض‌شونده,active,2,1,NEEDS_DOMAIN_REVIEW,May collapse to POINT_CALIPER + property interchangeable_points
+HOOK_CALIPER,Hook Caliper,کولیس قلاب‌دار,active,1,1,NEEDS_DOMAIN_REVIEW,Geometry may justify; confirm schema divergence
+POINT_CALIPER,Point Caliper,کولیس نوک‌تیز,active,2,2,NEEDS_DOMAIN_REVIEW,
+INSIDE_KNIFE_EDGE_CALIPER,Inside Knife Edge Caliper,کولیس لبه‌چاقویی داخلی,active,2,1,NEEDS_DOMAIN_REVIEW,
+INTERNAL_POINT_CALIPER,Internal Point Caliper,کولیس نوک‌تیز داخلی,active,1,1,NEEDS_DOMAIN_REVIEW,
+EXTERNAL_GROOVE_CALIPER,External Groove Caliper,کولیس شیار خارجی,active,2,2,CONSTITUTIONALLY_SOUND,
+OFFSET_CALIPER,Offset Caliper,کولیس آفست,active,3,1,NEEDS_DOMAIN_REVIEW,
+TUBE_THICKNESS_CALIPER,Tube Thickness Caliper,کولیس ضخامت لوله,active,1,1,CONSTITUTIONALLY_SOUND,
+BLADE_CALIPER,Blade Caliper,کولیس تیغه‌ای,active,1,1,CONSTITUTIONALLY_SOUND,Geometry justifies split from GEN
+OUTSIDE_MICROMETER,Outside Micrometer,میکرومتر خارج‌سنج,active,91,46,CONSTITUTIONALLY_SOUND,
+HEIGHT_GAUGE,Height Gauge,ارتفاع‌سنج,active,11,10,CONSTITUTIONALLY_SOUND,
+DEPTH_MICROMETER,Depth Micrometer,میکرومتر عمق‌سنج,active,4,4,CONSTITUTIONALLY_SOUND,Sound micrometer principle
+TEST_INDICATOR,Test Indicator,ساعت اهرمی,active,5,5,CONSTITUTIONALLY_SOUND,
+DIAL_INDICATOR,Dial Indicator,ساعت اندازه‌گیری,active,24,24,CONSTITUTIONALLY_SOUND,
+BORE_GAUGE,Bore Gauge,بورگیج / گیج داخل سیلندر,active,18,8,CONSTITUTIONALLY_SOUND,
+INSIDE_MICROMETER,Inside Micrometer,میکرومتر داخل‌سنج,active,55,55,CONSTITUTIONALLY_SOUND,
+PROTRACTOR,Protractor,زاویه‌سنج,active,17,16,CONSTITUTIONALLY_SOUND,
+INDICATING_CALIPER,Indicating Caliper,پرگار نشان‌گر,active,16,16,NAMING_ONLY_ISSUE,EN Indicating Caliper vs FA پرگار; verify concept=caliper vs divider
+SHAFT_GAUGE,Shaft Gauge,گیج شفت,active,2,2,NEEDS_DOMAIN_REVIEW,
+THICKNESS_GAUGE,Thickness Gauge,ضخامت‌سنج,active,17,14,NEEDS_DOMAIN_REVIEW,
+PIN_GAUGE,Pin Gauge,پین گیج,active,25,25,CONSTITUTIONALLY_SOUND,
+FEELER_GAUGE_SET,Feeler Gauge Set,ست فیلر,active,6,6,NEEDS_DOMAIN_REVIEW,See FEELER_GAUGE
+FEELER_GAUGE,Feeler Gauge Stock,فیلر نواری,active,22,22,NEEDS_DOMAIN_REVIEW,Stock vs set — may be packing distinction (Property pack_form) or keep both after review
+LEVEL,Level,تراز,active,16,13,CONSTITUTIONALLY_SOUND,Keep; absorb digital via property
+DIGITAL_LEVEL,Digital Level,تراز دیجیتال,active,2,2,LIKELY_OVER_SPLIT,Readout-only split vs LEVEL; prefer Property readout/electronics
+STEEL_RULE,Steel Rule,خط‌کش فلزی,active,9,9,CONSTITUTIONALLY_SOUND,
+MEASURING_TAPE,Measuring Tape,متر نواری,active,4,4,CONSTITUTIONALLY_SOUND,
+TAPER_GAUGE,Taper / Slot Gauge,گیج مخروطی / شیار,active,8,8,NEEDS_DOMAIN_REVIEW,
+THREAD_RING_GAUGE,Thread Ring Gauge,گیج رینگی رزوه,active,10,0,CONSTITUTIONALLY_SOUND,Sound vs plug (male/female gauge identity)
+THREAD_PLUG_GAUGE,Thread Plug Gauge,گیج رزوه توپی,active,15,0,CONSTITUTIONALLY_SOUND,Sound
+CHAMFER_GAUGE,Chamfer Gauge,گیج پخ,active,1,1,CONSTITUTIONALLY_SOUND,
+ENGINEERS_SQUARE,Engineer's Square,گونیا مهندسی,active,18,18,CONSTITUTIONALLY_SOUND,
+STRAIGHT_EDGE,Straight Edge,خط‌کش صافی/لبه صاف,active,1,1,CONSTITUTIONALLY_SOUND,
+V_BLOCK,V-Block,وی‌بلوک,active,2,2,CONSTITUTIONALLY_SOUND,Workholding; domain bridge metrology vs workholding TBD

@@ -1,0 +1,421 @@
+{
+  "snapshot_time": "2026-09-24T07:43:42Z",
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "172.18.0.2/32",
+    "inet_server_port": 5432,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "transaction_read_only": "on",
+    "alembic_revision": "s2t3u4v5w6x7",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "eb74d23b85b9",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data  "
+  },
+  "production_identity_proven": true,
+  "read_only_proven": true,
+  "total_db_products": 6537,
+  "live_products": 6536,
+  "soft_deleted": 1,
+  "active": 1585,
+  "inactive": 4951,
+  "available": 3755,
+  "unavailable": 2781,
+  "priced": 4552,
+  "unpriced": 1984,
+  "zero_price": 0,
+  "original_price_present": 7,
+  "discounted": 7,
+  "with_image": 1464,
+  "without_image": 5072,
+  "total_product_image_rows": 1492,
+  "visible": 1368,
+  "not_visible": 5168,
+  "sellable": 716,
+  "not_sellable": 5820,
+  "with_brand": 6241,
+  "without_brand": 295,
+  "with_category": 6536,
+  "without_category": 0,
+  "with_product_type": 15,
+  "without_product_type": 6521,
+  "legacy_specs_present": 6455,
+  "kb_facts_present": 15,
+  "required_kb_complete": 15,
+  "required_kb_evidenced": 15,
+  "conflict_review_required": 0,
+  "db_image_rows": 1492,
+  "referenced_files_present": 1464,
+  "referenced_files_missing": 0,
+  "unreferenced_media_files": 32,
+  "sku_dup_exact_groups": 0,
+  "sku_dup_ci_groups": 0,
+  "sku_dup_trim_groups": 0,
+  "empty_sku": 0,
+  "cross_brand_dups": [],
+  "ufr_suspect": [
+    {
+      "id": 3142,
+      "sku": "UFR-L02",
+      "brand_id": null
+    },
+    {
+      "id": 6217,
+      "sku": "UFR/L02",
+      "brand_id": 13
+    }
+  ],
+  "price_outliers": [],
+  "inverted_original": [],
+  "top_categories": [
+    [
+      "\u0633\u0647 \u0646\u0638\u0627\u0645 \u0648 \u0644\u0648\u0627\u0632\u0645 \u062c\u0627\u0646\u0628\u06cc",
+      571
+    ],
+    [
+      "\u0627\u06cc\u0646\u0633\u0631\u062a \u062a\u0631\u0627\u0634 CNC",
+      448
+    ],
+    [
+      "\u0627\u0646\u0648\u0627\u0639 \u06a9\u0648\u0644\u06cc\u0633",
+      446
+    ],
+    [
+      "\u0627\u0646\u0648\u0627\u0639 \u0645\u06cc\u06a9\u0631\u0648\u0645\u062a\u0631",
+      440
+    ],
+    [
+      "\u0633\u0627\u0639\u062a \u0627\u0646\u062f\u06cc\u06a9\u0627\u062a\u0648\u0631",
+      326
+    ],
+    [
+      "\u0627\u0646\u06af\u0634\u062a\u06cc \u0633\u0631\u062a\u062e\u062a \u06a9\u0627\u0631\u0628\u0627\u06cc\u062f",
+      270
+    ],
+    [
+      "\u0645\u062a\u0647 \u06a9\u0627\u0631\u0628\u0627\u06cc\u062f(\u0627\u0644\u0645\u0627\u0633)",
+      260
+    ],
+    [
+      "\u0642\u0644\u0627\u0648\u06cc\u0632 \u0645\u0627\u0634\u06cc\u0646\u06cc \u0635\u0627\u0641",
+      255
+    ],
+    [
+      "\u0627\u0646\u0648\u0627\u0639 \u06af\u06cc\u062c",
+      244
+    ],
+    [
+      "\u0627\u06cc\u0646\u0633\u0631\u062a \u0641\u0631\u0632 CNC",
+      213
+    ],
+    [
+      "\u062f\u0633\u062a\u06af\u0627\u0647 \u06a9\u064f\u0631 \u06af\u06cc\u0631\u06cc (\u06a9\u064f\u0631 \u062f\u0631\u06cc\u0644)",
+      199
+    ],
+    [
+      "\u0627\u0628\u0632\u0627\u0631 \u062f\u0633\u062a\u06cc \u0639\u0645\u0648\u0645\u06cc",
+      196
+    ],
+    [
+      "\u0645\u062a\u0631",
+      152
+    ],
+    [
+      "\u062f\u0633\u062a\u06af\u0627\u0647 \u0627\u0628\u0632\u0627\u0631 \u062a\u06cc\u0632\u06a9\u0646",
+      137
+    ],
+    [
+      "\u0639\u0645\u0642 \u0633\u0646\u062c",
+      132
+    ],
+    [
+      "\u0627\u0646\u06af\u0634\u062a\u06cc \u0633\u0631 \u06af\u0631\u062f \u06a9\u0627\u0631\u0628\u0627\u06cc\u062f(\u0628\u0627\u0644 \u0646\u0648\u0632)",
+      111
+    ],
+    [
+      "\u0631\u0648 \u062a\u0631\u0627\u0634",
+      107
+    ],
+    [
+      "\u0632\u0627\u0648\u06cc\u0647 \u0633\u0646\u062c",
+      98
+    ],
+    [
+      "\u0627\u06cc\u0646\u0633\u0631\u062a \u0631\u0632\u0648\u0647\u200c\u0632\u0646\u06cc",
+      98
+    ],
+    [
+      "\u06a9\u0648\u0644\u062a BT \u0648 \u0641\u0634\u0646\u06af\u06cc \u0648 \u0622\u0686\u0627\u0631",
+      97
+    ],
+    [
+      "\u062f\u0633\u062a\u06af\u0627\u0647 \u0642\u0644\u0627\u0648\u06cc\u0632 \u0632\u0646",
+      88
+    ],
+    [
+      "\u067e\u0631\u06af\u0627\u0631 \u0635\u0646\u0639\u062a\u06cc",
+      87
+    ],
+    [
+      "\u0641\u06cc\u0644\u0631",
+      87
+    ],
+    [
+      "\u06af\u06cc\u062c \u062f\u0627\u062e\u0644 \u0633\u06cc\u0644\u0646\u062f\u0631",
+      81
+    ],
+    [
+      "\u0644\u0648\u0627\u0632\u0645 \u062c\u0627\u0646\u0628\u06cc \u0642\u0644\u0627\u0648\u06cc\u0632 \u0632\u0646",
+      80
+    ],
+    [
+      "\u0627\u0646\u06af\u0634\u062a\u06cc \u062a\u06cc\u067e \u06a9\u0627\u0631\u0628\u0627\u06cc\u062f",
+      72
+    ],
+    [
+      "\u062a\u0631\u0627\u0632 \u0635\u0646\u0639\u062a\u06cc",
+      71
+    ],
+    [
+      "\u0627\u0628\u0632\u0627\u0631 \u0622\u0644\u0627\u062a \u0686\u0648\u0628\u06cc",
+      66
+    ],
+    [
+      "\u06af\u06cc\u0631\u0647 \u0645\u06a9\u0627\u0646\u06cc\u06a9",
+      62
+    ],
+    [
+      "\u0645\u0648\u0644\u062a\u06cc \u0627\u0633\u067e\u06cc\u0646\u062f\u0644",
+      57
+    ]
+  ],
+  "insize": {
+    "exists": true,
+    "brand_id": 3,
+    "brand_name": "INSIZE | \u0627\u06cc\u0646\u0633\u0627\u06cc\u0632",
+    "total": 872,
+    "active": 643,
+    "available": 159,
+    "priced": 487,
+    "imaged": 643,
+    "visible": 643,
+    "sellable": 159,
+    "legacy": 871,
+    "kb": 15,
+    "with_pt": 15,
+    "req_complete": 15,
+    "required_evidenced_complete": 15,
+    "T0": 1,
+    "T1": 856,
+    "T2": 0,
+    "T3": 0,
+    "T4": 15,
+    "T5": 0
+  },
+  "zcc": {
+    "exists": true,
+    "brand_id": 8,
+    "brand_name": "ZCC.CT | \u0632\u062f \u0633\u06cc\u200c\u0633\u06cc",
+    "total": 583,
+    "active": 175,
+    "available": 175,
+    "priced": 258,
+    "imaged": 247,
+    "visible": 175,
+    "sellable": 175,
+    "legacy": 583,
+    "kb": 0,
+    "with_pt": 0,
+    "req_complete": 0,
+    "required_evidenced_complete": 0,
+    "T0": 0,
+    "T1": 583,
+    "T2": 0,
+    "T3": 0,
+    "T4": 0,
+    "T5": 0
+  },
+  "sanou": {
+    "exists": true,
+    "brand_id": 20,
+    "brand_name": "SAN OU | \u0633\u0627\u0646\u0648",
+    "total": 317,
+    "active": 62,
+    "available": 85,
+    "priced": 141,
+    "imaged": 86,
+    "visible": 62,
+    "sellable": 22,
+    "legacy": 317,
+    "kb": 0,
+    "with_pt": 0,
+    "req_complete": 0,
+    "required_evidenced_complete": 0,
+    "T0": 0,
+    "T1": 317,
+    "T2": 0,
+    "T3": 0,
+    "T4": 0,
+    "T5": 0
+  },
+  "stc": {
+    "exists": false,
+    "total": 0
+  },
+  "brandless": {
+    "exists": true,
+    "brand_id": null,
+    "brand_name": "[NO BRAND]",
+    "total": 295,
+    "active": 0,
+    "available": 7,
+    "priced": 7,
+    "imaged": 0,
+    "visible": 0,
+    "sellable": 0,
+    "legacy": 295,
+    "kb": 0,
+    "with_pt": 0,
+    "req_complete": 0,
+    "required_evidenced_complete": 0,
+    "T0": 0,
+    "T1": 295,
+    "T2": 0,
+    "T3": 0,
+    "T4": 0,
+    "T5": 0
+  },
+  "zcc_active_cohort": {
+    "total": 175,
+    "priced": 175,
+    "unpriced": 0,
+    "imaged": 175,
+    "unimaged": 0,
+    "available": 175,
+    "active": 175,
+    "visible": 175,
+    "sellable": 175
+  },
+  "zcc_draft_cohort": {
+    "total": 309,
+    "priced": 0,
+    "unpriced": 309,
+    "imaged": 0,
+    "unimaged": 309,
+    "available": 0,
+    "active": 0,
+    "visible": 0,
+    "sellable": 0
+  },
+  "zcc_wave_135_label": "ZCC_id_gt_7599_actual_n=99",
+  "zcc_wave_135": {
+    "total": 99,
+    "priced": 83,
+    "unpriced": 16,
+    "imaged": 72,
+    "unimaged": 27,
+    "available": 0,
+    "active": 0,
+    "visible": 0,
+    "sellable": 0
+  },
+  "impact": {
+    "become_sellable_1_field": 330,
+    "become_sellable_2_fields": 3659,
+    "active_blocked_by_image": 217,
+    "active_blocked_by_price": 322,
+    "priced_imaged_blocked_only_availability": 330,
+    "sellable_tech_weak": 706
+  },
+  "only1_by_field": {
+    "availability": 330
+  },
+  "only1_by_brand": [
+    [
+      "INSIZE | \u0627\u06cc\u0646\u0633\u0627\u06cc\u0632",
+      226
+    ],
+    [
+      "ASTPOWER | \u0627\u06cc \u0627\u0633 \u062a\u06cc \u067e\u0627\u0648\u0631",
+      53
+    ],
+    [
+      "SAN OU | \u0633\u0627\u0646\u0648",
+      24
+    ],
+    [
+      "Dasqua | \u062f\u0627\u0633\u06a9\u0648\u0627",
+      22
+    ],
+    [
+      "TERMA | \u062a\u0631\u0645\u0627",
+      4
+    ],
+    [
+      "Mitutoyo | \u0645\u06cc\u062a\u0648\u062a\u0648\u06cc\u0648",
+      1
+    ]
+  ],
+  "historical": {
+    "live_products": 6536,
+    "active": 1585,
+    "visible": 1368,
+    "sellable": 716,
+    "product_image_rows": 1492,
+    "insize_db": 872,
+    "insize_visible": 643,
+    "insize_sellable": 159,
+    "zcc_ct": 583,
+    "san_ou": 317,
+    "brandless": 295,
+    "stc": 0
+  },
+  "brand_authority": {
+    "Mitutoyo | \u0645\u06cc\u062a\u0648\u062a\u0648\u06cc\u0648": "PARTIAL_SOURCE",
+    "INSIZE | \u0627\u06cc\u0646\u0633\u0627\u06cc\u0632": "AUTHORITATIVE_SOURCE_AVAILABLE",
+    "Dasqua | \u062f\u0627\u0633\u06a9\u0648\u0627": "AUTHORITATIVE_SOURCE_AVAILABLE",
+    "TERMA | \u062a\u0631\u0645\u0627": "AUTHORITATIVE_SOURCE_AVAILABLE",
+    "ASIMETO | \u0622\u0633\u06cc\u0645\u062a\u0648": "NO_REGISTERED_SOURCE",
+    "GUANGLU | \u06af\u0648\u0627\u0646\u06af\u0644\u0648": "PARTIAL_SOURCE",
+    "ZCC.CT | \u0632\u062f \u0633\u06cc\u200c\u0633\u06cc": "PARTIAL_SOURCE",
+    "DOHRE | \u062f\u0648\u0647\u0631\u0647": "NO_REGISTERED_SOURCE",
+    "MAP | \u0627\u0645 \u0627\u06cc \u067e\u06cc": "NO_REGISTERED_SOURCE",
+    "ASTPOWER | \u0627\u06cc \u0627\u0633 \u062a\u06cc \u067e\u0627\u0648\u0631": "PARTIAL_SOURCE",
+    "KORLOY | \u06a9\u0648\u0631\u0644\u0648\u06cc": "NO_REGISTERED_SOURCE",
+    "SAN OU | \u0633\u0627\u0646\u0648": "PARTIAL_SOURCE",
+    "TIGER TEC | \u062a\u0627\u06cc\u06af\u0631\u062a\u06a9": "NO_REGISTERED_SOURCE",
+    "Emkay | \u0627\u0645\u06a9\u0627\u06cc": "NO_REGISTERED_SOURCE",
+    "UTEX | \u06cc\u0648\u062a\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "Jaguar | \u062c\u06af\u0648\u0627\u0631": "NO_REGISTERED_SOURCE",
+    "Narex | \u0646\u0627\u0631\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "Vogel | \u0648\u06af\u0644": "NO_REGISTERED_SOURCE",
+    "LI-HSUN | \u0644\u06cc\u200c\u0633\u0627\u0646": "NO_REGISTERED_SOURCE",
+    "Viyer | \u0648\u06cc\u0631": "NO_REGISTERED_SOURCE",
+    "Transmex | \u062a\u0631\u0646\u0645\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "Winstar | \u0648\u06cc\u0646\u0633\u062a\u0627\u0631": "NO_REGISTERED_SOURCE",
+    "Chumpower | \u0686\u0627\u0645\u200c\u067e\u0627\u0648\u0631": "NO_REGISTERED_SOURCE",
+    "Deniz | \u062f\u0646\u06cc\u0632": "NO_REGISTERED_SOURCE",
+    "3Keego | \u06a9\u06cc\u06af\u0648": "NO_REGISTERED_SOURCE",
+    "Chagan | \u0686\u0627\u06af\u0627\u0646": "NO_REGISTERED_SOURCE",
+    "MPA | \u0627\u0645 \u067e\u06cc \u0627\u06cc": "NO_REGISTERED_SOURCE",
+    "Sahand | \u0633\u0647\u0646\u062f": "NO_REGISTERED_SOURCE",
+    "Promax | \u067e\u0631\u0648\u0645\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "CP-GRAT | \u0633\u06cc\u200c\u067e\u06cc\u200c\u06af\u0631\u0627\u062a": "NO_REGISTERED_SOURCE",
+    "Acrobat | \u0622\u06a9\u0631\u0648\u0628\u0627\u062a": "NO_REGISTERED_SOURCE",
+    "Vertex | \u0648\u0631\u062a\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "Groz | \u06af\u0631\u0648\u0632": "NO_REGISTERED_SOURCE",
+    "OMG | \u0627\u0648 \u0627\u0645 \u062c\u06cc": "NO_REGISTERED_SOURCE",
+    "R\u00d6HM | \u0631\u0647\u0645": "NO_REGISTERED_SOURCE",
+    "ZPS | \u0632\u062f \u067e\u06cc\u200c\u0627\u0633": "NO_REGISTERED_SOURCE",
+    "SHAMS | \u0634\u0645\u0633": "PARTIAL_SOURCE",
+    "YOWAX | \u06cc\u0648\u0627\u06a9\u0633": "NO_REGISTERED_SOURCE",
+    "Mighty Seven | \u0645\u0627\u06cc\u062a\u06cc \u0633\u0648\u0646": "NO_REGISTERED_SOURCE",
+    "ET | \u0627\u06cc \u062a\u06cc": "NO_REGISTERED_SOURCE",
+    "[NO BRAND]": "NO_REGISTERED_SOURCE"
+  }
+}
