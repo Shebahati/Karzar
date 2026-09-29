@@ -309,17 +309,12 @@ if [ "$manifest_sha" != "$EXPECTED_MANIFEST_SHA" ]; then
 else
   echo "MANIFEST_SHA256_CHECK=PASS"
 fi
-docker run --rm --network none --user 0 --entrypoint cp \
+docker run --rm --network none --user 0 --entrypoint sh \
   -v "${MANIFEST_PATH}:/manifest:ro" \
   -v "${INSIZE_PATH}:/insize:ro" \
   -v "${TMP_DIR}:/out" \
   postgres:15-alpine \
-  /manifest /out/manifest.jsonl
-docker run --rm --network none --user 0 --entrypoint cp \
-  -v "${INSIZE_PATH}:/insize:ro" \
-  -v "${TMP_DIR}:/out" \
-  postgres:15-alpine \
-  /insize /out/insize-before.jsonl
+  -c 'cp /manifest /out/manifest.jsonl && cp /insize /out/insize-before.jsonl && chmod 644 /out/manifest.jsonl /out/insize-before.jsonl'
 
 cat > "${TMP_DIR}/current.sql" <<'SQL'
 BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;
@@ -585,10 +580,9 @@ for name in names:
     labels = data["Config"].get("Labels") or {}
     revision = labels.get("org.opencontainers.image.revision", "")
     image = data["Config"].get("Image") or ""
-    blob = f"{name} {image}".lower()
-    if any(token in blob for token in ("shop", "storefront")) and "admin" not in blob:
+    if name == "karzar_shop":
         shop = (name, revision, image)
-    if "admin" in blob:
+    if name == "karzar_admin":
         admin = (name, revision, image)
 print(f"shop_container={shop[0] if shop else 'MISSING'}")
 print(f"shop_image={shop[2] if shop else 'MISSING'}")
