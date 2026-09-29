@@ -459,6 +459,14 @@ documents:
     status: accepted
     owner_role: R-DOC-ARCH
 
+  - id: SPEC-PRODUCT-NAMING-STANDARD-V1
+    path: docs/architecture/specs/SPEC-product-naming-standard-v1.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
   - id: SPEC-PRODUCT-KNOWLEDGE-ENTITY-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
     class: CANON
@@ -859,3 +867,43 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: cursor/terma-price-150-2a10
+
+  - id: PRODUCT-NAMING-V1-CONSTITUTION
+    path: audit/product-naming-v1/NAMING_CONSTITUTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-WRITERS
+    path: audit/product-naming-v1/PRODUCT_NAME_WRITERS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-SUMMARY
+    path: audit/product-naming-v1/PRODUCT_NAMING_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-SCHEMA-IDENTITY-REVIEW
+    path: audit/product-naming-v1/SCHEMA_IDENTITY_REVIEW.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-TEST-PLAN
+    path: audit/product-naming-v1/TEST_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355

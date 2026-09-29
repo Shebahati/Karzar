@@ -1,0 +1,10 @@
+{
+  "source": "https://api.karzartools.com/api/v1",
+  "mode": "READ_ONLY_GET",
+  "list_count": 1368,
+  "detail_count": 1368,
+  "detail_errors": [],
+  "brand_count": 40,
+  "note": "product_type_id not exposed on public ProductDetailResponse; soft-deleted excluded for anonymous",
+  "elapsed_s": 61.36
+}
