@@ -1,0 +1,34 @@
+# Read-only live verification before a commerce reopen decision.
+# Does not change prices, flags, containers, or deployments.
+name: VPS Commerce Reopen Verify
+
+on:
+  push:
+    branches:
+      - cursor/commerce-reopen-verify-45d9
+    paths:
+      - .github/workflows/vps-commerce-reopen-verify.yml
+      - scripts/ops/run_commerce_reopen_verify.sh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-commerce-reopen-verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Read-only commerce reopen verification
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/commerce-reopen-verify-45d9' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout verify script
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: Run read-only checks
+        run: bash scripts/ops/run_commerce_reopen_verify.sh
