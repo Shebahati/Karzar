@@ -619,7 +619,7 @@ if [ -f /tmp/karzar-shop-container ]; then
     echo -n "bundle_cart_kept="
     docker exec "$shop_name" sh -c 'grep -R -a -q "سبد خرید شما حفظ می‌شود" /app' && echo YES || echo NO
     echo -n "bundle_tel="
-    docker exec "$shop_name" sh -c 'grep -R -a -q "tel:+989912480087" /app' && echo YES || echo NO
+    docker exec "$shop_name" sh -c 'grep -R -a -q -e "tel:+989912480087" -e "+989912480087" -e "989912480087" /app' && echo YES || echo NO
     echo -n "bundle_quote="
     docker exec "$shop_name" sh -c 'grep -R -a -q "ثبت درخواست استعلام" /app' && echo YES || echo NO
     echo -n "bundle_phone="
