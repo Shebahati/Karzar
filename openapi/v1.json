@@ -10631,6 +10631,29 @@
         }
       }
     },
+    "/api/v1/commerce/purchase-status": {
+      "get": {
+        "tags": [
+          "Storefront",
+          "Storefront"
+        ],
+        "summary": "Whether online purchase checkout is currently accepted",
+        "description": "Read-only. Does not touch orders, payments, catalog, or inventory.",
+        "operationId": "purchase_checkout_status_api_v1_commerce_purchase_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseCheckoutStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/checkout": {
       "post": {
         "tags": [
@@ -22495,6 +22518,31 @@
           "edges_deprecated"
         ],
         "title": "ProjectionSyncResponse"
+      },
+      "PurchaseCheckoutStatusResponse": {
+        "properties": {
+          "purchase_checkout_enabled": {
+            "type": "boolean",
+            "title": "Purchase Checkout Enabled"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "purchase_checkout_enabled"
+        ],
+        "title": "PurchaseCheckoutStatusResponse",
+        "description": "Public read of the purchase kill switch. Inquiry checkout is unaffected."
       },
       "RefreshTokenRequest": {
         "properties": {

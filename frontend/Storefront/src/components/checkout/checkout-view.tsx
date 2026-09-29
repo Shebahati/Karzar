@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { AuthStep, type ResolvedCustomer } from "@/components/checkout/auth-step";
 import { DetailsStep, type DetailsResult } from "@/components/checkout/details-step";
 import { OrderSummary } from "@/components/checkout/order-summary";
+import { PurchasePausedNotice } from "@/components/commerce/purchase-paused-notice";
+import { usePurchaseCheckoutStatus } from "@/features/commerce/use-purchase-checkout-status";
 import { useInitPayment, useSubmitCheckout } from "@/features/checkout/queries";
 import { useMe } from "@/features/auth/queries";
 import { useCartStore } from "@/store/cart-store";
@@ -51,7 +53,10 @@ export function CheckoutView() {
 
   const submit = useSubmitCheckout();
   const initPayment = useInitPayment();
-  const { data: me } = useMe(mounted && !isInquiry);
+  const purchaseStatus = usePurchaseCheckoutStatus(!isInquiry);
+  const purchasePaused =
+    !isInquiry && purchaseStatus.data?.purchase_checkout_enabled === false;
+  const { data: me } = useMe(mounted && !isInquiry && !purchasePaused);
 
   useEffect(() => {
     setMounted(true);
@@ -153,6 +158,14 @@ export function CheckoutView() {
           redirectToPaymentUrl(paymentUrl);
         } catch (err) {
           setPaying(false);
+          if (
+            err instanceof ApiError &&
+            err.errorCode === ERROR_CODES.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED
+          ) {
+            setPendingPayOrder(null);
+            setCheckoutError(err.message);
+            return;
+          }
           if (err instanceof ApiError && err.errorCode === ERROR_CODES.GUEST_ORDER_NOT_PAYABLE) {
             setCheckoutError("پرداخت آنلاین فقط برای کاربران واردشده امکان‌پذیر است. لطفاً وارد شوید.");
             setStep("auth");
@@ -165,6 +178,14 @@ export function CheckoutView() {
         }
       },
       onError: (err) => {
+        if (
+          err instanceof ApiError &&
+          err.errorCode === ERROR_CODES.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED
+        ) {
+          setPendingPayOrder(null);
+          setCheckoutError(err.message);
+          return;
+        }
         if (err instanceof ApiError && err.errorCode === ERROR_CODES.GUEST_ORDER_NOT_PAYABLE) {
           setCheckoutError("پرداخت آنلاین فقط برای کاربران واردشده امکان‌پذیر است. لطفاً وارد شوید.");
           setStep("auth");
@@ -200,8 +221,16 @@ export function CheckoutView() {
       const payment = await initPayment.mutateAsync({ order_id: pendingPayOrder.order_id });
       const { redirectToPaymentUrl } = await import("@/lib/payment-url");
       redirectToPaymentUrl(payment.payment_url);
-    } catch {
+    } catch (err) {
       setPaying(false);
+      if (
+        err instanceof ApiError &&
+        err.errorCode === ERROR_CODES.PURCHASE_CHECKOUT_TEMPORARILY_DISABLED
+      ) {
+        setPendingPayOrder(null);
+        setCheckoutError(err.message);
+        return;
+      }
       setCheckoutError("اتصال به درگاه دوباره ناموفق بود. بعداً از سفارش‌های من پرداخت را پیگیری کنید.");
     }
   };
@@ -221,6 +250,34 @@ export function CheckoutView() {
           <Link href="/catalog" className="mt-4">
             <Button>مشاهده محصولات</Button>
           </Link>
+        </div>
+      </Container>
+    );
+  }
+
+  if (!isInquiry && (purchasePaused || purchaseStatus.isPending)) {
+    return (
+      <Container className="pt-8 pb-36 lg:py-12">
+        <h1 className="text-2xl font-bold text-foreground">تکمیل خرید</h1>
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            {purchasePaused ? (
+              <PurchasePausedNotice message={purchaseStatus.data?.message} />
+            ) : (
+              <p className="text-sm text-muted-foreground">در حال بررسی وضعیت سفارش آنلاین…</p>
+            )}
+            <Link href="/cart" className="mt-4 inline-block text-sm font-bold text-primary">
+              بازگشت به سبد خرید
+            </Link>
+          </div>
+          <div className="lg:col-span-1">
+            <OrderSummary
+              lines={lines}
+              isInquiry={false}
+              shippingToman={null}
+              shippingDisplay="none"
+            />
+          </div>
         </div>
       </Container>
     );

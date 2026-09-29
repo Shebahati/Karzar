@@ -13,6 +13,8 @@ import { productLineSavings } from "@/types/product";
 import { useCartStore, type CartLine } from "@/store/cart-store";
 import { MobileCartDock } from "@/components/cart/mobile-cart-dock";
 import { CartProformaButton } from "@/components/cart/cart-proforma-button";
+import { PurchasePausedNotice } from "@/components/commerce/purchase-paused-notice";
+import { usePurchaseCheckoutStatus } from "@/features/commerce/use-purchase-checkout-status";
 
 type Mode = "cart" | "quote";
 
@@ -59,6 +61,11 @@ export function CartView({ mode }: { mode: Mode }) {
   const lastSyncError = useCartStore((s) => s.lastSyncError);
   const clearSyncError = useCartStore((s) => s.clearSyncError);
   const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
+  const purchaseStatus = usePurchaseCheckoutStatus(mode === "cart");
+  const purchasePaused =
+    mode === "cart" && purchaseStatus.data?.purchase_checkout_enabled === false;
+  const purchaseCheckoutHeld =
+    mode === "cart" && (purchasePaused || purchaseStatus.isPending);
 
   useEffect(() => {
     setMounted(true);
@@ -175,7 +182,9 @@ export function CartView({ mode }: { mode: Mode }) {
             </div>
             <p className="mt-1.5 text-sm text-[#5E5F5E]">
               {mode === "cart"
-                ? "مرور اقلام، بررسی قیمت و تکمیل خرید"
+                ? purchasePaused
+                  ? "اقلام سبد حفظ شده‌اند. سفارش آنلاین تا به‌روزرسانی قیمت‌ها متوقف است."
+                  : "مرور اقلام، بررسی قیمت و تکمیل خرید"
                 : "مرور اقلام و ثبت درخواست استعلام قیمت"}
             </p>
             {reconciling && (
@@ -193,6 +202,12 @@ export function CartView({ mode }: { mode: Mode }) {
             خالی کردن
           </button>
         </header>
+
+        {purchasePaused && (
+          <div className="mb-4 lg:hidden">
+            <PurchasePausedNotice message={purchaseStatus.data?.message} />
+          </div>
+        )}
 
         {lastSyncError && (
           <div
@@ -345,9 +360,13 @@ export function CartView({ mode }: { mode: Mode }) {
                     </div>
                   </dl>
 
-                  {stockWarnings.length > 0 ? (
+                  {purchasePaused ? (
+                    <div className="mt-6">
+                      <PurchasePausedNotice message={purchaseStatus.data?.message} />
+                    </div>
+                  ) : stockWarnings.length > 0 || purchaseCheckoutHeld ? (
                     <Button size="lg" className="mt-6 w-full" disabled>
-                      تکمیل خرید و پرداخت
+                      {purchaseCheckoutHeld ? "در حال بررسی سفارش آنلاین…" : "تکمیل خرید و پرداخت"}
                     </Button>
                   ) : (
                     <Link href="/checkout" className="mt-6 block">
@@ -357,9 +376,11 @@ export function CartView({ mode }: { mode: Mode }) {
                     </Link>
                   )}
                   <CartProformaButton lines={lines} className="mt-3" />
-                  <p className="mt-4 text-center text-[11px] leading-5 text-[#5E5F5E]">
-                    پرداخت امن از درگاه رسمی · امکان دریافت پیش‌فاکتور
-                  </p>
+                  {!purchasePaused && (
+                    <p className="mt-4 text-center text-[11px] leading-5 text-[#5E5F5E]">
+                      پرداخت امن از درگاه رسمی · امکان دریافت پیش‌فاکتور
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
@@ -386,7 +407,9 @@ export function CartView({ mode }: { mode: Mode }) {
           itemCount={lines.length}
           unitCount={unitCount}
           lines={mode === "cart" ? lines : undefined}
-          checkoutDisabled={mode === "cart" && stockWarnings.length > 0}
+          checkoutDisabled={mode === "cart" && (stockWarnings.length > 0 || purchaseCheckoutHeld)}
+          purchasePaused={purchasePaused}
+          holdLabel={purchaseCheckoutHeld && !purchasePaused ? "در حال بررسی" : undefined}
         />
       </Container>
     </div>

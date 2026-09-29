@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-29 — Purchase kill switch also blocks payment init
+
+- `POST /api/v1/payments/init` returns **HTTP 503** `PURCHASE_CHECKOUT_TEMPORARILY_DISABLED` when `PURCHASE_CHECKOUT_ENABLED=false`, before idempotency reservation, order/expiry mutation, or any gateway call. Same Persian message as purchase checkout.
+- `GET /api/v1/commerce/purchase-status` is a public read of that flag (`purchase_checkout_enabled`, optional `message`). It does not mutate orders, payments, or catalog.
+- Unchanged: `GET /api/v1/payments/callback`, `POST /api/v1/payments/callback/sep`, `POST /api/v1/payments/verify`, inquiry checkout.
+
 ### 2026-09-28 — Final customer price is tax-inclusive (commerce)
 
 - **Binding (customer):** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` must not be added on top at cart/checkout/payment.

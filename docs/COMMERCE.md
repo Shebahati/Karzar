@@ -62,7 +62,7 @@ Require `Idempotency-Key` on checkout and payment init.
 
 | Variable | Safe default | Effect |
 |----------|--------------|--------|
-| `PURCHASE_CHECKOUT_ENABLED` | `false` | When `false`, `mode=purchase` checkout returns **HTTP 503** with `PURCHASE_CHECKOUT_TEMPORARILY_DISABLED` **before** any order, stock, payment, or cart mutation. Inquiry checkout is unchanged. |
+| `PURCHASE_CHECKOUT_ENABLED` | `false` | When `false`, `mode=purchase` checkout **and** `POST /payments/init` return **HTTP 503** with `PURCHASE_CHECKOUT_TEMPORARILY_DISABLED` before idempotency, order, stock, expiry, or gateway work. Inquiry checkout is unchanged. `GET/POST /payments/callback`, `POST /payments/callback/sep`, and `POST /payments/verify` stay open so in-flight payments can still be verified. |
 
 Set `PURCHASE_CHECKOUT_ENABLED=true` only after SEP merchant-domain / Referrer is confirmed. Keep `PAYMENT_PROVIDER=sep` — do not flip back to mock.
 

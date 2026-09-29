@@ -157,6 +157,13 @@ class ShippingAddress(BaseModel):
         return normalized
 
 
+class PurchaseCheckoutStatusResponse(BaseModel):
+    """Public read of the purchase kill switch. Inquiry checkout is unaffected."""
+
+    purchase_checkout_enabled: bool
+    message: str | None = None
+
+
 class CheckoutRequest(BaseModel):
     """Customer checkout payload. Shipping payment mode is server-owned — never client-set."""
 

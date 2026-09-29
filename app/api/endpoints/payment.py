@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.core.payment_url import assert_allowed_payment_url
+from app.core.purchase_checkout import raise_if_purchase_checkout_disabled
 from app.core.rate_limit import get_rate_limiter
 from app.crud import commerce as crud_commerce
 from app.crud import platform as crud_platform
@@ -168,6 +169,10 @@ async def payment_init(
     current_user: User | None = Depends(get_optional_current_user),
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
 ):
+    # Fail closed before idempotency, expiry, order locks, or any gateway call.
+    # Callback and verify intentionally do not use this guard.
+    raise_if_purchase_checkout_disabled()
+
     idempotency_scope = "payment_init:anonymous"
     if current_user is not None:
         idempotency_scope = f"payment_init:user:{current_user.id}"
