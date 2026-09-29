@@ -136,15 +136,20 @@ async def submit_checkout(
                 "کد شهر مقصد برای ارسال الزامی است.",
                 error_code="SHIPPING_QUOTE_MISMATCH",
             )
+        # Reject incomplete sender-prepaid requests before any Postex I/O so
+        # structurally invalid checkouts do not depend on provider availability.
+        if (
+            shipping_payment_mode != ShippingPaymentMode.RECEIVER_DUE
+            and not payload.shipping_quote_token
+        ):
+            raise LogisticsError(
+                "انتخاب سرویس ارسال الزامی است.",
+                error_code="SHIPPING_QUOTE_REQUIRED",
+            )
         await validate_postex_destination_location_code(payload.shipping.location_code)
         if shipping_payment_mode == ShippingPaymentMode.RECEIVER_DUE:
             shipping_cost = Decimal("0")
         else:
-            if not payload.shipping_quote_token:
-                raise LogisticsError(
-                    "انتخاب سرویس ارسال الزامی است.",
-                    error_code="SHIPPING_QUOTE_REQUIRED",
-                )
             shipping_quote = await consume_quote(
                 db,
                 token=payload.shipping_quote_token,
@@ -196,9 +201,10 @@ async def submit_checkout(
 
         if unit_price is not None:
             has_priced_item = True
+            # base_price is the final customer-facing sale price.
+            # tax_percent must never surcharge payable (accounting metadata only).
             line_total = _to_decimal(unit_price) * quantity
-            tax_rate = _to_decimal(product.tax_percent or 0) / Decimal("100")
-            estimated_total += line_total + (line_total * tax_rate)
+            estimated_total += line_total
 
         if is_purchase:
             stock_reservations.append((product_id, quantity))
@@ -210,6 +216,7 @@ async def submit_checkout(
                 "unit_price": unit_price,
                 "product_name": product.name,
                 "product_sku": product.sku,
+                # Snapshotted for future Owner-gated accounting; does not affect payable.
                 "tax_percent": product.tax_percent or Decimal("0"),
             }
         )

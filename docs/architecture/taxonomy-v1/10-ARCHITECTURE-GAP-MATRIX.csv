@@ -1,0 +1,20 @@
+capability,status,evidence
+Product Type primary FK,SUPPORTED,products.product_type_id + product_types.code
+PT Definitions + memberships,SUPPORTED_WITH_DATA_ONLY,37/37 have active defs; coverage 8% products
+Property Dictionary,SUPPORTED,metrology v0 keys; gaps for coating/interface/flute
+Knowledge taxonomy nodes,SUPPORTED_WITH_DATA_ONLY,schema exists; 0 nodes populated
+Classification assignments,SUPPORTED_WITH_DATA_ONLY,0 assignments
+Commerce Category stable code,SCHEMA_EXTENSION_REQUIRED,KZ.CAT.* Wave-1 required; UUID/ULID optional later — Steward sequencing approved; do not implement in 1A
+Forbid import numeric PK semantics,ARCHITECTURE_CHANGE_REQUIRED,importer refactor + CI after code backfill
+Readout property key,SUPPORTED_WITH_DATA_ONLY,display_type exists; standardize readout_type alias
+taper_interface property,SCHEMA_EXTENSION_REQUIRED,SPEC mentions; not in v0 PD seed
+Knowledge Category mandatory level,STEWARD_APPROVED_AMENDMENT_PENDING_BOARD,not mandatory; Domain→Family→PT; Accepted SPEC formal edit pending
+Workshop/Hand Tools Domain,REJECTED_OWNER_SCOPE,TX-OWNER-001; CATALOG_EXIT; no APPLY in 1A
+Technical class dumping ground,DEFERRED,governance + steward rules; schema OK
+Relationship graph ACCESSORY_OF etc.,SCHEMA_EXTENSION_REQUIRED,or reuse knowledge edges carefully
+External crosswalk table,SCHEMA_EXTENSION_REQUIRED,design only in 1A
+NULL semantics tokens,DEFERRED,conceptual now
+Megamenu presentation,SUPPORTED,6 groups; 15/15 L1
+SEO category hubs,SUPPORTED,ADR-010; redirects empty debt
+Master seed digital/BT/HSS as types,ARCHITECTURE_CHANGE_REQUIRED,amend Proposed seed before use; mark workshop/power OUT_OF_SCOPE
+Hesabfa category codes,SUPPORTED_WITH_DATA_ONLY,column exists; 0/138 populated

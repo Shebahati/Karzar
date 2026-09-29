@@ -281,6 +281,94 @@ def test_non_admin_rejected(admin_headers, valid_product_data):
     assert resp.status_code in (401, 403), resp.text
 
 
+def test_descendant_alembic_pin_allows_evidence_validate(
+    admin_headers, valid_product_data
+):
+    """Prompt 106 production shape: sealed at r1…, runtime advanced to s2…."""
+    from typing import Any
+
+    from tests.test_knowledge_waves_prompt68 import (
+        _ensure_gates,
+        _policy_json,
+        _seed_gen_caliper_stack,
+        _sku_unit,
+    )
+
+    sealed_pin = "r1s2t3u4v5w6"
+    runtime_head = "s2t3u4v5w6x7"
+
+    async def _seed_at_sealed_pin():
+        async with TestingSessionLocal() as session:
+            await _seed_gen_caliper_stack(session)
+            await _ensure_gates(session, alembic=sealed_pin)
+            await session.commit()
+
+    _run(_seed_at_sealed_pin())
+    product = _create_product(admin_headers, valid_product_data, "W107-PIN")
+
+    policy: dict[str, Any] = _policy_json()
+    policy["environment_pins"]["alembic"] = sealed_pin
+
+    created = client.post(
+        "/api/v1/knowledge/waves",
+        json={
+            "wave_id": "EV-PIN-001",
+            "brand": "INSIZE",
+            "product_type_id": 1,
+            "definition_id": 1,
+            "policy_json": policy,
+            "products": [
+                {"product_id": product["id"], "sku_snapshot": product["sku"]}
+            ],
+        },
+        headers=admin_headers,
+    )
+    assert created.status_code == 201, created.text
+    wave_pk = created.json()["id"]
+    assert (
+        client.post(
+            f"/api/v1/knowledge/waves/{wave_pk}/review",
+            json={"to_status": "Reviewed", "change_reason": "review"},
+            headers=admin_headers,
+        ).status_code
+        == 200
+    )
+    sealed = client.post(
+        f"/api/v1/knowledge/waves/{wave_pk}/seal",
+        json={"change_reason": "seal"},
+        headers=admin_headers,
+    )
+    assert sealed.status_code == 200, sealed.text
+    executed = client.post(
+        "/api/v1/knowledge/waves/EV-PIN-001/execute",
+        json={
+            "change_reason": "assert at sealed pin",
+            "sku_units": [_sku_unit(product["sku"], product["id"])],
+        },
+        headers=admin_headers,
+    )
+    assert executed.status_code == 201, executed.text
+    assert executed.json()["wave_status"] == "Asserted"
+
+    async def _advance_runtime():
+        async with TestingSessionLocal() as session:
+            await _ensure_gates(session, alembic=runtime_head)
+            await session.commit()
+
+    _run(_advance_runtime())
+
+    resp = client.post(
+        "/api/v1/knowledge/waves/EV-PIN-001/validate-evidence",
+        json={"change_reason": "PROMPT 107 descendant alembic pin"},
+        headers=admin_headers,
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["previous_status"] == "Asserted"
+    assert body["new_status"] == "EvidenceValidated"
+    assert body["ok"] is True
+
+
 async def _status(wave_pk: int) -> str:
     async with TestingSessionLocal() as session:
         wave = await session.get(KnowledgeWave, wave_pk)

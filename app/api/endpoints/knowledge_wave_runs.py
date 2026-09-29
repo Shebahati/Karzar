@@ -36,7 +36,7 @@ async def get_wave_run(
     "/wave-runs/{run_id}/resume",
     response_model=KnowledgeWaveExecuteResponse,
     status_code=201,
-    summary="Resume failed wave run (super-admin; new run_id)",
+    summary="Resume failed or interrupted wave assert run (super-admin)",
 )
 async def resume_wave_run(
     run_id: int,

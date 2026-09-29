@@ -1,0 +1,11 @@
+profile_code,product_type_code,title_pattern,brand_policy,manufacturer_code_required,allowed_identity_qualifiers,primary_variant_fact_keys,unit_policy,max_variant_attributes,version,notes
+metrology.caliper.v1,PROVISIONAL_METROLOGY_CALIPER,[PT] [qual?] [Brand] کد [OEM][، range],prefer_fa,true,دیجیتال|عقربه‌ای|ورنیه,measurement_range|range|range_min_mm,mm_en_dash,1,karzar_product_naming_v1,Digital/dial calipers; range required for RENAME_SAFE
+metrology.micrometer.v1,PROVISIONAL_METROLOGY_MICROMETER,[PT] [qual?] [Brand] کد [OEM][، range],prefer_fa,true,خارج‌سنج|داخل‌سنج|دیجیتال,measurement_range|range|range_min_mm,mm_en_dash,1,karzar_product_naming_v1,Outside/inside micrometers; range required
+cutting.turning_insert.v1,PROVISIONAL_CUTTING_TURNING_INSERT,[PT] [Brand] کد [OEM],prefer_en,true,,,none,0,karzar_product_naming_v1,ISO designation + grade in OEM code; no dimensional attrs
+cutting.solid_tool.v1,PROVISIONAL_CUTTING_SOLID_TOOL,[PT] [Brand] کد [OEM][، Ød],prefer_en,true,,cutting_diameter|diameter|diameter_mm,diameter_mm,1,karzar_product_naming_v1,End mills / drills / solid carbide; diameter optional distinguisher
+workholding.chuck.v1,PROVISIONAL_WORKHOLDING_CHUCK,[PT] [Brand] کد [OEM][، capacity],prefer_fa,true,منظم|خودمرکز,capacity|capacity_mm|diameter,capacity_mm,1,karzar_product_naming_v1,Self-centering / drill chucks; capacity optional
+thread_repair.insert.v1,PROVISIONAL_THREAD_REPAIR_INSERT,[PT] [Brand] کد [OEM][، M×pitch],prefer_fa,true,,thread_size,metric_thread,1,karzar_product_naming_v1,Helicoil-style / thread repair inserts
+fluids.lubricant.v1,PROVISIONAL_FLUIDS_LUBRICANT,[PT] [Brand] کد [OEM][، volume],prefer_fa,true,,volume,liter,1,karzar_product_naming_v1,Cutting fluids / lubricants; volume when distinguishing
+machines.equipment.v1,PROVISIONAL_MACHINES_EQUIPMENT,[PT] [Brand] کد [OEM],prefer_fa,true,,,none,0,karzar_product_naming_v1,"Rotary/indexing tables, larger equipment"
+toolholding.holder.v1,PROVISIONAL_TOOLHOLDING_HOLDER,[PT] [Brand] کد [OEM][، interface],prefer_en,true,,interface,interface_token,1,karzar_product_naming_v1,Turning / milling holders; Latin brand preferred
+generic.v1,PROVISIONAL_GENERIC,[PT] [Brand] کد [OEM],prefer_fa,true,,,none,0,karzar_product_naming_v1,Fallback when no PT-specific profile matches; no variant attrs

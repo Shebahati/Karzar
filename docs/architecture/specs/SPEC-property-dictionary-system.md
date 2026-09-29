@@ -59,7 +59,7 @@ Specification Definition (Property)
 | `definition_id` | Yes | Stable opaque ID |
 | `key` | Yes | Canonical snake_case English key (`measurement_range`) |
 | `data_type` | Yes | See §5 |
-| `unit_dimension` | MAY | `length`, `angle`, `mass`, `dimensionless`, … |
+| `unit_dimension` | MAY | Controlled registry value (see §6); not free-form |
 | `default_unit` | MAY | e.g. `mm` |
 | `label_en` | Yes | English display |
 | `label_fa` | Yes | Persian display |
@@ -161,19 +161,58 @@ Specific: `spindle_type`, `anvil_type`, `flatness`
 
 ## 6. Units
 
+### 6.1 Dimension registry (controlled)
+
+Knowledge Unit **dimensions** are a bounded registry (`UNIT_DIMENSIONS` in
+`app/db/models/knowledge.py`), mirrored by DB CHECK
+`ck_knowledge_units_dimension`.
+
+**Supported dimensions (Prompt 150):**
+
+`length`, `angle`, `mass`, `dimensionless`, `hardness`,
+`force`, `velocity`, `rotational_speed`, `time`, `temperature`, `voltage`.
+
+Governance:
+
+| Rule | Requirement |
+|------|-------------|
+| Add a dimension | Runtime registry update **and** Alembic CHECK migration **and** tests |
+| Dimension ≠ Unit ≠ Property | Dimension is the quantity class; Units are codes within it; Properties bind one dimension |
+| Brand/SKU logic | Forbidden in the registry |
+| Numeric conversion | Out of scope for dimension expansion — Fact write resolves alias→canonical only |
+
+Notes:
+
+- `rotational_speed` is distinct from a future `frequency` dimension (do not collapse RPM into Hz).
+- `voltage` is distinct from a catch-all `electrical` dimension (current/resistance need their own dims if required).
+- `force` is not modeled as `mass` even when OEM texts mention kgf-style labels.
+- `temperature` may later need affine (°C/°F) conversion; Prompt 150 enables the dimension only — no conversion arithmetic.
+
+Property Definition `unit_dimension` is a free `String(32)` column gated by the
+runtime registry on seed/import; it does **not** duplicate the Units CHECK.
+
+### 6.2 Unit examples (seed catalog — not created by architecture alone)
+
 | Dimension | Canonical | Allowed aliases (normalize to canonical) |
 |-----------|-----------|------------------------------------------|
 | length | `mm` | `mm`, `میلی‌متر`; convert `in`/`"` with explicit conversion flag |
 | angle | `deg` | `°`, `degree` |
 | mass | `g` | `kg` convert |
-| dimensionless | `1` | — |
+| dimensionless | `1` | — ; `%` for relative/concentration-style ranges |
 | hardness | steward-defined | HRC, HV — no silent convert |
+| force | `N` (future seed) | architecture allows dimension; Units registered by governed factory |
+| velocity | `m/s` (future seed) | — |
+| rotational_speed | `rpm` (future seed) | — |
+| time | `s` (future seed) | — |
+| temperature | `°C` (future seed) | no °F auto-convert in write path |
+| voltage | `V` (future seed) | — |
 
 Rules:
 
 1. Facts store **canonical unit**.  
 2. Display MAY localize unit labels FA/EN.  
 3. Cross-unit compare requires conversion table version pin.
+4. Expanding the **dimension registry** does not insert Unit/Property/PT/Fact rows.
 
 ---
 

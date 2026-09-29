@@ -78,8 +78,9 @@ Live example (2026-09-10): service `1,298,000` IRR + pickup `1,200,000` IRR = `2
 
 Payable total (purchase):
 
-- **`sender_prepaid`:** items + tax + customer shipping → `orders.estimated_total` → SEP.
-- **`receiver_due` (پس‌کرایه):** items + tax only → `orders.estimated_total` → SEP. Shipping is collected by the carrier from the recipient. `shipping_customer_cost` stays **NULL** (not `0`; NULL ≠ free shipping). `shipping_provider_quoted_cost` stays NULL until a packed-parcel quote exists.
+- **`sender_prepaid`:** final merchandise + customer shipping → `orders.estimated_total` → SEP.
+- **`receiver_due` (پس‌کرایه):** final merchandise only → `orders.estimated_total` → SEP. Shipping is collected by the carrier from the recipient. `shipping_customer_cost` stays **NULL** (not `0`; NULL ≠ free shipping). `shipping_provider_quoted_cost` stays NULL until a packed-parcel quote exists.
+- `tax_percent` is accounting metadata and must not inflate `estimated_total` (see `docs/COMMERCE.md`).
 
 ## Payment boundary
 

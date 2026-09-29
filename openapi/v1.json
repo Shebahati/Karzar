@@ -9798,6 +9798,79 @@
         }
       }
     },
+    "/api/v1/knowledge/waves/{wave_id}/publish": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Publish Wave Facts EvidenceValidated→Publishing→Published (super-admin)",
+        "operationId": "publish_wave_api_v1_knowledge_waves__wave_id__publish_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wave_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wave Id"
+            }
+          },
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeWavePublishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeWavePublishResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge/wave-runs/{run_id}": {
       "get": {
         "tags": [
@@ -9866,7 +9939,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Resume failed wave run (super-admin; new run_id)",
+        "summary": "Resume failed or interrupted wave assert run (super-admin)",
         "operationId": "resume_wave_run_api_v1_knowledge_wave_runs__run_id__resume_post",
         "security": [
           {
@@ -10220,6 +10293,123 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/emalls/products": {
+      "post": {
+        "tags": [
+          "Integrations — Emalls"
+        ],
+        "summary": "Emalls product extraction (read-only)",
+        "description": "Export public storefront products in Emalls-compatible shape.\n\nAuthenticated solely via Emalls token validation (cached). Performs no\ncatalog, price, availability, image, or KB writes.",
+        "operationId": "emalls_products_api_v1_integrations_emalls_products_post",
+        "requestBody": {
+          "description": "Emalls-compatible params (`token`, `page`, `limit`, `variation`). Accepts JSON or form-urlencoded bodies; query params are also merged (WordPress WP_REST_Request::get_param parity).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "title": "Token",
+                    "description": "Token supplied by Emalls"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1.0,
+                    "title": "Page",
+                    "description": "1-based page index",
+                    "default": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100.0,
+                    "minimum": 1.0,
+                    "title": "Limit",
+                    "description": "Page size (default 50, hard cap 100)",
+                    "default": 50
+                  },
+                  "variation": {
+                    "title": "Variation",
+                    "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "title": "EmallsProductsRequest",
+                "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "title": "Token",
+                    "description": "Token supplied by Emalls"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1.0,
+                    "title": "Page",
+                    "description": "1-based page index",
+                    "default": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100.0,
+                    "minimum": 1.0,
+                    "title": "Limit",
+                    "description": "Page size (default 50, hard cap 100)",
+                    "default": 50
+                  },
+                  "variation": {
+                    "title": "Variation",
+                    "description": "WooCommerce compatibility field; accepted and ignored by Karzar"
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "title": "EmallsProductsRequest",
+                "description": "POST body matching the observed Emalls WooCommerce extraction plugin."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmallsProductsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Emalls token"
+          },
+          "422": {
+            "description": "Invalid page/limit/request body"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "502": {
+            "description": "Emalls validation service unavailable"
+          },
+          "503": {
+            "description": "Emalls validation service unavailable"
           }
         }
       }
@@ -14999,6 +15189,153 @@
         "type": "object",
         "title": "DimensionsTemplate"
       },
+      "EmallsProduct": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subtitle": {
+            "type": "string",
+            "title": "Subtitle",
+            "default": ""
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "default": 0
+          },
+          "page_unique": {
+            "type": "integer",
+            "title": "Page Unique"
+          },
+          "current_price": {
+            "type": "string",
+            "title": "Current Price"
+          },
+          "old_price": {
+            "type": "string",
+            "title": "Old Price"
+          },
+          "availability": {
+            "type": "string",
+            "title": "Availability"
+          },
+          "category_name": {
+            "type": "string",
+            "title": "Category Name"
+          },
+          "image_link": {
+            "type": "string",
+            "title": "Image Link"
+          },
+          "image_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Image Links"
+          },
+          "page_url": {
+            "type": "string",
+            "title": "Page Url"
+          },
+          "short_desc": {
+            "type": "string",
+            "title": "Short Desc"
+          },
+          "spec": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Spec"
+          },
+          "date_added": {
+            "type": "string",
+            "title": "Date Added"
+          },
+          "date_updated": {
+            "type": "string",
+            "title": "Date Updated"
+          },
+          "product_type": {
+            "type": "string",
+            "title": "Product Type",
+            "default": "simple"
+          },
+          "registry": {
+            "type": "string",
+            "title": "Registry",
+            "default": ""
+          },
+          "guarantee": {
+            "type": "string",
+            "title": "Guarantee",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "page_unique",
+          "current_price",
+          "old_price",
+          "availability",
+          "category_name",
+          "image_link",
+          "image_links",
+          "page_url",
+          "short_desc",
+          "spec",
+          "date_added",
+          "date_updated"
+        ],
+        "title": "EmallsProduct",
+        "description": "Single product payload for Emalls consumption."
+      },
+      "EmallsProductsResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "max_pages": {
+            "type": "integer",
+            "title": "Max Pages"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/EmallsProduct"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "Version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "NeedSession": {
+            "type": "boolean",
+            "title": "Needsession",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "count",
+          "max_pages",
+          "products",
+          "Version"
+        ],
+        "title": "EmallsProductsResponse",
+        "description": "Root Emalls extraction response."
+      },
       "EvidenceArtifactCreateRequest": {
         "properties": {
           "artifact_id": {
@@ -17686,6 +18023,146 @@
           "created_at"
         ],
         "title": "KnowledgeWaveProductResponse"
+      },
+      "KnowledgeWavePublishRequest": {
+        "properties": {
+          "change_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Change Reason"
+          },
+          "stop_on_first_failure": {
+            "type": "boolean",
+            "title": "Stop On First Failure",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_reason"
+        ],
+        "title": "KnowledgeWavePublishRequest",
+        "description": "PR3-B.3 EvidenceValidated → Publishing → Published."
+      },
+      "KnowledgeWavePublishResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "wave_id": {
+            "type": "string",
+            "title": "Wave Id"
+          },
+          "wave_pk": {
+            "type": "integer",
+            "title": "Wave Pk"
+          },
+          "run_id": {
+            "type": "integer",
+            "title": "Run Id"
+          },
+          "previous_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "Previous Status"
+          },
+          "new_status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Reviewed",
+              "Sealed",
+              "Executing",
+              "Asserted",
+              "EvidenceValidated",
+              "Publishing",
+              "Published",
+              "Failed",
+              "Aborted",
+              "Superseded",
+              "Archived"
+            ],
+            "title": "New Status"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "published": {
+            "type": "integer",
+            "title": "Published"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          },
+          "manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Sha256"
+          },
+          "progress": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Progress"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
+          "wave": {
+            "$ref": "#/components/schemas/KnowledgeWaveResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "wave_id",
+          "wave_pk",
+          "run_id",
+          "previous_status",
+          "new_status",
+          "total",
+          "published",
+          "skipped",
+          "failed",
+          "wave"
+        ],
+        "title": "KnowledgeWavePublishResponse"
       },
       "KnowledgeWaveResponse": {
         "properties": {

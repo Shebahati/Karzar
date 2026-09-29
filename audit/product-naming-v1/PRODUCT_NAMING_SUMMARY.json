@@ -1,0 +1,52 @@
+{
+  "snapshot_meta": {
+    "source": "https://api.karzartools.com/api/v1",
+    "mode": "READ_ONLY_GET",
+    "list_count": 1368,
+    "detail_count": 1368,
+    "detail_errors": [],
+    "brand_count": 40,
+    "note": "product_type_id not exposed on public ProductDetailResponse; soft-deleted excluded for anonymous",
+    "elapsed_s": 61.36
+  },
+  "total_live_products": 1368,
+  "state_counts": {
+    "RENAME_SAFE": 508,
+    "HOLD_MISSING_PRODUCT_TYPE": 771,
+    "HOLD_MISSING_VARIANT_ATTRIBUTE": 85,
+    "HOLD_MISSING_MANUFACTURER_CODE": 1,
+    "HOLD_IDENTITY_CONFLICT": 3
+  },
+  "confidence_counts": {
+    "RENAME_SAFE:medium": 255,
+    "RENAME_SAFE:low": 253,
+    "HOLD_MISSING_PRODUCT_TYPE:none": 771,
+    "HOLD_MISSING_VARIANT_ATTRIBUTE:none": 85,
+    "HOLD_MISSING_MANUFACTURER_CODE:none": 1,
+    "HOLD_IDENTITY_CONFLICT:none": 3
+  },
+  "rename_safe_high": 0,
+  "rename_safe_medium": 255,
+  "rename_safe_low": 253,
+  "meta_title_blank": 682,
+  "serp_would_change": 280,
+  "proposed_name_collisions": 0,
+  "brand_code_collisions": 1,
+  "NAME_CHANGE_CAUSES_SLUG_CHANGE": "NO",
+  "length_current": {
+    "min": 10,
+    "median": 50,
+    "p90": 67,
+    "p95": 71,
+    "p99": 76,
+    "max": 81
+  },
+  "length_proposed": {
+    "min": 28,
+    "median": 44,
+    "p90": 49,
+    "p95": 51,
+    "p99": 54,
+    "max": 55
+  }
+}

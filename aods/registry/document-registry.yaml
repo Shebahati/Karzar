@@ -211,6 +211,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: EMALLS-API-CONTRACT
+    path: docs/integrations/emalls/API-CONTRACT.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: OPERATIONS
     path: docs/OPERATIONS.md
     class: POLICY
@@ -308,6 +315,16 @@ documents:
     rank: 3
     status: accepted
     owner_role: R-DOC-ARCH
+
+  - id: PRODUCT-IDENTITY-EQUIVALENCE-POLICY
+    path: docs/architecture/PRODUCT_IDENTITY_EQUIVALENCE_POLICY.md
+    class: POLICY
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >-
+      RESOLVED_EQUIVALENT_FACTS governance: required V1 Facts may be asserted
+      when residual OEM variants are fact-equivalent; exact suffix remains unresolved.
 
   - id: DOCS-ARCHITECTURE-INFORMATION-ARCHITECTURE-README
     path: docs/architecture/information-architecture/README.md
@@ -442,6 +459,14 @@ documents:
     status: accepted
     owner_role: R-DOC-ARCH
 
+  - id: SPEC-PRODUCT-NAMING-STANDARD-V1
+    path: docs/architecture/specs/SPEC-product-naming-standard-v1.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
   - id: SPEC-PRODUCT-KNOWLEDGE-ENTITY-MODEL
     path: docs/architecture/specs/SPEC-product-knowledge-entity-model.md
     class: CANON
@@ -461,6 +486,85 @@ documents:
     class: REFERENCE
     rank: 6
     status: current
+    owner_role: R-DOC-ARCH
+
+  # Phase 1A Scientific Taxonomy Constitution pack (Proposed design).
+  # Steward-approved for Phase 1B drafting; does NOT override Accepted CANON/ADR/SPEC.
+  - id: TAXONOMY-V1-README
+    path: docs/architecture/taxonomy-v1/00-README.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-CONSTITUTION
+    path: docs/architecture/taxonomy-v1/01-TAXONOMY-CONSTITUTION-V1.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PRODUCT-TYPE-BOUNDARY-RULES
+    path: docs/architecture/taxonomy-v1/02-PRODUCT-TYPE-BOUNDARY-RULES.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-COMMERCE-CATEGORY-RULES
+    path: docs/architecture/taxonomy-v1/03-COMMERCE-CATEGORY-RULES.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-STABLE-IDENTITY-CONTRACT
+    path: docs/architecture/taxonomy-v1/04-STABLE-IDENTITY-CONTRACT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-NAMING-SYNONYM-CONTRACT
+    path: docs/architecture/taxonomy-v1/05-NAMING-AND-SYNONYM-CONTRACT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-EXTERNAL-STANDARDS-ALIGNMENT
+    path: docs/architecture/taxonomy-v1/06-EXTERNAL-STANDARDS-ALIGNMENT.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-MASTER-SEED-REVIEW
+    path: docs/architecture/taxonomy-v1/08-MASTER-SEED-REVIEW.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PHASE1A-DECISIONS
+    path: docs/architecture/taxonomy-v1/11-PHASE-1A-DECISIONS.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-PHASE1B-ENTRY-GATE
+    path: docs/architecture/taxonomy-v1/12-PHASE-1B-ENTRY-GATE.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+
+  - id: TAXONOMY-V1-TX-OWNER-001
+    path: docs/architecture/taxonomy-v1/13-STEWARD-DECISION-TX-OWNER-001.md
+    class: EVIDENCE
+    rank: 4
+    status: accepted
     owner_role: R-DOC-ARCH
 
   - id: GIT-WORKFLOW
@@ -699,3 +803,137 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
     branch: feat/kb-wave-pr3b2-evidence-validate
+
+  - id: PROMPT-107-RESULT
+    path: audit/insize-phase3/PROMPT_107_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/kb-wave-alembic-pin-compatibility
+
+  - id: PROMPT-109-RESULT
+    path: audit/insize-phase3/PROMPT_109_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/kb-wave-pr3b3-publish
+
+  - id: PROMPT-117-RESULT
+    path: audit/insize-phase3/PROMPT_117_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/kb-wave-execute-recovery
+
+  - id: PROMPT-126-RESULT
+    path: audit/insize-phase8/PROMPT_126_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
+
+  - id: INSIZE-SUFFIX-SEMANTICS
+    path: audit/insize-phase8/SUFFIX_SEMANTICS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
+
+  - id: PROMPT-130-RESULT
+    path: audit/insize-phase12/PROMPT_130_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-governance
+
+  - id: PROMPT-132-RESULT
+    path: audit/insize-phase12/PROMPT_132_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: docs/kb-equivalent-facts-compact-reason
+
+  - id: TERMA-PRICE-150-AUDIT
+    path: audit/terma-price-150/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/terma-price-150-2a10
+
+  - id: TAXONOMY-PHASE0B-AUDIT-20260927
+    path: audit/taxonomy-phase0b/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Authoritative read-only Production taxonomy census snapshot from
+      2026-09-27; historical evidence for Taxonomy Phase 1A/1B.
+      Not Canon; does not authorize taxonomy APPLY.
+
+  - id: TAXONOMY-PHASE0B-FINDINGS-20260927
+    path: audit/taxonomy-phase0b/13-phase0b-findings.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 0B historical findings companion (2026-09-27 snapshot).
+
+  - id: TAXONOMY-PHASE0B-RESULT-20260927
+    path: audit/taxonomy-phase0b/14-phase0b-final-report.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 0B historical result report + artifact SHA-256 registry
+      (2026-09-27 snapshot). Filename retained for hash continuity.
+
+  - id: PRODUCT-NAMING-V1-CONSTITUTION
+    path: audit/product-naming-v1/NAMING_CONSTITUTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-WRITERS
+    path: audit/product-naming-v1/PRODUCT_NAME_WRITERS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-SUMMARY
+    path: audit/product-naming-v1/PRODUCT_NAMING_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-SCHEMA-IDENTITY-REVIEW
+    path: audit/product-naming-v1/SCHEMA_IDENTITY_REVIEW.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355
+
+  - id: PRODUCT-NAMING-V1-TEST-PLAN
+    path: audit/product-naming-v1/TEST_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-standard-v1-audit-1355

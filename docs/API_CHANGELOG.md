@@ -22,6 +22,60 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-28 — Final customer price is tax-inclusive (commerce)
+
+- **Binding (customer):** `Product.base_price` / snapshotted `OrderItem.unit_price` is the final customer-facing gross sale price. `tax_percent` must not be added on top at cart/checkout/payment.
+- Checkout `estimated_total` no longer adds `tax_percent` on merchandise. Receiver-due SEP = merchandise only; sender-prepaid SEP = merchandise + shipping.
+- **Accounting:** `tax_percent` is **not** proven authoritative embedded-VAT metadata (create/admin default 9 vs ORM/DB 0). Hesabfa sale invoices currently send gross `unitPrice` with `tax=0` so invoice merchandise equals paid total; inclusive net/tax extraction is Owner-gated follow-up (`docs/HESABFA.md`).
+- Response shapes unchanged (no new fields). Docs: `COMMERCE.md`, `HESABFA.md`, Postex shipping payable wording.
+
+### 2026-09-28 — Emalls product extraction adapter (read-only)
+
+- New endpoint: `POST /api/v1/integrations/emalls/products` — Emalls-compatible product feed.
+- Request encodings: `application/json` and `application/x-www-form-urlencoded` (plus query-param merge) for WP plugin parity.
+- Auth: Emalls-supplied `token` validated against `emalls.ir` with exact message `the token is valid` (positive Redis/in-memory cache TTL 1h). Fail closed on validator outage without cache.
+- `NeedSession=true` after fresh remote validation; `NeedSession=false` on cache hit. Response `Version` / validator `version` use `EMALLS_COMPAT_VERSION` (default `1.3.0`).
+- Eligibility reuses `storefront_public_product_filters()` (active, not deleted, valid public image). Availability maps `product_is_available` → `instock`/`outofstock`. Prices pass through site TOMAN (`base_price` / `original_price`) with no ×10/÷10 conversion. Emalls `old_price` falls back to `base_price` when `original_price` is null (WooCommerce regular-price parity; adapter-only).
+- Does **not** change `GET /api/v1/products/` or storefront ProductSummary/Detail shapes.
+- Contract detail: [`integrations/emalls/API-CONTRACT.md`](integrations/emalls/API-CONTRACT.md).
+
+### 2026-09-27 — Knowledge Wave Evidence sources are manifest-driven (Prompt 141)
+
+- Wave Evidence Artifact authorization is sealed in `policy_json.evidence_artifacts`: each pin is `{artifact_pk, artifact_id, checksum_sha256}` and must match the DB Artifact row on all three axes.
+- Pins live inside existing `policy_json` (already part of the canonical Wave manifest payload) — no manifest schema / migration change. Changing pins changes `manifest_sha256`.
+- New Waves with `require_evidence=true` must pin sources before seal (no silent fallback). Historical already-sealed Waves without the field keep Artifact pk=1 / `insize-108a-catalogue-v1` / 108A checksum compatibility fallback at execute / resume / Evidence Validate.
+- Multi-Artifact allowlists are supported (authorization only; Facts still use one `FACT_SUPPORTED_BY` source). Wave path no longer hardcodes Artifact pk=1. Historical non-Wave `kb-batch-assert` Batch-1 GEN_CALIPER / Artifact-1 contract is unchanged when `wave_context` is absent.
+- OpenAPI: no request/response shape change (`policy_json` remains a generic object).
+
+### 2026-09-27 — Knowledge Wave Fact scope is Definition-driven (Prompt 138)
+
+- Wave assert / evidence validate / publish derive required Fact `definition_id`s from the sealed `wave.definition_id` → Product Type Definition → `required` attribute memberships (ordered by `display_order ASC NULLS LAST`, then membership `id`).
+- Removes the Wave-path hardcode that required exactly `def.measurement_range` / `def.resolution` / `def.accuracy` (exactly 3 Facts). Historical non-Wave `kb-batch-assert` (Batch-1 GEN_CALIPER triad) is unchanged when `wave_context` is absent.
+- Evidence locator `property` is matched to the Property Definition canonical `key` (not a hardcoded triad map). Wave Evidence Artifact sources are governed separately (Prompt 141: manifest/policy pins).
+- Optional / conditional / forbidden memberships are **not** Wave-required Facts in this change. OpenAPI list cardinality for `facts` / `evidence_links` was already unbounded (no `minItems`/`maxItems=3`).
+- Active Product Type Definitions remain immutable after activation (new draft version required for membership changes) — Wave seal safety depends on this.
+
+### 2026-09-24 — Knowledge Wave execute failure harden + interrupted resume (Prompt 117)
+
+- Failure finalization after assert errors uses an immutable `actor_user_id` captured before commit/rollback (avoids SQLAlchemy `MissingGreenlet` on expired ORM `User`).
+- Canonical `kb-batch-assert` no longer rejects products solely for `is_active=false` (KB vs storefront orthogonality). Soft-delete, SKU identity, Product Type, allowlist, manifest, and environment pins remain fail-closed.
+- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` now also accepts an **interrupted** assert run (`run.status=running` + `wave.status=Executing`): continues the **same** `run_id`, skips prior `success`/`skipped` items, idempotently resumes existing Facts/links, and must not leave orphan `running` runs. Failed-run resume (new `run_id` after re-Seal) unchanged.
+- OpenAPI request/response shapes unchanged (behavior + summary only).
+
+### 2026-09-24 — Knowledge Wave Registry PR3-B.3 (Publish orchestration)
+
+- `POST /api/v1/knowledge/waves/{wave_id}/publish` — EvidenceValidated → Publishing → Published (super-admin); body `{ change_reason, stop_on_first_failure? }`.
+- Orchestrates existing `knowledge_fact_service.publish_fact` over sealed Wave Fact scope derived from the Wave's Product Type Definition required memberships (historically the length triad; Prompt 138 generalizes); already-`published` Facts are skipped (no duplicate revisions).
+- Run ledger: `knowledge_wave_runs.run_type=publish` + per-product run items (reuse PR3-A schema; **Migration: NONE**).
+- Resume: Failed after a prior publish run may call publish again (Failed → Publishing); asserts still re-seal via PR3-A. Partial success is not rolled back.
+- Audit: `wave.publish`, `wave.publish.start`, `wave.publish.complete`, `wave.publish.fail`.
+- **Wave Published means:** all Facts in the governed Wave scope are confirmed published under Wave orchestration; already-published Facts may be safely resumed/skipped without creating duplicate revisions.
+- Sync HTTP loop over Wave allowlist only (not catalog-wide); same scale boundary as execute — suitable for pilot/~50 SKUs; larger Waves need a future worker on this ledger.
+
+### 2026-09-24 — Wave environment_pins.alembic lineage compatibility
+
+- Behavioral clarification (no OpenAPI shape change): sealed `environment_pins.alembic` is a **minimum compatible Alembic lineage pin**. Runtime must equal the sealed revision or be a descendant of it in the Alembic revision graph (via `is_runtime_revision_compatible`). Plane and `freeze_required` remain exact. Shared SSOT: `assert_environment_gates` (execute, evidence validate, batch assert).
+
 ### 2026-09-24 — Knowledge Wave Registry PR3-B.2 (Evidence validation)
 
 - `POST /api/v1/knowledge/waves/{wave_id}/validate-evidence` — Asserted → EvidenceValidated (super-admin); read-only Fact/Evidence/assert-run checks; SHA + env pins; deny-by-default via `knowledge_wave_lifecycle.assert_transition`.
@@ -39,7 +93,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Additive status vocabulary (Alembic `q0r1s2t3u4v5`): wave `Executing|Asserted|Failed|Aborted`; run `created|running|completed|failed|aborted`; item `pending|running|success|failed|skipped` + ledger columns.
 - `POST /api/v1/knowledge/waves/{wave_id}/execute` — Sealed only; freeze/plane/alembic/SHA gates; sync SKU loop via `kb-batch-assert`; Sealed→Executing→Asserted|Failed.
 - `GET /api/v1/knowledge/wave-runs/{run_id}` — run ledger.
-- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` — failed runs only; new run_id; no Fact duplication.
+- `POST /api/v1/knowledge/wave-runs/{run_id}/resume` — failed runs (new run_id) or interrupted Executing+running assert runs (same run_id); no Fact duplication.
 - Audit: `wave.execute`, `wave.run.start|complete|fail|resume`, `wave.item.success|fail`.
 
 ### 2026-09-23 — Knowledge Wave Registry PR2 (Seal + validate)

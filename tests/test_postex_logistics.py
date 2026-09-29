@@ -194,6 +194,21 @@ def test_purchase_without_quote_token_when_enabled(
     monkeypatch, override_database, super_admin_headers, valid_product_data
 ):
     _enable_postex(monkeypatch)
+
+    async def must_not_call_postex(*_args, **_kwargs):
+        raise AssertionError(
+            "Postex network must not be called when quote token is missing"
+        )
+
+    monkeypatch.setattr(
+        "app.services.logistics.service.validate_postex_destination_location_code",
+        must_not_call_postex,
+    )
+    monkeypatch.setattr(
+        "app.services.checkout_service.validate_postex_destination_location_code",
+        must_not_call_postex,
+    )
+
     client = TestClient(app)
     product = {
         **valid_product_data,

@@ -15,6 +15,8 @@ from app.schemas.knowledge import (
     KnowledgeWaveExecuteRequest,
     KnowledgeWaveExecuteResponse,
     KnowledgeWaveListResponse,
+    KnowledgeWavePublishRequest,
+    KnowledgeWavePublishResponse,
     KnowledgeWaveResponse,
     KnowledgeWaveReviewRequest,
     KnowledgeWaveSealRequest,
@@ -23,6 +25,7 @@ from app.schemas.knowledge import (
 )
 from app.services import knowledge_wave_evidence_service as evidence_wave_service
 from app.services import knowledge_wave_execute_service as execute_service
+from app.services import knowledge_wave_publish_service as publish_wave_service
 from app.services import knowledge_wave_service as wave_service
 
 router = APIRouter()
@@ -219,5 +222,43 @@ async def validate_wave_evidence(
         manifest_sha256=result.get("manifest_sha256"),
         stats=result.get("stats") or {},
         issues=result.get("issues") or [],
+        wave=wave,
+    )
+
+
+@router.post(
+    "/waves/{wave_id}/publish",
+    response_model=KnowledgeWavePublishResponse,
+    summary="Publish Wave Facts EvidenceValidated→Publishing→Published (super-admin)",
+)
+async def publish_wave(
+    wave_id: str,
+    body: KnowledgeWavePublishRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin),
+) -> KnowledgeWavePublishResponse:
+    result = await publish_wave_service.publish_wave(
+        db,
+        wave_id=wave_id,
+        change_reason=body.change_reason,
+        actor=current_user,
+        stop_on_first_failure=body.stop_on_first_failure,
+    )
+    # publish_wave commits internally per product (same pattern as execute)
+    wave = KnowledgeWaveResponse.model_validate(result["wave"])
+    return KnowledgeWavePublishResponse(
+        ok=bool(result["ok"]),
+        wave_id=str(result["wave_id"]),
+        wave_pk=int(result["wave_pk"]),
+        run_id=int(result["run_id"]),
+        previous_status=result["previous_status"],
+        new_status=result["new_status"],
+        total=int(result["total"]),
+        published=int(result["published"]),
+        skipped=int(result["skipped"]),
+        failed=int(result["failed"]),
+        manifest_sha256=result.get("manifest_sha256"),
+        progress=result.get("progress") or {},
+        stop_reason=result.get("stop_reason"),
         wave=wave,
     )
