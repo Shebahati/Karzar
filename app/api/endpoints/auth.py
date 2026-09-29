@@ -9,6 +9,7 @@ from app.api.deps import get_current_active_user, get_current_super_admin
 from app.core.auth_cookies import REFRESH_COOKIE_NAME, clear_auth_cookies, set_auth_cookies
 from app.core.config import settings
 from app.core.errors import ErrorCode, api_error
+from app.core.logging import get_logger
 from app.core.rate_limit import get_rate_limiter, reset_in_memory_limiter
 from app.core.security import (
     create_step_up_token,
@@ -42,8 +43,16 @@ from app.services.otp_service import (
     request_password_reset,
     verify_otp,
 )
+from app.services.sms_service import SmsDeliveryError, mask_phone
+
+logger = get_logger(__name__)
 
 router = APIRouter()
+
+
+def _password_reset_request_ack(phone: str) -> OtpRequestResponse:
+    """Same public payload for an unknown phone and a failed SMS delivery."""
+    return OtpRequestResponse(phone=phone, expires_in=settings.OTP_EXPIRE_SECONDS)
 
 
 def _pin_throttle_key(current_user: User) -> str:
@@ -302,11 +311,14 @@ async def password_reset_request(payload: PasswordResetRequest, db: AsyncSession
         response = await request_password_reset(db, payload.phone)
         return response
     except ValueError:
-        # Prevent phone-number enumeration: always return a generic success payload.
-        return OtpRequestResponse(
-            phone=payload.phone,
-            expires_in=settings.OTP_EXPIRE_SECONDS,
+        # Unknown phone. Same outward shape as a delivery failure.
+        return _password_reset_request_ack(payload.phone)
+    except SmsDeliveryError:
+        logger.error(
+            "Password reset SMS delivery failed receptor=%s",
+            mask_phone(payload.phone),
         )
+        return _password_reset_request_ack(payload.phone)
 
 
 @router.post("/password-reset/confirm", summary="Confirm password reset with OTP")

@@ -1,8 +1,15 @@
-"""SMS delivery service used by OTP flows."""
+"""SMS delivery used by OTP and order notifications.
+
+Routing is by ``SmsEvent``. OTP pattern codes are consulted only for
+``AUTH_LOGIN_OTP`` and ``AUTH_PASSWORD_RESET``. A transactional event cannot
+reach an OTP pattern, including when a caller attaches a ``code`` attribute.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any, Protocol
 
 import httpx
@@ -12,46 +19,97 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+_legacy_pattern_warnings: set[str] = set()
+
+
+class SmsEvent(StrEnum):
+    AUTH_LOGIN_OTP = "AUTH_LOGIN_OTP"
+    AUTH_PASSWORD_RESET = "AUTH_PASSWORD_RESET"
+    ORDER_PAID = "ORDER_PAID"
+    ORDER_PROCESSING = "ORDER_PROCESSING"
+    ORDER_SHIPPED = "ORDER_SHIPPED"
+    ORDER_DELIVERED = "ORDER_DELIVERED"
+    INQUIRY_QUOTED = "INQUIRY_QUOTED"
+    ORDER_CANCELLED = "ORDER_CANCELLED"
+
+
+AUTH_OTP_EVENTS = frozenset({SmsEvent.AUTH_LOGIN_OTP, SmsEvent.AUTH_PASSWORD_RESET})
+
+
+class SmsDeliveryError(Exception):
+    """SMS delivery failed. The message must not contain OTP values, phones, or payloads."""
+
+
+def mask_phone(phone: str) -> str:
+    """Mask an Iranian mobile for logs: ``09123456789`` → ``0912***6789``."""
+    text = (phone or "").strip()
+    if len(text) < 8:
+        return "***"
+    return f"{text[:4]}***{text[-4:]}"
+
 
 @dataclass(frozen=True)
 class SmsMessage:
     receptor: str
     body: str
-    template_token: str | None = None
+    event: SmsEvent
+    attributes: Mapping[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.event, SmsEvent):
+            raise TypeError("SmsMessage.event must be an SmsEvent")
+        object.__setattr__(self, "attributes", dict(self.attributes))
 
 
 class SmsProvider(Protocol):
-    async def send(self, message: SmsMessage) -> None:
-        ...
+    async def send(self, message: SmsMessage) -> None: ...
 
 
 class ConsoleSmsProvider:
-    """Local/dev provider: log OTPs instead of sending externally."""
+    """Local/dev provider. Logs the event and a masked phone, never the OTP."""
 
     async def send(self, message: SmsMessage) -> None:
-        logger.info("SMS(console) receptor=%s body=%s", message.receptor, message.body)
+        logger.info(
+            "SMS(console) event=%s receptor=%s",
+            message.event.value,
+            mask_phone(message.receptor),
+        )
 
 
 class KavenegarSmsProvider:
-    """Kavenegar provider using their Verify Lookup API."""
+    """Kavenegar. Verify Lookup is auth-OTP only."""
 
     base_url = "https://api.kavenegar.com/v1"
 
     async def send(self, message: SmsMessage) -> None:
+        try:
+            await self._dispatch(message)
+        except SmsDeliveryError:
+            raise
+        except Exception as exc:
+            logger.error(
+                "Kavenegar SMS delivery failed event=%s error_type=%s",
+                message.event.value,
+                type(exc).__name__,
+            )
+            raise SmsDeliveryError("Kavenegar SMS delivery failed") from None
+
+    async def _dispatch(self, message: SmsMessage) -> None:
         if not settings.SMS_KAVENEGAR_API_KEY:
-            raise ValueError("SMS_KAVENEGAR_API_KEY is required for kavenegar provider")
-
-        if settings.SMS_KAVENEGAR_OTP_TEMPLATE:
-            await self._send_verify_lookup(message)
+            raise SmsDeliveryError("Kavenegar is not configured")
+        template = (settings.SMS_KAVENEGAR_OTP_TEMPLATE or "").strip()
+        if message.event in AUTH_OTP_EVENTS and template:
+            await self._send_verify_lookup(message, template)
             return
-
         await self._send_plain_sms(message)
 
-    async def _send_verify_lookup(self, message: SmsMessage) -> None:
-        template = settings.SMS_KAVENEGAR_OTP_TEMPLATE
+    async def _send_verify_lookup(self, message: SmsMessage, template: str) -> None:
+        token = (message.attributes.get("code") or "").strip()
+        if not token:
+            raise SmsDeliveryError("OTP code attribute is missing")
         url = (
             f"{self.base_url}/{settings.SMS_KAVENEGAR_API_KEY}/verify/lookup.json"
-            f"?receptor={message.receptor}&token={message.template_token or ''}&template={template}"
+            f"?receptor={message.receptor}&token={token}&template={template}"
         )
         async with httpx.AsyncClient(timeout=settings.SMS_TIMEOUT_SECONDS) as client:
             response = await client.get(url)
@@ -60,9 +118,7 @@ class KavenegarSmsProvider:
     async def _send_plain_sms(self, message: SmsMessage) -> None:
         sender = settings.SMS_KAVENEGAR_SENDER
         if not sender:
-            raise ValueError(
-                "SMS_KAVENEGAR_SENDER is required when SMS_KAVENEGAR_OTP_TEMPLATE is not set"
-            )
+            raise SmsDeliveryError("Kavenegar sender is not configured")
         url = f"{self.base_url}/{settings.SMS_KAVENEGAR_API_KEY}/sms/send.json"
         payload = {
             "receptor": message.receptor,
@@ -75,21 +131,55 @@ class KavenegarSmsProvider:
 
 
 class FarazSmsProvider:
-    """FarazSMS / IranPayamak REST API (Api-Key header).
+    """FarazSMS / IranPayamak (Api-Key header).
 
-    Prefer pattern send for OTP (instant). Falls back to simple SMS when no
-    pattern code is configured. Docs: https://docs.farazsms.com
+    Auth OTP uses a pattern send. Transactional events never use an OTP pattern.
+    When any OTP pattern is configured and no transactional pattern exists, the
+    transactional send is skipped. Simple SMS remains only when no OTP pattern
+    is configured at all (legacy deployments).
     """
 
     async def send(self, message: SmsMessage) -> None:
+        try:
+            await self._dispatch(message)
+        except SmsDeliveryError:
+            raise
+        except Exception as exc:
+            logger.error(
+                "Faraz SMS delivery failed event=%s error_type=%s",
+                message.event.value,
+                type(exc).__name__,
+            )
+            raise SmsDeliveryError("Faraz SMS delivery failed") from None
+
+    async def _dispatch(self, message: SmsMessage) -> None:
         if not settings.SMS_FARAZ_API_KEY:
-            raise ValueError("SMS_FARAZ_API_KEY is required for faraz provider")
+            raise SmsDeliveryError("Faraz SMS is not configured")
         line = (settings.SMS_FARAZ_LINE_NUMBER or "").strip()
         if not line:
-            raise ValueError("SMS_FARAZ_LINE_NUMBER is required for faraz provider")
+            raise SmsDeliveryError("Faraz line number is not configured")
 
-        if (settings.SMS_FARAZ_OTP_PATTERN_CODE or "").strip():
-            await self._send_pattern(message, line)
+        if message.event in AUTH_OTP_EVENTS:
+            pattern = _auth_pattern_code(message.event)
+            if pattern:
+                await self._send_pattern(message, line, pattern)
+                return
+            if _any_otp_pattern_configured():
+                logger.warning(
+                    "Auth SMS has no pattern for event=%s; sending simple SMS "
+                    "instead of another event's OTP pattern",
+                    message.event.value,
+                )
+            await self._send_simple(message, line)
+            return
+
+        # Non-OTP events must not read OTP pattern settings.
+        if _any_otp_pattern_configured():
+            logger.warning(
+                "Transactional SMS skipped because no event-specific Faraz pattern "
+                "is configured event=%s",
+                message.event.value,
+            )
             return
         await self._send_simple(message, line)
 
@@ -106,18 +196,20 @@ class FarazSmsProvider:
     @staticmethod
     def _ensure_success(payload: Any, *, context: str) -> None:
         if not isinstance(payload, dict):
-            raise RuntimeError(f"Faraz SMS {context}: unexpected response type")
+            raise SmsDeliveryError(f"Faraz SMS {context} returned an unexpected response")
         status = str(payload.get("status", "")).lower()
         if status and status != "success":
-            raise RuntimeError(
-                f"Faraz SMS {context} failed: {payload.get('message') or payload}"
-            )
+            raise SmsDeliveryError(f"Faraz SMS {context} was rejected")
 
-    async def _send_pattern(self, message: SmsMessage, line: str) -> None:
+    async def _send_pattern(self, message: SmsMessage, line: str, pattern_code: str) -> None:
+        if message.event not in AUTH_OTP_EVENTS:
+            raise SmsDeliveryError("Faraz OTP pattern send is only valid for auth OTP events")
+        token = (message.attributes.get("code") or "").strip()
+        if not token:
+            raise SmsDeliveryError("OTP code attribute is missing")
         attr_name = (settings.SMS_FARAZ_OTP_ATTR or "code").strip() or "code"
-        token = message.template_token or ""
         payload = {
-            "code": settings.SMS_FARAZ_OTP_PATTERN_CODE,
+            "code": pattern_code,
             "recipient": message.receptor,
             "attributes": {attr_name: token},
             "line_number": line,
@@ -143,6 +235,61 @@ class FarazSmsProvider:
             self._ensure_success(response.json(), context="simple")
 
 
+def _setting_text(value: str | None) -> str:
+    return (value or "").strip()
+
+
+def _any_otp_pattern_configured() -> bool:
+    return any(
+        _setting_text(value)
+        for value in (
+            settings.SMS_FARAZ_LOGIN_OTP_PATTERN_CODE,
+            settings.SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE,
+            settings.SMS_FARAZ_OTP_PATTERN_CODE,
+        )
+    )
+
+
+def _warn_legacy_pattern_once(kind: str, text: str) -> None:
+    if kind in _legacy_pattern_warnings:
+        return
+    _legacy_pattern_warnings.add(kind)
+    logger.warning(text)
+
+
+def _auth_pattern_code(event: SmsEvent) -> str | None:
+    """Resolve an auth OTP pattern. Returns None when simple SMS is the legacy path.
+
+    Never call this for order or inquiry events.
+    """
+    if event not in AUTH_OTP_EVENTS:
+        return None
+    legacy = _setting_text(settings.SMS_FARAZ_OTP_PATTERN_CODE)
+    if event == SmsEvent.AUTH_LOGIN_OTP:
+        specific = _setting_text(settings.SMS_FARAZ_LOGIN_OTP_PATTERN_CODE)
+        if specific:
+            return specific
+        if legacy:
+            _warn_legacy_pattern_once(
+                "login",
+                "SMS_FARAZ_OTP_PATTERN_CODE is deprecated and is being used for "
+                "AUTH_LOGIN_OTP. Set SMS_FARAZ_LOGIN_OTP_PATTERN_CODE.",
+            )
+            return legacy
+        return None
+    specific = _setting_text(settings.SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE)
+    if specific:
+        return specific
+    if legacy:
+        _warn_legacy_pattern_once(
+            "password_reset",
+            "SMS_FARAZ_OTP_PATTERN_CODE is a shared legacy pattern and is being used "
+            "for AUTH_PASSWORD_RESET. Set SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE.",
+        )
+        return legacy
+    return None
+
+
 _provider: SmsProvider | None = None
 
 
@@ -161,3 +308,4 @@ def get_sms_provider() -> SmsProvider:
 def reset_sms_provider_for_tests() -> None:
     global _provider
     _provider = None
+    _legacy_pattern_warnings.clear()

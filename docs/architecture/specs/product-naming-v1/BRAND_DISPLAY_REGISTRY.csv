@@ -1,0 +1,41 @@
+brand_id,brand_raw_name,display_fa,display_en,preferred_product_title_form,aliases,status,notes
+35,3Keego | کیگو,کیگو,3Keego,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+41,Acrobat | آکروبات,آکروبات,Acrobat,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+6,ASIMETO | آسیمتو,آسیمتو,ASIMETO,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+13,ASTPOWER | ای اس تی پاور,ای اس تی پاور,ASTPOWER,fa,,NEEDS_GOVERNANCE,Confirm Persian form; many titles SKU-like
+36,Chagan | چاگان,چاگان,Chagan,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+33,Chumpower | چام‌پاور,چام‌پاور,Chumpower,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+40,CP-GRAT | سی‌پی‌گرات,سی‌پی‌گرات,CP-GRAT,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+4,Dasqua | داسکوا,داسکوا,Dasqua,fa,,PROPOSED,Prefer FA
+34,Deniz | دنیز,دنیز,Deniz,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+9,DOHRE | دوهره,دوهره,DOHRE,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+23,Emkay | امکای,امکای,Emkay,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+50,ET | ای تی,ای تی,ET,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+43,Groz | گروز,گروز,Groz,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+7,GUANGLU | گوانگلو,گوانگلو,GUANGLU,fa,,NEEDS_GOVERNANCE,No active public products in snapshot
+3,INSIZE | اینسایز,اینسایز,INSIZE,fa,,PROPOSED,Prefer FA in titles
+26,Jaguar | جگوار,جگوار,Jaguar,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+15,KORLOY | کورلوی,کورلوی,KORLOY,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+29,LI-HSUN | لی‌سان,لی‌سان,LI-HSUN,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+12,MAP | ام ای پی,ام ای پی,MAP,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+49,Mighty Seven | مایتی سون,مایتی سون,Mighty Seven,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+2,Mitutoyo | میتوتویو,میتوتویو,Mitutoyo,fa,,PROPOSED,Prefer FA
+37,MPA | ام پی ای,ام پی ای,MPA,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+27,Narex | نارکس,نارکس,Narex,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+44,OMG | او ام جی,او ام جی,OMG,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+39,Promax | پرومکس,پرومکس,Promax,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+45,RÖHM | رهم,رهم,RÖHM,en,,NEEDS_GOVERNANCE,Latin trademark likely preferred
+38,Sahand | سهند,سهند,Sahand,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+20,SAN OU | سانو,سانو,SAN OU,fa,,PROPOSED,Prefer FA; verify OEM spacing SAN OU
+47,SHAMS | شمس,شمس,SHAMS,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+5,TERMA | ترما,ترما,TERMA,fa,,PROPOSED,Prefer FA
+22,TIGER TEC | تایگرتک,تایگرتک,TIGER TEC,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+31,Transmex | ترنمکس,ترنمکس,Transmex,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+24,UTEX | یوتکس,یوتکس,UTEX,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+42,Vertex | ورتکس,ورتکس,Vertex,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+30,Viyer | ویر,ویر,Viyer,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+28,Vogel | وگل,وگل,Vogel,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+32,Winstar | وینستار,وینستار,Winstar,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+48,YOWAX | یواکس,یواکس,YOWAX,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented
+8,ZCC.CT | زد سی‌سی,زد سی‌سی,ZCC.CT,en,,PROPOSED,Latin trademark preferred in product titles
+46,ZPS | زد پی‌اس,زد پی‌اس,ZPS,fa,,NEEDS_GOVERNANCE,Split from bilingual brand.name; no new transliteration invented

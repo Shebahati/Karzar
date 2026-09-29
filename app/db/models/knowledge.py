@@ -124,13 +124,28 @@ PROPERTY_DATA_TYPES = (
 
 DICTIONARY_STATUSES = ("draft", "active", "deprecated")
 
+# Controlled registry of Knowledge Unit dimensions (Prompt 150).
+# Adding a dimension requires: this tuple, matching DB CHECK migration, and tests.
+# Order is stable for deterministic CheckConstraint SQL text.
 UNIT_DIMENSIONS = (
     "length",
     "angle",
     "mass",
     "dimensionless",
     "hardness",
+    "force",
+    "velocity",
+    "rotational_speed",
+    "time",
+    "temperature",
+    "voltage",
 )
+
+
+def unit_dimension_check_sql() -> str:
+    """Deterministic SQL for ck_knowledge_units_dimension (synced to UNIT_DIMENSIONS)."""
+    inner = ", ".join(f"'{dimension}'" for dimension in UNIT_DIMENSIONS)
+    return f"dimension IN ({inner})"
 
 
 class KnowledgeUnit(Base):
@@ -143,7 +158,7 @@ class KnowledgeUnit(Base):
             name="ck_knowledge_units_status",
         ),
         CheckConstraint(
-            "dimension IN ('length','angle','mass','dimensionless','hardness')",
+            unit_dimension_check_sql(),
             name="ck_knowledge_units_dimension",
         ),
         UniqueConstraint("dimension", "canonical_code", name="uq_knowledge_units_dimension_code"),

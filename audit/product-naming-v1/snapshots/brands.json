@@ -1,0 +1,402 @@
+[
+  {
+    "id": 35,
+    "name": "3Keego | کیگو",
+    "slug": "3keego-کیگو",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/35/logo-a2a785ae30754f8e.svg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 10
+  },
+  {
+    "id": 6,
+    "name": "ASIMETO | آسیمتو",
+    "slug": "asimeto-|-آسیمتو",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/6/logo-9d3dacf0df146d2b.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 235
+  },
+  {
+    "id": 13,
+    "name": "ASTPOWER | ای اس تی پاور",
+    "slug": "astpower-|-ای-اس-تی-پاور",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/13/logo-2f47a9adf59024a6.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 975
+  },
+  {
+    "id": 41,
+    "name": "Acrobat | آکروبات",
+    "slug": "acrobat-آکروبات",
+    "country": "ترکیه",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 1
+  },
+  {
+    "id": 40,
+    "name": "CP-GRAT | سی‌پی‌گرات",
+    "slug": "cp-grat-سیپیگرات",
+    "country": null,
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 4
+  },
+  {
+    "id": 36,
+    "name": "Chagan | چاگان",
+    "slug": "chagan-چاگان",
+    "country": "هند",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 27
+  },
+  {
+    "id": 33,
+    "name": "Chumpower | چام‌پاور",
+    "slug": "chumpower-چامپاور",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/33/logo-7984ee0e8a98876b.svg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 347
+  },
+  {
+    "id": 9,
+    "name": "DOHRE | دوهره",
+    "slug": "dohre-|-دوهره",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/9/logo-93a3c145baa92516.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 0
+  },
+  {
+    "id": 4,
+    "name": "Dasqua | داسکوا",
+    "slug": "dasqua-|-داسکوا",
+    "country": "ایتالیا",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/4/logo-43224799d35c5718.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 727
+  },
+  {
+    "id": 34,
+    "name": "Deniz | دنیز",
+    "slug": "deniz-دنیز",
+    "country": "هند",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 2
+  },
+  {
+    "id": 50,
+    "name": "ET | ای تی",
+    "slug": "et-ای-تی",
+    "country": "هند",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 227
+  },
+  {
+    "id": 23,
+    "name": "Emkay | امکای",
+    "slug": "emkay-امکای",
+    "country": "هند",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 0
+  },
+  {
+    "id": 7,
+    "name": "GUANGLU | گوانگلو",
+    "slug": "guanglu-|-گوانگلو",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/7/logo-69c1e7b0785de4ce.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 0
+  },
+  {
+    "id": 43,
+    "name": "Groz | گروز",
+    "slug": "groz-گروز",
+    "country": "هند",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/43/logo-3a6b2cd23dcd9f60.svg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 127
+  },
+  {
+    "id": 3,
+    "name": "INSIZE | اینسایز",
+    "slug": "insize-|-اینسایز",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/3/logo-60b67e0e5b39df3f.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 872
+  },
+  {
+    "id": 26,
+    "name": "Jaguar | جگوار",
+    "slug": "jaguar-جگوار",
+    "country": null,
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 2
+  },
+  {
+    "id": 15,
+    "name": "KORLOY | کورلوی",
+    "slug": "korloy-|-کورلوی",
+    "country": "کره جنوبی",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/15/logo-4e81827c9795ea21.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 0
+  },
+  {
+    "id": 29,
+    "name": "LI-HSUN | لی‌سان",
+    "slug": "li-hsun-لیسان",
+    "country": "تایوان",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 4
+  },
+  {
+    "id": 12,
+    "name": "MAP | ام ای پی",
+    "slug": "map-|-ام-ای-پی",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/12/logo-4f29562a45568494.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 0
+  },
+  {
+    "id": 37,
+    "name": "MPA | ام پی ای",
+    "slug": "mpa-ام-پی-ای",
+    "country": "ایتالیا",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/37/logo-b1b12fce7e1a16eb.gif",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 14
+  },
+  {
+    "id": 49,
+    "name": "Mighty Seven | مایتی سون",
+    "slug": "mighty-seven-مایتی-سون",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/49/logo-43331410dd07ac2c.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 182
+  },
+  {
+    "id": 2,
+    "name": "Mitutoyo | میتوتویو",
+    "slug": "mitutoyo-|-میتوتویو",
+    "country": "ژاپن",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/2/logo-f05bd9d140ab0b6b.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 304
+  },
+  {
+    "id": 27,
+    "name": "Narex | نارکس",
+    "slug": "narex-نارکس",
+    "country": "چک",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/27/logo-e8afc4507c7ac06d.png",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 4
+  },
+  {
+    "id": 44,
+    "name": "OMG | او ام جی",
+    "slug": "omg-او-ام-جی",
+    "country": "ایتالیا",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/44/logo-c3c0074eff899db5.jpg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 3
+  },
+  {
+    "id": 39,
+    "name": "Promax | پرومکس",
+    "slug": "promax-پرومکس",
+    "country": null,
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 2
+  },
+  {
+    "id": 45,
+    "name": "RÖHM | رهم",
+    "slug": "röhm-رهم",
+    "country": "آلمان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/45/logo-d02c5ecb78fdf579.svg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 2
+  },
+  {
+    "id": 20,
+    "name": "SAN OU | سانو",
+    "slug": "san-ou-|-سانو",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/20/logo-f4c85af2390455ce.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 317
+  },
+  {
+    "id": 47,
+    "name": "SHAMS | شمس",
+    "slug": "shams-شمس",
+    "country": "ایران",
+    "logo_url": null,
+    "meta_title": "SHAMS | شمس",
+    "meta_description": "برند شمس (SHAMS) — هلی‌کویل و ابزار رزوه‌کاری",
+    "product_count": 27
+  },
+  {
+    "id": 38,
+    "name": "Sahand | سهند",
+    "slug": "sahand-سهند",
+    "country": "ایران",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 2
+  },
+  {
+    "id": 5,
+    "name": "TERMA | ترما",
+    "slug": "terma-|-ترما",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/5/logo-ced2f6d0c2a8bdbf.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 312
+  },
+  {
+    "id": 22,
+    "name": "TIGER TEC | تایگرتک",
+    "slug": "tiger-tec-|-تایگرتک",
+    "country": "آلمان",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 517
+  },
+  {
+    "id": 31,
+    "name": "Transmex | ترنمکس",
+    "slug": "transmex-ترنمکس",
+    "country": "هند",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/31/logo-71bd42112168950a.jpg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 11
+  },
+  {
+    "id": 24,
+    "name": "UTEX | یوتکس",
+    "slug": "utex-یوتکس",
+    "country": "چین",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 1
+  },
+  {
+    "id": 42,
+    "name": "Vertex | ورتکس",
+    "slug": "vertex-ورتکس",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/42/logo-38c06cf6381c82d4.gif",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 10
+  },
+  {
+    "id": 30,
+    "name": "Viyer | ویر",
+    "slug": "viyer-ویر",
+    "country": null,
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 9
+  },
+  {
+    "id": 28,
+    "name": "Vogel | وگل",
+    "slug": "vogel-وگل",
+    "country": "آلمان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/28/logo-bd395464392d9f24.jpg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 1
+  },
+  {
+    "id": 32,
+    "name": "Winstar | وینستار",
+    "slug": "winstar-وینستار",
+    "country": "تایوان",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/32/logo-d56acc56c3a518ea.png",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 21
+  },
+  {
+    "id": 48,
+    "name": "YOWAX | یواکس",
+    "slug": "yowax-یواکس",
+    "country": "چین",
+    "logo_url": null,
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 353
+  },
+  {
+    "id": 8,
+    "name": "ZCC.CT | زد سی‌سی",
+    "slug": "zcc.ct-|-زد-سی‌سی",
+    "country": "چین",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/8/logo-4ca402265afc9fe4.webp",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 583
+  },
+  {
+    "id": 46,
+    "name": "ZPS | زد پی‌اس",
+    "slug": "zps-زد-پیاس",
+    "country": "چک",
+    "logo_url": "https://api.karzartools.com/static/uploads/brands/46/logo-4909d50cbbf0dbb7.svg",
+    "meta_title": null,
+    "meta_description": null,
+    "product_count": 6
+  }
+]
