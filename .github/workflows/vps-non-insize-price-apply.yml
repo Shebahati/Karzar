@@ -1,0 +1,42 @@
+# Owner-authorized live non-INSIZE +20% price apply.
+# Runs on the VPS runner. Does not deploy, migrate, or unfreeze checkout.
+name: VPS Non-INSIZE Price Apply
+
+on:
+  push:
+    branches:
+      - cursor/non-insize-price-apply-45d9
+    paths:
+      - .github/workflows/vps-non-insize-price-apply.yml
+      - scripts/ops/run_non_insize_price_apply.sh
+      - scripts/ops/non_insize_price_apply_check.py
+      - scripts/ops/non_insize_price_apply_canary.sql
+      - scripts/ops/non_insize_price_apply_current.sql
+      - scripts/ops/non_insize_price_apply_export.sql
+      - scripts/ops/non_insize_price_apply_fingerprint.sql
+      - scripts/ops/non_insize_price_apply_tx.sql
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-non-insize-price-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply non-INSIZE 20 percent prices
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cursor/non-insize-price-apply-45d9' && github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout apply scripts
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: Apply prices inside one transaction
+        env:
+          KARZAR_PRICE_APPLY_CONFIRM: owner_non_insize_price_increase_20pct_2026_09_29
+        run: bash scripts/ops/run_non_insize_price_apply.sh
