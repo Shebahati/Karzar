@@ -546,10 +546,12 @@ FROM products
 WHERE id = 1044;
 ROLLBACK;
 SQL
-psql_read "${TMP_DIR}/emalls.sql" | python3 - <<'PY'
+psql_read "${TMP_DIR}/emalls.sql" > "${TMP_DIR}/emalls.txt"
+python3 - "${TMP_DIR}/emalls.txt" <<'PY'
 import json, sys
 from decimal import Decimal
-line = next(l for l in sys.stdin.read().splitlines() if l.startswith("{"))
+from pathlib import Path
+line = next(l for l in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if l.startswith("{"))
 row = json.loads(line)
 def price_string(value):
     if value is None:
