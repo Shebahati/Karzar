@@ -59,20 +59,23 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEYFILE"
           chmod 600 "$KEYFILE"
 
-          ssh -4 \
-            -i "$KEYFILE" \
-            -p "$SSH_PORT" \
-            -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey \
-            -o PasswordAuthentication=no \
-            -o KbdInteractiveAuthentication=no \
-            -o UserKnownHostsFile="$KNOWN_HOSTS" \
-            -o StrictHostKeyChecking=yes \
-            -o BatchMode=yes \
-            -o ConnectTimeout=25 \
-            -o ServerAliveInterval=10 \
-            -o ServerAliveCountMax=3 \
-            "${SSH_USER}@${SSH_HOST}" "bash -s -- ${FREEZE_RUN_ID}" <<'REMOTE'
+          ssh_ok=0
+          for attempt in 1 2 3; do
+            echo "ssh_attempt=${attempt}"
+            if ssh -4 \
+              -i "$KEYFILE" \
+              -p "$SSH_PORT" \
+              -o IdentitiesOnly=yes \
+              -o PreferredAuthentications=publickey \
+              -o PasswordAuthentication=no \
+              -o KbdInteractiveAuthentication=no \
+              -o UserKnownHostsFile="$KNOWN_HOSTS" \
+              -o StrictHostKeyChecking=yes \
+              -o BatchMode=yes \
+              -o ConnectTimeout=25 \
+              -o ServerAliveInterval=10 \
+              -o ServerAliveCountMax=3 \
+              "${SSH_USER}@${SSH_HOST}" "bash -s -- ${FREEZE_RUN_ID}" <<'REMOTE'
           set -euo pipefail
           run_id="${1:-0}"
           case "$run_id" in
@@ -474,3 +477,14 @@ jobs:
           rm -f /tmp/karzar-freeze-snapshot.sql
           echo "PURCHASE_FREEZE_COMPLETE=YES"
           REMOTE
+          then
+            ssh_ok=1
+            break
+          fi
+          echo "ssh_attempt_failed=${attempt}"
+          sleep 15
+          done
+          if [[ "$ssh_ok" != "1" ]]; then
+            echo "ERROR: SSH to VPS failed" >&2
+            exit 1
+          fi
