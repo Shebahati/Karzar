@@ -1,0 +1,237 @@
+# One-shot read-only forensic audit of three Hesabfa identity cases.
+# No deploy. No live-tree checkout. Remove this file after the audit.
+# A path-filtered push starts it because workflow_dispatch is invisible until
+# the file exists on main or has run once. Delete it before the final gate.
+name: Hesabfa Ambiguity Read-only
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/hesabfa-ambiguity-resolution-readonly-22a8
+    paths:
+      - .github/workflows/hesabfa-ambiguity-readonly.yml
+
+concurrency:
+  group: hesabfa-ambiguity-readonly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  audit:
+    name: Read-only three-case identity audit
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 90
+    if: github.repository == 'Shebahati/Karzar' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push')
+    steps:
+      - name: Read-only identity audit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          redact() {
+            sed -E \
+              -e 's/(password|passwd|secret|token|api[_-]?key|authorization|bearer)[[:space:]]*[=:][[:space:]]*[^[:space:]]+/[REDACTED]/gi' \
+              -e 's#(postgres(ql)?://)[^[:space:]]+#\1[REDACTED]#gi' \
+              -e 's/\b09[0-9]{9}\b/[REDACTED_PHONE]/g' \
+              -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[REDACTED_EMAIL]/g'
+          }
+          fail() { echo "FATAL: $*" >&2; exit 1; }
+
+          SHA="${EXPECTED_SHA}"
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || fail "github.sha is not a 40-hex commit"
+          LIVE_BEFORE="$(stat -c '%Y' /opt/karzar/Karzar 2>/dev/null || echo 0)"
+
+          HOSTNAME_NOW="$(hostname)"
+          echo "host=${HOSTNAME_NOW}"
+          [[ "$HOSTNAME_NOW" == "srv5944957438" ]] || fail "unexpected host ${HOSTNAME_NOW}"
+          API_RUNNING="$(docker inspect lathe_api --format '{{.State.Running}}' 2>/dev/null || echo missing)"
+          DB_RUNNING="$(docker inspect lathe_postgres --format '{{.State.Running}}' 2>/dev/null || echo missing)"
+          echo "container_lathe_api_running=${API_RUNNING}"
+          echo "container_lathe_postgres_running=${DB_RUNNING}"
+          [[ "$API_RUNNING" == "true" && "$DB_RUNNING" == "true" ]] || fail "containers not running"
+          MOUNTS="$(docker inspect lathe_postgres --format '{{range .Mounts}}{{.Name}} {{.Destination}}{{"\n"}}{{end}}')"
+          printf '%s\n' "$MOUNTS"
+          printf '%s\n' "$MOUNTS" | grep -q 'karzar_postgres_data' || fail "volume karzar_postgres_data missing"
+
+          APP_ENV="$(docker exec lathe_api sh -c 'printf %s "$APP_ENV"')"
+          DATA_PLANE="$(docker exec lathe_api sh -c 'printf %s "${KARZAR_DATA_PLANE-}"')"
+          echo "APP_ENV=${APP_ENV}"
+          if [[ -z "$DATA_PLANE" ]]; then echo "KARZAR_DATA_PLANE=unset"; else echo "KARZAR_DATA_PLANE=${DATA_PLANE}"; fi
+          [[ "$DATA_PLANE" != "catalog_staging" ]] || fail "catalog_staging is not the live plane"
+          if [[ -n "$DATA_PLANE" && "$DATA_PLANE" != "live" ]]; then fail "KARZAR_DATA_PLANE=${DATA_PLANE}"; fi
+
+          docker exec -i lathe_api python - <<'PY' | tee /tmp/karzar-hesabfa-ambiguity-db.txt
+          import asyncio
+          from sqlalchemy import text
+
+          async def main() -> None:
+              from app.db.database import async_session_maker
+              async with async_session_maker() as session:
+                  await session.execute(text("SET TRANSACTION READ ONLY"))
+                  shown = (await session.execute(text("SHOW transaction_read_only"))).scalar_one()
+                  dbname = (await session.execute(text("SELECT current_database()"))).scalar_one()
+                  revisions = (await session.execute(text("SELECT version_num FROM alembic_version"))).scalars().all()
+                  await session.rollback()
+              if str(shown).strip().lower() != "on":
+                  raise SystemExit(f"transaction_read_only={shown}")
+              if str(dbname) != "karzar_staging":
+                  raise SystemExit(f"unexpected database {dbname}")
+              if not revisions:
+                  raise SystemExit("alembic_version empty")
+              print(f"transaction_read_only={shown}")
+              print(f"database={dbname}")
+              print("alembic=" + ",".join(str(item) for item in revisions))
+
+          asyncio.run(main())
+          PY
+
+          docker exec -i lathe_api python - <<'PY'
+          from app.core.config import settings
+          def yes(value: object) -> str:
+              return "YES" if value else "NO"
+          enabled = bool(settings.HESABFA_ENABLED)
+          api_key = bool((settings.HESABFA_API_KEY or "").strip())
+          login = bool((settings.HESABFA_LOGIN_TOKEN or "").strip())
+          print(f"HESABFA_ENABLED_PRESENT={yes(enabled)}")
+          print(f"HESABFA_API_KEY_PRESENT={yes(api_key)}")
+          print(f"HESABFA_LOGIN_TOKEN_PRESENT={yes(login)}")
+          if not (enabled and api_key and login):
+              raise SystemExit("Hesabfa read credentials are absent")
+          PY
+
+          MIRROR="${KARZAR_MIRROR:-/opt/karzar/mirror/Karzar.git}"
+          [[ -d "$MIRROR" ]] || fail "git mirror missing"
+          git -C "$MIRROR" remote set-url origin https://github.com/Shebahati/Karzar.git
+          git -C "$MIRROR" fetch --prune origin '+refs/heads/*:refs/heads/*'
+          git -C "$MIRROR" cat-file -e "${SHA}^{commit}" || fail "SHA not in mirror"
+          DEST="/tmp/karzar-hesabfa-ambiguity/${SHA}"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          git clone --shared --no-checkout "$MIRROR" "$DEST"
+          git -C "$DEST" checkout --detach "$SHA"
+          ACTUAL="$(git -C "$DEST" rev-parse HEAD)"
+          echo "CHECKOUT_SHA=${ACTUAL}"
+          [[ "$ACTUAL" == "$SHA" ]] || fail "checkout SHA mismatch"
+
+          cleanup() {
+            docker exec lathe_api rm -rf /tmp/karzar-ambiguity-src /tmp/karzar-hesabfa-ambiguity-output >/dev/null 2>&1 || true
+            rm -rf "$DEST"
+            LIVE_AFTER="$(stat -c '%Y' /opt/karzar/Karzar 2>/dev/null || echo 0)"
+            if [[ "$LIVE_BEFORE" != "$LIVE_AFTER" ]]; then
+              echo "FATAL: live tree mtime changed" >&2
+            fi
+          }
+          trap cleanup EXIT
+
+          python3 - "$DEST" <<'PY'
+          import ast
+          import sys
+          from pathlib import Path
+          root = Path(sys.argv[1])
+          script = (root / "scripts/hesabfa_ambiguity_readonly.py").read_text(encoding="utf-8")
+          banned = {"save_item", "save_invoice", "save_contact", "delete_item"}
+          for node in ast.walk(ast.parse(script)):
+              if not isinstance(node, ast.Call):
+                  continue
+              func = node.func
+              name = func.attr if isinstance(func, ast.Attribute) else func.id if isinstance(func, ast.Name) else ""
+              if name in banned:
+                  raise SystemExit(f"audit script calls {name}")
+          if "paginate_get_items" not in script or "DryRunHesabfaClient" not in script:
+              raise SystemExit("audit script does not use the read-only Hesabfa client")
+          if "enforce_database_read_only" not in script:
+              raise SystemExit("audit script does not enforce a read-only transaction")
+          print("REMOTE_WRITE_METHODS_REACHABLE=0")
+          PY
+
+          docker exec lathe_api rm -rf /tmp/karzar-ambiguity-src
+          docker exec lathe_api mkdir -p /tmp/karzar-ambiguity-src
+          tar -C "$DEST" --exclude .git -cf - . | docker exec -i lathe_api tar -C /tmp/karzar-ambiguity-src -xf -
+          docker exec lathe_api rm -rf /tmp/karzar-hesabfa-ambiguity-output
+          docker exec \
+            -e PYTHONPATH=/tmp/karzar-ambiguity-src \
+            -e PYTHONUNBUFFERED=1 \
+            -w /tmp/karzar-ambiguity-src \
+            lathe_api \
+            python scripts/hesabfa_ambiguity_readonly.py \
+              --output /tmp/karzar-hesabfa-ambiguity-output \
+            2>&1 | redact
+
+          ART="${GITHUB_WORKSPACE}/hesabfa-ambiguity-artifacts"
+          rm -rf "$ART"
+          mkdir -p "$ART"
+          docker cp lathe_api:/tmp/karzar-hesabfa-ambiguity-output/. "$ART/"
+          python3 - "$ART" "$HOSTNAME_NOW" "$APP_ENV" "${DATA_PLANE:-unset}" "$SHA" <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+          art = Path(sys.argv[1])
+          facts = json.loads((art / "facts.json").read_text(encoding="utf-8"))
+          if int(facts["DATABASE_WRITES"]) != 0 or int(facts["REMOTE_WRITES"]) != 0:
+              raise SystemExit("writes were recorded")
+          if facts.get("PAGINATION_COMPLETE") is not True:
+              raise SystemExit("pagination incomplete")
+          if int(facts["HESABFA_REPORTED_TOTAL"]) != int(facts["HESABFA_ITEMS_FETCHED"]):
+              raise SystemExit("fetched total mismatch")
+          if facts.get("DATABASE_READ_ONLY") != "postgresql:transaction_read_only=on":
+              raise SystemExit("database was not read-only")
+          identity = Path("/tmp/karzar-hesabfa-ambiguity-db.txt").read_text(encoding="utf-8")
+          alembic = ""
+          for line in identity.splitlines():
+              if line.startswith("alembic="):
+                  alembic = line.split("=", 1)[1]
+          probe = {
+              "host": sys.argv[2],
+              "api_container": "lathe_api",
+              "db_container": "lathe_postgres",
+              "database": "karzar_staging",
+              "volume": "karzar_postgres_data",
+              "APP_ENV": sys.argv[3],
+              "KARZAR_DATA_PLANE": sys.argv[4] or "unset",
+              "alembic": alembic,
+              "transaction_read_only": "on",
+              "DATABASE_READ_ONLY": facts["DATABASE_READ_ONLY"],
+              "DATABASE_WRITES": facts["DATABASE_WRITES"],
+              "REMOTE_WRITES": facts["REMOTE_WRITES"],
+              "checkout_sha": sys.argv[5],
+              "HESABFA_REPORTED_TOTAL": facts["HESABFA_REPORTED_TOTAL"],
+              "HESABFA_ITEMS_FETCHED": facts["HESABFA_ITEMS_FETCHED"],
+              "HESABFA_PAGES_FETCHED": facts["HESABFA_PAGES_FETCHED"],
+              "PAGINATION_COMPLETE": True,
+          }
+          (art / "IDENTITY_PROBE.json").write_text(json.dumps(probe, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          blob = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in art.iterdir() if path.is_file())
+          patterns = [
+              r"api[_-]?key\s*[:=]",
+              r"login[_-]?token\s*[:=]",
+              r"authorization\s*:",
+              r"bearer\s+[A-Za-z0-9\-._~+/]{8,}",
+              r"password\s*[:=]",
+              r"postgres(?:ql)?://\S+",
+              r"\b09\d{9}\b",
+              r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}",
+          ]
+          for pattern in patterns:
+              if re.search(pattern, blob, flags=re.IGNORECASE):
+                  raise SystemExit(f"sensitive pattern {pattern}")
+          print("ARTIFACT_SENSITIVE_SCAN=PASS")
+          print(f"REMOTE_CANDIDATES={len(facts['remote_candidates'])}")
+          PY
+          LIVE_AFTER="$(stat -c '%Y' /opt/karzar/Karzar 2>/dev/null || echo 0)"
+          [[ "$LIVE_BEFORE" == "$LIVE_AFTER" ]] || fail "live application tree mtime changed"
+          echo "LIVE_TREE_MTIME_UNCHANGED=YES"
+          echo "AMBIGUITY_READONLY_OK sha=${SHA}"
+
+      - name: Upload sanitized artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hesabfa-ambiguity-readonly
+          path: hesabfa-ambiguity-artifacts/
+          if-no-files-found: error
+          retention-days: 14
