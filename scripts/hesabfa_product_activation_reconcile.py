@@ -127,6 +127,7 @@ def _row_from_csv(data: dict[str, str]) -> ReconciliationRow:
         desired_hesabfa_active=data["desired_hesabfa_active"] == "true",
         action=data["action"],
         reason=data.get("reason") or "",
+        price_risk=(data.get("price_risk") or "") == "true",
     )
 
 

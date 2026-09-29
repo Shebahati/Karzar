@@ -170,7 +170,10 @@ def test_soft_deleted_product_is_not_deactivated(monkeypatch: pytest.MonkeyPatch
             client=client,
         )
 
-    assert asyncio.run(run()) is None
+    skipped = asyncio.run(run())
+    assert skipped.action == "skipped"
+    assert skipped.mapping is None
+    assert skipped.save_performed is False
     client.save_item.assert_not_called()
     client.get_items.assert_not_called()
 
@@ -214,6 +217,9 @@ def test_create_draft_pushes_active_shell(
     assert product.is_active is False
     assert product.is_available is False
     assert product.base_price is None
+    assert client.save_item.await_count == 1
+    assert "code" not in saved
+    assert "Code" not in saved
     _assert_active_shell(saved, "DRAFT-1")
 
 
@@ -239,12 +245,12 @@ def test_update_deactivation_keeps_hesabfa_active(
     updated, payloads = asyncio.run(run())
     assert updated is not None
     assert updated.is_active is False
-    assert len(payloads) == 2
+    assert len(payloads) == 1
     assert payloads[0]["active"] is True
-    assert payloads[1]["active"] is True
-    assert payloads[1]["productCode"] == updated.sku
+    assert "code" not in payloads[0]
+    assert "Code" not in payloads[0]
     for key in STOCK_KEYS:
-        assert key not in payloads[1]
+        assert key not in payloads[0]
 
 
 @pytest.mark.usefixtures("override_database")
@@ -263,7 +269,8 @@ def test_soft_delete_does_not_call_hesabfa(
             assert deleted is True
             refreshed = await session.get(type(created), created.id)
             skipped = await ensure_product_in_hesabfa(session, refreshed, client=client)
-            assert skipped is None
+            assert skipped.action == "skipped"
+            assert skipped.save_performed is False
             assert refreshed.deleted_at is not None
             return calls_after_create
 
@@ -302,7 +309,7 @@ def test_classifier_actions_and_summary(tmp_path: Path) -> None:
     remote = [
         {"Code": "C1", "ProductCode": "ACTIVE", "Active": True},
         {"Code": "C2", "ProductCode": "SITE-OFF", "Active": True},
-        {"Code": "C3", "ProductCode": "NEED-ACT", "Active": False},
+        {"Code": "C3", "ProductCode": "NEED-ACT", "Active": False, "SellPrice": 120000},
         {"Code": "C5", "ProductCode": "LINK", "Active": True},
         {"Code": "C6A", "ProductCode": "DUP", "Active": True},
         {"Code": "C6B", "ProductCode": "DUP", "Active": False},
@@ -311,20 +318,24 @@ def test_classifier_actions_and_summary(tmp_path: Path) -> None:
     ]
     rows = classify_catalog(products, mappings, remote)
     by_sku = {row.sku: row for row in rows}
-    assert by_sku["ACTIVE"].action == "NOOP_ALREADY_ACTIVE"
-    assert by_sku["SITE-OFF"].action == "NOOP_ALREADY_ACTIVE"
+    assert by_sku["ACTIVE"].action == "MAPPED_ACTIVE"
+    assert by_sku["ACTIVE"].price_risk is False
+    assert by_sku["SITE-OFF"].action == "MAPPED_ACTIVE"
     assert by_sku["SITE-OFF"].desired_hesabfa_active is True
-    assert by_sku["NEED-ACT"].action == "ACTIVATE_EXISTING"
-    assert by_sku["MISSING"].action == "CREATE_MISSING_ACTIVE"
+    assert by_sku["NEED-ACT"].action == "RECONCILIATION_REQUIRED"
+    assert by_sku["NEED-ACT"].reason == "mapped_inactive"
+    assert by_sku["NEED-ACT"].price_risk is True
+    assert by_sku["MISSING"].action == "UNMAPPED"
     assert by_sku["LINK"].action == "LINK_EXISTING"
     assert by_sku["DUP"].action == "AMBIGUOUS"
     assert by_sku["DUP"].reason == "duplicate_remote_product_code"
     assert by_sku["STALE"].action == "AMBIGUOUS"
     assert by_sku["STALE"].reason == "mapping_code_mismatch"
-    assert by_sku["GONE"].action == "ERROR"
+    assert by_sku["GONE"].action == "MISSING_REMOTE_ITEM"
     assert by_sku["GONE"].reason == "mapping_remote_missing"
-    assert by_sku["UNAVAIL"].action == "ACTIVATE_EXISTING"
-    assert by_sku["DRAFT"].action == "CREATE_MISSING_ACTIVE"
+    assert by_sku["UNAVAIL"].action == "RECONCILIATION_REQUIRED"
+    assert by_sku["UNAVAIL"].reason == "mapped_inactive"
+    assert by_sku["DRAFT"].action == "UNMAPPED"
     assert all(row.desired_hesabfa_active is True for row in rows)
 
     summary = summarize(rows, population_total=len(products), remote_writes=0, database_writes=0)
@@ -338,7 +349,9 @@ def test_classifier_actions_and_summary(tmp_path: Path) -> None:
     assert summary["MAPPING_STALE"] == 2
     assert summary["AMBIGUOUS"] == 2
     assert summary["ERRORS"] == 1
-    assert summary["WOULD_ACTIVATE"] == 2
+    assert summary["WOULD_ACTIVATE"] == 0
+    assert summary["RECONCILIATION_REQUIRED"] == 2
+    assert summary["PRICE_RISK"] == 1
     assert summary["WOULD_CREATE"] == 2
     assert summary["WOULD_LINK"] == 1
     assert summary["DRY_RUN"] is True
@@ -496,6 +509,196 @@ def test_get_items_without_total_count_raises() -> None:
 
     with pytest.raises(HesabfaError, match="TotalCount"):
         asyncio.run(run())
+
+
+def test_pagination_repeated_page_fails_closed() -> None:
+    from app.services.hesabfa.item_push import paginate_get_items
+
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        return_value={"List": [{"Code": "1", "ProductCode": "A"}], "TotalCount": 2}
+    )
+
+    async def run() -> None:
+        await paginate_get_items(client, page_size=1)
+
+    with pytest.raises(HesabfaError, match="repeated a page"):
+        asyncio.run(run())
+
+
+def test_pagination_duplicate_remote_code_fails_closed() -> None:
+    from app.services.hesabfa.item_push import paginate_get_items
+
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        side_effect=[
+            {"List": [{"Code": "1", "ProductCode": "A"}], "TotalCount": 2},
+            {"List": [{"Code": "1", "ProductCode": "B"}], "TotalCount": 2},
+        ]
+    )
+
+    async def run() -> None:
+        await paginate_get_items(client, page_size=1)
+
+    with pytest.raises(HesabfaError, match="duplicate remote Code"):
+        asyncio.run(run())
+
+
+def test_existing_code_cannot_build_zero_price_save() -> None:
+    with pytest.raises(HesabfaError, match="existing Hesabfa code"):
+        build_hesabfa_item_payload(_product(), hesabfa_code="HF-9")
+
+
+def test_mapped_item_with_remote_price_is_not_saved(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.services.hesabfa import item_push
+
+    monkeypatch.setattr(item_push, "hesabfa_integration_active", lambda: True)
+    mapping = SimpleNamespace(hesabfa_code="HF-9", sku="SKU-1", product_id=11)
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        return_value={
+            "List": [
+                {
+                    "Code": "HF-9",
+                    "ProductCode": "SKU-1",
+                    "Active": False,
+                    "BuyPrice": 90000,
+                    "SellPrice": 150000,
+                }
+            ],
+            "TotalCount": 1,
+        }
+    )
+    client.save_item = AsyncMock()
+
+    async def run() -> object:
+        return await ensure_product_in_hesabfa(
+            _FakeDB(mapping),
+            _product(is_active=False, is_available=False, base_price=None),
+            client=client,
+        )
+
+    result = asyncio.run(run())
+    assert result.action == "existing_item_preserved"
+    assert result.save_performed is False
+    assert result.mapping is mapping
+    client.save_item.assert_not_called()
+    client.get_items.assert_not_called()
+
+
+def test_discovered_priced_item_is_linked_without_save(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.services.hesabfa import item_push
+
+    monkeypatch.setattr(item_push, "hesabfa_integration_active", lambda: True)
+    client = MagicMock()
+    client.get_items = AsyncMock(
+        return_value={
+            "List": [
+                {
+                    "Code": "HF-9",
+                    "ProductCode": "SKU-1",
+                    "Active": False,
+                    "SellPrice": 150000,
+                    "BuyPrice": 0,
+                }
+            ],
+            "TotalCount": 1,
+        }
+    )
+    client.save_item = AsyncMock()
+
+    async def run() -> object:
+        return await ensure_product_in_hesabfa(
+            _FakeDB(),
+            _product(is_active=True, is_available=False, base_price=None),
+            client=client,
+        )
+
+    result = asyncio.run(run())
+    assert result.action == "existing_item_preserved"
+    assert result.save_performed is False
+    assert result.mapping.hesabfa_code == "HF-9"
+    client.save_item.assert_not_called()
+
+
+def test_unmapped_create_is_distinct_and_active(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.services.hesabfa import item_push
+
+    monkeypatch.setattr(item_push, "hesabfa_integration_active", lambda: True)
+    client = MagicMock()
+    client.get_items = AsyncMock(return_value={"List": [], "TotalCount": 0})
+    client.save_item = AsyncMock(return_value={"Code": "HF-NEW", "ProductCode": "SKU-1"})
+
+    async def run() -> object:
+        return await ensure_product_in_hesabfa(
+            _FakeDB(),
+            _product(is_active=False, is_available=False, base_price=None),
+            client=client,
+        )
+
+    result = asyncio.run(run())
+    assert result.action == "created"
+    assert result.save_performed is True
+    assert result.mapping.hesabfa_code == "HF-NEW"
+    client.save_item.assert_awaited_once()
+    payload = client.save_item.await_args.args[0]
+    assert payload["active"] is True
+    assert "code" not in payload
+    assert "Code" not in payload
+    _assert_active_shell(payload, "SKU-1")
+
+
+def test_mapped_inactive_remote_is_finding_only() -> None:
+    products = [SiteProductView(1, "OFF", False, False, False)]
+    mappings = [MappingView(1, "OFF", "C1", "OFF")]
+    remote = [
+        {
+            "Code": "C1",
+            "ProductCode": "OFF",
+            "Active": False,
+            "BuyPrice": 10,
+            "SellPrice": 20,
+        }
+    ]
+    rows = classify_catalog(products, mappings, remote)
+    assert rows[0].action == "RECONCILIATION_REQUIRED"
+    assert rows[0].reason == "mapped_inactive"
+    assert rows[0].price_risk is True
+    summary = summarize(rows, population_total=1)
+    assert summary["WOULD_ACTIVATE"] == 0
+    assert summary["RECONCILIATION_REQUIRED"] == 1
+    assert summary["REMOTE_WRITES"] == 0
+
+
+@pytest.mark.usefixtures("override_database")
+def test_storefront_changes_do_not_save_mapped_item(
+    monkeypatch: pytest.MonkeyPatch, valid_product_data: dict
+) -> None:
+    client = _mock_hesabfa(monkeypatch)
+
+    async def run() -> int:
+        async with TestingSessionLocal() as session:
+            created = await ProductService.create_product_with_validation(
+                session, ProductCreate(**valid_product_data)
+            )
+            assert client.save_item.await_count == 1
+            updated = await ProductService.update_product_with_validation(
+                session,
+                created.id,
+                ProductUpdate(is_active=False, is_available=False, base_price=None),
+            )
+            assert updated is not None
+            assert updated.is_active is False
+            assert updated.is_available is False
+            assert updated.base_price is None
+            hidden = await ProductService.set_availability_with_validation(
+                session, created.id, False
+            )
+            assert hidden is not None
+            assert await ProductService.delete_product(session, created.id) is True
+            return client.save_item.await_count
+
+    assert asyncio.run(run()) == 1
 
 
 def test_dry_run_session_rejects_writes() -> None:

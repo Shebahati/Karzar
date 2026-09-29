@@ -43,10 +43,11 @@ ITEM_SAVE_CONTRACT_EVIDENCE = (
 )
 
 ACTIONS = (
-    "NOOP_ALREADY_ACTIVE",
-    "ACTIVATE_EXISTING",
-    "CREATE_MISSING_ACTIVE",
+    "MAPPED_ACTIVE",
+    "RECONCILIATION_REQUIRED",
+    "UNMAPPED",
     "LINK_EXISTING",
+    "MISSING_REMOTE_ITEM",
     "ERROR",
     "AMBIGUOUS",
 )
@@ -74,6 +75,7 @@ CSV_COLUMNS = (
     "desired_hesabfa_active",
     "action",
     "reason",
+    "price_risk",
 )
 
 ARTIFACT_NAMES = (
@@ -208,6 +210,7 @@ class ReconciliationRow:
     desired_hesabfa_active: bool
     action: str
     reason: str
+    price_risk: bool = False
 
     def as_csv(self) -> dict[str, str]:
         active = ""
@@ -229,6 +232,7 @@ class ReconciliationRow:
             "desired_hesabfa_active": _bool_text(self.desired_hesabfa_active),
             "action": self.action,
             "reason": self.reason,
+            "price_risk": _bool_text(self.price_risk),
         }
 
 
@@ -284,6 +288,7 @@ def _row(
     active_current: bool | None,
     action: str,
     reason: str,
+    price_risk: bool = False,
 ) -> ReconciliationRow:
     if action not in ACTIONS:
         raise ValueError(f"unknown reconciliation action {action}")
@@ -301,6 +306,7 @@ def _row(
         desired_hesabfa_active=hesabfa_item_should_be_active(product),
         action=action,
         reason=reason,
+        price_risk=price_risk,
     )
 
 
@@ -317,6 +323,7 @@ def classify_product(
     product_mappings = [row for row in mappings if row.product_id == product.id]
     mapping = product_mappings[0] if len(product_mappings) == 1 else None
     item_present = len(remote_matches) >= 1
+    price_risk = any(_item_price_risk(item) for item in remote_matches)
 
     def finish(
         action: str,
@@ -338,6 +345,7 @@ def classify_product(
             active_current=active_current,
             action=action,
             reason=reason,
+            price_risk=price_risk,
         )
 
     if not sku_norm:
@@ -379,7 +387,7 @@ def classify_product(
             )
         if remote is None:
             return finish(
-                "ERROR",
+                "MISSING_REMOTE_ITEM",
                 "mapping_remote_missing",
                 code=mapping.hesabfa_code,
                 product_code=mapping.hesabfa_product_code or "",
@@ -403,7 +411,7 @@ def classify_product(
         )
 
     if remote is None:
-        return finish("CREATE_MISSING_ACTIVE", "")
+        return finish("UNMAPPED", "")
 
     if active_current is None:
         return finish(
@@ -421,28 +429,21 @@ def classify_product(
             product_code=remote_pc,
             active_current=True,
         )
-    if mapping is None and active_current is False:
+    if active_current is False:
+        # Desired state is active. That is a finding, not a save.
         return finish(
-            "ACTIVATE_EXISTING",
-            "link_and_activate",
+            "RECONCILIATION_REQUIRED",
+            "mapped_inactive" if mapping is not None else "unmapped_inactive",
             code=remote_code,
             product_code=remote_pc,
             active_current=False,
         )
-    if active_current is True:
-        return finish(
-            "NOOP_ALREADY_ACTIVE",
-            "",
-            code=remote_code,
-            product_code=remote_pc,
-            active_current=True,
-        )
     return finish(
-        "ACTIVATE_EXISTING",
+        "MAPPED_ACTIVE",
         "",
         code=remote_code,
         product_code=remote_pc,
-        active_current=False,
+        active_current=True,
     )
 
 
@@ -500,10 +501,7 @@ def summarize(
     def count(predicate: Any) -> int:
         return sum(1 for row in rows if predicate(row))
 
-    would_link = count(
-        lambda row: row.action == "LINK_EXISTING"
-        or (row.action == "ACTIVATE_EXISTING" and row.reason == "link_and_activate")
-    )
+    would_link = count(lambda row: row.action == "LINK_EXISTING")
     return {
         "DRY_RUN": True,
         "REMOTE_WRITES": remote_writes,
@@ -524,13 +522,15 @@ def summarize(
         "REMOTE_MISSING": count(lambda row: not row.hesabfa_item_present),
         "MAPPING_MISSING_REMOTE_FOUND": count(
             lambda row: (not row.hesabfa_mapping_present)
-            and row.action in {"LINK_EXISTING", "ACTIVATE_EXISTING"}
+            and row.action in {"LINK_EXISTING", "RECONCILIATION_REQUIRED"}
         ),
         "MAPPING_STALE": count(lambda row: row.reason in STALE_MAPPING_REASONS),
         "AMBIGUOUS": count(lambda row: row.action == "AMBIGUOUS"),
-        "ERRORS": count(lambda row: row.action == "ERROR"),
-        "WOULD_ACTIVATE": count(lambda row: row.action == "ACTIVATE_EXISTING"),
-        "WOULD_CREATE": count(lambda row: row.action == "CREATE_MISSING_ACTIVE"),
+        "ERRORS": count(lambda row: row.action in {"ERROR", "MISSING_REMOTE_ITEM"}),
+        "WOULD_ACTIVATE": 0,
+        "RECONCILIATION_REQUIRED": count(lambda row: row.action == "RECONCILIATION_REQUIRED"),
+        "WOULD_CREATE": count(lambda row: row.action == "UNMAPPED"),
+        "PRICE_RISK": count(lambda row: row.price_risk),
         "WOULD_LINK": would_link,
         "AMBIGUITY_BREAKDOWN": ambiguity_breakdown(rows),
         "ERROR_BREAKDOWN": error_breakdown(rows),
@@ -580,11 +580,27 @@ def ambiguity_breakdown(rows: Sequence[ReconciliationRow]) -> dict[str, Any]:
     }
 
 
+def _item_price_risk(item: Mapping[str, Any]) -> bool:
+    """True when a read item exposes a non-zero buy or sell price."""
+
+    def nonzero(value: object) -> bool:
+        if value is None or value == "":
+            return False
+        try:
+            return float(value) != 0.0
+        except (TypeError, ValueError):
+            return False
+
+    buy = item["BuyPrice"] if "BuyPrice" in item else item.get("buyPrice")
+    sell = item["SellPrice"] if "SellPrice" in item else item.get("sellPrice")
+    return nonzero(buy) or nonzero(sell)
+
+
 def error_breakdown(rows: Sequence[ReconciliationRow]) -> dict[str, Any]:
     """Group ERROR rows by reason. Does not repair them."""
     grouped: dict[str, list[ReconciliationRow]] = defaultdict(list)
     for row in rows:
-        if row.action != "ERROR":
+        if row.action not in {"ERROR", "MISSING_REMOTE_ITEM"}:
             continue
         label = _ERROR_LABELS.get(row.reason, "OTHER_ERROR")
         grouped[label].append(row)
@@ -671,7 +687,11 @@ def write_artifacts(
     _write_csv(directory / "reconciliation.csv", ordered)
     _write_csv(
         directory / "errors.csv",
-        [row for row in ordered if row.action == "ERROR"],
+        [
+            row
+            for row in ordered
+            if row.action in {"ERROR", "MISSING_REMOTE_ITEM"}
+        ],
     )
     _write_csv(
         directory / "ambiguous.csv",

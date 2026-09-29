@@ -13,7 +13,11 @@ HESABFA_ITEM_ACTIVE = True
 
 
 def hesabfa_item_should_be_active(product: object | None = None) -> bool:
-    """Return the Hesabfa ``active`` flag for a catalog item shell.
+    """Return the desired Hesabfa ``active`` flag for a catalog item shell.
+
+    This is desired accounting state only. It is not authorization to call
+    ``item/save``. An already mapped item must not be overwritten to chase
+    this flag while update semantics for prices are unproven.
 
     The website publication lifecycle and Hesabfa accounting item lifecycle
     are intentionally independent. ``product`` is accepted so call sites name

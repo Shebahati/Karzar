@@ -38,7 +38,7 @@ HESABFA_CURRENCY_CODE=IRR
 2. `alembic upgrade head` (hesabfa tables + `products.is_available`).
 3. Keep `HESABFA_TEST_MODE=true` until verified.
 4. Keep `HESABFA_ADMIN_READS_ENABLED=false` (default).
-5. `POST /api/v1/hesabfa/items/push` upserts every non-deleted site product into Hesabfa. Hesabfa item `active` is always true and is independent of site publication state. Quantity fields are omitted. This endpoint is not the checkpointed activation campaign (see below).
+5. `POST /api/v1/hesabfa/items/push` creates a Hesabfa shell only when ProductCode lookup proves the item is missing. An already mapped item is left untouched. New shells are created active, independent of site publication state. Quantity fields are omitted. This endpoint is not an activation campaign (see below).
 6. Zero any leftover `products.stock_quantity` from older Hesabfa pulls (`scripts/clear_hesabfa_pulled_stock.py`).
 7. When gateway live: `HESABFA_TEST_MODE=false`.
 
@@ -48,7 +48,7 @@ HESABFA_CURRENCY_CODE=IRR
 |--------|------|---------|
 | GET | `/api/v1/hesabfa/status` | Enabled / configured / test mode / `admin_reads_enabled` |
 | POST | `/api/v1/hesabfa/mappings/sync` | Match site `sku` ↔ Hesabfa `ProductCode` |
-| POST | `/api/v1/hesabfa/items/push` | Upsert every non-deleted site product (`deleted_at IS NULL`) into Hesabfa. `active` is always true. Quantity fields omitted. Not the activation campaign. |
+| POST | `/api/v1/hesabfa/items/push` | Create missing Hesabfa shells for non-deleted site products. Already mapped items are not saved. New shells are active. Quantity fields omitted. Not an activation campaign. |
 | POST | `/api/v1/hesabfa/stock/sync` | **Deprecated no-op** — Hesabfa→site quantity pull disabled |
 | GET | `/api/v1/hesabfa/sales-summary` | **Website paid sales only** — Hesabfa fields always null |
 
@@ -64,28 +64,39 @@ Dashboard keeps **فروش وبسایت (پرداخت‌شده)** from local ord
 
 Hesabfa item activation is independent of Karzar storefront activation.
 
-All site product item shells are kept active in Hesabfa.
+This section is **policy**. It does not claim that every live Hesabfa item is currently active.
 
-Changing:
+- Karzar `is_active` does not control Hesabfa `active`.
+- Karzar availability (`is_available`) does not control Hesabfa `active`.
+- Karzar soft delete does not delete or deactivate the Hesabfa item.
+- A new Hesabfa item created by Karzar is created active.
+- An already mapped Hesabfa item is not saved merely to reconcile activation, and its prices are not overwritten.
 
-- `is_active`
-- `is_available`
-
-does not deactivate a Hesabfa item. Price and site stock do not control the flag either.
-
-The canonical policy is `HESABFA_ITEM_ACTIVE = True` via `hesabfa_item_should_be_active()` in `app/services/hesabfa/item_lifecycle.py`. The website publication lifecycle and Hesabfa accounting item lifecycle are intentionally independent.
+The canonical desired flag is `HESABFA_ITEM_ACTIVE = True` via `hesabfa_item_should_be_active()` in `app/services/hesabfa/item_lifecycle.py`. Desired state is not write authorization. The website publication lifecycle and Hesabfa accounting item lifecycle are intentionally independent.
 
 | State | Meaning |
 |-------|---------|
 | Site `is_active` | Storefront / catalog publication |
 | Site `is_available` | Website sale availability (موجود / ناموجود) |
-| Hesabfa `active` | Accounting master-item lifecycle. Always true for shells this integration writes |
+| Hesabfa `active` | Accounting item lifecycle. New shells this integration creates are active. Existing items are not rewritten to chase this flag |
 
 Soft-deleting a site product does **not** deactivate the Hesabfa item. `ensure_product_in_hesabfa()` skips `deleted_at IS NOT NULL`, which means do not touch Hesabfa, not deactivate it. `ProductService.delete_product()` does not call Hesabfa.
 
-Hard-deleting a site product is not redesigned here. The local mapping row can disappear with the product (FK `ON DELETE CASCADE`). This integration does not delete or deactivate the Hesabfa item, so accounting history is not destroyed as a side effect. Orphaned active Hesabfa items can remain; that is intentional.
+Hard-deleting a site product is not redesigned here. The local mapping row can disappear with the product (FK `ON DELETE CASCADE`). This integration does not delete or deactivate the Hesabfa item, so accounting history is not destroyed as a side effect. Orphaned Hesabfa items can remain; that is intentional.
 
-`reconcile_product_item_shell()` still **refuses** the operation for site-active, site-available, priced, or non-zero `stock_quantity` rows. That is an operation gate for the draft-shell reconciler (which rows it may touch). It is not the Hesabfa `active` flag. When a save is performed, the new item is active.
+`reconcile_product_item_shell()` still **refuses** the operation for site-active, site-available, priced, or non-zero `stock_quantity` rows. That is an operation gate for the draft-shell reconciler (which rows it may touch). It is not the Hesabfa `active` flag. A save on that path is create-only, after lookup proves no ProductCode, and the new item is active.
+
+## Existing-item price safety
+
+`item/save` is assumed to be a full replacement. Karzar must not perform an activation-only `item/save` on an already mapped Hesabfa item while price-preserving update semantics are unproven. Safety comes from not issuing that save.
+
+`ensure_product_in_hesabfa()` calls `item/save` only when lookup proves no ProductCode exists, and that create payload omits `code`. An already mapped item, or a ProductCode that already exists, is left untouched (`existing_item_preserved`). Shell `buyPrice` / `sellPrice` of 0 are create-only. They are not sent onto an existing item. Zero shell prices must never overwrite an existing item.
+
+Create-missing shell prices are not invoice line prices. Invoice lines stay gross `unitPrice` with `tax` 0 until VAT metadata is proven (see Invoice money / tax).
+
+A mapped item whose remote `Active` is false is classified `RECONCILIATION_REQUIRED`. This PR reports it for a later controlled correction. It does not correct it. `--apply` stays refused. No environment flag enables mass activation.
+
+POLICY IMPLEMENTED: storefront lifecycle does not write Hesabfa activation. CURRENT REMOTE STATE: not claimed active until a read-only reconciliation says so.
 
 ## Activation reconciliation (dry-run only)
 
@@ -102,20 +113,22 @@ Identity is site `sku` ↔ Hesabfa `ProductCode`. Duplicate or conflicting match
 
 The live dry-run opens one database read-only transaction before the catalog read (`SET TRANSACTION READ ONLY`, then `SHOW transaction_read_only` must be `on`, on PostgreSQL; `PRAGMA query_only=ON` on SQLite), loads non-deleted products and mappings once, classifies in memory, and rolls the transaction back. It does not fall back to a writable session.
 
-ProductCode lookup pages `item/getItems` until the fetched row count equals reported `TotalCount`. A short first page is not treated as proof that an item is missing. The published list-filter example uses operator `*` (contains) and is not used as an exact ProductCode query. Duplicate ProductCodes raise.
+ProductCode lookup pages `item/getItems` until the fetched row count equals reported `TotalCount`. A short page, a repeated page, or a duplicate remote `Code` fails closed. A short first page is not treated as proof that an item is missing. The published list-filter example uses operator `*` (contains) and is not used as an exact ProductCode query. Duplicate ProductCodes raise.
 
-`--apply` is **refused** with `BLOCKED_PENDING_API_CONFIRMATION`. Official `item/save` documentation (https://www.hesabfa.com/help/api/item) says an existing `code` edits the item, `name` and `itemType` are required, and `buyPrice` / `sellPrice` are optional. Stock is not an `item/save` field; opening quantity is a separate method limited to the first fiscal year. That page does not state whether an update replaces omitted fields, and it does not show an existing item saved with explicit zero prices. `ITEM_SAVE_CONTRACT` remains `UNKNOWN`. The apply refusal remains even with `--confirm-production-write`, `KARZAR_ALLOW_PRODUCTION_WRITE=1`, and `KARZAR_INGESTION_CATEGORY=B`. Do not use `POST /hesabfa/items/push` as the one-time activation campaign: it has no resume cursor, it resends shell `sellPrice`/`buyPrice` of 0, and it is a single HTTP request.
+`--apply` is **refused** with `BLOCKED_PENDING_API_CONFIRMATION`. Official `item/save` documentation (https://www.hesabfa.com/help/api/item) says an existing `code` edits the item, `name` and `itemType` are required, and `buyPrice` / `sellPrice` are optional. Stock is not an `item/save` field; opening quantity is a separate method limited to the first fiscal year. That page does not state whether an update replaces omitted fields, and it does not show an existing item saved with explicit zero prices. `ITEM_SAVE_CONTRACT` remains `UNKNOWN`. The apply refusal remains even with `--confirm-production-write`, `KARZAR_ALLOW_PRODUCTION_WRITE=1`, and `KARZAR_INGESTION_CATEGORY=B`. Do not use `POST /hesabfa/items/push` as an activation campaign. It does not save an already mapped item. It creates a missing shell only.
 
-`ensure_product_in_hesabfa()` still calls `item/save` for an already mapped item and still sends `sellPrice` 0 and `buyPrice` 0 with name, description, unit, tag, product code, and `active` true. Whether those zeros overwrite accounting prices is unproven, so that routine path is unchanged here. A contract test belongs on a dedicated non-production Hesabfa business: create an item with nonzero buy and sell prices, save the same `code` with a name change and explicit zero prices, re-read, then save again omitting prices and the other optional fields, and re-read. Do not run that experiment against production.
+`item/save` update semantics remain unproven. Do not run a production save experiment. A contract test belongs on a dedicated non-production Hesabfa business.
 
-The push backfill's population is every non-deleted site product. Hesabfa item active state on that path is always true and is independent of site publication state.
+Classifications include `UNMAPPED`, `MAPPED_ACTIVE`, `RECONCILIATION_REQUIRED` (mapped or discovered inactive), `MISSING_REMOTE_ITEM`, `AMBIGUOUS`, and `PRICE_RISK` (a read item has a non-zero buy or sell price). `WOULD_ACTIVATE` stays 0 because activation is not an authorized write.
+
+The push backfill's population is every non-deleted site product. Only a proven-missing ProductCode is created, and that new shell is active regardless of site publication state.
 
 ## Inventory policy
 
 - Warehouse counts: **Hesabfa only**.
 - Site: `is_available` boolean. Storefront shows **موجود** / **ناموجود**.
 - Do **not** import `GetQuantity` into the site (worker removed; `/stock/sync` is a no-op).
-- Product create/update pushes a Hesabfa item shell when integration is enabled. The payload omits quantity fields and sets `active` true.
+- Product create may create a new Hesabfa shell when integration is enabled and no ProductCode exists. The create payload omits quantity fields and sets `active` true. Product update, availability changes, price removal, and soft delete do not save an already mapped item.
 - Legacy `stock_quantity` column is kept at `0` (cleared after older pulls).
 
 ## Categories

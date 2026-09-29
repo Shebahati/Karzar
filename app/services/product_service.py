@@ -36,7 +36,7 @@ class ProductService:
 
         try:
             # Site is_active / is_available do not control Hesabfa item activation.
-            # The shell payload keeps the accounting item active.
+            # A new shell may be created active. An existing mapped item is not saved.
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, product)
@@ -158,9 +158,8 @@ class ProductService:
         logger.info(f"Product updated successfully: {product_id}")
 
         try:
-            # Deactivating or hiding the site product must not deactivate Hesabfa.
-            # The website publication lifecycle and Hesabfa accounting item
-            # lifecycle are intentionally independent.
+            # Deactivating or hiding the site product must not deactivate Hesabfa
+            # and must not send shell prices onto an already mapped item.
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
             await ensure_product_in_hesabfa(db, updated_product)

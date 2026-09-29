@@ -195,17 +195,21 @@ def test_ensure_product_in_hesabfa_creates_mapping(super_admin_headers, valid_pr
             )
             from app.services.hesabfa.item_push import ensure_product_in_hesabfa
 
-            mapping = await ensure_product_in_hesabfa(session, prod, client=mock_client)
+            result = await ensure_product_in_hesabfa(session, prod, client=mock_client)
             await session.commit()
-            return mapping, mock_client
+            return result, mock_client
 
-    mapping, mock_client = asyncio.run(run())
-    assert mapping is not None
-    assert mapping.hesabfa_code == "HF-9"
+    result, mock_client = asyncio.run(run())
+    assert result.action == "created"
+    assert result.save_performed is True
+    assert result.mapping is not None
+    assert result.mapping.hesabfa_code == "HF-9"
     mock_client.save_item.assert_awaited_once()
     payload = mock_client.save_item.await_args.args[0]
     assert payload["productCode"] == product["sku"]
     assert payload["active"] is True
+    assert "code" not in payload
+    assert "Code" not in payload
     for key in ("Stock", "stock", "Quantity", "quantity", "openingQty", "OpeningQuantity"):
         assert key not in payload
 

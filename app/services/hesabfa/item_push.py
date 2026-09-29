@@ -67,11 +67,22 @@ def build_hesabfa_item_payload(
     brand-new item's quantity to 0; this payload omits those fields so the
     integration does not overwrite warehouse counts.
 
+    This helper builds a **create** body only. ``buyPrice`` and ``sellPrice``
+    are shell zeros for a brand-new item. Passing an existing Hesabfa ``code``
+    is refused: an activation-only save must not overwrite an item whose
+    price-preserving update semantics are unproven.
+
     ``active`` comes only from :func:`hesabfa_item_should_be_active`. The
     website publication lifecycle and Hesabfa accounting item lifecycle are
     intentionally independent: site ``is_active``, ``is_available``, price,
-    and stock do not change this flag.
+    and stock do not change this flag. Desired active state is not permission
+    to save an existing item.
     """
+    if hesabfa_code:
+        raise HesabfaError(
+            "refusing item/save payload for existing Hesabfa code "
+            f"{hesabfa_code}: price-preserving update is unproven"
+        )
     item: dict[str, Any] = {
         "name": product.name[:200],
         "itemType": ITEM_TYPE_PRODUCT,
@@ -83,8 +94,6 @@ def build_hesabfa_item_payload(
         "tag": f"karzar:{product.id}",
         "description": (product.description or "")[:500],
     }
-    if hesabfa_code:
-        item["code"] = hesabfa_code
     return item
 
 
@@ -135,6 +144,8 @@ async def paginate_get_items(
     skip = 0
     pages = 0
     reported: int | None = None
+    seen_pages: set[tuple[tuple[str, str], ...]] = set()
+    seen_codes: set[str] = set()
     while True:
         page = await client.get_items(take=page_size, skip=skip)
         if not isinstance(page, dict):
@@ -152,6 +163,25 @@ async def paginate_get_items(
         pages += 1
         if not batch:
             break
+        fingerprint = tuple(
+            (
+                str(item.get("Code") or item.get("code") or "").strip(),
+                str(item.get("ProductCode") or item.get("productCode") or "").strip(),
+            )
+            for item in batch
+        )
+        if fingerprint in seen_pages:
+            raise HesabfaError(
+                f"item/getItems pagination repeated a page skip={skip} pages={pages}"
+            )
+        seen_pages.add(fingerprint)
+        for item in batch:
+            code = str(item.get("Code") or item.get("code") or "").strip()
+            if not code:
+                continue
+            if code in seen_codes:
+                raise HesabfaError(f"item/getItems duplicate remote Code {code}")
+            seen_codes.add(code)
         items.extend(batch)
         skip += len(batch)
         if skip >= total or len(batch) < page_size:
@@ -189,10 +219,23 @@ async def _find_hesabfa_item_by_product_code(
 
 
 @dataclass(frozen=True)
+class EnsureItemResult:
+    """Outcome of ensuring one catalog product has a Hesabfa shell.
+
+    ``existing_item_preserved`` means the remote item was left untouched.
+    ``created`` is only for a lookup that proved no ProductCode exists.
+    """
+
+    action: str  # created | existing_item_preserved | skipped
+    mapping: HesabfaItemMapping | None
+    save_performed: bool
+
+
+@dataclass(frozen=True)
 class ItemReconcileResult:
     """Outcome of lookup-first Hesabfa shell reconciliation for one product."""
 
-    action: str  # linked_existing | created | already_mapped | skipped
+    action: str  # linked_existing | created | already_mapped | reconciliation_required | skipped
     mapping: HesabfaItemMapping | None
     hesabfa_code: str | None
     save_performed: bool
@@ -231,14 +274,23 @@ async def ensure_product_in_hesabfa(
     product: Product,
     *,
     client: HesabfaClient | None = None,
-) -> HesabfaItemMapping | None:
-    """Create or link Hesabfa item for one product. Idempotent by SKU/ProductCode."""
+) -> EnsureItemResult:
+    """Create a new Hesabfa shell, or leave an existing item untouched.
+
+    A local mapping or a remote ProductCode match is an existing item.
+    That path does not call ``item/save``, so shell ``buyPrice``/``sellPrice``
+    of 0 cannot overwrite accounting prices. Desired ``active=true`` is not
+    write authorization.
+
+    ``item/save`` runs only after lookup proves no ProductCode exists, and
+    the payload then omits ``code``.
+    """
     if not hesabfa_integration_active():
-        return None
+        return EnsureItemResult("skipped", None, False)
     if product.deleted_at is not None:
         # Soft-deleted site rows are not pushed. Skipping means do not touch
         # Hesabfa; it must not deactivate the accounting item.
-        return None
+        return EnsureItemResult("skipped", None, False)
 
     api = client or get_hesabfa_client()
     existing = (
@@ -246,23 +298,52 @@ async def ensure_product_in_hesabfa(
             select(HesabfaItemMapping).where(HesabfaItemMapping.product_id == product.id)
         )
     ).scalar_one_or_none()
+    if existing is not None and (existing.hesabfa_code or "").strip():
+        logger.info(
+            "Hesabfa existing item preserved product_id=%s sku=%s hesabfa_code=%s",
+            product.id,
+            product.sku,
+            existing.hesabfa_code,
+        )
+        return EnsureItemResult("existing_item_preserved", existing, False)
 
-    hesabfa_code = existing.hesabfa_code if existing else None
-    if hesabfa_code is None:
-        remote = await _find_hesabfa_item_by_product_code(api, product.sku)
-        if remote:
-            hesabfa_code = str(remote.get("Code") or remote.get("code") or "").strip() or None
+    remote = await _find_hesabfa_item_by_product_code(api, product.sku)
+    if remote is not None:
+        code = str(remote.get("Code") or remote.get("code") or "").strip()
+        product_code = str(
+            remote.get("ProductCode") or remote.get("productCode") or product.sku
+        ).strip()
+        if not code:
+            raise HesabfaError(f"remote item missing Code for sku={product.sku}")
+        mapping = await _upsert_local_mapping(
+            db,
+            product,
+            code=code,
+            product_code=product_code,
+            existing=existing,
+        )
+        logger.info(
+            "Hesabfa existing item linked without save product_id=%s sku=%s hesabfa_code=%s",
+            product.id,
+            product.sku,
+            code,
+        )
+        return EnsureItemResult("existing_item_preserved", mapping, False)
 
-    payload = build_hesabfa_item_payload(product, hesabfa_code=hesabfa_code)
+    payload = build_hesabfa_item_payload(product, hesabfa_code=None)
+    if payload.get("code") or payload.get("Code"):
+        raise HesabfaError(f"new Hesabfa shell must not send an existing code sku={product.sku}")
+    if payload.get("active") is not True:
+        raise HesabfaError(f"new Hesabfa item shell must stay active sku={product.sku}")
     saved = await api.save_item(payload)
-    code = str(saved.get("Code") or saved.get("code") or hesabfa_code or "").strip()
+    code = str(saved.get("Code") or saved.get("code") or "").strip()
     product_code = str(
         saved.get("ProductCode") or saved.get("productCode") or product.sku
     ).strip()
     if not code:
         raise HesabfaError(f"Hesabfa item/save returned no Code for sku={product.sku}")
 
-    existing = await _upsert_local_mapping(
+    mapping = await _upsert_local_mapping(
         db,
         product,
         code=code,
@@ -270,12 +351,12 @@ async def ensure_product_in_hesabfa(
         existing=existing,
     )
     logger.info(
-        "Hesabfa item ensured product_id=%s sku=%s hesabfa_code=%s",
+        "Hesabfa item created product_id=%s sku=%s hesabfa_code=%s",
         product.id,
         product.sku,
         code,
     )
-    return existing
+    return EnsureItemResult("created", mapping, True)
 
 
 async def reconcile_product_item_shell(
@@ -323,6 +404,12 @@ async def reconcile_product_item_shell(
     ).scalar_one_or_none()
 
     remote = await _find_hesabfa_item_by_product_code(api, product.sku)
+    if existing is not None and remote is None:
+        # A local code with no remote match is not permission to create a
+        # second shell or to save zero prices onto the mapped code.
+        return ItemReconcileResult(
+            "reconciliation_required", existing, existing.hesabfa_code, False
+        )
     if remote is not None:
         code = str(remote.get("Code") or remote.get("code") or "").strip()
         product_code = str(
@@ -358,6 +445,10 @@ async def reconcile_product_item_shell(
         return ItemReconcileResult("skipped", existing, None, False)
 
     payload = build_hesabfa_item_payload(product, hesabfa_code=None)
+    if payload.get("code") or payload.get("Code"):
+        raise HesabfaError(
+            f"create-missing shell must not send an existing code sku={product.sku}"
+        )
     # Operation gates above decide whether this draft shell may be saved.
     # They do not decide Hesabfa activation. The website publication lifecycle
     # and Hesabfa accounting item lifecycle are intentionally independent, so
@@ -424,17 +515,15 @@ async def push_all_site_products_to_hesabfa(
     client: HesabfaClient | None = None,
     limit: int | None = None,
 ) -> ItemPushResult:
-    """Upsert every non-deleted site product into Hesabfa.
+    """Create missing Hesabfa shells. Already mapped items are not saved.
 
     Population is ``Product.deleted_at IS NULL``. Site ``is_active`` and
-    ``is_available`` do not filter this set. Hesabfa ``active`` is always true
-    and is independent of site publication state. Quantity fields are omitted.
+    ``is_available`` do not filter this set and do not deactivate Hesabfa.
+    An existing mapping or ProductCode is preserved: this function does not
+    send shell ``buyPrice``/``sellPrice`` of 0 onto that item.
 
-    This request-scoped backfill is not the activation campaign: it has no
-    resume cursor, it resends shell sell/buy prices of 0, and duplicate
-    ProductCode handling is limited to one lookup page. Use
-    ``scripts/hesabfa_product_activation_reconcile.py`` for a read-only report.
-    Activation APPLY stays blocked until item/save update semantics are proven.
+    This request-scoped backfill is not the activation campaign. Inactive
+    remote items stay a reconciliation finding. Activation APPLY stays blocked.
     """
     api = client or get_hesabfa_client()
     stmt = (
@@ -456,16 +545,23 @@ async def push_all_site_products_to_hesabfa(
     for product in products:
         had_mapping = product.id in by_product
         try:
-            mapping = await ensure_product_in_hesabfa(db, product, client=api)
-            if mapping is None:
+            result = await ensure_product_in_hesabfa(db, product, client=api)
+            if result.action == "skipped" or result.mapping is None:
                 skipped += 1
                 continue
-            by_product[product.id] = mapping
-            if had_mapping:
-                updated += 1
-            else:
+            by_product[product.id] = result.mapping
+            if result.action == "created":
                 created += 1
-            await db.commit()
+                await db.commit()
+            elif result.save_performed:
+                updated += 1
+                await db.commit()
+            elif not had_mapping:
+                # Local link of a remote item that already existed. No item/save.
+                await db.commit()
+                skipped += 1
+            else:
+                skipped += 1
         except Exception as exc:
             await db.rollback()
             errors += 1
