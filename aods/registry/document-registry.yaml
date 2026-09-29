@@ -868,6 +868,36 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/terma-price-150-2a10
 
+  - id: TAXONOMY-PHASE0B-AUDIT-20260927
+    path: audit/taxonomy-phase0b/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Authoritative read-only Production taxonomy census snapshot from
+      2026-09-27; historical evidence for Taxonomy Phase 1A/1B.
+      Not Canon; does not authorize taxonomy APPLY.
+
+  - id: TAXONOMY-PHASE0B-FINDINGS-20260927
+    path: audit/taxonomy-phase0b/13-phase0b-findings.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 0B historical findings companion (2026-09-27 snapshot).
+
+  - id: TAXONOMY-PHASE0B-RESULT-20260927
+    path: audit/taxonomy-phase0b/14-phase0b-final-report.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 0B historical result report + artifact SHA-256 registry
+      (2026-09-27 snapshot). Filename retained for hash continuity.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE

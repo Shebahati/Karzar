@@ -1,0 +1,206 @@
+{
+  "global": {
+    "sql_definitions": {
+      "LIVE": "deleted_at IS NULL",
+      "ACTIVE": "LIVE AND is_active",
+      "AVAILABLE": "LIVE AND is_available",
+      "PRICED": "LIVE AND base_price IS NOT NULL AND base_price > 0",
+      "IMAGED": "EXISTS non-placeholder product_images row",
+      "STOREFRONT_VISIBLE": "LIVE AND is_active AND IMAGED",
+      "SELLABLE": "STOREFRONT_VISIBLE AND is_available AND PRICED"
+    },
+    "counts": {
+      "total_product_rows": 6537,
+      "soft_deleted": 1,
+      "live": 6536,
+      "active": 1585,
+      "priced": 4552,
+      "imaged": 1464,
+      "visible": 1368,
+      "pt_missing": 6009,
+      "visible_pt_missing": 952,
+      "available": 3755,
+      "sellable": 716,
+      "pt_assigned": 527,
+      "visible_pt_assigned": 416,
+      "brandless": 295
+    },
+    "assignment_stats": {
+      "live_categorized": 6536,
+      "assigned_to_selectable_leaf": 6536
+    },
+    "category_structure": {
+      "total": 138,
+      "l1": 15,
+      "l2": 81,
+      "l3": 42,
+      "depth_gt_3": 0,
+      "leaves": 114,
+      "selectable": 111,
+      "empty_live_subtree": 38,
+      "orphans": [],
+      "cycles": [],
+      "special_ids": {
+        "33": null,
+        "34": null,
+        "165": "اینسرت",
+        "166": "اینسرت › اینسرت تراش CNC",
+        "168": "اینسرت › اینسرت فرز CNC",
+        "186": "فنر هلی کویل",
+        "187": "قلاویز هلی کویل",
+        "188": "کیت کامل هلی کویل"
+      }
+    },
+    "product_type": {
+      "total_types": 37,
+      "assigned_live": 527,
+      "missing_live": 6009,
+      "invalid_fk": 0,
+      "coverage_pct_live": 8.063,
+      "visible_assigned": 416,
+      "visible_missing": 952,
+      "visible_coverage_pct": 30.4094,
+      "with_active_definition": 37,
+      "without_active_definition": 0,
+      "zero_definitions": 0,
+      "zero_product_types": 0
+    },
+    "knowledge_taxonomy": {
+      "nodes": 0,
+      "by_dimension": {},
+      "by_status": {},
+      "assignments": 0,
+      "unique_products_classified": 0,
+      "coverage_pct_live": 0.0,
+      "by_role": {},
+      "by_dimension_assignments": {},
+      "orphan_parent": 0,
+      "broken_commerce_bridges": 0,
+      "broken_product_type_bridges": 0,
+      "pt_bridge_consistency": {
+        "MISSING_BRIDGE": 527
+      }
+    },
+    "hesabfa": {
+      "categories_total": 138,
+      "codes_populated": 0,
+      "codes_null": 138,
+      "codes_blank": 0,
+      "duplicate_codes": {}
+    },
+    "megamenu": {
+      "groups": 6,
+      "l1_exactly_once": 15,
+      "l1_total": 15,
+      "missing_roots": [],
+      "duplicate_roots": [],
+      "missing_category_refs": []
+    },
+    "identity": {
+      "current_database": "karzar_staging",
+      "current_user": "karzar_staging",
+      "inet_server_addr": "172.18.0.2/32",
+      "inet_server_port": 5432,
+      "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+      "transaction_read_only": "on",
+      "default_transaction_read_only": "on",
+      "alembic_revision": "s2t3u4v5w6x7",
+      "app_env": "staging",
+      "karzar_data_plane": null,
+      "hostname_env": "7b0fd2239734",
+      "expected_host": "srv5944957438",
+      "expected_db": "karzar_staging",
+      "host_proof": "srv5944957438",
+      "container_proof": "lathe_postgres",
+      "volume_proof": "karzar_postgres_data  ",
+      "snapshot_time": "2026-09-27T10:06:26Z",
+      "transaction_read_only_after_begin": "on"
+    },
+    "production_identity_proven": true,
+    "read_only_proven": true
+  },
+  "reconciliation": [
+    {
+      "metric": "Categories",
+      "public_api": 138,
+      "production_sql": 138,
+      "match": true
+    },
+    {
+      "metric": "L1",
+      "public_api": 15,
+      "production_sql": 15,
+      "match": true
+    },
+    {
+      "metric": "L2",
+      "public_api": 81,
+      "production_sql": 81,
+      "match": true
+    },
+    {
+      "metric": "L3",
+      "public_api": 42,
+      "production_sql": 42,
+      "match": true
+    },
+    {
+      "metric": "Leaves",
+      "public_api": 114,
+      "production_sql": 114,
+      "match": true
+    },
+    {
+      "metric": "Selectable leaves",
+      "public_api": 111,
+      "production_sql": 111,
+      "match": true
+    },
+    {
+      "metric": "Public/storefront-visible products",
+      "public_api": 1368,
+      "production_sql": 1368,
+      "match": true
+    },
+    {
+      "metric": "Categoryless public",
+      "public_api": 0,
+      "production_sql": 0,
+      "match": true
+    },
+    {
+      "metric": "Available public",
+      "public_api": 716,
+      "production_sql": 716,
+      "match": true
+    },
+    {
+      "metric": "Priced public",
+      "public_api": 1046,
+      "production_sql": 1046,
+      "match": true
+    }
+  ],
+  "missing_ids_active": [
+    {
+      "numeric_id": 33,
+      "exists": false,
+      "live_name": "",
+      "current_breadcrumb": "",
+      "files_referencing": "seed; azarsanat DEPTH2; zcc tests/fixtures",
+      "semantic_dependency": "historic leaf",
+      "reachability": "ACTIVE_IMPORT",
+      "risk": "MISSING_ID_STILL_REFERENCED"
+    },
+    {
+      "numeric_id": 34,
+      "exists": false,
+      "live_name": "",
+      "current_breadcrumb": "",
+      "files_referencing": "seed; azarsanat DEPTH2",
+      "semantic_dependency": "historic leaf",
+      "reachability": "ACTIVE_IMPORT",
+      "risk": "MISSING_ID_STILL_REFERENCED"
+    }
+  ]
+}

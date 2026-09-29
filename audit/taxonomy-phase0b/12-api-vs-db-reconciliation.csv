@@ -1,0 +1,11 @@
+metric,public_api,production_sql,match
+Categories,138,138,True
+L1,15,15,True
+L2,81,81,True
+L3,42,42,True
+Leaves,114,114,True
+Selectable leaves,111,111,True
+Public/storefront-visible products,1368,1368,True
+Categoryless public,0,0,True
+Available public,716,716,True
+Priced public,1046,1046,True
