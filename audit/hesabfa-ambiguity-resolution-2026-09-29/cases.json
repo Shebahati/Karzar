@@ -1,0 +1,380 @@
+[
+  {
+    "site_product_id": 1627,
+    "sku": "6112-1287",
+    "previous_reason": "duplicate_remote_product_code",
+    "local_product": {
+      "product_id": 1627,
+      "sku": "6112-1287",
+      "name": "جعبه راپورتر (گیج بلوک) — 0-1287mm",
+      "brand_id": 4,
+      "brand_name": "Dasqua | داسکوا",
+      "category_id": 66,
+      "category_breadcrumb": [
+        {
+          "id": 56,
+          "name": "اندازه گیری دقیق"
+        },
+        {
+          "id": 66,
+          "name": "راپورتر(گیج بلوک-گیج بلاک)"
+        }
+      ],
+      "is_active": false,
+      "is_available": true,
+      "deleted_at": null,
+      "price_present": true
+    },
+    "local_mapping": {
+      "mapping_id": 595,
+      "product_id": 1627,
+      "sku": "6112-1287",
+      "hesabfa_code": "000619",
+      "hesabfa_product_code": "6112-1287",
+      "last_synced_at": "2026-08-11T10:28:31.312320+00:00"
+    },
+    "remote_candidates": [
+      {
+        "Code": "000619",
+        "ProductCode": "6112-1287",
+        "Name": "جعبه راپورتر (گیج بلوک) — 0-1287mm",
+        "Active": false,
+        "itemType": 0,
+        "unit": "عدد",
+        "nodeFamily": "کالا",
+        "name_relation": "exact_normalized",
+        "buy_price_present": true,
+        "buy_price_nonzero": false,
+        "sell_price_present": true,
+        "sell_price_nonzero": false,
+        "local_mapping_owner_product_ids": [
+          1627
+        ],
+        "mapped_to_this_product": true,
+        "mapped_to_another_product": false
+      },
+      {
+        "Code": "003620",
+        "ProductCode": "6112-1287",
+        "Name": "راپورتر (گیج بلاک) 87 پارچه گرید 2 مدل 6112-1287",
+        "Active": true,
+        "itemType": 0,
+        "unit": "عدد",
+        "nodeFamily": "کالا : اندازه گیری : داسکوا(DASQUA)",
+        "name_relation": "different",
+        "buy_price_present": true,
+        "buy_price_nonzero": false,
+        "sell_price_present": true,
+        "sell_price_nonzero": false,
+        "local_mapping_owner_product_ids": [],
+        "mapped_to_this_product": false,
+        "mapped_to_another_product": false
+      }
+    ],
+    "ownership_checks": [
+      {
+        "code": "000619",
+        "associated_product_code": "6112-1287",
+        "local_mapping_owner_count": 1,
+        "local_mapping_owners": [
+          {
+            "mapping_id": 595,
+            "product_id": 1627,
+            "sku": "6112-1287"
+          }
+        ],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 1627,
+            "sku": "6112-1287"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      },
+      {
+        "code": "003620",
+        "associated_product_code": "6112-1287",
+        "local_mapping_owner_count": 0,
+        "local_mapping_owners": [],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 1627,
+            "sku": "6112-1287"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      }
+    ],
+    "resolution_status": "UNRESOLVED_REMOTE_DUPLICATE",
+    "correct_remote_code": null,
+    "incorrect_or_duplicate_codes": [
+      "000619",
+      "003620"
+    ],
+    "evidence": [
+      "Complete item/getItems returned 3775 of 3775 reported items across 38 pages, with no duplicate remote Code.",
+      "Two remote items have normalized ProductCode 6112-1287: Code 000619 and Code 003620.",
+      "Code 000619 name is an exact normalized match to Karzar product 1627. Active is false. nodeFamily is کالا. Mapping 595 owns Code 000619 exclusively for product 1627.",
+      "Code 003620 name differs. It reads راپورتر (گیج بلاک) 87 پارچه گرید 2 مدل 6112-1287. Active is true. nodeFamily is کالا : اندازه گیری : داسکوا(DASQUA), which matches local brand Dasqua. No local mapping owns Code 003620.",
+      "Exact title agreement identifies the Karzar-copied shell. It does not prove which code accounting uses for stock. Active, code magnitude, and price presence were not treated as selectors.",
+      "No candidate code is owned by another Karzar product. SKU 6112-1287 is used only by product 1627."
+    ],
+    "recommended_future_action": "REMOTE_DUPLICATE_REVIEW",
+    "additional_evidence_required": "An accounting determination of which Hesabfa code is the stock-bearing item for ProductCode 6112-1287.",
+    "mutation_performed": false
+  },
+  {
+    "site_product_id": 2297,
+    "sku": "103-143",
+    "previous_reason": "duplicate_remote_product_code",
+    "local_product": {
+      "product_id": 2297,
+      "sku": "103-143",
+      "name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+      "brand_id": 2,
+      "brand_name": "Mitutoyo | میتوتویو",
+      "category_id": 58,
+      "category_breadcrumb": [
+        {
+          "id": 56,
+          "name": "اندازه گیری دقیق"
+        },
+        {
+          "id": 58,
+          "name": "انواع میکرومتر"
+        }
+      ],
+      "is_active": false,
+      "is_available": true,
+      "deleted_at": null,
+      "price_present": true
+    },
+    "local_mapping": {
+      "mapping_id": 3150,
+      "product_id": 2297,
+      "sku": "103-143",
+      "hesabfa_code": "003207",
+      "hesabfa_product_code": "103-143",
+      "last_synced_at": "2026-08-11T10:24:26.081348+00:00"
+    },
+    "remote_candidates": [
+      {
+        "Code": "003207",
+        "ProductCode": "103-143",
+        "Name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+        "Active": false,
+        "itemType": 0,
+        "unit": "عدد",
+        "nodeFamily": "کالا",
+        "name_relation": "exact_normalized",
+        "buy_price_present": true,
+        "buy_price_nonzero": false,
+        "sell_price_present": true,
+        "sell_price_nonzero": false,
+        "local_mapping_owner_product_ids": [
+          2297
+        ],
+        "mapped_to_this_product": true,
+        "mapped_to_another_product": false
+      },
+      {
+        "Code": "003457",
+        "ProductCode": "103-143",
+        "Name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+        "Active": true,
+        "itemType": 0,
+        "unit": "عدد",
+        "nodeFamily": "کالا : اندازه گیری : میتوتویو(MITUTOYO)",
+        "name_relation": "exact_normalized",
+        "buy_price_present": true,
+        "buy_price_nonzero": false,
+        "sell_price_present": true,
+        "sell_price_nonzero": false,
+        "local_mapping_owner_product_ids": [],
+        "mapped_to_this_product": false,
+        "mapped_to_another_product": false
+      }
+    ],
+    "ownership_checks": [
+      {
+        "code": "003207",
+        "associated_product_code": "103-143",
+        "local_mapping_owner_count": 1,
+        "local_mapping_owners": [
+          {
+            "mapping_id": 3150,
+            "product_id": 2297,
+            "sku": "103-143"
+          }
+        ],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 2297,
+            "sku": "103-143"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      },
+      {
+        "code": "003457",
+        "associated_product_code": "103-143",
+        "local_mapping_owner_count": 0,
+        "local_mapping_owners": [],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 2297,
+            "sku": "103-143"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      }
+    ],
+    "resolution_status": "UNRESOLVED_REMOTE_DUPLICATE",
+    "correct_remote_code": null,
+    "incorrect_or_duplicate_codes": [
+      "003207",
+      "003457"
+    ],
+    "evidence": [
+      "Two remote items have normalized ProductCode 103-143: Code 003207 and Code 003457.",
+      "Both remote names are exact normalized matches to Karzar product 2297, میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103.",
+      "Code 003207 is Active false, nodeFamily کالا, and is exclusively owned by mapping 3150 for product 2297.",
+      "Code 003457 is Active true, nodeFamily کالا : اندازه گیری : میتوتویو(MITUTOYO), matching local brand Mitutoyo, and has no local mapping.",
+      "Name agreement does not distinguish the pair. Active state and node family are corroboration only and are not sufficient to choose a code.",
+      "No candidate code is owned by another Karzar product. SKU 103-143 is used only by product 2297."
+    ],
+    "recommended_future_action": "MANUAL_ACCOUNTING_REVIEW",
+    "additional_evidence_required": "An accounting determination of which Hesabfa code is the stock-bearing item for ProductCode 103-143.",
+    "mutation_performed": false
+  },
+  {
+    "site_product_id": 3685,
+    "sku": "4824-16",
+    "previous_reason": "mapping_code_mismatch",
+    "local_product": {
+      "product_id": 3685,
+      "sku": "4824-16",
+      "name": "شابلون ذوزنقه 1 - 12اینچ اینسایز مدل 4824-16",
+      "brand_id": 3,
+      "brand_name": "INSIZE | اینسایز",
+      "category_id": 65,
+      "category_breadcrumb": [
+        {
+          "id": 56,
+          "name": "اندازه گیری دقیق"
+        },
+        {
+          "id": 65,
+          "name": "شابلون"
+        }
+      ],
+      "is_active": true,
+      "is_available": true,
+      "deleted_at": null,
+      "price_present": true
+    },
+    "local_mapping": {
+      "mapping_id": 869,
+      "product_id": 3685,
+      "sku": "4824-16",
+      "hesabfa_code": "000893",
+      "hesabfa_product_code": "4824-16",
+      "last_synced_at": "2026-07-28T09:35:31.638248+00:00"
+    },
+    "mapped_code_000893": {
+      "present_in_complete_item_list": false,
+      "lookup": "exact Code and numeric-equal zero-padded Code across all 3775 fetched items",
+      "ProductCode": null,
+      "Name": null,
+      "Active": null,
+      "local_mapping_owner_count": 1,
+      "local_mapping_owner": {
+        "mapping_id": 869,
+        "product_id": 3685,
+        "sku": "4824-16"
+      }
+    },
+    "remote_candidates": [
+      {
+        "Code": "001287",
+        "ProductCode": "4824-16",
+        "Name": "شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 16-4824",
+        "Active": true,
+        "itemType": 0,
+        "unit": "عدد",
+        "nodeFamily": "کالا : اندازه گیری : اینسایز(INSIZE)",
+        "name_relation": "different",
+        "buy_price_present": true,
+        "buy_price_nonzero": false,
+        "sell_price_present": true,
+        "sell_price_nonzero": false,
+        "local_mapping_owner_product_ids": [],
+        "mapped_to_this_product": false,
+        "mapped_to_another_product": false
+      }
+    ],
+    "ownership_checks": [
+      {
+        "code": "000893",
+        "associated_product_code": "4824-16",
+        "local_mapping_owner_count": 1,
+        "local_mapping_owners": [
+          {
+            "mapping_id": 869,
+            "product_id": 3685,
+            "sku": "4824-16"
+          }
+        ],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 3685,
+            "sku": "4824-16"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      },
+      {
+        "code": "001287",
+        "associated_product_code": "4824-16",
+        "local_mapping_owner_count": 0,
+        "local_mapping_owners": [],
+        "local_productcode_owner_count": 1,
+        "local_productcode_owners": [
+          {
+            "product_id": 3685,
+            "sku": "4824-16"
+          }
+        ],
+        "CODE_OWNED_BY_OTHER_PRODUCT": false,
+        "PRODUCTCODE_USED_BY_OTHER_LOCAL_PRODUCT": false
+      }
+    ],
+    "resolution_status": "RESOLVED",
+    "mapping_classification": "STALE_CODE",
+    "correct_remote_code": "001287",
+    "incorrect_or_duplicate_codes": [
+      "000893"
+    ],
+    "evidence": [
+      "Code 000893 is absent from the complete item/getItems result. Reported TotalCount 3775 equals fetched count 3775. No duplicate remote Code.",
+      "The only local mapping of Code 000893 is mapping 869 on product 3685, SKU 4824-16, hesabfa_product_code 4824-16, last_synced_at 2026-07-28T09:35:31.638248+00:00.",
+      "Exactly one remote item has normalized ProductCode 4824-16: Code 001287, Active true, itemType 0, unit عدد, nodeFamily کالا : اندازه گیری : اینسایز(INSIZE).",
+      "Code 001287 has no local mapping. SKU 4824-16 is used only by product 3685.",
+      "Normalized names differ. Local: شابلون ذوزنقه 1 - 12اینچ اینسایز مدل 4824-16. Remote: شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 16-4824. Shared catalog tokens are شابلون, ذوزنقه, اینسایز, and model digits 4824/16. Name agreement is corroboration. The resolution uses the unique ProductCode plus the absence of mapped Code 000893.",
+      "Price fields on Code 001287 are present and zero in the getItems payload. Amounts were not stored and were not used as identity evidence."
+    ],
+    "recommended_future_action": "LOCAL_MAPPING_UPDATE",
+    "proposed_mutation_not_executed": "UPDATE hesabfa_item_mappings SET hesabfa_code = '001287' WHERE id = 869 AND product_id = 3685 AND sku = '4824-16' AND hesabfa_code = '000893' AND hesabfa_product_code = '4824-16';",
+    "mutation_performed": false
+  }
+]

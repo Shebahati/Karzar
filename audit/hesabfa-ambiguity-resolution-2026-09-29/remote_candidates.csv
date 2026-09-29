@@ -1,0 +1,6 @@
+site_product_id,sku,Code,ProductCode,Name,Active,itemType,unit,nodeFamily,name_relation,buy_price_present,buy_price_nonzero,sell_price_present,sell_price_nonzero,local_mapping_product_ids,mapped_to_site_product
+1627,6112-1287,000619,6112-1287,جعبه راپورتر (گیج بلوک) — 0-1287mm,false,0,عدد,کالا,exact_normalized,true,false,true,false,1627,true
+3685,4824-16,001287,4824-16,شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 16-4824,true,0,عدد,کالا : اندازه گیری : اینسایز(INSIZE),different,true,false,true,false,,false
+2297,103-143,003207,103-143,میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103,false,0,عدد,کالا,exact_normalized,true,false,true,false,2297,true
+2297,103-143,003457,103-143,میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103,true,0,عدد,کالا : اندازه گیری : میتوتویو(MITUTOYO),exact_normalized,true,false,true,false,,false
+1627,6112-1287,003620,6112-1287,راپورتر (گیج بلاک) 87 پارچه گرید 2 مدل 6112-1287,true,0,عدد,کالا : اندازه گیری : داسکوا(DASQUA),different,true,false,true,false,,false

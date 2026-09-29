@@ -969,3 +969,24 @@ documents:
       Read-only Production reconciliation of Hesabfa item activation on
       2026-09-29. Evidence only. Not Canon. Does not authorize item/save
       or activation APPLY.
+
+  - id: HESABFA-AMBIGUITY-RESOLUTION-20260929
+    path: audit/hesabfa-ambiguity-resolution-2026-09-29/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only identity resolution of three Hesabfa ambiguity cases on
+      2026-09-29. Evidence only. Not Canon. Does not authorize a mapping
+      update, item/save, or remote duplicate cleanup.
+
+  - id: HESABFA-AMBIGUITY-RESOLUTION-MD-20260929
+    path: audit/hesabfa-ambiguity-resolution-2026-09-29/resolution.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Decision table for the 2026-09-29 Hesabfa identity ambiguity audit.
+      Evidence only. Not Canon. Recommendations are not authorization.
