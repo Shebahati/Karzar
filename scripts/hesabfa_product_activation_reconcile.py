@@ -255,7 +255,7 @@ async def _scan_database(
     remote_items: list[dict[str, Any]],
     prior_rows: list[ReconciliationRow],
     output: Path,
-) -> tuple[list[ReconciliationRow], int, int, dict[str, Any]]:
+) -> tuple[list[ReconciliationRow], int, int, dict[str, Any], str]:
     from app.db.database import async_session_maker
     from app.services.hesabfa.activation_reconcile import (
         enforce_database_read_only,
@@ -317,7 +317,7 @@ async def _scan_database(
         summary["CATALOG_BASELINE"] = snapshot["baseline"]
         summary["DATABASE_READ_ONLY"] = mode
         write_artifacts(output, rows, summary)
-    return rows, population, database_writes, snapshot["baseline"]
+    return rows, population, database_writes, snapshot["baseline"], mode
 
 
 def _scan_snapshots(
@@ -429,7 +429,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         remote_page, client = asyncio.run(_load_live_remote(args.page_size))
         remote_items = list(remote_page.items)
-        rows, population, database_writes, baseline = asyncio.run(
+        rows, population, database_writes, baseline, read_only_mode = asyncio.run(
             _scan_database(
                 after_id=after_id,
                 batch_size=args.batch_size,
@@ -442,10 +442,13 @@ def main(argv: list[str] | None = None) -> int:
         remote_writes = client.remote_writes
         if int(baseline["TOTAL_NON_DELETED"]) != population:
             raise SystemExit("FATAL: reconciliation population disagrees with the database count")
+        if not str(read_only_mode).startswith("postgresql:transaction_read_only=on"):
+            raise SystemExit(f"FATAL: database read-only mode was {read_only_mode}")
         from app.services.hesabfa.activation_reconcile import remote_inventory_stats
 
         live_extra = {
             "CATALOG_BASELINE": baseline,
+            "DATABASE_READ_ONLY": read_only_mode,
             "HESABFA_REPORTED_TOTAL": remote_page.reported_total,
             "HESABFA_ITEMS_FETCHED": len(remote_page.items),
             "HESABFA_PAGES_FETCHED": remote_page.pages_fetched,
