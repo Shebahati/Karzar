@@ -1,0 +1,259 @@
+[
+  {
+    "label": "active_available_1",
+    "sku": "0110-1125",
+    "product_id": 1771,
+    "expected_new": "26656000.00",
+    "old": "23800000.00",
+    "is_active": true,
+    "is_available": true,
+    "slug": "0110-1125",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1771",
+      "status": 200,
+      "sku": "0110-1125",
+      "is_active": true,
+      "is_available": true,
+      "slug": "0110-1125",
+      "price": "26656000",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/0110-1125",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "active_available_2",
+    "sku": "1103-150",
+    "product_id": 1772,
+    "expected_new": "9156000.00",
+    "old": "8175000.00",
+    "is_active": true,
+    "is_available": true,
+    "slug": "1103-150",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1772",
+      "status": 200,
+      "sku": "1103-150",
+      "is_active": true,
+      "is_available": true,
+      "slug": "1103-150",
+      "price": "9156000",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/1103-150",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "active_available_3",
+    "sku": "1103-200",
+    "product_id": 1773,
+    "expected_new": "12880000.00",
+    "old": "11500000.00",
+    "is_active": true,
+    "is_available": true,
+    "slug": "1103-200",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1773",
+      "status": 200,
+      "sku": "1103-200",
+      "is_active": true,
+      "is_available": true,
+      "slug": "1103-200",
+      "price": "12880000",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/1103-200",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "inactive",
+    "sku": "1114-200",
+    "product_id": 1790,
+    "expected_new": "9139200.00",
+    "old": "8160000.00",
+    "is_active": false,
+    "is_available": false,
+    "slug": "1114-200",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1790",
+      "status": 404,
+      "price": null,
+      "price_matches": false
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/1114-200",
+      "price_digits_found": null,
+      "price_matches": false,
+      "price_digits_found_new": false,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "unavailable",
+    "sku": "1106-301",
+    "product_id": 1775,
+    "expected_new": "26387200.00",
+    "old": "23560000.00",
+    "is_active": true,
+    "is_available": false,
+    "slug": "1106-301",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1775",
+      "status": 200,
+      "sku": "1106-301",
+      "is_active": true,
+      "is_available": false,
+      "slug": "1106-301",
+      "price": "26387200",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/1106-301",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "low_price",
+    "sku": "7110-200",
+    "product_id": 2078,
+    "expected_new": "246400.00",
+    "old": "220000.00",
+    "is_active": true,
+    "is_available": false,
+    "slug": "7110-200",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/2078",
+      "status": 200,
+      "sku": "7110-200",
+      "is_active": true,
+      "is_available": false,
+      "slug": "7110-200",
+      "price": "246400",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/7110-200",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "high_price",
+    "sku": "3205-1800",
+    "product_id": 1957,
+    "expected_new": "221356800.00",
+    "old": "197640000.00",
+    "is_active": true,
+    "is_available": false,
+    "slug": "3205-1800",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1957",
+      "status": 200,
+      "sku": "3205-1800",
+      "is_active": true,
+      "is_available": false,
+      "slug": "3205-1800",
+      "price": "221356800",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/3205-1800",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "low_price_visible",
+    "sku": "9722-250",
+    "product_id": 2106,
+    "expected_new": "537600.00",
+    "old": "480000.00",
+    "is_active": true,
+    "is_available": true,
+    "slug": "9722-250",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/2106",
+      "status": 200,
+      "sku": "9722-250",
+      "is_active": true,
+      "is_available": true,
+      "slug": "9722-250",
+      "price": "537600",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/9722-250",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  },
+  {
+    "label": "high_price_visible",
+    "sku": "1150-500",
+    "product_id": 1821,
+    "expected_new": "89040000.00",
+    "old": "79500000.00",
+    "is_active": true,
+    "is_available": true,
+    "slug": "1150-500",
+    "api": {
+      "url": "https://api.karzartools.com/api/v1/products/1821",
+      "status": 200,
+      "sku": "1150-500",
+      "is_active": true,
+      "is_available": true,
+      "slug": "1150-500",
+      "price": "89040000",
+      "price_matches": true
+    },
+    "storefront": {
+      "status": 200,
+      "url": "https://karzartools.com/product/1150-500",
+      "price_digits_found": null,
+      "price_matches": true,
+      "price_digits_found_new": true,
+      "price_digits_found_old": false,
+      "sku_present": true
+    }
+  }
+]

@@ -868,6 +868,17 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/terma-price-150-2a10
 
+  - id: INSIZE-PRICE-112-AUDIT
+    path: audit/insize-price-112/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/insize-price-112-6786
+    notes: >
+      Owner-authorized INSIZE +12% base_price Category B APPLY evidence
+      (2026-09-30); 487 priced rows; do not rerun.
+
   - id: TAXONOMY-PHASE0B-AUDIT-20260927
     path: audit/taxonomy-phase0b/README.md
     class: EVIDENCE
