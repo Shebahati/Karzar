@@ -90,6 +90,14 @@ async def read_products(
         None,
         description="In-stock filter: true/1 = available active; false/0 = out of stock",
     ),
+    on_sale: bool | None = Query(
+        None,
+        description=(
+            "When true, only products with an active storefront discount "
+            "(original_price > base_price > 0 semantics). Filter is applied in SQL "
+            "before pagination. When true and sort is omitted, defaults to discount_desc."
+        ),
+    ),
     sort: str | None = Query(
         None,
         description=(
@@ -173,6 +181,10 @@ async def read_products(
                 details=[{"field": "brand_id", "message": str(exc)}],
             ) from exc
         parsed_countries = parse_string_list(country)
+        # Merchandising default: sale lists prefer deepest discount first.
+        effective_sort = sort
+        if on_sale is True and effective_sort is None:
+            effective_sort = "discount_desc"
         products, total = await ProductService.search_products(
             db=db,
             skip=skip,
@@ -186,7 +198,8 @@ async def read_products(
             spec_filters=spec_filters or None,
             country=parsed_countries,
             in_stock=parsed_in_stock,
-            sort=sort,
+            on_sale=on_sale,
+            sort=effective_sort,
             product_ids=product_ids,
             is_deleted=is_deleted,
             storefront_public_only=not is_super_admin(current_user),

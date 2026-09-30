@@ -833,6 +833,24 @@
             "description": "In-stock filter: true/1 = available active; false/0 = out of stock"
           },
           {
+            "name": "on_sale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "When true, only products with an active storefront discount (original_price > base_price > 0 semantics). Filter is applied in SQL before pagination. When true and sort is omitted, defaults to discount_desc.",
+              "title": "On Sale"
+            },
+            "description": "When true, only products with an active storefront discount (original_price > base_price > 0 semantics). Filter is applied in SQL before pagination. When true and sort is omitted, defaults to discount_desc."
+          },
+          {
             "name": "sort",
             "in": "query",
             "required": false,

@@ -19,7 +19,10 @@ import { HomeCategoryCarousel } from "@/components/home/home-category-carousel";
 import { CATEGORY_ICON_BY_SLUG } from "@/config/category-icons";
 import { DISCOUNTS_CATALOG_HREF } from "@/config/l1-categories";
 import { useArticles, useCategoryTree, useProducts } from "@/features/catalog/queries";
-import { HOME_CATALOG_PRODUCTS_PARAMS } from "@/features/home/home-catalog-params";
+import {
+  HOME_CATALOG_PRODUCTS_PARAMS,
+  HOME_DEALS_PRODUCTS_PARAMS,
+} from "@/features/home/home-catalog-params";
 import { useHomeLayoutPack } from "@/features/home/use-home-layout";
 import { defaultHomeLayoutPack } from "@/types/home-layout";
 import type { Brand, CategoryTreeNode } from "@/types/category";
@@ -56,9 +59,11 @@ export function HomeView({
     layoutQuery.data?.sections ?? defaultHomeLayoutPack().sections;
 
   const catalog = useProducts(HOME_CATALOG_PRODUCTS_PARAMS);
+  const dealsQuery = useProducts(HOME_DEALS_PRODUCTS_PARAMS);
   const articlesQuery = useArticles();
   const categoryTreeQuery = useCategoryTree();
   const products = catalog.data?.data;
+  const deals = dealsQuery.data?.data ?? [];
   const hasArticles =
     articlesQuery.isLoading || (articlesQuery.data?.length ?? 0) > 0;
 
@@ -69,14 +74,6 @@ export function HomeView({
   const bestsellers = useMemo(() => rankBestsellers(products ?? []), [products]);
   const yesterdayMostViewed = useMemo(
     () => rankYesterdayMostViewed(products ?? []),
-    [products],
-  );
-  const deals = useMemo(
-    () =>
-      (products ?? [])
-        .filter((p) => (p.discount_percent ?? 0) > 0)
-        .sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0))
-        .slice(0, 12),
     [products],
   );
 
@@ -124,7 +121,7 @@ export function HomeView({
             .map((section) => {
               switch (section.type) {
                 case "discounts":
-                  if (!catalog.isLoading && deals.length === 0) return null;
+                  if (!dealsQuery.isLoading && deals.length === 0) return null;
                   return (
                     <section
                       key={section.id}
@@ -132,7 +129,7 @@ export function HomeView({
                     >
                       <ProductCarousel
                         products={deals}
-                        isLoading={catalog.isLoading}
+                        isLoading={dealsQuery.isLoading}
                         variant="deal"
                         headingId="home-discounts-heading"
                         lead={{

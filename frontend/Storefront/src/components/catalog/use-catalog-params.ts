@@ -21,7 +21,7 @@ const SPEC_PREFIX = "spec_";
  * - category=12
  * - min_price / max_price / in_stock=1 / on_sale=1 / search / sort / spec_*
  * API calls expand brand/country to repeated FastAPI query params.
- * `on_sale` is FE-only (mock + client filter); never sent as a live API key.
+ * URL `on_sale=1` maps to live API `on_sale=true` (SQL facet before pagination).
  */
 export const DEFAULT_MIN_PRICE = 0;
 export const DEFAULT_MAX_PRICE = 200_000_000;
