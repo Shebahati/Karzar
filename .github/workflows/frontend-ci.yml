@@ -76,3 +76,7 @@ jobs:
         env:
           NEXT_PUBLIC_USE_MOCK: "true"
           CI: "true"
+      # Wave 1A: true HTTP status against production standalone build (not next dev).
+      - run: npm run test:http-contract
+        env:
+          CI: "true"

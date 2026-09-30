@@ -4,6 +4,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { catalogKeys } from "@/features/catalog/keys";
 import { getQueryClient } from "@/lib/get-query-client";
+import { rejectUnlessEntityNotFound } from "@/lib/entity-lookup";
 import { buildProductPageJsonLd } from "@/lib/json-ld";
 import {
   resolveMetaDescription,
@@ -22,7 +23,7 @@ type Props = { params: Promise<{ slug: string }> };
 
 async function resolveProduct(param: string): Promise<ProductDetail> {
   const key = safeDecodeURIComponent(param.trim());
-  if (!key) throw new Error("missing");
+  if (!key) notFound();
 
   if (isNumericProductParam(key)) {
     const productId = Number(key);
@@ -31,28 +32,40 @@ async function resolveProduct(param: string): Promise<ProductDetail> {
   return catalogService.getProductBySlug(key);
 }
 
+/**
+ * Resolve early in generateMetadata so `notFound()` / redirects establish HTTP
+ * status before the root layout streams (otherwise Next falls back to 200 +
+ * not-found UI / meta-refresh — see middleware numeric-redirect comment).
+ */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug: rawParam } = await params;
   const param = safeDecodeURIComponent(rawParam);
+  let product: ProductDetail;
   try {
-    const product = await resolveProduct(param);
-    const title = resolveMetaTitle(product.meta_title, product.name);
-    const description = resolveMetaDescription({
-      metaDescription: product.meta_description,
-      shortDescription: product.short_description,
-      description: product.description,
-      name: product.name,
-    });
-    const images = product.thumbnail ? [{ url: product.thumbnail }] : undefined;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images },
-      alternates: { canonical: productPath(product) },
-    };
-  } catch {
-    return { title: "محصول" };
+    product = await resolveProduct(param);
+  } catch (error) {
+    rejectUnlessEntityNotFound(error);
   }
+
+  const redirectTo = numericProductRedirectPath(param, product);
+  if (redirectTo) {
+    permanentRedirect(redirectTo);
+  }
+
+  const title = resolveMetaTitle(product.meta_title, product.name);
+  const description = resolveMetaDescription({
+    metaDescription: product.meta_description,
+    shortDescription: product.short_description,
+    description: product.description,
+    name: product.name,
+  });
+  const images = product.thumbnail ? [{ url: product.thumbnail }] : undefined;
+  return {
+    title,
+    description,
+    openGraph: { title, description, images },
+    alternates: { canonical: productPath(product) },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -63,11 +76,12 @@ export default async function ProductPage({ params }: Props) {
   let product: ProductDetail;
   try {
     product = await resolveProduct(param);
-  } catch {
-    notFound();
+  } catch (error) {
+    rejectUnlessEntityNotFound(error);
   }
 
   // RFC-004: permanent redirect from /product/{id} → /product/{slug}
+  // Prefer middleware (before layout streams); keep page-level as belt-and-suspenders.
   const redirectTo = numericProductRedirectPath(param, product);
   if (redirectTo) {
     permanentRedirect(redirectTo);

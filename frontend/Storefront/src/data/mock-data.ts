@@ -69,7 +69,21 @@ const BASE_CATEGORIES: Category[] = [
   { id: 1013, name: "روانکار صنعتی", slug: "ravanKar", parent_id: 112 },
 ];
 
-export const CATEGORIES = expandCategories(BASE_CATEGORIES);
+const EXPANDED_CATEGORIES = expandCategories(BASE_CATEGORIES);
+
+/**
+ * Exists with zero products — empty hub contract is hard 404 (not a missing slug).
+ * Appended after expand so expandProducts does not seed filler SKUs into it.
+ */
+export const CATEGORIES: Category[] = [
+  ...EXPANDED_CATEGORIES,
+  {
+    id: 99901,
+    name: "دسته آزمایشی خالی",
+    slug: "empty-test-category",
+    parent_id: null,
+  },
+];
 
 const BASE_CATEGORY_ICONS: Record<number, string> = Object.fromEntries(
   FINAL_L1_CATEGORIES.map((c) => [
@@ -84,11 +98,19 @@ export const CATEGORY_ICONS = expandCategoryIcons(BASE_CATEGORY_ICONS, CATEGORIE
 /*  Brands.                                                                    */
 /* -------------------------------------------------------------------------- */
 export const BRANDS: Brand[] = [
-  { id: 1, name: "بوش", country: "آلمان", product_count: 4 },
-  { id: 2, name: "ماکیتا", country: "ژاپن", product_count: 3 },
-  { id: 3, name: "رونیکس", country: "ایران", product_count: 2 },
-  { id: 4, name: "میتوتویو", country: "ژاپن", product_count: 2 },
-  { id: 5, name: "استنلی", country: "آمریکا", product_count: 1 },
+  { id: 1, name: "بوش", slug: "bosch", country: "آلمان", product_count: 4 },
+  { id: 2, name: "ماکیتا", slug: "makita", country: "ژاپن", product_count: 3 },
+  { id: 3, name: "رونیکس", slug: "ronix", country: "ایران", product_count: 2 },
+  { id: 4, name: "میتوتویو", slug: "mitutoyo", country: "ژاپن", product_count: 2 },
+  { id: 5, name: "استنلی", slug: "stanley", country: "آمریکا", product_count: 1 },
+  /** Exists but zero products — thin hub (200 + noindex), not a missing entity. */
+  {
+    id: 99,
+    name: "برند آزمایشی خالی",
+    slug: "empty-test-brand",
+    country: null,
+    product_count: 0,
+  },
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -537,7 +559,7 @@ const BASE_PRODUCTS: RawProduct[] = [
   },
 ];
 
-export const PRODUCTS = expandProducts(BASE_PRODUCTS, CATEGORIES);
+export const PRODUCTS = expandProducts(BASE_PRODUCTS, EXPANDED_CATEGORIES);
 
 /* -------------------------------------------------------------------------- */
 /*  Product comments.                                                          */

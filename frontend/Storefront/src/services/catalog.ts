@@ -158,26 +158,17 @@ export const catalogService = {
 
   async listArticles(): Promise<Article[]> {
     if (env.USE_MOCK) return (await getMockApi()).listArticles();
-    try {
-      const { data } = await apiClient.get<{ data: Article[] }>("/blog/");
-      const live = data.data ?? [];
-      // Live SoT when populated; empty DB → preview mocks so designs stay testable.
-      if (live.length > 0) return live;
-    } catch {
-      /* fall through to mock preview */
-    }
-    return (await getMockApi()).listArticles();
+    // Real mode: empty CMS is a real empty list. Never substitute mock articles.
+    // Upstream failures propagate (sitemap/callers catch); do not invent content.
+    const { data } = await apiClient.get<{ data: Article[] }>("/blog/");
+    return data.data ?? [];
   },
 
   async getArticle(slug: string): Promise<BlogPost> {
     if (env.USE_MOCK) return (await getMockApi()).getArticle(slug);
-    try {
-      const { data } = await apiClient.get<BlogPost>(`/blog/${slug}`);
-      return data;
-    } catch {
-      // Preview slugs (and empty-CMS local) resolve from mock posts only.
-      return (await getMockApi()).getArticle(slug);
-    }
+    // Real mode: API 404 → ApiError(404) for route notFound(); never mock fallback.
+    const { data } = await apiClient.get<BlogPost>(`/blog/${slug}`);
+    return data;
   },
 
   async getProductsByIds(ids: number[]): Promise<ProductSummary[]> {
