@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-Expose Karzar's **canonical public storefront catalog** to Emalls via a dedicated compatibility contract.
+Expose Karzar's **canonical public storefront catalog** to Emalls via a dedicated **WordPress extraction-plugin compatibility** contract.
 
 ```
 Karzar canonical catalog
@@ -17,6 +17,8 @@ Emalls
 ```
 
 Emalls must **not** consume `GET /api/v1/products/` directly. This adapter owns authentication, pagination, field mapping, and observability for Emalls.
+
+**Separate contract:** Direct Emalls PDF feed (`GET|POST /api/v1/integrations/emalls/feed`) is documented in [`PDF-FEED-CONTRACT.md`](PDF-FEED-CONTRACT.md). Do not mix response shapes or auth assumptions between the two.
 
 ## 2. Route
 
