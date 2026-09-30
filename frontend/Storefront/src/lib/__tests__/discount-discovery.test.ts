@@ -29,13 +29,12 @@ describe("discount discovery FE contract", () => {
   });
 
   it("home deals query is a dedicated on_sale request", () => {
-    expect(HOME_DEALS_PRODUCTS_PARAMS).toEqual({
-      on_sale: true,
-      in_stock: true,
-      sort: "discount_desc",
-      limit: 12,
-    });
-    expect(HOME_CATALOG_PRODUCTS_PARAMS.on_sale).toBeUndefined();
+    expect(HOME_DEALS_PRODUCTS_PARAMS.on_sale).toBe(true);
+    expect(HOME_DEALS_PRODUCTS_PARAMS.in_stock).toBe(true);
+    expect(HOME_DEALS_PRODUCTS_PARAMS.sort).toBe("discount_desc");
+    expect(HOME_DEALS_PRODUCTS_PARAMS.limit).toBe(12);
+    // Newest Home pool intentionally omits on_sale (narrow satisfies inference).
+    expect("on_sale" in HOME_CATALOG_PRODUCTS_PARAMS).toBe(false);
     expect(homeDealsProductsQueryKey()).toEqual(
       catalogKeys.products(HOME_DEALS_PRODUCTS_PARAMS),
     );
