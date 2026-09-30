@@ -134,7 +134,7 @@ function CatalogViewBody({
     });
   }, [lockedCategoryId, raw, params.category_id, setParams]);
 
-  // Drop legacy sort keys the live API rejects (e.g. discount_desc, stock_first).
+  // Drop sort keys the live API rejects (keep discount_desc / stock_first — both valid).
   useEffect(() => {
     const sortRaw = raw.get("sort");
     if (!sortRaw || isApiProductSort(sortRaw)) return;

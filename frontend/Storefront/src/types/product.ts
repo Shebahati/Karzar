@@ -115,13 +115,15 @@ export interface ProductDetail {
 export type ProductListResponse = PaginatedResponse<ProductSummary>;
 
 /**
- * Live `GET /api/v1/products/` `sort` values (OpenAPI / 422 details).
- * Do not invent keys — unsupported values return VALIDATION_FAILED.
+ * Live `GET /api/v1/products/` `sort` values (must match VALID_SORT_KEYS).
+ * Unsupported values return VALIDATION_FAILED (422).
  */
 export const API_PRODUCT_SORTS = [
   "newest",
   "price_asc",
   "price_desc",
+  "discount_desc",
+  "stock_first",
   "name_asc",
   "name_desc",
 ] as const;
@@ -145,9 +147,8 @@ export interface ProductListParams {
   countries?: string[];
   in_stock?: boolean;
   /**
-   * FE-only: products with an active discount (`discount_percent > 0` or
-   * compare-at / original price above sale price). Not a live API query key —
-   * mock filters natively; live responses are filtered client-side.
+   * Live API facet: `on_sale=true` filters in SQL before pagination
+   * (original_price > base_price). URL UX uses `/catalog?on_sale=1`.
    */
   on_sale?: boolean;
   sort?: ProductSort;

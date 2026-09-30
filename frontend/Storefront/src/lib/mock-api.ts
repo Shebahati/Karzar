@@ -266,9 +266,6 @@ export const mockApi = {
     }
     if (params.on_sale === true) {
       items = items.filter((p) => productHasDiscount(p));
-      items = [...items].sort(
-        (a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0),
-      );
     }
     if (params.search) {
       const q = params.search.trim().toLowerCase();
@@ -315,12 +312,28 @@ export const mockApi = {
     }
 
     const priceOf = (v: string | null) => (v == null ? 0 : Number(v));
-    switch (params.sort) {
+    // Mirror live API: on_sale without explicit sort defaults to discount_desc.
+    const effectiveSort =
+      params.sort ?? (params.on_sale === true ? "discount_desc" : "newest");
+    switch (effectiveSort) {
       case "price_asc":
         items = [...items].sort((a, b) => priceOf(a.base_price) - priceOf(b.base_price));
         break;
       case "price_desc":
         items = [...items].sort((a, b) => priceOf(b.base_price) - priceOf(a.base_price));
+        break;
+      case "discount_desc":
+        items = [...items].sort(
+          (a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0),
+        );
+        break;
+      case "stock_first":
+        items = [...items].sort((a, b) => {
+          const av = a.availability ? 0 : 1;
+          const bv = b.availability ? 0 : 1;
+          if (av !== bv) return av - bv;
+          return b.id - a.id;
+        });
         break;
       case "name_asc":
         items = [...items].sort((a, b) => a.name.localeCompare(b.name, "fa"));

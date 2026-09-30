@@ -7,7 +7,7 @@
 export const DISCOUNTS_ORB_KEY = "discounts";
 /**
  * Catalog entry for تخفیف‌ها dock / پرتخفیف‌ها CTA.
- * `on_sale=1` is an FE filter (see ProductListParams.on_sale) — not a live API sort key.
+ * `on_sale=1` is the public URL; catalogService maps it to API `on_sale=true`.
  */
 export const DISCOUNTS_CATALOG_HREF = "/catalog?on_sale=1";
 
