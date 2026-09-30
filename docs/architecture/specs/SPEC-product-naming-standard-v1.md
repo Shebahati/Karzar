@@ -1,10 +1,15 @@
 # SPEC — Karzar Product Naming Standard v1
 
-**Document type:** Architecture / governance specification (implementation-grade)  
-**Status:** **Proposed** (Phase 0/1 audit — not Board-Accepted; do not treat as Canon Lock merge criteria alone)  
-**Version:** `karzar_product_naming_v1`  
-**Date:** 2026-09-28  
-**Parents:** ADR-014 · ADR-015 · SPEC-product-knowledge-entity-model · SPEC-canonical-product-type-model · PRODUCT_IDENTITY_EQUIVALENCE_POLICY · SPEC-product-import-enrichment-playbook · ADR-010  
+**Document type:** Architecture / governance specification (implementation-grade)
+
+**Status:** **Proposed** (Phase 0/1 audit — not Board-Accepted; do not treat as Canon Lock merge criteria alone)
+
+**Version:** `karzar_product_naming_v1`
+
+**Date:** 2026-09-28
+
+**Parents:** ADR-014 · ADR-015 · SPEC-product-knowledge-entity-model · SPEC-canonical-product-type-model · PRODUCT_IDENTITY_EQUIVALENCE_POLICY · SPEC-product-import-enrichment-playbook · ADR-010
+
 **Non-claim:** This SPEC does **not** authorize catalog APPLY, schema migration to production, slug changes, SEO mutation, or Board Acceptance.
 
 ---
@@ -71,30 +76,39 @@ Do **not** treat SKU ≡ manufacturer_code ≡ model ≡ slug ≡ name.
 | `products.name` | Free `String(255)`, required | `app/db/models/product.py` |
 | Create validation | Non-empty strip only | `app/schemas/product.py` |
 | Update | May change `name`; **does not** regenerate `slug` | `app/crud/product.py` |
-| Manufacturer code column | **Absent** on Product ORM | — |
-| Specs JSONB | Uncontrolled; may hold `model`, ranges, etc. | `products.specifications` |
+| Manufacturer code column | Nullable `String(255)` on Product (Phase 2A); **no backfill** | Alembic `u4v5w6x7y8z9`; see Phase 2A doc |
+| Specs JSONB | Uncontrolled; may hold `model`, ranges, etc. | `products.specifications` — evidence only |
 | Product Type FK | Nullable `product_type_id` | ADR-015 |
 | Brand bilingual | Convention `EN \| FA` in single `name` | `split_bilingual_label` / `display_brand_name` |
 | Persistent OEM mapping table | **Not required yet** per identity policy | `PRODUCT_IDENTITY_EQUIVALENCE_POLICY.md` |
 
-### 3.2 Recommended architecture (Phase 2 proposal — not applied here)
+### 3.2 Manufacturer identity architecture (Phase 2A Option A — schema only)
 
-**Recommendation: Option A now, Option B when scale requires it.**
+**Option A applied as schema infrastructure in Phase 2A. No catalog backfill. No rename APPLY.**
 
 | Option | Shape | Verdict |
 |--------|-------|---------|
-| **A** | Nullable `products.manufacturer_code` (+ optional evidence metadata later) | **Recommended for v1** — matches import pipelines already carrying OEM codes; simplest path to naming |
+| **A** | Nullable `products.manufacturer_code` (+ optional evidence metadata later) | **Phase 2A:** column + indexes + governance; writer deferred to Phase 2C |
 | **B** | `product_identifiers(product_id, identifier_type, value, issuer, is_primary, evidence…)` | Superior when multi-issuer aliases / secondary codes proliferate |
 | **C** | KB-only identity | Insufficient alone for commerce title generation; reuse Facts for variant attrs |
 
+Canonical invariant: non-null `manufacturer_code` means **verified** OEM identity — never a guess, SKU copy, or title parse. Details: [`product-naming-v1/PHASE-2A-MANUFACTURER-IDENTITY.md`](./product-naming-v1/PHASE-2A-MANUFACTURER-IDENTITY.md).
+
 Authority tiers for manufacturer identity:
 
-1. OEM technical catalogue / official product page  
-2. Official / authorized national distributor  
-3. Karzar verified structured data  
-4. Reliable reseller catalog  
-5. Legacy imported title  
+1. OEM technical catalogue / official product page
+
+2. Official / authorized national distributor
+
+3. Karzar verified structured data
+
+4. Reliable reseller catalog / structured supplier import (needs source approval)
+
+5. Legacy imported title
+
 6. Heuristic inference (**must not auto-write identity**)
+
+7. SKU-only heuristic (**must not auto-write identity**)
 
 Heuristics may propose audit candidates only.
 
@@ -127,10 +141,14 @@ Example:
 
 Forbidden opposite patterns:
 
-- Marketing stuffing  
-- Bilingual brand dump (`INSIZE | اینسایز …`)  
-- Universal `مدل` before OEM code  
-- Category breadcrumb as title  
+- Marketing stuffing
+
+- Bilingual brand dump (`INSIZE | اینسایز …`)
+
+- Universal `مدل` before OEM code
+
+- Category breadcrumb as title
+
 
 ### 4.1 `کد` vs `مدل`
 
@@ -161,9 +179,12 @@ Per-brand override: Latin trademark may remain in titles when overwhelmingly can
 
 ## 6. Product Type rules
 
-- Titles use **Product Type** nouns, never commerce category paths.  
-- One canonical customer-facing Persian term per PT; alternatives are **synonyms** (taxonomy node `synonyms` / search index — not stuffed into `name`).  
-- Do not silently mutate PT rows in Phase 0/1.  
+- Titles use **Product Type** nouns, never commerce category paths.
+
+- One canonical customer-facing Persian term per PT; alternatives are **synonyms** (taxonomy node `synonyms` / search index — not stuffed into `name`).
+
+- Do not silently mutate PT rows in Phase 0/1.
+
 - If PT FK missing or Persian label unsuitable → `HOLD_MISSING_PRODUCT_TYPE` / `HOLD_TERMINOLOGY_GOVERNANCE`.
 
 ---
@@ -174,12 +195,18 @@ Manufacturer code is an **identity** field.
 
 Preserve authoritative form. Do **not** casually:
 
-- remove hyphens / dots  
-- convert `/` to `-`  
-- collapse meaningful spaces  
-- strip grade / chipbreaker / suffixes  
-- Persianize digits  
-- uppercase/lowercase without OEM evidence  
+- remove hyphens / dots
+
+- convert `/` to `-`
+
+- collapse meaningful spaces
+
+- strip grade / chipbreaker / suffixes
+
+- Persianize digits
+
+- uppercase/lowercase without OEM evidence
+
 
 OEM identity preservation **outranks** cosmetic uniformity.
 
@@ -191,19 +218,28 @@ Display always: `کد {manufacturer_code}` with the code in OEM-native Latin for
 
 ### Include (when profile requires)
 
-- measurement range  
-- nominal diameter / thread size  
-- capacity  
-- length class / flute count (only if variant-defining)  
-- interface / collet system (toolholding)  
+- measurement range
+
+- nominal diameter / thread size
+
+- capacity
+
+- length class / flute count (only if variant-defining)
+
+- interface / collet system (toolholding)
+
 - package volume (fluids)
 
 ### Exclude by default
 
-- accuracy, resolution, IP rating  
-- material, DIN/ISO callouts (unless sole distinguisher)  
-- country, warranty, delivery, stock, price  
-- marketing adjectives  
+- accuracy, resolution, IP rating
+
+- material, DIN/ISO callouts (unless sole distinguisher)
+
+- country, warranty, delivery, stock, price
+
+- marketing adjectives
+
 
 Max variant attributes: profile-defined (usually 1; rarely 2).
 
@@ -232,11 +268,14 @@ Unit wording must align with Property Dictionary / unit dimensions where Facts e
 
 Canonical `name` must not contain:
 
-**Marketing / quality claims:** بهترین، حرفه‌ای، با کیفیت / باکیفیت، اصل، اورجینال، اصل چین، ویژه، پرفروش، ارزان، فوق‌العاده، تضمینی، قیمت ویژه  
+**Marketing / quality claims:** بهترین، حرفه‌ای، با کیفیت / باکیفیت، اصل، اورجینال، اصل چین، ویژه، پرفروش، ارزان، فوق‌العاده، تضمینی، قیمت ویژه
 
-**Commerce state:** موجود، ناموجود، ارسال فوری، تخفیف، فروش ویژه  
 
-**SEO stuffing:** خرید، قیمت، فروش، کارزار (and equivalents) inside `name`  
+**Commerce state:** موجود، ناموجود، ارسال فوری، تخفیف، فروش ویژه
+
+
+**SEO stuffing:** خرید، قیمت، فروش، کارزار (and equivalents) inside `name`
+
 
 Also avoid: duplicated brand/code/range/category, raw source breadcrumbs, store names, HTML entities, invisible Unicode (normalize), Arabic `ي`/`ك` in Persian display segments.
 
@@ -244,9 +283,12 @@ Also avoid: duplicated brand/code/range/category, raw source breadcrumbs, store 
 
 ## 11. Synonym policy
 
-- One canonical FA term in the title.  
-- Synonyms live in taxonomy / search (Knowledge Taxonomy `synonyms` JSONB), **not** in `name`.  
-- Example: canonical `اینسرت تراشکاری`; synonyms `الماس تراشکاری`, `الماس`, `Turning Insert`.  
+- One canonical FA term in the title.
+
+- Synonyms live in taxonomy / search (Knowledge Taxonomy `synonyms` JSONB), **not** in `name`.
+
+- Example: canonical `اینسرت تراشکاری`; synonyms `الماس تراشکاری`, `الماس`, `Turning Insert`.
+
 - Do not build a duplicate knowledge system for synonyms.
 
 ---
@@ -259,10 +301,14 @@ Not searched today: manufacturer_code column (absent), PT names, KB synonyms.
 
 Naming standard must **not** reduce discoverability by stuffing. Future search/index should cover:
 
-- brand FA/EN aliases  
-- manufacturer_code  
-- PT name + synonyms  
-- primary variant tokens  
+- brand FA/EN aliases
+
+- manufacturer_code
+
+- PT name + synonyms
+
+- primary variant tokens
+
 
 Phase 0/1: report gap only; no search rewrite.
 
@@ -270,15 +316,18 @@ Phase 0/1: report gap only; no search rewrite.
 
 ## 13. SEO implications
 
-`resolve_meta_title(meta_title, name)` → `meta_title` else `name` else `محصول`  
+`resolve_meta_title(meta_title, name)` → `meta_title` else `name` else `محصول`
+
 (Backend + storefront PDP).
 
 Therefore renaming `name` changes effective SERP title whenever `meta_title` is null/blank.
 
 Rules:
 
-- Keep `name` technical and stable.  
-- Put commercial SEO phrases in governed `meta_title` / description pipelines — **not** in `name`.  
+- Keep `name` technical and stable.
+
+- Put commercial SEO phrases in governed `meta_title` / description pipelines — **not** in `name`.
+
 - Phase 0/1: quantify impact only (`SEO_IMPACT_REPORT.csv`).
 
 ---
@@ -313,7 +362,8 @@ Canonical Name Preview (system-generated)
 
 **Recommended mode: B** — system-generated name + privileged override with reason/actor/time/version.
 
-Mode A (fully locked) is too rigid for industrial edge cases.  
+Mode A (fully locked) is too rigid for industrial edge cases.
+
 Mode C (free text + lint) preserves today’s drift.
 
 Slug: create-time only; rename must **not** auto-change slug without separate SEO migration approval.
@@ -340,8 +390,10 @@ Overrides must be explicit, attributable, reasoned, auditable. No hidden code ex
 
 ## 17. Versioning
 
-- Engine/rules tagged `karzar_product_naming_v1`.  
-- Audit rows and future product metadata record which version produced a name.  
+- Engine/rules tagged `karzar_product_naming_v1`.
+
+- Audit rows and future product metadata record which version produced a name.
+
 - Rule changes require a new version id; do not silently rewrite the catalog under “latest”.
 
 ---
@@ -364,8 +416,12 @@ Every product ends in exactly one primary state:
 
 Confidence for `RENAME_SAFE`:
 
-- **HIGH** — PT governed, brand known, OEM code exact, required facts evidenced, no conflicts, profile deterministic → only HIGH eligible for eventual automatic rename wave  
-- **MEDIUM / LOW** — human review required  
+- **HIGH** — **both** `product_type_governed` and `manufacturer_code_governed`, brand known, OEM code present, required facts evidenced, no conflicts, profile deterministic → only HIGH eligible for eventual automatic rename wave
+
+- **MEDIUM / LOW** — human review required; PT-only or OEM-only governance cannot reach HIGH
+
+
+`extract_manufacturer_code_candidates()` never sets `manufacturer_code_governed`.
 
 **HOLD > GUESS.** Structured authoritative identity > source title. OEM identity > cosmetic uniformity.
 
@@ -389,15 +445,24 @@ Concrete catalog before/after samples live in `audit/product-naming-v1/PRODUCT_N
 
 Naming Standard v1 does **not** itself:
 
-- change pricing, availability, inventory, or Hesabfa mappings  
-- change categories or redesign taxonomy  
-- invent technical facts or infer identity from images  
-- rewrite descriptions or SEO copy automatically  
-- change URLs / slugs  
-- merge duplicates  
-- translate / Persianize OEM codes  
-- replace Product Type governance  
-- authorize production APPLY or deploy  
+- change pricing, availability, inventory, or Hesabfa mappings
+
+- change categories or redesign taxonomy
+
+- invent technical facts or infer identity from images
+
+- rewrite descriptions or SEO copy automatically
+
+- change URLs / slugs
+
+- merge duplicates
+
+- translate / Persianize OEM codes
+
+- replace Product Type governance
+
+- authorize production APPLY or deploy
+
 
 ---
 
@@ -436,3 +501,5 @@ Profiles: governed rows (`profile_code`, `product_type_code`, `title_pattern`, `
 Complete when constitution, writer inventory, census, proposals/HOLDs, brand/PT/terminology registries, identity schema review, search/SEO reports, collisions, dry-run artifacts, and draft PR exist — with **zero** catalog mutation and **zero** deploy.
 
 **STOP** after Phase 0/1. Owner approval required before Phase 2A–2E.
+
+Phase 2A (manufacturer identity schema) is a separate PR. After Phase 2A: **STOP** again — Owner approval required before Phase 2B–2E (search/preview, controlled backfill, naming dry-run, rename APPLY).

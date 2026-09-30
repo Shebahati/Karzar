@@ -956,6 +956,38 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/product-naming-standard-v1-audit-1355
 
+  - id: PRODUCT-NAMING-V1-PHASE-2A-MANUFACTURER-IDENTITY
+    path: docs/architecture/specs/product-naming-v1/PHASE-2A-MANUFACTURER-IDENTITY.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-manufacturer-identity-phase2a-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2A-SUMMARY
+    path: audit/product-manufacturer-code-phase2a/PHASE2A_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-manufacturer-identity-phase2a-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2A-IMPORTER-MATRIX
+    path: audit/product-manufacturer-code-phase2a/IMPORTER_MANUFACTURER_CODE_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-manufacturer-identity-phase2a-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2A-LEGACY-FIELD-MATRIX
+    path: audit/product-manufacturer-code-phase2a/LEGACY_IDENTITY_FIELD_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-manufacturer-identity-phase2a-1355
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

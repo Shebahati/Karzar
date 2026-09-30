@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-30 — Product manufacturer identity (Phase 2A, read)
+
+- `ProductDetailResponse` gains optional nullable `manufacturer_code` and `product_type_id`.
+- Presenter populates these for **admin/internal** audience only; storefront responses leave them null.
+- Intentionally **absent** from `ProductCreate` / `ProductUpdate` — first canonical writer deferred to Phase 2C (must use `record_product_change`).
+- Schema: nullable `products.manufacturer_code` via Alembic `u4v5w6x7y8z9` (no backfill, no unique constraint).
+
 ### 2026-09-30 — Emalls direct PDF feed contract (read-only)
 
 - New endpoints: `GET` and `POST /api/v1/integrations/emalls/feed` — query params `page`, `item_per_page` (PDF contract). No request body required; no invented token auth (PDF silent on auth).
