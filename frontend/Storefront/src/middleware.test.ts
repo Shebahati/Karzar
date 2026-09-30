@@ -77,6 +77,30 @@ describe("numeric product HTTP 301 (middleware)", () => {
     expect(res.status).toBeLessThan(300);
   });
 
+  it("issues 301 from mock catalog without calling the live API", async () => {
+    vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "true");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const res = await middleware(
+      new NextRequest("https://www.karzartools.com/product/1"),
+    );
+
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe(
+      "https://www.karzartools.com/product/bsh-gsb-13re",
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not redirect a missing numeric id in mock mode", async () => {
+    vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "true");
+    const res = await middleware(
+      new NextRequest("https://www.karzartools.com/product/999999999"),
+    );
+    expect(res.status).toBeLessThan(300);
+  });
+
   it("passes through canonical category hub paths", async () => {
     vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "true");
     const res = await middleware(

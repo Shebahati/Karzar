@@ -82,8 +82,27 @@ function isMockMode(): boolean {
   return flag === "true" || flag === "1" || flag === "yes";
 }
 
+function mockProductSlugFromSku(sku: string, id: number): string {
+  return (
+    sku.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") ||
+    `product-${id}`
+  );
+}
+
 async function lookupProductSlug(id: string): Promise<string | null> {
-  if (isMockMode()) return null;
+  // Mock/dev: resolve from in-memory catalog so numeric→slug is still HTTP 301
+  // before the root layout streams (page-level permanentRedirect becomes meta-refresh).
+  if (isMockMode()) {
+    try {
+      const { PRODUCTS } = await import("@/data/mock-data");
+      const productId = Number(id);
+      const product = PRODUCTS.find((p) => p.id === productId);
+      if (!product) return null;
+      return mockProductSlugFromSku(product.sku, product.id);
+    } catch {
+      return null;
+    }
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), PRODUCT_LOOKUP_TIMEOUT_MS);
   try {

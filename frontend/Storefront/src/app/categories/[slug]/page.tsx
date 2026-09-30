@@ -11,6 +11,7 @@ import {
   isEmptyCategoryHub,
   isFacetedSearchParams,
 } from "@/lib/crawl-hygiene";
+import { rejectUnlessEntityNotFound } from "@/lib/entity-lookup";
 import { getHubIntro, hubIntroExcerpt } from "@/lib/hub-intros";
 import { buildCategoryHubJsonLd } from "@/lib/json-ld";
 import { getQueryClient } from "@/lib/get-query-client";
@@ -26,6 +27,10 @@ type Props = {
 
 const HUB_PLP = { limit: 24, skip: 0 } as const;
 
+async function resolveCategory(slug: string): Promise<CategoryFlat> {
+  return catalogService.getCategoryBySlug(slug);
+}
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -33,30 +38,31 @@ export async function generateMetadata({
   const { slug } = await params;
   const sp = await searchParams;
   const faceted = isFacetedSearchParams(sp, { ignoreCategoryKeys: true });
+  let category: CategoryFlat;
   try {
-    const category = await catalogService.getCategoryBySlug(slug);
-    if (isEmptyCategoryHub(category.product_count)) {
-      return {
-        title: "دسته یافت نشد | کارزار",
-        robots: { index: false, follow: false },
-      };
-    }
-    const intro = getHubIntro(category.slug ?? slug);
-    const title = category.meta_title || `${category.name} | کارزار`;
-    const description =
-      category.meta_description ||
-      (intro ? hubIntroExcerpt(intro) : null) ||
-      `خرید و مشاهده محصولات دسته ${category.name} در فروشگاه ابزار صنعتی کارزار.`;
-    return {
-      title,
-      description,
-      alternates: { canonical: `/categories/${category.slug ?? slug}` },
-      openGraph: { title, description, type: "website" },
-      ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
-    };
-  } catch {
-    return { title: "دسته یافت نشد | کارزار", robots: { index: false, follow: false } };
+    category = await resolveCategory(slug);
+  } catch (error) {
+    rejectUnlessEntityNotFound(error);
   }
+
+  // Preserve existing contract: empty hubs are notFound (hard 404), not 200 soft shells.
+  if (isEmptyCategoryHub(category.product_count)) {
+    notFound();
+  }
+
+  const intro = getHubIntro(category.slug ?? slug);
+  const title = category.meta_title || `${category.name} | کارزار`;
+  const description =
+    category.meta_description ||
+    (intro ? hubIntroExcerpt(intro) : null) ||
+    `خرید و مشاهده محصولات دسته ${category.name} در فروشگاه ابزار صنعتی کارزار.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/categories/${category.slug ?? slug}` },
+    openGraph: { title, description, type: "website" },
+    ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
+  };
 }
 
 function resolveAncestors(
@@ -79,9 +85,9 @@ export default async function CategoryHubPage({ params }: Props) {
   const { slug } = await params;
   let category: CategoryFlat;
   try {
-    category = await catalogService.getCategoryBySlug(slug);
-  } catch {
-    notFound();
+    category = await resolveCategory(slug);
+  } catch (error) {
+    rejectUnlessEntityNotFound(error);
   }
 
   // Soft-404 → hard 404: empty hubs must not return 200.

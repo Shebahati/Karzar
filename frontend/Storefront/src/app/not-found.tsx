@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+
+/** Generic 404 shell — no entity canonical / Product / Article JSON-LD. */
+export const metadata: Metadata = {
+  title: "صفحه پیدا نشد",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (

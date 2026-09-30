@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:http-contract": "NEXT_PUBLIC_USE_MOCK=true NEXT_PUBLIC_MOCK_LATENCY_MS=0 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api/v1 NEXT_PUBLIC_SITE_URL=https://www.karzartools.com npm run build && playwright test -c playwright.http-contract.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
