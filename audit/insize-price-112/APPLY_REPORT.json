@@ -1,0 +1,219 @@
+{
+  "STATUS": "APPLIED",
+  "generated_at": "2026-09-30T08:42:19Z",
+  "stamp": "20260930T084219Z",
+  "formula": "proposed_base_price = quantize(current_base_price * 1.12, 0.01, ROUND_HALF_UP)",
+  "change_reason": "INSIZE +12% owner-authorized price update 2026-09-30",
+  "RUNTIME": {
+    "identity": {
+      "current_database": "karzar_staging",
+      "current_user": "karzar_staging",
+      "inet_server_addr": "172.18.0.2/32",
+      "inet_server_port": 5432,
+      "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+      "default_transaction_read_only": "off",
+      "alembic_revision": "t3u4v5w6x7y8",
+      "app_env": "staging",
+      "karzar_data_plane": null,
+      "hostname_env": "2fba9f7d1c23",
+      "host_proof": "srv5944957438",
+      "container_proof": "lathe_postgres",
+      "volume_proof": "karzar_postgres_data  ",
+      "expected_host": "srv5944957438",
+      "expected_db": "karzar_staging",
+      "git_sha": "ac481587c5823543d97a533ac19a84eede06335a"
+    },
+    "identity_ok": true,
+    "identity_errors": []
+  },
+  "BRAND": {
+    "ok": true,
+    "brand_id": 3,
+    "brand_name": "INSIZE | اینسایز",
+    "expected_brand_name": "INSIZE | اینسایز",
+    "errors": []
+  },
+  "IDEMPOTENCY": {
+    "reason": "INSIZE +12% owner-authorized price update 2026-09-30",
+    "log_row_count": 0,
+    "distinct_product_id_count": 0,
+    "duplicate_product_id_count": 0,
+    "duplicate_product_ids": [],
+    "already_present": false
+  },
+  "INSIZE_PRE": {
+    "live_insize": 872,
+    "priced_insize": 487,
+    "unpriced_insize": 385,
+    "active_priced": 385,
+    "inactive_priced": 102,
+    "available_priced": 159,
+    "unavailable_priced": 328,
+    "min_base_price": "220000.00",
+    "max_base_price": "197640000.00",
+    "sum_base_price": "10266573300.00",
+    "validation": {
+      "ok": true,
+      "errors": [],
+      "priced_count": 487,
+      "live_count": 872
+    },
+    "row_count": 487,
+    "current_min": "220000.00",
+    "current_max": "197640000.00",
+    "current_sum": "10266573300.00",
+    "proposed_min": "246400.00",
+    "proposed_max": "221356800.00",
+    "proposed_sum": "11498562096.00"
+  },
+  "MANIFEST": {
+    "rows": 487,
+    "csv_sha256": "c861269595ca8b5a7cd6a5fd3bc34812852ec91d53dcdc46b1d356c37937d9c5",
+    "json_sha256": "d4839a2ec1fe42c712a99ba3e0b02be1e35d741b5f177f36cadd64b3b07535f7",
+    "csv_path": "/tmp/karzar-insize-price-112-out/INSIZE_PRICE_112_MANIFEST_20260930T084219Z.csv",
+    "json_path": "/tmp/karzar-insize-price-112-out/INSIZE_PRICE_112_MANIFEST_20260930T084219Z.json"
+  },
+  "FINGERPRINTS_PRE": {
+    "non_insize_live_count": 5664,
+    "non_insize_base_price_null_count": 1599,
+    "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+    "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+    "products_count": 6537,
+    "product_images_count": 1492
+  },
+  "RECOVERY": {
+    "recovery_csv": "/tmp/karzar-insize-price-112-out/INSIZE_PRICE_112_RECOVERY_PREWRITE_20260930T084219Z.csv",
+    "recovery_csv_sha256": "944ae58e27c730f5621fb2a0839c8c200664694e75dee96ec2f12bd3999f391a",
+    "rollback_sql": "/tmp/karzar-insize-price-112-out/INSIZE_PRICE_112_ROLLBACK_20260930T084219Z.sql",
+    "rollback_sql_sha256": "896a0af529eb73127651d12cc5af29826514cdff489d25831469afa2531e13cf"
+  },
+  "REHEARSAL": {
+    "commit": false,
+    "target_rows": 487,
+    "updated_rows": 487,
+    "change_log_rows": 487,
+    "status": "GATES_PASSED",
+    "transaction_status": "ROLLED_BACK_REHEARSAL",
+    "live_unchanged_proven": true,
+    "fingerprints_unchanged": true
+  },
+  "IDEMPOTENCY_PRE_APPLY": {
+    "reason": "INSIZE +12% owner-authorized price update 2026-09-30",
+    "log_row_count": 0,
+    "distinct_product_id_count": 0,
+    "duplicate_product_id_count": 0,
+    "duplicate_product_ids": [],
+    "already_present": false
+  },
+  "INSIZE_APPLY": {
+    "manifest_rows": 487,
+    "manifest_sha256_csv": "c861269595ca8b5a7cd6a5fd3bc34812852ec91d53dcdc46b1d356c37937d9c5",
+    "manifest_sha256_json": "d4839a2ec1fe42c712a99ba3e0b02be1e35d741b5f177f36cadd64b3b07535f7",
+    "updated_rows": 487,
+    "change_log_rows": 487,
+    "formula": "base_price = quantize(old * 1.12, 0.01, ROUND_HALF_UP)",
+    "transaction_status": "COMMITTED",
+    "reason": "INSIZE +12% owner-authorized price update 2026-09-30"
+  },
+  "INSIZE_POST": {
+    "target_rows": 487,
+    "changed_products": 487,
+    "price_exact_match": 487,
+    "formula_matches": 487,
+    "still_at_old_price": 0,
+    "doubled_multiplier_count": 0,
+    "current_price_matches_logged_new": 487,
+    "change_log_rows_with_reason": 487,
+    "distinct_changed_product_ids": 487,
+    "duplicate_mutations": 0,
+    "min": "246400.00",
+    "max": "221356800.00",
+    "sum": "11498562096.00",
+    "delta_pct_min": "12.00",
+    "delta_pct_max": "12.00",
+    "null_price": 385,
+    "isolation": {
+      "non_insize_price_mutations": 0,
+      "insize_nonprice_mutations": 0,
+      "products_count_delta": 0,
+      "product_images_count_delta": 0,
+      "pre_fingerprints": {
+        "non_insize_live_count": 5664,
+        "non_insize_base_price_null_count": 1599,
+        "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+        "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+        "products_count": 6537,
+        "product_images_count": 1492
+      },
+      "post_fingerprints": {
+        "non_insize_live_count": 5664,
+        "non_insize_base_price_null_count": 1599,
+        "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+        "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+        "products_count": 6537,
+        "product_images_count": 1492
+      }
+    },
+    "samples": [
+      {
+        "sku": "0110-1125",
+        "product_id": 1771,
+        "old_base_price": "23800000.00",
+        "new_base_price": "26656000.00"
+      },
+      {
+        "sku": "1103-150",
+        "product_id": 1772,
+        "old_base_price": "8175000.00",
+        "new_base_price": "9156000.00"
+      },
+      {
+        "sku": "1103-200",
+        "product_id": 1773,
+        "old_base_price": "11500000.00",
+        "new_base_price": "12880000.00"
+      },
+      {
+        "sku": "1103-300",
+        "product_id": 1774,
+        "old_base_price": "20225000.00",
+        "new_base_price": "22652000.00"
+      },
+      {
+        "sku": "1106-301",
+        "product_id": 1775,
+        "old_base_price": "23560000.00",
+        "new_base_price": "26387200.00"
+      }
+    ],
+    "ok": true
+  },
+  "ISOLATION": {
+    "non_insize_price_mutations": 0,
+    "insize_nonprice_mutations": 0,
+    "products_count_delta": 0,
+    "product_images_count_delta": 0,
+    "pre_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+      "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+      "products_count": 6537,
+      "product_images_count": 1492
+    },
+    "post_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+      "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+      "products_count": 6537,
+      "product_images_count": 1492
+    }
+  },
+  "AUDIT": {
+    "product_change_logs_rows_created": 487,
+    "reason": "INSIZE +12% owner-authorized price update 2026-09-30",
+    "actor_user_id": null
+  },
+  "FINAL_LINE": "INSIZE_PRICE_112_APPLY_OK"
+}

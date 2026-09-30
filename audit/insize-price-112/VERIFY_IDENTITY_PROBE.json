@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "errors": [],
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "172.18.0.2/32",
+    "inet_server_port": 5432,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "default_transaction_read_only": "off",
+    "alembic_revision": "t3u4v5w6x7y8",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "2fba9f7d1c23",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data  ",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "git_sha": "ac481587c5823543d97a533ac19a84eede06335a"
+  }
+}

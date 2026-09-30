@@ -1,0 +1,73 @@
+{
+  "target_rows": 487,
+  "changed_products": 487,
+  "price_exact_match": 487,
+  "formula_matches": 487,
+  "still_at_old_price": 0,
+  "doubled_multiplier_count": 0,
+  "current_price_matches_logged_new": 487,
+  "change_log_rows_with_reason": 487,
+  "distinct_changed_product_ids": 487,
+  "duplicate_mutations": 0,
+  "min": "246400.00",
+  "max": "221356800.00",
+  "sum": "11498562096.00",
+  "delta_pct_min": "12.00",
+  "delta_pct_max": "12.00",
+  "null_price": 385,
+  "isolation": {
+    "non_insize_price_mutations": 0,
+    "insize_nonprice_mutations": 0,
+    "products_count_delta": 0,
+    "product_images_count_delta": 0,
+    "pre_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+      "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+      "products_count": 6537,
+      "product_images_count": 1492
+    },
+    "post_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "808b9f9808d71869a22e3b353a66a333632b1c7d1c470a43abffb2764b33f22a",
+      "insize_nonprice_sha256": "7a5d7d0d9d12dea274b69565740fc50e3dbe17647ea279581ac96883df4da969",
+      "products_count": 6537,
+      "product_images_count": 1492
+    }
+  },
+  "samples": [
+    {
+      "sku": "0110-1125",
+      "product_id": 1771,
+      "old_base_price": "23800000.00",
+      "new_base_price": "26656000.00"
+    },
+    {
+      "sku": "1103-150",
+      "product_id": 1772,
+      "old_base_price": "8175000.00",
+      "new_base_price": "9156000.00"
+    },
+    {
+      "sku": "1103-200",
+      "product_id": 1773,
+      "old_base_price": "11500000.00",
+      "new_base_price": "12880000.00"
+    },
+    {
+      "sku": "1103-300",
+      "product_id": 1774,
+      "old_base_price": "20225000.00",
+      "new_base_price": "22652000.00"
+    },
+    {
+      "sku": "1106-301",
+      "product_id": 1775,
+      "old_base_price": "23560000.00",
+      "new_base_price": "26387200.00"
+    }
+  ],
+  "ok": true
+}
