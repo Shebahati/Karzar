@@ -50,6 +50,7 @@ export const SITEMAP_STATIC_PATHS = [
   "/",
   "/catalog",
   "/blog",
+  "/categories",
   "/about",
   "/contact",
   "/terms",

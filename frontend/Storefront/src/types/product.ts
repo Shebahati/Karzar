@@ -126,6 +126,7 @@ export const API_PRODUCT_SORTS = [
   "stock_first",
   "name_asc",
   "name_desc",
+  "id_asc",
 ] as const;
 
 export type ProductSort = (typeof API_PRODUCT_SORTS)[number];

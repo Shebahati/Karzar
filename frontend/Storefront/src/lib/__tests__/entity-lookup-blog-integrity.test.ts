@@ -108,13 +108,12 @@ describe("sitemap blog mock contamination", () => {
         listBrands: vi.fn(async () => []),
       },
     }));
-    const sitemap = (await import("@/app/sitemap")).default;
-    const entries = await sitemap();
-    const blog = entries.filter((e) => e.url.includes("/blog/"));
-    expect(blog).toEqual([]);
+    const { collectBlogEntries } = await import("@/lib/sitemap/collect");
+    const { entries } = await collectBlogEntries();
+    expect(entries.filter((e) => e.loc.includes("/blog/"))).toEqual([]);
   });
 
-  it("emits no blog URLs when listArticles throws in real mode", async () => {
+  it("fails blog sitemap when listArticles throws in real mode", async () => {
     vi.resetModules();
     vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "false");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://www.karzartools.com");
@@ -131,12 +130,8 @@ describe("sitemap blog mock contamination", () => {
         listBrands: vi.fn(async () => []),
       },
     }));
-    const sitemap = (await import("@/app/sitemap")).default;
-    const entries = await sitemap();
-    const blog = entries.filter((e) => e.url.includes("/blog/"));
-    expect(blog).toEqual([]);
-    expect(entries.some((e) => e.url.includes("digital-caliper-workshop-pick"))).toBe(
-      false,
-    );
+    const { collectBlogEntries } = await import("@/lib/sitemap/collect");
+    const { SitemapGenerationError } = await import("@/lib/sitemap/errors");
+    await expect(collectBlogEntries()).rejects.toBeInstanceOf(SitemapGenerationError);
   });
 });

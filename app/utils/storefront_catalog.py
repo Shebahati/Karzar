@@ -82,6 +82,8 @@ VALID_SORT_KEYS = frozenset(
         "price_desc",
         "discount_desc",
         "stock_first",
+        # Stable total order for sitemap sharding (public catalog only).
+        "id_asc",
         # Legacy keys kept for older clients / bookmarks
         "name_asc",
         "name_desc",
@@ -117,6 +119,9 @@ def product_sort_clause(sort: str | None, *, dialect_name: str = "postgresql"):
 
     if key == "stock_first":
         return (asc(avail), Product.created_at.desc(), Product.id.desc())
+
+    if key == "id_asc":
+        return (Product.id.asc(),)
 
     mapping = {
         "newest": (asc(avail), Product.created_at.desc(), Product.id.desc()),
