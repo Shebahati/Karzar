@@ -1,7 +1,14 @@
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function GlobalLoading() {
+/**
+ * Catalog-only loading UI.
+ *
+ * Do NOT place loading.tsx at `app/` root: a root Suspense boundary streams the
+ * shell with HTTP 200 before `notFound()` can set a true 404 (Next.js soft-404).
+ * Entity routes (/product|/categories|/brands|/blog) must remain outside this.
+ */
+export default function CatalogLoading() {
   return (
     <Container className="space-y-6 py-10">
       <Skeleton className="h-10 w-48" />

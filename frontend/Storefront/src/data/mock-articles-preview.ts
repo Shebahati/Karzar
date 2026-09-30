@@ -2,7 +2,8 @@
  * Storefront article preview mocks — rich enough for blog listing, home «پربازدید»,
  * category rails, and pagination (≥20/page). Local covers only (SafeImage allowlist).
  *
- * Used when NEXT_PUBLIC_USE_MOCK=true OR when live `/blog/` returns an empty list.
+ * Used only when NEXT_PUBLIC_USE_MOCK=true. Real/API mode must never fall back here
+ * (empty CMS → []; missing slug → 404; upstream error → propagate).
  */
 
 import type { Article, BlogBlock, BlogPost } from "@/types/content";

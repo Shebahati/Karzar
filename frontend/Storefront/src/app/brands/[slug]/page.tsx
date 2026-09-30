@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { BrandHubView } from "@/components/brand/brand-hub-view";
 import { Container } from "@/components/ui/container";
 import { ProductCardSkeleton } from "@/components/product/product-card";
 import { NOINDEX_FOLLOW, isFacetedSearchParams } from "@/lib/crawl-hygiene";
+import { rejectUnlessEntityNotFound } from "@/lib/entity-lookup";
 import { buildBrandHubJsonLd } from "@/lib/json-ld";
 import { catalogService } from "@/services/catalog";
 import type { Brand } from "@/types/category";
@@ -30,27 +30,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const sp = await searchParams;
   const faceted = isFacetedSearchParams(sp);
+  let brand: Brand;
   try {
-    const brand = await catalogService.getBrandBySlug(slug);
-    const thin = isThinBrandHub(brand.product_count);
-    const title = brand.meta_title || `${brand.name} | کارزار`;
-    const description =
-      brand.meta_description ||
-      `محصولات برند ${brand.name} در فروشگاه ابزار صنعتی کارزار.`;
-    const canonical = `/brands/${brand.slug ?? slug}`;
-    return {
-      title,
-      description,
-      alternates: { canonical },
-      openGraph: { title, description, type: "website" },
-      ...(thin || faceted ? { robots: NOINDEX_FOLLOW } : {}),
-    };
-  } catch {
-    return {
-      title: "برند یافت نشد | کارزار",
-      robots: { index: false, follow: false },
-    };
+    brand = await catalogService.getBrandBySlug(slug);
+  } catch (error) {
+    // Missing brand → hard 404 (not soft 200 + "not found" metadata).
+    rejectUnlessEntityNotFound(error);
   }
+
+  const thin = isThinBrandHub(brand.product_count);
+  const title = brand.meta_title || `${brand.name} | کارزار`;
+  const description =
+    brand.meta_description ||
+    `محصولات برند ${brand.name} در فروشگاه ابزار صنعتی کارزار.`;
+  const canonical = `/brands/${brand.slug ?? slug}`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { title, description, type: "website" },
+    ...(thin || faceted ? { robots: NOINDEX_FOLLOW } : {}),
+  };
 }
 
 export default async function BrandHubPage({ params }: Props) {
@@ -58,8 +58,8 @@ export default async function BrandHubPage({ params }: Props) {
   let brand: Brand;
   try {
     brand = await catalogService.getBrandBySlug(slug);
-  } catch {
-    notFound();
+  } catch (error) {
+    rejectUnlessEntityNotFound(error);
   }
 
   let jsonLd: Record<string, unknown> | null = null;
