@@ -26,6 +26,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - New endpoints: `GET` and `POST /api/v1/integrations/emalls/feed` — query params `page`, `item_per_page` (PDF contract). No request body required; no invented token auth (PDF silent on auth).
 - Response root: `success`, `products`, `total_items`, `pages_count`, `item_per_page`, `page_num`. Product surface: `title`, `id` (string), `price`/`old_price` (integer TOMAN), `category`, `image`, `color`, `guarantee`, `is_available` (bool), `url`.
+- Pagination: `total_items` / `pages_count` / page slicing use one final eligible set (no post-pagination eligibility drop).
 - Intentionally separate from WordPress-compatible `POST /api/v1/integrations/emalls/products` (unchanged).
 - Contract: [`integrations/emalls/PDF-FEED-CONTRACT.md`](integrations/emalls/PDF-FEED-CONTRACT.md).
 

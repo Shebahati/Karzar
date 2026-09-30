@@ -2,6 +2,9 @@
 
 Source of truth: Emalls PDF «راهنمای ایجاد صفحه معرفی محصولات به ایمالز».
 Does not share response contracts with the WordPress `/products` adapter.
+
+Invariant: ``total_items``, ``pages_count``, and page slicing derive from the
+same final PDF-feed eligible set. No post-pagination eligibility drop.
 """
 
 from __future__ import annotations
@@ -27,7 +30,7 @@ from app.schemas.emalls_pdf_feed import (
 from app.utils.product_presenter import absolutize_asset_url
 from app.utils.public_catalog import (
     filter_storefront_public_products,
-    get_first_valid_public_image_url,
+    is_placeholder_image_url,
     storefront_public_product_filters,
 )
 from app.utils.storefront_catalog import product_is_available
@@ -63,10 +66,11 @@ def is_exact_positive_toman(value: Decimal | None) -> bool:
 
 
 def emalls_pdf_feed_filters() -> list[ColumnElement[bool]]:
-    """SQL filters for PDF-feed eligibility (superset of storefront public).
+    """Coarse SQL candidate filters (not the final eligible set).
 
-    Required by Emalls PDF: price is mandatory → unpriced products are excluded.
-    Availability is NOT an inclusion requirement.
+    Final eligibility always runs ``product_satisfies_pdf_feed`` on the full
+    candidate result before pagination. SQL alone is intentionally incomplete
+    (e.g. cannot prove absolute public HTTPS image URLs).
     """
     filters = list(storefront_public_product_filters())
     filters.append(Product.base_price.isnot(None))
@@ -108,18 +112,34 @@ def _product_url(product: Product) -> str:
     return url
 
 
+def _ordered_images(product: Product) -> list[Any]:
+    if not product.images:
+        return []
+    return sorted(
+        product.images,
+        key=lambda image: (not image.is_primary, image.display_order, image.id or 0),
+    )
+
+
 def _primary_image_url(product: Product) -> str:
-    raw = get_first_valid_public_image_url(product)
-    if not raw:
-        raise EmallsPdfFeedIntegrityError("missing public image")
-    absolute = absolutize_asset_url(raw) or raw
-    if not _is_public_https_url(absolute):
-        raise EmallsPdfFeedIntegrityError("image url is not a public HTTPS URL")
-    return absolute
+    """First image satisfying the complete PDF-feed public-image rule.
+
+    Deterministic order: primary-first, then display_order, then id.
+    Skips placeholders and URLs that do not resolve to public HTTPS.
+    An invalid earlier non-placeholder does not hide a later valid image.
+    """
+    for image in _ordered_images(product):
+        raw = (image.image_url or "").strip()
+        if not raw or is_placeholder_image_url(raw):
+            continue
+        absolute = absolutize_asset_url(raw) or raw
+        if _is_public_https_url(absolute):
+            return absolute
+    raise EmallsPdfFeedIntegrityError("missing public image")
 
 
 def product_satisfies_pdf_feed(product: Product) -> bool:
-    """In-memory PDF eligibility (post SQL + optional materialization)."""
+    """Authoritative PDF-feed eligibility (same set as presentation)."""
     if product.deleted_at is not None:
         return False
     if not product.is_active:
@@ -196,7 +216,12 @@ async def list_emalls_pdf_feed(
     page: int,
     item_per_page: int,
 ) -> EmallsPdfFeedResponse:
-    """Paginate PDF-eligible products ordered by Product.id DESC."""
+    """Paginate PDF-eligible products ordered by Product.id DESC.
+
+    Coarse SQL narrows candidates; the final eligible set is computed in Python
+    via ``product_satisfies_pdf_feed`` on the complete candidate list *before*
+    OFFSET/LIMIT slicing. Presentation never re-filters that set.
+    """
     if page < 1:
         raise ValueError("page must be >= 1")
     if item_per_page < 1 or item_per_page > EMALLS_PDF_MAX_ITEM_PER_PAGE:
@@ -204,47 +229,25 @@ async def list_emalls_pdf_feed(
 
     filters = emalls_pdf_feed_filters()
     where_clause = and_(*filters)
-    materialized = bool(settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES)
     skip = (page - 1) * item_per_page
 
-    if materialized:
-        all_stmt = (
-            select(Product)
-            .where(where_clause)
-            .options(*_load_options())
-            .order_by(Product.id.desc())
-        )
-        candidates = list((await db.execute(all_stmt)).scalars().all())
-        # Materialized image gate + PDF-required field surface.
-        eligible = [
-            product
-            for product in filter_storefront_public_products(candidates)
-            if product_satisfies_pdf_feed(product)
-        ]
-        total = len(eligible)
-        page_rows = eligible[skip : skip + item_per_page]
-    else:
-        count_stmt = select(func.count(Product.id)).where(where_clause)
-        total = int((await db.execute(count_stmt)).scalar() or 0)
-        page_stmt = (
-            select(Product)
-            .where(where_clause)
-            .options(*_load_options())
-            .order_by(Product.id.desc())
-            .offset(skip)
-            .limit(item_per_page)
-        )
-        page_rows = list((await db.execute(page_stmt)).scalars().all())
-        # Drop any rows that fail URL/image HTTPS presentation (rare).
-        page_rows = [p for p in page_rows if product_satisfies_pdf_feed(p)]
+    all_stmt = (
+        select(Product)
+        .where(where_clause)
+        .options(*_load_options())
+        .order_by(Product.id.desc())
+    )
+    candidates = list((await db.execute(all_stmt)).scalars().all())
+    if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
+        candidates = list(filter_storefront_public_products(candidates))
+
+    eligible = [product for product in candidates if product_satisfies_pdf_feed(product)]
+    total = len(eligible)
+    page_rows = eligible[skip : skip + item_per_page]
+    # Eligible rows already satisfy presentation invariants — no post-slice drop.
+    products = [present_emalls_pdf_product(product) for product in page_rows]
 
     pages_count = math.ceil(total / item_per_page) if total > 0 else 0
-    products: list[EmallsPdfProduct] = []
-    for product in page_rows:
-        try:
-            products.append(present_emalls_pdf_product(product))
-        except EmallsPdfFeedIntegrityError:
-            continue
 
     logger.info(
         "integration=emalls_pdf_feed page=%s item_per_page=%s product_count=%s "

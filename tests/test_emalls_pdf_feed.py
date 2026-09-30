@@ -8,11 +8,12 @@ from __future__ import annotations
 import asyncio
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from app.core.config import settings
-from app.db.models.product import Product, ProductImage
+from app.db.models.product import Category, Product, ProductImage
 from app.main import app
 from app.services.emalls.client import EmallsClient
 from app.services.emalls.pdf_feed import (
@@ -30,6 +31,10 @@ pytestmark = pytest.mark.usefixtures("override_database")
 client = TestClient(app)
 FEED = "/api/v1/integrations/emalls/feed"
 WP_PRODUCTS = "/api/v1/integrations/emalls/products"
+
+# Sentinel: omit category_id → default seeded leaf (id=3).
+# Pass category_id=None explicitly when a null FK is intended (DB may reject).
+_DEFAULT_CATEGORY = object()
 
 
 @pytest.fixture(autouse=True)
@@ -64,13 +69,18 @@ def _product(
     original_price: Decimal | None = None,
     warranty_text: str | None = "گارانتی",
     slug: str | None = None,
-    category_id: int | None = 3,
+    category_id: Any = _DEFAULT_CATEGORY,
 ) -> Product:
+    resolved_category: int | None
+    if category_id is _DEFAULT_CATEGORY:
+        resolved_category = 3
+    else:
+        resolved_category = category_id  # may be None when explicitly requested
     return Product(
         sku=sku,
         slug=slug if slug is not None else sku.lower().replace(" ", "-"),
         name=name if name is not None else sku,
-        category_id=category_id if category_id is not None else 3,
+        category_id=resolved_category,  # type: ignore[arg-type]
         brand_id=1,
         is_active=is_active,
         is_available=is_available,
@@ -380,3 +390,163 @@ class TestEmallsContractsIsolated:
         assert "products" in body
         assert "total_items" not in body
         assert "pages_count" not in body
+
+
+class TestEmallsPdfPaginationIntegrity:
+    def test_sql_ok_but_http_image_does_not_inflate_totals(self):
+        """Would fail on HEAD that paginated before final HTTPS eligibility."""
+
+        async def seed():
+            async with TestingSessionLocal() as session:
+                # Higher id → appears first in DESC order. SQL-coarse eligible
+                # (non-placeholder image exists) but final PDF rule rejects HTTP.
+                bad = await _seed(
+                    session,
+                    _product(sku="PAG-BAD-HTTP"),
+                    ProductImage(
+                        product_id=0,
+                        image_url="http://example.com/bad.webp",
+                        is_primary=True,
+                        display_order=0,
+                    ),
+                )
+                good = await _seed(
+                    session,
+                    _product(sku="PAG-GOOD"),
+                    _valid_image(url="/static/uploads/good.webp"),
+                )
+                await session.commit()
+                return bad.id, good.id
+
+        bad_id, good_id = asyncio.run(seed())
+        page1 = client.get(FEED, params={"page": 1, "item_per_page": 1}).json()
+        assert page1["total_items"] == 1
+        assert page1["pages_count"] == 1
+        assert len(page1["products"]) == 1
+        assert page1["products"][0]["id"] == str(good_id)
+
+        page2 = client.get(FEED, params={"page": 2, "item_per_page": 1}).json()
+        assert page2["products"] == []
+        assert page2["total_items"] == 1
+        assert page2["pages_count"] == 1
+        assert str(bad_id) not in {
+            row["id"]
+            for body in (page1, page2)
+            for row in body["products"]
+        }
+
+    def test_blank_category_name_excluded(self):
+        async def seed():
+            async with TestingSessionLocal() as session:
+                blank = Category(
+                    name=" ",
+                    slug="blank-cat-pdf",
+                    parent_id=2,
+                )
+                session.add(blank)
+                await session.flush()
+                excluded = await _seed(
+                    session,
+                    _product(sku="BLANK-CAT", category_id=blank.id),
+                    _valid_image(),
+                )
+                included = await _seed(
+                    session,
+                    _product(sku="OK-CAT"),
+                    _valid_image(),
+                )
+                await session.commit()
+                return excluded.id, included.id
+
+        excluded_id, included_id = asyncio.run(seed())
+        body = client.get(FEED, params={"item_per_page": 100}).json()
+        exported = {row["id"] for row in body["products"]}
+        assert str(excluded_id) not in exported
+        assert str(included_id) in exported
+
+    def test_invalid_first_image_falls_through_to_valid(self):
+        async def seed():
+            async with TestingSessionLocal() as session:
+                product = await _seed(
+                    session,
+                    _product(sku="IMG-FALLTHROUGH"),
+                    ProductImage(
+                        product_id=0,
+                        image_url="http://example.com/first-bad.webp",
+                        is_primary=True,
+                        display_order=0,
+                    ),
+                    ProductImage(
+                        product_id=0,
+                        image_url="/static/uploads/second-good.webp",
+                        is_primary=False,
+                        display_order=1,
+                    ),
+                )
+                await session.commit()
+                return product.id
+
+        pid = asyncio.run(seed())
+        body = client.get(FEED, params={"item_per_page": 100}).json()
+        by_id = {row["id"]: row for row in body["products"]}
+        assert str(pid) in by_id
+        assert by_id[str(pid)]["image"].startswith("https://cdn.karzartools.com/")
+        assert "second-good.webp" in by_id[str(pid)]["image"]
+
+    def test_full_scan_cardinality_with_interleaved_ineligible(self):
+        async def seed():
+            async with TestingSessionLocal() as session:
+                # Interleave: good, http-bad, good, placeholder, good (DESC order)
+                ids_good = []
+                for i in range(3):
+                    p = await _seed(
+                        session,
+                        _product(sku=f"SCAN-G-{i}"),
+                        _valid_image(url=f"/static/uploads/scan-g-{i}.webp"),
+                    )
+                    ids_good.append(p.id)
+                    if i < 2:
+                        await _seed(
+                            session,
+                            _product(sku=f"SCAN-B-{i}"),
+                            ProductImage(
+                                product_id=0,
+                                image_url=(
+                                    "http://example.com/bad.webp"
+                                    if i == 0
+                                    else "/images/placeholders/karzar-editorial.svg"
+                                ),
+                                is_primary=True,
+                                display_order=0,
+                            ),
+                        )
+                await session.commit()
+                return ids_good
+
+        good_ids = asyncio.run(seed())
+        item_per_page = 2
+        first = client.get(FEED, params={"page": 1, "item_per_page": item_per_page}).json()
+        total = first["total_items"]
+        pages_count = first["pages_count"]
+        assert total == 3
+        assert pages_count == 2
+
+        fetched = 0
+        seen: set[str] = set()
+        for page in range(1, pages_count + 1):
+            body = client.get(
+                FEED, params={"page": page, "item_per_page": item_per_page}
+            ).json()
+            assert body["total_items"] == total
+            assert body["pages_count"] == pages_count
+            assert body["page_num"] == page
+            assert body["item_per_page"] == item_per_page
+            if page < pages_count:
+                assert len(body["products"]) == item_per_page
+            for row in body["products"]:
+                assert row["id"] not in seen
+                seen.add(row["id"])
+            fetched += len(body["products"])
+
+        assert fetched == total
+        assert seen == {str(i) for i in good_ids}
