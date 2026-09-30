@@ -229,7 +229,13 @@ class ProductSummaryResponse(BaseModel):
 
 
 class ProductDetailResponse(BaseModel):
-    """Full PDP shape including images, specifications, and computed stock fields."""
+    """Full PDP shape including images, specifications, and computed stock fields.
+
+    Phase 2A: ``manufacturer_code`` and ``product_type_id`` are read-only
+    identity fields. Presenter populates them for admin/internal audience;
+    storefront responses leave them null. They are intentionally absent from
+    ProductCreate/ProductUpdate — first canonical writer is deferred to Phase 2C.
+    """
 
     id: int
     sku: str
@@ -237,6 +243,16 @@ class ProductDetailResponse(BaseModel):
     name: str
     category_id: int | None = None
     brand_id: int | None
+    # Phase 2A admin/internal read — null on storefront by presenter policy.
+    product_type_id: int | None = None
+    manufacturer_code: str | None = Field(
+        default=None,
+        description=(
+            "Verified canonical OEM identity when non-null. "
+            "Not writable via ProductCreate/ProductUpdate (Phase 2C)."
+        ),
+        max_length=255,
+    )
     category: CategoryBrief | None = None
     brand: BrandBrief | None = None
     base_price: str | None = None

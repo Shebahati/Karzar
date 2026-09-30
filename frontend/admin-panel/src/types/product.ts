@@ -62,6 +62,10 @@ export interface ProductDetail {
   meta_description?: string | null;
   category_id: number | null;
   brand_id: number | null;
+  /** Phase 2A admin read — verified OEM identity; not on create/update payloads. */
+  manufacturer_code?: string | null;
+  /** Phase 2A admin read — engineering Product Type FK; assign via PT API. */
+  product_type_id?: number | null;
   category: CategoryBrief | null;
   brand: BrandBrief | null;
   base_price: string | null;

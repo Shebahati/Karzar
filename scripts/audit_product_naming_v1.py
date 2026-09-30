@@ -480,6 +480,7 @@ def main(argv: list[str] | None = None) -> int:
                 registry_brand=reg,
                 current_name=name,
                 product_type_governed=False,  # public snapshot has no product_type_id
+                manufacturer_code_governed=False,  # candidates ≠ canonical OEM identity
             )
             state = result.state
             confidence = result.confidence

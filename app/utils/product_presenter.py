@@ -149,6 +149,9 @@ def to_product_detail(
     audience: Audience = "storefront",
 ) -> ProductDetailResponse:
     available = product_is_available(product)
+    # Phase 2A: expose OEM / Product Type identity to admin/internal only.
+    # Storefront keeps null until a deliberate public exposure decision.
+    admin_identity = audience == "admin"
     return ProductDetailResponse(
         id=product.id,
         sku=product.sku,
@@ -156,6 +159,12 @@ def to_product_detail(
         name=product.name,
         category_id=product.category_id,
         brand_id=product.brand_id,
+        product_type_id=(
+            getattr(product, "product_type_id", None) if admin_identity else None
+        ),
+        manufacturer_code=(
+            getattr(product, "manufacturer_code", None) if admin_identity else None
+        ),
         category=_category_brief(product, category_metadata, audience=audience),
         brand=_brand_brief(product),
         base_price=decimal_to_api_string(product.base_price),
@@ -185,6 +194,11 @@ def to_product_detail(
         description=product.description,
         meta_title=product.meta_title,
         meta_description=product.meta_description,
+        hesabfa_category_override_code=(
+            getattr(product, "hesabfa_category_override_code", None)
+            if admin_identity
+            else None
+        ),
         thumbnail=get_thumbnail_url(product),
         images=_images(product, audience=audience),
         specifications=normalize_specifications_for_api(

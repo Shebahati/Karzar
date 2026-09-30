@@ -335,14 +335,17 @@ def test_t17_t21_legacy_dimensions_still_valid_in_seed():
 def test_alembic_head_is_single_descendant_of_s2():
     script = get_alembic_script_directory()
     heads = script.get_heads()
-    assert heads == ["t3u4v5w6x7y8"]
+    assert heads == ["u4v5w6x7y8z9"]
     assert is_runtime_revision_compatible(
         "s2t3u4v5w6x7",
-        "t3u4v5w6x7y8",
+        "u4v5w6x7y8z9",
         script_directory=script,
     )
-    rev = script.get_revision("t3u4v5w6x7y8")
-    assert rev.down_revision == "s2t3u4v5w6x7"
+    # Phase 2A manufacturer_code sits on top of Prompt 150.
+    rev = script.get_revision("u4v5w6x7y8z9")
+    assert rev.down_revision == "t3u4v5w6x7y8"
+    t3 = script.get_revision("t3u4v5w6x7y8")
+    assert t3.down_revision == "s2t3u4v5w6x7"
 
 
 def test_migration_module_constants_match_runtime_registry():

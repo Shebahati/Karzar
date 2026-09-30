@@ -109,13 +109,15 @@ This pack is the **living Accepted knowledge foundation** under `docs/architectu
 | Classification map INSIZE v0 | [`seeds/classification-map-insize-v0-metrology.json`](./seeds/classification-map-insize-v0-metrology.json) | Readiness §5 · one brand · Git `MAPPING-TABLE` · **no** CLASSIFIED_AS projection |
 | Seeds README | [`seeds/README.md`](./seeds/README.md) | Operator checklist + rules |
 
-### 1.4 Product naming (Proposed — Phase 0/1)
+### 1.4 Product naming (Proposed — Phase 0/1 + Phase 2A schema)
 
 | Document | Path | Notes |
 |----------|------|-------|
 | Product Naming Standard v1 | [`SPEC-product-naming-standard-v1.md`](./SPEC-product-naming-standard-v1.md) | **Proposed** constitution; not Board-Accepted; no catalog APPLY |
+| Phase 2A manufacturer identity | [`product-naming-v1/PHASE-2A-MANUFACTURER-IDENTITY.md`](./product-naming-v1/PHASE-2A-MANUFACTURER-IDENTITY.md) | Canonical `manufacturer_code` contract; schema only; no backfill |
 | Naming registries | [`product-naming-v1/`](./product-naming-v1/) | Brand display / PT profiles / terminology CSV proposals |
-| Audit artifacts | [`../../../audit/product-naming-v1/`](../../../audit/product-naming-v1/) | Census, proposals, HOLDs, SEO impact (read-only) |
+| Audit artifacts (Phase 0/1) | [`../../../audit/product-naming-v1/`](../../../audit/product-naming-v1/) | Census, proposals, HOLDs, SEO impact (read-only) |
+| Audit artifacts (Phase 2A) | [`../../../audit/product-manufacturer-code-phase2a/`](../../../audit/product-manufacturer-code-phase2a/) | Identity census, backfill readiness, collisions (read-only) |
 
 ---
 

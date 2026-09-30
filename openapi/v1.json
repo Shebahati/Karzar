@@ -20905,6 +20905,30 @@
             ],
             "title": "Brand Id"
           },
+          "product_type_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type Id"
+          },
+          "manufacturer_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manufacturer Code",
+            "description": "Verified canonical OEM identity when non-null. Not writable via ProductCreate/ProductUpdate (Phase 2C)."
+          },
           "category": {
             "anyOf": [
               {
@@ -21203,7 +21227,7 @@
           "updated_at"
         ],
         "title": "ProductDetailResponse",
-        "description": "Full PDP shape including images, specifications, and computed stock fields."
+        "description": "Full PDP shape including images, specifications, and computed stock fields.\n\nPhase 2A: ``manufacturer_code`` and ``product_type_id`` are read-only\nidentity fields. Presenter populates them for admin/internal audience;\nstorefront responses leave them null. They are intentionally absent from\nProductCreate/ProductUpdate — first canonical writer is deferred to Phase 2C."
       },
       "ProductImageReorderRequest": {
         "properties": {

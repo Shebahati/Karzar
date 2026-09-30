@@ -13,6 +13,7 @@ from app.domain.product_naming import (
     format_measurement_range_mm,
     format_metric_thread,
     lint_product_name_v1,
+    manufacturer_code_is_governed,
     normalize_persian_text,
 )
 
@@ -25,6 +26,7 @@ def test_insize_caliper_1108_150_exact_string():
         facts={"range_min_mm": 0, "range_max_mm": 150},
         naming_profile="metrology.caliper.v1",
         product_type_governed=True,
+        manufacturer_code_governed=True,
     )
     assert result.name == "کولیس دیجیتال اینسایز کد 1108-150، 0–150 میلی‌متر"
     assert result.state == "RENAME_SAFE"
@@ -281,3 +283,90 @@ def test_generic_profile_type_brand_code_only():
     assert result.name == "محصول صنعتی اینسایز کد X-1"
     assert "0–150" not in result.name
     assert "accuracy" in result.omitted_fields or "OMITTED_NOISE:accuracy" in result.warnings
+
+
+def test_high_requires_both_pt_and_oem_governed():
+    base = dict(
+        product_type="کولیس دیجیتال",
+        brand="INSIZE | اینسایز",
+        manufacturer_code="1108-150",
+        facts={"range_min_mm": 0, "range_max_mm": 150},
+        naming_profile="metrology.caliper.v1",
+    )
+    both = build_product_name_v1(
+        **base, product_type_governed=True, manufacturer_code_governed=True
+    )
+    assert both.confidence == "high"
+    assert both.state == "RENAME_SAFE"
+
+    pt_only = build_product_name_v1(
+        **base, product_type_governed=True, manufacturer_code_governed=False
+    )
+    assert pt_only.confidence != "high"
+    assert pt_only.confidence == "medium"
+    assert "manufacturer_code_not_governed" in pt_only.reason_codes
+
+    oem_only = build_product_name_v1(
+        **base, product_type_governed=False, manufacturer_code_governed=True
+    )
+    assert oem_only.confidence != "high"
+    assert oem_only.confidence == "medium"
+    assert "product_type_not_fk_verified" in oem_only.reason_codes
+
+    neither = build_product_name_v1(
+        **base, product_type_governed=False, manufacturer_code_governed=False
+    )
+    assert neither.confidence != "high"
+    assert neither.confidence == "medium"
+
+
+def test_heuristic_candidates_never_imply_governed():
+    cands = extract_manufacturer_code_candidates(
+        name="کولیس دیجیتال اینسایز کد 1108-150",
+        sku="1108-150",
+        specs={"model": "1108-150"},
+    )
+    assert cands
+    code = cands[0][0]
+    assert manufacturer_code_is_governed(
+        manufacturer_code=code, manufacturer_code_governed=False
+    ) is False
+    # Even with a candidate string present, default build stays below HIGH.
+    result = build_product_name_v1(
+        product_type="کولیس دیجیتال",
+        brand="INSIZE | اینسایز",
+        manufacturer_code=code,
+        facts={"range_min_mm": 0, "range_max_mm": 150},
+        naming_profile="metrology.caliper.v1",
+        product_type_governed=True,
+        # manufacturer_code_governed defaults False
+    )
+    assert result.confidence != "high"
+    assert result.confidence == "medium"
+
+
+def test_manufacturer_code_round_trip_preservation_in_titles():
+    codes = [
+        "1108-150",
+        "500-196-30",
+        "DCMT11T312-XM YBC203",
+        "WNMG080408-PM",
+        "K11-315MM",
+        "GM-4E-D8.0",
+        "PTTNL2525M22",
+        "SNMG120408-PM / YBC252",
+        "X--Y--Z",
+    ]
+    for code in codes:
+        result = build_product_name_v1(
+            product_type="اینسرت تراشکاری",
+            brand="ZCC.CT",
+            manufacturer_code=code,
+            naming_profile="cutting.turning_insert.v1",
+            preferred_brand_form="ZCC.CT",
+            product_type_governed=True,
+            manufacturer_code_governed=True,
+        )
+        assert result.name is not None
+        assert code in result.name
+        assert result.name.count(code) == 1
