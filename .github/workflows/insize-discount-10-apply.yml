@@ -1,0 +1,257 @@
+# Owner-authorized INSIZE 10% storefront discount APPLY on karzar-vps (CR-011 live).
+#
+# SAFETY:
+# - Proves host/container/volume/DB identity before any write
+# - Current live priced INSIZE cohort is the mutation authority (no fixed count)
+# - Idempotency gate on exact change reason before APPLY (no 0.90×0.90)
+# - Rehearsal = exact mutate path then ROLLBACK (base_price + original_price)
+# - APPLY = single transaction; mutates base_price AND original_price ONLY
+# - No deploy, no Hesabfa catalog rewrite, no other brands
+# - Does NOT rerun or revert the prior INSIZE +12% event
+#
+# Triggers on push to this agent branch (self-hosted runner has live compose).
+# Does not use actions/checkout (known hang on this runner). Script is fetched
+# via GitHub API at GITHUB_SHA. Artifacts committed back to this branch.
+name: INSIZE Discount 10% APPLY
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "rehearse-only or apply"
+        required: true
+        default: "rehearse-only"
+        type: choice
+        options:
+          - rehearse-only
+          - apply
+  push:
+    branches:
+      - cursor/insize-discount-10-3c54
+    paths:
+      - ".github/workflows/insize-discount-10-apply.yml"
+      - "scripts/ops/insize_discount_10_apply.py"
+      - "scripts/ops/insize_discount_10_site_verify.py"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: insize-discount-10-apply
+  cancel-in-progress: false
+
+jobs:
+  insize-discount-10:
+    name: INSIZE 10% discount guarded APPLY
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 60
+    steps:
+      - name: Host + container identity (read-only probe)
+        id: identity
+        run: |
+          set -euo pipefail
+          HOST="$(hostname)"
+          echo "hostname=${HOST}"
+          test "${HOST}" = "srv5944957438"
+          docker inspect lathe_postgres --format '{{.Name}}' | grep -q lathe_postgres
+          DB_NAME="$(docker exec lathe_postgres printenv POSTGRES_DB || true)"
+          echo "postgres_db=${DB_NAME}"
+          test "${DB_NAME}" = "karzar_staging"
+          VOL="$(docker inspect lathe_postgres --format '{{range .Mounts}}{{println .Name}}{{end}}' | tr '\n' ' ')"
+          echo "volumes=${VOL}"
+          echo "${VOL}" | grep -q 'karzar_postgres_data\|postgres_data'
+          APP_ENV="$(docker exec lathe_api printenv APP_ENV || true)"
+          PLANE="$(docker exec lathe_api printenv KARZAR_DATA_PLANE || true)"
+          echo "APP_ENV=${APP_ENV}"
+          echo "KARZAR_DATA_PLANE=${PLANE}"
+          if [ "${PLANE}" = "catalog_staging" ]; then
+            echo "FATAL: KARZAR_DATA_PLANE=catalog_staging — aborting" >&2
+            exit 2
+          fi
+          if docker ps --format '{{.Names}}' | grep -q 'karzar_catalog_staging'; then
+            echo "NOTE: catalog_staging containers visible; APPLY still targets lathe_postgres only"
+          fi
+          GIT_DEPLOYED="$(docker exec lathe_api printenv KARZAR_GIT_SHA 2>/dev/null || true)"
+          echo "deployed_sha_hint=${GIT_DEPLOYED}"
+          date -u +"utc=%Y-%m-%dT%H:%M:%SZ"
+          echo "HOST_PROOF=${HOST}" >> "$GITHUB_ENV"
+          echo "CONTAINER_PROOF=lathe_postgres" >> "$GITHUB_ENV"
+          echo "VOLUME_PROOF=${VOL}" >> "$GITHUB_ENV"
+
+      - name: Fetch APPLY + site-verify scripts for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA}"
+          DEST="/tmp/karzar-insize-discount-10"
+          mkdir -p "$DEST"
+          fetch_raw() {
+            local path="$1"
+            local out="$2"
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github.raw" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${SHA}" \
+              -o "$out"
+            test -s "$out"
+          }
+          SCRIPT="$DEST/insize_discount_10_apply.py"
+          VERIFY="$DEST/insize_discount_10_site_verify.py"
+          fetch_raw "scripts/ops/insize_discount_10_apply.py" "$SCRIPT"
+          fetch_raw "scripts/ops/insize_discount_10_site_verify.py" "$VERIFY"
+          head -n 12 "$SCRIPT"
+          wc -l "$SCRIPT" "$VERIFY"
+          sha256sum "$SCRIPT" "$VERIFY"
+          if grep -q 'PRICE_FACTOR = Decimal("1.12")' "$SCRIPT"; then
+            echo "FATAL: fetched script still has +12% factor" >&2
+            exit 2
+          fi
+          grep -q 'PRICE_FACTOR = Decimal("0.90")' "$SCRIPT"
+          grep -q 'INSIZE 10% storefront discount owner-authorized 2026-09-30' "$SCRIPT"
+
+      - name: Run guarded INSIZE 10% discount job inside lathe_api
+        run: |
+          set -euo pipefail
+          MODE="${{ github.event.inputs.mode || 'apply' }}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            MODE="apply"
+          fi
+          echo "MODE=${MODE}"
+
+          OUT_HOST="/tmp/karzar-insize-discount-10/out-${GITHUB_SHA}"
+          rm -rf "$OUT_HOST"
+          mkdir -p "$OUT_HOST"
+
+          docker cp /tmp/karzar-insize-discount-10/insize_discount_10_apply.py \
+            lathe_api:/tmp/insize_discount_10_apply.py
+
+          docker exec lathe_api rm -rf /tmp/karzar-insize-discount-10-out
+          docker exec lathe_api mkdir -p /tmp/karzar-insize-discount-10-out
+
+          APPLY_ARGS=(--out-dir /tmp/karzar-insize-discount-10-out)
+          if [ "$MODE" = "apply" ]; then
+            APPLY_ARGS+=(--apply --confirm-owner-authorized-insize-discount-10)
+          fi
+
+          set +e
+          docker exec \
+            -e KARZAR_HOST_PROOF="${HOST_PROOF}" \
+            -e KARZAR_CONTAINER_PROOF="${CONTAINER_PROOF}" \
+            -e KARZAR_VOLUME_PROOF="${VOLUME_PROOF}" \
+            -e KARZAR_GIT_SHA="${GITHUB_SHA}" \
+            -e KARZAR_ALLOW_PRODUCTION_WRITE=1 \
+            -e KARZAR_INGESTION_CATEGORY=B \
+            lathe_api \
+            python /tmp/insize_discount_10_apply.py "${APPLY_ARGS[@]}"
+          RC=$?
+          set -e
+          echo "SCRIPT_EXIT=${RC}"
+
+          docker cp lathe_api:/tmp/karzar-insize-discount-10-out/. "$OUT_HOST/" || true
+          ls -la "$OUT_HOST" || true
+
+          if [ -f "$OUT_HOST/FINAL_REPORT.json" ]; then
+            docker cp "$OUT_HOST/FINAL_REPORT.json" lathe_api:/tmp/insize_discount_final_report.json
+            docker exec lathe_api python -c "import json; r=json.load(open('/tmp/insize_discount_final_report.json')); print('---FINAL_REPORT_JSON_BEGIN---'); print(json.dumps(r, indent=2, ensure_ascii=False)[:35000]); print('---FINAL_REPORT_JSON_END---'); print(r.get('FINAL_LINE','MISSING_FINAL_LINE')); print('STATUS='+str(r.get('STATUS')))" \
+              || {
+                echo "WARN: pretty-print via lathe_api python failed; dumping raw head"
+                head -c 20000 "$OUT_HOST/FINAL_REPORT.json" || true
+                echo
+              }
+          else
+            echo "FINAL_REPORT.json missing"
+          fi
+
+          echo "OUT_HOST=${OUT_HOST}" >> "$GITHUB_ENV"
+          echo "SCRIPT_EXIT=${RC}" >> "$GITHUB_ENV"
+          echo "MODE=${MODE}" >> "$GITHUB_ENV"
+
+          if [ "$RC" -ne 0 ]; then
+            exit "$RC"
+          fi
+          if [ "$MODE" = "apply" ]; then
+            if grep -q 'INSIZE_DISCOUNT_10_APPLY_OK' "$OUT_HOST/FINAL_REPORT.md"; then
+              echo "APPLY_OK_CONFIRMED"
+            elif grep -q 'INSIZE_DISCOUNT_10_ALREADY_APPLIED_VERIFIED' "$OUT_HOST/FINAL_REPORT.md"; then
+              echo "ALREADY_APPLIED_CONFIRMED"
+            else
+              echo "FATAL: expected APPLY_OK or ALREADY_APPLIED in FINAL_REPORT.md" >&2
+              exit 1
+            fi
+          fi
+
+      - name: Public API + storefront + Emalls sample verify
+        if: success() && (env.MODE == 'apply')
+        run: |
+          set -euo pipefail
+          VERIFY="/tmp/karzar-insize-discount-10/insize_discount_10_site_verify.py"
+          test -s "$VERIFY"
+          docker exec lathe_api rm -rf /tmp/karzar-insize-discount-10-out-verify
+          docker exec lathe_api mkdir -p /tmp/karzar-insize-discount-10-out-verify
+          docker cp "$VERIFY" lathe_api:/tmp/insize_discount_10_site_verify.py
+          docker cp "$OUT_HOST/." lathe_api:/tmp/karzar-insize-discount-10-out-verify/
+          set +e
+          docker exec lathe_api python /tmp/insize_discount_10_site_verify.py \
+            /tmp/karzar-insize-discount-10-out-verify
+          VRC=$?
+          set -e
+          docker cp lathe_api:/tmp/karzar-insize-discount-10-out-verify/SITE_VERIFY.json \
+            "$OUT_HOST/SITE_VERIFY.json" || true
+          if [ "$VRC" -ne 0 ]; then
+            echo "SITE_VERIFY failed rc=$VRC" >&2
+            exit "$VRC"
+          fi
+          echo "SITE_VERIFY_DONE"
+
+      - name: Commit APPLY artifacts to branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "${OUT_HOST:-}"
+          test -d "$OUT_HOST"
+          WORK="/tmp/karzar-insize-discount-10/git-${GITHUB_SHA}"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          cd "$WORK"
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF_NAME}"
+          git checkout -q -B "${GITHUB_REF_NAME}" FETCH_HEAD
+          mkdir -p audit/insize-discount-10-20260930
+          DEST=audit/insize-discount-10-20260930
+          cp -f "$OUT_HOST"/FINAL_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/FINAL_REPORT.md "$DEST"/ || true
+          cp -f "$OUT_HOST"/IDENTITY_PROBE.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/PRE_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/REHEARSAL_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/APPLY_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/VERIFY_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/SITE_VERIFY.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/MANIFEST.sha256 "$DEST"/ || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_MANIFEST_*.csv "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_MANIFEST_*.json "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_RECOVERY_PREWRITE_*.csv "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_ROLLBACK_*.sql "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_FINGERPRINTS_*.json "$DEST"/ 2>/dev/null || true
+          if [ -f "$DEST/IDENTITY_PROBE.json" ]; then
+            cp -f "$DEST/IDENTITY_PROBE.json" "$DEST/VERIFY_IDENTITY_PROBE.json"
+          fi
+          # Prefer FINAL_REPORT as APPLY_REPORT when APPLY succeeded.
+          if [ -f "$DEST/FINAL_REPORT.json" ]; then
+            cp -f "$DEST/FINAL_REPORT.json" "$DEST/APPLY_REPORT.json"
+          fi
+          git add audit/insize-discount-10-20260930
+          if git diff --cached --quiet; then
+            echo "No artifact changes to commit"
+            exit 0
+          fi
+          git -c user.name="karzar-vps-insize-discount-10" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore(ops): INSIZE 10% discount APPLY artifacts $(date -u +%Y-%m-%dT%H%MZ)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "ARTIFACTS_COMMITTED=YES"
