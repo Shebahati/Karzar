@@ -159,7 +159,9 @@ def to_product_detail(
         name=product.name,
         category_id=product.category_id,
         brand_id=product.brand_id,
-        product_type_id=product.product_type_id if admin_identity else None,
+        product_type_id=(
+            getattr(product, "product_type_id", None) if admin_identity else None
+        ),
         manufacturer_code=(
             getattr(product, "manufacturer_code", None) if admin_identity else None
         ),
