@@ -65,7 +65,7 @@ export function selfCanonicalAlternates(
 
 /**
  * Query keys that create near-duplicate PLP/hub URLs.
- * Pagination is client-state only (not in the URL) — not listed here.
+ * `page` alone is indexable pagination (Wave 1B) — not listed here.
  */
 const FACET_KEYS = new Set([
   "brand",

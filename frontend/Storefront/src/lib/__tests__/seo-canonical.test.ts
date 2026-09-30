@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { metadata as aboutMetadata } from "@/app/about/page";
 import { metadata as accountMetadata } from "@/app/account/layout";
-import { metadata as blogMetadata } from "@/app/blog/page";
+import { generateMetadata as blogMetadata } from "@/app/blog/page";
 import { generateMetadata as catalogMetadata } from "@/app/catalog/page";
 import { metadata as categoriesMetadata } from "@/app/categories/page";
 import { metadata as checkoutMetadata } from "@/app/checkout/layout";
@@ -60,9 +60,13 @@ describe("static indexable self-canonicals", () => {
     { path: "/contact", canonical: contactMetadata.alternates?.canonical },
     { path: "/terms", canonical: termsMetadata.alternates?.canonical },
     { path: "/faq", canonical: faqMetadata.alternates?.canonical },
-    { path: "/blog", canonical: blogMetadata.alternates?.canonical },
     { path: "/categories", canonical: categoriesMetadata.alternates?.canonical },
   ];
+
+  it("/blog declares its own canonical", async () => {
+    const meta = await blogMetadata({ searchParams: Promise.resolve({}) });
+    expect(meta.alternates?.canonical).toBe("/blog");
+  });
 
   it.each(pages)("$path declares its own canonical, not the homepage", ({ path: route, canonical }) => {
     expect(canonical).toBe(route);

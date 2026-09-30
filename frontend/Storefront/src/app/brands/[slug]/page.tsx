@@ -1,11 +1,22 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { BrandHubView } from "@/components/brand/brand-hub-view";
-import { Container } from "@/components/ui/container";
-import { ProductCardSkeleton } from "@/components/product/product-card";
+import { CATALOG_PAGE_SIZE } from "@/config/catalog-page-size";
+import { catalogKeys } from "@/features/catalog/keys";
+import { catalogPlpParams } from "@/lib/catalog-plp";
+import { parseCatalogUrlState } from "@/lib/catalog-search-params";
 import { NOINDEX_FOLLOW, isFacetedSearchParams } from "@/lib/crawl-hygiene";
 import { rejectUnlessEntityNotFound } from "@/lib/entity-lookup";
 import { buildBrandHubJsonLd } from "@/lib/json-ld";
+import { getQueryClient } from "@/lib/get-query-client";
+import {
+  isPageBeyondTotal,
+  paginatedCanonicalPath,
+  paginatedTitle,
+  parsePageParam,
+} from "@/lib/pagination-url";
+import { redirectIfPageQueryNeedsNormalization } from "@/lib/pagination-request";
 import { catalogService } from "@/services/catalog";
 import type { Brand } from "@/types/category";
 
@@ -15,8 +26,6 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
 };
-
-const HUB_PLP = { limit: 24, skip: 0 } as const;
 
 /** D21 Q1=A / Q2=A: below ≥1 active products → still 200, noindex. */
 function isThinBrandHub(productCount: number | null | undefined): boolean {
@@ -34,27 +43,33 @@ export async function generateMetadata({
   try {
     brand = await catalogService.getBrandBySlug(slug);
   } catch (error) {
-    // Missing brand → hard 404 (not soft 200 + "not found" metadata).
     rejectUnlessEntityNotFound(error);
   }
 
   const thin = isThinBrandHub(brand.product_count);
-  const title = brand.meta_title || `${brand.name} | کارزار`;
+  const page = parsePageParam(sp.page);
+  const hubPath = `/brands/${brand.slug ?? slug}`;
+  const baseTitle = brand.meta_title || `${brand.name} | کارزار`;
+  const title = thin || faceted ? baseTitle : paginatedTitle(baseTitle, page);
   const description =
     brand.meta_description ||
     `محصولات برند ${brand.name} در فروشگاه ابزار صنعتی کارزار.`;
-  const canonical = `/brands/${brand.slug ?? slug}`;
+  const canonicalPath = thin || faceted ? hubPath : paginatedCanonicalPath(hubPath, page);
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates: { canonical: canonicalPath },
     openGraph: { title, description, type: "website" },
     ...(thin || faceted ? { robots: NOINDEX_FOLLOW } : {}),
   };
 }
 
-export default async function BrandHubPage({ params }: Props) {
+export default async function BrandHubPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const hubPath = `/brands/${slug}`;
+  redirectIfPageQueryNeedsNormalization(hubPath, sp);
+
   let brand: Brand;
   try {
     brand = await catalogService.getBrandBySlug(slug);
@@ -62,12 +77,18 @@ export default async function BrandHubPage({ params }: Props) {
     rejectUnlessEntityNotFound(error);
   }
 
+  const { page } = parseCatalogUrlState(sp);
+  const plpParams = catalogPlpParams({ brand_ids: [brand.id] }, page);
+  const productsPage = await catalogService.listProducts(plpParams);
+  if (isPageBeyondTotal(page, productsPage.meta.total_count, CATALOG_PAGE_SIZE)) {
+    notFound();
+  }
+
+  const queryClient = getQueryClient();
+  queryClient.setQueryData(catalogKeys.products(plpParams), productsPage);
+
   let jsonLd: Record<string, unknown> | null = null;
   try {
-    const productsPage = await catalogService.listProducts({
-      ...HUB_PLP,
-      brand_ids: [brand.id],
-    });
     jsonLd = buildBrandHubJsonLd({
       brand,
       products: productsPage.data ?? [],
@@ -84,19 +105,13 @@ export default async function BrandHubPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       ) : null}
-      <Suspense
-        fallback={
-          <Container className="py-10">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))}
-            </div>
-          </Container>
-        }
-      >
-        <BrandHubView brand={brand} />
-      </Suspense>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <BrandHubView
+          brand={brand}
+          initialProductsSeed={{ params: plpParams, response: productsPage }}
+          serverSearchParams={sp}
+        />
+      </HydrationBoundary>
     </>
   );
 }

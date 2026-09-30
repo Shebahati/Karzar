@@ -1,10 +1,11 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { CatalogView } from "@/components/catalog/catalog-view";
-import { Container } from "@/components/ui/container";
-import { ProductCardSkeleton } from "@/components/product/product-card";
+import { CATALOG_PAGE_SIZE } from "@/config/catalog-page-size";
 import { catalogKeys } from "@/features/catalog/keys";
+import { parseCatalogUrlState } from "@/lib/catalog-search-params";
+import { catalogPlpParams } from "@/lib/catalog-plp";
 import {
   INDEXABLE_STATIC_CANONICALS,
   NOINDEX_FOLLOW,
@@ -12,17 +13,17 @@ import {
   selfCanonicalAlternates,
 } from "@/lib/crawl-hygiene";
 import { getQueryClient } from "@/lib/get-query-client";
+import {
+  isPageBeyondTotal,
+  paginatedCanonicalPath,
+  paginatedTitle,
+  totalPagesFromCount,
+} from "@/lib/pagination-url";
+import { redirectIfPageQueryNeedsNormalization } from "@/lib/pagination-request";
 import { catalogService } from "@/services/catalog";
 import type { CategoryTreeNode } from "@/types/category";
 
-const DEFAULT_PLP = { limit: 24, skip: 0 } as const;
-
 type SearchParams = Record<string, string | string[] | undefined>;
-
-function firstParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) return value[0];
-  return value;
-}
 
 export async function generateMetadata({
   searchParams,
@@ -31,10 +32,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const sp = await searchParams;
   const faceted = isFacetedSearchParams(sp);
+  const { page } = parseCatalogUrlState(sp);
+  const baseTitle = "فروشگاه";
+  const canonicalPath = faceted
+    ? INDEXABLE_STATIC_CANONICALS.catalog
+    : paginatedCanonicalPath(INDEXABLE_STATIC_CANONICALS.catalog, page);
   return {
-    title: "فروشگاه",
+    title: faceted ? baseTitle : paginatedTitle(baseTitle, page),
     description: "مرور و فیلتر محصولات ابزار صنعتی و تراشکاری کارزار.",
-    alternates: selfCanonicalAlternates(INDEXABLE_STATIC_CANONICALS.catalog),
+    alternates: selfCanonicalAlternates(canonicalPath),
     ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
   };
 }
@@ -50,24 +56,32 @@ export default async function CatalogPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
+  redirectIfPageQueryNeedsNormalization("/catalog", sp);
 
-  const categoryRaw = firstParam(sp.category) ?? firstParam(sp.category_id);
-  const categoryId = categoryRaw != null ? Number(categoryRaw) : undefined;
-  const onSale = firstParam(sp.on_sale) === "1";
-  const plpParams = {
-    ...DEFAULT_PLP,
-    ...(Number.isFinite(categoryId) && categoryId! > 0
-      ? { category_id: categoryId }
-      : {}),
-    ...(onSale ? { on_sale: true as const } : {}),
-  };
+  const { page, params } = parseCatalogUrlState(sp);
+  const onSale = sp.on_sale === "1" || (Array.isArray(sp.on_sale) && sp.on_sale[0] === "1");
+  const plpParams = catalogPlpParams(
+    {
+      ...params,
+      ...(onSale ? { on_sale: true as const } : {}),
+    },
+    page,
+  );
+
+  const productsPage = await catalogService.listProducts(plpParams);
+  const totalCount = productsPage.meta.total_count ?? 0;
+  const totalPages = totalPagesFromCount(totalCount, CATALOG_PAGE_SIZE);
+  if (page > totalPages || isPageBeyondTotal(page, totalCount, CATALOG_PAGE_SIZE)) {
+    notFound();
+  }
+  if (page > 1 && (productsPage.data?.length ?? 0) === 0) {
+    notFound();
+  }
 
   const queryClient = getQueryClient();
+  queryClient.setQueryData(catalogKeys.products(plpParams), productsPage);
+
   await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: catalogKeys.products(plpParams),
-      queryFn: () => catalogService.listProducts({ ...plpParams }),
-    }),
     queryClient.prefetchQuery({
       queryKey: catalogKeys.categoriesFlat(),
       queryFn: () => catalogService.listCategoriesFlat(),
@@ -82,27 +96,16 @@ export default async function CatalogPage({
     }),
   ]);
 
-  // Prop seed so carousel SSR matches client even if Provider QueryClient differs.
   const initialTree =
     queryClient.getQueryData<CategoryTreeNode[]>(catalogKeys.categoriesTree()) ?? [];
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<CatalogFallback />}>
-        <CatalogView initialTree={initialTree} />
-      </Suspense>
+      <CatalogView
+        serverSearchParams={sp}
+        initialTree={initialTree}
+        initialProductsSeed={{ params: plpParams, response: productsPage }}
+      />
     </HydrationBoundary>
-  );
-}
-
-function CatalogFallback() {
-  return (
-    <Container className="py-10">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <ProductCardSkeleton key={i} />
-        ))}
-      </div>
-    </Container>
   );
 }

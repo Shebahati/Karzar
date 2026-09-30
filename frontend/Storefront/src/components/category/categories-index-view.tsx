@@ -57,12 +57,17 @@ type CategoryCard = {
  * Dedicated L1 categories screen for bottom-nav «محصولات».
  * Canonical 12 L1 + designed category-icons — not an overlay sheet.
  */
-export function CategoriesIndexView() {
-  const { data: tree = [], isLoading } = useCategoryTree();
+export function CategoriesIndexView({
+  initialTree = [],
+}: {
+  initialTree?: CategoryTreeNode[];
+}) {
+  const { data: tree, isLoading } = useCategoryTree(initialTree);
+  const resolvedTree = tree?.length ? tree : initialTree;
 
   const cards = useMemo<CategoryCard[]>(() => {
     return FINAL_L1_CATEGORIES.map((c) => {
-      const live = findLiveRoot(tree, c.name, c.aliases, c.slug);
+      const live = findLiveRoot(resolvedTree, c.name, c.aliases, c.slug);
       const icon =
         CATEGORY_ICON_BY_SLUG[c.iconSlug] ??
         CATEGORY_ICON_BY_SLUG[c.slug] ??
@@ -76,9 +81,9 @@ export function CategoriesIndexView() {
         count: live?.product_count ?? null,
       };
     });
-  }, [tree]);
+  }, [resolvedTree]);
 
-  const waiting = isLoading && tree.length === 0;
+  const waiting = isLoading && resolvedTree.length === 0;
 
   return (
     <div className="relative min-h-[60vh] overflow-x-clip overflow-y-visible bg-background">

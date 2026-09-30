@@ -1,11 +1,11 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { CategoryHubView } from "@/components/category/category-hub-view";
-import { Container } from "@/components/ui/container";
-import { ProductCardSkeleton } from "@/components/product/product-card";
+import { CATALOG_PAGE_SIZE } from "@/config/catalog-page-size";
 import { catalogKeys } from "@/features/catalog/keys";
+import { catalogPlpParams } from "@/lib/catalog-plp";
+import { parseCatalogUrlState } from "@/lib/catalog-search-params";
 import {
   NOINDEX_FOLLOW,
   isEmptyCategoryHub,
@@ -15,6 +15,13 @@ import { rejectUnlessEntityNotFound } from "@/lib/entity-lookup";
 import { getHubIntro, hubIntroExcerpt } from "@/lib/hub-intros";
 import { buildCategoryHubJsonLd } from "@/lib/json-ld";
 import { getQueryClient } from "@/lib/get-query-client";
+import {
+  isPageBeyondTotal,
+  paginatedCanonicalPath,
+  paginatedTitle,
+  parsePageParam,
+} from "@/lib/pagination-url";
+import { redirectIfPageQueryNeedsNormalization } from "@/lib/pagination-request";
 import { catalogService } from "@/services/catalog";
 import type { CategoryFlat, CategoryTreeNode } from "@/types/category";
 
@@ -24,8 +31,6 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
 };
-
-const HUB_PLP = { limit: 24, skip: 0 } as const;
 
 async function resolveCategory(slug: string): Promise<CategoryFlat> {
   return catalogService.getCategoryBySlug(slug);
@@ -51,15 +56,19 @@ export async function generateMetadata({
   }
 
   const intro = getHubIntro(category.slug ?? slug);
-  const title = category.meta_title || `${category.name} | کارزار`;
+  const page = parsePageParam(sp.page);
+  const hubPath = `/categories/${category.slug ?? slug}`;
+  const baseTitle = category.meta_title || `${category.name} | کارزار`;
+  const title = faceted ? baseTitle : paginatedTitle(baseTitle, page);
   const description =
     category.meta_description ||
     (intro ? hubIntroExcerpt(intro) : null) ||
     `خرید و مشاهده محصولات دسته ${category.name} در فروشگاه ابزار صنعتی کارزار.`;
+  const canonicalPath = faceted ? hubPath : paginatedCanonicalPath(hubPath, page);
   return {
     title,
     description,
-    alternates: { canonical: `/categories/${category.slug ?? slug}` },
+    alternates: { canonical: canonicalPath },
     openGraph: { title, description, type: "website" },
     ...(faceted ? { robots: NOINDEX_FOLLOW } : {}),
   };
@@ -81,8 +90,12 @@ function resolveAncestors(
   return out;
 }
 
-export default async function CategoryHubPage({ params }: Props) {
+export default async function CategoryHubPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const hubPath = `/categories/${slug}`;
+  redirectIfPageQueryNeedsNormalization(hubPath, sp);
+
   let category: CategoryFlat;
   try {
     category = await resolveCategory(slug);
@@ -95,31 +108,29 @@ export default async function CategoryHubPage({ params }: Props) {
     notFound();
   }
 
+  const { page } = parseCatalogUrlState(sp);
+  const plpParams = catalogPlpParams({ category_id: category.id }, page);
+  const productsPage = await catalogService.listProducts(plpParams);
+  if (isPageBeyondTotal(page, productsPage.meta.total_count, CATALOG_PAGE_SIZE)) {
+    notFound();
+  }
+
   const intro = getHubIntro(category.slug ?? slug);
   const queryClient = getQueryClient();
 
   let jsonLd: Record<string, unknown> | null = null;
   try {
-    const [all, productsPage] = await Promise.all([
+    const [all] = await Promise.all([
       queryClient.fetchQuery({
         queryKey: catalogKeys.categoriesFlat(),
         queryFn: () => catalogService.listCategoriesFlat(),
       }),
-      catalogService.listProducts({
-        ...HUB_PLP,
-        category_id: category.id,
-      }),
-      // Tree cached for carousel; result unused here (read via getQueryData below).
       queryClient.fetchQuery({
         queryKey: catalogKeys.categoriesTree(),
         queryFn: () => catalogService.listCategoriesTree(),
       }),
     ]);
-    // Prefetch PLP for CatalogView hydrate.
-    queryClient.setQueryData(
-      catalogKeys.products({ ...HUB_PLP, category_id: category.id }),
-      productsPage,
-    );
+    queryClient.setQueryData(catalogKeys.products(plpParams), productsPage);
     const categoryForLd =
       !category.meta_description && intro
         ? { ...category, meta_description: hubIntroExcerpt(intro) }
@@ -147,24 +158,14 @@ export default async function CategoryHubPage({ params }: Props) {
         />
       ) : null}
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense
-          fallback={
-            <Container className="py-10">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <ProductCardSkeleton key={i} />
-                ))}
-              </div>
-            </Container>
-          }
-        >
-          <CategoryHubView
-            category={category}
-            intro={intro}
-            initialTree={initialTree}
-            initialFlat={initialFlat}
-          />
-        </Suspense>
+        <CategoryHubView
+          category={category}
+          intro={intro}
+          initialTree={initialTree}
+          initialFlat={initialFlat}
+          initialProductsSeed={{ params: plpParams, response: productsPage }}
+          serverSearchParams={sp}
+        />
       </HydrationBoundary>
     </>
   );

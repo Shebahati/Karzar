@@ -14,6 +14,7 @@ import {
 } from "@/config/nav-groups";
 import type { Brand, CategoryFlat, CategoryTreeNode } from "@/types/category";
 import type { Article, BlogPost, HeroSlide, ProductComment } from "@/types/content";
+import { normalizeProductListParams } from "@/lib/catalog-plp";
 import type {
   ProductDetail,
   ProductListParams,
@@ -23,11 +24,14 @@ import type {
 
 export { catalogKeys };
 
-export function useCategoryTree(): UseQueryResult<CategoryTreeNode[]> {
+export function useCategoryTree(
+  initialData?: CategoryTreeNode[],
+): UseQueryResult<CategoryTreeNode[]> {
   return useQuery({
     queryKey: catalogKeys.categoriesTree(),
     queryFn: () => catalogService.listCategoriesTree(),
     staleTime: 10 * 60 * 1000,
+    ...(initialData !== undefined ? { initialData } : {}),
   });
 }
 
@@ -49,26 +53,14 @@ export function useBrands(): UseQueryResult<Brand[]> {
 
 export function useProducts(
   params: ProductListParams,
+  initialData?: ProductListResponse,
 ): UseQueryResult<ProductListResponse> {
-  // Drop empty values so query keys match RSC prefetch and stay stable.
-  const normalized = Object.fromEntries(
-    Object.entries(params).filter(([, v]) => {
-      if (v == null || v === "") return false;
-      if (Array.isArray(v) && v.length === 0) return false;
-      if (
-        typeof v === "object" &&
-        !Array.isArray(v) &&
-        Object.keys(v as object).length === 0
-      ) {
-        return false;
-      }
-      return true;
-    }),
-  ) as ProductListParams;
+  const normalized = normalizeProductListParams(params);
   return useQuery({
     queryKey: catalogKeys.products(normalized),
     queryFn: () => catalogService.listProducts(normalized),
     placeholderData: keepPreviousData,
+    ...(initialData !== undefined ? { initialData } : {}),
   });
 }
 
@@ -102,11 +94,14 @@ export function useComments(
   });
 }
 
-export function useArticles(): UseQueryResult<Article[]> {
+export function useArticles(
+  initialData?: Article[],
+): UseQueryResult<Article[]> {
   return useQuery({
     queryKey: catalogKeys.articles(),
     queryFn: () => catalogService.listArticles(),
     staleTime: 10 * 60 * 1000,
+    ...(initialData !== undefined ? { initialData } : {}),
   });
 }
 

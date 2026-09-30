@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-const BASE = process.env.HTTP_CONTRACT_BASE_URL ?? "http://127.0.0.1:3011";
+const BASE = process.env.HTTP_CONTRACT_BASE_URL ?? "http://127.0.0.1:3097";
 
 async function statusOf(path: string): Promise<{
   status: number;

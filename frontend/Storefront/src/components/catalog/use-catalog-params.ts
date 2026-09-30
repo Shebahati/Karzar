@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useCatalogUrlSearchParams } from "@/components/catalog/catalog-url-context";
+import {
+  applyCatalogParamPatch,
+  parsePageParam,
+} from "@/lib/pagination-url";
 import {
   isApiProductSort,
   type ProductListParams,
@@ -43,33 +48,9 @@ export type CatalogParamPatch = Record<
   string | number | number[] | string[] | null | undefined
 >;
 
-/** Parse `1,2,3` (or a single token) into unique positive ints. */
-export function parseIdList(raw: string | null): number[] {
-  if (!raw) return [];
-  const seen = new Set<number>();
-  const out: number[] = [];
-  for (const part of raw.split(",")) {
-    const n = Number(part.trim());
-    if (!Number.isFinite(n) || n <= 0 || seen.has(n)) continue;
-    seen.add(n);
-    out.push(n);
-  }
-  return out;
-}
+import { parseCountryList, parseIdList } from "@/lib/catalog-url-parse";
 
-/** Parse comma-separated countries; trim + dedupe, preserve order. */
-export function parseCountryList(raw: string | null): string[] {
-  if (!raw) return [];
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const part of raw.split(",")) {
-    const token = part.trim();
-    if (!token || seen.has(token)) continue;
-    seen.add(token);
-    out.push(token);
-  }
-  return out;
-}
+export { parseCountryList, parseIdList } from "@/lib/catalog-url-parse";
 
 export function encodeIdList(ids: number[]): string | null {
   return ids.length ? ids.join(",") : null;
@@ -82,7 +63,7 @@ export function encodeCountryList(countries: string[]): string | null {
 export function useCatalogParams() {
   const router = useRouter();
   const pathname = usePathname();
-  const sp = useSearchParams();
+  const sp = useCatalogUrlSearchParams();
 
   const num = (key: string) => {
     const v = sp.get(key);
@@ -119,42 +100,24 @@ export function useCatalogParams() {
   const categorySlug = sp.get("category_slug") ?? undefined;
   const brandSlug = sp.get("brand_slug") ?? undefined;
 
+  const page = parsePageParam(sp.get("page") ?? undefined);
+
   const setParams = useCallback(
     (patch: CatalogParamPatch) => {
-      const next = new URLSearchParams(sp.toString());
-      for (const [key, value] of Object.entries(patch)) {
-        if (value == null || value === "") {
-          next.delete(key);
-        } else if (Array.isArray(value)) {
-          if (value.length === 0) next.delete(key);
-          else next.set(key, value.map(String).join(","));
-        } else {
-          next.set(key, String(value));
-        }
-      }
-
-      // Keep single canonical keys for category/brand — drop aliases.
-      if ("category" in patch) {
-        next.delete("category_id");
-        next.delete("category_slug");
-        if (patch.category == null || patch.category === "") {
-          next.delete("category");
-          // Spec filters are category-scoped — clear when category is cleared.
-          const toDelete: string[] = [];
-          next.forEach((_, key) => {
-            if (key.startsWith(SPEC_PREFIX)) toDelete.push(key);
-          });
-          toDelete.forEach((key) => next.delete(key));
-        }
-      }
-      if ("brand" in patch) {
-        next.delete("brand_id");
-        next.delete("brand_slug");
-      }
-
+      const next = applyCatalogParamPatch(new URLSearchParams(sp.toString()), patch);
       const qs = next.toString();
-      // replace: filter toggles must not spam browser history.
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, sp],
+  );
+
+  const setPage = useCallback(
+    (nextPage: number) => {
+      const next = new URLSearchParams(sp.toString());
+      if (nextPage <= 1) next.delete("page");
+      else next.set("page", String(nextPage));
+      const qs = next.toString();
+      router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [router, pathname, sp],
   );
@@ -213,6 +176,7 @@ export function useCatalogParams() {
       next.delete("category_id");
       next.delete("category_slug");
       next.delete("roots");
+      next.delete("page");
       const qs = next.toString();
       router.replace(qs ? `/catalog?${qs}` : "/catalog", { scroll: false });
     },
@@ -236,6 +200,7 @@ export function useCatalogParams() {
         next.delete("category_id");
         next.delete("category_slug");
         next.delete("roots");
+        next.delete("page");
         next.set("category", String(id));
         router.replace(`/catalog?${next.toString()}`, { scroll: false });
         return;
@@ -264,6 +229,8 @@ export function useCatalogParams() {
 
   return {
     params,
+    page,
+    setPage,
     setParams,
     setSpecFilter,
     toggleBrand,
