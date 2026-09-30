@@ -10303,7 +10303,7 @@
           "Integrations — Emalls"
         ],
         "summary": "Emalls product extraction (read-only)",
-        "description": "Export public storefront products in Emalls-compatible shape.\n\nAuthenticated solely via Emalls token validation (cached). Performs no\ncatalog, price, availability, image, or KB writes.",
+        "description": "Export public storefront products in Emalls WordPress-compatible shape.\n\nAuthenticated solely via Emalls token validation (cached). Performs no\ncatalog, price, availability, image, or KB writes.",
         "operationId": "emalls_products_api_v1_integrations_emalls_products_post",
         "requestBody": {
           "description": "Emalls-compatible params (`token`, `page`, `limit`, `variation`). Accepts JSON or form-urlencoded bodies; query params are also merged (WordPress WP_REST_Request::get_param parity).",
@@ -10411,6 +10411,123 @@
           "503": {
             "description": "Emalls validation service unavailable"
           }
+        }
+      }
+    },
+    "/api/v1/integrations/emalls/feed": {
+      "get": {
+        "tags": [
+          "Integrations — Emalls"
+        ],
+        "summary": "Emalls PDF product feed (read-only)",
+        "description": "Direct Emalls PDF feed. Auth not specified by PDF — no invented token.",
+        "operationId": "emalls_pdf_feed_get_api_v1_integrations_emalls_feed_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number (Emalls PDF query string)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number (Emalls PDF query string)"
+          },
+          {
+            "name": "item_per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Products per page (Emalls PDF). Karzar operational safety cap=100 (not specified by the Emalls PDF).",
+              "default": 50,
+              "title": "Item Per Page"
+            },
+            "description": "Products per page (Emalls PDF). Karzar operational safety cap=100 (not specified by the Emalls PDF)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmallsPdfFeedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid page/item_per_page"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Integrations — Emalls"
+        ],
+        "summary": "Emalls PDF product feed (read-only, POST)",
+        "description": "POST parity for GET /feed. Query parameters only; body optional/ignored.",
+        "operationId": "emalls_pdf_feed_post_api_v1_integrations_emalls_feed_post",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number (Emalls PDF query string)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number (Emalls PDF query string)"
+          },
+          {
+            "name": "item_per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Products per page (Emalls PDF). Karzar operational safety cap=100 (not specified by the Emalls PDF).",
+              "default": 50,
+              "title": "Item Per Page"
+            },
+            "description": "Products per page (Emalls PDF). Karzar operational safety cap=100 (not specified by the Emalls PDF)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmallsPdfFeedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid page/item_per_page"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {},
+          "description": "No body is required. Emalls PDF specifies query string parameters only (`page`, `item_per_page`). Empty POST body is valid."
         }
       }
     },
@@ -15211,6 +15328,115 @@
         },
         "type": "object",
         "title": "DimensionsTemplate"
+      },
+      "EmallsPdfFeedResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/EmallsPdfProduct"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "total_items": {
+            "type": "integer",
+            "title": "Total Items"
+          },
+          "pages_count": {
+            "type": "integer",
+            "title": "Pages Count"
+          },
+          "item_per_page": {
+            "type": "integer",
+            "title": "Item Per Page"
+          },
+          "page_num": {
+            "type": "integer",
+            "title": "Page Num"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "products",
+          "total_items",
+          "pages_count",
+          "item_per_page",
+          "page_num"
+        ],
+        "title": "EmallsPdfFeedResponse",
+        "description": "Root PDF feed response (exact field names from the Emalls PDF)."
+      },
+      "EmallsPdfProduct": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "old_price": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old Price"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "image": {
+            "type": "string",
+            "title": "Image"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color",
+            "default": ""
+          },
+          "guarantee": {
+            "type": "string",
+            "title": "Guarantee",
+            "default": ""
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "id",
+          "price",
+          "category",
+          "image",
+          "is_available",
+          "url"
+        ],
+        "title": "EmallsPdfProduct",
+        "description": "Single product row for the Emalls PDF feed contract."
       },
       "EmallsProduct": {
         "properties": {

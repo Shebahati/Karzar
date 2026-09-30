@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-30 — Emalls direct PDF feed contract (read-only)
+
+- New endpoints: `GET` and `POST /api/v1/integrations/emalls/feed` — query params `page`, `item_per_page` (PDF contract). No request body required; no invented token auth (PDF silent on auth).
+- Response root: `success`, `products`, `total_items`, `pages_count`, `item_per_page`, `page_num`. Product surface: `title`, `id` (string), `price`/`old_price` (integer TOMAN), `category`, `image`, `color`, `guarantee`, `is_available` (bool), `url`.
+- Intentionally separate from WordPress-compatible `POST /api/v1/integrations/emalls/products` (unchanged).
+- Contract: [`integrations/emalls/PDF-FEED-CONTRACT.md`](integrations/emalls/PDF-FEED-CONTRACT.md).
+
 ### 2026-09-29 — Purchase kill switch also blocks payment init
 
 - `POST /api/v1/payments/init` returns **HTTP 503** `PURCHASE_CHECKOUT_TEMPORARILY_DISABLED` when `PURCHASE_CHECKOUT_ENABLED=false`, before idempotency reservation, order/expiry mutation, or any gateway call. Same Persian message as purchase checkout.
