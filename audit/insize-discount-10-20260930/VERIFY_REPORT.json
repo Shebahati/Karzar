@@ -1,0 +1,48 @@
+{
+  "target_rows": 487,
+  "base_price_exact_match": 487,
+  "original_price_exact_match": 487,
+  "formula_matches": 487,
+  "discount_percent_10": 487,
+  "still_at_old_price": 0,
+  "compounded_0_90_count": 0,
+  "current_matches_logged_new": 487,
+  "change_log_base_price_rows": 487,
+  "change_log_original_price_rows": 487,
+  "change_log_rows_total": 974,
+  "distinct_changed_product_ids": 487,
+  "duplicate_mutations": 0,
+  "pre_min": "246400.00",
+  "pre_max": "221356800.00",
+  "pre_sum": "11498562096.00",
+  "min": "221760.00",
+  "max": "199221120.00",
+  "sum": "10348705886.40",
+  "discount_amount": "1149856209.60",
+  "delta_pct_min": "-10.00",
+  "delta_pct_max": "-10.00",
+  "null_price": 385,
+  "isolation": {
+    "non_insize_mutations": 0,
+    "insize_other_field_mutations": 0,
+    "products_count_delta": 0,
+    "product_images_count_delta": 0,
+    "pre_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "9446ef5f8653432b3e648f35b751e6a097f12ee5491090e3efe432e7fe749fd6",
+      "insize_other_fields_sha256": "b3aef02937da659e0da8af7f2295b7cdc705e768437ac788071d25625c7a5b64",
+      "products_count": 6537,
+      "product_images_count": 1492
+    },
+    "post_fingerprints": {
+      "non_insize_live_count": 5664,
+      "non_insize_base_price_null_count": 1599,
+      "non_insize_id_price_sha256": "9446ef5f8653432b3e648f35b751e6a097f12ee5491090e3efe432e7fe749fd6",
+      "insize_other_fields_sha256": "b3aef02937da659e0da8af7f2295b7cdc705e768437ac788071d25625c7a5b64",
+      "products_count": 6537,
+      "product_images_count": 1492
+    }
+  },
+  "ok": true
+}
