@@ -21,7 +21,10 @@ from app.utils.public_catalog import (
     storefront_public_product_filters,
 )
 from app.utils.specifications import specifications_for_storage
-from app.utils.storefront_catalog import product_sort_clause
+from app.utils.storefront_catalog import (
+    on_sale_filter_clause,
+    product_sort_clause,
+)
 
 logger = get_logger(__name__)
 
@@ -155,6 +158,7 @@ async def get_products(
     spec_filters: dict[str, Any] | None = None,
     country: str | list[str] | None = None,
     in_stock: bool | None = None,
+    on_sale: bool | None = None,
     sort: str | None = None,
     product_ids: list[int] | None = None,
     is_deleted: bool | None = None,
@@ -214,6 +218,11 @@ async def get_products(
                 Product.is_available.is_(False),
             )
         )
+    if on_sale is True:
+        filters.append(on_sale_filter_clause())
+    elif on_sale is False:
+        # Explicit false = not currently on sale (includes unpriced / no compare-at).
+        filters.append(~on_sale_filter_clause())
     if is_active is not None:
         filters.append(Product.is_active == is_active)
     if min_price is not None:

@@ -28,6 +28,16 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Catalog `search` query becomes multi-token AND-of-ORs across name, SKU, `manufacturer_code`, brand, Product Type identity, and active PT-linked taxonomy synonyms.
 - No ProductCreate/ProductUpdate manufacturer_code field (unchanged). No rename APPLY.
 
+### 2026-09-30 — Public product `on_sale` discount facet
+
+- `GET /api/v1/products/` accepts optional boolean `on_sale`.
+- When `on_sale=true`, SQL filters to active storefront sales:
+  `base_price IS NOT NULL AND original_price IS NOT NULL AND original_price > base_price AND original_price > 0`.
+- Filter composes with existing brand/category/country/search/price/`in_stock`/spec filters and applies **before** pagination (`meta.total_count` is authoritative).
+- When `on_sale=true` and `sort` is omitted, default sort is `discount_desc`.
+- No new `discount_percent` column — percent remains derived from `base_price` / `original_price`.
+- Composes with Phase 2B identity search (search ∩ on_sale; both SQL-side before pagination).
+
 ### 2026-09-30 — Product manufacturer identity (Phase 2A, read)
 
 - `ProductDetailResponse` gains optional nullable `manufacturer_code` and `product_type_id`.

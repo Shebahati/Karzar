@@ -197,6 +197,158 @@ class TestIdentitySearch:
         assert build_identity_search_filter(None) is None
 
 
+class TestSearchOnSaleComposition:
+    """Phase 2B identity search ∩ main on_sale facet (SQL before pagination)."""
+
+    def test_search_and_on_sale_intersection_pagination_sort(self):
+        async def run():
+            from app.crud import product as crud_product
+
+            async with TestingSessionLocal() as session:
+                product, brand, pt = await _seed_search_fixture(session)
+                # Search+sale hit (deeper discount)
+                product.base_price = Decimal("800")
+                product.original_price = Decimal("1000")
+                # Search-only (not on sale)
+                search_only = Product(
+                    sku="SEARCH-ONLY-P2B",
+                    slug="p2b-search-only",
+                    name="کولیس فقط جستجو اینسایز",
+                    category_id=product.category_id,
+                    brand_id=brand.id,
+                    product_type_id=pt.id,
+                    manufacturer_code="1108-999",
+                    base_price=Decimal("1000"),
+                    original_price=None,
+                    is_active=True,
+                    is_available=True,
+                    is_original=True,
+                    stock_unit=StockUnitEnum.PIECE,
+                    specifications={},
+                )
+                # Sale-only: different brand so brand-token search cannot hit it
+                other_brand = Brand(
+                    name="OTHERBRAND | دیگر", country="CN", slug="other-p2b-sale"
+                )
+                session.add(other_brand)
+                await session.flush()
+                sale_only = Product(
+                    sku="SALE-ONLY-P2B",
+                    slug="p2b-sale-only",
+                    name="محصول حراج بدون هویت کولیس",
+                    category_id=product.category_id,
+                    brand_id=other_brand.id,
+                    product_type_id=None,
+                    manufacturer_code="ZZ-SALE-1",
+                    base_price=Decimal("500"),
+                    original_price=Decimal("1000"),
+                    is_active=True,
+                    is_available=True,
+                    is_original=True,
+                    stock_unit=StockUnitEnum.PIECE,
+                    specifications={},
+                )
+                # Second search+sale hit (shallower discount) for pagination/sort
+                both_b = Product(
+                    sku="BOTH-B-P2B",
+                    slug="p2b-both-b",
+                    name="کولیس حراج دوم اینسایز",
+                    category_id=product.category_id,
+                    brand_id=brand.id,
+                    product_type_id=pt.id,
+                    manufacturer_code="1108-200",
+                    base_price=Decimal("900"),
+                    original_price=Decimal("1000"),
+                    is_active=True,
+                    is_available=True,
+                    is_original=True,
+                    stock_unit=StockUnitEnum.PIECE,
+                    specifications={},
+                )
+                session.add_all([search_only, sale_only, both_b])
+                await session.commit()
+
+                # OEM search ∩ on_sale
+                rows, total = await crud_product.get_products(
+                    session, search="1108-150", on_sale=True, limit=50
+                )
+                ids = {p.id for p in rows}
+                assert product.id in ids
+                assert search_only.id not in ids
+                assert sale_only.id not in ids
+                assert total >= 1
+
+                # Brand + OEM multi-token ∩ on_sale
+                rows2, total2 = await crud_product.get_products(
+                    session,
+                    search="اینسایز 1108-150",
+                    on_sale=True,
+                    brand_id=brand.id,
+                    limit=50,
+                )
+                assert any(p.id == product.id for p in rows2)
+                assert all(p.id != search_only.id for p in rows2)
+                assert all(p.id != sale_only.id for p in rows2)
+                assert total2 >= 1
+
+                # Product Type search ∩ on_sale
+                rows3, _ = await crud_product.get_products(
+                    session, search="Digital Caliper", on_sale=True, limit=50
+                )
+                hit_ids = {p.id for p in rows3}
+                assert product.id in hit_ids
+                assert both_b.id in hit_ids
+                assert sale_only.id not in hit_ids
+                assert search_only.id not in hit_ids
+
+                # Synonym ∩ on_sale
+                rows4, _ = await crud_product.get_products(
+                    session, search="ورنیه", on_sale=True, limit=50
+                )
+                syn_ids = {p.id for p in rows4}
+                assert product.id in syn_ids
+                assert sale_only.id not in syn_ids
+
+                # Pagination: intersection only; authoritative total; no post-filter
+                page1, total_both = await crud_product.get_products(
+                    session,
+                    search="اینسایز",
+                    on_sale=True,
+                    sort="discount_desc",
+                    skip=0,
+                    limit=1,
+                )
+                page2, total_both2 = await crud_product.get_products(
+                    session,
+                    search="اینسایز",
+                    on_sale=True,
+                    sort="discount_desc",
+                    skip=1,
+                    limit=1,
+                )
+                assert total_both == total_both2
+                assert total_both >= 2
+                assert len(page1) == 1
+                assert len(page2) == 1
+                assert page1[0].id != page2[0].id
+                page_ids = {page1[0].id, page2[0].id}
+                assert product.id in page_ids
+                assert both_b.id in page_ids
+                assert search_only.id not in page_ids
+                assert sale_only.id not in page_ids
+                # deeper discount first (product 20% > both_b 10%)
+                assert page1[0].id == product.id
+
+                # stock_first still returns search hits
+                rows5, total5 = await crud_product.get_products(
+                    session, search="1108-150", sort="stock_first", limit=50
+                )
+                assert total5 >= 1
+                assert any(p.id == product.id for p in rows5)
+
+        asyncio.run(run())
+
+
 class TestNamingPreviewReadonly:
     def test_preview_zero_writes_and_hold_without_oem(self):
         async def run():

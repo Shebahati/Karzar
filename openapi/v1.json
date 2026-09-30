@@ -22567,6 +22567,24 @@
             }
           },
           {
+            "description": "When true, only products with an active storefront discount (original_price > base_price > 0 semantics). Filter is applied in SQL before pagination. When true and sort is omitted, defaults to discount_desc.",
+            "in": "query",
+            "name": "on_sale",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "When true, only products with an active storefront discount (original_price > base_price > 0 semantics). Filter is applied in SQL before pagination. When true and sort is omitted, defaults to discount_desc.",
+              "title": "On Sale"
+            }
+          },
+          {
             "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first (legacy: name_asc, name_desc)",
             "in": "query",
             "name": "sort",

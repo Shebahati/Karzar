@@ -4,7 +4,10 @@ import { HomeView } from "@/components/home/home-view";
 import { NAV_GROUPS, navGroupsFromApi } from "@/config/nav-groups";
 import { catalogKeys } from "@/features/catalog/keys";
 import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
-import { HOME_CATALOG_PRODUCTS_PARAMS } from "@/features/home/home-catalog-params";
+import {
+  HOME_CATALOG_PRODUCTS_PARAMS,
+  HOME_DEALS_PRODUCTS_PARAMS,
+} from "@/features/home/home-catalog-params";
 import { getQueryClient } from "@/lib/get-query-client";
 import { readPublishedHeroDesignPack } from "@/features/home/hero-design-server";
 import { catalogService } from "@/services/catalog";
@@ -38,6 +41,10 @@ export default async function HomePage() {
       queryClient.prefetchQuery({
         queryKey: catalogKeys.products(HOME_CATALOG_PRODUCTS_PARAMS),
         queryFn: () => catalogService.listProducts(HOME_CATALOG_PRODUCTS_PARAMS),
+      }),
+      queryClient.prefetchQuery({
+        queryKey: catalogKeys.products(HOME_DEALS_PRODUCTS_PARAMS),
+        queryFn: () => catalogService.listProducts(HOME_DEALS_PRODUCTS_PARAMS),
       }),
       queryClient.prefetchQuery({
         queryKey: catalogKeys.brands(),

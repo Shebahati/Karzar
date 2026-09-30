@@ -7,7 +7,9 @@ import {
 import { catalogKeys } from "@/features/catalog/keys";
 import {
   HOME_CATALOG_PRODUCTS_PARAMS,
+  HOME_DEALS_PRODUCTS_PARAMS,
   homeCatalogProductsQueryKey,
+  homeDealsProductsQueryKey,
 } from "@/features/home/home-catalog-params";
 import { catalogService } from "@/services/catalog";
 import type { ProductListResponse } from "@/types/product";
@@ -105,5 +107,14 @@ describe("home catalog product data flow", () => {
     });
 
     expect(listProducts).toHaveBeenCalledTimes(2);
+  });
+
+  it("uses a dedicated deals query key distinct from the newest pool", () => {
+    expect(homeDealsProductsQueryKey()).toEqual(
+      catalogKeys.products(HOME_DEALS_PRODUCTS_PARAMS),
+    );
+    expect(homeDealsProductsQueryKey()).not.toEqual(homeCatalogProductsQueryKey());
+    expect(HOME_DEALS_PRODUCTS_PARAMS.on_sale).toBe(true);
+    expect(HOME_DEALS_PRODUCTS_PARAMS.sort).toBe("discount_desc");
   });
 });

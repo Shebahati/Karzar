@@ -51,6 +51,20 @@ def compute_discount_percent(
     return int(round((1 - base / original) * 100))
 
 
+def on_sale_filter_clause():
+    """SQL predicate for a real active storefront sale (compare-at > sale).
+
+    Matches derived ``discount_percent > 0`` without storing that column:
+    priced row with ``original_price > base_price`` and ``original_price > 0``.
+    """
+    return (
+        (Product.base_price.isnot(None))
+        & (Product.original_price.isnot(None))
+        & (Product.original_price > Product.base_price)
+        & (Product.original_price > 0)
+    )
+
+
 def decimal_to_api_string(value: Decimal | None) -> str | None:
     if value is None:
         return None
