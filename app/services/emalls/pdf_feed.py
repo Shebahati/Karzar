@@ -16,12 +16,12 @@ from urllib.parse import quote, urlparse
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import load_only, raiseload, selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.db.models.product import Product
+from app.db.models.product import Category, Product, ProductImage
 from app.schemas.emalls_pdf_feed import (
     EMALLS_PDF_MAX_ITEM_PER_PAGE,
     EmallsPdfFeedResponse,
@@ -31,11 +31,36 @@ from app.utils.product_presenter import absolutize_asset_url
 from app.utils.public_catalog import (
     filter_storefront_public_products,
     is_placeholder_image_url,
-    storefront_public_product_filters,
 )
 from app.utils.storefront_catalog import product_is_available
 
 logger = get_logger(__name__)
+
+# Narrow column set for eligibility + presentation. Do not expand without need —
+# loading specifications/description/meta was the primary ~18s page bottleneck.
+_PRODUCT_FEED_COLUMNS = (
+    Product.id,
+    Product.name,
+    Product.slug,
+    Product.category_id,
+    Product.base_price,
+    Product.original_price,
+    Product.is_active,
+    Product.is_available,
+    Product.deleted_at,
+    Product.warranty_text,
+)
+_CATEGORY_FEED_COLUMNS = (
+    Category.id,
+    Category.name,
+)
+_IMAGE_FEED_COLUMNS = (
+    ProductImage.id,
+    ProductImage.product_id,
+    ProductImage.image_url,
+    ProductImage.is_primary,
+    ProductImage.display_order,
+)
 
 
 class EmallsPdfFeedIntegrityError(ValueError):
@@ -71,8 +96,16 @@ def emalls_pdf_feed_filters() -> list[ColumnElement[bool]]:
     Final eligibility always runs ``product_satisfies_pdf_feed`` on the full
     candidate result before pagination. SQL alone is intentionally incomplete
     (e.g. cannot prove absolute public HTTPS image URLs).
+
+    Intentionally omits ``public_image_exists_clause`` / storefront ILIKE
+    ``EXISTS``: on catalogs without ``product_images.product_id`` that correlated
+    predicate dominates wall time (~18s). Image eligibility remains authoritative
+    in Python via ``product_satisfies_pdf_feed`` / ``_primary_image_url``.
     """
-    filters = list(storefront_public_product_filters())
+    filters: list[ColumnElement[bool]] = [
+        Product.deleted_at.is_(None),
+        Product.is_active.is_(True),
+    ]
     filters.append(Product.base_price.isnot(None))
     filters.append(Product.base_price > 0)
     # Exact integer Toman: value equals its rounded integer form (no silent trunc).
@@ -204,9 +237,16 @@ def present_emalls_pdf_product(product: Product) -> EmallsPdfProduct:
 
 
 def _load_options() -> tuple[Any, ...]:
+    """Eager-load only columns required by eligibility and presentation.
+
+    ``raiseload('*')`` fails closed if presentation accidentally touches an
+    unloaded attribute (prevents silent N+1 / contract drift).
+    """
     return (
-        selectinload(Product.images),
-        selectinload(Product.category),
+        load_only(*_PRODUCT_FEED_COLUMNS),
+        selectinload(Product.images).load_only(*_IMAGE_FEED_COLUMNS),
+        selectinload(Product.category).load_only(*_CATEGORY_FEED_COLUMNS),
+        raiseload("*"),
     )
 
 

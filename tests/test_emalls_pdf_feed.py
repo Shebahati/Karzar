@@ -550,3 +550,90 @@ class TestEmallsPdfPaginationIntegrity:
 
         assert fetched == total
         assert seen == {str(i) for i in good_ids}
+
+
+class TestEmallsPdfFeedLoadPath:
+    def test_narrow_load_still_exports_full_contract(self):
+        async def seed():
+            async with TestingSessionLocal() as session:
+                p = await _seed(
+                    session,
+                    _product(
+                        sku="NARROW-1",
+                        name="Narrow Load",
+                        slug="narrow-load",
+                        base_price=Decimal("1000"),
+                        original_price=Decimal("1500"),
+                        warranty_text="گارانتی تست",
+                    ),
+                    _valid_image(url="/static/uploads/narrow.webp"),
+                )
+                await session.commit()
+                return p.id
+
+        pid = asyncio.run(seed())
+        body = client.get(FEED, params={"item_per_page": 10}).json()
+        row = next(r for r in body["products"] if r["id"] == str(pid))
+        assert row["title"] == "Narrow Load"
+        assert row["price"] == 1000
+        assert row["old_price"] == 1500
+        assert row["guarantee"] == "گارانتی تست"
+        assert row["category"]
+        assert row["image"].startswith("https://")
+        assert row["url"].endswith("/product/narrow-load")
+
+    def test_page_sql_statement_count_is_bounded(self):
+        """Feed page must not N+1; expect a small fixed statement budget."""
+
+        async def seed():
+            async with TestingSessionLocal() as session:
+                for i in range(8):
+                    await _seed(
+                        session,
+                        _product(sku=f"SQLB-{i}"),
+                        _valid_image(url=f"/static/uploads/sqlb-{i}.webp"),
+                    )
+                await session.commit()
+
+        asyncio.run(seed())
+
+        statements: list[str] = []
+
+        def _before_cursor_execute(
+            _conn, _cursor, statement, _parameters, _context, _executemany
+        ):
+            statements.append(str(statement))
+
+        from app.db.database import engine
+
+        sync_engine = engine.sync_engine
+        from sqlalchemy import event
+
+        event.listen(sync_engine, "before_cursor_execute", _before_cursor_execute)
+        try:
+            response = client.get(FEED, params={"page": 1, "item_per_page": 5})
+            assert response.status_code == 200
+            body = response.json()
+            assert body["total_items"] == 8
+            assert len(body["products"]) == 5
+        finally:
+            event.remove(sync_engine, "before_cursor_execute", _before_cursor_execute)
+
+        # Expect: candidate SELECT + images selectinload + category selectinload
+        # (plus possible connection/setup noise). Hard ceiling independent of page size.
+        assert len(statements) <= 12, f"too many SQL statements: {len(statements)}"
+        # Must not scale with product count (no per-row image/category query).
+        assert len(statements) < 8
+        joined = " ".join(statements).lower()
+        # Coarse feed SQL must not use the storefront placeholder ILIKE EXISTS
+        # (that predicate is ~18s on real catalogs without product_id index).
+        assert "placeholder" not in joined
+        assert "woocommerce-placeholder" not in joined
+
+    def test_coarse_filters_omit_storefront_image_exists(self):
+        from app.services.emalls.pdf_feed import emalls_pdf_feed_filters
+
+        compiled = " ".join(str(f).lower() for f in emalls_pdf_feed_filters())
+        assert "exists" not in compiled
+        assert "placeholder" not in compiled
+        assert "product_images" not in compiled
