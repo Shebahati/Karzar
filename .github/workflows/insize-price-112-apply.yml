@@ -141,23 +141,14 @@ jobs:
           ls -la "$OUT_HOST" || true
 
           if [ -f "$OUT_HOST/FINAL_REPORT.json" ]; then
-            # Prefer container python — host python3 is not guaranteed on this runner.
-            docker run --rm -v "$OUT_HOST:/out:ro" python:3.12-slim \
-              python -c '
-import json
-from pathlib import Path
-p = Path("/out/FINAL_REPORT.json")
-report = json.loads(p.read_text())
-print("---FINAL_REPORT_JSON_BEGIN---")
-print(json.dumps(report, indent=2, ensure_ascii=False)[:30000])
-print("---FINAL_REPORT_JSON_END---")
-print(report.get("FINAL_LINE", "MISSING_FINAL_LINE"))
-print("STATUS=" + str(report.get("STATUS")))
-' || {
-              echo "WARN: pretty-print via docker python failed; dumping raw head"
-              head -c 20000 "$OUT_HOST/FINAL_REPORT.json" || true
-              echo
-            }
+            # Prefer lathe_api python — host python3 is not guaranteed on this runner.
+            docker cp "$OUT_HOST/FINAL_REPORT.json" lathe_api:/tmp/insize_final_report.json
+            docker exec lathe_api python -c "import json; r=json.load(open('/tmp/insize_final_report.json')); print('---FINAL_REPORT_JSON_BEGIN---'); print(json.dumps(r, indent=2, ensure_ascii=False)[:30000]); print('---FINAL_REPORT_JSON_END---'); print(r.get('FINAL_LINE','MISSING_FINAL_LINE')); print('STATUS='+str(r.get('STATUS')))" \
+              || {
+                echo "WARN: pretty-print via lathe_api python failed; dumping raw head"
+                head -c 20000 "$OUT_HOST/FINAL_REPORT.json" || true
+                echo
+              }
           else
             echo "FINAL_REPORT.json missing"
           fi
