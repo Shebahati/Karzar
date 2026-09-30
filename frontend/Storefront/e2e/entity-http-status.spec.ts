@@ -93,4 +93,13 @@ test.describe("entity HTTP status contract (production build + mock catalog)", (
     );
     expect(status).toBe(404);
   });
+
+  test("public unavailable product PDP → 200 with OutOfStock schema", async () => {
+    const res = await fetch(`${BASE}/product/mkt-9555`, {
+      headers: { "User-Agent": "KarzarHttpContract/1a" },
+    });
+    const html = await res.text();
+    expect(res.status).toBe(200);
+    expect(html).toMatch(/OutOfStock/i);
+  });
 });

@@ -17,6 +17,7 @@ import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
+import { hasPublicProductImage } from "@/lib/product-image";
 import { CATALOG_PAGE_SIZE } from "@/config/catalog-page-size";
 import { buildPaginatedHref } from "@/lib/pagination-url";
 import { PaginationNav } from "@/components/ui/pagination-nav";
@@ -237,7 +238,10 @@ function CatalogViewBody({
       ? data.data
       : (productsInitialData ?? initialProductsSeed?.response)?.data ?? [];
 
-  const visibleProducts = displayProducts;
+  const visibleProducts = useMemo(
+    () => displayProducts.filter(hasPublicProductImage),
+    [displayProducts],
+  );
   const shown = visibleProducts.length;
   const showPagination = totalPages > 1;
   const showFilterSkeleton =
