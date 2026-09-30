@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-const BASE = process.env.HTTP_CONTRACT_BASE_URL ?? "http://127.0.0.1:3011";
+const BASE = process.env.HTTP_CONTRACT_BASE_URL ?? "http://127.0.0.1:3097";
 
 async function statusOf(path: string): Promise<{
   status: number;
@@ -92,5 +92,14 @@ test.describe("entity HTTP status contract (production build + mock catalog)", (
       "/blog/definitely-missing-karzar-wave1a",
     );
     expect(status).toBe(404);
+  });
+
+  test("public unavailable product PDP → 200 with OutOfStock schema", async () => {
+    const res = await fetch(`${BASE}/product/mkt-9555`, {
+      headers: { "User-Agent": "KarzarHttpContract/1a" },
+    });
+    const html = await res.text();
+    expect(res.status).toBe(200);
+    expect(html).toMatch(/OutOfStock/i);
   });
 });

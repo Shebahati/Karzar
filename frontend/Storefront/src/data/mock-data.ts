@@ -21,6 +21,11 @@ import {
   expandCategoryIcons,
   expandProducts,
 } from "./mock-catalog-generator";
+import {
+  buildSeoCrawlBlogTeasers,
+  buildSeoCrawlFixtureProducts,
+  SEO_CRAWL_PRODUCT_IMAGE,
+} from "./mock-seo-crawl-fixtures";
 
 const IMG = (seed: string) =>
   `/images/placeholders/karzar-editorial.svg?v=${encodeURIComponent(seed)}`;
@@ -98,7 +103,7 @@ export const CATEGORY_ICONS = expandCategoryIcons(BASE_CATEGORY_ICONS, CATEGORIE
 /*  Brands.                                                                    */
 /* -------------------------------------------------------------------------- */
 export const BRANDS: Brand[] = [
-  { id: 1, name: "بوش", slug: "bosch", country: "آلمان", product_count: 4 },
+  { id: 1, name: "بوش", slug: "bosch", country: "آلمان", product_count: 0 },
   { id: 2, name: "ماکیتا", slug: "makita", country: "ژاپن", product_count: 3 },
   { id: 3, name: "رونیکس", slug: "ronix", country: "ایران", product_count: 2 },
   { id: 4, name: "میتوتویو", slug: "mitutoyo", country: "ژاپن", product_count: 2 },
@@ -480,8 +485,8 @@ const BASE_PRODUCTS: RawProduct[] = [
     tax_percent: "9",
     is_active: true,
     pdf_catalog_url: null,
-    thumbnail: IMG("grinder-makita"),
-    images: [{ id: 14, url: IMG("grinder-makita"), is_primary: true }],
+    thumbnail: SEO_CRAWL_PRODUCT_IMAGE,
+    images: [{ id: 14, url: SEO_CRAWL_PRODUCT_IMAGE, is_primary: true }],
     description: "مینی فرز ماکیتا با بدنه باریک و قابلیت کنترل بهتر.",
     specifications: {
       technical_specs: [
@@ -559,7 +564,8 @@ const BASE_PRODUCTS: RawProduct[] = [
   },
 ];
 
-export const PRODUCTS = expandProducts(BASE_PRODUCTS, EXPANDED_CATEGORIES);
+const EXPANDED_PRODUCTS = expandProducts(BASE_PRODUCTS, EXPANDED_CATEGORIES);
+export const PRODUCTS = [...EXPANDED_PRODUCTS, ...buildSeoCrawlFixtureProducts()];
 
 /* -------------------------------------------------------------------------- */
 /*  Product comments.                                                          */
@@ -600,6 +606,8 @@ export const COMMENTS: ProductComment[] = [
 const SEO003_BLOG_POSTS: BlogPost[] = listBlogArticles().map((article, index) =>
   blogArticleToPost(article, 100 + index),
 );
+
+const SEO_CRAWL_BLOG_TEASERS = buildSeoCrawlBlogTeasers();
 
 export const ARTICLES: Article[] = [
   {
@@ -649,6 +657,7 @@ export const ARTICLES: Article[] = [
     published_at: "2026-06-02T10:00:00Z",
     reading_minutes: 8,
   },
+  ...SEO_CRAWL_BLOG_TEASERS,
 ];
 
 /* -------------------------------------------------------------------------- */

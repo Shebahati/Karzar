@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Filter } from "react-iconly";
+import { usePathname } from "next/navigation";
+import { Filter } from "react-iconly";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/product-card";
@@ -9,58 +10,101 @@ import { FilterPanel } from "@/components/catalog/filter-panel";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { MobileFilterDrawer } from "@/components/catalog/mobile-filter-drawer";
 import { RootCategoryCarousel } from "@/components/catalog/root-category-carousel";
+import { CatalogUrlProvider } from "@/components/catalog/catalog-url-context";
 import { parseIdList, useCatalogParams } from "@/components/catalog/use-catalog-params";
+import { searchParamsToUrlSearchParams } from "@/lib/pagination-request";
 import { useFlatCategories, useProducts } from "@/features/catalog/queries";
 import { catalogService } from "@/services/catalog";
 import { useUiStore } from "@/store/ui-store";
 import { isPlpLcpIndex } from "@/lib/cwv";
 import { hasPublicProductImage } from "@/lib/product-image";
-import { useIsDesktopLg } from "@/lib/use-motion-safe";
-import { cn, formatNumber, toPersianDigits } from "@/lib/utils";
+import { CATALOG_PAGE_SIZE } from "@/config/catalog-page-size";
+import { buildPaginatedHref } from "@/lib/pagination-url";
+import { PaginationNav } from "@/components/ui/pagination-nav";
+import { cn, toPersianDigits } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
+import { productListParamsKey } from "@/lib/catalog-plp";
 import {
   isApiProductSort,
   type ProductListParams,
-  type ProductSummary,
+  type ProductListResponse,
 } from "@/types/product";
 
-const PAGE_SIZE = 20;
-/** Append batches after the initial page before switching to numbered pagination. */
-const MAX_APPENDS = 2;
 const FILTERS_PANEL_ID = "catalog-filters-panel";
+
+export type CatalogProductsSeed = {
+  params: ProductListParams;
+  response: ProductListResponse;
+};
+
+type ServerSearchParams = Record<string, string | string[] | undefined>;
 
 export function CatalogView({
   lockedCategoryId,
   lockedBrandId,
   initialTree = [],
+  initialProductsSeed,
+  serverSearchParams = {},
 }: {
   lockedCategoryId?: number;
   lockedBrandId?: number;
   /** RSC prefetch seed for root category carousel hydration. */
   initialTree?: CategoryTreeNode[];
+  /** Server-fetched PLP page so raw HTML includes product anchors. */
+  initialProductsSeed?: CatalogProductsSeed;
+  /** Passed from RSC so PLP SSR does not suspend on useSearchParams. */
+  serverSearchParams?: ServerSearchParams;
 } = {}) {
-  const { params, activeCount, categorySlug, brandSlug, setParams, clearAll, unlockToCatalog, raw } =
-    useCatalogParams();
+  const urlSearchParams = useMemo(
+    () => searchParamsToUrlSearchParams(serverSearchParams),
+    [serverSearchParams],
+  );
+
+  return (
+    <CatalogUrlProvider value={urlSearchParams}>
+      <CatalogViewBody
+        lockedCategoryId={lockedCategoryId}
+        lockedBrandId={lockedBrandId}
+        initialTree={initialTree}
+        initialProductsSeed={initialProductsSeed}
+      />
+    </CatalogUrlProvider>
+  );
+}
+
+function CatalogViewBody({
+  lockedCategoryId,
+  lockedBrandId,
+  initialTree = [],
+  initialProductsSeed,
+}: {
+  lockedCategoryId?: number;
+  lockedBrandId?: number;
+  initialTree?: CategoryTreeNode[];
+  initialProductsSeed?: CatalogProductsSeed;
+}) {
+  const pathname = usePathname();
+  const {
+    params,
+    page,
+    setPage,
+    activeCount,
+    categorySlug,
+    brandSlug,
+    setParams,
+    clearAll,
+    unlockToCatalog,
+    raw,
+  } = useCatalogParams();
   /** Slug→id fills only when URL has slug without numeric id yet. */
   const [slugOverrides, setSlugOverrides] = useState<{
     category_id?: number;
     brand_ids?: number[];
   }>({});
   const [slugError, setSlugError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  /** How many +20 appends have been requested after the initial page. */
-  const [appendCount, setAppendCount] = useState(0);
-  /** Numbered pagination after MAX_APPENDS (or once the user picks a page). */
-  const [usePagination, setUsePagination] = useState(false);
-  /** Once true, each page replaces the grid (no more accumulating). */
-  const [replaceMode, setReplaceMode] = useState(false);
-  const [accumulated, setAccumulated] = useState<ProductSummary[]>([]);
   const filterDrawerOpen = useUiStore((s) => s.filterDrawerOpen);
   const setDrawer = useUiStore((s) => s.setFilterDrawerOpen);
-  const isDesktop = useIsDesktopLg();
   const gridTopRef = useRef<HTMLDivElement | null>(null);
-  /** Blocks double IntersectionObserver fires before `isFetching` flips. */
-  const appendLockRef = useRef(false);
 
   // URL wins over hub lock so L2/L3 drill-down and clear actually change the PLP.
   // Hub lock is only the default when the URL has no category.
@@ -79,23 +123,6 @@ export function CatalogView({
     return next;
   }, [params, lockedCategoryId, lockedBrandId, slugOverrides]);
 
-  const filterKey = useMemo(
-    () =>
-      JSON.stringify({
-        category_id: resolvedParams.category_id ?? null,
-        brand_ids: resolvedParams.brand_ids ?? [],
-        countries: resolvedParams.countries ?? [],
-        search: resolvedParams.search ?? null,
-        min_price: resolvedParams.min_price ?? null,
-        max_price: resolvedParams.max_price ?? null,
-        in_stock: resolvedParams.in_stock ?? null,
-        on_sale: resolvedParams.on_sale ?? null,
-        sort: resolvedParams.sort ?? null,
-        spec_filters: resolvedParams.spec_filters ?? null,
-      }),
-    [resolvedParams],
-  );
-
   // Migrate legacy multi-root `roots` URLs → single `category`.
   useEffect(() => {
     if (lockedCategoryId != null) return;
@@ -113,15 +140,6 @@ export function CatalogView({
     if (!sortRaw || isApiProductSort(sortRaw)) return;
     setParams({ sort: null });
   }, [raw, setParams]);
-
-  // Filters / search / sort change → back to initial 20 + append rules.
-  useEffect(() => {
-    setPage(1);
-    setAppendCount(0);
-    setUsePagination(false);
-    setReplaceMode(false);
-    setAccumulated([]);
-  }, [filterKey]);
 
   // Do NOT force-rewrite URL back to lockedCategoryId — that made clear + L2/L3
   // selection appear broken on hub pages (selection written, then immediately overwritten).
@@ -194,94 +212,50 @@ export function CatalogView({
   const queryParams = useMemo(
     () => ({
       ...resolvedParams,
-      limit: PAGE_SIZE,
-      skip: (page - 1) * PAGE_SIZE,
+      limit: CATALOG_PAGE_SIZE,
+      skip: (page - 1) * CATALOG_PAGE_SIZE,
     }),
     [resolvedParams, page],
   );
+  const productsInitialData = useMemo(() => {
+    if (!initialProductsSeed) return undefined;
+    return productListParamsKey(queryParams) ===
+      productListParamsKey(initialProductsSeed.params)
+      ? initialProductsSeed.response
+      : undefined;
+  }, [initialProductsSeed, queryParams]);
   const { data, isLoading, isFetching, isPlaceholderData, isError, refetch } =
-    useProducts(queryParams);
+    useProducts(queryParams, productsInitialData);
   const { data: categories } = useFlatCategories();
 
-  useEffect(() => {
-    if (!data?.data || isPlaceholderData || replaceMode) return;
-    setAccumulated((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
-    if (appendCount >= MAX_APPENDS) {
-      const totalPages = Math.ceil((data.meta.total_count ?? 0) / PAGE_SIZE);
-      // Only switch when more than the 3 appended pages exist.
-      if (totalPages > MAX_APPENDS + 1) setUsePagination(true);
-    }
-  }, [data, page, isPlaceholderData, replaceMode, appendCount]);
+  const resolvedPage =
+    data ?? productsInitialData ?? initialProductsSeed?.response;
+  const total = resolvedPage?.meta.total_count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE) || 1);
 
-  const total = data?.meta.total_count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE) || 1);
-
-  // Prefer live page-1 data so we never flash EmptyState while accumulated is still clearing.
-  // After the user picks a page number, replace the grid with that page only.
-  const displayProducts = replaceMode
-    ? data?.data && !isPlaceholderData
+  const displayProducts =
+    data?.data && !isPlaceholderData
       ? data.data
-      : (data?.data ?? [])
-    : page === 1 && data?.data && !isPlaceholderData
-      ? data.data
-      : accumulated;
+      : (productsInitialData ?? initialProductsSeed?.response)?.data ?? [];
 
   const visibleProducts = useMemo(
     () => displayProducts.filter(hasPublicProductImage),
     [displayProducts],
   );
   const shown = visibleProducts.length;
-  const hasMore = !isPlaceholderData && shown < total;
-  const canAppend =
-    !usePagination && !replaceMode && hasMore && appendCount < MAX_APPENDS;
-  const showPagination = (usePagination || replaceMode) && totalPages > 1;
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const showPagination = totalPages > 1;
   const showFilterSkeleton =
-    (isLoading || isPlaceholderData || (isFetching && page === 1 && shown === 0)) &&
-    page === 1 &&
-    !replaceMode;
+    initialProductsSeed == null &&
+    (isLoading || isPlaceholderData || (isFetching && shown === 0)) &&
+    !data?.data;
   const showEmpty =
     !showFilterSkeleton && !isFetching && !isPlaceholderData && total === 0;
-  /** Next-page fetch only — not initial PLP skeleton. */
-  const isLoadingMore =
-    isFetching && (page > 1 || replaceMode) && !showFilterSkeleton;
+  const isLoadingMore = isFetching && !showFilterSkeleton && shown > 0;
 
-  useEffect(() => {
-    if (!isFetching) appendLockRef.current = false;
-  }, [isFetching]);
-
-  const appendNext = useCallback(() => {
-    if (isFetching || !canAppend || appendLockRef.current) return;
-    appendLockRef.current = true;
-    setAppendCount((c) => c + 1);
-    setPage((p) => p + 1);
-  }, [canAppend, isFetching]);
-
-  const goToPage = useCallback(
-    (next: number) => {
-      if (next < 1 || next > totalPages || (next === page && replaceMode)) return;
-      setReplaceMode(true);
-      setUsePagination(true);
-      setPage(next);
-      gridTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    },
-    [page, replaceMode, totalPages],
+  const hrefForPage = useCallback(
+    (target: number) => buildPaginatedHref(pathname, raw, target),
+    [pathname, raw],
   );
-
-  // Desktop: auto-append on scroll near bottom (at most MAX_APPENDS times).
-  useEffect(() => {
-    if (!isDesktop || !canAppend || showFilterSkeleton || shown === 0) return;
-    const node = loadMoreRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) appendNext();
-      },
-      { root: null, rootMargin: "280px 0px", threshold: 0 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [isDesktop, canAppend, appendNext, showFilterSkeleton, shown]);
 
   const activeCategory = resolvedParams.category_id
     ? categories?.find((c) => c.id === resolvedParams.category_id)
@@ -395,66 +369,24 @@ export function CatalogView({
                 ref={gridTopRef}
                 className={cn(
                   "grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4",
-                  replaceMode && isLoadingMore && "opacity-60 transition-opacity duration-300",
+                  isLoadingMore && "opacity-60 transition-opacity duration-300",
                 )}
               >
                 {visibleProducts.map((p, i) => (
                   <ProductCard
                     key={p.id}
                     product={p}
-                    priority={!replaceMode && page === 1 && isPlpLcpIndex(i)}
+                    priority={page === 1 && isPlpLcpIndex(i)}
                   />
                 ))}
               </div>
 
-              {/* Desktop: soft footer cue + intersection sentinel for auto-append */}
-              {canAppend && isDesktop ? (
-                <div
-                  ref={loadMoreRef}
-                  className="mt-8 flex min-h-12 items-center justify-center"
-                  aria-hidden={!isLoadingMore}
-                >
-                  <CatalogNextPageLoader active={isLoadingMore} />
-                </div>
-              ) : null}
-
-              {/* Mobile: «نمایش بیشتر» — max two appends, then pagination */}
-              {canAppend && !isDesktop ? (
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    disabled={isLoadingMore}
-                    onClick={appendNext}
-                    aria-busy={isLoadingMore}
-                    className={cn(
-                      "inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium text-foreground",
-                      "bg-card shadow-soft ring-1 ring-inset ring-border/70",
-                      "transition-[opacity,transform,background-color] duration-300",
-                      "hover:bg-accent disabled:pointer-events-none",
-                      isLoadingMore && "animate-pulse bg-accent/60",
-                    )}
-                  >
-                    {isLoadingMore ? (
-                      <>
-                        <span
-                          className="size-3.5 animate-spin rounded-full border border-primary/25 border-t-primary"
-                          aria-hidden
-                        />
-                        <span className="text-muted-foreground">در حال بارگذاری…</span>
-                      </>
-                    ) : (
-                      "نمایش بیشتر"
-                    )}
-                  </button>
-                </div>
-              ) : null}
-
               {showPagination ? (
-                <CatalogPagination
+                <PaginationNav
                   page={page}
                   totalPages={totalPages}
-                  disabled={isLoadingMore}
-                  onPageChange={goToPage}
+                  hrefForPage={hrefForPage}
+                  ariaLabel="صفحه‌بندی محصولات"
                 />
               ) : null}
             </>
@@ -468,131 +400,6 @@ export function CatalogView({
         priceSeedProducts={displayProducts}
       />
     </Container>
-  );
-}
-
-/** Soft footer cue while desktop infinite-scroll appends the next page. */
-function CatalogNextPageLoader({ active }: { active: boolean }) {
-  if (!active) return null;
-  return (
-    <div
-      className="flex flex-col items-center gap-2.5"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <span
-        className="size-[18px] animate-spin rounded-full border-[1.5px] border-primary/20 border-t-primary"
-        aria-hidden
-      />
-      <span
-        className="h-px w-10 animate-pulse rounded-full bg-primary/40"
-        aria-hidden
-      />
-      <span className="sr-only">در حال بارگذاری محصولات بیشتر</span>
-    </div>
-  );
-}
-
-function CatalogPagination({
-  page,
-  totalPages,
-  disabled,
-  onPageChange,
-}: {
-  page: number;
-  totalPages: number;
-  disabled?: boolean;
-  onPageChange: (page: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-
-  const windowSize = 5;
-  let start = Math.max(1, page - Math.floor(windowSize / 2));
-  const end = Math.min(totalPages, start + windowSize - 1);
-  start = Math.max(1, end - windowSize + 1);
-  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-
-  return (
-    <nav
-      aria-label="صفحه‌بندی محصولات"
-      className="mt-8 flex flex-wrap items-center justify-center gap-2"
-    >
-      <button
-        type="button"
-        disabled={disabled || page <= 1}
-        onClick={() => onPageChange(page - 1)}
-        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
-      >
-        <ChevronRight size="small" set="light" />
-        قبلی
-      </button>
-      {start > 1 ? (
-        <>
-          <CatalogPageBtn n={1} active={page === 1} disabled={disabled} onClick={onPageChange} />
-          {start > 2 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
-        </>
-      ) : null}
-      {pages.map((n) => (
-        <CatalogPageBtn
-          key={n}
-          n={n}
-          active={page === n}
-          disabled={disabled}
-          onClick={onPageChange}
-        />
-      ))}
-      {end < totalPages ? (
-        <>
-          {end < totalPages - 1 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
-          <CatalogPageBtn
-            n={totalPages}
-            active={page === totalPages}
-            disabled={disabled}
-            onClick={onPageChange}
-          />
-        </>
-      ) : null}
-      <button
-        type="button"
-        disabled={disabled || page >= totalPages}
-        onClick={() => onPageChange(page + 1)}
-        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
-      >
-        بعدی
-        <ChevronLeft size="small" set="light" />
-      </button>
-    </nav>
-  );
-}
-
-function CatalogPageBtn({
-  n,
-  active,
-  disabled,
-  onClick,
-}: {
-  n: number;
-  active: boolean;
-  disabled?: boolean;
-  onClick: (page: number) => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-current={active ? "page" : undefined}
-      disabled={disabled}
-      onClick={() => onClick(n)}
-      className={cn(
-        "grid h-10 min-w-10 place-items-center rounded-xl px-2.5 text-sm font-bold transition",
-        active
-          ? "bg-[#D02327] text-white shadow-[0_10px_24px_-14px_rgba(208,35,39,0.8)]"
-          : "border border-border/60 bg-card text-[#5E5F5E] hover:text-[#D02327]",
-        disabled && "pointer-events-none opacity-40",
-      )}
-    >
-      {formatNumber(n)}
-    </button>
   );
 }
 

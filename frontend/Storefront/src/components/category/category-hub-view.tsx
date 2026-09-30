@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
-import { CatalogView } from "@/components/catalog/catalog-view";
+import { CatalogUrlProvider } from "@/components/catalog/catalog-url-context";
+import { CatalogView, type CatalogProductsSeed } from "@/components/catalog/catalog-view";
+import { searchParamsToUrlSearchParams } from "@/lib/pagination-request";
 import { RootCategoryCarousel } from "@/components/catalog/root-category-carousel";
 import { CategoryHubIntro } from "@/components/category/category-hub-intro";
 import { HubChildNav } from "@/components/category/hub-child-nav";
@@ -30,6 +32,8 @@ export function CategoryHubView({
   intro = null,
   initialTree = [],
   initialFlat = [],
+  initialProductsSeed,
+  serverSearchParams,
 }: {
   category: CategoryFlat;
   intro?: HubIntro | null;
@@ -37,6 +41,8 @@ export function CategoryHubView({
   initialTree?: CategoryTreeNode[];
   /** RSC prefetch seed for breadcrumbs / child nav. */
   initialFlat?: CategoryFlat[];
+  initialProductsSeed?: CatalogProductsSeed;
+  serverSearchParams?: Record<string, string | string[] | undefined>;
 }) {
   const { data } = useFlatCategories();
   const all = useMemo(
@@ -59,7 +65,13 @@ export function CategoryHubView({
       ? `محصولات دسته «${category.breadcrumb.join(" › ")}» در فروشگاه کارزار.`
       : null);
 
+  const urlSearchParams = useMemo(
+    () => searchParamsToUrlSearchParams(serverSearchParams ?? {}),
+    [serverSearchParams],
+  );
+
   return (
+    <CatalogUrlProvider value={urlSearchParams}>
     <>
       <Container className="pt-3 pb-1 lg:pt-6 lg:pb-2">
         <nav
@@ -101,7 +113,12 @@ export function CategoryHubView({
         ) : null}
       </Container>
 
-      <CatalogView lockedCategoryId={category.id} initialTree={initialTree} />
+      <CatalogView
+        lockedCategoryId={category.id}
+        initialTree={initialTree}
+        initialProductsSeed={initialProductsSeed}
+        serverSearchParams={serverSearchParams}
+      />
 
       {(intro || fallbackDescription) && (
         <Container className="pb-12 pt-4">
@@ -113,6 +130,7 @@ export function CategoryHubView({
         </Container>
       )}
     </>
+    </CatalogUrlProvider>
   );
 }
 

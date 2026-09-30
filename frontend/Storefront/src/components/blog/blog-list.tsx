@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { searchParamsToUrlSearchParams } from "@/lib/pagination-request";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "react-iconly";
 import { ArticleCard, ArticleCardSkeleton } from "@/components/blog/article-card";
 import { SectionHeading } from "@/components/home/section-heading";
 import { AutoCarousel } from "@/components/ui/auto-carousel";
 import { Container } from "@/components/ui/container";
+import { PaginationNav } from "@/components/ui/pagination-nav";
 import { useArticles } from "@/features/catalog/queries";
 import {
   ARTICLES_PAGE_SIZE,
@@ -17,93 +18,9 @@ import {
   sortArticlesByNewest,
   sortArticlesByViews,
 } from "@/lib/articles";
+import { buildPaginatedHref, parsePageParam } from "@/lib/pagination-url";
 import { cn, formatNumber } from "@/lib/utils";
 import type { Article } from "@/types/content";
-
-function ArticlesPagination({
-  page,
-  totalPages,
-  onPageChange,
-}: {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-
-  const windowSize = 5;
-  let start = Math.max(1, page - Math.floor(windowSize / 2));
-  const end = Math.min(totalPages, start + windowSize - 1);
-  start = Math.max(1, end - windowSize + 1);
-  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-
-  return (
-    <nav
-      aria-label="صفحه‌بندی مقالات"
-      className="mt-8 flex flex-wrap items-center justify-center gap-2"
-    >
-      <button
-        type="button"
-        disabled={page <= 1}
-        onClick={() => onPageChange(page - 1)}
-        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
-      >
-        <ChevronRight size="small" set="light" />
-        قبلی
-      </button>
-      {start > 1 ? (
-        <>
-          <PageBtn n={1} active={page === 1} onClick={onPageChange} />
-          {start > 2 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
-        </>
-      ) : null}
-      {pages.map((n) => (
-        <PageBtn key={n} n={n} active={n === page} onClick={onPageChange} />
-      ))}
-      {end < totalPages ? (
-        <>
-          {end < totalPages - 1 ? <span className="px-1 text-[#5E5F5E]/50">…</span> : null}
-          <PageBtn n={totalPages} active={page === totalPages} onClick={onPageChange} />
-        </>
-      ) : null}
-      <button
-        type="button"
-        disabled={page >= totalPages}
-        onClick={() => onPageChange(page + 1)}
-        className="inline-flex h-10 items-center gap-1 rounded-xl border border-border/60 bg-card px-3 text-xs font-bold text-[#5E5F5E] transition hover:text-[#D02327] disabled:pointer-events-none disabled:opacity-40"
-      >
-        بعدی
-        <ChevronLeft size="small" set="light" />
-      </button>
-    </nav>
-  );
-}
-
-function PageBtn({
-  n,
-  active,
-  onClick,
-}: {
-  n: number;
-  active: boolean;
-  onClick: (page: number) => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-current={active ? "page" : undefined}
-      onClick={() => onClick(n)}
-      className={cn(
-        "grid h-10 min-w-10 place-items-center rounded-xl px-2.5 text-sm font-bold transition",
-        active
-          ? "bg-[#D02327] text-white shadow-[0_10px_24px_-14px_rgba(208,35,39,0.8)]"
-          : "border border-border/60 bg-card text-[#5E5F5E] hover:text-[#D02327]",
-      )}
-    >
-      {formatNumber(n)}
-    </button>
-  );
-}
 
 function MagazineCategoryTabs({
   groups,
@@ -245,22 +162,34 @@ function MagazineCategoryTabs({
   );
 }
 
-export function BlogList() {
-  const { data, isLoading } = useArticles();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+type ServerSearchParams = Record<string, string | string[] | undefined>;
 
-  const pageFromUrl = Math.max(1, Number(searchParams.get("page") || "1") || 1);
+export function BlogList({
+  initialArticles,
+  serverSearchParams = {},
+}: {
+  initialArticles?: Article[];
+  serverSearchParams?: ServerSearchParams;
+} = {}) {
+  const { data, isLoading } = useArticles(initialArticles);
+  const pathname = usePathname();
+  const searchParams = useMemo(
+    () => searchParamsToUrlSearchParams(serverSearchParams),
+    [serverSearchParams],
+  );
+
+  const pageFromUrl = parsePageParam(searchParams.get("page") ?? undefined);
+
+  const resolved = data ?? initialArticles ?? [];
 
   const newest = useMemo(
-    () => sortArticlesByNewest(data ?? []),
-    [data],
+    () => sortArticlesByNewest(resolved),
+    [resolved],
   );
 
   const mostViewedSorted = useMemo(
-    () => sortArticlesByViews(data ?? []),
-    [data],
+    () => sortArticlesByViews(resolved),
+    [resolved],
   );
 
   const mostViewed = useMemo(() => {
@@ -270,8 +199,8 @@ export function BlogList() {
   }, [mostViewedSorted, newest]);
 
   const categoryGroups = useMemo(
-    () => groupArticlesByCategory(data ?? [], { minPerGroup: 1, maxGroups: 6 }),
-    [data],
+    () => groupArticlesByCategory(resolved, { minPerGroup: 1, maxGroups: 6 }),
+    [resolved],
   );
 
   const allSorted = newest;
@@ -281,15 +210,12 @@ export function BlogList() {
     ARTICLES_PAGE_SIZE,
   );
 
-  const setPage = (next: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next <= 1) params.delete("page");
-    else params.set("page", String(next));
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    const el = document.getElementById("all-articles");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const hrefForPage = useCallback(
+    (target: number) => buildPaginatedHref(pathname, searchParams, target),
+    [pathname, searchParams],
+  );
+
+  const showLoading = isLoading && initialArticles === undefined;
 
   const featured = newest[0];
   const sideNewest = newest.slice(1, 3);
@@ -326,7 +252,7 @@ export function BlogList() {
             title="جدیدترین‌ها"
             subtitle="تازه‌ترین راهنماها و نکات فنی"
           />
-          {isLoading ? (
+          {showLoading ? (
             <div className="grid gap-3 lg:grid-cols-12 lg:gap-3.5">
               <ArticleCardSkeleton variant="featured" className="lg:col-span-7" />
               <div className="grid gap-3 lg:col-span-5">
@@ -375,7 +301,7 @@ export function BlogList() {
         </section>
 
         {/* B. Most viewed — desktop only */}
-        {!isLoading && mostViewed.length > 0 ? (
+        {!showLoading && mostViewed.length > 0 ? (
           <section
             aria-labelledby="most-viewed-heading"
             className="hidden md:block"
@@ -412,7 +338,7 @@ export function BlogList() {
         ) : null}
 
         {/* C. Magazine topics — selectable tabs */}
-        {!isLoading && categoryGroups.length > 0 ? (
+        {!showLoading && categoryGroups.length > 0 ? (
           <MagazineCategoryTabs groups={categoryGroups} />
         ) : null}
 
@@ -427,7 +353,7 @@ export function BlogList() {
                 : "فهرست کامل مجله"
             }
           />
-          {isLoading ? (
+          {showLoading ? (
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {Array.from({ length: 10 }).map((_, i) => (
                 <ArticleCardSkeleton key={i} variant="tile" />
@@ -449,10 +375,11 @@ export function BlogList() {
                   />
                 ))}
               </div>
-              <ArticlesPagination
+              <PaginationNav
                 page={page}
                 totalPages={totalPages}
-                onPageChange={setPage}
+                hrefForPage={hrefForPage}
+                ariaLabel="صفحه‌بندی مقالات"
               />
             </>
           )}

@@ -36,6 +36,7 @@ import type { ContactValues } from "@/lib/validation";
 import { buildOrderTimeline } from "@/lib/order-timeline";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { CategoryBrief, ProductDetail, ProductListParams, ProductListResponse, ProductSummary } from "@/types/product";
+import { hasPublicProductImage } from "@/lib/product-image";
 import { productHasDiscount } from "@/types/product";
 import type {
   MeResponse,
@@ -56,10 +57,33 @@ import type {
 } from "@/types/payment";
 import type { SpecFilterOptions } from "@/types/spec-filter";
 
+function productHasListableImage(p: (typeof PRODUCTS)[number]): boolean {
+  return hasPublicProductImage({
+    id: p.id,
+    sku: p.sku,
+    slug: "fixture",
+    name: p.name,
+    thumbnail: p.thumbnail,
+    images: p.images,
+    base_price: p.base_price,
+    original_price: p.original_price,
+    discount_percent: p.discount_percent,
+    stock_status: "in_stock",
+    availability: p.availability,
+    is_original: p.is_original,
+    category: null,
+    brand: null,
+  });
+}
+
+function storefrontListable(p: (typeof PRODUCTS)[number]): boolean {
+  return p.is_active && productHasListableImage(p);
+}
+
 const flat: CategoryFlat[] = enrichCategories(CATEGORIES).map((c) => {
   const descendantIds = new Set(collectDescendantIds(CATEGORIES, c.id));
   const product_count = PRODUCTS.filter(
-    (p) => p.is_active && p.category_id != null && descendantIds.has(p.category_id),
+    (p) => p.category_id != null && descendantIds.has(p.category_id) && storefrontListable(p),
   ).length;
   return { ...c, product_count };
 });
@@ -206,12 +230,17 @@ export const mockApi = {
 
   async listBrands(): Promise<Brand[]> {
     await sleep(env.MOCK_LATENCY_MS);
-    return BRANDS;
+    return BRANDS.map((b) => ({
+      ...b,
+      product_count: PRODUCTS.filter(
+        (p) => p.brand_id === b.id && storefrontListable(p),
+      ).length,
+    }));
   },
 
   async listProducts(params: ProductListParams = {}): Promise<ProductListResponse> {
     await sleep(env.MOCK_LATENCY_MS);
-    let items = PRODUCTS.filter((p) => p.is_active);
+    let items = PRODUCTS.filter(storefrontListable);
 
     if (params.category_id != null) {
       const ids = new Set(collectDescendantIds(CATEGORIES, params.category_id));

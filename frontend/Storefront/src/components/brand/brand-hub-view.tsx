@@ -3,13 +3,21 @@
 import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
 import { Container } from "@/components/ui/container";
-import { CatalogView } from "@/components/catalog/catalog-view";
+import { CatalogView, type CatalogProductsSeed } from "@/components/catalog/catalog-view";
 import { resolveBrandLogoUrl } from "@/config/brand-logos";
 import { formatNumber } from "@/lib/utils";
 import type { Brand } from "@/types/category";
 
 /** Brand Hub PLP shell — brand-hub-page-contract §5 / D21. */
-export function BrandHubView({ brand }: { brand: Brand }) {
+export function BrandHubView({
+  brand,
+  initialProductsSeed,
+  serverSearchParams,
+}: {
+  brand: Brand;
+  initialProductsSeed?: CatalogProductsSeed;
+  serverSearchParams?: Record<string, string | string[] | undefined>;
+}) {
   const blurb = brand.meta_description?.trim() || null;
   const logo = resolveBrandLogoUrl(brand.name, brand.logo_url);
 
@@ -57,7 +65,11 @@ export function BrandHubView({ brand }: { brand: Brand }) {
         </header>
       </Container>
 
-      <CatalogView lockedBrandId={brand.id} />
+      <CatalogView
+        lockedBrandId={brand.id}
+        initialProductsSeed={initialProductsSeed}
+        serverSearchParams={serverSearchParams}
+      />
     </>
   );
 }
