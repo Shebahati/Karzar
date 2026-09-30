@@ -988,6 +988,46 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/product-manufacturer-identity-phase2a-1355
 
+  - id: PRODUCT-NAMING-V1-PHASE-2B-SEARCH-PREVIEW
+    path: docs/architecture/specs/product-naming-v1/PHASE-2B-SEARCH-PREVIEW.md
+    class: PROPOSED
+    rank: 6
+    status: proposed
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2b-search-preview-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2B-SUMMARY
+    path: audit/product-naming-phase2b/PHASE2B_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2b-search-preview-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2B-SEARCH-SURFACE-AUDIT
+    path: audit/product-naming-phase2b/SEARCH_SURFACE_AUDIT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2b-search-preview-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2B-GOVERNANCE-MATRIX
+    path: audit/product-naming-phase2b/NAMING_GOVERNANCE_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2b-search-preview-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2B-SYNONYM-RUNTIME-AUDIT
+    path: audit/product-naming-phase2b/SYNONYM_RUNTIME_AUDIT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2b-search-preview-1355
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

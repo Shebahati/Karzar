@@ -2,8 +2,10 @@
 
 No network, no DB writes, no AI. Structured identity → display name.
 
-Phase 2A: HIGH confidence requires both product_type_governed and
-manufacturer_code_governed. Heuristic candidates never become governed.
+Phase 2B: HIGH requires every input used in the generated title to be
+governed (PT, OEM, brand display, naming profile, and any used variant
+facts / identity qualifiers). Heuristic candidates never become governed.
+generic.v1 cannot produce HIGH.
 """
 
 from __future__ import annotations
@@ -139,6 +141,47 @@ PROFILES: dict[str, NamingProfile] = {
 # Public alias
 NAMING_PROFILES = PROFILES
 
+# Deterministic ProductType.code → naming profile (from PRODUCT_TYPE_NAMING_PROFILES.csv).
+# Unmapped codes resolve to generic.v1 with PROFILE_MISSING (cannot yield HIGH).
+PRODUCT_TYPE_CODE_TO_PROFILE: dict[str, str] = {
+    "PROVISIONAL_METROLOGY_CALIPER": "metrology.caliper.v1",
+    "PROVISIONAL_METROLOGY_MICROMETER": "metrology.micrometer.v1",
+    "PROVISIONAL_CUTTING_TURNING_INSERT": "cutting.turning_insert.v1",
+    "PROVISIONAL_CUTTING_SOLID_TOOL": "cutting.solid_tool.v1",
+    "PROVISIONAL_WORKHOLDING_CHUCK": "workholding.chuck.v1",
+    "PROVISIONAL_THREAD_REPAIR_INSERT": "thread_repair.insert.v1",
+    "PROVISIONAL_FLUIDS_LUBRICANT": "fluids.lubricant.v1",
+    "PROVISIONAL_MACHINES_EQUIPMENT": "machines.equipment.v1",
+    "PROVISIONAL_TOOLHOLDING_HOLDER": "toolholding.holder.v1",
+    "PROVISIONAL_GENERIC": "generic.v1",
+}
+
+PROFILE_GOVERNED = "PROFILE_GOVERNED"
+PROFILE_PROPOSED = "PROFILE_PROPOSED"
+PROFILE_MISSING = "PROFILE_MISSING"
+
+
+@dataclass(frozen=True)
+class NamingGovernanceContext:
+    """Explicit governance contract — value-exists ≠ governed-for-auto-rename."""
+
+    product_type_governed: bool = False
+    manufacturer_code_governed: bool = False
+    brand_display_governed: bool = False
+    naming_profile_governed: bool = False
+    variant_facts_governed: bool = False
+    identity_qualifiers_governed: bool = False
+
+    def as_dict(self) -> dict[str, bool]:
+        return {
+            "product_type": self.product_type_governed,
+            "manufacturer_code": self.manufacturer_code_governed,
+            "brand_display": self.brand_display_governed,
+            "naming_profile": self.naming_profile_governed,
+            "variant_facts": self.variant_facts_governed,
+            "identity_qualifiers": self.identity_qualifiers_governed,
+        }
+
 
 @dataclass(frozen=True)
 class NamingResult:
@@ -151,10 +194,38 @@ class NamingResult:
     state: str = "MANUAL_REVIEW"
     reason_codes: list[str] = field(default_factory=list)
     naming_standard_version: str = NAMING_STANDARD_VERSION
+    governance: dict[str, bool] = field(default_factory=dict)
+    profile_resolution: str | None = None
 
     @property
     def version(self) -> str:
         return self.naming_standard_version
+
+
+def resolve_naming_profile_v1(
+    product_type_code: str | None,
+) -> tuple[str, str]:
+    """Map ProductType.code → (profile_code, resolution_status).
+
+    Never guesses from Product.name. Unmapped / generic → PROFILE_MISSING.
+    """
+    code = (product_type_code or "").strip()
+    if not code:
+        return "generic.v1", PROFILE_MISSING
+    mapped = PRODUCT_TYPE_CODE_TO_PROFILE.get(code)
+    if mapped is None:
+        return "generic.v1", PROFILE_MISSING
+    if mapped == "generic.v1" or mapped not in PROFILES:
+        return "generic.v1", PROFILE_MISSING
+    return mapped, PROFILE_GOVERNED
+
+
+def brand_display_is_governed(registry_row: Mapping[str, Any] | None) -> bool:
+    """True when Brand Display Registry status is explicitly GOVERNed."""
+    if not registry_row:
+        return False
+    status = str(registry_row.get("status") or "").strip().upper()
+    return status in {"GOVERNED", "APPROVED", "CANONICAL"}
 
 
 def normalize_persian_text(text: str | None) -> str:
@@ -473,22 +544,57 @@ def build_product_name_v1(
     current_name: str | None = None,
     product_type_governed: bool = True,
     manufacturer_code_governed: bool = False,
+    brand_display_governed: bool | None = None,
+    naming_profile_governed: bool | None = None,
+    variant_facts_governed: bool = False,
+    identity_qualifiers_governed: bool = False,
+    governance: NamingGovernanceContext | None = None,
+    profile_resolution: str | None = None,
 ) -> NamingResult:
     """Build a deterministic display name or HOLD.
 
-    HIGH confidence requires BOTH product_type_governed and
-    manufacturer_code_governed. Default manufacturer_code_governed=False so a
-    bare OEM string / heuristic candidate cannot reach HIGH.
+    HIGH requires every input used in the title to be governed. Defaults keep
+    manufacturer_code_governed=False so heuristic OEM candidates cannot reach HIGH.
+    generic.v1 never yields HIGH (naming_profile_not_governed).
     """
     if isinstance(naming_profile, NamingProfile):
         profile = naming_profile
+        profile_code = profile.code
     else:
-        profile = PROFILES.get(naming_profile or "generic.v1", PROFILES["generic.v1"])
+        profile_code = naming_profile or "generic.v1"
+        profile = PROFILES.get(profile_code, PROFILES["generic.v1"])
 
     warnings: list[str] = []
     used: list[str] = []
     omitted: list[str] = []
     reasons: list[str] = []
+
+    if governance is not None:
+        product_type_governed = governance.product_type_governed
+        manufacturer_code_governed = governance.manufacturer_code_governed
+        brand_gov = governance.brand_display_governed
+        profile_gov = governance.naming_profile_governed
+        variant_gov = governance.variant_facts_governed
+        qual_gov = governance.identity_qualifiers_governed
+    else:
+        brand_gov = (
+            brand_display_governed
+            if brand_display_governed is not None
+            else False
+        )
+        profile_gov = (
+            naming_profile_governed
+            if naming_profile_governed is not None
+            else False
+        )
+        variant_gov = variant_facts_governed
+        qual_gov = identity_qualifiers_governed
+
+    # generic.v1 is never a governed profile for automatic rename.
+    if profile.code == "generic.v1":
+        profile_gov = False
+        if profile_resolution is None:
+            profile_resolution = PROFILE_MISSING
 
     pt = normalize_persian_text(product_type_fa if product_type_fa is not None else product_type)
     brand_in = brand_raw if brand_raw is not None else brand
@@ -506,6 +612,15 @@ def build_product_name_v1(
     )
     code = (manufacturer_code or "").strip()
 
+    gov_snapshot = NamingGovernanceContext(
+        product_type_governed=bool(product_type_governed),
+        manufacturer_code_governed=bool(manufacturer_code_governed),
+        brand_display_governed=bool(brand_gov),
+        naming_profile_governed=bool(profile_gov),
+        variant_facts_governed=bool(variant_gov),
+        identity_qualifiers_governed=bool(qual_gov),
+    ).as_dict()
+
     if profile.product_type_required and not pt:
         return NamingResult(
             name=None,
@@ -516,6 +631,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="HOLD_MISSING_PRODUCT_TYPE",
             reason_codes=["missing_product_type"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
     if profile.brand_required and not brand_token:
         return NamingResult(
@@ -527,6 +644,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="HOLD_MISSING_BRAND",
             reason_codes=["missing_brand"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
     if profile.manufacturer_code_required and not code:
         return NamingResult(
@@ -538,6 +657,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="HOLD_MISSING_MANUFACTURER_CODE",
             reason_codes=["missing_manufacturer_code"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
 
     # Preserve OEM code exactly — never run Persian normalization on it.
@@ -598,6 +719,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="HOLD_MISSING_VARIANT_ATTRIBUTE",
             reason_codes=["missing_primary_variant_attribute"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
 
     head = " ".join(parts)
@@ -615,6 +738,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="HOLD_NAME_TOO_LONG",
             reason_codes=["proposed_name_too_long"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
 
     lint = lint_product_name_v1(name, brand_raw=brand_in, manufacturer_code=code)
@@ -631,6 +756,9 @@ def build_product_name_v1(
         manufacturer_code=code,
         manufacturer_code_governed=manufacturer_code_governed,
     )
+    used_variant = any(u.startswith("fact:") for u in used)
+    used_qualifier = "identity_qualifier" in used
+
     if not product_type_governed:
         reasons.append("product_type_not_fk_verified")
     if not oem_governed:
@@ -639,12 +767,39 @@ def build_product_name_v1(
             warnings.append("manufacturer_code_governed_without_code")
         elif not manufacturer_code_governed:
             warnings.append("manufacturer_identity_ungoverned")
+    if not brand_gov:
+        reasons.append("brand_display_not_governed")
+        warnings.append("brand_display_ungoverned")
+    if not profile_gov:
+        reasons.append("naming_profile_not_governed")
+        warnings.append("naming_profile_ungoverned")
+    if used_variant and not variant_gov:
+        reasons.append("variant_facts_not_governed")
+        warnings.append("variant_facts_ungoverned")
+    if used_qualifier and not qual_gov:
+        reasons.append("identity_qualifiers_not_governed")
+        warnings.append("identity_qualifiers_ungoverned")
 
-    # HIGH only when both Product Type and OEM identity are governed.
-    if product_type_governed and oem_governed:
-        confidence = "high"
-    else:
-        confidence = "medium"
+    # HIGH only when every input used in the generated title is governed.
+    high_ok = (
+        bool(product_type_governed)
+        and oem_governed
+        and bool(brand_gov)
+        and bool(profile_gov)
+        and (bool(variant_gov) if used_variant else True)
+        and (bool(qual_gov) if used_qualifier else True)
+    )
+    confidence = "high" if high_ok else "medium"
+
+    # Refresh snapshot after effective generic-profile demotion.
+    gov_snapshot = NamingGovernanceContext(
+        product_type_governed=bool(product_type_governed),
+        manufacturer_code_governed=oem_governed,
+        brand_display_governed=bool(brand_gov),
+        naming_profile_governed=bool(profile_gov),
+        variant_facts_governed=bool(variant_gov),
+        identity_qualifiers_governed=bool(qual_gov),
+    ).as_dict()
 
     if current_name and compare_product_name_v1(current_name, name)["equal"]:
         return NamingResult(
@@ -656,6 +811,8 @@ def build_product_name_v1(
             profile=profile.code,
             state="EXACT",
             reason_codes=reasons + ["matches_current"],
+            governance=gov_snapshot,
+            profile_resolution=profile_resolution,
         )
 
     return NamingResult(
@@ -669,4 +826,6 @@ def build_product_name_v1(
         profile=profile.code,
         state="RENAME_SAFE",
         reason_codes=reasons + ["structured_proposal"],
+        governance=gov_snapshot,
+        profile_resolution=profile_resolution,
     )

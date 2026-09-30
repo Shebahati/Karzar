@@ -5,7 +5,10 @@ from __future__ import annotations
 from app.domain.product_naming import (
     HARD_LENGTH_LIMIT,
     NAMING_STANDARD_VERSION,
+    PROFILE_GOVERNED,
+    PROFILE_MISSING,
     brand_display_for_title,
+    brand_display_is_governed,
     build_product_name_v1,
     compare_product_name_v1,
     extract_manufacturer_code_candidates,
@@ -15,6 +18,7 @@ from app.domain.product_naming import (
     lint_product_name_v1,
     manufacturer_code_is_governed,
     normalize_persian_text,
+    resolve_naming_profile_v1,
 )
 
 
@@ -27,6 +31,9 @@ def test_insize_caliper_1108_150_exact_string():
         naming_profile="metrology.caliper.v1",
         product_type_governed=True,
         manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
     )
     assert result.name == "کولیس دیجیتال اینسایز کد 1108-150، 0–150 میلی‌متر"
     assert result.state == "RENAME_SAFE"
@@ -285,7 +292,7 @@ def test_generic_profile_type_brand_code_only():
     assert "accuracy" in result.omitted_fields or "OMITTED_NOISE:accuracy" in result.warnings
 
 
-def test_high_requires_both_pt_and_oem_governed():
+def test_high_requires_full_governance_contract():
     base = dict(
         product_type="کولیس دیجیتال",
         brand="INSIZE | اینسایز",
@@ -293,31 +300,75 @@ def test_high_requires_both_pt_and_oem_governed():
         facts={"range_min_mm": 0, "range_max_mm": 150},
         naming_profile="metrology.caliper.v1",
     )
-    both = build_product_name_v1(
-        **base, product_type_governed=True, manufacturer_code_governed=True
+    full = dict(
+        product_type_governed=True,
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
     )
+    both = build_product_name_v1(**base, **full)
     assert both.confidence == "high"
     assert both.state == "RENAME_SAFE"
 
     pt_only = build_product_name_v1(
-        **base, product_type_governed=True, manufacturer_code_governed=False
+        **base,
+        product_type_governed=True,
+        manufacturer_code_governed=False,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
     )
     assert pt_only.confidence != "high"
     assert pt_only.confidence == "medium"
     assert "manufacturer_code_not_governed" in pt_only.reason_codes
 
     oem_only = build_product_name_v1(
-        **base, product_type_governed=False, manufacturer_code_governed=True
+        **base,
+        product_type_governed=False,
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
     )
     assert oem_only.confidence != "high"
-    assert oem_only.confidence == "medium"
     assert "product_type_not_fk_verified" in oem_only.reason_codes
 
-    neither = build_product_name_v1(
-        **base, product_type_governed=False, manufacturer_code_governed=False
+    ungoverned_brand = build_product_name_v1(
+        **base,
+        product_type_governed=True,
+        manufacturer_code_governed=True,
+        brand_display_governed=False,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
     )
-    assert neither.confidence != "high"
-    assert neither.confidence == "medium"
+    assert ungoverned_brand.confidence != "high"
+    assert "brand_display_not_governed" in ungoverned_brand.reason_codes
+
+    ungoverned_facts = build_product_name_v1(
+        **base,
+        product_type_governed=True,
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=False,
+    )
+    assert ungoverned_facts.confidence != "high"
+    assert "variant_facts_not_governed" in ungoverned_facts.reason_codes
+
+    generic = build_product_name_v1(
+        product_type="محصول صنعتی",
+        brand="INSIZE | اینسایز",
+        manufacturer_code="X-1",
+        naming_profile="generic.v1",
+        product_type_governed=True,
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
+    )
+    assert generic.confidence != "high"
+    assert "naming_profile_not_governed" in generic.reason_codes
 
 
 def test_heuristic_candidates_never_imply_governed():
@@ -366,7 +417,20 @@ def test_manufacturer_code_round_trip_preservation_in_titles():
             preferred_brand_form="ZCC.CT",
             product_type_governed=True,
             manufacturer_code_governed=True,
+            brand_display_governed=True,
+            naming_profile_governed=True,
         )
         assert result.name is not None
         assert code in result.name
         assert result.name.count(code) == 1
+
+
+def test_resolve_naming_profile_v1_and_brand_registry_governance():
+    code, status = resolve_naming_profile_v1("PROVISIONAL_METROLOGY_CALIPER")
+    assert code == "metrology.caliper.v1"
+    assert status == PROFILE_GOVERNED
+    code2, status2 = resolve_naming_profile_v1("UNKNOWN_PT")
+    assert code2 == "generic.v1"
+    assert status2 == PROFILE_MISSING
+    assert brand_display_is_governed({"status": "NEEDS_GOVERNANCE"}) is False
+    assert brand_display_is_governed({"status": "GOVERNED"}) is True

@@ -58,6 +58,8 @@ import type {
 
   ProductDetail,
 
+  ProductNamingPreview,
+
   ProductListParams,
 
   ProductListResponse,
@@ -620,6 +622,35 @@ export const catalogService = {
     const { data } = await apiClient.get<ProductChangeLogListResponse>(
       `/products/${productId}/change-log`,
       { params },
+    );
+    return data;
+  },
+
+  async getNamingPreview(productId: number): Promise<ProductNamingPreview> {
+    if (env.USE_MOCK) {
+      return {
+        product_id: productId,
+        preview_source: "persisted_canonical",
+        current_name: "mock",
+        proposed_name: null,
+        state: "HOLD_MISSING_MANUFACTURER_CODE",
+        confidence: "none",
+        naming_standard_version: "karzar_product_naming_v1",
+        profile: null,
+        profile_resolution: "PROFILE_MISSING",
+        warnings: [],
+        reason_codes: ["missing_manufacturer_code"],
+        used_fields: [],
+        omitted_fields: [],
+        governance: {},
+        product_type: null,
+        brand: null,
+        manufacturer_code: null,
+        manufacturer_code_status: "unset",
+      };
+    }
+    const { data } = await apiClient.get<ProductNamingPreview>(
+      `/products/${productId}/naming-preview`,
     );
     return data;
   },

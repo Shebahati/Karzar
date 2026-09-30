@@ -224,6 +224,39 @@ export interface ProductChangeLogEntry {
 
 export type ProductChangeLogListResponse = PaginatedResponse<ProductChangeLogEntry>;
 
+/** Mirrors `ProductNamingPreviewResponse` — GET /products/{id}/naming-preview (read-only). */
+export interface ProductNamingPreview {
+  product_id: number;
+  preview_source: string;
+  current_name: string;
+  proposed_name: string | null;
+  state: string;
+  confidence: string;
+  naming_standard_version: string;
+  profile: string | null;
+  profile_resolution: string | null;
+  warnings: string[];
+  reason_codes: string[];
+  used_fields: string[];
+  omitted_fields: string[];
+  governance: Record<string, boolean>;
+  product_type: {
+    id: number;
+    code: string;
+    name_fa: string;
+    name_en: string | null;
+    status: string;
+  } | null;
+  brand: { id: number; name: string; display_governed: boolean } | null;
+  manufacturer_code: string | null;
+  manufacturer_code_status: string;
+  mutation_check?: {
+    before: Record<string, unknown>;
+    after: Record<string, unknown>;
+    unchanged: boolean;
+  };
+}
+
 /** Mirrors `BulkStockAdjustItem` / `BulkStockAdjustRequest` — POST /products/bulk/stock-adjust. */
 export interface BulkStockAdjustItem {
   product_id: number;

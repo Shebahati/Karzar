@@ -76,7 +76,13 @@ async def read_products(
         None,
         description="Filter soft-deleted products (admin only when true)",
     ),
-    search: str | None = Query(None, description="Search in name, SKU, and brand"),
+    search: str | None = Query(
+        None,
+        description=(
+            "Multi-token identity search (AND of tokens). Each token matches "
+            "name, SKU, manufacturer_code, brand, Product Type, or PT synonyms."
+        ),
+    ),
     min_price: Decimal | None = Query(None, ge=0, description="Minimum price filter"),
     max_price: Decimal | None = Query(None, ge=0, description="Maximum price filter"),
     country: list[str] | None = Query(

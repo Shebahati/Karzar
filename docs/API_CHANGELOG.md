@@ -22,6 +22,12 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-30 — Product naming preview + identity search (Phase 2B)
+
+- New admin endpoint: `GET /api/v1/products/{id}/naming-preview` — read-only Naming Standard preview (super-admin). Zero Product writes.
+- Catalog `search` query becomes multi-token AND-of-ORs across name, SKU, `manufacturer_code`, brand, Product Type identity, and active PT-linked taxonomy synonyms.
+- No ProductCreate/ProductUpdate manufacturer_code field (unchanged). No rename APPLY.
+
 ### 2026-09-30 — Product manufacturer identity (Phase 2A, read)
 
 - `ProductDetailResponse` gains optional nullable `manufacturer_code` and `product_type_id`.

@@ -29,6 +29,7 @@ from app.schemas.product import (
     ProductChangeLogListResponse,
     ProductCreate,
     ProductDetailResponse,
+    ProductNamingPreviewResponse,
     ProductUpdate,
     StockStatusResponse,
 )
@@ -363,3 +364,26 @@ async def list_product_change_log(
         "data": [ProductChangeLogEntry.model_validate(row, from_attributes=True) for row in rows],
         "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
     }
+
+
+@router.get(
+    "/{product_id}/naming-preview",
+    response_model=ProductNamingPreviewResponse,
+    summary="Read-only Product Naming Standard preview (admin)",
+)
+async def get_product_naming_preview(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+):
+    """Phase 2B: advisory naming preview. Performs zero Product writes."""
+    from app.services.product_naming_preview_service import build_persisted_naming_preview
+
+    payload = await build_persisted_naming_preview(db, product_id)
+    if payload is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message=f"Product with ID '{product_id}' not found",
+        )
+    return ProductNamingPreviewResponse.model_validate(payload)

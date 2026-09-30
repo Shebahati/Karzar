@@ -640,6 +640,22 @@ export function useProductChangeLog(productId: number, enabled = true) {
 
 
 
+export function useProductNamingPreview(productId: number, enabled = true) {
+
+  return useQuery({
+
+    queryKey: [...catalogKeys.product(productId), "naming-preview"] as const,
+
+    queryFn: () => catalogService.getNamingPreview(productId),
+
+    enabled: enabled && Number.isFinite(productId) && productId > 0,
+
+  });
+
+}
+
+
+
 export function useBulkStockAdjust() {
   const queryClient = useQueryClient();
 

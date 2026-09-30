@@ -1,0 +1,28 @@
+{
+  "phase": "2B",
+  "source_table": "knowledge_taxonomy_nodes",
+  "source_column": "synonyms",
+  "schema_type": "JSONB list[Any]",
+  "search_contract": {
+    "require_status": "active",
+    "require_product_type_id_match": true,
+    "allowed_dimensions": ["domain", "family", "technical"],
+    "match_strategy": {
+      "postgresql": "cast(synonyms AS text) ILIKE escaped pattern",
+      "sqlite_tests": "json_each(synonyms) value LIKE escaped pattern"
+    },
+    "string_array_entries": "searchable",
+    "non_string_legacy_entries": "ignored for matching; not rewritten"
+  },
+  "runtime_observation": {
+    "method": "code + fixture audit (no production DB mutation)",
+    "proven_shapes": ["string[]"],
+    "unproven_or_unsupported": [
+      "object elements",
+      "nested arrays",
+      "null elements mixed into arrays"
+    ],
+    "note": "Phase 2B does not invent a synonyms table. Cast-to-text may match substrings inside JSON punctuation; PT-link + active + dimension gates keep noise bounded."
+  },
+  "negative_rule": "Synonyms linked to a different Product Type must not match products of another PT."
+}

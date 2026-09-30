@@ -26,6 +26,7 @@ import { ProductDescriptionEditor } from "@/features/catalog/components/product-
 import { ProductImagesSection } from "@/features/catalog/components/product-images-section";
 import { ProductStockSection } from "@/features/catalog/components/product-stock-section";
 import { ProductChangeLogSection } from "@/features/catalog/components/product-change-log-section";
+import { ProductNamingPreviewSection } from "@/features/catalog/components/product-naming-preview-section";
 import { ProductSpecificationsForm } from "@/features/catalog/components/product-specifications-form";
 import {
   createProductFormSchema,
@@ -345,6 +346,8 @@ export default function EditProductPage() {
           />
 
           <ProductImagesSection productId={productId} />
+
+          <ProductNamingPreviewSection productId={productId} />
 
           <ProductChangeLogSection productId={productId} />
         </div>

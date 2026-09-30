@@ -20,7 +20,8 @@ from app.utils.public_catalog import (
     storefront_public_product_filters,
 )
 from app.utils.specifications import specifications_for_storage
-from app.utils.storefront_catalog import escape_ilike_pattern, product_sort_clause
+from app.utils.catalog_identity_search import build_identity_search_filter
+from app.utils.storefront_catalog import product_sort_clause
 
 logger = get_logger(__name__)
 
@@ -223,13 +224,14 @@ async def get_products(
         filters.append(Product.is_available.is_(False))
 
     if search and search.strip():
-        pattern = f"%{escape_ilike_pattern(search.strip())}%"
-        search_filter = or_(
-            Product.name.ilike(pattern, escape="\\"),
-            Product.sku.ilike(pattern, escape="\\"),
-            Product.brand.has(Brand.name.ilike(pattern, escape="\\")),
+        # Phase 2B: multi-token AND-of-ORs across identity surfaces
+        # (name/sku/manufacturer_code/brand/PT/synonyms). See catalog_identity_search.
+        dialect_name = db.get_bind().dialect.name
+        search_filter = build_identity_search_filter(
+            search, dialect_name=dialect_name
         )
-        filters.append(search_filter)
+        if search_filter is not None:
+            filters.append(search_filter)
 
     if spec_filters:
         dialect_name = db.get_bind().dialect.name
