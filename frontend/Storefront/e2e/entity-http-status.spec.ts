@@ -1,8 +1,9 @@
 /**
  * Production-mode HTTP status contract for entity existence (SEO Wave 1A).
  *
- * Requires a prior `next build` with NEXT_PUBLIC_USE_MOCK=true, then
- * `next start` (see package.json script `test:http-contract`).
+ * Requires a prior `next build` with NEXT_PUBLIC_USE_MOCK=true, then the
+ * standalone server (`node .next/standalone/server.js`) — see package.json
+ * script `test:http-contract` and playwright.http-contract.config.ts.
  */
 import { expect, test } from "@playwright/test";
 

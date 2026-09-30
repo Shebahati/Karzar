@@ -17,12 +17,16 @@ export default defineConfig({
     extraHTTPHeaders: { "User-Agent": "KarzarHttpContract/1a" },
   },
   webServer: {
-    command: "npm run start -- --port 3011 --hostname 127.0.0.1",
+    // next.config uses output: "standalone" — `next start` is unsupported;
+    // serve the production standalone build instead.
+    command: "node .next/standalone/server.js",
     url: "http://127.0.0.1:3011",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
       ...process.env,
+      PORT: "3011",
+      HOSTNAME: "127.0.0.1",
       NEXT_PUBLIC_USE_MOCK: "true",
       NEXT_PUBLIC_MOCK_LATENCY_MS: "0",
       NEXT_PUBLIC_API_BASE_URL: "http://127.0.0.1:8000/api/v1",
