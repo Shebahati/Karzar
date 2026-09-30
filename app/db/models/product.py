@@ -167,6 +167,13 @@ class Product(Base):
             "specifications",
             postgresql_using="gin",
         ),
+        # Phase 2A: non-unique OEM identity indexes (no UNIQUE — known collisions).
+        Index("ix_products_manufacturer_code", "manufacturer_code"),
+        Index(
+            "ix_products_brand_id_manufacturer_code",
+            "brand_id",
+            "manufacturer_code",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -175,6 +182,9 @@ class Product(Base):
     meta_title: Mapped[str | None] = mapped_column(String(255))
     meta_description: Mapped[str | None] = mapped_column(String(500))
     name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    # Phase 2A: verified canonical OEM identity only. Null = unset, never a guess.
+    # Candidates must not populate this column (see PHASE-2A-MANUFACTURER-IDENTITY.md).
+    manufacturer_code: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     brand_id: Mapped[int | None] = mapped_column(ForeignKey("brands.id"))

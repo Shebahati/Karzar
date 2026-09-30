@@ -1,6 +1,9 @@
-"""Karzar Product Naming Standard v1 — pure deterministic engine (Phase 0/1 prototype).
+"""Karzar Product Naming Standard v1 — pure deterministic engine.
 
 No network, no DB writes, no AI. Structured identity → display name.
+
+Phase 2A: HIGH confidence requires both product_type_governed and
+manufacturer_code_governed. Heuristic candidates never become governed.
 """
 
 from __future__ import annotations
@@ -244,7 +247,11 @@ def extract_manufacturer_code_candidates(
     sku: str | None = None,
     specs: Mapping[str, Any] | None = None,
 ) -> list[tuple[str, str]]:
-    """Return (code, evidence) candidates. Does not invent OEM identity."""
+    """Return (code, evidence) audit candidates.
+
+    Never implies governed/canonical identity. Candidates must not be written
+    to products.manufacturer_code without a separate Phase 2C authority path.
+    """
     out: list[tuple[str, str]] = []
     seen: set[str] = set()
 
@@ -277,6 +284,19 @@ def extract_manufacturer_code_candidates(
         add(str(sku).strip(), "sku")
 
     return out
+
+
+def manufacturer_code_is_governed(
+    *,
+    manufacturer_code: str | None,
+    manufacturer_code_governed: bool,
+) -> bool:
+    """True only when an explicit governed flag is set for a non-empty code.
+
+    extract_manufacturer_code_candidates() output never satisfies this alone.
+    """
+    code = (manufacturer_code or "").strip()
+    return bool(code) and bool(manufacturer_code_governed)
 
 
 def lint_product_name_v1(
@@ -452,8 +472,14 @@ def build_product_name_v1(
     preferred_brand_form: str | None = None,
     current_name: str | None = None,
     product_type_governed: bool = True,
+    manufacturer_code_governed: bool = False,
 ) -> NamingResult:
-    """Build a deterministic display name or HOLD."""
+    """Build a deterministic display name or HOLD.
+
+    HIGH confidence requires BOTH product_type_governed and
+    manufacturer_code_governed. Default manufacturer_code_governed=False so a
+    bare OEM string / heuristic candidate cannot reach HIGH.
+    """
     if isinstance(naming_profile, NamingProfile):
         profile = naming_profile
     else:
@@ -601,11 +627,24 @@ def build_product_name_v1(
         ]
     )
 
+    oem_governed = manufacturer_code_is_governed(
+        manufacturer_code=code,
+        manufacturer_code_governed=manufacturer_code_governed,
+    )
     if not product_type_governed:
         reasons.append("product_type_not_fk_verified")
-        confidence = "medium"
-    else:
+    if not oem_governed:
+        reasons.append("manufacturer_code_not_governed")
+        if manufacturer_code_governed and not code:
+            warnings.append("manufacturer_code_governed_without_code")
+        elif not manufacturer_code_governed:
+            warnings.append("manufacturer_identity_ungoverned")
+
+    # HIGH only when both Product Type and OEM identity are governed.
+    if product_type_governed and oem_governed:
         confidence = "high"
+    else:
+        confidence = "medium"
 
     if current_name and compare_product_name_v1(current_name, name)["equal"]:
         return NamingResult(
@@ -619,22 +658,12 @@ def build_product_name_v1(
             reason_codes=reasons + ["matches_current"],
         )
 
-    if not product_type_governed:
-        return NamingResult(
-            name=name,
-            confidence="medium",
-            warnings=warnings + ["pt_fk_unverified"],
-            used_fields=used,
-            omitted_fields=omitted,
-            profile=profile.code,
-            state="RENAME_SAFE",
-            reason_codes=reasons + ["structured_proposal"],
-        )
-
     return NamingResult(
         name=name,
-        confidence="high",
-        warnings=warnings,
+        confidence=confidence,
+        warnings=warnings
+        + (["pt_fk_unverified"] if not product_type_governed else [])
+        + (["oem_identity_ungoverned"] if not oem_governed else []),
         used_fields=used,
         omitted_fields=omitted,
         profile=profile.code,

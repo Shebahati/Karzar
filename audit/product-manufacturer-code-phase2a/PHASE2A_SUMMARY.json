@@ -1,0 +1,31 @@
+{
+  "phase": "2A",
+  "generated_at": "2026-09-30T10:44:15.881972+00:00",
+  "census_status": "PARTIAL",
+  "source": "snapshot",
+  "total_non_deleted": 1368,
+  "active": 1368,
+  "inactive": 0,
+  "with_product_type": 0,
+  "without_product_type": 1368,
+  "canonical_manufacturer_code_populated": 0,
+  "identity_state_counts": {
+    "SOURCE_STRUCTURED_CANDIDATE": 175,
+    "TITLE_CANDIDATE": 598,
+    "SKU_ONLY_CANDIDATE": 193,
+    "CONFLICT": 402
+  },
+  "backfill_action_counts": {
+    "MANUAL_REVIEW": 394,
+    "HOLD_WEAK_EVIDENCE": 572,
+    "HOLD_IDENTITY_CONFLICT": 402
+  },
+  "collision_groups": 2,
+  "astpower_tu_dr230_products": 2,
+  "reversed_code_conflicts": 402,
+  "notes": [
+    "BACKFILL_EXACT count is intentionally 0 in Phase 2A without OEM catalogue linkage.",
+    "Candidates must not populate products.manufacturer_code.",
+    "No production mutation performed."
+  ]
+}
