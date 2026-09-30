@@ -9,7 +9,6 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import product as crud_product
-from app.db.models.product import Product
 from app.db.models.product_type import ProductType
 from app.domain.product_naming import (
     NamingGovernanceContext,

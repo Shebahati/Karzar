@@ -6,8 +6,6 @@ import asyncio
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select
-
 from app.db.models.knowledge import KnowledgeTaxonomyNode
 from app.db.models.product import Brand, Category, Product, StockUnitEnum
 from app.db.models.product_type import ProductType
@@ -16,6 +14,8 @@ from app.utils.catalog_identity_search import (
     normalize_search_display_token,
     tokenize_search_query,
 )
+from sqlalchemy import select
+
 from tests.conftest import TestingSessionLocal
 
 pytestmark = pytest.mark.usefixtures("override_database")
