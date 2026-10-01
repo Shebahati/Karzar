@@ -1,9 +1,10 @@
 {
   "phase": "2C-discovery",
-  "generated_at": "2026-10-01T08:54:46.993999+00:00",
-  "coverage": "FULL_LIVE_EXPORT",
+  "generated_at": "2026-10-01T09:24:24.384849+00:00",
+  "coverage": "LIVE_DB_AUTHORITATIVE",
+  "script_git_sha": "612450bf1ede053087a2fbfb0108e4cce0adf29a",
   "source_path": "/tmp/karzar-p2c-live-products.csv",
-  "source_sha256": "cd19af7f02a0ef97939a5258cf233fd598bb0c037af3371a3bfa438cd86df311",
+  "source_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
   "evidence_registry": "audit/product-naming-phase2c-discovery/SOURCE_AUTHORITY_REGISTRY.csv",
   "reconciliation": {
     "non_deleted_total": 6536,

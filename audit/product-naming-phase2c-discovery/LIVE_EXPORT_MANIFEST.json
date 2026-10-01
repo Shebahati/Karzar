@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-10-01T09:24:19.654326+00:00",
+  "coverage": "LIVE_DB_AUTHORITATIVE",
+  "export_path": "/tmp/karzar-p2c-live-products.csv",
+  "export_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
+  "export_rows": 6536,
+  "db_non_deleted": 6536,
+  "reconciles": true,
+  "script": "scripts/phase2c_live_readonly_census.py",
+  "git_sha": "612450bf1ede053087a2fbfb0108e4cce0adf29a"
+}

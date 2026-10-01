@@ -157,6 +157,7 @@ def classify_row(
         "source_type": "",
         "source_path_or_url": "",
         "evidence_notes": "",
+        "source_sha256": "",
         "candidate_manufacturer_code": "",
         "classification": "HOLD_MISSING",
         "conflict_status": "",
@@ -212,8 +213,10 @@ def classify_row(
             ev = evidence[key]
             out["authority_tier"] = ev.get("authority_tier", "")
             out["source_type"] = ev.get("source_type", "")
-            out["source_path_or_url"] = ev.get("source_path_or_url", "")
+            out["source_path_or_url"] = ev.get("source_path_or_url") or ev.get("source_path", "")
             out["evidence_notes"] = "tier1_3_registry_match"
+            if ev.get("sha256"):
+                out["source_sha256"] = ev.get("sha256", "")
             return out
 
     if conflict:
@@ -371,6 +374,11 @@ def main(argv: list[str] | None = None) -> int:
         help="CSV of Tier 1–3 evidence rows (brand, manufacturer_code, authority_tier, ...)",
     )
     p.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
+    p.add_argument(
+        "--live-authoritative",
+        action="store_true",
+        help="Emit *_LIVE artifacts + PHASE2C_AUTHORITATIVE_DISCOVERY.* (preserve stale partial files)",
+    )
     args = p.parse_args(argv)
 
     if not args.products_csv and not args.status_master:
@@ -381,11 +389,18 @@ def main(argv: list[str] | None = None) -> int:
     src_path: Path
     if args.products_csv:
         src_path = args.products_csv
-        rows = filter_non_deleted(load_products_csv(src_path))
+        rows = load_products_csv(src_path)
+        if not args.live_authoritative:
+            rows = filter_non_deleted(rows)
+        else:
+            rows = filter_non_deleted(rows)
     else:
         src_path = args.status_master
         rows = filter_non_deleted(load_products_csv(src_path))
         coverage = "STALE_STATUS_MASTER_PARTIAL"
+
+    if args.live_authoritative:
+        coverage = "LIVE_DB_AUTHORITATIVE"
 
     evidence = load_evidence_registry(args.evidence_registry)
 
@@ -416,13 +431,24 @@ def main(argv: list[str] | None = None) -> int:
     out_dir: Path = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    write_csv(out_dir / "FULL_CATALOG_IDENTITY_CENSUS.csv", classified)
-    write_csv(out_dir / "BRAND_IDENTITY_READINESS.csv", brands)
+    suffix = "_LIVE" if args.live_authoritative else ""
+    census_name = f"FULL_CATALOG_IDENTITY_CENSUS{suffix}.csv"
+    brand_ready_name = f"BRAND_IDENTITY_READINESS{suffix}.csv"
+    rename_name = f"RENAME_READINESS{suffix}.csv"
+    collisions_name = f"IDENTITY_COLLISIONS{suffix}.csv"
+    reversed_name = f"REVERSED_CODE_CONFLICTS{suffix}.csv"
+
+    write_csv(out_dir / census_name, classified)
+    if not args.live_authoritative:
+        write_csv(out_dir / "FULL_CATALOG_IDENTITY_CENSUS.csv", classified)
+    write_csv(out_dir / brand_ready_name, brands)
+    if not args.live_authoritative:
+        write_csv(out_dir / "BRAND_IDENTITY_READINESS.csv", brands)
     for state in PRIMARY_STATES:
-        write_csv(
-            out_dir / f"{state}.csv",
-            [r for r in classified if r["classification"] == state],
-        )
+        state_rows = [r for r in classified if r["classification"] == state]
+        write_csv(out_dir / f"{state}{suffix}.csv", state_rows)
+        if not args.live_authoritative:
+            write_csv(out_dir / f"{state}.csv", state_rows)
 
     collisions = []
     for key, pids in sorted(key_to_pids.items()):
@@ -437,13 +463,44 @@ def main(argv: list[str] | None = None) -> int:
                     "n": len(uniq),
                 }
             )
-    write_csv(out_dir / "IDENTITY_COLLISIONS.csv", collisions)
-    write_csv(
-        out_dir / "REVERSED_CODE_CONFLICTS.csv",
-        [r for r in classified if r.get("conflict_status") == "title_vs_sku"],
-    )
+    write_csv(out_dir / collisions_name, collisions)
+    if not args.live_authoritative:
+        write_csv(out_dir / "IDENTITY_COLLISIONS.csv", collisions)
+    reversed_rows = [r for r in classified if r.get("conflict_status") == "title_vs_sku"]
+    write_csv(out_dir / reversed_name, reversed_rows)
+    if not args.live_authoritative:
+        write_csv(out_dir / "REVERSED_CODE_CONFLICTS.csv", reversed_rows)
     readiness = [rename_readiness_row(c) for c in classified]
-    write_csv(out_dir / "RENAME_READINESS.csv", readiness)
+    write_csv(out_dir / rename_name, readiness)
+    if not args.live_authoritative:
+        write_csv(out_dir / "RENAME_READINESS.csv", readiness)
+
+    existing_canonical_audit = []
+    for r in classified:
+        mc = (r.get("manufacturer_code") or "").strip()
+        if not mc:
+            continue
+        cls = r.get("classification")
+        if cls == "BACKFILL_EXACT":
+            audit_cls = "VERIFIED_EXISTING_CANONICAL"
+        elif cls == "REVIEW_EXISTING_CANONICAL":
+            audit_cls = "REVIEW_EXISTING_CANONICAL"
+        elif cls == "HOLD_DUPLICATE_IDENTITY":
+            audit_cls = "CONFLICTING_EXISTING_CANONICAL"
+        else:
+            audit_cls = "REVIEW_EXISTING_CANONICAL"
+        existing_canonical_audit.append(
+            {
+                "product_id": r.get("product_id"),
+                "brand": r.get("brand_name"),
+                "name": r.get("name"),
+                "sku": r.get("sku"),
+                "current_manufacturer_code": mc,
+                "classification": audit_cls,
+                "reason": r.get("evidence_notes") or r.get("conflict_status") or "",
+            }
+        )
+    write_csv(out_dir / f"REVIEW_EXISTING_CANONICAL{suffix}.csv", existing_canonical_audit)
 
     # Empty registry template when no Tier 1–3 evidence supplied (honest zero EXACT).
     registry_path = out_dir / "SOURCE_AUTHORITY_REGISTRY.csv"
@@ -466,10 +523,26 @@ def main(argv: list[str] | None = None) -> int:
             ],
         )
 
+    git_sha = ""
+    try:
+        import subprocess
+
+        git_sha = (
+            subprocess.run(
+                ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout.strip()
+        )
+    except OSError:
+        pass
+
     summary = {
         "phase": "2C-discovery",
         "generated_at": datetime.now(UTC).isoformat(),
         "coverage": coverage,
+        "script_git_sha": git_sha,
         "source_path": str(src_path),
         "source_sha256": _sha256_file(src_path) if src_path.exists() else "",
         "evidence_registry": str(args.evidence_registry) if args.evidence_registry else "",
@@ -526,6 +599,42 @@ def main(argv: list[str] | None = None) -> int:
         ]
     )
     (out_dir / "PHASE2C_DISCOVERY_SUMMARY.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+
+    if args.live_authoritative:
+        auth_md = [
+            "# Phase 2C Authoritative Discovery Summary",
+            "",
+            "> **Coverage: LIVE_DB_AUTHORITATIVE** — live read-only SQL export.",
+            "> Historical `STALE_STATUS_MASTER_PARTIAL` artifacts remain for provenance only.",
+            "",
+            f"- Export SHA256: `{summary['source_sha256']}`",
+            f"- Rows: **{rec['non_deleted_total']}**",
+            f"- Reconciliation: **{'PASS' if rec['reconciles'] else 'FAIL'}**",
+            f"- BACKFILL_EXACT: **{rec['by_state'].get('BACKFILL_EXACT', 0)}** (Tier 1–3 registry only)",
+            "",
+            "## Primary classification",
+            "",
+        ]
+        for s in PRIMARY_STATES:
+            auth_md.append(f"- {s}: {rec['by_state'].get(s, 0)}")
+        auth_md.extend(
+            [
+                "",
+                "## Safety",
+                "",
+                "- DISCOVERY ONLY — no APPLY",
+                "- manufacturer_code writes: **0**",
+                "- `--apply`: rejected",
+                "",
+            ]
+        )
+        (out_dir / "PHASE2C_AUTHORITATIVE_DISCOVERY_SUMMARY.md").write_text(
+            "\n".join(auth_md) + "\n", encoding="utf-8"
+        )
+        auth = {**summary, "phase": "2C-authoritative-discovery", "artifact_suffix": "_LIVE"}
+        (out_dir / "PHASE2C_AUTHORITATIVE_DISCOVERY.json").write_text(
+            json.dumps(auth, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if rec["reconciles"] else 1

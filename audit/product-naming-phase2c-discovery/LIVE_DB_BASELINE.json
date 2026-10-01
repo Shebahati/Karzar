@@ -1,31 +1,49 @@
 {
-  "collected_at_utc": "2026-10-01T08:54:43.074560+00:00",
+  "collected_at_utc": "2026-10-01T09:24:19.527766+00:00",
   "collector_hostname": "hp-g2-450",
+  "coverage": "LIVE_DB_AUTHORITATIVE",
   "sql_access": {
     "worked": true,
     "read_only_guard": "postgresql:transaction_read_only=on",
     "method": "ssh karzar-vps docker exec lathe_postgres psql BEGIN READ ONLY"
   },
-  "counts": {
+  "read_only_proof": {
     "transaction_read_only": "on",
-    "database_name": "karzar_staging",
-    "database_user": "karzar_staging",
-    "non_deleted": 6536,
+    "mutation_capable_statements_executed": "0"
+  },
+  "counts": {
+    "total": 6537,
     "deleted": 1,
-    "manufacturer_code_null": 6536,
-    "manufacturer_code_non_null": 0,
-    "product_type_id_null": 5878,
-    "product_type_id_non_null": 658,
+    "non_deleted": 6536,
     "active": 1585,
     "available": 3755,
     "priced": 4552,
+    "imaged": 1464,
+    "storefront_public_approx": 1368,
+    "sellable_approx": 716,
+    "brandless": 295,
+    "categoryless": 0,
+    "manufacturer_code_non_null": 0,
+    "manufacturer_code_null": 6536,
+    "manufacturer_code_distinct": 0,
+    "product_type_id_non_null": 658,
+    "product_type_id_null": 5878,
     "distinct_sku": 6536,
     "distinct_slug": 6536,
     "distinct_name": 6356,
-    "distinct_manufacturer_code": 0
+    "database_name": "karzar_staging"
+  },
+  "identity_fingerprints": {
+    "name": "03cd970794807642f85b2126abe07446",
+    "sku": "079d6723d5de3b2032d4db47a24ea4ac",
+    "slug": "c45b67d1b42377687a45e7b640d7be4a",
+    "manufacturer_code": "823edf8c5d0efb8a848f950f0e741466",
+    "composite": "5aebd76e5923e20a356686830f7b7c82"
   },
   "live_export": {
     "path": "/tmp/karzar-p2c-live-products.csv",
-    "sha256": "cd19af7f02a0ef97939a5258cf233fd598bb0c037af3371a3bfa438cd86df311"
+    "rows": 6536,
+    "sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
+    "size_bytes": 1596308
   }
 }

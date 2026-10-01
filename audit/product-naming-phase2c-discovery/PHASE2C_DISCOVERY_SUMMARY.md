@@ -1,6 +1,6 @@
 # Phase 2C Discovery Summary
 
-- Coverage: `FULL_LIVE_EXPORT`
+- Coverage: `LIVE_DB_AUTHORITATIVE`
 - Source: `/tmp/karzar-p2c-live-products.csv`
 - Rows: **6536**
 - Reconciliation: **PASS**

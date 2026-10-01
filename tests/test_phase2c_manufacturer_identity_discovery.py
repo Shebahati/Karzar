@@ -194,6 +194,52 @@ def test_evidence_registry_ignores_tier4(tmp_path: Path):
     assert "INSIZE|500-196-30" in reg
 
 
+def test_live_authoritative_writes_live_suffix(tmp_path: Path):
+    src = tmp_path / "master.csv"
+    with src.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(
+            fh,
+            fieldnames=[
+                "product_id",
+                "sku",
+                "name",
+                "brand_id",
+                "brand",
+                "manufacturer_code",
+                "product_type_id",
+                "product_type",
+                "deleted_at",
+            ],
+        )
+        w.writeheader()
+        w.writerow(
+            {
+                "product_id": "10",
+                "sku": "X",
+                "name": "n",
+                "brand_id": "3",
+                "brand": "INSIZE",
+                "manufacturer_code": "",
+                "product_type_id": "",
+                "product_type": "",
+                "deleted_at": "",
+            }
+        )
+    out = tmp_path / "out"
+    rc = main(
+        [
+            "--products-csv",
+            str(src),
+            "--live-authoritative",
+            "--out-dir",
+            str(out),
+        ]
+    )
+    assert rc == 0
+    assert (out / "FULL_CATALOG_IDENTITY_CENSUS_LIVE.csv").exists()
+    assert (out / "PHASE2C_AUTHORITATIVE_DISCOVERY.json").exists()
+
+
 def test_main_status_master_roundtrip(tmp_path: Path):
     src = tmp_path / "master.csv"
     with src.open("w", encoding="utf-8", newline="") as fh:

@@ -1,9 +1,5 @@
 {
   "status": "RESOLVED",
-  "resolved_at": "2026-10-01T08:54:46+00:00",
-  "artifact": "/tmp/karzar-p2c-live-products.csv",
-  "artifact_sha256": "cd19af7f02a0ef97939a5258cf233fd598bb0c037af3371a3bfa438cd86df311",
-  "non_deleted_rows": 6536,
-  "method": "ssh karzar-vps docker exec lathe_postgres psql BEGIN READ ONLY; \\copy ...; ROLLBACK",
-  "collector_hostname": "hp-g2-450"
+  "resolved_at": "2026-10-01T09:24:33.512007+00:00",
+  "note": "Authoritative live export completed on hp-g2-450; see LIVE_EXPORT_MANIFEST.json"
 }

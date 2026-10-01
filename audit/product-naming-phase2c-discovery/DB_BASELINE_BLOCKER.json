@@ -1,6 +1,5 @@
 {
   "status": "RESOLVED",
-  "resolved_at": "2026-10-01T08:54:46+00:00",
-  "replacement_artifact": "audit/product-naming-phase2c-discovery/LIVE_DB_BASELINE.json",
-  "read_only_guard": "postgresql:transaction_read_only=on"
+  "resolved_at": "2026-10-01T09:24:33.512410+00:00",
+  "note": "See LIVE_DB_BASELINE.json"
 }
