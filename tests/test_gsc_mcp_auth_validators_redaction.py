@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 import pytest
+
 from services.gsc_mcp.errors import ErrorCode, GscMcpError
 from services.gsc_mcp.mcp_auth import StaticBearerTokenVerifier
 from services.gsc_mcp.redaction import redact_text

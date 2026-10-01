@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 import pytest
 import respx
+
 from services.gsc_mcp.clients import CruxClient, SearchConsoleClient, UrlInspectionClient
 from services.gsc_mcp.errors import ErrorCode
 from services.gsc_mcp.http_google import GoogleHttpClient

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 import respx
+
 from services.gsc_mcp.config import Settings
 from services.gsc_mcp.errors import ErrorCode
 from services.gsc_mcp.http_google import GoogleHttpClient, map_upstream_error
