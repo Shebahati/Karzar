@@ -1,0 +1,34 @@
+{
+  "phase": "2B",
+  "source_table": "knowledge_taxonomy_nodes",
+  "source_column": "synonyms",
+  "schema_type": "JSONB list[Any]",
+  "search_contract": {
+    "require_status": "active",
+    "require_node_type": "product_type",
+    "require_dimension": "family",
+    "require_product_type_id_match": true,
+    "assignment_role_note": "product_type_bridge is a KnowledgeClassificationAssignment.assignment_role, not a taxonomy node_type",
+    "match_strategy": {
+      "postgresql": "jsonb_array_elements(safe-array) WHERE jsonb_typeof(elem)='string' AND (elem #>> '{}') ILIKE escaped pattern",
+      "sqlite_tests": "json_each(safe-array) WHERE type='text' AND value LIKE escaped pattern",
+      "non_array_legacy": "coerced to empty array → no match, no error"
+    },
+    "string_array_entries": "searchable",
+    "non_string_legacy_entries": "ignored for matching; not rewritten"
+  },
+  "runtime_observation": {
+    "method": "code + fixture + dialect SQL compile + SQLite/CI PostgreSQL execution (no production DB mutation)",
+    "proven_shapes": ["string[]"],
+    "unsupported_ignored": [
+      "object elements",
+      "nested arrays",
+      "number elements",
+      "boolean elements",
+      "null elements",
+      "non-array JSON values"
+    ],
+    "note": "Phase 2B does not invent a synonyms table and does not mutate synonym rows. Only top-level string array elements on active product_type nodes with matching product_type_id contribute to search."
+  },
+  "negative_rule": "Synonyms linked to a different Product Type, wrong node_type, or non-string JSON elements must not match."
+}

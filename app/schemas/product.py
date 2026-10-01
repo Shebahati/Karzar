@@ -366,3 +366,41 @@ class ProductChangeLogEntry(BaseModel):
 class ProductChangeLogListResponse(BaseModel):
     data: list[ProductChangeLogEntry]
     meta: PaginationMeta
+
+
+class ProductNamingPreviewProductType(BaseModel):
+    id: int
+    code: str
+    name_fa: str
+    name_en: str | None = None
+    status: str
+
+
+class ProductNamingPreviewBrand(BaseModel):
+    id: int
+    name: str
+    display_governed: bool = False
+
+
+class ProductNamingPreviewResponse(BaseModel):
+    """Read-only Phase 2B naming preview — never mutates Product rows."""
+
+    product_id: int
+    preview_source: str = "persisted_canonical"
+    current_name: str
+    proposed_name: str | None = None
+    state: str
+    confidence: str
+    naming_standard_version: str
+    profile: str | None = None
+    profile_resolution: str | None = None
+    warnings: list[str] = Field(default_factory=list)
+    reason_codes: list[str] = Field(default_factory=list)
+    used_fields: list[str] = Field(default_factory=list)
+    omitted_fields: list[str] = Field(default_factory=list)
+    governance: dict[str, bool] = Field(default_factory=dict)
+    product_type: ProductNamingPreviewProductType | None = None
+    brand: ProductNamingPreviewBrand | None = None
+    manufacturer_code: str | None = None
+    manufacturer_code_status: str = "unset"
+    mutation_check: dict[str, Any] = Field(default_factory=dict)

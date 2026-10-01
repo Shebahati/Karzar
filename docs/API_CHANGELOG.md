@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-30 — Product naming preview + identity search (Phase 2B)
+
+- New admin endpoint: `GET /api/v1/products/{id}/naming-preview` — read-only Naming Standard preview (super-admin). Zero Product writes.
+- Catalog `search` query becomes multi-token AND-of-ORs across name, SKU, `manufacturer_code`, brand, Product Type identity, and active PT-linked taxonomy synonyms.
+- Synonym search requires canonical `node_type=product_type` + string-element-only JSON array matching.
+- No ProductCreate/ProductUpdate manufacturer_code field (unchanged). No rename APPLY.
+
 ### 2026-09-30 — Storefront product sort `id_asc`
 
 - `GET /api/v1/products/` accepts optional `sort=id_asc` (stable ascending `id` order).
@@ -35,6 +42,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Filter composes with existing brand/category/country/search/price/`in_stock`/spec filters and applies **before** pagination (`meta.total_count` is authoritative).
 - When `on_sale=true` and `sort` is omitted, default sort is `discount_desc`.
 - No new `discount_percent` column — percent remains derived from `base_price` / `original_price`.
+- Composes with Phase 2B identity search (search ∩ on_sale; both SQL-side before pagination).
 
 ### 2026-09-30 — Product manufacturer identity (Phase 2A, read)
 
