@@ -1,0 +1,26 @@
+{
+  "status": "BLOCKED",
+  "reason": "No SSH/psql from cloud VM; Task tool cannot place subagent on private worker hp-g2-450 (workerId=8d533d2f-506e-5c4e-b25c-54aa4d2fea30).",
+  "required_artifact": "/tmp/karzar-p2c-full-products.csv",
+  "required_columns": [
+    "product_id",
+    "name",
+    "sku",
+    "slug",
+    "brand_id",
+    "brand_name",
+    "product_type_id",
+    "product_type_code",
+    "manufacturer_code",
+    "category_id",
+    "active",
+    "available",
+    "base_price",
+    "original_price",
+    "updated_at",
+    "deleted_at"
+  ],
+  "public_api_soft_brand_product_count_sum": 6241,
+  "stale_status_master_non_deleted_used_for_partial": true,
+  "generated_at": "2026-10-01T07:36:58.441195+00:00"
+}

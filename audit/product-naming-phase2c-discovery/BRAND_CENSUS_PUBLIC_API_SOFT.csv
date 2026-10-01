@@ -1,0 +1,41 @@
+brand_id,brand_name,slug,country,product_count,logo_url_present
+13,ASTPOWER | ای اس تی پاور,astpower-|-ای-اس-تی-پاور,تایوان,975,True
+3,INSIZE | اینسایز,insize-|-اینسایز,چین,872,True
+4,Dasqua | داسکوا,dasqua-|-داسکوا,ایتالیا,727,True
+8,ZCC.CT | زد سی‌سی,zcc.ct-|-زد-سی‌سی,چین,583,True
+22,TIGER TEC | تایگرتک,tiger-tec-|-تایگرتک,آلمان,517,False
+48,YOWAX | یواکس,yowax-یواکس,چین,353,False
+33,Chumpower | چام‌پاور,chumpower-چامپاور,تایوان,347,True
+20,SAN OU | سانو,san-ou-|-سانو,چین,317,True
+5,TERMA | ترما,terma-|-ترما,چین,312,True
+2,Mitutoyo | میتوتویو,mitutoyo-|-میتوتویو,ژاپن,304,True
+6,ASIMETO | آسیمتو,asimeto-|-آسیمتو,تایوان,235,True
+50,ET | ای تی,et-ای-تی,هند,227,False
+49,Mighty Seven | مایتی سون,mighty-seven-مایتی-سون,تایوان,182,True
+43,Groz | گروز,groz-گروز,هند,127,True
+36,Chagan | چاگان,chagan-چاگان,هند,27,False
+47,SHAMS | شمس,shams-شمس,ایران,27,False
+32,Winstar | وینستار,winstar-وینستار,تایوان,21,True
+37,MPA | ام پی ای,mpa-ام-پی-ای,ایتالیا,14,True
+31,Transmex | ترنمکس,transmex-ترنمکس,هند,11,True
+35,3Keego | کیگو,3keego-کیگو,تایوان,10,True
+42,Vertex | ورتکس,vertex-ورتکس,تایوان,10,True
+30,Viyer | ویر,viyer-ویر,,9,False
+46,ZPS | زد پی‌اس,zps-زد-پیاس,چک,6,True
+40,CP-GRAT | سی‌پی‌گرات,cp-grat-سیپیگرات,,4,False
+29,LI-HSUN | لی‌سان,li-hsun-لیسان,تایوان,4,False
+27,Narex | نارکس,narex-نارکس,چک,4,True
+44,OMG | او ام جی,omg-او-ام-جی,ایتالیا,3,True
+34,Deniz | دنیز,deniz-دنیز,هند,2,False
+26,Jaguar | جگوار,jaguar-جگوار,,2,False
+39,Promax | پرومکس,promax-پرومکس,,2,False
+45,RÖHM | رهم,röhm-رهم,آلمان,2,True
+38,Sahand | سهند,sahand-سهند,ایران,2,False
+41,Acrobat | آکروبات,acrobat-آکروبات,ترکیه,1,False
+24,UTEX | یوتکس,utex-یوتکس,چین,1,False
+28,Vogel | وگل,vogel-وگل,آلمان,1,True
+9,DOHRE | دوهره,dohre-|-دوهره,چین,0,True
+23,Emkay | امکای,emkay-امکای,هند,0,False
+7,GUANGLU | گوانگلو,guanglu-|-گوانگلو,چین,0,True
+15,KORLOY | کورلوی,korloy-|-کورلوی,کره جنوبی,0,True
+12,MAP | ام ای پی,map-|-ام-ای-پی,چین,0,True

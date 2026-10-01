@@ -1,0 +1,48 @@
+{
+  "collected_at_utc": "2026-10-01T07:30:12Z",
+  "sql_access": {
+    "worked": false,
+    "attempted": "docker exec lathe_postgres psql -U karzar_staging -d karzar_staging (not reachable — no SSH/docker on VPS from this host)",
+    "read_only_guard": "NOT APPLIED (no session opened)",
+    "blocker": "SSH to 195.177.255.198:22 timed out; no local docker postgres; public API product list omits manufacturer_code/product_type_id (storefront shape)."
+  },
+  "counts": {
+    "total": null,
+    "non_deleted": null,
+    "active": null,
+    "available": null,
+    "priced": null,
+    "imaged": null,
+    "manufacturer_code_null": null,
+    "manufacturer_code_non_null": null,
+    "product_type_id_null": null,
+    "product_type_id_non_null": null
+  },
+  "fingerprints": {
+    "distinct_sku": null,
+    "distinct_slug": null,
+    "distinct_name": null,
+    "distinct_manufacturer_code": null
+  },
+  "taxonomy_synonym_sample": {
+    "product_type_active_family_with_synonyms_count": null,
+    "sample_string_synonyms": null,
+    "blocker": "SQL not available"
+  },
+  "public_api_partial_observation": {
+    "products_meta_total_count": 1368,
+    "brands_meta_total_count": null,
+    "caveat": "Storefront list total_count is NOT a substitute for SQL non_deleted census; manufacturer_code cannot be counted from public list responses."
+  },
+  "repo_audit_csv_not_live": {
+    "path": "audit/product-manufacturer-code-phase2a/FULL_PRODUCT_IDENTITY_CENSUS.csv",
+    "rows": 1368,
+    "manufacturer_code_non_empty": 0,
+    "caveat": "Checked into git as prior Phase 2A audit artifact — NOT proven live at collection time. Do not treat as live DB baseline."
+  },
+  "artifacts": {
+    "full_products_csv": null,
+    "brand_census_csv_sql": null,
+    "reason": "SQL export blocked; CSVs not fabricated."
+  }
+}

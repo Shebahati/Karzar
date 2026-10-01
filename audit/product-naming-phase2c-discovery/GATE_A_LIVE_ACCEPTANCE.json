@@ -1,0 +1,649 @@
+{
+  "captured_at": "2026-10-01T07:31:25Z",
+  "probes": {
+    "api_ready": {
+      "status": 200,
+      "bytes": 78,
+      "snippet": "{\"status\":\"ready\",\"service\":\"Karzar Staging API\",\"database\":\"ok\",\"redis\":\"ok\"}"
+    },
+    "api_health": {
+      "status": 200,
+      "bytes": 69,
+      "snippet": "{\"status\":\"healthy\",\"service\":\"Karzar Staging API\",\"version\":\"1.0.0\"}"
+    },
+    "shop_home": {
+      "status": 200,
+      "bytes": 732843,
+      "snippet": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\" data-scroll-behavior=\"smooth\" class=\"h-full w-full max-w-full overflow-x-clip overscroll-x-none iranyekan_1835834f-module__--1R-G__variable"
+    },
+    "admin_login": {
+      "status": 200,
+      "bytes": 11371,
+      "snippet": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\" class=\"h-full\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" hre"
+    }
+  },
+  "sample_product": {
+    "id": 1044,
+    "sku": "1012-0010",
+    "slug": "1012-0010",
+    "name": "زاویه سنج سه تکه با خط کش 12کش — 0-100mm",
+    "brand": {
+      "id": 4,
+      "name": "Dasqua | داسکوا",
+      "slug": "dasqua-|-داسکوا",
+      "country": "ایتالیا"
+    },
+    "brand_id": null,
+    "is_active": null,
+    "is_available": null,
+    "base_price": "30354000",
+    "original_price": null,
+    "manufacturer_code": null,
+    "product_type_id": null
+  },
+  "identity_search": {
+    "by_name_token": {
+      "status": 200,
+      "total": 186,
+      "ids": [
+        4560,
+        4559,
+        4558,
+        4557,
+        4556
+      ],
+      "skus": [
+        "HDA620-300",
+        "HDE650-600",
+        "HDE650-300",
+        "HD220-600",
+        "HD220-300"
+      ],
+      "names": [
+        "کولیس پایه دار 30سانت دیجیتال بدون اهرم ترما (TERMA) مدل HDA620-300",
+        "کولیس پایه دار 60سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-600",
+        "کولیس پایه دار 30سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-300",
+        "کولیس پایه دار 60سانت دیجیتال دو محور ترما (TERMA) مدل HD220-600",
+        "کولیس پایه دار 30سانت دیجیتال دو محور ترما (TERMA) مدل HD220-300"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%DA%A9%D9%88%D9%84%DB%8C%D8%B3&limit=5&skip=0"
+    },
+    "by_sku": {
+      "status": 200,
+      "total": 1,
+      "ids": [
+        1044
+      ],
+      "skus": [
+        "1012-0010"
+      ],
+      "names": [
+        "زاویه سنج سه تکه با خط کش 12کش — 0-100mm"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=1012-0010&limit=5&skip=0"
+    },
+    "by_brand_fa": {
+      "status": 200,
+      "total": 643,
+      "ids": [
+        4117,
+        4116,
+        4113,
+        4066,
+        4065
+      ],
+      "skus": [
+        "DSW-A010",
+        "9563-C40",
+        "9241-ML200",
+        "6298-2",
+        "6228-40"
+      ],
+      "names": [
+        "کرنومتر اینسایز مدل DSW-A010",
+        "متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40",
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298",
+        "پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2&limit=5&skip=0"
+    },
+    "by_brand_en": {
+      "status": 200,
+      "total": 643,
+      "ids": [
+        4117,
+        4116,
+        4113,
+        4066,
+        4065
+      ],
+      "skus": [
+        "DSW-A010",
+        "9563-C40",
+        "9241-ML200",
+        "6298-2",
+        "6228-40"
+      ],
+      "names": [
+        "کرنومتر اینسایز مدل DSW-A010",
+        "متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40",
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298",
+        "پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=INSIZE&limit=5&skip=0"
+    },
+    "by_manufacturer_code_plausible": {
+      "status": 200,
+      "total": 1,
+      "ids": [
+        1785
+      ],
+      "skus": [
+        "1108-150"
+      ],
+      "names": [
+        "کولیس دیجیتال 15سانت اینسایز مدل 1108-150"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=1108-150&limit=5&skip=0"
+    },
+    "by_product_type_like": {
+      "status": 200,
+      "total": 28,
+      "ids": [
+        2395,
+        2356,
+        2355,
+        2354,
+        2351
+      ],
+      "skus": [
+        "118-102",
+        "104-140A",
+        "104-139A",
+        "103-148",
+        "103-145"
+      ],
+      "names": [
+        "میکرومتر ورنیه میتوتویو 25-0 میلی‌متر نعل اسبی مدل 102-118",
+        "میکرومتر ورنیه میتوتویو 200-100 میلی‌متر مدل a140-104",
+        "میکرومتر ورنیه میتوتویو 100-0 میلی‌متر مدل 139-104",
+        "میکرومتر ورنیه میتوتویو 300-275 میلی‌متر مدل 148-103",
+        "میکرومتر ورنیه میتوتویو 225-200 میلی‌متر مدل 145-103"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D9%88%D8%B1%D9%86%DB%8C%D9%87&limit=5&skip=0"
+    }
+  },
+  "multi_token": {
+    "brand_sku": {
+      "status": 200,
+      "total": 1,
+      "ids": [
+        1044
+      ],
+      "skus": [
+        "1012-0010"
+      ],
+      "names": [
+        "زاویه سنج سه تکه با خط کش 12کش — 0-100mm"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=Dasqua+%7C+%D8%AF%D8%A7%D8%B3%DA%A9%D9%88%D8%A7+1012-0010&limit=5&skip=0"
+    },
+    "brand_type": {
+      "status": 200,
+      "total": 117,
+      "ids": [
+        3905,
+        3900,
+        3899,
+        3633,
+        3581
+      ],
+      "skus": [
+        "1205-200S",
+        "1110-300A",
+        "1110-150A",
+        "1203-1003",
+        "1240-3001"
+      ],
+      "names": [
+        "کولیس استنلس استیل معمولی 20 سانت اینسایز مدل 1205-200S",
+        "کولیس دیجیتال 30 سانت با فک الماس اینسایز مدل 1110-300A",
+        "کولیس دیجیتال 15 سانت با فک الماس اینسایز مدل 1110-150A",
+        "کولیس 10 سانتی متر اینسایز مدل 1203-1003",
+        "کولیس عمق سنج 30 سانتی متر اینسایز مدل 1240-3001"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2+%DA%A9%D9%88%D9%84%DB%8C%D8%B3&limit=5&skip=0"
+    },
+    "negative_valid_plus_impossible": {
+      "status": 200,
+      "total": 0,
+      "ids": [],
+      "skus": [],
+      "names": [],
+      "url": "https://api.karzartools.com/api/v1/products/?search=1012-0010+ZZZNOMATCH999&limit=5&skip=0"
+    }
+  },
+  "normalization": {
+    "yeh_arabic": {
+      "status": 200,
+      "total": 186,
+      "ids": [
+        4560,
+        4559,
+        4558,
+        4557,
+        4556
+      ],
+      "skus": [
+        "HDA620-300",
+        "HDE650-600",
+        "HDE650-300",
+        "HD220-600",
+        "HD220-300"
+      ],
+      "names": [
+        "کولیس پایه دار 30سانت دیجیتال بدون اهرم ترما (TERMA) مدل HDA620-300",
+        "کولیس پایه دار 60سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-600",
+        "کولیس پایه دار 30سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-300",
+        "کولیس پایه دار 60سانت دیجیتال دو محور ترما (TERMA) مدل HD220-600",
+        "کولیس پایه دار 30سانت دیجیتال دو محور ترما (TERMA) مدل HD220-300"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D9%83%D9%88%D9%84%DB%8C%D8%B3&limit=5&skip=0"
+    },
+    "yeh_persian": {
+      "status": 200,
+      "total": 186,
+      "ids": [
+        4560,
+        4559,
+        4558,
+        4557,
+        4556
+      ],
+      "skus": [
+        "HDA620-300",
+        "HDE650-600",
+        "HDE650-300",
+        "HD220-600",
+        "HD220-300"
+      ],
+      "names": [
+        "کولیس پایه دار 30سانت دیجیتال بدون اهرم ترما (TERMA) مدل HDA620-300",
+        "کولیس پایه دار 60سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-600",
+        "کولیس پایه دار 30سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-300",
+        "کولیس پایه دار 60سانت دیجیتال دو محور ترما (TERMA) مدل HD220-600",
+        "کولیس پایه دار 30سانت دیجیتال دو محور ترما (TERMA) مدل HD220-300"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%DA%A9%D9%88%D9%84%DB%8C%D8%B3&limit=5&skip=0"
+    },
+    "digit_persian": {
+      "status": 200,
+      "total": 3,
+      "ids": [
+        1787,
+        1786,
+        1785
+      ],
+      "skus": [
+        "1108-300",
+        "1108-200",
+        "1108-150"
+      ],
+      "names": [
+        "کولیس دیجیتال 30سانت اینسایز مدل 1108-300",
+        "کولیس دیجیتال 20سانت اینسایز مدل 1108-200",
+        "کولیس دیجیتال 15سانت اینسایز مدل 1108-150"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%DB%B1%DB%B1%DB%B0%DB%B8&limit=5&skip=0"
+    },
+    "digit_western": {
+      "status": 200,
+      "total": 3,
+      "ids": [
+        1787,
+        1786,
+        1785
+      ],
+      "skus": [
+        "1108-300",
+        "1108-200",
+        "1108-150"
+      ],
+      "names": [
+        "کولیس دیجیتال 30سانت اینسایز مدل 1108-300",
+        "کولیس دیجیتال 20سانت اینسایز مدل 1108-200",
+        "کولیس دیجیتال 15سانت اینسایز مدل 1108-150"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=1108&limit=5&skip=0"
+    },
+    "escape_percent": {
+      "status": 200,
+      "total": 0,
+      "ids": [],
+      "skus": [],
+      "names": [],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%25&limit=5&skip=0"
+    },
+    "escape_underscore": {
+      "status": 200,
+      "total": 472,
+      "ids": [
+        4113,
+        4048,
+        4034,
+        4033,
+        4026
+      ],
+      "skus": [
+        "9241-ML200",
+        "4845-2",
+        "4830",
+        "4829-1",
+        "4621-35"
+      ],
+      "names": [
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "گیج فیلم مرطوب 25 - 3000میکرون اینسایز مدل 4845-2",
+        "گیج جوش اینسایز مدل 4830",
+        "گپ گیج با خط کش 0.8 - 15طول خط کش 15سانت اینسایز مدل 4829-1",
+        "فیلر نواری 5متری اینسایز مدل 4621-35"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=_&limit=5&skip=0"
+    },
+    "escape_backslash": {
+      "status": 200,
+      "total": 0,
+      "ids": [],
+      "skus": [],
+      "names": [],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%5C&limit=5&skip=0"
+    }
+  },
+  "on_sale": {
+    "on_sale_only": {
+      "status": 200,
+      "total": 385,
+      "ids": [
+        4117,
+        4116,
+        4113
+      ]
+    },
+    "search_insize_on_sale": {
+      "status": 200,
+      "total": 385,
+      "ids": [
+        4117,
+        4116,
+        4113,
+        4066,
+        4065
+      ],
+      "skus": [
+        "DSW-A010",
+        "9563-C40",
+        "9241-ML200",
+        "6298-2",
+        "6228-40"
+      ],
+      "names": [
+        "کرنومتر اینسایز مدل DSW-A010",
+        "متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40",
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298",
+        "پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2&limit=5&skip=0&on_sale=true"
+    },
+    "search_dasqua_on_sale": {
+      "status": 200,
+      "total": 0,
+      "ids": [],
+      "skus": [],
+      "names": [],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%AF%D8%A7%D8%B3%DA%A9%D9%88%D8%A7&limit=5&skip=0&on_sale=true"
+    },
+    "search_insize_on_sale_discount_desc": {
+      "status": 200,
+      "total": 385,
+      "ids": [
+        4117,
+        4116,
+        4113,
+        4066,
+        4065
+      ],
+      "skus": [
+        "DSW-A010",
+        "9563-C40",
+        "9241-ML200",
+        "6298-2",
+        "6228-40"
+      ],
+      "names": [
+        "کرنومتر اینسایز مدل DSW-A010",
+        "متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40",
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298",
+        "پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2&limit=5&skip=0&on_sale=true&sort=discount_desc"
+    },
+    "search_stock_first": {
+      "status": 200,
+      "total": 643,
+      "ids": [
+        4117,
+        4116,
+        4113,
+        4066,
+        4065
+      ],
+      "skus": [
+        "DSW-A010",
+        "9563-C40",
+        "9241-ML200",
+        "6298-2",
+        "6228-40"
+      ],
+      "names": [
+        "کرنومتر اینسایز مدل DSW-A010",
+        "متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40",
+        "مولتی متر دیجیتال اینسایز مدل 9241-ML200",
+        "پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298",
+        "پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40"
+      ],
+      "url": "https://api.karzartools.com/api/v1/products/?search=%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2&limit=5&skip=0&sort=stock_first"
+    },
+    "sample_sale_product": {
+      "id": null,
+      "base_price": null,
+      "original_price": null,
+      "sale_ok": false
+    }
+  },
+  "id_asc": {
+    "page0": {
+      "status": 200,
+      "ids": [
+        1044,
+        1067,
+        1078,
+        1102,
+        1154
+      ],
+      "total": 1368,
+      "sorted": true
+    },
+    "page1": {
+      "status": 200,
+      "ids": [
+        1157,
+        1168,
+        1176,
+        1211,
+        1217
+      ],
+      "total": 1368,
+      "sorted": true
+    },
+    "pages_disjoint_and_ordered": true
+  },
+  "sitemap": {
+    "index_status": 200,
+    "starts_xml": true,
+    "locs": [
+      "https://www.karzartools.com/sitemaps/static.xml",
+      "https://www.karzartools.com/sitemaps/categories.xml",
+      "https://www.karzartools.com/sitemaps/brands.xml",
+      "https://www.karzartools.com/sitemaps/blog.xml",
+      "https://www.karzartools.com/sitemaps/products/0.xml",
+      "https://www.karzartools.com/sitemaps/products/1.xml"
+    ],
+    "invalid_sort_key": false,
+    "children": [
+      {
+        "url": "https://www.karzartools.com/sitemaps/static.xml",
+        "status": 200,
+        "bytes": 639,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 8
+      },
+      {
+        "url": "https://www.karzartools.com/sitemaps/categories.xml",
+        "status": 200,
+        "bytes": 5367,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 55
+      },
+      {
+        "url": "https://www.karzartools.com/sitemaps/brands.xml",
+        "status": 200,
+        "bytes": 749,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 7
+      },
+      {
+        "url": "https://www.karzartools.com/sitemaps/blog.xml",
+        "status": 200,
+        "bytes": 3923,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 26
+      },
+      {
+        "url": "https://www.karzartools.com/sitemaps/products/0.xml",
+        "status": 200,
+        "bytes": 126432,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 1000
+      },
+      {
+        "url": "https://www.karzartools.com/sitemaps/products/1.xml",
+        "status": 200,
+        "bytes": 47666,
+        "starts_xml": true,
+        "invalid_sort_key": false,
+        "url_count": 368
+      }
+    ]
+  },
+  "naming_preview_unauth": {
+    "status": 401,
+    "snippet": "{\"error_code\":\"UNAUTHORIZED\",\"message\":\"Could not validate credentials\",\"details\":[]}"
+  },
+  "admin_ui_asset_scan": {
+    "chunks_checked": 53,
+    "found_standard_name_label": false,
+    "found_manufacturer_code_ref": false,
+    "note": "Unauthenticated asset scan; product edit page may be auth-gated. Label presence in JS bundles is evidence of deploy containing Phase 2A/2B UI."
+  },
+  "brand_api_census": {
+    "brand_rows": 40,
+    "sum_product_count": 6241,
+    "top": [
+      [
+        13,
+        "ASTPOWER | ای اس تی پاور",
+        975
+      ],
+      [
+        3,
+        "INSIZE | اینسایز",
+        872
+      ],
+      [
+        4,
+        "Dasqua | داسکوا",
+        727
+      ],
+      [
+        8,
+        "ZCC.CT | زد سی‌سی",
+        583
+      ],
+      [
+        22,
+        "TIGER TEC | تایگرتک",
+        517
+      ],
+      [
+        48,
+        "YOWAX | یواکس",
+        353
+      ],
+      [
+        33,
+        "Chumpower | چام‌پاور",
+        347
+      ],
+      [
+        20,
+        "SAN OU | سانو",
+        317
+      ],
+      [
+        5,
+        "TERMA | ترما",
+        312
+      ],
+      [
+        2,
+        "Mitutoyo | میتوتویو",
+        304
+      ],
+      [
+        6,
+        "ASIMETO | آسیمتو",
+        235
+      ],
+      [
+        50,
+        "ET | ای تی",
+        227
+      ],
+      [
+        49,
+        "Mighty Seven | مایتی سون",
+        182
+      ],
+      [
+        43,
+        "Groz | گروز",
+        127
+      ],
+      [
+        36,
+        "Chagan | چاگان",
+        27
+      ]
+    ],
+    "caveat": "brand.product_count from public brands API — may include non-public; NOT a substitute for SQL non_deleted census / manufacturer_code counts"
+  }
+}
