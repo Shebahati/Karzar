@@ -88,6 +88,7 @@ describe("sitemap static paths", () => {
       "/",
       "/catalog",
       "/blog",
+      "/categories",
       "/about",
       "/contact",
       "/terms",

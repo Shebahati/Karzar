@@ -202,6 +202,7 @@ function toSummary(p: (typeof PRODUCTS)[number]): ProductSummary {
     is_original: p.is_original,
     category: categoryBrief(p.category_id),
     brand: brandBrief(p.brand_id),
+    updated_at: p.updated_at,
   };
 }
 
@@ -340,6 +341,9 @@ export const mockApi = {
         break;
       case "name_desc":
         items = [...items].sort((a, b) => b.name.localeCompare(a.name, "fa"));
+        break;
+      case "id_asc":
+        items = [...items].sort((a, b) => a.id - b.id);
         break;
       case "newest":
       default:

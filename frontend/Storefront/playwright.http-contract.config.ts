@@ -10,7 +10,11 @@ const HTTP_CONTRACT_BASE_URL =
  */
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["entity-http-status.spec.ts", "crawl-discovery.spec.ts"],
+  testMatch: [
+    "entity-http-status.spec.ts",
+    "crawl-discovery.spec.ts",
+    "sitemap-contract.spec.ts",
+  ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

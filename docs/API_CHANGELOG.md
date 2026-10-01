@@ -26,7 +26,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 
 - New admin endpoint: `GET /api/v1/products/{id}/naming-preview` — read-only Naming Standard preview (super-admin). Zero Product writes.
 - Catalog `search` query becomes multi-token AND-of-ORs across name, SKU, `manufacturer_code`, brand, Product Type identity, and active PT-linked taxonomy synonyms.
+- Synonym search requires canonical `node_type=product_type` + string-element-only JSON array matching.
 - No ProductCreate/ProductUpdate manufacturer_code field (unchanged). No rename APPLY.
+
+### 2026-09-30 — Storefront product sort `id_asc`
+
+- `GET /api/v1/products/` accepts optional `sort=id_asc` (stable ascending `id` order).
+- Intended for deterministic read-only consumers (e.g. sitemap sharding); storefront PLP defaults unchanged.
 
 ### 2026-09-30 — Public product `on_sale` discount facet
 

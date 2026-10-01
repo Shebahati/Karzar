@@ -138,6 +138,7 @@ describe("product + sitemap URL hygiene", () => {
       "/",
       "/catalog",
       "/blog",
+      "/categories",
       "/about",
       "/contact",
       "/terms",
