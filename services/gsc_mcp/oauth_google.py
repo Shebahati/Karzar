@@ -45,8 +45,8 @@ class GoogleOAuthTokenProvider:
                 json_body=body,
                 skip_auth=True,
             )
-        except GscMcpError:
-            raise
+        except GscMcpError as exc:
+            raise GscMcpError(ErrorCode.AUTH_REFRESH_FAILED, "Failed to refresh Google access token") from exc
         except Exception as exc:
             logger.exception("OAuth refresh failed")
             raise GscMcpError(ErrorCode.AUTH_REFRESH_FAILED, "Failed to refresh Google access token") from exc
