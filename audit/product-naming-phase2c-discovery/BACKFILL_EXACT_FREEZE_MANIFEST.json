@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-01T10:25:07.315922+00:00",
+  "generated_at": "2026-10-01T10:25:41.137028+00:00",
   "source_live_export_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
   "source_live_export_rows": 6536,
   "source_authority_registry_sha256": "d948679c222b10e88734a09916100e134cffa8da7f06c9412242e91a6c767fa6",
   "source_hash_manifest_sha256": "8069c30e30826951c48d9ae95e91d5d39afc4920bb55fed0f7cb72edbaff4392",
-  "freeze_logic_git_sha": "c3b37a2e853d82d9810830be2b7cc0c103a8c980",
-  "freeze_generator_git_sha": "c3b37a2e853d82d9810830be2b7cc0c103a8c980",
-  "classification_script_git_sha": "c3b37a2e853d82d9810830be2b7cc0c103a8c980",
+  "freeze_logic_git_sha": "d00dc90aea89d15458d47850caf7468430bf176f",
+  "freeze_generator_git_sha": "d00dc90aea89d15458d47850caf7468430bf176f",
+  "classification_script_git_sha": "d00dc90aea89d15458d47850caf7468430bf176f",
   "freeze_logic_file_sha256": {
     "app/domain/phase2c_evidence.py": "1f2ef03190e3cad1d160606eb099b74194d52fedb68dacb04385125419abafd3",
     "scripts/audit_manufacturer_identity_phase2c_discovery.py": "2a6584b8a370d172f488595d5d8e13d107bac6ad15166518401051770327db57",

@@ -1,35 +1,45 @@
 {
-  "phase": "2C-authoritative-discovery",
-  "generated_at": "2026-10-01T10:25:12.824473+00:00",
+  "phase": "2C-authoritative-discovery-freeze",
+  "generated_at": "2026-10-01T10:25:41.137028+00:00",
   "coverage": "LIVE_DB_AUTHORITATIVE",
-  "script_git_sha": "c3b37a2e853d82d9810830be2b7cc0c103a8c980",
-  "source_path": "/tmp/karzar-p2c-live-products.csv",
-  "source_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
-  "evidence_registry": "audit/product-naming-phase2c-discovery/SOURCE_AUTHORITY_REGISTRY.csv",
-  "reconciliation": {
-    "non_deleted_total": 6536,
-    "by_state": {
-      "BACKFILL_EXACT": 1350,
-      "MANUAL_REVIEW": 0,
-      "HOLD_WEAK_EVIDENCE": 2741,
-      "HOLD_IDENTITY_CONFLICT": 2142,
-      "HOLD_MISSING": 0,
-      "HOLD_BRAND_AMBIGUOUS": 295,
-      "HOLD_DUPLICATE_IDENTITY": 8,
-      "REVIEW_EXISTING_CANONICAL": 0
-    },
-    "sum_primary_states": 6536,
-    "unknown_state_rows": 0,
-    "reconciles": true
+  "backfill_exact_frozen_rows": 1350,
+  "backfill_exact_frozen_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "provisional_backfill_exact_rows": 1737,
+  "provisional_backfill_exact_sha256": "38fbeee64bdb8f4b14a38dfe80937bf46f247b28344b2608889cc08e5efdf64d",
+  "evidence_completeness": {
+    "registry_rows": 2042,
+    "with_stable_source_locator": 2042,
+    "without_stable_source_locator": 0,
+    "with_raw_source_code": 2042,
+    "with_source_description": 2042,
+    "with_source_sha256": 2042,
+    "rows_passing_exact_completeness_gate": 2042
   },
-  "collision_groups": 5,
-  "reversed_code_conflicts": 2142,
-  "rename_readiness": {
-    "manufacturer_identity_ready": 1350,
-    "oem_exact_plus_pt_governed": 0,
-    "oem_exact_plus_pt_missing": 778,
-    "oem_exact_plus_profile_missing": 572
+  "conflict_resolution": {
+    "candidate_mismatches_total": 2741,
+    "heuristic_conflicts_total": 2715,
+    "non_conflict_candidate_mismatches": 26,
+    "resolved_by_tier_1": 564,
+    "resolved_by_tier_2": 0,
+    "resolved_by_tier_3": 0,
+    "heuristic_conflicts_unresolved": 2142,
+    "strong_evidence_conflicts": 0,
+    "duplicate_identity_conflicts": 8,
+    "duplicate_identity_within_heuristic": 8,
+    "heuristic_unclassified": 1,
+    "legacy_broad_heuristic_conflicts_total": 2741,
+    "legacy_broad_minus_canonical_heuristic": 26,
+    "conflict_accounting_reconciles": true,
+    "unresolved_conflicts": 2142,
+    "duplicate_identity_holds": 8
   },
-  "note": "BACKFILL_EXACT requires Tier 1–3 evidence registry linkage. SKU/title alone never yields BACKFILL_EXACT. No Product writes performed.",
-  "artifact_suffix": "_LIVE"
+  "replay_identical": true,
+  "ready_for_owner_freeze_review": true,
+  "frozen_provenance": {
+    "frozen_rows": 1350,
+    "complete_frozen_rows": 1350,
+    "incomplete_frozen_rows": 0,
+    "all_complete": true
+  },
+  "conflict_accounting_reconciles": true
 }
