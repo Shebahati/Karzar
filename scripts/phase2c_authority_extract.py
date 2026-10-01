@@ -12,9 +12,7 @@ from typing import Any
 
 from app.domain.phase2c_evidence import normalized_match_key
 
-DEFAULT_PRODUCT_DATA_ROOT = Path(
-    "/home/shebahati/KaZar/Product and Data Complete"
-)
+DEFAULT_PRODUCT_DATA_ROOT = Path("/home/shebahati/KaZar/Product and Data Complete")
 
 INSIZE_NUMERIC_CODE = re.compile(r"\b(\d{4}-[A-Z0-9][A-Z0-9\-]*)\b", re.IGNORECASE)
 DASQUA_NUMERIC_CODE = INSIZE_NUMERIC_CODE

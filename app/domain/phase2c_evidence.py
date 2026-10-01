@@ -9,8 +9,9 @@ from __future__ import annotations
 import csv
 import re
 import unicodedata
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 REGISTRY_FIELDNAMES: list[str] = [
     "source_id",
@@ -49,9 +50,7 @@ CONFLICT_RESOLVED_T2 = "RESOLVED_BY_TIER2"
 CONFLICT_RESOLVED_T3 = "RESOLVED_BY_TIER3"
 CONFLICT_STRONG = "STRONG_EVIDENCE_CONFLICT"
 
-_RESOLVED_STATUSES = frozenset(
-    {CONFLICT_RESOLVED_T1, CONFLICT_RESOLVED_T2, CONFLICT_RESOLVED_T3}
-)
+_RESOLVED_STATUSES = frozenset({CONFLICT_RESOLVED_T1, CONFLICT_RESOLVED_T2, CONFLICT_RESOLVED_T3})
 
 # Source types that cannot auto-enter BACKFILL_EXACT (identity column not proven OEM).
 _INELIGIBLE_SOURCE_TYPES = frozenset(
@@ -211,14 +210,10 @@ def variant_compatible(product_name: str, source_description: str) -> tuple[bool
         if _category_hits(name, b) and _category_hits(desc, a):
             return False, "category_contradiction"
     name_tokens = {
-        t
-        for t in re.split(r"[\s،,/|]+", _lower_fold(name))
-        if len(t) >= 3 and not t.isdigit()
+        t for t in re.split(r"[\s،,/|]+", _lower_fold(name)) if len(t) >= 3 and not t.isdigit()
     }
     desc_tokens = {
-        t
-        for t in re.split(r"[\s،,/|]+", _lower_fold(desc))
-        if len(t) >= 3 and not t.isdigit()
+        t for t in re.split(r"[\s،,/|]+", _lower_fold(desc)) if len(t) >= 3 and not t.isdigit()
     }
     if name_tokens & desc_tokens:
         return True, "token_overlap"

@@ -30,9 +30,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.domain.phase2c_evidence import (  # noqa: E402
+    _RESOLVED_STATUSES,
     CONFLICT_HEURISTIC_UNRESOLVED,
     CONFLICT_STRONG,
-    _RESOLVED_STATUSES,
     flatten_provenance,
     load_evidence_registry_multimap,
     normalized_match_key,
@@ -367,7 +367,9 @@ def rename_readiness_row(classified: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def brand_census(rows: list[dict[str, Any]], classified: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def brand_census(
+    rows: list[dict[str, Any]], classified: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     by_brand: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for r, c in zip(rows, classified, strict=True):
         key = (str(r.get("brand_id") or ""), r.get("brand_name") or r.get("brand") or "")
@@ -421,7 +423,9 @@ def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     _reject_apply(argv)
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--products-csv", type=Path, help="Live/authoritative non-deleted product export")
+    p.add_argument(
+        "--products-csv", type=Path, help="Live/authoritative non-deleted product export"
+    )
     p.add_argument(
         "--status-master",
         type=Path,
@@ -482,11 +486,11 @@ def main(argv: list[str] | None = None) -> int:
             key_to_pids[f"{brand}|{normalized_match_key(code)}"].append(
                 str(r.get("product_id") or r.get("id"))
             )
-    collision_codes = {k for k, pids in key_to_pids.items() if len(set(pids)) > 1 and k.split("|", 1)[0]}
+    collision_codes = {
+        k for k, pids in key_to_pids.items() if len(set(pids)) > 1 and k.split("|", 1)[0]
+    }
 
-    classified = [
-        classify_row(r, evidence=evidence, collision_codes=collision_codes) for r in rows
-    ]
+    classified = [classify_row(r, evidence=evidence, collision_codes=collision_codes) for r in rows]
     rec = reconcile(classified)
     brands = brand_census(rows, classified)
 
@@ -594,14 +598,12 @@ def main(argv: list[str] | None = None) -> int:
     try:
         import subprocess
 
-        git_sha = (
-            subprocess.run(
-                ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
-                capture_output=True,
-                text=True,
-                check=False,
-            ).stdout.strip()
-        )
+        git_sha = subprocess.run(
+            ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.strip()
     except OSError:
         pass
 

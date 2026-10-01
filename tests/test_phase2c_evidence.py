@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from scripts.audit_manufacturer_identity_phase2c_discovery import classify_row
-from scripts.build_phase2c_source_authority_registry import _reject_apply
 from app.domain.phase2c_evidence import (
     CONFLICT_HEURISTIC_UNRESOLVED,
     CONFLICT_RESOLVED_T1,
@@ -13,6 +11,8 @@ from app.domain.phase2c_evidence import (
     normalized_match_key,
     pick_evidence_for_code,
 )
+from scripts.audit_manufacturer_identity_phase2c_discovery import classify_row
+from scripts.build_phase2c_source_authority_registry import _reject_apply
 
 
 def _complete_ev(**overrides):
@@ -99,7 +99,13 @@ def test_title_vs_sku_stays_hold_without_resolving_evidence():
 
 def test_title_vs_sku_resolved_when_sku_has_tier1_evidence():
     evidence = {
-        "INSIZE|500-196-30": [_complete_ev(manufacturer_code="500-196-30", canonical_candidate_code="500-196-30", raw_source_code="500-196-30")],
+        "INSIZE|500-196-30": [
+            _complete_ev(
+                manufacturer_code="500-196-30",
+                canonical_candidate_code="500-196-30",
+                raw_source_code="500-196-30",
+            )
+        ],
     }
     product = {
         "product_id": "7",
@@ -146,7 +152,15 @@ def test_replay_freeze_produces_identical_hash(tmp_path):
 
         w = csv.DictWriter(
             fh,
-            fieldnames=["product_id", "sku", "name", "brand_id", "brand", "manufacturer_code", "deleted_at"],
+            fieldnames=[
+                "product_id",
+                "sku",
+                "name",
+                "brand_id",
+                "brand",
+                "manufacturer_code",
+                "deleted_at",
+            ],
         )
         w.writeheader()
         w.writerow(

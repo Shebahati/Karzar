@@ -20,12 +20,10 @@ sys.path.insert(0, str(ROOT))
 from app.domain.phase2c_evidence import (  # noqa: E402
     BACKFILL_EXACT_COLUMNS,
     CONFLICT_HEURISTIC_UNRESOLVED,
-    CONFLICT_NO,
     CONFLICT_RESOLVED_T1,
     CONFLICT_RESOLVED_T2,
     CONFLICT_RESOLVED_T3,
     CONFLICT_STRONG,
-    REGISTRY_FIELDNAMES,
     evidence_completeness_ok,
     has_stable_locator,
     load_evidence_registry_multimap,
@@ -111,7 +109,9 @@ def classify_catalog(
         for code in codes:
             key = f"{brand}|{nmk(code)}"
             key_to_pids.setdefault(key, []).append(str(r.get("product_id") or r.get("id")))
-    collision_codes = {k for k, pids in key_to_pids.items() if len(set(pids)) > 1 and k.split("|", 1)[0]}
+    collision_codes = {
+        k for k, pids in key_to_pids.items() if len(set(pids)) > 1 and k.split("|", 1)[0]
+    }
 
     classified = [
         classify_row(r, evidence=evidence, collision_codes=collision_codes) for r in products
@@ -157,13 +157,19 @@ def conflict_resolution_report(classified: list[dict[str, Any]]) -> dict[str, An
         1
         for r in classified
         if r.get("classification_reason") == "title_vs_sku"
-        or (r.get("title_candidate") and r.get("sku_candidate")
-            and r.get("title_candidate").replace(" ", "") != r.get("sku_candidate", "").replace(" ", ""))
+        or (
+            r.get("title_candidate")
+            and r.get("sku_candidate")
+            and r.get("title_candidate").replace(" ", "")
+            != r.get("sku_candidate", "").replace(" ", "")
+        )
     )
     resolved_t1 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T1)
     resolved_t2 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T2)
     resolved_t3 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T3)
-    unresolved = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_HEURISTIC_UNRESOLVED)
+    unresolved = sum(
+        1 for r in classified if r.get("conflict_status") == CONFLICT_HEURISTIC_UNRESOLVED
+    )
     strong = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_STRONG)
     dup = sum(1 for r in classified if r.get("classification") == "HOLD_DUPLICATE_IDENTITY")
     return {
@@ -199,7 +205,9 @@ def deterministic_sample(
     return picked[:n]
 
 
-def rejected_sample(classified: list[dict[str, Any]], products: list[dict[str, Any]], n: int) -> list[dict[str, str]]:
+def rejected_sample(
+    classified: list[dict[str, Any]], products: list[dict[str, Any]], n: int
+) -> list[dict[str, str]]:
     holds = ("HOLD_WEAK_EVIDENCE", "HOLD_IDENTITY_CONFLICT", "HOLD_DUPLICATE_IDENTITY")
     rows: list[dict[str, str]] = []
     for p, c in zip(products, classified, strict=True):
@@ -281,7 +289,9 @@ def main(argv: list[str] | None = None) -> int:
     write_csv(frozen_path, exact1, fieldnames=BACKFILL_EXACT_COLUMNS)
 
     tier_counts = Counter(int(r.get("authority_tier") or 0) for r in exact1)
-    brand_counts = Counter((r.get("brand_name") or "").split("|", 1)[0].strip().upper() for r in exact1)
+    brand_counts = Counter(
+        (r.get("brand_name") or "").split("|", 1)[0].strip().upper() for r in exact1
+    )
 
     sample_rows: list[dict[str, str]] = []
     sample_rows.extend(deterministic_sample(exact1, brand="INSIZE", n=20, seed_key="insize-v1"))
@@ -289,7 +299,9 @@ def main(argv: list[str] | None = None) -> int:
     sample_rows.extend(deterministic_sample(exact1, brand="TERMA", n=15, seed_key="terma-v1"))
     ast_rows = [r for r in exact1 if "AST" in (r.get("brand_name") or "").upper()]
     sample_rows.extend(ast_rows if len(ast_rows) <= 50 else ast_rows[:50])
-    write_csv(out_dir / "BACKFILL_EXACT_REVIEW_SAMPLE.csv", sample_rows, fieldnames=BACKFILL_EXACT_COLUMNS)
+    write_csv(
+        out_dir / "BACKFILL_EXACT_REVIEW_SAMPLE.csv", sample_rows, fieldnames=BACKFILL_EXACT_COLUMNS
+    )
 
     rejected = rejected_sample(classified1, products, 30)
     write_csv(out_dir / "BACKFILL_REJECTED_REVIEW_SAMPLE.csv", rejected)
@@ -335,7 +347,9 @@ def main(argv: list[str] | None = None) -> int:
         "unresolved_conflict_count": conflict_report["unresolved_conflicts"],
         "provisional_cohort_sha256": PROVISIONAL_SHA,
         "provisional_cohort_rows": PROVISIONAL_ROWS,
-        "provisional_status": "SUPERSEDED" if sha1 != PROVISIONAL_SHA or len(exact1) != PROVISIONAL_ROWS else "UNCHANGED",
+        "provisional_status": "SUPERSEDED"
+        if sha1 != PROVISIONAL_SHA or len(exact1) != PROVISIONAL_ROWS
+        else "UNCHANGED",
         "replay_1_sha256": sha1,
         "replay_2_sha256": sha2,
         "replay_identical": sha1 == sha2,
