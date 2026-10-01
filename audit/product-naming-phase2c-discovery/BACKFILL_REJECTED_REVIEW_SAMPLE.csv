@@ -1,0 +1,31 @@
+product_id,brand_name,sku,current_name,classification,conflict_status,classification_reason,candidate_manufacturer_code,evidence_notes
+1563,Dasqua | داسکوا,5511-1110,ساعت با پراپ های گیج داخل سیلندر — 0-18mm,HOLD_WEAK_EVIDENCE,,,5511-1110,tier4_only_cannot_be_backfill_exact
+2157,Mitutoyo | میتوتویو,511-725,بورگیج داخل سنج ۲۵۰-۱۶۰میلیمتر,HOLD_WEAK_EVIDENCE,,,511-725,tier4_only_cannot_be_backfill_exact
+2515,ASIMETO | آسیمتو,529,میکرومتر ساعتی ( پاسومتر ) آسیمتو,HOLD_WEAK_EVIDENCE,,,529,tier4_only_cannot_be_backfill_exact
+2761,Vertex | ورتکس,1261,قلاویز زن اتوماتیک ورتکس,HOLD_WEAK_EVIDENCE,,,1261,tier4_only_cannot_be_backfill_exact
+2966,Winstar | وینستار,2445,فرز انگشتی تمام الماس چهارپر نوک کروی بلند سری G-Star وینستار تایوان,HOLD_WEAK_EVIDENCE,,,2445,tier4_only_cannot_be_backfill_exact
+3264,ASTPOWER | ای اس تی پاور,AST-G70,دستگاه گردبر دریل مگنت تیزکن AST-G70,HOLD_WEAK_EVIDENCE,,,AST-G70,tier4_only_cannot_be_backfill_exact
+3453,ASTPOWER | ای اس تی پاور,AST-26MA,فشنگی گیر سایز 30 تا 32 برای دستگاه AST-26MA ASTPOWER,HOLD_WEAK_EVIDENCE,,,AST-26MA,tier4_only_cannot_be_backfill_exact
+4241,SAN OU | سانو,SO-14101,خورشیدی سه نظام SCROLL--200 سانو (SAN OU),HOLD_WEAK_EVIDENCE,,,SO-14101,tier4_only_cannot_be_backfill_exact
+4420,SAN OU | سانو,SO-1715,کالهک مته 6-5 سانو (SAN OU),HOLD_WEAK_EVIDENCE,,,SO-1715,tier4_only_cannot_be_backfill_exact
+5333,TIGER TEC | تایگرتک,TT-BN-H55-R1.5X6DX50L-2F,فرز بالنوز کارباید 2 لبه R1.5×6D×50L-2F HRC55 تایگرتک (TIGER TEC),HOLD_WEAK_EVIDENCE,,,TT-BN-H55-R1.5X6DX50L-2F,tier4_only_cannot_be_backfill_exact
+5496,TIGER TEC | تایگرتک,TT-DR-H55-4.7X62L,مته کارباید توپر 4.7×62L HRC55 تایگرتک (TIGER TEC),HOLD_WEAK_EVIDENCE,,,TT-DR-H55-4.7X62L,tier4_only_cannot_be_backfill_exact
+5659,TIGER TEC | تایگرتک,TT-EM-H55-5X5DX50L-4T,فرز تخت کارباید 4 پر 5×5D×50L-4T HRC55 تایگرتک (TIGER TEC),HOLD_WEAK_EVIDENCE,,,TT-EM-H55-5X5DX50L-4T,tier4_only_cannot_be_backfill_exact
+5822,TIGER TEC | تایگرتک,TT-EM-H55-2X4DX50L-3F,فرز تخت کارباید 3 لبه 2×4D×50L-3F HRC55 تایگرتک (TIGER TEC),HOLD_WEAK_EVIDENCE,,,TT-EM-H55-2X4DX50L-3F,tier4_only_cannot_be_backfill_exact
+6143,ASTPOWER | ای اس تی پاور,AST-HV-20,"9 AST-HV-20 5,513,350,000",HOLD_WEAK_EVIDENCE,,,AST-HV-20,tier4_only_cannot_be_backfill_exact
+6320,Chumpower | چام‌پاور,D32-SF33,سه نظام چام‌پاور مدل D32-SF33,HOLD_WEAK_EVIDENCE,,,D32-SF33,tier4_only_cannot_be_backfill_exact
+6483,Chumpower | چام‌پاور,81261,سه نظام چام‌پاور مدل 81261,HOLD_WEAK_EVIDENCE,,,81261,tier4_only_cannot_be_backfill_exact
+2153,Mitutoyo | میتوتویو,511-716,بورگیج سیلندر میتوتویو 400-250 میلی‌متر مدل 716-511,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,716-511,title=716-511|sku=511-716
+2379,Mitutoyo | میتوتویو,103-177,میکرومتر ساده میتوتویو 1-0 اینچ دقت 0.001 اینچ مدل 177-103,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,177-103,title=177-103|sku=103-177
+4840,YOWAX | یواکس,YW-CCMT120408-M-M5020,اینسرت الماس یواکس (YOWAX) مدل CCMT120408-M-M5020,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,CCMT120408-M-M5020,title=CCMT120408-M-M5020|sku=YW-CCMT120408-M-M5020
+5003,YOWAX | یواکس,YW-16IR-AG60-P-P6010,اینسرت الماس یواکس (YOWAX) مدل 16IR-AG60-P-P6010,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,16IR-AG60-P-P6010,title=16IR-AG60-P-P6010|sku=YW-16IR-AG60-P-P6010
+5172,Mighty Seven | مایتی سون,NE4815,جغجغه بادی درایو 1/2 اینچ مدل NE4815 مایتی سون (Mighty Seven),HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,NE4815 مایتی سون (Mighty Seven),title=NE4815 مایتی سون (Mighty Seven)|sku=NE4815
+5881,ASTPOWER | ای اس تی پاور,2A-S7,مولتی اسپیندل دو محوره مدل 2A-S7 ای اس تی پاور (AST Power),HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,2A-S7 ای اس تی پاور (AST Power),title=2A-S7 ای اس تی پاور (AST Power)|sku=2A-S7
+6552,ASTPOWER | ای اس تی پاور,GHTMS20-SDC,مدل GHTMS20-SDC ای اس تی پاور (AST Power),HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,GHTMS20-SDC ای اس تی پاور (AST Power),title=GHTMS20-SDC ای اس تی پاور (AST Power)|sku=GHTMS20-SDC
+6761,ET | ای تی,511211/1,قلاویز ماشینی ET مدل 511211/1 سایز M11×1 روکش طلایی,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,511211/1 سایز M11×1 روکش طلایی,title=511211/1 سایز M11×1 روکش طلایی|sku=511211/1
+6924,ASTPOWER | ای اس تی پاور,431128,گردبر مگنت مدل 431128 ای اس تی پاور (AST Power),HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,431128 ای اس تی پاور (AST Power),title=431128 ای اس تی پاور (AST Power)|sku=431128
+7087,ASTPOWER | ای اس تی پاور,677314,فرز انگشتی مدل 677314 ای اس تی پاور (AST Power),HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,677314 ای اس تی پاور (AST Power),title=677314 ای اس تی پاور (AST Power)|sku=677314
+7268,ZCC.CT | زد سی‌سی,ZCC-WCMX030208R-53-YBG205,الماس سوراخکاری ZCC مدل WCMX030208R-53 YBG205,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,WCMX030208R-53 YBG205,title=WCMX030208R-53 YBG205|sku=ZCC-WCMX030208R-53-YBG205
+7431,ZCC.CT | زد سی‌سی,ZCC-SDNCN1212H11,هلدر رو تراش ZCC مدل SDNCN1212H11 برای الماس DC▢▢11,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,SDNCN1212H11,title=SDNCN1212H11|sku=ZCC-SDNCN1212H11
+7594,ZCC.CT | زد سی‌سی,ZCC-ZTCD01502-EG-YBG302,الماس تراشکاری ZCC مدل ZTCD01502-EG YBG302,HOLD_IDENTITY_CONFLICT,HEURISTIC_CONFLICT_UNRESOLVED,title_vs_sku,ZTCD01502-EG YBG302,title=ZTCD01502-EG YBG302|sku=ZCC-ZTCD01502-EG-YBG302
+1127,Dasqua | داسکوا,1803-4116,ساعت مرکزیاب داسکوا کد 1803-4116,HOLD_WEAK_EVIDENCE,,,1803-4116,tier4_only_cannot_be_backfill_exact

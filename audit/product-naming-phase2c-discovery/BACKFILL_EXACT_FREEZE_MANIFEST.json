@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-01T09:47:10.290229+00:00",
+  "source_live_export_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
+  "source_live_export_rows": 6536,
+  "source_authority_registry_sha256": "d948679c222b10e88734a09916100e134cffa8da7f06c9412242e91a6c767fa6",
+  "source_hash_manifest_sha256": "c9a58fca1f34ad293b58bc12a41498e33ee5b061807460c84414036c0f159345",
+  "classification_script_git_sha": "d72b506d3b0448259ca736dbe2e9dad175571920",
+  "frozen_row_count": 1350,
+  "frozen_csv_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "tier_1_count": 728,
+  "tier_2_count": 622,
+  "tier_3_count": 0,
+  "brand_counts": {
+    "DASQUA": 396,
+    "INSIZE": 728,
+    "TERMA": 226
+  },
+  "resolved_conflict_count": 564,
+  "unresolved_conflict_count": 2142,
+  "provisional_cohort_sha256": "38fbeee64bdb8f4b14a38dfe80937bf46f247b28344b2608889cc08e5efdf64d",
+  "provisional_cohort_rows": 1737,
+  "provisional_status": "SUPERSEDED",
+  "replay_1_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "replay_2_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "replay_identical": true,
+  "db_identity_fingerprints_at_discovery": {
+    "collected_at_utc": "2026-10-01T09:24:16.514705+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0",
+    "git_head_local": "612450bf1ede053087a2fbfb0108e4cce0adf29a"
+  },
+  "discovery_fingerprint_not_apply_preflight": "Fingerprints captured at discovery are provenance only. Future Phase 2C APPLY must collect fresh fingerprints immediately before rehearsal.",
+  "status": "READY_FOR_OWNER_FREEZE_REVIEW"
+}

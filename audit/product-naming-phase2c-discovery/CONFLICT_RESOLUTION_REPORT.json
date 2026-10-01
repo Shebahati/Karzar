@@ -1,0 +1,9 @@
+{
+  "heuristic_conflicts_total": 2741,
+  "resolved_by_tier_1": 564,
+  "resolved_by_tier_2": 0,
+  "resolved_by_tier_3": 0,
+  "unresolved_conflicts": 2142,
+  "strong_evidence_conflicts": 0,
+  "duplicate_identity_holds": 8
+}

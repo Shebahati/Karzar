@@ -29,6 +29,15 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from app.domain.phase2c_evidence import (  # noqa: E402
+    CONFLICT_HEURISTIC_UNRESOLVED,
+    CONFLICT_STRONG,
+    _RESOLVED_STATUSES,
+    flatten_provenance,
+    load_evidence_registry_multimap,
+    normalized_match_key,
+    pick_evidence_for_code,
+)
 from app.domain.product_naming import (  # noqa: E402
     extract_manufacturer_code_candidates,
     resolve_naming_profile_v1,
@@ -86,20 +95,65 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def load_evidence_registry(path: Path | None) -> dict[str, dict[str, Any]]:
-    """Map brand_norm|candidate_code → Tier 1–3 evidence row."""
-    if path is None or not path.exists():
+def load_evidence_registry(path: Path | None) -> dict[str, list[dict[str, Any]]]:
+    """Map brand_norm|normalized_code → all Tier 1–3 evidence rows (no last-wins)."""
+    if path is None:
         return {}
-    out: dict[str, dict[str, Any]] = {}
-    with path.open(encoding="utf-8") as fh:
-        for row in csv.DictReader(fh):
-            brand = _norm_brand(row.get("brand") or row.get("brand_name"))
-            code = (row.get("manufacturer_code") or row.get("candidate_manufacturer_code") or "").strip()
-            tier = int(row.get("authority_tier") or "0" or 0)
-            if not brand or not code or tier < 1 or tier > 3:
-                continue
-            out[f"{brand}|{code}"] = row
-    return out
+    return load_evidence_registry_multimap(path)
+
+
+def _apply_evidence_pick(out: dict[str, Any], pick: Any, code: str) -> None:
+    prov = flatten_provenance(pick.row)
+    out.update(prov)
+    out["candidate_manufacturer_code"] = prov.get("candidate_manufacturer_code") or code
+    out["conflict_status"] = pick.conflict_status
+    out["classification_reason"] = pick.classification_reason
+    out["source_path_or_url"] = prov.get("source_path", "")
+    out["source_sha256"] = prov.get("source_sha256", "")
+    out["evidence_notes"] = pick.classification_reason
+
+
+def _try_exact_from_evidence(
+    out: dict[str, Any],
+    *,
+    brand: str,
+    name: str,
+    codes: list[str],
+    evidence: dict[str, list[dict[str, Any]]],
+    collision_codes: set[str],
+    heuristic_conflict: bool,
+) -> bool:
+    for code in codes:
+        if not code:
+            continue
+        key = f"{brand}|{normalized_match_key(code)}"
+        if key in collision_codes:
+            out["classification"] = "HOLD_DUPLICATE_IDENTITY"
+            out["candidate_manufacturer_code"] = code
+            out["conflict_status"] = "brand_oem_collision"
+            return True
+        pick = pick_evidence_for_code(
+            brand=brand,
+            code=code,
+            product_name=name,
+            evidence_map=evidence,
+            heuristic_conflict=heuristic_conflict,
+            resolving_only=heuristic_conflict,
+        )
+        if pick is None:
+            continue
+        if pick.conflict_status == CONFLICT_STRONG:
+            out["classification"] = "MANUAL_REVIEW"
+            out["candidate_manufacturer_code"] = code
+            _apply_evidence_pick(out, pick, code)
+            out["evidence_notes"] = "strong_evidence_conflict"
+            return True
+        if heuristic_conflict and pick.conflict_status not in _RESOLVED_STATUSES:
+            continue
+        out["classification"] = "BACKFILL_EXACT"
+        _apply_evidence_pick(out, pick, code)
+        return True
+    return False
 
 
 def classify_row(
@@ -161,6 +215,7 @@ def classify_row(
         "candidate_manufacturer_code": "",
         "classification": "HOLD_MISSING",
         "conflict_status": "",
+        "classification_reason": "",
     }
 
     if not brand:
@@ -169,15 +224,25 @@ def classify_row(
         return out
 
     if canonical:
-        key = f"{brand}|{canonical}"
-        if key in evidence:
-            out["classification"] = "BACKFILL_EXACT"
-            out["candidate_manufacturer_code"] = canonical
-            ev = evidence[key]
-            out["authority_tier"] = ev.get("authority_tier", "")
-            out["source_type"] = ev.get("source_type", "existing_canonical_verified")
-            out["source_path_or_url"] = ev.get("source_path_or_url", "")
-            out["evidence_notes"] = "existing_manufacturer_code_matches_tier1_3_registry"
+        key = f"{brand}|{normalized_match_key(canonical)}"
+        records = evidence.get(key, [])
+        if records:
+            pick = pick_evidence_for_code(
+                brand=brand,
+                code=canonical,
+                product_name=name,
+                evidence_map=evidence,
+                heuristic_conflict=False,
+                resolving_only=False,
+            )
+            if pick and pick.conflict_status != CONFLICT_STRONG:
+                out["classification"] = "BACKFILL_EXACT"
+                _apply_evidence_pick(out, pick, canonical)
+                out["evidence_notes"] = "existing_manufacturer_code_matches_tier1_3_registry"
+            else:
+                out["classification"] = "MANUAL_REVIEW"
+                out["candidate_manufacturer_code"] = canonical
+                out["evidence_notes"] = "existing_canonical_evidence_conflict_or_incomplete"
         else:
             out["classification"] = "REVIEW_EXISTING_CANONICAL"
             out["candidate_manufacturer_code"] = canonical
@@ -197,31 +262,25 @@ def classify_row(
         if re.search(r"\d", title_c) and re.search(r"\d", sku_c):
             conflict = True
 
-    # Tier 1–3 registry hit on a candidate
-    for code in cand_codes + ([title_c] if title_c else []) + ([sku_c] if sku_c else []):
-        if not code:
-            continue
-        key = f"{brand}|{code}"
-        if key in evidence:
-            if key in collision_codes:
-                out["classification"] = "HOLD_DUPLICATE_IDENTITY"
-                out["candidate_manufacturer_code"] = code
-                out["conflict_status"] = "brand_oem_collision"
-                return out
-            out["classification"] = "BACKFILL_EXACT"
-            out["candidate_manufacturer_code"] = code
-            ev = evidence[key]
-            out["authority_tier"] = ev.get("authority_tier", "")
-            out["source_type"] = ev.get("source_type", "")
-            out["source_path_or_url"] = ev.get("source_path_or_url") or ev.get("source_path", "")
-            out["evidence_notes"] = "tier1_3_registry_match"
-            if ev.get("sha256"):
-                out["source_sha256"] = ev.get("sha256", "")
-            return out
+    candidate_order: list[str] = []
+    for c in [sku_c, title_c, *cand_codes]:
+        if c and c not in candidate_order:
+            candidate_order.append(c)
+
+    if _try_exact_from_evidence(
+        out,
+        brand=brand,
+        name=name,
+        codes=candidate_order,
+        evidence=evidence,
+        collision_codes=collision_codes,
+        heuristic_conflict=conflict,
+    ):
+        return out
 
     if conflict:
         cand = title_c or sku_c or ""
-        key = f"{brand}|{cand}" if cand else ""
+        key = f"{brand}|{normalized_match_key(cand)}" if cand else ""
         if key and key in collision_codes:
             out["classification"] = "HOLD_DUPLICATE_IDENTITY"
             out["candidate_manufacturer_code"] = cand
@@ -232,7 +291,8 @@ def classify_row(
             return out
         out["classification"] = "HOLD_IDENTITY_CONFLICT"
         out["candidate_manufacturer_code"] = cand
-        out["conflict_status"] = "title_vs_sku"
+        out["conflict_status"] = CONFLICT_HEURISTIC_UNRESOLVED
+        out["classification_reason"] = "title_vs_sku"
         out["authority_tier"] = "4"
         out["source_type"] = "title+sku_heuristic"
         out["evidence_notes"] = f"title={title_c}|sku={sku_c}"
@@ -240,7 +300,7 @@ def classify_row(
 
     if title_c or sku_c or cand_codes:
         cand = title_c or sku_c or (cand_codes[0] if cand_codes else "")
-        key = f"{brand}|{cand}" if cand else ""
+        key = f"{brand}|{normalized_match_key(cand)}" if cand else ""
         if key and key in collision_codes:
             out["classification"] = "HOLD_DUPLICATE_IDENTITY"
             out["candidate_manufacturer_code"] = cand
@@ -419,7 +479,9 @@ def main(argv: list[str] | None = None) -> int:
         if sku:
             codes.add(sku)
         for code in codes:
-            key_to_pids[f"{brand}|{code}"].append(str(r.get("product_id") or r.get("id")))
+            key_to_pids[f"{brand}|{normalized_match_key(code)}"].append(
+                str(r.get("product_id") or r.get("id"))
+            )
     collision_codes = {k for k, pids in key_to_pids.items() if len(set(pids)) > 1 and k.split("|", 1)[0]}
 
     classified = [
@@ -466,7 +528,12 @@ def main(argv: list[str] | None = None) -> int:
     write_csv(out_dir / collisions_name, collisions)
     if not args.live_authoritative:
         write_csv(out_dir / "IDENTITY_COLLISIONS.csv", collisions)
-    reversed_rows = [r for r in classified if r.get("conflict_status") == "title_vs_sku"]
+    reversed_rows = [
+        r
+        for r in classified
+        if r.get("classification_reason") == "title_vs_sku"
+        or r.get("conflict_status") == CONFLICT_HEURISTIC_UNRESOLVED
+    ]
     write_csv(out_dir / reversed_name, reversed_rows)
     if not args.live_authoritative:
         write_csv(out_dir / "REVERSED_CODE_CONFLICTS.csv", reversed_rows)
@@ -549,7 +616,10 @@ def main(argv: list[str] | None = None) -> int:
         "reconciliation": rec,
         "collision_groups": len(collisions),
         "reversed_code_conflicts": sum(
-            1 for r in classified if r.get("conflict_status") == "title_vs_sku"
+            1
+            for r in classified
+            if r.get("classification_reason") == "title_vs_sku"
+            or r.get("conflict_status") == CONFLICT_HEURISTIC_UNRESOLVED
         ),
         "rename_readiness": {
             "manufacturer_identity_ready": sum(

@@ -53,13 +53,31 @@ def test_title_alone_never_yields_backfill_exact():
     assert out["classification"] != "BACKFILL_EXACT"
 
 
+def _complete_evidence(**overrides):
+    base = {
+        "brand": "INSIZE",
+        "manufacturer_code": "1108-150",
+        "canonical_candidate_code": "1108-150",
+        "raw_source_code": "1108-150",
+        "authority_tier": "1",
+        "source_type": "oem_product_list",
+        "source_id": "insize.product_list",
+        "source_path": "/data/insize.pdf",
+        "source_sha256": "abc",
+        "source_page_index": "1",
+        "source_row": "10",
+        "source_field_label": "کد کالا",
+        "mapping_basis": "oem_field",
+        "oem_identity_field_proven": "true",
+        "source_item_description": "کولیس",
+    }
+    base.update(overrides)
+    return base
+
+
 def test_tier1_3_evidence_can_yield_exact():
     evidence = {
-        "INSIZE|1108-150": {
-            "authority_tier": "1",
-            "source_type": "oem_catalogue",
-            "source_path_or_url": "insize/108A.pdf",
-        }
+        "INSIZE|1108-150": [_complete_evidence()],
     }
     row = {
         "product_id": "3",
@@ -100,11 +118,13 @@ def test_brandless_is_hold_brand_ambiguous():
 
 def test_collision_yields_duplicate_identity():
     evidence = {
-        "ASTPOWER|TU-DR230": {
-            "authority_tier": "3",
-            "source_type": "supplier",
-            "source_path_or_url": "local",
-        }
+        "ASTPOWER|TU-DR230": [
+            {
+                "authority_tier": "3",
+                "source_type": "supplier",
+                "source_path_or_url": "local",
+            }
+        ],
     }
     row = {
         "product_id": "3411",
@@ -129,7 +149,9 @@ def test_title_vs_sku_conflict():
     }
     out = classify_row(row, evidence={}, collision_codes=set())
     assert out["classification"] == "HOLD_IDENTITY_CONFLICT"
-    assert out["conflict_status"] == "title_vs_sku"
+    from app.domain.phase2c_evidence import CONFLICT_HEURISTIC_UNRESOLVED
+
+    assert out["conflict_status"] == CONFLICT_HEURISTIC_UNRESOLVED
 
 
 def test_reconcile_exhaustive_and_exclusive():
@@ -192,6 +214,7 @@ def test_evidence_registry_ignores_tier4(tmp_path: Path):
     reg = load_evidence_registry(p)
     assert "INSIZE|1108-150" not in reg
     assert "INSIZE|500-196-30" in reg
+    assert len(reg["INSIZE|500-196-30"]) == 1
 
 
 def test_live_authoritative_writes_live_suffix(tmp_path: Path):

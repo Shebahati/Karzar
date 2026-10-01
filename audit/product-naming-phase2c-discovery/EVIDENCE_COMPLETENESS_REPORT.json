@@ -1,0 +1,9 @@
+{
+  "registry_rows": 2042,
+  "with_stable_source_locator": 2042,
+  "without_stable_source_locator": 0,
+  "with_raw_source_code": 2042,
+  "with_source_description": 2042,
+  "with_source_sha256": 2042,
+  "rows_passing_exact_completeness_gate": 2042
+}
