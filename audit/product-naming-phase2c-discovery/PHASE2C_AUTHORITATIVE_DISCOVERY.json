@@ -1,6 +1,6 @@
 {
   "phase": "2C-authoritative-discovery-freeze",
-  "generated_at": "2026-10-01T10:25:41.137028+00:00",
+  "generated_at": "2026-10-01T10:25:58.339168+00:00",
   "coverage": "LIVE_DB_AUTHORITATIVE",
   "backfill_exact_frozen_rows": 1350,
   "backfill_exact_frozen_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
