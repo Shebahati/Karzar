@@ -7,6 +7,7 @@ and preserved raw OEM codes before BACKFILL_EXACT is allowed.
 from __future__ import annotations
 
 import csv
+import hashlib
 import re
 import unicodedata
 from collections.abc import Iterable
@@ -73,6 +74,39 @@ def norm_brand(name: str | None) -> str:
     if not name:
         return ""
     return name.split("|", 1)[0].strip().upper()
+
+
+def detect_candidate_mismatch(
+    title_candidate: str | None,
+    sku_candidate: str | None,
+) -> bool:
+    """Title-derived code and SKU differ after whitespace normalization."""
+    if not title_candidate or not sku_candidate:
+        return False
+    return title_candidate.replace(" ", "") != sku_candidate.replace(" ", "")
+
+
+def detect_heuristic_identity_conflict(
+    title_candidate: str | None,
+    sku_candidate: str | None,
+) -> bool:
+    """Canonical predicate: mismatch plus digit in both signals (matches classifier)."""
+    if not detect_candidate_mismatch(title_candidate, sku_candidate):
+        return False
+    if not re.search(r"\d", title_candidate or ""):
+        return False
+    if not re.search(r"\d", sku_candidate or ""):
+        return False
+    return True
+
+
+def legacy_broad_heuristic_count_predicate(row: dict[str, Any]) -> bool:
+    """Previous report over-count (title≠sku without digit gate). Diagnostic only."""
+    title = row.get("title_candidate") or ""
+    sku = row.get("sku_candidate") or ""
+    if row.get("classification_reason") == "title_vs_sku":
+        return True
+    return detect_candidate_mismatch(title, sku)
 
 
 def normalized_match_key(code: str | None) -> str:
@@ -346,6 +380,195 @@ def flatten_provenance(ev: dict[str, Any]) -> dict[str, str]:
         "source_item_description": _row_get(ev, "source_item_description"),
         "mapping_basis": _row_get(ev, "mapping_basis"),
     }
+
+
+FREEZE_LOGIC_RELATIVE_PATHS: tuple[str, ...] = (
+    "app/domain/phase2c_evidence.py",
+    "scripts/audit_manufacturer_identity_phase2c_discovery.py",
+    "scripts/phase2c_authority_extract.py",
+    "scripts/build_phase2c_source_authority_registry.py",
+    "scripts/phase2c_exact_cohort_freeze.py",
+)
+
+
+def _heuristic_outcome_bucket(row: dict[str, Any]) -> str:
+    title = row.get("title_candidate") or ""
+    sku = row.get("sku_candidate") or ""
+    if not detect_heuristic_identity_conflict(title, sku):
+        return "not_heuristic"
+    if row.get("classification") == "HOLD_DUPLICATE_IDENTITY":
+        return "duplicate_identity_conflicts"
+    status = row.get("conflict_status") or ""
+    if status == CONFLICT_RESOLVED_T1:
+        return "resolved_by_tier_1"
+    if status == CONFLICT_RESOLVED_T2:
+        return "resolved_by_tier_2"
+    if status == CONFLICT_RESOLVED_T3:
+        return "resolved_by_tier_3"
+    if status == CONFLICT_HEURISTIC_UNRESOLVED:
+        return "heuristic_conflicts_unresolved"
+    if status == CONFLICT_STRONG:
+        return "strong_evidence_conflicts"
+    return "heuristic_unclassified"
+
+
+def conflict_resolution_report(classified: list[dict[str, Any]]) -> dict[str, Any]:
+    candidate_mismatches = 0
+    heuristic_conflicts = 0
+    non_conflict_mismatches = 0
+    buckets: dict[str, int] = {
+        "resolved_by_tier_1": 0,
+        "resolved_by_tier_2": 0,
+        "resolved_by_tier_3": 0,
+        "heuristic_conflicts_unresolved": 0,
+        "strong_evidence_conflicts": 0,
+        "duplicate_identity_conflicts": 0,
+        "heuristic_unclassified": 0,
+    }
+    duplicate_all = 0
+    for row in classified:
+        title = row.get("title_candidate") or ""
+        sku = row.get("sku_candidate") or ""
+        mismatch = detect_candidate_mismatch(title, sku)
+        heuristic = detect_heuristic_identity_conflict(title, sku)
+        if mismatch:
+            candidate_mismatches += 1
+        if heuristic:
+            heuristic_conflicts += 1
+            bucket = _heuristic_outcome_bucket(row)
+            buckets[bucket] = buckets.get(bucket, 0) + 1
+        elif mismatch:
+            non_conflict_mismatches += 1
+        if row.get("classification") == "HOLD_DUPLICATE_IDENTITY":
+            duplicate_all += 1
+
+    heuristic_partition_sum = (
+        buckets["resolved_by_tier_1"]
+        + buckets["resolved_by_tier_2"]
+        + buckets["resolved_by_tier_3"]
+        + buckets["heuristic_conflicts_unresolved"]
+        + buckets["strong_evidence_conflicts"]
+        + buckets["duplicate_identity_conflicts"]
+        + buckets["heuristic_unclassified"]
+    )
+    candidate_reconciles = candidate_mismatches == (
+        heuristic_conflicts + non_conflict_mismatches
+    )
+    heuristic_reconciles = heuristic_conflicts == heuristic_partition_sum
+    reconciles = candidate_reconciles and heuristic_reconciles
+
+    legacy_broad = sum(1 for r in classified if legacy_broad_heuristic_count_predicate(r))
+
+    return {
+        "candidate_mismatches_total": candidate_mismatches,
+        "heuristic_conflicts_total": heuristic_conflicts,
+        "non_conflict_candidate_mismatches": non_conflict_mismatches,
+        "resolved_by_tier_1": buckets["resolved_by_tier_1"],
+        "resolved_by_tier_2": buckets["resolved_by_tier_2"],
+        "resolved_by_tier_3": buckets["resolved_by_tier_3"],
+        "heuristic_conflicts_unresolved": buckets["heuristic_conflicts_unresolved"],
+        "strong_evidence_conflicts": buckets["strong_evidence_conflicts"],
+        "duplicate_identity_conflicts": duplicate_all,
+        "duplicate_identity_within_heuristic": buckets["duplicate_identity_conflicts"],
+        "heuristic_unclassified": buckets["heuristic_unclassified"],
+        "legacy_broad_heuristic_conflicts_total": legacy_broad,
+        "legacy_broad_minus_canonical_heuristic": legacy_broad - heuristic_conflicts,
+        "conflict_accounting_reconciles": reconciles,
+        # Back-compat keys
+        "unresolved_conflicts": buckets["heuristic_conflicts_unresolved"],
+        "duplicate_identity_holds": duplicate_all,
+    }
+
+
+def build_conflict_accounting_delta_rows(
+    classified: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Rows counted by legacy broad predicate but not canonical heuristic (or vice versa)."""
+    delta: list[dict[str, str]] = []
+    for row in classified:
+        title = row.get("title_candidate") or ""
+        sku = row.get("sku_candidate") or ""
+        broad = legacy_broad_heuristic_count_predicate(row)
+        canonical = detect_heuristic_identity_conflict(title, sku)
+        if broad == canonical:
+            continue
+        why_report = []
+        why_classifier = []
+        if broad:
+            why_report.append("legacy_broad_title_sku_mismatch_or_reason")
+        if canonical:
+            why_classifier.append("canonical_digit_mismatch")
+        if detect_candidate_mismatch(title, sku) and not canonical:
+            why_classifier.append("mismatch_without_both_digits")
+        delta.append(
+            {
+                "product_id": str(row.get("product_id") or ""),
+                "brand": str(row.get("brand_name") or ""),
+                "name": str(row.get("name") or ""),
+                "sku": str(row.get("sku") or ""),
+                "title_candidate": title,
+                "sku_candidate": sku,
+                "classification": str(row.get("classification") or ""),
+                "conflict_status": str(row.get("conflict_status") or ""),
+                "why_counted_in_report": "|".join(why_report) or "not_in_legacy_broad",
+                "why_not_counted_by_classifier": "|".join(why_classifier)
+                or "not_canonical_heuristic",
+            }
+        )
+    delta.sort(key=lambda r: r["product_id"])
+    return delta
+
+
+def frozen_exact_row_provenance_complete(row: dict[str, Any]) -> tuple[bool, str]:
+    required = [
+        "candidate_manufacturer_code",
+        "raw_source_code",
+        "source_id",
+        "source_type",
+        "source_path",
+        "source_sha256",
+        "source_field_label",
+        "source_item_description",
+        "mapping_basis",
+        "conflict_status",
+        "classification_reason",
+    ]
+    for key in required:
+        if not str(row.get(key) or "").strip():
+            return False, f"missing_{key}"
+    try:
+        tier = int(row.get("authority_tier") or 0)
+    except (TypeError, ValueError):
+        return False, "invalid_tier"
+    if tier not in (1, 2, 3):
+        return False, "invalid_tier"
+    page = str(row.get("source_page_index") or "").strip()
+    sheet = str(row.get("source_sheet") or "").strip()
+    srow = str(row.get("source_row") or "").strip()
+    if not (page.isdigit() or (sheet and srow)):
+        return False, "missing_stable_locator"
+    status = str(row.get("conflict_status") or "")
+    if status in {CONFLICT_HEURISTIC_UNRESOLVED, CONFLICT_STRONG}:
+        return False, "forbidden_conflict_status_on_exact"
+    if status and status not in _RESOLVED_STATUSES | {CONFLICT_NO}:
+        return False, f"unexpected_conflict_status_{status}"
+    return True, "ok"
+
+
+def freeze_manifest_logic_file_hashes(repo_root: Any) -> dict[str, str]:
+    from pathlib import Path
+
+    root = Path(repo_root)
+    out: dict[str, str] = {}
+    for rel in FREEZE_LOGIC_RELATIVE_PATHS:
+        path = root / rel
+        if path.is_file():
+            h = hashlib.sha256()
+            with path.open("rb") as fh:
+                for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                    h.update(chunk)
+            out[rel] = h.hexdigest()
+    return out
 
 
 BACKFILL_EXACT_COLUMNS: list[str] = [

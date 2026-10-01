@@ -19,12 +19,11 @@ sys.path.insert(0, str(ROOT))
 
 from app.domain.phase2c_evidence import (  # noqa: E402
     BACKFILL_EXACT_COLUMNS,
-    CONFLICT_HEURISTIC_UNRESOLVED,
-    CONFLICT_RESOLVED_T1,
-    CONFLICT_RESOLVED_T2,
-    CONFLICT_RESOLVED_T3,
-    CONFLICT_STRONG,
+    build_conflict_accounting_delta_rows,
+    conflict_resolution_report,
     evidence_completeness_ok,
+    freeze_manifest_logic_file_hashes,
+    frozen_exact_row_provenance_complete,
     has_stable_locator,
     load_evidence_registry_multimap,
 )
@@ -38,6 +37,8 @@ from scripts.audit_manufacturer_identity_phase2c_discovery import (  # noqa: E40
 DEFAULT_OUT = ROOT / "audit" / "product-naming-phase2c-discovery"
 PROVISIONAL_SHA = "38fbeee64bdb8f4b14a38dfe80937bf46f247b28344b2608889cc08e5efdf64d"
 PROVISIONAL_ROWS = 1737
+OLD_FROZEN_SHA = "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03"
+OLD_FROZEN_ROWS = 1350
 
 
 def _reject_apply(argv: list[str]) -> None:
@@ -149,37 +150,6 @@ def evidence_completeness_report(registry_path: Path) -> dict[str, Any]:
         "with_source_description": with_desc,
         "with_source_sha256": with_sha,
         "rows_passing_exact_completeness_gate": complete_exact,
-    }
-
-
-def conflict_resolution_report(classified: list[dict[str, Any]]) -> dict[str, Any]:
-    heuristic = sum(
-        1
-        for r in classified
-        if r.get("classification_reason") == "title_vs_sku"
-        or (
-            r.get("title_candidate")
-            and r.get("sku_candidate")
-            and r.get("title_candidate").replace(" ", "")
-            != r.get("sku_candidate", "").replace(" ", "")
-        )
-    )
-    resolved_t1 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T1)
-    resolved_t2 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T2)
-    resolved_t3 = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_RESOLVED_T3)
-    unresolved = sum(
-        1 for r in classified if r.get("conflict_status") == CONFLICT_HEURISTIC_UNRESOLVED
-    )
-    strong = sum(1 for r in classified if r.get("conflict_status") == CONFLICT_STRONG)
-    dup = sum(1 for r in classified if r.get("classification") == "HOLD_DUPLICATE_IDENTITY")
-    return {
-        "heuristic_conflicts_total": heuristic,
-        "resolved_by_tier_1": resolved_t1,
-        "resolved_by_tier_2": resolved_t2,
-        "resolved_by_tier_3": resolved_t3,
-        "unresolved_conflicts": unresolved,
-        "strong_evidence_conflicts": strong,
-        "duplicate_identity_holds": dup,
     }
 
 
@@ -316,6 +286,37 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(conflict_report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    delta_rows = build_conflict_accounting_delta_rows(classified1)
+    write_csv(
+        out_dir / "CONFLICT_ACCOUNTING_DELTA.csv",
+        delta_rows,
+        fieldnames=[
+            "product_id",
+            "brand",
+            "name",
+            "sku",
+            "title_candidate",
+            "sku_candidate",
+            "classification",
+            "conflict_status",
+            "why_counted_in_report",
+            "why_not_counted_by_classifier",
+        ],
+    )
+    provenance_complete = 0
+    provenance_incomplete = 0
+    for row in exact1:
+        ok, _ = frozen_exact_row_provenance_complete(row)
+        if ok:
+            provenance_complete += 1
+        else:
+            provenance_incomplete += 1
+    provenance_report = {
+        "frozen_rows": len(exact1),
+        "complete_frozen_rows": provenance_complete,
+        "incomplete_frozen_rows": provenance_incomplete,
+        "all_complete": provenance_incomplete == 0,
+    }
 
     manifest_path = out_dir / "SOURCE_HASH_MANIFEST.json"
     source_manifest_sha = _sha256_file(manifest_path) if manifest_path.exists() else ""
@@ -326,13 +327,29 @@ def main(argv: list[str] | None = None) -> int:
     if fingerprints_path.exists():
         db_fps = json.loads(fingerprints_path.read_text(encoding="utf-8"))
 
+    logic_hashes = freeze_manifest_logic_file_hashes(ROOT)
+    freeze_logic_git_sha = _git_head()
+    delta_exact = sum(
+        1 for r in delta_rows if r.get("classification") == "BACKFILL_EXACT"
+    )
+    reconciles = bool(conflict_report.get("conflict_accounting_reconciles"))
+    provenance_ok = provenance_incomplete == 0
+    ready = sha1 == sha2 and reconciles and provenance_ok
+
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(),
         "source_live_export_sha256": _sha256_file(args.products_csv),
         "source_live_export_rows": len(products),
         "source_authority_registry_sha256": registry_sha,
         "source_hash_manifest_sha256": source_manifest_sha,
-        "classification_script_git_sha": _git_head(),
+        "freeze_logic_git_sha": freeze_logic_git_sha,
+        "freeze_generator_git_sha": freeze_logic_git_sha,
+        "classification_script_git_sha": freeze_logic_git_sha,
+        "freeze_logic_file_sha256": logic_hashes,
+        "previous_frozen_row_count": OLD_FROZEN_ROWS,
+        "previous_frozen_csv_sha256": OLD_FROZEN_SHA,
+        "frozen_unchanged_from_previous": sha1 == OLD_FROZEN_SHA
+        and len(exact1) == OLD_FROZEN_ROWS,
         "frozen_row_count": len(exact1),
         "frozen_csv_sha256": sha1,
         "tier_1_count": tier_counts.get(1, 0),
@@ -344,7 +361,12 @@ def main(argv: list[str] | None = None) -> int:
             + conflict_report["resolved_by_tier_2"]
             + conflict_report["resolved_by_tier_3"]
         ),
-        "unresolved_conflict_count": conflict_report["unresolved_conflicts"],
+        "unresolved_conflict_count": conflict_report["heuristic_conflicts_unresolved"],
+        "conflict_accounting": conflict_report,
+        "conflict_accounting_reconciles": reconciles,
+        "conflict_accounting_delta_rows": len(delta_rows),
+        "conflict_accounting_delta_exact_rows": delta_exact,
+        "frozen_provenance": provenance_report,
         "provisional_cohort_sha256": PROVISIONAL_SHA,
         "provisional_cohort_rows": PROVISIONAL_ROWS,
         "provisional_status": "SUPERSEDED"
@@ -358,7 +380,9 @@ def main(argv: list[str] | None = None) -> int:
             "Fingerprints captured at discovery are provenance only. "
             "Future Phase 2C APPLY must collect fresh fingerprints immediately before rehearsal."
         ),
-        "status": "READY_FOR_OWNER_FREEZE_REVIEW" if sha1 == sha2 else "BLOCKED_REPLAY_MISMATCH",
+        "status": "READY_FOR_OWNER_FREEZE_REVIEW"
+        if ready
+        else "BLOCKED_REPLAY_OR_ACCOUNTING_OR_PROVENANCE",
     }
     (out_dir / "BACKFILL_EXACT_FREEZE_MANIFEST.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
@@ -376,7 +400,9 @@ def main(argv: list[str] | None = None) -> int:
         "evidence_completeness": ev_report,
         "conflict_resolution": conflict_report,
         "replay_identical": sha1 == sha2,
-        "ready_for_owner_freeze_review": sha1 == sha2,
+        "ready_for_owner_freeze_review": ready,
+        "frozen_provenance": provenance_report,
+        "conflict_accounting_reconciles": reconciles,
     }
     (out_dir / "PHASE2C_AUTHORITATIVE_DISCOVERY.json").write_text(
         json.dumps(auth, ensure_ascii=False, indent=2) + "\n",
@@ -401,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
-    return 0 if sha1 == sha2 else 1
+    return 0 if ready else 1
 
 
 if __name__ == "__main__":

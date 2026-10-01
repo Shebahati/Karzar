@@ -1,10 +1,27 @@
 # Phase 2C Authoritative Discovery Summary
 
-> LIVE_DB_AUTHORITATIVE — provisional 1737-row cohort superseded by evidence-traceable freeze.
-> **NO APPLY** — discovery fingerprints ≠ future APPLY preflight.
+> **Coverage: LIVE_DB_AUTHORITATIVE** — live read-only SQL export.
+> Historical `STALE_STATUS_MASTER_PARTIAL` artifacts remain for provenance only.
 
-- Frozen BACKFILL_EXACT rows: **1350**
-- Frozen SHA256: `43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03`
-- Provisional SHA256 (historical): `38fbeee64bdb8f4b14a38dfe80937bf46f247b28344b2608889cc08e5efdf64d`
-- Replay identical: **YES**
+- Export SHA256: `067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba`
+- Rows: **6536**
+- Reconciliation: **PASS**
+- BACKFILL_EXACT: **1350** (Tier 1–3 registry only)
+
+## Primary classification
+
+- BACKFILL_EXACT: 1350
+- MANUAL_REVIEW: 0
+- HOLD_WEAK_EVIDENCE: 2741
+- HOLD_IDENTITY_CONFLICT: 2142
+- HOLD_MISSING: 0
+- HOLD_BRAND_AMBIGUOUS: 295
+- HOLD_DUPLICATE_IDENTITY: 8
+- REVIEW_EXISTING_CANONICAL: 0
+
+## Safety
+
+- DISCOVERY ONLY — no APPLY
+- manufacturer_code writes: **0**
+- `--apply`: rejected
 

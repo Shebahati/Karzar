@@ -1,8 +1,8 @@
 {
   "phase": "2C-discovery",
-  "generated_at": "2026-10-01T09:47:01.449466+00:00",
+  "generated_at": "2026-10-01T10:25:12.824473+00:00",
   "coverage": "LIVE_DB_AUTHORITATIVE",
-  "script_git_sha": "d72b506d3b0448259ca736dbe2e9dad175571920",
+  "script_git_sha": "c3b37a2e853d82d9810830be2b7cc0c103a8c980",
   "source_path": "/tmp/karzar-p2c-live-products.csv",
   "source_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
   "evidence_registry": "audit/product-naming-phase2c-discovery/SOURCE_AUTHORITY_REGISTRY.csv",

@@ -4,10 +4,17 @@ from __future__ import annotations
 
 from app.domain.phase2c_evidence import (
     CONFLICT_HEURISTIC_UNRESOLVED,
+    CONFLICT_NO,
     CONFLICT_RESOLVED_T1,
     CONFLICT_STRONG,
+    build_conflict_accounting_delta_rows,
+    conflict_resolution_report,
+    detect_candidate_mismatch,
+    detect_heuristic_identity_conflict,
     evidence_completeness_ok,
+    frozen_exact_row_provenance_complete,
     has_stable_locator,
+    legacy_broad_heuristic_count_predicate,
     normalized_match_key,
     pick_evidence_for_code,
 )
@@ -200,6 +207,101 @@ def test_replay_freeze_produces_identical_hash(tmp_path):
     assert rc == 0
     manifest = __import__("json").loads((out / "BACKFILL_EXACT_FREEZE_MANIFEST.json").read_text())
     assert manifest["replay_identical"] is True
+
+
+def test_heuristic_requires_digits_in_both_signals():
+    assert detect_candidate_mismatch("ABC", "XYZ") is True
+    assert detect_heuristic_identity_conflict("ABC", "XYZ") is False
+    assert detect_heuristic_identity_conflict("1108-150", "500-196") is True
+
+
+def test_conflict_report_reconciles_on_synthetic_rows():
+    rows = [
+        {
+            "title_candidate": "1108-150",
+            "sku_candidate": "500-196",
+            "classification": "BACKFILL_EXACT",
+            "conflict_status": CONFLICT_RESOLVED_T1,
+        },
+        {
+            "title_candidate": "1108-150",
+            "sku_candidate": "500-196",
+            "classification": "HOLD_IDENTITY_CONFLICT",
+            "conflict_status": CONFLICT_HEURISTIC_UNRESOLVED,
+        },
+        {
+            "title_candidate": "MODEL",
+            "sku_candidate": "OTHER",
+            "classification": "HOLD_WEAK_EVIDENCE",
+            "conflict_status": "",
+        },
+    ]
+    report = conflict_resolution_report(rows)
+    assert report["conflict_accounting_reconciles"] is True
+    assert report["heuristic_conflicts_total"] == 2
+    assert report["non_conflict_candidate_mismatches"] == 1
+    assert report["candidate_mismatches_total"] == 3
+
+
+def test_delta_rows_explain_legacy_broad_minus_canonical():
+    row = {
+        "product_id": "99",
+        "brand_name": "INSIZE",
+        "name": "n",
+        "sku": "ABC",
+        "title_candidate": "MODEL",
+        "sku_candidate": "OTHER",
+        "classification": "HOLD_WEAK_EVIDENCE",
+        "conflict_status": "",
+    }
+    assert legacy_broad_heuristic_count_predicate(row) is True
+    assert detect_heuristic_identity_conflict("MODEL", "OTHER") is False
+    delta = build_conflict_accounting_delta_rows([row])
+    assert len(delta) == 1
+    assert delta[0]["classification"] == "HOLD_WEAK_EVIDENCE"
+
+
+def test_exact_forbidden_with_unresolved_heuristic_status():
+    row = {
+        "candidate_manufacturer_code": "X",
+        "raw_source_code": "X",
+        "authority_tier": "1",
+        "source_id": "s",
+        "source_type": "t",
+        "source_path": "/p",
+        "source_sha256": "h",
+        "source_page_index": "1",
+        "source_row": "2",
+        "source_field_label": "کد",
+        "source_item_description": "d",
+        "mapping_basis": "m",
+        "conflict_status": CONFLICT_HEURISTIC_UNRESOLVED,
+        "classification_reason": "x",
+    }
+    ok, reason = frozen_exact_row_provenance_complete(row)
+    assert ok is False
+    assert "forbidden" in reason
+
+
+def test_exact_allowed_with_resolved_or_no_conflict():
+    base = {
+        "candidate_manufacturer_code": "X",
+        "raw_source_code": "X",
+        "authority_tier": "1",
+        "source_id": "s",
+        "source_type": "t",
+        "source_path": "/p",
+        "source_sha256": "h",
+        "source_page_index": "1",
+        "source_row": "2",
+        "source_field_label": "کد",
+        "source_item_description": "d",
+        "mapping_basis": "m",
+        "classification_reason": "tier_registry_match",
+    }
+    for status in (CONFLICT_NO, CONFLICT_RESOLVED_T1):
+        row = {**base, "conflict_status": status}
+        assert frozen_exact_row_provenance_complete(row)[0] is True
 
 
 def test_ast_supplier_type_ineligible():

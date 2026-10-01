@@ -1,9 +1,18 @@
 {
-  "heuristic_conflicts_total": 2741,
+  "candidate_mismatches_total": 2741,
+  "heuristic_conflicts_total": 2715,
+  "non_conflict_candidate_mismatches": 26,
   "resolved_by_tier_1": 564,
   "resolved_by_tier_2": 0,
   "resolved_by_tier_3": 0,
-  "unresolved_conflicts": 2142,
+  "heuristic_conflicts_unresolved": 2142,
   "strong_evidence_conflicts": 0,
+  "duplicate_identity_conflicts": 8,
+  "duplicate_identity_within_heuristic": 8,
+  "heuristic_unclassified": 1,
+  "legacy_broad_heuristic_conflicts_total": 2741,
+  "legacy_broad_minus_canonical_heuristic": 26,
+  "conflict_accounting_reconciles": true,
+  "unresolved_conflicts": 2142,
   "duplicate_identity_holds": 8
 }

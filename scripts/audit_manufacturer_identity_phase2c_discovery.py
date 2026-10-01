@@ -33,6 +33,7 @@ from app.domain.phase2c_evidence import (  # noqa: E402
     _RESOLVED_STATUSES,
     CONFLICT_HEURISTIC_UNRESOLVED,
     CONFLICT_STRONG,
+    detect_heuristic_identity_conflict,
     flatten_provenance,
     load_evidence_registry_multimap,
     normalized_match_key,
@@ -256,11 +257,7 @@ def classify_row(
     # No canonical column value — candidates are audit-only.
     title_c = title
     sku_c = sku if sku else None
-    conflict = False
-    if title_c and sku_c and title_c.replace(" ", "") != sku_c.replace(" ", ""):
-        # Distinct code-like signals → conflict / review, never exact from heuristics.
-        if re.search(r"\d", title_c) and re.search(r"\d", sku_c):
-            conflict = True
+    conflict = detect_heuristic_identity_conflict(title_c, sku_c)
 
     candidate_order: list[str] = []
     for c in [sku_c, title_c, *cand_codes]:
