@@ -1,19 +1,19 @@
 {
   "phase": "2C-discovery",
-  "generated_at": "2026-10-01T07:37:42.288896+00:00",
-  "coverage": "STALE_STATUS_MASTER_PARTIAL",
-  "source_path": "audit/product-status-2026-09-24/KARZAR_PRODUCT_STATUS_MASTER_2026-09-24.csv",
-  "source_sha256": "73535d856d302a8941c34846e131da72b906d9485978e9e695f7c5051bf2262e",
-  "evidence_registry": "",
+  "generated_at": "2026-10-01T08:54:46.993999+00:00",
+  "coverage": "FULL_LIVE_EXPORT",
+  "source_path": "/tmp/karzar-p2c-live-products.csv",
+  "source_sha256": "cd19af7f02a0ef97939a5258cf233fd598bb0c037af3371a3bfa438cd86df311",
+  "evidence_registry": "audit/product-naming-phase2c-discovery/SOURCE_AUTHORITY_REGISTRY.csv",
   "reconciliation": {
     "non_deleted_total": 6536,
     "by_state": {
-      "BACKFILL_EXACT": 0,
+      "BACKFILL_EXACT": 1737,
       "MANUAL_REVIEW": 0,
-      "HOLD_WEAK_EVIDENCE": 3821,
-      "HOLD_IDENTITY_CONFLICT": 2707,
+      "HOLD_WEAK_EVIDENCE": 2407,
+      "HOLD_IDENTITY_CONFLICT": 2089,
       "HOLD_MISSING": 0,
-      "HOLD_BRAND_AMBIGUOUS": 0,
+      "HOLD_BRAND_AMBIGUOUS": 295,
       "HOLD_DUPLICATE_IDENTITY": 8,
       "REVIEW_EXISTING_CANONICAL": 0
     },
@@ -22,12 +22,12 @@
     "reconciles": true
   },
   "collision_groups": 5,
-  "reversed_code_conflicts": 2707,
+  "reversed_code_conflicts": 2089,
   "rename_readiness": {
-    "manufacturer_identity_ready": 0,
+    "manufacturer_identity_ready": 1737,
     "oem_exact_plus_pt_governed": 0,
-    "oem_exact_plus_pt_missing": 0,
-    "oem_exact_plus_profile_missing": 0
+    "oem_exact_plus_pt_missing": 1106,
+    "oem_exact_plus_profile_missing": 631
   },
   "note": "BACKFILL_EXACT requires Tier 1–3 evidence registry linkage. SKU/title alone never yields BACKFILL_EXACT. No Product writes performed."
 }

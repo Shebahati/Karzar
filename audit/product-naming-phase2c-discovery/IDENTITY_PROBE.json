@@ -1,0 +1,26 @@
+{
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": null,
+    "inet_server_port": null,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "transaction_read_only": "on",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "srv5944957438",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data"
+  },
+  "collector": {
+    "hostname": "hp-g2-450",
+    "pwd": "/home/shebahati/Projects/Karzar",
+    "ssh_to_vps": "karzar-vps (195.177.255.198)"
+  },
+  "ok": true,
+  "errors": []
+}

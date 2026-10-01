@@ -1,0 +1,31 @@
+{
+  "collected_at_utc": "2026-10-01T08:54:43.074560+00:00",
+  "collector_hostname": "hp-g2-450",
+  "sql_access": {
+    "worked": true,
+    "read_only_guard": "postgresql:transaction_read_only=on",
+    "method": "ssh karzar-vps docker exec lathe_postgres psql BEGIN READ ONLY"
+  },
+  "counts": {
+    "transaction_read_only": "on",
+    "database_name": "karzar_staging",
+    "database_user": "karzar_staging",
+    "non_deleted": 6536,
+    "deleted": 1,
+    "manufacturer_code_null": 6536,
+    "manufacturer_code_non_null": 0,
+    "product_type_id_null": 5878,
+    "product_type_id_non_null": 658,
+    "active": 1585,
+    "available": 3755,
+    "priced": 4552,
+    "distinct_sku": 6536,
+    "distinct_slug": 6536,
+    "distinct_name": 6356,
+    "distinct_manufacturer_code": 0
+  },
+  "live_export": {
+    "path": "/tmp/karzar-p2c-live-products.csv",
+    "sha256": "cd19af7f02a0ef97939a5258cf233fd598bb0c037af3371a3bfa438cd86df311"
+  }
+}

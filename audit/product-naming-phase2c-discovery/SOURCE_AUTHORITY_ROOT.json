@@ -1,0 +1,14 @@
+{
+  "discovered_at": "2026-10-01T08:54:43.031102+00:00",
+  "collector_hostname": "hp-g2-450",
+  "primary_authority_root": "/home/shebahati/KaZar/Product and Data Complete",
+  "exists": true,
+  "catalog_target_env": "/home/shebahati/KaZar/Product and Data Complete",
+  "alternate_roots_observed": [
+    "/home/shebahati/KaZar/Product and Data",
+    "/home/shebahati/KarzarSources/Products and Data"
+  ],
+  "source_discovery_files": 550,
+  "registry_rows_tier1_3": 2316,
+  "tier13_file_count": 541
+}
