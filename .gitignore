@@ -92,3 +92,9 @@ scripts/fixtures/insize_pilot_manifest_production*.json
 .local-rescue/
 work/reports/
 .local-scratch/
+
+# GSC MCP local OAuth / MCP secrets (never commit)
+.gsc-credentials*
+.google-oauth*
+mcp-secrets*
+**/.config/karzar/gsc/
