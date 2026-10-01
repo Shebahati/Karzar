@@ -3,7 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   // Production HTTP status contract needs standalone server + dedicated config.
-  testIgnore: ["**/entity-http-status.spec.ts", "**/crawl-discovery.spec.ts"],
+  testIgnore: [
+    "**/entity-http-status.spec.ts",
+    "**/crawl-discovery.spec.ts",
+    "**/sitemap-contract.spec.ts",
+  ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

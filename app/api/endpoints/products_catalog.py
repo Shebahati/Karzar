@@ -101,7 +101,7 @@ async def read_products(
     sort: str | None = Query(
         None,
         description=(
-            "Sort key: newest, price_asc, price_desc, discount_desc, stock_first "
+            "Sort key: newest, price_asc, price_desc, discount_desc, stock_first, id_asc "
             "(legacy: name_asc, name_desc)"
         ),
     ),

@@ -863,10 +863,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first (legacy: name_asc, name_desc)",
+              "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first, id_asc (legacy: name_asc, name_desc)",
               "title": "Sort"
             },
-            "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first (legacy: name_asc, name_desc)"
+            "description": "Sort key: newest, price_asc, price_desc, discount_desc, stock_first, id_asc (legacy: name_asc, name_desc)"
           },
           {
             "name": "ids",

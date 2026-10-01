@@ -22,6 +22,11 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-09-30 — Storefront product sort `id_asc`
+
+- `GET /api/v1/products/` accepts optional `sort=id_asc` (stable ascending `id` order).
+- Intended for deterministic read-only consumers (e.g. sitemap sharding); storefront PLP defaults unchanged.
+
 ### 2026-09-30 — Public product `on_sale` discount facet
 
 - `GET /api/v1/products/` accepts optional boolean `on_sale`.
