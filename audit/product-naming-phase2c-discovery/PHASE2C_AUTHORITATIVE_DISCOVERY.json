@@ -1,0 +1,45 @@
+{
+  "phase": "2C-authoritative-discovery-freeze",
+  "generated_at": "2026-10-01T10:25:58.339168+00:00",
+  "coverage": "LIVE_DB_AUTHORITATIVE",
+  "backfill_exact_frozen_rows": 1350,
+  "backfill_exact_frozen_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "provisional_backfill_exact_rows": 1737,
+  "provisional_backfill_exact_sha256": "38fbeee64bdb8f4b14a38dfe80937bf46f247b28344b2608889cc08e5efdf64d",
+  "evidence_completeness": {
+    "registry_rows": 2042,
+    "with_stable_source_locator": 2042,
+    "without_stable_source_locator": 0,
+    "with_raw_source_code": 2042,
+    "with_source_description": 2042,
+    "with_source_sha256": 2042,
+    "rows_passing_exact_completeness_gate": 2042
+  },
+  "conflict_resolution": {
+    "candidate_mismatches_total": 2741,
+    "heuristic_conflicts_total": 2715,
+    "non_conflict_candidate_mismatches": 26,
+    "resolved_by_tier_1": 564,
+    "resolved_by_tier_2": 0,
+    "resolved_by_tier_3": 0,
+    "heuristic_conflicts_unresolved": 2142,
+    "strong_evidence_conflicts": 0,
+    "duplicate_identity_conflicts": 8,
+    "duplicate_identity_within_heuristic": 8,
+    "heuristic_unclassified": 1,
+    "legacy_broad_heuristic_conflicts_total": 2741,
+    "legacy_broad_minus_canonical_heuristic": 26,
+    "conflict_accounting_reconciles": true,
+    "unresolved_conflicts": 2142,
+    "duplicate_identity_holds": 8
+  },
+  "replay_identical": true,
+  "ready_for_owner_freeze_review": true,
+  "frozen_provenance": {
+    "frozen_rows": 1350,
+    "complete_frozen_rows": 1350,
+    "incomplete_frozen_rows": 0,
+    "all_complete": true
+  },
+  "conflict_accounting_reconciles": true
+}

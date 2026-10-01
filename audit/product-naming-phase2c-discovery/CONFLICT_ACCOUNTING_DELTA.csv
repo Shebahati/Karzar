@@ -1,0 +1,27 @@
+product_id,brand,name,sku,title_candidate,sku_candidate,classification,conflict_status,why_counted_in_report,why_not_counted_by_classifier
+2274,Mitutoyo | میتوتویو,ست وی بلوک مدل کلمپ دار,181-902,کلمپ دار,181-902,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2688,Groz | گروز,هلدر تراشکارى – مدل امریکایى گروز هند,1041,امریکایى گروز هند,1041,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2882,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل نوک تیز ترنمکس هند,1992,نوک تیز ترنمکس هند,1992,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2883,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل نوک کوچک بلند ترنمکس هند,1994,نوک کوچک بلند ترنمکس هند,1994,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2884,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل دو پله ترنمکس هند,1996,دو پله ترنمکس هند,1996,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2885,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل نوک تیز سر الماس ترنمکس هند,1998,نوک تیز سر الماس ترنمکس هند,1998,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2886,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل سر تعویض شو نوک کوچک بلند ترنمکس هند,2004,سر تعویض شو نوک کوچک بلند ترنمکس هند,2004,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2887,Transmex | ترنمکس,مرغک گردان دور بالا مخصوص کارهای سنگین – مدل سر تعویض شو نوک دو پله ترنمکس هند,2006,سر تعویض شو نوک دو پله ترنمکس هند,2006,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2888,Transmex | ترنمکس,مرغک گردان دور خیلی بالا – مدل نوک کوچک ترنمکس هند,2008,نوک کوچک ترنمکس هند,2008,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2889,Transmex | ترنمکس,مرغک گردان دور خیلی بالا – مدل نوک کوچک نوک باریک ترنمکس هند,2010,نوک کوچک نوک باریک ترنمکس هند,2010,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+2890,Transmex | ترنمکس,مرغک گردان دور خیلی بالا – مدل نوک کوچک نوک دو پله ترنمکس هند,2012,نوک کوچک نوک دو پله ترنمکس هند,2012,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3040,Groz | گروز,گیره رو میزی چوب مدل کارهای سنگین گروز هند,3169,کارهای سنگین گروز هند,3169,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3041,Groz | گروز,گیره رو میزی چوب مدل ساده گروز هند,3171,ساده گروز هند,3171,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3044,Groz | گروز,گیره رو میزی چوب سریع باز شو ضامن دار مدل رکورد گروز هند,3177,رکورد گروز هند,3177,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3049,Groz | گروز,گیره زیر دریل – مدل دقیق سرى STD گروز هند,3187,دقیق سرى STD گروز هند,3187,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3110,,تیغ مدل لبه کلاسیک (دوپله) بلیدکات,3885,لبه کلاسیک (دوپله) بلیدکات,3885,HOLD_BRAND_AMBIGUOUS,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3111,,تیغ مدل کلاسیک cnc بلیدکات,3886,کلاسیک cnc بلیدکات,3886,HOLD_BRAND_AMBIGUOUS,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3189,Chagan | چاگان,تیغه رنده حرفه ای مدل استندلی چاگان هند,4335,استندلی چاگان هند,4335,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3191,Chagan | چاگان,تیغه رنده چوبی مدل پاتا چاگان هند,4339,پاتا چاگان هند,4339,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+3203,,تیغه رنده چوبی مدل پاتا با نوک کاربیدی,4372,پاتا با نوک کاربیدی,4372,HOLD_BRAND_AMBIGUOUS,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+5867,ASTPOWER | ای اس تی پاور,درایو دستگاه قلاویززن مدل MDNEW-DRIVER ای اس تی پاور (AST Power),MDNEW-DRIVER,MDNEW-DRIVER ای اس تی پاور (AST Power),MDNEW-DRIVER,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+5877,ASTPOWER | ای اس تی پاور,صفحه نمایش تاچ / کاور مدل LCD-TAPPING ای اس تی پاور (AST Power),LCD-TAPPING,LCD-TAPPING ای اس تی پاور (AST Power),LCD-TAPPING,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+5878,ASTPOWER | ای اس تی پاور,صفحه نمایش تاچ / کاور مدل COVER-LCD ای اس تی پاور (AST Power),COVER-LCD,COVER-LCD ای اس تی پاور (AST Power),COVER-LCD,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+5879,ASTPOWER | ای اس تی پاور,صفحه نمایش تاچ / کاور مدل LCDTN-TAPPING ای اس تی پاور (AST Power),LCDTN-TAPPING,LCDTN-TAPPING ای اس تی پاور (AST Power),LCDTN-TAPPING,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+6562,ASTPOWER | ای اس تی پاور,مدل GH-STW ای اس تی پاور (AST Power),GH-STW,GH-STW ای اس تی پاور (AST Power),GH-STW,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits
+6564,ASTPOWER | ای اس تی پاور,مدل GHD-SM ای اس تی پاور (AST Power),GHD-SM,GHD-SM ای اس تی پاور (AST Power),GHD-SM,HOLD_WEAK_EVIDENCE,,legacy_broad_title_sku_mismatch_or_reason,mismatch_without_both_digits

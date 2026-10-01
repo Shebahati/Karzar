@@ -1,0 +1,32 @@
+{
+  "collected_at_utc": "2026-10-01T08:55:00Z",
+  "collector_host": "hp-g2-450",
+  "collector_pwd": "/home/shebahati/Projects/Karzar",
+  "vps_target": {
+    "hostname": "srv5944957438",
+    "ip": "195.177.255.198",
+    "ssh_alias": "karzar-vps"
+  },
+  "docker_on_collector": {
+    "available": false,
+    "note": "Docker inactive on hp-g2-450; live runtime proven via SSH to VPS."
+  },
+  "live_vps_runtime": {
+    "hostname": "srv5944957438",
+    "deploy_tree": "/opt/karzar",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "APP_ENV": "staging",
+    "KARZAR_DATA_PLANE": null,
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_db_name": "karzar_staging",
+    "postgres_volume_name": "karzar_postgres_data",
+    "ready_http": {
+      "note": "curl 127.0.0.1:8000/ready requires Host: api.karzartools.com on VPS; public https://api.karzartools.com/ready returns database/redis ok"
+    },
+    "proven": true
+  },
+  "git_branch_local": "cursor/product-naming-phase2c-discovery-1355",
+  "git_head_local": "da8d7330c7d78d3fd3430efaae839639f9927a82"
+}

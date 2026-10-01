@@ -1028,6 +1028,64 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/product-naming-phase2b-search-preview-1355
 
+  - id: PRODUCT-NAMING-V1-PHASE-2C-DISCOVERY-SUMMARY
+    path: audit/product-naming-phase2c-discovery/PHASE2C_DISCOVERY_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+    notes: >
+      Phase 2C discovery-only manufacturer identity census summary.
+      No APPLY; no manufacturer_code writes.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-AUTHORITATIVE-SUMMARY
+    path: audit/product-naming-phase2c-discovery/PHASE2C_AUTHORITATIVE_DISCOVERY_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+    notes: >
+      Live DB authoritative Phase 2C manufacturer identity discovery summary.
+      DISCOVERY ONLY; no APPLY.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-AUTHORITY-TIER-RULES
+    path: audit/product-naming-phase2c-discovery/AUTHORITY_TIER_RULES.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-GATE-A-POST-DEPLOY
+    path: audit/product-naming-phase2c-discovery/GATE_A_POST_DEPLOY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-SOURCE-EXTRACTION-PROFILES
+    path: audit/product-naming-phase2c-discovery/SOURCE_EXTRACTION_PROFILES.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+    notes: >
+      Deterministic OEM source extraction profiles for Phase 2C evidence registry.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-FUTURE-APPLY-DESIGN
+    path: audit/product-naming-phase2c-discovery/FUTURE_APPLY_DESIGN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-discovery-1355
+    notes: >
+      Planning-only Phase 2C APPLY design. No executable apply path.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE
