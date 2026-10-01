@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import itertools
 import re
-from typing import Any
+from typing import Any, cast
 
 from sqlalchemy import and_, exists, literal, or_, select
 from sqlalchemy.sql import ColumnElement
@@ -127,7 +127,11 @@ def _string_synonym_element_match(token: str, *, dialect_name: str) -> ColumnEle
             f"AND (elem #>> '{{}}') ILIKE :{param_key} ESCAPE '\\'"
             ")"
         )
-    return text(sql).bindparams(**{param_key: pattern})
+    # text() predicates are ColumnElement-compatible at runtime; mypy sees TextClause.
+    return cast(
+        ColumnElement[bool],
+        text(sql).bindparams(**{param_key: pattern}),
+    )
 
 
 def _synonym_match(token: str, *, dialect_name: str) -> ColumnElement[bool]:
