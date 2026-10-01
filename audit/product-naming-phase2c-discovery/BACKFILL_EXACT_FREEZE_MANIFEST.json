@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-01T09:47:10.290229+00:00",
+  "generated_at": "2026-10-01T09:47:37.023501+00:00",
   "source_live_export_sha256": "067bd90c2e5710406814b657c75a095b11cee72510b4ac53795ce005b97b79ba",
   "source_live_export_rows": 6536,
   "source_authority_registry_sha256": "d948679c222b10e88734a09916100e134cffa8da7f06c9412242e91a6c767fa6",
   "source_hash_manifest_sha256": "c9a58fca1f34ad293b58bc12a41498e33ee5b061807460c84414036c0f159345",
-  "classification_script_git_sha": "d72b506d3b0448259ca736dbe2e9dad175571920",
+  "classification_script_git_sha": "84a83ca5a32cecdae5ca68a37241a044948eab62",
   "frozen_row_count": 1350,
   "frozen_csv_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
   "tier_1_count": 728,
