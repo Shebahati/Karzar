@@ -5,24 +5,30 @@
   "schema_type": "JSONB list[Any]",
   "search_contract": {
     "require_status": "active",
+    "require_node_type": "product_type",
+    "require_dimension": "family",
     "require_product_type_id_match": true,
-    "allowed_dimensions": ["domain", "family", "technical"],
+    "assignment_role_note": "product_type_bridge is a KnowledgeClassificationAssignment.assignment_role, not a taxonomy node_type",
     "match_strategy": {
-      "postgresql": "cast(synonyms AS text) ILIKE escaped pattern",
-      "sqlite_tests": "json_each(synonyms) value LIKE escaped pattern"
+      "postgresql": "jsonb_array_elements(safe-array) WHERE jsonb_typeof(elem)='string' AND (elem #>> '{}') ILIKE escaped pattern",
+      "sqlite_tests": "json_each(safe-array) WHERE type='text' AND value LIKE escaped pattern",
+      "non_array_legacy": "coerced to empty array → no match, no error"
     },
     "string_array_entries": "searchable",
     "non_string_legacy_entries": "ignored for matching; not rewritten"
   },
   "runtime_observation": {
-    "method": "code + fixture audit (no production DB mutation)",
+    "method": "code + fixture + dialect SQL compile + SQLite/CI PostgreSQL execution (no production DB mutation)",
     "proven_shapes": ["string[]"],
-    "unproven_or_unsupported": [
+    "unsupported_ignored": [
       "object elements",
       "nested arrays",
-      "null elements mixed into arrays"
+      "number elements",
+      "boolean elements",
+      "null elements",
+      "non-array JSON values"
     ],
-    "note": "Phase 2B does not invent a synonyms table. Cast-to-text may match substrings inside JSON punctuation; PT-link + active + dimension gates keep noise bounded."
+    "note": "Phase 2B does not invent a synonyms table and does not mutate synonym rows. Only top-level string array elements on active product_type nodes with matching product_type_id contribute to search."
   },
-  "negative_rule": "Synonyms linked to a different Product Type must not match products of another PT."
+  "negative_rule": "Synonyms linked to a different Product Type, wrong node_type, or non-string JSON elements must not match."
 }

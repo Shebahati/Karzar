@@ -6,6 +6,14 @@ Surfaces: Product.name, Product.sku, Product.manufacturer_code, Brand.name,
 ProductType.code/name_fa/name_en, and string synonyms on active taxonomy nodes
 linked to the product's product_type_id.
 
+Synonym contract (canonical PT nodes only):
+  - status = active
+  - node_type = product_type  (NOT assignment role product_type_bridge)
+  - dimension = family  (taxonomy node_type → dimension map)
+  - product_type_id = Product.product_type_id (non-null)
+  - only top-level JSON array string elements are searchable
+  - object/array/number/bool/null elements ignored; non-array → no match, no error
+
 No description/specs/Facts search. No destructive OEM normalization.
 """
 
@@ -15,9 +23,8 @@ import itertools
 import re
 from typing import Any
 
-from sqlalchemy import and_, cast, exists, literal, or_, select
+from sqlalchemy import and_, exists, literal, or_, select
 from sqlalchemy.sql import ColumnElement
-from sqlalchemy.types import String
 
 from app.db.models.knowledge import KnowledgeTaxonomyNode
 from app.db.models.product import Brand, Product
@@ -30,8 +37,10 @@ _ARABIC_KE = "ك"
 _PERSIAN_KE = "ک"
 _WS_RE = re.compile(r"\s+")
 
-# Synonym nodes must be active Product Type bridges (not commerce/industry noise).
-_SYNONYM_DIMENSIONS = frozenset({"domain", "family", "technical"})
+# Canonical Product Type taxonomy nodes use dimension=family
+# (see knowledge_taxonomy_service._NODE_TYPE_DIMENSION["product_type"]).
+_PT_SYNONYM_NODE_TYPE = "product_type"
+_PT_SYNONYM_DIMENSION = "family"
 _SYN_PARAM_SEQ = itertools.count(1)
 
 
@@ -84,29 +93,55 @@ def _product_type_match(token: str) -> ColumnElement[bool]:
     )
 
 
-def _synonym_match(token: str, *, dialect_name: str) -> ColumnElement[bool]:
-    """EXISTS active PT-linked taxonomy synonym for the product's Product Type.
+def _string_synonym_element_match(token: str, *, dialect_name: str) -> ColumnElement[bool]:
+    """Match only top-level JSON-array string elements of ``synonyms``.
 
-    Contract: only ``status=active`` nodes with ``product_type_id`` matching the
-    product and ``dimension`` in {domain, family, technical}. Synonyms JSON is
-    matched via cast-to-text so string-array rows are practically usable;
-    non-string legacy structures are ignored for matching purposes (documented
-    in PHASE-2B-SEARCH-PREVIEW.md).
+    Non-array / unsupported shapes contribute no match and must not error.
+    Unique bind name per call so AND-of-ORs does not collide.
+    """
+    from sqlalchemy import text
+
+    pattern = f"%{escape_ilike_pattern(token)}%"
+    param_key = f"syn_pat_{next(_SYN_PARAM_SEQ)}"
+    if dialect_name == "sqlite":
+        # json_each + type='text' (SQLite JSON1); non-array coerced to [].
+        sql = (
+            "EXISTS ("
+            "SELECT 1 FROM json_each("
+            "CASE WHEN json_type(knowledge_taxonomy_nodes.synonyms) = 'array' "
+            "THEN knowledge_taxonomy_nodes.synonyms ELSE '[]' END"
+            ") AS je "
+            f"WHERE je.type = 'text' AND je.value LIKE :{param_key} ESCAPE '\\'"
+            ")"
+        )
+    else:
+        # PostgreSQL: jsonb_array_elements + jsonb_typeof = 'string'.
+        # #>> '{}' extracts the JSON string scalar without surrounding quotes.
+        sql = (
+            "EXISTS ("
+            "SELECT 1 FROM jsonb_array_elements("
+            "CASE WHEN jsonb_typeof(knowledge_taxonomy_nodes.synonyms) = 'array' "
+            "THEN knowledge_taxonomy_nodes.synonyms ELSE '[]'::jsonb END"
+            ") AS elem "
+            f"WHERE jsonb_typeof(elem) = 'string' "
+            f"AND (elem #>> '{{}}') ILIKE :{param_key} ESCAPE '\\'"
+            ")"
+        )
+    return text(sql).bindparams(**{param_key: pattern})
+
+
+def _synonym_match(token: str, *, dialect_name: str) -> ColumnElement[bool]:
+    """EXISTS active Product Type taxonomy synonym for the product's PT.
+
+    Gates (all required):
+      - Product.product_type_id IS NOT NULL
+      - node.product_type_id == Product.product_type_id
+      - node.status == active
+      - node.node_type == product_type  (canonical; not assignment role)
+      - node.dimension == family
+      - string-only top-level synonym array elements
     """
     node = KnowledgeTaxonomyNode
-    pattern = f"%{escape_ilike_pattern(token)}%"
-    syn_match = cast(node.synonyms, String).ilike(pattern, escape="\\")
-    if dialect_name == "sqlite":
-        # json_each expands array elements (SQLite JSON1).
-        # Unique bind name per token — AND-of-ORs reuses this clause once per
-        # token; a shared :syn_pat name would collide and break multi-token.
-        from sqlalchemy import text
-
-        param_key = f"syn_pat_{next(_SYN_PARAM_SEQ)}"
-        syn_match = text(
-            "EXISTS (SELECT 1 FROM json_each(knowledge_taxonomy_nodes.synonyms) "
-            f"AS je WHERE je.value LIKE :{param_key} ESCAPE '\\')"
-        ).bindparams(**{param_key: pattern})
     return exists(
         select(literal(1))
         .select_from(node)
@@ -115,8 +150,9 @@ def _synonym_match(token: str, *, dialect_name: str) -> ColumnElement[bool]:
                 Product.product_type_id.is_not(None),
                 node.product_type_id == Product.product_type_id,
                 node.status == "active",
-                node.dimension.in_(tuple(_SYNONYM_DIMENSIONS)),
-                syn_match,
+                node.node_type == _PT_SYNONYM_NODE_TYPE,
+                node.dimension == _PT_SYNONYM_DIMENSION,
+                _string_synonym_element_match(token, dialect_name=dialect_name),
             )
         )
     )

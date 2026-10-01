@@ -16,7 +16,7 @@ from app.utils.catalog_identity_search import (
 )
 from sqlalchemy import select
 
-from tests.conftest import TestingSessionLocal
+from tests.conftest import USE_POSTGRES_TESTS, TestingSessionLocal
 
 pytestmark = pytest.mark.usefixtures("override_database")
 
@@ -62,10 +62,12 @@ async def _seed_search_fixture(session):
     )
     session.add(product)
     await session.flush()
+    # Canonical PT taxonomy node: node_type=product_type, dimension=family
+    # (assignment_role product_type_bridge is NOT a node_type).
     node = KnowledgeTaxonomyNode(
         node_id="p2b-caliper-syn",
         dimension="family",
-        node_type="product_type_bridge",
+        node_type="product_type",
         slug="caliper-syn-p2b",
         name_fa="کولیس",
         name_en="Caliper",
@@ -87,7 +89,7 @@ async def _seed_search_fixture(session):
     bad = KnowledgeTaxonomyNode(
         node_id="p2b-insert-syn",
         dimension="family",
-        node_type="product_type_bridge",
+        node_type="product_type",
         slug="insert-syn-p2b",
         name_fa="اینسرت",
         status="active",
@@ -195,6 +197,107 @@ class TestIdentitySearch:
     def test_build_filter_none_for_blank(self):
         assert build_identity_search_filter("   ") is None
         assert build_identity_search_filter(None) is None
+
+
+class TestSynonymContractSafety:
+    """Canonical PT node_type + string-element-only synonym matching."""
+
+    def test_postgresql_sql_enforces_string_elements_and_pt_node_type(self):
+        """Dialect compile proof: PG path must not cast-to-text whole JSON."""
+        from sqlalchemy.dialects import postgresql
+
+        clause = build_identity_search_filter("الماس", dialect_name="postgresql")
+        assert clause is not None
+        compiled = str(
+            clause.compile(
+                dialect=postgresql.dialect(),
+                compile_kwargs={"literal_binds": False},
+            )
+        )
+        assert "jsonb_array_elements" in compiled
+        assert "jsonb_typeof" in compiled
+        assert "string" in compiled
+        assert "node_type" in compiled.lower() or "product_type" in compiled
+        # Forbidden: whole-column cast-to-text ILIKE (matches inside objects).
+        assert "CAST(knowledge_taxonomy_nodes.synonyms AS VARCHAR)" not in compiled
+        assert "CAST(knowledge_taxonomy_nodes.synonyms AS TEXT)" not in compiled
+
+    def test_wrong_node_type_and_non_string_shapes_do_not_match(self):
+        async def run():
+            from app.crud import product as crud_product
+
+            async with TestingSessionLocal() as session:
+                product, brand, pt = await _seed_search_fixture(session)
+                # Wrong node_type with same PT + searchable-looking synonym
+                wrong_type = KnowledgeTaxonomyNode(
+                    node_id="p2b-wrong-ntype",
+                    dimension="family",
+                    node_type="tool_family",
+                    slug="wrong-ntype-p2b",
+                    name_fa="خانواده اشتباه",
+                    status="active",
+                    synonyms=["SHOULD_NOT_MATCH"],
+                    product_type_id=pt.id,
+                )
+                # Object / nested / scalar non-strings on a valid PT node
+                shape_node = KnowledgeTaxonomyNode(
+                    node_id="p2b-shape-syn",
+                    dimension="family",
+                    node_type="product_type",
+                    slug="shape-syn-p2b",
+                    name_fa="شکل مترادف",
+                    status="active",
+                    synonyms=[
+                        {"label": "OBJECT_ONLY_TERM"},
+                        ["NESTED_ONLY_TERM"],
+                        12345,
+                        True,
+                        None,
+                    ],
+                    product_type_id=pt.id,
+                )
+                # Non-array synonyms blob (must not error / must not match)
+                non_array = KnowledgeTaxonomyNode(
+                    node_id="p2b-nonarray-syn",
+                    dimension="family",
+                    node_type="product_type",
+                    slug="nonarray-syn-p2b",
+                    name_fa="غیرآرایه",
+                    status="active",
+                    synonyms={"label": "NON_ARRAY_TERM"},  # type: ignore[arg-type]
+                    product_type_id=pt.id,
+                )
+                session.add_all([wrong_type, shape_node, non_array])
+                await session.commit()
+
+                # String synonym on canonical PT node still matches
+                rows_ok, _ = await crud_product.get_products(
+                    session, search="ورنیه", limit=50
+                )
+                assert any(p.id == product.id for p in rows_ok)
+
+                for term in (
+                    "SHOULD_NOT_MATCH",
+                    "OBJECT_ONLY_TERM",
+                    "NESTED_ONLY_TERM",
+                    "12345",
+                    "NON_ARRAY_TERM",
+                ):
+                    rows, total = await crud_product.get_products(
+                        session, search=term, limit=50
+                    )
+                    assert all(p.id != product.id for p in rows), term
+                    assert isinstance(total, int)
+
+        asyncio.run(run())
+
+    @pytest.mark.skipif(
+        not USE_POSTGRES_TESTS,
+        reason="PostgreSQL runtime proof for string-element synonym matching",
+    )
+    def test_postgres_runtime_object_synonym_does_not_match(self):
+        """CI sets USE_POSTGRES_TESTS=1 — proves jsonb_typeof='string' gate live."""
+        self.test_wrong_node_type_and_non_string_shapes_do_not_match()
 
 
 class TestSearchOnSaleComposition:

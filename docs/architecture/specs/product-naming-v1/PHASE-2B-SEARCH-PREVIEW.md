@@ -37,9 +37,17 @@ OEM codes in storage are never rewritten. Case-insensitive match via ILIKE.
 ## 4. Synonym source & contract
 
 - Table: `knowledge_taxonomy_nodes`
-- Require: `status = active`, `product_type_id = Product.product_type_id`, `dimension ∈ {domain, family, technical}`
-- Synonyms JSON: string-array rows are searchable (cast-to-text / json_each on SQLite). Non-string legacy elements are ignored for matching.
-- Unrelated PT synonyms must not match other products.
+- Require (all):
+  - `status = active`
+  - `node_type = product_type` (canonical taxonomy type; **not** assignment role `product_type_bridge`)
+  - `dimension = family` (matches `knowledge_taxonomy_service` node_type→dimension map)
+  - `product_type_id = Product.product_type_id` and Product PT FK non-null
+- Synonyms JSON: only **top-level array string elements** are searchable
+  - PostgreSQL: `jsonb_array_elements` + `jsonb_typeof(elem) = 'string'`
+  - SQLite tests: `json_each` + `type = 'text'`
+  - object / nested array / number / bool / null elements → ignored
+  - non-array legacy value → no match, query does not fail
+- Unrelated PT synonyms and wrong `node_type` must not match.
 
 ## 5–6. Product Type & manufacturer-code search
 

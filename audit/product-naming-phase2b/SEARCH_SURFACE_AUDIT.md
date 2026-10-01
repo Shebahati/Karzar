@@ -21,7 +21,7 @@
 | Brand.name | YES |
 | manufacturer_code | YES |
 | ProductType code/FA/EN/slug | YES (EXISTS) |
-| PT synonyms (active, PT-linked) | YES (EXISTS) |
+| PT synonyms (active `node_type=product_type`, `dimension=family`, PT-linked; string[] elements only) | YES (EXISTS) |
 | Multi-token | AND of per-token ORs |
 
 Implementation: `app/utils/catalog_identity_search.py` → `app/crud/product.py`.
