@@ -1,0 +1,14 @@
+{
+  "transaction_started": true,
+  "target_rows": 1350,
+  "matched": 1350,
+  "updated": 1350,
+  "exact_manufacturer_code_matches": 1350,
+  "protected_field_changes": 0,
+  "collision_groups_after": 0,
+  "collision_groups_before": 0,
+  "new_collision_groups": 0,
+  "change_logs_created": 1350,
+  "rollback_executed": true,
+  "rehearsal_ok": true
+}

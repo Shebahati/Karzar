@@ -1,0 +1,8 @@
+{
+  "explicit_rollback": true,
+  "target_manufacturer_code_non_null": 0,
+  "target_manufacturer_code_null": 1350,
+  "persistent_rehearsal_change_logs": 0,
+  "fingerprints_equal": true,
+  "baseline_counts_equal": true
+}

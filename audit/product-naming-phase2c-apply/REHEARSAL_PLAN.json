@@ -1,0 +1,7 @@
+{
+  "expected_updates": 1350,
+  "expected_change_logs": 1350,
+  "cohort_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "sql_bytes": 609463,
+  "ends_with": "ROLLBACK"
+}

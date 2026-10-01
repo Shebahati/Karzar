@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-10-01T11:09:03.408701+00:00",
+  "latest_main_sha": "5391a88cef5373fef1cb68519cbf6d61ce585cca",
+  "rehearsal_code_sha": "5391a88cef5373fef1cb68519cbf6d61ce585cca",
+  "frozen_artifact_path": "/home/shebahati/Projects/Karzar/audit/product-naming-phase2c-discovery/BACKFILL_EXACT_FROZEN.csv",
+  "frozen_artifact_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "frozen_rows": 1350,
+  "live_db": "karzar_staging",
+  "live_alembic": "u4v5w6x7y8z9",
+  "live_runtime_identity": {
+    "collected_at_utc": "2026-10-01T11:08:48.536098+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+  },
+  "target_preflight_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f",
+  "pre_db_fingerprints": {
+    "name": "03cd970794807642f85b2126abe07446",
+    "sku": "079d6723d5de3b2032d4db47a24ea4ac",
+    "slug": "c45b67d1b42377687a45e7b640d7be4a",
+    "manufacturer_code": "823edf8c5d0efb8a848f950f0e741466",
+    "composite": "2c6651af01c61cdc700c1652e3b03a17"
+  },
+  "target_null_count": 1350,
+  "target_existing_code_count": 0,
+  "preflight_pass_rows": 1350,
+  "preflight_blocked_rows": 0,
+  "name_drift_rows": 0,
+  "slug_drift_rows": 1350,
+  "ready_for_owner_apply": true,
+  "rehearsal_expected_updates": 1350,
+  "rehearsal_actual_updates": 1350,
+  "expected_change_logs": 1350,
+  "actual_change_logs": 1350,
+  "protected_field_mutations": 0,
+  "rollback_result": {
+    "explicit_rollback": true,
+    "target_manufacturer_code_non_null": 0,
+    "target_manufacturer_code_null": 1350,
+    "persistent_rehearsal_change_logs": 0,
+    "fingerprints_equal": true,
+    "baseline_counts_equal": true
+  },
+  "post_db_fingerprints": {
+    "name": "03cd970794807642f85b2126abe07446",
+    "sku": "079d6723d5de3b2032d4db47a24ea4ac",
+    "slug": "c45b67d1b42377687a45e7b640d7be4a",
+    "manufacturer_code": "823edf8c5d0efb8a848f950f0e741466",
+    "composite": "2c6651af01c61cdc700c1652e3b03a17"
+  },
+  "status": "READY_FOR_OWNER_APPLY"
+}

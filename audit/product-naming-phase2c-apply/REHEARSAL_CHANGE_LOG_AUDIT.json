@@ -1,0 +1,8 @@
+{
+  "expected_rows": 1350,
+  "actual_rows": 1350,
+  "reason": "Phase 2C manufacturer identity owner-frozen backfill; cohort_sha256=43620d24842b9466",
+  "artifact_sha_recorded": "43620d24842b9466",
+  "field_name": "manufacturer_code",
+  "canonical_path": "app.crud.audit.record_product_change"
+}
