@@ -1097,7 +1097,7 @@ documents:
     path: audit/product-naming-phase2c-real-apply/PHASE2C_REAL_APPLY_SUMMARY.md
     class: EVIDENCE
     rank: 6
-    status: draft
+    status: current
     owner_role: R-DOC-ARCH
     branch: cursor/product-naming-phase2c-real-apply
     notes: >

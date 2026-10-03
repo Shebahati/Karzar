@@ -1,0 +1,33 @@
+{
+  "committed": true,
+  "commit_timestamp_utc": "2026-10-03T15:11:36.445036+00:00",
+  "transaction_id": null,
+  "isolation": "SERIALIZABLE",
+  "advisory_lock": "karzar:phase2c:manufacturer_code:apply",
+  "metrics": {
+    "locked_rows": 1350,
+    "updated_rows": 1350,
+    "exact_matches": 1350,
+    "change_logs": 1350,
+    "protected_drift": 0,
+    "collision_groups": 0,
+    "nontarget_changes": 0,
+    "committed": 1
+  },
+  "change_log_contract": {
+    "contract_reference": "app.crud.audit.record_product_change",
+    "execution_path": "transactional SQL equivalent",
+    "equivalent_fields": [
+      "product_id",
+      "field_name",
+      "old_value",
+      "new_value",
+      "reason",
+      "actor_user_id"
+    ],
+    "reason": "Phase 2C owner-authorized manufacturer identity backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03"
+  },
+  "apply_logic_sha": "bd817801ad9cd172b418a59f1302ff2768c40e69",
+  "frozen_cohort_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "target_pre_apply_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f"
+}

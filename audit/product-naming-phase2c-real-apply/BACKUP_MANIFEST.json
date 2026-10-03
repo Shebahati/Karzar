@@ -1,0 +1,13 @@
+{
+  "created": true,
+  "path": "/home/shebahati/karzar-backups/phase2c/karzar_staging_phase2c_20261003T151115Z.dump",
+  "timestamp_utc": "20261003T151115Z",
+  "size_bytes": 1806828,
+  "sha256": "08ff81c32a8ce02a1ba9c89e0cb5dc7fbcc3fcae79f47711dfd86134bfed7760",
+  "database_name": "karzar_staging",
+  "postgresql_version": "15.18",
+  "pg_restore_list_entries": 560,
+  "pg_restore_list_verification": "PASS",
+  "committed_to_git": false,
+  "note": "Authoritative pre-APPLY backup taken immediately before successful COMMIT. A later fail-closed second-APPLY attempt created /home/shebahati/karzar-backups/phase2c/karzar_staging_phase2c_20261003T151219Z.dump (post-APPLY); that dump is not the apply gate backup."
+}

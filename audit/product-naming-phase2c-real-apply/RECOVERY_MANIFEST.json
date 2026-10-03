@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-10-03T15:11:33.444446+00:00",
+  "cohort_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "rows": 1350,
+  "pre_apply_manufacturer_code": null,
+  "compensating_logs_designed": true,
+  "executable_without_confirmation": false,
+  "targets_csv_sha256": "4cd317235d82e954588f44ee5099bca3716974225e59f79f0ce927246187d64f",
+  "plan_sha256": "90c448509765fe3edaab24e2abd6e4f796429054c41a1ffc641a7d68fd11f59e",
+  "manifest_sha256": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673"
+}

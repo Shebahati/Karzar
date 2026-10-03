@@ -1,0 +1,29 @@
+{
+  "collected_at_utc": "2026-10-03T15:11:15+00:00",
+  "collector_hostname": "hp-g2-450",
+  "vps_hostname": "srv5944957438",
+  "deployed_git_sha": "UNKNOWN",
+  "api_container": "lathe_api",
+  "postgres_container": "lathe_postgres",
+  "api_image": "karzar-app:staging",
+  "postgres_db_name": "karzar_staging",
+  "APP_ENV": "staging",
+  "alembic_current": "u4v5w6x7y8z9",
+  "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0",
+  "live_health": {
+    "api_readiness": "PASS",
+    "database_readiness": "PASS",
+    "redis_readiness": "PASS",
+    "ready_http_status": 200,
+    "ready_body": {
+      "status": "ready",
+      "service": "Karzar Staging API",
+      "database": "ok",
+      "redis": "ok"
+    },
+    "redis_ping": "PONG",
+    "database_select_1": "1",
+    "all_pass": true
+  },
+  "note": "Health/runtime identity confirmed PASS immediately before APPLY; timestamp normalized to pre-APPLY window after incidental second-run probe."
+}
