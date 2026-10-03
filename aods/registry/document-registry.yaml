@@ -1104,6 +1104,17 @@ documents:
       Owner-authorized Phase 2C manufacturer_code real APPLY evidence.
       Scope limited to 1350 frozen manufacturer_code values + audit logs.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2C-REAL-APPLY-RECOVERY-PLAN
+    path: audit/product-naming-phase2c-real-apply/RECOVERY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-real-apply
+    notes: >
+      Non-executed Phase 2C manufacturer_code recovery plan. Requires separate
+      owner authorization before any compensating writes.
+
   - id: PRODUCT-NAMING-V1-PHASE-2C-FUTURE-APPLY-DESIGN
     path: audit/product-naming-phase2c-discovery/FUTURE_APPLY_DESIGN.md
     class: EVIDENCE
