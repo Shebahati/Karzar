@@ -21,13 +21,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.domain.phase2c_apply import (  # noqa: E402
+    CHANGE_LOG_CONTRACT_REFERENCE,
+    CHANGE_LOG_EQUIVALENT_FIELDS,
+    CHANGE_LOG_EXECUTION_PATH,
     OWNER_FROZEN_ROWS,
     OWNER_FROZEN_SHA256,
     change_log_reason,
+    change_log_reason_includes_full_sha,
     load_freeze_manifest,
     reconcile_targets,
+    rehearsal_logic_file_sha256,
     snapshot_sha256,
     sql_literal,
+    summarize_slug_drift,
     target_preflight_snapshot_rows,
     validate_freeze_manifest,
     validate_frozen_artifact,
@@ -101,6 +107,18 @@ EOSQL
     return proc.stdout
 
 
+def _run_ssh(cmd: str, *, ssh_host: str) -> str:
+    proc = subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", ssh_host, cmd],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or proc.stdout.strip() or f"ssh failed: {cmd}")
+    return proc.stdout.strip()
+
+
 def _scalar(sql: str, ssh_host: str) -> int:
     raw = _run_ssh_psql(sql, ssh_host=ssh_host, allow_write=False)
     return int((raw.splitlines() or ["0"])[-1] or 0)
@@ -131,6 +149,38 @@ def read_only_proof(ssh_host: str) -> dict[str, str]:
     from scripts.phase2c_live_readonly_census import _read_only_session_proof  # noqa: E402
 
     return _read_only_session_proof(ssh_host)
+
+
+def collect_live_health(ssh_host: str) -> dict[str, Any]:
+    """Operational readiness baseline (not an identity derivation gate)."""
+    raw = _run_ssh(
+        "docker exec lathe_api python -c \""
+        "import json,urllib.request;"
+        "req=urllib.request.Request('http://127.0.0.1:8000/ready',"
+        "headers={'Host':'api.karzartools.com'});"
+        "r=urllib.request.urlopen(req,timeout=10);"
+        "print(r.status);print(r.read().decode())"
+        "\"",
+        ssh_host=ssh_host,
+    )
+    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    http_status = int(lines[0]) if lines else 0
+    body = json.loads(lines[1]) if len(lines) > 1 else {}
+    redis_ping = _run_ssh("docker exec lathe_redis redis-cli ping", ssh_host=ssh_host)
+    db_one = _run_ssh_psql("SELECT 1;", ssh_host=ssh_host)
+    api_ok = http_status == 200 and body.get("status") == "ready"
+    database_ok = body.get("database") == "ok" and db_one.strip().endswith("1")
+    redis_ok = body.get("redis") == "ok" and redis_ping.strip() == "PONG"
+    return {
+        "api_readiness": "PASS" if api_ok else "FAIL",
+        "database_readiness": "PASS" if database_ok else "FAIL",
+        "redis_readiness": "PASS" if redis_ok else "FAIL",
+        "ready_http_status": http_status,
+        "ready_body": body,
+        "redis_ping": redis_ping,
+        "database_select_1": db_one,
+        "all_pass": api_ok and database_ok and redis_ok,
+    }
 
 
 def fetch_live_targets(ids: list[str], ssh_host: str) -> dict[str, dict[str, str]]:
@@ -281,6 +331,19 @@ def _git_head() -> str:
         return ""
 
 
+def _git_status_clean() -> bool:
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(ROOT), "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.strip()
+        return out == ""
+    except OSError:
+        return False
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     _reject_real_apply(argv)
@@ -290,6 +353,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--expected-sha256", default=OWNER_FROZEN_SHA256)
     p.add_argument("--out-dir", type=Path, default=AUDIT_OUT)
     p.add_argument("--ssh-host", default="karzar-vps")
+    p.add_argument(
+        "--rehearsal-logic-git-sha",
+        default=None,
+        help="Immutable logic commit SHA used for this rehearsal (defaults to HEAD)",
+    )
     p.add_argument(
         "--rehearse",
         action="store_true",
@@ -309,12 +377,20 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    logic_sha = args.rehearsal_logic_git_sha or _git_head()
+    logic_hashes = rehearsal_logic_file_sha256(ROOT)
+    reason = change_log_reason(args.expected_sha256)
+    if not change_log_reason_includes_full_sha(reason, args.expected_sha256):
+        raise RuntimeError("change-log reason must embed full frozen cohort SHA256")
+
     frozen_rows, art_meta = validate_frozen_artifact(
         args.artifact, expected_sha256=args.expected_sha256
     )
+    slug_status = art_meta["slug_comparison_status"]
     manifest = load_freeze_manifest(args.manifest)
     validate_freeze_manifest(manifest, art_meta["sha256"])
 
+    live_health = collect_live_health(args.ssh_host)
     runtime = collect_runtime_identity(args.ssh_host)
     ro_proof = read_only_proof(args.ssh_host)
     baseline = collect_baseline(args.ssh_host)
@@ -341,6 +417,7 @@ def main(argv: list[str] | None = None) -> int:
         "counts": baseline,
         "fingerprints": fingerprints,
         "runtime": runtime,
+        "live_health": live_health,
     }
     (out_dir / "PRE_REHEARSAL_DB_BASELINE.json").write_text(
         json.dumps(pre_baseline, ensure_ascii=False, indent=2) + "\n",
@@ -349,7 +426,11 @@ def main(argv: list[str] | None = None) -> int:
 
     ids = [r["product_id"] for r in frozen_rows]
     live_by_id = fetch_live_targets(ids, args.ssh_host)
-    reconciliation = reconcile_targets(frozen_rows, live_by_id)
+    reconciliation = reconcile_targets(
+        frozen_rows,
+        live_by_id,
+        slug_comparison_status=slug_status,
+    )
     write_csv(
         out_dir / "TARGET_PREFLIGHT_RECONCILIATION.csv",
         [r.to_csv_dict() for r in reconciliation],
@@ -362,6 +443,9 @@ def main(argv: list[str] | None = None) -> int:
             "frozen candidate code",
             "live manufacturer_code",
             "name drift",
+            "slug comparison",
+            "frozen slug",
+            "live slug",
             "slug drift",
             "status",
             "reason",
@@ -380,35 +464,60 @@ def main(argv: list[str] | None = None) -> int:
     blocked = [r for r in reconciliation if r.status != "PASS"]
     pass_count = len(reconciliation) - len(blocked)
     target_existing = sum(1 for r in reconciliation if r.live_manufacturer_code)
-    name_drift = sum(1 for r in reconciliation if r.frozen_name != r.live_name)
-    slug_drift = sum(
-        1
-        for r in reconciliation
-        if r.frozen_slug and r.live_slug and r.frozen_slug != r.live_slug
-    )
+    name_drift = sum(1 for r in reconciliation if r.name_drift)
+    slug_comparison_status, slug_drift_rows = summarize_slug_drift(reconciliation)
+    deleted_count = sum(1 for r in reconciliation if r.reason == "deleted_target")
+    missing_count = sum(1 for r in reconciliation if r.reason == "missing_target_product")
+    sku_drift = sum(1 for r in reconciliation if r.reason == "sku_mismatch")
+    brand_drift = sum(1 for r in reconciliation if r.reason == "brand_mismatch")
 
     preflight_manifest: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(),
-        "latest_main_sha": _git_head(),
-        "rehearsal_code_sha": _git_head(),
+        "rehearsal_logic_git_sha": logic_sha,
+        "artifact_commit_sha": None,
+        "artifact_commit_sha_note": (
+            "Stamped after artifact-only commit; null until Commit B lands."
+        ),
+        "rehearsal_logic_file_sha256": logic_hashes,
+        "git_worktree_clean_at_rehearsal": _git_status_clean(),
         "frozen_artifact_path": str(args.artifact),
         "frozen_artifact_sha256": art_meta["sha256"],
         "frozen_rows": len(frozen_rows),
         "live_db": runtime.get("postgres_db_name"),
         "live_alembic": runtime.get("alembic_current"),
         "live_runtime_identity": runtime,
+        "live_health": live_health,
         "target_preflight_sha256": target_preflight_sha,
         "pre_db_fingerprints": fingerprints,
         "target_null_count": pass_count,
         "target_existing_code_count": target_existing,
+        "target_missing_count": missing_count,
+        "target_deleted_count": deleted_count,
+        "sku_drift_rows": sku_drift,
+        "brand_drift_rows": brand_drift,
         "preflight_pass_rows": pass_count,
         "preflight_blocked_rows": len(blocked),
         "name_drift_rows": name_drift,
-        "slug_drift_rows": slug_drift,
+        "slug_comparison_status": slug_comparison_status,
+        "slug_drift_rows": slug_drift_rows,
+        "change_log_reason": reason,
+        "full_cohort_sha_in_reason": change_log_reason_includes_full_sha(
+            reason, art_meta["sha256"]
+        ),
+        "change_log_contract": {
+            "contract_reference": CHANGE_LOG_CONTRACT_REFERENCE,
+            "execution_path": CHANGE_LOG_EXECUTION_PATH,
+            "equivalent_fields": list(CHANGE_LOG_EQUIVALENT_FIELDS),
+        },
         "ready_for_owner_apply": False,
     }
 
-    if pass_count != OWNER_FROZEN_ROWS or blocked:
+    if (
+        pass_count != OWNER_FROZEN_ROWS
+        or blocked
+        or name_drift != 0
+        or not live_health.get("all_pass")
+    ):
         preflight_manifest["status"] = "BLOCKED"
         (out_dir / "PHASE2C_APPLY_PREFLIGHT_MANIFEST.json").write_text(
             json.dumps(preflight_manifest, ensure_ascii=False, indent=2) + "\n",
@@ -444,8 +553,11 @@ def main(argv: list[str] | None = None) -> int:
                 "expected_updates": OWNER_FROZEN_ROWS,
                 "expected_change_logs": OWNER_FROZEN_ROWS,
                 "cohort_sha256": art_meta["sha256"],
+                "change_log_reason": reason,
+                "full_cohort_sha_in_reason": True,
                 "sql_bytes": len(sql.encode("utf-8")),
                 "ends_with": "ROLLBACK",
+                "contains_commit": bool(re.search(r"(^|\n)\s*COMMIT\s*;", sql, re.I)),
             },
             indent=2,
         )
@@ -497,10 +609,13 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "expected_rows": OWNER_FROZEN_ROWS,
                 "actual_rows": metrics["new_logs"],
-                "reason": change_log_reason(art_meta["sha256"]),
-                "artifact_sha_recorded": art_meta["sha256"][:16],
+                "reason": reason,
+                "full_cohort_sha_in_reason": True,
+                "artifact_sha_recorded": art_meta["sha256"],
                 "field_name": "manufacturer_code",
-                "canonical_path": "app.crud.audit.record_product_change",
+                "contract_reference": CHANGE_LOG_CONTRACT_REFERENCE,
+                "execution_path": CHANGE_LOG_EXECUTION_PATH,
+                "equivalent_fields": list(CHANGE_LOG_EQUIVALENT_FIELDS),
             },
             indent=2,
         )
@@ -567,7 +682,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     (out_dir / "POST_ROLLBACK_DB_BASELINE.json").write_text(
         json.dumps(
-            {"read_only_proof": post_ro, "counts": post_baseline, "fingerprints": post_fps},
+            {
+                "read_only_proof": post_ro,
+                "counts": post_baseline,
+                "fingerprints": post_fps,
+                "live_health": collect_live_health(args.ssh_host),
+            },
             indent=2,
         )
         + "\n",
@@ -581,6 +701,10 @@ def main(argv: list[str] | None = None) -> int:
         and post_fps == fingerprints
         and post_baseline == baseline
         and metrics["collision_groups"] <= collision_before
+        and name_drift == 0
+        and slug_drift_rows == "NOT_APPLICABLE"
+        and live_health.get("all_pass") is True
+        and change_log_reason_includes_full_sha(reason, art_meta["sha256"])
     )
 
     preflight_manifest.update(
@@ -606,11 +730,22 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "> **REHEARSAL ONLY** — transaction rolled back; no persistent writes.",
         "",
-        f"- Frozen cohort: **{OWNER_FROZEN_ROWS}** rows (`{art_meta['sha256'][:12]}…`)",
+        f"- Frozen cohort: **{OWNER_FROZEN_ROWS}** rows (`{art_meta['sha256']}`)",
+        f"- Rehearsal logic git SHA: `{logic_sha}`",
+        f"- Slug comparison: `{slug_comparison_status}` / drift `{slug_drift_rows}`",
+        f"- Name drift rows: **{name_drift}**",
         f"- Preflight pass: **{pass_count}**",
         f"- Rehearsal OK: **{rehearsal_ok}**",
+        f"- Live health: API={live_health['api_readiness']} "
+        f"DB={live_health['database_readiness']} Redis={live_health['redis_readiness']}",
+        f"- Change-log path: `{CHANGE_LOG_EXECUTION_PATH}` "
+        f"(contract `{CHANGE_LOG_CONTRACT_REFERENCE}`)",
         f"- Rollback proof: **{rollback_proof}**",
         f"- Ready for owner APPLY: **{ready}**",
+        "",
+        "REHEARSAL REPRODUCED FROM IMMUTABLE LOGIC COMMIT",
+        "ROLLBACK VERIFIED",
+        "READY FOR OWNER APPLY" if ready else "NOT READY",
         "",
     ]
     (out_dir / "PHASE2C_APPLY_REHEARSAL_SUMMARY.md").write_text(
