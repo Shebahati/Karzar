@@ -225,6 +225,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: GSC-MCP-RUNBOOK
+    path: docs/integrations/google-search-console-mcp.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: OPERATIONS
     path: docs/OPERATIONS.md
     class: POLICY
