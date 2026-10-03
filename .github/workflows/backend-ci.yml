@@ -34,6 +34,7 @@ jobs:
           filters: |
             backend:
               - 'app/**'
+              - 'services/**'
               - 'alembic/**'
               - 'tests/**'
               - 'scripts/**'
@@ -105,7 +106,7 @@ jobs:
 
       - name: Ruff
         if: needs.changes.outputs.backend == 'true'
-        run: ruff check app tests
+        run: ruff check app tests services/gsc_mcp
 
       - name: Mypy
         if: needs.changes.outputs.backend == 'true'
@@ -159,6 +160,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+          pip install -r services/gsc_mcp/requirements.txt
 
       - name: Run database migrations
         if: needs.changes.outputs.backend == 'true'
@@ -196,6 +198,7 @@ jobs:
           USE_POSTGRES_TESTS: "1"
           ALLOW_PUBLIC_REGISTER: "true"
           OTP_DEV_ECHO: "true"
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest --maxfail=1 --disable-warnings \
             --cov=app --cov-report=term-missing --cov-fail-under=68
