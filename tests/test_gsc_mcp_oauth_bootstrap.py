@@ -20,7 +20,7 @@ from services.gsc_mcp.oauth_loopback import LoopbackOAuthServer, constant_time_e
 from services.gsc_mcp.pkce import code_challenge_s256, generate_code_verifier
 
 RFC7636_VERIFIER = "dBjftJeZ4CVP-mB92KpfuZscxYj8Gb0LgwXHa2zYlA"
-RFC7636_CHALLENGE = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+RFC7636_CHALLENGE = "ALgNT5GtvVAoBeNhKYZuCeRXtG9UGwzvFMXJB8uH6KU"
 
 
 @pytest.fixture
