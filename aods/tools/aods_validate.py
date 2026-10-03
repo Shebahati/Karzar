@@ -95,6 +95,9 @@ NAMING_ALLOW = {
     # Immutable Phase 0B historical evidence; "final" is part of the frozen
     # 2026-09-27 artifact name and SHA-256 registry — do not rename.
     "audit/taxonomy-phase0b/14-phase0b-final-report.md",
+    # Immutable Sellability Wave 0 evidence; "FINAL_REPORT" is the frozen
+    # 2026-10-03 artifact name required by the Wave 0 evidence contract.
+    "audit/sellability-wave0-2026-10-03/FINAL_REPORT.md",
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
