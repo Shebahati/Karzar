@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import re
 from pathlib import Path
 
 from services.gsc_mcp.config import GOOGLE_OAUTH_SCOPE

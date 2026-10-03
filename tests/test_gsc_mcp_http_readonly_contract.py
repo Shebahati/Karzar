@@ -5,10 +5,9 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 import httpx
-import pytest
 import respx
 
-from services.gsc_mcp.clients import CruxClient, SearchConsoleClient, UrlInspectionClient
+from services.gsc_mcp.clients import SearchConsoleClient, UrlInspectionClient
 from services.gsc_mcp.http_google import GoogleHttpResponse
 
 SITE = "sc-domain:karzartools.com"
