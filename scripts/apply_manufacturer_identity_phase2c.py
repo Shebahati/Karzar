@@ -377,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Capture before any artifact writes so dirty generated files cannot false-fail.
+    worktree_clean_at_start = _git_status_clean()
     logic_sha = args.rehearsal_logic_git_sha or _git_head()
     logic_hashes = rehearsal_logic_file_sha256(ROOT)
     reason = change_log_reason(args.expected_sha256)
@@ -479,7 +481,7 @@ def main(argv: list[str] | None = None) -> int:
             "Stamped after artifact-only commit; null until Commit B lands."
         ),
         "rehearsal_logic_file_sha256": logic_hashes,
-        "git_worktree_clean_at_rehearsal": _git_status_clean(),
+        "git_worktree_clean_at_rehearsal": worktree_clean_at_start,
         "frozen_artifact_path": str(args.artifact),
         "frozen_artifact_sha256": art_meta["sha256"],
         "frozen_rows": len(frozen_rows),
