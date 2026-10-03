@@ -131,11 +131,11 @@ class LoopbackOAuthServer:
                 self.end_headers()
                 self.wfile.write(payload)
 
-        def _finish(self, result: LoopbackCallbackResult) -> None:
-            self._result = result
-            self._done.set()
+        def _finish(result: LoopbackCallbackResult) -> None:
+            holder._result = result
+            holder._done.set()
 
-        holder._finish = _finish  # type: ignore[method-assign]
+        holder._finish = _finish
 
         server = HTTPServer((host, port), Handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
