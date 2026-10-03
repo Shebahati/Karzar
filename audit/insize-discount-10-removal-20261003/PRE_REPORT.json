@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-10-03T13:52:01Z",
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "172.18.0.2/32",
+    "inet_server_port": 5432,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "default_transaction_read_only": "off",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "42c1b9f1bbde",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data  ",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "git_sha": "601b346548d1fc68f007d97a4d2af0abafad5e16",
+    "utc_timestamp": "2026-10-03T13:52:01Z"
+  },
+  "brand": {
+    "ok": true,
+    "brand_id": 3,
+    "brand_name": "INSIZE | اینسایز",
+    "expected_brand_name": "INSIZE | اینسایز",
+    "errors": []
+  },
+  "census": {
+    "live_insize": 872,
+    "priced_insize": 487,
+    "unpriced_insize": 385,
+    "active": 643,
+    "available": 159,
+    "storefront_visible": 643,
+    "sellable": 159,
+    "imaged": 643,
+    "active_priced": 385,
+    "inactive_priced": 102,
+    "available_priced": 159,
+    "unavailable_priced": 328,
+    "original_price_null": 385,
+    "original_price_nonnull": 487,
+    "original_price_gt_base_price": 487,
+    "original_price_le_base_price": 0,
+    "priced_with_existing_original_price": 487,
+    "min_base_price": "221760.00",
+    "max_base_price": "199221120.00",
+    "sum_base_price": "10348705886.40"
+  },
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "cohort_count": 487,
+    "live_count": 872,
+    "discovery": {
+      "live_insize": 872,
+      "priced_insize": 487,
+      "discounted_cohort": 487,
+      "undiscounted_priced": 0,
+      "wrong_discount_percent_ids": [],
+      "discount_apply_log_products": 487
+    }
+  },
+  "discovery": {
+    "live_insize": 872,
+    "priced_insize": 487,
+    "discounted_cohort": 487,
+    "undiscounted_priced": 0,
+    "wrong_discount_percent_ids": [],
+    "discount_apply_log_products": 487
+  },
+  "idempotency": {
+    "reason": "INSIZE 10% storefront discount removal owner-authorized 2026-10-03",
+    "log_row_count": 0,
+    "base_price_log_count": 0,
+    "original_price_log_count": 0,
+    "distinct_product_id_count": 0,
+    "duplicate_base_price_product_ids": [],
+    "duplicate_original_price_product_ids": [],
+    "duplicate_product_id_count": 0,
+    "already_present": false
+  }
+}
