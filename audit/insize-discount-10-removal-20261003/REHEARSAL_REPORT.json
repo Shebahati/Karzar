@@ -1,0 +1,14 @@
+{
+  "commit": false,
+  "target_rows": 487,
+  "updated_rows": 487,
+  "base_price_change_log_rows": 487,
+  "original_price_change_log_rows": 487,
+  "change_log_rows": 974,
+  "status": "GATES_PASSED",
+  "transaction_status": "ROLLED_BACK_REHEARSAL",
+  "live_unchanged_proven": true,
+  "fingerprints_unchanged": true,
+  "field_restoration": "base_price+original_price exact",
+  "scope_gates": "non_insize+other_fields unchanged"
+}
