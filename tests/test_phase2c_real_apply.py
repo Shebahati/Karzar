@@ -7,7 +7,6 @@ import hashlib
 from pathlib import Path
 
 import pytest
-
 from app.domain.phase2c_apply import (
     OWNER_FROZEN_ROWS,
     OWNER_FROZEN_SHA256,
@@ -28,6 +27,8 @@ from app.domain.phase2c_real_apply import (
 from scripts.ops.phase2c_manufacturer_identity_apply_once import (
     FORBIDDEN_FLAGS,
     _reject_forbidden,
+)
+from scripts.ops.phase2c_manufacturer_identity_apply_once import (
     main as real_apply_main,
 )
 
