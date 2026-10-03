@@ -1083,6 +1083,16 @@ documents:
     notes: >
       Deterministic OEM source extraction profiles for Phase 2C evidence registry.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2C-APPLY-REHEARSAL-SUMMARY
+    path: audit/product-naming-phase2c-apply/PHASE2C_APPLY_REHEARSAL_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-apply-rehearsal
+    notes: >
+      Phase 2C manufacturer_code APPLY rehearsal only (ROLLBACK). No persistent writes.
+
   - id: PRODUCT-NAMING-V1-PHASE-2C-FUTURE-APPLY-DESIGN
     path: audit/product-naming-phase2c-discovery/FUTURE_APPLY_DESIGN.md
     class: EVIDENCE
