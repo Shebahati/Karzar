@@ -3,6 +3,7 @@ from __future__ import annotations
 import secrets
 import socket
 import threading
+import time
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -20,6 +21,17 @@ def allocate_loopback_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind(("127.0.0.1", 0))
         return int(sock.getsockname()[1])
+
+
+def _wait_until_accepting(host: str, port: int, timeout_seconds: float = 2.0) -> None:
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.05):
+                return
+        except OSError:
+            time.sleep(0.01)
+    raise TimeoutError(f"Loopback server did not accept connections on {host}:{port}")
 
 
 def constant_time_equal(a: str, b: str) -> bool:
@@ -128,6 +140,7 @@ class LoopbackOAuthServer:
         server = HTTPServer((host, port), Handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
+        _wait_until_accepting(host, port)
         holder._server = server
         holder._thread = thread
         return holder
