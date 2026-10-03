@@ -1,0 +1,7 @@
+code,remote_item_present,associated_product_code,local_mapping_owner_count,mapping_owners,local_productcode_owner_count,productcode_owners,flags
+000619,true,6112-1287,1,595:1627:6112-1287:000619,1,1627:6112-1287,
+003620,true,6112-1287,0,,1,1627:6112-1287,
+003207,true,103-143,1,3150:2297:103-143:003207,1,2297:103-143,
+003457,true,103-143,0,,1,2297:103-143,
+001287,true,4824-16,0,,1,3685:4824-16,
+000893,false,4824-16,1,869:3685:4824-16:000893,1,3685:4824-16,
