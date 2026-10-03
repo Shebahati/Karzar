@@ -1,0 +1,218 @@
+product_id,sku,manufacturer_code,name,slug,brand,category,base_price,is_active,is_available,image_count,image_readiness,current_sellable,blocker
+1045,1012-0030,,زاویه سنج سه تکه با خط کش 12کش — 0-30mm,1012-0030,Dasqua | داسکوا,زاویه سنج,29868000.00,True,False,0,NO_IMAGE,False,image+availability
+1046,1012-2005,,زاویه سنج یونیورسال ساعت 2,1012-2005,Dasqua | داسکوا,ساعت اندیکاتور,16044000.00,True,False,0,NO_IMAGE,False,image+availability
+1047,1012-3010,,/ /1 پرگار بی ر,1012-3010,Dasqua | داسکوا,پرگار صنعتی,13164000.00,True,False,0,NO_IMAGE,False,image+availability
+1048,1012-3015,,/ /1 پرگار بی ر,1012-3015,Dasqua | داسکوا,پرگار صنعتی,16458000.00,True,False,0,NO_IMAGE,False,image+availability
+1049,1012-3020,,/ /1 پرگار بی ر,1012-3020,Dasqua | داسکوا,پرگار صنعتی,24210000.00,True,False,0,NO_IMAGE,False,image+availability
+1050,1021-2005,,زاویه سنج یونیورسال دیجیتال,1021-2005,Dasqua | داسکوا,زاویه سنج,64656000.00,True,False,0,NO_IMAGE,False,image+availability
+1051,1022-1010,,زاویه سنج نقاله ای دیجیتال — 0-1010mm,1022-1010,Dasqua | داسکوا,زاویه سنج,12888000.00,True,False,0,NO_IMAGE,False,image+availability
+1052,1022-1015,,زاویه سنج نقاله ای دیجیتال — 0-1015mm,1022-1015,Dasqua | داسکوا,زاویه سنج,14652000.00,True,False,0,NO_IMAGE,False,image+availability
+1053,1022-4200,,خط کش زاویه سنج دیجیتال دو خط,1022-4200,Dasqua | داسکوا,زاویه سنج,5268000.00,True,False,0,NO_IMAGE,False,image+availability
+1054,1022-4300,,خط کش زاویه سنج دیجیتال دو خط,1022-4300,Dasqua | داسکوا,زاویه سنج,5136000.00,True,False,0,NO_IMAGE,False,image+availability
+1055,1030-2010,,ترازوی جیت دیجیتال,1030-2010,Dasqua | داسکوا,تراز صنعتی,5106000.00,True,False,0,NO_IMAGE,False,image+availability
+1056,1030-2051,,تاکومی (دورسنج) دیجیتال مکانییک — 0-500mm,1030-2051,Dasqua | داسکوا,ساعت اندیکاتور,8904000.00,True,False,0,NO_IMAGE,False,image+availability
+1057,1030-2056,,تاکومی (دورسنج) دیجیتال مکانییک 1,1030-2056,Dasqua | داسکوا,ساعت اندیکاتور,13428000.00,True,False,0,NO_IMAGE,False,image+availability
+1058,1030-2061,,رنیو سنج دیجیتال,1030-2061,Dasqua | داسکوا,ساعت اندیکاتور,22114800.00,True,False,0,NO_IMAGE,False,image+availability
+1059,1030-2100,,تاکومی (دورسنج) دیجیتال مکانییک 1,1030-2100,Dasqua | داسکوا,ساعت اندیکاتور,6192000.00,True,False,0,NO_IMAGE,False,image+availability
+1060,1031-2005,,زاویه سنج ذره ر ر,1031-2005,Dasqua | داسکوا,زاویه سنج,18237600.00,True,False,0,NO_IMAGE,False,image+availability
+1061,1031-2010,,زاویه سنج ذره ر ر,1031-2010,Dasqua | داسکوا,زاویه سنج,28677600.00,True,False,0,NO_IMAGE,False,image+availability
+1062,1041-0005,,"1,1.25,1.5,1.75,2,2.5,3,3.5,4 میلیمی تا 7 شابلون رزوه اینچ و — 0-50mm",1041-0005,Dasqua | داسکوا,انواع گیج,2934000.00,True,False,0,NO_IMAGE,False,image+availability
+1063,1041-0007,,"1,1.25,1.5,1.75,2,2.5,3,3.5,4 میلیمی تا 7 شابلون رزوه اینچ و — 0-70mm",1041-0007,Dasqua | داسکوا,انواع گیج,2424000.00,True,False,0,NO_IMAGE,False,image+availability
+1064,1041-2205,,شابلون رنده پیچ بری 60درجه,1041-2205,Dasqua | داسکوا,انواع گیج,780000.00,True,False,0,NO_IMAGE,False,image+availability
+1065,1041-2215,,شابلون رنده پیچ بری 60درجه,1041-2215,Dasqua | داسکوا,انواع گیج,966000.00,True,False,0,NO_IMAGE,False,image+availability
+1066,1051-0005,,گپ سنج مخروط (گیج داخل مخروط) — 0-50mm,1051-0005,Dasqua | داسکوا,انواع گیج,11076000.00,True,False,0,NO_IMAGE,False,image+availability
+1068,1051-0302,,پرگار معمویل — 0-200mm/0-8,1051-0302,Dasqua | داسکوا,پرگار صنعتی,1944000.00,True,False,0,NO_IMAGE,False,image+availability
+1069,1051-0304,,پرگار معمویل — 0-300mm,1051-0304,Dasqua | داسکوا,پرگار صنعتی,2742000.00,True,False,0,NO_IMAGE,False,image+availability
+1070,1051-2010,,گپ سنج مخروط (گیج داخل مخروط),1051-2010,Dasqua | داسکوا,انواع گیج,15240000.00,True,False,0,NO_IMAGE,False,image+availability
+1071,1120-3113,,کولیس ورنیه تیپ مونو بالک — 0-70mm/0-3,1120-3113,Dasqua | داسکوا,انواع کولیس,5628000.00,True,False,0,NO_IMAGE,False,image+availability
+1072,1122-9001,,سختی‌سنج شور داسکوا کد 1122-9001,1122-9001,Dasqua | داسکوا,سختی سنج لاستیک,17280000.00,True,False,0,NO_IMAGE,False,image+availability
+1073,1305-0002,,کولیس ورنیه دو فک بلند — 0-500mm,1305-0002,Dasqua | داسکوا,انواع کولیس,58255200.00,True,False,0,NO_IMAGE,False,image+availability
+1074,1305-0003,,کولیس ورنیه دو فک بلند — 0-600mm,1305-0003,Dasqua | داسکوا,انواع کولیس,59232000.00,True,False,0,NO_IMAGE,False,image+availability
+1075,1305-0010,,کولیس مونوبالک ورنیه فک بلند با — 0-500mm/0-20,1305-0010,Dasqua | داسکوا,انواع کولیس,77632800.00,True,False,0,NO_IMAGE,False,image+availability
+1076,1305-0025,,36/5- کولیس مونوبالک ورنیه فک بلند با — 0-300mm/0-12,1305-0025,Dasqua | داسکوا,انواع کولیس,28982400.00,True,False,0,NO_IMAGE,False,image+availability
+1077,1310-0004,,کولیس مونو بالک ورنیه فک بلند — 0-200mm/0-8,1310-0004,Dasqua | داسکوا,انواع کولیس,15552000.00,True,False,0,NO_IMAGE,False,image+availability
+1079,1310-0006,,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,1310-0006,Dasqua | داسکوا,انواع کولیس,36282000.00,True,False,0,NO_IMAGE,False,image+availability
+1080,1310-0007,,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,1310-0007,Dasqua | داسکوا,انواع کولیس,57333600.00,True,False,0,NO_IMAGE,False,image+availability
+1081,1310-0008,,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,1310-0008,Dasqua | داسکوا,انواع کولیس,122397600.00,True,False,0,NO_IMAGE,False,image+availability
+1082,1310-0009,,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,1310-0009,Dasqua | داسکوا,انواع کولیس,143292000.00,True,False,0,NO_IMAGE,False,image+availability
+1083,1310-0010,,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,1310-0010,Dasqua | داسکوا,انواع کولیس,29862000.00,True,False,0,NO_IMAGE,False,image+availability
+1084,1310-0011,,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,1310-0011,Dasqua | داسکوا,انواع کولیس,55830000.00,True,False,0,NO_IMAGE,False,image+availability
+1085,1310-0012,,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,1310-0012,Dasqua | داسکوا,انواع کولیس,66630000.00,True,False,0,NO_IMAGE,False,image+availability
+1086,1310-0015,,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,1310-0015,Dasqua | داسکوا,انواع کولیس,80623200.00,True,False,0,NO_IMAGE,False,image+availability
+1087,1310-0016,,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,1310-0016,Dasqua | داسکوا,انواع کولیس,140293200.00,True,False,0,NO_IMAGE,False,image+availability
+1088,1310-0017,,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,1310-0017,Dasqua | داسکوا,انواع کولیس,202989600.00,True,False,0,NO_IMAGE,False,image+availability
+1089,1310-0021,,کولیس مونو بالک ورنیه فک بلند — 0-1500mm/0-60,1310-0021,Dasqua | داسکوا,انواع کولیس,310812000.00,True,False,0,NO_IMAGE,False,image+availability
+1090,1310-0025,,کولیس مونو بالک ورنیه فک بلند — 0-2000mm/0-80,1310-0025,Dasqua | داسکوا,انواع کولیس,295482000.00,True,False,0,NO_IMAGE,False,image+availability
+1091,1310-0030,,کولیس مونو بالک ورنیه فک بلند — 0-300mm/0-12,1310-0030,Dasqua | داسکوا,انواع کولیس,19260000.00,True,False,0,NO_IMAGE,False,image+availability
+1092,1310-0031,,کولیس مونو بالک ورنیه فک بلند — 0-300mm/0-12,1310-0031,Dasqua | داسکوا,انواع کولیس,39430800.00,True,False,0,NO_IMAGE,False,image+availability
+1093,1310-0041,,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,1310-0041,Dasqua | داسکوا,انواع کولیس,128372400.00,True,False,0,NO_IMAGE,False,image+availability
+1094,1310-0042,,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,1310-0042,Dasqua | داسکوا,انواع کولیس,155227200.00,True,False,0,NO_IMAGE,False,image+availability
+1095,1310-0043,,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,1310-0043,Dasqua | داسکوا,انواع کولیس,128372400.00,True,False,0,NO_IMAGE,False,image+availability
+1096,1310-0044,,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,1310-0044,Dasqua | داسکوا,انواع کولیس,139416000.00,True,False,0,NO_IMAGE,False,image+availability
+1097,1310-0055,,کولیس مونو بالک ورنیه فک بلند — 0-1500mm/0-60,1310-0055,Dasqua | داسکوا,انواع کولیس,209676000.00,True,False,0,NO_IMAGE,False,image+availability
+1098,1310-0060,,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,1310-0060,Dasqua | داسکوا,انواع کولیس,95541600.00,True,False,0,NO_IMAGE,False,image+availability
+1099,1310-0090,,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,1310-0090,Dasqua | داسکوا,انواع کولیس,113438400.00,True,False,0,NO_IMAGE,False,image+availability
+1100,1310-0095,,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,1310-0095,Dasqua | داسکوا,انواع کولیس,148365600.00,True,False,0,NO_IMAGE,False,image+availability
+1101,1310-0100,,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,1310-0100,Dasqua | داسکوا,انواع کولیس,150480000.00,True,False,0,NO_IMAGE,False,image+availability
+1103,1331-2120,,ساعت کولیس 1 — 0-200mm,1331-2120,Dasqua | داسکوا,ساعت اندیکاتور,12270000.00,True,False,0,NO_IMAGE,False,image+availability
+1104,1331-2130,,کولیس ساعت 2 — 0-300mm,1331-2130,Dasqua | داسکوا,ساعت اندیکاتور,17932800.00,True,False,0,NO_IMAGE,False,image+availability
+1105,1350-5005,,ساعت کولیس 3 — 0-150mm,1350-5005,Dasqua | داسکوا,ساعت اندیکاتور,10179600.00,True,False,0,NO_IMAGE,False,image+availability
+1106,1350-5010,,کولیس ساعت 4 — 0-200mm,1350-5010,Dasqua | داسکوا,ساعت اندیکاتور,10650000.00,True,False,0,NO_IMAGE,False,image+availability
+1107,1350-5015,,ساعت کولیس 5 — 0-300mm,1350-5015,Dasqua | داسکوا,ساعت اندیکاتور,16692000.00,True,False,0,NO_IMAGE,False,image+availability
+1108,1351-0005,,شابلون شعاع سنج — 0-50mm,1351-0005,Dasqua | داسکوا,شعاع سنج(R),2274000.00,True,False,0,NO_IMAGE,False,image+availability
+1109,1351-0010,,شابلون شعاع سنج — 0-100mm,1351-0010,Dasqua | داسکوا,شعاع سنج(R),2280000.00,True,False,0,NO_IMAGE,False,image+availability
+1110,1351-0015,,شابلون شعاع سنج — 0-150mm,1351-0015,Dasqua | داسکوا,شعاع سنج(R),2280000.00,True,False,0,NO_IMAGE,False,image+availability
+1111,1352-2010,,شابلون شعاع سنج,1352-2010,Dasqua | داسکوا,شعاع سنج(R),7674000.00,True,False,0,NO_IMAGE,False,image+availability
+1112,1380-3004,,کولیس ورنیه تیپ مونو بالک — 0-100mm/0-4,1380-3004,Dasqua | داسکوا,انواع کولیس,5314800.00,True,False,0,NO_IMAGE,False,image+availability
+1113,1380-3005,,کولیس ورنیه تیپ مونو بالک — 0-150mm/0-6,1380-3005,Dasqua | داسکوا,انواع کولیس,5662800.00,True,False,0,NO_IMAGE,False,image+availability
+1114,1380-3010,,کولیس ورنیه تیپ مونو بالک — 0-200mm/0-8,1380-3010,Dasqua | داسکوا,انواع کولیس,8944800.00,True,False,0,NO_IMAGE,False,image+availability
+1115,1380-3015,,کولیس ورنیه تیپ مونو بالک — 0-300mm/0-12,1380-3015,Dasqua | داسکوا,انواع کولیس,15225600.00,True,False,0,NO_IMAGE,False,image+availability
+1116,1500-1052,,"1,1.25,1.5,1.75,2,2.5,3,3.5,4 میلیمی تا 7 شابلون رزوه اینچ و — 0-1052mm",1500-1052,Dasqua | داسکوا,انواع گیج,2544000.00,True,False,0,NO_IMAGE,False,image+availability
+1117,1704-0005,,ضخامت سنج الکی — 0-50mm,1704-0005,Dasqua | داسکوا,عمق سنج,25104000.00,True,False,0,NO_IMAGE,False,image+availability
+1118,1732-0035,,ساعت مرکزیاب 1 — 0-35mm,1732-0035,Dasqua | داسکوا,ساعت اندیکاتور,1506000.00,True,False,0,NO_IMAGE,False,image+availability
+1119,1801-1005,,رفرنس یاب محور ( Zزد زیرو) دیجیتال IP65ضد آب — 0-1005mm,1801-1005,Dasqua | داسکوا,Z سنج عقربه ای,15072000.00,True,False,0,NO_IMAGE,False,image+availability
+1120,1801-2005,,زاویه سنج نقاله ای دیجیتال — 20 سانت,1801-2005,Dasqua | داسکوا,زاویه سنج,5916000.00,True,False,0,NO_IMAGE,False,image+availability
+1121,1803-2110,,ساعت مرکزیاب داسکوا کد 1803-2110,1803-2110,Dasqua | داسکوا,ساعت اندیکاتور,7194000.00,True,False,0,NO_IMAGE,False,image+availability
+1122,1803-4111,,ساعت مرکزیاب داسکوا کد 1803-4111,1803-4111,Dasqua | داسکوا,ساعت اندیکاتور,3264000.00,True,False,0,NO_IMAGE,False,image+availability
+1123,1803-4112,,ساعت مرکزیاب داسکوا کد 1803-4112,1803-4112,Dasqua | داسکوا,ساعت اندیکاتور,2580000.00,True,False,0,NO_IMAGE,False,image+availability
+1124,1803-4113,,ساعت مرکزیاب داسکوا کد 1803-4113,1803-4113,Dasqua | داسکوا,ساعت اندیکاتور,2580000.00,True,False,0,NO_IMAGE,False,image+availability
+1125,1803-4114,,ساعت مرکزیاب داسکوا کد 1803-4114,1803-4114,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1126,1803-4115,,ساعت مرکزیاب داسکوا کد 1803-4115,1803-4115,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1127,1803-4116,,ساعت مرکزیاب داسکوا کد 1803-4116,1803-4116,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1128,1803-4117,,ساعت مرکزیاب داسکوا کد 1803-4117,1803-4117,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1129,1803-4118,,ساعت مرکزیاب داسکوا کد 1803-4118,1803-4118,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1130,1803-4119,,ساعت مرکزیاب داسکوا کد 1803-4119,1803-4119,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1131,1803-4120,,ساعت مرکزیاب داسکوا کد 1803-4120,1803-4120,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1132,1803-4121,,ساعت مرکزیاب داسکوا کد 1803-4121,1803-4121,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1133,1803-4122,,ساعت مرکزیاب داسکوا کد 1803-4122,1803-4122,Dasqua | داسکوا,ساعت اندیکاتور,1878000.00,True,False,0,NO_IMAGE,False,image+availability
+1134,1803-4123,,ساعت مرکزیاب داسکوا کد 1803-4123,1803-4123,Dasqua | داسکوا,ساعت اندیکاتور,2868000.00,True,False,0,NO_IMAGE,False,image+availability
+1135,1803-4124,,ساعت مرکزیاب داسکوا کد 1803-4124,1803-4124,Dasqua | داسکوا,ساعت اندیکاتور,3018000.00,True,False,0,NO_IMAGE,False,image+availability
+1136,1803-4125,,ساعت مرکزیاب داسکوا کد 1803-4125,1803-4125,Dasqua | داسکوا,ساعت اندیکاتور,3168000.00,True,False,0,NO_IMAGE,False,image+availability
+1137,1803-4126,,ساعت مرکزیاب داسکوا کد 1803-4126,1803-4126,Dasqua | داسکوا,ساعت اندیکاتور,3168000.00,True,False,0,NO_IMAGE,False,image+availability
+1138,1803-4127,,ساعت مرکزیاب داسکوا کد 1803-4127,1803-4127,Dasqua | داسکوا,ساعت اندیکاتور,3168000.00,True,False,0,NO_IMAGE,False,image+availability
+1139,1803-4128,,ساعت مرکزیاب داسکوا کد 1803-4128,1803-4128,Dasqua | داسکوا,ساعت اندیکاتور,3546000.00,True,False,0,NO_IMAGE,False,image+availability
+1140,1803-4129,,ساعت مرکزیاب داسکوا کد 1803-4129,1803-4129,Dasqua | داسکوا,ساعت اندیکاتور,3546000.00,True,False,0,NO_IMAGE,False,image+availability
+1141,1803-4130,,ساعت مرکزیاب داسکوا کد 1803-4130,1803-4130,Dasqua | داسکوا,ساعت اندیکاتور,3618000.00,True,False,0,NO_IMAGE,False,image+availability
+1142,1803-4131,,ساعت مرکزیاب داسکوا کد 1803-4131,1803-4131,Dasqua | داسکوا,ساعت اندیکاتور,3618000.00,True,False,0,NO_IMAGE,False,image+availability
+1143,1803-4132,,ساعت مرکزیاب داسکوا کد 1803-4132,1803-4132,Dasqua | داسکوا,ساعت اندیکاتور,3618000.00,True,False,0,NO_IMAGE,False,image+availability
+1144,1804-0005,,نقاله زاویه یاب آلومینیویم — 0-50mm,1804-0005,Dasqua | داسکوا,زاویه سنج,2742000.00,True,False,0,NO_IMAGE,False,image+availability
+1145,1804-1005,,ی خط کش استیل 3کاره ( خط کش ؛ عمق سنج و عالمت گذاری) ی — 0-1005mm,1804-1005,Dasqua | داسکوا,عمق سنج,9642000.00,True,False,0,NO_IMAGE,False,image+availability
+1146,1804-1006,,نقاله زاویه سنج خر پا — 0-1006mm,1804-1006,Dasqua | داسکوا,زاویه سنج,4464000.00,True,False,0,NO_IMAGE,False,image+availability
+1147,1804-1007,,دیجیتالShore D — 0-1007mm,1804-1007,Dasqua | داسکوا,سختی سنج لاستیک,122400000.00,True,False,0,NO_IMAGE,False,image+availability
+1148,1804-1010,,پرگار داخل سنج دیجیتال با دسته — 0-1010mm,1804-1010,Dasqua | داسکوا,پرگار صنعتی,11130000.00,True,False,0,NO_IMAGE,False,image+availability
+1149,1804-1015,,پرگار داخل سنج دیجیتال با دسته — 0-1015mm,1804-1015,Dasqua | داسکوا,پرگار صنعتی,14364000.00,True,False,0,NO_IMAGE,False,image+availability
+1150,1804-1020,,/ /1 پرگار بی ر — 0-150mm/0-6,1804-1020,Dasqua | داسکوا,پرگار صنعتی,11376000.00,True,False,0,NO_IMAGE,False,image+availability
+1151,1804-1025,,/ /1 پرگار بی ر — 0-200mm/0-8,1804-1025,Dasqua | داسکوا,پرگار صنعتی,14820000.00,True,False,0,NO_IMAGE,False,image+availability
+1152,1804-1035,,ی سنج پالستیک و الستیک و ... — 0-1035mm,1804-1035,Dasqua | داسکوا,سختی سنج لاستیک,9636000.00,True,False,0,NO_IMAGE,False,image+availability
+1153,1804-1045,,سخت سنج پالستیک و الستیک و ... — 0-1045mm,1804-1045,Dasqua | داسکوا,سختی سنج لاستیک,9636000.00,True,False,0,NO_IMAGE,False,image+availability
+1155,1804-1070,,کولیس دیجیتال نمایشگر بزرگ — 0-200mm/0-8,1804-1070,Dasqua | داسکوا,انواع کولیس,9127200.00,True,False,0,NO_IMAGE,False,image+availability
+1156,1804-1075,,کولیس دیجیتال نمایشگر بزرگ — 0-300mm/0-12,1804-1075,Dasqua | داسکوا,انواع کولیس,16749600.00,True,False,0,NO_IMAGE,False,image+availability
+1158,1804-1095,,ی ي Shore A — 0-1095mm,1804-1095,Dasqua | داسکوا,سختی سنج لاستیک,27501600.00,True,False,0,NO_IMAGE,False,image+availability
+1159,1804-1100,,ساعتي Shore C — 0-1100mm,1804-1100,Dasqua | داسکوا,سختی سنج لاستیک,31363200.00,True,False,0,NO_IMAGE,False,image+availability
+1160,1804-1102,,ی خط کش استیل 3کاره ( خط کش ؛ عمق سنج و عالمت گذاری) ی — 0-1102mm,1804-1102,Dasqua | داسکوا,عمق سنج,2742000.00,True,False,0,NO_IMAGE,False,image+availability
+1161,1804-1103,,نقاله زاویه سنج خر پا — 0-1103mm,1804-1103,Dasqua | داسکوا,زاویه سنج,1500000.00,True,False,0,NO_IMAGE,False,image+availability
+1162,1804-1104,,نقاله زاویه سنج خر پا — 0-1104mm,1804-1104,Dasqua | داسکوا,زاویه سنج,3234000.00,True,False,0,NO_IMAGE,False,image+availability
+1163,1804-1106,,خط کش زاویه سنج 90درجه — 0-1106mm,1804-1106,Dasqua | داسکوا,زاویه سنج,2742000.00,True,False,0,NO_IMAGE,False,image+availability
+1164,1804-1107,,خط کش زاویه سنج 45درجه و 90 — 0-1107mm,1804-1107,Dasqua | داسکوا,زاویه سنج,2742000.00,True,False,0,NO_IMAGE,False,image+availability
+1165,1804-1115,,رنیو سنج دیجیتال — 0-1115mm,1804-1115,Dasqua | داسکوا,ساعت اندیکاتور,119424000.00,True,False,0,NO_IMAGE,False,image+availability
+1166,1804-1120,,رنیو سنج دیجیتال — 0-1120mm,1804-1120,Dasqua | داسکوا,ساعت اندیکاتور,83599560.00,True,False,0,NO_IMAGE,False,image+availability
+1167,1804-1125,,رنیو سنج دیجیتال — 0-1125mm,1804-1125,Dasqua | داسکوا,ساعت اندیکاتور,92556000.00,True,False,0,NO_IMAGE,False,image+availability
+1169,1804-1131,,ساعت رنیوسنج — 0-1131mm,1804-1131,Dasqua | داسکوا,ساعت اندیکاتور,22410000.00,True,False,0,NO_IMAGE,False,image+availability
+1170,1804-1132,,ساعت رنیوسنج — 0-1132mm,1804-1132,Dasqua | داسکوا,ساعت اندیکاتور,22410000.00,True,False,0,NO_IMAGE,False,image+availability
+1171,1804-1133,,ساعت رنیوسنج — 0-1133mm,1804-1133,Dasqua | داسکوا,ساعت اندیکاتور,22410000.00,True,False,0,NO_IMAGE,False,image+availability
+1172,1804-1165,,رنیو سنج دیجیتال — 0-1165mm,1804-1165,Dasqua | داسکوا,ساعت اندیکاتور,83604000.00,True,False,0,NO_IMAGE,False,image+availability
+1173,1804-1170,,رنیو سنج دیجیتال — 0-1170mm,1804-1170,Dasqua | داسکوا,ساعت اندیکاتور,83604000.00,True,False,0,NO_IMAGE,False,image+availability
+1174,1804-1175,,رنیو سنج دیجیتال — 0-1175mm,1804-1175,Dasqua | داسکوا,ساعت اندیکاتور,83604000.00,True,False,0,NO_IMAGE,False,image+availability
+1175,1804-1215,,کولیس ورنیه آلومینیوم (مناسب کارهای آهنگری و نجاری و )... — 0-610mm/24,1804-1215,Dasqua | داسکوا,انواع کولیس,4842000.00,True,False,0,NO_IMAGE,False,image+availability
+1177,1804-1710,,گیج مرکزیاب — 0-1710mm,1804-1710,Dasqua | داسکوا,انواع گیج,1950000.00,True,False,0,NO_IMAGE,False,image+availability
+1178,1804-2005,,ضخامت سنج رنگ دیجیتال,1804-2005,Dasqua | داسکوا,عمق سنج,51828000.00,True,False,0,NO_IMAGE,False,image+availability
+1179,1804-2010,,ضخامت سنج رنگ دیجیتال,1804-2010,Dasqua | داسکوا,عمق سنج,78324000.00,True,False,0,NO_IMAGE,False,image+availability
+1180,1804-2015,,ضخامت‌سنج پوشش داسکوا کد 1804-2015,1804-2015,Dasqua | داسکوا,عمق سنج,150480000.00,True,False,0,NO_IMAGE,False,image+availability
+1181,1804-2405,,محدوده سوزن محدوه اندازه,1804-2405,Dasqua | داسکوا,عمق سنج,30474000.00,True,False,0,NO_IMAGE,False,image+availability
+1182,1804-4613,,ی سنج پالستیک و الستیک و ...دیجیتال,1804-4613,Dasqua | داسکوا,سختی سنج لاستیک,223890000.00,True,False,0,NO_IMAGE,False,image+availability
+1183,1804-5111,,شابلون شعاع گوشه,1804-5111,Dasqua | داسکوا,شابلون,4872000.00,True,False,0,NO_IMAGE,False,image+availability
+1184,1804-5116,,شابلون شعاع گوشه,1804-5116,Dasqua | داسکوا,شابلون,4872000.00,True,False,0,NO_IMAGE,False,image+availability
+1185,1804-5221,,شابلون شعاع گوشه,1804-5221,Dasqua | داسکوا,شابلون,3978000.00,True,False,0,NO_IMAGE,False,image+availability
+1186,1804-5223,,شابلون شعاع گوشه,1804-5223,Dasqua | داسکوا,شابلون,4350000.00,True,False,0,NO_IMAGE,False,image+availability
+1187,1804-5331,,گونیا تنظیم زاویه متغیی,1804-5331,Dasqua | داسکوا,زاویه سنج,2430000.00,True,False,0,NO_IMAGE,False,image+availability
+1188,1804-5336,,گونیا تنظیم زاویه متغیی,1804-5336,Dasqua | داسکوا,زاویه سنج,3480000.00,True,False,0,NO_IMAGE,False,image+availability
+1189,1804-5341,,گونیا تنظیم زاویه متغیی,1804-5341,Dasqua | داسکوا,زاویه سنج,4716000.00,True,False,0,NO_IMAGE,False,image+availability
+1190,1804-5441,,گونیا تنظیم زاویه متغیی,1804-5441,Dasqua | داسکوا,زاویه سنج,4224000.00,True,False,0,NO_IMAGE,False,image+availability
+1191,1804-5771,,گونیا تنظیم زاویه متغیی,1804-5771,Dasqua | داسکوا,زاویه سنج,4092000.00,True,False,0,NO_IMAGE,False,image+availability
+1192,1804-5773,,گونیا تنظیم زاویه متغیی,1804-5773,Dasqua | داسکوا,زاویه سنج,4092000.00,True,False,0,NO_IMAGE,False,image+availability
+1193,1804-5774,,گونیا تنظیم زاویه متغیی,1804-5774,Dasqua | داسکوا,زاویه سنج,4224000.00,True,False,0,NO_IMAGE,False,image+availability
+1194,1804-5779,,گونیا تنظیم زاویه متغیی,1804-5779,Dasqua | داسکوا,زاویه سنج,4092000.00,True,False,0,NO_IMAGE,False,image+availability
+1195,1804-5881,,گونیا تنظیم زاویه متغیی,1804-5881,Dasqua | داسکوا,زاویه سنج,4212000.00,True,False,0,NO_IMAGE,False,image+availability
+1196,1804-5991,,گونیا تنظیم زاویه متغیی,1804-5991,Dasqua | داسکوا,زاویه سنج,4716000.00,True,False,0,NO_IMAGE,False,image+availability
+1197,1804-6111,,شابلون شعاع گوشه,1804-6111,Dasqua | داسکوا,شابلون,4842000.00,True,False,0,NO_IMAGE,False,image+availability
+1198,1804-6221,,گونیا تنظیم زاویه متغیی,1804-6221,Dasqua | داسکوا,زاویه سنج,5676000.00,True,False,0,NO_IMAGE,False,image+availability
+1199,1804-6302,,زبری سنج دیجیتال پرتابل,1804-6302,Dasqua | داسکوا,شابلون,343272000.00,True,False,0,NO_IMAGE,False,image+availability
+1200,1804-6310,,بلوک زبری سنج,1804-6310,Dasqua | داسکوا,شابلون,38244000.00,True,False,0,NO_IMAGE,False,image+availability
+1201,1804-6331,,گونیا تنظیم زاویه متغیی,1804-6331,Dasqua | داسکوا,زاویه سنج,3480000.00,True,False,0,NO_IMAGE,False,image+availability
+1202,1804-6663,,ست ساعت تراز تیغه با 2رابط بلند,1804-6663,Dasqua | داسکوا,ساعت اندیکاتور,23364000.00,True,False,0,NO_IMAGE,False,image+availability
+1203,1804-6771,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6771,Dasqua | داسکوا,زاویه سنج,7908000.00,True,False,0,NO_IMAGE,False,image+availability
+1204,1804-6881,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6881,Dasqua | داسکوا,زاویه سنج,5142000.00,True,False,0,NO_IMAGE,False,image+availability
+1205,1804-6882,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6882,Dasqua | داسکوا,زاویه سنج,3582000.00,True,False,0,NO_IMAGE,False,image+availability
+1206,1804-6991,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6991,Dasqua | داسکوا,زاویه سنج,3726000.00,True,False,0,NO_IMAGE,False,image+availability
+1207,1804-6993,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6993,Dasqua | داسکوا,زاویه سنج,6438000.00,True,False,0,NO_IMAGE,False,image+availability
+1208,1804-6996,,برای برش تیک/میی؛.3ظرفیت :S/Mداده زاویه؛.2حالت اندازه ر,1804-6996,Dasqua | داسکوا,زاویه سنج,8448000.00,True,False,0,NO_IMAGE,False,image+availability
+1209,1804-7013,,میکروسکوپ اندازه گی,1804-7013,Dasqua | داسکوا,میکروسکوپ,130740000.00,True,False,0,NO_IMAGE,False,image+availability
+1210,1804-7111,,صفحه رفرنس زاویه,1804-7111,Dasqua | داسکوا,زاویه سنج,2772000.00,True,False,0,NO_IMAGE,False,image+availability
+1212,2000-2010,,کولیس دیجیتال 2چیپ خروج 1 — 0-200mm/0-8,2000-2010,Dasqua | داسکوا,انواع کولیس,12546000.00,True,False,0,NO_IMAGE,False,image+availability
+1213,2000-2015,,کولیس دیجیتال 2چیپ خروج 2 — 0-300mm/0-12,2000-2015,Dasqua | داسکوا,انواع کولیس,20031600.00,True,False,0,NO_IMAGE,False,image+availability
+1214,2001-2005,,کولیس عمق سنج دیجیتال — 0-150mm/0-6,2001-2005,Dasqua | داسکوا,عمق سنج,10041600.00,True,False,0,NO_IMAGE,False,image+availability
+1215,2001-2010,,سوزن (گرد) ( IP67 2 — 0-200mm/0-8,2001-2010,Dasqua | داسکوا,عمق سنج,11376000.00,True,False,0,NO_IMAGE,False,image+availability
+1216,2001-2015,,سوزن (گرد) ( IP67 2 — 0-300mm/0-12,2001-2015,Dasqua | داسکوا,عمق سنج,20503200.00,True,False,0,NO_IMAGE,False,image+availability
+1218,2015-2405,,کولیس دیجیتال IP67ضد آب و — 0-150mm/0-6,2015-2405,Dasqua | داسکوا,انواع کولیس,14941200.00,True,False,0,NO_IMAGE,False,image+availability
+1219,2015-2410,,/ کولیس دیجیتال IP67ضد آب و — 0-200mm/0-8,2015-2410,Dasqua | داسکوا,انواع کولیس,23305200.00,True,False,0,NO_IMAGE,False,image+availability
+1220,2015-2415,,/ کولیس دیجیتال IP67ضد آب و — 0-300mm/0-12,2015-2415,Dasqua | داسکوا,انواع کولیس,33462000.00,True,False,0,NO_IMAGE,False,image+availability
+1222,2035-0006,,کولیس پالستییک ساخته شده از فایی — 0-150mm/0-6,2035-0006,Dasqua | داسکوا,انواع کولیس,4051200.00,True,False,0,NO_IMAGE,False,image+availability
+1223,2065-1105,,کولیس شیار خارج سنج دیجیتال — 0-150mm,2065-1105,Dasqua | داسکوا,انواع کولیس,16284000.00,True,False,0,NO_IMAGE,False,image+availability
+1224,2065-1110,,کولیس شیار خارج سنج دیجیتال — 0-200mm,2065-1110,Dasqua | داسکوا,انواع کولیس,29600400.00,True,False,0,NO_IMAGE,False,image+availability
+1225,2065-1115,,کولیس شیار خارج سنج دیجیتال — 0-300mm,2065-1115,Dasqua | داسکوا,انواع کولیس,40926000.00,True,False,0,NO_IMAGE,False,image+availability
+1226,2070-1105,,کولیس اندازه گی — 0-150mm/ -6,2070-1105,Dasqua | داسکوا,انواع کولیس,16056000.00,True,False,0,NO_IMAGE,False,image+availability
+1227,2070-1110,,کولیس اندازه گی — 0-1110mm,2070-1110,Dasqua | داسکوا,انواع کولیس,26042400.00,True,False,0,NO_IMAGE,False,image+availability
+1228,2070-1115,,کولیس اندازه گی — 0-1115mm,2070-1115,Dasqua | داسکوا,انواع کولیس,28938000.00,True,False,0,NO_IMAGE,False,image+availability
+1229,2100-1015,,کولیس دیجیتال فک متحرک — 0-150mm,2100-1015,Dasqua | داسکوا,انواع کولیس,49242000.00,True,False,0,NO_IMAGE,False,image+availability
+1230,2100-1115,,کولیس اندازه گی — 0-1115mm,2100-1115,Dasqua | داسکوا,انواع کولیس,19524000.00,True,False,0,NO_IMAGE,False,image+availability
+1231,2100-1120,,کولیس اندازه گی — 0-1120mm,2100-1120,Dasqua | داسکوا,انواع کولیس,24462000.00,True,False,0,NO_IMAGE,False,image+availability
+1232,2100-1130,,کولیس اندازه گی — 0-300mm/1/18-12,2100-1130,Dasqua | داسکوا,انواع کولیس,41811600.00,True,False,0,NO_IMAGE,False,image+availability
+1233,2110-8105,,کولیس های متفرقه که تکرار نیم شوند — 0-150mm,2110-8105,Dasqua | داسکوا,انواع کولیس,7410000.00,True,False,0,NO_IMAGE,False,image+availability
+1235,2117-9105,,کولیس دیجیتال متال صفحه نمایشگر — 0-150mm/0-6,2117-9105,Dasqua | داسکوا,انواع کولیس,7542000.00,True,False,0,NO_IMAGE,False,image+availability
+1236,2117-9110,,کولیس دیجیتال متال صفحه نمایشگر — 0-200mm/0-8,2117-9110,Dasqua | داسکوا,انواع کولیس,11508000.00,True,False,0,NO_IMAGE,False,image+availability
+1237,2117-9115,,کولیس دیجیتال متال صفحه نمایشگر — 0-300mm/0-12,2117-9115,Dasqua | داسکوا,انواع کولیس,17160000.00,True,False,0,NO_IMAGE,False,image+availability
+1238,2140-8101,,کولیس ورنیه تیپ مونو بالک — 0-31/5,2140-8101,Dasqua | داسکوا,انواع کولیس,18276000.00,True,False,0,NO_IMAGE,False,image+availability
+1239,2140-8105,,ضخامت سنج دیجیتال برای ضخامت — 0-25mm/0-1,2140-8105,Dasqua | داسکوا,عمق سنج,9150000.00,True,False,0,NO_IMAGE,False,image+availability
+1240,2210-8106,,کولیس دیجیتال ابسلوت ضد آب — 0-150mm,2210-8106,Dasqua | داسکوا,انواع کولیس,11376000.00,True,False,0,NO_IMAGE,False,image+availability
+1241,2220-3570,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1500mm/0-60,2220-3570,Dasqua | داسکوا,انواع کولیس,263940000.00,True,False,0,NO_IMAGE,False,image+availability
+1242,2220-8103,,کولیس اندازه گی — 0-500mm/4-20,2220-8103,Dasqua | داسکوا,انواع کولیس,31368000.00,True,False,0,NO_IMAGE,False,image+availability
+1243,2220-8104,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-200mm/0-8,2220-8104,Dasqua | داسکوا,انواع کولیس,14820000.00,True,False,0,NO_IMAGE,False,image+availability
+1245,2220-8110,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,2220-8110,Dasqua | داسکوا,انواع کولیس,86576400.00,True,False,0,NO_IMAGE,False,image+availability
+1246,2220-8115,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,2220-8115,Dasqua | داسکوا,انواع کولیس,107485200.00,True,False,0,NO_IMAGE,False,image+availability
+1247,2220-8117,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,2220-8117,Dasqua | داسکوا,انواع کولیس,86358000.00,True,False,0,NO_IMAGE,False,image+availability
+1248,2220-8130,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,2220-8130,Dasqua | داسکوا,انواع کولیس,235813200.00,True,False,0,NO_IMAGE,False,image+availability
+1249,2220-8135,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,2220-8135,Dasqua | داسکوا,انواع کولیس,274610400.00,True,False,0,NO_IMAGE,False,image+availability
+1250,2220-8150,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,2220-8150,Dasqua | داسکوا,انواع کولیس,116430000.00,True,False,0,NO_IMAGE,False,image+availability
+1251,2220-8155,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,2220-8155,Dasqua | داسکوا,انواع کولیس,199806000.00,True,False,0,NO_IMAGE,False,image+availability
+1252,2220-8170,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-300mm/0-12,2220-8170,Dasqua | داسکوا,انواع کولیس,58828800.00,True,False,0,NO_IMAGE,False,image+availability
+1253,2220-8175,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,2220-8175,Dasqua | داسکوا,انواع کولیس,31350000.00,True,False,0,NO_IMAGE,False,image+availability
+1254,2220-8180,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,2220-8180,Dasqua | داسکوا,انواع کولیس,125380800.00,True,False,0,NO_IMAGE,False,image+availability
+1255,2220-8185,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,2220-8185,Dasqua | داسکوا,انواع کولیس,146268000.00,True,False,0,NO_IMAGE,False,image+availability
+1256,2220-8190,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,2220-8190,Dasqua | داسکوا,انواع کولیس,34320000.00,True,False,0,NO_IMAGE,False,image+availability
+1257,2220-8200,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,2220-8200,Dasqua | داسکوا,انواع کولیس,91296000.00,True,False,0,NO_IMAGE,False,image+availability
+1258,2220-8205,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,2220-8205,Dasqua | داسکوا,انواع کولیس,140293200.00,True,False,0,NO_IMAGE,False,image+availability
+1259,2220-8210,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,2220-8210,Dasqua | داسکوا,انواع کولیس,161194800.00,True,False,0,NO_IMAGE,False,image+availability
+1260,2220-8215,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,2220-8215,Dasqua | داسکوا,انواع کولیس,108564000.00,True,False,0,NO_IMAGE,False,image+availability
+1261,2220-8220,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,2220-8220,Dasqua | داسکوا,انواع کولیس,120882000.00,True,False,0,NO_IMAGE,False,image+availability
+1262,2220-8225,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,2220-8225,Dasqua | داسکوا,انواع کولیس,113438400.00,True,False,0,NO_IMAGE,False,image+availability
+1263,2220-8230,,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,2220-8230,Dasqua | داسکوا,انواع کولیس,170154000.00,True,False,0,NO_IMAGE,False,image+availability
+1264,2240-0025,,کولیس اندازه گی — 0-25mm,2240-0025,Dasqua | داسکوا,انواع کولیس,31368000.00,True,False,0,NO_IMAGE,False,image+availability
+1265,2240-0026,,کولیس اندازه گی — 0-200mm/ -8,2240-0026,Dasqua | داسکوا,انواع کولیس,36780000.00,True,False,0,NO_IMAGE,False,image+availability
+1266,2240-0027,,کولیس اندازه گی — 0-300mm/ -12,2240-0027,Dasqua | داسکوا,انواع کولیس,46644000.00,True,False,0,NO_IMAGE,False,image+availability
+1267,2250-2105,,کولیس عمق سنج دیجیتال با نوک — 0-150mm/0-6,2250-2105,Dasqua | داسکوا,عمق سنج,17040000.00,True,False,0,NO_IMAGE,False,image+availability
+1268,2345-4005,,ست 4عددي زاويه كوليس ديجيتال -پالستيیکي ،عمق سنج ديجيتال،تراز ديجيتال,2345-4005,Dasqua | داسکوا,تراز صنعتی,510000.00,True,False,0,NO_IMAGE,False,image+availability
+1269,2346-1015,,پی گیج 51عددی 20 — 0-1015mm,2346-1015,Dasqua | داسکوا,انواع گیج,18504000.00,True,False,0,NO_IMAGE,False,image+availability
+1270,2406-1005,,کولیس دیجیتال فک کارباید — 0-150mm,2406-1005,Dasqua | داسکوا,انواع کولیس,28422000.00,True,False,0,NO_IMAGE,False,image+availability
+1271,2406-1010,,کولیس دیجیتال فک کارباید — 0-200mm,2406-1010,Dasqua | داسکوا,انواع کولیس,39600000.00,True,False,0,NO_IMAGE,False,image+availability
+1272,2410-8105,,کولیس دیجیتال صفحه نمایش بزرگ — 0-150mm,2410-8105,Dasqua | داسکوا,انواع کولیس,16284000.00,True,False,0,NO_IMAGE,False,image+availability
+1273,2410-8110,,کولیس دیجیتال صفحه نمایش بزرگ — 0-200mm,2410-8110,Dasqua | داسکوا,انواع کولیس,18774000.00,True,False,0,NO_IMAGE,False,image+availability

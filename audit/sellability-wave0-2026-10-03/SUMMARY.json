@@ -1,0 +1,229 @@
+{
+  "snapshot_time": "2026-10-03T09:57:14Z",
+  "status": "COMPLETE",
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO",
+    "CATALOG_APPLY": "NO"
+  },
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "172.18.0.2/32",
+    "inet_server_port": 5432,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "transaction_read_only": "on",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "42c1b9f1bbde",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data  ",
+    "git_branch": "UNKNOWN",
+    "git_sha": "UNKNOWN",
+    "origin_main_sha": "UNKNOWN",
+    "snapshot_utc": "2026-10-03T09:57:14Z"
+  },
+  "production_identity_proven": true,
+  "read_only_proven": true,
+  "soft_deleted": 1,
+  "counts": {
+    "live": 6536,
+    "active": 1585,
+    "inactive": 4951,
+    "available": 3755,
+    "unavailable": 2781,
+    "priced": 4552,
+    "unpriced": 1984,
+    "imaged": 1464,
+    "unimaged": 5072,
+    "visible": 1368,
+    "sellable": 716,
+    "non_sellable": 5820
+  },
+  "block_count": {
+    "1": 330,
+    "2": 3659,
+    "3": 184,
+    "4": 1647
+  },
+  "cohorts": {
+    "ONLY_AVAILABILITY": 330,
+    "AVAILABILITY + IMAGE": 217,
+    "SELLABLE_NOW": 716,
+    "ACTIVE + IMAGE": 3038,
+    "ACTIVE + AVAILABILITY + IMAGE": 169,
+    "ACTIVE + AVAILABILITY + PRICE + IMAGE": 1647,
+    "AVAILABILITY + PRICE": 322,
+    "ACTIVE + PRICE + IMAGE": 1,
+    "ACTIVE + AVAILABILITY": 82,
+    "ACTIVE + AVAILABILITY + PRICE": 14
+  },
+  "become_sellable_with_n_fields": {
+    "1": 330,
+    "2": 3659,
+    "3": 184,
+    "4": 1647
+  },
+  "ready_except_availability": {
+    "total": 330,
+    "by_brand": [
+      [
+        "INSIZE | اینسایز",
+        226
+      ],
+      [
+        "ASTPOWER | ای اس تی پاور",
+        53
+      ],
+      [
+        "SAN OU | سانو",
+        24
+      ],
+      [
+        "Dasqua | داسکوا",
+        22
+      ],
+      [
+        "TERMA | ترما",
+        4
+      ],
+      [
+        "Mitutoyo | میتوتویو",
+        1
+      ]
+    ],
+    "INSIZE": 226,
+    "ASTPOWER": 53,
+    "SAN OU": 24,
+    "Dasqua": 22,
+    "TERMA": 4,
+    "Mitutoyo": 1,
+    "other": 0
+  },
+  "ready_except_activation_and_availability": {
+    "total": 82,
+    "by_brand": [
+      [
+        "ZCC.CT | زد سی‌سی",
+        61
+      ],
+      [
+        "SAN OU | سانو",
+        21
+      ]
+    ]
+  },
+  "ready_except_image_and_activation": {
+    "total": 3038,
+    "by_brand": [
+      [
+        "ASTPOWER | ای اس تی پاور",
+        669
+      ],
+      [
+        "TIGER TEC | تایگرتک",
+        517
+      ],
+      [
+        "Dasqua | داسکوا",
+        457
+      ],
+      [
+        "YOWAX | یواکس",
+        350
+      ],
+      [
+        "Chumpower | چام‌پاور",
+        315
+      ],
+      [
+        "ET | ای تی",
+        221
+      ],
+      [
+        "Mighty Seven | مایتی سون",
+        182
+      ],
+      [
+        "TERMA | ترما",
+        131
+      ],
+      [
+        "Mitutoyo | میتوتویو",
+        105
+      ],
+      [
+        "SAN OU | سانو",
+        63
+      ],
+      [
+        "SHAMS | شمس",
+        21
+      ],
+      [
+        "[NO BRAND]",
+        7
+      ]
+    ]
+  },
+  "ready_except_price_and_availability": {
+    "total": 322,
+    "by_brand": [
+      [
+        "INSIZE | اینسایز",
+        258
+      ],
+      [
+        "Mitutoyo | میتوتویو",
+        41
+      ],
+      [
+        "SAN OU | سانو",
+        16
+      ],
+      [
+        "ASTPOWER | ای اس تی پاور",
+        7
+      ]
+    ]
+  },
+  "ready_except_image_and_availability": {
+    "total": 217,
+    "by_brand": [
+      [
+        "Dasqua | داسکوا",
+        217
+      ]
+    ]
+  },
+  "stock_freshness_policy": {
+    "CURRENT_ENOUGH": "<= 14 days",
+    "AGING_BUT_USABLE": "<= 45 days",
+    "STALE": "> 45 days",
+    "UNKNOWN": "missing/unparseable source_date",
+    "policy_source": "docs/catalog/SUPPLIER_STOCK_AUTHORITY.md §3",
+    "still_current": true
+  },
+  "tooling_gaps": {
+    "availability_APPLY": "PARTIAL — INSIZE-only via scripts/insize_sales_activation.py (ALLOWED_APPLY_FIELDS={base_price,is_available}); generic sale_wave plan schema exists (data/templates/sale_wave_plan_schema.csv) with validate/map supplier stock CLIs, but no generic multi-brand owner-gated is_available APPLY path is registered as production-safe.",
+    "price_APPLY": "PARTIAL — INSIZE pilot APPLY exists; brand-specific TERMA/INSIZE workflows exist historically; no generic controlled multi-brand base_price APPLY for arbitrary sale waves.",
+    "activation_APPLY": "MISSING — is_active is in FORBIDDEN_APPLY_FIELDS for insize_sales_activation_lib.py; no generic controlled is_active activation tooling exists.",
+    "image_APPLY": "MISSING — no Wave-0-adjacent generic safe image-attachment APPLY for sale waves; image tooling is separate discovery/import planning."
+  },
+  "predicate_notes": {
+    "priced_gt_zero": true,
+    "cart_checks_null_only": true,
+    "checkout_requires_available": true,
+    "visible_requires_real_image": true,
+    "materialized_images_required_in_production": false
+  },
+  "invariants_ok": true,
+  "invariant_errors": [],
+  "WAVE_1_APPLY_AUTHORIZED": "NO",
+  "master_row_count": 6536
+}
