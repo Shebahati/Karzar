@@ -9,23 +9,37 @@ from services.gsc_mcp.config import Settings
 from services.gsc_mcp.server import build_mcp_server
 from services.gsc_mcp.service_context import build_service_context
 
-REQUIRED_TOOLS = {
-    "gsc_list_properties",
-    "gsc_get_property",
-    "gsc_search_analytics",
-    "gsc_list_sitemaps",
-    "gsc_get_sitemap",
-    "gsc_inspect_url",
-    "crux_get_origin_field_data",
-    "crux_get_url_field_data",
-    "gsc_capabilities",
-}
+APPROVED_TOOLS = frozenset(
+    {
+        "gsc_list_properties",
+        "gsc_get_property",
+        "gsc_search_analytics",
+        "gsc_list_sitemaps",
+        "gsc_get_sitemap",
+        "gsc_inspect_url",
+        "crux_get_origin_field_data",
+        "crux_get_url_field_data",
+        "gsc_capabilities",
+        "gsc_auth_probe",
+    }
+)
 
-FORBIDDEN_TOOLS = {
-    "gsc_submit_sitemap",
-    "gsc_request_indexing",
-    "google_api_proxy",
-}
+FORBIDDEN_TOOLS = frozenset(
+    {
+        "submit_sitemap",
+        "delete_sitemap",
+        "add_site",
+        "delete_site",
+        "request_indexing",
+        "index_url",
+        "google_api",
+        "raw_request",
+        "fetch_any_url",
+        "gsc_submit_sitemap",
+        "gsc_request_indexing",
+        "google_api_proxy",
+    }
+)
 
 
 @pytest.fixture
@@ -44,8 +58,10 @@ async def test_tool_discovery(settings: Settings) -> None:
     server = build_mcp_server(settings)
     tools = await server.list_tools()
     names = {t.name for t in tools}
-    assert REQUIRED_TOOLS.issubset(names)
+    assert names == APPROVED_TOOLS
     assert names.isdisjoint(FORBIDDEN_TOOLS)
+    for forbidden in FORBIDDEN_TOOLS:
+        assert not any(forbidden in name for name in names)
 
 
 @pytest.mark.asyncio
