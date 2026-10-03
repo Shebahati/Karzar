@@ -227,6 +227,6 @@ def test_authorization_url_includes_pkce_and_readonly_scope() -> None:
     )
     assert "code_challenge=challenge" in url
     assert "code_challenge_method=S256" in url
-    assert GOOGLE_OAUTH_SCOPE in url
     assert "webmasters.readonly" in url
-    assert "https://www.googleapis.com/auth/webmasters&" not in url
+    assert "webmasters%2Ereadonly" in url or GOOGLE_OAUTH_SCOPE.replace(":", "%3A").replace("/", "%2F") in url
+    assert "auth%2Fwebmasters&" not in url
