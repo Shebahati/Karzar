@@ -1,14 +1,20 @@
 {
-  "generated_at": "2026-10-01T11:09:03.408701+00:00",
-  "latest_main_sha": "5391a88cef5373fef1cb68519cbf6d61ce585cca",
-  "rehearsal_code_sha": "5391a88cef5373fef1cb68519cbf6d61ce585cca",
+  "generated_at": "2026-10-03T09:34:30.789193+00:00",
+  "rehearsal_logic_git_sha": "a0b04291b02d583ee1981c579acb2b19646b6aae",
+  "artifact_commit_sha": null,
+  "artifact_commit_sha_note": "Stamped after artifact-only commit; null until Commit B lands.",
+  "rehearsal_logic_file_sha256": {
+    "app/domain/phase2c_apply.py": "b8fce458f0ce0495bf46054e5aa173b2a82080ac90d2092c7b551512457623a2",
+    "scripts/apply_manufacturer_identity_phase2c.py": "90701a4af93e89039023bedaed032dcad9abbef08737c4ee35dcc42b39c0ea11"
+  },
+  "git_worktree_clean_at_rehearsal": true,
   "frozen_artifact_path": "/home/shebahati/Projects/Karzar/audit/product-naming-phase2c-discovery/BACKFILL_EXACT_FROZEN.csv",
   "frozen_artifact_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
   "frozen_rows": 1350,
   "live_db": "karzar_staging",
   "live_alembic": "u4v5w6x7y8z9",
   "live_runtime_identity": {
-    "collected_at_utc": "2026-10-01T11:08:48.536098+00:00",
+    "collected_at_utc": "2026-10-03T09:34:17.434253+00:00",
     "collector_hostname": "hp-g2-450",
     "vps_hostname": "srv5944957438",
     "deployed_git_sha": "UNKNOWN",
@@ -20,6 +26,21 @@
     "alembic_current": "u4v5w6x7y8z9",
     "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
   },
+  "live_health": {
+    "api_readiness": "PASS",
+    "database_readiness": "PASS",
+    "redis_readiness": "PASS",
+    "ready_http_status": 200,
+    "ready_body": {
+      "status": "ready",
+      "service": "Karzar Staging API",
+      "database": "ok",
+      "redis": "ok"
+    },
+    "redis_ping": "PONG",
+    "database_select_1": "1",
+    "all_pass": true
+  },
   "target_preflight_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f",
   "pre_db_fingerprints": {
     "name": "03cd970794807642f85b2126abe07446",
@@ -30,10 +51,29 @@
   },
   "target_null_count": 1350,
   "target_existing_code_count": 0,
+  "target_missing_count": 0,
+  "target_deleted_count": 0,
+  "sku_drift_rows": 0,
+  "brand_drift_rows": 0,
   "preflight_pass_rows": 1350,
   "preflight_blocked_rows": 0,
   "name_drift_rows": 0,
-  "slug_drift_rows": 1350,
+  "slug_comparison_status": "NOT_AVAILABLE_IN_FROZEN_ARTIFACT",
+  "slug_drift_rows": "NOT_APPLICABLE",
+  "change_log_reason": "Phase 2C manufacturer identity owner-frozen backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "full_cohort_sha_in_reason": true,
+  "change_log_contract": {
+    "contract_reference": "app.crud.audit.record_product_change",
+    "execution_path": "transactional SQL equivalent",
+    "equivalent_fields": [
+      "product_id",
+      "field_name",
+      "old_value",
+      "new_value",
+      "reason",
+      "actor_user_id"
+    ]
+  },
   "ready_for_owner_apply": true,
   "rehearsal_expected_updates": 1350,
   "rehearsal_actual_updates": 1350,

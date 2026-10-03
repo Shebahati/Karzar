@@ -30,5 +30,20 @@
     "slug": "c45b67d1b42377687a45e7b640d7be4a",
     "manufacturer_code": "823edf8c5d0efb8a848f950f0e741466",
     "composite": "2c6651af01c61cdc700c1652e3b03a17"
+  },
+  "live_health": {
+    "api_readiness": "PASS",
+    "database_readiness": "PASS",
+    "redis_readiness": "PASS",
+    "ready_http_status": 200,
+    "ready_body": {
+      "status": "ready",
+      "service": "Karzar Staging API",
+      "database": "ok",
+      "redis": "ok"
+    },
+    "redis_ping": "PONG",
+    "database_select_1": "1",
+    "all_pass": true
   }
 }

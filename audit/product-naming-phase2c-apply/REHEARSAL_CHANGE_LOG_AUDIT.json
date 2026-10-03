@@ -1,8 +1,18 @@
 {
   "expected_rows": 1350,
   "actual_rows": 1350,
-  "reason": "Phase 2C manufacturer identity owner-frozen backfill; cohort_sha256=43620d24842b9466",
-  "artifact_sha_recorded": "43620d24842b9466",
+  "reason": "Phase 2C manufacturer identity owner-frozen backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "full_cohort_sha_in_reason": true,
+  "artifact_sha_recorded": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
   "field_name": "manufacturer_code",
-  "canonical_path": "app.crud.audit.record_product_change"
+  "contract_reference": "app.crud.audit.record_product_change",
+  "execution_path": "transactional SQL equivalent",
+  "equivalent_fields": [
+    "product_id",
+    "field_name",
+    "old_value",
+    "new_value",
+    "reason",
+    "actor_user_id"
+  ]
 }
