@@ -1,0 +1,194 @@
+# Owner-authorized INSIZE 10% storefront discount REMOVAL on karzar-vps (CR-011 live).
+#
+# Removes ONLY the 2026-09-30 discount layer:
+#   base_price <- current original_price; original_price <- NULL
+# Does NOT rerun/revert audit/insize-price-112/ (+12%).
+#
+name: INSIZE Discount 10% REMOVAL
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "rehearse-only or apply"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - rehearse-only
+          - apply
+  push:
+    branches:
+      - cursor/insize-discount-10-removal-a32c
+    paths:
+      - ".github/workflows/insize-discount-10-removal.yml"
+      - "scripts/ops/insize_discount_10_remove.py"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: insize-discount-10-removal
+  cancel-in-progress: false
+
+jobs:
+  insize-discount-10-removal:
+    name: INSIZE 10% discount removal guarded APPLY
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 60
+    steps:
+      - name: Host + container identity (read-only probe)
+        id: identity
+        run: |
+          set -euo pipefail
+          HOST="$(hostname)"
+          echo "hostname=${HOST}"
+          test "${HOST}" = "srv5944957438"
+          docker inspect lathe_postgres --format '{{.Name}}' | grep -q lathe_postgres
+          DB_NAME="$(docker exec lathe_postgres printenv POSTGRES_DB || true)"
+          echo "postgres_db=${DB_NAME}"
+          test "${DB_NAME}" = "karzar_staging"
+          VOL="$(docker inspect lathe_postgres --format '{{range .Mounts}}{{println .Name}}{{end}}' | tr '\n' ' ')"
+          echo "volumes=${VOL}"
+          echo "${VOL}" | grep -q 'karzar_postgres_data\|postgres_data'
+          PLANE="$(docker exec lathe_api printenv KARZAR_DATA_PLANE || true)"
+          if [ "${PLANE}" = "catalog_staging" ]; then
+            echo "FATAL: KARZAR_DATA_PLANE=catalog_staging — aborting" >&2
+            exit 2
+          fi
+          echo "HOST_PROOF=${HOST}" >> "$GITHUB_ENV"
+          echo "CONTAINER_PROOF=lathe_postgres" >> "$GITHUB_ENV"
+          echo "VOLUME_PROOF=${VOL}" >> "$GITHUB_ENV"
+
+      - name: Fetch REMOVAL script for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA}"
+          DEST="/tmp/karzar-insize-discount-10-removal"
+          mkdir -p "$DEST"
+          SCRIPT="$DEST/insize_discount_10_remove.py"
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/scripts/ops/insize_discount_10_remove.py?ref=${SHA}" \
+            -o "$SCRIPT"
+          test -s "$SCRIPT"
+          grep -q 'INSIZE 10% storefront discount removal owner-authorized 2026-10-03' "$SCRIPT"
+          grep -q 'new_base_price = current original_price' "$SCRIPT"
+          ! grep -q 'base_price \* 1\.10' "$SCRIPT"
+          sha256sum "$SCRIPT"
+
+      - name: Run guarded INSIZE 10% discount REMOVAL inside lathe_api
+        run: |
+          set -euo pipefail
+          MODE="${{ github.event.inputs.mode || 'apply' }}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            MODE="apply"
+          fi
+          echo "MODE=${MODE}"
+
+          OUT_HOST="/tmp/karzar-insize-discount-10-removal/out-${GITHUB_SHA}"
+          rm -rf "$OUT_HOST"
+          mkdir -p "$OUT_HOST"
+
+          docker cp /tmp/karzar-insize-discount-10-removal/insize_discount_10_remove.py \
+            lathe_api:/tmp/insize_discount_10_remove.py
+
+          docker exec lathe_api rm -rf /tmp/karzar-insize-discount-10-removal-out
+          docker exec lathe_api mkdir -p /tmp/karzar-insize-discount-10-removal-out
+
+          APPLY_ARGS=(--out-dir /tmp/karzar-insize-discount-10-removal-out)
+          if [ "$MODE" = "apply" ]; then
+            APPLY_ARGS+=(--apply --confirm-owner-authorized-insize-discount-10-removal)
+          fi
+
+          set +e
+          docker exec \
+            -e KARZAR_HOST_PROOF="${HOST_PROOF}" \
+            -e KARZAR_CONTAINER_PROOF="${CONTAINER_PROOF}" \
+            -e KARZAR_VOLUME_PROOF="${VOLUME_PROOF}" \
+            -e KARZAR_GIT_SHA="${GITHUB_SHA}" \
+            -e KARZAR_ALLOW_PRODUCTION_WRITE=1 \
+            -e KARZAR_INGESTION_CATEGORY=B \
+            lathe_api \
+            python /tmp/insize_discount_10_remove.py "${APPLY_ARGS[@]}"
+          RC=$?
+          set -e
+          echo "SCRIPT_EXIT=${RC}"
+
+          docker cp lathe_api:/tmp/karzar-insize-discount-10-removal-out/. "$OUT_HOST/" || true
+          ls -la "$OUT_HOST" || true
+
+          if [ -f "$OUT_HOST/FINAL_REPORT.json" ]; then
+            python3 -c "import json; r=json.load(open('$OUT_HOST/FINAL_REPORT.json')); print(r.get('FINAL_LINE')); print('STATUS='+str(r.get('STATUS')))"
+          fi
+
+          echo "OUT_HOST=${OUT_HOST}" >> "$GITHUB_ENV"
+          echo "SCRIPT_EXIT=${RC}" >> "$GITHUB_ENV"
+          echo "MODE=${MODE}" >> "$GITHUB_ENV"
+
+          if [ "$RC" -ne 0 ]; then
+            exit "$RC"
+          fi
+          if [ "$MODE" = "apply" ]; then
+            if grep -q 'INSIZE_DISCOUNT_10_REMOVAL_APPLY_OK' "$OUT_HOST/FINAL_REPORT.md"; then
+              echo "REMOVAL_OK_CONFIRMED"
+            elif grep -q 'INSIZE_DISCOUNT_10_REMOVAL_ALREADY_APPLIED_VERIFIED' "$OUT_HOST/FINAL_REPORT.md"; then
+              echo "ALREADY_REMOVED_CONFIRMED"
+            else
+              echo "FATAL: expected REMOVAL_APPLY_OK or ALREADY_APPLIED in FINAL_REPORT.md" >&2
+              exit 1
+            fi
+          fi
+
+      - name: Commit REMOVAL artifacts to branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "${OUT_HOST:-}"
+          test -d "$OUT_HOST"
+          WORK="/tmp/karzar-insize-discount-10-removal/git-${GITHUB_SHA}"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          cd "$WORK"
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF_NAME}"
+          git checkout -q -B "${GITHUB_REF_NAME}" FETCH_HEAD
+          DEST=audit/insize-discount-10-removal-20261003
+          mkdir -p "$DEST"
+          cp -f "$OUT_HOST"/FINAL_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/FINAL_REPORT.md "$DEST"/ || true
+          cp -f "$OUT_HOST"/IDENTITY_PROBE.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/PRE_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/REHEARSAL_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/APPLY_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/VERIFY_REPORT.json "$DEST"/ || true
+          cp -f "$OUT_HOST"/MANIFEST.sha256 "$DEST"/ || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_REMOVAL_MANIFEST_*.csv "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_REMOVAL_MANIFEST_*.json "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_REMOVAL_RECOVERY_PREWRITE_*.csv "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_REMOVAL_ROLLBACK_*.sql "$DEST"/ 2>/dev/null || true
+          cp -f "$OUT_HOST"/INSIZE_DISCOUNT_10_REMOVAL_FINGERPRINTS_*.json "$DEST"/ 2>/dev/null || true
+          if [ -f "$DEST/IDENTITY_PROBE.json" ]; then
+            cp -f "$DEST/IDENTITY_PROBE.json" "$DEST/VERIFY_IDENTITY_PROBE.json"
+          fi
+          if [ -f "$DEST/FINAL_REPORT.json" ]; then
+            cp -f "$DEST/FINAL_REPORT.json" "$DEST/APPLY_REPORT.json"
+          fi
+          git add "$DEST"
+          if git diff --cached --quiet; then
+            echo "No artifact changes to commit"
+            exit 0
+          fi
+          git -c user.name="karzar-vps-insize-discount-10-removal" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore(ops): INSIZE 10% discount REMOVAL artifacts $(date -u +%Y-%m-%dT%H%MZ)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "ARTIFACTS_COMMITTED=YES"
