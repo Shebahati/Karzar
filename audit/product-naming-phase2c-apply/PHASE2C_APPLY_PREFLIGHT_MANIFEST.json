@@ -1,8 +1,8 @@
 {
   "generated_at": "2026-10-03T09:34:30.789193+00:00",
   "rehearsal_logic_git_sha": "a0b04291b02d583ee1981c579acb2b19646b6aae",
-  "artifact_commit_sha": null,
-  "artifact_commit_sha_note": "Stamped after artifact-only commit; null until Commit B lands.",
+  "artifact_commit_sha": "cf63a4fe4e2ab94d649433de9fd8b660121abdd3",
+  "artifact_commit_sha_note": "Git commit that first introduced these rehearsal artifacts; logic remains pinned by rehearsal_logic_git_sha.",
   "rehearsal_logic_file_sha256": {
     "app/domain/phase2c_apply.py": "b8fce458f0ce0495bf46054e5aa173b2a82080ac90d2092c7b551512457623a2",
     "scripts/apply_manufacturer_identity_phase2c.py": "90701a4af93e89039023bedaed032dcad9abbef08737c4ee35dcc42b39c0ea11"
