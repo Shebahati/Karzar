@@ -191,15 +191,16 @@ def test_run_bootstrap_persists_refresh_token_only(tmp_path: Path) -> None:
     respx.post("https://oauth2.googleapis.com/token").mock(side_effect=token_response)
 
     state_holder: dict[str, str] = {}
+    real_start = LoopbackOAuthServer.start
 
     def fake_start(*, expected_state: str, callback_path: str = "/oauth/callback") -> LoopbackOAuthServer:
         state_holder["state"] = expected_state
-        srv = LoopbackOAuthServer.start(expected_state=expected_state, callback_path=callback_path)
+        srv = real_start(expected_state=expected_state, callback_path=callback_path)
         url = f"{srv.redirect_uri}?state={expected_state}&code=the-code"
         urllib.request.urlopen(url, timeout=5)
         return srv
 
-    with patch("services.gsc_mcp.bootstrap_oauth.LoopbackOAuthServer.start", side_effect=fake_start):
+    with patch.object(LoopbackOAuthServer, "start", side_effect=fake_start):
         with patch("services.gsc_mcp.bootstrap_oauth.webbrowser.open"):
             run_bootstrap(
                 client_id="cid",
