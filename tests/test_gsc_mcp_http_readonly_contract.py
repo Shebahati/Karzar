@@ -41,8 +41,9 @@ class RecordingGoogleHttp:
 def _normalize_gsc_path(url: str) -> str:
     parsed = urlparse(url)
     path = unquote(parsed.path)
-    path = re.sub(r"/sites/[^/]+", "/sites/{site}", path)
-    path = re.sub(r"/sitemaps/[^/]+", "/sitemaps/{sitemap}", path)
+    path = re.sub(r"^/sites/[^/]+", "/sites/{site}", path)
+    if "/sitemaps/" in path:
+        path = re.sub(r"/sitemaps/.*", "/sitemaps/{sitemap}", path)
     return f"{parsed.scheme}://{parsed.netloc}{path}"
 
 
