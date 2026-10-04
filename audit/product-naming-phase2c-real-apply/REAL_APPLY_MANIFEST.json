@@ -85,7 +85,6 @@
     "logs_after": 1350,
     "result": "PASS"
   },
-  "recovery_manifest_sha256": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673",
   "change_log_reason": "Phase 2C owner-authorized manufacturer identity backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
   "status": "APPLIED_VERIFIED",
   "errors": [],
@@ -112,5 +111,13 @@
     "TARGET_APPLY_PREFLIGHT_RECONCILIATION.csv": "566aab343997b45e09e2f37c778e97a02106e53cbdfd1ea188781f2b14b54eb0",
     "TARGET_PRE_APPLY_SNAPSHOT.csv": "2eed6553ebb964afa9b70eb430e8fd52e21d47ed2c127eb27e311ce99ea4aaa9",
     "REAL_APPLY_MANIFEST.json": "self"
+  },
+  "recovery_manifest_payload_sha256": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673",
+  "recovery_manifest_sha256_field_note": "Historical field recovery_manifest_sha256 stored the payload hash computed before embedding a self-referential hash. Renamed/clarified to recovery_manifest_payload_sha256. Final on-disk RECOVERY_MANIFEST.json SHA is recorded only in APPLY_EVIDENCE_INTEGRITY_REPORT.json.",
+  "recovery_manifest_sha256_deprecated_ambiguous_name": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673",
+  "evidence_integrity_closure": {
+    "status": "PASS",
+    "report": "APPLY_EVIDENCE_INTEGRITY_REPORT.json",
+    "apply_logic_sha_unchanged": "bd817801ad9cd172b418a59f1302ff2768c40e69"
   }
 }

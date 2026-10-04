@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 import subprocess
@@ -69,7 +70,66 @@ FORBIDDEN_FLAGS = (
     "--commit",
 )
 
+# Successful-run evidence that must never be silently overwritten.
+IMMUTABLE_EVIDENCE_BASENAMES = frozenset(
+    {
+        "PRE_APPLY_DB_BASELINE.json",
+        "REAL_APPLY_MANIFEST.json",
+        "REAL_APPLY_TRANSACTION_RESULT.json",
+        "POST_APPLY_DB_BASELINE.json",
+        "RECOVERY_MANIFEST.json",
+        "RECOVERY_TARGETS.csv",
+        "RECOVERY_PLAN.md",
+        "PHASE2C_REAL_APPLY_SUMMARY.md",
+        "BACKUP_MANIFEST.json",
+        "POST_APPLY_CHANGE_LOG_AUDIT.json",
+        "POST_APPLY_COLLISION_AUDIT.json",
+        "POST_APPLY_SEARCH_SMOKE.json",
+        "TARGET_APPLY_PREFLIGHT_RECONCILIATION.csv",
+        "TARGET_PRE_APPLY_SNAPSHOT.csv",
+        "SECOND_APPLY_SAFETY.json",
+    }
+)
+
 MUTATION_RE = re.compile(r"\b(INSERT|UPDATE|DELETE|TRUNCATE|DROP|ALTER)\b", re.I)
+
+
+class EvidenceImmutabilityError(RuntimeError):
+    """Raised when a write would overwrite protected first-run evidence."""
+
+
+def evidence_dir_has_successful_apply(out_dir: Path) -> bool:
+    manifest = out_dir / "REAL_APPLY_MANIFEST.json"
+    if not manifest.is_file():
+        return False
+    try:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return True
+    return payload.get("status") == "APPLIED_VERIFIED"
+
+
+def resolve_writable_out_dir(requested: Path, *, default_root: Path = AUDIT_OUT) -> Path:
+    """Isolate later invocations from immutable first-run evidence.
+
+    POST-APPLY TOOLING HARDENING ONLY — does not change historical apply semantics.
+    """
+    requested = requested.resolve()
+    default_root = default_root.resolve()
+    if requested != default_root:
+        return requested
+    if not evidence_dir_has_successful_apply(requested):
+        return requested
+    probe_dir = requested / "probes" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    probe_dir.mkdir(parents=True, exist_ok=False)
+    return probe_dir
+
+
+def assert_evidence_writable(path: Path) -> None:
+    if path.exists() and path.name in IMMUTABLE_EVIDENCE_BASENAMES:
+        raise EvidenceImmutabilityError(
+            f"refusing to overwrite immutable Phase 2C evidence file: {path}"
+        )
 
 
 def _reject_forbidden(argv: list[str]) -> None:
@@ -332,6 +392,7 @@ def create_live_backup(*, ssh_host: str, backup_dir: Path) -> dict[str, Any]:
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str]) -> None:
+    assert_evidence_writable(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fieldnames, extrasaction="ignore")
@@ -340,8 +401,13 @@ def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str]) -> 
 
 
 def write_json(path: Path, payload: Any) -> None:
+    assert_evidence_writable(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def canonical_json_bytes(payload: dict[str, Any]) -> bytes:
+    return (json.dumps(payload, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
 
 
 def write_recovery_package(
@@ -350,6 +416,12 @@ def write_recovery_package(
     *,
     cohort_sha256: str,
 ) -> dict[str, Any]:
+    """Write recovery package with unambiguous payload-hash semantics.
+
+    ``manifest_payload_sha256`` is the SHA256 of the JSON body *before* any
+    self-referential final-file hash is considered. The final on-disk file hash
+    must be recorded externally (never embedded in this file).
+    """
     targets = build_recovery_target_rows(frozen_rows)
     targets_path = out_dir / "RECOVERY_TARGETS.csv"
     write_csv(
@@ -386,6 +458,7 @@ NOT EXECUTED. Owner confirmation required before any recovery.
 - Automatic post-commit reversal
 """
     plan_path = out_dir / "RECOVERY_PLAN.md"
+    assert_evidence_writable(plan_path)
     plan_path.write_text(plan, encoding="utf-8")
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(),
@@ -397,10 +470,13 @@ NOT EXECUTED. Owner confirmation required before any recovery.
         "targets_csv_sha256": sha256_file(targets_path),
         "plan_sha256": sha256_file(plan_path),
     }
+    payload_sha = hashlib.sha256(canonical_json_bytes(manifest)).hexdigest()
+    manifest["manifest_payload_sha256"] = payload_sha
     manifest_path = out_dir / "RECOVERY_MANIFEST.json"
     write_json(manifest_path, manifest)
-    manifest["manifest_sha256"] = sha256_file(manifest_path)
-    write_json(manifest_path, manifest)
+    # Prove embedded value is the pre-self-reference payload hash, not the final file hash.
+    if sha256_file(manifest_path) == payload_sha:
+        raise RuntimeError("recovery manifest payload hash unexpectedly equals final file hash")
     return manifest
 
 
@@ -530,7 +606,12 @@ def main(argv: list[str] | None = None) -> int:
     if not change_log_reason_includes_full_sha(reason, art_meta["sha256"]):
         raise RuntimeError("change-log reason invalid")
 
-    out_dir = args.out_dir
+    out_dir = resolve_writable_out_dir(args.out_dir)
+    if out_dir != args.out_dir.resolve():
+        print(
+            f"NOTE: immutable first-run evidence present; writing probe outputs to {out_dir}",
+            file=sys.stderr,
+        )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     runtime = collect_runtime_identity(args.ssh_host)
@@ -669,7 +750,7 @@ def main(argv: list[str] | None = None) -> int:
                 "slug_comparison": slug_status,
                 "slug_drift_rows": slug_drift,
             },
-            "recovery_manifest_sha256": recovery.get("manifest_sha256"),
+            "recovery_manifest_payload_sha256": recovery.get("manifest_payload_sha256"),
             "status": "PREFLIGHT_PASS" if preflight_ok else "BLOCKED",
             "ready_for_apply": preflight_ok,
         }
@@ -986,7 +1067,7 @@ def main(argv: list[str] | None = None) -> int:
             "collision_count": collision_after,
         },
         "second_run_safety": second_probe,
-        "recovery_manifest_sha256": recovery.get("manifest_sha256"),
+        "recovery_manifest_payload_sha256": recovery.get("manifest_payload_sha256"),
         "change_log_reason": reason,
         "status": post_status,
         "errors": post_errors,
@@ -1030,10 +1111,16 @@ def main(argv: list[str] | None = None) -> int:
 ## Errors
 {post_errors or ["none"]}
 """
-    (out_dir / "PHASE2C_REAL_APPLY_SUMMARY.md").write_text(summary, encoding="utf-8")
+    summary_path = out_dir / "PHASE2C_REAL_APPLY_SUMMARY.md"
+    assert_evidence_writable(summary_path)
+    summary_path.write_text(summary, encoding="utf-8")
     print(json.dumps({"status": post_status, "transaction_id": txid, "errors": post_errors}, indent=2))
     return 0 if post_status == "APPLIED_VERIFIED" else 1
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except EvidenceImmutabilityError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc

@@ -1115,6 +1115,17 @@ documents:
       Non-executed Phase 2C manufacturer_code recovery plan. Requires separate
       owner authorization before any compensating writes.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2C-POST-APPLY-EVIDENCE-CLOSURE
+    path: audit/product-naming-phase2c-real-apply/PHASE2C_POST_APPLY_EVIDENCE_CLOSURE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-real-apply
+    notes: >
+      Post-apply evidence integrity closure for Phase 2C. No live DB mutation.
+      Clarifies recovery hash semantics and pre-apply baseline reconstruction.
+
   - id: PRODUCT-NAMING-V1-PHASE-2C-FUTURE-APPLY-DESIGN
     path: audit/product-naming-phase2c-discovery/FUTURE_APPLY_DESIGN.md
     class: EVIDENCE

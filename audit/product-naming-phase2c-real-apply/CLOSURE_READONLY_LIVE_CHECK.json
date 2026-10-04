@@ -1,0 +1,11 @@
+{
+  "collected_at_utc": "2026-10-04T13:00:10.635105+00:00",
+  "mode": "READ_ONLY",
+  "worker_hostname": "hp-g2-450",
+  "vps": "karzar-vps",
+  "database": "karzar_staging",
+  "query": "SELECT COUNT(*) FROM products WHERE deleted_at IS NULL AND manufacturer_code IS NOT NULL",
+  "manufacturer_code_populated": 1350,
+  "db_mutations": 0,
+  "result": "PASS"
+}

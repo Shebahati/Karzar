@@ -272,3 +272,80 @@ def test_real_apply_logic_file_hashes_present():
 def test_wrong_row_count_fails_sql_builder():
     with pytest.raises(ValueError, match="frozen_rows"):
         build_real_apply_sql([_sample_frozen_row()], cohort_sha256=OWNER_FROZEN_SHA256)
+
+
+def test_immutable_evidence_cannot_be_silently_overwritten(tmp_path: Path):
+    from scripts.ops.phase2c_manufacturer_identity_apply_once import (
+        EvidenceImmutabilityError,
+        write_json,
+    )
+
+    path = tmp_path / "PRE_APPLY_DB_BASELINE.json"
+    path.write_text('{"ok": true}\n', encoding="utf-8")
+    with pytest.raises(EvidenceImmutabilityError, match="immutable"):
+        write_json(path, {"ok": False})
+    assert path.read_text(encoding="utf-8") == '{"ok": true}\n'
+
+
+def test_second_run_redirects_to_probe_dir_when_apply_verified(tmp_path: Path):
+    from scripts.ops.phase2c_manufacturer_identity_apply_once import (
+        resolve_writable_out_dir,
+        write_json,
+    )
+
+    first = tmp_path / "real-apply"
+    first.mkdir()
+    write_json(first / "REAL_APPLY_MANIFEST.json", {"status": "APPLIED_VERIFIED"})
+    # Seed an immutable first-run artifact.
+    (first / "PRE_APPLY_DB_BASELINE.json").write_text('{"first": true}\n', encoding="utf-8")
+    probe = resolve_writable_out_dir(first, default_root=first)
+    assert probe != first
+    assert probe.parent.name == "probes"
+    # Writing into probe dir must not touch first-run file.
+    write_json(probe / "PRE_APPLY_DB_BASELINE.json", {"probe": True})
+    assert (first / "PRE_APPLY_DB_BASELINE.json").read_text(encoding="utf-8") == '{"first": true}\n'
+
+
+def test_recovery_manifest_payload_hash_semantics(tmp_path: Path):
+    import hashlib
+    import json
+
+    from scripts.ops.phase2c_manufacturer_identity_apply_once import (
+        canonical_json_bytes,
+        write_recovery_package,
+    )
+
+    rows = [_sample_frozen_row(product_id=str(i), candidate_manufacturer_code=f"C{i}") for i in range(3)]
+    # Expand frozen rows for recovery package helper which only needs candidate fields.
+    package = write_recovery_package(tmp_path, rows, cohort_sha256=OWNER_FROZEN_SHA256)
+    assert "manifest_payload_sha256" in package
+    assert "manifest_sha256" not in package
+    on_disk = json.loads((tmp_path / "RECOVERY_MANIFEST.json").read_text(encoding="utf-8"))
+    embedded = on_disk["manifest_payload_sha256"]
+    without = {k: v for k, v in on_disk.items() if k != "manifest_payload_sha256"}
+    recomputed = hashlib.sha256(canonical_json_bytes(without)).hexdigest()
+    assert embedded == recomputed
+    final_file = hashlib.sha256((tmp_path / "RECOVERY_MANIFEST.json").read_bytes()).hexdigest()
+    assert final_file != embedded
+
+
+def test_committed_recovery_manifest_and_reconstruction_metadata():
+    import json
+
+    root = Path(__file__).resolve().parents[1]
+    evidence = root / "audit/product-naming-phase2c-real-apply"
+    manifest = json.loads((evidence / "RECOVERY_MANIFEST.json").read_text(encoding="utf-8"))
+    assert "manifest_payload_sha256" in manifest
+    assert "manifest_sha256" not in manifest
+    assert manifest["rows"] == OWNER_FROZEN_ROWS
+    assert manifest["cohort_sha256"] == OWNER_FROZEN_SHA256
+    recon = json.loads((evidence / "PRE_APPLY_BASELINE_RECONSTRUCTION.json").read_text(encoding="utf-8"))
+    assert recon["evidence_type"] == "RECONSTRUCTED_FROM_AUTHORITATIVE_PRE_APPLY_BACKUP"
+    assert recon["staging_live_db_mutation_during_reconstruction"] == "NO"
+    integrity = json.loads((evidence / "APPLY_EVIDENCE_INTEGRITY_REPORT.json").read_text(encoding="utf-8"))
+    assert integrity["overall_evidence_integrity"] == "PASS"
+    assert integrity["recovery_package"]["self_hash_ambiguity_removed"] is True
+    assert (
+        integrity["recovery_package"]["final_manifest_file_sha256"]
+        != integrity["recovery_package"]["manifest_payload_sha256"]
+    )
