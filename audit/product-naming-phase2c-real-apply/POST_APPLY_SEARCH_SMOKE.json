@@ -1,0 +1,111 @@
+{
+  "mode": "database_identity_smoke",
+  "api_search": "NOT_PROBED",
+  "samples": [
+    {
+      "brand_name": "Dasqua | داسکوا",
+      "product_id": "1044",
+      "sku": "1012-0010",
+      "candidate_manufacturer_code": "1012-0010",
+      "db_match_count": 1,
+      "found_product_id": "1044",
+      "found_manufacturer_code": "1012-0010",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "Dasqua | داسکوا",
+      "product_id": "1360",
+      "sku": "4220-2104",
+      "candidate_manufacturer_code": "4220-2104",
+      "db_match_count": 1,
+      "found_product_id": "1360",
+      "found_manufacturer_code": "4220-2104",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "Dasqua | داسکوا",
+      "product_id": "1770",
+      "sku": "9411-1205",
+      "candidate_manufacturer_code": "9411-1205",
+      "db_match_count": 1,
+      "found_product_id": "1770",
+      "found_manufacturer_code": "9411-1205",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "INSIZE | اینسایز",
+      "product_id": "1771",
+      "sku": "0110-1125",
+      "candidate_manufacturer_code": "0110-1125",
+      "db_match_count": 1,
+      "found_product_id": "1771",
+      "found_manufacturer_code": "0110-1125",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "INSIZE | اینسایز",
+      "product_id": "3524",
+      "sku": "3220-75",
+      "candidate_manufacturer_code": "3220-75",
+      "db_match_count": 1,
+      "found_product_id": "3524",
+      "found_manufacturer_code": "3220-75",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "INSIZE | اینسایز",
+      "product_id": "4131",
+      "sku": "2304-01",
+      "candidate_manufacturer_code": "2304-01",
+      "db_match_count": 1,
+      "found_product_id": "4131",
+      "found_manufacturer_code": "2304-01",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "TERMA | ترما",
+      "product_id": "4469",
+      "sku": "CD185-150",
+      "candidate_manufacturer_code": "CD185-150",
+      "db_match_count": 1,
+      "found_product_id": "4469",
+      "found_manufacturer_code": "CD185-150",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "TERMA | ترما",
+      "product_id": "4620",
+      "sku": "MA250H-225",
+      "candidate_manufacturer_code": "MA250H-225",
+      "db_match_count": 1,
+      "found_product_id": "4620",
+      "found_manufacturer_code": "MA250H-225",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    },
+    {
+      "brand_name": "TERMA | ترما",
+      "product_id": "4777",
+      "sku": "WDS110",
+      "candidate_manufacturer_code": "WDS110",
+      "db_match_count": 1,
+      "found_product_id": "4777",
+      "found_manufacturer_code": "WDS110",
+      "pass": true,
+      "api_search": "NOT_PROBED"
+    }
+  ],
+  "by_brand": {
+    "DASQUA": "PASS",
+    "INSIZE": "PASS",
+    "TERMA": "PASS"
+  },
+  "all_pass": true
+}

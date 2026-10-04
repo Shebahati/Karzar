@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-10-03T15:11:58.349646+00:00",
+  "owner_authorized": true,
+  "latest_main_sha": "bd817801ad9cd172b418a59f1302ff2768c40e69",
+  "apply_logic_sha": "bd817801ad9cd172b418a59f1302ff2768c40e69",
+  "apply_logic_file_sha256": {
+    "app/domain/phase2c_real_apply.py": "8b621ff3880e0c77499f2e8c26121db0ddacf49b836b09f85b359807c9cdace8",
+    "scripts/ops/phase2c_manufacturer_identity_apply_once.py": "680c4a615551723bbbafc815d9633118df06ea202ac2868c704c51fb0b22f91f"
+  },
+  "frozen_artifact_path": "/home/shebahati/Projects/Karzar/audit/product-naming-phase2c-discovery/BACKFILL_EXACT_FROZEN.csv",
+  "frozen_artifact_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "frozen_rows": 1350,
+  "target_pre_apply_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f",
+  "live_runtime_identity": {
+    "collected_at_utc": "2026-10-03T15:11:10.234725+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+  },
+  "live_health": {
+    "api_readiness": "PASS",
+    "database_readiness": "PASS",
+    "redis_readiness": "PASS",
+    "ready_http_status": 200,
+    "ready_body": {
+      "status": "ready",
+      "service": "Karzar Staging API",
+      "database": "ok",
+      "redis": "ok"
+    },
+    "redis_ping": "PONG",
+    "database_select_1": "1",
+    "all_pass": true
+  },
+  "backup_path": "/home/shebahati/karzar-backups/phase2c/karzar_staging_phase2c_20261003T151115Z.dump",
+  "backup_sha256": "08ff81c32a8ce02a1ba9c89e0cb5dc7fbcc3fcae79f47711dfd86134bfed7760",
+  "backup_verified": true,
+  "pre_apply_global_manufacturer_code_count": 0,
+  "target_preflight": {
+    "rows": 1350,
+    "existing_code": 0,
+    "missing": 0,
+    "deleted": 0,
+    "sku_drift": 0,
+    "brand_drift": 0,
+    "name_drift": 0,
+    "slug_comparison": "NOT_AVAILABLE_IN_FROZEN_ARTIFACT"
+  },
+  "transaction": {
+    "isolation": "SERIALIZABLE",
+    "advisory_lock": "karzar:phase2c:manufacturer_code:apply",
+    "locked_rows": 1350,
+    "updated_rows": 1350,
+    "exact_matches": 1350,
+    "change_logs": 1350,
+    "protected_drift": 0,
+    "new_collisions": 0,
+    "nontarget_changes": 0,
+    "committed": true
+  },
+  "commit_timestamp": "2026-10-03T15:11:36.445036+00:00",
+  "transaction_id": null,
+  "post_apply": {
+    "target_non_null": 1350,
+    "exact_matches": 1350,
+    "global_manufacturer_code_count": 1350,
+    "change_log_matches": 1350,
+    "protected_drift": 0,
+    "collision_count": 0
+  },
+  "second_run_safety": {
+    "attempted_at_utc": "2026-10-03T15:12:19+00:00",
+    "command": "phase2c_manufacturer_identity_apply_once.py --apply --confirm-cohort-sha <full>",
+    "blocked_because_already_populated": true,
+    "error": "non-deleted manufacturer_code populated = 1350 (must be 0)",
+    "new_writes": 0,
+    "new_logs": 0,
+    "logs_after": 1350,
+    "result": "PASS"
+  },
+  "change_log_reason": "Phase 2C owner-authorized manufacturer identity backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "status": "APPLIED_VERIFIED",
+  "errors": [],
+  "pre_apply_baseline_reconstruction": {
+    "reconstructed": true,
+    "from_backup_sha256": "08ff81c32a8ce02a1ba9c89e0cb5dc7fbcc3fcae79f47711dfd86134bfed7760",
+    "reason": "second_apply_probe_overwrote_original_pre_apply_baseline_file"
+  },
+  "artifact_hashes": {
+    "BACKUP_MANIFEST.json": "72bacef1f18b18623f17bd7f95be2948c3de05f6cddae2e0c2d7f370bb1acb59",
+    "LIVE_RUNTIME_IDENTITY.json": "66efa896462791a4d6951c38dce142233b140880e6562fbab2f1452bb7910247",
+    "PHASE2C_REAL_APPLY_SUMMARY.md": "4510fb85bfa0bd561dfbff02d91003a4ba990c4189a1c2ed086acb54c97cdbd4",
+    "POST_APPLY_CHANGE_LOG_AUDIT.json": "7e220bec8bf0bc5a427b0758193e01871ff3471bae642b61d90628805bdfd90e",
+    "POST_APPLY_COLLISION_AUDIT.json": "6ce65714b7db33fb38eba3dc3a22b28e03fb01a4c0578523f355282e9965ae63",
+    "POST_APPLY_DB_BASELINE.json": "f3cb5644926fc923018585da658e9988a291737a566be7878521165883269ac5",
+    "POST_APPLY_RECONCILIATION.csv": "b58bf64cc3e00a047477e32a472f666f9ab6011859575dc4dae533774b52f6e0",
+    "POST_APPLY_SEARCH_SMOKE.json": "8a04538144def3a1acea0f571d04b83530a73146f79bbb3b235692ed275d0d53",
+    "PRE_APPLY_DB_BASELINE.json": "092b6b3c88753292da6c6ac351becd9a9ca3e74591636de84f68a4b3cac5db6d",
+    "REAL_APPLY_TRANSACTION_RESULT.json": "05f9d0d30cf6ee5b38931fde6256c2fd89c59059e1c439d02f2e03e76996d6d4",
+    "RECOVERY_MANIFEST.json": "88cbfcfb0de32740d6c7028ec0139b74f4f7725825725b2e9402dd9dabefb85a",
+    "RECOVERY_PLAN.md": "90c448509765fe3edaab24e2abd6e4f796429054c41a1ffc641a7d68fd11f59e",
+    "RECOVERY_TARGETS.csv": "4cd317235d82e954588f44ee5099bca3716974225e59f79f0ce927246187d64f",
+    "SECOND_APPLY_SAFETY.json": "d369e00478de495f9f9657e64e41659ae40faec848853508b5aa3625a7b42229",
+    "TARGET_APPLY_PREFLIGHT_RECONCILIATION.csv": "566aab343997b45e09e2f37c778e97a02106e53cbdfd1ea188781f2b14b54eb0",
+    "TARGET_PRE_APPLY_SNAPSHOT.csv": "2eed6553ebb964afa9b70eb430e8fd52e21d47ed2c127eb27e311ce99ea4aaa9",
+    "REAL_APPLY_MANIFEST.json": "self"
+  },
+  "recovery_manifest_payload_sha256": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673",
+  "recovery_manifest_sha256_field_note": "Historical field recovery_manifest_sha256 stored the payload hash computed before embedding a self-referential hash. Renamed/clarified to recovery_manifest_payload_sha256. Final on-disk RECOVERY_MANIFEST.json SHA is recorded only in APPLY_EVIDENCE_INTEGRITY_REPORT.json.",
+  "recovery_manifest_sha256_deprecated_ambiguous_name": "ae8442d6fae745a0aa4dadc2098d91c95737f601f4e10e5584413a5348eea673",
+  "evidence_integrity_closure": {
+    "status": "PASS",
+    "report": "APPLY_EVIDENCE_INTEGRITY_REPORT.json",
+    "apply_logic_sha_unchanged": "bd817801ad9cd172b418a59f1302ff2768c40e69"
+  }
+}
