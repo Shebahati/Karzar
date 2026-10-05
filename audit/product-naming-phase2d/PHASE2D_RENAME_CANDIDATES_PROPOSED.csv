@@ -1,66 +1,33 @@
 product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title_fa,variant_policy_status,variant_property_code,variant_formatted_value
-1771,0110-1125,بادسنج اینسایز کد 0110-1125,0110-1125,ANEMOMETER,بادسنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1795,1120-150,کولیس شیار داخلی اینسایز کد 1120-150، 22–150 میلی‌متر,1120-150,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,22–150 میلی‌متر
-1796,1120-200,کولیس شیار داخلی اینسایز کد 1120-200، 25–200 میلی‌متر,1120-200,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,25–200 میلی‌متر
-1797,1120-300,کولیس شیار داخلی اینسایز کد 1120-300، 30–300 میلی‌متر,1120-300,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,30–300 میلی‌متر
 1798,1120-500,کولیس شیار داخلی اینسایز کد 1120-500، 40–500 میلی‌متر,1120-500,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,40–500 میلی‌متر
-1799,1121-150,کولیس نوک‌تیز داخلی اینسایز کد 1121-150، 24–150 میلی‌متر,1121-150,INTERNAL_POINT_CALIPER,کولیس نوک‌تیز داخلی,SUFFIX_GOVERNED,measurement_range,24–150 میلی‌متر
 1800,1122-300,کولیس قلاب‌دار اینسایز کد 1122-300، 4–300 میلی‌متر,1122-300,HOOK_CALIPER,کولیس قلاب‌دار,SUFFIX_GOVERNED,measurement_range,4–300 میلی‌متر
-1801,1123-150,کولیس لبه‌چاقویی داخلی اینسایز کد 1123-150، 15–150 میلی‌متر,1123-150,INSIDE_KNIFE_EDGE_CALIPER,کولیس لبه‌چاقویی داخلی,SUFFIX_GOVERNED,measurement_range,15–150 میلی‌متر
-1802,1123-300,کولیس لبه‌چاقویی داخلی اینسایز کد 1123-300، 24–300 میلی‌متر,1123-300,INSIDE_KNIFE_EDGE_CALIPER,کولیس لبه‌چاقویی داخلی,SUFFIX_GOVERNED,measurement_range,24–300 میلی‌متر
 1808,1140-100,عمق‌سنج اینسایز کد 1140-100، 0–100 میلی‌متر,1140-100,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–100 میلی‌متر
 1809,1140-150,عمق‌سنج اینسایز کد 1140-150، 0–150 میلی‌متر,1140-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1810,1141-150,عمق‌سنج اینسایز کد 1141-150، 0–150 میلی‌متر,1141-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1811,1141-200,عمق‌سنج اینسایز کد 1141-200، 0–200 میلی‌متر,1141-200,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–200 میلی‌متر
-1812,1141-300,عمق‌سنج اینسایز کد 1141-300، 0–300 میلی‌متر,1141-300,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-1813,1141-500,عمق‌سنج اینسایز کد 1141-500، 0–500 میلی‌متر,1141-500,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–500 میلی‌متر
-1814,1142-150,عمق‌سنج اینسایز کد 1142-150، 0–150 میلی‌متر,1142-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1815,1142-200,عمق‌سنج اینسایز کد 1142-200، 0–200 میلی‌متر,1142-200,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–200 میلی‌متر
-1816,1142-300,عمق‌سنج اینسایز کد 1142-300، 0–300 میلی‌متر,1142-300,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-1817,1144-150,عمق‌سنج اینسایز کد 1144-150، 0–150 میلی‌متر,1144-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1818,1144-200,عمق‌سنج اینسایز کد 1144-200، 0–200 میلی‌متر,1144-200,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–200 میلی‌متر
-1819,1144-300,عمق‌سنج اینسایز کد 1144-300، 0–300 میلی‌متر,1144-300,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1820,1150-300,ارتفاع‌سنج اینسایز کد 1150-300، 0–300 میلی‌متر,1150-300,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1822,1150-600,ارتفاع‌سنج اینسایز کد 1150-600، 0–600 میلی‌متر,1150-600,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
-1823,1151-300,ارتفاع‌سنج اینسایز کد 1151-300، 0–300 میلی‌متر,1151-300,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-1824,1151-600,ارتفاع‌سنج اینسایز کد 1151-600، 0–600 میلی‌متر,1151-600,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
 1825,1156-300,ارتفاع‌سنج اینسایز کد 1156-300، 0–300 میلی‌متر,1156-300,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1826,1156-600,ارتفاع‌سنج اینسایز کد 1156-600، 0–600 میلی‌متر,1156-600,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
-1827,1161-150,کولیس ضخامت لوله اینسایز کد 1161-150، 0–150 میلی‌متر,1161-150,TUBE_THICKNESS_CALIPER,کولیس ضخامت لوله,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 1828,1169-150,کولیس نوک‌تیز اینسایز کد 1169-150، 0–150 میلی‌متر,1169-150,POINT_CALIPER,کولیس نوک‌تیز,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 1831,1176-150,کولیس شیار داخلی اینسایز کد 1176-150، 9–150 میلی‌متر,1176-150,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,9–150 میلی‌متر
 1832,1176-200,کولیس شیار داخلی اینسایز کد 1176-200، 9–200 میلی‌متر,1176-200,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,9–200 میلی‌متر
 1833,1178-300,کولیس شیار داخلی اینسایز کد 1178-300، 25–300 میلی‌متر,1178-300,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,25–300 میلی‌متر
-1834,1183-150,کولیس نوک‌تیز اینسایز کد 1183-150، 0–150 میلی‌متر,1183-150,POINT_CALIPER,کولیس نوک‌تیز,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1835,1185-150,کولیس شیار خارجی اینسایز کد 1185-150، 0–150 میلی‌متر,1185-150,EXTERNAL_GROOVE_CALIPER,کولیس شیار خارجی,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1836,1186-150,کولیس آفست اینسایز کد 1186-150، 0–150 میلی‌متر,1186-150,OFFSET_CALIPER,کولیس آفست,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1837,1186-200,کولیس آفست اینسایز کد 1186-200، 0–200 میلی‌متر,1186-200,OFFSET_CALIPER,کولیس آفست,SUFFIX_GOVERNED,measurement_range,0–200 میلی‌متر
-1838,1186-300,کولیس آفست اینسایز کد 1186-300، 0–300 میلی‌متر,1186-300,OFFSET_CALIPER,کولیس آفست,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-1839,1187-150,کولیس شیار خارجی اینسایز کد 1187-150، 0–150 میلی‌متر,1187-150,EXTERNAL_GROOVE_CALIPER,کولیس شیار خارجی,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1840,1188-150,کولیس تیغه‌ای اینسایز کد 1188-150، 0–150 میلی‌متر,1188-150,BLADE_CALIPER,کولیس تیغه‌ای,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 1858,1250-300,ارتفاع‌سنج اینسایز کد 1250-300، 0–300 میلی‌متر,1250-300,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1859,1250-600,ارتفاع‌سنج اینسایز کد 1250-600، 0–600 میلی‌متر,1250-600,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
 1870,1520-150,کولیس شیار داخلی اینسایز کد 1520-150، 11–150 میلی‌متر,1520-150,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,11–150 میلی‌متر
 1871,1530-300,کولیس نوک‌دار تعویض‌شونده اینسایز کد 1530-300، 0–300 میلی‌متر,1530-300,INTERCHANGEABLE_POINT_CALIPER,کولیس نوک‌دار تعویض‌شونده,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1872,1530-500,کولیس نوک‌دار تعویض‌شونده اینسایز کد 1530-500، 0–500 میلی‌متر,1530-500,INTERCHANGEABLE_POINT_CALIPER,کولیس نوک‌دار تعویض‌شونده,SUFFIX_GOVERNED,measurement_range,0–500 میلی‌متر
-1873,2112-101,ساعت اندازه‌گیری اینسایز کد 2112-101، 0–12.7 میلی‌متر,2112-101,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-1874,2112-251,ساعت اندازه‌گیری اینسایز کد 2112-251، 0–25.4 میلی‌متر,2112-251,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
-1875,2112-501,ساعت اندازه‌گیری اینسایز کد 2112-501، 0–50.8 میلی‌متر,2112-501,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–50.8 میلی‌متر
 1878,2142-101,عمق‌سنج اینسایز کد 2142-101، 0–12.7 میلی‌متر,2142-101,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 1879,2142-102,عمق‌سنج اینسایز کد 2142-102، 0–12.7 میلی‌متر,2142-102,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 1880,2171-250,زاویه‌سنج اینسایز کد 2171-250,2171-250,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1883,2174-225,زاویه‌سنج اینسایز کد 2174-225,2174-225,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1884,2175-360,زاویه‌سنج اینسایز کد 2175-360,2175-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1885,2176-200,زاویه‌سنج اینسایز کد 2176-200,2176-200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1886,2176-300,زاویه‌سنج اینسایز کد 2176-300,2176-300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1887,2179-360,زاویه‌سنج اینسایز کد 2179-360,2179-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1888,2222-301,پرگار نشان‌گر اینسایز کد 2222-301، 10–30 میلی‌متر,2222-301,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,10–30 میلی‌متر
 1889,2223-153,پرگار نشان‌گر اینسایز کد 2223-153، 55–153 میلی‌متر,2223-153,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,55–153 میلی‌متر
 1890,2275-300,گونیا مهندسی اینسایز کد 2275-300,2275-300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 1892,2281-360,گیج زاویه اینسایز کد 2281-360,2281-360,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
 1893,2307-105,ساعت اندازه‌گیری اینسایز کد 2307-105، 0–25.4 میلی‌متر,2307-105,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
 1897,2333-201,پرگار نشان‌گر اینسایز کد 2333-201، 0–20 میلی‌متر,2333-201,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,0–20 میلی‌متر
-1898,2341-101,عمق‌سنج اینسایز کد 2341-101، 0–10 میلی‌متر,2341-101,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 1899,2342-202,عمق‌سنج اینسایز کد 2342-202، 0–300 میلی‌متر,2342-202,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1900,2343-102,عمق‌سنج اینسایز کد 2343-102، 0–10 میلی‌متر,2343-102,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 1901,2372-360,زاویه‌سنج اینسایز کد 2372-360,2372-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
@@ -70,41 +37,6 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 1905,2711-165,پرگار نشان‌گر اینسایز کد 2711-165، 12.7–165 میلی‌متر,2711-165,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,12.7–165 میلی‌متر
 1906,2711-216,پرگار نشان‌گر اینسایز کد 2711-216، 12.7–216 میلی‌متر,2711-216,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,12.7–216 میلی‌متر
 1907,2771-360,زاویه‌سنج اینسایز کد 2771-360,2771-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1911,2841-300,گیج شفت اینسایز کد 2841-300,2841-300,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
-1912,2841-500,گیج شفت اینسایز کد 2841-500,2841-500,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
-1913,2862-102,ضخامت‌سنج اینسایز کد 2862-102، 0–10 میلی‌متر,2862-102,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-1914,2871-101,ضخامت‌سنج اینسایز کد 2871-101، 0–10 میلی‌متر,2871-101,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-1915,3101-225,میکرومتر خارج‌سنج اینسایز کد 3101-225، 200–225 میلی‌متر,3101-225,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,200–225 میلی‌متر
-1916,3101-250,میکرومتر خارج‌سنج اینسایز کد 3101-250، 225–250 میلی‌متر,3101-250,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,225–250 میلی‌متر
-1917,3101-275,میکرومتر خارج‌سنج اینسایز کد 3101-275، 250–275 میلی‌متر,3101-275,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,250–275 میلی‌متر
-1918,3101-300,میکرومتر خارج‌سنج اینسایز کد 3101-300، 275–300 میلی‌متر,3101-300,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,275–300 میلی‌متر
-1919,3108-100,میکرومتر خارج‌سنج اینسایز کد 3108-100، 75–100 میلی‌متر,3108-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
-1920,3109-100,میکرومتر خارج‌سنج اینسایز کد 3109-100، 75–100 میلی‌متر,3109-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
-1921,3109-125,میکرومتر خارج‌سنج اینسایز کد 3109-125، 100–125 میلی‌متر,3109-125,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,100–125 میلی‌متر
-1922,3109-150,میکرومتر خارج‌سنج اینسایز کد 3109-150، 125–150 میلی‌متر,3109-150,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,125–150 میلی‌متر
-1923,3109-175,میکرومتر خارج‌سنج اینسایز کد 3109-175، 150–175 میلی‌متر,3109-175,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,150–175 میلی‌متر
-1924,3109-200,میکرومتر خارج‌سنج اینسایز کد 3109-200، 175–200 میلی‌متر,3109-200,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,175–200 میلی‌متر
-1925,3109-225,میکرومتر خارج‌سنج اینسایز کد 3109-225، 200–225 میلی‌متر,3109-225,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,200–225 میلی‌متر
-1926,3109-250,میکرومتر خارج‌سنج اینسایز کد 3109-250، 225–250 میلی‌متر,3109-250,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,225–250 میلی‌متر
-1927,3109-275,میکرومتر خارج‌سنج اینسایز کد 3109-275، 250–275 میلی‌متر,3109-275,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,250–275 میلی‌متر
-1928,3109-300,میکرومتر خارج‌سنج اینسایز کد 3109-300، 275–300 میلی‌متر,3109-300,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,275–300 میلی‌متر
-1929,3127-100,میکرومتر داخل‌سنج اینسایز کد 3127-100، 87–100 میلی‌متر,3127-100,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,87–100 میلی‌متر
-1931,3127-125,میکرومتر داخل‌سنج اینسایز کد 3127-125، 100–125 میلی‌متر,3127-125,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,100–125 میلی‌متر
-1932,3127-150,میکرومتر داخل‌سنج اینسایز کد 3127-150، 125–150 میلی‌متر,3127-150,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,125–150 میلی‌متر
-1933,3127-175,میکرومتر داخل‌سنج اینسایز کد 3127-175، 150–175 میلی‌متر,3127-175,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,150–175 میلی‌متر
-1934,3127-200,میکرومتر داخل‌سنج اینسایز کد 3127-200، 175–200 میلی‌متر,3127-200,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,175–200 میلی‌متر
-1936,3127-225,میکرومتر داخل‌سنج اینسایز کد 3127-225، 200–225 میلی‌متر,3127-225,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,200–225 میلی‌متر
-1937,3127-250,میکرومتر داخل‌سنج اینسایز کد 3127-250، 225–250 میلی‌متر,3127-250,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,225–250 میلی‌متر
-1938,3127-275,میکرومتر داخل‌سنج اینسایز کد 3127-275، 250–275 میلی‌متر,3127-275,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,250–275 میلی‌متر
-1941,3203-100,میکرومتر خارج‌سنج اینسایز کد 3203-100، 75–100 میلی‌متر,3203-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
-1942,3203-125,میکرومتر خارج‌سنج اینسایز کد 3203-125، 100–125 میلی‌متر,3203-125,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,100–125 میلی‌متر
-1943,3203-150,میکرومتر خارج‌سنج اینسایز کد 3203-150، 125–150 میلی‌متر,3203-150,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,125–150 میلی‌متر
-1945,3203-175,میکرومتر خارج‌سنج اینسایز کد 3203-175، 150–175 میلی‌متر,3203-175,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,150–175 میلی‌متر
-1946,3203-200,میکرومتر خارج‌سنج اینسایز کد 3203-200، 175–200 میلی‌متر,3203-200,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,175–200 میلی‌متر
-1947,3203-225,میکرومتر خارج‌سنج اینسایز کد 3203-225، 200–225 میلی‌متر,3203-225,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,200–225 میلی‌متر
-1948,3203-250,میکرومتر خارج‌سنج اینسایز کد 3203-250، 225–250 میلی‌متر,3203-250,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,225–250 میلی‌متر
-1949,3203-275,میکرومتر خارج‌سنج اینسایز کد 3203-275، 250–275 میلی‌متر,3203-275,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,250–275 میلی‌متر
-1950,3203-300,میکرومتر خارج‌سنج اینسایز کد 3203-300، 275–300 میلی‌متر,3203-300,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,275–300 میلی‌متر
 1953,3205-1000,میکرومتر خارج‌سنج اینسایز کد 3205-1000، 900–1000 میلی‌متر,3205-1000,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,900–1000 میلی‌متر
 1954,3205-1200,میکرومتر خارج‌سنج اینسایز کد 3205-1200، 1000–1200 میلی‌متر,3205-1200,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1000–1200 میلی‌متر
 1955,3205-1400,میکرومتر خارج‌سنج اینسایز کد 3205-1400، 1200–1400 میلی‌متر,3205-1400,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1200–1400 میلی‌متر
@@ -116,37 +48,15 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 1961,3205-700,میکرومتر خارج‌سنج اینسایز کد 3205-700، 600–700 میلی‌متر,3205-700,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,600–700 میلی‌متر
 1962,3205-800,میکرومتر خارج‌سنج اینسایز کد 3205-800، 700–800 میلی‌متر,3205-800,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,700–800 میلی‌متر
 1963,3205-900,میکرومتر خارج‌سنج اینسایز کد 3205-900، 800–900 میلی‌متر,3205-900,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,800–900 میلی‌متر
-1965,3206-200,میکرومتر خارج‌سنج اینسایز کد 3206-200، 100–200 میلی‌متر,3206-200,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,100–200 میلی‌متر
-1966,3206-300,میکرومتر خارج‌سنج اینسایز کد 3206-300، 150–300 میلی‌متر,3206-300,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,150–300 میلی‌متر
-1967,3206-301,میکرومتر خارج‌سنج اینسایز کد 3206-301، 200–300 میلی‌متر,3206-301,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,200–300 میلی‌متر
-1968,3210-100,میکرومتر خارج‌سنج اینسایز کد 3210-100، 75–100 میلی‌متر,3210-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
 1969,3220-100,میکرومتر داخل‌سنج اینسایز کد 3220-100، 75–100 میلی‌متر,3220-100,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
 1970,3222-300,میکرومتر داخل‌سنج اینسایز کد 3222-300، 50–300 میلی‌متر,3222-300,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–300 میلی‌متر
 1971,3222-500,میکرومتر داخل‌سنج اینسایز کد 3222-500، 50–500 میلی‌متر,3222-500,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–500 میلی‌متر
 1972,3222-600,میکرومتر داخل‌سنج اینسایز کد 3222-600، 50–600 میلی‌متر,3222-600,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–600 میلی‌متر
 1973,3225-2100,میکرومتر داخل‌سنج اینسایز کد 3225-2100، 100–2100 میلی‌متر,3225-2100,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,100–2100 میلی‌متر
-1974,3227-100,میکرومتر داخل‌سنج اینسایز کد 3227-100، 87–100 میلی‌متر,3227-100,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,87–100 میلی‌متر
-1977,3227-150,میکرومتر داخل‌سنج اینسایز کد 3227-150، 125–150 میلی‌متر,3227-150,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,125–150 میلی‌متر
-1978,3227-175,میکرومتر داخل‌سنج اینسایز کد 3227-175، 150–175 میلی‌متر,3227-175,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,150–175 میلی‌متر
-1979,3227-200,میکرومتر داخل‌سنج اینسایز کد 3227-200، 175–200 میلی‌متر,3227-200,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,175–200 میلی‌متر
-1982,3232-100,میکرومتر خارج‌سنج اینسایز کد 3232-100، 75–100 میلی‌متر,3232-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
 1983,3240-100,میکرومتر عمق‌سنج اینسایز کد 3240-100، 0–100 میلی‌متر,3240-100,DEPTH_MICROMETER,میکرومتر عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–100 میلی‌متر
 1984,3240-150,میکرومتر عمق‌سنج اینسایز کد 3240-150، 0–150 میلی‌متر,3240-150,DEPTH_MICROMETER,میکرومتر عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 1985,3240-300,میکرومتر عمق‌سنج اینسایز کد 3240-300، 0–300 میلی‌متر,3240-300,DEPTH_MICROMETER,میکرومتر عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-1986,3282-100,میکرومتر خارج‌سنج اینسایز کد 3282-100، 75–100 میلی‌متر,3282-100,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
-1987,3290-153,میکرومتر خارج‌سنج اینسایز کد 3290-153، 1–15 میلی‌متر,3290-153,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1–15 میلی‌متر
-1988,3290-203,میکرومتر خارج‌سنج اینسایز کد 3290-203، 5–20 میلی‌متر,3290-203,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,5–20 میلی‌متر
-1989,3290-455,میکرومتر خارج‌سنج اینسایز کد 3290-455، 1–15 میلی‌متر,3290-455,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1–15 میلی‌متر
-1990,3293-131,میکرومتر خارج‌سنج اینسایز کد 3293-131، 0–13 میلی‌متر,3293-131,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–13 میلی‌متر
-1991,3506-150,میکرومتر خارج‌سنج اینسایز کد 3506-150، 0–150 میلی‌متر,3506-150,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1992,3506-300,میکرومتر خارج‌سنج اینسایز کد 3506-300، 150–300 میلی‌متر,3506-300,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,150–300 میلی‌متر
-1993,3506-400,میکرومتر خارج‌سنج اینسایز کد 3506-400، 300–400 میلی‌متر,3506-400,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,300–400 میلی‌متر
-1994,3506-500,میکرومتر خارج‌سنج اینسایز کد 3506-500، 400–500 میلی‌متر,3506-500,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,400–500 میلی‌متر
-1995,3506-600,میکرومتر خارج‌سنج اینسایز کد 3506-600، 500–600 میلی‌متر,3506-600,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,500–600 میلی‌متر
 1996,3520-100,میکرومتر داخل‌سنج اینسایز کد 3520-100، 75–100 میلی‌متر,3520-100,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,75–100 میلی‌متر
-1998,3540-150,عمق‌سنج اینسایز کد 3540-150، 0–150 میلی‌متر,3540-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
-1999,3540-300,عمق‌سنج اینسایز کد 3540-300، 0–300 میلی‌متر,3540-300,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-2000,3590-153,میکرومتر خارج‌سنج اینسایز کد 3590-153، 1–15 میلی‌متر,3590-153,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1–15 میلی‌متر
 2005,4141-400,گونیا مهندسی اینسایز کد 4141-400,4141-400,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 2014,4605-201,ست فیلر اینسایز کد 4605-201,4605-201,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 2015,4605-202,ست فیلر اینسایز کد 4605-202,4605-202,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
@@ -163,8 +73,6 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 2027,4799-1200,زاویه‌سنج اینسایز کد 4799-1200,4799-1200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 2028,4799-1300,زاویه‌سنج اینسایز کد 4799-1300,4799-1300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 2029,4799-180,زاویه‌سنج اینسایز کد 4799-180,4799-180,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2030,4810-601,گیج برش رزوه اینسایز کد 4810-601,4810-601,SCREW_CUTTING_GAUGE,گیج برش رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
-2031,4810-602,گیج برش رزوه اینسایز کد 4810-602,4810-602,SCREW_CUTTING_GAUGE,گیج برش رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
 2032,4820-230,شابلون گام رزوه اینسایز کد 4820-230,4820-230,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
 2033,4820-452,شابلون گام رزوه اینسایز کد 4820-452,4820-452,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
 2034,4820-552,شابلون گام رزوه اینسایز کد 4820-552,4820-552,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
@@ -172,74 +80,29 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 2036,4860-245,شابلون گام چرخ‌دنده اینسایز کد 4860-245,4860-245,GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,VARIANT_NOT_REQUIRED_APPROVED,,
 2080,7110-500,خط‌کش فلزی اینسایز کد 7110-500، 0–500 میلی‌متر,7110-500,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–500 میلی‌متر
 2081,7110-600,خط‌کش فلزی اینسایز کد 7110-600، 0–600 میلی‌متر,7110-600,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
-2084,7114-950,متر نواری اینسایز کد 7114-950، 150–950 میلی‌متر,7114-950,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,150–950 میلی‌متر
-2086,7139-100,خط‌کش فلزی اینسایز کد 7139-100، 0–1000 میلی‌متر,7139-100,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
-2088,7205-200,گونیا مرکز‌یاب اینسایز کد 7205-200,7205-200,CENTER_SQUARE,گونیا مرکز‌یاب,VARIANT_NOT_REQUIRED_APPROVED,,
 2101,8602-200,ترازوی دیجیتال اینسایز کد 8602-200,8602-200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 2102,9225-405,دورسنج اینسایز کد 9225-405,9225-405,TACHOMETER,دورسنج,VARIANT_NOT_REQUIRED_APPROVED,,
 2103,9247-190,مولتی‌متر دیجیتال اینسایز کد 9247-190,9247-190,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-2105,9721-250,تستر ولتاژ اینسایز کد 9721-250,9721-250,VOLTAGE_TESTER,تستر ولتاژ,VARIANT_NOT_REQUIRED_APPROVED,,
 3481,2307-1,ساعت اندازه‌گیری اینسایز کد 2307-1، 0–25.4 میلی‌متر,2307-1,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
 3482,2307-025,ساعت اندازه‌گیری اینسایز کد 2307-025، 0–6.35 میلی‌متر,2307-025,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–6.35 میلی‌متر
-3483,2308-10,ساعت اندازه‌گیری اینسایز کد 2308-10، 0–10 میلی‌متر,2308-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3485,2170-1,زاویه‌سنج اینسایز کد 2170-1,2170-1,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3487,2121-25,پرگار نشان‌گر اینسایز کد 2121-25، 5–25 میلی‌متر,2121-25,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,5–25 میلی‌متر
 3488,2332-20,پرگار نشان‌گر اینسایز کد 2332-20، 0–20 میلی‌متر,2332-20,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,0–20 میلی‌متر
 3490,2151-35,پرگار نشان‌گر اینسایز کد 2151-35، 15–35 میلی‌متر,2151-35,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,15–35 میلی‌متر
 3492,2151-55,پرگار نشان‌گر اینسایز کد 2151-55، 35–55 میلی‌متر,2151-55,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,35–55 میلی‌متر
-3493,2361-10,ضخامت‌سنج اینسایز کد 2361-10، 0–10 میلی‌متر,2361-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3494,2364-10,ضخامت‌سنج اینسایز کد 2364-10، 0–10 میلی‌متر,2364-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3499,3127-8,میکرومتر داخل‌سنج اینسایز کد 3127-8، 6–8 میلی‌متر,3127-8,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,6–8 میلی‌متر
-3500,3127-10,میکرومتر داخل‌سنج اینسایز کد 3127-10، 8–10 میلی‌متر,3127-10,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,8–10 میلی‌متر
-3501,3127-12,میکرومتر داخل‌سنج اینسایز کد 3127-12، 10–12 میلی‌متر,3127-12,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,10–12 میلی‌متر
-3503,3127-20,میکرومتر داخل‌سنج اینسایز کد 3127-20، 16–20 میلی‌متر,3127-20,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,16–20 میلی‌متر
-3504,3282-25,میکرومتر خارج‌سنج اینسایز کد 3282-25، 0–25 میلی‌متر,3282-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3505,3127-25,میکرومتر داخل‌سنج اینسایز کد 3127-25، 20–25 میلی‌متر,3127-25,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,20–25 میلی‌متر
-3506,3127-30,میکرومتر داخل‌سنج اینسایز کد 3127-30، 25–30 میلی‌متر,3127-30,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,25–30 میلی‌متر
-3507,3282-50,میکرومتر خارج‌سنج اینسایز کد 3282-50، 25–50 میلی‌متر,3282-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3508,3127-40,میکرومتر داخل‌سنج اینسایز کد 3127-40، 30–40 میلی‌متر,3127-40,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,30–40 میلی‌متر
-3509,3282-75,میکرومتر خارج‌سنج اینسایز کد 3282-75، 50–75 میلی‌متر,3282-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3510,3127-50,میکرومتر داخل‌سنج اینسایز کد 3127-50، 40–50 میلی‌متر,3127-50,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,40–50 میلی‌متر
-3511,3594-25,میکرومتر خارج‌سنج اینسایز کد 3594-25، 0–25 میلی‌متر,3594-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3512,2364-1,ضخامت‌سنج اینسایز کد 2364-1، 0–10 میلی‌متر,2364-1,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3513,3127-63,میکرومتر داخل‌سنج اینسایز کد 3127-63، 50–63 میلی‌متر,3127-63,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–63 میلی‌متر
-3514,3127-75,میکرومتر داخل‌سنج اینسایز کد 3127-75، 62–75 میلی‌متر,3127-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,62–75 میلی‌متر
 3515,3220-30,میکرومتر داخل‌سنج اینسایز کد 3220-30، 5–30 میلی‌متر,3220-30,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,5–30 میلی‌متر
-3516,3127-88,میکرومتر داخل‌سنج اینسایز کد 3127-88، 75–88 میلی‌متر,3127-88,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,75–88 میلی‌متر
-3517,2863-10,ضخامت‌سنج اینسایز کد 2863-10، 0–10 میلی‌متر,2863-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3518,2866-10,ضخامت‌سنج اینسایز کد 2866-10، 0–10 میلی‌متر,2866-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3519,3227-8,میکرومتر داخل‌سنج اینسایز کد 3227-8، 6–8 میلی‌متر,3227-8,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,6–8 میلی‌متر
-3520,2367-10,ضخامت‌سنج اینسایز کد 2367-10، 0–10 میلی‌متر,2367-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3521,3227-10,میکرومتر داخل‌سنج اینسایز کد 3227-10، 8–10 میلی‌متر,3227-10,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,8–10 میلی‌متر
 3522,3220-50,میکرومتر داخل‌سنج اینسایز کد 3220-50، 25–50 میلی‌متر,3220-50,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3523,3227-12,میکرومتر داخل‌سنج اینسایز کد 3227-12، 10–12 میلی‌متر,3227-12,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,10–12 میلی‌متر
 3524,3220-75,میکرومتر داخل‌سنج اینسایز کد 3220-75، 50–75 میلی‌متر,3220-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3525,3227-16,میکرومتر داخل‌سنج اینسایز کد 3227-16، 12–16 میلی‌متر,3227-16,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,12–16 میلی‌متر
-3526,3227-20,میکرومتر داخل‌سنج اینسایز کد 3227-20، 16–20 میلی‌متر,3227-20,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,16–20 میلی‌متر
 3527,3520-50,میکرومتر داخل‌سنج اینسایز کد 3520-50، 25–50 میلی‌متر,3520-50,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3528,3227-25,میکرومتر داخل‌سنج اینسایز کد 3227-25، 20–25 میلی‌متر,3227-25,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,20–25 میلی‌متر
-3529,3227-30,میکرومتر داخل‌سنج اینسایز کد 3227-30، 25–30 میلی‌متر,3227-30,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,25–30 میلی‌متر
-3530,3227-40,میکرومتر داخل‌سنج اینسایز کد 3227-40، 30–40 میلی‌متر,3227-40,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,30–40 میلی‌متر
-3531,3227-50,میکرومتر داخل‌سنج اینسایز کد 3227-50، 40–50 میلی‌متر,3227-50,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,40–50 میلی‌متر
-3532,3227-63,میکرومتر داخل‌سنج اینسایز کد 3227-63، 50–63 میلی‌متر,3227-63,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–63 میلی‌متر
-3533,3227-75,میکرومتر داخل‌سنج اینسایز کد 3227-75، 62–75 میلی‌متر,3227-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,62–75 میلی‌متر
 3534,3520-75,میکرومتر داخل‌سنج اینسایز کد 3520-75، 50–75 میلی‌متر,3520-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3535,3227-88,میکرومتر داخل‌سنج اینسایز کد 3227-88، 75–88 میلی‌متر,3227-88,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,75–88 میلی‌متر
 3544,4602-17,ست فیلر اینسایز کد 4602-17,4602-17,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 3545,4602-32,ست فیلر اینسایز کد 4602-32,4602-32,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 3546,4621-02,فیلر نواری اینسایز کد 4621-02,4621-02,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3548,3108-25,میکرومتر خارج‌سنج اینسایز کد 3108-25، 0–25 میلی‌متر,3108-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3549,3108-50,میکرومتر خارج‌سنج اینسایز کد 3108-50، 25–50 میلی‌متر,3108-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3550,3109-25,میکرومتر خارج‌سنج اینسایز کد 3109-25، 0–25 میلی‌متر,3109-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3552,4621-03,فیلر نواری اینسایز کد 4621-03,4621-03,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3553,4621-04,فیلر نواری اینسایز کد 4621-04,4621-04,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3554,4621-05,فیلر نواری اینسایز کد 4621-05,4621-05,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3555,4621-06,فیلر نواری اینسایز کد 4621-06,4621-06,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3556,3203-25,میکرومتر خارج‌سنج اینسایز کد 3203-25، 0–25 میلی‌متر,3203-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3557,4621-07,فیلر نواری اینسایز کد 4621-07,4621-07,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3558,4621-08,فیلر نواری اینسایز کد 4621-08,4621-08,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3559,3203-50,میکرومتر خارج‌سنج اینسایز کد 3203-50، 25–50 میلی‌متر,3203-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3560,3203-75,میکرومتر خارج‌سنج اینسایز کد 3203-75، 50–75 میلی‌متر,3203-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
 3561,4621-09,فیلر نواری اینسایز کد 4621-09,4621-09,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3562,4621-10,فیلر نواری اینسایز کد 4621-10,4621-10,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3563,4621-15,فیلر نواری اینسایز کد 4621-15,4621-15,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
@@ -251,62 +114,37 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3569,4621-70,فیلر نواری اینسایز کد 4621-70,4621-70,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3570,4621-80,فیلر نواری اینسایز کد 4621-80,4621-80,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3571,4621-90,فیلر نواری اینسایز کد 4621-90,4621-90,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3573,3210-25,میکرومتر خارج‌سنج اینسایز کد 3210-25، 0–25 میلی‌متر,3210-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3574,3210-50,میکرومتر خارج‌سنج اینسایز کد 3210-50، 25–50 میلی‌متر,3210-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
 3575,3400-25,میکرومتر خارج‌سنج اینسایز کد 3400-25، 0–25 میلی‌متر,3400-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3578,1240-1501,عمق‌سنج اینسایز کد 1240-1501، 0–150 میلی‌متر,1240-1501,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 3580,1240-2001,عمق‌سنج اینسایز کد 1240-2001، 0–200 میلی‌متر,1240-2001,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–200 میلی‌متر
 3581,1240-3001,عمق‌سنج اینسایز کد 1240-3001، 0–300 میلی‌متر,1240-3001,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 3583,1240-5001,عمق‌سنج اینسایز کد 1240-5001، 0–500 میلی‌متر,1240-5001,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–500 میلی‌متر
-3592,1145-25,عمق‌سنج اینسایز کد 1145-25، 0–25 میلی‌متر,1145-25,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3595,1140-50,عمق‌سنج اینسایز کد 1140-50، 0–50 میلی‌متر,1140-50,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–50 میلی‌متر
 3599,3240-25,میکرومتر عمق‌سنج اینسایز کد 3240-25، 0–25 میلی‌متر,3240-25,DEPTH_MICROMETER,میکرومتر عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3603,4790-0150,گونیا مهندسی اینسایز کد 4790-0150,4790-0150,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 3604,4790-0100,گونیا مهندسی اینسایز کد 4790-0100,4790-0100,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 3605,4745-1120,گونیا مهندسی اینسایز کد 4745-1120,4745-1120,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
-3606,7114-2200,متر نواری اینسایز کد 7114-2200، 940–2200 میلی‌متر,7114-2200,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,940–2200 میلی‌متر
-3607,7114-3460,متر نواری اینسایز کد 7114-3460، 2190–3460 میلی‌متر,7114-3460,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,2190–3460 میلی‌متر
-3611,2112-10,ساعت اندازه‌گیری اینسایز کد 2112-10، 0–12.7 میلی‌متر,2112-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-3612,2112-25,ساعت اندازه‌گیری اینسایز کد 2112-25، 0–25.4 میلی‌متر,2112-25,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
-3613,2112-50,ساعت اندازه‌گیری اینسایز کد 2112-50، 0–50.8 میلی‌متر,2112-50,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–50.8 میلی‌متر
 3614,2380-08,ساعت اهرمی اینسایز کد 2380-08، 0–0.8 میلی‌متر,2380-08,TEST_INDICATOR,ساعت اهرمی,SUFFIX_GOVERNED,measurement_range,0–0.8 میلی‌متر
 3615,2381-08,ساعت اهرمی اینسایز کد 2381-08، 0–0.8 میلی‌متر,2381-08,TEST_INDICATOR,ساعت اهرمی,SUFFIX_GOVERNED,measurement_range,0–0.8 میلی‌متر
 3616,2381-02,ساعت اهرمی اینسایز کد 2381-02، 0–0.2 میلی‌متر,2381-02,TEST_INDICATOR,ساعت اهرمی,SUFFIX_GOVERNED,measurement_range,0–0.2 میلی‌متر
-3618,2310-30,ساعت اندازه‌گیری اینسایز کد 2310-30، 0–30 میلی‌متر,2310-30,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–30 میلی‌متر
 3619,2309-50,ساعت اندازه‌گیری اینسایز کد 2309-50، 0–50 میلی‌متر,2309-50,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–50 میلی‌متر
 3621,2311-5,ساعت اندازه‌گیری اینسایز کد 2311-5، 0–5 میلی‌متر,2311-5,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–5 میلی‌متر
 3622,2301-10,ساعت اندازه‌گیری اینسایز کد 2301-10، 0–10 میلی‌متر,2301-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 3623,2318-10,ساعت اندازه‌گیری اینسایز کد 2318-10، 0–10 میلی‌متر,2318-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 3624,2318-30,ساعت اندازه‌گیری اینسایز کد 2318-30، 0–30 میلی‌متر,2318-30,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–30 میلی‌متر
-3625,2114-5F,ساعت اندازه‌گیری اینسایز کد 2114-5F، 0–5 میلی‌متر,2114-5F,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–5 میلی‌متر
-3626,2103-10,ساعت اندازه‌گیری اینسایز کد 2103-10، 0–12.7 میلی‌متر,2103-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-3627,2118-10,ساعت اندازه‌گیری اینسایز کد 2118-10، 0–12.7 میلی‌متر,2118-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 3632,4602-20,ست فیلر اینسایز کد 4602-20,4602-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 3635,1150-1000,ارتفاع‌سنج اینسایز کد 1150-1000، 0–1000 میلی‌متر,1150-1000,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
 3636,1140-25,عمق‌سنج اینسایز کد 1140-25، 0–25 میلی‌متر,1140-25,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3637,2871-10,ضخامت‌سنج اینسایز کد 2871-10، 0–10 میلی‌متر,2871-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3638,2872-10,ضخامت‌سنج اینسایز کد 2872-10، 0–10 میلی‌متر,2872-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3640,3210-75,میکرومتر خارج‌سنج اینسایز کد 3210-75، 50–75 میلی‌متر,3210-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3641,3109-75,میکرومتر خارج‌سنج اینسایز کد 3109-75، 50–75 میلی‌متر,3109-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3642,3291-25,میکرومتر خارج‌سنج اینسایز کد 3291-25، 0–25 میلی‌متر,3291-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3643,3232-75,میکرومتر خارج‌سنج اینسایز کد 3232-75، 50–75 میلی‌متر,3232-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
-3644,3108-75,میکرومتر خارج‌سنج اینسایز کد 3108-75، 50–75 میلی‌متر,3108-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
 3645,3520-30,میکرومتر داخل‌سنج اینسایز کد 3520-30، 5–30 میلی‌متر,3520-30,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,5–30 میلی‌متر
 3646,3222-1000,میکرومتر داخل‌سنج اینسایز کد 3222-1000، 50–1000 میلی‌متر,3222-1000,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–1000 میلی‌متر
-3648,3594-50,میکرومتر خارج‌سنج اینسایز کد 3594-50، 25–50 میلی‌متر,3594-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
-3649,3127-16,میکرومتر داخل‌سنج اینسایز کد 3127-16، 12–16 میلی‌متر,3127-16,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,12–16 میلی‌متر
 3655,4790-0200,گونیا مهندسی اینسایز کد 4790-0200,4790-0200,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 3656,4760-1200,گونیا مهندسی اینسایز کد 4760-1200,4760-1200,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 3657,4605-20,ست فیلر اینسایز کد 4605-20,4605-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 3658,4621-12,فیلر نواری اینسایز کد 4621-12,4621-12,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3660,4621-60,فیلر نواری اینسایز کد 4621-60,4621-60,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3662,4780-85,زاویه‌سنج اینسایز کد 4780-85,4780-85,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3678,4838-1,گیج جوش اینسایز کد 4838-1,4838-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
 3680,4836-1,گیج جوش نبشی اینسایز کد 4836-1,4836-1,FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,
-3682,4842-1,گیج زاویه اینسایز کد 4842-1,4842-1,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
-3684,4843-1,گیج زاویه اینسایز کد 4843-1,4843-1,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
 3685,4824-16,شابلون گام رزوه اینسایز کد 4824-16,4824-16,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
-3717,6354-25W,میکرومتر خارج‌سنج اینسایز کد 6354-25W، 0–25 میلی‌متر,6354-25W,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3720,9341-50,رطوبت‌سنج اینسایز کد 9341-50,9341-50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3721,8003-3,ترازوی دیجیتال اینسایز کد 8003-3,8003-3,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 3743,1181-M50A,کولیس ضخامت دندانه اینسایز کد 1181-M50A، 5–50 میلی‌متر,1181-M50A,GEAR_TOOTH_CALIPER,کولیس ضخامت دندانه,SUFFIX_GOVERNED,measurement_range,5–50 میلی‌متر
@@ -321,43 +159,18 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3757,2321-35,پرگار نشان‌گر اینسایز کد 2321-35، 15–35 میلی‌متر,2321-35,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,15–35 میلی‌متر
 3758,2321-55,پرگار نشان‌گر اینسایز کد 2321-55، 35–55 میلی‌متر,2321-55,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,35–55 میلی‌متر
 3760,2321-75,پرگار نشان‌گر اینسایز کد 2321-75، 55–75 میلی‌متر,2321-75,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,55–75 میلی‌متر
-3762,2366-30,ضخامت‌سنج اینسایز کد 2366-30، 0–30 میلی‌متر,2366-30,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–30 میلی‌متر
-3763,2383-08,ساعت اهرمی اینسایز کد 2383-08، 0–0.8 میلی‌متر,2383-08,TEST_INDICATOR,ساعت اهرمی,SUFFIX_GOVERNED,measurement_range,0–0.8 میلی‌متر
-3765,2710-25,ضخامت‌سنج اینسایز کد 2710-25، 0–25.4 میلی‌متر,2710-25,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
-3769,2876-10,ضخامت‌سنج اینسایز کد 2876-10، 0–10 میلی‌متر,2876-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3770,3230-25BA,میکرومتر خارج‌سنج اینسایز کد 3230-25BA، 0–25 میلی‌متر,3230-25BA,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3772,3260-25,میکرومتر خارج‌سنج اینسایز کد 3260-25، 0–25 میلی‌متر,3260-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3774,3203-12A,میکرومتر خارج‌سنج اینسایز کد 3203-12A، 279.4–304.8 میلی‌متر,3203-12A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,279.4–304.8 میلی‌متر
-3776,3530-25BA,میکرومتر خارج‌سنج اینسایز کد 3530-25BA، 0–25 میلی‌متر,3530-25BA,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3782,4790-0300,گونیا مهندسی اینسایز کد 4790-0300,4790-0300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
-3790,4806-20,گیج زاویه اینسایز کد 4806-20,4806-20,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
 3791,4824-12,شابلون گام رزوه اینسایز کد 4824-12,4824-12,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
-3813,6377-25W,میکرومتر خارج‌سنج اینسایز کد 6377-25W، 0–25 میلی‌متر,6377-25W,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3814,6557-50,صفرکن محور Z اینسایز کد 6557-50,6557-50,ZERO_SETTER,صفرکن محور Z,VARIANT_NOT_REQUIRED_APPROVED,,
 3825,9501-1200,ضخامت‌سنج پوشش اینسایز کد 9501-1200,9501-1200,COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,
 3826,9561-50B,متر لیزری اینسایز کد 9561-50B، 0.2–50 متر,9561-50B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–50 متر
 3827,9561-70B,متر لیزری اینسایز کد 9561-70B، 0.2–70 متر,9561-70B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–70 متر
 3841,4608-31,فیلر نواری اینسایز کد 4608-31,4608-31,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
-3895,0312-TH50,رطوبت‌سنج اینسایز کد 0312-TH50,0312-TH50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-3901,1141-1000,عمق‌سنج اینسایز کد 1141-1000، 0–1000 میلی‌متر,1141-1000,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
 3902,1180-6,گیج پخ اینسایز کد 1180-6,1180-6,CHAMFER_GAUGE,گیج پخ,VARIANT_NOT_REQUIRED_APPROVED,,
-3909,2115-10,ساعت اندازه‌گیری اینسایز کد 2115-10، 0–12.7 میلی‌متر,2115-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-3917,2163-25,ضخامت‌سنج اینسایز کد 2163-25، 0–25 میلی‌متر,2163-25,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3922,2365-10,ضخامت‌سنج اینسایز کد 2365-10، 0–10 میلی‌متر,2365-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3927,2875-30,ضخامت‌سنج اینسایز کد 2875-30، 0–30 میلی‌متر,2875-30,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–30 میلی‌متر
-3931,3101-25,میکرومتر خارج‌سنج اینسایز کد 3101-25، 0–25 میلی‌متر,3101-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3933,3260-25SA,میکرومتر خارج‌سنج اینسایز کد 3260-25SA، 0–25 میلی‌متر,3260-25SA,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3935,3287-25B,میکرومتر داخل‌سنج اینسایز کد 3287-25B، 0–25 میلی‌متر,3287-25B,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3936,3332-25,میکرومتر خارج‌سنج اینسایز کد 3332-25، 0–25 میلی‌متر,3332-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3937,3358-25,میکرومتر خارج‌سنج اینسایز کد 3358-25، 0–25 میلی‌متر,3358-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3938,3540-50,عمق‌سنج اینسایز کد 3540-50، 0–50 میلی‌متر,3540-50,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–50 میلی‌متر
-3944,3127-5,میکرومتر داخل‌سنج اینسایز کد 3127-5، 4–5 میلی‌متر,3127-5,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,4–5 میلی‌متر
-3946,3127-6,میکرومتر داخل‌سنج اینسایز کد 3127-6، 5–6 میلی‌متر,3127-6,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,5–6 میلی‌متر
 3947,3203-10A,میکرومتر خارج‌سنج اینسایز کد 3203-10A، 228.6–254 میلی‌متر,3203-10A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,228.6–254 میلی‌متر
 3949,3203-7A,میکرومتر خارج‌سنج اینسایز کد 3203-7A، 152.4–177.8 میلی‌متر,3203-7A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,152.4–177.8 میلی‌متر
 3950,3203-8A,میکرومتر خارج‌سنج اینسایز کد 3203-8A، 177.8–203.2 میلی‌متر,3203-8A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,177.8–203.2 میلی‌متر
 3952,3203-9A,میکرومتر خارج‌سنج اینسایز کد 3203-9A، 0–300 میلی‌متر,3203-9A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
-3954,3227-6,میکرومتر داخل‌سنج اینسایز کد 3227-6، 5–6 میلی‌متر,3227-6,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,5–6 میلی‌متر
 4026,4621-35,فیلر نواری اینسایز کد 4621-35,4621-35,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 4028,4790-050,گونیا مهندسی اینسایز کد 4790-050,4790-050,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 4030,4790-075,گونیا مهندسی اینسایز کد 4790-075,4790-075,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
@@ -377,7 +190,6 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 4106,8203-CW03T,ترازوی دیجیتال اینسایز کد 8203-CW03T,8203-CW03T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4107,8203-CW05T,ترازوی دیجیتال اینسایز کد 8203-CW05T,8203-CW05T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4108,8203-CW1T,ترازوی دیجیتال اینسایز کد 8203-CW1T,8203-CW1T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4110,8301-1200,ترازوی دیجیتال اینسایز کد 8301-1200,8301-1200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4112,8604-40,ترازوی دیجیتال اینسایز کد 8604-40,8604-40,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4113,9241-ML200,مولتی‌متر دیجیتال اینسایز کد 9241-ML200,9241-ML200,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4125,1156-1000,ارتفاع‌سنج اینسایز کد 1156-1000، 0–1000 میلی‌متر,1156-1000,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
