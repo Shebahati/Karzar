@@ -1136,6 +1136,26 @@ documents:
     notes: >
       Planning-only Phase 2C APPLY design. No executable apply path.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2D-SUMMARY
+    path: audit/product-naming-phase2d/PHASE2D_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D canonical name candidate dry-run summary. Read-only; no Product.name writes.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-VARIANT-POLICY
+    path: audit/product-naming-phase2d/PHASE2D_PRODUCT_TYPE_NAMING_POLICY.csv
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D conservative Product Type → naming profile registry for live PT codes.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

@@ -1,0 +1,844 @@
+product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguous governance dependency,recommended next remediation
+1044,1012-0010,Dasqua | داسکوا,1012-0010,زاویه سنج سه تکه با خط کش 12کش — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1045,1012-0030,Dasqua | داسکوا,1012-0030,زاویه سنج سه تکه با خط کش 12کش — 0-30mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1046,1012-2005,Dasqua | داسکوا,1012-2005,زاویه سنج یونیورسال ساعت 2,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1050,1021-2005,Dasqua | داسکوا,1021-2005,زاویه سنج یونیورسال دیجیتال,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1051,1022-1010,Dasqua | داسکوا,1022-1010,زاویه سنج نقاله ای دیجیتال — 0-1010mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1052,1022-1015,Dasqua | داسکوا,1022-1015,زاویه سنج نقاله ای دیجیتال — 0-1015mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1055,1030-2010,Dasqua | داسکوا,1030-2010,ترازوی جیت دیجیتال,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1056,1030-2051,Dasqua | داسکوا,1030-2051,تاکومی (دورسنج) دیجیتال مکانییک — 0-500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1057,1030-2056,Dasqua | داسکوا,1030-2056,تاکومی (دورسنج) دیجیتال مکانییک 1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1058,1030-2061,Dasqua | داسکوا,1030-2061,رنیو سنج دیجیتال,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1062,1041-0005,Dasqua | داسکوا,1041-0005,"1,1.25,1.5,1.75,2,2.5,3,3.5,4 میلیمی تا 7 شابلون رزوه اینچ و — 0-50mm",HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1064,1041-2205,Dasqua | داسکوا,1041-2205,شابلون رنده پیچ بری 60درجه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1065,1041-2215,Dasqua | داسکوا,1041-2215,شابلون رنده پیچ بری 60درجه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1068,1051-0302,Dasqua | داسکوا,1051-0302,پرگار معمویل — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1069,1051-0304,Dasqua | داسکوا,1051-0304,پرگار معمویل — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1071,1120-3113,Dasqua | داسکوا,1120-3113,کولیس ورنیه تیپ مونو بالک — 0-70mm/0-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1073,1305-0002,Dasqua | داسکوا,1305-0002,کولیس ورنیه دو فک بلند — 0-500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1074,1305-0003,Dasqua | داسکوا,1305-0003,کولیس ورنیه دو فک بلند — 0-600mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1075,1305-0010,Dasqua | داسکوا,1305-0010,کولیس مونوبالک ورنیه فک بلند با — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1076,1305-0025,Dasqua | داسکوا,1305-0025,36/5- کولیس مونوبالک ورنیه فک بلند با — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1077,1310-0004,Dasqua | داسکوا,1310-0004,کولیس مونو بالک ورنیه فک بلند — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1078,1310-0005,Dasqua | داسکوا,1310-0005,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1079,1310-0006,Dasqua | داسکوا,1310-0006,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1080,1310-0007,Dasqua | داسکوا,1310-0007,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1081,1310-0008,Dasqua | داسکوا,1310-0008,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1082,1310-0009,Dasqua | داسکوا,1310-0009,کولیس مونو بالک ورنیه فک بلند — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1083,1310-0010,Dasqua | داسکوا,1310-0010,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1084,1310-0011,Dasqua | داسکوا,1310-0011,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1085,1310-0012,Dasqua | داسکوا,1310-0012,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1086,1310-0015,Dasqua | داسکوا,1310-0015,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1087,1310-0016,Dasqua | داسکوا,1310-0016,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1088,1310-0017,Dasqua | داسکوا,1310-0017,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1089,1310-0021,Dasqua | داسکوا,1310-0021,کولیس مونو بالک ورنیه فک بلند — 0-1500mm/0-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1090,1310-0025,Dasqua | داسکوا,1310-0025,کولیس مونو بالک ورنیه فک بلند — 0-2000mm/0-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1091,1310-0030,Dasqua | داسکوا,1310-0030,کولیس مونو بالک ورنیه فک بلند — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1092,1310-0031,Dasqua | داسکوا,1310-0031,کولیس مونو بالک ورنیه فک بلند — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1093,1310-0041,Dasqua | داسکوا,1310-0041,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1094,1310-0042,Dasqua | داسکوا,1310-0042,کولیس مونو بالک ورنیه فک بلند — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1095,1310-0043,Dasqua | داسکوا,1310-0043,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1096,1310-0044,Dasqua | داسکوا,1310-0044,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1097,1310-0055,Dasqua | داسکوا,1310-0055,کولیس مونو بالک ورنیه فک بلند — 0-1500mm/0-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1098,1310-0060,Dasqua | داسکوا,1310-0060,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1099,1310-0090,Dasqua | داسکوا,1310-0090,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1100,1310-0095,Dasqua | داسکوا,1310-0095,کولیس مونو بالک ورنیه فک بلند — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1101,1310-0100,Dasqua | داسکوا,1310-0100,کولیس مونو بالک ورنیه فک بلند — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1102,1331-2115,Dasqua | داسکوا,1331-2115,ساعت ( SHOCK PROOFضد رضبه) — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1103,1331-2120,Dasqua | داسکوا,1331-2120,ساعت کولیس 1 — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1104,1331-2130,Dasqua | داسکوا,1331-2130,کولیس ساعت 2 — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1105,1350-5005,Dasqua | داسکوا,1350-5005,ساعت کولیس 3 — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1106,1350-5010,Dasqua | داسکوا,1350-5010,کولیس ساعت 4 — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1107,1350-5015,Dasqua | داسکوا,1350-5015,ساعت کولیس 5 — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1108,1351-0005,Dasqua | داسکوا,1351-0005,شابلون شعاع سنج — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1109,1351-0010,Dasqua | داسکوا,1351-0010,شابلون شعاع سنج — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1110,1351-0015,Dasqua | داسکوا,1351-0015,شابلون شعاع سنج — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1111,1352-2010,Dasqua | داسکوا,1352-2010,شابلون شعاع سنج,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1112,1380-3004,Dasqua | داسکوا,1380-3004,کولیس ورنیه تیپ مونو بالک — 0-100mm/0-4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1113,1380-3005,Dasqua | داسکوا,1380-3005,کولیس ورنیه تیپ مونو بالک — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1114,1380-3010,Dasqua | داسکوا,1380-3010,کولیس ورنیه تیپ مونو بالک — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1115,1380-3015,Dasqua | داسکوا,1380-3015,کولیس ورنیه تیپ مونو بالک — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1120,1801-2005,Dasqua | داسکوا,1801-2005,زاویه سنج نقاله ای دیجیتال — 20 سانت,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1144,1804-0005,Dasqua | داسکوا,1804-0005,نقاله زاویه یاب آلومینیویم — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1146,1804-1006,Dasqua | داسکوا,1804-1006,نقاله زاویه سنج خر پا — 0-1006mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1148,1804-1010,Dasqua | داسکوا,1804-1010,پرگار داخل سنج دیجیتال با دسته — 0-1010mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1149,1804-1015,Dasqua | داسکوا,1804-1015,پرگار داخل سنج دیجیتال با دسته — 0-1015mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1150,1804-1020,Dasqua | داسکوا,1804-1020,/ /1 پرگار بی ر — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1151,1804-1025,Dasqua | داسکوا,1804-1025,/ /1 پرگار بی ر — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1154,1804-1065,Dasqua | داسکوا,1804-1065,کولیس دیجیتال نمایشگر بزرگ — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1155,1804-1070,Dasqua | داسکوا,1804-1070,کولیس دیجیتال نمایشگر بزرگ — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1156,1804-1075,Dasqua | داسکوا,1804-1075,کولیس دیجیتال نمایشگر بزرگ — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1160,1804-1102,Dasqua | داسکوا,1804-1102,ی خط کش استیل 3کاره ( خط کش ؛ عمق سنج و عالمت گذاری) ی — 0-1102mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1163,1804-1106,Dasqua | داسکوا,1804-1106,خط کش زاویه سنج 90درجه — 0-1106mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1165,1804-1115,Dasqua | داسکوا,1804-1115,رنیو سنج دیجیتال — 0-1115mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1166,1804-1120,Dasqua | داسکوا,1804-1120,رنیو سنج دیجیتال — 0-1120mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1167,1804-1125,Dasqua | داسکوا,1804-1125,رنیو سنج دیجیتال — 0-1125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1168,1804-1130,Dasqua | داسکوا,1804-1130,ساعت رنیوسنج — 0-1130mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1169,1804-1131,Dasqua | داسکوا,1804-1131,ساعت رنیوسنج — 0-1131mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1170,1804-1132,Dasqua | داسکوا,1804-1132,ساعت رنیوسنج — 0-1132mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1171,1804-1133,Dasqua | داسکوا,1804-1133,ساعت رنیوسنج — 0-1133mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1172,1804-1165,Dasqua | داسکوا,1804-1165,رنیو سنج دیجیتال — 0-1165mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1173,1804-1170,Dasqua | داسکوا,1804-1170,رنیو سنج دیجیتال — 0-1170mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1174,1804-1175,Dasqua | داسکوا,1804-1175,رنیو سنج دیجیتال — 0-1175mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1175,1804-1215,Dasqua | داسکوا,1804-1215,کولیس ورنیه آلومینیوم (مناسب کارهای آهنگری و نجاری و )... — 0-610mm/24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1177,1804-1710,Dasqua | داسکوا,1804-1710,گیج مرکزیاب — 0-1710mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1178,1804-2005,Dasqua | داسکوا,1804-2005,ضخامت سنج رنگ دیجیتال,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1179,1804-2010,Dasqua | داسکوا,1804-2010,ضخامت سنج رنگ دیجیتال,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1183,1804-5111,Dasqua | داسکوا,1804-5111,شابلون شعاع گوشه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1184,1804-5116,Dasqua | داسکوا,1804-5116,شابلون شعاع گوشه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1195,1804-5881,Dasqua | داسکوا,1804-5881,گونیا تنظیم زاویه متغیی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1199,1804-6302,Dasqua | داسکوا,1804-6302,زبری سنج دیجیتال پرتابل,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1200,1804-6310,Dasqua | داسکوا,1804-6310,بلوک زبری سنج,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1202,1804-6663,Dasqua | داسکوا,1804-6663,ست ساعت تراز تیغه با 2رابط بلند,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1210,1804-7111,Dasqua | داسکوا,1804-7111,صفحه رفرنس زاویه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1211,2000-2005,Dasqua | داسکوا,2000-2005,کولیس دیجیتال 2چیپ خروج — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1212,2000-2010,Dasqua | داسکوا,2000-2010,کولیس دیجیتال 2چیپ خروج 1 — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1213,2000-2015,Dasqua | داسکوا,2000-2015,کولیس دیجیتال 2چیپ خروج 2 — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1214,2001-2005,Dasqua | داسکوا,2001-2005,کولیس عمق سنج دیجیتال — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1215,2001-2010,Dasqua | داسکوا,2001-2010,سوزن (گرد) ( IP67 2 — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1216,2001-2015,Dasqua | داسکوا,2001-2015,سوزن (گرد) ( IP67 2 — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1218,2015-2405,Dasqua | داسکوا,2015-2405,کولیس دیجیتال IP67ضد آب و — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1219,2015-2410,Dasqua | داسکوا,2015-2410,/ کولیس دیجیتال IP67ضد آب و — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1220,2015-2415,Dasqua | داسکوا,2015-2415,/ کولیس دیجیتال IP67ضد آب و — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1222,2035-0006,Dasqua | داسکوا,2035-0006,کولیس پالستییک ساخته شده از فایی — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1223,2065-1105,Dasqua | داسکوا,2065-1105,کولیس شیار خارج سنج دیجیتال — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1224,2065-1110,Dasqua | داسکوا,2065-1110,کولیس شیار خارج سنج دیجیتال — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1225,2065-1115,Dasqua | داسکوا,2065-1115,کولیس شیار خارج سنج دیجیتال — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1226,2070-1105,Dasqua | داسکوا,2070-1105,کولیس اندازه گی — 0-150mm/ -6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1229,2100-1015,Dasqua | داسکوا,2100-1015,کولیس دیجیتال فک متحرک — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1232,2100-1130,Dasqua | داسکوا,2100-1130,کولیس اندازه گی — 0-300mm/1/18-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1233,2110-8105,Dasqua | داسکوا,2110-8105,کولیس های متفرقه که تکرار نیم شوند — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1234,2115-2305,Dasqua | داسکوا,2115-2305,کولیس های متفرقه که تکرار نیم شوند — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1235,2117-9105,Dasqua | داسکوا,2117-9105,کولیس دیجیتال متال صفحه نمایشگر — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1236,2117-9110,Dasqua | داسکوا,2117-9110,کولیس دیجیتال متال صفحه نمایشگر — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1237,2117-9115,Dasqua | داسکوا,2117-9115,کولیس دیجیتال متال صفحه نمایشگر — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1238,2140-8101,Dasqua | داسکوا,2140-8101,کولیس ورنیه تیپ مونو بالک — 0-31/5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1239,2140-8105,Dasqua | داسکوا,2140-8105,ضخامت سنج دیجیتال برای ضخامت — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1240,2210-8106,Dasqua | داسکوا,2210-8106,کولیس دیجیتال ابسلوت ضد آب — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1241,2220-3570,Dasqua | داسکوا,2220-3570,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1500mm/0-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1242,2220-8103,Dasqua | داسکوا,2220-8103,کولیس اندازه گی — 0-500mm/4-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1243,2220-8104,Dasqua | داسکوا,2220-8104,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1244,2220-8105,Dasqua | داسکوا,2220-8105,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1245,2220-8110,Dasqua | داسکوا,2220-8110,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1246,2220-8115,Dasqua | داسکوا,2220-8115,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1247,2220-8117,Dasqua | داسکوا,2220-8117,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1248,2220-8130,Dasqua | داسکوا,2220-8130,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1249,2220-8135,Dasqua | داسکوا,2220-8135,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1250,2220-8150,Dasqua | داسکوا,2220-8150,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1251,2220-8155,Dasqua | داسکوا,2220-8155,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1252,2220-8170,Dasqua | داسکوا,2220-8170,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1253,2220-8175,Dasqua | داسکوا,2220-8175,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1254,2220-8180,Dasqua | داسکوا,2220-8180,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1255,2220-8185,Dasqua | داسکوا,2220-8185,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1256,2220-8190,Dasqua | داسکوا,2220-8190,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1257,2220-8200,Dasqua | داسکوا,2220-8200,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1258,2220-8205,Dasqua | داسکوا,2220-8205,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1259,2220-8210,Dasqua | داسکوا,2220-8210,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1260,2220-8215,Dasqua | داسکوا,2220-8215,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1261,2220-8220,Dasqua | داسکوا,2220-8220,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-800mm/0-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1262,2220-8225,Dasqua | داسکوا,2220-8225,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1263,2220-8230,Dasqua | داسکوا,2220-8230,کولیس دیجیتال فک بلند استنلس استیل IP54خروج — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1265,2240-0026,Dasqua | داسکوا,2240-0026,کولیس اندازه گی — 0-200mm/ -8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1266,2240-0027,Dasqua | داسکوا,2240-0027,کولیس اندازه گی — 0-300mm/ -12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1267,2250-2105,Dasqua | داسکوا,2250-2105,کولیس عمق سنج دیجیتال با نوک — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1270,2406-1005,Dasqua | داسکوا,2406-1005,کولیس دیجیتال فک کارباید — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1271,2406-1010,Dasqua | داسکوا,2406-1010,کولیس دیجیتال فک کارباید — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1272,2410-8105,Dasqua | داسکوا,2410-8105,کولیس دیجیتال صفحه نمایش بزرگ — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1273,2410-8110,Dasqua | داسکوا,2410-8110,کولیس دیجیتال صفحه نمایش بزرگ — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1274,2570-5105,Dasqua | داسکوا,2570-5105,کولیس اندازه گی — 0-150mm/ -6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1277,2610-8105,Dasqua | داسکوا,2610-8105,کولیس دیجیتال ضد آب صفحه — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1278,2710-1105,Dasqua | داسکوا,2710-1105,کولیس ورنیه دو فک بلند — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1279,2805-0005,Dasqua | داسکوا,2805-0005,کولیس خط ی — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1280,3001-0105,Dasqua | داسکوا,3001-0105,/0- کولیس پایه دار (ارتفاع سنج )استنلس — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1281,3001-0120,Dasqua | داسکوا,3001-0120,/0- کولیس پایه دار (ارتفاع سنج )استنلس — 0-600mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1282,3001-0125,Dasqua | داسکوا,3001-0125,/0- کولیس پایه دار (ارتفاع سنج )استنلس — 0-1000mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1283,3001-1001,Dasqua | داسکوا,3001-1001,دنباله عمق سنج کولیس — 0-1001mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1287,3004-0003,Dasqua | داسکوا,3004-0003,ساعتي -ديجيتال شارژی كوليس — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1288,3004-0005,Dasqua | داسکوا,3004-0005,ساعتي -ديجيتال كوليس پورتابل — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1289,3004-1005,Dasqua | داسکوا,3004-1005,كوليس پورتابل ساعت — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1290,3004-2005,Dasqua | داسکوا,3004-2005,كوليس پورتابل ساعت — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1293,3130-8115,Dasqua | داسکوا,3130-8115,كوليس پايه دار ديجيتال (ارتفاع -سنج) — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1294,3130-8119,Dasqua | داسکوا,3130-8119,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1295,3130-8120,Dasqua | داسکوا,3130-8120,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1296,3130-8125,Dasqua | داسکوا,3130-8125,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1297,3130-8130,Dasqua | داسکوا,3130-8130,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1298,3221-1105,Dasqua | داسکوا,3221-1105,کولیس ارتفاع سنج ساعت — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1302,3430-4110,Dasqua | داسکوا,3430-4110,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1303,3430-4115,Dasqua | داسکوا,3430-4115,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-500mm/0-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1304,3430-4120,Dasqua | داسکوا,3430-4120,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1305,3530-0005,Dasqua | داسکوا,3530-0005,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1306,3530-0010,Dasqua | داسکوا,3530-0010,کولیس پایه دار (ارتفاع سنج) دیجیتال — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1307,4005-0090,Dasqua | داسکوا,4005-0090,/ میکرومی داخل سنج دیجیتال دو فک ی — 0-125mm/4-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1309,4005-0100,Dasqua | داسکوا,4005-0100,/ میکرومی داخل سنج دیجیتال دو فک ی — 0-175mm/6-7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1310,4107-1005,Dasqua | داسکوا,4107-1005,میکرومی پیچ (رزوه) با ست پراپ 10 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1311,4111-5205,Dasqua | داسکوا,4111-5205,میکرومی خارج 1 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1312,4111-8102,Dasqua | داسکوا,4111-8102,میکرومی دیسیک — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1314,4111-8105,Dasqua | داسکوا,4111-8105,میکرومی خارج — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1315,4111-8106,Dasqua | داسکوا,4111-8106,میکرومی دیسیک 2 — 0-75mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1316,4111-8108,Dasqua | داسکوا,4111-8108,میکرومی دیسیک 3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1318,4111-8115,Dasqua | داسکوا,4111-8115,میکرومی خارج 3 — 0-75mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1320,4111-8125,Dasqua | داسکوا,4111-8125,میکرومی خارج 5 — 0-125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1322,4111-8620,Dasqua | داسکوا,4111-8620,میکرومی دیسیک 3 — 0-125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1323,4111-8625,Dasqua | داسکوا,4111-8625,میکرومی دیسیک 3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1324,4111-8630,Dasqua | داسکوا,4111-8630,میکرومی دیسیک 3 — 0-175mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1326,4111-8640,Dasqua | داسکوا,4111-8640,میکرومی دیسیک 8 — 0-225mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1328,4111-8650,Dasqua | داسکوا,4111-8650,میکرومی دیسیک (بدون چرخش) 10 — 0-275mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1330,4111-9105,Dasqua | داسکوا,4111-9105,میکرومی خارج — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1333,4111-9130,Dasqua | داسکوا,4111-9130,میکرومی خارج 3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1334,4112-7435,Dasqua | داسکوا,4112-7435,میکرومی خارج 7 — 0-175mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1336,4112-7445,Dasqua | داسکوا,4112-7445,میکرومی خارج 9 — 0-225mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1338,4112-8145,Dasqua | داسکوا,4112-8145,میکرومی خارج 10 — 0-225mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1340,4112-8155,Dasqua | داسکوا,4112-8155,میکرومی خارج 14 — 0-275mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1342,4127-0005,Dasqua | داسکوا,4127-0005,/ ی پیچ ( رزوه ) دیجیتال IP65 — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1343,4137-4005,Dasqua | داسکوا,4137-4005,/ ی پیچ ( رزوه ) دیجیتال ضد — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1344,4146-1005,Dasqua | داسکوا,4146-1005,میکرومی پیچ پراپ 16 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1346,4146-1015,Dasqua | داسکوا,4146-1015,پاسومی خارج میکرومی 2 — 0-75mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1348,4146-5105,Dasqua | داسکوا,4146-5105,پاسومی خارج میکرومی 4 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1349,4210-2103,Dasqua | داسکوا,4210-2103,میکرومی دیجیتال یونیورسال (فک — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1351,4210-2106,Dasqua | داسکوا,4210-2106,میکرومی دیجیتال یونیورسال (فک,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1353,4210-2125,Dasqua | داسکوا,4210-2125,میکرومی خارج — 0-125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1360,4220-2104,Dasqua | داسکوا,4220-2104,میکرومی خارج دیسیک دیجیتال رسی ع حرکت شفت بدون چرخش خروج — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1361,4220-2108,Dasqua | داسکوا,4220-2108,میکرومی خارج دیسیک دیجیتال رسی ع حرکت شفت بدون چرخش خروج,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1362,4220-2109,Dasqua | داسکوا,4220-2109,میکرومی 2 — 0-75mm/2-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1363,4230-2005,Dasqua | داسکوا,4230-2005,میکرومی خارج دیجیتال با شفت — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1365,4230-2015,Dasqua | داسکوا,4230-2015,میکرومی خارج دیجیتال با شفت — 0-75mm/2-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1367,4230-2025,Dasqua | داسکوا,4230-2025,میکرومی خارج دیجیتال با شفت — 0-125mm/4-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1369,4311-8103,Dasqua | داسکوا,4311-8103,میکرومی داخل سنج لوله ای — 0-63mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1370,4311-8106,Dasqua | داسکوا,4311-8106,میکرومی داخل سنج لوله ای 1 — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1371,4311-8107,Dasqua | داسکوا,4311-8107,میکرومی داخل سنج لوله ای 2 — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1372,4311-8109,Dasqua | داسکوا,4311-8109,میکرومی داخل سنج لوله ای 3 — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1373,4311-8111,Dasqua | داسکوا,4311-8111,میکرومی داخل سنج لوله ای 3 — 0-500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1374,4311-8113,Dasqua | داسکوا,4311-8113,میکرومی داخل سنج لوله ای 5 — 0-600mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1375,4311-8118,Dasqua | داسکوا,4311-8118,میکرومی داخل سنج لوله ای 6 — 0-1000mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1376,4311-8119,Dasqua | داسکوا,4311-8119,میکرومی داخل سنج لوله ای 6 — 0-1500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1378,4400-0005,Dasqua | داسکوا,4400-0005,میکرومی لوله دیجیتال — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1379,4400-0010,Dasqua | داسکوا,4400-0010,میکرومی لوله دیجیتال — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1384,4410-1125,Dasqua | داسکوا,4410-1125,میکرومی خارج — 0-125mm/4-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1410,4440-1005,Dasqua | داسکوا,4440-1005,میکرومی لوله دو رس کروی 1 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1411,4440-1010,Dasqua | داسکوا,4440-1010,میکرومیلوله (نوک نوع ) A 1 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1412,4510-1005,Dasqua | داسکوا,4510-1005,میکرومی داخل سنج لوله ای 8 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1415,4511-5103,Dasqua | داسکوا,4511-5103,میکرومی داخیل سه فک دیجیتال — 0-12mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1418,4511-5106,Dasqua | داسکوا,4511-5106,ی داخیل سه فک دیجیتال — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1420,4511-5108,Dasqua | داسکوا,4511-5108,ی داخیل سه فک دیجیتال — 0-40mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1421,4511-5109,Dasqua | داسکوا,4511-5109,میکرومی داخیل سه فک دیجیتال — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1422,4511-5110,Dasqua | داسکوا,4511-5110,میکرومی داخیل سه فک دیجیتال — 0-63mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1426,4511-5114,Dasqua | داسکوا,4511-5114,میکرومی داخیل سه فک دیجیتال — 0-125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1428,4511-5116,Dasqua | داسکوا,4511-5116,میکرومی داخیل سه فک دیجیتال — 0-175mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1434,4511-9205,Dasqua | داسکوا,4511-9205,میکرومی داخل دیجیتال سه فک با رینگ گیج IP54ضدآب ست,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1435,4511-9210,Dasqua | داسکوا,4511-9210,میکرومی داخل دیجیتال سه فک با رینگ گیج IP54ضدآب ست,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1437,4550-1005,Dasqua | داسکوا,4550-1005,میکرومی چرخ دنده — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1438,4570-0005,Dasqua | داسکوا,4570-0005,میکرومی چرخ دنده دیجیتال — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1439,4610-1005,Dasqua | داسکوا,4610-1005,میکرومیی خارج سوزنر — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1440,4610-1010,Dasqua | داسکوا,4610-1010,میکرومی خارج سوزن ( 30درجه) ی 2 — 0-1010mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1441,4610-1015,Dasqua | داسکوا,4610-1015,میکرومی خارج 3 — 0-75mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1442,4610-1020,Dasqua | داسکوا,4610-1020,میکرومی خارج 3 — 0-1020mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1443,4610-1405,Dasqua | داسکوا,4610-1405,میکرومی خارج 1 — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1444,4611-8106,Dasqua | داسکوا,4611-8106,میکرومی عمق سنج صلیت — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1445,4611-8110,Dasqua | داسکوا,4611-8110,میکرومی عمق سنج صلیت — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1446,4611-8120,Dasqua | داسکوا,4611-8120,میکرومی عمق سنج صلیت — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1447,4611-8125,Dasqua | داسکوا,4611-8125,ی عمق سنج صلیت با میله — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1448,4620-2020,Dasqua | داسکوا,4620-2020,سوزن دیجیتال ی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1449,4620-5005,Dasqua | داسکوا,4620-5005,سوزن دیجیتال نوک 30 ی — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1451,4620-5015,Dasqua | داسکوا,4620-5015,سوزن دیجیتال نوک 30 ی — 0-75mm/2-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1452,4706-0002,Dasqua | داسکوا,4706-0002,میکرومیهای خارج — 0-200mm/4-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1453,4706-0003,Dasqua | داسکوا,4706-0003,میکرومیهای خارج — 0-300mm/8-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1454,4706-0011,Dasqua | داسکوا,4706-0011,ی IP65با نوک میکرومی — 0-150mm/6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1455,4706-0012,Dasqua | داسکوا,4706-0012,میکرومیهای خارج — 0-300mm/6-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1456,4710-1205,Dasqua | داسکوا,4710-1205,عمق سنج کوچک دیجیتال (الستیک) میله ای — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1457,4710-2205,Dasqua | داسکوا,4710-2205,میکرومی عمق سنج صلیت — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1458,4800-0005,Dasqua | داسکوا,4800-0005,میکرومی خارج — 0-400mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1459,4800-0010,Dasqua | داسکوا,4800-0010,میکرومی 1 — 0-500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1460,4800-0015,Dasqua | داسکوا,4800-0015,میکرومی خارج 2 — 0-600mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1461,4800-0020,Dasqua | داسکوا,4800-0020,میکرومی خارج 3 — 0-700mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1462,4800-0025,Dasqua | داسکوا,4800-0025,میکرومی خارج 4 — 0-800mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1463,4800-0030,Dasqua | داسکوا,4800-0030,میکرومی خارج 5 — 0-900mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1464,4800-0035,Dasqua | داسکوا,4800-0035,میکرومی 6 — 0-1000mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1465,4801-0003,Dasqua | داسکوا,4801-0003,میکرومی خارج — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1466,4801-0004,Dasqua | داسکوا,4801-0004,میکرومی خارج 1 — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1467,4801-0005,Dasqua | داسکوا,4801-0005,میکرومی خارج 2 — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1468,4801-0006,Dasqua | داسکوا,4801-0006,میکرومی خارج 3 — 0-300mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1469,4811-8115,Dasqua | داسکوا,4811-8115,میکرومی معمویل هد — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1470,4811-8120,Dasqua | داسکوا,4811-8120,هد میکرومی 1 — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1471,4905-0005,Dasqua | داسکوا,4905-0005,میکرومیخارج میله ای دیجیتال ضد — 0-400mm/12-16,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1472,4905-0006,Dasqua | داسکوا,4905-0006,/ ی خارج میله ای دیجیتال ضد — 0-500mm/16-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1473,4905-0007,Dasqua | داسکوا,4905-0007,میکرومیخارج میله ای دیجیتال ضد — 0-600mm/20-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1474,4905-0008,Dasqua | داسکوا,4905-0008,میکرومیخارج میله ای دیجیتال ضد — 0-700mm/24-28,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1475,4905-0009,Dasqua | داسکوا,4905-0009,/ ی خارج میله ای دیجیتال ضد — 0-800mm/28-32,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1476,4905-0010,Dasqua | داسکوا,4905-0010,میکرومیخارج میله ای دیجیتال ضد — 0-900mm/32-36,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1477,4905-0011,Dasqua | داسکوا,4905-0011,میکرومیخارج میله ای دیجیتال ضد — 0-1000mm/36-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1478,4910-2110,Dasqua | داسکوا,4910-2110,ی دار هد میکرومی — 0-15mm/0,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1479,4910-2115,Dasqua | داسکوا,4910-2115,میکرومی دیجیتال خروج هد 1 — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1480,4910-2130,Dasqua | داسکوا,4910-2130,میکرومی دیجیتال کلمپ دار دسته فلزی ضد آب IP65خروج هد — 0-25mm/0-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1481,4910-2135,Dasqua | داسکوا,4910-2135,هد میکرومی 1 — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1484,4910-4115,Dasqua | داسکوا,4910-4115,میکرومی داخل سنج دیجیتال دو فک — 0-75mm/2-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1488,4911-8130,Dasqua | داسکوا,4911-8130,میکرومی داخل سنج دو فک 5 — 0-125mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1489,4911-8135,Dasqua | داسکوا,4911-8135,میکرومی داخل سنج دو فک 6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1490,4911-8140,Dasqua | داسکوا,4911-8140,میکرومی 7 — 0-175mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1491,5111-1005,Dasqua | داسکوا,5111-1005,ي ساعت اندیکاتور پشت دار جعبه — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1492,5111-1110,Dasqua | داسکوا,5111-1110,ساعت اندیکاتور دور فلزی — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1493,5111-1205,Dasqua | داسکوا,5111-1205,ساعت اندیکاتور پشت دار — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1494,5121-1107,Dasqua | داسکوا,5121-1107,ساعت اندیکاتور ضدآب — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1495,5121-1201,Dasqua | داسکوا,5121-1201,ساعت اندیکاتور صفحه کوچک ضد رضبه SHOCK PROF — 0-3mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1496,5121-1202,Dasqua | داسکوا,5121-1202,ساعت اندیکاتور صفحه کوچک ضد رضبه SHOCK PROF — 0-5mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1497,5121-1204,Dasqua | داسکوا,5121-1204,ساعت اندیکاتور صفحه کوچک ( — 0-5mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1498,5121-1215,Dasqua | داسکوا,5121-1215,ساعت اندیکاتور کورس بلند ضد رضبه — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1499,5121-1220,Dasqua | داسکوا,5121-1220,ساعت اندیکاتور کورس بلند ضد رضبه — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1500,5121-2101,Dasqua | داسکوا,5121-2101,ساعت اندیکاتور پشت دار دقت — 0-1mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1501,5121-2201,Dasqua | داسکوا,5121-2201,ساعت اندیکاتور پشت دار دقت — 0-1mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1502,5121-3005,Dasqua | داسکوا,5121-3005,ساعت اندیکاتور دور فلزی — 0-1mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1503,5121-4200,Dasqua | داسکوا,5121-4200,ساعت اندیکاتور ( عقب گرد /بلی ینگ — 0-1mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1504,5130-1110,Dasqua | داسکوا,5130-1110,ساعت اندیکاتور دیجیتال کورس بلند — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1505,5140-1110,Dasqua | داسکوا,5140-1110,ساعت اندیکاتور دیجیتال کورس بلند 5دکمه ابسلوت — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1506,5140-1120,Dasqua | داسکوا,5140-1120,ساعت اندیکاتور دیجیتال کورس بلند 5دکمه ابسلوت — 0-101/6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1507,5141-2105,Dasqua | داسکوا,5141-2105,ساعت اندیکاتور کورس بلند ضد رضبه — 0-30mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1508,5221-0000,Dasqua | داسکوا,5221-0000,ساعت شیطانیک,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1509,5221-0005,Dasqua | داسکوا,5221-0005,ساعت شیطانیک — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1512,5221-1106,Dasqua | داسکوا,5221-1106,ساعت شیطانیک ضد رضبه ست کامل — 0,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1519,5260-1105,Dasqua | داسکوا,5260-1105,ساعت اندیکاتور دیجیتال خروج — 0-12/7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1520,5260-1110,Dasqua | داسکوا,5260-1110,ساعت اندیکاتور دیجیتال خروج — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1521,5260-1115,Dasqua | داسکوا,5260-1115,ساعت اندیکاتور دیجیتال خروج — 0-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1522,5260-3705,Dasqua | داسکوا,5260-3705,ساعت اندیکاتور دیجیتال خروج — 0-12/7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1523,5260-3710,Dasqua | داسکوا,5260-3710,ساعت اندیکاتور دیجیتال خروج — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1524,5260-3715,Dasqua | داسکوا,5260-3715,ساعت اندیکاتور دیجیتال خروج — 0-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1525,5260-3720,Dasqua | داسکوا,5260-3720,ساعت اندیکاتور دیجیتال خروج — 0-100mm/0-4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1526,5260-4205,Dasqua | داسکوا,5260-4205,ساعت اندیکاتور دیجیتال خروج — 0-12/7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1527,5260-4210,Dasqua | داسکوا,5260-4210,ساعت اندیکاتور دیجیتال خروج — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1528,5260-4215,Dasqua | داسکوا,5260-4215,ساعت اندیکاتور دیجیتال خروج — 0-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1529,5261-1205,Dasqua | داسکوا,5261-1205,ساعت اندیکاتور دیجیتال شارژی — 0-12/7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1530,5333-6101,Dasqua | داسکوا,5333-6101,پراپ ساعت غلطیک استیل اسنلس,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1531,5333-6303,Dasqua | داسکوا,5333-6303,پراپ ساعت غلطیک استیل اسنلس,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1533,5333-7201,Dasqua | داسکوا,5333-7201,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7201,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1534,5333-7203,Dasqua | داسکوا,5333-7203,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1535,5333-7204,Dasqua | داسکوا,5333-7204,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7204,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1536,5333-7205,Dasqua | داسکوا,5333-7205,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7205,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1537,5333-7602,Dasqua | داسکوا,5333-7602,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7602,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1538,5333-7603,Dasqua | داسکوا,5333-7603,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7603,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1539,5333-7604,Dasqua | داسکوا,5333-7604,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7604,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1540,5333-7707,Dasqua | داسکوا,5333-7707,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7707,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1541,5333-7708,Dasqua | داسکوا,5333-7708,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7708,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1542,5333-7712,Dasqua | داسکوا,5333-7712,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7712,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1543,5333-7713,Dasqua | داسکوا,5333-7713,نوک پراب ساعت اندیکاتور داسکوا کد 5333-7713,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1545,5333-7901,Dasqua | داسکوا,5333-7901,پراپ ساعت غلطیک استیل اسنلس,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1546,5333-8001,Dasqua | داسکوا,5333-8001,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8001,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1547,5333-8002,Dasqua | داسکوا,5333-8002,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8002,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1548,5333-8003,Dasqua | داسکوا,5333-8003,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8003,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1549,5333-8004,Dasqua | داسکوا,5333-8004,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8004,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1550,5333-8005,Dasqua | داسکوا,5333-8005,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8005,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1551,5333-8006,Dasqua | داسکوا,5333-8006,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8006,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1552,5333-8007,Dasqua | داسکوا,5333-8007,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8007,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1553,5333-8008,Dasqua | داسکوا,5333-8008,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8008,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1554,5333-8009,Dasqua | داسکوا,5333-8009,نوک پراب ساعت اندیکاتور داسکوا کد 5333-8009,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1555,5340-8110,Dasqua | داسکوا,5340-8110,ساعت اندیکاتور دیجیتال کورس بلند — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1556,5340-8115,Dasqua | داسکوا,5340-8115,ساعت اندیکاتور دیجیتال کورس بلند — 0-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1557,5351-2110,Dasqua | داسکوا,5351-2110,ساعت اندازه گی — 0,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1575,5581-0005,Dasqua | داسکوا,5581-0005,گیج داخل سیلندر ساعت — 0-800mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1577,5610-8110,Dasqua | داسکوا,5610-8110,گیج داخل سیلندر با پراپ هاي — 0-18mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1580,5610-8125,Dasqua | داسکوا,5610-8125,گیج داخل سیلندر با پراپ هاي — 0-160mm/2-6/3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1581,5610-8130,Dasqua | داسکوا,5610-8130,گیج داخل سیلندر با پراپ هاي — 0-250mm/6-10,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1582,5610-8135,Dasqua | داسکوا,5610-8135,گیج داخل سیلندر با پراپ هاي — 0-450mm/10-16,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1585,5751-0010,Dasqua | داسکوا,5751-0010,ساعت میل لنگ — 0-500mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1592,5810-3105,Dasqua | داسکوا,5810-3105,خط کش دیجیتال ضد آب و روغن — 0-150mm/0-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1593,5810-3110,Dasqua | داسکوا,5810-3110,خط کش دیجیتال ضد آب و روغن — 0-200mm/0-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1594,5810-3115,Dasqua | داسکوا,5810-3115,خط کش دیجیتال ضد آب و روغن — 0-300mm/0-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1595,5810-3120,Dasqua | داسکوا,5810-3120,خط کش دیجیتال ضد آب و روغن — 0-600mm/0-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1596,5810-3125,Dasqua | داسکوا,5810-3125,خط کش دیجیتال ضد آب و روغن — 0-1000mm/0-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1597,5811-0005,Dasqua | داسکوا,5811-0005,پرگار داخل سنج دیجیتال دسته دار بلند — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1598,5811-0010,Dasqua | داسکوا,5811-0010,پرگار داخل سنج دیجیتال دسته دار بلند — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1599,5811-0015,Dasqua | داسکوا,5811-0015,پرگار داخل سنج دیجیتال دسته دار بلند — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1600,5811-0020,Dasqua | داسکوا,5811-0020,پرگار داخل سنج دیجیتال دسته دار بلند — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1601,5820-0005,Dasqua | داسکوا,5820-0005,ساعت اندیکاتور دیجیتال IP65 — 0-12/7,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1602,5820-0010,Dasqua | داسکوا,5820-0010,ساعت اندیکاتور دیجیتال IP65 — 0-25/4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1603,5820-0015,Dasqua | داسکوا,5820-0015,ساعت اندیکاتور دیجیتال IP65 — 0-5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1604,5820-0020,Dasqua | داسکوا,5820-0020,ساعت اندیکاتور دیجیتال IP65 — 0-100mm/0-4,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1605,5831-0005,Dasqua | داسکوا,5831-0005,شعاع سنج دیجیتال — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1606,5840-6200,Dasqua | داسکوا,5840-6200,ضخامت سنج پراپ رسامییک دیجیتال — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1607,5840-6205,Dasqua | داسکوا,5840-6205,ضخامت سنج پراپ رسامییک دیجیتال — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1608,5840-6240,Dasqua | داسکوا,5840-6240,ضخامت سنج پراپ رسامییک دیجیتال — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1609,5841-1105,Dasqua | داسکوا,5841-1105,ضخامت سنج پراپ رسامییک با ي — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1610,5841-1110,Dasqua | داسکوا,5841-1110,ضخامت سنج پراپ رسامییک با ي — 0-20mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1611,5841-8106,Dasqua | داسکوا,5841-8106,ضخامت سنج ساعت 2 — 0-30mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1612,5841-9105,Dasqua | داسکوا,5841-9105,ساعت لوله ضخامت سنج — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1613,5911-0001,Dasqua | داسکوا,5911-0001,گیج داخل تلسکون — 0-10mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1615,5921-0005,Dasqua | داسکوا,5921-0005,گیج داخل ساعت — 0-13mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1616,6110-1112,Dasqua | داسکوا,6110-1112,جعبه راپورتر (گیج بلوک) — 0-1112mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1617,6110-1232,Dasqua | داسکوا,6110-1232,جعبه راپورتر (گیج بلوک) — 0-1232mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1618,6110-1247,Dasqua | داسکوا,6110-1247,جعبه راپورتر (گیج بلوک) — 0-1247mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1619,6110-1287,Dasqua | داسکوا,6110-1287,جعبه راپورتر (گیج بلوک) — 0-1287mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1620,6111-1112,Dasqua | داسکوا,6111-1112,جعبه راپورتر (گیج بلوک) — 0-1112mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1621,6111-1232,Dasqua | داسکوا,6111-1232,جعبه راپورتر (گیج بلوک) — 0-1232mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1622,6111-1247,Dasqua | داسکوا,6111-1247,جعبه راپورتر (گیج بلوک) — 0-1247mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1623,6111-1287,Dasqua | داسکوا,6111-1287,جعبه راپورتر (گیج بلوک) — 0-1287mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1624,6112-1112,Dasqua | داسکوا,6112-1112,جعبه راپورتر (گیج بلوک) — 0-1112mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1625,6112-1232,Dasqua | داسکوا,6112-1232,جعبه راپورتر (گیج بلوک) — 0-1232mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1626,6112-1247,Dasqua | داسکوا,6112-1247,جعبه راپورتر (گیج بلوک) — 0-1247mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1627,6112-1287,Dasqua | داسکوا,6112-1287,جعبه راپورتر (گیج بلوک) — 0-1287mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1628,6211-4205,Dasqua | داسکوا,6211-4205,مجموعه رپیر گیج 91عددی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1629,6211-4210,Dasqua | داسکوا,6211-4210,پی گیج 51عددی 20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1630,6211-4300,Dasqua | داسکوا,6211-4300,مجموعه رپیر گیج 91عددی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1677,6710-0005,Dasqua | داسکوا,6710-0005,زبری سنج دیجیتال پرتابل — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1680,7121-0025,Dasqua | داسکوا,7121-0025,پایه ساعت مفصیل قوی ( جایگزین پایه هیدرولیک) — 0-25mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1681,7121-0030,Dasqua | داسکوا,7121-0030,پایه ساعت مفصیل قوی ( جایگزین پایه هیدرولیک) — 0-30mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1682,7121-0035,Dasqua | داسکوا,7121-0035,پایه ساعت مفصیل قوی ( جایگزین پایه هیدرولیک) — 0-35mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1683,7121-0045,Dasqua | داسکوا,7121-0045,پایه ساعت مفصیل قوی ( جایگزین پایه هیدرولیک) — 0-45mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1687,7123-0005,Dasqua | داسکوا,7123-0005,پایه سوزن خط کش مگنت — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1690,7312-0010,Dasqua | داسکوا,7312-0010,پایه ساعت مفصیل با بازوی سه بعدی — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1691,7312-0015,Dasqua | داسکوا,7312-0015,پایه ساعت مفصیل با بازوی سه بعدی — 0-150mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1698,7912-0004,Dasqua | داسکوا,7912-0004,پایه ساعت گر ی — 0-40mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1705,8300-0095,Dasqua | داسکوا,8300-0095,ست 4عددي زاويه كوليس ديجيتال -پالستيیکي ،عمق سنج ديجيتال،تراز ديجيتال — 0-95mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1720,8301-2655,Dasqua | داسکوا,8301-2655,تراز تخت دیجیتال مگنت دار با — 0,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1721,8400-0000,Dasqua | داسکوا,8400-0000,تراز دیجیتال مگنت دار ابسلوت ضد,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1734,8511-0005,Dasqua | داسکوا,8511-0005,شابلون شعاع سنج — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1738,8511-2005,Dasqua | داسکوا,8511-2005,گیج تست رزوه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1739,8511-2010,Dasqua | داسکوا,8511-2010,گیج تست رزوه,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1740,8521-0005,Dasqua | داسکوا,8521-0005,شابلون گپ سنج — 0-50mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1741,8521-0010,Dasqua | داسکوا,8521-0010,شابلون گپ سنج — 0-100mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1742,8521-0015,Dasqua | داسکوا,8521-0015,شابلون گپ سنج — 0-45mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1743,8521-0020,Dasqua | داسکوا,8521-0020,شابلون گپ سنج — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1770,9411-1205,Dasqua | داسکوا,9411-1205,گیج راپورتر زاویه 10پارچه — 0-1205mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1772,1103-150,INSIZE | اینسایز,1103-150,کولیس دیجیتال 15سانت اینسایز مدل 1103-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1773,1103-200,INSIZE | اینسایز,1103-200,کولیس دیجیتال 20سانت اینسایز مدل 1103-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1774,1103-300,INSIZE | اینسایز,1103-300,کولیس دیجیتال 30سانت اینسایز مدل 1103-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1775,1106-301,INSIZE | اینسایز,1106-301,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1776,1106-302,INSIZE | اینسایز,1106-302,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1777,1106-501,INSIZE | اینسایز,1106-501,کولیس دیجیتال 50سانت اینسایز مدل 1106-501,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1778,1106-502,INSIZE | اینسایز,1106-502,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1779,1106-503,INSIZE | اینسایز,1106-503,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1780,1106-505,INSIZE | اینسایز,1106-505,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1781,1106-601,INSIZE | اینسایز,1106-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1782,1106-602,INSIZE | اینسایز,1106-602,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1783,1106-603,INSIZE | اینسایز,1106-603,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1784,1106-802,INSIZE | اینسایز,1106-802,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1785,1108-150,INSIZE | اینسایز,1108-150,کولیس دیجیتال 15سانت اینسایز مدل 1108-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1786,1108-200,INSIZE | اینسایز,1108-200,کولیس دیجیتال 20سانت اینسایز مدل 1108-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1787,1108-300,INSIZE | اینسایز,1108-300,کولیس دیجیتال 30سانت اینسایز مدل 1108-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1788,1111-100,INSIZE | اینسایز,1111-100,کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1789,1114-150,,1114-150,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1790,1114-200,INSIZE | اینسایز,1114-200,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1791,1114-300,INSIZE | اینسایز,1114-300,کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1792,1115-150,INSIZE | اینسایز,1115-150,کولیس دیجیتال اینسایز (Insize) 15 سانت ضد اب (IP67) مدل 150-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1793,1115-200,INSIZE | اینسایز,1115-200,کولیس دیجیتال اینسایز (Insize) 20 سانت ضد اب (IP67) مدل 200-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1794,1115-300,INSIZE | اینسایز,1115-300,کولیس دیجیتال اینسایز (Insize) 30 سانت ضد اب (IP67) مدل 300-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1803,1135-601,INSIZE | اینسایز,1135-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1804,1136-501,INSIZE | اینسایز,1136-501,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1805,1136-502,INSIZE | اینسایز,1136-502,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1806,1136-503,INSIZE | اینسایز,1136-503,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1807,1136-601,INSIZE | اینسایز,1136-601,کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1829,1170-300,INSIZE | اینسایز,1170-300,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1830,1172-200,INSIZE | اینسایز,1172-200,کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1841,1196-300,INSIZE | اینسایز,1196-300,کولیس دیجیتال 30سانت اینسایز مدل 1196-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1842,1208-511,INSIZE | اینسایز,1208-511,کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1843,1208-524,INSIZE | اینسایز,1208-524,کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1844,1208-824,INSIZE | اینسایز,1208-824,کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1845,1214-500,INSIZE | اینسایز,1214-500,کولیس استن استیل معمولی 50سانت اینسایز مدل 1214-500,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1846,1214-600,INSIZE | اینسایز,1214-600,کولیس استن استیل معمولی 60سانت اینسایز مدل 1214-600,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1847,1215-1032,INSIZE | اینسایز,1215-1032,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1848,1215-1052,INSIZE | اینسایز,1215-1052,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1849,1215-322,INSIZE | اینسایز,1215-322,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1850,1215-392,INSIZE | اینسایز,1215-392,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1851,1215-522,INSIZE | اینسایز,1215-522,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1852,1215-532,INSIZE | اینسایز,1215-532,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1853,1215-622,INSIZE | اینسایز,1215-622,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1854,1215-822,INSIZE | اینسایز,1215-822,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1855,1217-3001,INSIZE | اینسایز,1217-3001,کولیس اینسایز (Insize) 30 سانتی متر دو فک مدل 3001-1217,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1856,1236-394,INSIZE | اینسایز,1236-394,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1857,1236-524,INSIZE | اینسایز,1236-524,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1881,2172-360,INSIZE | اینسایز,2172-360,زاویه سنج دیجیتال اینسایز (Insize) مدل 360-2172,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1882,2173-360,INSIZE | اینسایز,2173-360,تراز دیجیتالی مگنت دار 15 سانت اینسایز (Insize) مدل 360-2173,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1891,2278-180,INSIZE | اینسایز,2278-180,زاویه سنج 3تکه اینسایز مدل 2278-180,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1930,3127-123,INSIZE | اینسایز,3127-123,میکرومتر دیجیتال اینسایز (Insize) 12-6 میلی متر داخل سنج سه فک مدل 123-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1935,3127-202,INSIZE | اینسایز,3127-202,میکرومتر دیجیتال اینسایز (Insize) 20-12 میلی متر داخل سنج سه فک مدل 202-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1940,3127-504,INSIZE | اینسایز,3127-504,میکرومتر دیجیتال اینسایز (Insize) 50-20 میلی متر داخل سنج سه فک مدل 504-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1944,3203-1506,INSIZE | اینسایز,3203-1506,میکرومتر اینسایز (Insize) 150-0 میلی متر خارج سنج صندوقی مدل 1506-3203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1951,3203-3006,INSIZE | اینسایز,3203-3006,میکرومتر اینسایز (Insize) 300-150 میلی متر خارج سنج صندوقی مدل 3006-3203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1952,3203-3012,INSIZE | اینسایز,3203-3012,ست میکرومتر اینسایز (Insize) 300-0 میلی متر خارج سنج مدل 3012-3203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1975,3227-123,INSIZE | اینسایز,3227-123,میکرومتر اینسایز (Insize) 12-6 میلی متر داخل سنج سه فک مدل 123-3227,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1980,3227-202,INSIZE | اینسایز,3227-202,میکرومتر اینسایز (Insize) 20-12 میلی متر داخل سنج سه فک مدل 202-3227,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1981,3227-504,INSIZE | اینسایز,3227-504,میکرومتر اینسایز (Insize) 50-20 میلی متر داخل سنج سه فک مدل 504-3227,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1997,3521-2000,INSIZE | اینسایز,3521-2000,میکرومتر داخل لوله ای اینسایز (Insize) 150-2000 میلیمتر دیجیتال مدل 2000-3521,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2001,4100-187,INSIZE | اینسایز,4100-187,گیج بلوک (راپورتر) 87 پارچه اینسایز (Insize) مدل 187-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2002,4100-232,INSIZE | اینسایز,4100-232,گیج بلوک (راپورتر) 32 پارچه اینسایز (Insize) مدل 232-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2003,4100-247,INSIZE | اینسایز,4100-247,گیج بلوک (راپورتر) 47 پارچه اینسایز (insize) مدل 247-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2006,4150-130,INSIZE | اینسایز,4150-130,خط کش سینوسی — 0-130mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2007,4150-1301,INSIZE | اینسایز,4150-1301,خط کش سینوسی — 0-1301mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2008,4150-250,INSIZE | اینسایز,4150-250,خط کش سینوسی — 0-250mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2009,4150-2501,INSIZE | اینسایز,4150-2501,خط کش سینوسی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2053,6202-100,INSIZE | اینسایز,6202-100,پایه ساعت اینسایز مدل 6202-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2054,6210-100,INSIZE | اینسایز,6210-100,پایه ساعت مفصلی اینسایز مدل 6210-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2055,6282-2001,INSIZE | اینسایز,6282-2001,رابط ساعت 1سانت اینسایز مدل 6282-2001,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2056,6282-2002,INSIZE | اینسایز,6282-2002,رابط ساعت 1/5سانت اینسایز مدل 6282-2002,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2057,6282-2003,INSIZE | اینسایز,6282-2003,رابط ساعت 2سانت اینسایز مدل 6282-2003,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2058,6282-2004,INSIZE | اینسایز,6282-2004,رابط ساعت 2/5سانت اینسایز مدل 6282-2004,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2059,6282-2005,INSIZE | اینسایز,6282-2005,رابط ساعت 3سانت اینسایز مدل 6282-2005,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2060,6282-2007,INSIZE | اینسایز,6282-2007,رابط ساعت 4سانت اینسایز مدل 6282-2007,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2061,6282-2009,INSIZE | اینسایز,6282-2009,رابط ساعت 5سانت اینسایز مدل 6282-2009,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2062,6282-2013,INSIZE | اینسایز,6282-2013,رابط ساعت 7سانت اینسایز مدل 6282-2013,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2063,6282-2017,INSIZE | اینسایز,6282-2017,رابط ساعت 10سانت اینسایز مدل 6282-2017,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2064,6511-241,INSIZE | اینسایز,6511-241,پارالل گیج اینسایز (Insize) مدل 241-6511,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2068,6862-1002,INSIZE | اینسایز,6862-1002,پایه ساعت اینسایز (Insize) مدل 1002-6862,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2069,6866-150,INSIZE | اینسایز,6866-150,پایه ساعت گرانیتی اینسایز (Insize) مدل 150-6866,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2076,6902-106,INSIZE | اینسایز,6902-106,میز صفحه صافی 140*630*1000 اینسایز (Insize) مدل 106-6902,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2082,7111-300,INSIZE | اینسایز,7111-300,خط کش تاب سیلندر اینسایز (Insize) 30 سانت مدل 300-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2083,7111-500,INSIZE | اینسایز,7111-500,خط کش تاپ سیلندر 50 سانتی متری اینسایز (Insize) مدل 500-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2085,7120-200,INSIZE | اینسایز,7120-200,کولیس خط کش اینسایز (Insize) 20 سانتی متر مدل 200-7120,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2087,7202-200,INSIZE | اینسایز,7202-200,کولیس خط کش اینسایز (Insize) 20 سانتی متر مدل 200-7202,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2098,7350-160,INSIZE | اینسایز,7350-160,ست رابط گیج داخل سیلندر 160-50 میلی متری اینسایز (Insize) مدل 160-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2099,7522-610,INSIZE | اینسایز,7522-610,ذره بین دو لنزه اینسایز مدل 7522-610,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2100,8601-100,INSIZE | اینسایز,8601-100,ترازو دیجیتال اینسایز (Insize) 0.1-100g مدل 100-8601,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2104,9351-130,INSIZE | اینسایز,9351-130,صوت سنج دیجیتالی اینسایز (Insize) 30 – 130 دسی بل مدل 130-9351,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2107,9723-400,INSIZE | اینسایز,9723-400,تستر ولتاژ دیجیتالی اینسایز مدل 9723-400,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3468,1201-1003,INSIZE | اینسایز,1201-1003,کولیس اینسایز (Insize) 10 سانتی متر مدل 1003-1201,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3469,1204-70,INSIZE | اینسایز,1204-70,کولیس اینسایز (Insize) 7 سانتی متر مدل 70-1204,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3470,1205-1502,INSIZE | اینسایز,1205-1502,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3471,1111-75,INSIZE | اینسایز,1111-75,کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3472,1205-2002,INSIZE | اینسایز,1205-2002,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3473,1205-3002,INSIZE | اینسایز,1205-3002,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3474,1106-1002,INSIZE | اینسایز,1106-1002,کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3475,1214-1000,INSIZE | اینسایز,1214-1000,کولیس اینسایز (Insize) 1 متری مدل 1000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3476,1214-1500,INSIZE | اینسایز,1214-1500,کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3478,1106-2003,INSIZE | اینسایز,1106-2003,کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3479,1106-1502,INSIZE | اینسایز,1106-1502,کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3484,2315-05,INSIZE | اینسایز,2315-05,ساعت اینچی اندیکاتور اینسایز (insize) مدل 05-2315,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3486,4100-2122,INSIZE | اینسایز,4100-2122,گیج بلوک (راپورتر) 122 پارچه اینسایز (Insize) مدل 2122-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3536,3227-1004,INSIZE | اینسایز,3227-1004,میکرومتر اینسایز (Insize) 100-50 میلی متر داخل سنج سه فک مدل 1004-3227,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3537,6200-60,INSIZE | اینسایز,6200-60,پایه ساعت اینسایز مدل 6200-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3538,6201-60,INSIZE | اینسایز,6201-60,پایه ساعت اینسایز مدل 6201-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3539,6202-80,INSIZE | اینسایز,6202-80,پایه ساعت اینسایز مدل 6202-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3540,6207-80,INSIZE | اینسایز,6207-80,پایه ساعت خرطومی 80 کیلو گرمی اینسایز (Insize) مدل 80-6207,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3547,4206-1,INSIZE | اینسایز,4206-1,گیج تلسکوپی اینسایز مدل 4206-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3602,6284-3,INSIZE | اینسایز,6284-3,پراب ساعت شیطانکی اینسایز مدل 6284-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3633,1203-1003,INSIZE | اینسایز,1203-1003,کولیس 10 سانتی متر اینسایز مدل 1203-1003,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3634,1214-2000,INSIZE | اینسایز,1214-2000,کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3650,7350-35,INSIZE | اینسایز,7350-35,ست رابط گیج داخل سیلندر 35-18 میلی متری اینسایز (Insize) مدل 35-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3651,7350-60,INSIZE | اینسایز,7350-60,ست رابط گیج داخل سیلندر 60-35 میلی متری اینسایز (Insize) مدل 60-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3652,3127-1004,INSIZE | اینسایز,3127-1004,میکرومتر دیجیتال اینسایز (Insize) 100-50 میلی متر داخل سنج سه فک مدل 1004-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3653,4100-18,INSIZE | اینسایز,4100-18,گیج بلوک (راپورتر) 8 پارچه اینسایز (Insize) مدل 18-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3654,4100-1112,INSIZE | اینسایز,4100-1112,گیج بلوک (راپورتر) 112 پارچه اینسایز (Insize) مدل 1112-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3686,6211-10,INSIZE | اینسایز,6211-10,پایه ساعت کوچک ده کیلویی اینسایز (Insize) مدل 10-6211,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3689,6902-85,INSIZE | اینسایز,6902-85,میز صفحه صافی 100*500*800 اینسایز (Insize) مدل 85-6902,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3692,7111-1000,INSIZE | اینسایز,7111-1000,خط کش تاپ سیلندر 1 متری اینسایز (Insize) مدل 1000-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3707,7523-3D5,INSIZE | اینسایز,7523-3D5,عینک ذره بینی اینسایز مدل 7523-3D5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3718,6566-3,INSIZE | اینسایز,6566-3,تاچ پراب یا مرکز یاب نوری/ بوقی الکترونیکی اینسایز (Insize) مدل 3-6566,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3732,6284-82,INSIZE | اینسایز,6284-82,پراب ساعت شیطانکی بلند اینسایز مدل 6284-82,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3764,2385-3,INSIZE | اینسایز,2385-3,مرکز یاب اینسایز (Insize) داخل سنج و خارج سنج ساعتی مدل 3-2385,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3775,3222-12,INSIZE | اینسایز,3222-12,میکرومتر داخل لوله ای اینسایز (Insize) 2-12 اینچ مدل 12-3222,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3777,4100-2112,INSIZE | اینسایز,4100-2112,گیج بلوک اینسایز (Insize) 112 عددی گرید 2 مدل 2112-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3778,4101-C1000,INSIZE | اینسایز,4101-C1000,گیج بلوک اینسایز (Insize) 1000 میلی متر گرید 2 مدل 4101-C1000,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3795,6210-80,INSIZE | اینسایز,6210-80,پایه ساعت مفصلی اینسایز مدل 6210-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3796,6215-60,INSIZE | اینسایز,6215-60,پایه ساعت اندیکاتور اینسایز (Insize) برای سطح ناهموار مدل 60-6215,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3798,6229-60,INSIZE | اینسایز,6229-60,پایه ساعت اندیکاتور اینسایز (Insize) هیدرولیکی مدل 60-6229,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3799,6229-80,INSIZE | اینسایز,6229-80,پایه ساعت هیدرولیکی 80کیلویی اینسایز مدل 6229-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3800,6282-1102,INSIZE | اینسایز,6282-1102,پراب سرتخت اینسایز (Insize) مدل 1102-6282,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3802,6282-1203,INSIZE | اینسایز,6282-1203,پراب سرتخت اینسایز (Insize) مدل 1203-6282,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3805,6291-1,INSIZE | اینسایز,6291-1,پایه ساعت شیطونکی اینسایز (Insize) 8 میلی‌ متری مدل 1-6291,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3807,6293-1,INSIZE | اینسایز,6293-1,پایه ساعت شیطونکی اینسایز (Insize) مدل 1-6293,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3808,6293-2,INSIZE | اینسایز,6293-2,پایه ساعت شیطونکی اینسایز (Insize) مدل 2-6293,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3811,6295-1A,INSIZE | اینسایز,6295-1A,پایه ساعت شیطونکی اینسایز (Insize) مدل 1A-6295,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3816,7160-1,INSIZE | اینسایز,7160-1,آینه بازرسی تلسکوپی اینسایز (INSIZE) مدل 1-7160,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3818,7160-2,INSIZE | اینسایز,7160-2,آینه بازرسی تلسکوپی اینسایز (INSIZE) مدل 2-7160,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3821,7351-EX12,INSIZE | اینسایز,7351-EX12,رابط بور گیج اینسایز (Insize) مدل 7351-EX12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3823,7524-10,INSIZE | اینسایز,7524-10,عینک ذره‌ بین 10X اینسایز (Insize) مدل 10-7524,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3824,7600-6,INSIZE | اینسایز,7600-6,شمار انداز 6رقمی اینسایز مدل 7600-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3896,1106-1005,INSIZE | اینسایز,1106-1005,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3897,1106-1503,INSIZE | اینسایز,1106-1503,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3898,1106-2002,INSIZE | اینسایز,1106-2002,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3899,1110-150A,INSIZE | اینسایز,1110-150A,کولیس دیجیتال 15 سانت با فک الماس اینسایز مدل 1110-150A,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3900,1110-300A,INSIZE | اینسایز,1110-300A,کولیس دیجیتال 30 سانت با فک الماس اینسایز مدل 1110-300A,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3904,1205-150S,INSIZE | اینسایز,1205-150S,کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3905,1205-200S,INSIZE | اینسایز,1205-200S,کولیس استنلس استیل معمولی 20 سانت اینسایز مدل 1205-200S,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3907,1205-300S,INSIZE | اینسایز,1205-300S,کولیس استنلس استیل معمولی اینسایز (Insize) 30 سانت مدل 300S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3928,2878-71B,INSIZE | اینسایز,2878-71B,پایه ضخامت سنج گرانیت اینسایز (Insize) همراه با ساعت دیجیتال مدل 71B-2878,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3929,2878-6A,INSIZE | اینسایز,2878-6A,پایه ضخامت سنج اینسایز (Insize) همراه با ساعت دیجیتال مدل 6A-2878,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3942,4100-8,INSIZE | اینسایز,4100-8,جعبه راپورتر 8 پارچه اینسایز (Insize) سایز 500-100 مدل 8-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3956,4129-10Q,INSIZE | اینسایز,4129-10Q,گیج رینگی برو اینسایز (Insize) 1.25-10 میلی متر مدل 10Q-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3957,4129-10QN,INSIZE | اینسایز,4129-10QN,گیج رینگی نرو اینسایز (Insize) 1.25-10 میلی متر مدل 10QN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3959,4129-12R,INSIZE | اینسایز,4129-12R,گیج رینگی برو اینسایز (Insize) 1.5-12 میلی متر مدل 12R-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3960,4129-12RN,INSIZE | اینسایز,4129-12RN,گیج رینگی نرو اینسایز (Insize) 1.5-12 میلی متر مدل 12RN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3962,4129-14R,INSIZE | اینسایز,4129-14R,گیج رینگی برو اینسایز (Insize) 1.5-14 میلی متر مدل 14R-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3963,4129-14RN,INSIZE | اینسایز,4129-14RN,گیج رینگی نرو اینسایز (Insize) 1.5-14 میلی متر مدل 14RN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3964,4129-16R,INSIZE | اینسایز,4129-16R,گیج رینگی برو اینسایز (Insize) 1.5-16 میلی متر مدل 16R-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3965,4129-16RN,INSIZE | اینسایز,4129-16RN,گیج رینگی نرو اینسایز (Insize) 1.5-16 میلی متر مدل 16RN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3967,4129-18T,INSIZE | اینسایز,4129-18T,گیج رینگی برو اینسایز (Insize) 2-18 میلی متر مدل 18T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3968,4129-18TN,INSIZE | اینسایز,4129-18TN,گیج رینگی نرو اینسایز (Insize) 2-18 میلی متر مدل 18TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3969,4129-20T,INSIZE | اینسایز,4129-20T,گیج رینگی برو اینسایز (Insize) 2-20 میلی متر مدل 20T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3970,4129-20TN,INSIZE | اینسایز,4129-20TN,گیج رینگی نرو اینسایز (Insize) 2-20 میلی متر مدل 20TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3972,4129-22T,INSIZE | اینسایز,4129-22T,گیج رینگی برو اینسایز (Insize) 2-22 میلی متر مدل 22T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3973,4129-22TN,INSIZE | اینسایز,4129-22TN,گیج رینگی نرو اینسایز (Insize) 2-22 میلی متر مدل 22TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3975,4129-24T,INSIZE | اینسایز,4129-24T,گیج رینگی برو اینسایز (Insize) 2-24 میلی متر مدل 24T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3976,4129-24TN,INSIZE | اینسایز,4129-24TN,گیج رینگی نرو اینسایز (Insize) 2-24 میلی متر مدل 24TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3978,4129-25T,INSIZE | اینسایز,4129-25T,گیج رینگی برو اینسایز (Insize) 2-25 میلی متر مدل 25T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3980,4129-25TN,INSIZE | اینسایز,4129-25TN,گیج رینگی نرو اینسایز (Insize) 2-25 میلی متر مدل 25TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3981,4129-26T,INSIZE | اینسایز,4129-26T,گیج رینگی برو اینسایز (Insize) 2-26 میلی متر مدل 26T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3982,4129-26TN,INSIZE | اینسایز,4129-26TN,گیج رینگی نرو اینسایز (Insize) 2-26 میلی متر مدل 26TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3984,4129-27T,INSIZE | اینسایز,4129-27T,گیج رینگی برو اینسایز (Insize) 2-27 میلی متر مدل 27T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3985,4129-27TN,INSIZE | اینسایز,4129-27TN,گیج رینگی نرو اینسایز (Insize) 2-27 میلی متر مدل 27TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3987,4129-28T,INSIZE | اینسایز,4129-28T,گیج رینگی برو اینسایز (Insize) 2-28 میلی متر مدل 28T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3989,4129-28TN,INSIZE | اینسایز,4129-28TN,گیج رینگی نرو اینسایز (Insize) 2-28 میلی متر مدل 28TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3990,4129-30T,INSIZE | اینسایز,4129-30T,گیج رینگی برو اینسایز (Insize) 2-30 میلی متر مدل 30T-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3992,4129-30TN,INSIZE | اینسایز,4129-30TN,گیج رینگی نرو اینسایز (Insize) 2-30 میلی متر مدل 30TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3994,4129-8P,INSIZE | اینسایز,4129-8P,گیج رینگی برو اینسایز (Insize) 1-8 میلی متر مدل 8P-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3995,4129-8PN,INSIZE | اینسایز,4129-8PN,گیج رینگی نرو اینسایز (Insize) 1-8 میلی متر مدل 8PN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3999,4139-10Q,INSIZE | اینسایز,4139-10Q,گیج رزوه برو نرو توپی اینسایز (Insize) 10×1.25mm مدل 10Q-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4001,4139-12R,INSIZE | اینسایز,4139-12R,گیج رزوه برو نرو توپی اینسایز (Insize) 12×1.5mm مدل 12R-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4003,4139-14R,INSIZE | اینسایز,4139-14R,گیج رزوه برو نرو توپی اینسایز (Insize) 14×1.5mm مدل 14R-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4005,4139-16R,INSIZE | اینسایز,4139-16R,گیج رزوه برو نرو توپی اینسایز (Insize) 16×1.5mm مدل 16R-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4007,4139-18T,INSIZE | اینسایز,4139-18T,گیج رزوه برو نرو توپی اینسایز (Insize) 18×2mm مدل 18T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4008,4139-20T,INSIZE | اینسایز,4139-20T,گیج رزوه برو نرو توپی اینسایز (Insize) 20×2mm مدل 20T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4010,4139-22T,INSIZE | اینسایز,4139-22T,گیج رزوه برو نرو توپی اینسایز (Insize) 22×2mm مدل 22T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4011,4139-24T,INSIZE | اینسایز,4139-24T,گیج رزوه برو نرو توپی اینسایز (Insize) 24×2mm مدل 24T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4012,4139-25T,INSIZE | اینسایز,4139-25T,گیج رزوه برو نرو توپی اینسایز (Insize) 25×2mm مدل 25T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4014,4139-26T,INSIZE | اینسایز,4139-26T,گیج رزوه برو نرو توپی اینسایز (Insize) 26×2mm مدل 26T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4016,4139-27T,INSIZE | اینسایز,4139-27T,گیج رزوه برو نرو توپی اینسایز (Insize) 27×2mm مدل 27T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4017,4139-28T,INSIZE | اینسایز,4139-28T,گیج رزوه برو نرو توپی اینسایز (Insize) 28×2mm مدل 28T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4018,4139-30T,INSIZE | اینسایز,4139-30T,گیج رزوه برو نرو توپی اینسایز (Insize) 30×2mm مدل 30T-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4019,4139-4G,INSIZE | اینسایز,4139-4G,گیج رزوه برو نرو توپی اینسایز (Insize) 4×0.5mm مدل 4G-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4020,4139-5G,INSIZE | اینسایز,4139-5G,گیج رزوه برو نرو توپی اینسایز (Insize) 5×0.5mm مدل 5G-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4022,4139-6G,INSIZE | اینسایز,4139-6G,گیج رزوه برو نرو توپی اینسایز (Insize) 6×0.5mm مدل 6G-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4023,4139-8P,INSIZE | اینسایز,4139-8P,گیج رزوه برو نرو توپی اینسایز (Insize) 8×1mm مدل 8P-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4024,4168-S25,INSIZE | اینسایز,4168-S25,ساچمه های اندازه گیری فولادی اینسایز (Insize) 25 پارچه مدل 4168-S25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4047,4844-1,INSIZE | اینسایز,4844-1,گیج زاویه پخ اینسایز (Insize) مدل 1-4844,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4062,6224-40,INSIZE | اینسایز,6224-40,پایه ساعت کوچک اینسایز (Insize) 40 کیلویی مدل 40-6224,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4065,6228-40,INSIZE | اینسایز,6228-40,پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4066,6298-2,INSIZE | اینسایز,6298-2,پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4069,6511-24,INSIZE | اینسایز,6511-24,پارالل گیج اینسایز (Insize) مدل 24-6511,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4077,6896-11,INSIZE | اینسایز,6896-11,ست وی بلوک اینسایز (Insize) مدل 11-6896,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4079,6896-13,INSIZE | اینسایز,6896-13,ست وی بلوک اینسایز (Insize) مدل 13-6896,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4085,7161-1,INSIZE | اینسایز,7161-1,مگنت تلسکوپی اینسایز (Insize) مدل 1-7161,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4086,7163-1,INSIZE | اینسایز,7163-1,مگنت تلسکوپی (چراغ دار) اینسایز (Insize) مدل 1-7163,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4088,7302-21,INSIZE | اینسایز,7302-21,کابل انتقال داده کولیس دیجیتال اینسایز (Insize) 3 متر مدل 21-7302,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4090,7315-21,INSIZE | اینسایز,7315-21,کابل انتقال داده کولیس دیجیتال (وایرلس) اینسایز (Insize) مدل 21-7315,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4091,7513-2,INSIZE | اینسایز,7513-2,ذره بین 2X چراغ دار اینسایز (Insize) مدل 2-7513,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4092,7513-4,INSIZE | اینسایز,7513-4,ذره بین 4X چراغ دار اینسایز (Insize) مدل 4-7513,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4094,7515-10,INSIZE | اینسایز,7515-10,ذره بین تاشو 10X چراغ دار اینسایز (Insize) مدل 10-7515,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4095,7516-5D,INSIZE | اینسایز,7516-5D,ذره بین میزی 2.25X چراغ دار اینسایز (Insize) مدل 5D-7516,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4097,7517-3D,INSIZE | اینسایز,7517-3D,ذره بین میزی 1.75X چراغ دار اینسایز (Insize) مدل 3D-7517,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4115,9315-CF210,INSIZE | اینسایز,9315-CF210,آمپرمتر کلمپی اینسایز (Insize) مدل 9315-CF210,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4116,9563-C40,INSIZE | اینسایز,9563-C40,متر دیجیتال و لیزری 40متری بلوتوثی اینسایز مدل 9563-C40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4127,6372-25,INSIZE | اینسایز,6372-25,هد میکرومتر اینسایز (Insize) مدل 25-6372,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4130,7214-50M,INSIZE | اینسایز,7214-50M,کابل انتقال داده ساعت دیجیتال بلوتوثی اینسایز (Insize) مدل 7214-50M,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4131,2304-01,INSIZE | اینسایز,2304-01,ساعت اینچی دور کوچک اینسایز (Insize) مدل 01-2304,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4469,CD185-150,TERMA | ترما,CD185-150,کولیس 15سانت دیجیتال متال ترما (TERMA) مدل CD185-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4470,CD185-200,TERMA | ترما,CD185-200,کولیس 20سانت دیجیتال متال ترما (TERMA) مدل CD185-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4471,CD185-300,TERMA | ترما,CD185-300,کولیس 30سانت دیجیتال متال ترما (TERMA) مدل CD185-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4472,CDA100-150,TERMA | ترما,CDA100-150,کولیس 15سانت دیجیتال ترما (TERMA) مدل CDA100-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4473,CDA100-200,TERMA | ترما,CDA100-200,کولیس 20سانت دیجیتال ترما (TERMA) مدل CDA100-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4474,CDA100-300,TERMA | ترما,CDA100-300,کولیس 30سانت دیجیتال ترما (TERMA) مدل CDA100-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4475,YDA100E-150,TERMA | ترما,YDA100E-150,کولیس 15سانت دیجیتال شیار ترما (TERMA) مدل YDA100E-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4476,YDA100E-200,TERMA | ترما,YDA100E-200,کولیس 20سانت دیجیتال شیار ترما (TERMA) مدل YDA100E-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4477,YDA100E-300,TERMA | ترما,YDA100E-300,کولیس 30سانت دیجیتال شیار ترما (TERMA) مدل YDA100E-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4478,YDA100F-150,TERMA | ترما,YDA100F-150,کولیس 15سانت دیجیتال شیار ترما (TERMA) مدل YDA100F-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4479,YDA100F-200,TERMA | ترما,YDA100F-200,کولیس 20سانت دیجیتال شیار ترما (TERMA) مدل YDA100F-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4486,SDA100C-150,TERMA | ترما,SDA100C-150,عمق سنج 15سانت دیجیتال ترما (TERMA) مدل SDA100C-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4487,SDA100C-200,TERMA | ترما,SDA100C-200,عمق سنج 20سانت دیجیتال ترما (TERMA) مدل SDA100C-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4488,SDA100C-300,TERMA | ترما,SDA100C-300,عمق سنج 30سانت دیجیتال ترما (TERMA) مدل SDA100C-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4489,SDA100-150,TERMA | ترما,SDA100-150,عمق سنج 15سانت دیجیتال دو لبه ترما (TERMA) مدل SDA100-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4490,SDA100-200,TERMA | ترما,SDA100-200,عمق سنج 20سانت دیجیتال دو لبه ترما (TERMA) مدل SDA100-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4492,YDA100A-150,TERMA | ترما,YDA100A-150,کولیس 15سانت دیجیتال ضخامت لوله ترما (TERMA) مدل YDA100A-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4493,YDA100A-200,TERMA | ترما,YDA100A-200,کولیس 20سانت دیجیتال ضخامت لوله ترما (TERMA) مدل YDA100A-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4494,YDA100A-300,TERMA | ترما,YDA100A-300,کولیس 30سانت دیجیتال ضخامت لوله ترما (TERMA) مدل YDA100A-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4495,YDA100C-150,TERMA | ترما,YDA100C-150,کولیس 15دیجیتال شیار داخل ترما (TERMA) مدل YDA100C-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4496,YDA100C-200,TERMA | ترما,YDA100C-200,کولیس 20سانت شیار داخل ترما (TERMA) مدل YDA100C-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4497,YDA100C-300,TERMA | ترما,YDA100C-300,کولیس 30سانت شیار داخل ترما (TERMA) مدل YDA100C-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4499,CD950A-300,TERMA | ترما,CD950A-300,کولیس 30سانت دیجیتال دوفک فک 9سانت ترما (TERMA) مدل CD950A-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4504,CD960A-500,TERMA | ترما,CD960A-500,کولیس 50سانت دیجیتال دوفک 15سانت ترما (TERMA) مدل CD960A-500,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4505,CDE930-1000,TERMA | ترما,CDE930-1000,کولیس 1متری دیجیتال دو فک 20سانت ترما (TERMA) مدل CDE930-1000,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4506,CA210-150,TERMA | ترما,CA210-150,کولیس 15سانت معمولی ترما (TERMA) مدل CA210-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4507,CA210-200,TERMA | ترما,CA210-200,کولیس 20سانت معمولی ترما (TERMA) مدل CA210-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4508,CA210-300,TERMA | ترما,CA210-300,کولیس 30سانت معمولی ترما (TERMA) مدل CA210-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4509,CA920-500,TERMA | ترما,CA920-500,کولیس 50سانت معمولی مونو بالک ترما (TERMA) مدل CA920-500,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4510,CA920-600,TERMA | ترما,CA920-600,کولیس 60سانت معمولی ترما (TERMA) مدل CA920-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4511,IDE111N-100,TERMA | ترما,IDE111N-100,ساعت اندیکاتور 10سانت دیجیتال دقت 0.01 ترما (TERMA) مدل IDE111N-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4512,IDE111M-12,TERMA | ترما,IDE111M-12,ساعت اندیکاتور 12.7دیجیتال دقت 0.001 ترما (TERMA) مدل IDE111M-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4513,IDE111N-12,TERMA | ترما,IDE111N-12,ساعت اندیکاتور 12.7دیجیتال دقت 0.01 ترما (TERMA) مدل IDE111N-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4514,IDE110M-12,TERMA | ترما,IDE110M-12,ساعت اندیکاتور 12.7دیجیتال دقت 0.001 ترما (TERMA) مدل IDE110M-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4515,IDE110N-12,TERMA | ترما,IDE110N-12,ساعت اندیکاتور 12.7دیجیتال دقت 0.01 ترما (TERMA) مدل IDE110N-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4516,IDA910-10,TERMA | ترما,IDA910-10,ساعت اندیکاتور 12.7دیجیتال هفت دکمه 0.001 ترما (TERMA) مدل IDA910-10,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4517,IDA910N-10,TERMA | ترما,IDA910N-10,ساعت اندیکاتور 12.7دیجیتال هفت دکمه 0.01 ترما (TERMA) مدل IDA910N-10,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4518,IDA920N,TERMA | ترما,IDA920N,ساعت اندیکاتور 12.7دیجیتال 0.01 ترما (TERMA) مدل IDA920N,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4521,IDE111M-25,TERMA | ترما,IDE111M-25,ساعت اندیکاتوردیجیتال کورس 25دقت 0.001 ترما (TERMA) مدل IDE111M-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4522,IDE111M-50,TERMA | ترما,IDE111M-50,ساعت اندیکاتوردیجیتال کورس 50دقت 0.001 ترما (TERMA) مدل IDE111M-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4523,IDE111M-100,TERMA | ترما,IDE111M-100,ساعت اندیکاتور کورس 100دقت 0.001 ترما (TERMA) مدل IDE111M-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4524,IDE111N-25,TERMA | ترما,IDE111N-25,ساعت اندیکاتور کورس 25دقت 0.01 ترما (TERMA) مدل IDE111N-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4525,IDE111N-50,TERMA | ترما,IDE111N-50,ساعت اندیکاتور کورس 50دقت 0.01 ترما (TERMA) مدل IDE111N-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4526,IDA910N-25,TERMA | ترما,IDA910N-25,ساعت اندیکاتوردیجیتال کورس 25دقت 0.01 ترما (TERMA) مدل IDA910N-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4527,IDA910N-50,TERMA | ترما,IDA910N-50,ساعت اندیکاتور دیجیتال کورس 50دقت 0.01 ترما (TERMA) مدل IDA910N-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4528,TB210,TERMA | ترما,TB210,ضخامت سنج ساعتی دقت 0.01 ترما (TERMA) مدل TB210,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4529,IB210N,TERMA | ترما,IB210N,ساعت اندیکاتور دقت 0.01 ترما (TERMA) مدل IB210N,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4530,IB210M,TERMA | ترما,IB210M,ساعت اندیکاتور دقت 0.001 ترما (TERMA) مدل IB210M,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4531,IB220N,TERMA | ترما,IB220N,ساعت شیطانکی دقت 0.01 ترما (TERMA) مدل IB220N,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4552,CD520D,TERMA | ترما,CD520D,کولیس 0-80دیجیتال دیسک ترما (TERMA) مدل CD520D,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4553,CD580D,TERMA | ترما,CD580D,کولیس 0-80دیجیتال دیسک ترما (TERMA) مدل CD580D,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4554,DG950,TERMA | ترما,DG950,کولیس دیجیتال 100-500دروم ترما (TERMA) مدل DG950,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4555,DG950B,TERMA | ترما,DG950B,کولیس دیجیتال 50-400دروم ترما (TERMA) مدل DG950B,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4556,HD220-300,TERMA | ترما,HD220-300,کولیس پایه دار 30سانت دیجیتال دو محور ترما (TERMA) مدل HD220-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4557,HD220-600,TERMA | ترما,HD220-600,کولیس پایه دار 60سانت دیجیتال دو محور ترما (TERMA) مدل HD220-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4558,HDE650-300,TERMA | ترما,HDE650-300,کولیس پایه دار 30سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4559,HDE650-600,TERMA | ترما,HDE650-600,کولیس پایه دار 60سانت دیجیتال تک محور ترما (TERMA) مدل HDE650-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4560,HDA620-300,TERMA | ترما,HDA620-300,کولیس پایه دار 30سانت دیجیتال بدون اهرم ترما (TERMA) مدل HDA620-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4561,MD310-25,TERMA | ترما,MD310-25,میکرومتر 0-25دیجیتال ترما (TERMA) مدل MD310-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4562,MD310-50,TERMA | ترما,MD310-50,میکرومتر 25-50دیجیتال ترما (TERMA) مدل MD310-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4563,MD310-75,TERMA | ترما,MD310-75,میکرومتر 50-75دیجیتال ترما (TERMA) مدل MD310-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4564,MD310-100,TERMA | ترما,MD310-100,میکرومتر 75-100دیجیتال ترما (TERMA) مدل MD310-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4565,MD730-25,TERMA | ترما,MD730-25,میکرومتر 0-25دیجیتال ترما (TERMA) مدل MD730-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4566,MD730-50,TERMA | ترما,MD730-50,میکرومتر 25-50دیجیتال ترما (TERMA) مدل MD730-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4567,MD730-75,TERMA | ترما,MD730-75,میکرومتر 50-75دیجیتال ترما (TERMA) مدل MD730-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4568,MD730-100,TERMA | ترما,MD730-100,میکرومتر 75-100دیجیتال ترما (TERMA) مدل MD730-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4569,MD730-125,TERMA | ترما,MD730-125,میکرومتر 100-125دیجیتال ترما (TERMA) مدل MD730-125,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4570,MDD730-150,TERMA | ترما,MDD730-150,میکرومتر 125-150 ترما (TERMA) مدل MDD730-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4572,MD730B-25,TERMA | ترما,MD730B-25,میکرومتر 0-25دیجیتال سوزنی ترما (TERMA) مدل MD730B-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4573,MD730C-25,TERMA | ترما,MD730C-25,میکرومتر 0-25دیجیتال پله ایی ترما (TERMA) مدل MD730C-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4574,MD730D-25,TERMA | ترما,MD730D-25,میکرومتر 0-25دیجیتال سوزنی ترما (TERMA) مدل MD730D-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4575,MD730F-25,TERMA | ترما,MD730F-25,میکرومتر 0-25دیجیتال فک پیچ گوشتی ترما (TERMA) مدل MD730F-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4576,MD730G-25,TERMA | ترما,MD730G-25,میکرومتر 0-25دیجیتال بشقابی ترما (TERMA) مدل MD730G-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4578,MA210-25,TERMA | ترما,MA210-25,میکرومتر 0-25معمولی ترما (TERMA) مدل MA210-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4579,MA210-50,TERMA | ترما,MA210-50,میکرومتر 25-50معمولی ترما (TERMA) مدل MA210-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4580,MA210-75,TERMA | ترما,MA210-75,میکرومتر 50-75معمولی ترما (TERMA) مدل MA210-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4581,MA210-100,TERMA | ترما,MA210-100,میکرومتر 75-100معمولی ترما (TERMA) مدل MA210-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4582,MA210-125,TERMA | ترما,MA210-125,میکرومتر 100-125معمولی ترما (TERMA) مدل MA210-125,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4583,MA210-150,TERMA | ترما,MA210-150,میکرومتر 125-150معمولی ترما (TERMA) مدل MA210-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4584,MA220-25,TERMA | ترما,MA220-25,میکرومتر 0-25معمولی ترما (TERMA) مدل MA220-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4585,MA220-50,TERMA | ترما,MA220-50,میکرومتر 25-50معمولی ترما (TERMA) مدل MA220-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4586,MA220-75,TERMA | ترما,MA220-75,میکرومتر 50-75معمولی ترما (TERMA) مدل MA220-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4587,MA220-100,TERMA | ترما,MA220-100,میکرومتر 75-100معمولی ترما (TERMA) مدل MA220-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4588,MA220-125,TERMA | ترما,MA220-125,میکرومتر 100-125معمولی ترما (TERMA) مدل MA220-125,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4589,MA220-150,TERMA | ترما,MA220-150,میکرومتر 125-150معمولی ترما (TERMA) مدل MA220-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4591,MA220-200,TERMA | ترما,MA220-200,میکرومتر 175-200معمولی ترما (TERMA) مدل MA220-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4593,MA220-250,TERMA | ترما,MA220-250,میکرومتر 225-250معمولی ترما (TERMA) مدل MA220-250,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4594,MA220-275,TERMA | ترما,MA220-275,میکرومتر 250-275معمولی ترما (TERMA) مدل MA220-275,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4595,MA220-300,TERMA | ترما,MA220-300,میکرومتر 275-300معمولی ترما (TERMA) مدل MA220-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4596,MA210B-25,TERMA | ترما,MA210B-25,میکرومتر 0-25معمولی سوزنی ترما (TERMA) مدل MA210B-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4597,MA210C-25,TERMA | ترما,MA210C-25,میکرومتر 0-25معمولی پله ایی ترما (TERMA) مدل MA210C-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4598,MA210D-25,TERMA | ترما,MA210D-25,میکرومتر 0-25معمولی سوزنی ترما (TERMA) مدل MA210D-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4599,MA210E-25,TERMA | ترما,MA210E-25,میکرومتر 0-25بشقابی فک پیچ گوشتی ترما (TERMA) مدل MA210E-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4600,MA210F-25,TERMA | ترما,MA210F-25,میکرومتر 0-25معمولی بشقابی ترما (TERMA) مدل MA210F-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4601,MA230,TERMA | ترما,MA230,میکرومتر عمق سنج 150معمولی ترما (TERMA) مدل MA230,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4602,MA250H-6,TERMA | ترما,MA250H-6,میکرومتر سه فک 6-8 ترما (TERMA) مدل MA250H-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4603,MA250H-8,TERMA | ترما,MA250H-8,میکرومتر سه فک 8-10 ترما (TERMA) مدل MA250H-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4604,MA250H-10,TERMA | ترما,MA250H-10,میکرومتر سه فک 10-12 ترما (TERMA) مدل MA250H-10,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4605,MA250H-12,TERMA | ترما,MA250H-12,میکرومتر سه فک 12-16 ترما (TERMA) مدل MA250H-12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4606,MA250H-16,TERMA | ترما,MA250H-16,میکرومتر سه فک 16-20 ترما (TERMA) مدل MA250H-16,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4607,MA250H-20,TERMA | ترما,MA250H-20,میکرومتر سه فک 20-25 ترما (TERMA) مدل MA250H-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4608,MA250H-25,TERMA | ترما,MA250H-25,میکرومتر سه فک 25-30 ترما (TERMA) مدل MA250H-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4609,MA250H-30,TERMA | ترما,MA250H-30,میکرومتر سه فک 30-40 ترما (TERMA) مدل MA250H-30,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4610,MA250H-40,TERMA | ترما,MA250H-40,میکرومتر سه فک 40-50 ترما (TERMA) مدل MA250H-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4611,MA250H-50,TERMA | ترما,MA250H-50,میکرومتر سه فک 50-63 ترما (TERMA) مدل MA250H-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4612,MA250H-62,TERMA | ترما,MA250H-62,میکرومتر سه فک 62-75 ترما (TERMA) مدل MA250H-62,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4613,MA250H-75,TERMA | ترما,MA250H-75,میکرومتر سه فک 75-88 ترما (TERMA) مدل MA250H-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4614,MA250H-87,TERMA | ترما,MA250H-87,میکرومتر سه فک 87-100 ترما (TERMA) مدل MA250H-87,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4615,MA250H-100,TERMA | ترما,MA250H-100,میکرومتر سه فک 100-125 ترما (TERMA) مدل MA250H-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4616,MA250H-125,TERMA | ترما,MA250H-125,میکرومتر سه فک 125-150 ترما (TERMA) مدل MA250H-125,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4617,MA250H-150,TERMA | ترما,MA250H-150,میکرومتر سه فک 150-175 ترما (TERMA) مدل MA250H-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4618,MA250H-175,TERMA | ترما,MA250H-175,میکرومتر سه فک 175-200 ترما (TERMA) مدل MA250H-175,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4619,MA250H-200,TERMA | ترما,MA250H-200,میکرومتر سه فک 200-225 ترما (TERMA) مدل MA250H-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4620,MA250H-225,TERMA | ترما,MA250H-225,میکرومتر سه فک 225-250 ترما (TERMA) مدل MA250H-225,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4621,MA250H-250,TERMA | ترما,MA250H-250,میکرومتر سه فک 250-275 ترما (TERMA) مدل MA250H-250,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4622,MA250H-275,TERMA | ترما,MA250H-275,میکرومتر سه فک 275-300 ترما (TERMA) مدل MA250H-275,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4623,MA250H-300,TERMA | ترما,MA250H-300,میکرومتر سه فک 300-325 ترما (TERMA) مدل MA250H-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4624,MA250H-325,TERMA | ترما,MA250H-325,میکرومتر سه فک 325-350 ترما (TERMA) مدل MA250H-325,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4625,MD710-25,TERMA | ترما,MD710-25,میکرومتر 0-25دیجیتال ترما (TERMA) مدل MD710-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4626,MD710-50,TERMA | ترما,MD710-50,میکرومتر 25-50دیجیتال ترما (TERMA) مدل MD710-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4627,MD710-75,TERMA | ترما,MD710-75,میکرومتر 50-75دیجیتال ترما (TERMA) مدل MD710-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4628,MD710-100,TERMA | ترما,MD710-100,میکرومتر 75-100دیجیتال ترما (TERMA) مدل MD710-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4629,MDA910-25,TERMA | ترما,MDA910-25,میکرومتر 0 -25دیجیتال فنری ترما (TERMA) مدل MDA910-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4630,MDA910-100,TERMA | ترما,MDA910-100,میکرومتر 0-100دیجیتال فنری ترما (TERMA) مدل MDA910-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4631,MD320H-25,TERMA | ترما,MD320H-25,میکرومتر هد 0-25دیجیتال ترما (TERMA) مدل MD320H-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4632,MD320H-50,TERMA | ترما,MD320H-50,میکرومترهد 0-50دیجیتال ترما (TERMA) مدل MD320H-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4633,MA310,TERMA | ترما,MA310,میکرومتر هد 0-25معمولی ترما (TERMA) مدل MA310,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4634,ZDA210-300,TERMA | ترما,ZDA210-300,خطکش دیجیتال 30سانت ترما (TERMA) مدل ZDA210-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4635,ZDA210-500,TERMA | ترما,ZDA210-500,خطکش دیجیتال 50سانت ترما (TERMA) مدل ZDA210-500,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4636,ZDA210-1000,TERMA | ترما,ZDA210-1000,خطکش دیجیتال 1متر ترما (TERMA) مدل ZDA210-1000,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4637,TDE130A-30,TERMA | ترما,TDE130A-30,پرگار دیجیتال 0-30خارج سنج ترما (TERMA) مدل TDE130A-30,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4638,TDE130A-50,TERMA | ترما,TDE130A-50,پرگار دیجیتال 0-50خارج سنج ترما (TERMA) مدل TDE130A-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4639,TDE130A-100,TERMA | ترما,TDE130A-100,پرگار دیجیتال 0-100خارج سنج ترما (TERMA) مدل TDE130A-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4640,TDE130B-15,TERMA | ترما,TDE130B-15,پرگار دیجیتال 5-15داخل سنج ترما (TERMA) مدل TDE130B-15,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4641,TDE130B-30,TERMA | ترما,TDE130B-30,پرگار دیجیتال 10-30داخل سنج ترما (TERMA) مدل TDE130B-30,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4642,TDE130B-50,TERMA | ترما,TDE130B-50,پرگار دیجیتال 30-50داخل سنج ترما (TERMA) مدل TDE130B-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4643,TDE130B-100,TERMA | ترما,TDE130B-100,پرگار دیجیتال 50-100داخل سنج ترما (TERMA) مدل TDE130B-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4644,TDE130B-150,TERMA | ترما,TDE130B-150,پرگار دیجیتال 100-150داخل سنج ترما (TERMA) مدل TDE130B-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4645,TDE130B-200,TERMA | ترما,TDE130B-200,پرگار دیجیتال 150-200داخل سنج ترما (TERMA) مدل TDE130B-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4646,TDE111A-40,TERMA | ترما,TDE111A-40,پرگار دیجیتال 20-40خارج سنج ترما (TERMA) مدل TDE111A-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4647,TDE111A-60,TERMA | ترما,TDE111A-60,پرگار دیجیتال 40-60خارج سنج ترما (TERMA) مدل TDE111A-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4648,TDE111A-80,TERMA | ترما,TDE111A-80,پرگار دیجیتال 60-80خارج سنج ترما (TERMA) مدل TDE111A-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4649,TDE111A-100,TERMA | ترما,TDE111A-100,پرگار دیجیتال 80-100خارج سنج ترما (TERMA) مدل TDE111A-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4650,TDE111B-35,TERMA | ترما,TDE111B-35,پرگار دیجیتال 15-35داخل سنج ترما (TERMA) مدل TDE111B-35,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4651,TDE111B-55,TERMA | ترما,TDE111B-55,پرگار دیجیتال 35-55داخل سنج ترما (TERMA) مدل TDE111B-55,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4652,TDE111B-75,TERMA | ترما,TDE111B-75,پرگار دیجیتال 55-75داخل سنج ترما (TERMA) مدل TDE111B-75,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4653,TDE111B-95,TERMA | ترما,TDE111B-95,پرگار دیجیتال 75-95داخل سنج ترما (TERMA) مدل TDE111B-95,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4654,TDE111B-115,TERMA | ترما,TDE111B-115,پرگار دیجیتال 95-115داخل سنج ترما (TERMA) مدل TDE111B-115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4655,TDE111B-135,TERMA | ترما,TDE111B-135,پرگار دیجیتال 115-135 ترما (TERMA) مدل TDE111B-135,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4656,TD230A,TERMA | ترما,TD230A,ضخامت سنج دیجیتال 0-25خارج سنج ترما (TERMA) مدل TD230A,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4657,TD230B,TERMA | ترما,TD230B,ضخامت سنج دیجییتال 0-150خارج سنج ترما (TERMA) مدل TD230B,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4658,TD230C,TERMA | ترما,TD230C,ضخامت سنج دیجیتال 12.7-165داخل سنج ترما (TERMA) مدل TD230C,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4659,TD230D,TERMA | ترما,TD230D,ضخامت سنج دیجیتال 0-25خارج سنج ترما (TERMA) مدل TD230D,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4660,TDE230E-6,TERMA | ترما,TDE230E-6,پرگار دیجیتال 0-150خارج سنج ترما (TERMA) مدل TDE230E-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4661,TDE230E-8,TERMA | ترما,TDE230E-8,پرگار دیجیتال 0-200خارج سنج ترما (TERMA) مدل TDE230E-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4662,TDE230F-6,TERMA | ترما,TDE230F-6,پرگار دیجیتال 12.7-165داخل سنج ترما (TERMA) مدل TDE230F-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4663,TDE230F-8,TERMA | ترما,TDE230F-8,پرگار دیجیتال 12.7-216داخل سنج ترما (TERMA) مدل TDE230F-8,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4664,SN730-25,TERMA | ترما,SN730-25,ضخامت سنج دیجیتال ترما (TERMA) مدل SN730-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4665,TD270-25,TERMA | ترما,TD270-25,ضخامت سنج دیجیتال ترما (TERMA) مدل TD270-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4666,LD250,TERMA | ترما,LD250,شیب سنج دیجیتال 50*50سه دکمه ترما (TERMA) مدل LD250,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4667,LD280,TERMA | ترما,LD280,شیب سنج دیجیتال 50*50چهار دکمه ترما (TERMA) مدل LD280,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4668,LD290,TERMA | ترما,LD290,تراز دیجیتال 150میلیمتر ترما (TERMA) مدل LD290,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4669,LD260-6,TERMA | ترما,LD260-6,تراز صنعتی دیجیتال 150میلیمتر ترما (TERMA) مدل LD260-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4670,LD260-9,TERMA | ترما,LD260-9,تراز صنعتی دیجیتال 225میلیمتر ترما (TERMA) مدل LD260-9,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4671,LD260-24,TERMA | ترما,LD260-24,تراز صنعتی دیجیتال 600میلیمتر ترما (TERMA) مدل LD260-24,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4672,PD290-100,TERMA | ترما,PD290-100,زاویه سنج دیجیتال 10سانت ترما (TERMA) مدل PD290-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4673,PD290-200,TERMA | ترما,PD290-200,زاویه سنج دیجیتال 20سانت ترما (TERMA) مدل PD290-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4674,PD290-300,TERMA | ترما,PD290-300,زاویه سنج دیجیتال 30سانت ترما (TERMA) مدل PD290-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4675,PD270D-150,TERMA | ترما,PD270D-150,زاویه سنج دیجیتال 150سانت ترما (TERMA) مدل PD270D-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4676,PD270D-200,TERMA | ترما,PD270D-200,زاویه سنج دیجیتال 200سانت ترما (TERMA) مدل PD270D-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4677,PD270D-300,TERMA | ترما,PD270D-300,زاویه سنج دیجیتال 300سانت ترما (TERMA) مدل PD270D-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4678,PD270D-600,TERMA | ترما,PD270D-600,زاویه سنج دیجیتال 600سانت ترما (TERMA) مدل PD270D-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4679,PD211,TERMA | ترما,PD211,گونیا سه تیکه دیجیتال ترما (TERMA) مدل PD211,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4680,TG710M-25,TERMA | ترما,TG710M-25,عمق سنج 0-25دیجیتال آج الستیک ترما (TERMA) مدل TG710M-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4681,TGE280,TERMA | ترما,TGE280,ساعت Zدیجیتال ترما (TERMA) مدل TGE280,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4682,DS220A,TERMA | ترما,DS220A,سختی سنج شور Aدقت HA 0.5 ترما (TERMA) مدل DS220A,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4683,DS220D,TERMA | ترما,DS220D,سختی سنج شور Dدقت HD 0.5 ترما (TERMA) مدل DS220D,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4684,RDE111-3000,TERMA | ترما,RDE111-3000,شابلون Rسنج دیجیتال ترما (TERMA) مدل RDE111-3000,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4685,SD710,TERMA | ترما,SD710,پایه ساعت (عمق سنج ) ترما (TERMA) مدل SD710,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4686,MD710H,TERMA | ترما,MD710H,میکرومترهد 0-25دیجیتال ترما (TERMA) مدل MD710H,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4687,IDE120,TERMA | ترما,IDE120,ساعت شیطانکی دیجیتال ترما (TERMA) مدل IDE120,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4688,IB210N-20,TERMA | ترما,IB210N-20,ساعت اندیکاتور کورس 2سانت ترما (TERMA) مدل IB210N-20,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4689,IB210N-25,TERMA | ترما,IB210N-25,ساعت اندیکاتور کورس 2.5سانت ترما (TERMA) مدل IB210N-25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4690,IB210N-30,TERMA | ترما,IB210N-30,ساعت اندیکاتور کورس 3سانت ترما (TERMA) مدل IB210N-30,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4691,IB210N-50,TERMA | ترما,IB210N-50,ساعت اندیکاتور کورس 5سانت ترما (TERMA) مدل IB210N-50,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4692,IB210N-100,TERMA | ترما,IB210N-100,ساعت اندیکاتور کورس 10سانت ترما (TERMA) مدل IB210N-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4693,WTD100C-150,TERMA | ترما,WTD100C-150,پرگار داخل سنج 15سانت ترما (TERMA) مدل WTD100C-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4694,WTD100C-200,TERMA | ترما,WTD100C-200,پرگار داخل سنج 20سانت ترما (TERMA) مدل WTD100C-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4695,WTD100C-300,TERMA | ترما,WTD100C-300,پرگار داخل سنج 30سانت ترما (TERMA) مدل WTD100C-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4696,WTD100C-600,TERMA | ترما,WTD100C-600,پرگار داخل سنج 60سانت ترما (TERMA) مدل WTD100C-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4697,WTD100A-150,TERMA | ترما,WTD100A-150,پرگار مستقیم 15سانت ترما (TERMA) مدل WTD100A-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4698,WTD100A-200,TERMA | ترما,WTD100A-200,پرگار مستقیم 20سانت ترما (TERMA) مدل WTD100A-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4699,WTD100A-300,TERMA | ترما,WTD100A-300,پرگار مستقیم 30سانت ترما (TERMA) مدل WTD100A-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4700,WTD100A-600,TERMA | ترما,WTD100A-600,پرگار مستقیم 60سانت ترما (TERMA) مدل WTD100A-600,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4701,WTD100B-200,TERMA | ترما,WTD100B-200,پرگار خارج سنج 20سانت ترما (TERMA) مدل WTD100B-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4702,WTD100B-300,TERMA | ترما,WTD100B-300,پرگار خارج سنج 30سانت ترما (TERMA) مدل WTD100B-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4703,WTP100,TERMA | ترما,WTP100,شابلون دنده اینچ و میلیمتر ترما (TERMA) مدل WTP100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4704,WGB100-18,TERMA | ترما,WGB100-18,راپورتر 18پارچه گرید 2 ترما (TERMA) مدل WGB100-18,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4705,WGB100-47,TERMA | ترما,WGB100-47,راپورتر 47پارچه گرید 2 ترما (TERMA) مدل WGB100-47,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4706,WGB100-67,TERMA | ترما,WGB100-67,راپورتر 76پارچه گرید 2 ترما (TERMA) مدل WGB100-67,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4707,WGB100-81,TERMA | ترما,WGB100-81,راپورتر 81پارچه گرید 2 ترما (TERMA) مدل WGB100-81,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4708,WGB100-87,TERMA | ترما,WGB100-87,راپورتر 87پارچه گرید 2 ترما (TERMA) مدل WGB100-87,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4709,WGB100-103,TERMA | ترما,WGB100-103,راپورتر 103پارچه گرید 2 ترما (TERMA) مدل WGB100-103,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4710,WGB100-112,TERMA | ترما,WGB100-112,راپورتر 112پارچه گرید 2 ترما (TERMA) مدل WGB100-112,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4711,WGB100-122,TERMA | ترما,WGB100-122,راپورتر 122پارچه گرید 2 ترما (TERMA) مدل WGB100-122,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4712,WSI100,TERMA | ترما,WSI100,مرکز یاب اینچ و میلیمتر ترما (TERMA) مدل WSI100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4713,WWG110,TERMA | ترما,WWG110,گیج جوش کمبریج ترما (TERMA) مدل WWG110,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4714,FDT250,TERMA | ترما,FDT250,ضخامت سنج MINI QUICK ترما (TERMA) مدل FDT250,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4715,WMS100,TERMA | ترما,WMS100,پایه میکرومتر ترما (TERMA) مدل WMS100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4716,WPD110,TERMA | ترما,WPD110,زاویه سنج یونیورسال 30سانت ترما (TERMA) مدل WPD110,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4750,WBF100,TERMA | ترما,WBF100,فیلر برنجی 0.5-1.0طول 10سانت ترما (TERMA) مدل WBF100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4760,WT100,TERMA | ترما,WT100,3D TESTER ترما (TERMA) مدل WT100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4761,WWG100,TERMA | ترما,WWG100,گیج جوش لوله ترما (TERMA) مدل WWG100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4762,WPD120,TERMA | ترما,WPD120,زاویه سنج نقاله دار ترما (TERMA) مدل WPD120,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4763,WPD100,TERMA | ترما,WPD100,گونیا سه تیکه ترما (TERMA) مدل WPD100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4764,WMT100,TERMA | ترما,WMT100,پایه ساعت گرانیتی 200*300*50 ترما (TERMA) مدل WMT100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4765,WLD100-150,TERMA | ترما,WLD100-150,تراز صنعتی تخت 15سانت دقت 0.02 ترما (TERMA) مدل WLD100-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4766,WLD100-200,TERMA | ترما,WLD100-200,تراز صنعتی تخت 20سانت دقت 0.02 ترما (TERMA) مدل WLD100-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4767,WLD100-300,TERMA | ترما,WLD100-300,تراز صنعتی تخت 30سانت دقت 0.02 ترما (TERMA) مدل WLD100-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4768,WLD110-150,TERMA | ترما,WLD110-150,تراز صنعتی چهار گوش 15سانت دقت 0.02 ترما (TERMA) مدل WLD110-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4769,WLD110-200,TERMA | ترما,WLD110-200,تراز صنعتی چهار گوش 20سانت دقت 0.02 ترما (TERMA) مدل WLD110-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4770,WLD110-300,TERMA | ترما,WLD110-300,تراز صنعتی چهار گوش 30سانت دقت 0.02 ترما (TERMA) مدل WLD110-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4771,WCG100-150,TERMA | ترما,WCG100-150,مرکز یاب 150*130 ترما (TERMA) مدل WCG100-150,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4772,WCG100-200,TERMA | ترما,WCG100-200,مرکز یاب 200*150 ترما (TERMA) مدل WCG100-200,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4773,WCG100-300,TERMA | ترما,WCG100-300,مرکز یاب 300*180 ترما (TERMA) مدل WCG100-300,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4777,WDS110,TERMA | ترما,WDS110,20-88 HRA.20-100HRB.20-70HRC ترما (TERMA) مدل WDS110,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
