@@ -395,58 +395,67 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 1742,8521-0015,Dasqua | داسکوا,8521-0015,شابلون گپ سنج — 0-45mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1743,8521-0020,Dasqua | داسکوا,8521-0020,شابلون گپ سنج — 0-200mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1770,9411-1205,Dasqua | داسکوا,9411-1205,گیج راپورتر زاویه 10پارچه — 0-1205mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
-1772,1103-150,INSIZE | اینسایز,1103-150,کولیس دیجیتال 15سانت اینسایز مدل 1103-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1773,1103-200,INSIZE | اینسایز,1103-200,کولیس دیجیتال 20سانت اینسایز مدل 1103-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1774,1103-300,INSIZE | اینسایز,1103-300,کولیس دیجیتال 30سانت اینسایز مدل 1103-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1775,1106-301,INSIZE | اینسایز,1106-301,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1776,1106-302,INSIZE | اینسایز,1106-302,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1777,1106-501,INSIZE | اینسایز,1106-501,کولیس دیجیتال 50سانت اینسایز مدل 1106-501,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1778,1106-502,INSIZE | اینسایز,1106-502,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1779,1106-503,INSIZE | اینسایز,1106-503,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1780,1106-505,INSIZE | اینسایز,1106-505,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1781,1106-601,INSIZE | اینسایز,1106-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1782,1106-602,INSIZE | اینسایز,1106-602,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1783,1106-603,INSIZE | اینسایز,1106-603,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1784,1106-802,INSIZE | اینسایز,1106-802,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1785,1108-150,INSIZE | اینسایز,1108-150,کولیس دیجیتال 15سانت اینسایز مدل 1108-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1786,1108-200,INSIZE | اینسایز,1108-200,کولیس دیجیتال 20سانت اینسایز مدل 1108-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1787,1108-300,INSIZE | اینسایز,1108-300,کولیس دیجیتال 30سانت اینسایز مدل 1108-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1788,1111-100,INSIZE | اینسایز,1111-100,کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1789,1114-150,,1114-150,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1790,1114-200,INSIZE | اینسایز,1114-200,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1791,1114-300,INSIZE | اینسایز,1114-300,کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1772,1103-150,INSIZE | اینسایز,1103-150,کولیس دیجیتال 15سانت اینسایز مدل 1103-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1773,1103-200,INSIZE | اینسایز,1103-200,کولیس دیجیتال 20سانت اینسایز مدل 1103-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1774,1103-300,INSIZE | اینسایز,1103-300,کولیس دیجیتال 30سانت اینسایز مدل 1103-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1775,1106-301,INSIZE | اینسایز,1106-301,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1776,1106-302,INSIZE | اینسایز,1106-302,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1777,1106-501,INSIZE | اینسایز,1106-501,کولیس دیجیتال 50سانت اینسایز مدل 1106-501,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1778,1106-502,INSIZE | اینسایز,1106-502,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1779,1106-503,INSIZE | اینسایز,1106-503,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1780,1106-505,INSIZE | اینسایز,1106-505,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1781,1106-601,INSIZE | اینسایز,1106-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1782,1106-602,INSIZE | اینسایز,1106-602,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1783,1106-603,INSIZE | اینسایز,1106-603,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1784,1106-802,INSIZE | اینسایز,1106-802,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1785,1108-150,INSIZE | اینسایز,1108-150,کولیس دیجیتال 15سانت اینسایز مدل 1108-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1786,1108-200,INSIZE | اینسایز,1108-200,کولیس دیجیتال 20سانت اینسایز مدل 1108-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1787,1108-300,INSIZE | اینسایز,1108-300,کولیس دیجیتال 30سانت اینسایز مدل 1108-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1788,1111-100,INSIZE | اینسایز,1111-100,کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1789,1114-150,,1114-150,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1790,1114-200,INSIZE | اینسایز,1114-200,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1791,1114-300,INSIZE | اینسایز,1114-300,کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
 1792,1115-150,INSIZE | اینسایز,1115-150,کولیس دیجیتال اینسایز (Insize) 15 سانت ضد اب (IP67) مدل 150-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1793,1115-200,INSIZE | اینسایز,1115-200,کولیس دیجیتال اینسایز (Insize) 20 سانت ضد اب (IP67) مدل 200-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1794,1115-300,INSIZE | اینسایز,1115-300,کولیس دیجیتال اینسایز (Insize) 30 سانت ضد اب (IP67) مدل 300-1115,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
-1803,1135-601,INSIZE | اینسایز,1135-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1804,1136-501,INSIZE | اینسایز,1136-501,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1805,1136-502,INSIZE | اینسایز,1136-502,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1806,1136-503,INSIZE | اینسایز,1136-503,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1807,1136-601,INSIZE | اینسایز,1136-601,کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1829,1170-300,INSIZE | اینسایز,1170-300,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1830,1172-200,INSIZE | اینسایز,1172-200,کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1841,1196-300,INSIZE | اینسایز,1196-300,کولیس دیجیتال 30سانت اینسایز مدل 1196-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1842,1208-511,INSIZE | اینسایز,1208-511,کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1843,1208-524,INSIZE | اینسایز,1208-524,کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1844,1208-824,INSIZE | اینسایز,1208-824,کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1845,1214-500,INSIZE | اینسایز,1214-500,کولیس استن استیل معمولی 50سانت اینسایز مدل 1214-500,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1846,1214-600,INSIZE | اینسایز,1214-600,کولیس استن استیل معمولی 60سانت اینسایز مدل 1214-600,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1847,1215-1032,INSIZE | اینسایز,1215-1032,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1848,1215-1052,INSIZE | اینسایز,1215-1052,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1849,1215-322,INSIZE | اینسایز,1215-322,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1850,1215-392,INSIZE | اینسایز,1215-392,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1851,1215-522,INSIZE | اینسایز,1215-522,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1852,1215-532,INSIZE | اینسایز,1215-532,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1853,1215-622,INSIZE | اینسایز,1215-622,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1854,1215-822,INSIZE | اینسایز,1215-822,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1855,1217-3001,INSIZE | اینسایز,1217-3001,کولیس اینسایز (Insize) 30 سانتی متر دو فک مدل 3001-1217,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1856,1236-394,INSIZE | اینسایز,1236-394,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-1857,1236-524,INSIZE | اینسایز,1236-524,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+1803,1135-601,INSIZE | اینسایز,1135-601,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1804,1136-501,INSIZE | اینسایز,1136-501,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1805,1136-502,INSIZE | اینسایز,1136-502,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1806,1136-503,INSIZE | اینسایز,1136-503,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1807,1136-601,INSIZE | اینسایز,1136-601,کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1829,1170-300,INSIZE | اینسایز,1170-300,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1830,1172-200,INSIZE | اینسایز,1172-200,کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1841,1196-300,INSIZE | اینسایز,1196-300,کولیس دیجیتال 30سانت اینسایز مدل 1196-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1842,1208-511,INSIZE | اینسایز,1208-511,کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1843,1208-524,INSIZE | اینسایز,1208-524,کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1844,1208-824,INSIZE | اینسایز,1208-824,کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1845,1214-500,INSIZE | اینسایز,1214-500,کولیس استن استیل معمولی 50سانت اینسایز مدل 1214-500,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1846,1214-600,INSIZE | اینسایز,1214-600,کولیس استن استیل معمولی 60سانت اینسایز مدل 1214-600,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1847,1215-1032,INSIZE | اینسایز,1215-1032,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1848,1215-1052,INSIZE | اینسایز,1215-1052,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1849,1215-322,INSIZE | اینسایز,1215-322,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1850,1215-392,INSIZE | اینسایز,1215-392,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1851,1215-522,INSIZE | اینسایز,1215-522,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1852,1215-532,INSIZE | اینسایز,1215-532,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1853,1215-622,INSIZE | اینسایز,1215-622,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1854,1215-822,INSIZE | اینسایز,1215-822,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1855,1217-3001,INSIZE | اینسایز,1217-3001,کولیس اینسایز (Insize) 30 سانتی متر دو فک مدل 3001-1217,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1856,1236-394,INSIZE | اینسایز,1236-394,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1857,1236-524,INSIZE | اینسایز,1236-524,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+1876,2122-160,INSIZE | اینسایز,2122-160,گیج داخل سیلندر اینسایز (Insize) دیجیتال 160-50 میلی متری مدل 160-2122,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 1881,2172-360,INSIZE | اینسایز,2172-360,زاویه سنج دیجیتال اینسایز (Insize) مدل 360-2172,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1882,2173-360,INSIZE | اینسایز,2173-360,تراز دیجیتالی مگنت دار 15 سانت اینسایز (Insize) مدل 360-2173,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1890,2275-300,INSIZE | اینسایز,2275-300,گونیا 170 در 300 اینسایز (Insize) مدل 300-2275,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 1891,2278-180,INSIZE | اینسایز,2278-180,زاویه سنج 3تکه اینسایز مدل 2278-180,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1892,2281-360,INSIZE | اینسایز,2281-360,زاویه سنج اینسایز (Insize) 20 سانت مدل 360-2281,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+1894,2322-160,INSIZE | اینسایز,2322-160,بورگیج داخل سیلندر اینسایز (Insize) 160-50 میلی متری مدل 160-2322,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+1895,2322-250,INSIZE | اینسایز,2322-250,بورگیج داخل سیلندر اینسایز (Insize) 250-160 میلی متری مدل 250-2322,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+1896,2322-450,INSIZE | اینسایز,2322-450,بورگیج داخل سیلندر اینسایز (Insize) 450-250 میلی متری مدل 450-2322,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+1908,2825-160,INSIZE | اینسایز,2825-160,گیج داخل سیلندر ساعتی اینسایز (Insize) 50-160 میلیمتر مدل 160-2825,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+1909,2827-160,INSIZE | اینسایز,2827-160,گیج داخل سیلندر اینسایز (Insize) 160-50 مدل 160-2827,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 1930,3127-123,INSIZE | اینسایز,3127-123,میکرومتر دیجیتال اینسایز (Insize) 12-6 میلی متر داخل سنج سه فک مدل 123-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1935,3127-202,INSIZE | اینسایز,3127-202,میکرومتر دیجیتال اینسایز (Insize) 20-12 میلی متر داخل سنج سه فک مدل 202-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+1939,3127-300,INSIZE | اینسایز,3127-300,میکرومتر دیجیتال اینسایز (Insize) 275-300 میلی متر داخل سنج سه فک مدل 300-3127,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 1940,3127-504,INSIZE | اینسایز,3127-504,میکرومتر دیجیتال اینسایز (Insize) 50-20 میلی متر داخل سنج سه فک مدل 504-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1944,3203-1506,INSIZE | اینسایز,3203-1506,میکرومتر اینسایز (Insize) 150-0 میلی متر خارج سنج صندوقی مدل 1506-3203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 1951,3203-3006,INSIZE | اینسایز,3203-3006,میکرومتر اینسایز (Insize) 300-150 میلی متر خارج سنج صندوقی مدل 3006-3203,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -458,10 +467,47 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 2001,4100-187,INSIZE | اینسایز,4100-187,گیج بلوک (راپورتر) 87 پارچه اینسایز (Insize) مدل 187-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2002,4100-232,INSIZE | اینسایز,4100-232,گیج بلوک (راپورتر) 32 پارچه اینسایز (Insize) مدل 232-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2003,4100-247,INSIZE | اینسایز,4100-247,گیج بلوک (راپورتر) 47 پارچه اینسایز (insize) مدل 247-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2005,4141-400,INSIZE | اینسایز,4141-400,گونیا گرانیتی اینسایز (Insize) 250×400mm مدل 400-4141,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 2006,4150-130,INSIZE | اینسایز,4150-130,خط کش سینوسی — 0-130mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2007,4150-1301,INSIZE | اینسایز,4150-1301,خط کش سینوسی — 0-1301mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2008,4150-250,INSIZE | اینسایز,4150-250,خط کش سینوسی — 0-250mm,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2009,4150-2501,INSIZE | اینسایز,4150-2501,خط کش سینوسی,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2010,4166-411,INSIZE | اینسایز,4166-411,پین گیج 41 پارچه 5-1 میلی متری اینسایز (Insize) مدل 411-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+2011,4166-511,INSIZE | اینسایز,4166-511,پین گیج 51 پارچه 10-5 میلی متری اینسایز (Insize) مدل 511-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+2012,4166-512,INSIZE | اینسایز,4166-512,ست پین گیج اینسایز (Insize) 10 – 15 میلی متر 51 پارچه مدل 512-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+2013,4166-513,INSIZE | اینسایز,4166-513,پین گیج 51 پارچه 20-15 میلی متری اینسایز (Insize) مدل513-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+2016,4621-100,INSIZE | اینسایز,4621-100,فیلر نواری 5متری اینسایز مدل 4621-100,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2017,4700-200,INSIZE | اینسایز,4700-200,خط کش مویی 20 سانتی اینسایز (insize) مدل 200-4700,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2018,4707-300,INSIZE | اینسایز,4707-300,گونیا صنعتی 30 سانتی اینسایز (Insize) مدل 300-4707,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2019,4707-500,INSIZE | اینسایز,4707-500,گونیا صنعتی 50 سانتی اینسایز (Insize) مدل 500-4707,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2020,4745-1150,INSIZE | اینسایز,4745-1150,گونیا 45 درجه اینسایز (Insize) مدل 1150-4745,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2021,4745-1200,INSIZE | اینسایز,4745-1200,گونیا 45 درجه اینسایز (Insize) مدل 1200-4745,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2022,4796-100,INSIZE | اینسایز,4796-100,گونیا صنعتی اینسایز (Insize) 70×100 میلیمتر کد 100-4796,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2023,4796-150,INSIZE | اینسایز,4796-150,گونیا صنعتی اینسایز (Insize) 150×100 میلیمتر مدل 150-4796,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2024,4796-300,INSIZE | اینسایز,4796-300,گونیا صنعتی اینسایز (Insize) 300×200 میلیمتر مدل 300-4796,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2030,4810-601,INSIZE | اینسایز,4810-601,شابلون رنده 60 درجه اینسایز (Insize) مدل 601-4810,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2031,4810-602,INSIZE | اینسایز,4810-602,شابلون رنده 60 درجه اینسایز (Insize) مدل 602-4810,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2032,4820-230,INSIZE | اینسایز,4820-230,شابلون دنده 60 درجه اینسایز (Insize) مدل 230-4820,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2033,4820-452,INSIZE | اینسایز,4820-452,شابلون رزوه اینچ و میلیمتر 6 – 0.25 میلی متر اینسایز (insize) مدل 452-4820,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2034,4820-552,INSIZE | اینسایز,4820-552,شابلون رزوه اینچ و میلیمتر 60درجه از اینسایز مدل 4820-552,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2035,4860-212,INSIZE | اینسایز,4860-212,شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 212-4860,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2036,4860-245,INSIZE | اینسایز,4860-245,شابلون مودول 20 درجه 4.5 – 0.35 میلی متر اینسایز (Insize) مدل 245-4860,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2037,4902-150,INSIZE | اینسایز,4902-150,تراز چهار گوش اینسایز 15 سانتی (Insize) مدل 150-4902,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2038,4902-200,INSIZE | اینسایز,4902-200,تراز چهار گوش اینسایز 20 سانتی (Insize) مدل 200-4902,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2039,4902-300,INSIZE | اینسایز,4902-300,تراز صنعتی چهار گوش اینسایز (Insize) مدل 300-4902,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2040,4903-150,INSIZE | اینسایز,4903-150,تراز صنعتی تخت اینسایز 15 سانتی (Insize) مدل 150-4903,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2041,4903-200,INSIZE | اینسایز,4903-200,تراز صنعتی تخت 20 سانتی اینسایز (Insize) مدل 200-4903,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2042,4903-300,INSIZE | اینسایز,4903-300,تراز صنعتی تخت 30 سانتی اینسایز (Insize) مدل 300-4903,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2043,4910-400,INSIZE | اینسایز,4910-400,شیب سنج دیجیتال اینسایز (Insize) 40 سانت مدل 400-4910,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2044,4910-600,INSIZE | اینسایز,4910-600,شیب سنج دیجیتال اینسایز (Insize) 60 سانت مدل 600-4910,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2045,4911-600,INSIZE | اینسایز,4911-600,تراز اینسایز (Insize) 60 سانت آلومینیومی (بدون مگنت) مدل 600-4911,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2046,4912-100,INSIZE | اینسایز,4912-100,تراز مگنتی 10سانت اینسایز مدل 4912-100,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2047,4913-250,INSIZE | اینسایز,4913-250,تراز مگنتی 25سانت اینسایز مدل 4913-250,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2048,4918-300,INSIZE | اینسایز,4918-300,تراز اینسایز (Insize) 30 سانت مگنت دار مدل 300-4918,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2049,4918-600,INSIZE | اینسایز,4918-600,تراز اینسایز (Insize) 60 سانت مگنت دار مدل 600-4918,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2050,4921-230,INSIZE | اینسایز,4921-230,تراز 3طرفه 23سانتی اینسایز مدل 4921-230,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2051,4922-100,INSIZE | اینسایز,4922-100,تراز 2طرفه دستی اینسایز مدل 4922-100,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2052,4922-150,INSIZE | اینسایز,4922-150,تراز 3طرفه دستی 15سانت اینسایز مدل 4922-150,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
 2053,6202-100,INSIZE | اینسایز,6202-100,پایه ساعت اینسایز مدل 6202-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2054,6210-100,INSIZE | اینسایز,6210-100,پایه ساعت مفصلی اینسایز مدل 6210-100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2055,6282-2001,INSIZE | اینسایز,6282-2001,رابط ساعت 1سانت اینسایز مدل 6282-2001,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -474,29 +520,48 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 2062,6282-2013,INSIZE | اینسایز,6282-2013,رابط ساعت 7سانت اینسایز مدل 6282-2013,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2063,6282-2017,INSIZE | اینسایز,6282-2017,رابط ساعت 10سانت اینسایز مدل 6282-2017,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2064,6511-241,INSIZE | اینسایز,6511-241,پارالل گیج اینسایز (Insize) مدل 241-6511,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2065,6520-102,INSIZE | اینسایز,6520-102,گیره دقیق اینسایز (Insize) 0-102 مدل 102-6520,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2066,6801-1201,INSIZE | اینسایز,6801-1201,وی بلوک مگنتی اینسایز (Insize) 95*70*80 میلیمتر مدل 1201-6801,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2067,6801-1202,INSIZE | اینسایز,6801-1202,وی بلوک مگنتی اینسایز (Insize) 95*70*100 میلیمتر مدل 1202-6801,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
 2068,6862-1002,INSIZE | اینسایز,6862-1002,پایه ساعت اینسایز (Insize) مدل 1002-6862,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2069,6866-150,INSIZE | اینسایز,6866-150,پایه ساعت گرانیتی اینسایز (Insize) مدل 150-6866,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2070,6890-702,INSIZE | اینسایز,6890-702,میلیمتر اینسایز مدل 6890-702,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2071,6900-132,INSIZE | اینسایز,6900-132,صفحه صافی گرانیتی اینسایز (Insize) مدل 132-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2072,6900-142,INSIZE | اینسایز,6900-142,صفحه صافی گرانیتی اینسایز (Insize) 250-400 میلی‌ متر مدل 142-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2073,6900-153,INSIZE | اینسایز,6900-153,صفحه صافی گرانیت 70*315*500 میلی متری اینسایز (insize) مدل 153-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2074,6900-164,INSIZE | اینسایز,6900-164,صفحه صافی گرانیت 80*400*630 میلی متری اینسایز (insize) مدل 164-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+2075,6900-185,INSIZE | اینسایز,6900-185,صفحه صافی گرانیت 100*500*800 میلی متری اینسایز (insize) مدل 185-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
 2076,6902-106,INSIZE | اینسایز,6902-106,میز صفحه صافی 140*630*1000 اینسایز (Insize) مدل 106-6902,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2082,7111-300,INSIZE | اینسایز,7111-300,خط کش تاب سیلندر اینسایز (Insize) 30 سانت مدل 300-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2083,7111-500,INSIZE | اینسایز,7111-500,خط کش تاپ سیلندر 50 سانتی متری اینسایز (Insize) مدل 500-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2085,7120-200,INSIZE | اینسایز,7120-200,کولیس خط کش اینسایز (Insize) 20 سانتی متر مدل 200-7120,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2087,7202-200,INSIZE | اینسایز,7202-200,کولیس خط کش اینسایز (Insize) 20 سانتی متر مدل 200-7202,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+2088,7205-200,INSIZE | اینسایز,7205-200,گونیا مرکز یاب اینسایز (Insize) مدل 200-7205,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+2089,7247-150,INSIZE | اینسایز,7247-150,پرگار مستقیم 15سانت اینسایز مدل 7247-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2090,7247-200,INSIZE | اینسایز,7247-200,پرگار مستقیم 20سانت اینسایز مدل 7247-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2091,7247-300,INSIZE | اینسایز,7247-300,پرگار مستقیم 30سانت اینسایز مدل 7247-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2092,7261-150,INSIZE | اینسایز,7261-150,پرگار داخل 15سانت اینسایز مدل 7261-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2093,7261-200,INSIZE | اینسایز,7261-200,پرگار داخل 20سانت اینسایز مدل 7261-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2094,7261-300,INSIZE | اینسایز,7261-300,پرگار داخل 30سانت اینسایز مدل 7261-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2095,7262-150,INSIZE | اینسایز,7262-150,پرگار خارج 15سانت اینسایز مدل 7262-150,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2096,7262-200,INSIZE | اینسایز,7262-200,پرگار خارج 20سانت اینسایز مدل 7262-200,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+2097,7262-300,INSIZE | اینسایز,7262-300,پرگار خارج 30سانت اینسایز مدل 7262-300,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 2098,7350-160,INSIZE | اینسایز,7350-160,ست رابط گیج داخل سیلندر 160-50 میلی متری اینسایز (Insize) مدل 160-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2099,7522-610,INSIZE | اینسایز,7522-610,ذره بین دو لنزه اینسایز مدل 7522-610,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2100,8601-100,INSIZE | اینسایز,8601-100,ترازو دیجیتال اینسایز (Insize) 0.1-100g مدل 100-8601,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2104,9351-130,INSIZE | اینسایز,9351-130,صوت سنج دیجیتالی اینسایز (Insize) 30 – 130 دسی بل مدل 130-9351,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 2107,9723-400,INSIZE | اینسایز,9723-400,تستر ولتاژ دیجیتالی اینسایز مدل 9723-400,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
-3468,1201-1003,INSIZE | اینسایز,1201-1003,کولیس اینسایز (Insize) 10 سانتی متر مدل 1003-1201,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3469,1204-70,INSIZE | اینسایز,1204-70,کولیس اینسایز (Insize) 7 سانتی متر مدل 70-1204,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3470,1205-1502,INSIZE | اینسایز,1205-1502,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3471,1111-75,INSIZE | اینسایز,1111-75,کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3472,1205-2002,INSIZE | اینسایز,1205-2002,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3473,1205-3002,INSIZE | اینسایز,1205-3002,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3474,1106-1002,INSIZE | اینسایز,1106-1002,کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3475,1214-1000,INSIZE | اینسایز,1214-1000,کولیس اینسایز (Insize) 1 متری مدل 1000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3476,1214-1500,INSIZE | اینسایز,1214-1500,کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3478,1106-2003,INSIZE | اینسایز,1106-2003,کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3479,1106-1502,INSIZE | اینسایز,1106-1502,کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3468,1201-1003,INSIZE | اینسایز,1201-1003,کولیس اینسایز (Insize) 10 سانتی متر مدل 1003-1201,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3469,1204-70,INSIZE | اینسایز,1204-70,کولیس اینسایز (Insize) 7 سانتی متر مدل 70-1204,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3470,1205-1502,INSIZE | اینسایز,1205-1502,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3471,1111-75,INSIZE | اینسایز,1111-75,کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3472,1205-2002,INSIZE | اینسایز,1205-2002,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3473,1205-3002,INSIZE | اینسایز,1205-3002,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3474,1106-1002,INSIZE | اینسایز,1106-1002,کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3475,1214-1000,INSIZE | اینسایز,1214-1000,کولیس اینسایز (Insize) 1 متری مدل 1000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3476,1214-1500,INSIZE | اینسایز,1214-1500,کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3478,1106-2003,INSIZE | اینسایز,1106-2003,کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3479,1106-1502,INSIZE | اینسایز,1106-1502,کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
 3484,2315-05,INSIZE | اینسایز,2315-05,ساعت اینچی اندیکاتور اینسایز (insize) مدل 05-2315,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3486,4100-2122,INSIZE | اینسایز,4100-2122,گیج بلوک (راپورتر) 122 پارچه اینسایز (Insize) مدل 2122-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3536,3227-1004,INSIZE | اینسایز,3227-1004,میکرومتر اینسایز (Insize) 100-50 میلی متر داخل سنج سه فک مدل 1004-3227,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -504,25 +569,90 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 3538,6201-60,INSIZE | اینسایز,6201-60,پایه ساعت اینسایز مدل 6201-60,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3539,6202-80,INSIZE | اینسایز,6202-80,پایه ساعت اینسایز مدل 6202-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3540,6207-80,INSIZE | اینسایز,6207-80,پایه ساعت خرطومی 80 کیلو گرمی اینسایز (Insize) مدل 80-6207,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3546,4621-02,INSIZE | اینسایز,4621-02,فیلر نواری 5متری اینسایز مدل 4621-02,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 3547,4206-1,INSIZE | اینسایز,4206-1,گیج تلسکوپی اینسایز مدل 4206-1,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3552,4621-03,INSIZE | اینسایز,4621-03,فیلر نواری 5متری اینسایز مدل 4621-03,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3553,4621-04,INSIZE | اینسایز,4621-04,فیلر نواری 5متری اینسایز مدل 4621-04,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3554,4621-05,INSIZE | اینسایز,4621-05,فیلر نواری 5متری اینسایز مدل 4621-05,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3555,4621-06,INSIZE | اینسایز,4621-06,فیلر نواری 5متری اینسایز مدل 4621-06,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3557,4621-07,INSIZE | اینسایز,4621-07,فیلر نواری 5متری اینسایز مدل 4621-07,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3558,4621-08,INSIZE | اینسایز,4621-08,فیلر نواری 5متری اینسایز مدل 4621-08,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3561,4621-09,INSIZE | اینسایز,4621-09,فیلر نواری 5متری اینسایز مدل 4621-09,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3562,4621-10,INSIZE | اینسایز,4621-10,فیلر نواری 5متری اینسایز مدل 4621-10,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3563,4621-15,INSIZE | اینسایز,4621-15,فیلر نواری 5متری اینسایز مدل 4621-15,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3564,4621-20,INSIZE | اینسایز,4621-20,فیلر نواری 5متری اینسایز مدل 4621-20,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3565,4621-25,INSIZE | اینسایز,4621-25,فیلر نواری 5متری اینسایز مدل 4621-25,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3566,4621-30,INSIZE | اینسایز,4621-30,فیلر نواری 5متری اینسایز مدل 4621-30,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3567,4621-40,INSIZE | اینسایز,4621-40,فیلر نواری 5متری اینسایز مدل 4621-40,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3568,4621-50,INSIZE | اینسایز,4621-50,فیلر نواری 5متری اینسایز مدل 4621-50,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3569,4621-70,INSIZE | اینسایز,4621-70,فیلر نواری 5متری اینسایز مدل 4621-70,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3570,4621-80,INSIZE | اینسایز,4621-80,فیلر نواری 5 متری 0.80mm اینسایز (Insize) مدل 80-4621,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3571,4621-90,INSIZE | اینسایز,4621-90,فیلر نواری 5متری اینسایز مدل 4621-90,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3572,4166-0D,INSIZE | اینسایز,4166-0D,پین گیج 31 پارچه 0.50 – 0.20 میلی متری اینسایز (Insize) مدل 4166-0D,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3579,4166-1,INSIZE | اینسایز,4166-1,پین گیج 51 پارچه 1 – 0.5 میلی متری اینسایز (Insize) مدل 1-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3582,4166-1D,INSIZE | اینسایز,4166-1D,پین گیج 51 پارچه 1.5- 1 میلی متری اینسایز (Insize) مدل 1D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3584,4166-2,INSIZE | اینسایز,4166-2,پین گیج 51 پارچه 2 – 1.50 میلی متری اینسایز (Insize) مدل 2-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3585,4166-2D,INSIZE | اینسایز,4166-2D,پین گیج 51 پارچه 2.50-2 میلیمتری اینسایز (Insize) مدل 2D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3586,4166-3,INSIZE | اینسایز,4166-3,پین گیج 51 پارچه 3 -2.50 میلی متری اینسایز(Insize) مدل 3-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3587,4166-4,INSIZE | اینسایز,4166-4,پین گیج 51 پارچه 4-3.50 میلی متری اینسایز (Insize) مدل 4-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3588,4166-4D,INSIZE | اینسایز,4166-4D,پین گیج 51 پارچه 4.50-4 میلی متری اینسایز (Insize) مدل 4D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3589,4166-5,INSIZE | اینسایز,4166-5,پین گیج 51 پارچه 5 – 4.50 میلی متری اینسایز مدل (Insize) 4166-5,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3590,4166-5D,INSIZE | اینسایز,4166-5D,پین گیج 51 پارچه 5.50 – 5 میلی متری اینسایز (Insize) مدل 5D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3591,4166-6,INSIZE | اینسایز,4166-6,پین گیج 51 پارچه 6 -5.5 میلی متری اینسایز (Insize) مدل 6-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3593,4166-6D,INSIZE | اینسایز,4166-6D,پین گیج 51 پارچه 6.5 – 6 میلی متری اینسایز (Insize) مدل 6D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3594,4166-7,INSIZE | اینسایز,4166-7,پین گیج 51 پارچه 7 – 6.5 میلی متری اینسایز (Insize) مدل 7-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3596,4166-7D,INSIZE | اینسایز,4166-7D,پین گیج 51 پارچه 7.5- 7 میلی متری اینسایز (Insize) مدل 7D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3597,4166-9,INSIZE | اینسایز,4166-9,پین گیج 51 پارچه 9 – 8.5 میلی متری اینسایز (Insize) مدل 9-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3598,4166-8,INSIZE | اینسایز,4166-8,پین گیج 51 پارچه 8 – 7.5 میلی متری اینسایز (Insize) مدل 8-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3600,4166-8D,INSIZE | اینسایز,4166-8D,پین گیج 51 پارچه 8.5 – 8 میلی متری اینسایز (Insize) مدل 8D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3601,4166-9D,INSIZE | اینسایز,4166-9D,پین گیج 51 پارچه 9.5 – 9 میلی متری اینسایز (Insize) مدل 9D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
 3602,6284-3,INSIZE | اینسایز,6284-3,پراب ساعت شیطانکی اینسایز مدل 6284-3,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
-3633,1203-1003,INSIZE | اینسایز,1203-1003,کولیس 10 سانتی متر اینسایز مدل 1203-1003,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3634,1214-2000,INSIZE | اینسایز,1214-2000,کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3603,4790-0150,INSIZE | اینسایز,4790-0150,گونیا مویی 15 سانتی اینسایز (Insize) مدل 0150-4790,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3604,4790-0100,INSIZE | اینسایز,4790-0100,گرید 00 اینسایز مدل 4790-0100,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3605,4745-1120,INSIZE | اینسایز,4745-1120,گونیا 45 درجه اینسایز (Insize) مدل 1120-4745,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3628,2852-10,INSIZE | اینسایز,2852-10,بورگیج داخل سیلندر اینسایز (insize) 10-6 میلیمتر مدل 10-2852,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3629,2322-35,INSIZE | اینسایز,2322-35,بورگیج داخل سیلندر اینسایز (Insize) 35-18 میلی متری مدل 35-2322,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3630,2322-60,INSIZE | اینسایز,2322-60,بورگیج داخل سیلندر اینسایز (Insize) 60-35 میلی متری مدل 60-2322,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3631,2852-18,INSIZE | اینسایز,2852-18,گیج داخل سیلندر اینسایز مدل 2852-18,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3633,1203-1003,INSIZE | اینسایز,1203-1003,کولیس 10 سانتی متر اینسایز مدل 1203-1003,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3634,1214-2000,INSIZE | اینسایز,1214-2000,کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
 3650,7350-35,INSIZE | اینسایز,7350-35,ست رابط گیج داخل سیلندر 35-18 میلی متری اینسایز (Insize) مدل 35-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3651,7350-60,INSIZE | اینسایز,7350-60,ست رابط گیج داخل سیلندر 60-35 میلی متری اینسایز (Insize) مدل 60-7350,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3652,3127-1004,INSIZE | اینسایز,3127-1004,میکرومتر دیجیتال اینسایز (Insize) 100-50 میلی متر داخل سنج سه فک مدل 1004-3127,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3653,4100-18,INSIZE | اینسایز,4100-18,گیج بلوک (راپورتر) 8 پارچه اینسایز (Insize) مدل 18-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3654,4100-1112,INSIZE | اینسایز,4100-1112,گیج بلوک (راپورتر) 112 پارچه اینسایز (Insize) مدل 1112-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3655,4790-0200,INSIZE | اینسایز,4790-0200,گونیا مویی 20 سانتی دقیق اینسایز (Insize) مدل 0200-4790,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3656,4760-1200,INSIZE | اینسایز,4760-1200,گونیا صنعتی 60 درجه اینسایز (Insize) مدل 1200-4760,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3658,4621-12,INSIZE | اینسایز,4621-12,فیلر نواری 5متری اینسایز مدل 4621-12,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3660,4621-60,INSIZE | اینسایز,4621-60,فیلر نواری 5متری اینسایز مدل 4621-60,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3676,4833-1,INSIZE | اینسایز,4833-1,گپ سنج 0.8 - 15میلیمتر اینسایز مدل 4833-1,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3680,4836-1,INSIZE | اینسایز,4836-1,گیج جوش فلت اینسایز (Insize) مدل 1-4836,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3682,4842-1,INSIZE | اینسایز,4842-1,شابلون مته ( زاویه های مختلف ) اینسایز مدل 4842-1,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3684,4843-1,INSIZE | اینسایز,4843-1,شابلون مته 118 درجه اینسایز (Insize) مدل 1-4843,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3685,4824-16,INSIZE | اینسایز,4824-16,شابلون ذوزنقه 1 - 12اینچ اینسایز مدل 4824-16,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 3686,6211-10,INSIZE | اینسایز,6211-10,پایه ساعت کوچک ده کیلویی اینسایز (Insize) مدل 10-6211,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3688,6900-1106,INSIZE | اینسایز,6900-1106,صفحه صافی گرانیت 140*630*1000 میلی متری اینسایز (insize) مدل 1106-6900,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
 3689,6902-85,INSIZE | اینسایز,6902-85,میز صفحه صافی 100*500*800 اینسایز (Insize) مدل 85-6902,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3692,7111-1000,INSIZE | اینسایز,7111-1000,خط کش تاپ سیلندر 1 متری اینسایز (Insize) مدل 1000-7111,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3707,7523-3D5,INSIZE | اینسایز,7523-3D5,عینک ذره بینی اینسایز مدل 7523-3D5,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3718,6566-3,INSIZE | اینسایز,6566-3,تاچ پراب یا مرکز یاب نوری/ بوقی الکترونیکی اینسایز (Insize) مدل 3-6566,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3732,6284-82,INSIZE | اینسایز,6284-82,پراب ساعت شیطانکی بلند اینسایز مدل 6284-82,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3733,4120-4,INSIZE | اینسایز,4120-4,گیج رینگی برو 0.7 – 4 میلی متری اینسایز (Insize) مدل 4-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3735,4120-4N,INSIZE | اینسایز,4120-4N,گیج رینگی نرو 0.7 – 4 میلی متری اینسایز (Insize) مدل 4N-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3737,4120-5,INSIZE | اینسایز,4120-5,گیج رینگی برو 0.8 – 5 میلی متری اینسایز (Insize) مدل 5-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3739,4120-5N,INSIZE | اینسایز,4120-5N,گیج رینگی نرو 0.8 – 5 میلی متری اینسایز (Insize) مدل 5N-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3740,4120-6,INSIZE | اینسایز,4120-6,گیج رینگی برو 1 – 6 میلی متری اینسایز (Insize) مدل 6-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
 3764,2385-3,INSIZE | اینسایز,2385-3,مرکز یاب اینسایز (Insize) داخل سنج و خارج سنج ساعتی مدل 3-2385,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3775,3222-12,INSIZE | اینسایز,3222-12,میکرومتر داخل لوله ای اینسایز (Insize) 2-12 اینچ مدل 12-3222,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3777,4100-2112,INSIZE | اینسایز,4100-2112,گیج بلوک اینسایز (Insize) 112 عددی گرید 2 مدل 2112-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3778,4101-C1000,INSIZE | اینسایز,4101-C1000,گیج بلوک اینسایز (Insize) 1000 میلی متر گرید 2 مدل 4101-C1000,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3779,4120-6N,INSIZE | اینسایز,4120-6N,گیج رینگی نرو اینسایز (Insize) 1-6میلی متر مدل 6N-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3780,4120-8,INSIZE | اینسایز,4120-8,گیج رینگی برو اینسایز (Insize) 1.25-8 میلی متر مدل 8-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3782,4790-0300,INSIZE | اینسایز,4790-0300,گونیا مویی اینسایز (Insize) 200×300 میلی متر مدل 0300-4790,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3786,4803-1,INSIZE | اینسایز,4803-1,گیج سیم اینسایز (Insize) مدل 1-4803,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3789,4166-10D,INSIZE | اینسایز,4166-10D,ست پین گیج اینسایز (Insize) 10.5 – 10 میلی متر 51 پارچه مدل 10D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3790,4806-20,INSIZE | اینسایز,4806-20,گیج زاویه 1 - 45درجه اینسایز مدل 4806-20,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3791,4824-12,INSIZE | اینسایز,4824-12,شابلون ذوزنقه 2 - 20میلیمتر اینسایز مدل 4824-12,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 3795,6210-80,INSIZE | اینسایز,6210-80,پایه ساعت مفصلی اینسایز مدل 6210-80,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3796,6215-60,INSIZE | اینسایز,6215-60,پایه ساعت اندیکاتور اینسایز (Insize) برای سطح ناهموار مدل 60-6215,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3798,6229-60,INSIZE | اینسایز,6229-60,پایه ساعت اندیکاتور اینسایز (Insize) هیدرولیکی مدل 60-6229,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -533,19 +663,54 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 3807,6293-1,INSIZE | اینسایز,6293-1,پایه ساعت شیطونکی اینسایز (Insize) مدل 1-6293,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3808,6293-2,INSIZE | اینسایز,6293-2,پایه ساعت شیطونکی اینسایز (Insize) مدل 2-6293,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3811,6295-1A,INSIZE | اینسایز,6295-1A,پایه ساعت شیطونکی اینسایز (Insize) مدل 1A-6295,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3814,6557-50,INSIZE | اینسایز,6557-50,زد سنج (رفرنس یاب محور Z) مگنت دار اینسایز (Insize) مدل 50-6557,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
 3816,7160-1,INSIZE | اینسایز,7160-1,آینه بازرسی تلسکوپی اینسایز (INSIZE) مدل 1-7160,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3818,7160-2,INSIZE | اینسایز,7160-2,آینه بازرسی تلسکوپی اینسایز (INSIZE) مدل 2-7160,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3821,7351-EX12,INSIZE | اینسایز,7351-EX12,رابط بور گیج اینسایز (Insize) مدل 7351-EX12,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3823,7524-10,INSIZE | اینسایز,7524-10,عینک ذره‌ بین 10X اینسایز (Insize) مدل 10-7524,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3824,7600-6,INSIZE | اینسایز,7600-6,شمار انداز 6رقمی اینسایز مدل 7600-6,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
-3896,1106-1005,INSIZE | اینسایز,1106-1005,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3897,1106-1503,INSIZE | اینسایز,1106-1503,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3898,1106-2002,INSIZE | اینسایز,1106-2002,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3899,1110-150A,INSIZE | اینسایز,1110-150A,کولیس دیجیتال 15 سانت با فک الماس اینسایز مدل 1110-150A,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3900,1110-300A,INSIZE | اینسایز,1110-300A,کولیس دیجیتال 30 سانت با فک الماس اینسایز مدل 1110-300A,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3904,1205-150S,INSIZE | اینسایز,1205-150S,کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3905,1205-200S,INSIZE | اینسایز,1205-200S,کولیس استنلس استیل معمولی 20 سانت اینسایز مدل 1205-200S,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
-3907,1205-300S,INSIZE | اینسایز,1205-300S,کولیس استنلس استیل معمولی اینسایز (Insize) 30 سانت مدل 300S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,product_type_label_too_broad_or_generic,Narrow Product Type naming label governance
+3841,4608-31,INSIZE | اینسایز,4608-31,فیلر اینچی 0.0015 - 0.035اینچ اینسایز مدل 4608-31,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+3845,4120-10,INSIZE | اینسایز,4120-10,گیج رینگی برو اینسایز (Insize) 1.5-10میلی متر مدل 10-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3848,4120-12,INSIZE | اینسایز,4120-12,گیج رینگی برو اینسایز (Insize) 1.75-12 میلی متر مدل 12-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3850,4120-14,INSIZE | اینسایز,4120-14,گیج رینگی برو اینسایز (Insize) 2-14 میلی متر مدل 14-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3853,4120-16,INSIZE | اینسایز,4120-16,گیج رینگی برو اینسایز (Insize) 2-16 میلی متر مدل 16-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3855,4120-18,INSIZE | اینسایز,4120-18,گیج رینگی برو اینسایز (Insize) 2.5-18 میلی متر مدل 18-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3857,4120-20,INSIZE | اینسایز,4120-20,گیج رینگی برو اینسایز (Insize) 2.5-20 میلی متر مدل 20-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3859,4120-22,INSIZE | اینسایز,4120-22,گیج رینگی برو اینسایز (Insize) 2.5-22 میلی متر مدل 22-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3862,4120-24,INSIZE | اینسایز,4120-24,گیج رینگی برو اینسایز (Insize) 3-24 میلی متر مدل 24-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3865,4120-27,INSIZE | اینسایز,4120-27,گیج رینگی برو اینسایز (Insize) 3-27 میلی متر مدل 27-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3869,4120-30,INSIZE | اینسایز,4120-30,گیج رینگی برو اینسایز (Insize) 3.5-30 میلی متر مدل 30-4120,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3872,4130-4,INSIZE | اینسایز,4130-4,گیج رزوه برو نرو توپی اینسایز (Insize) 4*0.7mm مدل 4-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3873,4130-5,INSIZE | اینسایز,4130-5,گیج رزوه برو نرو توپی اینسایز (Insize) 5×0.8mm مدل 5-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3874,4130-6,INSIZE | اینسایز,4130-6,گیج رزوه برو نرو توپی اینسایز (Insize) 6x1mm مدل 6-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3876,4130-8,INSIZE | اینسایز,4130-8,گیج رزوه برو نرو توپی اینسایز (Insize) 8×1.25mm مدل 8-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3878,4130-10,INSIZE | اینسایز,4130-10,گیج رزوه برو نرو توپی اینسایز (Insize) 10×1.5mm مدل 10-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3880,4130-12,INSIZE | اینسایز,4130-12,گیج رزوه برو نرو توپی اینسایز (Insize) 12×1.75mm مدل 12-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3881,4130-14,INSIZE | اینسایز,4130-14,گیج رزوه برو نرو توپی اینسایز (Insize) 14x2mm مدل 14-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3882,4130-16,INSIZE | اینسایز,4130-16,گیج رزوه برو نرو توپی اینسایز (Insize) 16x2mm مدل 16-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3883,4130-18,INSIZE | اینسایز,4130-18,گیج رزوه برو نرو توپی اینسایز (Insize) 18×2.5mm مدل 18-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3884,4130-20,INSIZE | اینسایز,4130-20,گیج رزوه برو نرو توپی اینسایز (Insize) 20×2.5mm مدل 20-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3885,4130-22,INSIZE | اینسایز,4130-22,گیج رزوه برو نرو توپی اینسایز (Insize) 22×2.5mm مدل 22-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3886,4130-24,INSIZE | اینسایز,4130-24,گیج رزوه برو نرو توپی اینسایز (Insize) 24x3mm مدل 24-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3887,4130-27,INSIZE | اینسایز,4130-27,گیج رزوه برو نرو توپی اینسایز (Insize) 27x3mm مدل 27-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3889,4130-30,INSIZE | اینسایز,4130-30,گیج رزوه برو نرو توپی اینسایز (Insize) 30×3.5mm مدل 30-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3891,4166-10,INSIZE | اینسایز,4166-10,ست پین گیج اینسایز (Insize) 9.5-10 میلی متر 51 پارچه مدل 10-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3892,4166-3D,INSIZE | اینسایز,4166-3D,ست پین گیج اینسایز (Insize) 3.5 – 3 میلی متر 51 پارچه مدل 3D-4166,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
+3896,1106-1005,INSIZE | اینسایز,1106-1005,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3897,1106-1503,INSIZE | اینسایز,1106-1503,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3898,1106-2002,INSIZE | اینسایز,1106-2002,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3899,1110-150A,INSIZE | اینسایز,1110-150A,کولیس دیجیتال 15 سانت با فک الماس اینسایز مدل 1110-150A,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3900,1110-300A,INSIZE | اینسایز,1110-300A,کولیس دیجیتال 30 سانت با فک الماس اینسایز مدل 1110-300A,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3904,1205-150S,INSIZE | اینسایز,1205-150S,کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3905,1205-200S,INSIZE | اینسایز,1205-200S,کولیس استنلس استیل معمولی 20 سانت اینسایز مدل 1205-200S,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3907,1205-300S,INSIZE | اینسایز,1205-300S,کولیس استنلس استیل معمولی اینسایز (Insize) 30 سانت مدل 300S-1205,HOLD_PRODUCT_TYPE_NAMING_POLICY,generic_product_type_label,Narrow Product Type naming label governance
+3913,2122-60,INSIZE | اینسایز,2122-60,گیج داخل سیلندر اینسایز (Insize) دیجیتال 60-35 میلی متری مدل 60-2122,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3915,2153-10,INSIZE | اینسایز,2153-10,گیج داخل سیلندر اینسایز (Insize) 6-10 میلی متری مدل 10-2153,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3919,2198-2,INSIZE | اینسایز,2198-2,شیب سنج و سطح سنج دیجیتال اینسایز (Insize) مدل 2-2198,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+3920,2199-1,INSIZE | اینسایز,2199-1,متر دیجیتال و ژیروسکوپ 2 محوره اینسایز (Insize) مدل 1-2199,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+3923,2825-60,INSIZE | اینسایز,2825-60,گیج داخل سیلندر ساعتی اینسایز (Insize) 35-60 میلیمتر مدل 60-2825,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3924,2825-35,INSIZE | اینسایز,2825-35,گیج داخل سیلندر ساعتی اینسایز (Insize) 18-35 میلیمتر مدل 35-2825,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+3925,2827-60,INSIZE | اینسایز,2827-60,گیج داخل سیلندر اینسایز (Insize) 60-35 مدل 60-2827,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 3928,2878-71B,INSIZE | اینسایز,2878-71B,پایه ضخامت سنج گرانیت اینسایز (Insize) همراه با ساعت دیجیتال مدل 71B-2878,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3929,2878-6A,INSIZE | اینسایز,2878-6A,پایه ضخامت سنج اینسایز (Insize) همراه با ساعت دیجیتال مدل 6A-2878,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3942,4100-8,INSIZE | اینسایز,4100-8,جعبه راپورتر 8 پارچه اینسایز (Insize) سایز 500-100 مدل 8-4100,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -577,6 +742,7 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 3992,4129-30TN,INSIZE | اینسایز,4129-30TN,گیج رینگی نرو اینسایز (Insize) 2-30 میلی متر مدل 30TN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3994,4129-8P,INSIZE | اینسایز,4129-8P,گیج رینگی برو اینسایز (Insize) 1-8 میلی متر مدل 8P-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 3995,4129-8PN,INSIZE | اینسایز,4129-8PN,گیج رینگی نرو اینسایز (Insize) 1-8 میلی متر مدل 8PN-4129,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+3997,4130-1,INSIZE | اینسایز,4130-1,گیج رزوه برو نرو توپی اینسایز (Insize) 1×0.25mm مدل 1-4130,HOLD_MISSING_VARIANT_FACT,required_published_variant_fact_missing,Publish required KB variant fact
 3999,4139-10Q,INSIZE | اینسایز,4139-10Q,گیج رزوه برو نرو توپی اینسایز (Insize) 10×1.25mm مدل 10Q-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4001,4139-12R,INSIZE | اینسایز,4139-12R,گیج رزوه برو نرو توپی اینسایز (Insize) 12×1.5mm مدل 12R-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4003,4139-14R,INSIZE | اینسایز,4139-14R,گیج رزوه برو نرو توپی اینسایز (Insize) 14×1.5mm مدل 14R-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
@@ -595,11 +761,30 @@ product_id,sku,brand,manufacturer_code,current_name,hold reason,missing/ambiguou
 4022,4139-6G,INSIZE | اینسایز,4139-6G,گیج رزوه برو نرو توپی اینسایز (Insize) 6×0.5mm مدل 6G-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4023,4139-8P,INSIZE | اینسایز,4139-8P,گیج رزوه برو نرو توپی اینسایز (Insize) 8×1mm مدل 8P-4139,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4024,4168-S25,INSIZE | اینسایز,4168-S25,ساچمه های اندازه گیری فولادی اینسایز (Insize) 25 پارچه مدل 4168-S25,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4026,4621-35,INSIZE | اینسایز,4621-35,فیلر نواری 5متری اینسایز مدل 4621-35,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4028,4790-050,INSIZE | اینسایز,4790-050,گونیا مویی اینسایز (Insize) 40×50 میلی متر مدل 050-4790,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4030,4790-075,INSIZE | اینسایز,4790-075,گونیا مویی اینسایز (Insize) 75×50 میلی متر مدل 075-4790,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4031,4796-50,INSIZE | اینسایز,4796-50,گونیا صنعتی اینسایز (Insize) 50×30 میلیمتر مدل 50-4796,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4032,4796-75,INSIZE | اینسایز,4796-75,گونیا صنعتی اینسایز (Insize) 75×50 میلیمتر مدل 75-4796,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4033,4829-1,INSIZE | اینسایز,4829-1,گپ گیج با خط کش 0.8 - 15طول خط کش 15سانت اینسایز مدل 4829-1,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4036,4832-1,INSIZE | اینسایز,4832-1,گیج جوشکاری فلت اینسایز (Insize) مدل 1-4832,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4037,4833-2,INSIZE | اینسایز,4833-2,گپ سنج اینسایز (Insize) 30-15 میلی متر مدل 2-4833,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4039,4833-3,INSIZE | اینسایز,4833-3,گپ سنج اینسایز (Insize) 30-45 میلی متر مدل 3-4833,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4040,4833-4,INSIZE | اینسایز,4833-4,گپ سنج اینسایز (Insize) 60-45 میلی متر مدل 4-4833,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4044,4836-2,INSIZE | اینسایز,4836-2,گیج جوش فلت اینسایز (Insize) مدل 2-4836,HOLD_MISSING_VARIANT_FACT,missing_primary_variant_attribute,Publish required KB variant fact
+4045,4837-1,INSIZE | اینسایز,4837-1,گپ گیج با خط کش اینسایز (Insize) 29-1 میلیمتر مدل 1-4837,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 4047,4844-1,INSIZE | اینسایز,4844-1,گیج زاویه پخ اینسایز (Insize) مدل 1-4844,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4051,4852-15,INSIZE | اینسایز,4852-15,گیج مخروطی اینسایز (Insize) 15-30 میلیمتر مدل 15-4852,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4053,4852-30,INSIZE | اینسایز,4852-30,گیج مخروطی اینسایز (Insize) 30-45 میلیمتر مدل 30-4852,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4054,4852-3,INSIZE | اینسایز,4852-3,گیج مخروطی اینسایز (Insize) 3-16 میلیمتر مدل 3-4852,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
+4056,4917-30,INSIZE | اینسایز,4917-30,تراز لیزری اینسایز مدل 4917-30,HOLD_VARIANT_POLICY_UNDEFINED,level_variant_policy_pending_owner,Map Product Type to non-generic naming profile
 4062,6224-40,INSIZE | اینسایز,6224-40,پایه ساعت کوچک اینسایز (Insize) 40 کیلویی مدل 40-6224,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4065,6228-40,INSIZE | اینسایز,6228-40,پایه ساعت هیدرولیکی کوچک 40کیلویی اینسایز مدل 6228-40,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4066,6298-2,INSIZE | اینسایز,6298-2,پایه ساعت شیطانکی اینسایز (Insize) مدل 2-6298,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4069,6511-24,INSIZE | اینسایز,6511-24,پارالل گیج اینسایز (Insize) مدل 24-6511,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
+4071,6520-67,INSIZE | اینسایز,6520-67,گیره دقیق اینسایز (Insize) 0-67 مدل 67-6520,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+4072,6520-87,INSIZE | اینسایز,6520-87,گیره دقیق اینسایز (Insize) 0-87 مدل 87-6520,HOLD_VARIANT_POLICY_UNDEFINED,workholding_variant_policy_pending_owner,Map Product Type to non-generic naming profile
+4074,6566-2,INSIZE | اینسایز,6566-2,مرکزیاب نوری اینسایز (Insize) مدل 2-6566,HOLD_PRODUCT_TYPE_NAMING_POLICY,synonym_or_slash_label,Narrow Product Type naming label governance
 4077,6896-11,INSIZE | اینسایز,6896-11,ست وی بلوک اینسایز (Insize) مدل 11-6896,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4079,6896-13,INSIZE | اینسایز,6896-13,ست وی بلوک اینسایز (Insize) مدل 13-6896,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa
 4085,7161-1,INSIZE | اینسایز,7161-1,مگنت تلسکوپی اینسایز (Insize) مدل 1-7161,HOLD_MISSING_PRODUCT_TYPE,product_type_id_null,Assign governed active Product Type with approved name_fa

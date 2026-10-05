@@ -1,25 +1,49 @@
 {
-  "generated_at": "2026-10-05T09:32:04.543937+00:00",
+  "status": "READY_FOR_OWNER_RENAME_REVIEW",
+  "generated_at": "2026-10-05T11:17:48.595267+00:00",
   "latest_main_sha": "28fdbdbc5603eb695c55ee419873c19d6ff8f5f6",
-  "audit_logic_sha": "dd1cba33ca4e13d99899bbb8ff0eff22b71ae2399039923933bf443b5d7eb249",
+  "phase2d_logic_git_sha": "519c77c500d8f66bef8a977d9a6b100928ab2850",
+  "phase2d_logic_sha256": "724d319797697dbec0a26069324b600a8d0743a352a0f22bdc926d6f44df2c1c",
+  "audit_logic_sha256": "724d319797697dbec0a26069324b600a8d0743a352a0f22bdc926d6f44df2c1c",
+  "audit_logic_git_sha": "519c77c500d8f66bef8a977d9a6b100928ab2850",
+  "artifact_commit_sha": "519c77c500d8f66bef8a977d9a6b100928ab2850",
+  "authoritative_policy_path": "docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv",
+  "authoritative_policy_sha256": "3958b4b9cc0d2be361a3a3a1249254f8946848104397cd07a8db4dc9b561c427",
+  "policy_snapshot_sha256": "3958b4b9cc0d2be361a3a3a1249254f8946848104397cd07a8db4dc9b561c427",
   "phase2c_cohort_sha256": "43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
-  "phase2d_input_snapshot_sha256": "108aac32da971c51b597a9a91f5251506219443b754cd9a98e1b321f8e865551",
+  "phase2d_input_snapshot_sha256": "ec1bf333118cd16372413acb167948706b71084b46b420a3dc0030d445ec171e",
+  "total_rows": 1350,
   "total_phase2c_rows": 1350,
-  "READY_RENAME_rows": 507,
+  "READY_RENAME": 322,
+  "READY_NO_CHANGE": 0,
+  "HOLD": 1028,
+  "READY_RENAME_rows": 322,
   "READY_NO_CHANGE_rows": 0,
-  "HOLD_rows": 843,
-  "READY_RENAME_csv_sha256": "9a01fe56a568d22b2034765092c31c2aaf6b04b319c3c38fce48617d9e792844",
+  "HOLD_rows": 1028,
+  "classification_reconciles": true,
+  "first_run_candidate_sha256": "56bc07ebc1f0b2fa7b60bc373b9e0dacab4eff1ef59babc96b537cbfe46f34b7",
+  "replay_candidate_sha256": "56bc07ebc1f0b2fa7b60bc373b9e0dacab4eff1ef59babc96b537cbfe46f34b7",
+  "written_candidate_file_sha256": "56bc07ebc1f0b2fa7b60bc373b9e0dacab4eff1ef59babc96b537cbfe46f34b7",
+  "replay_identical": true,
+  "approved_title_policy_count": 55,
+  "approved_variant_policy_count": 53,
+  "policy_review_PASS_count": 37,
+  "policy_review_FAIL_count": 0,
+  "policy_review_REVIEW_count": 0,
   "collision_groups": {
     "exact_in_cohort": 0,
     "normalized_in_cohort": 0,
-    "versus_catalog": 0
+    "versus_catalog": 0,
+    "ready_rename_affected": 0
   },
-  "SEO_impact_rows": 1,
+  "SEO_impact_rows": 0,
   "brand_counts": {
     "INSIZE": {
-      "READY_RENAME": 507,
-      "HOLD_PRODUCT_TYPE_NAMING_POLICY": 64,
+      "READY_RENAME": 322,
+      "HOLD_PRODUCT_TYPE_NAMING_POLICY": 100,
       "HOLD_MISSING_PRODUCT_TYPE": 156,
+      "HOLD_MISSING_VARIANT_FACT": 118,
+      "HOLD_VARIANT_POLICY_UNDEFINED": 31,
       "total": 727
     },
     "DASQUA": {
@@ -95,16 +119,8 @@
     "OPTICAL_EDGE_FINDER": 1,
     "MEASURING_WHEEL": 2
   },
-  "human_review_result": {
-    "FAIL": 0,
-    "replay_identical": true
-  },
   "read_only_proof": {
     "transaction_read_only": "on",
     "mutation_capable_statements_executed": "0"
-  },
-  "status": "PARTIAL",
-  "replay_identical": true,
-  "proposed_rename_sha256": "9a01fe56a568d22b2034765092c31c2aaf6b04b319c3c38fce48617d9e792844",
-  "replay_hash_check": "82cacc47b2e79036cdecc4f8bd9aac6c06645429fb78ded279f17ac5a60fb571"
+  }
 }
