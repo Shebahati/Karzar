@@ -1,18 +1,18 @@
 # Phase 2D canonical name dry-run summary
 
 **Status:** READY_FOR_OWNER_RENAME_REVIEW
-**Generated:** 2026-10-05T11:17:48.595267+00:00
+**Generated:** 2026-10-05T11:43:49.938516+00:00
 
 ## Safety
 - DB read-only: `on`
 - Product.name writes: 0
 
 ## Classification
-- READY_RENAME: 322
+- READY_RENAME: 382
 - HOLD_MISSING_PRODUCT_TYPE: 778
 - HOLD_PRODUCT_TYPE_NAMING_POLICY: 101
 - HOLD_VARIANT_POLICY_UNDEFINED: 31
-- HOLD_MISSING_VARIANT_FACT: 118
+- HOLD_MISSING_VARIANT_FACT: 58
 - **Total:** 1350
 
 READY_RENAME collision-free: True

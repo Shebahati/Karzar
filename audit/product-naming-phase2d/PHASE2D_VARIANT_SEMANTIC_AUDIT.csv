@@ -1,0 +1,47 @@
+product_type_code,canonical_title_fa,variant_policy,property_code,semantic_dimension,source_unit,formatter,display_unit,ready_rows,semantic_validation
+ANEMOMETER,بادسنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,4,PASS
+BLADE_CALIPER,کولیس تیغه‌ای,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+CENTER_SQUARE,گونیا مرکز‌یاب,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+CHAMFER_GAUGE,گیج پخ,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+DEPTH_GAUGE,عمق‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,28,PASS
+DEPTH_MICROMETER,میکرومتر عمق‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
+DIAL_INDICATOR,ساعت اندازه‌گیری,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,21,PASS
+DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
+DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,10,PASS
+ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,19,PASS
+EXTERNAL_GROOVE_CALIPER,کولیس شیار خارجی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,2,PASS
+FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,23,PASS
+FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,6,PASS
+FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,3,PASS
+GEAR_TOOTH_CALIPER,کولیس ضخامت دندانه,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
+HEIGHT_GAUGE,ارتفاع‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,10,PASS
+HOOK_CALIPER,کولیس قلاب‌دار,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+INDICATING_CALIPER,پرگار نشان‌گر,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,19,PASS
+INSIDE_KNIFE_EDGE_CALIPER,کولیس لبه‌چاقویی داخلی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,2,PASS
+INSIDE_MICROMETER,میکرومتر داخل‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,53,PASS
+INTERCHANGEABLE_POINT_CALIPER,کولیس نوک‌دار تعویض‌شونده,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,2,PASS
+INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,8,PASS
+INTERNAL_POINT_CALIPER,کولیس نوک‌تیز داخلی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+LASER_DISTANCE_METER,متر لیزری,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_m,m,2,PASS
+MEASURING_TAPE,متر نواری,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,3,PASS
+MEASURING_WHEEL,چرخ‌متر,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_m,m,2,PASS
+MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
+OFFSET_CALIPER,کولیس آفست,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,3,PASS
+OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,83,PASS
+POINT_CALIPER,کولیس نوک‌تیز,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,2,PASS
+PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,17,PASS
+SCREW_CUTTING_GAUGE,گیج برش رزوه,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
+SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
+STEEL_RULE,خط‌کش فلزی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
+TACHOMETER,دورسنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+TEST_INDICATOR,ساعت اهرمی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,5,PASS
+THICKNESS_GAUGE,ضخامت‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,16,PASS
+THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,5,PASS
+TUBE_THICKNESS_CALIPER,کولیس ضخامت لوله,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+VOLTAGE_TESTER,تستر ولتاژ,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,3,PASS
+WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+ZERO_SETTER,صفرکن محور Z,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS

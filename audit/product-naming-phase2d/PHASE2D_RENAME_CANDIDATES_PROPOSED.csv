@@ -1,5 +1,5 @@
 product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title_fa,variant_policy_status,variant_property_code,variant_formatted_value
-1771,0110-1125,بادسنج اینسایز کد 0110-1125، 1.1–25 میلی‌متر,0110-1125,ANEMOMETER,بادسنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1771,0110-1125,بادسنج اینسایز کد 0110-1125,0110-1125,ANEMOMETER,بادسنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1795,1120-150,کولیس شیار داخلی اینسایز کد 1120-150، 22–150 میلی‌متر,1120-150,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,22–150 میلی‌متر
 1796,1120-200,کولیس شیار داخلی اینسایز کد 1120-200، 25–200 میلی‌متر,1120-200,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,25–200 میلی‌متر
 1797,1120-300,کولیس شیار داخلی اینسایز کد 1120-300، 30–300 میلی‌متر,1120-300,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,SUFFIX_GOVERNED,measurement_range,30–300 میلی‌متر
@@ -48,28 +48,30 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 1875,2112-501,ساعت اندازه‌گیری اینسایز کد 2112-501، 0–50.8 میلی‌متر,2112-501,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–50.8 میلی‌متر
 1878,2142-101,عمق‌سنج اینسایز کد 2142-101، 0–12.7 میلی‌متر,2142-101,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 1879,2142-102,عمق‌سنج اینسایز کد 2142-102، 0–12.7 میلی‌متر,2142-102,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-1880,2171-250,زاویه‌سنج اینسایز کد 2171-250، 0–360 میلی‌متر,2171-250,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1883,2174-225,زاویه‌سنج اینسایز کد 2174-225، 0–225 میلی‌متر,2174-225,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1884,2175-360,زاویه‌سنج اینسایز کد 2175-360، 0–360 میلی‌متر,2175-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1885,2176-200,زاویه‌سنج اینسایز کد 2176-200، 0–360 میلی‌متر,2176-200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1886,2176-300,زاویه‌سنج اینسایز کد 2176-300، 0–360 میلی‌متر,2176-300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1887,2179-360,زاویه‌سنج اینسایز کد 2179-360، 0–360 میلی‌متر,2179-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1880,2171-250,زاویه‌سنج اینسایز کد 2171-250,2171-250,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1883,2174-225,زاویه‌سنج اینسایز کد 2174-225,2174-225,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1884,2175-360,زاویه‌سنج اینسایز کد 2175-360,2175-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1885,2176-200,زاویه‌سنج اینسایز کد 2176-200,2176-200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1886,2176-300,زاویه‌سنج اینسایز کد 2176-300,2176-300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1887,2179-360,زاویه‌سنج اینسایز کد 2179-360,2179-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1888,2222-301,پرگار نشان‌گر اینسایز کد 2222-301، 10–30 میلی‌متر,2222-301,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,10–30 میلی‌متر
 1889,2223-153,پرگار نشان‌گر اینسایز کد 2223-153، 55–153 میلی‌متر,2223-153,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,55–153 میلی‌متر
+1890,2275-300,گونیا مهندسی اینسایز کد 2275-300,2275-300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+1892,2281-360,گیج زاویه اینسایز کد 2281-360,2281-360,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
 1893,2307-105,ساعت اندازه‌گیری اینسایز کد 2307-105، 0–25.4 میلی‌متر,2307-105,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
 1897,2333-201,پرگار نشان‌گر اینسایز کد 2333-201، 0–20 میلی‌متر,2333-201,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,0–20 میلی‌متر
 1898,2341-101,عمق‌سنج اینسایز کد 2341-101، 0–10 میلی‌متر,2341-101,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 1899,2342-202,عمق‌سنج اینسایز کد 2342-202، 0–300 میلی‌متر,2342-202,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 1900,2343-102,عمق‌سنج اینسایز کد 2343-102، 0–10 میلی‌متر,2343-102,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-1901,2372-360,زاویه‌سنج اینسایز کد 2372-360، 0–360 میلی‌متر,2372-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1902,2373-360,زاویه‌سنج اینسایز کد 2373-360، 0–360 میلی‌متر,2373-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1903,2374-320,زاویه‌سنج اینسایز کد 2374-320، 0–320 میلی‌متر,2374-320,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1901,2372-360,زاویه‌سنج اینسایز کد 2372-360,2372-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1902,2373-360,زاویه‌سنج اینسایز کد 2373-360,2373-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1903,2374-320,زاویه‌سنج اینسایز کد 2374-320,2374-320,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 1904,2381-021,ساعت اهرمی اینسایز کد 2381-021، 0–0.2 میلی‌متر,2381-021,TEST_INDICATOR,ساعت اهرمی,SUFFIX_GOVERNED,measurement_range,0–0.2 میلی‌متر
 1905,2711-165,پرگار نشان‌گر اینسایز کد 2711-165، 12.7–165 میلی‌متر,2711-165,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,12.7–165 میلی‌متر
 1906,2711-216,پرگار نشان‌گر اینسایز کد 2711-216، 12.7–216 میلی‌متر,2711-216,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,12.7–216 میلی‌متر
-1907,2771-360,زاویه‌سنج اینسایز کد 2771-360، 0–360 میلی‌متر,2771-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-1911,2841-300,گیج شفت اینسایز کد 2841-300، 60–300 میلی‌متر,2841-300,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
-1912,2841-500,گیج شفت اینسایز کد 2841-500، 60–500 میلی‌متر,2841-500,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
+1907,2771-360,زاویه‌سنج اینسایز کد 2771-360,2771-360,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+1911,2841-300,گیج شفت اینسایز کد 2841-300,2841-300,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
+1912,2841-500,گیج شفت اینسایز کد 2841-500,2841-500,SHAFT_GAUGE,گیج شفت,VARIANT_NOT_REQUIRED_APPROVED,,
 1913,2862-102,ضخامت‌سنج اینسایز کد 2862-102، 0–10 میلی‌متر,2862-102,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 1914,2871-101,ضخامت‌سنج اینسایز کد 2871-101، 0–10 میلی‌متر,2871-101,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
 1915,3101-225,میکرومتر خارج‌سنج اینسایز کد 3101-225، 200–225 میلی‌متر,3101-225,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,200–225 میلی‌متر
@@ -145,25 +147,42 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 1998,3540-150,عمق‌سنج اینسایز کد 3540-150، 0–150 میلی‌متر,3540-150,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–150 میلی‌متر
 1999,3540-300,عمق‌سنج اینسایز کد 3540-300، 0–300 میلی‌متر,3540-300,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 2000,3590-153,میکرومتر خارج‌سنج اینسایز کد 3590-153، 1–15 میلی‌متر,3590-153,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,1–15 میلی‌متر
-2014,4605-201,ست فیلر اینسایز کد 4605-201، 0.05–1 میلی‌متر,4605-201,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
-2015,4605-202,ست فیلر اینسایز کد 4605-202، 0.05–1 میلی‌متر,4605-202,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
-2025,4799-1120,زاویه‌سنج اینسایز کد 4799-1120، 0–180 میلی‌متر,4799-1120,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2026,4799-1150,زاویه‌سنج اینسایز کد 4799-1150، 0–180 میلی‌متر,4799-1150,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2027,4799-1200,زاویه‌سنج اینسایز کد 4799-1200، 0–180 میلی‌متر,4799-1200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2028,4799-1300,زاویه‌سنج اینسایز کد 4799-1300، 0–180 میلی‌متر,4799-1300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2029,4799-180,زاویه‌سنج اینسایز کد 4799-180، 0–180 میلی‌متر,4799-180,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2005,4141-400,گونیا مهندسی اینسایز کد 4141-400,4141-400,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2014,4605-201,ست فیلر اینسایز کد 4605-201,4605-201,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+2015,4605-202,ست فیلر اینسایز کد 4605-202,4605-202,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+2016,4621-100,فیلر نواری اینسایز کد 4621-100,4621-100,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+2018,4707-300,گونیا مهندسی اینسایز کد 4707-300,4707-300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2019,4707-500,گونیا مهندسی اینسایز کد 4707-500,4707-500,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2020,4745-1150,گونیا مهندسی اینسایز کد 4745-1150,4745-1150,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2021,4745-1200,گونیا مهندسی اینسایز کد 4745-1200,4745-1200,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2022,4796-100,گونیا مهندسی اینسایز کد 4796-100,4796-100,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2023,4796-150,گونیا مهندسی اینسایز کد 4796-150,4796-150,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2024,4796-300,گونیا مهندسی اینسایز کد 4796-300,4796-300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+2025,4799-1120,زاویه‌سنج اینسایز کد 4799-1120,4799-1120,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2026,4799-1150,زاویه‌سنج اینسایز کد 4799-1150,4799-1150,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2027,4799-1200,زاویه‌سنج اینسایز کد 4799-1200,4799-1200,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2028,4799-1300,زاویه‌سنج اینسایز کد 4799-1300,4799-1300,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2029,4799-180,زاویه‌سنج اینسایز کد 4799-180,4799-180,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2030,4810-601,گیج برش رزوه اینسایز کد 4810-601,4810-601,SCREW_CUTTING_GAUGE,گیج برش رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
+2031,4810-602,گیج برش رزوه اینسایز کد 4810-602,4810-602,SCREW_CUTTING_GAUGE,گیج برش رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
+2032,4820-230,شابلون گام رزوه اینسایز کد 4820-230,4820-230,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
+2033,4820-452,شابلون گام رزوه اینسایز کد 4820-452,4820-452,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
+2034,4820-552,شابلون گام رزوه اینسایز کد 4820-552,4820-552,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
+2035,4860-212,شابلون گام چرخ‌دنده اینسایز کد 4860-212,4860-212,GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,VARIANT_NOT_REQUIRED_APPROVED,,
+2036,4860-245,شابلون گام چرخ‌دنده اینسایز کد 4860-245,4860-245,GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,VARIANT_NOT_REQUIRED_APPROVED,,
 2080,7110-500,خط‌کش فلزی اینسایز کد 7110-500، 0–500 میلی‌متر,7110-500,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–500 میلی‌متر
 2081,7110-600,خط‌کش فلزی اینسایز کد 7110-600، 0–600 میلی‌متر,7110-600,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–600 میلی‌متر
 2084,7114-950,متر نواری اینسایز کد 7114-950، 150–950 میلی‌متر,7114-950,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,150–950 میلی‌متر
 2086,7139-100,خط‌کش فلزی اینسایز کد 7139-100، 0–1000 میلی‌متر,7139-100,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
-2101,8602-200,ترازوی دیجیتال اینسایز کد 8602-200، 0.0002–0.2 میلی‌متر,8602-200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-2102,9225-405,دورسنج اینسایز کد 9225-405، 2.5–99999 میلی‌متر,9225-405,TACHOMETER,دورسنج,VARIANT_NOT_REQUIRED_APPROVED,,
-2103,9247-190,مولتی‌متر دیجیتال اینسایز کد 9247-190، 0.06–600 میلی‌متر,9247-190,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-2105,9721-250,تستر ولتاژ اینسایز کد 9721-250، 12–250 میلی‌متر,9721-250,VOLTAGE_TESTER,تستر ولتاژ,VARIANT_NOT_REQUIRED_APPROVED,,
+2088,7205-200,گونیا مرکز‌یاب اینسایز کد 7205-200,7205-200,CENTER_SQUARE,گونیا مرکز‌یاب,VARIANT_NOT_REQUIRED_APPROVED,,
+2101,8602-200,ترازوی دیجیتال اینسایز کد 8602-200,8602-200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+2102,9225-405,دورسنج اینسایز کد 9225-405,9225-405,TACHOMETER,دورسنج,VARIANT_NOT_REQUIRED_APPROVED,,
+2103,9247-190,مولتی‌متر دیجیتال اینسایز کد 9247-190,9247-190,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+2105,9721-250,تستر ولتاژ اینسایز کد 9721-250,9721-250,VOLTAGE_TESTER,تستر ولتاژ,VARIANT_NOT_REQUIRED_APPROVED,,
 3481,2307-1,ساعت اندازه‌گیری اینسایز کد 2307-1، 0–25.4 میلی‌متر,2307-1,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–25.4 میلی‌متر
 3482,2307-025,ساعت اندازه‌گیری اینسایز کد 2307-025، 0–6.35 میلی‌متر,2307-025,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–6.35 میلی‌متر
 3483,2308-10,ساعت اندازه‌گیری اینسایز کد 2308-10، 0–10 میلی‌متر,2308-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
-3485,2170-1,زاویه‌سنج اینسایز کد 2170-1، 0–360 میلی‌متر,2170-1,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+3485,2170-1,زاویه‌سنج اینسایز کد 2170-1,2170-1,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3487,2121-25,پرگار نشان‌گر اینسایز کد 2121-25، 5–25 میلی‌متر,2121-25,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,5–25 میلی‌متر
 3488,2332-20,پرگار نشان‌گر اینسایز کد 2332-20، 0–20 میلی‌متر,2332-20,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,0–20 میلی‌متر
 3490,2151-35,پرگار نشان‌گر اینسایز کد 2151-35، 15–35 میلی‌متر,2151-35,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,15–35 میلی‌متر
@@ -206,14 +225,32 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3533,3227-75,میکرومتر داخل‌سنج اینسایز کد 3227-75، 62–75 میلی‌متر,3227-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,62–75 میلی‌متر
 3534,3520-75,میکرومتر داخل‌سنج اینسایز کد 3520-75، 50–75 میلی‌متر,3520-75,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
 3535,3227-88,میکرومتر داخل‌سنج اینسایز کد 3227-88، 75–88 میلی‌متر,3227-88,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,75–88 میلی‌متر
-3544,4602-17,ست فیلر اینسایز کد 4602-17، 0.02–1 میلی‌متر,4602-17,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
-3545,4602-32,ست فیلر اینسایز کد 4602-32، 0.03–1 میلی‌متر,4602-32,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+3544,4602-17,ست فیلر اینسایز کد 4602-17,4602-17,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+3545,4602-32,ست فیلر اینسایز کد 4602-32,4602-32,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+3546,4621-02,فیلر نواری اینسایز کد 4621-02,4621-02,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3548,3108-25,میکرومتر خارج‌سنج اینسایز کد 3108-25، 0–25 میلی‌متر,3108-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3549,3108-50,میکرومتر خارج‌سنج اینسایز کد 3108-50، 25–50 میلی‌متر,3108-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
 3550,3109-25,میکرومتر خارج‌سنج اینسایز کد 3109-25، 0–25 میلی‌متر,3109-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
+3552,4621-03,فیلر نواری اینسایز کد 4621-03,4621-03,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3553,4621-04,فیلر نواری اینسایز کد 4621-04,4621-04,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3554,4621-05,فیلر نواری اینسایز کد 4621-05,4621-05,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3555,4621-06,فیلر نواری اینسایز کد 4621-06,4621-06,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3556,3203-25,میکرومتر خارج‌سنج اینسایز کد 3203-25، 0–25 میلی‌متر,3203-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
+3557,4621-07,فیلر نواری اینسایز کد 4621-07,4621-07,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3558,4621-08,فیلر نواری اینسایز کد 4621-08,4621-08,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3559,3203-50,میکرومتر خارج‌سنج اینسایز کد 3203-50، 25–50 میلی‌متر,3203-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
 3560,3203-75,میکرومتر خارج‌سنج اینسایز کد 3203-75، 50–75 میلی‌متر,3203-75,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,50–75 میلی‌متر
+3561,4621-09,فیلر نواری اینسایز کد 4621-09,4621-09,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3562,4621-10,فیلر نواری اینسایز کد 4621-10,4621-10,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3563,4621-15,فیلر نواری اینسایز کد 4621-15,4621-15,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3564,4621-20,فیلر نواری اینسایز کد 4621-20,4621-20,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3565,4621-25,فیلر نواری اینسایز کد 4621-25,4621-25,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3566,4621-30,فیلر نواری اینسایز کد 4621-30,4621-30,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3567,4621-40,فیلر نواری اینسایز کد 4621-40,4621-40,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3568,4621-50,فیلر نواری اینسایز کد 4621-50,4621-50,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3569,4621-70,فیلر نواری اینسایز کد 4621-70,4621-70,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3570,4621-80,فیلر نواری اینسایز کد 4621-80,4621-80,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3571,4621-90,فیلر نواری اینسایز کد 4621-90,4621-90,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3573,3210-25,میکرومتر خارج‌سنج اینسایز کد 3210-25، 0–25 میلی‌متر,3210-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3574,3210-50,میکرومتر خارج‌سنج اینسایز کد 3210-50، 25–50 میلی‌متر,3210-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
 3575,3400-25,میکرومتر خارج‌سنج اینسایز کد 3400-25، 0–25 میلی‌متر,3400-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
@@ -224,6 +261,9 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3592,1145-25,عمق‌سنج اینسایز کد 1145-25، 0–25 میلی‌متر,1145-25,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3595,1140-50,عمق‌سنج اینسایز کد 1140-50، 0–50 میلی‌متر,1140-50,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–50 میلی‌متر
 3599,3240-25,میکرومتر عمق‌سنج اینسایز کد 3240-25، 0–25 میلی‌متر,3240-25,DEPTH_MICROMETER,میکرومتر عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
+3603,4790-0150,گونیا مهندسی اینسایز کد 4790-0150,4790-0150,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+3604,4790-0100,گونیا مهندسی اینسایز کد 4790-0100,4790-0100,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+3605,4745-1120,گونیا مهندسی اینسایز کد 4745-1120,4745-1120,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
 3606,7114-2200,متر نواری اینسایز کد 7114-2200، 940–2200 میلی‌متر,7114-2200,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,940–2200 میلی‌متر
 3607,7114-3460,متر نواری اینسایز کد 7114-3460، 2190–3460 میلی‌متر,7114-3460,MEASURING_TAPE,متر نواری,SUFFIX_GOVERNED,measurement_range,2190–3460 میلی‌متر
 3611,2112-10,ساعت اندازه‌گیری اینسایز کد 2112-10، 0–12.7 میلی‌متر,2112-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
@@ -241,7 +281,7 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3625,2114-5F,ساعت اندازه‌گیری اینسایز کد 2114-5F، 0–5 میلی‌متر,2114-5F,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–5 میلی‌متر
 3626,2103-10,ساعت اندازه‌گیری اینسایز کد 2103-10، 0–12.7 میلی‌متر,2103-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 3627,2118-10,ساعت اندازه‌گیری اینسایز کد 2118-10، 0–12.7 میلی‌متر,2118-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
-3632,4602-20,ست فیلر اینسایز کد 4602-20، 0.05–1 میلی‌متر,4602-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+3632,4602-20,ست فیلر اینسایز کد 4602-20,4602-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
 3635,1150-1000,ارتفاع‌سنج اینسایز کد 1150-1000، 0–1000 میلی‌متر,1150-1000,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
 3636,1140-25,عمق‌سنج اینسایز کد 1140-25، 0–25 میلی‌متر,1140-25,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3637,2871-10,ضخامت‌سنج اینسایز کد 2871-10، 0–10 میلی‌متر,2871-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
@@ -255,12 +295,20 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3646,3222-1000,میکرومتر داخل‌سنج اینسایز کد 3222-1000، 50–1000 میلی‌متر,3222-1000,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,50–1000 میلی‌متر
 3648,3594-50,میکرومتر خارج‌سنج اینسایز کد 3594-50، 25–50 میلی‌متر,3594-50,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,25–50 میلی‌متر
 3649,3127-16,میکرومتر داخل‌سنج اینسایز کد 3127-16، 12–16 میلی‌متر,3127-16,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,12–16 میلی‌متر
-3657,4605-20,ست فیلر اینسایز کد 4605-20، 0.05–1 میلی‌متر,4605-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
-3662,4780-85,زاویه‌سنج اینسایز کد 4780-85، 0–180 میلی‌متر,4780-85,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-3678,4838-1,گیج جوش اینسایز کد 4838-1، 0–40 میلی‌متر,4838-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
+3655,4790-0200,گونیا مهندسی اینسایز کد 4790-0200,4790-0200,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+3656,4760-1200,گونیا مهندسی اینسایز کد 4760-1200,4760-1200,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+3657,4605-20,ست فیلر اینسایز کد 4605-20,4605-20,FEELER_GAUGE_SET,ست فیلر,VARIANT_NOT_REQUIRED_APPROVED,,
+3658,4621-12,فیلر نواری اینسایز کد 4621-12,4621-12,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3660,4621-60,فیلر نواری اینسایز کد 4621-60,4621-60,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3662,4780-85,زاویه‌سنج اینسایز کد 4780-85,4780-85,PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+3678,4838-1,گیج جوش اینسایز کد 4838-1,4838-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
+3680,4836-1,گیج جوش نبشی اینسایز کد 4836-1,4836-1,FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,
+3682,4842-1,گیج زاویه اینسایز کد 4842-1,4842-1,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
+3684,4843-1,گیج زاویه اینسایز کد 4843-1,4843-1,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
+3685,4824-16,شابلون گام رزوه اینسایز کد 4824-16,4824-16,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
 3717,6354-25W,میکرومتر خارج‌سنج اینسایز کد 6354-25W، 0–25 میلی‌متر,6354-25W,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3720,9341-50,رطوبت‌سنج اینسایز کد 9341-50، -10–50 میلی‌متر,9341-50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
-3721,8003-3,ترازوی دیجیتال اینسایز کد 8003-3، 0.002–3 میلی‌متر,8003-3,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+3720,9341-50,رطوبت‌سنج اینسایز کد 9341-50,9341-50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+3721,8003-3,ترازوی دیجیتال اینسایز کد 8003-3,8003-3,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 3743,1181-M50A,کولیس ضخامت دندانه اینسایز کد 1181-M50A، 5–50 میلی‌متر,1181-M50A,GEAR_TOOTH_CALIPER,کولیس ضخامت دندانه,SUFFIX_GOVERNED,measurement_range,5–50 میلی‌متر
 3745,2132-20,پرگار نشان‌گر اینسایز کد 2132-20، 0–20 میلی‌متر,2132-20,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,0–20 میلی‌متر
 3747,2151-75,پرگار نشان‌گر اینسایز کد 2151-75، 55–75 میلی‌متر,2151-75,INDICATING_CALIPER,پرگار نشان‌گر,SUFFIX_GOVERNED,measurement_range,55–75 میلی‌متر
@@ -281,13 +329,18 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3772,3260-25,میکرومتر خارج‌سنج اینسایز کد 3260-25، 0–25 میلی‌متر,3260-25,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3774,3203-12A,میکرومتر خارج‌سنج اینسایز کد 3203-12A، 279.4–304.8 میلی‌متر,3203-12A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,279.4–304.8 میلی‌متر
 3776,3530-25BA,میکرومتر خارج‌سنج اینسایز کد 3530-25BA، 0–25 میلی‌متر,3530-25BA,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
+3782,4790-0300,گونیا مهندسی اینسایز کد 4790-0300,4790-0300,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+3790,4806-20,گیج زاویه اینسایز کد 4806-20,4806-20,ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,
+3791,4824-12,شابلون گام رزوه اینسایز کد 4824-12,4824-12,THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,
 3813,6377-25W,میکرومتر خارج‌سنج اینسایز کد 6377-25W، 0–25 میلی‌متر,6377-25W,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
-3825,9501-1200,ضخامت‌سنج پوشش اینسایز کد 9501-1200، 0–1.25 میلی‌متر,9501-1200,COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,
-3826,9561-50B,متر لیزری اینسایز کد 9561-50B، 200–50000 میلی‌متر,9561-50B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,200–50000 میلی‌متر
-3827,9561-70B,متر لیزری اینسایز کد 9561-70B، 200–70000 میلی‌متر,9561-70B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,200–70000 میلی‌متر
-3895,0312-TH50,رطوبت‌سنج اینسایز کد 0312-TH50، 0–50 میلی‌متر,0312-TH50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
+3814,6557-50,صفرکن محور Z اینسایز کد 6557-50,6557-50,ZERO_SETTER,صفرکن محور Z,VARIANT_NOT_REQUIRED_APPROVED,,
+3825,9501-1200,ضخامت‌سنج پوشش اینسایز کد 9501-1200,9501-1200,COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,
+3826,9561-50B,متر لیزری اینسایز کد 9561-50B، 200–50000 میلی‌متر,9561-50B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–50 متر
+3827,9561-70B,متر لیزری اینسایز کد 9561-70B، 200–70000 میلی‌متر,9561-70B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–70 متر
+3841,4608-31,فیلر نواری اینسایز کد 4608-31,4608-31,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+3895,0312-TH50,رطوبت‌سنج اینسایز کد 0312-TH50,0312-TH50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3901,1141-1000,عمق‌سنج اینسایز کد 1141-1000، 0–1000 میلی‌متر,1141-1000,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
-3902,1180-6,گیج پخ اینسایز کد 1180-6، 0–10 میلی‌متر,1180-6,CHAMFER_GAUGE,گیج پخ,VARIANT_NOT_REQUIRED_APPROVED,,
+3902,1180-6,گیج پخ اینسایز کد 1180-6,1180-6,CHAMFER_GAUGE,گیج پخ,VARIANT_NOT_REQUIRED_APPROVED,,
 3909,2115-10,ساعت اندازه‌گیری اینسایز کد 2115-10، 0–12.7 میلی‌متر,2115-10,DIAL_INDICATOR,ساعت اندازه‌گیری,SUFFIX_GOVERNED,measurement_range,0–12.7 میلی‌متر
 3917,2163-25,ضخامت‌سنج اینسایز کد 2163-25، 0–25 میلی‌متر,2163-25,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3922,2365-10,ضخامت‌سنج اینسایز کد 2365-10، 0–10 میلی‌متر,2365-10,THICKNESS_GAUGE,ضخامت‌سنج,SUFFIX_GOVERNED,measurement_range,0–10 میلی‌متر
@@ -305,19 +358,26 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3950,3203-8A,میکرومتر خارج‌سنج اینسایز کد 3203-8A، 177.8–203.2 میلی‌متر,3203-8A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,177.8–203.2 میلی‌متر
 3952,3203-9A,میکرومتر خارج‌سنج اینسایز کد 3203-9A، 0–300 میلی‌متر,3203-9A,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–300 میلی‌متر
 3954,3227-6,میکرومتر داخل‌سنج اینسایز کد 3227-6، 5–6 میلی‌متر,3227-6,INSIDE_MICROMETER,میکرومتر داخل‌سنج,SUFFIX_GOVERNED,measurement_range,5–6 میلی‌متر
-4046,4841-1,گیج جوش اینسایز کد 4841-1، 0–30 میلی‌متر,4841-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
-4048,4845-2,گیج ضخامت فیلم خیس اینسایز کد 4845-2، 0.025–3 میلی‌متر,4845-2,WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,VARIANT_NOT_REQUIRED_APPROVED,,
-4076,6832-1,گیج جوش اینسایز کد 6832-1، 0–10 میلی‌متر,6832-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
+4026,4621-35,فیلر نواری اینسایز کد 4621-35,4621-35,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
+4028,4790-050,گونیا مهندسی اینسایز کد 4790-050,4790-050,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+4030,4790-075,گونیا مهندسی اینسایز کد 4790-075,4790-075,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+4031,4796-50,گونیا مهندسی اینسایز کد 4796-50,4796-50,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+4032,4796-75,گونیا مهندسی اینسایز کد 4796-75,4796-75,ENGINEERS_SQUARE,گونیا مهندسی,VARIANT_NOT_REQUIRED_APPROVED,,
+4036,4832-1,گیج جوش نبشی اینسایز کد 4832-1,4832-1,FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,
+4044,4836-2,گیج جوش نبشی اینسایز کد 4836-2,4836-2,FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,
+4046,4841-1,گیج جوش اینسایز کد 4841-1,4841-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
+4048,4845-2,گیج ضخامت فیلم خیس اینسایز کد 4845-2,4845-2,WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,VARIANT_NOT_REQUIRED_APPROVED,,
+4076,6832-1,گیج جوش اینسایز کد 6832-1,6832-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
 4081,7110-1200,خط‌کش فلزی اینسایز کد 7110-1200، 0–1200 میلی‌متر,7110-1200,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–1200 میلی‌متر
-4082,7144-1,چرخ‌متر اینسایز کد 7144-1، 100–9999900 میلی‌متر,7144-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,100–9999900 میلی‌متر
-4084,7145-1,چرخ‌متر اینسایز کد 7145-1، 100–9999900 میلی‌متر,7145-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,100–9999900 میلی‌متر
-4101,8003-10,ترازوی دیجیتال اینسایز کد 8003-10، 0.02–10 میلی‌متر,8003-10,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4102,8003-6,ترازوی دیجیتال اینسایز کد 8003-6، 0.01–6 میلی‌متر,8003-6,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4104,8101-30,ترازوی دیجیتال اینسایز کد 8101-30، 0–30 میلی‌متر,8101-30,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4106,8203-CW03T,ترازوی دیجیتال اینسایز کد 8203-CW03T، 0–300 میلی‌متر,8203-CW03T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4107,8203-CW05T,ترازوی دیجیتال اینسایز کد 8203-CW05T، 0–500 میلی‌متر,8203-CW05T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4108,8203-CW1T,ترازوی دیجیتال اینسایز کد 8203-CW1T، 0–1000 میلی‌متر,8203-CW1T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4110,8301-1200,ترازوی دیجیتال اینسایز کد 8301-1200، 0–1.2 میلی‌متر,8301-1200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4112,8604-40,ترازوی دیجیتال اینسایز کد 8604-40، 0–40 میلی‌متر,8604-40,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
-4113,9241-ML200,مولتی‌متر دیجیتال اینسایز کد 9241-ML200، 0–600 میلی‌متر,9241-ML200,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4082,7144-1,چرخ‌متر اینسایز کد 7144-1، 100–9999900 میلی‌متر,7144-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
+4084,7145-1,چرخ‌متر اینسایز کد 7145-1، 100–9999900 میلی‌متر,7145-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
+4101,8003-10,ترازوی دیجیتال اینسایز کد 8003-10,8003-10,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4102,8003-6,ترازوی دیجیتال اینسایز کد 8003-6,8003-6,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4104,8101-30,ترازوی دیجیتال اینسایز کد 8101-30,8101-30,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4106,8203-CW03T,ترازوی دیجیتال اینسایز کد 8203-CW03T,8203-CW03T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4107,8203-CW05T,ترازوی دیجیتال اینسایز کد 8203-CW05T,8203-CW05T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4108,8203-CW1T,ترازوی دیجیتال اینسایز کد 8203-CW1T,8203-CW1T,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4110,8301-1200,ترازوی دیجیتال اینسایز کد 8301-1200,8301-1200,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4112,8604-40,ترازوی دیجیتال اینسایز کد 8604-40,8604-40,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
+4113,9241-ML200,مولتی‌متر دیجیتال اینسایز کد 9241-ML200,9241-ML200,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4125,1156-1000,ارتفاع‌سنج اینسایز کد 1156-1000، 0–1000 میلی‌متر,1156-1000,HEIGHT_GAUGE,ارتفاع‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
