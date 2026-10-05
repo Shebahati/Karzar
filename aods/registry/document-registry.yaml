@@ -1206,6 +1206,16 @@ documents:
     notes: >
       Phase 2D audit snapshot of canonical naming policy; must match authoritative policy SHA at run time.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2D-OWNER-FINAL-TITLE-REVIEW
+    path: audit/product-naming-phase2d/PHASE2D_OWNER_FINAL_TITLE_REVIEW.csv
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Owner canonical title precision review for all 48 exact-OEM READY candidates (Phase 2D closure).
+
   - id: PRODUCT-NAMING-V1-PHASE-2D-HUMAN-REVIEW
     path: audit/product-naming-phase2d/PHASE2D_HUMAN_REVIEW_RESULT.md
     class: EVIDENCE
