@@ -11,7 +11,7 @@ import hashlib
 import json
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -975,17 +975,48 @@ def classify_product_phase2d(
         identity_qualifiers_governed=False,
     )
 
+    render_profile = profile
+    render_facts = builder_facts
+    policy_suffix: str | None = None
+    if pol.variant_policy == "VARIANT_REQUIRED":
+        policy_suffix = format_variant_by_policy(pol, builder_facts)
+        if not policy_suffix and variant_trace.formatted_value:
+            policy_suffix = variant_trace.formatted_value
+        render_profile = NamingProfile(
+            code=profile.code,
+            manufacturer_code_required=profile.manufacturer_code_required,
+            brand_required=profile.brand_required,
+            product_type_required=profile.product_type_required,
+            primary_variant_fact_keys=(),
+            max_variant_attributes=0,
+            brand_policy=profile.brand_policy,
+            allow_identity_qualifiers=profile.allow_identity_qualifiers,
+            variant_required=False,
+        )
+        render_facts = {}
+
     naming = build_product_name_v1(
         product_type_fa=pol.canonical_title_fa,
         brand_raw=row.brand_name,
         manufacturer_code=row.manufacturer_code,
-        facts=builder_facts,
-        naming_profile=profile,
+        facts=render_facts,
+        naming_profile=render_profile,
         brand_registry_row=brand_registry_row,
         current_name=row.current_name,
         governance=governance,
         profile_resolution=profile_resolution,
     )
+
+    if pol.variant_policy == "VARIANT_REQUIRED" and policy_suffix and naming.name:
+        new_name = (
+            naming.name
+            if policy_suffix in naming.name
+            else f"{naming.name}، {policy_suffix}"
+        )
+        used = list(naming.used_fields)
+        if not any(str(u).startswith("fact:") for u in used):
+            used.append(f"fact:{pol.primary_variant_property}")
+        naming = replace(naming, name=new_name, used_fields=used)
 
     proposed = naming.name
     if not proposed:
