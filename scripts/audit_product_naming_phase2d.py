@@ -337,7 +337,14 @@ def run_classification(
     inputs: list[Phase2DProductInput],
     brand_registry: dict[str, dict[str, str]],
     catalog_names: dict[int, str],
-) -> tuple[list[Phase2DAuditRow], dict[str, Any], list[dict[str, str]], dict[str, Any]]:
+) -> tuple[
+    list[Phase2DAuditRow],
+    dict[str, Any],
+    list[dict[str, str]],
+    dict[str, Any],
+    list[dict[str, str]],
+    dict[str, Any],
+]:
     audits: list[Phase2DAuditRow] = []
     for inp in inputs:
         reg = brand_registry.get(str(inp.brand_id)) if inp.brand_id is not None else None
@@ -355,7 +362,12 @@ def run_classification(
     if not identity_registry:
         raise RuntimeError("oem_identity_registry_missing")
     oem_authority_rows, oem_meta = apply_oem_semantic_holds(audits, identity_registry)
-    return audits, policy_review, oem_authority_rows, oem_meta
+    from app.domain.product_naming_phase2d_owner_title import apply_owner_title_holds  # noqa: PLC0415
+
+    owner_final_rows, owner_meta = apply_owner_title_holds(audits, oem_authority_rows)
+    collision_report = detect_collisions(audits, catalog_names)
+    apply_collision_holds(audits, collision_report)
+    return audits, policy_review, oem_authority_rows, oem_meta, owner_final_rows, owner_meta
 
 
 def audit_row_to_dict(a: Phase2DAuditRow) -> dict[str, str]:
@@ -589,8 +601,8 @@ def run_audit(
         encoding="utf-8",
     )
 
-    audits, policy_review_meta, oem_authority_rows, oem_meta = run_classification(
-        inputs, brand_registry, catalog_names
+    audits, policy_review_meta, oem_authority_rows, oem_meta, owner_final_rows, owner_meta = (
+        run_classification(inputs, brand_registry, catalog_names)
     )
     recon = reconcile_classifications(audits)
     if not recon["reconciles"]:
@@ -678,7 +690,7 @@ def run_audit(
     write_canonical_candidate_csv(proposed_path, candidate_rows)
     written_candidate_file_sha256 = sha256_file(proposed_path)
 
-    audits2, _, _, _ = run_classification(inputs, brand_registry, catalog_names)
+    audits2, _, _, _, _, _ = run_classification(inputs, brand_registry, catalog_names)
     replay_rows = canonical_candidate_rows(audits2)
     replay_candidate_sha256 = canonical_candidate_sha256(replay_rows)
     replay_identical = (
@@ -780,6 +792,11 @@ def run_audit(
         list(owner_rows[0].keys()) if owner_rows else ["product_id"],
         owner_rows,
     )
+    write_csv(
+        out_dir / "PHASE2D_OWNER_FINAL_TITLE_REVIEW.csv",
+        list(owner_final_rows[0].keys()) if owner_final_rows else ["product_id"],
+        owner_final_rows,
+    )
 
     semantic_rows = build_variant_semantic_audit_rows(audits)
     write_csv(
@@ -809,16 +826,24 @@ def run_audit(
     oem_occurrence_sha = sha256_file(spec_v1 / "INSIZE_OEM_CODE_OCCURRENCES.csv")
     oem_identity_sha = sha256_file(spec_v1 / "INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv")
     oem_canonical_policy_sha = sha256_file(spec_v1 / "OEM_CANONICAL_IDENTITY_POLICY.csv")
+    owner_title_policy_sha = sha256_file(spec_v1 / "OWNER_CANONICAL_TITLE_POLICY.csv")
     from app.domain.product_naming_phase2d_oem import governed_oem_source_shas  # noqa: PLC0415
 
     sha_108a, sha_108b = governed_oem_source_shas()
     ready_oem_fail = 0
+    ready_owner_fail = 0
     for a in audits:
         if a.terminal_classification != "READY_RENAME":
             continue
         oem_row = oem_by_pid.get(a.product_id)
         if not oem_row or oem_row.get("candidate_eligible_after_oem_gate") != "yes":
             ready_oem_fail += 1
+        owner_row = next(
+            (r for r in owner_final_rows if int(r["product_id"]) == a.product_id),
+            None,
+        )
+        if not owner_row or owner_row.get("owner_title_status") != "APPROVED":
+            ready_owner_fail += 1
     ready_collision_count = len(collision_report.get("ready_rename_affected") or [])
     logic_sha256 = audit_logic_fingerprint(DOMAIN_PATH, SCRIPT_PATH)
     phase2d_logic_git_sha = logic_git_sha or git_sha
@@ -845,8 +870,9 @@ def run_audit(
         wrong_unit_canary_failures=semantic_anomaly.get("wrong_unit_canary_failures", 0),
         variant_not_required_with_suffix=variant_counts.get("variant_not_required_with_suffix", 0),
         ready_oem_semantic_failures=ready_oem_fail,
+        ready_owner_title_failures=ready_owner_fail,
     )
-    if status == "READY_FOR_OWNER_RENAME_REVIEW" and counts.get("READY_RENAME", 0) == 0:
+    if status == "READY_TO_MERGE" and counts.get("READY_RENAME", 0) == 0:
         status = "PARTIAL"
 
     manifest = {
@@ -858,7 +884,18 @@ def run_audit(
         "phase2d_logic_sha256": logic_sha256,
         "audit_logic_sha256": logic_sha256,
         "audit_logic_git_sha": phase2d_logic_git_sha,
+        "phase2d_owner_title_logic_git_sha": phase2d_logic_git_sha,
         "phase2d_exact_oem_logic_git_sha": phase2d_logic_git_sha,
+        "owner_canonical_title_policy_sha256": owner_title_policy_sha,
+        "pre_owner_title_candidates": owner_meta.get("pre_owner_title_candidates", 0),
+        "owner_title_approved": owner_meta.get("owner_title_approved", 0),
+        "owner_title_hold": owner_meta.get("owner_title_hold", 0),
+        "OWNER_TITLE_EXACT": owner_meta.get("OWNER_TITLE_EXACT", 0),
+        "OWNER_TITLE_BROADER_BUT_APPROVED": owner_meta.get("OWNER_TITLE_BROADER_BUT_APPROVED", 0),
+        "OWNER_TITLE_REQUIRES_QUALIFIER": owner_meta.get("OWNER_TITLE_REQUIRES_QUALIFIER", 0),
+        "OWNER_TITLE_HOLD": owner_meta.get("OWNER_TITLE_HOLD", 0),
+        "HOLD_OWNER_CANONICAL_TITLE_REVIEW": counts.get("HOLD_OWNER_CANONICAL_TITLE_REVIEW", 0),
+        "all_READY_have_owner_title_approval": ready_owner_fail == 0,
         "phase2d_oem_semantic_logic_git_sha": phase2d_logic_git_sha,
         "authoritative_run_logic_sha": phase2d_logic_git_sha,
         "artifact_generated_from_logic_sha": phase2d_logic_git_sha,
@@ -924,7 +961,7 @@ def run_audit(
         "policy_review_PASS_count": policy_review_meta.get("PASS", 0),
         "policy_review_FAIL_count": policy_review_meta.get("FAIL", 0),
         "policy_review_REVIEW_count": policy_review_meta.get("REVIEW", 0),
-        "owner_review_status": "PENDING",
+        "owner_review_status": "POLICY_REVIEW_COMPLETE_PENDING_PHASE2E",
         "VARIANT_REQUIRED_READY": variant_counts.get("VARIANT_REQUIRED_READY", 0),
         "VARIANT_NOT_REQUIRED_READY": variant_counts.get("VARIANT_NOT_REQUIRED_READY", 0),
         "variant_not_required_with_suffix": variant_counts.get("variant_not_required_with_suffix", 0),
@@ -973,6 +1010,7 @@ def _remediation(terminal: str) -> str:
         "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT": "Refine canonical_title_fa policy for OEM subtype",
         "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT": "Govern multi-function title/Product Type before rename",
         "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING": "Locate OEM catalogue evidence for manufacturer code",
+        "HOLD_OWNER_CANONICAL_TITLE_REVIEW": "Resolve owner canonical title precision per OWNER_CANONICAL_TITLE_POLICY",
     }.get(terminal, "Manual governance review")
 
 

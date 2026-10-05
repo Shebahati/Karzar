@@ -1166,6 +1166,16 @@ documents:
     notes: >
       Governed INSIZE OEM product identity selections (authoritative product occurrence only).
 
+  - id: PRODUCT-NAMING-V1-OWNER-CANONICAL-TITLE-POLICY
+    path: docs/architecture/specs/product-naming-v1/OWNER_CANONICAL_TITLE_POLICY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Owner-approved Persian canonical titles for exact-OEM Phase 2D READY cohort (precision qualifiers).
+
   - id: PRODUCT-NAMING-V1-OEM-CANONICAL-IDENTITY-POLICY
     path: docs/architecture/specs/product-naming-v1/OEM_CANONICAL_IDENTITY_POLICY.csv
     class: SPEC

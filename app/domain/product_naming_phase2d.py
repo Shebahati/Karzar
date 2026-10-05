@@ -64,6 +64,7 @@ TERMINAL_CLASSIFICATIONS: tuple[str, ...] = (
     "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT",
     "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT",
     "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING",
+    "HOLD_OWNER_CANONICAL_TITLE_REVIEW",
     "HOLD_OTHER",
 )
 
@@ -1283,6 +1284,7 @@ def audit_logic_fingerprint(domain_path: Path, script_path: Path) -> str:
         "product_naming_phase2d_oem.py",
         "product_naming_phase2d_oem_extract.py",
         "product_naming_phase2d_oem_policy.py",
+        "product_naming_phase2d_owner_title.py",
     ):
         p = domain_path.parent / rel
         if p.is_file():
@@ -1292,6 +1294,7 @@ def audit_logic_fingerprint(domain_path: Path, script_path: Path) -> str:
     for name in (
         "INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv",
         "OEM_CANONICAL_IDENTITY_POLICY.csv",
+        "OWNER_CANONICAL_TITLE_POLICY.csv",
     ):
         reg = spec / name
         if reg.is_file():
@@ -1533,6 +1536,7 @@ def compute_freeze_status(
     wrong_unit_canary_failures: int = 0,
     variant_not_required_with_suffix: int = 0,
     ready_oem_semantic_failures: int = 0,
+    ready_owner_title_failures: int = 0,
 ) -> str:
     if identity_drift or not reconciles or not replay_identical or not read_only_ok:
         return "BLOCKED"
@@ -1541,13 +1545,14 @@ def compute_freeze_status(
         or wrong_unit_canary_failures
         or variant_not_required_with_suffix
         or ready_oem_semantic_failures
+        or ready_owner_title_failures
     ):
         return "BLOCKED"
     if policy_review.get("FAIL") or policy_review.get("REVIEW"):
         return "PARTIAL"
     if ready_collision_count:
         return "BLOCKED"
-    return "READY_FOR_OWNER_RENAME_REVIEW"
+    return "READY_TO_MERGE"
 
 
 AUDIT_CSV_FIELDS: tuple[str, ...] = tuple(
