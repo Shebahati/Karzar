@@ -1,7 +1,7 @@
 # Phase 2D canonical name dry-run summary
 
 **Status:** READY_FOR_OWNER_RENAME_REVIEW
-**Generated:** 2026-10-05T13:08:37.457067+00:00
+**Generated:** 2026-10-05T13:12:30.440582+00:00
 
 ## Safety
 - DB read-only: `on`
