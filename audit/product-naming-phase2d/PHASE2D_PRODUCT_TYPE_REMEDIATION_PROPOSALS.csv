@@ -1,189 +1,335 @@
 product_id,manufacturer_code,current_product_type,OEM_identity,recommended_product_type,recommended_title,reason,OEM_locator
-1771,0110-1125,ANEMOMETER,DIFFERENTIAL PRESSURE MANOMETER,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=252;code=0110-1125
-1795,1120-150,INTERNAL_GROOVE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1120-150
-1796,1120-200,INTERNAL_GROOVE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1120-200
-1797,1120-300,INTERNAL_GROOVE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1120-300
-1799,1121-150,INTERNAL_POINT_CALIPER,,,,no_official_catalogue_locator,#page=;code=1121-150
-1801,1123-150,INSIDE_KNIFE_EDGE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1123-150
-1802,1123-300,INSIDE_KNIFE_EDGE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1123-300
-1810,1141-150,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1141-150
-1811,1141-200,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1141-200
-1812,1141-300,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1141-300
-1813,1141-500,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1141-500
-1814,1142-150,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1142-150
-1815,1142-200,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1142-200
-1816,1142-300,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1142-300
-1817,1144-150,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1144-150
-1818,1144-200,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1144-200
-1819,1144-300,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1144-300
-1823,1151-300,HEIGHT_GAUGE,,,,no_official_catalogue_locator,#page=;code=1151-300
-1824,1151-600,HEIGHT_GAUGE,,,,no_official_catalogue_locator,#page=;code=1151-600
-1827,1161-150,TUBE_THICKNESS_CALIPER,,,,no_official_catalogue_locator,#page=;code=1161-150
-1834,1183-150,POINT_CALIPER,,,,no_official_catalogue_locator,#page=;code=1183-150
-1835,1185-150,EXTERNAL_GROOVE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1185-150
-1836,1186-150,OFFSET_CALIPER,,,,no_official_catalogue_locator,#page=;code=1186-150
-1837,1186-200,OFFSET_CALIPER,,,,no_official_catalogue_locator,#page=;code=1186-200
-1838,1186-300,OFFSET_CALIPER,,,,no_official_catalogue_locator,#page=;code=1186-300
-1839,1187-150,EXTERNAL_GROOVE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1187-150
-1840,1188-150,BLADE_CALIPER,,,,no_official_catalogue_locator,#page=;code=1188-150
-1873,2112-101,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-101
-1874,2112-251,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-251
-1875,2112-501,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-501
-1884,2175-360,PROTRACTOR,DIGITAL LEVELS AND SLOPE METERS,DIGITAL_LEVEL,,"persisted_PROTRACTOR_not_in_oem_allowed_DIGITAL_LEVEL,LEVEL",/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=499;code=2175-360
-1887,2179-360,PROTRACTOR,DIGITAL LEVELS AND SLOPE METERS,DIGITAL_LEVEL,,"persisted_PROTRACTOR_not_in_oem_allowed_DIGITAL_LEVEL,LEVEL",/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=499;code=2179-360
-1898,2341-101,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=2341-101
-1911,2841-300,SHAFT_GAUGE,DIGITAL HEIGHT GAUGES,HEIGHT_GAUGE,,persisted_SHAFT_GAUGE_not_in_oem_allowed_HEIGHT_GAUGE,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=381;code=2841-300
-1912,2841-500,SHAFT_GAUGE,DIGITAL HEIGHT GAUGES,HEIGHT_GAUGE,,persisted_SHAFT_GAUGE_not_in_oem_allowed_HEIGHT_GAUGE,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=381;code=2841-500
-1913,2862-102,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=369;code=2862-102
-1914,2871-101,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=365;code=2871-101
-1915,3101-225,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3101-225
-1916,3101-250,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3101-250
-1917,3101-275,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3101-275
-1918,3101-300,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3101-300
-1919,3108-100,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3108-100
-1920,3109-100,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-100
-1921,3109-125,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-125
-1922,3109-150,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-150
-1923,3109-175,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-175
-1924,3109-200,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-200
-1925,3109-225,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-225
-1926,3109-250,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-250
-1927,3109-275,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-275
-1928,3109-300,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-300
-1929,3127-100,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-100
-1931,3127-125,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-125
-1932,3127-150,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-150
-1933,3127-175,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-175
-1934,3127-200,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-200
-1936,3127-225,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-225
-1937,3127-250,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-250
-1938,3127-275,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-275
-1941,3203-100,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-100
-1942,3203-125,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-125
-1943,3203-150,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-150
-1945,3203-175,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-175
-1946,3203-200,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-200
-1947,3203-225,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-225
-1948,3203-250,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-250
-1949,3203-275,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-275
-1950,3203-300,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-300
-1965,3206-200,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3206-200
-1966,3206-300,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3206-300
-1967,3206-301,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3206-301
-1968,3210-100,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3210-100
-1974,3227-100,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-100
-1977,3227-150,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-150
-1978,3227-175,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-175
-1979,3227-200,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-200
-1982,3232-100,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3232-100
-1986,3282-100,OUTSIDE_MICROMETER,DISK MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=198;code=3282-100
-1987,3290-153,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3290-153
-1988,3290-203,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3290-203
-1989,3290-455,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3290-455
-1990,3293-131,OUTSIDE_MICROMETER,CAN SEAM MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=201;code=3293-131
-1991,3506-150,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3506-150
-1992,3506-300,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3506-300
-1993,3506-400,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3506-400
-1994,3506-500,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3506-500
-1995,3506-600,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3506-600
-1998,3540-150,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,DEPTH_MICROMETER,,persisted_DEPTH_GAUGE_not_in_oem_allowed_DEPTH_MICROMETER,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=94;code=3540-150
-1999,3540-300,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,DEPTH_MICROMETER,,persisted_DEPTH_GAUGE_not_in_oem_allowed_DEPTH_MICROMETER,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=94;code=3540-300
-2000,3590-153,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3590-153
-2030,4810-601,SCREW_CUTTING_GAUGE,CENTER GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=536;code=4810-601
-2031,4810-602,SCREW_CUTTING_GAUGE,CENTER GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=536;code=4810-602
-2084,7114-950,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=269;code=7114-950
-2086,7139-100,STEEL_RULE,MEASURING TAPES,MEASURING_TAPE,,persisted_STEEL_RULE_not_in_oem_allowed_MEASURING_TAPE,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=558;code=7139-100
-2088,7205-200,CENTER_SQUARE,CENTER MARKING GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=565;code=7205-200
-2105,9721-250,VOLTAGE_TESTER,DIGITAL AC/DC CLAMP METER,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=369;code=9721-250
-3483,2308-10,DIAL_INDICATOR,,,,no_official_catalogue_locator,#page=;code=2308-10
-3485,2170-1,PROTRACTOR,DIGITAL LEVELS AND SLOPE METERS,DIGITAL_LEVEL,,"persisted_PROTRACTOR_not_in_oem_allowed_DIGITAL_LEVEL,LEVEL",/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=499;code=2170-1
-3493,2361-10,THICKNESS_GAUGE,THICKNESS GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=367;code=2361-10
-3494,2364-10,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=366;code=2364-10
-3499,3127-8,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-8
-3500,3127-10,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-10
-3501,3127-12,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-12
-3503,3127-20,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-20
-3504,3282-25,OUTSIDE_MICROMETER,DISK MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=198;code=3282-25
-3505,3127-25,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-25
-3506,3127-30,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-30
-3507,3282-50,OUTSIDE_MICROMETER,DISK MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=198;code=3282-50
-3508,3127-40,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-40
-3509,3282-75,OUTSIDE_MICROMETER,DISK MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=198;code=3282-75
-3510,3127-50,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-50
-3511,3594-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3594-25
-3512,2364-1,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=366;code=2364-1
-3513,3127-63,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-63
-3514,3127-75,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-75
-3516,3127-88,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-88
-3517,2863-10,THICKNESS_GAUGE,THICKNESS GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=369;code=2863-10
-3518,2866-10,THICKNESS_GAUGE,THICKNESS GAUGE WITH POINTED TIPS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=369;code=2866-10
-3519,3227-8,INSIDE_MICROMETER,MEASURING TIPS FOR INTERNAL SCREW THREAD MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3227-8
-3520,2367-10,THICKNESS_GAUGE,,,,no_official_catalogue_locator,#page=;code=2367-10
-3521,3227-10,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-10
-3523,3227-12,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-12
-3525,3227-16,INSIDE_MICROMETER,MEASURING TIPS FOR INTERNAL SCREW THREAD MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3227-16
-3526,3227-20,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-20
-3528,3227-25,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-25
-3529,3227-30,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-30
-3530,3227-40,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-40
-3531,3227-50,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-50
-3532,3227-63,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-63
-3533,3227-75,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-75
-3535,3227-88,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-88
-3548,3108-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3108-25
-3549,3108-50,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3108-50
-3550,3109-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-25
-3556,3203-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-25
-3559,3203-50,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-50
-3560,3203-75,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3203-75
-3573,3210-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3210-25
-3574,3210-50,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3210-50
-3592,1145-25,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1145-25
-3606,7114-2200,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=269;code=7114-2200
-3607,7114-3460,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=269;code=7114-3460
-3611,2112-10,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-10
-3612,2112-25,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-25
-3613,2112-50,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=287;code=2112-50
-3618,2310-30,DIAL_INDICATOR,,,,no_official_catalogue_locator,#page=;code=2310-30
-3625,2114-5F,DIAL_INDICATOR,COMPACT DIGITAL INDICATORS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=301;code=2114-5F
-3626,2103-10,DIAL_INDICATOR,DIGITAL INDICATORS (ADVANCED TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=290;code=2103-10
-3627,2118-10,DIAL_INDICATOR,BACK PLUNGER TYPE DIGITAL INDICATORS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=302;code=2118-10
-3637,2871-10,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=365;code=2871-10
-3638,2872-10,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=367;code=2872-10
-3640,3210-75,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3210-75
-3641,3109-75,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3109-75
-3642,3291-25,OUTSIDE_MICROMETER,GEAR TOOTH MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=168;code=3291-25
-3643,3232-75,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3232-75
-3644,3108-75,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3108-75
-3648,3594-50,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3594-50
-3649,3127-16,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-16
-3662,4780-85,PROTRACTOR,,,,no_official_catalogue_locator,#page=;code=4780-85
-3682,4842-1,ANGLE_GAUGE,DRILL ANGLE GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=538;code=4842-1
-3684,4843-1,ANGLE_GAUGE,DRILL POINT GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=538;code=4843-1
-3717,6354-25W,OUTSIDE_MICROMETER,DIGITAL MICROMETER HEADS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=208;code=6354-25W
-3762,2366-30,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=366;code=2366-30
-3763,2383-08,TEST_INDICATOR,,,,no_official_catalogue_locator,#page=;code=2383-08
-3765,2710-25,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=369;code=2710-25
-3769,2876-10,THICKNESS_GAUGE,DIGITAL TUBE THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=372;code=2876-10
-3770,3230-25BA,OUTSIDE_MICROMETER,DIGITAL POINT MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=171;code=3230-25BA
-3772,3260-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3260-25
-3776,3530-25BA,OUTSIDE_MICROMETER,DIGITAL POINT MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=171;code=3530-25BA
-3790,4806-20,ANGLE_GAUGE,THREAD GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=537;code=4806-20
-3813,6377-25W,OUTSIDE_MICROMETER,MICROMETER HEADS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=212;code=6377-25W
-3814,6557-50,ZERO_SETTER,SQUARE ANVIL (OPTIONAL),ENGINEERS_SQUARE,,persisted_ZERO_SETTER_not_in_oem_allowed_ENGINEERS_SQUARE,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=629;code=6557-50
-3895,0312-TH50,MOISTURE_METER,TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE),,دما و رطوبت‌سنج,oem_temperature_and_humidity_meter_title_drops_temperature_function,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=249;code=0312-TH50
-3901,1141-1000,DEPTH_GAUGE,,,,no_official_catalogue_locator,#page=;code=1141-1000
-3909,2115-10,DIAL_INDICATOR,WATERPROOF DIGITAL INDICATORS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=296;code=2115-10
-3917,2163-25,THICKNESS_GAUGE,DIGITAL SNAP GAUGE,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=378;code=2163-25
-3922,2365-10,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=367;code=2365-10
-3927,2875-30,THICKNESS_GAUGE,THICKNESS GAUGES,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=368;code=2875-30
-3931,3101-25,OUTSIDE_MICROMETER,,,,no_official_catalogue_locator,#page=;code=3101-25
-3933,3260-25SA,OUTSIDE_MICROMETER,DIGITAL SPHERICAL ANVIL TUBE MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=185;code=3260-25SA
-3935,3287-25B,INSIDE_MICROMETER,GROOVE MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=158;code=3287-25B
-3936,3332-25,OUTSIDE_MICROMETER,INDICATING MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=154;code=3332-25
-3937,3358-25,OUTSIDE_MICROMETER,DIGITAL MICROMETERS/SNAP GAUGES (BASIC TYPE),,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=126;code=3358-25
-3938,3540-50,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,DEPTH_MICROMETER,,persisted_DEPTH_GAUGE_not_in_oem_allowed_DEPTH_MICROMETER,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=94;code=3540-50
-3944,3127-5,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-5
-3946,3127-6,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=227;code=3127-6
-3954,3227-6,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=225;code=3227-6
-4110,8301-1200,DIGITAL_SCALE,LENS TRANSMISSION METERS,,,oem_family_not_governed_in_phase2d_mapper,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=278;code=8301-1200
+1771,0110-1125,ANEMOMETER,,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=347;code=0110-1125
+1795,1120-150,INTERNAL_GROOVE_CALIPER,,,,no_identity_registry_entry,#page=;code=1120-150
+1796,1120-200,INTERNAL_GROOVE_CALIPER,,,,no_identity_registry_entry,#page=;code=1120-200
+1797,1120-300,INTERNAL_GROOVE_CALIPER,,,,no_identity_registry_entry,#page=;code=1120-300
+1798,1120-500,INTERNAL_GROOVE_CALIPER,DIGITAL INSIDE GROOVE CALIPERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=64;code=1120-500
+1799,1121-150,INTERNAL_POINT_CALIPER,,,,no_identity_registry_entry,#page=;code=1121-150
+1801,1123-150,INSIDE_KNIFE_EDGE_CALIPER,,,,no_identity_registry_entry,#page=;code=1123-150
+1802,1123-300,INSIDE_KNIFE_EDGE_CALIPER,,,,no_identity_registry_entry,#page=;code=1123-300
+1808,1140-100,DEPTH_GAUGE,MINI DIGITAL DEPTH GAUGES WITH ROUND BAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=101;code=1140-100
+1809,1140-150,DEPTH_GAUGE,MINI DIGITAL DEPTH GAUGES WITH ROUND BAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=101;code=1140-150
+1810,1141-150,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1141-150
+1811,1141-200,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1141-200
+1812,1141-300,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1141-300
+1813,1141-500,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1141-500
+1814,1142-150,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1142-150
+1815,1142-200,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1142-200
+1816,1142-300,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1142-300
+1817,1144-150,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1144-150
+1818,1144-200,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1144-200
+1819,1144-300,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1144-300
+1820,1150-300,HEIGHT_GAUGE,DIGITAL HEIGHT GAUGES,,,ambiguous_headings:DIAL PROTRACTOR;DIGITAL HEIGHT GAUGES;DIGITAL PROTRACTOR;SCRIBERS FOR HEIGHT GAUGES;UNIVERSAL PROTRACTOR,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=114;code=1150-300
+1822,1150-600,HEIGHT_GAUGE,SCRIBERS FOR HEIGHT GAUGES,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=119;code=1150-600
+1823,1151-300,HEIGHT_GAUGE,,,,no_identity_registry_entry,#page=;code=1151-300
+1824,1151-600,HEIGHT_GAUGE,,,,no_identity_registry_entry,#page=;code=1151-600
+1825,1156-300,HEIGHT_GAUGE,DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,,,ambiguous_headings:DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL;SCRIBERS FOR HEIGHT GAUGES,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=115;code=1156-300
+1826,1156-600,HEIGHT_GAUGE,DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,,,ambiguous_headings:DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL;SCRIBERS FOR HEIGHT GAUGES,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=115;code=1156-600
+1827,1161-150,TUBE_THICKNESS_CALIPER,,,,no_identity_registry_entry,#page=;code=1161-150
+1831,1176-150,INTERNAL_GROOVE_CALIPER,DIGITAL INSIDE GROOVE CALIPERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=65;code=1176-150
+1832,1176-200,INTERNAL_GROOVE_CALIPER,DIGITAL INSIDE GROOVE CALIPERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=65;code=1176-200
+1834,1183-150,POINT_CALIPER,,,,no_identity_registry_entry,#page=;code=1183-150
+1835,1185-150,EXTERNAL_GROOVE_CALIPER,,,,no_identity_registry_entry,#page=;code=1185-150
+1836,1186-150,OFFSET_CALIPER,,,,no_identity_registry_entry,#page=;code=1186-150
+1837,1186-200,OFFSET_CALIPER,,,,no_identity_registry_entry,#page=;code=1186-200
+1838,1186-300,OFFSET_CALIPER,,,,no_identity_registry_entry,#page=;code=1186-300
+1839,1187-150,EXTERNAL_GROOVE_CALIPER,,,,no_identity_registry_entry,#page=;code=1187-150
+1840,1188-150,BLADE_CALIPER,,,,no_identity_registry_entry,#page=;code=1188-150
+1858,1250-300,HEIGHT_GAUGE,SCRIBERS FOR HEIGHT GAUGES,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=119;code=1250-300
+1859,1250-600,HEIGHT_GAUGE,SCRIBERS FOR HEIGHT GAUGES,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=119;code=1250-600
+1870,1520-150,INTERNAL_GROOVE_CALIPER,DIGITAL INSIDE GROOVE CALIPERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=62;code=1520-150
+1871,1530-300,INTERCHANGEABLE_POINT_CALIPER,DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=61;code=1530-300
+1872,1530-500,INTERCHANGEABLE_POINT_CALIPER,DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=61;code=1530-500
+1873,2112-101,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-101
+1874,2112-251,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-251
+1875,2112-501,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-501
+1884,2175-360,PROTRACTOR,DIGITAL LEVEL AND SLOPE METER,DIGITAL_LEVEL,تراز دیجیتال,persisted_PROTRACTOR_policy_requires_DIGITAL_LEVEL,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=585;code=2175-360
+1885,2176-200,PROTRACTOR,DIGITAL PROTRACTORS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=470;code=2176-200
+1886,2176-300,PROTRACTOR,DIGITAL PROTRACTORS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=470;code=2176-300
+1887,2179-360,PROTRACTOR,DIGITAL LEVEL AND SLOPE METER,DIGITAL_LEVEL,تراز دیجیتال,persisted_PROTRACTOR_policy_requires_DIGITAL_LEVEL,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=585;code=2179-360
+1888,2222-301,INDICATING_CALIPER,INTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=350;code=2222-301
+1890,2275-300,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=480;code=2275-300
+1893,2307-105,DIAL_INDICATOR,INCH DIAL INDICATORS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=317;code=2307-105
+1897,2333-201,INDICATING_CALIPER,EXTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=356;code=2333-201
+1898,2341-101,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=2341-101
+1899,2342-202,DEPTH_GAUGE,DIAL DEPTH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=103;code=2342-202
+1900,2343-102,DEPTH_GAUGE,DIAL DEPTH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=102;code=2343-102
+1903,2374-320,PROTRACTOR,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=472;code=2374-320
+1911,2841-300,SHAFT_GAUGE,DIGITAL HEIGHT GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=378;code=2841-300
+1912,2841-500,SHAFT_GAUGE,DIGITAL HEIGHT GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=378;code=2841-500
+1913,2862-102,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=364;code=2862-102
+1914,2871-101,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=359;code=2871-101
+1915,3101-225,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3101-225
+1916,3101-250,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3101-250
+1917,3101-275,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3101-275
+1918,3101-300,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3101-300
+1919,3108-100,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3108-100
+1920,3109-100,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-100
+1921,3109-125,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-125
+1922,3109-150,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-150
+1923,3109-175,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-175
+1924,3109-200,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-200
+1925,3109-225,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-225
+1926,3109-250,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-250
+1927,3109-275,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-275
+1928,3109-300,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-300
+1929,3127-100,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-100
+1931,3127-125,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=230;code=3127-125
+1932,3127-150,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-150
+1933,3127-175,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-175
+1934,3127-200,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-200
+1936,3127-225,INSIDE_MICROMETER,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-225
+1937,3127-250,INSIDE_MICROMETER,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-250
+1938,3127-275,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=230;code=3127-275
+1941,3203-100,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-100
+1942,3203-125,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-125
+1943,3203-150,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-150
+1945,3203-175,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-175
+1946,3203-200,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-200
+1947,3203-225,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-225
+1948,3203-250,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-250
+1949,3203-275,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-275
+1950,3203-300,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-300
+1953,3205-1000,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-1000
+1954,3205-1200,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-1200
+1955,3205-1400,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-1400
+1956,3205-1600,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-1600
+1957,3205-1800,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-1800
+1958,3205-400,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-400
+1959,3205-500,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-500
+1960,3205-600,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-600
+1961,3205-700,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-700
+1962,3205-800,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-800
+1963,3205-900,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=165;code=3205-900
+1965,3206-200,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3206-200
+1966,3206-300,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3206-300
+1967,3206-301,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3206-301
+1968,3210-100,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3210-100
+1969,3220-100,INSIDE_MICROMETER,INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=220;code=3220-100
+1970,3222-300,INSIDE_MICROMETER,TUBULAR INSIDE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3222-300
+1971,3222-500,INSIDE_MICROMETER,TUBULAR INSIDE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3222-500
+1972,3222-600,INSIDE_MICROMETER,TUBULAR INSIDE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3222-600
+1973,3225-2100,INSIDE_MICROMETER,TUBULAR INSIDE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3225-2100
+1974,3227-100,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-100
+1977,3227-150,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-150
+1978,3227-175,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-175
+1979,3227-200,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-200
+1982,3232-100,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3232-100
+1983,3240-100,DEPTH_MICROMETER,DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3240-100
+1984,3240-150,DEPTH_MICROMETER,DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3240-150
+1985,3240-300,DEPTH_MICROMETER,DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3240-300
+1986,3282-100,OUTSIDE_MICROMETER,DISK MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=203;code=3282-100
+1987,3290-153,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3290-153
+1988,3290-203,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3290-203
+1989,3290-455,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3290-455
+1990,3293-131,OUTSIDE_MICROMETER,CAN SEAM MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=207;code=3293-131
+1991,3506-150,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3506-150
+1992,3506-300,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3506-300
+1993,3506-400,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3506-400
+1994,3506-500,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3506-500
+1995,3506-600,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3506-600
+1996,3520-100,INSIDE_MICROMETER,DIGITAL INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=221;code=3520-100
+1998,3540-150,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3540-150
+1999,3540-300,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3540-300
+2000,3590-153,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3590-153
+2005,4141-400,ENGINEERS_SQUARE,GRANITE SQUARES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=475;code=4141-400
+2014,4605-201,FEELER_GAUGE_SET,LONG FEELER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=507;code=4605-201
+2015,4605-202,FEELER_GAUGE_SET,LONG FEELER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=507;code=4605-202
+2016,4621-100,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-100
+2018,4707-300,ENGINEERS_SQUARE,MACHINIST SQUARES WITH WIDE BASE (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=479;code=4707-300
+2019,4707-500,ENGINEERS_SQUARE,MACHINIST SQUARES WITH WIDE BASE (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=479;code=4707-500
+2020,4745-1150,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=481;code=4745-1150
+2021,4745-1200,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=481;code=4745-1200
+2022,4796-100,ENGINEERS_SQUARE,MACHINIST SQUARES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=478;code=4796-100
+2023,4796-150,ENGINEERS_SQUARE,MACHINIST SQUARES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=478;code=4796-150
+2024,4796-300,ENGINEERS_SQUARE,MACHINIST SQUARES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=478;code=4796-300
+2025,4799-1120,PROTRACTOR,PROTRACTOR (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=471;code=4799-1120
+2026,4799-1150,PROTRACTOR,PROTRACTOR (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=471;code=4799-1150
+2027,4799-1200,PROTRACTOR,PROTRACTOR (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=471;code=4799-1200
+2029,4799-180,PROTRACTOR,PROTRACTOR (ECONOMIC TYPE),,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=471;code=4799-180
+2030,4810-601,SCREW_CUTTING_GAUGE,CENTER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=511;code=4810-601
+2031,4810-602,SCREW_CUTTING_GAUGE,CENTER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=511;code=4810-602
+2033,4820-452,THREAD_PITCH_GAUGE,PITCH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=510;code=4820-452
+2035,4860-212,GEAR_TOOTH_PITCH_GAUGE,GEAR TOOTH PITCH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=511;code=4860-212
+2036,4860-245,GEAR_TOOTH_PITCH_GAUGE,GEAR TOOTH PITCH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=511;code=4860-245
+2080,7110-500,STEEL_RULE,STEEL RULERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=537;code=7110-500
+2081,7110-600,STEEL_RULE,STEEL RULERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=537;code=7110-600
+2084,7114-950,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=265;code=7114-950
+2086,7139-100,STEEL_RULE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=533;code=7139-100
+2088,7205-200,CENTER_SQUARE,CENTER MARKING GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=543;code=7205-200
+2103,9247-190,DIGITAL_MULTIMETER,SMART DIGITAL MULTIMETER,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=500;code=9247-190
+2105,9721-250,VOLTAGE_TESTER,,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=505;code=9721-250
+3481,2307-1,DIAL_INDICATOR,INCH DIAL INDICATORS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=317;code=2307-1
+3482,2307-025,DIAL_INDICATOR,INCH DIAL INDICATORS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=317;code=2307-025
+3483,2308-10,DIAL_INDICATOR,,,,no_identity_registry_entry,#page=;code=2308-10
+3485,2170-1,PROTRACTOR,DIGITAL LEVEL AND SLOPE METER,DIGITAL_LEVEL,تراز دیجیتال,persisted_PROTRACTOR_policy_requires_DIGITAL_LEVEL,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=587;code=2170-1
+3487,2121-25,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=350;code=2121-25
+3488,2332-20,INDICATING_CALIPER,EXTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=356;code=2332-20
+3490,2151-35,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-35
+3492,2151-55,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-55
+3493,2361-10,THICKNESS_GAUGE,THICKNESS GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=361;code=2361-10
+3494,2364-10,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=359;code=2364-10
+3499,3127-8,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-8
+3500,3127-10,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-10
+3501,3127-12,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=230;code=3127-12
+3503,3127-20,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-20
+3504,3282-25,OUTSIDE_MICROMETER,DISK MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=203;code=3282-25
+3505,3127-25,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-25
+3506,3127-30,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-30
+3507,3282-50,OUTSIDE_MICROMETER,DISK MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=203;code=3282-50
+3508,3127-40,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-40
+3509,3282-75,OUTSIDE_MICROMETER,DISK MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=203;code=3282-75
+3510,3127-50,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-50
+3511,3594-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3594-25
+3512,2364-1,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=359;code=2364-1
+3513,3127-63,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-63
+3514,3127-75,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-75
+3515,3220-30,INSIDE_MICROMETER,INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=220;code=3220-30
+3516,3127-88,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-88
+3517,2863-10,THICKNESS_GAUGE,THICKNESS GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=364;code=2863-10
+3518,2866-10,THICKNESS_GAUGE,THICKNESS GAUGE WITH POINTED TIPS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=364;code=2866-10
+3519,3227-8,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-8
+3520,2367-10,THICKNESS_GAUGE,,,,no_identity_registry_entry,#page=;code=2367-10
+3521,3227-10,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-10
+3522,3220-50,INSIDE_MICROMETER,INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=220;code=3220-50
+3523,3227-12,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-12
+3524,3220-75,INSIDE_MICROMETER,INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=220;code=3220-75
+3525,3227-16,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-16
+3526,3227-20,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-20
+3527,3520-50,INSIDE_MICROMETER,DIGITAL INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=221;code=3520-50
+3528,3227-25,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-25
+3529,3227-30,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-30
+3530,3227-40,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-40
+3531,3227-50,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-50
+3532,3227-63,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-63
+3533,3227-75,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-75
+3534,3520-75,INSIDE_MICROMETER,DIGITAL INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=221;code=3520-75
+3535,3227-88,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-88
+3544,4602-17,FEELER_GAUGE_SET,FEELER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=506;code=4602-17
+3545,4602-32,FEELER_GAUGE_SET,FEELER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=506;code=4602-32
+3546,4621-02,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-02
+3548,3108-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3108-25
+3549,3108-50,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3108-50
+3550,3109-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-25
+3552,4621-03,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-03
+3553,4621-04,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-04
+3554,4621-05,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-05
+3555,4621-06,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-06
+3556,3203-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-25
+3557,4621-07,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-07
+3558,4621-08,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-08
+3559,3203-50,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-50
+3560,3203-75,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3203-75
+3561,4621-09,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-09
+3562,4621-10,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-10
+3563,4621-15,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-15
+3564,4621-20,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-20
+3565,4621-25,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-25
+3566,4621-30,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-30
+3567,4621-40,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-40
+3568,4621-50,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-50
+3569,4621-70,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-70
+3570,4621-80,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-80
+3571,4621-90,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-90
+3573,3210-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3210-25
+3574,3210-50,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3210-50
+3592,1145-25,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1145-25
+3595,1140-50,DEPTH_GAUGE,MINI DIGITAL DEPTH GAUGES WITH ROUND BAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=101;code=1140-50
+3599,3240-25,DEPTH_MICROMETER,DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3240-25
+3603,4790-0150,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-0150
+3604,4790-0100,ENGINEERS_SQUARE,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-0100
+3605,4745-1120,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=481;code=4745-1120
+3606,7114-2200,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=265;code=7114-2200
+3607,7114-3460,MEASURING_TAPE,CIRCUMFERENCE METERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=265;code=7114-3460
+3611,2112-10,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-10
+3612,2112-25,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-25
+3613,2112-50,DIAL_INDICATOR,DIGITAL INDICATORS (STANDARD TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=289;code=2112-50
+3618,2310-30,DIAL_INDICATOR,,,,no_identity_registry_entry,#page=;code=2310-30
+3623,2318-10,DIAL_INDICATOR,DOUBLE FACE DIAL INDICATOR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=314;code=2318-10
+3624,2318-30,DIAL_INDICATOR,DOUBLE FACE DIAL INDICATOR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=314;code=2318-30
+3625,2114-5F,DIAL_INDICATOR,COMPACT DIGITAL INDICATORS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=297;code=2114-5F
+3626,2103-10,DIAL_INDICATOR,DIGITAL INDICATORS (ADVANCED TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=291;code=2103-10
+3627,2118-10,DIAL_INDICATOR,BACK PLUNGER TYPE DIGITAL INDICATORS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=298;code=2118-10
+3632,4602-20,FEELER_GAUGE_SET,FEELER GAUGES,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=506;code=4602-20
+3635,1150-1000,HEIGHT_GAUGE,DIGITAL HEIGHT GAUGES,,,ambiguous_headings:DIGITAL HEIGHT GAUGES;SCRIBERS FOR HEIGHT GAUGES,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=114;code=1150-1000
+3636,1140-25,DEPTH_GAUGE,MINI DIGITAL DEPTH GAUGES WITH ROUND BAR,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=101;code=1140-25
+3637,2871-10,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=359;code=2871-10
+3638,2872-10,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=360;code=2872-10
+3640,3210-75,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3210-75
+3641,3109-75,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3109-75
+3642,3291-25,OUTSIDE_MICROMETER,GEAR TOOTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=178;code=3291-25
+3643,3232-75,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3232-75
+3644,3108-75,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3108-75
+3645,3520-30,INSIDE_MICROMETER,DIGITAL INSIDE MICROMETERS (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=221;code=3520-30
+3646,3222-1000,INSIDE_MICROMETER,TUBULAR INSIDE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=224;code=3222-1000
+3648,3594-50,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3594-50
+3649,3127-16,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-16
+3655,4790-0200,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-0200
+3656,4760-1200,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=481;code=4760-1200
+3657,4605-20,FEELER_GAUGE_SET,LONG FEELER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=507;code=4605-20
+3658,4621-12,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-12
+3660,4621-60,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-60
+3662,4780-85,PROTRACTOR,,,,no_identity_registry_entry,#page=;code=4780-85
+3682,4842-1,ANGLE_GAUGE,DRILL ANGLE GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=514;code=4842-1
+3684,4843-1,ANGLE_GAUGE,DRILL POINT GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=513;code=4843-1
+3685,4824-16,THREAD_PITCH_GAUGE,PITCH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=510;code=4824-16
+3717,6354-25W,OUTSIDE_MICROMETER,DIGITAL MICROMETER HEADS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=214;code=6354-25W
+3743,1181-M50A,GEAR_TOOTH_CALIPER,DIGITAL GEAR TOOTH CALIPERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=87;code=1181-M50A
+3745,2132-20,INDICATING_CALIPER,DIGITAL EXTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=356;code=2132-20
+3747,2151-75,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-75
+3748,2151-95,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-95
+3750,2151-AL35,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-AL35
+3751,2151-AL55,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-AL55
+3753,2151-AL75,INDICATING_CALIPER,DIGITAL INTERNAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2151-AL75
+3754,2222-25,INDICATING_CALIPER,INTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=350;code=2222-25
+3758,2321-55,INDICATING_CALIPER,INTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2321-55
+3760,2321-75,INDICATING_CALIPER,INTERNAL DIAL CALIPER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=351;code=2321-75
+3762,2366-30,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=359;code=2366-30
+3763,2383-08,TEST_INDICATOR,,,,no_identity_registry_entry,#page=;code=2383-08
+3765,2710-25,THICKNESS_GAUGE,DIGITAL THICKNESS GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=365;code=2710-25
+3769,2876-10,THICKNESS_GAUGE,DIGITAL TUBE THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=369;code=2876-10
+3770,3230-25BA,OUTSIDE_MICROMETER,DIGITAL POINT MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=180;code=3230-25BA
+3772,3260-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3260-25
+3774,3203-12A,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=157;code=3203-12A
+3776,3530-25BA,OUTSIDE_MICROMETER,DIGITAL POINT MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=180;code=3530-25BA
+3782,4790-0300,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-0300
+3790,4806-20,ANGLE_GAUGE,,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=512;code=4806-20
+3791,4824-12,THREAD_PITCH_GAUGE,PITCH GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=510;code=4824-12
+3813,6377-25W,OUTSIDE_MICROMETER,MICROMETER HEADS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=217;code=6377-25W
+3895,0312-TH50,MOISTURE_METER,TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE),MOISTURE_METER,دما و رطوبت‌سنج دما و رطوبت‌سنج,multi_function_temperature_humidity_title_drops_temperature,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=342;code=0312-TH50
+3901,1141-1000,DEPTH_GAUGE,,,,no_identity_registry_entry,#page=;code=1141-1000
+3902,1180-6,CHAMFER_GAUGE,DIGITAL CHAMFER GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=279;code=1180-6
+3909,2115-10,DIAL_INDICATOR,WATERPROOF DIGITAL INDICATORS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=294;code=2115-10
+3917,2163-25,THICKNESS_GAUGE,DIGITAL SNAP GAUGE,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=375;code=2163-25
+3922,2365-10,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=361;code=2365-10
+3927,2875-30,THICKNESS_GAUGE,THICKNESS GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=363;code=2875-30
+3931,3101-25,OUTSIDE_MICROMETER,,,,no_identity_registry_entry,#page=;code=3101-25
+3933,3260-25SA,OUTSIDE_MICROMETER,DIGITAL SPHERICAL ANVIL TUBE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=192;code=3260-25SA
+3935,3287-25B,INSIDE_MICROMETER,GROOVE MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=171;code=3287-25B
+3936,3332-25,OUTSIDE_MICROMETER,INDICATING MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=168;code=3332-25
+3937,3358-25,OUTSIDE_MICROMETER,DIGITAL MICROMETERS/SNAP GAUGES (BASIC TYPE),,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=145;code=3358-25
+3938,3540-50,DEPTH_GAUGE,DIGITAL DEPTH MICROMETERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=106;code=3540-50
+3944,3127-5,INSIDE_MICROMETER,DIGITAL TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=230;code=3127-5
+3946,3127-6,INSIDE_MICROMETER,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=231;code=3127-6
+3947,3203-10A,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=157;code=3203-10A
+3949,3203-7A,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=157;code=3203-7A
+3950,3203-8A,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=157;code=3203-8A
+3952,3203-9A,OUTSIDE_MICROMETER,OUTSIDE MICROMETERS,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=157;code=3203-9A
+3954,3227-6,INSIDE_MICROMETER,TWO POINTS/THREE POINTS INTERNAL MICROMETERS,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=229;code=3227-6
+4026,4621-35,FEELER_GAUGE,FEELER GAUGE ROLLS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=509;code=4621-35
+4028,4790-050,ENGINEERS_SQUARE,,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-050
+4030,4790-075,ENGINEERS_SQUARE,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=476;code=4790-075
+4031,4796-50,ENGINEERS_SQUARE,MACHINIST SQUARES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=478;code=4796-50
+4032,4796-75,ENGINEERS_SQUARE,MACHINIST SQUARES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=478;code=4796-75
+4044,4836-2,FILLET_WELD_GAUGE,FILLET WELDING GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=522;code=4836-2
+4048,4845-2,WET_FILM_THICKNESS_GAUGE,WET FILM GAUGES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=293;code=4845-2
+4081,7110-1200,STEEL_RULE,STEEL RULERS,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=537;code=7110-1200
+4101,8003-10,DIGITAL_SCALE,WEIGHING SCALES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=404;code=8003-10
+4102,8003-6,DIGITAL_SCALE,WEIGHING SCALES (ECONOMIC TYPE),,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=404;code=8003-6
+4104,8101-30,DIGITAL_SCALE,COUNTING SCALES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=400;code=8101-30
+4106,8203-CW03T,DIGITAL_SCALE,ELECTRONIC CRANE SCALES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=415;code=8203-CW03T
+4107,8203-CW05T,DIGITAL_SCALE,ELECTRONIC CRANE SCALES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=415;code=8203-CW05T
+4108,8203-CW1T,DIGITAL_SCALE,ELECTRONIC CRANE SCALES,,,accessory_only_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=415;code=8203-CW1T
+4110,8301-1200,DIGITAL_SCALE,,,,no_primary_product_occurrence,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=390;code=8301-1200
+4113,9241-ML200,DIGITAL_MULTIMETER,PEN-TYPE DIGITAL MULTIMETER,,,oem_heading_not_in_canonical_identity_policy,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108B.pdf#page=497;code=9241-ML200
+4125,1156-1000,HEIGHT_GAUGE,DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,,,ambiguous_headings:DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL;SCRIBERS FOR HEIGHT GAUGES,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/کاتالوگ اینسایز/108A.pdf#page=115;code=1156-1000
