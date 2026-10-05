@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from app.domain.product_naming_phase2d import (
     PHASE2C_FROZEN_ROWS,
     PHASE2D_COHORT_BRAND_IDS,
@@ -10,6 +12,8 @@ from app.domain.product_naming_phase2d import (
     apply_collision_holds,
     brand_display_governed_phase2d,
     build_facts_from_kb_rows,
+    canonical_candidate_rows,
+    canonical_candidate_sha256,
     classify_product_phase2d,
     detect_collisions,
     identity_drift,
@@ -17,6 +21,7 @@ from app.domain.product_naming_phase2d import (
     reconcile_classifications,
     reject_forbidden_cli_args,
     resolve_naming_profile_phase2d,
+    write_canonical_candidate_csv,
 )
 
 
@@ -72,10 +77,12 @@ def test_cohort_brand_display_governed():
 
 
 def test_resolve_live_product_type_code():
-    code, resolution, profile = resolve_naming_profile_phase2d("GEN_CALIPER")
+    code, resolution, profile, pol = resolve_naming_profile_phase2d("GEN_CALIPER")
     assert code == "metrology.caliper.v1"
     assert resolution == "PROFILE_GOVERNED"
     assert profile.variant_required is True
+    assert pol is not None
+    assert pol.title_label_status == "HOLD"
 
 
 def test_generic_product_type_label_blocked():
@@ -127,7 +134,7 @@ def test_published_facts_only_in_builder_input():
         ]
     )
     assert "measurement_range" not in facts
-    assert "accuracy" in facts
+    assert "accuracy" not in facts
 
 
 def test_collision_holds_downgrade_ready():
@@ -143,7 +150,12 @@ def test_collision_holds_downgrade_ready():
         product_type_id=1,
         product_type_code="OUTSIDE_MICROMETER",
         product_type_name_fa="میکرومتر خارج‌سنج",
+        canonical_title_fa="میکرومتر خارج‌سنج",
+        canonical_title_status="APPROVED",
         product_type_governed=True,
+        variant_policy="VARIANT_REQUIRED",
+        variant_policy_basis="",
+        policy_review_status="",
         variant_policy_status="",
         variant_property_code="",
         variant_raw_value="",
@@ -190,7 +202,12 @@ def test_terminal_taxonomy_exhaustive_count():
                 product_type_id=1,
                 product_type_code="X",
                 product_type_name_fa="t",
+                canonical_title_fa="",
+                canonical_title_status="",
                 product_type_governed=False,
+                variant_policy="",
+                variant_policy_basis="",
+                policy_review_status="",
                 variant_policy_status="",
                 variant_property_code="",
                 variant_raw_value="",
@@ -238,3 +255,108 @@ def test_manufacturer_code_not_from_sku_in_classify():
 
 def test_phase2d_cohort_brand_ids():
     assert PHASE2D_COHORT_BRAND_IDS == frozenset({3, 4, 5})
+
+
+def test_canonical_candidate_replay_hash_matches_file(tmp_path: Path):
+    from app.domain.product_naming_phase2d import Phase2DAuditRow
+
+    row = Phase2DAuditRow(
+        product_id=2,
+        sku="s",
+        brand_id=3,
+        brand_name="INSIZE",
+        brand_display="اینسایز",
+        manufacturer_code="M1",
+        product_type_id=1,
+        product_type_code="OUTSIDE_MICROMETER",
+        product_type_name_fa="میکرومتر خارج‌سنج",
+        canonical_title_fa="میکرومتر خارج‌سنج",
+        canonical_title_status="APPROVED",
+        product_type_governed=True,
+        variant_policy="VARIANT_REQUIRED",
+        variant_policy_basis="x",
+        policy_review_status="PASS",
+        variant_policy_status="SUFFIX_GOVERNED",
+        variant_property_code="measurement_range",
+        variant_raw_value="",
+        variant_formatted_value="0-150mm",
+        variant_fact_id="1",
+        variant_fact_published="yes",
+        current_name="old",
+        proposed_name="میکرومتر خارج‌سنج اینسایز 0-150mm کد M1",
+        comparison_normalized_current="old",
+        comparison_normalized_proposed="prop",
+        terminal_classification="READY_RENAME",
+        classification_reason="",
+        name_quality_flags="",
+        proposed_collision="no",
+        collision_product_ids="",
+        meta_title_present="no",
+        seo_title_impact="YES",
+        is_active="yes",
+        is_available="yes",
+        priced="yes",
+        has_image="yes",
+        storefront_visible="yes",
+        sellable="yes",
+    )
+    rows = canonical_candidate_rows([row])
+    digest = canonical_candidate_sha256(rows)
+    path = tmp_path / "candidates.csv"
+    write_canonical_candidate_csv(path, rows)
+    file_digest = __import__("hashlib").sha256(path.read_bytes()).hexdigest()
+    assert digest == file_digest
+    broken = __import__("hashlib").sha256(
+        "\n".join(f"{r.product_id}|{r.proposed_name}" for r in [row]).encode()
+    ).hexdigest()
+    assert digest != broken
+
+
+def test_gap_blocked_products_counts_all_holds():
+    from app.domain.product_naming_phase2d import Phase2DAuditRow
+
+    rows = [
+        Phase2DAuditRow(
+            product_id=i,
+            sku="s",
+            brand_id=3,
+            brand_name="INSIZE",
+            brand_display="اینسایز",
+            manufacturer_code="c",
+            product_type_id=1,
+            product_type_code="GEN_CALIPER",
+            product_type_name_fa="کولیس عمومی",
+            canonical_title_fa="",
+            canonical_title_status="HOLD",
+            product_type_governed=False,
+            variant_policy="VARIANT_REQUIRED",
+            variant_policy_basis="",
+            policy_review_status="",
+            variant_policy_status="",
+            variant_property_code="",
+            variant_raw_value="",
+            variant_formatted_value="",
+            variant_fact_id="",
+            variant_fact_published="no",
+            current_name="a",
+            proposed_name="",
+            comparison_normalized_current="a",
+            comparison_normalized_proposed="",
+            terminal_classification="HOLD_PRODUCT_TYPE_NAMING_POLICY",
+            classification_reason="generic",
+            name_quality_flags="",
+            proposed_collision="no",
+            collision_product_ids="",
+            meta_title_present="no",
+            seo_title_impact="YES",
+            is_active="yes",
+            is_available="yes",
+            priced="yes",
+            has_image="yes",
+            storefront_visible="yes",
+            sellable="yes",
+        )
+        for i in range(3)
+    ]
+    blocked = sum(1 for r in rows if r.terminal_classification.startswith("HOLD_"))
+    assert blocked == 3

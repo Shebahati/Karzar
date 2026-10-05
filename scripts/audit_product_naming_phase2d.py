@@ -11,6 +11,7 @@ import csv
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -24,20 +25,29 @@ if str(ROOT) not in sys.path:
 
 from app.domain.product_naming_phase2d import (  # noqa: E402
     AUDIT_CSV_FIELDS,
+    CANONICAL_POLICY,
     PHASE2C_FROZEN_ROWS,
     PHASE2C_FROZEN_SHA256,
+    TERMINAL_CLASSIFICATIONS,  # noqa: E402
     Phase2DAuditRow,
     Phase2DProductInput,
     apply_collision_holds,
+    apply_policy_review_holds,
     audit_logic_fingerprint,
+    authoritative_policy_path,
+    build_policy_review_sample,
+    canonical_candidate_rows,
+    canonical_candidate_sha256,
     classify_product_phase2d,
+    compute_freeze_status,
     detect_collisions,
     deterministic_human_review_sample,
+    evaluate_policy_review_status,
     reconcile_classifications,
     reject_forbidden_cli_args,
     sha256_file,
+    write_canonical_candidate_csv,
 )
-from app.domain.product_naming_phase2d import TERMINAL_CLASSIFICATIONS  # noqa: E402
 
 AUDIT_DIR = ROOT / "audit" / "product-naming-phase2d"
 FROZEN_CSV = ROOT / "audit" / "product-naming-phase2c-discovery" / "BACKFILL_EXACT_FROZEN.csv"
@@ -322,7 +332,7 @@ def run_classification(
     inputs: list[Phase2DProductInput],
     brand_registry: dict[str, dict[str, str]],
     catalog_names: dict[int, str],
-) -> list[Phase2DAuditRow]:
+) -> tuple[list[Phase2DAuditRow], dict[str, Any]]:
     audits: list[Phase2DAuditRow] = []
     for inp in inputs:
         reg = brand_registry.get(str(inp.brand_id)) if inp.brand_id is not None else None
@@ -330,7 +340,8 @@ def run_classification(
         audits.append(audit)
     collision_report = detect_collisions(audits, catalog_names)
     apply_collision_holds(audits, collision_report)
-    return audits
+    policy_review = apply_policy_review_holds(audits)
+    return audits, policy_review
 
 
 def audit_row_to_dict(a: Phase2DAuditRow) -> dict[str, str]:
@@ -356,7 +367,7 @@ def build_snapshot_rows(inputs: list[Phase2DProductInput], brand_registry: dict[
     rows: list[dict[str, str]] = []
     for inp in inputs:
         reg = brand_registry.get(str(inp.brand_id)) if inp.brand_id is not None else None
-        profile_code, _, _ = resolve_naming_profile_phase2d(inp.product_type_code)
+        profile_code, _, _, _ = resolve_naming_profile_phase2d(inp.product_type_code)
         rows.append(
             {
                 "product_id": str(inp.product_id),
@@ -391,34 +402,52 @@ def write_evidence_sha256sums(out_dir: Path) -> None:
     (out_dir / "EVIDENCE_SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _md_cell(value: str, max_len: int = 48) -> str:
+    text = (value or "").replace("|", "/").replace("\n", " ").strip()
+    if len(text) > max_len:
+        return text[: max_len - 1] + "…"
+    return text
+
+
 def human_review_markdown(sample: list[Phase2DAuditRow]) -> str:
     lines = [
-        "# Phase 2D human review sample",
+        "# Phase 2D human review sample (historical row sample)",
         "",
-        "Deterministic stratified sample. Manual PASS/FAIL/REVIEW recorded below.",
+        "Deterministic stratified sample preserved for Phase 2D evidence history.",
         "",
-        "| product_id | brand | classification | current | proposed | manual |",
-        "|---:|---|---|---|---|---|",
+        "| product_id | brand | terminal_classification | product_type_code | canonical_title_fa | "
+        "current_name | proposed_name | variant_policy | manual_status | review_note |",
+        "|---:|---|---|---|---|---|---|---|---|---|",
     ]
     for a in sample:
         verdict = "PASS"
+        note = ""
         if a.terminal_classification.startswith("HOLD_"):
             verdict = "REVIEW"
-        if a.terminal_classification == "READY_RENAME":
-            flags = set((a.name_quality_flags or "").split("|"))
-            if flags & {"brand_duplicated", "marketing_or_status_text"}:
-                verdict = "FAIL"
-            elif a.proposed_name and a.manufacturer_code and a.manufacturer_code not in a.proposed_name:
-                verdict = "FAIL"
-            elif a.proposed_name and a.proposed_name.count("کد") != 1:
-                verdict = "FAIL"
+            note = "hold_row"
+        elif a.terminal_classification == "READY_RENAME":
+            verdict, note = evaluate_policy_review_status(a)
         lines.append(
-            f"| {a.product_id} | {a.brand_name} | {a.terminal_classification} | "
-            f"{a.current_name[:40]}… | {a.proposed_name[:40]}… | {verdict} |"
+            "| "
+            + " | ".join(
+                [
+                    str(a.product_id),
+                    _md_cell(a.brand_name, 20),
+                    a.terminal_classification,
+                    a.product_type_code or "",
+                    _md_cell(a.canonical_title_fa),
+                    _md_cell(a.current_name),
+                    _md_cell(a.proposed_name),
+                    a.variant_policy or "",
+                    verdict,
+                    _md_cell(note, 32),
+                ]
+            )
+            + " |"
         )
-    pass_n = sum(1 for l in lines if l.endswith("| PASS |"))
-    fail_n = sum(1 for l in lines if l.endswith("| FAIL |"))
-    review_n = sum(1 for l in lines if l.endswith("| REVIEW |"))
+    pass_n = sum(1 for line in lines if "| PASS |" in line)
+    fail_n = sum(1 for line in lines if "| FAIL |" in line)
+    review_n = sum(1 for line in lines if "| REVIEW |" in line)
     lines.extend(
         [
             "",
@@ -426,16 +455,81 @@ def human_review_markdown(sample: list[Phase2DAuditRow]) -> str:
             f"**FAIL:** {fail_n}",
             f"**REVIEW:** {review_n}",
             "",
-            "**Policies invalidated by sample:** none (FAIL=0 required for READY_FOR_OWNER_RENAME_REVIEW).",
+            "Policy-level review supersedes this row sample for owner-freeze eligibility.",
         ]
     )
     return "\n".join(lines) + "\n"
 
 
-def run_audit(out_dir: Path, ssh_host: str, git_sha: str) -> dict[str, Any]:
+def policy_review_markdown(sample: list[Phase2DAuditRow]) -> str:
+    lines = [
+        "# Phase 2D policy-level human review",
+        "",
+        "One or more representative READY rows per Product Type plus governance edge cases.",
+        "",
+        "| product_id | brand | terminal_classification | product_type_code | canonical_title_fa | "
+        "current_name | proposed_name | variant_policy | manual_status | review_note |",
+        "|---:|---|---|---|---|---|---|---|---|---|",
+    ]
+    pass_n = fail_n = review_n = 0
+    for a in sample:
+        status, note = evaluate_policy_review_status(a)
+        if status == "PASS":
+            pass_n += 1
+        elif status == "FAIL":
+            fail_n += 1
+        else:
+            review_n += 1
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(a.product_id),
+                    _md_cell(a.brand_name, 20),
+                    a.terminal_classification,
+                    a.product_type_code or "",
+                    _md_cell(a.canonical_title_fa),
+                    _md_cell(a.current_name),
+                    _md_cell(a.proposed_name),
+                    a.variant_policy or "",
+                    status,
+                    _md_cell(note, 32),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            f"**PASS:** {pass_n}",
+            f"**FAIL:** {fail_n}",
+            f"**REVIEW:** {review_n}",
+            "",
+            "READY Product Types require PASS on all sampled representatives for that policy.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def run_audit(
+    out_dir: Path,
+    ssh_host: str,
+    git_sha: str,
+    *,
+    logic_git_sha: str | None = None,
+) -> dict[str, Any]:
     proof = read_only_session_proof(ssh_host)
     if proof.get("transaction_read_only") != "on":
         raise RuntimeError(f"read_only_not_proven: {proof}")
+
+    auth_policy = authoritative_policy_path()
+    authoritative_policy_sha256 = sha256_file(auth_policy)
+    policy_snapshot_path = out_dir / "PHASE2D_PRODUCT_TYPE_NAMING_POLICY.csv"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(auth_policy, policy_snapshot_path)
+    audit_snapshot_policy_sha256 = sha256_file(policy_snapshot_path)
+    if authoritative_policy_sha256 != audit_snapshot_policy_sha256:
+        raise RuntimeError("policy_snapshot_sha_mismatch")
 
     frozen = load_frozen_cohort()
     pids = sorted(frozen.keys())
@@ -475,7 +569,7 @@ def run_audit(out_dir: Path, ssh_host: str, git_sha: str) -> dict[str, Any]:
         encoding="utf-8",
     )
 
-    audits = run_classification(inputs, brand_registry, catalog_names)
+    audits, policy_review_meta = run_classification(inputs, brand_registry, catalog_names)
     recon = reconcile_classifications(audits)
     if not recon["reconciles"]:
         raise RuntimeError(f"classification_reconciliation_failed: {recon}")
@@ -557,28 +651,17 @@ def run_audit(out_dir: Path, ssh_host: str, git_sha: str) -> dict[str, Any]:
     )
 
     proposed_path = out_dir / "PHASE2D_RENAME_CANDIDATES_PROPOSED.csv"
-    write_csv(
-        proposed_path,
-        ["product_id", "sku", "proposed_name", "manufacturer_code", "product_type_name_fa"],
-        [
-            {
-                "product_id": r["product_id"],
-                "sku": r["sku"],
-                "proposed_name": r["proposed_name"],
-                "manufacturer_code": r["manufacturer_code"],
-                "product_type_name_fa": r["product_type_name_fa"],
-            }
-            for r in ready_rename
-        ],
-    )
-    proposed_sha = sha256_file(proposed_path)
+    candidate_rows = canonical_candidate_rows(audits)
+    first_run_candidate_sha256 = canonical_candidate_sha256(candidate_rows)
+    write_canonical_candidate_csv(proposed_path, candidate_rows)
+    written_candidate_file_sha256 = sha256_file(proposed_path)
 
-    # Replay determinism
-    audits2 = run_classification(inputs, brand_registry, catalog_names)
-    proposed_sha2 = hashlib.sha256(
-        "\n".join(f"{a.product_id}|{a.proposed_name}" for a in audits2).encode()
-    ).hexdigest()
-    replay_identical = proposed_sha == sha256_file(proposed_path) and len(audits2) == len(audits)
+    audits2, _ = run_classification(inputs, brand_registry, catalog_names)
+    replay_rows = canonical_candidate_rows(audits2)
+    replay_candidate_sha256 = canonical_candidate_sha256(replay_rows)
+    replay_identical = (
+        first_run_candidate_sha256 == replay_candidate_sha256 == written_candidate_file_sha256
+    )
 
     seo_rows = [
         {
@@ -610,6 +693,17 @@ def run_audit(out_dir: Path, ssh_host: str, git_sha: str) -> dict[str, Any]:
     review_md = human_review_markdown(sample_objs)
     (out_dir / "PHASE2D_HUMAN_REVIEW_RESULT.md").write_text(review_md, encoding="utf-8")
 
+    policy_sample = build_policy_review_sample(audits)
+    write_csv(
+        out_dir / "PHASE2D_POLICY_REVIEW_SAMPLE.csv",
+        list(AUDIT_CSV_FIELDS),
+        [audit_row_to_dict(a) for a in policy_sample],
+    )
+    (out_dir / "PHASE2D_POLICY_REVIEW_RESULT.md").write_text(
+        policy_review_markdown(policy_sample),
+        encoding="utf-8",
+    )
+
     _write_gap_and_summaries(out_dir, audits, inputs)
     (out_dir / "PHASE2D_COLLISION_AUDIT.json").write_text(
         json.dumps(collision_report, ensure_ascii=False, indent=2) + "\n",
@@ -618,41 +712,74 @@ def run_audit(out_dir: Path, ssh_host: str, git_sha: str) -> dict[str, Any]:
 
     counts = recon["counts"]
     hold_total = sum(v for k, v in counts.items() if k.startswith("HOLD_"))
-    ready_collision_free = not collision_report.get("ready_rename_affected")
-    human_fail = review_md.count("| FAIL |")
-    status = "READY_FOR_OWNER_RENAME_REVIEW"
-    if drift or not recon["reconciles"] or not replay_identical or human_fail:
-        status = "BLOCKED"
-    elif counts.get("READY_RENAME", 0) == 0:
+    ready_collision_count = len(collision_report.get("ready_rename_affected") or [])
+    logic_sha256 = audit_logic_fingerprint(DOMAIN_PATH, SCRIPT_PATH)
+    phase2d_logic_git_sha = logic_git_sha or git_sha
+    latest_main_sha = subprocess.run(
+        ["git", "-C", str(ROOT), "rev-parse", "origin/main"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    approved_title = sum(1 for p in CANONICAL_POLICY.values() if p.title_label_status == "APPROVED")
+    approved_variant = sum(
+        1
+        for p in CANONICAL_POLICY.values()
+        if p.variant_policy in ("VARIANT_REQUIRED", "VARIANT_NOT_REQUIRED_APPROVED")
+    )
+    status = compute_freeze_status(
+        reconciles=recon["reconciles"],
+        identity_drift=drift,
+        replay_identical=replay_identical,
+        ready_collision_count=ready_collision_count,
+        policy_review=policy_review_meta,
+        read_only_ok=proof.get("transaction_read_only") == "on",
+    )
+    if status == "READY_FOR_OWNER_RENAME_REVIEW" and counts.get("READY_RENAME", 0) == 0:
         status = "PARTIAL"
-    elif hold_total > 0:
-        status = "PARTIAL" if counts.get("READY_RENAME", 0) < PHASE2C_FROZEN_ROWS else status
 
     manifest = {
+        "status": status,
         "generated_at": datetime.now(UTC).isoformat(),
-        "latest_main_sha": git_sha,
-        "audit_logic_sha": audit_logic_fingerprint(DOMAIN_PATH, SCRIPT_PATH),
+        "latest_main_sha": latest_main_sha,
+        "phase2d_logic_git_sha": phase2d_logic_git_sha,
+        "phase2d_logic_sha256": logic_sha256,
+        "audit_logic_sha256": logic_sha256,
+        "audit_logic_git_sha": phase2d_logic_git_sha,
+        "artifact_commit_sha": git_sha,
+        "authoritative_policy_path": str(auth_policy.relative_to(ROOT)),
+        "authoritative_policy_sha256": authoritative_policy_sha256,
+        "policy_snapshot_sha256": audit_snapshot_policy_sha256,
         "phase2c_cohort_sha256": PHASE2C_FROZEN_SHA256,
         "phase2d_input_snapshot_sha256": snap_sha,
+        "total_rows": PHASE2C_FROZEN_ROWS,
         "total_phase2c_rows": PHASE2C_FROZEN_ROWS,
+        "READY_RENAME": counts.get("READY_RENAME", 0),
+        "READY_NO_CHANGE": counts.get("READY_NO_CHANGE", 0),
+        "HOLD": hold_total,
         "READY_RENAME_rows": counts.get("READY_RENAME", 0),
         "READY_NO_CHANGE_rows": counts.get("READY_NO_CHANGE", 0),
         "HOLD_rows": hold_total,
-        "READY_RENAME_csv_sha256": proposed_sha,
+        "classification_reconciles": recon["reconciles"],
+        "first_run_candidate_sha256": first_run_candidate_sha256,
+        "replay_candidate_sha256": replay_candidate_sha256,
+        "written_candidate_file_sha256": written_candidate_file_sha256,
+        "replay_identical": replay_identical,
+        "approved_title_policy_count": approved_title,
+        "approved_variant_policy_count": approved_variant,
+        "policy_review_PASS_count": policy_review_meta.get("PASS", 0),
+        "policy_review_FAIL_count": policy_review_meta.get("FAIL", 0),
+        "policy_review_REVIEW_count": policy_review_meta.get("REVIEW", 0),
         "collision_groups": {
             "exact_in_cohort": len(collision_report.get("exact_proposed_within_cohort") or {}),
             "normalized_in_cohort": len(collision_report.get("normalized_proposed_within_cohort") or {}),
             "versus_catalog": len(collision_report.get("versus_existing_catalog") or {}),
+            "ready_rename_affected": ready_collision_count,
         },
         "SEO_impact_rows": sum(1 for r in seo_rows if r["SEO_TITLE_IMPACT"] == "YES"),
         "brand_counts": _brand_counts(audits),
         "product_type_counts": _pt_counts(audits),
-        "human_review_result": {"FAIL": human_fail, "replay_identical": replay_identical},
         "read_only_proof": proof,
-        "status": status,
-        "replay_identical": replay_identical,
-        "proposed_rename_sha256": proposed_sha,
-        "replay_hash_check": proposed_sha2,
     }
     (out_dir / "PHASE2D_CANDIDATE_FREEZE_MANIFEST.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
@@ -678,6 +805,8 @@ def _remediation(terminal: str) -> str:
         "HOLD_IDENTITY_DRIFT": "Reconcile live identity with Phase 2C freeze",
         "HOLD_NAME_COLLISION": "Resolve duplicate proposed identity",
         "HOLD_STRUCTURAL_CONFLICT": "Fix governance gaps blocking HIGH confidence name",
+        "HOLD_PRODUCT_TYPE_TITLE_LABEL_UNAPPROVED": "Approve canonical_title_fa in naming policy registry",
+        "HOLD_POLICY_REVIEW_BLOCKED": "Resolve policy-level review FAIL/REVIEW for Product Type",
     }.get(terminal, "Manual governance review")
 
 
@@ -708,6 +837,7 @@ def _write_gap_and_summaries(
             "undefined_suffix": 0,
             "missing_fact": 0,
             "ambiguous_fact": 0,
+            "blocked_products": 0,
             "READY": 0,
             "product_type_code": "",
             "sample_current": "",
@@ -730,6 +860,8 @@ def _write_gap_and_summaries(
             bucket["missing_fact"] += 1
         if a.terminal_classification == "HOLD_AMBIGUOUS_VARIANT_FACT":
             bucket["ambiguous_fact"] += 1
+        if a.terminal_classification.startswith("HOLD_"):
+            bucket["blocked_products"] += 1
         if a.terminal_classification in ("READY_RENAME", "READY_NO_CHANGE"):
             bucket["READY"] += 1
         if not bucket["sample_current"]:
@@ -740,15 +872,8 @@ def _write_gap_and_summaries(
         [
             {
                 "product_type_code": k,
-                "blocked_products": (
-                    v["missing_pt"]
-                    + v["ungoverned_pt"]
-                    + v["missing_display"]
-                    + v["undefined_suffix"]
-                    + v["missing_fact"]
-                    + v["ambiguous_fact"]
-                ),
-                **{kk: str(vv) for kk, vv in v.items()},
+                "blocked_products": str(v["blocked_products"]),
+                **{kk: str(vv) for kk, vv in v.items() if kk != "blocked_products"},
             }
             for k, v in by_pt.items()
         ],
@@ -761,8 +886,6 @@ def _write_gap_and_summaries(
     )
 
     pt_summary = []
-    for a in audits:
-        pass
     pt_groups: dict[str, list[Phase2DAuditRow]] = defaultdict(list)
     for a in audits:
         pt_groups[a.product_type_code or "NO_PT"].append(a)

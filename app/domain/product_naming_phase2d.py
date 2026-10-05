@@ -49,6 +49,7 @@ TERMINAL_CLASSIFICATIONS: tuple[str, ...] = (
     "HOLD_UNGOVERNED_PRODUCT_TYPE",
     "HOLD_PRODUCT_TYPE_DISPLAY",
     "HOLD_PRODUCT_TYPE_NAMING_POLICY",
+    "HOLD_PRODUCT_TYPE_TITLE_LABEL_UNAPPROVED",
     "HOLD_BRAND_DISPLAY_UNGOVERNED",
     "HOLD_VARIANT_POLICY_UNDEFINED",
     "HOLD_MISSING_VARIANT_FACT",
@@ -56,6 +57,7 @@ TERMINAL_CLASSIFICATIONS: tuple[str, ...] = (
     "HOLD_IDENTITY_DRIFT",
     "HOLD_NAME_COLLISION",
     "HOLD_STRUCTURAL_CONFLICT",
+    "HOLD_POLICY_REVIEW_BLOCKED",
     "HOLD_OTHER",
 )
 
@@ -71,56 +73,115 @@ _BROAD_PT_LABELS = frozenset(
 )
 _LEGACY_ACCURACY_KEYS = frozenset({"accuracy", "دقت"})
 
-_PHASE2D_POLICY_CSV = (
+AUTHORITATIVE_CANONICAL_POLICY_PATH = (
     Path(__file__).resolve().parents[2]
-    / "audit"
-    / "product-naming-phase2d"
-    / "PHASE2D_PRODUCT_TYPE_NAMING_POLICY.csv"
+    / "docs"
+    / "architecture"
+    / "specs"
+    / "product-naming-v1"
+    / "PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv"
+)
+
+CANONICAL_CANDIDATE_FIELDNAMES: tuple[str, ...] = (
+    "product_id",
+    "sku",
+    "proposed_name",
+    "manufacturer_code",
+    "product_type_code",
+    "canonical_title_fa",
+    "variant_policy_status",
+    "variant_property_code",
+    "variant_formatted_value",
 )
 
 
-def _load_phase2d_pt_policy() -> dict[str, dict[str, str]]:
-    out: dict[str, dict[str, str]] = {}
-    if not _PHASE2D_POLICY_CSV.is_file():
+@dataclass(frozen=True)
+class CanonicalProductTypePolicy:
+    product_type_code: str
+    canonical_title_fa: str
+    title_label_status: str
+    title_hold_reason: str
+    naming_profile_code: str
+    variant_policy: str
+    primary_variant_property: str
+    formatter: str
+    policy_basis: str
+
+
+def authoritative_policy_path() -> Path:
+    return AUTHORITATIVE_CANONICAL_POLICY_PATH
+
+
+def load_authoritative_canonical_policy(
+    path: Path | None = None,
+) -> dict[str, CanonicalProductTypePolicy]:
+    src = path or AUTHORITATIVE_CANONICAL_POLICY_PATH
+    out: dict[str, CanonicalProductTypePolicy] = {}
+    if not src.is_file():
         return out
-    with _PHASE2D_POLICY_CSV.open(encoding="utf-8") as fh:
+    with src.open(encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
             code = (row.get("product_type_code") or "").strip()
-            if code:
-                out[code] = row
+            if not code:
+                continue
+            out[code] = CanonicalProductTypePolicy(
+                product_type_code=code,
+                canonical_title_fa=(row.get("canonical_title_fa") or "").strip(),
+                title_label_status=(row.get("title_label_status") or "HOLD").strip().upper(),
+                title_hold_reason=(row.get("title_hold_reason") or "").strip(),
+                naming_profile_code=(row.get("naming_profile_code") or "generic.v1").strip(),
+                variant_policy=(row.get("variant_policy") or "HOLD_VARIANT_POLICY_UNDEFINED").strip(),
+                primary_variant_property=(row.get("primary_variant_property") or "").strip(),
+                formatter=(row.get("formatter") or "").strip(),
+                policy_basis=(row.get("policy_basis") or "").strip(),
+            )
     return out
 
 
-PHASE2D_PT_POLICY = _load_phase2d_pt_policy()
+CANONICAL_POLICY: dict[str, CanonicalProductTypePolicy] = load_authoritative_canonical_policy()
+
+
+def _property_key_group(property_code: str) -> tuple[str, ...]:
+    if property_code == "measurement_range":
+        return ("measurement_range", "range", "range_min_mm")
+    if property_code == "nominal_size":
+        return ("nominal_size",)
+    if property_code:
+        return (property_code,)
+    return ()
+
+
+def _profile_for_canonical_policy(pol: CanonicalProductTypePolicy) -> NamingProfile:
+    base = NAMING_PROFILES.get(pol.naming_profile_code, NAMING_PROFILES["generic.v1"])
+    keys = _property_key_group(pol.primary_variant_property)
+    variant_required = pol.variant_policy == "VARIANT_REQUIRED"
+    max_attrs = 1 if keys and pol.variant_policy == "VARIANT_REQUIRED" else 0
+    return NamingProfile(
+        code=base.code,
+        manufacturer_code_required=base.manufacturer_code_required,
+        brand_required=base.brand_required,
+        product_type_required=base.product_type_required,
+        primary_variant_fact_keys=keys if keys else base.primary_variant_fact_keys,
+        max_variant_attributes=max_attrs if keys else 0,
+        brand_policy=base.brand_policy,
+        allow_identity_qualifiers=base.allow_identity_qualifiers,
+        variant_required=variant_required,
+    )
 
 
 def resolve_naming_profile_phase2d(
     product_type_code: str | None,
-) -> tuple[str, str, NamingProfile]:
-    """Phase 2D registry extends v1 PROVISIONAL map with live ProductType.code rows."""
+) -> tuple[str, str, NamingProfile, CanonicalProductTypePolicy | None]:
+    """Resolve naming profile from authoritative canonical policy registry only."""
     code = (product_type_code or "").strip()
-    row = PHASE2D_PT_POLICY.get(code)
-    if row:
-        profile_code = (row.get("naming_profile_code") or "generic.v1").strip()
-        profile = NAMING_PROFILES.get(profile_code, NAMING_PROFILES["generic.v1"])
-        override = (row.get("variant_required_override") or "").strip().lower()
-        if override in {"true", "false"}:
-            req = override == "true"
-            profile = NamingProfile(
-                code=profile.code,
-                manufacturer_code_required=profile.manufacturer_code_required,
-                brand_required=profile.brand_required,
-                product_type_required=profile.product_type_required,
-                primary_variant_fact_keys=profile.primary_variant_fact_keys,
-                max_variant_attributes=profile.max_variant_attributes,
-                brand_policy=profile.brand_policy,
-                allow_identity_qualifiers=profile.allow_identity_qualifiers,
-                variant_required=req,
-            )
-        if profile_code != "generic.v1" and profile_code in NAMING_PROFILES:
-            return profile_code, PROFILE_GOVERNED, profile
-    base_code, resolution = resolve_naming_profile_v1(product_type_code)
-    return base_code, resolution, NAMING_PROFILES.get(base_code, NAMING_PROFILES["generic.v1"])
+    pol = CANONICAL_POLICY.get(code)
+    if pol is None:
+        base_code, resolution = resolve_naming_profile_v1(product_type_code)
+        return base_code, resolution, NAMING_PROFILES.get(base_code, NAMING_PROFILES["generic.v1"]), None
+    profile = _profile_for_canonical_policy(pol)
+    if pol.naming_profile_code == "generic.v1":
+        return pol.naming_profile_code, PROFILE_MISSING, profile, pol
+    return pol.naming_profile_code, PROFILE_GOVERNED, profile, pol
 
 _FORBIDDEN_WRITE_FLAGS = frozenset(
     {
@@ -180,8 +241,13 @@ class Phase2DAuditRow:
     product_type_id: int | None
     product_type_code: str
     product_type_name_fa: str
+    canonical_title_fa: str
+    canonical_title_status: str
     product_type_governed: bool
+    variant_policy: str
+    variant_policy_basis: str
     variant_policy_status: str
+    policy_review_status: str
     variant_property_code: str
     variant_raw_value: str
     variant_formatted_value: str
@@ -245,6 +311,7 @@ def product_type_is_governed(
     product_type_status: str | None,
     product_type_name_fa: str | None,
     has_active_definition: bool,
+    canonical_policy: CanonicalProductTypePolicy | None = None,
 ) -> bool:
     if product_type_id is None:
         return False
@@ -253,11 +320,16 @@ def product_type_is_governed(
         return False
     if (product_type_status or "").strip().lower() != "active":
         return False
-    if not product_type_display_approved(product_type_name_fa):
-        return False
     if not has_active_definition:
         return False
-    _, resolution, _ = resolve_naming_profile_phase2d(code)
+    pol = canonical_policy or CANONICAL_POLICY.get(code)
+    if pol is None:
+        return False
+    if pol.title_label_status != "APPROVED" or not pol.canonical_title_fa:
+        return False
+    if pol.variant_policy == "HOLD_VARIANT_POLICY_UNDEFINED":
+        return False
+    _, resolution, _, _ = resolve_naming_profile_phase2d(code)
     return resolution == PROFILE_GOVERNED
 
 
@@ -294,6 +366,8 @@ def build_facts_from_kb_rows(
         )
         if status not in PUBLIC_FACT_STATUSES:
             continue
+        if key in _LEGACY_ACCURACY_KEYS:
+            continue
         if isinstance(parsed, dict) and "min" in parsed and "max" in parsed:
             facts["range_min_mm"] = parsed["min"]
             facts["range_max_mm"] = parsed["max"]
@@ -308,24 +382,42 @@ def _profile_variant_keys(profile: NamingProfile) -> tuple[str, ...]:
     return profile.primary_variant_fact_keys
 
 
-def resolve_variant_policy(
+def resolve_variant_from_canonical_policy(
+    pol: CanonicalProductTypePolicy,
     profile: NamingProfile,
-    profile_resolution: str,
     facts: Mapping[str, Any],
     kb_traces: Sequence[Mapping[str, Any]],
 ) -> VariantFactTrace:
-    if profile_resolution == PROFILE_MISSING or profile.code == "generic.v1":
+    if pol.variant_policy == "HOLD_VARIANT_POLICY_UNDEFINED":
         return VariantFactTrace(None, None, None, None, False, "HOLD_VARIANT_POLICY_UNDEFINED")
+    if pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+        return VariantFactTrace(
+            None,
+            None,
+            None,
+            None,
+            False,
+            "VARIANT_NOT_REQUIRED_APPROVED",
+        )
 
-    keys = _profile_variant_keys(profile)
-    if not keys or profile.max_variant_attributes <= 0:
-        return VariantFactTrace(None, None, None, None, False, "SUFFIX_NOT_REQUIRED")
+    keys = _property_key_group(pol.primary_variant_property)
+    if not keys:
+        return VariantFactTrace(None, None, None, None, False, "HOLD_VARIANT_POLICY_UNDEFINED")
+    return _resolve_required_variant_trace(keys, profile, facts, kb_traces)
 
+
+def _resolve_required_variant_trace(
+    keys: tuple[str, ...],
+    profile: NamingProfile,
+    facts: Mapping[str, Any],
+    kb_traces: Sequence[Mapping[str, Any]],
+) -> VariantFactTrace:
     published_traces = [
         t
         for t in kb_traces
         if str(t.get("status") or "").lower() in PUBLIC_FACT_STATUSES
         and (t.get("property_key") or "") in keys
+        and (t.get("property_key") or "") not in _LEGACY_ACCURACY_KEYS
     ]
     if profile.variant_required and not published_traces:
         return VariantFactTrace(
@@ -343,7 +435,7 @@ def resolve_variant_policy(
         if key not in facts:
             continue
         probe_facts = dict(facts)
-        from app.domain.product_naming import _format_variant  # local import: private formatter
+        from app.domain.product_naming import _format_variant  # noqa: PLC0415
 
         fmt = _format_variant(keys, facts.get(key), probe_facts)
         if fmt:
@@ -377,22 +469,39 @@ def resolve_variant_policy(
     if formatted_values:
         raw_repr = None
         fid = None
-        pub = False
-        pcode = keys[0]
         if used_trace:
             raw_repr = json.dumps(used_trace.get("parsed"), ensure_ascii=False)
             fid = used_trace.get("fact_id")
-            pub = True
         return VariantFactTrace(
-            pcode,
+            keys[0],
             raw_repr,
             formatted_values[0],
             int(fid) if fid is not None else None,
-            pub,
+            True,
             "SUFFIX_GOVERNED",
         )
 
-    return VariantFactTrace(None, None, None, None, False, "SUFFIX_NOT_REQUIRED")
+    return VariantFactTrace(None, None, None, None, False, "HOLD_MISSING_VARIANT_FACT")
+
+
+def resolve_variant_policy(
+    profile: NamingProfile,
+    profile_resolution: str,
+    facts: Mapping[str, Any],
+    kb_traces: Sequence[Mapping[str, Any]],
+    *,
+    pol: CanonicalProductTypePolicy | None = None,
+) -> VariantFactTrace:
+    if pol is not None:
+        return resolve_variant_from_canonical_policy(pol, profile, facts, kb_traces)
+    if profile_resolution == PROFILE_MISSING or profile.code == "generic.v1":
+        return VariantFactTrace(None, None, None, None, False, "HOLD_VARIANT_POLICY_UNDEFINED")
+
+    keys = _profile_variant_keys(profile)
+    if not keys or profile.max_variant_attributes <= 0:
+        return VariantFactTrace(None, None, None, None, False, "VARIANT_NOT_REQUIRED_APPROVED")
+
+    return _resolve_required_variant_trace(keys, profile, facts, kb_traces)
 
 
 def identity_drift(input_row: Phase2DProductInput) -> bool:
@@ -502,7 +611,12 @@ def classify_product_phase2d(
         "product_type_id": row.product_type_id,
         "product_type_code": row.product_type_code or "",
         "product_type_name_fa": row.product_type_name_fa or "",
+        "canonical_title_fa": "",
+        "canonical_title_status": "",
         "product_type_governed": False,
+        "variant_policy": "",
+        "variant_policy_basis": "",
+        "policy_review_status": "",
         "current_name": row.current_name,
         "proposed_name": "",
         "comparison_normalized_current": comp_cur,
@@ -534,6 +648,7 @@ def classify_product_phase2d(
         proposed: str | None = None,
         naming: NamingResult | None = None,
         variant: VariantFactTrace | None = None,
+        pol: CanonicalProductTypePolicy | None = None,
     ) -> tuple[Phase2DAuditRow, NamingResult | None]:
         prop_n = proposed or ""
         flags = audit_name_quality_flags(
@@ -546,12 +661,17 @@ def classify_product_phase2d(
         audit = Phase2DAuditRow(
             **{
                 **base_kwargs,
+                "canonical_title_fa": pol.canonical_title_fa if pol else "",
+                "canonical_title_status": pol.title_label_status if pol else "",
+                "variant_policy": pol.variant_policy if pol else "",
+                "variant_policy_basis": pol.policy_basis if pol else "",
                 "product_type_governed": product_type_is_governed(
                     product_type_id=row.product_type_id,
                     product_type_code=row.product_type_code,
                     product_type_status=row.product_type_status,
                     product_type_name_fa=row.product_type_name_fa,
                     has_active_definition=row.product_type_has_active_definition,
+                    canonical_policy=pol,
                 ),
                 "proposed_name": prop_n,
                 "comparison_normalized_proposed": normalize_persian_text(prop_n),
@@ -576,58 +696,63 @@ def classify_product_phase2d(
     if row.product_type_id is None:
         return finish("HOLD_MISSING_PRODUCT_TYPE", "product_type_id_null")
 
-    if not product_type_display_approved(row.product_type_name_fa):
-        return finish("HOLD_PRODUCT_TYPE_DISPLAY", "missing_or_empty_product_type_name_fa")
+    pol = CANONICAL_POLICY.get((row.product_type_code or "").strip())
+    if pol is None:
+        return finish("HOLD_UNGOVERNED_PRODUCT_TYPE", "missing_canonical_policy_row")
 
-    if product_type_naming_policy_blocked(row.product_type_name_fa):
-        return finish("HOLD_PRODUCT_TYPE_NAMING_POLICY", "product_type_label_too_broad_or_generic")
+    if pol.title_label_status != "APPROVED" or not pol.canonical_title_fa:
+        terminal = "HOLD_PRODUCT_TYPE_TITLE_LABEL_UNAPPROVED"
+        if pol.title_hold_reason in {"synonym_or_slash_label", "generic_product_type_label"}:
+            terminal = "HOLD_PRODUCT_TYPE_NAMING_POLICY"
+        return finish(terminal, pol.title_hold_reason or "title_label_not_approved", pol=pol)
 
     if not brand_display_governed_phase2d(row.brand_id, brand_registry_row):
-        return finish("HOLD_BRAND_DISPLAY_UNGOVERNED", "brand_display_not_in_owner_cohort_or_registry")
+        return finish("HOLD_BRAND_DISPLAY_UNGOVERNED", "brand_display_not_in_owner_cohort_or_registry", pol=pol)
 
-    pt_gov = product_type_is_governed(
-        product_type_id=row.product_type_id,
-        product_type_code=row.product_type_code,
-        product_type_status=row.product_type_status,
-        product_type_name_fa=row.product_type_name_fa,
-        has_active_definition=row.product_type_has_active_definition,
-    )
-    if not pt_gov:
-        return finish("HOLD_UNGOVERNED_PRODUCT_TYPE", "product_type_inactive_or_profile_unmapped")
+    if (row.product_type_status or "").strip().lower() != "active" or not row.product_type_has_active_definition:
+        return finish("HOLD_UNGOVERNED_PRODUCT_TYPE", "product_type_inactive_or_no_active_definition", pol=pol)
 
-    profile_code, profile_resolution, profile = resolve_naming_profile_phase2d(row.product_type_code)
+    profile_code, profile_resolution, profile, _ = resolve_naming_profile_phase2d(row.product_type_code)
+    if profile_resolution != PROFILE_GOVERNED:
+        return finish("HOLD_UNGOVERNED_PRODUCT_TYPE", "naming_profile_not_governed", pol=pol)
 
     facts, kb_traces = build_facts_from_kb_rows(row.kb_facts)
-    for t in kb_traces:
-        key = str(t.get("property_key") or "")
-        if key in _LEGACY_ACCURACY_KEYS and "resolution" in key.lower():
-            pass  # governed keys only; legacy accuracy never mapped here
 
-    variant_trace = resolve_variant_policy(profile, profile_resolution, facts, kb_traces)
+    variant_trace = resolve_variant_policy(profile, profile_resolution, facts, kb_traces, pol=pol)
     if variant_trace.policy_status == "HOLD_VARIANT_POLICY_UNDEFINED":
         return finish(
             "HOLD_VARIANT_POLICY_UNDEFINED",
-            "no_governed_naming_profile_for_product_type",
+            pol.policy_basis or "variant_policy_undefined",
             variant=variant_trace,
+            pol=pol,
         )
     if variant_trace.policy_status == "HOLD_MISSING_VARIANT_FACT":
-        return finish("HOLD_MISSING_VARIANT_FACT", "required_published_variant_fact_missing", variant=variant_trace)
+        return finish(
+            "HOLD_MISSING_VARIANT_FACT",
+            "required_published_variant_fact_missing",
+            variant=variant_trace,
+            pol=pol,
+        )
     if variant_trace.policy_status == "HOLD_AMBIGUOUS_VARIANT_FACT":
-        return finish("HOLD_AMBIGUOUS_VARIANT_FACT", "conflicting_variant_facts", variant=variant_trace)
+        return finish("HOLD_AMBIGUOUS_VARIANT_FACT", "conflicting_variant_facts", variant=variant_trace, pol=pol)
 
     published_used = [
         t
         for t in kb_traces
         if str(t.get("status") or "").lower() in PUBLIC_FACT_STATUSES
         and (t.get("property_key") or "") in profile.primary_variant_fact_keys
+        and (t.get("property_key") or "") not in _LEGACY_ACCURACY_KEYS
     ]
-    variant_facts_gov = not profile.primary_variant_fact_keys or (
-        bool(published_used) and all(
-            str(t.get("status") or "").lower() in PUBLIC_FACT_STATUSES for t in published_used
+    variant_facts_gov = (
+        pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED"
+        or not profile.primary_variant_fact_keys
+        or (
+            bool(published_used)
+            and all(str(t.get("status") or "").lower() in PUBLIC_FACT_STATUSES for t in published_used)
         )
     )
     if profile.variant_required and profile.primary_variant_fact_keys and not variant_facts_gov:
-        return finish("HOLD_MISSING_VARIANT_FACT", "variant_fact_not_published", variant=variant_trace)
+        return finish("HOLD_MISSING_VARIANT_FACT", "variant_fact_not_published", variant=variant_trace, pol=pol)
 
     oem_gov = bool((row.manufacturer_code or "").strip())
     brand_gov = brand_display_governed_phase2d(row.brand_id, brand_registry_row)
@@ -641,7 +766,7 @@ def classify_product_phase2d(
     )
 
     naming = build_product_name_v1(
-        product_type_fa=row.product_type_name_fa,
+        product_type_fa=pol.canonical_title_fa,
         brand_raw=row.brand_name,
         manufacturer_code=row.manufacturer_code,
         facts=facts,
@@ -671,7 +796,7 @@ def classify_product_phase2d(
 
     structural = validate_proposed_name(
         proposed,
-        product_type_name_fa=row.product_type_name_fa,
+        product_type_name_fa=pol.canonical_title_fa,
         brand_display=brand_display,
         manufacturer_code=row.manufacturer_code,
     )
@@ -725,6 +850,7 @@ def classify_product_phase2d(
         proposed=proposed,
         naming=naming,
         variant=variant_trace,
+        pol=pol,
     )
 
 
@@ -739,9 +865,10 @@ def detect_collisions(
     pt_code: dict[tuple[int, str], list[int]] = defaultdict(list)
 
     for a in audits:
-        if a.proposed_name:
-            proposed_by_name[a.proposed_name].append(a.product_id)
-            proposed_by_norm[normalize_persian_text(a.proposed_name)].append(a.product_id)
+        if a.terminal_classification != "READY_RENAME" or not a.proposed_name:
+            continue
+        proposed_by_name[a.proposed_name].append(a.product_id)
+        proposed_by_norm[normalize_persian_text(a.proposed_name)].append(a.product_id)
         if a.brand_id is not None and a.manufacturer_code:
             brand_code[(a.brand_id, a.manufacturer_code)].append(a.product_id)
         if a.product_type_id is not None and a.manufacturer_code:
@@ -876,7 +1003,169 @@ def audit_logic_fingerprint(domain_path: Path, script_path: Path) -> str:
     h.update(domain_path.read_bytes())
     h.update(script_path.read_bytes())
     h.update(NAMING_STANDARD_VERSION.encode())
+    h.update(authoritative_policy_path().read_bytes())
     return h.hexdigest()
+
+
+def canonical_candidate_rows(audits: Sequence[Phase2DAuditRow]) -> list[dict[str, str]]:
+    ready = [a for a in audits if a.terminal_classification == "READY_RENAME"]
+    ready.sort(key=lambda a: a.product_id)
+    return [
+        {
+            "product_id": str(a.product_id),
+            "sku": a.sku,
+            "proposed_name": a.proposed_name,
+            "manufacturer_code": a.manufacturer_code,
+            "product_type_code": a.product_type_code,
+            "canonical_title_fa": a.canonical_title_fa,
+            "variant_policy_status": a.variant_policy_status,
+            "variant_property_code": a.variant_property_code,
+            "variant_formatted_value": a.variant_formatted_value,
+        }
+        for a in ready
+    ]
+
+
+def canonical_candidate_bytes(rows: Sequence[Mapping[str, str]]) -> bytes:
+    import io
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=list(CANONICAL_CANDIDATE_FIELDNAMES), lineterminator="\n")
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({k: row.get(k, "") for k in CANONICAL_CANDIDATE_FIELDNAMES})
+    return buf.getvalue().encode("utf-8")
+
+
+def canonical_candidate_sha256(rows: Sequence[Mapping[str, str]]) -> str:
+    return sha256_bytes(canonical_candidate_bytes(rows))
+
+
+def write_canonical_candidate_csv(path: Path, rows: Sequence[Mapping[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(canonical_candidate_bytes(rows))
+
+
+def build_policy_review_sample(audits: Sequence[Phase2DAuditRow]) -> list[Phase2DAuditRow]:
+    """Deterministic per-Product-Type policy review sample for READY cohort."""
+    ready = [
+        a
+        for a in audits
+        if a.terminal_classification in ("READY_RENAME", "HOLD_POLICY_REVIEW_BLOCKED")
+    ]
+    by_pt: dict[str, list[Phase2DAuditRow]] = defaultdict(list)
+    for a in ready:
+        by_pt[a.product_type_code or "NO_PT"].append(a)
+
+    chosen: list[Phase2DAuditRow] = []
+    seen: set[int] = set()
+
+    def add(row: Phase2DAuditRow) -> None:
+        if row.product_id not in seen:
+            seen.add(row.product_id)
+            chosen.append(row)
+
+    for code in sorted(by_pt):
+        rows = sorted(by_pt[code], key=lambda r: r.product_id)
+        if len(rows) == 1:
+            add(rows[0])
+            continue
+        add(rows[0])
+        add(rows[len(rows) // 2])
+        add(rows[-1])
+
+    for a in ready:
+        title = a.canonical_title_fa or ""
+        if any(ch in title for ch in ("/", "|")):
+            add(a)
+        if a.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+            add(a)
+
+    return sorted(chosen, key=lambda r: (r.product_type_code, r.product_id))
+
+
+def evaluate_policy_review_status(row: Phase2DAuditRow) -> tuple[str, str]:
+    """Deterministic policy review for one READY representative row."""
+    if row.terminal_classification not in ("READY_RENAME", "HOLD_POLICY_REVIEW_BLOCKED"):
+        return "REVIEW", "not_ready_rename"
+    if row.canonical_title_status != "APPROVED":
+        return "FAIL", "canonical_title_not_approved"
+    if any(ch in (row.canonical_title_fa or "") for ch in ("/", "|")):
+        return "FAIL", "slash_or_alternative_in_canonical_title"
+    if row.manufacturer_code and row.manufacturer_code not in (row.proposed_name or ""):
+        return "FAIL", "manufacturer_code_not_exact_in_proposed"
+    if (row.proposed_name or "").count("کد") != 1:
+        return "FAIL", "code_label_count"
+    canon = normalize_persian_text(row.canonical_title_fa)
+    if canon and not normalize_persian_text(row.proposed_name or "").startswith(canon):
+        return "FAIL", "canonical_title_not_prefix"
+    if row.variant_policy == "VARIANT_REQUIRED" and row.variant_policy_status not in {
+        "SUFFIX_GOVERNED",
+    }:
+        return "FAIL", "required_variant_not_governed"
+    return "PASS", "policy_checks_ok"
+
+
+def apply_policy_review_holds(audits: list[Phase2DAuditRow]) -> dict[str, Any]:
+    """Demote READY rows when their Product Type policy review is not PASS."""
+    ready_pts = {a.product_type_code for a in audits if a.terminal_classification == "READY_RENAME"}
+    sample = build_policy_review_sample(audits)
+    pt_status: dict[str, str] = {}
+    pt_notes: dict[str, str] = {}
+    for pt in sorted(ready_pts):
+        reps = [r for r in sample if r.product_type_code == pt]
+        if not reps:
+            fallback = [
+                a
+                for a in audits
+                if a.terminal_classification == "READY_RENAME" and a.product_type_code == pt
+            ]
+            fallback.sort(key=lambda r: r.product_id)
+            reps = [fallback[len(fallback) // 2]]
+        verdicts = [evaluate_policy_review_status(r) for r in reps]
+        statuses = [v[0] for v in verdicts]
+        if any(s == "FAIL" for s in statuses):
+            pt_status[pt] = "FAIL"
+            pt_notes[pt] = next(n for s, n in verdicts if s == "FAIL")
+        elif any(s == "REVIEW" for s in statuses):
+            pt_status[pt] = "REVIEW"
+            pt_notes[pt] = next(n for s, n in verdicts if s == "REVIEW")
+        else:
+            pt_status[pt] = "PASS"
+            pt_notes[pt] = verdicts[0][1]
+
+    fail_pts = {pt for pt, st in pt_status.items() if st != "PASS"}
+    for a in audits:
+        a.policy_review_status = pt_status.get(a.product_type_code, "N/A")
+        if a.terminal_classification == "READY_RENAME" and a.product_type_code in fail_pts:
+            a.terminal_classification = "HOLD_POLICY_REVIEW_BLOCKED"
+            a.classification_reason = pt_notes.get(a.product_type_code, "policy_review_failed")
+
+    counts = Counter(pt_status.values())
+    return {
+        "product_type_status": pt_status,
+        "PASS": counts.get("PASS", 0),
+        "FAIL": counts.get("FAIL", 0),
+        "REVIEW": counts.get("REVIEW", 0),
+    }
+
+
+def compute_freeze_status(
+    *,
+    reconciles: bool,
+    identity_drift: int,
+    replay_identical: bool,
+    ready_collision_count: int,
+    policy_review: Mapping[str, Any],
+    read_only_ok: bool,
+) -> str:
+    if identity_drift or not reconciles or not replay_identical or not read_only_ok:
+        return "BLOCKED"
+    if policy_review.get("FAIL") or policy_review.get("REVIEW"):
+        return "PARTIAL"
+    if ready_collision_count:
+        return "BLOCKED"
+    return "READY_FOR_OWNER_RENAME_REVIEW"
 
 
 AUDIT_CSV_FIELDS: tuple[str, ...] = tuple(
@@ -890,8 +1179,13 @@ AUDIT_CSV_FIELDS: tuple[str, ...] = tuple(
         "product_type_id",
         "product_type_code",
         "product_type_name_fa",
+        "canonical_title_fa",
+        "canonical_title_status",
         "product_type_governed",
+        "variant_policy",
+        "variant_policy_basis",
         "variant_policy_status",
+        "policy_review_status",
         "variant_property_code",
         "variant_raw_value",
         "variant_formatted_value",
