@@ -60,6 +60,10 @@ TERMINAL_CLASSIFICATIONS: tuple[str, ...] = (
     "HOLD_POLICY_REVIEW_BLOCKED",
     "HOLD_SEMANTIC_SUFFIX_LEAKAGE",
     "HOLD_SEMANTIC_UNIT_MISMATCH",
+    "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT",
+    "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT",
+    "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT",
+    "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING",
     "HOLD_OTHER",
 )
 
@@ -1274,8 +1278,21 @@ def audit_logic_fingerprint(domain_path: Path, script_path: Path) -> str:
     h = hashlib.sha256()
     h.update(domain_path.read_bytes())
     h.update(script_path.read_bytes())
+    oem_path = domain_path.parent / "product_naming_phase2d_oem.py"
+    if oem_path.is_file():
+        h.update(oem_path.read_bytes())
     h.update(NAMING_STANDARD_VERSION.encode())
     h.update(authoritative_policy_path().read_bytes())
+    oem_index = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "architecture"
+        / "specs"
+        / "product-naming-v1"
+        / "INSIZE_108A_OEM_CODE_INDEX.csv"
+    )
+    if oem_index.is_file():
+        h.update(oem_index.read_bytes())
     return h.hexdigest()
 
 
@@ -1512,6 +1529,7 @@ def compute_freeze_status(
     semantic_dimension_failures: int = 0,
     wrong_unit_canary_failures: int = 0,
     variant_not_required_with_suffix: int = 0,
+    ready_oem_semantic_failures: int = 0,
 ) -> str:
     if identity_drift or not reconciles or not replay_identical or not read_only_ok:
         return "BLOCKED"
@@ -1519,6 +1537,7 @@ def compute_freeze_status(
         semantic_dimension_failures
         or wrong_unit_canary_failures
         or variant_not_required_with_suffix
+        or ready_oem_semantic_failures
     ):
         return "BLOCKED"
     if policy_review.get("FAIL") or policy_review.get("REVIEW"):

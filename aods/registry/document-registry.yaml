@@ -1146,6 +1146,16 @@ documents:
     notes: >
       Phase 2D canonical name candidate dry-run summary. Read-only; no Product.name writes.
 
+  - id: PRODUCT-NAMING-V1-INSIZE-108A-OEM-INDEX
+    path: docs/architecture/specs/product-naming-v1/INSIZE_108A_OEM_CODE_INDEX.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Frozen INSIZE 108A/108B OEM code locator index for Phase 2D semantic authority gate.
+
   - id: PRODUCT-NAMING-V1-CANONICAL-TITLE-POLICY
     path: docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv
     class: SPEC

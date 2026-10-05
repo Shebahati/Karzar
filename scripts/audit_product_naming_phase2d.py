@@ -337,7 +337,7 @@ def run_classification(
     inputs: list[Phase2DProductInput],
     brand_registry: dict[str, dict[str, str]],
     catalog_names: dict[int, str],
-) -> tuple[list[Phase2DAuditRow], dict[str, Any]]:
+) -> tuple[list[Phase2DAuditRow], dict[str, Any], list[dict[str, str]], dict[str, Any]]:
     audits: list[Phase2DAuditRow] = []
     for inp in inputs:
         reg = brand_registry.get(str(inp.brand_id)) if inp.brand_id is not None else None
@@ -346,7 +346,16 @@ def run_classification(
     collision_report = detect_collisions(audits, catalog_names)
     apply_collision_holds(audits, collision_report)
     policy_review = apply_policy_review_holds(audits)
-    return audits, policy_review
+    from app.domain.product_naming_phase2d_oem import (  # noqa: PLC0415
+        apply_oem_semantic_holds,
+        load_oem_code_index,
+    )
+
+    oem_index = load_oem_code_index()
+    if not oem_index:
+        raise RuntimeError("oem_code_index_missing")
+    oem_authority_rows, oem_meta = apply_oem_semantic_holds(audits, oem_index)
+    return audits, policy_review, oem_authority_rows, oem_meta
 
 
 def audit_row_to_dict(a: Phase2DAuditRow) -> dict[str, str]:
@@ -580,7 +589,9 @@ def run_audit(
         encoding="utf-8",
     )
 
-    audits, policy_review_meta = run_classification(inputs, brand_registry, catalog_names)
+    audits, policy_review_meta, oem_authority_rows, oem_meta = run_classification(
+        inputs, brand_registry, catalog_names
+    )
     recon = reconcile_classifications(audits)
     if not recon["reconciles"]:
         raise RuntimeError(f"classification_reconciliation_failed: {recon}")
@@ -667,7 +678,7 @@ def run_audit(
     write_canonical_candidate_csv(proposed_path, candidate_rows)
     written_candidate_file_sha256 = sha256_file(proposed_path)
 
-    audits2, _ = run_classification(inputs, brand_registry, catalog_names)
+    audits2, _, _, _ = run_classification(inputs, brand_registry, catalog_names)
     replay_rows = canonical_candidate_rows(audits2)
     replay_candidate_sha256 = canonical_candidate_sha256(replay_rows)
     replay_identical = (
@@ -715,11 +726,38 @@ def run_audit(
         encoding="utf-8",
     )
 
+    oem_by_pid = {int(r["product_id"]): r for r in oem_authority_rows}
+    write_csv(
+        out_dir / "PHASE2D_OEM_SEMANTIC_AUTHORITY.csv",
+        list(oem_authority_rows[0].keys()) if oem_authority_rows else ["product_id"],
+        oem_authority_rows,
+    )
+    remediation_rows = [
+        {
+            "product_id": r["product_id"],
+            "manufacturer_code": r["manufacturer_code"],
+            "current_product_type": r["persisted_product_type_code"],
+            "OEM_identity": r["oem_category_or_family"],
+            "recommended_product_type": r["recommended_product_type_code"],
+            "recommended_title": r["recommended_canonical_title_fa"],
+            "reason": r["semantic_conflict_reason"],
+            "OEM_locator": f"{r['oem_source']}#page={r['oem_page_pdf']};code={r['oem_code']}",
+        }
+        for r in oem_authority_rows
+        if r.get("candidate_eligible_after_oem_gate") != "yes"
+    ]
+    write_csv(
+        out_dir / "PHASE2D_PRODUCT_TYPE_REMEDIATION_PROPOSALS.csv",
+        list(remediation_rows[0].keys()) if remediation_rows else ["product_id"],
+        remediation_rows,
+    )
+
     owner_sample = build_owner_review_sample(audits)
     owner_rows = []
     for a in owner_sample:
-        auto_status, note = evaluate_policy_review_status(a)
+        auto_status, _note = evaluate_policy_review_status(a)
         pol = CANONICAL_POLICY.get(a.product_type_code or "")
+        oem_row = oem_by_pid.get(a.product_id, {})
         owner_rows.append(
             {
                 "product_id": str(a.product_id),
@@ -731,6 +769,10 @@ def run_audit(
                 "formatter": pol.formatter if pol else "",
                 "current_name": a.current_name,
                 "proposed_name": a.proposed_name,
+                "OEM_product_heading": oem_row.get("oem_product_heading", ""),
+                "OEM_family": oem_row.get("oem_category_or_family", ""),
+                "OEM_page": oem_row.get("oem_page_pdf", ""),
+                "OEM_semantic_status": oem_row.get("semantic_match_status", ""),
                 "automated_validation": auto_status,
                 "owner_review_status": "PENDING",
                 "owner_note": "",
@@ -766,6 +808,16 @@ def run_audit(
 
     counts = recon["counts"]
     hold_total = sum(v for k, v in counts.items() if k.startswith("HOLD_"))
+    oem_registry_sha = sha256_file(
+        ROOT / "docs/architecture/specs/product-naming-v1/INSIZE_108A_OEM_CODE_INDEX.csv"
+    )
+    ready_oem_fail = 0
+    for a in audits:
+        if a.terminal_classification != "READY_RENAME":
+            continue
+        oem_row = oem_by_pid.get(a.product_id)
+        if not oem_row or oem_row.get("candidate_eligible_after_oem_gate") != "yes":
+            ready_oem_fail += 1
     ready_collision_count = len(collision_report.get("ready_rename_affected") or [])
     logic_sha256 = audit_logic_fingerprint(DOMAIN_PATH, SCRIPT_PATH)
     phase2d_logic_git_sha = logic_git_sha or git_sha
@@ -791,6 +843,7 @@ def run_audit(
         semantic_dimension_failures=semantic_dimension_failures,
         wrong_unit_canary_failures=semantic_anomaly.get("wrong_unit_canary_failures", 0),
         variant_not_required_with_suffix=variant_counts.get("variant_not_required_with_suffix", 0),
+        ready_oem_semantic_failures=ready_oem_fail,
     )
     if status == "READY_FOR_OWNER_RENAME_REVIEW" and counts.get("READY_RENAME", 0) == 0:
         status = "PARTIAL"
@@ -804,7 +857,26 @@ def run_audit(
         "phase2d_logic_sha256": logic_sha256,
         "audit_logic_sha256": logic_sha256,
         "audit_logic_git_sha": phase2d_logic_git_sha,
-        "artifact_commit_sha": git_sha,
+        "phase2d_oem_semantic_logic_git_sha": phase2d_logic_git_sha,
+        "authoritative_run_logic_sha": phase2d_logic_git_sha,
+        "artifact_generated_from_logic_sha": phase2d_logic_git_sha,
+        "oem_evidence_registry_sha256": oem_registry_sha,
+        "pre_oem_READY": oem_meta.get("pre_oem_READY", 0),
+        "post_oem_READY": counts.get("READY_RENAME", 0),
+        "OEM_semantic_validated_rows": oem_meta.get("OEM_semantic_validated_rows", 0),
+        "OEM_SEMANTIC_MATCH": oem_meta.get("OEM_SEMANTIC_MATCH", 0),
+        "OEM_SEMANTIC_BROADER_BUT_ACCEPTABLE": oem_meta.get("OEM_SEMANTIC_BROADER_BUT_ACCEPTABLE", 0),
+        "OEM_PRODUCT_TYPE_CONFLICT": oem_meta.get("OEM_PRODUCT_TYPE_CONFLICT", 0),
+        "OEM_CANONICAL_TITLE_CONFLICT": oem_meta.get("OEM_CANONICAL_TITLE_CONFLICT", 0),
+        "OEM_MULTI_FUNCTION_TITLE_CONFLICT": oem_meta.get("OEM_MULTI_FUNCTION_TITLE_CONFLICT", 0),
+        "OEM_EVIDENCE_INSUFFICIENT": oem_meta.get("OEM_EVIDENCE_INSUFFICIENT", 0),
+        "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT": counts.get("HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT", 0),
+        "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT": counts.get(
+            "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT", 0
+        ),
+        "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT": counts.get("HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT", 0),
+        "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING": counts.get("HOLD_OEM_SEMANTIC_EVIDENCE_MISSING", 0),
+        "all_READY_have_OEM_semantic_pass": ready_oem_fail == 0,
         "authoritative_policy_path": str(auth_policy.relative_to(ROOT)),
         "authoritative_policy_sha256": authoritative_policy_sha256,
         "policy_snapshot_sha256": audit_snapshot_policy_sha256,
@@ -873,6 +945,10 @@ def _remediation(terminal: str) -> str:
         "HOLD_POLICY_REVIEW_BLOCKED": "Resolve policy-level review FAIL/REVIEW for Product Type",
         "HOLD_SEMANTIC_SUFFIX_LEAKAGE": "Remove variant suffix under NOT_REQUIRED policy",
         "HOLD_SEMANTIC_UNIT_MISMATCH": "Fix formatter/dimension or variant governance",
+        "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT": "Reassign Product Type per OEM catalogue (proposal only)",
+        "HOLD_CANONICAL_TITLE_AUTHORITY_CONFLICT": "Refine canonical_title_fa policy for OEM subtype",
+        "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT": "Govern multi-function title/Product Type before rename",
+        "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING": "Locate OEM catalogue evidence for manufacturer code",
     }.get(terminal, "Manual governance review")
 
 
