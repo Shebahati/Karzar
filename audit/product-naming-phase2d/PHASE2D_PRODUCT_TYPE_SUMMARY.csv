@@ -11,7 +11,7 @@ DEPTH_MICROMETER,4,0,0,4,SUFFIX_GOVERNED,measurement_range,,عمق سنج میک
 DIAL_INDICATOR,21,4,0,17,SUFFIX_GOVERNED,measurement_range,,ساعت اندیکاتور دیجیتال 12.7 میلی متری اینسایز (Insize) مدل 101-2112,ساعت اندازه‌گیری اینسایز کد 2112-101، 0–12.7 میلی‌متر
 DIGITAL_LEVEL,3,0,0,3,HOLD_VARIANT_POLICY_UNDEFINED,,,شیب سنج دیجیتال اینسایز (Insize) 40 سانت مدل 400-4910,
 DIGITAL_MULTIMETER,2,0,0,2,VARIANT_NOT_REQUIRED_APPROVED,,,مولتی متر هوشمند دیجیتال اینسایز مدل 9247-190,مولتی‌متر دیجیتال اینسایز کد 9247-190
-DIGITAL_SCALE,10,3,0,7,VARIANT_NOT_REQUIRED_APPROVED,,,ترازو دیجیتال 0.2گرم تا 200گرم اینسایز مدل 8602-200,ترازوی دیجیتال اینسایز کد 8602-200
+DIGITAL_SCALE,10,3,0,7,VARIANT_NOT_REQUIRED_APPROVED,,,ترازو دیجیتال 0.2گرم تا 200گرم اینسایز مدل 8602-200,ترازوی جیبی دیجیتال اینسایز کد 8602-200
 DIVIDER,9,0,0,9,,,,پرگار مستقیم 15سانت اینسایز مدل 7247-150,
 ENGINEERS_SQUARE,19,0,0,19,VARIANT_NOT_REQUIRED_APPROVED,,,گونیا 170 در 300 اینسایز (Insize) مدل 300-2275,گونیا مهندسی اینسایز کد 2275-300
 EXTERNAL_GROOVE_CALIPER,2,0,0,2,SUFFIX_GOVERNED,measurement_range,,کولیس خارج شیار اینسایز (Insize) 15 سانت مدل 150-1185,کولیس شیار خارجی اینسایز کد 1185-150، 0–150 میلی‌متر
@@ -22,8 +22,8 @@ GEAR_TOOTH_CALIPER,1,0,0,1,SUFFIX_GOVERNED,measurement_range,,کولیس چرخ 
 GEAR_TOOTH_PITCH_GAUGE,2,0,0,2,VARIANT_NOT_REQUIRED_APPROVED,,,شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 212-4860,شابلون گام چرخ‌دنده اینسایز کد 4860-212
 GEN_CALIPER,65,0,0,65,,,,کولیس دیجیتال 15سانت اینسایز مدل 1103-150,
 HEIGHT_GAUGE,10,0,0,10,SUFFIX_GOVERNED,measurement_range,,کولیس پایه دار دیجیتال 30سانت اینسایز مدل 1150-300,ارتفاع‌سنج اینسایز کد 1150-300، 0–300 میلی‌متر
-HOOK_CALIPER,1,1,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال شیار اینسایز( Insize) 30 سانتی متر مدل 300-1122,کولیس قلاب‌دار اینسایز کد 1122-300، 4–300 میلی‌متر
-INDICATING_CALIPER,19,4,0,15,SUFFIX_GOVERNED,measurement_range,,پرگار داخل سنج ساعتی 30-10 میلی‌ متر اینسایز (Insize) مدل 301-2222,پرگار نشان‌گر اینسایز کد 2222-301، 10–30 میلی‌متر
+HOOK_CALIPER,1,1,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال شیار اینسایز( Insize) 30 سانتی متر مدل 300-1122,کولیس دیجیتال قلاب‌دار اینسایز کد 1122-300، 4–300 میلی‌متر
+INDICATING_CALIPER,19,3,0,16,SUFFIX_GOVERNED,measurement_range,,پرگار داخل سنج ساعتی 30-10 میلی‌ متر اینسایز (Insize) مدل 301-2222,پرگار نشان‌گر اینسایز کد 2222-301، 10–30 میلی‌متر
 INSIDE_KNIFE_EDGE_CALIPER,2,0,0,2,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر داخل سنج فک چاقویی مدل 150-1123,کولیس لبه‌چاقویی داخلی اینسایز کد 1123-150، 15–150 میلی‌متر
 INSIDE_MICROMETER,53,0,0,53,SUFFIX_GOVERNED,measurement_range,,میکرومتر دیجیتال اینسایز (|Insize) سه فک 100-87 میلی متر داخل سنج مدل 100-3127,میکرومتر داخل‌سنج اینسایز کد 3127-100، 87–100 میلی‌متر
 INTERCHANGEABLE_POINT_CALIPER,2,0,0,2,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر داخل و خارج سنج مدل 300-1530,کولیس نوک‌دار تعویض‌شونده اینسایز کد 1530-300، 0–300 میلی‌متر
@@ -33,21 +33,21 @@ LASER_DISTANCE_METER,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,متر لیزر�
 LEVEL,16,0,0,16,HOLD_VARIANT_POLICY_UNDEFINED,,,تراز چهار گوش اینسایز 15 سانتی (Insize) مدل 150-4902,
 MEASURING_TAPE,3,0,0,3,SUFFIX_GOVERNED,measurement_range,,سیرکومتر قطر لوله 20 - 300 — 0-950mm,متر نواری اینسایز کد 7114-950، 150–950 میلی‌متر
 MEASURING_WHEEL,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر مدل 1-7144,چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر
-MOISTURE_METER,2,1,0,1,VARIANT_NOT_REQUIRED_APPROVED,,,رطوبت سنج چوب اینسایز (Insize) مدل 50-9341,رطوبت‌سنج اینسایز کد 9341-50
+MOISTURE_METER,2,1,0,1,VARIANT_NOT_REQUIRED_APPROVED,,,رطوبت سنج چوب اینسایز (Insize) مدل 50-9341,رطوبت‌سنج دیجیتال اینسایز کد 9341-50
 NO_PT,778,0,0,778,,,,زاویه سنج سه تکه با خط کش 12کش — 0-100mm,
 OFFSET_CALIPER,3,0,0,3,SUFFIX_GOVERNED,measurement_range,,کولیس فک متحرک اینسایز (Insize) 15 سانت مدل 150-1186,کولیس آفست اینسایز کد 1186-150، 0–150 میلی‌متر
 OPTICAL_EDGE_FINDER,1,0,0,1,,,,مرکزیاب نوری اینسایز (Insize) مدل 2-6566,
 OUTSIDE_MICROMETER,83,1,0,82,SUFFIX_GOVERNED,measurement_range,,میکرومتر دیجیتال اینسایز (Insize) خارج سنج 200-225 میلی متر مدل 225-3101,میکرومتر خارج‌سنج اینسایز کد 3101-225، 200–225 میلی‌متر
 PIN_GAUGE,25,0,0,25,HOLD_MISSING_VARIANT_FACT,nominal_size,,پین گیج 41 پارچه 5-1 میلی متری اینسایز (Insize) مدل 411-4166,
-POINT_CALIPER,2,1,0,1,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فک باریک مدل 150-1169,کولیس نوک‌تیز اینسایز کد 1169-150، 0–150 میلی‌متر
+POINT_CALIPER,2,1,0,1,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فک باریک مدل 150-1169,کولیس دیجیتال نوک‌تیز اینسایز کد 1169-150، 0–150 میلی‌متر
 PRECISION_VISE,3,0,0,3,HOLD_VARIANT_POLICY_UNDEFINED,,,گیره دقیق اینسایز (Insize) 0-102 مدل 102-6520,
-PROTRACTOR,17,6,0,11,VARIANT_NOT_REQUIRED_APPROVED,,,زاویه سنج دیجیتال 25سانت اینسایز مدل 2171-250,زاویه‌سنج اینسایز کد 2171-250
+PROTRACTOR,17,6,0,11,VARIANT_NOT_REQUIRED_APPROVED,,,زاویه سنج دیجیتال 25سانت اینسایز مدل 2171-250,زاویه‌سنج دیجیتال اینسایز کد 2171-250
 SCREW_CUTTING_GAUGE,2,0,0,2,VARIANT_NOT_REQUIRED_APPROVED,,,شابلون رنده 60 درجه اینسایز (Insize) مدل 601-4810,گیج برش رزوه اینسایز کد 4810-601
 SHAFT_GAUGE,2,0,0,2,VARIANT_NOT_REQUIRED_APPROVED,,,گیج شفت اینسایز (Insize) 60-300 مدل 300-2841,گیج شفت اینسایز کد 2841-300
 STEEL_RULE,4,0,0,4,SUFFIX_GOVERNED,measurement_range,,خط کش استن استیل 50سانت اینسایز مدل 7110-500,خط‌کش فلزی اینسایز کد 7110-500، 0–500 میلی‌متر
 STRAIGHT_EDGE,1,0,0,1,,,,خط کش مویی 20 سانتی اینسایز (insize) مدل 200-4700,
 SURFACE_PLATE,6,0,0,6,HOLD_VARIANT_POLICY_UNDEFINED,,,صفحه صافی گرانیتی اینسایز (Insize) مدل 132-6900,
-TACHOMETER,1,1,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,تاکومتر ( دور سنج ) اینسایز مدل 9225-405,دورسنج اینسایز کد 9225-405
+TACHOMETER,1,1,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,تاکومتر ( دور سنج ) اینسایز مدل 9225-405,دورسنج تماسی و غیرتماسی اینسایز کد 9225-405
 TAPER_GAUGE,9,0,0,9,,,,گپ سنج 0.8 - 15میلیمتر اینسایز مدل 4833-1,
 TEST_INDICATOR,5,4,0,1,SUFFIX_GOVERNED,measurement_range,,ساعت شیطانکی هزارم صفحه بزرگ اینسایز مدل 2381-021,ساعت اهرمی اینسایز کد 2381-021، 0–0.2 میلی‌متر
 THICKNESS_GAUGE,16,0,0,16,SUFFIX_GOVERNED,measurement_range,,ضخامت سنج ساعتی 10 میلی متری اینسایز (Insize) مدل 102-2862,ضخامت‌سنج اینسایز کد 2862-102، 0–10 میلی‌متر
@@ -60,4 +60,4 @@ V_BLOCK,3,0,0,3,HOLD_VARIANT_POLICY_UNDEFINED,,,وی بلوک مگنتی این�
 WELDING_GAUGE,3,3,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,گیج جوشکاری اینسایز مدل 4838-1,گیج جوش اینسایز کد 4838-1
 WET_FILM_THICKNESS_GAUGE,1,0,0,1,VARIANT_NOT_REQUIRED_APPROVED,,,گیج فیلم مرطوب 25 - 3000میکرون اینسایز مدل 4845-2,گیج ضخامت فیلم خیس اینسایز کد 4845-2
 WIRE_GAUGE,1,0,0,1,HOLD_MISSING_VARIANT_FACT,nominal_size,,گیج سیم اینسایز (Insize) مدل 1-4803,
-ZERO_SETTER,1,1,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,زد سنج (رفرنس یاب محور Z) مگنت دار اینسایز (Insize) مدل 50-6557,صفرکن محور Z اینسایز کد 6557-50
+ZERO_SETTER,1,1,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,زد سنج (رفرنس یاب محور Z) مگنت دار اینسایز (Insize) مدل 50-6557,صفرکن دیجیتال محور Z اینسایز کد 6557-50

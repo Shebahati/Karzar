@@ -1,22 +1,22 @@
 product_type_code,canonical_title_fa,variant_policy,property_code,semantic_dimension,source_unit,formatter,display_unit,ready_rows,semantic_validation
 ANGLE_GAUGE,گیج زاویه,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
 COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
-DEPTH_GAUGE,عمق‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,6,PASS
-DIAL_INDICATOR,ساعت اندازه‌گیری,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
-DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,3,PASS
-FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+DEPTH_GAUGE,عمق‌سنج دیجیتال,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,6,PASS
+DIAL_INDICATOR,ساعت اندیکاتور,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
+DIGITAL_SCALE,ترازوی جیبی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,3,PASS
+FEELER_GAUGE,فیلر اینچی,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
 FILLET_WELD_GAUGE,گیج جوش نبشی,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
-HOOK_CALIPER,کولیس قلاب‌دار,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
-INDICATING_CALIPER,پرگار نشان‌گر,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
-INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+HOOK_CALIPER,کولیس دیجیتال قلاب‌دار,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+INDICATING_CALIPER,پرگار دیجیتال داخل‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,3,PASS
+INTERNAL_GROOVE_CALIPER,کولیس دیجیتال شیار داخلی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
 LASER_DISTANCE_METER,متر لیزری,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_m,m,2,PASS
 MEASURING_WHEEL,چرخ‌متر,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_m,m,2,PASS
-MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
-OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
-POINT_CALIPER,کولیس نوک‌تیز,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
-PROTRACTOR,زاویه‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,6,PASS
-TACHOMETER,دورسنج,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+MOISTURE_METER,رطوبت‌سنج دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+OUTSIDE_MICROMETER,میکرومتر خارج‌سنج کنتوردار,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+POINT_CALIPER,کولیس دیجیتال نوک‌تیز,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,1,PASS
+PROTRACTOR,زاویه‌سنج دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,6,PASS
+TACHOMETER,دورسنج تماسی و غیرتماسی,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
 TEST_INDICATOR,ساعت اهرمی,VARIANT_REQUIRED,measurement_range,length,mm,measurement_range_mm,mm,4,PASS
 THREAD_PITCH_GAUGE,شابلون گام رزوه,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,2,PASS
 WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,3,PASS
-ZERO_SETTER,صفرکن محور Z,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
+ZERO_SETTER,صفرکن دیجیتال محور Z,VARIANT_NOT_REQUIRED_APPROVED,,dimensionless,,none,,1,PASS
