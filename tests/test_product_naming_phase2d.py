@@ -5,8 +5,8 @@ from __future__ import annotations
 from app.domain.product_naming_phase2d import (
     PHASE2C_FROZEN_ROWS,
     PHASE2D_COHORT_BRAND_IDS,
-    Phase2DProductInput,
     TERMINAL_CLASSIFICATIONS,
+    Phase2DProductInput,
     apply_collision_holds,
     brand_display_governed_phase2d,
     build_facts_from_kb_rows,

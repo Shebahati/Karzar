@@ -6,9 +6,9 @@ current Product.name for identity. Classification is mutually exclusive.
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
-import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -18,10 +18,10 @@ from typing import Any
 from app.domain.product_naming import (
     NAMING_PROFILES,
     NAMING_STANDARD_VERSION,
-    NamingProfile,
     PROFILE_GOVERNED,
     PROFILE_MISSING,
     NamingGovernanceContext,
+    NamingProfile,
     NamingResult,
     brand_display_for_title,
     brand_display_is_governed,
@@ -83,8 +83,6 @@ def _load_phase2d_pt_policy() -> dict[str, dict[str, str]]:
     out: dict[str, dict[str, str]] = {}
     if not _PHASE2D_POLICY_CSV.is_file():
         return out
-    import csv
-
     with _PHASE2D_POLICY_CSV.open(encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
             code = (row.get("product_type_code") or "").strip()
