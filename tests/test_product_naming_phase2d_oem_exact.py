@@ -7,17 +7,17 @@ from app.domain.product_naming_phase2d_oem import apply_oem_semantic_holds, eval
 from app.domain.product_naming_phase2d_oem_extract import (
     OemOccurrence,
     extract_printed_page,
+    insize_catalog_paths,
     pdf_pages,
     select_product_identity,
 )
-from app.domain.product_naming_phase2d_oem_policy import OemCanonicalPolicyRow, normalize_oem_heading
+from app.domain.product_naming_phase2d_oem_policy import (
+    OemCanonicalPolicyRow,
+    normalize_oem_heading,
+)
 
 
-def test_pdf_pages_use_form_feed_not_line_estimates(tmp_path):
-    pdf = tmp_path / "tiny.pdf"
-    # Not a real PDF — exercise split logic via pages list API on synthetic text path:
-    from app.domain.product_naming_phase2d_oem_extract import insize_catalog_paths
-
+def test_pdf_pages_use_form_feed_not_line_estimates():
     path_a, _ = insize_catalog_paths()
     if not path_a.is_file():
         return

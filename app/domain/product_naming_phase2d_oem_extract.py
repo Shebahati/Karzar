@@ -6,9 +6,9 @@ import csv
 import re
 import subprocess
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 from app.domain.product_naming_phase2d import sha256_file
 
