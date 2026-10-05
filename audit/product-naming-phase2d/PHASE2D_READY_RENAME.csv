@@ -335,8 +335,8 @@ product_id,sku,brand,manufacturer_code,product_type,current_name,proposed_name,v
 3813,6377-25W,INSIZE | اینسایز,6377-25W,میکرومتر خارج‌سنج,هد میکرومتر اینسایز (Insize) فک بدون چرخش مدل 25W-6377,میکرومتر خارج‌سنج اینسایز کد 6377-25W، 0–25 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
 3814,6557-50,INSIZE | اینسایز,6557-50,صفرکن محور Z,زد سنج (رفرنس یاب محور Z) مگنت دار اینسایز (Insize) مدل 50-6557,صفرکن محور Z اینسایز کد 6557-50,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 3825,9501-1200,INSIZE | اینسایز,9501-1200,ضخامت‌سنج پوشش,ضخامت سنج رنگ و پوشش اینسایز (Insize) مدل 1200-9501,ضخامت‌سنج پوشش اینسایز کد 9501-1200,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
-3826,9561-50B,INSIZE | اینسایز,9561-50B,متر لیزری,متر لیزری 50متری اینسایز مدل 9561-50B,متر لیزری اینسایز کد 9561-50B، 200–50000 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
-3827,9561-70B,INSIZE | اینسایز,9561-70B,متر لیزری,متر لیزری 70متری اینسایز مدل 9561-70B,متر لیزری اینسایز کد 9561-70B، 200–70000 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
+3826,9561-50B,INSIZE | اینسایز,9561-50B,متر لیزری,متر لیزری 50متری اینسایز مدل 9561-50B,متر لیزری اینسایز کد 9561-50B، 0.2–50 متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
+3827,9561-70B,INSIZE | اینسایز,9561-70B,متر لیزری,متر لیزری 70متری اینسایز مدل 9561-70B,متر لیزری اینسایز کد 9561-70B، 0.2–70 متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
 3841,4608-31,INSIZE | اینسایز,4608-31,فیلر نواری,فیلر اینچی 0.0015 - 0.035اینچ اینسایز مدل 4608-31,فیلر نواری اینسایز کد 4608-31,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 3895,0312-TH50,INSIZE | اینسایز,0312-TH50,رطوبت‌سنج,رطوبت سنج / دماسنج اینسایز (Insize) مدل 0312-TH50,رطوبت‌سنج اینسایز کد 0312-TH50,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 3901,1141-1000,INSIZE | اینسایز,1141-1000,عمق‌سنج,عمق سنج دیجیتال اینسایز (Insize) 1 متری مدل 1000-1141,عمق‌سنج اینسایز کد 1141-1000، 0–1000 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
@@ -369,8 +369,8 @@ product_id,sku,brand,manufacturer_code,product_type,current_name,proposed_name,v
 4048,4845-2,INSIZE | اینسایز,4845-2,گیج ضخامت فیلم خیس,گیج فیلم مرطوب 25 - 3000میکرون اینسایز مدل 4845-2,گیج ضخامت فیلم خیس اینسایز کد 4845-2,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 4076,6832-1,INSIZE | اینسایز,6832-1,گیج جوش,گیج جوشکاری اینسایز (Insize) مدل 1-6832,گیج جوش اینسایز کد 6832-1,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 4081,7110-1200,INSIZE | اینسایز,7110-1200,خط‌کش فلزی,خط کش استن استیل اینسایز (Insize) 1.2 متر مدل 1200-7110,خط‌کش فلزی اینسایز کد 7110-1200، 0–1200 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
-4082,7144-1,INSIZE | اینسایز,7144-1,چرخ‌متر,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر مدل 1-7144,چرخ‌متر اینسایز کد 7144-1، 100–9999900 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
-4084,7145-1,INSIZE | اینسایز,7145-1,چرخ‌متر,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر همراه با کوله پشتی مدل 1-7145,چرخ‌متر اینسایز کد 7145-1، 100–9999900 میلی‌متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
+4082,7144-1,INSIZE | اینسایز,7144-1,چرخ‌متر,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر مدل 1-7144,چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
+4084,7145-1,INSIZE | اینسایز,7145-1,چرخ‌متر,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر همراه با کوله پشتی مدل 1-7145,چرخ‌متر اینسایز کد 7145-1، 0.1–9999.9 متر,SUFFIX_GOVERNED,NO_DIRECT_TITLE_FALLBACK
 4101,8003-10,INSIZE | اینسایز,8003-10,ترازوی دیجیتال,ترازو دیجیتال اینسایز (Insize) 20 گرم تا 10 کیلوگرم مدل 10-8003,ترازوی دیجیتال اینسایز کد 8003-10,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 4102,8003-6,INSIZE | اینسایز,8003-6,ترازوی دیجیتال,ترازو دیجیتال اینسایز (Insize) 10 گرم تا 6 کیلوگرم مدل 6-8003,ترازوی دیجیتال اینسایز کد 8003-6,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK
 4104,8101-30,INSIZE | اینسایز,8101-30,ترازوی دیجیتال,ترازو دیجیتال شمارش دار اینسایز (Insize) 20g تا 30kg مدل 30-8101,ترازوی دیجیتال اینسایز کد 8101-30,VARIANT_NOT_REQUIRED_APPROVED,NO_DIRECT_TITLE_FALLBACK

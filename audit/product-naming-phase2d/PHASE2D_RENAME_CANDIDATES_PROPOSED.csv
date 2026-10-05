@@ -335,8 +335,8 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 3813,6377-25W,میکرومتر خارج‌سنج اینسایز کد 6377-25W، 0–25 میلی‌متر,6377-25W,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,SUFFIX_GOVERNED,measurement_range,0–25 میلی‌متر
 3814,6557-50,صفرکن محور Z اینسایز کد 6557-50,6557-50,ZERO_SETTER,صفرکن محور Z,VARIANT_NOT_REQUIRED_APPROVED,,
 3825,9501-1200,ضخامت‌سنج پوشش اینسایز کد 9501-1200,9501-1200,COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,VARIANT_NOT_REQUIRED_APPROVED,,
-3826,9561-50B,متر لیزری اینسایز کد 9561-50B، 200–50000 میلی‌متر,9561-50B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–50 متر
-3827,9561-70B,متر لیزری اینسایز کد 9561-70B، 200–70000 میلی‌متر,9561-70B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–70 متر
+3826,9561-50B,متر لیزری اینسایز کد 9561-50B، 0.2–50 متر,9561-50B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–50 متر
+3827,9561-70B,متر لیزری اینسایز کد 9561-70B، 0.2–70 متر,9561-70B,LASER_DISTANCE_METER,متر لیزری,SUFFIX_GOVERNED,measurement_range,0.2–70 متر
 3841,4608-31,فیلر نواری اینسایز کد 4608-31,4608-31,FEELER_GAUGE,فیلر نواری,VARIANT_NOT_REQUIRED_APPROVED,,
 3895,0312-TH50,رطوبت‌سنج اینسایز کد 0312-TH50,0312-TH50,MOISTURE_METER,رطوبت‌سنج,VARIANT_NOT_REQUIRED_APPROVED,,
 3901,1141-1000,عمق‌سنج اینسایز کد 1141-1000، 0–1000 میلی‌متر,1141-1000,DEPTH_GAUGE,عمق‌سنج,SUFFIX_GOVERNED,measurement_range,0–1000 میلی‌متر
@@ -369,8 +369,8 @@ product_id,sku,proposed_name,manufacturer_code,product_type_code,canonical_title
 4048,4845-2,گیج ضخامت فیلم خیس اینسایز کد 4845-2,4845-2,WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,VARIANT_NOT_REQUIRED_APPROVED,,
 4076,6832-1,گیج جوش اینسایز کد 6832-1,6832-1,WELDING_GAUGE,گیج جوش,VARIANT_NOT_REQUIRED_APPROVED,,
 4081,7110-1200,خط‌کش فلزی اینسایز کد 7110-1200، 0–1200 میلی‌متر,7110-1200,STEEL_RULE,خط‌کش فلزی,SUFFIX_GOVERNED,measurement_range,0–1200 میلی‌متر
-4082,7144-1,چرخ‌متر اینسایز کد 7144-1، 100–9999900 میلی‌متر,7144-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
-4084,7145-1,چرخ‌متر اینسایز کد 7145-1، 100–9999900 میلی‌متر,7145-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
+4082,7144-1,چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر,7144-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
+4084,7145-1,چرخ‌متر اینسایز کد 7145-1، 0.1–9999.9 متر,7145-1,MEASURING_WHEEL,چرخ‌متر,SUFFIX_GOVERNED,measurement_range,0.1–9999.9 متر
 4101,8003-10,ترازوی دیجیتال اینسایز کد 8003-10,8003-10,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4102,8003-6,ترازوی دیجیتال اینسایز کد 8003-6,8003-6,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,
 4104,8101-30,ترازوی دیجیتال اینسایز کد 8101-30,8101-30,DIGITAL_SCALE,ترازوی دیجیتال,VARIANT_NOT_REQUIRED_APPROVED,,

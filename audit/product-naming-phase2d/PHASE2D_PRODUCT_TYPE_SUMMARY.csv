@@ -29,10 +29,10 @@ INSIDE_MICROMETER,53,53,0,0,SUFFIX_GOVERNED,measurement_range,,میکرومتر 
 INTERCHANGEABLE_POINT_CALIPER,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر داخل و خارج سنج مدل 300-1530,کولیس نوک‌دار تعویض‌شونده اینسایز کد 1530-300، 0–300 میلی‌متر
 INTERNAL_GROOVE_CALIPER,8,8,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر شیارسنج مدل 150-1120,کولیس شیار داخلی اینسایز کد 1120-150، 22–150 میلی‌متر
 INTERNAL_POINT_CALIPER,1,1,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر داخل سنج مدل150-1121,کولیس نوک‌تیز داخلی اینسایز کد 1121-150، 24–150 میلی‌متر
-LASER_DISTANCE_METER,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,متر لیزری 50متری اینسایز مدل 9561-50B,متر لیزری اینسایز کد 9561-50B، 200–50000 میلی‌متر
+LASER_DISTANCE_METER,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,متر لیزری 50متری اینسایز مدل 9561-50B,متر لیزری اینسایز کد 9561-50B، 0.2–50 متر
 LEVEL,16,0,0,16,HOLD_VARIANT_POLICY_UNDEFINED,,,تراز چهار گوش اینسایز 15 سانتی (Insize) مدل 150-4902,
 MEASURING_TAPE,3,3,0,0,SUFFIX_GOVERNED,measurement_range,,سیرکومتر قطر لوله 20 - 300 — 0-950mm,متر نواری اینسایز کد 7114-950، 150–950 میلی‌متر
-MEASURING_WHEEL,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر مدل 1-7144,چرخ‌متر اینسایز کد 7144-1، 100–9999900 میلی‌متر
+MEASURING_WHEEL,2,2,0,0,SUFFIX_GOVERNED,measurement_range,,چرخ متر اینسایز (Insize) 0.1 – 9999.9 متر مدل 1-7144,چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر
 MOISTURE_METER,2,2,0,0,VARIANT_NOT_REQUIRED_APPROVED,,,رطوبت سنج چوب اینسایز (Insize) مدل 50-9341,رطوبت‌سنج اینسایز کد 9341-50
 NO_PT,778,0,0,778,,,,زاویه سنج سه تکه با خط کش 12کش — 0-100mm,
 OFFSET_CALIPER,3,3,0,0,SUFFIX_GOVERNED,measurement_range,,کولیس فک متحرک اینسایز (Insize) 15 سانت مدل 150-1186,کولیس آفست اینسایز کد 1186-150، 0–150 میلی‌متر
