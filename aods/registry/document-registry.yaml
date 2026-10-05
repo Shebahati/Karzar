@@ -1146,15 +1146,35 @@ documents:
     notes: >
       Phase 2D canonical name candidate dry-run summary. Read-only; no Product.name writes.
 
-  - id: PRODUCT-NAMING-V1-INSIZE-108A-OEM-INDEX
-    path: docs/architecture/specs/product-naming-v1/INSIZE_108A_OEM_CODE_INDEX.csv
+  - id: PRODUCT-NAMING-V1-INSIZE-OEM-OCCURRENCES
+    path: docs/architecture/specs/product-naming-v1/INSIZE_OEM_CODE_OCCURRENCES.csv
     class: SPEC
     rank: 4
     status: current
     owner_role: R-DOC-ARCH
     branch: cursor/product-naming-phase2d-candidate-dry-run
     notes: >
-      Frozen INSIZE 108A/108B OEM code locator index for Phase 2D semantic authority gate.
+      Page-aware INSIZE 108A/108B OEM code occurrence registry (exact PDF page per hit).
+
+  - id: PRODUCT-NAMING-V1-INSIZE-OEM-IDENTITY-REGISTRY
+    path: docs/architecture/specs/product-naming-v1/INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Governed INSIZE OEM product identity selections (authoritative product occurrence only).
+
+  - id: PRODUCT-NAMING-V1-OEM-CANONICAL-IDENTITY-POLICY
+    path: docs/architecture/specs/product-naming-v1/OEM_CANONICAL_IDENTITY_POLICY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      EXACT OEM heading to Product Type and canonical Persian title authority for Phase 2D READY gate.
 
   - id: PRODUCT-NAMING-V1-CANONICAL-TITLE-POLICY
     path: docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv

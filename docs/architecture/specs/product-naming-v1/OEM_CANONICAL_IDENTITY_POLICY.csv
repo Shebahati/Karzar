@@ -1,0 +1,75 @@
+OEM_heading_or_family,match_type,allowed_product_type_code,canonical_title_fa,required_title_qualifier,semantic_scope,policy_status,policy_basis
+ADJUSTABLE SQUARE,EXACT,ENGINEERS_SQUARE,گونیا مهندسی,قابل تنظیم,subtype_qualifier,APPROVED,oem_adjustable_square
+COATING THICKNESS GAUGES (STANDARD TYPE),EXACT,COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,,base_identity,APPROVED,oem_coating_thickness
+COMPACT DIAL INDICATORS,EXACT,DIAL_INDICATOR,ساعت اندازه‌گیری,,broader_title_acceptable,APPROVED,oem_dial_indicator_family
+CONTACT/NON-CONTACT TACHOMETER,EXACT,TACHOMETER,دورسنج,,base_identity,APPROVED,oem_tachometer
+COUNTING SCALES,EXACT,DIGITAL_SCALE,ترازوی دیجیتال,,base_identity,APPROVED,oem_counting_scale
+CYLINDER SQUARES,EXACT,ENGINEERS_SQUARE,گونیا مهندسی,سیلندری,subtype_qualifier,APPROVED,oem_cylinder_square
+DEPTH MICROMETERS,EXACT,DEPTH_MICROMETER,میکرومتر عمق‌سنج,,base_identity,APPROVED,oem_depth_micrometer
+DIAL DEPTH GAUGES,EXACT,DEPTH_GAUGE,عمق‌سنج,,base_identity,APPROVED,oem_dial_depth_gauge
+DIAL INDICATORS (BASIC TYPE),EXACT,DIAL_INDICATOR,ساعت اندازه‌گیری,,broader_title_acceptable,APPROVED,oem_dial_indicator
+DIAL INDICATORS (LONG STROKE),EXACT,DIAL_INDICATOR,ساعت اندازه‌گیری,,broader_title_acceptable,APPROVED,oem_dial_indicator_long_stroke
+DIAL PROTRACTOR,EXACT,PROTRACTOR,زاویه‌سنج,,base_identity,APPROVED,oem_dial_protractor
+DIAL TEST INDICATORS,EXACT,TEST_INDICATOR,ساعت اهرمی,,base_identity,APPROVED,oem_test_indicator
+DIGITAL CALIPERS WITH INTERCHANGEABLE POINTS,EXACT,INTERCHANGEABLE_POINT_CALIPER,کولیس نوک‌دار تعویض‌شونده,,base_identity,APPROVED,oem_interchangeable_point_caliper
+DIGITAL CHAMFER GAUGES,EXACT,CHAMFER_GAUGE,گیج پخ,,base_identity,APPROVED,oem_chamfer_gauge
+DIGITAL DEPTH GAUGES,EXACT,DEPTH_GAUGE,عمق‌سنج,,base_identity,APPROVED,oem_digital_depth_gauge
+DIGITAL EXTERNAL CALIPER GAUGES,EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,base_identity,APPROVED,oem_indicating_caliper
+DIGITAL GEAR TOOTH CALIPERS,EXACT,GEAR_TOOTH_CALIPER,کولیس ضخامت دندانه,,base_identity,APPROVED,oem_gear_tooth_caliper
+DIGITAL HEIGHT GAUGES,EXACT,HEIGHT_GAUGE,ارتفاع‌سنج,,base_identity,APPROVED,oem_height_gauge
+DIGITAL HEIGHT GAUGES WITH DRIVING WHEEL,EXACT,HEIGHT_GAUGE,ارتفاع‌سنج,,broader_title_acceptable,APPROVED,oem_height_gauge_driving_wheel
+DIGITAL HOOK CALIPERS,EXACT,HOOK_CALIPER,کولیس قلاب‌دار,,base_identity,APPROVED,oem_hook_caliper
+DIGITAL INSIDE GROOVE CALIPERS,EXACT,INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,,base_identity,APPROVED,oem_internal_groove_caliper
+DIGITAL INSIDE MICROMETERS (ECONOMIC TYPE),EXACT,INSIDE_MICROMETER,میکرومتر داخل‌سنج,,broader_title_acceptable,APPROVED,oem_inside_micrometer_digital
+DIGITAL INTERNAL CALIPER GAUGES,EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,base_identity,APPROVED,oem_internal_caliper_gauge
+DIGITAL INTERNAL CALIPER GAUGES (ECONOMIC TYPE),EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,broader_title_acceptable,APPROVED,oem_internal_caliper_economic
+DIGITAL LEVEL AND SLOPE METER,EXACT,DIGITAL_LEVEL,تراز دیجیتال,,base_identity,APPROVED,oem_digital_level_slope
+DIGITAL LEVELS AND SLOPE METERS,EXACT,DIGITAL_LEVEL,تراز دیجیتال,,base_identity,APPROVED,oem_digital_level_slope
+DIGITAL MOISTURE METER,EXACT,MOISTURE_METER,رطوبت‌سنج,,base_identity,APPROVED,oem_moisture_meter
+DIGITAL PROTRACTOR,EXACT,PROTRACTOR,زاویه‌سنج,,base_identity,APPROVED,oem_digital_protractor
+DIGITAL PROTRACTORS,EXACT,PROTRACTOR,زاویه‌سنج,,base_identity,APPROVED,oem_digital_protractors
+DIGITAL SMALL POINT CALIPERS,EXACT,POINT_CALIPER,کولیس نوک‌تیز,,base_identity,APPROVED,oem_point_caliper
+DIGITAL ZERO SETTER,EXACT,ZERO_SETTER,صفرکن محور Z,,base_identity,APPROVED,oem_digital_zero_setter
+ELECTRONIC ZERO SETTER,EXACT,ZERO_SETTER,صفرکن محور Z,,broader_title_acceptable,APPROVED,oem_electronic_zero_setter
+DOUBLE FACE DIAL INDICATOR,EXACT,DIAL_INDICATOR,ساعت اندازه‌گیری,,broader_title_acceptable,APPROVED,oem_double_face_dial
+ELECTRONIC CRANE SCALES,EXACT,DIGITAL_SCALE,ترازوی دیجیتال,,broader_title_acceptable,APPROVED,oem_crane_scale
+ELECTRONIC POCKET SCALE (ECONOMIC TYPE),EXACT,DIGITAL_SCALE,ترازوی دیجیتال,,broader_title_acceptable,APPROVED,oem_pocket_scale
+EXTERNAL DIAL CALIPER GAUGES,EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,base_identity,APPROVED,oem_external_dial_caliper
+FEELER GAUGE ROLLS,EXACT,FEELER_GAUGE,فیلر نواری,,base_identity,APPROVED,oem_feeler_roll
+FEELER GAUGES,EXACT,FEELER_GAUGE_SET,ست فیلر,,base_identity,APPROVED,oem_feeler_set
+FILLET WELDING GAUGE,EXACT,FILLET_WELD_GAUGE,گیج جوش نبشی,,base_identity,APPROVED,oem_fillet_weld_gauge
+FILLET WELDING GAUGES,EXACT,FILLET_WELD_GAUGE,گیج جوش نبشی,,base_identity,APPROVED,oem_fillet_weld_gauges
+GEAR TOOTH PITCH GAUGES,EXACT,GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,,base_identity,APPROVED,oem_gear_pitch
+GRANITE SQUARES,EXACT,ENGINEERS_SQUARE,گونیا مهندسی,گرانیتی,subtype_qualifier,APPROVED,oem_granite_square
+INCH DIAL INDICATORS,EXACT,DIAL_INDICATOR,ساعت اندازه‌گیری,,broader_title_acceptable,APPROVED,oem_inch_dial
+INCH FEELER GAUGE,EXACT,FEELER_GAUGE,فیلر نواری,,base_identity,APPROVED,oem_inch_feeler
+INSIDE MICROMETERS (ECONOMIC TYPE),EXACT,INSIDE_MICROMETER,میکرومتر داخل‌سنج,,broader_title_acceptable,APPROVED,oem_inside_micrometer
+INTERNAL DIAL CALIPER GAUGES,EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,base_identity,APPROVED,oem_internal_dial_caliper
+INTERNAL DIAL CALIPER GAUGES WITH INTERCHANGEABLE POINTS,EXACT,INDICATING_CALIPER,پرگار نشان‌گر,,broader_title_acceptable,APPROVED,oem_internal_dial_interchangeable
+LASER DISTANCE METERS,EXACT,LASER_DISTANCE_METER,متر لیزری,,base_identity,APPROVED,oem_laser_distance
+LONG FEELER GAUGES,EXACT,FEELER_GAUGE_SET,ست فیلر,,broader_title_acceptable,APPROVED,oem_long_feeler_set
+MACHINIST SQUARES (ECONOMIC TYPE),EXACT,ENGINEERS_SQUARE,گونیا مهندسی,,base_identity,APPROVED,oem_machinist_square
+MACHINIST SQUARES WITH WIDE BASE (ECONOMIC TYPE),EXACT,ENGINEERS_SQUARE,گونیا مهندسی,پایه پهن,subtype_qualifier,APPROVED,oem_wide_base_square
+MEASURING WHEEL,EXACT,MEASURING_WHEEL,چرخ‌متر,,base_identity,APPROVED,oem_measuring_wheel
+MEASURING WHEEL (BASIC TYPE),EXACT,MEASURING_WHEEL,چرخ‌متر,,base_identity,APPROVED,oem_measuring_wheel_basic
+MINI DIGITAL DEPTH GAUGES WITH ROUND BAR,EXACT,DEPTH_GAUGE,عمق‌سنج,,broader_title_acceptable,APPROVED,oem_mini_depth_gauge
+MULTIMETER SELECTION TABLE,EXACT,DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,,broader_title_acceptable,APPROVED,oem_multimeter_table
+OUTSIDE MICROMETERS,EXACT,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,,base_identity,APPROVED,oem_outside_micrometer
+OUTSIDE MICROMETERS WITH COUNTER,EXACT,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,,broader_title_acceptable,APPROVED,oem_outside_micrometer_counter
+OUTSIDE MICROMETERS WITH EXTENSION ANVIL COLLAR,EXACT,OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,,broader_title_acceptable,APPROVED,oem_outside_micrometer_extension
+PIPE WELDING GAUGE,EXACT,WELDING_GAUGE,گیج جوش,,base_identity,APPROVED,oem_pipe_weld_gauge
+PITCH GAUGES,EXACT,THREAD_PITCH_GAUGE,شابلون گام رزوه,,base_identity,APPROVED,oem_pitch_gauge
+PLASTIC ANGLE SQUARE,EXACT,ANGLE_GAUGE,گیج زاویه,,base_identity,APPROVED,oem_plastic_angle_square
+PORTABLE CRANE SCALE,EXACT,DIGITAL_SCALE,ترازوی دیجیتال,,broader_title_acceptable,APPROVED,oem_portable_crane_scale
+PROTRACTOR (ECONOMIC TYPE),EXACT,PROTRACTOR,زاویه‌سنج,,base_identity,APPROVED,oem_protractor_economic
+STEEL RULERS,EXACT,STEEL_RULE,خط‌کش فلزی,,base_identity,APPROVED,oem_steel_rule
+TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE),EXACT,MOISTURE_METER,دما و رطوبت‌سنج,,multi_function,APPROVED,oem_temp_humidity_meter
+TUBULAR INSIDE MICROMETERS,EXACT,INSIDE_MICROMETER,میکرومتر داخل‌سنج,,broader_title_acceptable,APPROVED,oem_tubular_inside_micrometer
+UNIVERSAL PROTRACTOR,EXACT,PROTRACTOR,زاویه‌سنج,,broader_title_acceptable,APPROVED,oem_universal_protractor
+VERNIER DEPTH GAUGES (STANDARD TYPE),EXACT,DEPTH_GAUGE,عمق‌سنج,,base_identity,APPROVED,oem_vernier_depth
+VERNIER HEIGHT GAUGES,EXACT,HEIGHT_GAUGE,ارتفاع‌سنج,,base_identity,APPROVED,oem_vernier_height
+WATERPROOF DIGITAL PROTRACTOR (HEAVY DUTY),EXACT,PROTRACTOR,زاویه‌سنج,,broader_title_acceptable,APPROVED,oem_waterproof_protractor
+WEIGHING SCALES (ECONOMIC TYPE),EXACT,DIGITAL_SCALE,ترازوی دیجیتال,,base_identity,APPROVED,oem_weighing_scale
+WELDING GAUGE,EXACT,WELDING_GAUGE,گیج جوش,,base_identity,APPROVED,oem_welding_gauge
+WELDING GAUGES,EXACT,WELDING_GAUGE,گیج جوش,,base_identity,APPROVED,oem_welding_gauges
+WET FILM GAUGES,EXACT,WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,,base_identity,APPROVED,oem_wet_film_gauge

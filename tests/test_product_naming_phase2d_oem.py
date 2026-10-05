@@ -3,11 +3,8 @@
 from __future__ import annotations
 
 from app.domain.product_naming_phase2d import Phase2DAuditRow
-from app.domain.product_naming_phase2d_oem import (
-    OemCodeRecord,
-    apply_oem_semantic_holds,
-    evaluate_oem_semantic,
-)
+from app.domain.product_naming_phase2d_oem import apply_oem_semantic_holds, evaluate_oem_semantic
+from app.domain.product_naming_phase2d_oem_extract import load_identity_registry
 
 
 def _ready_row(
@@ -59,56 +56,35 @@ def _ready_row(
     )
 
 
-def _oem_level(code: str) -> OemCodeRecord:
-    return OemCodeRecord(
-        manufacturer_code=code,
-        oem_source="/catalog/108A.pdf",
-        oem_source_sha256="4b251dbbd6b662e64dcc1703dd373886f8e3df8e3363a5406bc706c8aa85123b",
-        oem_page_pdf="497",
-        oem_page_printed="497",
-        oem_section="DIGITAL LEVELS AND SLOPE METERS",
-        oem_product_heading="DIGITAL LEVELS AND SLOPE METERS",
-        oem_category_or_family="DIGITAL LEVELS AND SLOPE METERS",
-        oem_code=code,
-    )
-
-
 def test_known_protractor_vs_digital_level_conflict():
-    oem = _oem_level("2170-1")
-    status, reason, hold, rec_pt, _ = evaluate_oem_semantic(
+    reg = load_identity_registry()
+    identity = reg["2170-1"]
+    ev = evaluate_oem_semantic(
         product_type_code="PROTRACTOR",
         canonical_title_fa="زاویه‌سنج",
-        oem=oem,
+        identity=identity,
     )
-    assert status == "OEM_PRODUCT_TYPE_CONFLICT"
-    assert hold == "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT"
-    assert rec_pt == "DIGITAL_LEVEL"
-    assert reason
+    assert ev.semantic_match_status == "OEM_PRODUCT_TYPE_CONFLICT"
+    assert ev.hold_terminal == "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT"
+    assert ev.recommended_product_type_code == "DIGITAL_LEVEL"
+    assert int(identity.pdf_page) == 587
 
 
 def test_multifunction_humidity_meter_conflict():
-    oem = OemCodeRecord(
-        manufacturer_code="0312-TH50",
-        oem_source="/catalog/108B.pdf",
-        oem_source_sha256="31fd0d0eec73bab9cdd750701ec999368536d909e40b340f8420580f7691eb26",
-        oem_page_pdf="336",
-        oem_page_printed="336",
-        oem_section="TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE)",
-        oem_product_heading="TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE)",
-        oem_category_or_family="TEMPERATURE AND HUMIDITY METER (ECONOMIC TYPE)",
-        oem_code="0312-TH50",
-    )
-    status, _reason, hold, _rec, rec_title = evaluate_oem_semantic(
+    reg = load_identity_registry()
+    identity = reg["0312-TH50"]
+    ev = evaluate_oem_semantic(
         product_type_code="MOISTURE_METER",
         canonical_title_fa="رطوبت‌سنج",
-        oem=oem,
+        identity=identity,
     )
-    assert status == "OEM_MULTI_FUNCTION_TITLE_CONFLICT"
-    assert hold == "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT"
-    assert "دما" in rec_title
+    assert ev.semantic_match_status == "OEM_MULTI_FUNCTION_TITLE_CONFLICT"
+    assert ev.hold_terminal == "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT"
+    assert "دما" in ev.recommended_canonical_title_fa
 
 
 def test_oem_gate_downgrades_ready_rows():
+    reg = load_identity_registry()
     audits = [
         _ready_row(
             product_id=3485,
@@ -117,18 +93,17 @@ def test_oem_gate_downgrades_ready_rows():
             canonical_title_fa="زاویه‌سنج",
         )
     ]
-    index = {"2170-1": _oem_level("2170-1")}
-    rows, meta = apply_oem_semantic_holds(audits, index)
+    rows, meta = apply_oem_semantic_holds(audits, reg)
     assert audits[0].terminal_classification == "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT"
     assert rows[0]["candidate_eligible_after_oem_gate"] == "no"
-    assert meta["pre_oem_READY"] == 1
+    assert meta["pre_exact_gate_candidates"] == 1
 
 
 def test_missing_oem_evidence_cannot_stay_ready():
     audits = [
         _ready_row(
             product_id=1,
-            manufacturer_code="UNKNOWN-CODE",
+            manufacturer_code="UNKNOWN-CODE-XY",
             product_type_code="OUTSIDE_MICROMETER",
             canonical_title_fa="میکرومتر خارج‌سنج",
         )
@@ -137,9 +112,15 @@ def test_missing_oem_evidence_cannot_stay_ready():
     assert audits[0].terminal_classification == "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING"
 
 
-def test_load_index_has_known_conflict_codes():
-    from app.domain.product_naming_phase2d_oem import load_oem_code_index
-
-    index = load_oem_code_index()
-    assert index["2175-360"].oem_category_or_family.startswith("DIGITAL LEVEL")
-    assert "TEMPERATURE AND HUMIDITY" in index["0312-TH50"].oem_category_or_family
+def test_zero_setter_not_square_anvil_false_conflict():
+    reg = load_identity_registry()
+    identity = reg["6557-50"]
+    ev = evaluate_oem_semantic(
+        product_type_code="ZERO_SETTER",
+        canonical_title_fa="صفرکن محور Z",
+        identity=identity,
+    )
+    assert identity.evidence_status == "EXACT_PRODUCT_IDENTITY"
+    assert "ZERO SETTER" in identity.oem_product_heading
+    assert ev.semantic_match_status == "OEM_SEMANTIC_MATCH"
+    assert ev.canonical_title_verdict == "OEM_TITLE_EXACT"

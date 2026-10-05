@@ -348,13 +348,13 @@ def run_classification(
     policy_review = apply_policy_review_holds(audits)
     from app.domain.product_naming_phase2d_oem import (  # noqa: PLC0415
         apply_oem_semantic_holds,
-        load_oem_code_index,
+        default_identity_registry,
     )
 
-    oem_index = load_oem_code_index()
-    if not oem_index:
-        raise RuntimeError("oem_code_index_missing")
-    oem_authority_rows, oem_meta = apply_oem_semantic_holds(audits, oem_index)
+    identity_registry = default_identity_registry()
+    if not identity_registry:
+        raise RuntimeError("oem_identity_registry_missing")
+    oem_authority_rows, oem_meta = apply_oem_semantic_holds(audits, identity_registry)
     return audits, policy_review, oem_authority_rows, oem_meta
 
 
@@ -755,25 +755,22 @@ def run_audit(
     owner_sample = build_owner_review_sample(audits)
     owner_rows = []
     for a in owner_sample:
-        auto_status, _note = evaluate_policy_review_status(a)
-        pol = CANONICAL_POLICY.get(a.product_type_code or "")
         oem_row = oem_by_pid.get(a.product_id, {})
         owner_rows.append(
             {
                 "product_id": str(a.product_id),
-                "brand": a.brand_name,
-                "product_type_code": a.product_type_code,
-                "canonical_title_fa": a.canonical_title_fa,
-                "variant_policy": a.variant_policy,
-                "variant_property": pol.primary_variant_property if pol else "",
-                "formatter": pol.formatter if pol else "",
-                "current_name": a.current_name,
-                "proposed_name": a.proposed_name,
+                "manufacturer_code": a.manufacturer_code,
                 "OEM_product_heading": oem_row.get("oem_product_heading", ""),
                 "OEM_family": oem_row.get("oem_category_or_family", ""),
-                "OEM_page": oem_row.get("oem_page_pdf", ""),
-                "OEM_semantic_status": oem_row.get("semantic_match_status", ""),
-                "automated_validation": auto_status,
+                "OEM_subtype": oem_row.get("OEM_subtype", ""),
+                "exact_pdf_page": oem_row.get("exact_pdf_page", oem_row.get("oem_page_pdf", "")),
+                "product_type_code": a.product_type_code,
+                "canonical_title_fa": a.canonical_title_fa,
+                "title_qualifier": oem_row.get("title_qualifier", ""),
+                "current_name": a.current_name,
+                "proposed_name": a.proposed_name,
+                "product_type_semantic_status": oem_row.get("semantic_match_status", ""),
+                "canonical_title_semantic_status": oem_row.get("canonical_title_verdict", ""),
                 "owner_review_status": "PENDING",
                 "owner_note": "",
             }
@@ -808,9 +805,13 @@ def run_audit(
 
     counts = recon["counts"]
     hold_total = sum(v for k, v in counts.items() if k.startswith("HOLD_"))
-    oem_registry_sha = sha256_file(
-        ROOT / "docs/architecture/specs/product-naming-v1/INSIZE_108A_OEM_CODE_INDEX.csv"
-    )
+    spec_v1 = ROOT / "docs/architecture/specs/product-naming-v1"
+    oem_occurrence_sha = sha256_file(spec_v1 / "INSIZE_OEM_CODE_OCCURRENCES.csv")
+    oem_identity_sha = sha256_file(spec_v1 / "INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv")
+    oem_canonical_policy_sha = sha256_file(spec_v1 / "OEM_CANONICAL_IDENTITY_POLICY.csv")
+    from app.domain.product_naming_phase2d_oem import governed_oem_source_shas  # noqa: PLC0415
+
+    sha_108a, sha_108b = governed_oem_source_shas()
     ready_oem_fail = 0
     for a in audits:
         if a.terminal_classification != "READY_RENAME":
@@ -857,17 +858,40 @@ def run_audit(
         "phase2d_logic_sha256": logic_sha256,
         "audit_logic_sha256": logic_sha256,
         "audit_logic_git_sha": phase2d_logic_git_sha,
+        "phase2d_exact_oem_logic_git_sha": phase2d_logic_git_sha,
         "phase2d_oem_semantic_logic_git_sha": phase2d_logic_git_sha,
         "authoritative_run_logic_sha": phase2d_logic_git_sha,
         "artifact_generated_from_logic_sha": phase2d_logic_git_sha,
-        "oem_evidence_registry_sha256": oem_registry_sha,
+        "108A_sha256": sha_108a,
+        "108B_sha256": sha_108b,
+        "OEM_occurrence_registry_sha256": oem_occurrence_sha,
+        "OEM_identity_registry_sha256": oem_identity_sha,
+        "OEM_canonical_policy_sha256": oem_canonical_policy_sha,
+        "oem_evidence_registry_sha256": oem_identity_sha,
+        "pre_exact_gate_candidates": oem_meta.get("pre_exact_gate_candidates", 0),
         "pre_oem_READY": oem_meta.get("pre_oem_READY", 0),
         "post_oem_READY": counts.get("READY_RENAME", 0),
+        "final_READY_RENAME": counts.get("READY_RENAME", 0),
+        "exact_occurrence_count": oem_meta.get("occurrence_EXACT_PRODUCT_IDENTITY", 0),
+        "ambiguous_occurrence_count": oem_meta.get("occurrence_AMBIGUOUS", 0),
+        "accessory_only_count": oem_meta.get("occurrence_INSUFFICIENT", 0),
+        "evidence_insufficient_count": oem_meta.get("OEM_EVIDENCE_INSUFFICIENT", 0),
+        "product_type_semantic_pass": oem_meta.get("OEM_SEMANTIC_MATCH", 0)
+        + oem_meta.get("OEM_SEMANTIC_BROADER_BUT_ACCEPTABLE", 0),
+        "product_type_conflicts": oem_meta.get("OEM_PRODUCT_TYPE_CONFLICT", 0),
+        "canonical_title_pass": oem_meta.get("title_OEM_TITLE_EXACT", 0)
+        + oem_meta.get("title_OEM_TITLE_BROADER_BUT_SUFFICIENT", 0),
+        "canonical_title_conflicts": oem_meta.get("title_OEM_TITLE_CONFLICT", 0),
+        "canonical_title_requires_qualifier": oem_meta.get("title_OEM_TITLE_REQUIRES_QUALIFIER", 0),
+        "OEM_EVIDENCE_AMBIGUOUS": oem_meta.get("OEM_EVIDENCE_AMBIGUOUS", 0),
+        "all_READY_have_exact_OEM_product_evidence": ready_oem_fail == 0,
+        "all_READY_have_product_type_semantic_pass": ready_oem_fail == 0,
+        "all_READY_have_canonical_title_semantic_pass": ready_oem_fail == 0,
         "OEM_semantic_validated_rows": oem_meta.get("OEM_semantic_validated_rows", 0),
         "OEM_SEMANTIC_MATCH": oem_meta.get("OEM_SEMANTIC_MATCH", 0),
         "OEM_SEMANTIC_BROADER_BUT_ACCEPTABLE": oem_meta.get("OEM_SEMANTIC_BROADER_BUT_ACCEPTABLE", 0),
         "OEM_PRODUCT_TYPE_CONFLICT": oem_meta.get("OEM_PRODUCT_TYPE_CONFLICT", 0),
-        "OEM_CANONICAL_TITLE_CONFLICT": oem_meta.get("OEM_CANONICAL_TITLE_CONFLICT", 0),
+        "OEM_CANONICAL_TITLE_CONFLICT": oem_meta.get("title_OEM_TITLE_CONFLICT", 0),
         "OEM_MULTI_FUNCTION_TITLE_CONFLICT": oem_meta.get("OEM_MULTI_FUNCTION_TITLE_CONFLICT", 0),
         "OEM_EVIDENCE_INSUFFICIENT": oem_meta.get("OEM_EVIDENCE_INSUFFICIENT", 0),
         "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT": counts.get("HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT", 0),

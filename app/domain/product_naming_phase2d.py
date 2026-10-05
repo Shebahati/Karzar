@@ -1278,21 +1278,24 @@ def audit_logic_fingerprint(domain_path: Path, script_path: Path) -> str:
     h = hashlib.sha256()
     h.update(domain_path.read_bytes())
     h.update(script_path.read_bytes())
-    oem_path = domain_path.parent / "product_naming_phase2d_oem.py"
-    if oem_path.is_file():
-        h.update(oem_path.read_bytes())
+    spec = Path(__file__).resolve().parents[2] / "docs" / "architecture" / "specs" / "product-naming-v1"
+    for rel in (
+        "product_naming_phase2d_oem.py",
+        "product_naming_phase2d_oem_extract.py",
+        "product_naming_phase2d_oem_policy.py",
+    ):
+        p = domain_path.parent / rel
+        if p.is_file():
+            h.update(p.read_bytes())
     h.update(NAMING_STANDARD_VERSION.encode())
     h.update(authoritative_policy_path().read_bytes())
-    oem_index = (
-        Path(__file__).resolve().parents[2]
-        / "docs"
-        / "architecture"
-        / "specs"
-        / "product-naming-v1"
-        / "INSIZE_108A_OEM_CODE_INDEX.csv"
-    )
-    if oem_index.is_file():
-        h.update(oem_index.read_bytes())
+    for name in (
+        "INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv",
+        "OEM_CANONICAL_IDENTITY_POLICY.csv",
+    ):
+        reg = spec / name
+        if reg.is_file():
+            h.update(reg.read_bytes())
     return h.hexdigest()
 
 
