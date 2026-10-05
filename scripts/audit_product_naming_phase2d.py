@@ -35,17 +35,22 @@ from app.domain.product_naming_phase2d import (  # noqa: E402
     apply_policy_review_holds,
     audit_logic_fingerprint,
     authoritative_policy_path,
+    build_owner_review_sample,
     build_policy_review_sample,
+    build_variant_semantic_audit_rows,
     canonical_candidate_rows,
     canonical_candidate_sha256,
     classify_product_phase2d,
     compute_freeze_status,
+    count_ready_variant_policies,
     detect_collisions,
     deterministic_human_review_sample,
     evaluate_policy_review_status,
     reconcile_classifications,
     reject_forbidden_cli_args,
+    scan_semantic_anomaly_audit,
     sha256_file,
+    validate_canonical_policy_registry,
     write_canonical_candidate_csv,
 )
 
@@ -416,7 +421,7 @@ def human_review_markdown(sample: list[Phase2DAuditRow]) -> str:
         "Deterministic stratified sample preserved for Phase 2D evidence history.",
         "",
         "| product_id | brand | terminal_classification | product_type_code | canonical_title_fa | "
-        "current_name | proposed_name | variant_policy | manual_status | review_note |",
+        "current_name | proposed_name | variant_policy | automated_policy_validation_status | validation_note |",
         "|---:|---|---|---|---|---|---|---|---|---|",
     ]
     for a in sample:
@@ -463,12 +468,14 @@ def human_review_markdown(sample: list[Phase2DAuditRow]) -> str:
 
 def policy_review_markdown(sample: list[Phase2DAuditRow]) -> str:
     lines = [
-        "# Phase 2D policy-level human review",
+        "# Phase 2D policy-level automated validation",
+        "",
+        "**AUTOMATED VALIDATION ONLY — NOT OWNER APPROVAL**",
         "",
         "One or more representative READY rows per Product Type plus governance edge cases.",
         "",
         "| product_id | brand | terminal_classification | product_type_code | canonical_title_fa | "
-        "current_name | proposed_name | variant_policy | manual_status | review_note |",
+        "current_name | proposed_name | variant_policy | automated_policy_validation_status | validation_note |",
         "|---:|---|---|---|---|---|---|---|---|---|",
     ]
     pass_n = fail_n = review_n = 0
@@ -530,6 +537,10 @@ def run_audit(
     audit_snapshot_policy_sha256 = sha256_file(policy_snapshot_path)
     if authoritative_policy_sha256 != audit_snapshot_policy_sha256:
         raise RuntimeError("policy_snapshot_sha_mismatch")
+
+    registry_errors = validate_canonical_policy_registry()
+    if registry_errors:
+        raise RuntimeError(f"canonical_policy_registry_invalid: {registry_errors[:5]}")
 
     frozen = load_frozen_cohort()
     pids = sorted(frozen.keys())
@@ -704,6 +715,49 @@ def run_audit(
         encoding="utf-8",
     )
 
+    owner_sample = build_owner_review_sample(audits)
+    owner_rows = []
+    for a in owner_sample:
+        auto_status, note = evaluate_policy_review_status(a)
+        pol = CANONICAL_POLICY.get(a.product_type_code or "")
+        owner_rows.append(
+            {
+                "product_id": str(a.product_id),
+                "brand": a.brand_name,
+                "product_type_code": a.product_type_code,
+                "canonical_title_fa": a.canonical_title_fa,
+                "variant_policy": a.variant_policy,
+                "variant_property": pol.primary_variant_property if pol else "",
+                "formatter": pol.formatter if pol else "",
+                "current_name": a.current_name,
+                "proposed_name": a.proposed_name,
+                "automated_validation": auto_status,
+                "owner_review_status": "PENDING",
+                "owner_note": "",
+            }
+        )
+    write_csv(
+        out_dir / "PHASE2D_OWNER_REVIEW_SAMPLE.csv",
+        list(owner_rows[0].keys()) if owner_rows else ["product_id"],
+        owner_rows,
+    )
+
+    semantic_rows = build_variant_semantic_audit_rows(audits)
+    write_csv(
+        out_dir / "PHASE2D_VARIANT_SEMANTIC_AUDIT.csv",
+        list(semantic_rows[0].keys()) if semantic_rows else ["product_type_code"],
+        semantic_rows,
+    )
+    semantic_anomaly = scan_semantic_anomaly_audit(audits)
+    (out_dir / "PHASE2D_SEMANTIC_ANOMALY_AUDIT.json").write_text(
+        json.dumps(semantic_anomaly, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    variant_counts = count_ready_variant_policies(audits)
+    semantic_dimension_failures = sum(
+        1 for r in semantic_rows if r.get("semantic_validation") != "PASS"
+    )
+
     _write_gap_and_summaries(out_dir, audits, inputs)
     (out_dir / "PHASE2D_COLLISION_AUDIT.json").write_text(
         json.dumps(collision_report, ensure_ascii=False, indent=2) + "\n",
@@ -734,6 +788,9 @@ def run_audit(
         ready_collision_count=ready_collision_count,
         policy_review=policy_review_meta,
         read_only_ok=proof.get("transaction_read_only") == "on",
+        semantic_dimension_failures=semantic_dimension_failures,
+        wrong_unit_canary_failures=semantic_anomaly.get("wrong_unit_canary_failures", 0),
+        variant_not_required_with_suffix=variant_counts.get("variant_not_required_with_suffix", 0),
     )
     if status == "READY_FOR_OWNER_RENAME_REVIEW" and counts.get("READY_RENAME", 0) == 0:
         status = "PARTIAL"
@@ -742,6 +799,7 @@ def run_audit(
         "status": status,
         "generated_at": datetime.now(UTC).isoformat(),
         "latest_main_sha": latest_main_sha,
+        "phase2d_semantic_logic_git_sha": phase2d_logic_git_sha,
         "phase2d_logic_git_sha": phase2d_logic_git_sha,
         "phase2d_logic_sha256": logic_sha256,
         "audit_logic_sha256": logic_sha256,
@@ -770,6 +828,12 @@ def run_audit(
         "policy_review_PASS_count": policy_review_meta.get("PASS", 0),
         "policy_review_FAIL_count": policy_review_meta.get("FAIL", 0),
         "policy_review_REVIEW_count": policy_review_meta.get("REVIEW", 0),
+        "owner_review_status": "PENDING",
+        "VARIANT_REQUIRED_READY": variant_counts.get("VARIANT_REQUIRED_READY", 0),
+        "VARIANT_NOT_REQUIRED_READY": variant_counts.get("VARIANT_NOT_REQUIRED_READY", 0),
+        "variant_not_required_with_suffix": variant_counts.get("variant_not_required_with_suffix", 0),
+        "semantic_dimension_failures": semantic_dimension_failures,
+        "wrong_unit_canary_failures": semantic_anomaly.get("wrong_unit_canary_failures", 0),
         "collision_groups": {
             "exact_in_cohort": len(collision_report.get("exact_proposed_within_cohort") or {}),
             "normalized_in_cohort": len(collision_report.get("normalized_proposed_within_cohort") or {}),
@@ -807,6 +871,8 @@ def _remediation(terminal: str) -> str:
         "HOLD_STRUCTURAL_CONFLICT": "Fix governance gaps blocking HIGH confidence name",
         "HOLD_PRODUCT_TYPE_TITLE_LABEL_UNAPPROVED": "Approve canonical_title_fa in naming policy registry",
         "HOLD_POLICY_REVIEW_BLOCKED": "Resolve policy-level review FAIL/REVIEW for Product Type",
+        "HOLD_SEMANTIC_SUFFIX_LEAKAGE": "Remove variant suffix under NOT_REQUIRED policy",
+        "HOLD_SEMANTIC_UNIT_MISMATCH": "Fix formatter/dimension or variant governance",
     }.get(terminal, "Manual governance review")
 
 

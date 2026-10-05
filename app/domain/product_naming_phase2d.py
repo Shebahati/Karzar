@@ -58,8 +58,37 @@ TERMINAL_CLASSIFICATIONS: tuple[str, ...] = (
     "HOLD_NAME_COLLISION",
     "HOLD_STRUCTURAL_CONFLICT",
     "HOLD_POLICY_REVIEW_BLOCKED",
+    "HOLD_SEMANTIC_SUFFIX_LEAKAGE",
+    "HOLD_SEMANTIC_UNIT_MISMATCH",
     "HOLD_OTHER",
 )
+
+LENGTH_RANGE_PROPERTY_KEYS = frozenset(
+    {
+        "measurement_range",
+        "range",
+        "working_range",
+        "measuring_range",
+    }
+)
+KNOWN_POLICY_FORMATTERS = frozenset(
+    {
+        "none",
+        "measurement_range_mm",
+        "length_mm",
+        "measurement_range_m",
+    }
+)
+LENGTH_POLICY_FORMATTERS = frozenset({"measurement_range_mm", "length_mm", "measurement_range_m"})
+WRONG_UNIT_CANARY_BY_PT: dict[str, str] = {
+    "ANEMOMETER": "میلی‌متر",
+    "DIGITAL_MULTIMETER": "میلی‌متر",
+    "DIGITAL_SCALE": "میلی‌متر",
+    "TACHOMETER": "میلی‌متر",
+    "VOLTAGE_TESTER": "میلی‌متر",
+    "MOISTURE_METER": "میلی‌متر",
+    "PROTRACTOR": "میلی‌متر",
+}
 
 _BROAD_PT_LABELS = frozenset(
     {
@@ -105,6 +134,9 @@ class CanonicalProductTypePolicy:
     variant_policy: str
     primary_variant_property: str
     formatter: str
+    variant_dimension: str
+    source_unit: str
+    display_unit: str
     policy_basis: str
 
 
@@ -132,13 +164,49 @@ def load_authoritative_canonical_policy(
                 naming_profile_code=(row.get("naming_profile_code") or "generic.v1").strip(),
                 variant_policy=(row.get("variant_policy") or "HOLD_VARIANT_POLICY_UNDEFINED").strip(),
                 primary_variant_property=(row.get("primary_variant_property") or "").strip(),
-                formatter=(row.get("formatter") or "").strip(),
+                formatter=(row.get("formatter") or "none").strip() or "none",
+                variant_dimension=(row.get("variant_dimension") or "").strip(),
+                source_unit=(row.get("source_unit") or "").strip(),
+                display_unit=(row.get("display_unit") or "").strip(),
                 policy_basis=(row.get("policy_basis") or "").strip(),
             )
     return out
 
 
+def validate_canonical_policy_registry(
+    policy: Mapping[str, CanonicalProductTypePolicy] | None = None,
+) -> list[str]:
+    """Return validation errors; non-empty list must block Phase 2D audit."""
+    src = policy if policy is not None else load_authoritative_canonical_policy()
+    errors: list[str] = []
+    for code, pol in sorted(src.items()):
+        fmt = (pol.formatter or "none").strip() or "none"
+        prop = (pol.primary_variant_property or "").strip()
+        if pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+            if prop:
+                errors.append(f"{code}: NOT_REQUIRED must have empty primary_variant_property")
+            if fmt != "none":
+                errors.append(f"{code}: NOT_REQUIRED must use formatter=none")
+            basis = (pol.policy_basis or "").strip()
+            if len(basis) < 48 or "manufacturer_code" not in basis.lower():
+                errors.append(f"{code}: NOT_REQUIRED policy_basis must justify OEM identity")
+        elif pol.variant_policy == "VARIANT_REQUIRED":
+            if not prop:
+                errors.append(f"{code}: VARIANT_REQUIRED missing primary_variant_property")
+            if fmt == "none" or fmt not in KNOWN_POLICY_FORMATTERS:
+                errors.append(f"{code}: VARIANT_REQUIRED missing known formatter")
+            if fmt in LENGTH_POLICY_FORMATTERS and pol.variant_dimension != "length":
+                errors.append(f"{code}: length formatter requires variant_dimension=length")
+            if fmt == "measurement_range_m" and (pol.source_unit != "mm" or pol.display_unit != "m"):
+                errors.append(f"{code}: measurement_range_m requires source_unit=mm display_unit=m")
+        elif pol.variant_policy == "HOLD_VARIANT_POLICY_UNDEFINED":
+            if fmt not in ("none", ""):
+                errors.append(f"{code}: HOLD variant policy must use formatter=none")
+    return errors
+
+
 CANONICAL_POLICY: dict[str, CanonicalProductTypePolicy] = load_authoritative_canonical_policy()
+POLICY_REGISTRY_ERRORS: list[str] = validate_canonical_policy_registry(CANONICAL_POLICY)
 
 
 def _property_key_group(property_code: str) -> tuple[str, ...]:
@@ -369,13 +437,139 @@ def build_facts_from_kb_rows(
         if key in _LEGACY_ACCURACY_KEYS:
             continue
         if isinstance(parsed, dict) and "min" in parsed and "max" in parsed:
-            facts["range_min_mm"] = parsed["min"]
-            facts["range_max_mm"] = parsed["max"]
-            facts["measurement_range"] = (parsed["min"], parsed["max"])
             facts[key] = parsed
+            if key in LENGTH_RANGE_PROPERTY_KEYS:
+                facts["range_min_mm"] = parsed["min"]
+                facts["range_max_mm"] = parsed["max"]
+                facts["measurement_range"] = (parsed["min"], parsed["max"])
         else:
             facts[key] = parsed
     return facts, traces
+
+
+def build_builder_facts(
+    pol: CanonicalProductTypePolicy,
+    facts: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Facts passed to build_product_name_v1 — policy-filtered only."""
+    if pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+        return {}
+    prop = (pol.primary_variant_property or "").strip()
+    if not prop:
+        return {}
+    keys = _property_key_group(prop)
+    out: dict[str, Any] = {}
+    for key in keys:
+        if key in facts:
+            out[key] = facts[key]
+    if prop in LENGTH_RANGE_PROPERTY_KEYS:
+        for alias in ("range_min_mm", "range_max_mm", "measurement_range"):
+            if alias in facts:
+                out[alias] = facts[alias]
+    return out
+
+
+def _format_measurement_range_m(facts: Mapping[str, Any], pol: CanonicalProductTypePolicy) -> str | None:
+    from app.domain.product_naming import _fact_value, _num  # noqa: PLC0415
+
+    keys = _property_key_group(pol.primary_variant_property)
+    raw = _fact_value(facts, keys)
+    min_v = max_v = None
+    if isinstance(raw, dict):
+        min_v, max_v = raw.get("min"), raw.get("max")
+    elif isinstance(raw, list | tuple) and len(raw) == 2:
+        min_v, max_v = raw[0], raw[1]
+    if min_v is None:
+        min_v = facts.get("range_min_mm")
+    if max_v is None:
+        max_v = facts.get("range_max_mm")
+    if min_v is None or max_v is None:
+        return None
+    try:
+        min_m = float(min_v) / 1000.0
+        max_m = float(max_v) / 1000.0
+    except (TypeError, ValueError):
+        return None
+    return f"{_num(min_m)}–{_num(max_m)} متر"
+
+
+def format_variant_by_policy(
+    pol: CanonicalProductTypePolicy,
+    facts: Mapping[str, Any],
+) -> str | None:
+    fmt = (pol.formatter or "none").strip() or "none"
+    if fmt == "none":
+        return None
+    if fmt not in KNOWN_POLICY_FORMATTERS:
+        return None
+    if fmt in LENGTH_POLICY_FORMATTERS and pol.variant_dimension != "length":
+        return None
+    if fmt == "measurement_range_m":
+        return _format_measurement_range_m(facts, pol)
+    from app.domain.product_naming import _fact_value, _format_variant  # noqa: PLC0415
+
+    keys = _property_key_group(pol.primary_variant_property)
+    raw = _fact_value(facts, keys)
+    if fmt == "length_mm":
+        return _format_variant(("nominal_size", "length_mm"), raw, facts)
+    if fmt == "measurement_range_mm":
+        if pol.primary_variant_property not in LENGTH_RANGE_PROPERTY_KEYS:
+            return None
+        return _format_variant(keys, raw, facts)
+    return None
+
+
+def semantic_suffix_leakage_reason(
+    pol: CanonicalProductTypePolicy,
+    variant_trace: VariantFactTrace,
+    naming: NamingResult | None,
+    proposed: str,
+) -> str | None:
+    if pol.variant_policy != "VARIANT_NOT_REQUIRED_APPROVED":
+        return None
+    if variant_trace.formatted_value:
+        return "variant_formatted_value_not_empty"
+    if naming and any(str(u).startswith("fact:") for u in naming.used_fields):
+        return "builder_used_variant_fact"
+    needle = WRONG_UNIT_CANARY_BY_PT.get(pol.product_type_code)
+    if needle and needle in (proposed or ""):
+        return f"wrong_unit_canary:{needle}"
+    prop = proposed or ""
+    if " کد " in prop:
+        after_code = prop.split("کد", 1)[-1].strip()
+        if "،" in after_code or "," in after_code:
+            code_part = after_code.split("،")[0].split(",")[0].strip()
+            remainder = after_code[len(code_part) :].strip(" ،,")
+            if remainder:
+                return "comma_suffix_after_manufacturer_code"
+    return None
+
+
+def semantic_required_variant_reason(
+    pol: CanonicalProductTypePolicy,
+    variant_trace: VariantFactTrace,
+    naming: NamingResult | None,
+) -> str | None:
+    if pol.variant_policy != "VARIANT_REQUIRED":
+        return None
+    if variant_trace.property_code != pol.primary_variant_property:
+        return "variant_property_code_mismatch"
+    if not variant_trace.formatted_value:
+        return "missing_formatted_variant"
+    if not variant_trace.published or not variant_trace.fact_id:
+        return "variant_fact_not_published"
+    if naming and pol.formatter not in ("none", ""):
+        if not any(str(u).startswith("fact:") for u in naming.used_fields):
+            return "builder_did_not_use_governed_variant"
+    return None
+
+
+def wrong_unit_canary_hits(proposed: str, product_type_code: str) -> list[str]:
+    hits: list[str] = []
+    needle = WRONG_UNIT_CANARY_BY_PT.get(product_type_code)
+    if needle and needle in (proposed or ""):
+        hits.append(f"{product_type_code}+{needle}")
+    return hits
 
 
 def _profile_variant_keys(profile: NamingProfile) -> tuple[str, ...]:
@@ -400,10 +594,13 @@ def resolve_variant_from_canonical_policy(
             "VARIANT_NOT_REQUIRED_APPROVED",
         )
 
+    fmt = (pol.formatter or "none").strip() or "none"
+    if fmt == "none" or fmt not in KNOWN_POLICY_FORMATTERS:
+        return VariantFactTrace(None, None, None, None, False, "HOLD_VARIANT_POLICY_UNDEFINED")
     keys = _property_key_group(pol.primary_variant_property)
     if not keys:
         return VariantFactTrace(None, None, None, None, False, "HOLD_VARIANT_POLICY_UNDEFINED")
-    return _resolve_required_variant_trace(keys, profile, facts, kb_traces)
+    return _resolve_required_variant_trace(keys, profile, facts, kb_traces, pol=pol)
 
 
 def _resolve_required_variant_trace(
@@ -411,6 +608,8 @@ def _resolve_required_variant_trace(
     profile: NamingProfile,
     facts: Mapping[str, Any],
     kb_traces: Sequence[Mapping[str, Any]],
+    *,
+    pol: CanonicalProductTypePolicy | None = None,
 ) -> VariantFactTrace:
     published_traces = [
         t
@@ -431,20 +630,30 @@ def _resolve_required_variant_trace(
 
     formatted_values: list[str] = []
     used_trace: dict[str, Any] | None = None
-    for key in keys:
-        if key not in facts:
-            continue
-        probe_facts = dict(facts)
-        from app.domain.product_naming import _format_variant  # noqa: PLC0415
+    builder_facts = build_builder_facts(pol, facts) if pol else dict(facts)
+    if pol is not None:
+        policy_fmt = format_variant_by_policy(pol, builder_facts)
+        if policy_fmt:
+            formatted_values.append(policy_fmt)
+            for t in published_traces:
+                if t.get("property_key") in keys:
+                    used_trace = t
+                    break
+    else:
+        for key in keys:
+            if key not in facts:
+                continue
+            probe_facts = dict(facts)
+            from app.domain.product_naming import _format_variant  # noqa: PLC0415
 
-        fmt = _format_variant(keys, facts.get(key), probe_facts)
-        if fmt:
-            formatted_values.append(fmt)
-            if used_trace is None:
-                for t in published_traces:
-                    if t.get("property_key") == key:
-                        used_trace = t
-                        break
+            fmt = _format_variant(keys, facts.get(key), probe_facts)
+            if fmt:
+                formatted_values.append(fmt)
+                if used_trace is None:
+                    for t in published_traces:
+                        if t.get("property_key") == key:
+                            used_trace = t
+                            break
 
     if len(set(formatted_values)) > 1:
         return VariantFactTrace(
@@ -743,6 +952,7 @@ def classify_product_phase2d(
         and (t.get("property_key") or "") in profile.primary_variant_fact_keys
         and (t.get("property_key") or "") not in _LEGACY_ACCURACY_KEYS
     ]
+    builder_facts = build_builder_facts(pol, facts)
     variant_facts_gov = (
         pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED"
         or not profile.primary_variant_fact_keys
@@ -769,8 +979,8 @@ def classify_product_phase2d(
         product_type_fa=pol.canonical_title_fa,
         brand_raw=row.brand_name,
         manufacturer_code=row.manufacturer_code,
-        facts=facts,
-        naming_profile=profile_code,
+        facts=builder_facts,
+        naming_profile=profile,
         brand_registry_row=brand_registry_row,
         current_name=row.current_name,
         governance=governance,
@@ -842,6 +1052,37 @@ def classify_product_phase2d(
             proposed=proposed,
             naming=naming,
             variant=variant_trace,
+            pol=pol,
+        )
+
+    leak = semantic_suffix_leakage_reason(pol, variant_trace, naming, proposed)
+    if leak:
+        return finish(
+            "HOLD_SEMANTIC_SUFFIX_LEAKAGE",
+            leak,
+            proposed=proposed,
+            naming=naming,
+            variant=variant_trace,
+            pol=pol,
+        )
+    req_issue = semantic_required_variant_reason(pol, variant_trace, naming)
+    if req_issue:
+        return finish(
+            "HOLD_SEMANTIC_UNIT_MISMATCH",
+            req_issue,
+            proposed=proposed,
+            naming=naming,
+            variant=variant_trace,
+            pol=pol,
+        )
+    if wrong_unit_canary_hits(proposed, pol.product_type_code):
+        return finish(
+            "HOLD_SEMANTIC_UNIT_MISMATCH",
+            "wrong_unit_canary",
+            proposed=proposed,
+            naming=naming,
+            variant=variant_trace,
+            pol=pol,
         )
 
     return finish(
@@ -1084,8 +1325,82 @@ def build_policy_review_sample(audits: Sequence[Phase2DAuditRow]) -> list[Phase2
     return sorted(chosen, key=lambda r: (r.product_type_code, r.product_id))
 
 
+def build_owner_review_sample(audits: Sequence[Phase2DAuditRow]) -> list[Phase2DAuditRow]:
+    """Owner-review sample: at least one READY row per Product Type."""
+    return build_policy_review_sample(audits)
+
+
+def build_variant_semantic_audit_rows(
+    audits: Sequence[Phase2DAuditRow],
+) -> list[dict[str, str]]:
+    ready = [a for a in audits if a.terminal_classification == "READY_RENAME"]
+    by_key: dict[tuple[str, str, str], list[Phase2DAuditRow]] = defaultdict(list)
+    for a in ready:
+        pol = CANONICAL_POLICY.get(a.product_type_code or "")
+        formatter = pol.formatter if pol else ""
+        prop = pol.primary_variant_property if pol else a.variant_property_code
+        by_key[(a.product_type_code, prop or "", formatter or "")].append(a)
+    rows: list[dict[str, str]] = []
+    for (pt, prop, fmt), group in sorted(by_key.items()):
+        pol = CANONICAL_POLICY.get(pt or "")
+        validation = "PASS"
+        if pol and pol.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+            if any(a.variant_formatted_value for a in group):
+                validation = "FAIL"
+        if pol and fmt in LENGTH_POLICY_FORMATTERS and (pol.variant_dimension or "") != "length":
+            validation = "FAIL"
+        rows.append(
+            {
+                "product_type_code": pt,
+                "canonical_title_fa": group[0].canonical_title_fa,
+                "variant_policy": group[0].variant_policy,
+                "property_code": prop,
+                "semantic_dimension": pol.variant_dimension if pol else "",
+                "source_unit": pol.source_unit if pol else "",
+                "formatter": fmt,
+                "display_unit": pol.display_unit if pol else "",
+                "ready_rows": str(len(group)),
+                "semantic_validation": validation,
+            }
+        )
+    return rows
+
+
+def scan_semantic_anomaly_audit(audits: Sequence[Phase2DAuditRow]) -> dict[str, Any]:
+    hits: list[dict[str, Any]] = []
+    for a in audits:
+        if a.terminal_classification != "READY_RENAME":
+            continue
+        for label in wrong_unit_canary_hits(a.proposed_name, a.product_type_code):
+            hits.append(
+                {
+                    "product_id": a.product_id,
+                    "product_type_code": a.product_type_code,
+                    "proposed_name": a.proposed_name,
+                    "canary": label,
+                }
+            )
+    return {"wrong_unit_canary_failures": len(hits), "hits": hits}
+
+
+def count_ready_variant_policies(audits: Sequence[Phase2DAuditRow]) -> dict[str, int]:
+    ready = [a for a in audits if a.terminal_classification == "READY_RENAME"]
+    not_required_with_suffix = sum(
+        1
+        for a in ready
+        if a.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED" and (a.variant_formatted_value or "")
+    )
+    return {
+        "VARIANT_REQUIRED_READY": sum(1 for a in ready if a.variant_policy == "VARIANT_REQUIRED"),
+        "VARIANT_NOT_REQUIRED_READY": sum(
+            1 for a in ready if a.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED"
+        ),
+        "variant_not_required_with_suffix": not_required_with_suffix,
+    }
+
+
 def evaluate_policy_review_status(row: Phase2DAuditRow) -> tuple[str, str]:
-    """Deterministic policy review for one READY representative row."""
+    """Automated policy validation for one READY representative row (not owner approval)."""
     if row.terminal_classification not in ("READY_RENAME", "HOLD_POLICY_REVIEW_BLOCKED"):
         return "REVIEW", "not_ready_rename"
     if row.canonical_title_status != "APPROVED":
@@ -1103,7 +1418,12 @@ def evaluate_policy_review_status(row: Phase2DAuditRow) -> tuple[str, str]:
         "SUFFIX_GOVERNED",
     }:
         return "FAIL", "required_variant_not_governed"
-    return "PASS", "policy_checks_ok"
+    if row.variant_policy == "VARIANT_NOT_REQUIRED_APPROVED":
+        if row.variant_formatted_value:
+            return "FAIL", "not_required_with_variant_suffix"
+        if wrong_unit_canary_hits(row.proposed_name or "", row.product_type_code):
+            return "FAIL", "wrong_unit_canary"
+    return "PASS", "automated_policy_validation_ok"
 
 
 def apply_policy_review_holds(audits: list[Phase2DAuditRow]) -> dict[str, Any]:
@@ -1158,8 +1478,17 @@ def compute_freeze_status(
     ready_collision_count: int,
     policy_review: Mapping[str, Any],
     read_only_ok: bool,
+    semantic_dimension_failures: int = 0,
+    wrong_unit_canary_failures: int = 0,
+    variant_not_required_with_suffix: int = 0,
 ) -> str:
     if identity_drift or not reconciles or not replay_identical or not read_only_ok:
+        return "BLOCKED"
+    if (
+        semantic_dimension_failures
+        or wrong_unit_canary_failures
+        or variant_not_required_with_suffix
+    ):
         return "BLOCKED"
     if policy_review.get("FAIL") or policy_review.get("REVIEW"):
         return "PARTIAL"

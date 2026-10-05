@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+from app.domain.product_naming import NAMING_PROFILES, build_product_name_v1
 from app.domain.product_naming_phase2d import (
     PHASE2C_FROZEN_ROWS,
     PHASE2D_COHORT_BRAND_IDS,
@@ -11,16 +13,19 @@ from app.domain.product_naming_phase2d import (
     Phase2DProductInput,
     apply_collision_holds,
     brand_display_governed_phase2d,
+    build_builder_facts,
     build_facts_from_kb_rows,
     canonical_candidate_rows,
     canonical_candidate_sha256,
     classify_product_phase2d,
     detect_collisions,
     identity_drift,
+    load_authoritative_canonical_policy,
     product_type_naming_policy_blocked,
     reconcile_classifications,
     reject_forbidden_cli_args,
     resolve_naming_profile_phase2d,
+    validate_canonical_policy_registry,
     write_canonical_candidate_csv,
 )
 
@@ -360,3 +365,114 @@ def test_gap_blocked_products_counts_all_holds():
     ]
     blocked = sum(1 for r in rows if r.terminal_classification.startswith("HOLD_"))
     assert blocked == 3
+
+
+def test_arbitrary_min_max_not_aliased_to_measurement_range():
+    facts, _ = build_facts_from_kb_rows(
+        [
+            {
+                "property_key": "voltage_range",
+                "status": "published",
+                "value": {"min": 12, "max": 250},
+            }
+        ]
+    )
+    assert "measurement_range" not in facts
+    assert facts["voltage_range"] == {"min": 12, "max": 250}
+
+
+def test_builder_facts_empty_for_not_required():
+    policy = load_authoritative_canonical_policy()["DIGITAL_MULTIMETER"]
+    facts = {"measurement_range": (0.06, 600), "range_min_mm": 0.06}
+    assert build_builder_facts(policy, facts) == {}
+
+
+def test_profile_object_propagation_blocks_suffix_when_max_attrs_zero():
+    policy = load_authoritative_canonical_policy()["DIGITAL_MULTIMETER"]
+    _, _, adjusted, _ = resolve_naming_profile_phase2d("DIGITAL_MULTIMETER")
+    assert adjusted.max_variant_attributes == 0
+    global_profile = NAMING_PROFILES["metrology.micrometer.v1"]
+    assert global_profile.max_variant_attributes > 0
+    facts = {"measurement_range": (0.06, 600), "range_min_mm": 0.06, "range_max_mm": 600}
+    with_code = build_product_name_v1(
+        product_type_fa=policy.canonical_title_fa,
+        brand_raw="INSIZE | اینسایز",
+        manufacturer_code="9247-190",
+        facts=facts,
+        naming_profile="metrology.micrometer.v1",
+        brand_registry_row={"brand_id": "3", "display_fa": "اینسایز", "status": "PROPOSED"},
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
+        profile_resolution="PROFILE_GOVERNED",
+    )
+    with_profile = build_product_name_v1(
+        product_type_fa=policy.canonical_title_fa,
+        brand_raw="INSIZE | اینسایز",
+        manufacturer_code="9247-190",
+        facts=build_builder_facts(policy, facts),
+        naming_profile=adjusted,
+        brand_registry_row={"brand_id": "3", "display_fa": "اینسایز", "status": "PROPOSED"},
+        manufacturer_code_governed=True,
+        brand_display_governed=True,
+        naming_profile_governed=True,
+        variant_facts_governed=True,
+        profile_resolution="PROFILE_GOVERNED",
+    )
+    assert "میلی‌متر" in (with_code.name or "")
+    assert "میلی‌متر" not in (with_profile.name or "")
+
+
+def _instrument_input(product_type_code: str, manufacturer_code: str = "9247-190") -> Phase2DProductInput:
+    policy = load_authoritative_canonical_policy()[product_type_code]
+    return _base_input(
+        product_type_code=product_type_code,
+        product_type_name_fa=policy.canonical_title_fa,
+        manufacturer_code=manufacturer_code,
+        frozen_manufacturer_code=manufacturer_code,
+        sku=manufacturer_code,
+        frozen_sku=manufacturer_code,
+        kb_facts=[
+            {
+                "property_key": "measurement_range",
+                "status": "published",
+                "fact_id": 1,
+                "value": {"min": 0.06, "max": 600},
+            }
+        ],
+    )
+
+
+def test_digital_multimeter_classify_has_no_mm_suffix():
+    audit, _ = classify_product_phase2d(
+        _instrument_input("DIGITAL_MULTIMETER"),
+        brand_registry_row={"brand_id": "3", "display_fa": "اینسایز", "status": "PROPOSED"},
+    )
+    assert audit.terminal_classification == "READY_RENAME"
+    assert "میلی‌متر" not in audit.proposed_name
+    assert audit.variant_formatted_value == ""
+
+
+@pytest.mark.parametrize(
+    "product_type_code",
+    [
+        "ANEMOMETER",
+        "DIGITAL_MULTIMETER",
+        "DIGITAL_SCALE",
+        "TACHOMETER",
+        "VOLTAGE_TESTER",
+        "MOISTURE_METER",
+        "PROTRACTOR",
+    ],
+)
+def test_not_required_instruments_never_emit_mm_suffix(product_type_code: str):
+    audit, _ = classify_product_phase2d(
+        _instrument_input(product_type_code, manufacturer_code="TEST-1"),
+        brand_registry_row={"brand_id": "3", "display_fa": "اینسایز", "status": "PROPOSED"},
+    )
+    assert "میلی‌متر" not in (audit.proposed_name or "")
+
+
+def test_canonical_policy_registry_valid():
+    assert validate_canonical_policy_registry() == []
