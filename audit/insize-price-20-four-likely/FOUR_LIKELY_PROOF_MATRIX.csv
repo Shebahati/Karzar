@@ -1,0 +1,5 @@
+product_id,site_SKU,workbook_CODE,mapping_rule,USD,K6,current_price,target_price,delta,identity_evidence,reason,verdict
+3741,0213-500A,0213-A500,INSIZE_IDENTITY_ALIAS,55.92,2500000,,13980000,13980000,OEM 108B EXACT; product_list IR -20..+380,letter-A position variant,PROVEN
+3812,6297-1A,6297-1,INSIZE_IDENTITY_ALIAS,15.48,2500000,,3870000,3870000,OEM 108A EXACT; product_list holder,site legacy A,PROVEN
+4098,7527-1D,7527-D1,INSIZE_IDENTITY_ALIAS,27.36,2500000,,6840000,6840000,product_list 10x illuminated magnifier,7527 digit/letter order,PROVEN
+4100,7527-2D,7527-D2,INSIZE_IDENTITY_ALIAS,31.2,2500000,,7800000,7800000,product_list 10x illuminated magnifier,7527 digit/letter order,PROVEN
