@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Write governed owner canonical title policy for Phase 2D exact-OEM READY cohort."""
+
+from __future__ import annotations
+
+import csv
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from app.domain.product_naming_phase2d_oem_policy import normalize_oem_heading  # noqa: E402
+
+OUT = (
+    ROOT
+    / "docs"
+    / "architecture"
+    / "specs"
+    / "product-naming-v1"
+    / "OWNER_CANONICAL_TITLE_POLICY.csv"
+)
+
+# (OEM heading, product_type_code, base_title, qualifier, final_title, status, basis)
+_ROWS: list[tuple[str, str, str, str, str, str, str]] = [
+    ("DIGITAL HOOK CALIPERS", "HOOK_CALIPER", "کولیس قلاب‌دار", "دیجیتال", "کولیس دیجیتال قلاب‌دار", "APPROVED", "digital_readout_required"),
+    ("DIGITAL SMALL POINT CALIPERS", "POINT_CALIPER", "کولیس نوک‌تیز", "دیجیتال", "کولیس دیجیتال نوک‌تیز", "APPROVED", "digital_readout_required"),
+    ("DIGITAL INSIDE GROOVE CALIPERS", "INTERNAL_GROOVE_CALIPER", "کولیس شیار داخلی", "دیجیتال", "کولیس دیجیتال شیار داخلی", "APPROVED", "digital_internal_groove"),
+    ("DIGITAL DEPTH GAUGES", "DEPTH_GAUGE", "عمق‌سنج", "دیجیتال", "عمق‌سنج دیجیتال", "APPROVED", "digital_depth_gauge"),
+    ("DIGITAL PROTRACTOR", "PROTRACTOR", "زاویه‌سنج", "دیجیتال", "زاویه‌سنج دیجیتال", "APPROVED", "digital_protractor"),
+    ("WATERPROOF DIGITAL PROTRACTOR (HEAVY DUTY)", "PROTRACTOR", "زاویه‌سنج", "دیجیتال", "زاویه‌سنج دیجیتال", "APPROVED", "digital_protractor_waterproof"),
+    ("DIAL PROTRACTOR", "PROTRACTOR", "زاویه‌سنج", "ساعتی", "زاویه‌سنج ساعتی", "APPROVED", "dial_protractor"),
+    ("UNIVERSAL PROTRACTOR", "PROTRACTOR", "زاویه‌سنج", "یونیورسال", "زاویه‌سنج یونیورسال", "APPROVED", "universal_protractor"),
+    ("PROTRACTOR (ECONOMIC TYPE)", "PROTRACTOR", "زاویه‌سنج", "", "زاویه‌سنج", "APPROVED", "analog_protractor_base_title"),
+    ("INTERNAL DIAL CALIPER GAUGES WITH INTERCHANGEABLE POINTS", "INDICATING_CALIPER", "پرگار نشان‌گر", "", "", "HOLD", "internal_dial_interchangeable_phrase_not_governed"),
+    ("DIGITAL INTERNAL CALIPER GAUGES (ECONOMIC TYPE)", "INDICATING_CALIPER", "پرگار نشان‌گر", "دیجیتال داخل‌سنج", "پرگار دیجیتال داخل‌سنج", "APPROVED", "digital_internal_indicating_caliper"),
+    ("INTERNAL DIAL CALIPER GAUGES", "INDICATING_CALIPER", "پرگار نشان‌گر", "ساعتی داخل‌سنج", "پرگار ساعتی داخل‌سنج", "APPROVED", "internal_dial_indicating_caliper"),
+    ("PLASTIC ANGLE SQUARE", "ANGLE_GAUGE", "گیج زاویه", "", "گیج زاویه", "APPROVED", "plastic_angle_square_base"),
+    ("DIAL TEST INDICATORS", "TEST_INDICATOR", "ساعت اهرمی", "", "ساعت اهرمی", "APPROVED", "test_indicator_unchanged"),
+    ("PITCH GAUGES", "THREAD_PITCH_GAUGE", "شابلون گام رزوه", "", "شابلون گام رزوه", "APPROVED", "pitch_gauge"),
+    ("ELECTRONIC POCKET SCALE (ECONOMIC TYPE)", "DIGITAL_SCALE", "ترازوی دیجیتال", "جیبی", "ترازوی جیبی دیجیتال", "APPROVED", "pocket_form_factor"),
+    ("CONTACT/NON-CONTACT TACHOMETER", "TACHOMETER", "دورسنج", "تماسی و غیرتماسی", "دورسنج تماسی و غیرتماسی", "APPROVED", "contact_modes"),
+    ("OUTSIDE MICROMETERS WITH COUNTER", "OUTSIDE_MICROMETER", "میکرومتر خارج‌سنج", "کنتوردار", "میکرومتر خارج‌سنج کنتوردار", "APPROVED", "counter_anvil"),
+    ("VERNIER DEPTH GAUGES (STANDARD TYPE)", "DEPTH_GAUGE", "عمق‌سنج", "ورنیه", "عمق‌سنج ورنیه", "APPROVED", "vernier_readout"),
+    ("DIAL INDICATORS (LONG STROKE)", "DIAL_INDICATOR", "ساعت اندازه‌گیری", "", "ساعت اندیکاتور", "APPROVED", "dial_indicator_karzar_term"),
+    ("COMPACT DIAL INDICATORS", "DIAL_INDICATOR", "ساعت اندازه‌گیری", "", "ساعت اندیکاتور", "APPROVED", "dial_indicator_karzar_term"),
+    ("DIAL INDICATORS (BASIC TYPE)", "DIAL_INDICATOR", "ساعت اندازه‌گیری", "", "ساعت اندیکاتور", "APPROVED", "dial_indicator_karzar_term"),
+    ("WELDING GAUGES", "WELDING_GAUGE", "گیج جوش", "", "گیج جوش", "APPROVED", "general_welding_gauge"),
+    ("WELDING GAUGE", "WELDING_GAUGE", "گیج جوش", "", "گیج جوش", "APPROVED", "general_welding_gauge"),
+    ("PIPE WELDING GAUGE", "WELDING_GAUGE", "گیج جوش", "لوله", "گیج جوش لوله", "APPROVED", "pipe_application"),
+    ("FILLET WELDING GAUGES", "FILLET_WELD_GAUGE", "گیج جوش نبشی", "", "گیج جوش نبشی", "APPROVED", "fillet_weld"),
+    ("FILLET WELDING GAUGE", "FILLET_WELD_GAUGE", "گیج جوش نبشی", "", "گیج جوش نبشی", "APPROVED", "fillet_weld"),
+    ("DIGITAL MOISTURE METER", "MOISTURE_METER", "رطوبت‌سنج", "دیجیتال", "رطوبت‌سنج دیجیتال", "APPROVED", "digital_moisture"),
+    ("WEIGHING SCALES (ECONOMIC TYPE)", "DIGITAL_SCALE", "ترازوی دیجیتال", "", "ترازوی دیجیتال", "APPROVED", "bench_scale_not_pocket"),
+    ("DIGITAL ZERO SETTER", "ZERO_SETTER", "صفرکن محور Z", "دیجیتال", "صفرکن دیجیتال محور Z", "APPROVED", "digital_zero_setter"),
+    ("COATING THICKNESS GAUGES (STANDARD TYPE)", "COATING_THICKNESS_GAUGE", "ضخامت‌سنج پوشش", "", "ضخامت‌سنج پوشش", "APPROVED", "coating_thickness"),
+    ("LASER DISTANCE METERS", "LASER_DISTANCE_METER", "متر لیزری", "", "متر لیزری", "APPROVED", "laser_distance"),
+    ("INCH FEELER GAUGE", "FEELER_GAUGE", "فیلر نواری", "اینچی", "فیلر اینچی", "APPROVED", "inch_identity"),
+    ("MEASURING WHEEL (BASIC TYPE)", "MEASURING_WHEEL", "چرخ‌متر", "", "چرخ‌متر", "APPROVED", "measuring_wheel"),
+    ("MEASURING WHEEL", "MEASURING_WHEEL", "چرخ‌متر", "", "چرخ‌متر", "APPROVED", "measuring_wheel"),
+    ("PORTABLE CRANE SCALE", "DIGITAL_SCALE", "ترازوی دیجیتال", "جرثقیلی", "ترازوی جرثقیلی دیجیتال", "APPROVED", "crane_scale_application"),
+]
+
+
+def main() -> None:
+    fields = [
+        "OEM_product_heading",
+        "product_type_code",
+        "base_canonical_title_fa",
+        "required_identity_qualifier_fa",
+        "final_canonical_title_fa",
+        "owner_title_status",
+        "policy_basis",
+    ]
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    with OUT.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
+        w.writeheader()
+        for heading, pt, base, qual, final, status, basis in _ROWS:
+            w.writerow(
+                {
+                    "OEM_product_heading": normalize_oem_heading(heading),
+                    "product_type_code": pt,
+                    "base_canonical_title_fa": base,
+                    "required_identity_qualifier_fa": qual,
+                    "final_canonical_title_fa": final,
+                    "owner_title_status": status,
+                    "policy_basis": basis,
+                }
+            )
+    print(f"wrote {len(_ROWS)} rows → {OUT}")
+
+
+if __name__ == "__main__":
+    main()

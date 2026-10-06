@@ -1,0 +1,62 @@
+product_type_code,canonical_title_fa,title_label_status,title_hold_reason,naming_profile_code,variant_policy,primary_variant_property,formatter,variant_dimension,source_unit,display_unit,policy_basis
+ANEMOMETER,بادسنج,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies anemometer model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+ANGLE_GAUGE,گیج زاویه,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,angle_gauge_oem_identity_sufficient; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+BLADE_CALIPER,کولیس تیغه‌ای,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+BORE_GAUGE,,HOLD,synonym_or_slash_label,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,bore_gauge_range_required
+CENTER_SQUARE,گونیا مرکز‌یاب,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies center square variant; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+CHAMFER_GAUGE,گیج پخ,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies chamfer gauge model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+COATING_THICKNESS_GAUGE,ضخامت‌سنج پوشش,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies coating thickness gauge model
+DEPTH_GAUGE,عمق‌سنج,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_working_range
+DEPTH_MICROMETER,میکرومتر عمق‌سنج,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_micrometer_buyer_range
+DIAL_INDICATOR,ساعت اندازه‌گیری,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_working_range
+DIGITAL_LEVEL,تراز دیجیتال,APPROVED,,metrology.micrometer.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,level_variant_policy_pending_owner
+DIGITAL_MULTIMETER,مولتی‌متر دیجیتال,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies multimeter model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+DIGITAL_SCALE,ترازوی دیجیتال,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies digital scale model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+DIVIDER,,HOLD,synonym_or_slash_label,metrology.micrometer.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,divider_title_and_variant_pending
+ENGINEERS_SQUARE,گونیا مهندسی,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies square size family; no governed range fact contract
+EXTERNAL_GROOVE_CALIPER,کولیس شیار خارجی,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+FEELER_GAUGE,فیلر نواری,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,feeler_blade_set_identified_by_oem_code; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+FEELER_GAUGE_SET,ست فیلر,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,feeler_set_identified_by_oem_code; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+FILLET_WELD_GAUGE,گیج جوش نبشی,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies weld gauge template; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+GEAR_TOOTH_CALIPER,کولیس ضخامت دندانه,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+GEAR_TOOTH_PITCH_GAUGE,شابلون گام چرخ‌دنده,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies pitch template model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+GEN_CALIPER,,HOLD,generic_product_type_label,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+HEIGHT_GAUGE,ارتفاع‌سنج,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_working_range
+HOOK_CALIPER,کولیس قلاب‌دار,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+INDICATING_CALIPER,پرگار نشان‌گر,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+INSIDE_KNIFE_EDGE_CALIPER,کولیس لبه‌چاقویی داخلی,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+INSIDE_MICROMETER,میکرومتر داخل‌سنج,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_micrometer_buyer_range
+INTERCHANGEABLE_POINT_CALIPER,کولیس نوک‌دار تعویض‌شونده,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+INTERNAL_GROOVE_CALIPER,کولیس شیار داخلی,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+INTERNAL_POINT_CALIPER,کولیس نوک‌تیز داخلی,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+LASER_DISTANCE_METER,متر لیزری,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_m,length,mm,m,governed length range displayed in meters for buyer-facing title
+LEVEL,تراز,APPROVED,,metrology.micrometer.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,level_variant_policy_pending_owner
+MEASURING_TAPE,متر نواری,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,length_instrument_working_range
+MEASURING_WHEEL,چرخ‌متر,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_m,length,mm,m,governed wheel travel range displayed in meters for buyer-facing title
+MOISTURE_METER,رطوبت‌سنج,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies moisture meter model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+OFFSET_CALIPER,کولیس آفست,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+OPTICAL_EDGE_FINDER,,HOLD,synonym_or_slash_label,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies edge finder model (title label HOLD)
+OUTSIDE_MICROMETER,میکرومتر خارج‌سنج,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_micrometer_buyer_range
+PIN_GAUGE,پین گیج,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,nominal_size,length_mm,length,mm,mm,gauge_nominal_size
+POINT_CALIPER,کولیس نوک‌تیز,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+PRECISION_VISE,گیره دقیق,APPROVED,,workholding.chuck.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,workholding_variant_policy_pending_owner
+PROTRACTOR,زاویه‌سنج,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies protractor model; angle range not in KB contract
+SCREW_CUTTING_GAUGE,گیج برش رزوه,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies screw cutting gauge model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+SHAFT_GAUGE,گیج شفت,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies shaft gauge model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+STEEL_RULE,خط‌کش فلزی,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,length_instrument_working_range
+STRAIGHT_EDGE,,HOLD,synonym_or_slash_label,metrology.micrometer.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,straight_edge_title_pending
+SURFACE_PLATE,صفحه صافی,APPROVED,,workholding.chuck.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,workholding_variant_policy_pending_owner
+TACHOMETER,دورسنج,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies tachometer model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+TAPER_GAUGE,,HOLD,synonym_or_slash_label,metrology.micrometer.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,taper_gauge_title_pending
+TEST_INDICATOR,ساعت اهرمی,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_working_range
+THICKNESS_GAUGE,ضخامت‌سنج,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_working_range
+THREAD_PITCH_GAUGE,شابلون گام رزوه,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies thread pitch template; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+THREAD_PLUG_GAUGE,گیج رزوه توپی,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,nominal_size,length_mm,length,mm,mm,gauge_nominal_size
+THREAD_RING_GAUGE,گیج رینگی رزوه,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,nominal_size,length_mm,length,mm,mm,gauge_nominal_size
+TUBE_THICKNESS_CALIPER,کولیس ضخامت لوله,APPROVED,,metrology.caliper.v1,VARIANT_REQUIRED,measurement_range,measurement_range_mm,length,mm,mm,metrology_caliper_buyer_range
+VOLTAGE_TESTER,تستر ولتاژ,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies voltage tester model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+V_BLOCK,وی‌بلوک,APPROVED,,workholding.chuck.v1,HOLD_VARIANT_POLICY_UNDEFINED,,none,,,,workholding_variant_policy_pending_owner
+WELDING_GAUGE,گیج جوش,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies welding gauge template; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+WET_FILM_THICKNESS_GAUGE,گیج ضخامت فیلم خیس,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies wet film gauge model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
+WIRE_GAUGE,گیج سیم,APPROVED,,metrology.micrometer.v1,VARIANT_REQUIRED,nominal_size,length_mm,length,mm,mm,gauge_nominal_size
+ZERO_SETTER,صفرکن محور Z,APPROVED,,metrology.micrometer.v1,VARIANT_NOT_REQUIRED_APPROVED,,none,dimensionless,,,OEM manufacturer_code identifies zero setter model; OEM manufacturer_code uniquely identifies commercial model; no single governed specification required for title identity
