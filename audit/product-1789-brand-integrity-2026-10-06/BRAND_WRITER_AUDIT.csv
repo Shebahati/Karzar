@@ -1,0 +1,14 @@
+PATH,FILE,WRITES_BRAND,LOGS_CHANGE,AUTHORIZATION,EXPECTED_USE,RISK,NOTES
+API PUT /api/v1/products/{id},app/api/endpoints/products_admin.py,CONDITIONAL,YES,super_admin,Admin product edit,MED,Hardened 2026-10-06: passes actor_user_id; brand_id now tracked
+ProductService.update_product_with_validation,app/services/product_service.py,CONDITIONAL,YES,via products_admin PUT,Update orchestration,MED,tracked_fields includes brand_id; omit preserves; explicit null clears+logs; explicit id sets+logs
+crud_product.update_product,app/crud/product.py,CONDITIONAL,N/A,service layer,ORM setattr exclude_unset,MED,Does not log; logging owned by ProductService
+API POST /api/v1/products/,app/api/endpoints/products_admin.py,CONDITIONAL,NO,super_admin,Create,LOW,Create sets brand_id; no prior value to audit
+ProductCreate/ProductUpdate schemas,app/schemas/product.py,CONDITIONAL,N/A,validation,omit vs null semantics,LOW,omit=no change; explicit null allowed (column nullable); sku/name reject null
+BrandService.delete_brand / clear_brand_on_products,app/services/brand_service.py + app/crud/brand.py,YES,YES,super_admin+step-up,Brand delete clears products,MED,Hardened 2026-10-06: per-product brand_id audit reason=brand_delete_clear
+Admin FE toProductUpdatePayload,frontend/admin-panel/.../product-schema.ts,CONDITIONAL,N/A,admin session,Always sends brand_id,HIGH,empty string→null (explicit clear). Pre-fix this could clear brand without audit; now audited
+scripts/azarsanat_rebrand.py,scripts/azarsanat_rebrand.py,YES,YES (via API post-fix),script token,Rebrand assign,MED,HTTP PUT brand_id; now inherits API audit
+scripts/catalog_remediation.py,scripts/catalog_remediation.py,YES,YES (via API post-fix),script token,Backfill brands,MED,HTTP PUT brand_id
+scripts/azarsanat_import.py / mitutoyo_import / shopmill_insize_sync,scripts/*,YES,NO (create),script token,Create with brand,LOW,Create paths
+Phase 2C/2E/2F naming apply,app/domain/product_naming_phase2*.py + scripts/ops,NO,N/A,owner-authorized ops,Rename/mfg identity,LOW,Must not clear brand_id; protect brand_id in apply SQL
+insize price/discount scripts,scripts/insize_price_update.py etc,NO,N/A,owner-authorized,Price only,LOW,"brand_id used as gate, not written"
+Direct SQL / ad-hoc,ops plane,CONDITIONAL,NO,host access,Emergency/manual,CRITICAL,No app audit; historical brand loss may be this class if not admin PUT

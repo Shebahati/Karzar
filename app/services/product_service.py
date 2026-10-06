@@ -112,6 +112,8 @@ class ProductService:
         db: AsyncSession,
         product_id: int,
         update_data: ProductUpdate,
+        *,
+        actor_user_id: int | None = None,
     ) -> Product | None:
         logger.info(f"Updating product: {product_id}")
 
@@ -138,7 +140,9 @@ class ProductService:
                 "warehouse counts live in Hesabfa. Use is_available instead."
             )
 
-        tracked_fields = ("base_price", "original_price", "is_available")
+        # brand_id is identity-critical: omit = no change; explicit null clears;
+        # explicit id sets. Mutations must always emit ProductChangeLog.
+        tracked_fields = ("base_price", "original_price", "is_available", "brand_id")
         previous = {field: getattr(product, field, None) for field in tracked_fields}
 
         updated_product = await crud_product.update_product(db, product_id, update_data)
@@ -155,6 +159,7 @@ class ProductService:
                     old_value=str(old_value) if old_value is not None else None,
                     new_value=str(new_value) if new_value is not None else None,
                     reason="product_update",
+                    actor_user_id=actor_user_id,
                 )
         await db.commit()
         logger.info(f"Product updated successfully: {product_id}")
