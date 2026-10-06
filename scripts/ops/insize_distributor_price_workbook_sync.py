@@ -148,7 +148,16 @@ def assert_workbook_file(path: Path) -> tuple[str, Any]:
         raise PilotGateError(f"K6 rate mismatch: {catalog.rate}")
     dups = duplicate_workbook_codes(catalog.rows)
     if dups:
-        raise PilotGateError(f"duplicate workbook CODE keys: {sorted(dups.keys())}")
+        price_conflicts: list[str] = []
+        for code in dups:
+            rows = [r for r in catalog.rows if normalize_sku(r.code) == code]
+            usd_vals = {str(r.usd_price) for r in rows}
+            if len(usd_vals) > 1:
+                price_conflicts.append(code)
+        if price_conflicts:
+            raise PilotGateError(
+                f"duplicate workbook CODE with conflicting USD: {sorted(price_conflicts)}"
+            )
     return sha, catalog
 
 
