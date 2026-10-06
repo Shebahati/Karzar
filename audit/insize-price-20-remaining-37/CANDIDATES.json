@@ -1,0 +1,572 @@
+[
+  {
+    "product_id": 3867,
+    "sku": "N27-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 3-27 میلی متر مدل N27-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3871,
+    "sku": "N30-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 3.5-30 میلی متر مدل N30-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 4129,
+    "sku": "F5-2311",
+    "manufacturer_code": null,
+    "name": "ساعت اندیکاتور اینسایز (Insize) دور کوچک کورس 5 میلی متری مدل F5-2311",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3940,
+    "sku": "A25-3560",
+    "manufacturer_code": null,
+    "name": "میکرومتر لوله یک سر کروی دیجیتال اینسایز (Insize) مدل A25-3560",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3893,
+    "sku": "A900-0215",
+    "manufacturer_code": null,
+    "name": "ترمومتر لیزری اینسایز (Insize) 135 گرمی مدل A900-0215",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3861,
+    "sku": "N22-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 2.5-22 میلی متر مدل N22-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3854,
+    "sku": "N16-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 2-16 میلی متر مدل N16-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3856,
+    "sku": "N18-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 2.5-18 میلی متر مدل N18-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3852,
+    "sku": "N14-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 2-14 میلی متر مدل N14-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3846,
+    "sku": "N10-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 1.5-10 میلی متر مدل N10-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 2007,
+    "sku": "4150-1301",
+    "manufacturer_code": "4150-1301",
+    "name": "خط کش سینوسی — 0-1301mm",
+    "current_base_price": "15713600.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3723,
+    "sku": "1KGM1-8910",
+    "manufacturer_code": null,
+    "name": "ست وزنه 25 عددی 1 میلی گرم تا 1 کیلو گرم اینسایز (Insize) مدل 1KGM1-8910",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3480,
+    "sku": "M26-1281",
+    "manufacturer_code": null,
+    "name": "کولیس معمولی اینسایز (insize) چرخ دنده مدل M26-1281",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 2009,
+    "sku": "4150-2501",
+    "manufacturer_code": "4150-2501",
+    "name": "خط کش سینوسی",
+    "current_base_price": "23240000.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 2008,
+    "sku": "4150-250",
+    "manufacturer_code": "4150-250",
+    "name": "خط کش سینوسی — 0-250mm",
+    "current_base_price": "15713600.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3844,
+    "sku": "N8-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 1.25-8 میلی متر مدل N8-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3810,
+    "sku": "A1-6294",
+    "manufacturer_code": null,
+    "name": "پایه ساعت شیطونکی اینسایز (Insize) مدل A1-6294",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3731,
+    "sku": "ISH-TDV-1000",
+    "manufacturer_code": null,
+    "name": "سختی سنج میکرو ویکرز اینسایز (Insize) مدل ISH-TDV-1000",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3832,
+    "sku": "ISH-PHB",
+    "manufacturer_code": null,
+    "name": "سختی سنج فلزات اینسایز (Insize) مدل ISH-PHB",
+    "current_base_price": "19891200.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 4127,
+    "sku": "6372-25",
+    "manufacturer_code": "6372-25",
+    "name": "هد میکرومتر اینسایز (Insize) مدل 25-6372",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 2006,
+    "sku": "4150-130",
+    "manufacturer_code": "4150-130",
+    "name": "خط کش سینوسی — 0-130mm",
+    "current_base_price": "7929600.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3470,
+    "sku": "1205-1502",
+    "manufacturer_code": "1205-1502",
+    "name": "کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205",
+    "current_base_price": "5073600.00",
+    "is_active": true,
+    "is_available": false,
+    "candidates": [
+      {
+        "workbook_code": "1205-1502E",
+        "normalized": "1205-1502E",
+        "description": "VERNIER CALIPER",
+        "usd": "30.24",
+        "source_row": 51512,
+        "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-1502S",
+        "normalized": "1205-1502S",
+        "description": "VERNIER CALIPER",
+        "usd": "25.92",
+        "source_row": 225,
+        "discovery_reason": "sku_plus_S|mfr_plus_S|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-150S",
+        "normalized": "1205-150S",
+        "description": "VERNIER CALIPER",
+        "usd": "25.92",
+        "source_row": 14186,
+        "discovery_reason": "strip_final_digit_stem_plus_S",
+        "strength": "REVIEW"
+      }
+    ],
+    "candidate_count": 3,
+    "top_candidate": {
+      "workbook_code": "1205-1502E",
+      "normalized": "1205-1502E",
+      "description": "VERNIER CALIPER",
+      "usd": "30.24",
+      "source_row": 51512,
+      "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+      "strength": "REVIEW"
+    }
+  },
+  {
+    "product_id": 3472,
+    "sku": "1205-2002",
+    "manufacturer_code": "1205-2002",
+    "name": "کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205",
+    "current_base_price": "7694400.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [
+      {
+        "workbook_code": "1205-2002E",
+        "normalized": "1205-2002E",
+        "description": "VERNIER CALIPER",
+        "usd": "45.48",
+        "source_row": 51513,
+        "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-2002S",
+        "normalized": "1205-2002S",
+        "description": "VERNIER CALIPER",
+        "usd": "39.24",
+        "source_row": 36,
+        "discovery_reason": "sku_plus_S|mfr_plus_S|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-200S",
+        "normalized": "1205-200S",
+        "description": "VERNIER CALIPER",
+        "usd": "39.36",
+        "source_row": 14189,
+        "discovery_reason": "strip_final_digit_stem_plus_S",
+        "strength": "REVIEW"
+      }
+    ],
+    "candidate_count": 3,
+    "top_candidate": {
+      "workbook_code": "1205-2002E",
+      "normalized": "1205-2002E",
+      "description": "VERNIER CALIPER",
+      "usd": "45.48",
+      "source_row": 51513,
+      "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+      "strength": "REVIEW"
+    }
+  },
+  {
+    "product_id": 3473,
+    "sku": "1205-3002",
+    "manufacturer_code": "1205-3002",
+    "name": "کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205",
+    "current_base_price": "12835200.00",
+    "is_active": false,
+    "is_available": false,
+    "candidates": [
+      {
+        "workbook_code": "1205-3002E",
+        "normalized": "1205-3002E",
+        "description": "VERNIER CALIPER",
+        "usd": "78.48",
+        "source_row": 51514,
+        "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-3002S",
+        "normalized": "1205-3002S",
+        "description": "VERNIER CALIPER",
+        "usd": "65.76",
+        "source_row": 37,
+        "discovery_reason": "sku_plus_S|mfr_plus_S|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+        "strength": "REVIEW"
+      },
+      {
+        "workbook_code": "1205-300S",
+        "normalized": "1205-300S",
+        "description": "VERNIER CALIPER",
+        "usd": "66",
+        "source_row": 14196,
+        "discovery_reason": "strip_final_digit_stem_plus_S",
+        "strength": "REVIEW"
+      }
+    ],
+    "candidate_count": 3,
+    "top_candidate": {
+      "workbook_code": "1205-3002E",
+      "normalized": "1205-3002E",
+      "description": "VERNIER CALIPER",
+      "usd": "78.48",
+      "source_row": 51514,
+      "discovery_reason": "sku_plus_E|mfr_plus_E|workbook_terminal_suffix_on_sku|workbook_terminal_suffix_on_mfr",
+      "strength": "REVIEW"
+    }
+  },
+  {
+    "product_id": 3639,
+    "sku": "S3-2824",
+    "manufacturer_code": null,
+    "name": "ست گیج داخل سیلندر ساعتی 160-18 میلی متری اینسایز (Insize) مدل S3-2824",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3729,
+    "sku": "ISH-DR150",
+    "manufacturer_code": null,
+    "name": "سختی سنج پایه دار دیجیتال اینسایز (Insize) مدل ISH-DR150",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3741,
+    "sku": "0213-500A",
+    "manufacturer_code": null,
+    "name": "ترمومتر دیجیتال اینسایز(Insize) لیزری 380 درجه مدل 500A-0213",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3793,
+    "sku": "A20-4831",
+    "manufacturer_code": null,
+    "name": "گیج جوش دیجیتال اینسایز (Insize) مدل A20-4831",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3812,
+    "sku": "6297-1A",
+    "manufacturer_code": null,
+    "name": "پایه ساعت شیطونکی اینسایز (Insize) مدل 1A-6297",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [
+      {
+        "workbook_code": "6297-1",
+        "normalized": "6297-1",
+        "description": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+        "usd": "15.48",
+        "source_row": 44103,
+        "discovery_reason": "site_terminal_A_stripped_to_workbook",
+        "strength": "REVIEW"
+      }
+    ],
+    "candidate_count": 1,
+    "top_candidate": {
+      "workbook_code": "6297-1",
+      "normalized": "6297-1",
+      "description": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+      "usd": "15.48",
+      "source_row": 44103,
+      "discovery_reason": "site_terminal_A_stripped_to_workbook",
+      "strength": "REVIEW"
+    }
+  },
+  {
+    "product_id": 3849,
+    "sku": "N12-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 1.75-12 میلی متر مدل N12-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3858,
+    "sku": "N20-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 2.5-20 میلی متر مدل N20-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3863,
+    "sku": "N24-4120",
+    "manufacturer_code": null,
+    "name": "گیج رینگی نرو اینسایز (Insize) 3-24 میلی متر مدل N24-4120",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3894,
+    "sku": "C520-0222",
+    "manufacturer_code": null,
+    "name": "ترمومتر لیزری اینسایز (Insize) مدل C520-0222",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 3918,
+    "sku": "A25-2164",
+    "manufacturer_code": null,
+    "name": "ضخامت سنج دیجیتال 3 منظوره اینسایز (Insize) مدل A25-2164",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 4060,
+    "sku": "63B2Y10-5201",
+    "manufacturer_code": null,
+    "name": "گیج فشار لوله اینسایز (Insize) مدل 63B2Y10-5201",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 4098,
+    "sku": "7527-1D",
+    "manufacturer_code": null,
+    "name": "ذره بین 10x چراغ دار اینسایز (Insize) مدل 1D-7527",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  },
+  {
+    "product_id": 4100,
+    "sku": "7527-2D",
+    "manufacturer_code": null,
+    "name": "ذره بین 10x چراغ دار اینسایز (Insize) مدل 2D-7527",
+    "current_base_price": null,
+    "is_active": false,
+    "is_available": false,
+    "candidates": [],
+    "candidate_count": 0,
+    "top_candidate": null
+  }
+]

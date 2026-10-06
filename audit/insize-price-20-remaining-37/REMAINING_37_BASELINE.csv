@@ -1,0 +1,38 @@
+n,product_id,sku,manufacturer_code,name,brand_id,brand,is_active,is_available,current_base_price,category_id,category,prior_reason
+1,3867,N27-4120,,گیج رینگی نرو اینسایز (Insize) 3-27 میلی متر مدل N27-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+2,3871,N30-4120,,گیج رینگی نرو اینسایز (Insize) 3.5-30 میلی متر مدل N30-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+3,4129,F5-2311,,ساعت اندیکاتور اینسایز (Insize) دور کوچک کورس 5 میلی متری مدل F5-2311,3,INSIZE | اینسایز,False,False,,59,ساعت اندیکاتور,ALIAS_SKU_MISSING
+4,3940,A25-3560,,میکرومتر لوله یک سر کروی دیجیتال اینسایز (Insize) مدل A25-3560,3,INSIZE | اینسایز,False,False,,77,متر,ALIAS_SKU_MISSING
+5,3893,A900-0215,,ترمومتر لیزری اینسایز (Insize) 135 گرمی مدل A900-0215,3,INSIZE | اینسایز,False,False,,77,متر,ALIAS_SKU_MISSING
+6,3861,N22-4120,,گیج رینگی نرو اینسایز (Insize) 2.5-22 میلی متر مدل N22-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+7,3854,N16-4120,,گیج رینگی نرو اینسایز (Insize) 2-16 میلی متر مدل N16-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+8,3856,N18-4120,,گیج رینگی نرو اینسایز (Insize) 2.5-18 میلی متر مدل N18-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+9,3852,N14-4120,,گیج رینگی نرو اینسایز (Insize) 2-14 میلی متر مدل N14-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+10,3846,N10-4120,,گیج رینگی نرو اینسایز (Insize) 1.5-10 میلی متر مدل N10-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+11,2007,4150-1301,4150-1301,خط کش سینوسی — 0-1301mm,3,INSIZE | اینسایز,False,False,15713600.00,76,خط کش,ALIAS_SKU_MISSING
+12,3723,1KGM1-8910,,ست وزنه 25 عددی 1 میلی گرم تا 1 کیلو گرم اینسایز (Insize) مدل 1KGM1-8910,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
+13,3480,M26-1281,,کولیس معمولی اینسایز (insize) چرخ دنده مدل M26-1281,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
+14,2009,4150-2501,4150-2501,خط کش سینوسی,3,INSIZE | اینسایز,False,False,23240000.00,76,خط کش,ALIAS_SKU_MISSING
+15,2008,4150-250,4150-250,خط کش سینوسی — 0-250mm,3,INSIZE | اینسایز,False,False,15713600.00,76,خط کش,ALIAS_SKU_MISSING
+16,3844,N8-4120,,گیج رینگی نرو اینسایز (Insize) 1.25-8 میلی متر مدل N8-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+17,3810,A1-6294,,پایه ساعت شیطونکی اینسایز (Insize) مدل A1-6294,3,INSIZE | اینسایز,False,False,,60,ساعت شیطانکی,ALIAS_SKU_MISSING
+18,3731,ISH-TDV-1000,,سختی سنج میکرو ویکرز اینسایز (Insize) مدل ISH-TDV-1000,3,INSIZE | اینسایز,False,False,,89,سختی سنج,ALIAS_SKU_MISSING
+19,3832,ISH-PHB,,سختی سنج فلزات اینسایز (Insize) مدل ISH-PHB,3,INSIZE | اینسایز,False,False,19891200.00,89,سختی سنج,ALIAS_SKU_MISSING
+20,4127,6372-25,6372-25,هد میکرومتر اینسایز (Insize) مدل 25-6372,3,INSIZE | اینسایز,False,False,,77,متر,ALIAS_SKU_MISSING
+21,2006,4150-130,4150-130,خط کش سینوسی — 0-130mm,3,INSIZE | اینسایز,False,False,7929600.00,76,خط کش,ALIAS_SKU_MISSING
+22,3470,1205-1502,1205-1502,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,3,INSIZE | اینسایز,True,False,5073600.00,77,متر,ALIAS_SKU_MISSING
+23,3472,1205-2002,1205-2002,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,3,INSIZE | اینسایز,False,False,7694400.00,77,متر,ALIAS_SKU_MISSING
+24,3473,1205-3002,1205-3002,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,3,INSIZE | اینسایز,False,False,12835200.00,77,متر,ALIAS_SKU_MISSING
+25,3639,S3-2824,,ست گیج داخل سیلندر ساعتی 160-18 میلی متری اینسایز (Insize) مدل S3-2824,3,INSIZE | اینسایز,False,False,,63,گیج داخل سیلندر,ALIAS_SKU_MISSING
+26,3729,ISH-DR150,,سختی سنج پایه دار دیجیتال اینسایز (Insize) مدل ISH-DR150,3,INSIZE | اینسایز,False,False,,89,سختی سنج,ALIAS_SKU_MISSING
+27,3741,0213-500A,,ترمومتر دیجیتال اینسایز(Insize) لیزری 380 درجه مدل 500A-0213,3,INSIZE | اینسایز,False,False,,77,متر,ALIAS_SKU_MISSING
+28,3793,A20-4831,,گیج جوش دیجیتال اینسایز (Insize) مدل A20-4831,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
+29,3812,6297-1A,,پایه ساعت شیطونکی اینسایز (Insize) مدل 1A-6297,3,INSIZE | اینسایز,False,False,,60,ساعت شیطانکی,ALIAS_SKU_MISSING
+30,3849,N12-4120,,گیج رینگی نرو اینسایز (Insize) 1.75-12 میلی متر مدل N12-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+31,3858,N20-4120,,گیج رینگی نرو اینسایز (Insize) 2.5-20 میلی متر مدل N20-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+32,3863,N24-4120,,گیج رینگی نرو اینسایز (Insize) 3-24 میلی متر مدل N24-4120,3,INSIZE | اینسایز,False,False,,67,انواع گیج,ALIAS_SKU_MISSING
+33,3894,C520-0222,,ترمومتر لیزری اینسایز (Insize) مدل C520-0222,3,INSIZE | اینسایز,False,False,,77,متر,ALIAS_SKU_MISSING
+34,3918,A25-2164,,ضخامت سنج دیجیتال 3 منظوره اینسایز (Insize) مدل A25-2164,3,INSIZE | اینسایز,False,False,,73,فیلر,ALIAS_SKU_MISSING
+35,4060,63B2Y10-5201,,گیج فشار لوله اینسایز (Insize) مدل 63B2Y10-5201,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
+36,4098,7527-1D,,ذره بین 10x چراغ دار اینسایز (Insize) مدل 1D-7527,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
+37,4100,7527-2D,,ذره بین 10x چراغ دار اینسایز (Insize) مدل 2D-7527,3,INSIZE | اینسایز,False,False,,57,انواع کولیس,ALIAS_SKU_MISSING
