@@ -134,6 +134,36 @@ when the trailing segment is exactly `-A` (case-insensitive) and the base maps
 
 Primary path remains conservative `normalize_sku` exact equality.
 
+### INSIZE adapter (Owner-closed trailing-A identity)
+
+Registered deterministic identity rule `INSIZE_TRAILING_A_IDENTITY`
+(`insize_trailing_a_identity/1.0.0`). **Identity only** — availability still
+comes exclusively from stock authority (وضعیت / sellable quantity).
+
+```text
+brand = INSIZE only
+workbook / source CODE  XA
+  ↔
+catalog SKU             X
+```
+
+where the only difference is a single terminal ASCII `A`. Safeguards (any
+failure → `AMBIGUOUS`, not matched):
+
+- exact SKU / manufacturer_code always wins (never strip when exact exists)
+- unique normalized base
+- no competing exact catalog SKU `XA`
+- no multi-row source collision on `XA`
+- no internal-`A` stripping; no multi-character suffix stripping
+- never applied to other brands
+
+Implementation: `scripts/catalog_target/insize_trailing_a_identity.py`;
+wired into `map_stock_to_catalog(..., allow_insize_trailing_a=True)`.
+Match detail: `EXACT_NORMALIZED_SKU:insize_trailing_A`.
+
+Owner policy citation: Owner-closed Wave 1A.1 authority closure (not a new
+Canon-Lock Accepted row).
+
 ### TERMA adapter
 
 - Map stock by exact SKU / approved exact model only.
@@ -242,11 +272,12 @@ Fail closed at every step. No APPLY in stock standardization/intake tooling.
 | FA CSV | `data/templates/supplier_stock_template_fa.csv` |
 | XLSX | `data/templates/supplier_stock_template.xlsx` |
 | Library | `scripts/catalog_target/supplier_stock.py` |
+| INSIZE trailing-A identity | `scripts/catalog_target/insize_trailing_a_identity.py` |
 | Brand/source inventory adapters (exceptions only) | `scripts/catalog_target/brand_source_inventory_adapters.py` |
 | Validate CLI | `scripts/validate_supplier_stock.py` |
 | Map CLI | `scripts/map_supplier_stock.py` |
 | Plan schema | `data/templates/sale_wave_plan_schema.csv` |
-| Tests | `tests/test_supplier_stock_authority.py` |
+| Tests | `tests/test_supplier_stock_authority.py`, `tests/test_insize_trailing_a_identity.py` |
 
 Evidence scratch: `.local-scratch/supplier-stock-authority-standard/`.
 
@@ -297,5 +328,6 @@ intersection of supplier-available ∧ Shopmill-price-ready ∧ active ∧ sale-
 | Key | Value |
 |-----|-------|
 | `parser_version` | `supplier_stock/1.0.0` |
-| `normalization_policy_version` | `supplier_stock_norm/1.0.0` |
+| `normalization_policy_version` | `supplier_stock_norm/1.1.0` |
 | `brand_source_inventory_adapters` | `brand_source_inventory_adapters/1.0.0` |
+| `insize_trailing_a_identity` | `insize_trailing_a_identity/1.0.0` |

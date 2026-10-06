@@ -103,6 +103,9 @@ NAMING_ALLOW = {
     # Immutable Sellability Wave 1A evidence; "FINAL_REPORT" is the frozen
     # 2026-10-06 artifact name required by the Wave 1A evidence contract.
     "audit/sellability-wave1a-stock-authority-2026-10-06/FINAL_REPORT.md",
+    # Immutable Sellability Wave 1A.1 evidence; "FINAL_REPORT" is the frozen
+    # 2026-10-06 artifact name required by the Wave 1A.1 evidence contract.
+    "audit/sellability-wave1a1-authority-closure-2026-10-06/FINAL_REPORT.md",
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
