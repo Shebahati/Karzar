@@ -1,3 +1,20 @@
 {
-  "non_target_mutations": 0
+  "non_target_name_changes": 0,
+  "non_target_protected_changes": 0,
+  "non_target_prestate_sha256": "519b6f655a4c22a3bcd2d4480b47b62a",
+  "non_target_post_rollback_sha256": "519b6f655a4c22a3bcd2d4480b47b62a",
+  "non_target_fingerprint_equal": true,
+  "log_audit": {
+    "actual_rows": 47,
+    "missing": 0,
+    "extra": 0,
+    "duplicates": 0,
+    "wrong_product_id": 0,
+    "wrong_field_name": 0,
+    "wrong_old_value": 0,
+    "wrong_new_value": 0,
+    "wrong_reason": 0,
+    "non_target_rehearsal_logs": 0,
+    "actual_log_row_mismatches": 0
+  }
 }

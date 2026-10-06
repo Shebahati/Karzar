@@ -1,15 +1,18 @@
 {
   "expected_rows": 47,
-  "prestate_sha256": "69c519b09890754e6d3de6275e86a30939d10060e34f18d1472f9a6ab4e65c5b",
+  "prestate_sha256": "88ba82d203a0e51224cbbea81eb277cd15cb5f867470fdd7c367bad4098f43e5",
   "target_prestate_sha256": "be9e00bb4d57313c312201ebd7b05a0934e504eb7e9b15a9e07085b5053a8ad4",
   "live_drift_errors": [],
   "collision_precheck": {
     "cohort_exact_dup": 0,
-    "catalog_name_hits": 0
+    "cohort_normalized_dup": 0,
+    "catalog_exact_hits": 0,
+    "catalog_normalized_hits": 0
   },
+  "non_target_prestate_sha256": "519b6f655a4c22a3bcd2d4480b47b62a",
   "rehearsal_log_baseline": 0,
   "runtime_identity": {
-    "collected_at_utc": "2026-10-06T07:46:50.210976+00:00",
+    "collected_at_utc": "2026-10-06T08:18:43.308250+00:00",
     "collector_hostname": "hp-g2-450",
     "vps_hostname": "srv5944957438",
     "deployed_git_sha": "UNKNOWN",
