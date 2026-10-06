@@ -1573,6 +1573,34 @@ documents:
     notes: >
       Design for read-only ownership preflight before deploy rsync.
 
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Fail-closed deploy ownership preflight implementation evidence.
+      No VPS ownership mutation; current canary REMEDIATION_REQUIRED.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-FINAL-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for ownership preflight hardening (REMEDIATION_REQUIRED).
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-CONTRACT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PREFLIGHT_CONTRACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Canonical ownership preflight contract for Deploy Staging.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE

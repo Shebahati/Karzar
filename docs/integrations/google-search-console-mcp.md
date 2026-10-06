@@ -223,12 +223,12 @@ sudo systemctl reload nginx
 
 **K. Secrets and MCP container** (only after TLS/Nginx is valid). Public `/mcp` must not be relied on until HTTPS is live; the container may be started earlier on loopback only for validation.
 
-1. Copy `deploy/staging/.env.gsc-mcp.template` to `/etc/karzar/gsc-mcp.env`, fill values, `chmod 600`.
-2. Build & start MCP only (does not restart db/redis/app):
+1. Copy `deploy/staging/.env.gsc-mcp.template` to `/etc/karzar/gsc-mcp.env`, fill values, `chmod 600`. Secrets stay under `/etc/karzar/` (host-controlled), never written as root into the runner-owned Git checkout.
+2. Build & start MCP only (does not restart db/redis/app). Prefer the tree already deployed by **Deploy Staging** (owned by `github-runner`). Do **not** `git pull` or create build leftovers as root under `/opt/karzar/Karzar` — that contaminates rsync-managed paths (`services/`, `deploy/`) and breaks the next deploy. If compose must run as root for Docker socket access, keep the working directory read-only for the checkout and put any temp/build state outside the live tree:
 
    ```bash
-   cd /opt/karzar/Karzar   # or your deploy root
-   git pull origin main
+   cd /opt/karzar/Karzar
+   # Code updates: Deploy Staging only — not root git pull / ad-hoc writes here.
    docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env up -d --build gsc_mcp
    ```
 
