@@ -3,9 +3,9 @@ import {
   establishVerifiedCustomer,
   captureVerifiedCustomerSessionFence,
   isCustomerSessionFenceCurrent,
+  getVerifiedCustomerId,
 } from "@/lib/customer-session";
 import {
-  clearCartToken,
   getCartToken,
   setStoredToken,
   tokenStorage,
@@ -13,7 +13,6 @@ import {
 import { clearPendingPayment } from "@/lib/pending-payment";
 import { getMockApi } from "@/lib/get-mock-api";
 import { env } from "@/config/env";
-import { cartService } from "@/services/cart";
 import { useCartStore } from "@/store/cart-store";
 import type {
   MeResponse,
@@ -90,14 +89,44 @@ function mergeLocalProfile(me: MeResponse): MeResponse {
   };
 }
 
+/**
+ * F03 ownership transfer after OTP.
+ * - Guest stash attributed to token G → authorized merge + transfer into A.
+ * - Customer stash for same A → same-owner reconcile.
+ * - Foreign customer stash / legacy empty → server-authoritative replace (no local push).
+ * Never treats "cart token exists" alone as proof of guest provenance.
+ */
 async function syncCartAfterLogin(): Promise<string | null> {
+  const customerId = getVerifiedCustomerId();
+  if (customerId == null) {
+    return "همگام‌سازی سبد ناموفق بود.";
+  }
+
   try {
+    const cart = useCartStore.getState();
+    const stash = cart.stash;
     const guestToken = getCartToken();
-    if (guestToken) {
-      await cartService.merge(guestToken);
-      clearCartToken();
+
+    if (
+      stash?.attribution.kind === "guest" &&
+      guestToken &&
+      stash.attribution.guestToken === guestToken
+    ) {
+      const result = await cart.transferGuestCartToCustomer(guestToken, customerId);
+      return result.ok ? null : (result.error ?? "همگام‌سازی سبد ناموفق بود.");
     }
-    const result = await useCartStore.getState().reconcileFromServer();
+
+    if (
+      stash?.attribution.kind === "customer" &&
+      stash.attribution.customerId === customerId
+    ) {
+      cart.publishStashForVerifiedCustomer(customerId);
+      const result = await cart.reconcileSameOwnerFromServer();
+      return result.ok ? null : (result.error ?? "همگام‌سازی سبد ناموفق بود.");
+    }
+
+    // A→B switch, legacy unattributed, or token without matching guest stash.
+    const result = await cart.replaceFromServerForCustomer(customerId);
     return result.ok ? null : (result.error ?? "همگام‌سازی سبد ناموفق بود.");
   } catch {
     const message = "همگام‌سازی سبد با سرور ناموفق بود. سبد محلی حفظ شد.";
@@ -238,6 +267,10 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
+    // Hide published cart immediately; do not relabel customer stash as guest
+    // and do not issue cart clear/remove/upsert (F03). Stash remains customer-owned
+    // until a later guest scope or account replace discards it.
+    useCartStore.getState().hidePublishedCart();
     invalidateCustomerSession("guest");
     if (!env.USE_MOCK) {
       try {

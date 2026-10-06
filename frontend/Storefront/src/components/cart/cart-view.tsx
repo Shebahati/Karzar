@@ -60,7 +60,9 @@ export function CartView({ mode }: { mode: Mode }) {
   );
   const lastSyncError = useCartStore((s) => s.lastSyncError);
   const clearSyncError = useCartStore((s) => s.clearSyncError);
-  const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
+  const reconcileActiveScopeFromServer = useCartStore(
+    (s) => s.reconcileActiveScopeFromServer,
+  );
   const purchaseStatus = usePurchaseCheckoutStatus(mode === "cart");
   const purchasePaused =
     mode === "cart" && purchaseStatus.data?.purchase_checkout_enabled === false;
@@ -79,13 +81,13 @@ export function CartView({ mode }: { mode: Mode }) {
     if (!mounted || !isLoggedIn()) return;
     let cancelled = false;
     setReconciling(true);
-    void reconcileFromServer().finally(() => {
+    void reconcileActiveScopeFromServer().finally(() => {
       if (!cancelled) setReconciling(false);
     });
     return () => {
       cancelled = true;
     };
-  }, [mounted, reconcileFromServer]);
+  }, [mounted, reconcileActiveScopeFromServer]);
 
   const title = mode === "cart" ? "سبد خرید" : "استعلام قیمت";
   const unitCount = lines.reduce((n, l) => n + l.quantity, 0);

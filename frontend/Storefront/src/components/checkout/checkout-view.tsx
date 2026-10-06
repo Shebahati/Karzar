@@ -33,7 +33,9 @@ export function CheckoutView() {
   const quote = useCartStore((s) => s.quote);
   const clearCart = useCartStore((s) => s.clearCart);
   const clearQuote = useCartStore((s) => s.clearQuote);
-  const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
+  const reconcileActiveScopeFromServer = useCartStore(
+    (s) => s.reconcileActiveScopeFromServer,
+  );
 
   const lines = isInquiry ? quote : cart;
 
@@ -91,7 +93,7 @@ export function CheckoutView() {
 
     // Prefer server cart as source of truth before purchase checkout.
     if (!isInquiry && isLoggedIn()) {
-      const sync = await reconcileFromServer();
+      const sync = await reconcileActiveScopeFromServer();
       if (!sync.ok) {
         setCheckoutError(
           sync.error ??
