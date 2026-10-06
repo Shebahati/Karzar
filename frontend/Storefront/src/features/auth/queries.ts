@@ -99,6 +99,10 @@ export function useUpdateFullName() {
   return useMutation<MeResponse, Error, string>({
     mutationFn: (fullName) => authService.updateFullName(fullName),
     onSuccess: (me) => {
+      const snap = getCustomerSessionSnapshot();
+      if (snap.verifiedCustomerId != null && snap.verifiedCustomerId !== me.id) {
+        return;
+      }
       establishVerifiedCustomer(me.id, "profile");
       queryClient.setQueryData(authKeys.me(getPrivateQueryScope()), me);
     },
@@ -114,6 +118,10 @@ export function useUpdateProfile() {
   >({
     mutationFn: (payload) => authService.updateProfile(payload),
     onSuccess: (me) => {
+      const snap = getCustomerSessionSnapshot();
+      if (snap.verifiedCustomerId != null && snap.verifiedCustomerId !== me.id) {
+        return;
+      }
       establishVerifiedCustomer(me.id, "profile");
       queryClient.setQueryData(authKeys.me(getPrivateQueryScope()), me);
     },

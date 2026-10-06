@@ -1,11 +1,15 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   establishVerifiedCustomer,
   invalidateCustomerSession,
   resetCustomerSessionStateForTests,
 } from "@/lib/customer-session";
-import { migrateAddressPersistForTests } from "@/store/address-store";
-import { useAddressStore, type AddressInput } from "@/store/address-store";
+import {
+  ADDRESS_PERSIST_KEY,
+  migrateAddressPersistForTests,
+  useAddressStore,
+  type AddressInput,
+} from "@/store/address-store";
 
 const sample: AddressInput = {
   label: "خانه",
@@ -84,5 +88,88 @@ describe("address-store owner isolation (F01)", () => {
       addresses: [],
     });
     expect(useAddressStore.getState().getDefault()).toBeUndefined();
+  });
+
+  it("C3/T04: legacy main@83949bc persist envelope is discarded on rehydrate (not assigned to hinted customer)", async () => {
+    const legacyAddress = {
+      id: "legacy-1",
+      label: "L",
+      full_name: "Legacy Unowned",
+      phone: "09120000001",
+      province: "P",
+      city: "C",
+      postal_code: "1234567890",
+      address_line: "legacy line",
+      is_default: true,
+    };
+    localStorage.setItem(
+      ADDRESS_PERSIST_KEY,
+      JSON.stringify({ state: { addresses: [legacyAddress] }, version: 0 }),
+    );
+    localStorage.setItem(
+      "karzar.storefront.customer",
+      JSON.stringify({ id: 1, full_name: "Hint A", phone: "09120000001" }),
+    );
+
+    await useAddressStore.persist.rehydrate();
+    establishVerifiedCustomer(1, "otp");
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(1);
+
+    expect(useAddressStore.getState().byOwner["1"]).toBeUndefined();
+    expect(useAddressStore.getState().addresses).toHaveLength(0);
+    expect(useAddressStore.getState().getDefault()).toBeUndefined();
+  });
+
+  it("C3/T04: invalid JSON in storage fails closed without crash", async () => {
+    localStorage.setItem(ADDRESS_PERSIST_KEY, "{not-json");
+    await expect(useAddressStore.persist.rehydrate()).resolves.not.toThrow();
+    expect(useAddressStore.getState().byOwner).toEqual({});
+  });
+
+  it("C3/T04: invalid payload shape fails closed on migrate helper", () => {
+    expect(migrateAddressPersistForTests({ byOwner: "bad" }).byOwner).toEqual({});
+    expect(migrateAddressPersistForTests(null).byOwner).toEqual({});
+  });
+
+  it("C3/T04: setItem failure during addAddress does not crash or expose other owner", () => {
+    establishVerifiedCustomer(2, "otp");
+    useAddressStore.setState({
+      byOwner: {
+        "1": [{ ...sample, id: "keep-1", is_default: true }],
+      },
+      addresses: [],
+    });
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = () => {
+      throw new Error("quota");
+    };
+    try {
+      useAddressStore.getState().hydrateVisibleForVerifiedOwner(2);
+      useAddressStore.getState().addAddress({ ...sample, full_name: "B New" });
+      expect(useAddressStore.getState().byOwner["1"]?.[0]?.full_name).toBe("کاربر الف");
+    } finally {
+      Storage.prototype.setItem = setItem;
+    }
+  });
+
+  it("preserves owner A v2 bucket across A logout → B → logout → A", () => {
+    establishVerifiedCustomer(1, "otp");
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(1);
+    useAddressStore.getState().addAddress({ ...sample, full_name: "Persist A" });
+
+    invalidateCustomerSession("guest");
+    useAddressStore.getState().clearVisibleAddresses();
+
+    establishVerifiedCustomer(2, "otp");
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(2);
+    useAddressStore.getState().addAddress({ ...sample, full_name: "Persist B", phone: "09122222222" });
+
+    invalidateCustomerSession("guest");
+    useAddressStore.getState().clearVisibleAddresses();
+
+    establishVerifiedCustomer(1, "otp");
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(1);
+    expect(useAddressStore.getState().getDefault()?.full_name).toBe("Persist A");
+    expect(useAddressStore.getState().byOwner["2"]?.[0]?.full_name).toBe("Persist B");
   });
 });
