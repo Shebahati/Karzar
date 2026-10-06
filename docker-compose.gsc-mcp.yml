@@ -1,0 +1,37 @@
+# Isolated Google Search Console read-only MCP (no Postgres, Redis, or lathe_api).
+#
+# Usage on VPS (owner-run; secrets never in Git):
+#   sudo install -o deploy-user -g deploy-user -m 600 /path/to/filled.env /etc/karzar/gsc-mcp.env
+#   docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env up -d --build gsc_mcp
+#
+# Start/stop only this service (does not restart db/redis/app):
+#   docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env up -d gsc_mcp
+#   docker compose -f docker-compose.gsc-mcp.yml stop gsc_mcp
+#
+# Template for env file: deploy/staging/.env.gsc-mcp.template
+# Nginx: deploy/staging/nginx/mcp.karzartools.com.conf.template
+# Runbook: docs/integrations/google-search-console-mcp.md
+
+name: karzar_gsc_mcp
+
+services:
+  gsc_mcp:
+    build:
+      context: .
+      dockerfile: services/gsc_mcp/Dockerfile
+    container_name: karzar_gsc_mcp
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8010:8010"
+    environment:
+      PYTHONPATH: /app
+      MCP_HOST: "0.0.0.0"
+      MCP_PORT: "8010"
+      MCP_PUBLIC_BASE_URL: https://mcp.karzartools.com
+      GSC_SITE_URL: sc-domain:karzartools.com
+      GSC_ALLOWED_ORIGINS: https://www.karzartools.com,https://karzartools.com
+      GOOGLE_GSC_CLIENT_ID: ${GOOGLE_GSC_CLIENT_ID:?Set GOOGLE_GSC_CLIENT_ID in env file}
+      GOOGLE_GSC_CLIENT_SECRET: ${GOOGLE_GSC_CLIENT_SECRET:?Set GOOGLE_GSC_CLIENT_SECRET in env file}
+      GOOGLE_GSC_REFRESH_TOKEN: ${GOOGLE_GSC_REFRESH_TOKEN:?Set GOOGLE_GSC_REFRESH_TOKEN in env file}
+      KARZAR_MCP_ACCESS_TOKEN: ${KARZAR_MCP_ACCESS_TOKEN:?Set KARZAR_MCP_ACCESS_TOKEN in env file}
+      CRUX_API_KEY: ${CRUX_API_KEY:-}

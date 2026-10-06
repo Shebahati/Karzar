@@ -10,6 +10,8 @@
 #   docker-compose.catalog-staging.yml
 # See docs/CATALOG_STAGING_ISOLATION.md.
 #
+# GSC read-only MCP (isolated; no DB/Redis): docker-compose.gsc-mcp.yml
+#
 # On a VPS behind Nginx/Caddy: API/DB/Redis bind to loopback only.
 # Compose v2 `!override` replaces base `ports` (do not append public 0.0.0.0 binds).
 services:

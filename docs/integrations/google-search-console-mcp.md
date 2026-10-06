@@ -42,7 +42,7 @@ Doc authority checked during implementation (2026-10-01):
 **Recommended connection modes (Phase 1 — not activated in production):**
 
 - **Option B (local):** ChatGPT / client via **Secure MCP tunnel** or SSH port-forward to `127.0.0.1:8010`, with `KARZAR_MCP_ACCESS_TOKEN`.
-- **Option A (later):** Authenticated HTTPS reverse proxy (e.g. `mcp.karzartools.com`) terminating TLS and forwarding to the container.
+- **Option A (production target):** Authenticated HTTPS reverse proxy at `https://mcp.karzartools.com/mcp` (Nginx on the VPS) terminating TLS and forwarding to `127.0.0.1:8010`. See **Production deployment (owner-run)** below.
 
 ChatGPT (Developer mode → MCP): add server URL, set authentication to Bearer token, scan tools, use in a chat. Exact UI labels may change; follow current OpenAI docs.
 
@@ -55,7 +55,8 @@ ChatGPT (Developer mode → MCP): add server URL, set authentication to Bearer t
 | `GOOGLE_GSC_CLIENT_ID` / `SECRET` / `REFRESH_TOKEN` | Google OAuth (never commit) |
 | `CRUX_API_KEY` | Optional CrUX key (never commit) |
 | `KARZAR_MCP_ACCESS_TOKEN` | MCP client Bearer secret (never commit) |
-| `MCP_HOST` / `MCP_PORT` | Default `127.0.0.1` / `8010` |
+| `MCP_HOST` / `MCP_PORT` | Local default `127.0.0.1` / `8010`; Docker production uses `MCP_HOST=0.0.0.0` with host bind `127.0.0.1:8010` |
+| `MCP_PUBLIC_BASE_URL` | Public MCP base, e.g. `https://mcp.karzartools.com` |
 
 Placeholders only in repo; use secret storage in production.
 
@@ -112,13 +113,135 @@ PYTHONPATH=. pytest tests/test_gsc_mcp_*.py -q
 
 No real Google credentials required; HTTP is mocked.
 
-## Docker (dormant)
+## Docker
 
-Build only (no deploy in Phase 1):
+Build image (no secrets in context):
 
 ```bash
 docker build -f services/gsc_mcp/Dockerfile -t karzar-gsc-mcp .
 ```
+
+Compose overlay: `docker-compose.gsc-mcp.yml` (service `gsc_mcp`, container `karzar_gsc_mcp`). Host publish is **loopback only**: `127.0.0.1:8010:8010`. Inside the container the process listens on `MCP_HOST=0.0.0.0` and `MCP_PORT=8010`.
+
+Env template (placeholders only): `deploy/staging/.env.gsc-mcp.template`.
+
+## Production deployment (owner-run)
+
+**This section documents steps the repository owner runs on the VPS after merge. Agents and CI must not execute deploy, DNS, certbot, or secret provisioning.**
+
+### Never put secrets in
+
+- Git / GitHub
+- Cursor chat or prompts
+- CI logs
+- Docker image layers or build context
+
+Required runtime secrets (VPS env file only):
+
+| Variable | Notes |
+|----------|--------|
+| `GOOGLE_GSC_CLIENT_ID` | From OAuth client; desktop JSON does not need to be copied to VPS if id/secret/token are set |
+| `GOOGLE_GSC_CLIENT_SECRET` | |
+| `GOOGLE_GSC_REFRESH_TOKEN` | From local bootstrap |
+| `KARZAR_MCP_ACCESS_TOKEN` | High-entropy Bearer for MCP clients, e.g. `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
+
+Optional: `CRUX_API_KEY` (CrUX API only).
+
+File permissions: `chmod 600`, owned by the deployment user (example path `/etc/karzar/gsc-mcp.env`).
+
+### Rotation (separate procedures)
+
+- **MCP Bearer:** generate new token, update env file, `docker compose … up -d gsc_mcp` (recreate container), update clients.
+- **Google refresh token:** re-run local `bootstrap_oauth` or revoke in Google Account → update env → recreate container.
+- **OAuth client secret:** rotate in Google Cloud Console → update env → recreate container.
+- **CrUX API key:** rotate in GCP → update env.
+
+### MCP client timeouts (local / manual clients)
+
+URL Inspection can take longer than default HTTP client read timeouts. If the MCP server succeeds but the client drops the SSE stream (~5s with some defaults), increase the **client** read timeout, for example:
+
+```python
+import httpx
+
+timeout = httpx.Timeout(30.0, read=300.0)
+```
+
+Do not shorten Google upstream timeouts only to satisfy a short client timeout.
+
+### Owner checklist (first deploy — TLS bootstrap then MCP)
+
+Follow this order exactly. Do **not** use `certbot --nginx` for the first certificate; Nginx must be valid on port 80 before TLS exists.
+
+**A. DNS:** `mcp.karzartools.com` → VPS public IP (manual).
+
+**B. Webroot:**
+
+```bash
+sudo mkdir -p /var/www/certbot
+```
+
+**C. Install only the HTTP bootstrap Nginx config** (`deploy/staging/nginx/mcp.karzartools.com.bootstrap.conf.template`) as `/etc/nginx/sites-available/mcp.karzartools.com`. No `listen 443`, no MCP proxy on the public internet during this stage.
+
+**D. Enable the site** (e.g. symlink into `sites-enabled/`).
+
+**E. Validate and reload Nginx:**
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+**F. Obtain certificate (webroot — not `--nginx`):**
+
+```bash
+sudo certbot certonly \
+  --webroot \
+  -w /var/www/certbot \
+  -d mcp.karzartools.com
+```
+
+**G. Verify certificate files exist:**
+
+```bash
+sudo test -f /etc/letsencrypt/live/mcp.karzartools.com/fullchain.pem
+sudo test -f /etc/letsencrypt/live/mcp.karzartools.com/privkey.pem
+```
+
+**H. Replace bootstrap config with the final TLS config** (`deploy/staging/nginx/mcp.karzartools.com.conf.template`) at `/etc/nginx/sites-available/mcp.karzartools.com`.
+
+**I. Validate Nginx:**
+
+```bash
+sudo nginx -t
+```
+
+**J. Reload Nginx:**
+
+```bash
+sudo systemctl reload nginx
+```
+
+**K. Secrets and MCP container** (only after TLS/Nginx is valid). Public `/mcp` must not be relied on until HTTPS is live; the container may be started earlier on loopback only for validation.
+
+1. Copy `deploy/staging/.env.gsc-mcp.template` to `/etc/karzar/gsc-mcp.env`, fill values, `chmod 600`.
+2. Build & start MCP only (does not restart db/redis/app):
+
+   ```bash
+   cd /opt/karzar/Karzar   # or your deploy root
+   git pull origin main
+   docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env up -d --build gsc_mcp
+   ```
+
+3. Loopback health: `curl -fsS http://127.0.0.1:8010/health`
+4. Container: `docker ps --filter name=karzar_gsc_mcp` and `docker inspect --format='{{.State.Health.Status}}' karzar_gsc_mcp`
+5. Bearer MCP (loopback): `http://127.0.0.1:8010/mcp` with `Authorization: Bearer` (use env; do not echo token).
+6. Public HTTPS smoke: `curl -fsS -o /dev/null -w '%{http_code}\n' https://mcp.karzartools.com/mcp` (expect `401` without Bearer, not `502`). Public `/health` remains denied on the hostname.
+
+### Rollback
+
+1. Disable/remove Nginx site for `mcp.karzartools.com` (bootstrap or final) and `sudo nginx -t && sudo systemctl reload nginx`.
+2. `docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env stop gsc_mcp` (or `down` for the MCP project only).
+3. Leave `lathe_api`, Postgres, Redis, storefront, and admin untouched. Certificate files on disk may remain; removing the Nginx site stops public exposure.
 
 ## MCP tools
 

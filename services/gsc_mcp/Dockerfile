@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r /app/requirements-gsc-mcp.txt
 COPY services/gsc_mcp /app/services/gsc_mcp
 
 ENV PYTHONPATH=/app
-ENV MCP_HOST=127.0.0.1
+# MCP_HOST / MCP_PORT set at runtime (production: MCP_HOST=0.0.0.0, loopback publish on host).
 ENV MCP_PORT=8010
 
 USER appuser
