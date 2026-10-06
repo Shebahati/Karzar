@@ -1,0 +1,8 @@
+cohort,product_count,brands,missing_fields,additional_authority_required,operational_complexity,risk,MAX_THEORETICAL_UPLIFT
+A_ONLY_AVAILABILITY,330,INSIZE | اینسایز:226; ASTPOWER | ای اس تی پاور:53; SAN OU | سانو:24; Dasqua | داسکوا:22; TERMA | ترما:4; Mitutoyo | میتوتویو:1,is_available,fresh supplier/Hesabfa stock authority,LOW-MEDIUM,HIGH if availability flipped without stock proof,330
+B_ACTIVATION_PLUS_AVAILABILITY,82,ZCC.CT | زد سی‌سی:61; SAN OU | سانو:21,"is_active,is_available",activation safety review + stock authority,MEDIUM,MEDIUM-HIGH (inactive may be intentional hold),82
+C_IMAGE_PLUS_ACTIVATION,3038,ASTPOWER | ای اس تی پاور:669; TIGER TEC | تایگرتک:517; Dasqua | داسکوا:457; YOWAX | یواکس:350; Chumpower | چام‌پاور:315; ET | ای تی:221; Mighty Seven | مایتی سون:182; TERMA | ترما:131; Mitutoyo | میتوتویو:105; SAN OU | سانو:63; SHAMS | شمس:21; [NO BRAND]:7,"real_image,is_active",brand image sources + activation review,HIGH,MEDIUM (largest volume; image correctness critical),3038
+D_PRICE_PLUS_AVAILABILITY,322,INSIZE | اینسایز:258; Mitutoyo | میتوتویو:41; SAN OU | سانو:16; ASTPOWER | ای اس تی پاور:7,"base_price,is_available",price authority + stock authority,MEDIUM,HIGH without dual authority,322
+E_IMAGE_PLUS_AVAILABILITY,217,Dasqua | داسکوا:217,"real_image,is_available",image source + stock authority,MEDIUM-HIGH,MEDIUM,217
+F_THREE_BLOCKERS,184,see brand matrix three_blockers,three of active/availability/price/image,multi-field program,HIGH,HIGH,184
+G_FOUR_BLOCKERS,1647,see brand matrix four_blockers,"active,availability,price,image",full commercial build program,VERY HIGH,VERY HIGH,1647
