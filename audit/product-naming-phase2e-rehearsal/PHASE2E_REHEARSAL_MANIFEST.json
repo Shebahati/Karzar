@@ -1,0 +1,41 @@
+{
+  "status": "READY_FOR_OWNER_APPLY_AUTHORIZATION",
+  "generated_at": "2026-10-06T07:44:10.653301+00:00",
+  "main_sha": "83949bcfcc20d976a856a19f3d0a543a606bd817",
+  "rehearsal_logic_git_sha": "444fd0ab8bfb8be252db1caa7a9cf2e35ebda241",
+  "rehearsal_logic_file_sha256": {
+    "app/domain/product_naming_phase2e.py": "cf1a3988e099ca70a4536c0e085b4dee1225076f76edfcda68e36db4c969510a",
+    "scripts/ops/product_naming_phase2e_rehearsal.py": "442d456653a1fcbbf905b00ebad7573f450513799304e005d189b3de3d4d9610"
+  },
+  "phase2d_candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "phase2d_candidate_rows": 47,
+  "prestate_sha256": "69c519b09890754e6d3de6275e86a30939d10060e34f18d1472f9a6ab4e65c5b",
+  "target_prestate_sha256": "be9e00bb4d57313c312201ebd7b05a0934e504eb7e9b15a9e07085b5053a8ad4",
+  "post_rollback_prestate_sha256": "be9e00bb4d57313c312201ebd7b05a0934e504eb7e9b15a9e07085b5053a8ad4",
+  "transient_product_name_updates": 47,
+  "transient_product_change_log_inserts": 47,
+  "persistent_product_name_delta": 0,
+  "persistent_rehearsal_log_delta": 0,
+  "metrics": {
+    "drift_in_tx": 0,
+    "updates_exact": 47,
+    "old_names_remaining": 0,
+    "protected_drift": 0,
+    "rehearsal_logs": 47,
+    "exact_name_collisions": 0,
+    "non_target_name_changes": 0
+  },
+  "metric_errors": [],
+  "rollback_executed": true,
+  "advisory_lock": "karzar:phase2e:product_name:rehearsal",
+  "change_log_contract": "app.crud.audit.record_product_change",
+  "change_log_fields": [
+    "product_id",
+    "field_name",
+    "old_value",
+    "new_value",
+    "reason",
+    "actor_user_id"
+  ],
+  "candidate_file": "/home/shebahati/Projects/Karzar/audit/product-naming-phase2d/PHASE2D_RENAME_CANDIDATES_PROPOSED.csv"
+}
