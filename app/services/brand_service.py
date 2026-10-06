@@ -1,12 +1,14 @@
 """Brand business logic for admin CRUD."""
 
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ErrorCode, api_error
 from app.core.logging import get_logger
 from app.crud import brand as crud_brand
-from app.db.models.product import Brand
+from app.crud import platform as crud_platform
+from app.db.models.product import Brand, Product
 from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
 from app.utils.product_presenter import absolutize_asset_url
 
@@ -147,7 +149,28 @@ class BrandService:
                 message=f"Brand with ID '{brand_id}' not found",
             )
 
+        affected_ids = list(
+            (
+                await db.execute(
+                    select(Product.id).where(
+                        Product.brand_id == brand_id,
+                        Product.deleted_at.is_(None),
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
         cleared = await crud_brand.clear_brand_on_products(db, brand_id)
+        for product_id in affected_ids:
+            await crud_platform.record_product_change(
+                db,
+                product_id=int(product_id),
+                field_name="brand_id",
+                old_value=str(brand_id),
+                new_value=None,
+                reason="brand_delete_clear",
+            )
         await crud_brand.delete_brand_row(db, brand)
         await db.commit()
         logger.info("Deleted brand %s; cleared brand_id on %s product(s)", brand_id, cleared)

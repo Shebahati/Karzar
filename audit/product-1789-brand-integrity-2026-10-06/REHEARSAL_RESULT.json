@@ -1,0 +1,14 @@
+{
+  "status": "ROLLED_BACK_REHEARSAL",
+  "REAL_REPAIR_AUTHORIZED": "NO",
+  "identity_gate": "PASS",
+  "transient_product_updates": 1,
+  "transient_audit_rows": 1,
+  "protected_field_changes": 0,
+  "rollback": "YES",
+  "mid_row": "1789|1114-150|1114-150|3|true|7980000.00|NULL|2026-10-06 12:00:25.423432+00",
+  "post_row": "1789|1114-150|1114-150|NULL|true|7980000.00|NULL|2026-10-04 11:19:55.937259+00",
+  "stdout_sha256": "0b5047aa4bae0667cb4e9a8a7b61dd9563357201399c11e11f4529592ca7d68f",
+  "reason": "product_1789_brand_integrity_rehearsal_rollback_only",
+  "expected_brand_id": 3
+}

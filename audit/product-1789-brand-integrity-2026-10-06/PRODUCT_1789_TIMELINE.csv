@@ -1,0 +1,15 @@
+utc,source,field,old,new,reason,actor,notes
+2026-07-20 12:12:54,product_change_logs,base_price,2600000.00,5970000,product_update,,earliest logged change
+2026-09-24 10:20:16,product_change_logs,product_type_id,,1,INSIZE_WAVE_003...,3,
+2026-09-30 08:42:20,product_change_logs+insize-price-112 manifest,base_price,5970000.00,6686400.00,INSIZE +12%,,manifest brand_id=3
+2026-09-30 14:00:01,product_change_logs,base_price/original_price,6686400.00,6017760.00 / 6686400.00,INSIZE 10% discount,,brand_id=3 in manifest
+2026-10-03 13:52:02,product_change_logs+discount-removal manifest,base_price/original_price,6017760.00,6686400.00 / null,discount removal,,brand_id=3 proven
+2026-10-03 15:11:36,product_change_logs+phase2c,manufacturer_code,,1114-150,Phase 2C manufacturer identity,,pre-apply snapshot brand_id=3
+2026-10-03,sellability-wave0 KARZAR_SELLABILITY_MASTER.csv,brand_id,3,3,census snapshot,,last broad census with brand_id=3
+2026-10-04 11:11:45,product_change_logs,is_available,False,True,mark_available,3,verified
+2026-10-04 11:11:48,product_change_logs,is_available,True,False,mark_unavailable,3,verified
+2026-10-04 11:11:50,product_change_logs,is_available,False,True,mark_available,3,final availability true
+2026-10-04 11:13:04,product_change_logs,base_price,6686400.00,7900000,product_update,,admin product_update; brand_id NOT logged
+2026-10-04 11:19:55,product_change_logs,base_price,7900000.00,7980000,product_update,,matches products.updated_at; brand still unlogged
+2026-10-04 11:19:55 .. 2026-10-06 Wave1A,inference window,brand_id,3,NULL,UNLOGGED,UNPROVEN,exact mutation time unknown; no brand* change-log rows; first proven NULL in Wave1A TARGET_CURRENT_STATE
+2026-10-06,Wave1A TARGET_CURRENT_STATE.csv,brand_id,3,NULL,census,,IDENTITY_DRIFT; is_available true; price 7980000
