@@ -49,7 +49,14 @@ def test_registry_loads_proven_aliases_including_1205():
     assert aliases[normalize_sku("N8-4120")].authoritative_source_code == "4120-8N"
     assert aliases[normalize_sku("N27-4120")].authoritative_source_code == "4120-27N"
     assert aliases[normalize_sku("N30-4120")].authoritative_source_code == "4120-30N"
-    assert len(aliases) == 18
+
+    assert aliases[normalize_sku("F5-2311")].authoritative_source_code == "2311-5F"
+    assert aliases[normalize_sku("A25-3560")].authoritative_source_code == "3560-25A"
+    assert aliases[normalize_sku("1KGM1-8910")].authoritative_source_code == "8910-1KGM1"
+    assert aliases[normalize_sku("M26-1281")].authoritative_source_code == "1281-M26A"
+    assert aliases[normalize_sku("63B2Y10-5201")].authoritative_source_code == "5201-63B2Y10"
+    assert normalize_sku("ISH-PHB") not in aliases  # bare ISH-PHB has no workbook price alias
+    assert len(aliases) == 29
 
 
 def test_identity_alias_0213():
@@ -267,3 +274,39 @@ def test_4120_nogo_reorder_family_and_csv():
     assert insize_4120_nogo_source_code_for_site("N27-4120") == "4120-27N"
     # Generic N reorder must not apply to unrelated families
     assert insize_4120_nogo_source_code_for_site("N10-9999") is None
+
+
+def test_remaining19_reorder_aliases_and_ish_phb_not_aliased():
+    aliases = load_insize_identity_aliases(ALIAS_CSV, proven_only=True)
+    cases = {
+        "F5-2311": "2311-5F",
+        "A25-3560": "3560-25A",
+        "A900-0215": "0215-A900",
+        "1KGM1-8910": "8910-1KGM1",
+        "M26-1281": "1281-M26A",
+        "A1-6294": "6294-1A",
+        "S3-2824": "2824-S3",
+        "A20-4831": "4831-20A",
+        "C520-0222": "0222-C520",
+        "A25-2164": "2164-25A",
+        "63B2Y10-5201": "5201-63B2Y10",
+    }
+    wb = {normalize_sku(v): _wb(v, Decimal("10")) for v in cases.values()}
+    # competing siblings must not be stolen
+    wb["2311-5"] = _wb("2311-5", Decimal("11"))
+    wb["6294-1AE"] = _wb("6294-1AE", Decimal("12"))
+    wb["2824-S3E"] = _wb("2824-S3E", Decimal("13"))
+    wb["ISH-PHB-B"] = _wb("ISH-PHB-B", Decimal("661.2"))
+    db = frozenset(normalize_sku(s) for s in cases) | {"2311-5"}
+    for site, src in cases.items():
+        r = match_insize_identity_alias(site, wb, aliases=aliases, insize_db_skus=db, brand_is_insize=True)
+        assert r.method == "INSIZE_IDENTITY_ALIAS"
+        assert normalize_sku(r.workbook_code) == normalize_sku(src)
+    # exact sibling wins for 2311-5
+    assert match_exact("2311-5", wb).method == "exact"
+    # ISH-PHB must NOT silently alias to ISH-PHB-B
+    assert normalize_sku("ISH-PHB") not in aliases
+    r = match_insize_identity_alias(
+        "ISH-PHB", wb, aliases=aliases, insize_db_skus=frozenset({"ISH-PHB"}), brand_is_insize=True
+    )
+    assert r.method != "INSIZE_IDENTITY_ALIAS"

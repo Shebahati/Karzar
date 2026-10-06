@@ -1,0 +1,27 @@
+{
+  "STATUS": "DRY_RUN_NO_UPDATES",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6_rate": "2500000",
+  "alias_csv": "/tmp/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv",
+  "wave_health": {
+    "exact_ok": 688,
+    "exact_need": 0,
+    "trailing_ok": 134,
+    "trailing_need": 0,
+    "trailing_out_of_cohort": 1,
+    "locked_trailing_cohort_size": 134,
+    "prior_alias_ok": 18,
+    "prior_alias_need": 0
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "toman": "131700000"
+  },
+  "proof_summary": {
+    "PROVEN": 11,
+    "already_correct": 11,
+    "requiring_update": 0,
+    "rejected": []
+  }
+}
