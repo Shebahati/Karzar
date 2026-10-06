@@ -13,7 +13,6 @@ Plain invocation and --preflight-only never COMMIT.
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import json
 import re
@@ -31,44 +30,40 @@ from app.domain.product_naming_phase2e import (  # noqa: E402
     CHANGE_LOG_EQUIVALENT_FIELDS,
     PHASE2D_CANDIDATE_SHA256,
     collision_precheck_python,
+    load_freeze_manifest,
     normalize_name_for_collision,
     reconcile_live_row,
     sha256_file,
-    target_fingerprint_row,
     validate_candidate_file,
     validate_phase2d_freeze_manifest,
-    load_freeze_manifest,
 )
 from app.domain.product_naming_phase2f import (  # noqa: E402
+    PHASE2E_EXPECTED_PRESTATE,
     PHASE2E_MANIFEST,
     PHASE2E_PRESTATE_SHA256,
-    PHASE2E_EXPECTED_PRESTATE,
     REAL_APPLY_ADVISORY_LOCK_KEY,
     REAL_APPLY_EXPECTED_ROWS,
     apply_change_log_reason,
     apply_success_metrics,
+    assert_confirmation_sha,
     audit_apply_logs,
     build_real_apply_sql,
     build_recovery_target_rows,
     load_expected_prestate_csv,
     parse_apply_stdout,
-    real_apply_logic_file_sha256,
     reject_forbidden_apply_flags,
     second_apply_blocked_reason,
     validate_phase2e_manifest,
-    assert_confirmation_sha,
 )
-
 from scripts.ops.phase2c_manufacturer_identity_apply_once import (  # noqa: E402
-    EvidenceImmutabilityError,
+    _run_ssh_psql,
+    _run_ssh_psql_script,
     assert_evidence_writable,
     canonical_json_bytes,
     collect_live_health,
     collect_runtime_identity,
     write_csv,
     write_json,
-    _run_ssh_psql,
-    _run_ssh_psql_script,
 )
 
 AUDIT_OUT = ROOT / "audit" / "product-naming-phase2f-real-apply"
@@ -612,7 +607,6 @@ def main(argv: list[str] | None = None) -> int:
     apply_logic_sha = _git_head()
     sql = build_real_apply_sql(prestate, catalog_norm_rows=catalog_norm_rows, cohort_sha256=cohort_sha)
     commit_ts = datetime.now(UTC).isoformat()
-    commit_status = "APPLY_FAILED_ROLLED_BACK"
     metrics: dict[str, int] = {}
     log_rows: list[dict[str, Any]] = []
     txid: int | None = None
@@ -620,7 +614,6 @@ def main(argv: list[str] | None = None) -> int:
         stdout = _run_ssh_psql_script(sql, ssh_host=args.ssh_host, allow_commit=True)
         metrics, log_rows = parse_apply_stdout(stdout)
         txid = metrics.get("txid")
-        commit_status = "COMMIT_ATTEMPTED"
     except Exception as exc:  # noqa: BLE001
         write_json(
             out_dir / "REAL_APPLY_TRANSACTION_RESULT.json",

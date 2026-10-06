@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import json
-import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,22 +13,11 @@ from app.domain.product_naming_phase2e import (
     METRIC_RE,
     PHASE2D_CANDIDATE_SHA256,
     PHASE2D_EXPECTED_READY_ROWS,
-    PROTECTED_PRODUCT_COLUMNS,
-    build_expected_prestate_rows,
-    collision_precheck_python,
-    load_audit_ready_rows,
-    load_candidate_rows,
-    load_freeze_manifest,
     normalize_name_for_collision,
-    parse_rehearsal_stdout,
-    reconcile_live_row,
     sha256_bytes,
     sha256_file,
     sql_int,
     sql_literal,
-    target_fingerprint_row,
-    validate_candidate_file,
-    validate_phase2d_freeze_manifest,
 )
 
 PHASE2E_PRESTATE_SHA256 = "88ba82d203a0e51224cbbea81eb277cd15cb5f867470fdd7c367bad4098f43e5"

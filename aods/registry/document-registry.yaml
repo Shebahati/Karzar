@@ -1256,6 +1256,16 @@ documents:
     notes: >
       Authoritative Phase 2E live transactional rehearsal summary (47 transient updates, mandatory rollback).
 
+  - id: PRODUCT-NAMING-V1-PHASE-2F-HESABFA-NAME-IMPACT
+    path: audit/product-naming-phase2f-real-apply/PHASE2F_HESABFA_NAME_IMPACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2f-real-apply
+    notes: >
+      Phase 2F analysis-only Hesabfa display-name impact. No Hesabfa write in Phase 2F apply.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

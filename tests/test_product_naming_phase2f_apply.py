@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import pytest
-
 from app.domain.product_naming_phase2e import (
     HOLD_CANARY_MANUFACTURER_CODE,
     PHASE2D_CANDIDATE_SHA256,
@@ -16,7 +14,6 @@ from app.domain.product_naming_phase2e import (
 )
 from app.domain.product_naming_phase2f import (
     FORBIDDEN_APPLY_FLAGS,
-    PHASE2E_PRESTATE_SHA256,
     REAL_APPLY_EXPECTED_ROWS,
     apply_change_log_reason,
     apply_success_metrics,
@@ -140,7 +137,6 @@ def test_parse_apply_stdout_contract():
 
 def test_audit_apply_logs_wrong_reason():
     prestate = [_sample_prestate()]
-    reason = apply_change_log_reason()
     logs = [
         {
             "id": 1,
