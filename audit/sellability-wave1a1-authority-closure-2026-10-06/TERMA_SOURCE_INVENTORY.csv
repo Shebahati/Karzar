@@ -1,0 +1,2 @@
+source_id,path,sha256,document_source_date,date_basis,freshness,authority,notes
+terma.google_drive_inventory_list,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf,16eef2bb037f47484ee99dc0fcaab7d873b12bcbd21f4f18b12ae5e0825ae4ed,,no parseable in-PDF date; DOCS/Price/.../2026-07-25_* is receive filename only (same SHA),UNKNOWN,REGISTERED_AVAILABILITY_AUTHORITY,mtime/receive-name insufficient for source_date; deep provenance did not resolve year/day inside PDF
