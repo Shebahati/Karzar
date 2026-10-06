@@ -16,6 +16,10 @@ logger = logging.getLogger(__name__)
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 
 
+def _token_form_fields(**fields: str | None) -> dict[str, str]:
+    return {key: value for key, value in fields.items() if value is not None and value != ""}
+
+
 @dataclass
 class GoogleOAuthTokenProvider:
     settings: Settings
@@ -30,19 +34,19 @@ class GoogleOAuthTokenProvider:
     def _refresh(self) -> None:
         if not self.configured():
             raise GscMcpError(ErrorCode.AUTH_NOT_CONFIGURED, "Google OAuth is not configured")
-        body = {
-            "client_id": self.settings.google_gsc_client_id,
-            "client_secret": self.settings.google_gsc_client_secret,
-            "refresh_token": self.settings.google_gsc_refresh_token,
-            "grant_type": "refresh_token",
-        }
+        form = _token_form_fields(
+            client_id=self.settings.google_gsc_client_id,
+            client_secret=self.settings.google_gsc_client_secret,
+            refresh_token=self.settings.google_gsc_refresh_token,
+            grant_type="refresh_token",
+        )
         if not self.http:
             raise GscMcpError(ErrorCode.INTERNAL_ERROR, "HTTP client not initialized")
         try:
             response = self.http.request(
                 "POST",
                 TOKEN_URL,
-                json_body=body,
+                form_body=form,
                 skip_auth=True,
             )
         except GscMcpError as exc:
@@ -76,9 +80,10 @@ class GoogleOAuthTokenProvider:
 def exchange_authorization_code(
     *,
     client_id: str,
-    client_secret: str,
+    client_secret: str | None,
     code: str,
     redirect_uri: str,
+    code_verifier: str,
     http: GoogleHttpClient | None = None,
 ) -> dict[str, Any]:
     client = http or GoogleHttpClient(
@@ -87,16 +92,18 @@ def exchange_authorization_code(
         user_agent="Karzar-GSC-MCP-bootstrap/0.1",
         token_provider=None,
     )
+    form = _token_form_fields(
+        code=code,
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+        grant_type="authorization_code",
+        code_verifier=code_verifier,
+    )
     response = client.request(
         "POST",
         TOKEN_URL,
-        json_body={
-            "code": code,
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "redirect_uri": redirect_uri,
-            "grant_type": "authorization_code",
-        },
+        form_body=form,
         skip_auth=True,
     )
     return response.json()
@@ -107,6 +114,7 @@ def build_authorization_url(
     client_id: str,
     redirect_uri: str,
     state: str,
+    code_challenge: str,
 ) -> str:
     from urllib.parse import urlencode
 
@@ -118,6 +126,8 @@ def build_authorization_url(
         "access_type": "offline",
         "prompt": "consent",
         "state": state,
+        "code_challenge": code_challenge,
+        "code_challenge_method": "S256",
     }
     return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
 
