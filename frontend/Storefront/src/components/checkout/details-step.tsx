@@ -16,6 +16,7 @@ import { ShippingMethodOptions, ShippingOptions } from "@/components/checkout/sh
 import { useCheckoutShipping } from "@/features/checkout/use-checkout-shipping";
 import { canSubmitPurchaseShipping } from "@/lib/shipping-quote";
 import { isLoggedIn } from "@/lib/api-client";
+import { useCustomerSessionSnapshot } from "@/features/auth/queries";
 import { cn, toPersianDigits } from "@/lib/utils";
 import { useAddressStore, type SavedAddress } from "@/store/address-store";
 import type { ResolvedCustomer } from "@/components/checkout/auth-step";
@@ -121,10 +122,15 @@ function ShippingForm({
   const getDefault = useAddressStore((s) => s.getDefault);
   const addAddress = useAddressStore((s) => s.addAddress);
   const shipping = useCheckoutShipping(true);
+  const session = useCustomerSessionSnapshot();
+  const sessionGuard = `${session.generation}:${session.verifiedCustomerId ?? "none"}`;
   // Match SSR (guest) until mount — avoids hydration mismatch on auth read.
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
     setLoggedIn(isLoggedIn());
+    const sync = () => setLoggedIn(isLoggedIn());
+    window.addEventListener("karzar-auth-change", sync);
+    return () => window.removeEventListener("karzar-auth-change", sync);
   }, []);
   const canUseSaved = loggedIn && addresses.length > 0;
 
@@ -153,6 +159,20 @@ function ShippingForm({
   const watchedPostal = form.watch("postal_code");
   const watchedProvince = form.watch("province");
   const watchedCity = form.watch("city");
+
+  useEffect(() => {
+    setMode("new");
+    setSelectedId(null);
+    form.reset({
+      full_name: customer?.full_name ?? "",
+      phone: customer?.phone ?? "",
+      province: "",
+      city: "",
+      postal_code: "",
+      address_line: "",
+      note: "",
+    });
+  }, [sessionGuard, customer?.full_name, customer?.phone, form]);
 
   useEffect(() => {
     if (!shipping.enabled || !shipping.methodSelectionEnabled) return;

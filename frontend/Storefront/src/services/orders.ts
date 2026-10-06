@@ -43,9 +43,12 @@ function annotateTimeline(
 }
 
 export const orderService = {
-  async listMine(params: { skip?: number; limit?: number } = {}): Promise<OrderListResponse> {
+  async listMine(
+    params: { skip?: number; limit?: number } = {},
+    signal?: AbortSignal,
+  ): Promise<OrderListResponse> {
     if (env.USE_MOCK) return (await getMockApi()).listMyOrders(params);
-    const { data } = await apiClient.get<OrderListResponse>("/orders/me", { params });
+    const { data } = await apiClient.get<OrderListResponse>("/orders/me", { params, signal });
     return data;
   },
 

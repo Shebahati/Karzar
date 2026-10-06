@@ -8,6 +8,7 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Field, fieldInputClass, fieldTextareaClass } from "@/components/ui/field";
 import { isLoggedIn } from "@/lib/api-client";
+import { useCustomerSessionSnapshot } from "@/features/auth/queries";
 import { cn, toPersianDigits } from "@/lib/utils";
 import {
   useAddressStore,
@@ -37,6 +38,14 @@ export function AccountAddressesView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<AddressInput>(EMPTY);
   const [openForm, setOpenForm] = useState(false);
+  const session = useCustomerSessionSnapshot();
+  const sessionGuard = `${session.generation}:${session.verifiedCustomerId ?? "none"}`;
+
+  useEffect(() => {
+    setEditingId(null);
+    setDraft(EMPTY);
+    setOpenForm(false);
+  }, [sessionGuard]);
 
   useEffect(() => {
     if (!isLoggedIn()) router.replace("/login?next=/account/addresses");

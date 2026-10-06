@@ -21,7 +21,7 @@ import {
 } from "@/lib/invoice-pdf";
 
 import { formatBuyerAddressParts } from "@/lib/shipping";
-
+import { isPrivateDataEnabled } from "@/lib/customer-session";
 import { useAddressStore } from "@/store/address-store";
 
 import type { OrderSummary, OrderTracking } from "@/types/order";
@@ -51,6 +51,10 @@ function resolveLocalBuyerShipping(): {
   postalCode: string;
 
 } {
+
+  if (!isPrivateDataEnabled()) {
+    return formatBuyerAddressParts(undefined);
+  }
 
   const saved = useAddressStore.getState().getDefault();
 
