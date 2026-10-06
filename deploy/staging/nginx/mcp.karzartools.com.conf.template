@@ -1,0 +1,72 @@
+# Stage 2 — post-certificate final config (install AFTER Let's Encrypt files exist).
+# Install on VPS as /etc/nginx/sites-available/mcp.karzartools.com
+# Then: sudo ln -s /etc/nginx/sites-available/mcp.karzartools.com /etc/nginx/sites-enabled/
+#
+# Prerequisites (owner manual):
+#   DNS: mcp.karzartools.com -> VPS public IP
+#   TLS: certbot certonly --webroot -w /var/www/certbot -d mcp.karzartools.com
+#   Docker: gsc_mcp published on 127.0.0.1:8010 only (docker-compose.gsc-mcp.yml)
+#
+# Public MCP URL: https://mcp.karzartools.com/mcp
+
+upstream karzar_gsc_mcp {
+    server 127.0.0.1:8010;
+    keepalive 8;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name mcp.karzartools.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name mcp.karzartools.com;
+
+    ssl_certificate     /etc/letsencrypt/live/mcp.karzartools.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mcp.karzartools.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Do not log Authorization (default combined log does not include headers).
+    access_log /var/log/nginx/mcp.karzartools.com.access.log combined;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy no-referrer always;
+
+    # Health is loopback/Docker only — not exposed on the public hostname.
+    location = /health {
+        return 404;
+    }
+
+    location = / {
+        return 404;
+    }
+
+    location /mcp {
+        proxy_pass http://karzar_gsc_mcp;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_connect_timeout 30s;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+    }
+}
