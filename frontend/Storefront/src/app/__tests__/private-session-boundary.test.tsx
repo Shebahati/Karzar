@@ -1,4 +1,4 @@
-import { act } from "react";
+import { act, useLayoutEffect } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +6,6 @@ import { Providers } from "@/app/providers";
 import { useMe } from "@/features/auth/queries";
 import { useMyOrders } from "@/features/orders/queries";
 import {
-  CUSTOMER_SESSION_SIGNAL_KEY,
   establishVerifiedCustomer,
   getCustomerSessionSnapshot,
   notifyExternalSessionHint,
@@ -312,19 +311,14 @@ describe("Providers private session boundary", () => {
 
     const container = document.createElement("div");
     const root = createRoot(container);
-    act(() => {
-      root.render(
-        <Providers>
-          <CatalogProbe />
-        </Providers>,
-      );
-    });
-
     const clientRef: { current: QueryClient | null } = { current: null };
+
     function SeedCatalog() {
       const client = useQueryClient();
-      client.setQueryData(["catalog", "featured"], { items: [1] });
-      clientRef.current = client;
+      useLayoutEffect(() => {
+        clientRef.current = client;
+        client.setQueryData(["catalog", "featured"], { items: [1] });
+      }, [client]);
       return <CatalogProbe />;
     }
 
