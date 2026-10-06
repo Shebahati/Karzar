@@ -1453,6 +1453,36 @@ documents:
     notes: >
       Proposed SAN OU authority decision only. Not registered; targets remain UNKNOWN.
 
+  - id: PRODUCT-1789-BRAND-INTEGRITY-20261006
+    path: audit/product-1789-brand-integrity-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Product 1789 brand integrity rehearsal + writer audit (2026-10-06).
+      REAL_REPAIR_AUTHORIZED=NO; persistent Production mutation forbidden.
+
+  - id: PRODUCT-1789-BRAND-INTEGRITY-FINAL-20261006
+    path: audit/product-1789-brand-integrity-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Product 1789 brand integrity final report. READY_FOR_OWNER_REPAIR;
+      REAL_REPAIR_AUTHORIZED=NO.
+
+  - id: PRODUCT-1789-BRAND-INTEGRITY-ROOT-CAUSE-20261006
+    path: audit/product-1789-brand-integrity-2026-10-06/ROOT_CAUSE_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Root cause ADMIN_PATH_DEFECT for unlogged brand_id clear on product 1789.
+      Exact historical writer unproven. Repair not applied.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE

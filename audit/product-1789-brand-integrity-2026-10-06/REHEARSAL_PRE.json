@@ -1,0 +1,36 @@
+{
+  "identity": {
+    "host": "srv5944957438",
+    "db_container": "lathe_postgres",
+    "db_name": "karzar_staging",
+    "db_user": "karzar_staging",
+    "volume": "karzar_postgres_data",
+    "captured_at_utc": "2026-10-06T12:00:23.308140+00:00",
+    "REAL_REPAIR_AUTHORIZED": "NO",
+    "host_proof": "srv5944957438",
+    "volume_proof": "karzar_postgres_data",
+    "pre_probe_stdout_sha256": "70805783e6af050669010091d5c6748e5e186d98bb1cb6d2dccf62ccdb83b2e9"
+  },
+  "product_row": {
+    "product_id": 1789,
+    "sku": "1114-150",
+    "manufacturer_code": "1114-150",
+    "brand_id": null,
+    "is_available": "true",
+    "base_price": "7980000.00",
+    "deleted_at": null,
+    "updated_at": "2026-10-04 11:19:55.937259+00",
+    "is_active": "true",
+    "category_id": "57"
+  },
+  "expected_current_hash": "262b9c550257a32c248c650ab283c676e80e689eaa4d551dcd6afe3645f42555",
+  "gates": {
+    "brand_id_is_null": true,
+    "sku_match": true,
+    "manufacturer_code_match": true,
+    "deleted_at_null": true,
+    "host_ok": true,
+    "volume_ok": true,
+    "transaction_read_only": true
+  }
+}

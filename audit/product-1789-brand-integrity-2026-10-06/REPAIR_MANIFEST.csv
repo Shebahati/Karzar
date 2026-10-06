@@ -1,0 +1,2 @@
+product_id,sku,manufacturer_code,current_brand_id,expected_brand_id,expected_brand_name,current_is_available,current_base_price,expected_current_hash,identity_evidence,repair_reason
+1789,1114-150,1114-150,,3,INSIZE,true,7980000.00,262b9c550257a32c248c650ab283c676e80e689eaa4d551dcd6afe3645f42555,Wave0+Phase2C+INSIZE manifests brand_id=3; trailing-A 1114-150A identity-only; live sku/mfg match,Restore unlogged brand_id NULL→3 after Product 1789 integrity investigation; REAL_REPAIR_AUTHORIZED=NO until Owner APPLY
