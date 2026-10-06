@@ -1,0 +1,59 @@
+name: INSIZE Workbook +20% Price APPLY
+
+on:
+  push:
+    branches:
+      - cursor/insize-price-20-apply-763a
+    paths:
+      - .github/workflows/insize-price-20-workbook-apply.yml
+      - scripts/ops/insize_distributor_price_workbook_sync.py
+      - scripts/ops/run_insize_distributor_price_workbook_sync.sh
+      - audit/insize-price-20-workbook/WORKBOOK_65a92337.xlsx
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Set to 1 to mutate base_price after dry-run gates
+        required: true
+        default: "1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: insize-price-20-workbook-apply
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: INSIZE distributor workbook price sync
+    runs-on: [self-hosted, karzar-vps]
+    timeout-minutes: 45
+    if: github.repository == 'Shebahati/Karzar'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Sync to live tree
+        run: |
+          set -euo pipefail
+          LIVE=/opt/karzar/Karzar
+          rsync -a --delete-after \
+            "${{ github.workspace }}/scripts/ops/insize_distributor_price_workbook_sync.py" \
+            "${LIVE}/scripts/ops/"
+          rsync -a --delete-after \
+            "${{ github.workspace }}/scripts/ops/run_insize_distributor_price_workbook_sync.sh" \
+            "${LIVE}/scripts/ops/"
+          install -d "${LIVE}/audit/insize-price-20-workbook"
+          rsync -a \
+            "${{ github.workspace }}/audit/insize-price-20-workbook/WORKBOOK_65a92337.xlsx" \
+            "${LIVE}/audit/insize-price-20-workbook/"
+          chmod +x "${LIVE}/scripts/ops/run_insize_distributor_price_workbook_sync.sh"
+
+      - name: Dry-run and apply
+        env:
+          KARZAR_INSIZE_WORKBOOK_SYNC_CONFIRM: owner_insize_distributor_workbook_price_sync_20pct_2026_10_06
+          KARZAR_INSIZE_WORKBOOK_SYNC_APPLY: ${{ github.event_name == 'workflow_dispatch' && inputs.apply || '1' }}
+        working-directory: /opt/karzar/Karzar
+        run: bash scripts/ops/run_insize_distributor_price_workbook_sync.sh
