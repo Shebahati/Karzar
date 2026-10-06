@@ -11,6 +11,12 @@ export type CustomerSessionSnapshot = {
   verifiedCustomerId: number | null;
 };
 
+/** Captured at the start of an async private operation; publish only while still current. */
+export type CustomerSessionFence = {
+  generation: number;
+  ownerId: number;
+};
+
 export const CUSTOMER_SESSION_SIGNAL_KEY = "karzar.customer-session.signal";
 
 const SERVER_SNAPSHOT: CustomerSessionSnapshot = {
@@ -22,6 +28,11 @@ const SERVER_SNAPSHOT: CustomerSessionSnapshot = {
 let generation = 1;
 let phase: CustomerSessionPhase = "unknown";
 let verifiedCustomerId: number | null = null;
+/**
+ * Soft owner retained across external-hint → checking so same-owner /me recovery
+ * does not rebroadcast CUSTOMER_SESSION_SIGNAL_KEY. Never exposed via getters.
+ */
+let softReverifyOwnerId: number | null = null;
 
 let snapshotCache: CustomerSessionSnapshot = {
   generation,
@@ -95,6 +106,17 @@ export function isSessionOwnerCurrent(
   );
 }
 
+/** Snapshot verified owner+generation before an async private side effect. */
+export function captureVerifiedCustomerSessionFence(): CustomerSessionFence | null {
+  if (phase !== "verified" || verifiedCustomerId == null) return null;
+  return { generation, ownerId: verifiedCustomerId };
+}
+
+export function isCustomerSessionFenceCurrent(fence: CustomerSessionFence | null): boolean {
+  if (fence == null) return false;
+  return isSessionOwnerCurrent(fence.generation, fence.ownerId);
+}
+
 function broadcastCrossTabSignal(): void {
   if (typeof window === "undefined") return;
   try {
@@ -104,17 +126,33 @@ function broadcastCrossTabSignal(): void {
   }
 }
 
+export type InvalidateCustomerSessionOptions = {
+  /**
+   * When false, do not write CUSTOMER_SESSION_SIGNAL_KEY.
+   * Required for transitions driven by an external storage/session hint
+   * so tabs cannot rebroadcast and bounce indefinitely.
+   */
+  broadcast?: boolean;
+};
+
 /**
  * Hide private data immediately (logout, account switch, 401, expiry).
  * Does not await network logout — server cookies may remain (F08).
  */
-export function invalidateCustomerSession(nextPhase: CustomerSessionPhase = "guest"): void {
+export function invalidateCustomerSession(
+  nextPhase: CustomerSessionPhase = "guest",
+  options?: InvalidateCustomerSessionOptions,
+): void {
+  const broadcast = options?.broadcast !== false;
   const prevOwner = verifiedCustomerId;
   generation += 1;
   verifiedCustomerId = null;
+  softReverifyOwnerId = null;
   phase = nextPhase;
   handlers?.onSessionInvalidated(prevOwner);
-  broadcastCrossTabSignal();
+  if (broadcast) {
+    broadcastCrossTabSignal();
+  }
   emit();
 }
 
@@ -126,7 +164,8 @@ export function markCustomerSessionChecking(): void {
 
 /**
  * Establish verified identity from OTP or successful /me.
- * Same owner + same generation → idempotent (no wipe).
+ * Same owner + verified → idempotent (no wipe, no broadcast).
+ * Same owner recovering from external-hint checking → no cross-tab broadcast.
  */
 export function establishVerifiedCustomer(
   customerId: number,
@@ -134,16 +173,28 @@ export function establishVerifiedCustomer(
 ): boolean {
   if (!Number.isFinite(customerId) || customerId <= 0) return false;
 
-  const sameOwner =
-    phase === "verified" && verifiedCustomerId === customerId;
+  if (phase === "verified" && verifiedCustomerId === customerId) {
+    softReverifyOwnerId = null;
+    handlers?.onSessionVerified(customerId, true);
+    emit();
+    return true;
+  }
 
-  if (sameOwner) {
+  if (
+    phase === "checking" &&
+    verifiedCustomerId == null &&
+    softReverifyOwnerId === customerId
+  ) {
+    softReverifyOwnerId = null;
+    verifiedCustomerId = customerId;
+    phase = "verified";
     handlers?.onSessionVerified(customerId, true);
     emit();
     return true;
   }
 
   const prevOwner = verifiedCustomerId;
+  softReverifyOwnerId = null;
   if (prevOwner != null && prevOwner !== customerId) {
     generation += 1;
     handlers?.onSessionInvalidated(prevOwner);
@@ -152,18 +203,28 @@ export function establishVerifiedCustomer(
   verifiedCustomerId = customerId;
   phase = "verified";
   handlers?.onSessionVerified(customerId, false);
-  if (!sameOwner) broadcastCrossTabSignal();
+  broadcastCrossTabSignal();
   emit();
   return true;
 }
 
-/** Another tab changed session-related storage — hide private data and reverify. */
+/**
+ * Another tab changed session-related storage — hide private data and reverify.
+ * Must not broadcast CUSTOMER_SESSION_SIGNAL_KEY (receiver-only).
+ */
 export function notifyExternalSessionHint(): void {
   if (phase === "unknown" || phase === "guest") {
     phase = "checking";
-  } else {
-    invalidateCustomerSession("checking");
+    emit();
+    return;
   }
+
+  const prevOwner = verifiedCustomerId;
+  softReverifyOwnerId = prevOwner ?? softReverifyOwnerId;
+  generation += 1;
+  verifiedCustomerId = null;
+  phase = "checking";
+  handlers?.onSessionInvalidated(prevOwner);
   emit();
 }
 
@@ -177,6 +238,7 @@ export function resetCustomerSessionStateForTests(): void {
   generation = 1;
   phase = "unknown";
   verifiedCustomerId = null;
+  softReverifyOwnerId = null;
   syncSnapshotCache();
   listeners.clear();
 }

@@ -1,4 +1,9 @@
-import { invalidateCustomerSession, establishVerifiedCustomer } from "@/lib/customer-session";
+import {
+  invalidateCustomerSession,
+  establishVerifiedCustomer,
+  captureVerifiedCustomerSessionFence,
+  isCustomerSessionFenceCurrent,
+} from "@/lib/customer-session";
 import {
   clearCartToken,
   getCartToken,
@@ -183,6 +188,9 @@ export const authService = {
     }
     const company_name = companyRaw || null;
 
+    // Fence must be captured before any await — logout/switch must block late persist.
+    const fence = captureVerifiedCustomerSessionFence();
+
     if (env.USE_MOCK) {
       return (await getMockApi()).updateProfile({
         full_name: trimmed,
@@ -196,13 +204,20 @@ export const authService = {
       full_name: trimmed,
       company_name,
     });
-    writeStoredCustomer({
-      id: me.id,
-      phone: me.phone,
-      full_name: trimmed,
-      company_name,
-      is_b2b: me.is_b2b,
-    });
+    // Guest/checking (fence null or stale) must not re-populate STOREFRONT_CUSTOMER_KEY.
+    if (
+      isCustomerSessionFenceCurrent(fence) &&
+      fence != null &&
+      me.id === fence.ownerId
+    ) {
+      writeStoredCustomer({
+        id: me.id,
+        phone: me.phone,
+        full_name: trimmed,
+        company_name,
+        is_b2b: me.is_b2b,
+      });
+    }
     return me;
   },
 

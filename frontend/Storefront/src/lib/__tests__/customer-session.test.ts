@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  CUSTOMER_SESSION_SIGNAL_KEY,
   establishVerifiedCustomer,
   getCustomerSessionSnapshot,
   getPrivateQueryScope,
@@ -7,12 +8,17 @@ import {
   invalidateCustomerSession,
   isPrivateDataEnabled,
   isSessionOwnerCurrent,
+  notifyExternalSessionHint,
   resetCustomerSessionStateForTests,
+  captureVerifiedCustomerSessionFence,
+  isCustomerSessionFenceCurrent,
 } from "@/lib/customer-session";
 
 describe("customer-session boundary", () => {
   beforeEach(() => {
     resetCustomerSessionStateForTests();
+    localStorage.clear();
+    vi.restoreAllMocks();
   });
 
   it("T08: exposes no verified owner until established", () => {
@@ -45,5 +51,47 @@ describe("customer-session boundary", () => {
     establishVerifiedCustomer(2, "otp");
     expect(getCustomerSessionSnapshot().generation).toBeGreaterThan(genA);
     expect(getVerifiedCustomerId()).toBe(2);
+  });
+
+  it("T06: fence is current only for same verified owner+generation", () => {
+    establishVerifiedCustomer(7, "otp");
+    const fence = captureVerifiedCustomerSessionFence();
+    expect(isCustomerSessionFenceCurrent(fence)).toBe(true);
+    invalidateCustomerSession("guest");
+    expect(isCustomerSessionFenceCurrent(fence)).toBe(false);
+    expect(captureVerifiedCustomerSessionFence()).toBeNull();
+  });
+
+  it("T11: notifyExternalSessionHint must not write CUSTOMER_SESSION_SIGNAL_KEY", () => {
+    establishVerifiedCustomer(11, "otp");
+    localStorage.removeItem(CUSTOMER_SESSION_SIGNAL_KEY);
+    const genBefore = getCustomerSessionSnapshot().generation;
+
+    notifyExternalSessionHint();
+
+    expect(getCustomerSessionSnapshot().phase).toBe("checking");
+    expect(getCustomerSessionSnapshot().verifiedCustomerId).toBeNull();
+    expect(getCustomerSessionSnapshot().generation).toBeGreaterThan(genBefore);
+    expect(isPrivateDataEnabled()).toBe(false);
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
+
+    // Same-owner recovery from soft reverify hint must also avoid broadcast.
+    establishVerifiedCustomer(11, "me");
+    expect(getVerifiedCustomerId()).toBe(11);
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
+  });
+
+  it("T11: local invalidateCustomerSession still broadcasts by default", () => {
+    establishVerifiedCustomer(12, "otp");
+    localStorage.removeItem(CUSTOMER_SESSION_SIGNAL_KEY);
+    invalidateCustomerSession("guest");
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).not.toBeNull();
+  });
+
+  it("T11: invalidateCustomerSession({ broadcast: false }) is silent", () => {
+    establishVerifiedCustomer(13, "otp");
+    localStorage.removeItem(CUSTOMER_SESSION_SIGNAL_KEY);
+    invalidateCustomerSession("guest", { broadcast: false });
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
   });
 });

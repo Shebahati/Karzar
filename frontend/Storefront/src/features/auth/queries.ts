@@ -14,10 +14,12 @@ import {
   getCustomerSessionSnapshot,
   getPrivateQueryScope,
   getServerCustomerSessionSnapshot,
+  isCustomerSessionFenceCurrent,
   isPrivateDataEnabled,
   markCustomerSessionChecking,
   subscribeCustomerSession,
-  invalidateCustomerSession,
+  captureVerifiedCustomerSessionFence,
+  type CustomerSessionFence,
   type CustomerSessionSnapshot,
 } from "@/lib/customer-session";
 import type { MeResponse } from "@/types/auth";
@@ -74,7 +76,13 @@ export function useMe(enabled = true) {
       const startGen = getCustomerSessionSnapshot().generation;
       const me = await authService.getMe({ signal });
       const mid = getCustomerSessionSnapshot();
-      if (mid.verifiedCustomerId != null && mid.verifiedCustomerId !== me.id) {
+      // Soft owner retained during "checking" (external hint) must not block
+      // authoritative /me when the server reports a different customer.
+      if (
+        mid.phase === "verified" &&
+        mid.verifiedCustomerId != null &&
+        mid.verifiedCustomerId !== me.id
+      ) {
         throw new Error("ME_STALE_SESSION");
       }
       if (mid.generation !== startGen && mid.verifiedCustomerId !== me.id) {
@@ -82,7 +90,7 @@ export function useMe(enabled = true) {
       }
       establishVerifiedCustomer(me.id, "me");
       const after = getCustomerSessionSnapshot();
-      if (after.verifiedCustomerId !== me.id) {
+      if (after.verifiedCustomerId !== me.id || after.phase !== "verified") {
         throw new Error("ME_STALE_SESSION");
       }
       return me;
@@ -96,11 +104,13 @@ export function useMe(enabled = true) {
 
 export function useUpdateFullName() {
   const queryClient = useQueryClient();
-  return useMutation<MeResponse, Error, string>({
+  return useMutation<MeResponse, Error, string, { fence: CustomerSessionFence | null }>({
     mutationFn: (fullName) => authService.updateFullName(fullName),
-    onSuccess: (me) => {
-      const snap = getCustomerSessionSnapshot();
-      if (snap.verifiedCustomerId != null && snap.verifiedCustomerId !== me.id) {
+    onMutate: () => ({ fence: captureVerifiedCustomerSessionFence() }),
+    onSuccess: (me, _vars, ctx) => {
+      const fence = ctx?.fence ?? null;
+      // null verifiedCustomerId (guest/checking) is NOT permission to establish.
+      if (!isCustomerSessionFenceCurrent(fence) || fence == null || me.id !== fence.ownerId) {
         return;
       }
       establishVerifiedCustomer(me.id, "profile");
@@ -114,12 +124,15 @@ export function useUpdateProfile() {
   return useMutation<
     MeResponse,
     Error,
-    { full_name: string; company_name?: string | null }
+    { full_name: string; company_name?: string | null },
+    { fence: CustomerSessionFence | null }
   >({
     mutationFn: (payload) => authService.updateProfile(payload),
-    onSuccess: (me) => {
-      const snap = getCustomerSessionSnapshot();
-      if (snap.verifiedCustomerId != null && snap.verifiedCustomerId !== me.id) {
+    onMutate: () => ({ fence: captureVerifiedCustomerSessionFence() }),
+    onSuccess: (me, _vars, ctx) => {
+      const fence = ctx?.fence ?? null;
+      // null verifiedCustomerId (guest/checking) is NOT permission to establish.
+      if (!isCustomerSessionFenceCurrent(fence) || fence == null || me.id !== fence.ownerId) {
         return;
       }
       establishVerifiedCustomer(me.id, "profile");

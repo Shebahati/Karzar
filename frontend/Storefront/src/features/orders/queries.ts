@@ -43,7 +43,7 @@ export function useMyOrders(params: { skip?: number; limit?: number } = {}) {
     queryKey: orderKeys.mine(scope.ownerId, scope.sessionGeneration, params),
     queryFn: async ({ signal }: QueryFunctionContext) => {
       const snap = getCustomerSessionSnapshot();
-      if (!snap.verifiedCustomerId) {
+      if (!isPrivateDataEnabled() || snap.verifiedCustomerId == null) {
         throw new Error("ORDERS_PRIVATE_DISABLED");
       }
       const ownerId = snap.verifiedCustomerId;

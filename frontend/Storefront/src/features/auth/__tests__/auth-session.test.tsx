@@ -8,14 +8,17 @@ import {
   useMe,
   useUpdateProfile,
 } from "@/features/auth/queries";
+import { useMyOrders } from "@/features/orders/queries";
 import {
   establishVerifiedCustomer,
   getCustomerSessionSnapshot,
   invalidateCustomerSession,
+  isPrivateDataEnabled,
   resetCustomerSessionStateForTests,
 } from "@/lib/customer-session";
 import { authService, STOREFRONT_CUSTOMER_KEY } from "@/services/auth";
 import { apiClient } from "@/lib/api-client";
+import { useAddressStore } from "@/store/address-store";
 import type { MeResponse } from "@/types/auth";
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -144,6 +147,126 @@ describe("auth /me session cache (F02)", () => {
     );
     expect(cached).toBeUndefined();
     unmount();
+  });
+
+  it("T06: late A profile mutation after logout cannot re-establish A (guest fence)", async () => {
+    let resolveMe!: (value: { data: Record<string, unknown> }) => void;
+    vi.spyOn(apiClient, "get").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveMe = resolve;
+        }),
+    );
+    vi.spyOn(apiClient, "post").mockResolvedValue({ data: {} });
+
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    establishVerifiedCustomer(1, "otp");
+    const genAtStart = getCustomerSessionSnapshot().generation;
+    localStorage.setItem(
+      STOREFRONT_CUSTOMER_KEY,
+      JSON.stringify({ id: 1, phone: "09120000001", full_name: "A" }),
+    );
+    useAddressStore.setState({
+      byOwner: {
+        "1": [
+          {
+            id: "a1",
+            label: "home",
+            full_name: "Address A",
+            phone: "09120000001",
+            province: "Tehran",
+            city: "Tehran",
+            postal_code: "1234567890",
+            address_line: "A street",
+            is_default: true,
+          },
+        ],
+      },
+      addresses: [],
+    });
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(1);
+    expect(useAddressStore.getState().addresses[0]?.full_name).toBe("Address A");
+
+    const { result, unmount } = renderHook(() => {
+      const mutation = useUpdateProfile();
+      const orders = useMyOrders({ limit: 5 });
+      return { mutation, orders };
+    }, client);
+
+    await act(async () => {
+      void result.current?.mutation.mutate({ full_name: "Stale After Logout" });
+    });
+    await waitUntil(() => typeof resolveMe === "function");
+
+    await act(async () => {
+      await authService.logout();
+    });
+    clearPrivateAuthAndOrderQueries(client);
+    useAddressStore.getState().clearVisibleAddresses();
+
+    const genAfterLogout = getCustomerSessionSnapshot().generation;
+    expect(getCustomerSessionSnapshot().phase).toBe("guest");
+    expect(getCustomerSessionSnapshot().verifiedCustomerId).toBeNull();
+    expect(genAfterLogout).toBeGreaterThan(genAtStart);
+    expect(localStorage.getItem(STOREFRONT_CUSTOMER_KEY)).toBeNull();
+    expect(useAddressStore.getState().addresses).toHaveLength(0);
+    expect(isPrivateDataEnabled()).toBe(false);
+    expect(result.current?.orders.isFetching).toBe(false);
+
+    await act(async () => {
+      resolveMe({
+        data: {
+          id: 1,
+          phone_number: "09120000001",
+          full_name: null,
+          company_name: null,
+        },
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(getCustomerSessionSnapshot().phase).toBe("guest");
+    expect(getCustomerSessionSnapshot().verifiedCustomerId).toBeNull();
+    expect(getCustomerSessionSnapshot().generation).toBe(genAfterLogout);
+    expect(localStorage.getItem(STOREFRONT_CUSTOMER_KEY)).toBeNull();
+    expect(client.getQueryCache().findAll({ queryKey: authKeys.all })).toHaveLength(0);
+    expect(useAddressStore.getState().addresses).toHaveLength(0);
+    expect(isPrivateDataEnabled()).toBe(false);
+    expect(result.current?.orders.fetchStatus).toBe("idle");
+    unmount();
+  });
+
+  it("T06: authService.updateProfile does not write STOREFRONT_CUSTOMER_KEY after logout", async () => {
+    let resolveMe!: (value: { data: Record<string, unknown> }) => void;
+    vi.spyOn(apiClient, "get").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveMe = resolve;
+        }),
+    );
+
+    establishVerifiedCustomer(1, "otp");
+    const pending = authService.updateProfile({ full_name: "Should Not Persist" });
+    await waitUntil(() => typeof resolveMe === "function");
+    invalidateCustomerSession("guest");
+    localStorage.removeItem(STOREFRONT_CUSTOMER_KEY);
+
+    resolveMe({
+      data: {
+        id: 1,
+        phone_number: "09120000001",
+        full_name: null,
+        company_name: null,
+      },
+    });
+    await pending;
+
+    expect(localStorage.getItem(STOREFRONT_CUSTOMER_KEY)).toBeNull();
+    expect(getCustomerSessionSnapshot().verifiedCustomerId).toBeNull();
+    expect(getCustomerSessionSnapshot().phase).toBe("guest");
   });
 
   it("T06: mergeLocalProfile only fills gaps for matching stored id (intercepted transport)", async () => {

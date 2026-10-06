@@ -6,8 +6,10 @@ import { Providers } from "@/app/providers";
 import { useMe } from "@/features/auth/queries";
 import { useMyOrders } from "@/features/orders/queries";
 import {
+  CUSTOMER_SESSION_SIGNAL_KEY,
   establishVerifiedCustomer,
   getCustomerSessionSnapshot,
+  isPrivateDataEnabled,
   notifyExternalSessionHint,
   resetCustomerSessionStateForTests,
 } from "@/lib/customer-session";
@@ -248,6 +250,130 @@ describe("Providers private session boundary", () => {
 
     await waitUntil(() => useAddressStore.getState().addresses.length === 0);
     expect(calls).toBeGreaterThanOrEqual(1);
+    unmount();
+  });
+
+  it("T11: external CUSTOMER_SESSION_SIGNAL_KEY is receiver-only (no rebroadcast)", async () => {
+    let calls = 0;
+    vi.spyOn(authService, "getMe").mockImplementation(async () => {
+      calls += 1;
+      return {
+        id: 3,
+        phone: "09123333333",
+        full_name: `Owner Three #${calls}`,
+        company_name: null,
+      };
+    });
+    vi.spyOn(orderService, "listMine").mockResolvedValue({
+      data: [],
+      meta: { total_count: 0, skip: 0, limit: 5, has_next: false, has_prev: false },
+    });
+
+    const { container, unmount } = mountProviders();
+    await waitUntil(() => getCustomerSessionSnapshot().verifiedCustomerId === 3);
+    await waitUntil(() =>
+      (container.querySelector('[data-testid="me-name"]')?.textContent ?? "").startsWith(
+        "Owner Three",
+      ),
+    );
+
+    useAddressStore.setState({
+      byOwner: {
+        "3": [
+          {
+            id: "x",
+            label: "l",
+            full_name: "Visible Three",
+            phone: "0912",
+            province: "p",
+            city: "c",
+            postal_code: "1234567890",
+            address_line: "line",
+            is_default: true,
+          },
+        ],
+      },
+    });
+    useAddressStore.getState().hydrateVisibleForVerifiedOwner(3);
+    expect(useAddressStore.getState().addresses.length).toBe(1);
+    const genVerified = getCustomerSessionSnapshot().generation;
+    const callsAfterVerify = calls;
+
+    localStorage.removeItem(CUSTOMER_SESSION_SIGNAL_KEY);
+    const setItemSpy = vi.spyOn(window.localStorage, "setItem");
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CUSTOMER_SESSION_SIGNAL_KEY,
+          newValue: String(Date.now()),
+        }),
+      );
+    });
+
+    // Assert receiver-only transition synchronously before async /me reverify.
+    const snapAfterHint = getCustomerSessionSnapshot();
+    expect(snapAfterHint.phase).toBe("checking");
+    expect(snapAfterHint.verifiedCustomerId).toBeNull();
+    expect(snapAfterHint.generation).toBeGreaterThan(genVerified);
+    expect(isPrivateDataEnabled()).toBe(false);
+    expect(useAddressStore.getState().addresses).toHaveLength(0);
+    expect(
+      setItemSpy.mock.calls.filter(([key]) => key === CUSTOMER_SESSION_SIGNAL_KEY),
+    ).toHaveLength(0);
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
+
+    await waitUntil(() => getCustomerSessionSnapshot().verifiedCustomerId === 3);
+    await waitUntil(() =>
+      (container.querySelector('[data-testid="me-name"]')?.textContent ?? "").startsWith(
+        "Owner Three",
+      ),
+    );
+    expect(isPrivateDataEnabled()).toBe(true);
+    expect(calls).toBeGreaterThan(callsAfterVerify);
+    expect(
+      setItemSpy.mock.calls.filter(([key]) => key === CUSTOMER_SESSION_SIGNAL_KEY),
+    ).toHaveLength(0);
+    expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
+
+    unmount();
+  });
+
+  it("T11: external STOREFRONT_CUSTOMER_KEY / ADDRESS_PERSIST_KEY hints do not rebroadcast", async () => {
+    vi.spyOn(authService, "getMe").mockResolvedValue({
+      id: 8,
+      phone: "09128888888",
+      full_name: "Owner Eight",
+      company_name: null,
+    });
+
+    const { unmount } = mountProviders();
+    await waitUntil(() => getCustomerSessionSnapshot().verifiedCustomerId === 8);
+
+    const assertNoSignalBroadcast = (key: string, newValue: string) => {
+      localStorage.removeItem(CUSTOMER_SESSION_SIGNAL_KEY);
+      const setItemSpy = vi.spyOn(window.localStorage, "setItem");
+      act(() => {
+        window.dispatchEvent(new StorageEvent("storage", { key, newValue }));
+      });
+      expect(getCustomerSessionSnapshot().phase).toBe("checking");
+      expect(
+        setItemSpy.mock.calls.filter(([k]) => k === CUSTOMER_SESSION_SIGNAL_KEY),
+      ).toHaveLength(0);
+      expect(localStorage.getItem(CUSTOMER_SESSION_SIGNAL_KEY)).toBeNull();
+      setItemSpy.mockRestore();
+    };
+
+    assertNoSignalBroadcast(
+      STOREFRONT_CUSTOMER_KEY,
+      JSON.stringify({ id: 99, phone: "09129999999" }),
+    );
+    // Re-establish so the second hint again starts from verified.
+    establishVerifiedCustomer(8, "me");
+    assertNoSignalBroadcast(
+      ADDRESS_PERSIST_KEY,
+      JSON.stringify({ state: { byOwner: {} }, version: 2 }),
+    );
+
     unmount();
   });
 

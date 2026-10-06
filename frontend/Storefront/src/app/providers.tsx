@@ -72,11 +72,13 @@ function CustomerSessionBoundary() {
 
   useEffect(() => {
     const reverifyFromOtherTab = () => {
+      // External storage hint: invalidate/hide locally without rebroadcasting
+      // CUSTOMER_SESSION_SIGNAL_KEY (prevents cross-tab signal bounce).
       notifyExternalSessionHint();
       clearPrivateAuthAndOrderQueries(queryClient);
       useAddressStore.getState().clearVisibleAddresses();
       if (!isLoggedIn()) {
-        invalidateCustomerSession("guest");
+        invalidateCustomerSession("guest", { broadcast: false });
         return;
       }
       void queryClient.invalidateQueries({ queryKey: authKeys.all });
