@@ -1,0 +1,106 @@
+{
+  "generated_at_utc": "2026-10-06T14:13:28.328472+00:00",
+  "kind": "insize_pilot_recovery",
+  "rows": [
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3846,
+      "sku": "N10-4120",
+      "target_base_price": "7440000",
+      "timestamp": "2026-10-06T14:13:28.328191+00:00",
+      "workbook_CODE": "4120-10N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3849,
+      "sku": "N12-4120",
+      "target_base_price": "7650000",
+      "timestamp": "2026-10-06T14:13:28.328216+00:00",
+      "workbook_CODE": "4120-12N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3852,
+      "sku": "N14-4120",
+      "target_base_price": "7320000",
+      "timestamp": "2026-10-06T14:13:28.328224+00:00",
+      "workbook_CODE": "4120-14N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3854,
+      "sku": "N16-4120",
+      "target_base_price": "7500000",
+      "timestamp": "2026-10-06T14:13:28.328231+00:00",
+      "workbook_CODE": "4120-16N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3856,
+      "sku": "N18-4120",
+      "target_base_price": "8880000",
+      "timestamp": "2026-10-06T14:13:28.328238+00:00",
+      "workbook_CODE": "4120-18N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3858,
+      "sku": "N20-4120",
+      "target_base_price": "8460000",
+      "timestamp": "2026-10-06T14:13:28.328245+00:00",
+      "workbook_CODE": "4120-20N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3861,
+      "sku": "N22-4120",
+      "target_base_price": "8100000",
+      "timestamp": "2026-10-06T14:13:28.328251+00:00",
+      "workbook_CODE": "4120-22N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3863,
+      "sku": "N24-4120",
+      "target_base_price": "9270000",
+      "timestamp": "2026-10-06T14:13:28.328258+00:00",
+      "workbook_CODE": "4120-24N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3867,
+      "sku": "N27-4120",
+      "target_base_price": "9270000",
+      "timestamp": "2026-10-06T14:13:28.328264+00:00",
+      "workbook_CODE": "4120-27N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3871,
+      "sku": "N30-4120",
+      "target_base_price": "11760000",
+      "timestamp": "2026-10-06T14:13:28.328271+00:00",
+      "workbook_CODE": "4120-30N"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3844,
+      "sku": "N8-4120",
+      "target_base_price": "7260000",
+      "timestamp": "2026-10-06T14:13:28.328327+00:00",
+      "workbook_CODE": "4120-8N"
+    }
+  ],
+  "version": 1
+}

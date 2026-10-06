@@ -523,22 +523,84 @@ def match_insize_identity_alias(
 
     registry = aliases if aliases is not None else load_insize_identity_aliases()
     alias = registry.get(key)
-    if alias is None:
-        return MatchResult(method="unmatched")
+    if alias is not None:
+        source_key = normalize_sku(alias.authoritative_source_code)
+        wb = workbook_by_code.get(source_key)
+        if wb is None:
+            return MatchResult(method="unmatched", candidates=[source_key])
+        if insize_db_skus is not None and source_key in insize_db_skus:
+            return MatchResult(
+                method="IDENTITY_ALIAS_AMBIGUOUS",
+                workbook_code=wb.code,
+                candidates=[source_key, key],
+            )
+        return MatchResult(
+            method="INSIZE_IDENTITY_ALIAS",
+            workbook_code=wb.code,
+            candidates=[source_key],
+        )
 
-    source_key = normalize_sku(alias.authoritative_source_code)
+    # Narrow family fallback: N{size}-4120 → 4120-{size}N (INSIZE 4120 only).
+    return match_insize_4120_nogo_reorder_alias(
+        key,
+        workbook_by_code,
+        insize_db_skus=insize_db_skus,
+        brand_is_insize=True,
+    )
+
+
+
+
+_INSIZE_4120_NOGO_SITE_RE = re.compile(r"^N(\d+)-4120$")
+
+
+def parse_insize_4120_nogo_site_sku(sku: str | None) -> str | None:
+    """If SKU is Karzar ``N{size}-4120``, return the size token; else ``None``."""
+    key = normalize_sku(sku)
+    m = _INSIZE_4120_NOGO_SITE_RE.fullmatch(key)
+    return None if m is None else m.group(1)
+
+
+def insize_4120_nogo_source_code_for_site(sku: str | None) -> str | None:
+    """Map Karzar ``N{size}-4120`` → OEM/workbook ``4120-{size}N`` (Class 6g NOGO)."""
+    size = parse_insize_4120_nogo_site_sku(sku)
+    if size is None:
+        return None
+    return f"4120-{size}N"
+
+
+def match_insize_4120_nogo_reorder_alias(
+    sku: str,
+    workbook_by_code: dict[str, WorkbookRow],
+    *,
+    insize_db_skus: frozenset[str] | set[str] | None = None,
+    brand_is_insize: bool = True,
+) -> MatchResult:
+    """Narrow INSIZE-4120 family rule after exact / trailing-A / CSV aliases.
+
+    Site ``N{size}-4120`` → source ``4120-{size}N`` (metric thread ring, Class 6g NO-GO).
+    Does not reorder arbitrary leading ``N``. Exact match always wins.
+    """
+    if not brand_is_insize:
+        return MatchResult(method="unmatched")
+    key = normalize_sku(sku)
+    if not key:
+        return MatchResult(method="unmatched")
+    if key in workbook_by_code:
+        return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
+    source = insize_4120_nogo_source_code_for_site(key)
+    if source is None:
+        return MatchResult(method="unmatched")
+    source_key = normalize_sku(source)
     wb = workbook_by_code.get(source_key)
     if wb is None:
         return MatchResult(method="unmatched", candidates=[source_key])
-
-    # Competing DB product already owning the authoritative source SKU.
     if insize_db_skus is not None and source_key in insize_db_skus:
         return MatchResult(
             method="IDENTITY_ALIAS_AMBIGUOUS",
             workbook_code=wb.code,
             candidates=[source_key, key],
         )
-
     return MatchResult(
         method="INSIZE_IDENTITY_ALIAS",
         workbook_code=wb.code,

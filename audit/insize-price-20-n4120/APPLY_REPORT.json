@@ -1,0 +1,87 @@
+{
+  "STATUS": "APPLIED_VERIFIED",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6_rate": "2500000",
+  "alias_csv": "/tmp/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv",
+  "wave_health": {
+    "exact_ok": 688,
+    "exact_need": 0,
+    "trailing_ok": 134,
+    "trailing_need": 0,
+    "trailing_out_of_cohort": 1,
+    "locked_trailing_cohort_size": 134,
+    "prior_alias_ok": 7,
+    "prior_alias_need": 0
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "toman": "131700000"
+  },
+  "proof_summary": {
+    "PROVEN": 11,
+    "already_correct": 0,
+    "requiring_update": 11,
+    "rejected": []
+  },
+  "apply": {
+    "updated": 11,
+    "rollback_rows": 11,
+    "recovery_snapshot_path": "/tmp/insize-n4120-audit/RECOVERY_N4120_20261006T141319Z.json",
+    "recovery_snapshot_sha256": "0048f19c9ea5da3319acf54bf7f77cb9dae4afa900f8994492f7aa161f4b07a9"
+  },
+  "rollback": {
+    "artifact": "/tmp/insize-n4120-audit/N4120_ROLLBACK.csv",
+    "rows": 11,
+    "sha256": "be8b4c55de397bed57904aa27e48b714417f58b5bd63c39d2c7df28dfef375c9",
+    "recovery_json": "/tmp/insize-n4120-audit/RECOVERY_N4120_20261006T141319Z.json",
+    "recovery_sha256": "0048f19c9ea5da3319acf54bf7f77cb9dae4afa900f8994492f7aa161f4b07a9"
+  },
+  "post_apply": {
+    "new_requiring_update": 0,
+    "new_already_correct": 11,
+    "exact_need": 0,
+    "trailing_need": 0,
+    "prior_alias_need": 0
+  },
+  "idempotency": {
+    "new_cohort_updates": 0,
+    "exact_cohort_updates": 0,
+    "trailing_a_cohort_updates": 0,
+    "prior_alias_cohort_updates": 0
+  },
+  "api_samples": [
+    {
+      "product_id": 3846,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3849,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3852,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3854,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3856,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3858,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3861,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3863,
+      "error": "HTTP Error 404: Not Found"
+    }
+  ]
+}
