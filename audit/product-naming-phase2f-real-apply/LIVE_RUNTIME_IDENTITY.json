@@ -1,0 +1,13 @@
+{
+  "collected_at_utc": "2026-10-06T11:27:24.023504+00:00",
+  "collector_hostname": "hp-g2-450",
+  "vps_hostname": "srv5944957438",
+  "deployed_git_sha": "UNKNOWN",
+  "api_container": "lathe_api",
+  "postgres_container": "lathe_postgres",
+  "api_image": "karzar-app:staging",
+  "postgres_db_name": "karzar_staging",
+  "APP_ENV": "staging",
+  "alembic_current": "u4v5w6x7y8z9",
+  "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+}
