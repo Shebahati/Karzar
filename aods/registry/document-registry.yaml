@@ -1236,6 +1236,16 @@ documents:
     notes: >
       Phase 2D policy-level human review (canonical title + variant policy). Supersedes row-only sample for freeze.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2E-POST-COMMIT-IMPACT
+    path: audit/product-naming-phase2e-rehearsal/PHASE2E_POST_COMMIT_IMPACT_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2e-transactional-rehearsal
+    notes: >
+      Phase 2E analysis-only post-commit impact plan. No deploy, cache, or external mutation in rehearsal.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE
