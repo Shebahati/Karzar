@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from scripts.ops import product_1789_brand_repair_rehearsal as mod
 
 

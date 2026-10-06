@@ -340,8 +340,6 @@ ROLLBACK;
     rehearsal_sql = build_rehearsal_sql()
     raw = _run_ssh_script(rehearsal_sql, ssh_host=args.ssh_host)
     rkv = _parse_kv(raw)
-    # NOTICE metrics land on stderr in psql; also parse stdout METRIC lines.
-    notice_src = raw
     product_updates = 1 if "ROW:mid:" in raw and "|3|" in raw else 0
     audit_rows = int(rkv.get("METRIC:audit_visible", "0") or "0")
     post_audit = int(rkv.get("METRIC:post_audit_absent", "1") or "1")
