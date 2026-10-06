@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { env } from "@/config/env";
+import { invalidateCustomerSession } from "@/lib/customer-session";
 import type { ApiErrorPayload } from "@/types/common";
 
 /**
@@ -279,6 +280,7 @@ apiClient.interceptors.response.use(
         if (next) original.headers.Authorization = `Bearer ${next}`;
         return apiClient.request(original);
       }
+      invalidateCustomerSession("guest");
       tokenStorage.clear();
       window.dispatchEvent(new Event("karzar-auth-change"));
       if (!window.location.pathname.startsWith("/login")) {

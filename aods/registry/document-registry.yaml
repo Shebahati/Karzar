@@ -588,6 +588,13 @@ documents:
     status: accepted
     owner_role: R-DOC-ARCH
 
+  - id: CONSISTENCY-1A-PRIVATE-ACCOUNT-STATE
+    path: docs/development/consistency-1a-private-account-state.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: DOCS-DEVELOPMENT-STANDARDS-README
     path: docs/development/standards/README.md
     class: CANON

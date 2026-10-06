@@ -73,7 +73,7 @@ export function LoginView() {
       verifyInFlightRef.current = false;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: authKeys.me });
+      await queryClient.invalidateQueries({ queryKey: authKeys.all });
       window.dispatchEvent(new Event("karzar-auth-change"));
       const params = new URLSearchParams(window.location.search);
       router.push(safeNextPath(params.get("next")));
