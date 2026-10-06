@@ -1,0 +1,41 @@
+{
+  "STATUS": "APPLIED",
+  "local_path": "/opt/karzar/Karzar/audit/insize-price-20-workbook/WORKBOOK_65a92337.xlsx",
+  "remote_path": "/opt/karzar/Karzar/_ops/input/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+  "sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "identity": {
+    "vps_hostname": "srv5944957438",
+    "postgres_container": "lathe_postgres",
+    "api_container": "lathe_api",
+    "database": "karzar_staging",
+    "volume": "karzar_postgres_data",
+    "workflow_run_id": 37444507704
+  },
+  "K6_rate": "2500000",
+  "matching": {
+    "workbook_rows": 55266,
+    "insize_products": 871,
+    "exact_match_update_cohort": 688,
+    "ambiguous_db_sku_groups": 0,
+    "unmatched_products": 171,
+    "invalid_workbook_price": 12,
+    "canary_sku": "1106-1002",
+    "canary_usd": "526.8",
+    "canary_toman": "131700000"
+  },
+  "update_count": 688,
+  "post_apply_mismatch_count": 0,
+  "idempotent_rerun_update_count": 0,
+  "artifact_paths": {
+    "audit_dir": "/opt/karzar/Karzar/audit/insize-price-20-workbook",
+    "recovery_snapshot": "/tmp/insize-price-20-workbook-audit/RECOVERY_PREWRITE_20261006T094005Z.json",
+    "recovery_snapshot_sha256": "4275a0a8beccc48cf43bdd143ca441c888bfc67c80dcc57c2ca160a20665497e"
+  },
+  "api_samples": [
+    {"product_id": 3709, "sku": "ISL-A1-800", "base_price": "100800000"},
+    {"product_id": 3721, "sku": "8003-3", "base_price": "6780000"},
+    {"product_id": 1841, "sku": "1196-300", "base_price": "26880000"},
+    {"product_id": 2003, "sku": "4100-247", "base_price": "38400000"},
+    {"product_id": 3712, "sku": "ISL-B5-1000", "base_price": "70500000"}
+  ]
+}
