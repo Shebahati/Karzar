@@ -1257,6 +1257,26 @@ documents:
       Product-status historical result report (2026-09-24 snapshot).
       Not current live catalog state.
 
+  - id: SELLABILITY-WAVE0-CENSUS-20261003
+    path: audit/sellability-wave0-2026-10-03/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Authoritative read-only Production sellability Wave 0 census snapshot from
+      2026-10-03; observational evidence only. Not Canon; does not authorize
+      sale-wave APPLY / availability / price / activation / image mutation.
+
+  - id: SELLABILITY-WAVE0-FINAL-REPORT-20261003
+    path: audit/sellability-wave0-2026-10-03/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 0 final report (2026-10-03 snapshot). WAVE_1_APPLY_AUTHORIZED=NO.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
