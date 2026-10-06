@@ -55,15 +55,20 @@ run_py() {
     lathe_api:/app/scripts/ops/insize_distributor_price_workbook_sync.py
   docker cp "$DEST" "lathe_api:${CONTAINER_XLSX}"
   docker exec lathe_api mkdir -p "$CONTAINER_OUT"
+  set +e
   docker exec \
     -e KARZAR_ALLOW_PRODUCTION_WRITE=1 \
     -e KARZAR_INGESTION_CATEGORY=B \
+    -e KARZAR_INSIZE_WORKBOOK_SYNC_INSIDE_API=1 \
     lathe_api \
     python /app/scripts/ops/insize_distributor_price_workbook_sync.py \
     --xlsx "$CONTAINER_XLSX" \
     --out-dir "$CONTAINER_OUT" \
     "$@"
+  code=$?
+  set -e
   docker cp "lathe_api:${CONTAINER_OUT}/." "$AUDIT_DIR/" 2>/dev/null || true
+  return "$code"
 }
 
 echo "=== DRY_RUN ==="

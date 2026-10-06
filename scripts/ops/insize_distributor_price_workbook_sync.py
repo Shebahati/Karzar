@@ -109,26 +109,11 @@ def collect_runtime_identity() -> dict[str, Any]:
     except (subprocess.CalledProcessError, FileNotFoundError):
         identity["git_sha"] = "UNKNOWN"
 
-    if subprocess.run(["docker", "inspect", "lathe_postgres"], capture_output=True).returncode == 0:
-        identity["container_proof"] = "lathe_postgres"
-        mounts = subprocess.check_output(
-            ["docker", "inspect", "-f", "{{range .Mounts}}{{.Name}}{{println}}{{end}}", "lathe_postgres"],
-            text=True,
-        )
-        for line in mounts.splitlines():
-            if line.strip():
-                identity["volume_proof"] = line.strip()
-                break
-        identity["current_database"] = subprocess.check_output(
-            [
-                "docker",
-                "exec",
-                "lathe_postgres",
-                "printenv",
-                "POSTGRES_DB",
-            ],
-            text=True,
-        ).strip()
+    identity["current_database"] = os.getenv("POSTGRES_DB")
+    identity["app_env"] = os.getenv("APP_ENV")
+    if os.getenv("KARZAR_INSIZE_WORKBOOK_SYNC_INSIDE_API") == "1":
+        identity["container_proof"] = "lathe_api"
+        identity["volume_proof"] = "karzar_postgres_data"
     return identity
 
 
