@@ -97,6 +97,9 @@ NAMING_ALLOW = {
     "audit/taxonomy-phase0b/14-phase0b-final-report.md",
     # Phase 2D owner title precision closure artifact; "FINAL" is the mandated evidence name.
     "audit/product-naming-phase2d/PHASE2D_OWNER_FINAL_TITLE_REVIEW.csv",
+    # Immutable Sellability Wave 0 evidence; "FINAL_REPORT" is the frozen
+    # 2026-10-03 artifact name required by the Wave 0 evidence contract.
+    "audit/sellability-wave0-2026-10-03/FINAL_REPORT.md",
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")

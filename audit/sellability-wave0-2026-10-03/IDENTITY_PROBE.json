@@ -1,0 +1,27 @@
+{
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "172.18.0.2/32",
+    "inet_server_port": 5432,
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "transaction_read_only": "on",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "hostname_env": "42c1b9f1bbde",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data",
+    "git_branch": "UNKNOWN",
+    "git_sha": "UNKNOWN",
+    "origin_main_sha": "UNKNOWN",
+    "snapshot_utc": "2026-10-03T09:57:14Z",
+    "collector_workflow_run_id": "37114760740",
+    "collector_note": "Deployed tree git rev-parse at /opt/karzar/Karzar returned UNKNOWN in runner context; host/DB/volume/RO proven."
+  },
+  "ok": true,
+  "errors": []
+}
