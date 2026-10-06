@@ -110,6 +110,8 @@ NAMING_ALLOW = {
     "audit/product-1789-brand-integrity-2026-10-06/FINAL_REPORT.md",
     # Product 1789 Owner-authorized brand repair APPLY evidence contract.
     "audit/product-1789-brand-repair-apply-2026-10-06/FINAL_REPORT.md",
+    # Deployment ownership audit evidence contract.
+    "audit/deployment-ownership-audit-2026-10-06/FINAL_REPORT.md",
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
