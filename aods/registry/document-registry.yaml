@@ -1296,6 +1296,26 @@ documents:
     notes: >
       Sellability Wave 1A final report (2026-10-06). WAVE_1B_APPLY_AUTHORIZED=NO.
 
+  - id: SELLABILITY-WAVE1A-HESABFA-SEMANTICS-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/HESABFA_SEMANTICS_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A read-only Hesabfa stock semantics report. Evidence only;
+      HESABFA_STOCK_SEMANTICS_UNPROVEN; does not authorize APPLY.
+
+  - id: SELLABILITY-WAVE1A-OWNER-DECISIONS-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/OWNER_AUTHORITY_DECISIONS_REQUIRED.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A Owner authority decisions required before Wave 1B design/APPLY.
+      Evidence only. WAVE_1B_APPLY_AUTHORIZED=NO.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
