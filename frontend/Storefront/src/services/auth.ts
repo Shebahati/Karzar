@@ -1,7 +1,12 @@
 import {
+  invalidateCustomerSession,
+  establishVerifiedCustomer,
+  captureVerifiedCustomerSessionFence,
+  isCustomerSessionFenceCurrent,
+} from "@/lib/customer-session";
+import {
   clearCartToken,
   getCartToken,
-  getStoredToken,
   setStoredToken,
   tokenStorage,
 } from "@/lib/api-client";
@@ -73,7 +78,7 @@ function writeStoredCustomer(customer: StoredCustomer): void {
  */
 function mergeLocalProfile(me: MeResponse): MeResponse {
   const local = readStoredCustomer();
-  if (!local) return me;
+  if (!local || local.id == null || local.id !== me.id) return me;
   const full_name = me.full_name?.trim() || local.full_name?.trim() || null;
   const company_name =
     me.company_name?.trim() || local.company_name?.trim() || null;
@@ -148,6 +153,7 @@ export const authService = {
 
     if (typeof window !== "undefined") {
       writeStoredCustomer(normalized.customer);
+      establishVerifiedCustomer(normalized.customer.id, "otp");
     }
 
     let cart_sync_error: string | null = null;
@@ -158,9 +164,11 @@ export const authService = {
     return { ...normalized, cart_sync_error };
   },
 
-  async getMe(): Promise<MeResponse> {
+  async getMe(options?: { signal?: AbortSignal }): Promise<MeResponse> {
     if (env.USE_MOCK) return (await getMockApi()).getMe();
-    const { data } = await apiClient.get<MeBackendResponse>("/auth/me");
+    const { data } = await apiClient.get<MeBackendResponse>("/auth/me", {
+      signal: options?.signal,
+    });
     return mergeLocalProfile(mapMe(data));
   },
 
@@ -180,6 +188,9 @@ export const authService = {
     }
     const company_name = companyRaw || null;
 
+    // Fence must be captured before any await — logout/switch must block late persist.
+    const fence = captureVerifiedCustomerSessionFence();
+
     if (env.USE_MOCK) {
       return (await getMockApi()).updateProfile({
         full_name: trimmed,
@@ -193,13 +204,20 @@ export const authService = {
       full_name: trimmed,
       company_name,
     });
-    writeStoredCustomer({
-      id: me.id,
-      phone: me.phone,
-      full_name: trimmed,
-      company_name,
-      is_b2b: me.is_b2b,
-    });
+    // Guest/checking (fence null or stale) must not re-populate STOREFRONT_CUSTOMER_KEY.
+    if (
+      isCustomerSessionFenceCurrent(fence) &&
+      fence != null &&
+      me.id === fence.ownerId
+    ) {
+      writeStoredCustomer({
+        id: me.id,
+        phone: me.phone,
+        full_name: trimmed,
+        company_name,
+        is_b2b: me.is_b2b,
+      });
+    }
     return me;
   },
 
@@ -220,6 +238,7 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
+    invalidateCustomerSession("guest");
     if (!env.USE_MOCK) {
       try {
         await apiClient.post("/auth/logout");
