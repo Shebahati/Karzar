@@ -1,0 +1,17 @@
+{
+  "expected_rehearsal_hash": "262b9c550257a32c248c650ab283c676e80e689eaa4d551dcd6afe3645f42555",
+  "current_row_hash": "262b9c550257a32c248c650ab283c676e80e689eaa4d551dcd6afe3645f42555",
+  "CURRENT_HASH_MATCH": true,
+  "core_preconditions": [
+    "id=1789",
+    "sku=1114-150",
+    "manufacturer_code=1114-150",
+    "brand_id IS NULL",
+    "deleted_at IS NULL"
+  ],
+  "core_preconditions_pass": true,
+  "is_active": true,
+  "is_available": true,
+  "base_price": "7980000.00",
+  "note": "updated_at included in hash; DB trigger will refresh updated_at on APPLY"
+}

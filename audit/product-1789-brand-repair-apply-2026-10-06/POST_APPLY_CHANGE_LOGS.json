@@ -1,0 +1,12 @@
+[
+  {
+    "id": 19222,
+    "product_id": 1789,
+    "field_name": "brand_id",
+    "old_value": null,
+    "new_value": "3",
+    "reason": "owner_authorized_brand_integrity_repair",
+    "actor_user_id": null,
+    "created_at": "2026-10-06T12:48:07.575987+00:00"
+  }
+]
