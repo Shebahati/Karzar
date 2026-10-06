@@ -1,0 +1,40 @@
+{
+  "committed": true,
+  "commit_timestamp_utc": "2026-10-06T11:27:29.959000+00:00",
+  "txid": 29255,
+  "isolation": "SERIALIZABLE",
+  "advisory_lock": "karzar:phase2f:product_name:apply",
+  "metrics": {
+    "in_tx_name_drift": 0,
+    "in_tx_sku_drift": 0,
+    "in_tx_manufacturer_code_drift": 0,
+    "in_tx_brand_drift": 0,
+    "in_tx_product_type_drift": 0,
+    "in_tx_deleted_drift": 0,
+    "in_tx_identity_drift": 0,
+    "updates_exact": 47,
+    "old_names_remaining": 0,
+    "target_protected_drift": 0,
+    "apply_logs_exact": 47,
+    "exact_name_collisions": 0,
+    "normalized_name_collisions": 0,
+    "catalog_exact_collisions": 0,
+    "catalog_normalized_collisions": 0,
+    "non_target_name_changes": 0,
+    "non_target_protected_changes": 0,
+    "txid": 29255
+  },
+  "change_log_contract": {
+    "contract_reference": "app.crud.audit.record_product_change",
+    "equivalent_fields": [
+      "product_id",
+      "field_name",
+      "old_value",
+      "new_value",
+      "reason",
+      "actor_user_id"
+    ],
+    "reason": "Phase 2F owner-authorized Product.name apply; cohort_sha256=25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff"
+  },
+  "apply_logic_sha": "8a0ab9347968db1b7f4de4b36c0d86ed2cd6c8dc"
+}

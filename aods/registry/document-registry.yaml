@@ -1256,6 +1256,47 @@ documents:
     notes: >
       Authoritative Phase 2E live transactional rehearsal summary (47 transient updates, mandatory rollback).
 
+  - id: PRODUCT-NAMING-V1-PHASE-2F-HESABFA-NAME-IMPACT
+    path: audit/product-naming-phase2f-real-apply/PHASE2F_HESABFA_NAME_IMPACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2f-real-apply
+    notes: >
+      Phase 2F analysis-only Hesabfa display-name impact. No Hesabfa write in Phase 2F apply.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2F-REAL-APPLY-SUMMARY
+    path: audit/product-naming-phase2f-real-apply/PHASE2F_REAL_APPLY_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2f-real-apply
+    notes: >
+      Authoritative Phase 2F owner-authorized live apply summary (47 Product.name commits).
+
+  - id: PRODUCT-NAMING-V1-PHASE-2F-RECOVERY-PLAN
+    path: audit/product-naming-phase2f-real-apply/RECOVERY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2f-real-apply
+    notes: >
+      Phase 2F targeted name-only recovery plan (not executed; separate owner authorization).
+
+  - id: PRODUCT-NAMING-V1-PHASE-2F-PROVENANCE-CORRECTION
+    path: audit/product-naming-phase2f-real-apply/PHASE2F_PROVENANCE_CORRECTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/product-naming-phase2f-clean-evidence
+    notes: >
+      Additive metadata correction for REAL_APPLY_MANIFEST.latest_main_sha labeling.
+      Immutable original JSON evidence is unchanged; no re-apply.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

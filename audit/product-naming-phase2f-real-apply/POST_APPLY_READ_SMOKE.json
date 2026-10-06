@@ -1,0 +1,141 @@
+{
+  "checked": 15,
+  "all_pass": true,
+  "samples": [
+    {
+      "product_id": 1800,
+      "proposed_name": "کولیس دیجیتال قلاب‌دار اینسایز کد 1122-300، 4–300 میلی‌متر",
+      "live_name": "کولیس دیجیتال قلاب‌دار اینسایز کد 1122-300، 4–300 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 1828,
+      "proposed_name": "کولیس دیجیتال نوک‌تیز اینسایز کد 1169-150، 0–150 میلی‌متر",
+      "live_name": "کولیس دیجیتال نوک‌تیز اینسایز کد 1169-150، 0–150 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 1833,
+      "proposed_name": "کولیس دیجیتال شیار داخلی اینسایز کد 1178-300، 25–300 میلی‌متر",
+      "live_name": "کولیس دیجیتال شیار داخلی اینسایز کد 1178-300، 25–300 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 1878,
+      "proposed_name": "عمق‌سنج دیجیتال اینسایز کد 2142-101، 0–12.7 میلی‌متر",
+      "live_name": "عمق‌سنج دیجیتال اینسایز کد 2142-101، 0–12.7 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 1879,
+      "proposed_name": "عمق‌سنج دیجیتال اینسایز کد 2142-102، 0–12.7 میلی‌متر",
+      "live_name": "عمق‌سنج دیجیتال اینسایز کد 2142-102، 0–12.7 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 3583,
+      "proposed_name": "عمق‌سنج ورنیه اینسایز کد 1240-5001، 0–500 میلی‌متر",
+      "live_name": "عمق‌سنج ورنیه اینسایز کد 1240-5001، 0–500 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 3614,
+      "proposed_name": "ساعت اهرمی اینسایز کد 2380-08، 0–0.8 میلی‌متر",
+      "live_name": "ساعت اهرمی اینسایز کد 2380-08، 0–0.8 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 3615,
+      "proposed_name": "ساعت اهرمی اینسایز کد 2381-08، 0–0.8 میلی‌متر",
+      "live_name": "ساعت اهرمی اینسایز کد 2381-08، 0–0.8 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 3616,
+      "proposed_name": "ساعت اهرمی اینسایز کد 2381-02، 0–0.2 میلی‌متر",
+      "live_name": "ساعت اهرمی اینسایز کد 2381-02، 0–0.2 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 3619,
+      "proposed_name": "ساعت اندیکاتور اینسایز کد 2309-50، 0–50 میلی‌متر",
+      "live_name": "ساعت اندیکاتور اینسایز کد 2309-50، 0–50 میلی‌متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 4046,
+      "proposed_name": "گیج جوش لوله اینسایز کد 4841-1",
+      "live_name": "گیج جوش لوله اینسایز کد 4841-1",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 4076,
+      "proposed_name": "گیج جوش اینسایز کد 6832-1",
+      "live_name": "گیج جوش اینسایز کد 6832-1",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 4082,
+      "proposed_name": "چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر",
+      "live_name": "چرخ‌متر اینسایز کد 7144-1، 0.1–9999.9 متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 4084,
+      "proposed_name": "چرخ‌متر اینسایز کد 7145-1، 0.1–9999.9 متر",
+      "live_name": "چرخ‌متر اینسایز کد 7145-1، 0.1–9999.9 متر",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    },
+    {
+      "product_id": 4112,
+      "proposed_name": "ترازوی جرثقیلی دیجیتال اینسایز کد 8604-40",
+      "live_name": "ترازوی جرثقیلی دیجیتال اینسایز کد 8604-40",
+      "name_ok": true,
+      "slug_ok": true,
+      "manufacturer_code_ok": true,
+      "base_price_ok": true
+    }
+  ]
+}
