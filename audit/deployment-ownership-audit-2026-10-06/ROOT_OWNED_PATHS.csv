@@ -1,0 +1,9 @@
+path,owner,group,mode,classification,notes
+/opt/karzar,root,root,755,EXPECTED_ROOT_OWNERSHIP,Top-level host dir; not rsync dest
+/opt/karzar/Karzar/.env,root,github-runner,640,EXPECTED_ROOT_OWNERSHIP,Secrets excluded from rsync; group-readable by runner
+/opt/karzar/.deploy-secrets,root,github-runner,640,EXPECTED_ROOT_OWNERSHIP,Outside checkout; secrets
+/opt/karzar/Karzar/deploy (at failure),root,root,775,UNEXPECTED_OWNERSHIP_DRIFT,Blocked rsync overwrite/chgrp; fixed by one-time chown then success deploy
+/opt/karzar/Karzar/deploy/staging (at failure),root,root,775,UNEXPECTED_OWNERSHIP_DRIFT,GSC nginx templates + env templates
+/opt/karzar/Karzar/services (at failure),root,root,775,UNEXPECTED_OWNERSHIP_DRIFT,gsc_mcp tree created/touched as root
+/opt/karzar/Karzar/services/gsc_mcp/* (at failure),root,root,664,UNEXPECTED_OWNERSHIP_DRIFT,Root history shows docker compose -f docker-compose.gsc-mcp.yml from live tree
+/opt/karzar/Karzar/audit/insize-price-20-* (at failure),root,root,755,UNEXPECTED_OWNERSHIP_DRIFT,Untracked orphan dirs; blocked rsync --delete unlink

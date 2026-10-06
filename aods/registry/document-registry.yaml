@@ -1538,6 +1538,61 @@ documents:
     notes: >
       Owner authorization record for Product 1789 brand_id NULL→3 repair.
 
+  - id: DEPLOY-OWNERSHIP-AUDIT-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only VPS deployment ownership / rsync permission audit after
+      2026-10-06 Deploy Staging failure. No ownership mutation in this pack.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-FINAL-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for deployment ownership audit (ROOT_CAUSE_PARTIALLY_PROVEN).
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-RSYNC-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/RSYNC_FAILURE_RECONSTRUCTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Reconstruction of failed rsync in Deploy Staging run 37468470923.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-MODEL-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/CANONICAL_OWNERSHIP_MODEL.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Desired owner/group model for deployment-managed paths.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-REMEDIATION-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/REMEDIATION_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed durable fix; not executed. MUTATION AUTHORIZED=NO.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-PREFLIGHT-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/PREFLIGHT_DESIGN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Design for read-only ownership preflight before deploy rsync.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
