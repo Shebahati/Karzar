@@ -1,0 +1,43 @@
+{
+  "status": "BLOCKED_INPUT_FILE_MISMATCH",
+  "generated_at_utc": "2026-10-06T09:20:00Z",
+  "execution_environment": "cursor-cloud-agent",
+  "hostname": "cursor",
+  "expected_workbook": {
+    "filename": "موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+    "sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "sheet": "Sheet1",
+    "expected_data_rows": 55266,
+    "expected_numeric_prices": 54646,
+    "expected_na_prices": 620
+  },
+  "search_performed": [
+    "cursor task attachments (/cursor/stores — empty)",
+    "/home/shebahati/KaZar/Product and Data Complete (path absent on VM)",
+    "/workspace (no matching xlsx SHA)",
+    "filesystem xlsx SHA scan under /workspace, /home, /cursor, /tmp"
+  ],
+  "result": "No file with matching SHA-256. Production mutation refused per hard gate 1.",
+  "repository_baseline": {
+    "repo": "Shebahati/Karzar",
+    "working_branch": "fix/gsc-mcp-oauth-bootstrap",
+    "working_head": "0708afc6633c4fa4386c23cbb2bc013f0235b4ad",
+    "origin_main": "83949bcfcc20d976a856a19f3d0a543a606bd817",
+    "alembic_head_revision": "z1a2b3c4d5e6"
+  },
+  "production_access": {
+    "data_plane_proven": false,
+    "reason": "Cloud agent cannot resolve SSH host srv5944957438; no POSTGRES/DATABASE_URL; no Category B production write context"
+  },
+  "price_transformation_evidence": {
+    "proven_in_repo": true,
+    "module": "scripts/insize_sales_activation_lib.py",
+    "rule_summary": "base_price (Toman) = ROUND_HALF_UP(USD_column_I * rate_cell_K6 / TOMAN_TO_RIAL); USD from header قیمت دلاری; rate from Sheet1!K6; exact SKU match only; brand_id=3 INSIZE gate in sales activation apply"
+  },
+  "next_steps_for_operator": [
+    "Place workbook on execution host (VPS /opt/karzar or operator data path) and verify sha256sum matches expected hash",
+    "Run dry-run reconciliation using load_workbook_catalog + exact match + valid_workbook_price (price-only cohort; do not use current_db * 1.20)",
+    "Prove CR-011 identity (hostname srv5944957438, lathe_postgres, karzar_staging) before Category B apply",
+    "Generate rollback cohort CSV/SQL then transactional base_price-only UPDATE"
+  ]
+}
