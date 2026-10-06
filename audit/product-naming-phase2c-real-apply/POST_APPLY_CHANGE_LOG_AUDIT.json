@@ -1,0 +1,10 @@
+{
+  "expected": 1350,
+  "actual": 1350,
+  "duplicate_product_logs": 0,
+  "full_cohort_sha_present": true,
+  "reason": "Phase 2C owner-authorized manufacturer identity backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+  "field_name": "manufacturer_code",
+  "old_value": null,
+  "actor_user_id": null
+}

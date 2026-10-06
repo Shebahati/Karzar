@@ -1,0 +1,10 @@
+{
+  "attempted_at_utc": "2026-10-03T15:12:19+00:00",
+  "command": "phase2c_manufacturer_identity_apply_once.py --apply --confirm-cohort-sha <full>",
+  "blocked_because_already_populated": true,
+  "error": "non-deleted manufacturer_code populated = 1350 (must be 0)",
+  "new_writes": 0,
+  "new_logs": 0,
+  "logs_after": 1350,
+  "result": "PASS"
+}

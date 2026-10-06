@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-10-04T13:00:10.635105+00:00",
+  "evidence_type": "RECONSTRUCTED_FROM_AUTHORITATIVE_PRE_APPLY_BACKUP",
+  "reason_for_reconstruction": "Original PRE_APPLY_DB_BASELINE.json was overwritten by a fail-closed second-APPLY attempt after successful COMMIT.",
+  "original_evidence_overwrite_event": {
+    "when_utc": "2026-10-03T15:12:19+00:00",
+    "cause": "second_apply_fail_closed_probe_rewrote_out_dir_artifacts",
+    "command": "phase2c_manufacturer_identity_apply_once.py --apply --confirm-cohort-sha <full>",
+    "db_mutation_by_probe": false,
+    "blocked_reason": "non-deleted manufacturer_code populated = 1350 (must be 0)"
+  },
+  "authoritative_backup": {
+    "path": "/home/shebahati/karzar-backups/phase2c/karzar_staging_phase2c_20261003T151115Z.dump",
+    "sha256": "08ff81c32a8ce02a1ba9c89e0cb5dc7fbcc3fcae79f47711dfd86134bfed7760",
+    "size_bytes": 1806828,
+    "pg_restore_list_entries": 560,
+    "pg_restore_list_verification": "PASS",
+    "postgresql_version": "15.18",
+    "database_name": "karzar_staging",
+    "reverified_at_closure_utc": "2026-10-04T13:00:10.635105+00:00",
+    "reverified_sha256_match": true
+  },
+  "temporary_restore_method": {
+    "method": "pg_restore into disposable database on VPS postgres container",
+    "temporary_database": "karzar_phase2c_pre_evidence",
+    "container": "lathe_postgres",
+    "host": "karzar-vps / srv5944957438",
+    "temporary_database_dropped_after_verification": true,
+    "staging_live_db_mutation_during_reconstruction": false
+  },
+  "reconstructed_baseline_counts": {
+    "total": 6537,
+    "deleted": 1,
+    "non_deleted": 6536,
+    "active": 1585,
+    "available": 3755,
+    "priced": 4552,
+    "manufacturer_code_non_null": 0,
+    "manufacturer_code_null": 6536
+  },
+  "reconstructed_fingerprints": {
+    "name": "03cd970794807642f85b2126abe07446",
+    "sku": "079d6723d5de3b2032d4db47a24ea4ac",
+    "slug": "c45b67d1b42377687a45e7b640d7be4a",
+    "manufacturer_code": "823edf8c5d0efb8a848f950f0e741466",
+    "brand_id": "6ca5441f091933f650c4e7ed4f972193",
+    "category_id": "8ec845eb99cc8e84670f6395a541f589",
+    "product_type_id": "278c1a839a1bbe20a9dd9b0964b64eaa",
+    "base_price": "3fcb5183daccfb6d8a842f51fafce694",
+    "original_price": "400fbe2b62c9a1e2b36e5379eadf5303",
+    "is_active": "f32e3598939b68b8ac6c9699a21d1181",
+    "is_available": "cdcc62d3e5a3b16e7cedeced33472b0d",
+    "deleted_at": "823edf8c5d0efb8a848f950f0e741466",
+    "composite": "d7a4c8e8ffaa59adc2badf2642b809d9"
+  },
+  "comparison_against_known_pre_apply_target_snapshot": {
+    "target_pre_apply_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f",
+    "expected_target_pre_apply_sha256": "b69aa2900410afb0fe673c997066361c08f89d3051ebcbd300c017b9c764029f",
+    "snapshot_rows": 1350,
+    "snapshot_nonempty_manufacturer_code": 0,
+    "match": true
+  },
+  "not_the_original_file": true,
+  "statement": "PRE_APPLY_DB_BASELINE.json is RECONSTRUCTED_FROM_AUTHORITATIVE_PRE_APPLY_BACKUP; it is not the original first-write file.",
+  "staging_live_db_mutation_during_reconstruction": "NO"
+}

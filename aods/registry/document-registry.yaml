@@ -1093,6 +1093,39 @@ documents:
     notes: >
       Phase 2C manufacturer_code APPLY rehearsal only (ROLLBACK). No persistent writes.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2C-REAL-APPLY-SUMMARY
+    path: audit/product-naming-phase2c-real-apply/PHASE2C_REAL_APPLY_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-real-apply
+    notes: >
+      Owner-authorized Phase 2C manufacturer_code real APPLY evidence.
+      Scope limited to 1350 frozen manufacturer_code values + audit logs.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-REAL-APPLY-RECOVERY-PLAN
+    path: audit/product-naming-phase2c-real-apply/RECOVERY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-real-apply
+    notes: >
+      Non-executed Phase 2C manufacturer_code recovery plan. Requires separate
+      owner authorization before any compensating writes.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2C-POST-APPLY-EVIDENCE-CLOSURE
+    path: audit/product-naming-phase2c-real-apply/PHASE2C_POST_APPLY_EVIDENCE_CLOSURE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2c-real-apply
+    notes: >
+      Post-apply evidence integrity closure for Phase 2C. No live DB mutation.
+      Clarifies recovery hash semantics and pre-apply baseline reconstruction.
+
   - id: PRODUCT-NAMING-V1-PHASE-2C-FUTURE-APPLY-DESIGN
     path: audit/product-naming-phase2c-discovery/FUTURE_APPLY_DESIGN.md
     class: EVIDENCE
@@ -1102,6 +1135,106 @@ documents:
     branch: cursor/product-naming-phase2c-discovery-1355
     notes: >
       Planning-only Phase 2C APPLY design. No executable apply path.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-SUMMARY
+    path: audit/product-naming-phase2d/PHASE2D_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D canonical name candidate dry-run summary. Read-only; no Product.name writes.
+
+  - id: PRODUCT-NAMING-V1-INSIZE-OEM-OCCURRENCES
+    path: docs/architecture/specs/product-naming-v1/INSIZE_OEM_CODE_OCCURRENCES.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Page-aware INSIZE 108A/108B OEM code occurrence registry (exact PDF page per hit).
+
+  - id: PRODUCT-NAMING-V1-INSIZE-OEM-IDENTITY-REGISTRY
+    path: docs/architecture/specs/product-naming-v1/INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Governed INSIZE OEM product identity selections (authoritative product occurrence only).
+
+  - id: PRODUCT-NAMING-V1-OWNER-CANONICAL-TITLE-POLICY
+    path: docs/architecture/specs/product-naming-v1/OWNER_CANONICAL_TITLE_POLICY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Owner-approved Persian canonical titles for exact-OEM Phase 2D READY cohort (precision qualifiers).
+
+  - id: PRODUCT-NAMING-V1-OEM-CANONICAL-IDENTITY-POLICY
+    path: docs/architecture/specs/product-naming-v1/OEM_CANONICAL_IDENTITY_POLICY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      EXACT OEM heading to Product Type and canonical Persian title authority for Phase 2D READY gate.
+
+  - id: PRODUCT-NAMING-V1-CANONICAL-TITLE-POLICY
+    path: docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv
+    class: SPEC
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Authoritative per-Product-Type canonical title label and variant policy for Phase 2D naming.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-VARIANT-POLICY-SNAPSHOT
+    path: audit/product-naming-phase2d/PHASE2D_PRODUCT_TYPE_NAMING_POLICY.csv
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D audit snapshot of canonical naming policy; must match authoritative policy SHA at run time.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-OWNER-FINAL-TITLE-REVIEW
+    path: audit/product-naming-phase2d/PHASE2D_OWNER_FINAL_TITLE_REVIEW.csv
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Owner canonical title precision review for all 48 exact-OEM READY candidates (Phase 2D closure).
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-HUMAN-REVIEW
+    path: audit/product-naming-phase2d/PHASE2D_HUMAN_REVIEW_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D stratified human review sample outcomes (PASS/FAIL/REVIEW). Read-only audit.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2D-POLICY-REVIEW
+    path: audit/product-naming-phase2d/PHASE2D_POLICY_REVIEW_RESULT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2d-candidate-dry-run
+    notes: >
+      Phase 2D policy-level human review (canonical title + variant policy). Supersedes row-only sample for freeze.
 
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
