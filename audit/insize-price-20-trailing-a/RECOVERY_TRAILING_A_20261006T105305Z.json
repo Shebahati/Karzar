@@ -1,0 +1,1347 @@
+{
+  "generated_at_utc": "2026-10-06T10:53:14.686798+00:00",
+  "kind": "insize_pilot_recovery",
+  "rows": [
+    {
+      "alias_code": "3109-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9128000.00",
+      "product_id": 1920,
+      "sku": "3109-100",
+      "target_base_price": "23100000",
+      "timestamp": "2026-10-06T10:53:14.685644+00:00",
+      "workbook_CODE": "3109-100A"
+    },
+    {
+      "alias_code": "3260-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3772,
+      "sku": "3260-25",
+      "target_base_price": "11400000",
+      "timestamp": "2026-10-06T10:53:14.685668+00:00",
+      "workbook_CODE": "3260-25A"
+    },
+    {
+      "alias_code": "2122-35",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3914,
+      "sku": "2122-35",
+      "target_base_price": "72300000",
+      "timestamp": "2026-10-06T10:53:14.685677+00:00",
+      "workbook_CODE": "2122-35A"
+    },
+    {
+      "alias_code": "1183-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9318400.00",
+      "product_id": 1834,
+      "sku": "1183-150",
+      "target_base_price": "24660000",
+      "timestamp": "2026-10-06T10:53:14.685696+00:00",
+      "workbook_CODE": "1183-150A"
+    },
+    {
+      "alias_code": "1120-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17539200.00",
+      "product_id": 1795,
+      "sku": "1120-150",
+      "target_base_price": "22410000",
+      "timestamp": "2026-10-06T10:53:14.685715+00:00",
+      "workbook_CODE": "1120-150A"
+    },
+    {
+      "alias_code": "1311-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "10281600.00",
+      "product_id": 1860,
+      "sku": "1311-150",
+      "target_base_price": "13140000",
+      "timestamp": "2026-10-06T10:53:14.685722+00:00",
+      "workbook_CODE": "1311-150A"
+    },
+    {
+      "alias_code": "1311-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "11625600.00",
+      "product_id": 1861,
+      "sku": "1311-200",
+      "target_base_price": "14880000",
+      "timestamp": "2026-10-06T10:53:14.685729+00:00",
+      "workbook_CODE": "1311-200A"
+    },
+    {
+      "alias_code": "1311-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "18211200.00",
+      "product_id": 1862,
+      "sku": "1311-300",
+      "target_base_price": "23280000",
+      "timestamp": "2026-10-06T10:53:14.685736+00:00",
+      "workbook_CODE": "1311-300A"
+    },
+    {
+      "alias_code": "1312-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "7896000.00",
+      "product_id": 1863,
+      "sku": "1312-150",
+      "target_base_price": "10110000",
+      "timestamp": "2026-10-06T10:53:14.685742+00:00",
+      "workbook_CODE": "1312-150A"
+    },
+    {
+      "alias_code": "1312-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "10684800.00",
+      "product_id": 1864,
+      "sku": "1312-200",
+      "target_base_price": "13650000",
+      "timestamp": "2026-10-06T10:53:14.685749+00:00",
+      "workbook_CODE": "1312-200A"
+    },
+    {
+      "alias_code": "1312-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "15825600.00",
+      "product_id": 1865,
+      "sku": "1312-300",
+      "target_base_price": "20250000",
+      "timestamp": "2026-10-06T10:53:14.685755+00:00",
+      "workbook_CODE": "1312-300A"
+    },
+    {
+      "alias_code": "2141-202",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "18580800.00",
+      "product_id": 1877,
+      "sku": "2141-202",
+      "target_base_price": "59700000",
+      "timestamp": "2026-10-06T10:53:14.685762+00:00",
+      "workbook_CODE": "2141-202A"
+    },
+    {
+      "alias_code": "2828-800",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "65217600.00",
+      "product_id": 1910,
+      "sku": "2828-800",
+      "target_base_price": "83700000",
+      "timestamp": "2026-10-06T10:53:14.685769+00:00",
+      "workbook_CODE": "2828-800A"
+    },
+    {
+      "alias_code": "3206-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17404800.00",
+      "product_id": 1964,
+      "sku": "3206-150",
+      "target_base_price": "43800000",
+      "timestamp": "2026-10-06T10:53:14.685776+00:00",
+      "workbook_CODE": "3206-150A"
+    },
+    {
+      "alias_code": "6208-80",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "8097600.00",
+      "product_id": 3541,
+      "sku": "6208-80",
+      "target_base_price": "10380000",
+      "timestamp": "2026-10-06T10:53:14.685783+00:00",
+      "workbook_CODE": "6208-80A"
+    },
+    {
+      "alias_code": "3109-50",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "14011200.00",
+      "product_id": 3551,
+      "sku": "3109-50",
+      "target_base_price": "17910000",
+      "timestamp": "2026-10-06T10:53:14.685789+00:00",
+      "workbook_CODE": "3109-50A"
+    },
+    {
+      "alias_code": "7120-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "2956800.00",
+      "product_id": 2085,
+      "sku": "7120-200",
+      "target_base_price": "7470000",
+      "timestamp": "2026-10-06T10:53:14.685796+00:00",
+      "workbook_CODE": "7120-200A"
+    },
+    {
+      "alias_code": "2310-30",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12432000.00",
+      "product_id": 3618,
+      "sku": "2310-30",
+      "target_base_price": "15900000",
+      "timestamp": "2026-10-06T10:53:14.685803+00:00",
+      "workbook_CODE": "2310-30A"
+    },
+    {
+      "alias_code": "2313-1",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12364800.00",
+      "product_id": 3620,
+      "sku": "2313-1",
+      "target_base_price": "15810000",
+      "timestamp": "2026-10-06T10:53:14.685809+00:00",
+      "workbook_CODE": "2313-1A"
+    },
+    {
+      "alias_code": "1181-M25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3477,
+      "sku": "1181-M25",
+      "target_base_price": "98700000",
+      "timestamp": "2026-10-06T10:53:14.685815+00:00",
+      "workbook_CODE": "1181-M25A"
+    },
+    {
+      "alias_code": "3290-455",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "24046400.00",
+      "product_id": 1989,
+      "sku": "3290-455",
+      "target_base_price": "64800000",
+      "timestamp": "2026-10-06T10:53:14.685821+00:00",
+      "workbook_CODE": "3290-455A"
+    },
+    {
+      "alias_code": "3109-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "23318400.00",
+      "product_id": 1928,
+      "sku": "3109-300",
+      "target_base_price": "60000000",
+      "timestamp": "2026-10-06T10:53:14.685827+00:00",
+      "workbook_CODE": "3109-300A"
+    },
+    {
+      "alias_code": "2172-360",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "27294400.00",
+      "product_id": 1881,
+      "sku": "2172-360",
+      "target_base_price": "48600000",
+      "timestamp": "2026-10-06T10:53:14.685834+00:00",
+      "workbook_CODE": "2172-360A"
+    },
+    {
+      "alias_code": "1185-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12420800.00",
+      "product_id": 1835,
+      "sku": "1185-150",
+      "target_base_price": "33000000",
+      "timestamp": "2026-10-06T10:53:14.685840+00:00",
+      "workbook_CODE": "1185-150A"
+    },
+    {
+      "alias_code": "1141-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "20798400.00",
+      "product_id": 1812,
+      "sku": "1141-300",
+      "target_base_price": "26640000",
+      "timestamp": "2026-10-06T10:53:14.685846+00:00",
+      "workbook_CODE": "1141-300A"
+    },
+    {
+      "alias_code": "1142-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9564800.00",
+      "product_id": 1814,
+      "sku": "1142-150",
+      "target_base_price": "23940000",
+      "timestamp": "2026-10-06T10:53:14.685852+00:00",
+      "workbook_CODE": "1142-150A"
+    },
+    {
+      "alias_code": "2122-60",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3913,
+      "sku": "2122-60",
+      "target_base_price": "72300000",
+      "timestamp": "2026-10-06T10:53:14.685858+00:00",
+      "workbook_CODE": "2122-60A"
+    },
+    {
+      "alias_code": "3210-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3640,
+      "sku": "3210-75",
+      "target_base_price": "9210000",
+      "timestamp": "2026-10-06T10:53:14.685863+00:00",
+      "workbook_CODE": "3210-75A"
+    },
+    {
+      "alias_code": "1111-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6854400.00",
+      "product_id": 1788,
+      "sku": "1111-100",
+      "target_base_price": "8760000",
+      "timestamp": "2026-10-06T10:53:14.685870+00:00",
+      "workbook_CODE": "1111-100A"
+    },
+    {
+      "alias_code": "1114-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9139200.00",
+      "product_id": 1790,
+      "sku": "1114-200",
+      "target_base_price": "11700000",
+      "timestamp": "2026-10-06T10:53:14.685876+00:00",
+      "workbook_CODE": "1114-200A"
+    },
+    {
+      "alias_code": "1120-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12320000.00",
+      "product_id": 1796,
+      "sku": "1120-200",
+      "target_base_price": "30900000",
+      "timestamp": "2026-10-06T10:53:14.685882+00:00",
+      "workbook_CODE": "1120-200A"
+    },
+    {
+      "alias_code": "1120-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "16240000.00",
+      "product_id": 1797,
+      "sku": "1120-300",
+      "target_base_price": "43500000",
+      "timestamp": "2026-10-06T10:53:14.685888+00:00",
+      "workbook_CODE": "1120-300A"
+    },
+    {
+      "alias_code": "1121-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17651200.00",
+      "product_id": 1799,
+      "sku": "1121-150",
+      "target_base_price": "45900000",
+      "timestamp": "2026-10-06T10:53:14.685894+00:00",
+      "workbook_CODE": "1121-150A"
+    },
+    {
+      "alias_code": "1123-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "15982400.00",
+      "product_id": 1801,
+      "sku": "1123-150",
+      "target_base_price": "42000000",
+      "timestamp": "2026-10-06T10:53:14.685900+00:00",
+      "workbook_CODE": "1123-150A"
+    },
+    {
+      "alias_code": "1123-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "38360000.00",
+      "product_id": 1802,
+      "sku": "1123-300",
+      "target_base_price": "97200000",
+      "timestamp": "2026-10-06T10:53:14.685907+00:00",
+      "workbook_CODE": "1123-300A"
+    },
+    {
+      "alias_code": "1141-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "8332800.00",
+      "product_id": 1810,
+      "sku": "1141-150",
+      "target_base_price": "10650000",
+      "timestamp": "2026-10-06T10:53:14.685925+00:00",
+      "workbook_CODE": "1141-150A"
+    },
+    {
+      "alias_code": "1141-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "10046400.00",
+      "product_id": 1811,
+      "sku": "1141-200",
+      "target_base_price": "12870000",
+      "timestamp": "2026-10-06T10:53:14.685931+00:00",
+      "workbook_CODE": "1141-200A"
+    },
+    {
+      "alias_code": "1141-500",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "33532800.00",
+      "product_id": 1813,
+      "sku": "1141-500",
+      "target_base_price": "84600000",
+      "timestamp": "2026-10-06T10:53:14.685937+00:00",
+      "workbook_CODE": "1141-500A"
+    },
+    {
+      "alias_code": "1142-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "11692800.00",
+      "product_id": 1815,
+      "sku": "1142-200",
+      "target_base_price": "31200000",
+      "timestamp": "2026-10-06T10:53:14.685944+00:00",
+      "workbook_CODE": "1142-200A"
+    },
+    {
+      "alias_code": "1144-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "10180800.00",
+      "product_id": 1817,
+      "sku": "1144-150",
+      "target_base_price": "25470000",
+      "timestamp": "2026-10-06T10:53:14.685950+00:00",
+      "workbook_CODE": "1144-150A"
+    },
+    {
+      "alias_code": "1144-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12040000.00",
+      "product_id": 1818,
+      "sku": "1144-200",
+      "target_base_price": "32100000",
+      "timestamp": "2026-10-06T10:53:14.685957+00:00",
+      "workbook_CODE": "1144-200A"
+    },
+    {
+      "alias_code": "1144-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "23878400.00",
+      "product_id": 1819,
+      "sku": "1144-300",
+      "target_base_price": "67500000",
+      "timestamp": "2026-10-06T10:53:14.685963+00:00",
+      "workbook_CODE": "1144-300A"
+    },
+    {
+      "alias_code": "1186-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "19801600.00",
+      "product_id": 1836,
+      "sku": "1186-150",
+      "target_base_price": "52500000",
+      "timestamp": "2026-10-06T10:53:14.685982+00:00",
+      "workbook_CODE": "1186-150A"
+    },
+    {
+      "alias_code": "1151-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "49840000.00",
+      "product_id": 1823,
+      "sku": "1151-300",
+      "target_base_price": "130800000",
+      "timestamp": "2026-10-06T10:53:14.685989+00:00",
+      "workbook_CODE": "1151-300A"
+    },
+    {
+      "alias_code": "1142-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "23049600.00",
+      "product_id": 1816,
+      "sku": "1142-300",
+      "target_base_price": "58500000",
+      "timestamp": "2026-10-06T10:53:14.685996+00:00",
+      "workbook_CODE": "1142-300A"
+    },
+    {
+      "alias_code": "1161-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "16217600.00",
+      "product_id": 1827,
+      "sku": "1161-150",
+      "target_base_price": "42000000",
+      "timestamp": "2026-10-06T10:53:14.686003+00:00",
+      "workbook_CODE": "1161-150A"
+    },
+    {
+      "alias_code": "1186-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "26521600.00",
+      "product_id": 1837,
+      "sku": "1186-200",
+      "target_base_price": "69900000",
+      "timestamp": "2026-10-06T10:53:14.686010+00:00",
+      "workbook_CODE": "1186-200A"
+    },
+    {
+      "alias_code": "1186-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "34708800.00",
+      "product_id": 1838,
+      "sku": "1186-300",
+      "target_base_price": "91200000",
+      "timestamp": "2026-10-06T10:53:14.686016+00:00",
+      "workbook_CODE": "1186-300A"
+    },
+    {
+      "alias_code": "2122-160",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "28761600.00",
+      "product_id": 1876,
+      "sku": "2122-160",
+      "target_base_price": "72900000",
+      "timestamp": "2026-10-06T10:53:14.686023+00:00",
+      "workbook_CODE": "2122-160A"
+    },
+    {
+      "alias_code": "2322-250",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "23620800.00",
+      "product_id": 1895,
+      "sku": "2322-250",
+      "target_base_price": "30300000",
+      "timestamp": "2026-10-06T10:53:14.686029+00:00",
+      "workbook_CODE": "2322-250A"
+    },
+    {
+      "alias_code": "2322-450",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "27988800.00",
+      "product_id": 1896,
+      "sku": "2322-450",
+      "target_base_price": "36000000",
+      "timestamp": "2026-10-06T10:53:14.686036+00:00",
+      "workbook_CODE": "2322-450A"
+    },
+    {
+      "alias_code": "2341-101",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "7985600.00",
+      "product_id": 1898,
+      "sku": "2341-101",
+      "target_base_price": "20100000",
+      "timestamp": "2026-10-06T10:53:14.686042+00:00",
+      "workbook_CODE": "2341-101A"
+    },
+    {
+      "alias_code": "2308-10",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "4972800.00",
+      "product_id": 3483,
+      "sku": "2308-10",
+      "target_base_price": "6360000",
+      "timestamp": "2026-10-06T10:53:14.686049+00:00",
+      "workbook_CODE": "2308-10A"
+    },
+    {
+      "alias_code": "2827-160",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "20675200.00",
+      "product_id": 1909,
+      "sku": "2827-160",
+      "target_base_price": "57600000",
+      "timestamp": "2026-10-06T10:53:14.686056+00:00",
+      "workbook_CODE": "2827-160A"
+    },
+    {
+      "alias_code": "3101-225",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "26286400.00",
+      "product_id": 1915,
+      "sku": "3101-225",
+      "target_base_price": "66600000",
+      "timestamp": "2026-10-06T10:53:14.686063+00:00",
+      "workbook_CODE": "3101-225A"
+    },
+    {
+      "alias_code": "3101-250",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "28996800.00",
+      "product_id": 1916,
+      "sku": "3101-250",
+      "target_base_price": "74100000",
+      "timestamp": "2026-10-06T10:53:14.686069+00:00",
+      "workbook_CODE": "3101-250A"
+    },
+    {
+      "alias_code": "3101-275",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "31035200.00",
+      "product_id": 1917,
+      "sku": "3101-275",
+      "target_base_price": "78900000",
+      "timestamp": "2026-10-06T10:53:14.686076+00:00",
+      "workbook_CODE": "3101-275A"
+    },
+    {
+      "alias_code": "3101-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "33353600.00",
+      "product_id": 1918,
+      "sku": "3101-300",
+      "target_base_price": "84900000",
+      "timestamp": "2026-10-06T10:53:14.686083+00:00",
+      "workbook_CODE": "3101-300A"
+    },
+    {
+      "alias_code": "3108-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12734400.00",
+      "product_id": 1919,
+      "sku": "3108-100",
+      "target_base_price": "32100000",
+      "timestamp": "2026-10-06T10:53:14.686090+00:00",
+      "workbook_CODE": "3108-100A"
+    },
+    {
+      "alias_code": "3109-125",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "10886400.00",
+      "product_id": 1921,
+      "sku": "3109-125",
+      "target_base_price": "27540000",
+      "timestamp": "2026-10-06T10:53:14.686096+00:00",
+      "workbook_CODE": "3109-125A"
+    },
+    {
+      "alias_code": "3109-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "12084800.00",
+      "product_id": 1922,
+      "sku": "3109-150",
+      "target_base_price": "30600000",
+      "timestamp": "2026-10-06T10:53:14.686103+00:00",
+      "workbook_CODE": "3109-150A"
+    },
+    {
+      "alias_code": "3109-175",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "14100800.00",
+      "product_id": 1923,
+      "sku": "3109-175",
+      "target_base_price": "36300000",
+      "timestamp": "2026-10-06T10:53:14.686109+00:00",
+      "workbook_CODE": "3109-175A"
+    },
+    {
+      "alias_code": "3109-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "15355200.00",
+      "product_id": 1924,
+      "sku": "3109-200",
+      "target_base_price": "39600000",
+      "timestamp": "2026-10-06T10:53:14.686116+00:00",
+      "workbook_CODE": "3109-200A"
+    },
+    {
+      "alias_code": "3109-225",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "18043200.00",
+      "product_id": 1925,
+      "sku": "3109-225",
+      "target_base_price": "46800000",
+      "timestamp": "2026-10-06T10:53:14.686122+00:00",
+      "workbook_CODE": "3109-225A"
+    },
+    {
+      "alias_code": "3109-250",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "19689600.00",
+      "product_id": 1926,
+      "sku": "3109-250",
+      "target_base_price": "51000000",
+      "timestamp": "2026-10-06T10:53:14.686129+00:00",
+      "workbook_CODE": "3109-250A"
+    },
+    {
+      "alias_code": "3109-275",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "21336000.00",
+      "product_id": 1927,
+      "sku": "3109-275",
+      "target_base_price": "54900000",
+      "timestamp": "2026-10-06T10:53:14.686136+00:00",
+      "workbook_CODE": "3109-275A"
+    },
+    {
+      "alias_code": "3203-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6652800.00",
+      "product_id": 1941,
+      "sku": "3203-100",
+      "target_base_price": "8520000",
+      "timestamp": "2026-10-06T10:53:14.686142+00:00",
+      "workbook_CODE": "3203-100A"
+    },
+    {
+      "alias_code": "3203-125",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "8534400.00",
+      "product_id": 1942,
+      "sku": "3203-125",
+      "target_base_price": "10950000",
+      "timestamp": "2026-10-06T10:53:14.686149+00:00",
+      "workbook_CODE": "3203-125A"
+    },
+    {
+      "alias_code": "3203-1506",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "36724800.00",
+      "product_id": 1944,
+      "sku": "3203-1506",
+      "target_base_price": "47100000",
+      "timestamp": "2026-10-06T10:53:14.686155+00:00",
+      "workbook_CODE": "3203-1506A"
+    },
+    {
+      "alias_code": "3108-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3644,
+      "sku": "3108-75",
+      "target_base_price": "28740000",
+      "timestamp": "2026-10-06T10:53:14.686161+00:00",
+      "workbook_CODE": "3108-75A"
+    },
+    {
+      "alias_code": "3203-225",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "14616000.00",
+      "product_id": 1947,
+      "sku": "3203-225",
+      "target_base_price": "18750000",
+      "timestamp": "2026-10-06T10:53:14.686168+00:00",
+      "workbook_CODE": "3203-225A"
+    },
+    {
+      "alias_code": "3203-250",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "16094400.00",
+      "product_id": 1948,
+      "sku": "3203-250",
+      "target_base_price": "20640000",
+      "timestamp": "2026-10-06T10:53:14.686174+00:00",
+      "workbook_CODE": "3203-250A"
+    },
+    {
+      "alias_code": "3203-275",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "18177600.00",
+      "product_id": 1949,
+      "sku": "3203-275",
+      "target_base_price": "23340000",
+      "timestamp": "2026-10-06T10:53:14.686193+00:00",
+      "workbook_CODE": "3203-275A"
+    },
+    {
+      "alias_code": "3232-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3643,
+      "sku": "3232-75",
+      "target_base_price": "50400000",
+      "timestamp": "2026-10-06T10:53:14.686200+00:00",
+      "workbook_CODE": "3232-75A"
+    },
+    {
+      "alias_code": "3203-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "19420800.00",
+      "product_id": 1950,
+      "sku": "3203-300",
+      "target_base_price": "24930000",
+      "timestamp": "2026-10-06T10:53:14.686206+00:00",
+      "workbook_CODE": "3203-300A"
+    },
+    {
+      "alias_code": "3203-3012",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "175896000.00",
+      "product_id": 1952,
+      "sku": "3203-3012",
+      "target_base_price": "226200000",
+      "timestamp": "2026-10-06T10:53:14.686213+00:00",
+      "workbook_CODE": "3203-3012A"
+    },
+    {
+      "alias_code": "3203-175",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "11726400.00",
+      "product_id": 1945,
+      "sku": "3203-175",
+      "target_base_price": "15030000",
+      "timestamp": "2026-10-06T10:53:14.686220+00:00",
+      "workbook_CODE": "3203-175A"
+    },
+    {
+      "alias_code": "3203-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "13574400.00",
+      "product_id": 1946,
+      "sku": "3203-200",
+      "target_base_price": "17430000",
+      "timestamp": "2026-10-06T10:53:14.686239+00:00",
+      "workbook_CODE": "3203-200A"
+    },
+    {
+      "alias_code": "3203-3006",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "49280000.00",
+      "product_id": 1951,
+      "sku": "3203-3006",
+      "target_base_price": "141600000",
+      "timestamp": "2026-10-06T10:53:14.686246+00:00",
+      "workbook_CODE": "3203-3006A"
+    },
+    {
+      "alias_code": "3206-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "18401600.00",
+      "product_id": 1965,
+      "sku": "3206-200",
+      "target_base_price": "47100000",
+      "timestamp": "2026-10-06T10:53:14.686265+00:00",
+      "workbook_CODE": "3206-200A"
+    },
+    {
+      "alias_code": "3203-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9508800.00",
+      "product_id": 1943,
+      "sku": "3203-150",
+      "target_base_price": "12180000",
+      "timestamp": "2026-10-06T10:53:14.686271+00:00",
+      "workbook_CODE": "3203-150A"
+    },
+    {
+      "alias_code": "3206-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "20608000.00",
+      "product_id": 1966,
+      "sku": "3206-300",
+      "target_base_price": "53100000",
+      "timestamp": "2026-10-06T10:53:14.686277+00:00",
+      "workbook_CODE": "3206-300A"
+    },
+    {
+      "alias_code": "3206-301",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "25950400.00",
+      "product_id": 1967,
+      "sku": "3206-301",
+      "target_base_price": "73800000",
+      "timestamp": "2026-10-06T10:53:14.686283+00:00",
+      "workbook_CODE": "3206-301A"
+    },
+    {
+      "alias_code": "3210-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "3852800.00",
+      "product_id": 1968,
+      "sku": "3210-100",
+      "target_base_price": "10140000",
+      "timestamp": "2026-10-06T10:53:14.686290+00:00",
+      "workbook_CODE": "3210-100A"
+    },
+    {
+      "alias_code": "3232-100",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "20036800.00",
+      "product_id": 1982,
+      "sku": "3232-100",
+      "target_base_price": "51600000",
+      "timestamp": "2026-10-06T10:53:14.686308+00:00",
+      "workbook_CODE": "3232-100A"
+    },
+    {
+      "alias_code": "3290-153",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17684800.00",
+      "product_id": 1987,
+      "sku": "3290-153",
+      "target_base_price": "47700000",
+      "timestamp": "2026-10-06T10:53:14.686314+00:00",
+      "workbook_CODE": "3290-153A"
+    },
+    {
+      "alias_code": "3506-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "25558400.00",
+      "product_id": 1991,
+      "sku": "3506-150",
+      "target_base_price": "64800000",
+      "timestamp": "2026-10-06T10:53:14.686321+00:00",
+      "workbook_CODE": "3506-150A"
+    },
+    {
+      "alias_code": "3506-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "28268800.00",
+      "product_id": 1992,
+      "sku": "3506-300",
+      "target_base_price": "72300000",
+      "timestamp": "2026-10-06T10:53:14.686327+00:00",
+      "workbook_CODE": "3506-300A"
+    },
+    {
+      "alias_code": "3506-400",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "37654400.00",
+      "product_id": 1993,
+      "sku": "3506-400",
+      "target_base_price": "98400000",
+      "timestamp": "2026-10-06T10:53:14.686334+00:00",
+      "workbook_CODE": "3506-400A"
+    },
+    {
+      "alias_code": "3506-500",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "54532800.00",
+      "product_id": 1994,
+      "sku": "3506-500",
+      "target_base_price": "141600000",
+      "timestamp": "2026-10-06T10:53:14.686340+00:00",
+      "workbook_CODE": "3506-500A"
+    },
+    {
+      "alias_code": "3506-600",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "62798400.00",
+      "product_id": 1995,
+      "sku": "3506-600",
+      "target_base_price": "163800000",
+      "timestamp": "2026-10-06T10:53:14.686346+00:00",
+      "workbook_CODE": "3506-600A"
+    },
+    {
+      "alias_code": "3590-153",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "38169600.00",
+      "product_id": 2000,
+      "sku": "3590-153",
+      "target_base_price": "97200000",
+      "timestamp": "2026-10-06T10:53:14.686377+00:00",
+      "workbook_CODE": "3590-153A"
+    },
+    {
+      "alias_code": "3594-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3511,
+      "sku": "3594-25",
+      "target_base_price": "85800000",
+      "timestamp": "2026-10-06T10:53:14.686396+00:00",
+      "workbook_CODE": "3594-25A"
+    },
+    {
+      "alias_code": "4903-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "21907200.00",
+      "product_id": 2040,
+      "sku": "4903-150",
+      "target_base_price": "28020000",
+      "timestamp": "2026-10-06T10:53:14.686417+00:00",
+      "workbook_CODE": "4903-150A"
+    },
+    {
+      "alias_code": "4903-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "23990400.00",
+      "product_id": 2041,
+      "sku": "4903-200",
+      "target_base_price": "30600000",
+      "timestamp": "2026-10-06T10:53:14.686424+00:00",
+      "workbook_CODE": "4903-200A"
+    },
+    {
+      "alias_code": "4903-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "31281600.00",
+      "product_id": 2042,
+      "sku": "4903-300",
+      "target_base_price": "39900000",
+      "timestamp": "2026-10-06T10:53:14.686430+00:00",
+      "workbook_CODE": "4903-300A"
+    },
+    {
+      "alias_code": "6902-106",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "132048000.00",
+      "product_id": 2076,
+      "sku": "6902-106",
+      "target_base_price": "147600000",
+      "timestamp": "2026-10-06T10:53:14.686437+00:00",
+      "workbook_CODE": "6902-106A"
+    },
+    {
+      "alias_code": "7111-500",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "20294400.00",
+      "product_id": 2083,
+      "sku": "7111-500",
+      "target_base_price": "25950000",
+      "timestamp": "2026-10-06T10:53:14.686444+00:00",
+      "workbook_CODE": "7111-500A"
+    },
+    {
+      "alias_code": "7202-200",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "5880000.00",
+      "product_id": 2087,
+      "sku": "7202-200",
+      "target_base_price": "14760000",
+      "timestamp": "2026-10-06T10:53:14.686451+00:00",
+      "workbook_CODE": "7202-200A"
+    },
+    {
+      "alias_code": "1111-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6686400.00",
+      "product_id": 3471,
+      "sku": "1111-75",
+      "target_base_price": "8580000",
+      "timestamp": "2026-10-06T10:53:14.686457+00:00",
+      "workbook_CODE": "1111-75A"
+    },
+    {
+      "alias_code": "6207-80",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6249600.00",
+      "product_id": 3540,
+      "sku": "6207-80",
+      "target_base_price": "7980000",
+      "timestamp": "2026-10-06T10:53:14.686464+00:00",
+      "workbook_CODE": "6207-80A"
+    },
+    {
+      "alias_code": "3108-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17236800.00",
+      "product_id": 3548,
+      "sku": "3108-25",
+      "target_base_price": "22020000",
+      "timestamp": "2026-10-06T10:53:14.686471+00:00",
+      "workbook_CODE": "3108-25A"
+    },
+    {
+      "alias_code": "3108-50",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "19420800.00",
+      "product_id": 3549,
+      "sku": "3108-50",
+      "target_base_price": "24840000",
+      "timestamp": "2026-10-06T10:53:14.686478+00:00",
+      "workbook_CODE": "3108-50A"
+    },
+    {
+      "alias_code": "3109-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "11054400.00",
+      "product_id": 3550,
+      "sku": "3109-25",
+      "target_base_price": "14130000",
+      "timestamp": "2026-10-06T10:53:14.686484+00:00",
+      "workbook_CODE": "3109-25A"
+    },
+    {
+      "alias_code": "3203-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "4636800.00",
+      "product_id": 3556,
+      "sku": "3203-25",
+      "target_base_price": "5940000",
+      "timestamp": "2026-10-06T10:53:14.686491+00:00",
+      "workbook_CODE": "3203-25A"
+    },
+    {
+      "alias_code": "3203-50",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "5174400.00",
+      "product_id": 3559,
+      "sku": "3203-50",
+      "target_base_price": "6630000",
+      "timestamp": "2026-10-06T10:53:14.686498+00:00",
+      "workbook_CODE": "3203-50A"
+    },
+    {
+      "alias_code": "3203-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "5846400.00",
+      "product_id": 3560,
+      "sku": "3203-75",
+      "target_base_price": "7500000",
+      "timestamp": "2026-10-06T10:53:14.686504+00:00",
+      "workbook_CODE": "3203-75A"
+    },
+    {
+      "alias_code": "3210-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6518400.00",
+      "product_id": 3573,
+      "sku": "3210-25",
+      "target_base_price": "8340000",
+      "timestamp": "2026-10-06T10:53:14.686511+00:00",
+      "workbook_CODE": "3210-25A"
+    },
+    {
+      "alias_code": "3210-50",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6484800.00",
+      "product_id": 3574,
+      "sku": "3210-50",
+      "target_base_price": "8280000",
+      "timestamp": "2026-10-06T10:53:14.686517+00:00",
+      "workbook_CODE": "3210-50A"
+    },
+    {
+      "alias_code": "2322-35",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "16497600.00",
+      "product_id": 3629,
+      "sku": "2322-35",
+      "target_base_price": "21120000",
+      "timestamp": "2026-10-06T10:53:14.686524+00:00",
+      "workbook_CODE": "2322-35A"
+    },
+    {
+      "alias_code": "2322-60",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17371200.00",
+      "product_id": 3630,
+      "sku": "2322-60",
+      "target_base_price": "22230000",
+      "timestamp": "2026-10-06T10:53:14.686530+00:00",
+      "workbook_CODE": "2322-60A"
+    },
+    {
+      "alias_code": "3109-75",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "15859200.00",
+      "product_id": 3641,
+      "sku": "3109-75",
+      "target_base_price": "20280000",
+      "timestamp": "2026-10-06T10:53:14.686537+00:00",
+      "workbook_CODE": "3109-75A"
+    },
+    {
+      "alias_code": "4780-85",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "1464960.00",
+      "product_id": 3662,
+      "sku": "4780-85",
+      "target_base_price": "1878000",
+      "timestamp": "2026-10-06T10:53:14.686555+00:00",
+      "workbook_CODE": "4780-85A"
+    },
+    {
+      "alias_code": "6902-85",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "126638400.00",
+      "product_id": 3689,
+      "sku": "6902-85",
+      "target_base_price": "140400000",
+      "timestamp": "2026-10-06T10:53:14.686561+00:00",
+      "workbook_CODE": "6902-85A"
+    },
+    {
+      "alias_code": "7111-1000",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "8540000.00",
+      "product_id": 3692,
+      "sku": "7111-1000",
+      "target_base_price": "51000000",
+      "timestamp": "2026-10-06T10:53:14.686568+00:00",
+      "workbook_CODE": "7111-1000A"
+    },
+    {
+      "alias_code": "3203-3",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3496,
+      "sku": "3203-3",
+      "target_base_price": "8280000",
+      "timestamp": "2026-10-06T10:53:14.686574+00:00",
+      "workbook_CODE": "3203-3A"
+    },
+    {
+      "alias_code": "2383-08",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3763,
+      "sku": "2383-08",
+      "target_base_price": "23850000",
+      "timestamp": "2026-10-06T10:53:14.686581+00:00",
+      "workbook_CODE": "2383-08A"
+    },
+    {
+      "alias_code": "2322-160",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "17808000.00",
+      "product_id": 1894,
+      "sku": "2322-160",
+      "target_base_price": "22800000",
+      "timestamp": "2026-10-06T10:53:14.686588+00:00",
+      "workbook_CODE": "2322-160A"
+    },
+    {
+      "alias_code": "1114-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "15960000.00",
+      "product_id": 1791,
+      "sku": "1114-300",
+      "target_base_price": "20400000",
+      "timestamp": "2026-10-06T10:53:14.686595+00:00",
+      "workbook_CODE": "1114-300A"
+    },
+    {
+      "alias_code": "1187-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "11267200.00",
+      "product_id": 1839,
+      "sku": "1187-150",
+      "target_base_price": "30000000",
+      "timestamp": "2026-10-06T10:53:14.686601+00:00",
+      "workbook_CODE": "1187-150A"
+    },
+    {
+      "alias_code": "1188-150",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "9844800.00",
+      "product_id": 1840,
+      "sku": "1188-150",
+      "target_base_price": "25950000",
+      "timestamp": "2026-10-06T10:53:14.686608+00:00",
+      "workbook_CODE": "1188-150A"
+    },
+    {
+      "alias_code": "1151-600",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "77436800.00",
+      "product_id": 1824,
+      "sku": "1151-600",
+      "target_base_price": "201000000",
+      "timestamp": "2026-10-06T10:53:14.686615+00:00",
+      "workbook_CODE": "1151-600A"
+    },
+    {
+      "alias_code": "3203-1",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3491,
+      "sku": "3203-1",
+      "target_base_price": "6600000",
+      "timestamp": "2026-10-06T10:53:14.686621+00:00",
+      "workbook_CODE": "3203-1A"
+    },
+    {
+      "alias_code": "3203-2",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3495,
+      "sku": "3203-2",
+      "target_base_price": "7440000",
+      "timestamp": "2026-10-06T10:53:14.686627+00:00",
+      "workbook_CODE": "3203-2A"
+    },
+    {
+      "alias_code": "3203-4",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3497,
+      "sku": "3203-4",
+      "target_base_price": "9180000",
+      "timestamp": "2026-10-06T10:53:14.686633+00:00",
+      "workbook_CODE": "3203-4A"
+    },
+    {
+      "alias_code": "3203-5",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3498,
+      "sku": "3203-5",
+      "target_base_price": "11820000",
+      "timestamp": "2026-10-06T10:53:14.686639+00:00",
+      "workbook_CODE": "3203-5A"
+    },
+    {
+      "alias_code": "3203-6",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3502,
+      "sku": "3203-6",
+      "target_base_price": "11610000",
+      "timestamp": "2026-10-06T10:53:14.686644+00:00",
+      "workbook_CODE": "3203-6A"
+    },
+    {
+      "alias_code": "2827-60",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3925,
+      "sku": "2827-60",
+      "target_base_price": "54900000",
+      "timestamp": "2026-10-06T10:53:14.686650+00:00",
+      "workbook_CODE": "2827-60A"
+    },
+    {
+      "alias_code": "3101-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3931,
+      "sku": "3101-25",
+      "target_base_price": "34800000",
+      "timestamp": "2026-10-06T10:53:14.686656+00:00",
+      "workbook_CODE": "3101-25A"
+    },
+    {
+      "alias_code": "1141-1000",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3901,
+      "sku": "1141-1000",
+      "target_base_price": "225900000",
+      "timestamp": "2026-10-06T10:53:14.686663+00:00",
+      "workbook_CODE": "1141-1000A"
+    },
+    {
+      "alias_code": "7111-300",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": "6148800.00",
+      "product_id": 2082,
+      "sku": "7111-300",
+      "target_base_price": "15360000",
+      "timestamp": "2026-10-06T10:53:14.686669+00:00",
+      "workbook_CODE": "7111-300A"
+    },
+    {
+      "alias_code": "2367-10",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3520,
+      "sku": "2367-10",
+      "target_base_price": "32700000",
+      "timestamp": "2026-10-06T10:53:14.686675+00:00",
+      "workbook_CODE": "2367-10A"
+    },
+    {
+      "alias_code": "3594-50",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3648,
+      "sku": "3594-50",
+      "target_base_price": "86400000",
+      "timestamp": "2026-10-06T10:53:14.686681+00:00",
+      "workbook_CODE": "3594-50A"
+    },
+    {
+      "alias_code": "1145-25",
+      "match_type": "WORKBOOK_TRAILING_A_ALIAS",
+      "old_base_price": null,
+      "product_id": 3592,
+      "sku": "1145-25",
+      "target_base_price": "11550000",
+      "timestamp": "2026-10-06T10:53:14.686687+00:00",
+      "workbook_CODE": "1145-25A"
+    }
+  ],
+  "version": 1
+}

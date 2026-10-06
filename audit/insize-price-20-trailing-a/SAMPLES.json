@@ -1,0 +1,93 @@
+{
+  "safe_alias_samples": [],
+  "exact_match_wins": [],
+  "non_a_collisions": [
+    {
+      "workbook_code": "3290-203A",
+      "alias_code": "3290-203",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "4100-247A",
+      "alias_code": "4100-247",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "6801-1201A",
+      "alias_code": "6801-1201",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "6801-1202A",
+      "alias_code": "6801-1202",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "6890-702A",
+      "alias_code": "6890-702",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-1000A",
+      "alias_code": "7110-1000",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-1200A",
+      "alias_code": "7110-1200",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-1500A",
+      "alias_code": "7110-1500",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-150A",
+      "alias_code": "7110-150",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-2000A",
+      "alias_code": "7110-2000",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-200A",
+      "alias_code": "7110-200",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-300A",
+      "alias_code": "7110-300",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-500A",
+      "alias_code": "7110-500",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7110-600A",
+      "alias_code": "7110-600",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7140-3A",
+      "alias_code": "7140-3",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7140-5A",
+      "alias_code": "7140-5",
+      "reason": "workbook_has_both_X_and_XA"
+    },
+    {
+      "workbook_code": "7142-5A",
+      "alias_code": "7142-5",
+      "reason": "workbook_has_both_X_and_XA"
+    }
+  ],
+  "multi_source_collisions": [],
+  "K6": "2500000"
+}

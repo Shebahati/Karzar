@@ -1,0 +1,65 @@
+{
+  "STATUS": "APPLIED_VERIFIED",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6_rate": "2500000",
+  "alias_csv": "/tmp/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv",
+  "wave_health": {
+    "exact_ok": 688,
+    "exact_need": 0,
+    "trailing_ok": 134,
+    "trailing_need": 0
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "toman": "131700000"
+  },
+  "proof_summary": {
+    "PROVEN": 4,
+    "already_correct": 0,
+    "requiring_update": 4,
+    "rejected": []
+  },
+  "apply": {
+    "updated": 4,
+    "rollback_rows": 4,
+    "recovery_snapshot_path": "/tmp/insize-four-likely-audit/RECOVERY_FOUR_LIKELY_20261006T111136Z.json",
+    "recovery_snapshot_sha256": "95cf01378e14337262f540e8a85353645884b7caad64b686dc277c14dad41098"
+  },
+  "rollback": {
+    "artifact": "/tmp/insize-four-likely-audit/FOUR_LIKELY_ROLLBACK.csv",
+    "rows": 4,
+    "sha256": "8acc03a6f5a81bd813c8afd0c955dcb8e2f3dfed633a57872c2b79c1f6a4ccfe",
+    "recovery_json": "/tmp/insize-four-likely-audit/RECOVERY_FOUR_LIKELY_20261006T111136Z.json",
+    "recovery_sha256": "95cf01378e14337262f540e8a85353645884b7caad64b686dc277c14dad41098"
+  },
+  "post_apply": {
+    "new_requiring_update": 0,
+    "new_already_correct": 4,
+    "exact_need": 0,
+    "trailing_need": 0
+  },
+  "idempotency": {
+    "new_cohort_updates": 0,
+    "exact_cohort_updates": 0,
+    "trailing_a_cohort_updates": 0
+  },
+  "api_samples": [
+    {
+      "product_id": 3741,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3812,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 4098,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 4100,
+      "error": "HTTP Error 404: Not Found"
+    }
+  ]
+}
