@@ -10,6 +10,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 COMPOSE_FILE = REPO_ROOT / "docker-compose.gsc-mcp.yml"
+NGINX_BOOTSTRAP_TEMPLATE = REPO_ROOT / "deploy/staging/nginx/mcp.karzartools.com.bootstrap.conf.template"
 NGINX_TEMPLATE = REPO_ROOT / "deploy/staging/nginx/mcp.karzartools.com.conf.template"
 DOCKERFILE = REPO_ROOT / "services/gsc_mcp/Dockerfile"
 DOCKERIGNORE = REPO_ROOT / ".dockerignore"
@@ -66,16 +67,32 @@ def test_compose_config_resolves_with_placeholder_env() -> None:
     assert "published: \"8010\"" in proc.stdout or "published: '8010'" in proc.stdout
 
 
-def test_nginx_mcp_proxy_directives() -> None:
+def test_nginx_bootstrap_http_only_acme() -> None:
+    text = NGINX_BOOTSTRAP_TEMPLATE.read_text(encoding="utf-8")
+    assert "listen 80" in text
+    assert "server_name mcp.karzartools.com" in text
+    assert "/.well-known/acme-challenge/" in text
+    assert "/var/www/certbot" in text
+    assert re.search(r"listen\s+443", text) is None
+    assert "proxy_pass" not in text
+    assert re.search(r"^\s*ssl_certificate\b", text, re.M) is None
+
+
+def test_nginx_final_tls_and_mcp_proxy_directives() -> None:
     text = NGINX_TEMPLATE.read_text(encoding="utf-8")
     assert "server_name mcp.karzartools.com" in text
+    assert "ssl_certificate     /etc/letsencrypt/live/mcp.karzartools.com/fullchain.pem;" in text
+    assert "ssl_certificate_key /etc/letsencrypt/live/mcp.karzartools.com/privkey.pem;" in text
+    assert "# ssl_certificate" not in text
     assert "location /mcp" in text
     assert "proxy_buffering off" in text
     assert "proxy_cache off" in text
     assert "proxy_read_timeout 300s" in text
+    assert "proxy_send_timeout 300s" in text
     assert "proxy_set_header Authorization $http_authorization" in text
     assert "location = /health" in text
     assert "return 404" in text
+    assert "/.well-known/acme-challenge/" in text
 
 
 def test_dockerfile_non_root_and_healthcheck() -> None:

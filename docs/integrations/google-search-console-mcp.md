@@ -168,12 +168,63 @@ timeout = httpx.Timeout(30.0, read=300.0)
 
 Do not shorten Google upstream timeouts only to satisfy a short client timeout.
 
-### Owner checklist
+### Owner checklist (first deploy — TLS bootstrap then MCP)
 
-1. **DNS (manual):** `mcp.karzartools.com` → VPS public IP (no automation in repo).
-2. **TLS (manual):** Let's Encrypt certificate for `mcp.karzartools.com` (e.g. certbot with Nginx).
-3. **Secrets:** copy `deploy/staging/.env.gsc-mcp.template` to `/etc/karzar/gsc-mcp.env`, fill values, `chmod 600`.
-4. **Build & start MCP only** (does not restart db/redis/app):
+Follow this order exactly. Do **not** use `certbot --nginx` for the first certificate; Nginx must be valid on port 80 before TLS exists.
+
+**A. DNS:** `mcp.karzartools.com` → VPS public IP (manual).
+
+**B. Webroot:**
+
+```bash
+sudo mkdir -p /var/www/certbot
+```
+
+**C. Install only the HTTP bootstrap Nginx config** (`deploy/staging/nginx/mcp.karzartools.com.bootstrap.conf.template`) as `/etc/nginx/sites-available/mcp.karzartools.com`. No `listen 443`, no MCP proxy on the public internet during this stage.
+
+**D. Enable the site** (e.g. symlink into `sites-enabled/`).
+
+**E. Validate and reload Nginx:**
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+**F. Obtain certificate (webroot — not `--nginx`):**
+
+```bash
+sudo certbot certonly \
+  --webroot \
+  -w /var/www/certbot \
+  -d mcp.karzartools.com
+```
+
+**G. Verify certificate files exist:**
+
+```bash
+sudo test -f /etc/letsencrypt/live/mcp.karzartools.com/fullchain.pem
+sudo test -f /etc/letsencrypt/live/mcp.karzartools.com/privkey.pem
+```
+
+**H. Replace bootstrap config with the final TLS config** (`deploy/staging/nginx/mcp.karzartools.com.conf.template`) at `/etc/nginx/sites-available/mcp.karzartools.com`.
+
+**I. Validate Nginx:**
+
+```bash
+sudo nginx -t
+```
+
+**J. Reload Nginx:**
+
+```bash
+sudo systemctl reload nginx
+```
+
+**K. Secrets and MCP container** (only after TLS/Nginx is valid). Public `/mcp` must not be relied on until HTTPS is live; the container may be started earlier on loopback only for validation.
+
+1. Copy `deploy/staging/.env.gsc-mcp.template` to `/etc/karzar/gsc-mcp.env`, fill values, `chmod 600`.
+2. Build & start MCP only (does not restart db/redis/app):
 
    ```bash
    cd /opt/karzar/Karzar   # or your deploy root
@@ -181,30 +232,16 @@ Do not shorten Google upstream timeouts only to satisfy a short client timeout.
    docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env up -d --build gsc_mcp
    ```
 
-5. **Loopback health:**
-
-   ```bash
-   curl -fsS http://127.0.0.1:8010/health
-   ```
-
-6. **Container:**
-
-   ```bash
-   docker ps --filter name=karzar_gsc_mcp
-   docker inspect --format='{{.State.Health.Status}}' karzar_gsc_mcp
-   ```
-
-7. **Bearer MCP (loopback):** POST/stream to `http://127.0.0.1:8010/mcp` with `Authorization: Bearer <KARZAR_MCP_ACCESS_TOKEN>` (do not echo token in shell history; use env or prompt).
-
-8. **Nginx:** install `deploy/staging/nginx/mcp.karzartools.com.conf.template` (adjust TLS paths), `nginx -t`, reload. Public URL: `https://mcp.karzartools.com/mcp`. Public `/health` is denied by template; use loopback health above.
-
-9. **Public HTTPS smoke:** `curl -fsS -o /dev/null -w '%{http_code}\n' https://mcp.karzartools.com/mcp` (expect `401` without Bearer, not `502`).
+3. Loopback health: `curl -fsS http://127.0.0.1:8010/health`
+4. Container: `docker ps --filter name=karzar_gsc_mcp` and `docker inspect --format='{{.State.Health.Status}}' karzar_gsc_mcp`
+5. Bearer MCP (loopback): `http://127.0.0.1:8010/mcp` with `Authorization: Bearer` (use env; do not echo token).
+6. Public HTTPS smoke: `curl -fsS -o /dev/null -w '%{http_code}\n' https://mcp.karzartools.com/mcp` (expect `401` without Bearer, not `502`). Public `/health` remains denied on the hostname.
 
 ### Rollback
 
-1. Disable/remove Nginx site for `mcp.karzartools.com` and reload Nginx.
+1. Disable/remove Nginx site for `mcp.karzartools.com` (bootstrap or final) and `sudo nginx -t && sudo systemctl reload nginx`.
 2. `docker compose -f docker-compose.gsc-mcp.yml --env-file /etc/karzar/gsc-mcp.env stop gsc_mcp` (or `down` for the MCP project only).
-3. Leave `lathe_api`, Postgres, Redis, storefront, and admin untouched.
+3. Leave `lathe_api`, Postgres, Redis, storefront, and admin untouched. Certificate files on disk may remain; removing the Nginx site stops public exposure.
 
 ## MCP tools
 
