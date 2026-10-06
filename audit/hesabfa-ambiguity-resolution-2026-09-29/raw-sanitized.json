@@ -1,0 +1,231 @@
+{
+  "DATABASE_READ_ONLY": "postgresql:transaction_read_only=on",
+  "DATABASE_WRITES": 0,
+  "DUPLICATE_REMOTE_CODE": 0,
+  "HESABFA_ITEMS_FETCHED": 3775,
+  "HESABFA_PAGES_FETCHED": 38,
+  "HESABFA_REPORTED_TOTAL": 3775,
+  "PAGINATION_COMPLETE": true,
+  "REMOTE_WRITES": 0,
+  "local": {
+    "mappings": [
+      {
+        "hesabfa_code": "003207",
+        "hesabfa_product_code": "103-143",
+        "last_synced_at": "2026-08-11T10:24:26.081348+00:00",
+        "mapping_id": 3150,
+        "product_id": 2297,
+        "sku": "103-143"
+      },
+      {
+        "hesabfa_code": "000619",
+        "hesabfa_product_code": "6112-1287",
+        "last_synced_at": "2026-08-11T10:28:31.312320+00:00",
+        "mapping_id": 595,
+        "product_id": 1627,
+        "sku": "6112-1287"
+      },
+      {
+        "hesabfa_code": "000893",
+        "hesabfa_product_code": "4824-16",
+        "last_synced_at": "2026-07-28T09:35:31.638248+00:00",
+        "mapping_id": 869,
+        "product_id": 3685,
+        "sku": "4824-16"
+      }
+    ],
+    "products": [
+      {
+        "brand_id": 2,
+        "brand_name": "Mitutoyo | میتوتویو",
+        "category_breadcrumb": [
+          {
+            "id": 56,
+            "name": "اندازه گیری دقیق"
+          },
+          {
+            "id": 58,
+            "name": "انواع میکرومتر"
+          }
+        ],
+        "category_id": 58,
+        "deleted_at": null,
+        "is_active": false,
+        "is_available": true,
+        "name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+        "price_present": true,
+        "product_id": 2297,
+        "sku": "103-143"
+      },
+      {
+        "brand_id": 4,
+        "brand_name": "Dasqua | داسکوا",
+        "category_breadcrumb": [
+          {
+            "id": 56,
+            "name": "اندازه گیری دقیق"
+          },
+          {
+            "id": 66,
+            "name": "راپورتر(گیج بلوک-گیج بلاک)"
+          }
+        ],
+        "category_id": 66,
+        "deleted_at": null,
+        "is_active": false,
+        "is_available": true,
+        "name": "جعبه راپورتر (گیج بلوک) — 0-1287mm",
+        "price_present": true,
+        "product_id": 1627,
+        "sku": "6112-1287"
+      },
+      {
+        "brand_id": 3,
+        "brand_name": "INSIZE | اینسایز",
+        "category_breadcrumb": [
+          {
+            "id": 56,
+            "name": "اندازه گیری دقیق"
+          },
+          {
+            "id": 65,
+            "name": "شابلون"
+          }
+        ],
+        "category_id": 65,
+        "deleted_at": null,
+        "is_active": true,
+        "is_available": true,
+        "name": "شابلون ذوزنقه 1 - 12اینچ اینسایز مدل 4824-16",
+        "price_present": true,
+        "product_id": 3685,
+        "sku": "4824-16"
+      }
+    ]
+  },
+  "mutation_performed": false,
+  "ownership": [
+    {
+      "hesabfa_code": "003207",
+      "hesabfa_product_code": "103-143",
+      "kind": "mapping",
+      "mapping_id": 3150,
+      "product_id": 2297,
+      "sku": "103-143"
+    },
+    {
+      "hesabfa_code": "000619",
+      "hesabfa_product_code": "6112-1287",
+      "kind": "mapping",
+      "mapping_id": 595,
+      "product_id": 1627,
+      "sku": "6112-1287"
+    },
+    {
+      "hesabfa_code": "000893",
+      "hesabfa_product_code": "4824-16",
+      "kind": "mapping",
+      "mapping_id": 869,
+      "product_id": 3685,
+      "sku": "4824-16"
+    },
+    {
+      "deleted_at": null,
+      "kind": "product",
+      "name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+      "product_id": 2297,
+      "sku": "103-143"
+    },
+    {
+      "deleted_at": null,
+      "kind": "product",
+      "name": "جعبه راپورتر (گیج بلوک) — 0-1287mm",
+      "product_id": 1627,
+      "sku": "6112-1287"
+    },
+    {
+      "deleted_at": null,
+      "kind": "product",
+      "name": "شابلون ذوزنقه 1 - 12اینچ اینسایز مدل 4824-16",
+      "product_id": 3685,
+      "sku": "4824-16"
+    }
+  ],
+  "remote_candidates": [
+    {
+      "Active": false,
+      "Code": "000619",
+      "Name": "جعبه راپورتر (گیج بلوک) — 0-1287mm",
+      "ProductCode": "6112-1287",
+      "buy_price_nonzero": false,
+      "buy_price_present": true,
+      "itemType": 0,
+      "matches_prior_code_000893": "different",
+      "nodeFamily": "کالا",
+      "product_code_normalized": "6112-1287",
+      "sell_price_nonzero": false,
+      "sell_price_present": true,
+      "unit": "عدد"
+    },
+    {
+      "Active": true,
+      "Code": "001287",
+      "Name": "شابلون دنده ای ذوزنقه ای اینسایز (Insize) مدل 16-4824",
+      "ProductCode": "4824-16",
+      "buy_price_nonzero": false,
+      "buy_price_present": true,
+      "itemType": 0,
+      "matches_prior_code_000893": "different",
+      "nodeFamily": "کالا : اندازه گیری : اینسایز(INSIZE)",
+      "product_code_normalized": "4824-16",
+      "sell_price_nonzero": false,
+      "sell_price_present": true,
+      "unit": "عدد"
+    },
+    {
+      "Active": false,
+      "Code": "003207",
+      "Name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+      "ProductCode": "103-143",
+      "buy_price_nonzero": false,
+      "buy_price_present": true,
+      "itemType": 0,
+      "matches_prior_code_000893": "different",
+      "nodeFamily": "کالا",
+      "product_code_normalized": "103-143",
+      "sell_price_nonzero": false,
+      "sell_price_present": true,
+      "unit": "عدد"
+    },
+    {
+      "Active": true,
+      "Code": "003457",
+      "Name": "میکرومتر ساده میتوتویو 175-150 میلی‌متر مدل 143-103",
+      "ProductCode": "103-143",
+      "buy_price_nonzero": false,
+      "buy_price_present": true,
+      "itemType": 0,
+      "matches_prior_code_000893": "different",
+      "nodeFamily": "کالا : اندازه گیری : میتوتویو(MITUTOYO)",
+      "product_code_normalized": "103-143",
+      "sell_price_nonzero": false,
+      "sell_price_present": true,
+      "unit": "عدد"
+    },
+    {
+      "Active": true,
+      "Code": "003620",
+      "Name": "راپورتر (گیج بلاک) 87 پارچه گرید 2 مدل 6112-1287",
+      "ProductCode": "6112-1287",
+      "buy_price_nonzero": false,
+      "buy_price_present": true,
+      "itemType": 0,
+      "matches_prior_code_000893": "different",
+      "nodeFamily": "کالا : اندازه گیری : داسکوا(DASQUA)",
+      "product_code_normalized": "6112-1287",
+      "sell_price_nonzero": false,
+      "sell_price_present": true,
+      "unit": "عدد"
+    }
+  ]
+}
